@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Công Giáo Roma | Bách Khoa Toàn Thư</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#a72683",
+                        secondary: "#006781",
+                        tertiary: "#852fca",
+                        background: "#faf8f9",
+                        "on-background": "#201a1c",
+                        surface: "#fffbff",
+                        "on-surface": "#201a1c"
+                    },
+                    fontFamily: {
+                        sans: ["Plus Jakarta Sans", "sans-serif"],
+                        display: ["Quicksand", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        html.dark .glass-card {
+            background: rgba(31, 25, 41, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        body {
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="bg-[#faf8f9] dark:bg-[#120f18] text-slate-800 dark:text-slate-200 font-sans min-h-screen pb-16 transition-colors duration-300">
+
+    <!-- Header / Navigation -->
+    <header class="sticky top-0 z-40 w-full glass-card border-b border-slate-200/50 dark:border-slate-800/50 px-6 py-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="../bio.html" class="flex items-center gap-2 text-xs font-bold text-primary dark:text-[#ffaedc] hover:scale-105 transition-transform">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                <span>Trở về Bio Portal</span>
+            </a>
+            <div class="font-display font-bold text-sm tracking-widest text-secondary dark:text-[#b9eaff]">WIKIPEDIA MOCK</div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-5xl mx-auto px-6 pt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left Side: Article Content (2 cols on large screen) -->
+        <article class="lg:col-span-2 space-y-6">
+            
+            <!-- Article Header -->
+            <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h1 class="font-display text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">Công Giáo Roma</h1>
+                <p class="text-xs text-slate-400 mt-1">Bách khoa toàn thư mở Wikipedia</p>
+            </div>
+
+            <!-- Lead Image (Illustrated Cathedral/Church Architecture) -->
+            <div class="rounded-3xl overflow-hidden shadow-md relative group aspect-[21/9]">
+                <img src="https://images.unsplash.com/photo-1548625361-155de0cbb558?w=1000&auto=format&fit=crop&q=80" alt="Nhà thờ Công Giáo kiến trúc Roma" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 text-white">
+                    <p class="text-[10px] opacity-90">Mái vòm kiến trúc thánh đường Công giáo cổ kính tôn nghiêm</p>
+                </div>
+            </div>
+
+            <!-- Introduction Section -->
+            <p class="text-sm leading-relaxed text-justify">
+                <strong>Công Giáo Roma</strong> (hay còn gọi tắt là Công Giáo) là nhánh tôn giáo lớn nhất của Kitô giáo, có trụ sở trung ương đặt tại Thành quốc Vatican dưới quyền lãnh đạo tối cao của Đức Giáo hoàng. Với lịch sử kéo dài hơn hai thiên niên kỷ, Công giáo đã góp phần to lớn định hình lịch sử, văn hóa, kiến trúc nghệ thuật toàn cầu và công cuộc giáo dục tâm linh xã hội.
+            </p>
+
+            <!-- Section 1: Giáo Lý & Sứ Mạng Huynh Trưởng - Giáo Lý Viên -->
+            <section class="space-y-3">
+                <h2 class="text-xl font-display font-bold text-slate-900 dark:text-white border-b border-slate-200/65 dark:border-slate-800/65 pb-1 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">groups</span> Vai Trò "Huynh Trưởng & Giáo Lý Viên"
+                </h2>
+                <p class="text-sm leading-relaxed text-justify">
+                    Trong cơ cấu tổ chức và sứ vụ tông đồ giáo dân tại các giáo xứ Việt Nam hiện nay, vai trò giáo dục thanh thiếu nhi và hướng dẫn đức tin đóng vị trí nòng cốt. Các chức danh này mang ý nghĩa phụng sự thiêng liêng cao cả:
+                </p>
+                
+                <div class="space-y-4 pt-2">
+                    <!-- Huynh Trưởng -->
+                    <div class="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-slate-200/30 dark:border-slate-800/30 space-y-1.5 text-left">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-lg">military_tech</span>
+                            <h3 class="font-bold text-xs text-primary uppercase tracking-wider">Huynh Trưởng (Eucharistic Youth Leader)</h3>
+                        </div>
+                        <p class="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
+                            Là những thủ lĩnh trẻ tuổi hoạt động trong <strong>Phong trào Thiếu Nhi Thánh Thể</strong>. Huynh trưởng chịu trách nhiệm tổ chức, huấn luyện kỹ năng sống, tinh thần kỷ luật và xây dựng lối sống lành mạnh cho các em nhỏ theo tinh thần Phúc Âm. Công việc đòi hỏi sự hy sinh, khả năng lãnh đạo đội nhóm và tinh thần hăng hái sáng tạo.
+                        </p>
+                    </div>
+
+                    <!-- Giáo Lý Viên Cấp 2 -->
+                    <div class="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-slate-200/30 dark:border-slate-800/30 space-y-1.5 text-left">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary text-lg">auto_stories</span>
+                            <h3 class="font-bold text-xs text-secondary uppercase tracking-wider">Giáo Lý Viên Cấp 2 (Catechist Level 2)</h3>
+                        </div>
+                        <p class="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
+                            Là những người thầy, người cô chính thức giảng dạy Giáo lý đức tin Kitô giáo tại các giáo hạt, giáo xứ. **Giáo lý viên Cấp 2** đã vượt qua các kỳ kiểm tra chính quy về thần học căn bản, phụng vụ, đạo đức học và phương pháp sư phạm sư phạm giáo lý nâng cao. Nhiệm vụ chính là khai tâm và đồng hành, giúp các em nhỏ hiểu biết sâu sắc giáo điều và các giá trị luân lý xã hội để trở thành công dân tốt có đức tin vững vàng.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Vatican & Đức Giáo Hoàng -->
+            <section class="space-y-3">
+                <h2 class="text-xl font-display font-bold text-slate-900 dark:text-white border-b border-slate-200/65 dark:border-slate-800/65 pb-1 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-tertiary">diamond</span> Thành quốc Vatican & Hệ thống Giáo phẩm
+                </h2>
+                <p class="text-sm leading-relaxed text-justify">
+                    Hệ thống giáo phẩm Công giáo được tổ chức chặt chẽ từ Giáo triều Roma đến các Giáo phận và Giáo xứ địa phương trên khắp thế giới. Vatican là quốc gia độc lập nhỏ nhất thế giới nằm trong lòng thủ đô Roma của Ý, là nơi đặt ngai tòa Thánh Phêrô và là trái tim hành chính của Giáo hội Công giáo toàn cầu.
+                </p>
+            </section>
+        </article>
+
+        <!-- Right Side: Wikipedia Infobox (1 col on large screen, absolute top on mobile) -->
+        <aside class="space-y-6">
+            <div class="glass-card rounded-3xl p-5 border border-slate-200/60 dark:border-slate-800/60 shadow-lg space-y-4">
+                <div class="text-center pb-2 border-b border-slate-200/50 dark:border-slate-800/50">
+                    <h2 class="font-display font-extrabold text-lg text-primary dark:text-[#ffaedc]">Công Giáo Roma</h2>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Thông tin Tôn Giáo</p>
+                </div>
+
+                <div class="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200/30 dark:border-slate-800/30">
+                    <img src="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=500&auto=format&fit=crop&q=80" alt="Biểu trưng Công giáo Thánh Giá Vatican" class="w-full h-full object-cover">
+                </div>
+
+                <!-- Info Table -->
+                <table class="w-full text-xs text-left border-collapse">
+                    <tbody>
+                        <tr class="border-b border-slate-100 dark:border-slate-800/40 py-2 block flex justify-between">
+                            <td class="font-bold text-slate-400 dark:text-slate-500">Người sáng lập</td>
+                            <td class="font-bold text-slate-800 dark:text-slate-200 text-right">Chúa Giêsu Kitô</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-800/40 py-2 block flex justify-between">
+                            <td class="font-bold text-slate-400 dark:text-slate-500">Trung tâm hành chính</td>
+                            <td class="font-bold text-slate-800 dark:text-slate-200 text-right">Vatican City 🇻atican</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-800/40 py-2 block flex justify-between">
+                            <td class="font-bold text-slate-400 dark:text-slate-500">Kinh Thánh</td>
+                            <td class="font-bold text-slate-800 dark:text-slate-200 text-right">Cựu Ước & Tân Ước</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 dark:border-slate-800/40 py-2 block flex justify-between">
+                            <td class="font-bold text-slate-400 dark:text-slate-500">Thành viên toàn cầu</td>
+                            <td class="font-bold text-slate-800 dark:text-slate-200 text-right">~1,378 tỷ tín hữu</td>
+                        </tr>
+                        <tr class="py-2 block flex justify-between">
+                            <td class="font-bold text-slate-400 dark:text-slate-500">Sứ vụ của Huy</td>
+                            <td class="font-bold text-primary dark:text-[#ffaedc] text-right">Huynh Trưởng & GLV Cấp 2 ✝️</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-5xl mx-auto px-6 pt-12 text-center text-[10px] text-slate-400 dark:text-slate-500 select-none border-t border-slate-200/40 dark:border-slate-800/40 mt-12">
+        Trang thông tin được thiết kế đồng bộ bởi HUGO WISHPAX STUDIO • Bản quyền hình ảnh thuộc về tác giả Unsplash.
+    </footer>
+
+</body>
+</html>
