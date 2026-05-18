@@ -119,7 +119,7 @@
                 </div>
                 
                 <div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full animate-spin opacity-20 blur-sm duration-500"></div>
-                <img id="avatar-img" src="image/avt1.png" alt="Hugo Wishpax Avatar" class="w-full h-full object-contain rounded-full border-4 border-white dark:border-slate-800 shadow-lg relative z-10 transition-transform duration-500 ease-out transform" />
+                <img id="avatar-img" src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779116182/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_21.56.14_imhujt.png" alt="Hugo Wishpax Avatar" class="w-full h-full object-contain rounded-full border-4 border-white dark:border-slate-800 shadow-lg relative z-10 transition-transform duration-500 ease-out transform" />
             </div>
 
             <!-- Profile Meta -->
@@ -138,7 +138,106 @@
             <!-- Bio Description -->
             <p class="text-xs text-on-surface-variant dark:text-slate-300 leading-relaxed max-w-sm mx-auto">
                 Tôi là một nhà phát triển phần mềm nhiệt huyết, theo đuổi sự hoàn hảo trong từng đường nét UI/UX kết hợp hiệu năng vượt trội. Đam mê kiến tạo trải nghiệm số ngọt ngào!
-            </p>
+        </div>
+
+        <!-- Interactive Codex Card (Personal Details with tactical animations) -->
+        <div class="glass-card rounded-[2.5rem] p-6 space-y-4 relative">
+            <div class="text-[11px] font-bold text-primary dark:text-[#ffaedc] uppercase tracking-wider flex items-center gap-1.5 pl-1">
+                <span class="material-symbols-outlined text-sm animate-pulse">fingerprint</span> Hồ Sơ Cá Nhân
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left">
+                <!-- Họ & Tên -->
+                <div class="p-3.5 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/80 hover:bg-primary/5 dark:hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer group" onclick="triggerFactPopup('name', 'Lê Gia Huy', 'Biệt danh: Peter Hugo Wishpax Le 💫')">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-primary text-base">face</span>
+                        <div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Họ và Tên</div>
+                            <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-[#ffaedc] transition-colors">Lê Gia Huy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Biệt Danh -->
+                <div class="p-3.5 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/80 hover:bg-secondary/5 dark:hover:bg-secondary/10 hover:border-secondary/50 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer group" onclick="triggerFactPopup('nickname', 'Peter Hugo Wishpax Le', 'Tên thương hiệu: HUGO WISHPAX STUDIO ✨')">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-secondary text-base">verified_user</span>
+                        <div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Biệt danh</div>
+                            <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-secondary dark:group-hover:text-[#b9eaff] transition-colors text-ellipsis overflow-hidden whitespace-nowrap max-w-[130px]">Peter Hugo Le</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sinh Nhật -->
+                <div class="p-3.5 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/80 hover:bg-tertiary/5 dark:hover:bg-tertiary/10 hover:border-tertiary/50 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer group" onclick="triggerFactPopup('birthday', 'Năm Sinh: 2004', 'Tuổi Giáp Thân - Đầy sáng tạo và năng động! 🐵')">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-tertiary text-base">cake</span>
+                        <div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Sinh nhật</div>
+                            <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-tertiary dark:group-hover:text-[#f1daff] transition-colors">2004 (Giáp Thân)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nơi Học -->
+                <div class="p-3.5 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/80 hover:bg-primary/5 dark:hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer group" onclick="triggerFactPopup('education', 'University of Greenwich', 'Học tại Greenwich Việt Nam chuyên ngành Software Engineering! 🎓')">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-primary text-base">school</span>
+                        <div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Học vấn</div>
+                            <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-[#ffaedc] transition-colors leading-tight">Uni of Greenwich</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quê Quán -->
+                <div class="p-3.5 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/80 hover:bg-secondary/5 dark:hover:bg-secondary/10 hover:border-secondary/50 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer group" onclick="triggerFactPopup('home', 'Quê Quán', 'Vùng đất Sen Hồng Đồng Tháp tươi đẹp (thuộc tỉnh Tiền Giang cũ)! 🌸')">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-secondary text-base">distance</span>
+                        <div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Quê quán</div>
+                            <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-secondary dark:group-hover:text-[#b9eaff] transition-colors">Đồng Tháp <span class="text-[9px] opacity-70">(Tiền Giang cũ)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ngôn Ngữ -->
+                <div class="p-3.5 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/80 hover:bg-tertiary/5 dark:hover:bg-tertiary/10 hover:border-tertiary/50 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer group" onclick="triggerFactPopup('language', 'Ngôn Ngữ', 'Tiếng Việt 🇻🇳 & Tiếng Anh 🇬🇧 thông thạo!')">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-tertiary text-base">translate</span>
+                        <div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Ngôn ngữ</div>
+                            <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-tertiary dark:group-hover:text-[#f1daff] transition-colors">Việt Nam, Tiếng Anh</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tôn Giáo -->
+                <div class="p-3.5 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/80 hover:bg-primary/5 dark:hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer group col-span-1 sm:col-span-2" onclick="triggerFactPopup('religion', 'Công Giáo Roma', 'Hiện đang là Huynh Trưởng và Giáo Lý Viên cấp 2 nhiệt huyết! 🇻atican ✝️')">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-primary text-base">church</span>
+                        <div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Tôn giáo</div>
+                            <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-[#ffaedc] transition-colors leading-tight">Công Giáo Roma <span class="text-[10px] text-primary/80 dark:text-[#ffaedc]/80 font-medium font-sans block mt-0.5">(Huynh trưởng & Giáo lý viên cấp 2)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sở Thích -->
+                <div class="p-3.5 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/80 hover:bg-secondary/5 dark:hover:bg-secondary/10 hover:border-secondary/50 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer group col-span-1 sm:col-span-2" onclick="triggerFactPopup('hobby', 'Sở Thích Đặc Biệt', 'Đam mê trồng cây lá, nhất là cây dương xỉ 🌿. Rất thích sự cute nhưng cuộc sống vẫn hay... sang chấn! 🌀')">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-secondary text-base">potted_plant</span>
+                        <div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Sở thích</div>
+                            <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-secondary dark:group-hover:text-[#b9eaff] transition-colors leading-relaxed">
+                                Trồng cây lá (nhất là cây dương xỉ) 🌿<br>
+                                <span class="text-[10px] opacity-80 block mt-0.5">Thích sự cute nhưng vẫn sang chấn! 🌀</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Social Capsules List (Vibrant 3D Glass Links) -->
@@ -418,6 +517,40 @@
             }, 3000);
         }
 
+        // 3.5 Interactive Fact Toast Trigger
+        function triggerFactPopup(type, title, desc) {
+            playPopSound();
+            
+            const toast = document.getElementById("fact-toast");
+            const tTitle = document.getElementById("toast-title");
+            const tBody = document.getElementById("toast-body");
+            
+            if (toast && tTitle && tBody) {
+                tTitle.textContent = title;
+                tBody.textContent = desc;
+                
+                // Show toast
+                toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-100 scale-100";
+                
+                // Custom tactile vibration feedback if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+                
+                // Automatically disappear after 3.5 seconds
+                const existingTimeout = toast.getAttribute("data-timeout-id");
+                if (existingTimeout) {
+                    clearTimeout(parseInt(existingTimeout));
+                }
+                
+                const timeoutId = setTimeout(() => {
+                    toast.className = "fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 scale-90";
+                }, 3500);
+                
+                toast.setAttribute("data-timeout-id", timeoutId);
+            }
+        }
+
         // 4. Interactive VietQR Cafe Tip Selector
         document.querySelectorAll(".tip-amount-btn").forEach(btn => {
             btn.addEventListener("click", function() {
@@ -501,5 +634,13 @@
         }
         animateBubbles();
     </script>
+
+    <!-- Interactive Fact Toast Alert -->
+    <div id="fact-toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 scale-90 w-[calc(100%-2rem)] max-w-sm">
+        <div class="bg-white/80 dark:bg-slate-900/80 border border-white/20 dark:border-slate-800/80 text-slate-800 dark:text-white px-5 py-4 rounded-2xl shadow-[0_20px_50px_rgba(167,38,131,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl text-center">
+            <div id="toast-title" class="text-[9px] font-extrabold uppercase tracking-widest text-primary dark:text-[#ffaedc]">Thông Tin</div>
+            <div id="toast-body" class="text-xs font-bold mt-1.5 leading-relaxed text-slate-700 dark:text-slate-200">Xin chào!</div>
+        </div>
+    </div>
 </body>
 </html>
