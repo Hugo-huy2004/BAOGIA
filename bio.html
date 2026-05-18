@@ -241,64 +241,58 @@
                     </div>
                 </div>
 
-                <!-- Featured Gallery & Showcase Grid -->
+                <!-- Featured Gallery & Showcase Grid (Personal Gallery) -->
                 <div class="space-y-3.5">
-                    <h2 class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-widest pl-2">Featured Showcase</h2>
+                    <div class="flex items-center justify-between pl-2">
+                        <h2 class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-widest">Ảnh Nổi Bật & Gallery</h2>
+                        <span class="text-[8px] bg-primary/10 text-primary dark:bg-primary/20 dark:text-[#ffaedc] px-2 py-0.5 rounded font-extrabold uppercase tracking-wider">Cloudinary Supported</span>
+                    </div>
                     
                     <div class="grid grid-cols-2 gap-3.5">
                         
-                        <!-- Project Card 1: Web App Portfolio -->
+                        <!-- Personal Image Card 1: Portrait / Creative Shot -->
                         <div class="glass-card rounded-2xl overflow-hidden group flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                            <div class="relative w-full aspect-video overflow-hidden bg-slate-100 dark:bg-slate-800">
-                                <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=500&auto=format&fit=crop&q=80" alt="Minh Oi Media Project" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="relative w-full aspect-[4/5] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                <!-- SWAP YOUR CLOUDINARY IMAGE URL IN THE SRC BELOW -->
+                                <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=500&auto=format&fit=crop&q=80" alt="Personal Portrait" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                                <span class="absolute top-2 right-2 bg-primary/95 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Web App</span>
+                                <span class="absolute top-2 right-2 bg-primary/90 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Portfolio</span>
                             </div>
-                            <div class="p-3.5 flex-1 flex flex-col justify-between">
-                                <div>
-                                    <h3 class="font-extrabold text-xs text-slate-800 dark:text-white leading-tight group-hover:text-primary dark:group-hover:text-[#ffaedc] transition-colors">Mình Ơi Media</h3>
-                                    <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">High-end wedding photography editorial portal & services pricing SPA.</p>
-                                </div>
-                                <a href="https://banggia.hugowishpax.studio" target="_blank" rel="noopener" class="text-[9px] font-bold text-primary dark:text-[#ffaedc] flex items-center gap-0.5 mt-2 group-hover:translate-x-1 transition-transform" onclick="playPopSound()">
-                                    <span>Xem dự án</span>
-                                    <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
-                                </a>
+                            <div class="p-3 text-left">
+                                <h3 class="font-extrabold text-[11px] text-slate-800 dark:text-white leading-tight">Ảnh Chân Dung / Profile</h3>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">Khoảnh khắc sáng tạo của tôi</p>
                             </div>
                         </div>
 
-                        <!-- Project Card 2: UI/UX Masterpiece -->
+                        <!-- Personal Image Card 2: Behind The Scenes / Greenwich Life -->
                         <div class="glass-card rounded-2xl overflow-hidden group flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                            <div class="relative w-full aspect-video overflow-hidden bg-slate-100 dark:bg-slate-800">
-                                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=80" alt="Design Portfolio" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="relative w-full aspect-[4/5] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                <!-- SWAP YOUR CLOUDINARY IMAGE URL IN THE SRC BELOW -->
+                                <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=80" alt="Behind the Scenes" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                                <span class="absolute top-2 right-2 bg-secondary/95 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">UI/UX</span>
+                                <span class="absolute top-2 right-2 bg-secondary/90 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Greenwich VN</span>
                             </div>
-                            <div class="p-3.5 flex-1 flex flex-col justify-between">
-                                <div>
-                                    <h3 class="font-extrabold text-xs text-slate-800 dark:text-white leading-tight group-hover:text-secondary dark:group-hover:text-[#b9eaff] transition-colors">Hugo Wishpax Design</h3>
-                                    <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Claymorphism & liquid glass responsive styling structures.</p>
-                                </div>
-                                <a href="index.html" class="text-[9px] font-bold text-secondary dark:text-[#b9eaff] flex items-center gap-0.5 mt-2 group-hover:translate-x-1 transition-transform" onclick="playPopSound()">
-                                    <span>Xem thiết kế</span>
-                                    <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
-                                </a>
+                            <div class="p-3 text-left">
+                                <h3 class="font-extrabold text-[11px] text-slate-800 dark:text-white leading-tight">Behind The Scenes</h3>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">Vibe làm việc tại studio học tập</p>
                             </div>
                         </div>
 
-                        <!-- Video Showcase Reel (TikTok/Reel mock) -->
+                        <!-- Video Showcase Reel (TikTok/Reel) -->
                         <div class="glass-card rounded-2xl overflow-hidden group flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300 col-span-2">
-                            <div class="relative w-full h-[140px] overflow-hidden bg-slate-900">
-                                <img src="https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800&auto=format&fit=crop&q=80" alt="Video Reel Showcase" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500">
-                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                            <div class="relative w-full h-[150px] overflow-hidden bg-slate-900">
+                                <!-- SWAP YOUR CLOUDINARY THUMBNAIL IMAGE URL IN THE SRC BELOW -->
+                                <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&auto=format&fit=crop&q=80" alt="Video Reel Showcase" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
                                     <!-- Play Button overlay -->
-                                    <div class="w-12 h-12 rounded-full bg-white/20 dark:bg-slate-900/40 backdrop-blur-md border border-white/40 flex items-center justify-center shadow-lg group-hover:scale-110 active:scale-95 transition-transform">
+                                    <div class="w-12 h-12 rounded-full bg-white/25 dark:bg-slate-900/40 backdrop-blur-md border border-white/40 flex items-center justify-center shadow-lg group-hover:scale-110 active:scale-95 transition-transform">
                                         <span class="material-symbols-outlined text-white text-2xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
                                     </div>
                                 </div>
-                                <span class="absolute top-3 left-3 bg-tertiary/95 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Highlight Reel</span>
-                                <div class="absolute bottom-3 left-3 right-3 text-white">
-                                    <h3 class="font-extrabold text-xs leading-tight">My Professional Tech Stack & Lifestyle</h3>
-                                    <p class="text-[9px] text-white/80 line-clamp-1 mt-0.5">Một ngày làm việc sáng tạo tại Greenwich Việt Nam.</p>
+                                <span class="absolute top-3 left-3 bg-tertiary/90 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Highlight Reel</span>
+                                <div class="absolute bottom-3 left-3 right-3 text-left text-white">
+                                    <h3 class="font-extrabold text-xs leading-tight">Video Showcase / Reel TikTok 🎬</h3>
+                                    <p class="text-[9px] text-white/90 line-clamp-1 mt-0.5">Bấm để phát hoặc liên kết với video cá nhân của bạn</p>
                                 </div>
                             </div>
                         </div>
