@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HUGO WISHPAX | BIO PORTAL</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#a72683",
+                        "primary-container": "#ffd7ec",
+                        "on-primary-container": "#3d002e",
+                        secondary: "#006781",
+                        "secondary-container": "#baeaff",
+                        "on-secondary-container": "#001f29",
+                        tertiary: "#852fca",
+                        "tertiary-container": "#f1daff",
+                        "on-tertiary-container": "#2c0053",
+                        background: "#faf8f9",
+                        "on-background": "#201a1c",
+                        surface: "#fffbff",
+                        "on-surface": "#201a1c",
+                        "surface-variant": "#f2dee4",
+                        "on-surface-variant": "#514347",
+                        outline: "#837377",
+                        "outline-variant": "#d5c2c6"
+                    },
+                    fontFamily: {
+                        sans: ["Plus Jakarta Sans", "sans-serif"],
+                        display: ["Quicksand", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(167, 38, 131, 0.05);
+        }
+        html.dark .glass-card {
+            background: rgba(31, 25, 41, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        #bubble-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .avatar-hover:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+        .speech-bubble {
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: bottom center;
+        }
+        .speech-bubble.active {
+            transform: translateX(-50%) scale(1);
+        }
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-[#faf8f9] dark:bg-[#120f18] text-on-background dark:text-[#f8f5fa] font-sans min-h-screen relative overflow-x-hidden pb-16">
+    
+    <!-- Bubbles Background Canvas -->
+    <canvas id="bubble-canvas"></canvas>
+
+    <!-- Content Wrapper -->
+    <div class="relative z-10 max-w-md mx-auto px-6 pt-8 space-y-6">
+        
+        <!-- Header Controls -->
+        <div class="flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-1.5 text-xs font-bold text-primary dark:text-[#ffaedc] bg-white/70 dark:bg-slate-900/60 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/20 dark:border-slate-800/80 shadow-sm hover:scale-105 active:scale-95 transition-transform" onclick="playPopSound()">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                <span>Báo Giá Portal</span>
+            </a>
+            
+            <button id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/70 dark:bg-slate-900/60 backdrop-blur-md border border-white/20 dark:border-slate-800/80 shadow-sm text-primary dark:text-[#ffaedc] hover:scale-110 active:scale-90 transition-transform" onclick="toggleDarkMode(); playPopSound()">
+                <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+            </button>
+        </div>
+
+        <!-- Interactive Profile Card -->
+        <div class="glass-card rounded-[2.5rem] p-6 text-center space-y-5 relative mt-6">
+            
+            <!-- Avatar Container -->
+            <div class="relative w-32 h-32 mx-auto cursor-pointer" onclick="triggerAvatarSpin()">
+                <!-- Speech Bubble status -->
+                <div id="speech-bubble" class="speech-bubble bg-primary text-white dark:bg-[#ffaedc] dark:text-slate-950 text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-md whitespace-nowrap z-20">
+                    Hello! Welcome to my world! ✨
+                </div>
+                
+                <div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full animate-spin opacity-20 blur-sm duration-500"></div>
+                <img id="avatar-img" src="image/avt1.png" alt="Hugo Wishpax Avatar" class="w-full h-full object-contain rounded-full border-4 border-white dark:border-slate-800 shadow-lg relative z-10 transition-transform duration-500 ease-out transform" />
+            </div>
+
+            <!-- Profile Meta -->
+            <div class="space-y-1.5">
+                <h1 class="font-display text-2xl font-bold tracking-tight text-primary dark:text-[#ffaedc]">Peter Hugo Wishpax Lê</h1>
+                <p class="text-xs text-on-surface-variant dark:text-slate-400 font-medium">@Hugo-huy2004 • Developer & Designer</p>
+                
+                <!-- Badge Tags -->
+                <div class="flex flex-wrap justify-center gap-1.5 pt-2">
+                    <span class="bg-primary/10 text-primary dark:bg-primary/20 dark:text-[#ffaedc] px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">Greenwich VN</span>
+                    <span class="bg-secondary/10 text-secondary dark:bg-secondary/20 dark:text-[#b9eaff] px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">🇻🇳 Việt Nam</span>
+                    <span class="bg-tertiary/10 text-tertiary dark:bg-tertiary/20 dark:text-[#f1daff] px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">UI/UX Craft</span>
+                </div>
+            </div>
+
+            <!-- Bio Description -->
+            <p class="text-xs text-on-surface-variant dark:text-slate-300 leading-relaxed max-w-sm mx-auto">
+                Tôi là một nhà phát triển phần mềm nhiệt huyết, theo đuổi sự hoàn hảo trong từng đường nét UI/UX kết hợp hiệu năng vượt trội. Đam mê kiến tạo trải nghiệm số ngọt ngào!
+            </p>
+        </div>
+
+        <!-- Social Capsules List (Vibrant 3D Glass Links) -->
+        <div class="space-y-3.5">
+            <h2 class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-widest pl-2">Social Connections</h2>
+            
+            <!-- GitHub -->
+            <a href="https://github.com/Hugo-huy2004" target="_blank" rel="noopener" class="glass-card flex items-center justify-between p-4 rounded-2xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group" onclick="playPopSound()">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-xl flex items-center justify-center shadow-md">
+                        <span class="material-symbols-outlined text-xl">code</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xs text-slate-800 dark:text-white">GitHub Account</h3>
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400">@Hugo-huy2004 • Xem mã nguồn</p>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-lg text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+            </a>
+
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/share/1GjMRBYyA8/?mibextid=wwXIfr" target="_blank" rel="noopener" class="glass-card flex items-center justify-between p-4 rounded-2xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group" onclick="playPopSound()">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 bg-[#1877f2] text-white rounded-xl flex items-center justify-center shadow-md">
+                        <span class="material-symbols-outlined text-xl">diversity_3</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xs text-slate-800 dark:text-white">Facebook</h3>
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400">Kết nối & Trò chuyện trực tiếp</p>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-lg text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+            </a>
+
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/hugowishpax?igsh=MW9ibDdkcTNxcm5nYg%3D%3D&utm_source=qr" target="_blank" rel="noopener" class="glass-card flex items-center justify-between p-4 rounded-2xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group" onclick="playPopSound()">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white rounded-xl flex items-center justify-center shadow-md">
+                        <span class="material-symbols-outlined text-xl">photo_library</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xs text-slate-800 dark:text-white">Instagram</h3>
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400">@hugowishpax • Khoảnh khắc cuộc sống</p>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-lg text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+            </a>
+
+            <!-- LinkedIn -->
+            <a href="https://www.linkedin.com/in/le-gia-huy-fgw-hcm-886963345?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noopener" class="glass-card flex items-center justify-between p-4 rounded-2xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group" onclick="playPopSound()">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 bg-[#0a66c2] text-white rounded-xl flex items-center justify-center shadow-md">
+                        <span class="material-symbols-outlined text-xl">badge</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xs text-slate-800 dark:text-white">LinkedIn</h3>
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400">Kết nối hồ sơ sự nghiệp</p>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-lg text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+            </a>
+
+            <!-- TikTok -->
+            <a href="https://www.tiktok.com/@pethugowishpaxle?_r=1&_t=ZS-96ShD7YH7Mj" target="_blank" rel="noopener" class="glass-card flex items-center justify-between p-4 rounded-2xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group" onclick="playPopSound()">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 bg-slate-950 text-white rounded-xl flex items-center justify-center shadow-md border border-slate-800">
+                        <span class="material-symbols-outlined text-xl">movie</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xs text-slate-800 dark:text-white">TikTok</h3>
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400">@pethugowishpaxle • Video sáng tạo</p>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-lg text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+            </a>
+        </div>
+
+        <!-- Tip & Coffee Cafe Widget -->
+        <div class="glass-card rounded-[2rem] p-6 text-center space-y-4">
+            <div class="text-[11px] font-bold text-primary dark:text-[#ffaedc] uppercase tracking-wider flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">coffee</span> Tip & Bonus Cafe
+            </div>
+            
+            <!-- VietQR Image Frame -->
+            <div class="w-[180px] h-[180px] bg-white rounded-2xl flex items-center justify-center p-2 shadow-inner relative overflow-hidden mx-auto border border-outline-variant/15">
+                <!-- Live QR Code Image -->
+                <img id="tip-qr-img" src="https://img.vietqr.io/image/MB-827052004-compact.png?amount=50000&addInfo=Tang%20ca%20phe%20DevArchitect&accountName=LE%20GIA%20HUY" alt="VietQR Le Gia Huy" class="w-full h-full object-contain transition-all duration-300">
+                
+                <!-- Loading spinner -->
+                <div id="tip-qr-loading" class="absolute inset-0 bg-white/90 dark:bg-slate-900/90 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
+                    <span class="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></span>
+                </div>
+            </div>
+            
+            <!-- Bank Info -->
+            <div>
+                <div class="text-xs font-extrabold text-slate-800 dark:text-white">LE GIA HUY</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400">MBBank • 827052004</div>
+            </div>
+            
+            <!-- Amount Pills -->
+            <div class="grid grid-cols-3 gap-2 w-full pt-1.5">
+                <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="10000">10k</button>
+                <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="20000">20k</button>
+                <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-primary bg-primary/10 text-primary text-[11px] font-bold transition-all" data-amount="50000">50k</button>
+                <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="100000">100k</button>
+                <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="200000">200k</button>
+                <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="500000">500k</button>
+            </div>
+        </div>
+
+        <!-- Footer Credits -->
+        <p class="text-[10px] text-slate-400 dark:text-slate-500 text-center pt-4 select-none">
+            © 2026 HUGO WISHPAX STUDIO • Built with sparkles and code ✨
+        </p>
+
+    </div>
+
+    <!-- Active Scripts for Bio Page Interactions -->
+    <script>
+        // 1. Initialize Dark/Light Mode Theme Settings
+        if (localStorage.getItem("theme") === "dark" || (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            document.documentElement.classList.add("dark");
+            updateThemeIcon(true);
+        } else {
+            document.documentElement.classList.remove("dark");
+            updateThemeIcon(false);
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle("dark");
+            localStorage.setItem("theme", isDark ? "dark" : "theme");
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById("theme-icon");
+            if (icon) {
+                icon.textContent = isDark ? "light_mode" : "dark_mode";
+            }
+        }
+
+        // 2. Play Pop Sound Audio Synthesizer
+        function playPopSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(320, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1150, ctx.currentTime + 0.08);
+
+                gainNode.gain.setValueAtTime(0.12, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+
+                osc.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + 0.08);
+            } catch (e) {
+                console.log("Audio not supported yet.");
+            }
+        }
+
+        // 3. Avatar 360 Spin & speech bubble status triggers
+        let spinning = false;
+        const statusPhrases = [
+            "Hi there! Let's build something epic! 🚀",
+            "Designing experiences with high-end vibes! 🎨",
+            "Mỗi dòng code đều mang nhiệt huyết! 💖",
+            "Greenwich Uni Software Engineering Student! 🎓",
+            "Check out my project portfolio pricing! ✨",
+            "Always creative, always sweet! 🍭"
+        ];
+
+        function triggerAvatarSpin() {
+            if (spinning) return;
+            spinning = true;
+            playPopSound();
+            
+            // Spin effect
+            const avt = document.getElementById("avatar-img");
+            avt.style.transform = "rotate(360deg) scale(1.08)";
+            
+            // Random cute status speech popup
+            const bubble = document.getElementById("speech-bubble");
+            const randomMsg = statusPhrases[Math.floor(Math.random() * statusPhrases.length)];
+            bubble.textContent = randomMsg;
+            bubble.classList.add("active");
+            
+            setTimeout(() => {
+                avt.style.transform = "rotate(0deg) scale(1)";
+                spinning = false;
+            }, 600);
+
+            setTimeout(() => {
+                bubble.classList.remove("active");
+            }, 3000);
+        }
+
+        // 4. Interactive VietQR Cafe Tip Selector
+        document.querySelectorAll(".tip-amount-btn").forEach(btn => {
+            btn.addEventListener("click", function() {
+                playPopSound();
+                
+                // Highlight active button
+                document.querySelectorAll(".tip-amount-btn").forEach(b => {
+                    b.className = "tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all";
+                });
+                this.className = "tip-amount-btn px-2 py-1.5 rounded-xl border border-primary bg-primary/10 text-primary text-[11px] font-bold transition-all";
+
+                const amount = this.getAttribute("data-amount");
+                const qrImg = document.getElementById("tip-qr-img");
+                const loading = document.getElementById("tip-qr-loading");
+                
+                if (qrImg && loading) {
+                    loading.classList.remove("opacity-0", "pointer-events-none");
+                    
+                    const newSrc = `https://img.vietqr.io/image/MB-827052004-compact.png?amount=${amount}&addInfo=Tang%20ca%20phe%20DevArchitect&accountName=LE%20GIA%20HUY`;
+                    
+                    const temp = new Image();
+                    temp.onload = function() {
+                        qrImg.src = newSrc;
+                        loading.classList.add("opacity-0", "pointer-events-none");
+                    };
+                    temp.src = newSrc;
+                }
+            });
+        });
+
+        // 5. Dynamic Drift Bubble Canvas Background (Replicated high performance)
+        const canvas = document.getElementById("bubble-canvas");
+        const ctx = canvas.getContext("2d");
+        let bubbles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        class Bubble {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.radius = Math.random() * 15 + 4;
+                this.speed = Math.random() * 0.7 + 0.2;
+                this.color = Math.random() > 0.5 ? "rgba(167, 38, 131, 0.04)" : "rgba(0, 103, 129, 0.04)";
+                this.wobble = Math.random() * 2;
+                this.wobbleSpeed = Math.random() * 0.02;
+            }
+            update() {
+                this.y -= this.speed;
+                this.wobble += this.wobbleSpeed;
+                this.x += Math.sin(this.wobble) * 0.2;
+                if (this.y + this.radius < 0) {
+                    this.y = canvas.height + this.radius;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 20; i++) {
+            bubbles.push(new Bubble());
+        }
+
+        function animateBubbles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            bubbles.forEach(b => {
+                b.update();
+                b.draw();
+            });
+            requestAnimationFrame(animateBubbles);
+        }
+        animateBubbles();
+    </script>
+</body>
+</html>

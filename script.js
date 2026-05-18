@@ -3055,12 +3055,12 @@ window.initMobileNavHighlighter = function() {
         navLinks.forEach((link, idx) => {
             if (idx === activeIndex) {
                 // Set active class list (bubble button)
-                link.className = "flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-6 py-2 scale-110 -translate-y-2 shadow-lg transition-all duration-300";
+                link.className = "flex flex-col items-center justify-center bg-primary/10 text-primary dark:bg-primary/20 dark:text-[#ffaedc] rounded-full px-5 py-2 scale-105 transition-all duration-300";
                 const icon = link.querySelector(".material-symbols-outlined");
                 if (icon) icon.style.fontVariationSettings = "'FILL' 1, 'wght' 400";
             } else {
                 // Set idle class list
-                link.className = "flex flex-col items-center justify-center text-on-surface-variant dark:text-slate-400 opacity-70 hover:opacity-100 pb-2 transition-all duration-300";
+                link.className = "flex flex-col items-center justify-center text-[#87717c] dark:text-slate-400 opacity-80 hover:opacity-100 px-3 py-1 transition-all duration-300";
                 const icon = link.querySelector(".material-symbols-outlined");
                 if (icon) icon.style.fontVariationSettings = "'FILL' 0, 'wght' 400";
             }
