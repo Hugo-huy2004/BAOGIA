@@ -1,185 +1,53 @@
 <!DOCTYPE html>
-
 <html lang="vi">
-
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>HUGO WISHPAX STUDIO | BÁO GIÁ</title>
+    <title>Peter Hugo Wishpax Lê • Bio & Services Portal ✨</title>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
+    <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
-                    "colors": {
-                        "surface-container-high": "#ece7e9",
-                        "on-tertiary-fixed": "#2d004f",
-                        "error-container": "#ffdad6",
-                        "outline": "#87717c",
-                        "tertiary-container": "#c989ff",
-                        "inverse-primary": "#ffaedc",
-                        "on-secondary-fixed-variant": "#004d62",
-                        "error": "#ba1a1a",
-                        "secondary-container": "#0fceff",
-                        "on-background": "#1d1b1d",
-                        "on-secondary-fixed": "#001f29",
-                        "tertiary-fixed": "#f1daff",
-                        "on-tertiary-container": "#5a0095",
-                        "on-primary-fixed-variant": "#880068",
-                        "surface-container-low": "#f8f2f4",
-                        "primary-container": "#ff71ce",
-                        "on-secondary": "#ffffff",
-                        "secondary-fixed-dim": "#58d5ff",
-                        "background": "#fef8fa",
-                        "on-primary": "#ffffff",
-                        "secondary-fixed": "#b9eaff",
-                        "surface-variant": "#e7e1e3",
-                        "tertiary-fixed-dim": "#dfb7ff",
-                        "surface-container": "#f2ecee",
-                        "outline-variant": "#dabfcc",
-                        "tertiary": "#852fca",
-                        "primary-fixed": "#ffd8eb",
-                        "on-primary-container": "#730058",
-                        "on-surface": "#1d1b1d",
-                        "on-tertiary-fixed-variant": "#6b00b0",
-                        "surface-dim": "#ded9db",
-                        "on-primary-fixed": "#3b002c",
-                        "on-tertiary": "#ffffff",
-                        "secondary": "#006781",
-                        "on-surface-variant": "#54414b",
-                        "on-error": "#ffffff",
-                        "primary-fixed-dim": "#ffaedc",
-                        "surface-container-lowest": "#ffffff",
-                        "inverse-on-surface": "#f5eff1",
-                        "surface-tint": "#a72683",
-                        "surface": "#fef8fa",
-                        "on-error-container": "#93000a",
-                        "surface-container-highest": "#e7e1e3",
-                        "inverse-surface": "#323031",
-                        "primary": "#a72683",
-                        "on-secondary-container": "#00546a",
-                        "surface-bright": "#fef8fa"
+                    colors: {
+                        primary: "#a72683",
+                        secondary: "#006781",
+                        tertiary: "#852fca",
+                        background: "#faf8f9",
+                        "on-background": "#201a1c",
+                        surface: "#fffbff",
+                        "on-surface": "#201a1c"
                     },
-                    "borderRadius": {
-                        "DEFAULT": "1rem",
-                        "lg": "2rem",
-                        "xl": "3rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "base-unit": "8px",
-                        "stack-gap": "1rem",
-                        "gutter": "1.5rem",
-                        "container-padding-lg": "3rem",
-                        "container-padding-sm": "1.5rem"
-                    },
-                    "fontFamily": {
-                        "display-lg": ["Quicksand"],
-                        "headline-lg": ["Quicksand"],
-                        "headline-lg-mobile": ["Quicksand"],
-                        "body-lg": ["Plus Jakarta Sans"],
-                        "body-md": ["Plus Jakarta Sans"],
-                        "label-md": ["Quicksand"]
-                    },
-                    "fontSize": {
-                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
-                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
-                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
-                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
-                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "500" }],
-                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }]
+                    fontFamily: {
+                        sans: ["Plus Jakarta Sans", "sans-serif"],
+                        display: ["Quicksand", "sans-serif"]
                     }
                 }
             }
-        }
+        };
     </script>
     <style>
-        html {
-            scroll-behavior: smooth;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(167, 38, 131, 0.04);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        html.dark .glass-card {
+            background: rgba(31, 25, 41, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
-
-        .clay-card {
-            background: linear-gradient(145deg, #ffffff, #f2ecee);
-            box-shadow: 20px 20px 60px #ded9db, -20px -20px 60px #ffffff;
-            border: 2px solid #ffffff;
-            transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-        }
-
-        .clay-btn-primary {
-            box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.5), inset -2px -2px 5px rgba(0, 0, 0, 0.1), 0 8px 15px rgba(167, 38, 131, 0.2);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-        }
-
-        .clay-btn-secondary {
-            box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.5), inset -2px -2px 5px rgba(0, 0, 0, 0.1), 0 8px 15px rgba(0, 103, 129, 0.2);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-        }
-
-        /* Custom Dark Mode Claymorphism overrides */
-        html.dark {
-            color-scheme: dark;
-        }
-
-        html.dark .clay-card {
-            background: linear-gradient(145deg, #251e30, #1e1827) !important;
-            box-shadow: 10px 10px 30px #0e0b12, -10px -10px 30px #382d49 !important;
-            border: 2px solid #382d49 !important;
-        }
-
-        html.dark .clay-btn-primary {
-            box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1), inset -2px -2px 5px rgba(0, 0, 0, 0.5), 0 8px 15px rgba(167, 38, 131, 0.4) !important;
-        }
-
-        html.dark .clay-btn-secondary {
-            box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1), inset -2px -2px 5px rgba(0, 0, 0, 0.5), 0 8px 15px rgba(0, 103, 129, 0.4) !important;
-        }
-
-        @media (max-width: 767px) {
-
-            /* Hide all mobile cards by default except active ones */
-            .mobile-card-basic,
-            .mobile-card-plus,
-            .mobile-card-premium,
-            .mobile-card-portfolio,
-            .mobile-card-single_page {
-                display: none !important;
-            }
-
-            .mobile-card-active {
-                display: flex !important;
-                animation: cardSlideFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            }
-
-            @keyframes cardSlideFade {
-                from {
-                    opacity: 0;
-                    transform: translateY(16px) scale(0.97);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: translateY(0) scale(1);
-                }
-            }
-        }
-
-        /* Dynamic Floating Bubbles Canvas Styling */
         #bubble-canvas {
             position: fixed;
             top: 0;
@@ -189,627 +57,488 @@
             pointer-events: none;
             z-index: 0;
         }
-
-        /* Smooth transitions for dark mode toggles */
-        body,
-        header,
-        footer,
-        section,
-        div,
-        nav,
-        a,
-        p,
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        span {
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        .speech-bubble {
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .speech-bubble.active {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+        body {
+            background-attachment: fixed;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
     </style>
 </head>
+<body class="bg-[#faf8f9] dark:bg-[#120f18] text-slate-700 dark:text-slate-200 font-sans min-h-screen relative overflow-x-hidden pb-16">
 
-<body
-    class="bg-background dark:bg-[#120f18] text-on-background dark:text-[#f8f5fa] font-body-md min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative">
-    <!-- TopAppBar -->
-    <header
-        class="w-full px-gutter py-3 sticky top-0 z-50 bg-background/80 dark:bg-[#120f18]/80 backdrop-blur-md border-b border-outline-variant/15 dark:border-slate-800/80 shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-none">
-        <div class="flex justify-between items-center max-w-7xl mx-auto">
-            <div class="font-display-lg text-base sm:text-lg md:text-xl font-bold tracking-tight text-primary dark:text-[#ffaedc] hover:scale-102 transition-transform duration-200 cursor-pointer"
-                onclick="location.href='#hero'">HUGO WISHPAX STUDIO</div>
-            <!-- Desktop Nav -->
-            <nav class="hidden md:flex items-center gap-2">
-                <a class="text-on-surface-variant dark:text-slate-400 font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-colors px-4 py-1 hover:scale-105 duration-200 ease-out"
-                    href="#hero">Trang Chủ</a>
-                <a class="text-on-surface-variant dark:text-slate-400 font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-colors px-4 py-1 hover:scale-105 duration-200 ease-out"
-                    href="#projects">Dự Án</a>
-                <a class="text-on-surface-variant dark:text-slate-400 font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-colors px-4 py-1 hover:scale-105 duration-200 ease-out"
-                    href="#about">Về Tôi</a>
-                <a class="text-on-surface-variant dark:text-slate-400 font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-colors px-4 py-1 hover:scale-105 duration-200 ease-out"
-                    href="#services">Báo Giá</a>
-                <a class="text-on-surface-variant dark:text-slate-400 font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-colors px-4 py-1 hover:scale-105 duration-200 ease-out"
-                    href="#contact">Liên Hệ</a>
-            </nav>
-            <button
-                class="hidden md:block bg-primary text-on-primary font-label-md px-6 py-3 rounded-full clay-btn-primary hover:scale-105 transition-transform duration-200 ease-out">
-                Báo Giá Ngay
+    <!-- Drifting Bubbles Background Canvas -->
+    <canvas id="bubble-canvas"></canvas>
+
+    <!-- Content Wrapper -->
+    <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 space-y-8">
+        
+        <!-- Header Controls (Back to Main / Theme Toggle) -->
+        <div class="flex justify-between items-center">
+            <div class="font-display font-extrabold text-lg text-primary dark:text-[#ffaedc]">
+                HUGO WISHPAX PORTAL ✨
+            </div>
+            
+            <button id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/70 dark:bg-slate-900/60 backdrop-blur-md border border-white/20 dark:border-slate-800/80 shadow-sm text-primary dark:text-[#ffaedc] hover:scale-110 active:scale-90 transition-transform" onclick="toggleDarkMode(); playPopSound()">
+                <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
             </button>
         </div>
-    </header>
-    <main class="max-w-7xl mx-auto px-gutter pb-32 md:pb-16 pt-8 space-y-24">
-        <!-- Hero Section -->
-        <section class="flex flex-col md:flex-row items-center justify-center gap-12 mt-12">
-            <div class="flex-1 space-y-6 text-center md:text-left z-10">
-                <div
-                    class="inline-flex items-center gap-2 bg-secondary-container dark:bg-[#0fceff]/20 text-on-secondary-container dark:text-[#b9eaff] px-4 py-2 rounded-full font-label-md shadow-sm">
-                    <span class="material-symbols-outlined text-sm">waving_hand</span>
-                    <span>Hello!</span>
-                </div>
-                <h1
-                    class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary dark:text-primary-fixed-dim">
-                    Xin chào! Tôi là Hugo Wishpax</h1>
-                <p
-                    class="font-body-lg text-body-lg text-on-surface-variant dark:text-slate-300 max-w-lg mx-auto md:mx-0">
-                    Kiến tạo thế giới số bằng những dòng code đầy màu sắc. Building digital worlds with colorful code.
-                </p>
-                <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 pt-4">
-                    <button
-                        class="w-full sm:w-auto bg-primary text-on-primary font-label-md px-8 py-4 rounded-full clay-btn-primary hover:scale-105 transition-transform duration-200 text-lg">
-                        Bắt đầu / Start Here
-                    </button>
-                    <button
-                        class="w-full sm:w-auto bg-surface-container-high dark:bg-[#251f2e] text-on-surface dark:text-white font-label-md px-8 py-4 rounded-full hover:scale-105 transition-transform duration-200 text-lg border-2 border-transparent hover:border-outline dark:hover:border-slate-600">
-                        Xem Dự Án / Portfolio
-                    </button>
-                </div>
-            </div>
-            <div class="flex-1 relative w-full max-w-md mx-auto aspect-square">
-                <!-- 3D Character Image -->
-                <div class="absolute inset-0 bg-primary-container/30 rounded-full blur-3xl -z-10 animate-pulse"></div>
-                <img id="hero-avatar" alt="Hugo Wishpax Avatar"
-                    class="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(167,38,131,0.3)] transition-all duration-500 ease-out transform"
-                    src="https://res.cloudinary.com/dyehwoscu/image/upload/e_bgremoval/v1779116182/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_21.56.14_imhujt.png" />
-            </div>
-        </section>
-        <!-- About Me Section -->
-        <section class="scroll-mt-32" id="about">
-            <div
-                class="bg-surface-container-low dark:bg-[#1d1726] rounded-[3rem] p-8 md:p-12 border-4 border-primary/20 dark:border-slate-800 shadow-[0_20px_40px_-15px_rgba(167,38,131,0.15)] relative overflow-hidden">
-                <!-- Abstract glowing background circles -->
-                <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary-container/20 rounded-full blur-3xl -z-0">
-                </div>
-                <div
-                    class="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary-container/20 rounded-full blur-3xl -z-0">
-                </div>
 
-                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
-                    <!-- Left Info Panel (Visual Card) -->
-                    <div
-                        class="lg:col-span-5 bg-surface-container-high dark:bg-[#251f2e] rounded-[2.5rem] p-6 md:p-8 border-4 border-outline-variant/30 dark:border-slate-700/50 shadow-md flex flex-col justify-between">
-                        <div class="space-y-6">
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="w-16 h-16 bg-primary/10 dark:bg-[#a72683]/20 text-primary dark:text-[#ffaedc] flex items-center justify-center rounded-2xl shadow-sm shrink-0">
-                                    <span class="material-symbols-outlined text-4xl">fingerprint</span>
-                                </div>
+        <!-- ================= SECTION 1: BIO PORTAL GRID (3 Columns Layout) ================= -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- COLUMN LEFT: PROFILE CARD (lg:col-span-4) -->
+            <div class="lg:col-span-4 lg:sticky lg:top-8 space-y-6">
+                <!-- Interactive Profile Card -->
+                <div class="glass-card rounded-[2.5rem] p-6 text-center space-y-5 relative">
+                    <!-- Avatar Container -->
+                    <div class="relative w-32 h-32 mx-auto cursor-pointer" onclick="triggerAvatarSpin()">
+                        <!-- Speech Bubble status -->
+                        <div id="speech-bubble" class="speech-bubble bg-primary text-white dark:bg-[#ffaedc] dark:text-slate-950 text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-md whitespace-nowrap z-20">
+                            Hello! Welcome to my world! ✨
+                        </div>
+                        
+                        <div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full animate-spin opacity-20 blur-sm duration-500"></div>
+                        <img id="avatar-img" src="https://res.cloudinary.com/dyehwoscu/image/upload/e_bgremoval/v1779116182/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_21.56.14_imhujt.png" alt="Hugo Wishpax Avatar" class="w-full h-full object-contain rounded-full border-4 border-white dark:border-slate-800 shadow-lg relative z-10 transition-transform duration-500 ease-out transform" />
+                    </div>
+
+                    <!-- Profile Meta -->
+                    <div class="space-y-1.5">
+                        <h1 class="font-display text-2xl font-bold tracking-tight text-primary dark:text-[#ffaedc]">Peter Hugo Wishpax Lê</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">@Hugo-huy2004 • Developer & Designer</p>
+                        
+                        <!-- Badge Tags -->
+                        <div class="flex flex-wrap justify-center gap-1.5 pt-2">
+                            <span class="bg-primary/10 text-primary dark:bg-primary/20 dark:text-[#ffaedc] px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">Greenwich VN</span>
+                            <span class="bg-secondary/10 text-secondary dark:bg-secondary/20 dark:text-[#b9eaff] px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">🇻🇳 Việt Nam</span>
+                            <span class="bg-tertiary/10 text-tertiary dark:bg-tertiary/20 dark:text-[#f1daff] px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider">UI/UX Craft</span>
+                        </div>
+                    </div>
+
+                    <!-- Bio Description -->
+                    <p class="text-xs leading-relaxed max-w-sm mx-auto text-slate-600 dark:text-slate-300">
+                        Tôi là một nhà phát triển phần mềm nhiệt huyết, theo đuổi sự hoàn hảo trong từng đường nét UI/UX kết hợp hiệu năng vượt trội. Đam mê kiến tạo trải nghiệm số ngọt ngào!
+                    </p>
+                </div>
+            </div>
+
+            <!-- COLUMN CENTER: CODEX & PORTFOLIO SUBPAGES (lg:col-span-5) -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Interactive Codex Card (Personal Details) -->
+                <div class="glass-card rounded-[2.5rem] p-6 space-y-4 relative">
+                    <div class="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800/50 pb-3">
+                        <h2 class="font-display font-extrabold text-sm text-primary dark:text-[#ffaedc] tracking-wider uppercase">Lý Lịch Cá Nhân • Codex 📑</h2>
+                        <span class="text-[8px] bg-primary/10 text-primary dark:bg-primary/20 dark:text-[#ffaedc] px-2 py-0.5 rounded font-extrabold tracking-widest uppercase">Verified</span>
+                    </div>
+
+                    <div class="space-y-3.5">
+                        <!-- Full Name -->
+                        <div class="group transition-all">
+                            <div class="flex items-center gap-2.5">
+                                <span class="material-symbols-outlined text-primary text-base">person</span>
                                 <div>
-                                    <span
-                                        class="text-[10px] text-primary dark:text-[#ffaedc] font-bold uppercase tracking-widest">Hồ
-                                        Sơ Cá Nhân</span>
-                                    <h3
-                                        class="font-headline-lg text-2xl text-on-surface dark:text-white font-bold leading-tight">
-                                        Peter Hugo Wishpax Lê</h3>
+                                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Họ và Tên</div>
+                                    <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-[#ffaedc] transition-colors leading-relaxed">
+                                        Lê Gia Huy (Peter Hugo Wishpax Le)
+                                    </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="border-t border-outline-variant/20 dark:border-slate-800 pt-6 space-y-4">
-                                <!-- Quốc gia -->
-                                <div class="flex items-center gap-4">
-                                    <div
-                                        class="w-10 h-10 bg-secondary-container dark:bg-[#0fceff]/10 text-secondary dark:text-[#0fceff] rounded-xl flex items-center justify-center shrink-0">
-                                        <span class="material-symbols-outlined text-xl">public</span>
-                                    </div>
-                                    <div>
-                                        <div
-                                            class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase">
-                                            Quốc Gia / Nationality</div>
-                                        <div
-                                            class="text-sm font-semibold text-on-surface dark:text-white flex items-center gap-1.5">
-                                            Việt Nam <span class="text-base">🇻🇳</span></div>
+                        <!-- Date of Birth -->
+                        <div class="group transition-all">
+                            <div class="flex items-center gap-2.5">
+                                <span class="material-symbols-outlined text-secondary text-base">cake</span>
+                                <div>
+                                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Ngày Sinh & Tuổi</div>
+                                    <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-secondary dark:group-hover:text-[#b9eaff] transition-colors leading-relaxed">
+                                        05/02/2004 • Bảo Bình nhiệt huyết, sáng tạo ♒
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                <!-- Trường học -->
-                                <div class="flex items-start gap-4">
-                                    <div
-                                        class="w-10 h-10 bg-tertiary-container dark:bg-[#c989ff]/10 text-tertiary dark:text-[#c989ff] rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                                        <span class="material-symbols-outlined text-xl">school</span>
+                        <!-- Education -->
+                        <div class="group transition-all">
+                            <div class="flex items-center gap-2.5">
+                                <span class="material-symbols-outlined text-tertiary text-base">school</span>
+                                <div>
+                                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Đào tạo chuyên môn</div>
+                                    <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-tertiary dark:group-hover:text-[#f1daff] transition-colors leading-relaxed">
+                                        Sinh viên ngành Kỹ thuật Phần mềm (Software Engineering)<br>
+                                        <span class="text-[10px] opacity-80 block mt-0.5">Đại học Greenwich Việt Nam (Cơ sở TP.HCM) 🎓</span>
                                     </div>
-                                    <div class="space-y-3 flex-1">
-                                        <div
-                                            class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase">
-                                            Học Vấn / Education</div>
-                                        <div class="space-y-2">
-                                            <div class="text-xs">
-                                                <div class="font-semibold text-on-surface dark:text-white">THPT Nguyễn
-                                                    Đình Chiểu Mỹ Tho</div>
-                                                <div
-                                                    class="text-[10px] text-on-surface-variant dark:text-slate-400 italic">
-                                                    College de MyTho</div>
-                                                <a href="http://ndc.edu.vn" target="_blank"
-                                                    class="inline-flex items-center gap-1 text-primary dark:text-[#ffaedc] hover:underline font-bold text-[10px] mt-0.5">
-                                                    <span>ndc.edu.vn</span>
-                                                    <span
-                                                        class="material-symbols-outlined text-[10px]">open_in_new</span>
-                                                </a>
-                                            </div>
-                                            <div
-                                                class="text-xs border-t border-outline-variant/10 dark:border-slate-800/50 pt-2">
-                                                <div class="font-semibold text-on-surface dark:text-white">Đại Học
-                                                    Greenwich Việt Nam</div>
-                                                <a href="https://greenwich.edu.vn/" target="_blank"
-                                                    class="inline-flex items-center gap-1 text-secondary dark:text-[#b9eaff] hover:underline font-bold text-[10px] mt-0.5">
-                                                    <span>greenwich.edu.vn</span>
-                                                    <span
-                                                        class="material-symbols-outlined text-[10px]">open_in_new</span>
-                                                </a>
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hobbies -->
+                        <div class="group transition-all">
+                            <div class="flex items-center gap-2.5">
+                                <span class="material-symbols-outlined text-secondary text-base">potted_plant</span>
+                                <div>
+                                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Sở thích</div>
+                                    <div class="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-secondary dark:group-hover:text-[#b9eaff] transition-colors leading-relaxed">
+                                        Trồng cây lá (nhất là cây dương xỉ) 🌿<br>
+                                        <span class="text-[10px] opacity-80 block mt-0.5">Thích sự cute nhưng vẫn sang chấn! 🌀</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Right Story Panel -->
-                    <div class="lg:col-span-7 flex flex-col justify-between space-y-6">
-                        <div class="space-y-4">
-                            <div
-                                class="inline-flex items-center gap-2 bg-primary/10 dark:bg-[#a72683]/20 text-primary dark:text-[#ffaedc] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-                                <span class="material-symbols-outlined text-sm">psychology</span>
-                                <span>Về Tôi / About Me</span>
+                <!-- Wikipedia Subpages Navigation -->
+                <div class="space-y-3.5">
+                    <h2 class="text-[10px] text-slate-400 font-bold uppercase tracking-widest pl-2">Khám Phá Bản Thân • Wikipedia Pages 📖</h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <!-- subpage 1: Dong Thap -->
+                        <a href="AddBio/dongthap.html" class="glass-card p-4 rounded-2xl flex flex-col justify-between hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group border-l-4 border-l-primary" onclick="playPopSound()">
+                            <div class="space-y-1.5">
+                                <h3 class="font-display font-extrabold text-xs text-primary dark:text-[#ffaedc] group-hover:underline">Quê Hương Đồng Tháp 🌸</h3>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed text-justify">
+                                    Đất Sen Hồng bình yên và thơ mộng bên dòng sông Tiền hiền hòa, với Vườn quốc gia Tràm Chim cực hoang dã.
+                                </p>
                             </div>
-                            <h2
-                                class="font-headline-lg text-3xl md:text-4xl text-on-surface dark:text-white leading-tight">
-                                Đam mê kiến tạo trải nghiệm số ngọt ngào</h2>
-                            <p
-                                class="text-body-lg text-on-surface-variant dark:text-slate-300 leading-relaxed text-sm md:text-base">
-                                Tôi là một nhà phát triển phần mềm nhiệt huyết, theo đuổi sự hoàn hảo trong từng đường
-                                nét UI/UX kết hợp hiệu năng vượt trội. Định hình phong cách thiết kế trẻ trung và đầy
-                                sức sống, tôi biến những dòng code phức tạp thành sản phẩm mượt mà, trực quan, mang lại
-                                sự ngạc nhiên và hài lòng tối đa cho người sử dụng.
-                            </p>
+                            <div class="text-[9px] font-bold text-primary dark:text-[#ffaedc] mt-2 flex items-center gap-0.5">
+                                Xem chi tiết <span class="material-symbols-outlined text-xs group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            </div>
+                        </a>
+
+                        <!-- subpage 2: Catholicism -->
+                        <a href="AddBio/conggiaoroma.html" class="glass-card p-4 rounded-2xl flex flex-col justify-between hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group border-l-4 border-l-secondary" onclick="playPopSound()">
+                            <div class="space-y-1.5">
+                                <h3 class="font-display font-extrabold text-xs text-secondary dark:text-[#b9eaff] group-hover:underline">Đức Tin Công Giáo ⛪</h3>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed text-justify">
+                                    Sứ vụ tông đồ đầy ý nghĩa dưới vai trò là Huynh Trưởng Giáo Lý Viên Cấp 2 và tinh thần bác ái xã hội.
+                                </p>
+                            </div>
+                            <div class="text-[9px] font-bold text-secondary dark:text-[#b9eaff] mt-2 flex items-center gap-0.5">
+                                Xem chi tiết <span class="material-symbols-outlined text-xs group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Featured Personal Gallery -->
+                <div class="space-y-3.5">
+                    <div class="flex items-center justify-between pl-2">
+                        <h2 class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Ảnh Nổi Bật & Gallery</h2>
+                        <span class="text-[8px] bg-secondary/10 text-secondary dark:bg-secondary/20 dark:text-[#b9eaff] px-2 py-0.5 rounded font-extrabold uppercase tracking-wider">Cloudinary Loaded</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3.5">
+                        <!-- Personal Image Card 1 -->
+                        <div class="glass-card rounded-2xl overflow-hidden group flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                            <div class="relative w-full aspect-[3/4] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                <img src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779117104/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_22.11.38_vlij7l.png" alt="Ảnh Cá Nhân Lê Gia Huy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+                                <span class="absolute top-2 right-2 bg-primary/90 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Portrait</span>
+                            </div>
+                            <div class="p-3 text-left">
+                                <h3 class="font-extrabold text-[11px] text-slate-800 dark:text-white leading-tight">Ảnh Cá Nhân</h3>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">Peter Hugo Wishpax Le</p>
+                            </div>
                         </div>
 
-                        <div class="space-y-3">
-                            <div
-                                class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-widest">
-                                Giá Trị Cốt Lõi / Core Strengths</div>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div
-                                    class="bg-surface-container-high dark:bg-[#251f2e] border border-outline-variant/30 dark:border-slate-800 p-4 rounded-2xl flex items-start gap-3 hover:-translate-y-1 transition-transform">
-                                    <span class="material-symbols-outlined text-primary text-2xl">palette</span>
-                                    <div>
-                                        <div class="font-bold text-xs text-on-surface dark:text-white">UX/UI Độc Bản
-                                        </div>
-                                        <p class="text-[10px] text-on-surface-variant dark:text-slate-400 mt-0.5">Sáng
-                                            tạo, rực rỡ và tối ưu trải nghiệm</p>
-                                    </div>
-                                </div>
-                                <div
-                                    class="bg-surface-container-high dark:bg-[#251f2e] border border-outline-variant/30 dark:border-slate-800 p-4 rounded-2xl flex items-start gap-3 hover:-translate-y-1 transition-transform">
-                                    <span class="material-symbols-outlined text-secondary text-2xl">speed</span>
-                                    <div>
-                                        <div class="font-bold text-xs text-on-surface dark:text-white">Hiệu Năng Cao
-                                        </div>
-                                        <p class="text-[10px] text-on-surface-variant dark:text-slate-400 mt-0.5">Code
-                                            tay sạch sẽ, tốc độ tải siêu tốc</p>
-                                    </div>
-                                </div>
-                                <div
-                                    class="bg-surface-container-high dark:bg-[#251f2e] border border-outline-variant/30 dark:border-slate-800 p-4 rounded-2xl flex items-start gap-3 hover:-translate-y-1 transition-transform">
-                                    <span class="material-symbols-outlined text-tertiary text-2xl">favorite</span>
-                                    <div>
-                                        <div class="font-bold text-xs text-on-surface dark:text-white">Tâm Huyết</div>
-                                        <p class="text-[10px] text-on-surface-variant dark:text-slate-400 mt-0.5">Hỗ trợ
-                                            tận tình, phát triển bền vững</p>
-                                    </div>
-                                </div>
+                        <!-- Personal Image Card 2 -->
+                        <div class="glass-card rounded-2xl overflow-hidden group flex flex-col hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                            <div class="relative w-full aspect-[3/4] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                <img src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779117069/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_22.10.59_cqxjne.png" alt="Ảnh Tham Gia Tình Nguyện" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+                                <span class="absolute top-2 right-2 bg-secondary/90 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Volunteer</span>
+                            </div>
+                            <div class="p-3 text-left">
+                                <h3 class="font-extrabold text-[11px] text-slate-800 dark:text-white leading-tight">Ảnh Tình Nguyện</h3>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">Phụng sự cộng đồng xã hội</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-        <!-- Projects Section -->
-        <section class="space-y-12 scroll-mt-32" id="projects">
-            <div class="text-center space-y-2">
-                <h2
-                    class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary dark:text-primary-fixed-dim">
-                    Dự Án Nổi Bật</h2>
-                <p class="text-on-surface-variant dark:text-slate-400 font-body-md">Featured Joyful Creations</p>
+
+            <!-- COLUMN RIGHT: SOCIAL CONNECTIONS & BANK CAFE (lg:col-span-3) -->
+            <div class="lg:col-span-3 space-y-6">
+                <!-- Social Capsules -->
+                <div class="space-y-3.5">
+                    <h2 class="text-[10px] text-slate-400 font-bold uppercase tracking-widest pl-2">Social Connections</h2>
+                    
+                    <!-- GitHub -->
+                    <a href="https://github.com/Hugo-huy2004" target="_blank" rel="noopener" class="glass-card flex items-center justify-between p-4 rounded-2xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group" onclick="playPopSound()">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 bg-slate-950 text-white dark:bg-white dark:text-slate-950 rounded-xl flex items-center justify-center shadow-md">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xs text-slate-800 dark:text-white">GitHub</h3>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400">@Hugo-huy2004 • Source & Projects</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-lg text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+                    </a>
+
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/share/1GjMRBYyA8/?mibextid=wwXIfr" target="_blank" rel="noopener" class="glass-card flex items-center justify-between p-4 rounded-2xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group" onclick="playPopSound()">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 bg-[#1877f2] text-white rounded-xl flex items-center justify-center shadow-md border border-[#166fe5]">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xs text-slate-800 dark:text-white">Facebook</h3>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400">Gia Huy • Connect profile</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-lg text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+                    </a>
+
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/hugowishpax?igsh=MW9ibDdkcTNxcm5nYg%3D%3D&utm_source=qr" target="_blank" rel="noopener" class="glass-card flex items-center justify-between p-4 rounded-2xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group" onclick="playPopSound()">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white rounded-xl flex items-center justify-center shadow-md">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xs text-slate-800 dark:text-white">Instagram</h3>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400">@hugowishpax • Design & Life</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-lg text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+                    </a>
+
+                    <!-- TikTok -->
+                    <a href="https://www.tiktok.com/@pethugowishpaxle?_r=1&_t=ZS-96ShD7YH7Mj" target="_blank" rel="noopener" class="glass-card flex items-center justify-between p-4 rounded-2xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group" onclick="playPopSound()">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 bg-slate-950 text-white rounded-xl flex items-center justify-center shadow-md border border-slate-800">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.525.02c1.31-.032 2.61-.019 3.91-.019.08 1.53.63 3.02 1.59 4.2 1.09 1.33 2.63 2.27 4.3 2.66v3.76c-1.78-.17-3.47-.88-4.8-2.02-.13-.11-.26-.22-.38-.34v9.06c.06 1.83-.46 3.67-1.5 5.12-1.63 2.33-4.43 3.73-7.27 3.54-3.13-.12-6-2.22-7.07-5.18-1.25-3.32-.23-7.28 2.53-9.49 1.79-1.47 4.14-2.11 6.43-1.8v3.83c-1.39-.33-2.89.04-3.92.99-1.22 1.07-1.74 2.82-1.31 4.4.45 1.75 2.06 3.06 3.87 3.09 1.84.07 3.58-1.07 4.13-2.82.26-.74.34-1.54.33-2.32V.02z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xs text-slate-800 dark:text-white">TikTok</h3>
+                                <p class="text-[9px] text-slate-500 dark:text-slate-400">@pethugowishpaxle • Creative videos</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-lg text-slate-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+                    </a>
+                </div>
+
+                <!-- Tip & Coffee Cafe Widget -->
+                <div class="glass-card rounded-[2rem] p-6 text-center space-y-4">
+                    <div class="text-[11px] font-bold text-primary dark:text-[#ffaedc] uppercase tracking-wider flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">coffee</span> Tip & Bonus Cafe
+                    </div>
+                    
+                    <!-- VietQR Image Frame -->
+                    <div class="w-[180px] h-[180px] bg-white rounded-2xl flex items-center justify-center p-2 shadow-inner relative overflow-hidden mx-auto border border-outline-variant/15">
+                        <div id="tip-qr-loading" class="absolute inset-0 bg-white/90 dark:bg-slate-900/90 flex items-center justify-center z-10 transition-opacity duration-300 opacity-0 pointer-events-none">
+                            <div class="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+                        </div>
+                        <img id="tip-qr-img" src="https://img.vietqr.io/image/MB-827052004-compact.png?amount=50000&addInfo=Tang%20ca%20phe%20DevArchitect&accountName=LE%20GIA%20HUY" alt="VietQR Le Gia Huy" class="w-full h-full object-contain transition-all duration-300">
+                    </div>
+
+                    <!-- Bank Info -->
+                    <div>
+                        <div class="text-xs font-extrabold text-slate-800 dark:text-white">LE GIA HUY</div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400">MBBank • 827052004</div>
+                    </div>
+                    
+                    <!-- Amount Pills -->
+                    <div class="grid grid-cols-3 gap-2 w-full pt-1.5">
+                        <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="10000">10k</button>
+                        <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="20000">20k</button>
+                        <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-primary bg-primary/10 text-primary text-[11px] font-bold transition-all" data-amount="50000">50k</button>
+                        <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="100000">100k</button>
+                        <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="200000">200k</button>
+                        <button class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-white/40 dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all" data-amount="500000">500k</button>
+                    </div>
+                </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Project 1 -->
-                <div
-                    class="bg-surface-container dark:bg-[#1d1726] rounded-xl p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.1)] dark:shadow-none hover:-translate-y-2 transition-transform duration-300 border-2 border-transparent hover:border-secondary-container dark:hover:border-secondary-container/50 group flex flex-col justify-between">
-                    <div>
-                        <div
-                            class="w-16 h-16 bg-secondary-container dark:bg-[#0fceff]/20 text-on-secondary-container dark:text-[#b9eaff] rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">photo_camera</span>
-                        </div>
-                        <h3 class="font-headline-lg text-xl text-on-surface dark:text-white mb-2">Studio</h3>
-                        <p class="text-on-surface-variant dark:text-slate-300 text-sm mb-6">Website portfolio phóng sự
-                            cưới phong cách tạp chí tối giản, sang trọng.</p>
-                    </div>
-                    <div class="flex items-center justify-between mt-auto">
-                        <div class="flex flex-wrap gap-1">
-                            <span
-                                class="bg-secondary/10 dark:bg-[#0fceff]/10 text-secondary px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">NextJS</span>
-                            <span
-                                class="bg-primary/10 dark:bg-[#a72683]/10 text-primary dark:text-[#ffaedc] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Editorial</span>
-                        </div>
-                        <a href="https://minhoimedia.digital" target="_blank" rel="noopener"
-                            class="flex items-center gap-1 text-xs font-bold text-[#0068ff] dark:text-[#b9eaff] hover:underline z-20">
-                            <span>Xem Live</span>
-                            <span class="material-symbols-outlined text-xs">open_in_new</span>
-                        </a>
-                    </div>
-                </div>
-                <!-- Project 2 -->
-                <div
-                    class="bg-surface-container dark:bg-[#1d1726] rounded-xl p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.1)] dark:shadow-none hover:-translate-y-2 transition-transform duration-300 border-2 border-transparent hover:border-tertiary-container dark:hover:border-tertiary-container/50 group flex flex-col justify-between">
-                    <div>
-                        <div
-                            class="w-16 h-16 bg-tertiary-container dark:bg-[#c989ff]/20 text-on-tertiary-container dark:text-[#f1daff] rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">developer_mode</span>
-                        </div>
-                        <h3 class="font-headline-lg text-xl text-on-surface dark:text-white mb-2">Hệ Thống Cửa Hàng</h3>
-                        <p class="text-on-surface-variant dark:text-slate-300 text-sm mb-6">Trang thông tin cửa hàng và
-                            quản trị kho dự án ứng dụng MERN Stack.</p>
-                    </div>
-                    <div class="flex items-center justify-between mt-auto">
-                        <div class="flex flex-wrap gap-1">
-                            <span
-                                class="bg-tertiary/10 dark:bg-[#c989ff]/10 text-tertiary px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">MERN
-                                Stack</span>
-                            <span
-                                class="bg-primary/10 dark:bg-[#a72683]/10 text-primary dark:text-[#ffaedc] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Admin</span>
-                        </div>
-                        <a href="http://demhwj.hugowishpax.studio/" target="_blank" rel="noopener"
-                            class="flex items-center gap-1 text-xs font-bold text-[#0068ff] dark:text-[#b9eaff] hover:underline z-20">
-                            <span>Xem Live</span>
-                            <span class="material-symbols-outlined text-xs">open_in_new</span>
-                        </a>
-                    </div>
-                </div>
-                <!-- Project 3 -->
-                <div
-                    class="bg-surface-container dark:bg-[#1d1726] rounded-xl p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.1)] dark:shadow-none hover:-translate-y-2 transition-transform duration-300 border-2 border-transparent hover:border-primary-container dark:hover:border-primary-container/50 group flex flex-col justify-between">
-                    <div>
-                        <div
-                            class="w-16 h-16 bg-primary-container dark:bg-[#a72683]/20 text-on-primary-container dark:text-[#ffaedc] rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">groups</span>
-                        </div>
-                        <h3 class="font-headline-lg text-xl text-on-surface dark:text-white mb-2">Cổng Thông Tin và Quản
-                            Lý</h3>
-                        <p class="text-on-surface-variant dark:text-slate-300 text-sm mb-6">Hệ thống số hóa thông tin
-                            nhân sự và phân bổ đội nhóm bảo mật cao.</p>
-                    </div>
-                    <div class="flex items-center justify-between mt-auto">
-                        <div class="flex flex-wrap gap-1">
-                            <span
-                                class="bg-primary/10 dark:bg-[#a72683]/10 text-primary dark:text-[#ffaedc] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">NodeJS</span>
-                            <span
-                                class="bg-secondary/10 dark:bg-[#0fceff]/10 text-secondary px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Security</span>
-                        </div>
-                        <a href="https://tnttgiaophanmytho.online" target="_blank" rel="noopener"
-                            class="flex items-center gap-1 text-xs font-bold text-[#0068ff] dark:text-[#b9eaff] hover:underline z-20">
-                            <span>Xem Live</span>
-                            <span class="material-symbols-outlined text-xs">open_in_new</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Services/Pricing Section -->
-        <section class="space-y-16 scroll-mt-32" id="services">
+        </div>
+
+        <!-- ================= SECTION 2: SERVICES & PRICING TABLE (Integrated Full-Width) ================= -->
+        <section class="space-y-12 pt-8 scroll-mt-32" id="services">
             <div class="text-center space-y-3">
-                <h2
-                    class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary dark:text-primary-fixed-dim">
-                    Bảng Giá Dịch Vụ Web</h2>
-                <p class="text-on-surface-variant dark:text-slate-400 font-body-md max-w-xl mx-auto">Thiết kế kẹo ngọt
-                    Claymorphism kết hợp hiệu năng vượt trội. Chọn hương vị phù hợp để nâng tầm thương hiệu của bạn!</p>
+                <div class="flex items-center justify-center gap-2 text-primary dark:text-[#ffaedc]">
+                    <span class="material-symbols-outlined text-3xl">design_services</span>
+                    <h2 class="font-display text-3xl font-extrabold tracking-tight">Dịch Vụ & Bảng Giá Của Hugo</h2>
+                </div>
+                <p class="text-sm max-w-xl mx-auto text-slate-500 dark:text-slate-400">
+                    Thiết kế Claymorphism kẹo ngọt, bố cục Asymmetric hiện đại kết hợp hiệu năng siêu mượt. Chọn một gói dịch vụ phù hợp để nâng tầm thương hiệu cá nhân của bạn!
+                </p>
             </div>
 
             <!-- Gói Web Trọn Gói (Full System Packages) -->
-            <div class="space-y-8">
+            <div class="space-y-6">
                 <div class="text-center">
-                    <span
-                        class="bg-primary/10 dark:bg-[#a72683]/20 text-primary dark:text-[#ffaedc] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border border-primary/20">Gói
-                        Web Trọn Gói / Full Websites</span>
+                    <span class="bg-primary/10 dark:bg-[#a72683]/20 text-primary dark:text-[#ffaedc] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border border-primary/20">Gói Web Trọn Gói / Full Websites</span>
                 </div>
 
                 <!-- Mobile Segmented Controller (Full Websites) -->
                 <div class="flex md:hidden justify-center px-4 mb-2">
-                    <div
-                        class="bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-1 rounded-full border border-[#dabfcc]/30 dark:border-slate-800 shadow-sm flex w-full max-w-sm relative overflow-hidden select-none">
-                        <!-- Sliding active highlight background -->
-                        <div id="mobile-tier-pill"
-                            class="absolute top-1 bottom-1 left-1 w-[calc(33.33%-2px)] bg-[#a72683] rounded-full transition-all duration-300 ease-out shadow-[0_4px_12px_rgba(167,38,131,0.25)]">
-                        </div>
-
-                        <button onclick="switchMobileTier('basic', 0)"
-                            class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-white"
-                            id="mobile-btn-basic">Gói Basic</button>
-                        <button onclick="switchMobileTier('plus', 1)"
-                            class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-[#54414b] dark:text-slate-300"
-                            id="mobile-btn-plus">Gói Plus</button>
-                        <button onclick="switchMobileTier('premium', 2)"
-                            class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-[#54414b] dark:text-slate-300"
-                            id="mobile-btn-premium">Gói Premium</button>
+                    <div class="bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-1 rounded-full border border-slate-200/50 dark:border-slate-800/80 shadow-sm flex w-full max-w-sm relative overflow-hidden select-none">
+                        <div id="mobile-tier-pill" class="absolute top-1 bottom-1 left-1 w-[calc(33.33%-2px)] bg-[#a72683] rounded-full transition-all duration-300 ease-out shadow-[0_4px_12px_rgba(167,38,131,0.25)]"></div>
+                        <button onclick="switchMobileTier('basic', 0)" class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-white" id="mobile-btn-basic">Gói Basic</button>
+                        <button onclick="switchMobileTier('plus', 1)" class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-[#54414b] dark:text-slate-300" id="mobile-btn-plus">Gói Plus</button>
+                        <button onclick="switchMobileTier('premium', 2)" class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-[#54414b] dark:text-slate-300" id="mobile-btn-premium">Gói Premium</button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                     <!-- Basic Tier -->
-                    <div
-                        class="mobile-card-basic mobile-card-active bg-surface-container-low dark:bg-[#1d1726] rounded-[2rem] p-8 border-4 border-secondary-fixed dark:border-[#b9eaff]/30 shadow-[0_15px_0_0_#b9eaff] dark:shadow-[0_15px_0_0_rgba(185,234,255,0.15)] hover:translate-y-2 hover:shadow-[0_5px_0_0_#b9eaff] dark:hover:shadow-[0_5px_0_0_rgba(185,234,255,0.15)] transition-all flex flex-col justify-between">
+                    <div class="mobile-card-basic mobile-card-active glass-card rounded-[2rem] p-6 border-2 border-slate-200/50 dark:border-slate-800/50 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300">
                         <div>
-                            <div class="text-secondary dark:text-[#b9eaff] mb-4 flex justify-center">
-                                <span class="material-symbols-outlined text-5xl">icecream</span>
+                            <div class="text-secondary dark:text-[#b9eaff] mb-3 flex justify-center">
+                                <span class="material-symbols-outlined text-4xl">icecream</span>
                             </div>
-                            <h3 class="font-headline-lg text-2xl text-center text-on-surface dark:text-white mb-1">Mơ
-                                trong hồ (Basic)</h3>
-                            <p
-                                class="text-[10px] text-center text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-wider mb-3">
-                                Landing page chuẩn chỉ, không đòi hỏi drama</p>
+                            <h3 class="font-display text-xl font-extrabold text-center text-slate-800 dark:text-white mb-1">Mơ trong hồ (Basic)</h3>
+                            <p class="text-[10px] text-center text-slate-400 font-bold uppercase tracking-wider mb-4">Landing page chuẩn chỉ, tối giản</p>
 
-                            <!-- Eye-hidden price -->
-                            <div
-                                class="font-display-lg text-3xl text-center text-secondary dark:text-[#b9eaff] mb-6 font-extrabold flex items-center justify-center gap-2 select-none">
+                            <!-- Toggle Price -->
+                            <div class="font-display text-2xl text-center text-secondary dark:text-[#b9eaff] mb-6 font-extrabold flex items-center justify-center gap-2 select-none">
                                 <span id="basic-price-text">******đ</span>
-                                <button id="btn-toggle-basic-price"
-                                    class="focus:outline-none text-secondary dark:text-[#b9eaff] hover:scale-110 active:scale-95 transition-transform"
-                                    title="Ẩn/Hiện giá" onclick="event.stopPropagation();">
-                                    <span class="material-symbols-outlined text-2xl"
-                                        id="eye-icon-basic">visibility_off</span>
+                                <button id="btn-toggle-basic-price" class="focus:outline-none text-secondary dark:text-[#b9eaff] hover:scale-110 active:scale-95 transition-transform" title="Ẩn/Hiện giá" onclick="event.stopPropagation();">
+                                    <span class="material-symbols-outlined text-xl" id="eye-icon-basic">visibility_off</span>
                                 </button>
                             </div>
 
-                            <ul
-                                class="space-y-3.5 mb-8 text-xs leading-relaxed text-on-surface-variant dark:text-slate-300">
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-lg shrink-0">check_circle</span>
-                                    <span><strong>Quy mô:</strong> 1 trang Landing Page hoặc web giới thiệu dịch vụ tối
-                                        giản</span>
+                            <ul class="space-y-3 mb-6 text-xs text-slate-600 dark:text-slate-300">
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
+                                    <span><strong>Quy mô:</strong> 1 trang Landing Page giới thiệu bản thân hoặc dịch vụ tối giản.</span>
                                 </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-lg shrink-0">check_circle</span>
-                                    <span><strong>Giao diện:</strong> Thiết kế độc bản, hiện đại, tối ưu UX/UI và tương
-                                        thích 100% Mobile/Tablet</span>
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
+                                    <span><strong>Giao diện:</strong> Thiết kế độc bản, tối ưu UI/UX, tương thích 100% di động.</span>
                                 </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-lg shrink-0">check_circle</span>
-                                    <span><strong>Công nghệ:</strong> Code tay thuần JavaScript/HTML5/CSS3 sạch sẽ, nói
-                                        không với template kéo thả nặng nề</span>
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
+                                    <span><strong>Công nghệ:</strong> Code tay HTML5/Pure JS/CSS3 sạch sẽ, tải trang siêu tốc.</span>
                                 </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-lg shrink-0">check_circle</span>
-                                    <span><strong>Liên hệ:</strong> Tích hợp nút chạm kết nối nhanh Messenger, Zalo Chat
-                                        và hotline gọi điện trực tiếp</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-lg shrink-0">check_circle</span>
-                                    <span><strong>SEO:</strong> Khai báo SEO On-page cơ bản (Meta tags, Sitemap, Index
-                                        Google) để dễ dàng tìm thấy trên mạng</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-lg shrink-0">check_circle</span>
-                                    <span><strong>Bảo trì:</strong> Bàn giao toàn bộ mã nguồn sạch, hỗ trợ kết nối tên
-                                        miền cá nhân miễn phí</span>
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
+                                    <span><strong>Kết nối:</strong> Tích hợp các nút liên kết Messenger, Zalo Chat và hotline.</span>
                                 </li>
                             </ul>
                         </div>
                         <div>
-                            <button id="btn-select-basic"
-                                class="w-full bg-secondary-fixed text-on-secondary-fixed font-bold py-3 rounded-full hover:bg-secondary-fixed-dim transition-colors shadow-md hidden animate-fadeIn"
-                                onclick="selectTierDirectly('basic')">Chọn Gói Mơ trong hồ</button>
-                            <button
-                                class="text-[11px] font-bold text-secondary dark:text-[#b9eaff] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto"
-                                onclick="event.stopPropagation(); openDemoMockup('basic');">
-                                <span class="material-symbols-outlined text-base">visibility</span> Xem Mẫu Demo Thiết
-                                Kế
+                            <button id="btn-select-basic" class="w-full bg-secondary text-white font-bold py-2.5 rounded-full hover:scale-105 transition-transform hidden animate-fadeIn shadow-sm" onclick="selectTierDirectly('basic')">Chọn Gói Basic</button>
+                            <button class="text-[11px] font-bold text-secondary dark:text-[#b9eaff] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto" onclick="event.stopPropagation(); openDemoMockup('basic');">
+                                <span class="material-symbols-outlined text-base">visibility</span> Xem Demo Giả Lập
                             </button>
                         </div>
                     </div>
 
-                    <!-- Plus Tier (Popular / Encrypted) -->
-                    <div
-                        class="mobile-card-plus bg-primary-container dark:bg-[#3d0f30] rounded-[2rem] p-8 border-4 border-primary dark:border-primary/50 shadow-[0_15px_0_0_#a72683] dark:shadow-[0_15px_0_0_rgba(167,38,131,0.25)] hover:translate-y-2 hover:shadow-[0_5px_0_0_#a72683] dark:hover:shadow-[0_5px_0_0_rgba(167,38,131,0.25)] transition-all flex flex-col justify-between relative scale-105 z-10">
-                        <div
-                            class="absolute -top-4 -right-4 bg-tertiary text-on-tertiary text-xs font-bold px-4 py-1.5 rounded-full transform rotate-12 shadow-lg animate-pulse">
-                            POPULAR!</div>
+                    <!-- Plus Tier (Draggable Decryption Key) -->
+                    <div class="mobile-card-plus glass-card rounded-[2rem] p-6 border-2 border-primary dark:border-primary/50 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 relative scale-105 z-10">
+                        <div class="absolute -top-3.5 -right-3.5 bg-tertiary text-white text-[9px] font-bold px-3 py-1 rounded-full transform rotate-12 shadow animate-pulse">POPULAR!</div>
                         <div>
-                            <div class="text-on-primary-container dark:text-white mb-4 flex justify-center">
-                                <span class="material-symbols-outlined text-5xl animate-bounce">cake</span>
+                            <div class="text-primary dark:text-[#ffaedc] mb-3 flex justify-center">
+                                <span class="material-symbols-outlined text-4xl animate-bounce">cake</span>
                             </div>
-                            <h3 class="font-headline-lg text-2xl text-center text-on-primary-container dark:text-white mb-1"
-                                id="plus-card-title" data-real="Mộng bay xa (Plus)">Mộng bay xa (Plus)</h3>
-                            <p
-                                class="text-[10px] text-center text-primary-container dark:text-[#ffaedc] font-bold uppercase tracking-wider mb-3">
-                                Gói quốc dân gánh team, vừa đẹp vừa có Admin tự sướng</p>
+                            <h3 class="font-display text-xl font-extrabold text-center text-slate-800 dark:text-white mb-1" id="plus-card-title" data-real="Mộng bay xa (Plus)">Mộng bay xa (Plus)</h3>
+                            <p class="text-[10px] text-center text-primary/70 dark:text-[#ffaedc]/80 font-bold uppercase tracking-wider mb-4">Gói quốc dân gánh team, giao diện động</p>
 
-                            <div class="font-display-lg text-3xl text-center text-primary dark:text-[#ffaedc] mb-6 font-extrabold"
-                                id="plus-card-price" data-real="6.500.000đ+">#@$%*&!đ</div>
+                            <div class="font-display text-2xl text-center text-primary dark:text-[#ffaedc] mb-6 font-extrabold" id="plus-card-price" data-real="6.500.000đ+">#@$%*&!đ</div>
 
-                            <!-- Decryption Shield Container -->
+                            <!-- Decryption Drag & Drop Target -->
                             <div id="plus-scramble-wrapper" class="space-y-4 mb-4">
-                                <div id="plus-decrypt-zone"
-                                    class="border-2 border-dashed border-primary/50 dark:border-primary/30 rounded-2xl p-4 bg-primary/5 dark:bg-primary/10 text-center space-y-3">
-                                    <p
-                                        class="text-xs font-bold text-primary dark:text-[#ffaedc] flex items-center justify-center gap-1 select-none">
-                                        <span class="material-symbols-outlined text-sm animate-pulse">lock</span> Nội
-                                        dung & Giá đã bị mã hóa
+                                <div id="plus-decrypt-zone" class="border-2 border-dashed border-primary/40 rounded-2xl p-4 bg-primary/5 dark:bg-primary/10 text-center space-y-3">
+                                    <p class="text-xs font-bold text-primary dark:text-[#ffaedc] flex items-center justify-center gap-1 select-none">
+                                        <span class="material-symbols-outlined text-sm animate-pulse">lock</span> Gói đã bị khóa bảo mật
                                     </p>
-                                    <p
-                                        class="text-[9px] text-on-primary-container/80 dark:text-slate-300 leading-relaxed select-none">
-                                        Để giải mã, hãy kéo "Chìa khóa Mơ ước" màu vàng thả vào ô hoặc bấm trực tiếp!
+                                    <p class="text-[9px] leading-relaxed text-slate-500 select-none">
+                                        Kéo "Chìa khóa Mơ ước" màu vàng bên dưới thả vào ô để mở khóa tính năng!
                                     </p>
-
-                                    <!-- Droppable target -->
-                                    <div id="plus-drop-target"
-                                        class="w-full h-16 border-2 border-dashed border-primary rounded-xl flex items-center justify-center bg-white/70 dark:bg-slate-900/70 transition-all font-mono text-[10px] text-primary/70 select-none">
+                                    <div id="plus-drop-target" class="w-full h-14 border-2 border-dashed border-primary rounded-xl flex items-center justify-center bg-white/70 dark:bg-slate-900/70 transition-all font-mono text-[9px] text-primary/70 select-none">
                                         [ THẢ CHÌA KHÓA VÀO ĐÂY ]
                                     </div>
                                 </div>
-
-                                <!-- Draggable Key -->
                                 <div class="flex justify-center" id="plus-key-wrapper">
-                                    <div id="plus-drag-key"
-                                        class="bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-900 font-bold px-4 py-2 rounded-full cursor-grab shadow-lg flex items-center gap-2 hover:scale-105 active:cursor-grabbing transition-transform select-none"
-                                        draggable="true">
+                                    <div id="plus-drag-key" class="bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-bold px-4 py-2 rounded-full cursor-grab shadow flex items-center gap-2 hover:scale-105 active:cursor-grabbing transition-transform select-none" draggable="true">
                                         <span class="material-symbols-outlined animate-bounce text-sm">vpn_key</span>
                                         <span class="text-[9px] uppercase tracking-wider">Chìa Khóa Mơ Ước</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Real Content (Revealed after decryption) -->
+                            <!-- Real Content (Visible after decrypt) -->
                             <div id="plus-real-content" class="hidden">
-                                <ul
-                                    class="space-y-3.5 mb-8 text-xs leading-relaxed text-on-primary-container dark:text-slate-200">
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-primary dark:text-[#ffaedc] text-lg shrink-0">check_circle</span>
-                                        <span><strong>Quy mô:</strong> Hệ thống website 3-7 trang giới thiệu chuyên sâu
-                                            đầy tính điện ảnh</span>
+                                <ul class="space-y-3 mb-6 text-xs text-slate-600 dark:text-slate-300">
+                                    <li class="flex items-start gap-2">
+                                        <span class="material-symbols-outlined text-primary text-base shrink-0">check_circle</span>
+                                        <span><strong>Quy mô:</strong> Hệ thống web 3-5 trang chuyên sâu đầy tính nghệ thuật.</span>
                                     </li>
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-primary dark:text-[#ffaedc] text-lg shrink-0">check_circle</span>
-                                        <span><strong>Tự quản trị (CMS):</strong> Trang Admin CMS bảo mật riêng biệt để
-                                            tự đăng bài viết, cập nhật hình ảnh & dự án dễ như ăn kẹo</span>
+                                    <li class="flex items-start gap-2">
+                                        <span class="material-symbols-outlined text-primary text-base shrink-0">check_circle</span>
+                                        <span><strong>Admin CMS:</strong> Trang quản trị bảo mật giúp tự cập nhật hình ảnh và dự án dễ dàng.</span>
                                     </li>
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-primary dark:text-[#ffaedc] text-lg shrink-0">check_circle</span>
-                                        <span><strong>Visual & Âm thanh:</strong> Bố cục Asymmetric Grid thời thượng,
-                                            micro-animations lướt mượt và sound pop cực đã tai</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-primary dark:text-[#ffaedc] text-lg shrink-0">check_circle</span>
-                                        <span><strong>Hình ảnh cao cấp:</strong> Cơ chế Lazy Loading tăng tốc tải ảnh,
-                                            kèm hiệu ứng di chuột chuyển màu Grayscale Hover nghệ thuật</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-primary dark:text-[#ffaedc] text-lg shrink-0">check_circle</span>
-                                        <span><strong>SEO & Tốc độ:</strong> Điểm xanh mướt tối ưu Core Web Vitals (<
-                                                1.2s), cấu hình Schema Markup tăng tốc phủ Google</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-primary dark:text-[#ffaedc] text-lg shrink-0">check_circle</span>
-                                        <span><strong>Thống kê:</strong> Tích hợp cổng Chatbox, Zalo Chat và Google
-                                            Analytics đo lường hiệu quả chiến dịch</span>
+                                    <li class="flex items-start gap-2">
+                                        <span class="material-symbols-outlined text-primary text-base shrink-0">check_circle</span>
+                                        <span><strong>Visual Động:</strong> Grid bất đối xứng, micro-animations và âm thanh pop lôi cuốn.</span>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                         <div>
                             <div id="plus-action-btn-placeholder">
-                                <button
-                                    class="w-full bg-slate-400 text-white dark:bg-slate-700 font-bold py-3 rounded-full cursor-not-allowed opacity-60 flex items-center justify-center gap-2 select-none"
-                                    disabled>
-                                    <span class="material-symbols-outlined text-lg">lock</span> Cần Giải Mã Để Chọn
+                                <button class="w-full bg-slate-400 text-white dark:bg-slate-700 font-bold py-2.5 rounded-full cursor-not-allowed opacity-60 flex items-center justify-center gap-2 select-none" disabled>
+                                    <span class="material-symbols-outlined text-lg">lock</span> Kéo Khóa Để Chọn
                                 </button>
                             </div>
-                            <button
-                                class="text-[11px] font-bold text-primary dark:text-[#ffaedc] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto"
-                                onclick="event.stopPropagation(); openDemoMockup('plus');">
-                                <span class="material-symbols-outlined text-base">visibility</span> Xem Mẫu Demo Thiết
-                                Kế
+                            <button class="text-[11px] font-bold text-primary dark:text-[#ffaedc] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto" onclick="event.stopPropagation(); openDemoMockup('plus');">
+                                <span class="material-symbols-outlined text-base">visibility</span> Xem Demo Giả Lập
                             </button>
                         </div>
                     </div>
 
-                    <!-- Premium Tier (Face Lock) -->
-                    <div
-                        class="mobile-card-premium bg-surface-container-low dark:bg-[#1d1726] rounded-[2rem] p-8 border-4 border-tertiary-fixed dark:border-[#f1daff]/30 shadow-[0_15px_0_0_#f1daff] dark:shadow-[0_15px_0_0_rgba(241,218,255,0.15)] hover:translate-y-2 hover:shadow-[0_5px_0_0_#f1daff] dark:hover:shadow-[0_5px_0_0_rgba(241,218,255,0.15)] transition-all flex flex-col justify-between">
+                    <!-- Premium Tier -->
+                    <div class="mobile-card-premium glass-card rounded-[2rem] p-6 border-2 border-slate-200/50 dark:border-slate-800/50 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300">
                         <div>
-                            <div class="text-tertiary dark:text-[#f1daff] mb-4 flex justify-center">
-                                <span class="material-symbols-outlined text-5xl">diamond</span>
+                            <div class="text-tertiary dark:text-[#f1daff] mb-3 flex justify-center">
+                                <span class="material-symbols-outlined text-4xl">diamond</span>
                             </div>
-                            <h3 class="font-headline-lg text-2xl text-center text-on-surface dark:text-white mb-1">Bay
-                                xa (Premium)</h3>
-                            <p
-                                class="text-[10px] text-center text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-wider mb-3">
-                                Khách hàng là Thượng Đế, muốn tính năng gì cũng chiều</p>
+                            <h3 class="font-display text-xl font-extrabold text-center text-slate-800 dark:text-white mb-1">Bay xa (Premium)</h3>
+                            <p class="text-[10px] text-center text-slate-400 font-bold uppercase tracking-wider mb-4">Giải pháp tối thượng, vô hạn giới hạn</p>
 
-                            <!-- Real Content (Visible by default) -->
-                            <div id="premium-real-content">
-                                <div
-                                    class="font-display-lg text-3xl text-center text-tertiary dark:text-[#f1daff] mb-6 font-extrabold">
-                                    14.000.000đ+</div>
-                                <ul
-                                    class="space-y-3.5 mb-8 text-xs leading-relaxed text-on-surface-variant dark:text-slate-300">
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-tertiary text-lg shrink-0">check_circle</span>
-                                        <span><strong>Quy mô vô cực:</strong> Số trang và dung lượng lưu trữ không giới
-                                            hạn, kiến trúc CDN cân mọi lượng truy cập khủng</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-tertiary text-lg shrink-0">check_circle</span>
-                                        <span><strong>Cổng Portal VIP:</strong> Thiết kế Client Dashboard riêng tư để
-                                            bàn giao tệp tin, hình ảnh & video chất lượng cao sang xịn mịn vượt
-                                            trội</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-tertiary text-lg shrink-0">check_circle</span>
-                                        <span><strong>Thanh toán tự động QR:</strong> Giỏ hàng chuyên nghiệp & cổng quét
-                                            mã QR ngân hàng ting ting tự động, không đối chiếu thủ công</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-tertiary text-lg shrink-0">check_circle</span>
-                                        <span><strong>Bảo mật độc quyền:</strong> Khóa chuột phải, cấm sao chép nội
-                                            dung, chống tải hình ảnh để bảo vệ tuyệt đối chất xám và tài sản số</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                        <span
-                                            class="material-symbols-outlined text-tertiary text-lg shrink-0">check_circle</span>
-                                        <span><strong>Hiệu năng tuyệt đối:</strong> Đạt chuẩn Google Lighthouse 100/100
-                                            xanh mướt, bảo hành kỹ thuật trọn đời 24/7 tận tâm nhất</span>
-                                    </li>
-                                </ul>
-                            </div>
+                            <div class="font-display text-2xl text-center text-tertiary dark:text-[#f1daff] mb-6 font-extrabold">14.000.000đ+</div>
+
+                            <ul class="space-y-3 mb-6 text-xs text-slate-600 dark:text-slate-300">
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-tertiary text-base shrink-0">check_circle</span>
+                                    <span><strong>Không giới hạn:</strong> Dung lượng lưu trữ, số lượng trang và tối ưu hóa CDN quốc tế.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-tertiary text-base shrink-0">check_circle</span>
+                                    <span><strong>Thanh Toán Tự Động:</strong> Tích hợp mã quét VietQR dynamic tự khớp số tiền ting ting.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-tertiary text-base shrink-0">check_circle</span>
+                                    <span><strong>Bảo Mật Cao Cấp:</strong> Khóa chuột phải, cấm sao chép nội dung chống đánh cắp tài sản số.</span>
+                                </li>
+                            </ul>
                         </div>
                         <div>
-                            <div id="premium-action-btn-placeholder">
-                                <button
-                                    class="w-full bg-tertiary-fixed text-on-tertiary-fixed font-bold py-3 rounded-full hover:bg-tertiary-fixed-dim transition-colors shadow-md"
-                                    onclick="selectTierDirectly('premium')">
-                                    Chọn Gói Bay xa (Premium)
-                                </button>
-                            </div>
-                            <button
-                                class="text-[11px] font-bold text-tertiary dark:text-[#f1daff] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto"
-                                onclick="event.stopPropagation(); openDemoMockup('premium');">
-                                <span class="material-symbols-outlined text-base">visibility</span> Xem Mẫu Demo Thiết
-                                Kế
+                            <button class="w-full bg-tertiary text-white font-bold py-2.5 rounded-full hover:scale-105 transition-transform shadow-sm" onclick="selectTierDirectly('premium')">Chọn Gói Premium</button>
+                            <button class="text-[11px] font-bold text-tertiary dark:text-[#f1daff] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto" onclick="event.stopPropagation(); openDemoMockup('premium');">
+                                <span class="material-symbols-outlined text-base">visibility</span> Xem Demo Giả Lập
                             </button>
                         </div>
                     </div>
@@ -817,355 +546,233 @@
             </div>
 
             <!-- Gói Cá Nhân & Trang Riêng Lẻ (Mini Packages) -->
-            <div class="space-y-8 mt-16">
+            <div class="space-y-6 pt-6">
                 <div class="text-center">
-                    <span
-                        class="bg-secondary/10 dark:bg-[#0fceff]/20 text-secondary dark:text-[#0fceff] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border border-secondary/20">Gói
-                        Cá Nhân & Trang Đơn / Mini Packages</span>
+                    <span class="bg-secondary/10 dark:bg-[#0fceff]/20 text-secondary dark:text-[#0fceff] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border border-secondary/20">Gói Cá Nhân & Trang Đơn / Mini Packages</span>
                 </div>
 
                 <!-- Mobile Segmented Controller (Mini Packages) -->
                 <div class="flex md:hidden justify-center px-4 mb-2">
-                    <div
-                        class="bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-1 rounded-full border border-[#dabfcc]/30 dark:border-slate-800 shadow-sm flex w-full max-w-xs relative overflow-hidden select-none">
-                        <!-- Sliding active highlight background -->
-                        <div id="mobile-mini-pill"
-                            class="absolute top-1 bottom-1 left-1 w-[calc(50%-2px)] bg-[#a72683] rounded-full transition-all duration-300 ease-out shadow-[0_4px_12px_rgba(167,38,131,0.25)]">
-                        </div>
-
-                        <button onclick="switchMobileMini('portfolio', 0)"
-                            class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-white"
-                            id="mobile-btn-portfolio">Portfolio</button>
-                        <button onclick="switchMobileMini('single_page', 1)"
-                            class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-[#54414b] dark:text-slate-300"
-                            id="mobile-btn-single_page">Modular</button>
+                    <div class="bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-1 rounded-full border border-slate-200/50 dark:border-slate-800/80 shadow-sm flex w-full max-w-xs relative overflow-hidden select-none">
+                        <div id="mobile-mini-pill" class="absolute top-1 bottom-1 left-1 w-[calc(50%-2px)] bg-[#a72683] rounded-full transition-all duration-300 ease-out shadow-[0_4px_12px_rgba(167,38,131,0.25)]"></div>
+                        <button onclick="switchMobileMini('portfolio', 0)" class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-white" id="mobile-btn-portfolio">Portfolio</button>
+                        <button onclick="switchMobileMini('single_page', 1)" class="flex-1 text-center font-bold text-xs py-2 rounded-full relative z-10 transition-colors duration-200 text-[#54414b] dark:text-slate-300" id="mobile-btn-single_page">Modular</button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                     <!-- Portfolio Card -->
-                    <div
-                        class="mobile-card-portfolio mobile-card-active bg-surface-container-low dark:bg-[#1d1726] rounded-[2rem] p-8 border-4 border-outline-variant/30 dark:border-slate-800 shadow-[0_12px_0_0_rgba(0,0,0,0.05)] dark:shadow-none hover:translate-y-1 transition-all flex flex-col justify-between">
+                    <div class="mobile-card-portfolio mobile-card-active glass-card rounded-[2rem] p-6 border-2 border-slate-200/50 dark:border-slate-800/50 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300">
                         <div>
-                            <div
-                                class="flex items-start gap-4 mb-5 border-b border-outline-variant/20 dark:border-slate-800 pb-4">
-                                <div
-                                    class="w-14 h-14 bg-secondary-container dark:bg-[#0fceff]/15 text-secondary dark:text-[#0fceff] rounded-2xl flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-3xl">face</span>
+                            <div class="flex items-start gap-4 mb-4 border-b border-slate-200/20 dark:border-slate-800/20 pb-4">
+                                <div class="w-12 h-12 bg-secondary/10 text-secondary dark:bg-[#0fceff]/15 dark:text-[#0fceff] rounded-xl flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-2xl">face</span>
                                 </div>
                                 <div>
-                                    <h4 class="font-headline-lg text-xl text-on-surface dark:text-white">Cây dương xỉ cô
-                                        đơn (Portfolio)</h4>
-                                    <p
-                                        class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                                        Dành cho người hướng nội muốn làm màu chuyên nghiệp</p>
-                                    <div
-                                        class="font-display-lg text-2xl text-secondary dark:text-[#0fceff] font-extrabold mt-1">
-                                        800.000đ+</div>
+                                    <h4 class="font-display text-lg font-extrabold text-slate-800 dark:text-white">Cây dương xỉ cô đơn (Portfolio)</h4>
+                                    <div class="text-xs text-secondary font-extrabold mt-0.5">800.000đ+</div>
                                 </div>
                             </div>
-                            <ul class="space-y-3 mb-8 text-xs text-on-surface-variant dark:text-slate-300">
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
-                                    <span><strong>Quy mô:</strong> 1 trang Bio & CV cá nhân tương tác tinh gọn</span>
+                            <ul class="space-y-3 mb-6 text-xs text-slate-600 dark:text-slate-300">
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
+                                    <span><strong>Mục tiêu:</strong> 1 trang Bio Profile & CV cá nhân tương tác tinh gọn, mượt mà.</span>
                                 </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
-                                    <span><strong>Mục tiêu:</strong> Trưng bày lý lịch năng lực, CV, hồ sơ cá nhân hoặc
-                                        giới thiệu chuyên gia đầy ấn tượng</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
-                                    <span><strong>Visual sinh động:</strong> Hiệu ứng xoay tròn avatar 3 độ đầy tinh
-                                        nghịch, tạo điểm nhấn nghệ thuật độc đáo</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
-                                    <span><strong>Chuyển đổi:</strong> Hệ thống capsule liên kết xã hội bo góc mịn màng,
-                                        chốt lịch hẹn tư vấn chỉ trong 1 chạm</span>
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-secondary text-base shrink-0">check_circle</span>
+                                    <span><strong>Visual:</strong> Hiệu ứng xoay tròn avatar, các capsule bo góc mịn màng sang chảnh.</span>
                                 </li>
                             </ul>
                         </div>
                         <div>
-                            <button
-                                class="w-full bg-secondary-container text-on-secondary-container dark:bg-[#0fceff]/20 dark:text-[#b9eaff] font-bold py-3 rounded-full hover:scale-[1.03] transition-transform shadow-sm"
-                                onclick="selectTierDirectly('portfolio')">Chọn Gói Cây dương xỉ cô đơn</button>
-                            <button
-                                class="text-[11px] font-bold text-secondary dark:text-[#0fceff] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto"
-                                onclick="event.stopPropagation(); openDemoMockup('portfolio');">
-                                <span class="material-symbols-outlined text-base">visibility</span> Xem Mẫu Demo Thiết
-                                Kế
+                            <button class="w-full bg-secondary/20 text-secondary dark:bg-[#0fceff]/20 dark:text-[#b9eaff] font-bold py-2 rounded-full hover:scale-105 transition-transform shadow-sm" onclick="selectTierDirectly('portfolio')">Chọn Gói Portfolio</button>
+                            <button class="text-[11px] font-bold text-secondary dark:text-[#0fceff] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto" onclick="event.stopPropagation(); openDemoMockup('portfolio');">
+                                <span class="material-symbols-outlined text-base">visibility</span> Xem Demo Giả Lập
                             </button>
                         </div>
                     </div>
 
                     <!-- Single Page Card -->
-                    <div
-                        class="mobile-card-single_page bg-surface-container-low dark:bg-[#1d1726] rounded-[2rem] p-8 border-4 border-outline-variant/30 dark:border-slate-800 shadow-[0_12px_0_0_rgba(0,0,0,0.05)] dark:shadow-none hover:translate-y-1 transition-all flex flex-col justify-between">
+                    <div class="mobile-card-single_page glass-card rounded-[2rem] p-6 border-2 border-slate-200/50 dark:border-slate-800/50 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300">
                         <div>
-                            <div
-                                class="flex items-start gap-4 mb-5 border-b border-outline-variant/20 dark:border-slate-800 pb-4">
-                                <div
-                                    class="w-14 h-14 bg-tertiary-container dark:bg-[#c989ff]/15 text-tertiary dark:text-[#c989ff] rounded-2xl flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-3xl">article</span>
+                            <div class="flex items-start gap-4 mb-4 border-b border-slate-200/20 dark:border-slate-800/20 pb-4">
+                                <div class="w-12 h-12 bg-tertiary/10 text-tertiary dark:bg-[#c989ff]/15 dark:text-[#c989ff] rounded-xl flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-2xl">article</span>
                                 </div>
                                 <div>
-                                    <h4 class="font-headline-lg text-xl text-on-surface dark:text-white">Ghép mảnh
-                                        (Trang Riêng)</h4>
-                                    <p
-                                        class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                                        Nước đi ngây thơ khi nghĩ thêm trang là dễ dàng</p>
-                                    <div
-                                        class="font-display-lg text-2xl text-tertiary dark:text-[#c989ff] font-extrabold mt-1">
-                                        800.000đ / trang</div>
+                                    <h4 class="font-display text-lg font-extrabold text-slate-800 dark:text-white">Ghép mảnh (Trang Riêng)</h4>
+                                    <div class="text-xs text-tertiary font-extrabold mt-0.5">800.000đ / trang</div>
                                 </div>
                             </div>
-                            <ul class="space-y-3 mb-8 text-xs text-on-surface-variant dark:text-slate-300">
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-tertiary text-base shrink-0">check_circle</span>
-                                    <span><strong>Tính linh hoạt:</strong> Tự chọn trang đơn (Giới thiệu, Biểu phí phụ
-                                        thu, Hỏi đáp FAQ, Đăng ký đặt lịch)</span>
+                            <ul class="space-y-3 mb-6 text-xs text-slate-600 dark:text-slate-300">
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-tertiary text-base shrink-0">check_circle</span>
+                                    <span><strong>Linh hoạt:</strong> Tự chọn ghép thêm trang lẻ (Giới thiệu, Biểu phí, Hỏi đáp FAQ).</span>
                                 </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-tertiary text-base shrink-0">check_circle</span>
-                                    <span><strong>Đồng bộ thiết kế:</strong> Thiết kế đồng bộ hoàn toàn với giao diện
-                                        cũ, cam kết thẩm mỹ không lệch pha</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-tertiary text-base shrink-0">check_circle</span>
-                                    <span><strong>Tiện ích mở rộng:</strong> Tích hợp các tab switchers mượt mà và
-                                        accordion mở câu hỏi thường gặp gọn gàng</span>
-                                </li>
-                                <li class="flex items-start gap-3">
-                                    <span
-                                        class="material-symbols-outlined text-tertiary text-base shrink-0">check_circle</span>
-                                    <span><strong>Tối ưu hóa:</strong> Code tay gọn nhẹ, đảm bảo tốc độ của website hiện
-                                        tại không bị ảnh hưởng</span>
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-tertiary text-base shrink-0">check_circle</span>
+                                    <span><strong>Đồng bộ:</strong> Thiết kế đồng bộ 100% với giao diện cũ, cam kết không bị lệch pha thẩm mỹ.</span>
                                 </li>
                             </ul>
                         </div>
                         <div>
-                            <button
-                                class="w-full bg-tertiary-container text-on-tertiary-container dark:bg-[#c989ff]/20 dark:text-[#f1daff] font-bold py-3 rounded-full hover:scale-[1.03] transition-transform shadow-sm"
-                                onclick="selectTierDirectly('single_page')">Chọn Gói Ghép mảnh</button>
-                            <button
-                                class="text-[11px] font-bold text-tertiary dark:text-[#c989ff] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto"
-                                onclick="event.stopPropagation(); openDemoMockup('single_page');">
-                                <span class="material-symbols-outlined text-base">visibility</span> Xem Mẫu Demo Thiết
-                                Kế
+                            <button class="w-full bg-tertiary/20 text-tertiary dark:bg-[#c989ff]/20 dark:text-[#f1daff] font-bold py-2 rounded-full hover:scale-105 transition-transform shadow-sm" onclick="selectTierDirectly('single_page')">Chọn Gói Ghép Mảnh</button>
+                            <button class="text-[11px] font-bold text-tertiary dark:text-[#c989ff] underline mt-3 hover:opacity-80 transition-opacity flex items-center justify-center gap-1 mx-auto" onclick="event.stopPropagation(); openDemoMockup('single_page');">
+                                <span class="material-symbols-outlined text-base">visibility</span> Xem Demo Giả Lập
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        <!-- Contact Section -->
-        <section class="scroll-mt-32" id="contact">
-            <div
-                class="bg-inverse-surface text-inverse-on-surface rounded-[3rem] p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden">
-                <div class="absolute -right-20 -top-20 w-64 h-64 bg-inverse-primary rounded-full blur-3xl opacity-20">
-                </div>
-                <div class="space-y-6 max-w-md text-center md:text-left z-10">
-                    <h2 class="font-display-lg text-headline-lg-mobile md:text-headline-lg text-inverse-primary">Kết nối
-                        cùng tôi</h2>
-                    <p class="text-body-lg text-surface-variant">
-                        Sẵn sàng để bắt đầu dự án đầy màu sắc tiếp theo? Hãy gửi tin nhắn hoặc đặt lịch hẹn ngay nhé!
+
+        <!-- ================= SECTION 3: CONTACT & APPOINTMENT ================= -->
+        <section class="space-y-6 pt-8 scroll-mt-32" id="contact">
+            <div class="glass-card rounded-[2.5rem] p-8 flex flex-col md:flex-row items-center justify-between gap-8 border border-white/20 dark:border-slate-800/80 shadow-lg relative overflow-hidden">
+                <div class="space-y-4 max-w-md text-center md:text-left z-10">
+                    <h2 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white">Gửi Thông Tin Cho Hugo 🚀</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Bạn đã chọn được gói dịch vụ ưng ý hay có ý tưởng thiết kế đặc biệt nào chưa? Đừng ngần ngại nhắn tin trực tiếp hoặc lên lịch gặp mặt cùng Hugo để bắt đầu dự án ngay nhé!
                     </p>
-                    <div class="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start">
-                        <button
-                            class="flex items-center justify-center gap-2 bg-inverse-primary text-on-primary-container font-bold px-6 py-3 rounded-full hover:scale-105 active:scale-95 transition-all">
-                            <span class="material-symbols-outlined">mail</span>
-                            Gửi Email
-                        </button>
-                        <button
-                            class="flex items-center justify-center gap-2 bg-surface-variant/20 text-inverse-on-surface font-bold px-6 py-3 rounded-full border border-surface-variant/30 hover:bg-surface-variant/30 transition-all">
-                            <span class="material-symbols-outlined">calendar_month</span>
-                            Đặt lịch hẹn
-                        </button>
+                    <div class="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start">
+                        <a href="mailto:hugowishpax@gmail.com" class="flex items-center justify-center gap-2 bg-primary text-white font-bold text-xs px-5 py-2.5 rounded-full hover:scale-105 active:scale-95 transition-transform" onclick="playPopSound()">
+                            <span class="material-symbols-outlined text-sm">mail</span>
+                            Gửi Email Trực Tiếp
+                        </a>
+                        <a href="https://zalo.me/0839909399" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 bg-secondary text-white font-bold text-xs px-5 py-2.5 rounded-full hover:scale-105 active:scale-95 transition-transform border border-secondary/20 hover:bg-secondary/95" onclick="playPopSound()">
+                            <span class="material-symbols-outlined text-sm">chat_bubble</span>
+                            Nhắn Zalo Nhận Báo Giá
+                        </a>
                     </div>
                 </div>
-                <div
-                    class="bg-surface text-on-surface dark:bg-[#1d1726] p-6 rounded-[2rem] shadow-2xl border-2 border-outline-variant/30 hover:rotate-0 transition-all duration-300 z-10 shrink-0 w-full max-w-[340px] flex flex-col items-center">
-                    <div
-                        class="text-[11px] font-bold text-primary dark:text-[#ffaedc] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-sm">coffee</span> Tip & Bonus Cafe
+                
+                <div class="w-full max-w-[280px] p-5 glass-card rounded-3xl flex flex-col items-center border border-white/30">
+                    <div class="text-[9px] font-bold text-primary dark:text-[#ffaedc] uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">qr_code_2</span> Đặt Lịch Qua QR
                     </div>
-
-                    <!-- VietQR Image Frame -->
-                    <div
-                        class="w-[200px] h-[200px] bg-white rounded-2xl flex items-center justify-center p-2 shadow-inner relative overflow-hidden group border border-outline-variant/20">
-                        <!-- Live QR Code Image (Default 50k) -->
-                        <img id="tip-qr-img"
-                            src="https://img.vietqr.io/image/MB-827052004-compact.png?amount=50000&addInfo=Tang%20ca%20phe%20DevArchitect&accountName=LE%20GIA%20HUY"
-                            alt="VietQR Le Gia Huy" class="w-full h-full object-contain transition-all duration-300">
-
-                        <!-- Loading spinner -->
-                        <div id="tip-qr-loading"
-                            class="absolute inset-0 bg-white/90 dark:bg-slate-900/90 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
-                            <span
-                                class="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></span>
-                        </div>
+                    <div class="w-[140px] h-[140px] bg-white rounded-xl flex items-center justify-center p-1 shadow-inner border border-slate-200">
+                        <img src="https://img.vietqr.io/image/MB-827052004-compact.png?amount=0&addInfo=Hugo%20Dat%20Lich%20Hen%20Thiet%20Ke&accountName=LE%20GIA%20HUY" alt="VietQR Le Gia Huy Đặt Lịch" class="w-full h-full object-contain">
                     </div>
-
-                    <!-- Bank Info text -->
-                    <div class="text-center mt-3 mb-4">
-                        <div class="text-xs font-extrabold text-on-surface dark:text-white">LE GIA HUY</div>
-                        <div class="text-[10px] text-on-surface-variant dark:text-slate-400">MBBank • 827052004</div>
-                    </div>
-
-                    <!-- Amount Selection Pills -->
-                    <div class="grid grid-cols-3 gap-2 w-full">
-                        <button
-                            class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-surface-container-lowest dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all"
-                            data-amount="10000">10k</button>
-                        <button
-                            class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-surface-container-lowest dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all"
-                            data-amount="20000">20k</button>
-                        <button
-                            class="tip-amount-btn px-2 py-1.5 rounded-xl border border-primary bg-primary/10 text-primary text-[11px] font-bold transition-all"
-                            data-amount="50000">50k</button>
-                        <button
-                            class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-surface-container-lowest dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all"
-                            data-amount="100000">100k</button>
-                        <button
-                            class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-surface-container-lowest dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all"
-                            data-amount="200000">200k</button>
-                        <button
-                            class="tip-amount-btn px-2 py-1.5 rounded-xl border border-outline-variant/30 hover:border-primary text-[11px] font-bold bg-surface-container-lowest dark:bg-[#251e30] hover:bg-primary/10 text-on-surface dark:text-slate-200 transition-all"
-                            data-amount="500000">500k</button>
+                    <div class="text-center mt-2.5">
+                        <div class="text-[10px] font-extrabold text-slate-800 dark:text-white">LE GIA HUY</div>
+                        <div class="text-[8px] text-slate-500 dark:text-slate-400">MBBank • 827052004</div>
                     </div>
                 </div>
             </div>
         </section>
-    </main>
-    <!-- BottomNavBar (Mobile) -->
-    <nav class="md:hidden flex justify-around items-center px-2.5 py-2.5 w-[calc(100%-2rem)] mx-auto z-50 fixed bottom-5 left-4 right-4 rounded-full bg-white/80 dark:bg-[#1d1726]/80 backdrop-blur-xl border border-white/20 dark:border-slate-800/80 shadow-[0_12px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
-        <a class="flex flex-col items-center justify-center bg-primary/10 text-primary dark:bg-primary/20 dark:text-[#ffaedc] rounded-full px-5 py-2 scale-105 transition-all duration-300" href="#hero">
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
-            <span class="font-label-md text-[9px] font-bold mt-0.5">Trang Chủ</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-[#87717c] dark:text-slate-400 opacity-80 hover:opacity-100 px-3 py-1 transition-all duration-300" href="#projects">
-            <span class="material-symbols-outlined">rocket_launch</span>
-            <span class="font-label-md text-[9px] font-bold mt-0.5">Dự Án</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-[#87717c] dark:text-slate-400 opacity-80 hover:opacity-100 px-3 py-1 transition-all duration-300" href="#about">
-            <span class="material-symbols-outlined">face</span>
-            <span class="font-label-md text-[9px] font-bold mt-0.5">Về Tôi</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-[#87717c] dark:text-slate-400 opacity-80 hover:opacity-100 px-3 py-1 transition-all duration-300" href="#contact">
-            <span class="material-symbols-outlined">chat_bubble</span>
-            <span class="font-label-md text-[9px] font-bold mt-0.5">Liên Hệ</span>
-        </a>
-    </nav>
-    <!-- Footer -->
-    <footer
-        class="w-full rounded-t-xl mt-stack-gap p-gutter bg-surface-container-low dark:bg-[#17121f] border-t-4 border-tertiary-container dark:border-tertiary shadow-[0_-8px_0_0_rgba(133,47,202,0.1)] dark:shadow-[0_-8px_0_0_rgba(0,0,0,0.3)] pb-24 md:pb-8">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-stack-gap max-w-7xl mx-auto">
-            <div class="font-display-lg text-headline-sm text-tertiary dark:text-tertiary-fixed-dim">HUGO WISHPAX STUDIO
-            </div>
-            <div class="flex gap-4 sm:gap-6 flex-wrap justify-center">
-                <a class="text-on-surface-variant dark:text-slate-400 hover:text-tertiary dark:hover:text-primary-fixed-dim transition-all hover:-translate-y-1 hover:rotate-3 duration-300 font-label-md"
-                    href="https://github.com/Hugo-huy2004" target="_blank" rel="noopener">GitHub</a>
-                <a class="text-on-surface-variant dark:text-slate-400 hover:text-tertiary dark:hover:text-primary-fixed-dim transition-all hover:-translate-y-1 hover:rotate-3 duration-300 font-label-md"
-                    href="https://www.facebook.com/share/1GjMRBYyA8/?mibextid=wwXIfr" target="_blank"
-                    rel="noopener">Facebook</a>
-                <a class="text-on-surface-variant dark:text-slate-400 hover:text-tertiary dark:hover:text-primary-fixed-dim transition-all hover:-translate-y-1 hover:rotate-3 duration-300 font-label-md"
-                    href="https://www.instagram.com/hugowishpax?igsh=MW9ibDdkcTNxcm5nYg%3D%3D&utm_source=qr"
-                    target="_blank" rel="noopener">Instagram</a>
-                <a class="text-on-surface-variant dark:text-slate-400 hover:text-tertiary dark:hover:text-primary-fixed-dim transition-all hover:-translate-y-1 hover:rotate-3 duration-300 font-label-md"
-                    href="https://www.linkedin.com/in/le-gia-huy-fgw-hcm-886963345?utm_source=share_via&utm_content=profile&utm_medium=member_ios"
-                    target="_blank" rel="noopener">LinkedIn</a>
-                <a class="text-on-surface-variant dark:text-slate-400 hover:text-tertiary dark:hover:text-primary-fixed-dim transition-all hover:-translate-y-1 hover:rotate-3 duration-300 font-label-md"
-                    href="https://www.tiktok.com/@pethugowishpaxle?_r=1&_t=ZS-96ShD7YH7Mj" target="_blank"
-                    rel="noopener">TikTok</a>
-            </div>
-            <div class="font-body-md text-sm text-tertiary dark:text-tertiary-fixed-dim text-center md:text-right">
-                © 2026 HUGO WISHPAX STUDIO • Built with sparkles and code
-            </div>
-        </div>
-    </footer>
-    <!-- Demo Modal (MacBook Browser CSS Mockup) -->
-    <div id="demo-modal"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
-        <div
-            class="bg-surface dark:bg-[#1f1929] rounded-[2rem] w-full max-w-4xl max-h-[85vh] overflow-hidden border-4 border-primary dark:border-primary/50 shadow-2xl flex flex-col transform scale-95 transition-all duration-300">
+
+        <!-- Footer -->
+        <footer class="w-full text-center text-[10px] text-slate-400 dark:text-slate-500 select-none border-t border-slate-200/40 dark:border-slate-800/40 pt-6 mt-12">
+            © 2026 HUGO WISHPAX STUDIO • Thiết kế kẹo ngọt độc bản bởi Lê Gia Huy ✨
+        </footer>
+    </div>
+
+    <!-- MacBook Simulated Demo Modal -->
+    <div id="demo-modal" class="fixed inset-0 z-55 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-white dark:bg-[#1f1929] rounded-[2rem] w-full max-w-4xl max-h-[85vh] overflow-hidden border-4 border-primary dark:border-primary/50 shadow-2xl flex flex-col transform scale-95 transition-all duration-300">
             <!-- Header -->
-            <div
-                class="flex items-center justify-between p-6 border-b-2 border-outline-variant/30 dark:border-slate-800 bg-surface-container-low dark:bg-[#15101c]">
+            <div class="flex items-center justify-between p-6 border-b-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#15101c]">
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-primary text-3xl">devices</span>
                     <div>
-                        <h3 class="font-headline-lg text-lg text-on-surface dark:text-white" id="demo-title">Xem Mẫu
-                            Demo Thiết Kế</h3>
-                        <p class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5"
-                            id="demo-subtitle">Bản xem trước giao diện độc bản của bạn</p>
+                        <h3 class="font-display text-lg font-extrabold text-slate-800 dark:text-white" id="demo-title">Xem Mẫu Demo Thiết Kế</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5" id="demo-subtitle">Bản xem trước giao diện giả lập</p>
                     </div>
                 </div>
-                <button
-                    class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-variant/20 dark:bg-slate-800 hover:scale-105 active:scale-95 transition-transform"
-                    onclick="closeDemoMockup()">
-                    <span class="material-symbols-outlined text-on-surface dark:text-white">close</span>
+                <button class="w-10 h-10 rounded-full flex items-center justify-center bg-slate-200/50 dark:bg-slate-800 hover:scale-105 active:scale-95 transition-transform" onclick="closeDemoMockup()">
+                    <span class="material-symbols-outlined text-slate-800 dark:text-white text-base">close</span>
                 </button>
             </div>
 
-            <!-- Preview Container -->
-            <div
-                class="flex-1 overflow-y-auto p-6 md:p-8 bg-surface-container-lowest dark:bg-[#110c17] flex flex-col lg:flex-row gap-8 items-start justify-center">
-                <!-- Left Panel: Design Specification Sheet -->
-                <div id="demo-spec-sheet"
-                    class="w-full lg:w-[320px] shrink-0 space-y-6 bg-surface dark:bg-[#1e172a] rounded-3xl p-6 border-2 border-outline-variant/30 dark:border-slate-800 shadow-md">
-                    <!-- Spec sheet dynamically injected by script.js -->
+            <!-- Preview Content Frame -->
+            <div class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50/50 dark:bg-[#110c17] flex flex-col lg:flex-row gap-8 items-start justify-center">
+                <!-- Specifications Sheet -->
+                <div id="demo-spec-sheet" class="w-full lg:w-[300px] shrink-0 space-y-6 bg-white dark:bg-[#1e172a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow">
+                    <!-- Injected dynamically by script.js -->
                 </div>
 
-                <!-- Simulated MacBook Browser Frame -->
-                <div
-                    class="w-full max-w-2xl border-4 border-slate-700 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col">
-                    <!-- Browser Bar -->
-                    <div
-                        class="bg-slate-200 dark:bg-slate-800 px-4 py-3 flex items-center justify-between border-b border-slate-300 dark:border-slate-700 select-none">
+                <!-- Simulated MacBook Frame -->
+                <div class="w-full max-w-2xl border-4 border-slate-700 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col">
+                    <div class="bg-slate-200 dark:bg-slate-800 px-4 py-3 flex items-center justify-between border-b border-slate-300 dark:border-slate-700 select-none">
                         <div class="flex gap-1.5 shrink-0">
                             <div class="w-3 h-3 rounded-full bg-red-400"></div>
                             <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
                             <div class="w-3 h-3 rounded-full bg-green-400"></div>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 rounded-md text-[10px] text-center text-slate-500 py-1 px-8 truncate max-w-md w-full mx-8 border border-slate-300 dark:border-slate-700 font-mono"
-                            id="demo-browser-url">
+                        <div class="bg-white dark:bg-slate-900 rounded-md text-[10px] text-center text-slate-500 py-1 px-8 truncate max-w-md w-full mx-8 border border-slate-300 dark:border-slate-700 font-mono" id="demo-browser-url">
                             https://yourwebsite.com/preview
                         </div>
                         <div class="w-8"></div>
                     </div>
-
-                    <!-- Live Mini Page Canvas -->
-                    <div class="w-full bg-white text-slate-800 min-h-[400px] relative overflow-hidden" id="demo-canvas">
+                    <div class="w-full bg-white text-slate-800 min-h-[380px] relative overflow-hidden" id="demo-canvas">
                         <!-- Dynamic CSS Mockups render here -->
                     </div>
                 </div>
             </div>
 
             <!-- Footer -->
-            <div
-                class="p-6 border-t-2 border-outline-variant/30 dark:border-slate-800 bg-surface-container-low dark:bg-[#15101c] flex flex-col sm:flex-row justify-between items-center gap-4">
-                <span class="text-xs text-on-surface-variant dark:text-slate-400 text-center sm:text-left">💡 Giao diện
-                    thực tế sẽ được tùy chỉnh 100% theo nhận diện thương hiệu của bạn!</span>
-                <button
-                    class="bg-primary text-on-primary font-bold px-6 py-2.5 rounded-full hover:scale-[1.03] active:scale-[0.97] transition-transform clay-btn-primary"
-                    onclick="closeDemoMockup(); openModal();">
+            <div class="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#15101c] flex flex-col sm:flex-row justify-between items-center gap-4">
+                <span class="text-xs text-slate-400 text-center sm:text-left">💡 Giao diện thực tế sẽ được tùy chỉnh 100% theo phong thái của bạn!</span>
+                <a href="https://zalo.me/0839909399" target="_blank" rel="noopener" class="bg-primary text-white font-bold px-6 py-2.5 rounded-full hover:scale-105 transition-transform" onclick="closeDemoMockup()">
                     Thiết Kế Ngay Thôi!
-                </button>
+                </a>
             </div>
         </div>
     </div>
 
-
-
+    <!-- Load the comprehensive script.js bundle -->
     <script src="script.js"></script>
-</body>
 
+    <!-- Page Specific Scripting -->
+    <script>
+        // Theme toggler helper
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle("dark");
+            localStorage.setItem("theme", isDark ? "dark" : "light");
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById("theme-icon");
+            if (icon) {
+                icon.textContent = isDark ? "light_mode" : "dark_mode";
+            }
+        }
+
+        // Spin avatar animation
+        let spinning = false;
+        const statusPhrases = [
+            "Hi there! Let's build something epic! 🚀",
+            "Designing experiences with high-end vibes! 🎨",
+            "Mỗi dòng code đều mang nhiệt huyết! 💖",
+            "Greenwich Uni Software Engineering Student! 🎓",
+            "Check out my project portfolio pricing! ✨",
+            "Always creative, always sweet! 🍭"
+        ];
+
+        function triggerAvatarSpin() {
+            if (spinning) return;
+            spinning = true;
+            playPopSound();
+            
+            const avt = document.getElementById("avatar-img");
+            avt.style.transform = "rotate(360deg) scale(1.08)";
+            
+            const bubble = document.getElementById("speech-bubble");
+            const randomMsg = statusPhrases[Math.floor(Math.random() * statusPhrases.length)];
+            bubble.textContent = randomMsg;
+            bubble.classList.add("active");
+            
+            setTimeout(() => {
+                avt.style.transform = "rotate(0deg) scale(1)";
+                spinning = false;
+            }, 600);
+
+            setTimeout(() => {
+                bubble.classList.remove("active");
+            }, 3000);
+        }
+    </script>
+
+</body>
 </html>
