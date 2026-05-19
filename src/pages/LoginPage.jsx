@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginAdmin, loginMember } from "../services/authSession";
-import HssvVerificationModal from "../components/HssvVerificationModal";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -9,7 +8,6 @@ export default function LoginPage() {
   const [adminForm, setAdminForm] = useState({ username: "", password: "" });
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const googleButtonRef = useRef(null);
 
   const showToast = (message, type = "error") => {
@@ -259,17 +257,6 @@ export default function LoginPage() {
                   Hệ thống tự động kiểm tra và chỉ chấp nhận tài khoản sử dụng email giáo dục của trường học.
                 </div>
               </div>
-
-              {/* Alternative OTP verification for edu mail */}
-              <div className="text-center pt-1">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(true)}
-                  className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-semibold underline decoration-dotted transition-colors"
-                >
-                  Hoặc đăng ký bằng email trường qua OTP
-                </button>
-              </div>
             </form>
           ) : (
             <form onSubmit={handleAdminLogin} className="space-y-5">
@@ -313,8 +300,7 @@ export default function LoginPage() {
         </div>
       </section>
 
-      {/* Verification Modal */}
-      <HssvVerificationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
     </main>
   );
 }

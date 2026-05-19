@@ -56,7 +56,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <div className="space-y-3.5 pl-2 border-l-2 border-emerald-500/50">
               <p>
-                <strong>a) Dữ liệu cá nhân cơ bản lưu trữ trên máy chủ (Database):</strong> Họ và tên hiển thị, địa chỉ email đăng nhập (bao gồm Gmail và email trường học đuôi `.edu`), số điện thoại liên hệ, liên kết mạng xã hội, các nội dung bento tab, hình ảnh đại diện cá nhân do chính người dùng đăng tải.
+                <strong>a) Dữ liệu cá nhân cơ bản lưu trữ trên máy chủ (Database):</strong> Họ và tên hiển thị, địa chỉ email đăng nhập (chỉ chấp nhận các tài khoản sử dụng email giáo dục trường học có đuôi `.edu` hoặc `.edu.vn` để được kích hoạt đặc quyền miễn phí), số điện thoại liên hệ, liên kết mạng xã hội, các nội dung bento tab, hình ảnh đại diện cá nhân do chính người dùng đăng tải.
               </p>
               <p>
                 <strong>b) Dữ liệu kỹ thuật & Nhật ký hoạt động:</strong> Địa chỉ IP, loại thiết bị truy cập, hệ điều hành và thời gian đăng nhập nhằm đảm bảo an toàn hệ thống và phòng ngừa tấn công mạng.
@@ -89,9 +89,9 @@ export default function PrivacyPolicyPage() {
             <p>
               Dữ liệu của Khách hàng chỉ được sử dụng cho các mục đích nội bộ hợp pháp dưới đây:
             </p>
-            <ul className="list-dash pl-5 space-y-2">
+            <ul className="list-disc pl-5 space-y-2">
               <li>Thiết lập cấu hình hiển thị trang thông tin cá nhân (Bio Link) theo yêu cầu cá nhân hóa của chủ tài khoản.</li>
-              <li>Xác thực danh tính chủ thể và kiểm soát việc phân bổ các gói tài trợ miễn phí cho đối tượng thụ hưởng hợp lệ (Học sinh - Sinh viên).</li>
+              <li>Xác thực danh tính chủ thể và kiểm soát việc phân bổ các gói tài trợ miễn phí cho đối tượng thụ hưởng hợp lệ (Sinh viên sở hữu email giáo dục).</li>
               <li>Thông báo các bản cập nhật bảo mật kỹ thuật quan trọng hoặc phản hồi các yêu cầu trợ giúp kỹ thuật.</li>
               <li>Nén dữ liệu hình ảnh (định dạng WebP thông minh) để cải thiện tốc độ truyền tải trang và giảm thiểu băng thông lưu trữ.</li>
             </ul>
@@ -116,7 +116,7 @@ export default function PrivacyPolicyPage() {
             <p>
               Chúng tôi thực thi các biện pháp bảo mật công nghệ tiêu chuẩn quốc tế:
             </p>
-            <ul className="list-dash pl-5 space-y-2">
+            <ul className="list-disc pl-5 space-y-2">
               <li>Mã hóa các thông tin nhạy cảm trước khi lưu trữ trong cơ sở dữ liệu.</li>
               <li>Sử dụng chứng chỉ bảo mật SSL/TLS để mã hóa đường truyền thông tin giữa trình duyệt của người dùng và máy chủ.</li>
               <li>**Cam kết tuyệt đối:** Hugo Studio cam kết không bán, không chuyển nhượng, không chia sẻ hay cung cấp thông tin cá nhân của bạn cho bất kỳ tổ chức hay cá nhân thứ ba nào vì mục đích thương mại, ngoại trừ các trường hợp khẩn cấp để ngăn chặn hành vi vi phạm pháp luật hoặc khi có yêu cầu bằng văn bản chính thức của cơ quan tiến hành tố tụng có thẩm quyền của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam.</li>
