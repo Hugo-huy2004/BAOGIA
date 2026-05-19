@@ -904,110 +904,19 @@ export default function AdminPanel() {
 
       {/* TAB 4: SETTINGS */}
       {activeTab === "settings" && (
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden animate-fadeIn">
-          <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex justify-between items-center">
-            <h3 className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">settings</span>
-              Cài Đặt Hệ Thống & Thông Báo
-            </h3>
-            <span className="text-[10px] text-slate-400 font-medium">Quản lý thông báo và trạng thái dịch vụ</span>
-          </div>
-
-          <div className="p-8 space-y-8">
-            {/* Vacation Mode Section */}
-            <div className="space-y-6">
-              <h4 className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-amber-500">flight_takeoff</span>
-                Thông Báo Chế Độ Du Lịch
-              </h4>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left: Settings Control */}
-                <div className="space-y-6">
-                  <div className="bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-2 flex-1">
-                        <label className="flex items-center gap-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={vacationMode}
-                            onChange={(e) => handleVacationModeChange(e.target.checked)}
-                            className="w-5 h-5 rounded-md bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 checked:bg-emerald-500 checked:border-emerald-500 cursor-pointer accent-emerald-500"
-                          />
-                          <span className="font-semibold text-sm text-slate-800 dark:text-white">
-                            Bật thông báo du lịch
-                          </span>
-                        </label>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed pl-8">
-                          Khi bật, khách truy cập vào website sẽ thấy thông báo rằng Hugo Studio đang đi du lịch.
-                        </p>
-                      </div>
-                    </div>
-
-                    {vacationMode && (
-                      <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
-                        <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30 rounded-lg p-3">
-                          <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1.5">
-                            <span className="material-symbols-outlined text-sm">check_circle</span>
-                            Chế độ du lịch đang BẬT ✈️
-                          </p>
-                        </div>
-                        <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                          Thông báo sẽ được hiển thị ở đầu trang khi khách vào website:
-                        </p>
-                        <div className="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-lg p-4 text-center italic">
-                          <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
-                            "Hugo Studio đi du lịch rùiiii"
-                          </p>
-                          <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                            "Vài hôm nữa mình sẽ liên lạc lại bạn nha!"
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/30 rounded-2xl p-4 text-[11px] text-blue-700 dark:text-blue-300 leading-relaxed space-y-2">
-                    <p className="font-semibold flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-sm">info</span>
-                      Cách hoạt động:
-                    </p>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Thông báo xuất hiện ngay lúc vào trang, ngoài cùng trên cùng</li>
-                      <li>Khách hàng có thể đóng thông báo, nhưng nó sẽ hiện lại nếu reload trang</li>
-                      <li>Dữ liệu được lưu trên máy chủ, hiển thị cho tất cả khách truy cập</li>
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Right: Illustration */}
-                <div className="flex items-center justify-center">
-                  <div className="relative w-full max-w-xs">
-                    {/* Decorative background */}
-                    <div className="absolute -inset-4 bg-gradient-to-br from-amber-200/20 via-orange-200/20 to-rose-200/20 dark:from-amber-950/30 dark:via-orange-950/30 dark:to-rose-950/30 rounded-3xl blur-2xl" />
-                    
-                    {/* Image card */}
-                    <div className="relative bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 overflow-hidden shadow-xl">
-                      <div className="rounded-2xl overflow-hidden aspect-square mb-4 bg-slate-200 dark:bg-slate-800">
-                        <img
-                          src="/image/avt6.png"
-                          alt="Vacation Mode"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="text-center space-y-2">
-                        <h4 className="font-bold text-slate-800 dark:text-white text-sm">
-                          Hugo Studio đi du lịch 🏖️
-                        </h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                          Cập nhật trạng thái để khách hàng biết bạn sẽ quay lại khi nào
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden animate-fadeIn p-8">
+          <div className="space-y-4">
+            <label className="flex items-center gap-4 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={vacationMode}
+                onChange={(e) => handleVacationModeChange(e.target.checked)}
+                className="w-6 h-6 rounded-md bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 checked:bg-emerald-500 checked:border-emerald-500 cursor-pointer accent-emerald-500 flex-shrink-0"
+              />
+              <span className="font-semibold text-base text-slate-800 dark:text-white">
+                Bật thông báo du lịch
+              </span>
+            </label>
           </div>
         </div>
       )}
