@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { DataProvider } from "./context/DataContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import VacationNotificationBanner from "./components/VacationNotificationBanner";
 import IntroductionPage from "./pages/IntroductionPage";
 import ServicesPage from "./pages/ServicesPage";
 import BookingContactPage from "./pages/BookingContactPage";
@@ -11,6 +12,7 @@ import MemberPortalPage from "./pages/MemberPortalPage";
 import BioPublicPage from "./pages/BioPublicPage";
 import AdminPanel from "./pages/AdminPanel";
 import PartnerBioPage from "./pages/PartnerBioPage";
+import FAQPage from "./pages/FAQPage";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
 
 function AppContent() {
@@ -35,12 +37,17 @@ function AppContent() {
       
       {/* Static Top-Navigation Header bar */}
       {!isEmbed && <Navbar />}
+      
+      {/* Vacation Mode Notification Banner */}
+      {!isEmbed && <VacationNotificationBanner />}
+      
       {/* Dynamic Content Router */}
       <div className="flex-grow">
         <Routes>
           <Route path="/" element={<Navigate to="/introduction" replace />} />
           <Route path="/introduction" element={<IntroductionPage />} />
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/faq" element={<FAQPage />} />
           <Route path="/booking" element={<BookingContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/member" element={

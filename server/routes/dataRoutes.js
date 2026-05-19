@@ -30,13 +30,13 @@ const initialData = {
     {
       id: "hobby1",
       icon: "potted_plant",
-      title: "Trồng Dương Xỉ 🌿",
+      title: "Trồng Dương Xỉ",
       desc: "Đam mê trồng các loại cây dương xỉ xanh mướt, mang lại cảm giác bình yên và dịu dàng."
     },
     {
       id: "hobby2",
       icon: "favorite",
-      title: "Thích Cute & 3D 🍭",
+      title: "Thích Cute & 3D",
       desc: "Thích những trải nghiệm số mang phong cách kẹo ngọt Claymorphism bóng bẩy đầy bất ngờ."
     }
   ],

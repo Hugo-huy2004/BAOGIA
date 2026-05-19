@@ -16,6 +16,7 @@ export default function MobileDrawer() {
   const mainMenuItems = [
     { label: "Giới Thiệu", path: "/introduction" },
     { label: "Dịch Vụ", path: "/services" },
+    { label: "Hỏi Đáp", path: "/faq" },
     { label: "Đặt Lịch & Liên Hệ", path: "/booking" }
   ];
 

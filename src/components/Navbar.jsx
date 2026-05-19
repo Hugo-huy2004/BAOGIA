@@ -94,6 +94,18 @@ export default function Navbar() {
           </Link>
 
           <Link 
+            to="/faq" 
+            onClick={playPopSound} 
+            className={`inline-flex h-8 items-center text-[12px] font-normal leading-none tracking-wide transition-colors duration-200 select-none ${
+              location.pathname === "/faq"
+                ? "text-slate-900 dark:text-white font-medium"
+                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+            }`}
+          >
+            Hỏi đáp
+          </Link>
+
+          <Link 
             to="/booking" 
             onClick={playPopSound} 
             className={`inline-flex h-8 items-center text-[12px] font-normal leading-none tracking-wide transition-colors duration-200 select-none ${
