@@ -18,6 +18,10 @@ export default function HssvVerificationModal({ isOpen, onClose }) {
       setError("Email không hợp lệ.");
       return;
     }
+    if (!email.toLowerCase().includes(".edu")) {
+      setError("Đăng ký bị từ chối: Cổng đăng ký tự động chỉ chấp nhận email trường học có chứa đuôi giáo dục (.edu / .edu.vn).");
+      return;
+    }
     setLoading(true);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/otp/send`, {
