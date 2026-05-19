@@ -273,46 +273,7 @@ export default function FAQPage() {
           </div>
         </div>
 
-        {/* Bottom CTA Section - Premium styling */}
-        <div className="mt-20 pt-16 border-t border-white/10">
-          <div className="text-center space-y-8">
-            {/* Animated counter */}
-            <div className="inline-block">
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-white">
-                Còn câu hỏi khác?
-              </h2>
-            </div>
-            
-            <p className="text-lg text-slate-300 max-w-xl mx-auto leading-relaxed">
-              Đừng ngại liên hệ với chúng tớ! Hugo Studio luôn sẵn lòng lắng nghe và hỗ trợ bạn.
-            </p>
 
-            {/* CTA Buttons with gradient backgrounds */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <a
-                href="https://zalo.me"
-                className="group relative inline-flex items-center justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#0ea5e9] text-white font-bold text-base shadow-lg shadow-[#6366f1]/30 hover:scale-105 hover:shadow-xl transition-all duration-300 overflow-hidden"
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  <span className="material-symbols-outlined">mail</span>
-                  Gửi Tin Nhắn
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0ea5e9] to-[#6366f1] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </a>
-
-              <Link
-                to="/booking"
-                className="group relative inline-flex items-center justify-center px-8 py-4 rounded-xl border border-white/30 text-white font-bold text-base hover:bg-white/10 transition-all duration-300 overflow-hidden"
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  <span className="material-symbols-outlined">calendar_month</span>
-                  Đặt Lịch Tư Vấn
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1]/20 to-[#0ea5e9]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </Link>
-            </div>
-          </div>
-        </div>
       </div>
     </main>
   );

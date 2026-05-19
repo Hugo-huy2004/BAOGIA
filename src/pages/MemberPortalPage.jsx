@@ -412,8 +412,8 @@ export default function MemberPortalPage() {
     imgElement.src = cropModal.imageSrc;
     imgElement.onload = () => {
       const canvas = document.createElement("canvas");
-      canvas.width = 256;
-      canvas.height = 256;
+      canvas.width = 1024;
+      canvas.height = 1024;
       const ctx = canvas.getContext("2d");
 
       const baseWidth = 192;
@@ -425,17 +425,17 @@ export default function MemberPortalPage() {
       const tlX = (96 - zoomedWidth / 2) + cropModal.offset.x;
       const tlY = (96 - zoomedHeight / 2) + cropModal.offset.y;
 
-      const scaleCanvas = 256 / 192;
+      const scaleCanvas = 1024 / 192;
       const canvasX = tlX * scaleCanvas;
       const canvasY = tlY * scaleCanvas;
       const canvasW = zoomedWidth * scaleCanvas;
       const canvasH = zoomedHeight * scaleCanvas;
 
       ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, 256, 256);
+      ctx.fillRect(0, 0, 1024, 1024);
       ctx.drawImage(imgElement, canvasX, canvasY, canvasW, canvasH);
 
-      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.95);
       setFormData((prev) => ({ ...prev, avatarUrl: compressedBase64 }));
       setCropModal({ isOpen: false, imageSrc: null, zoom: 1, aspect: 1, offset: { x: 0, y: 0 } });
       showToast("Cắt ảnh đại diện thành công!", "success");

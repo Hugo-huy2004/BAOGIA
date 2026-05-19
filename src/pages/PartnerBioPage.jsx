@@ -323,8 +323,8 @@ export default function PartnerBioPage() {
     img.src = cropper.imageSrc;
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      canvas.width = 256;
-      canvas.height = 256;
+      canvas.width = 1024;
+      canvas.height = 1024;
       const ctx = canvas.getContext("2d");
       const baseWidth = 192;
       const baseHeight = baseWidth / cropper.aspect;
@@ -333,12 +333,12 @@ export default function PartnerBioPage() {
       const x = 96 - w / 2 + cropper.offset.x;
       const y = 96 - h / 2 + cropper.offset.y;
       
-      const ratio = 256 / 192;
+      const ratio = 1024 / 192;
       ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, 256, 256);
+      ctx.fillRect(0, 0, 1024, 1024);
       ctx.drawImage(img, x * ratio, y * ratio, w * ratio, h * ratio);
 
-      const base64 = canvas.toDataURL("image/jpeg", 0.7);
+      const base64 = canvas.toDataURL("image/jpeg", 0.95);
       setBioData(prev => ({
         ...prev,
         avatarUrl: base64
