@@ -48,7 +48,7 @@ export default function PrivacyPolicyPage() {
             </p>
           </section>
 
-          {/* 2. Thu thập thông tin cá nhân & Cơ chế CCCD */}
+          {/* 2. Thu thập thông tin cá nhân */}
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">2. Thu thập và Phân loại dữ liệu cá nhân</h3>
             <p>
@@ -61,18 +61,6 @@ export default function PrivacyPolicyPage() {
               <p>
                 <strong>b) Dữ liệu kỹ thuật & Nhật ký hoạt động:</strong> Địa chỉ IP, loại thiết bị truy cập, hệ điều hành và thời gian đăng nhập nhằm đảm bảo an toàn hệ thống và phòng ngừa tấn công mạng.
               </p>
-              <p>
-                <strong>c) Cơ chế xử lý an toàn đối với Số Căn cước công dân (CCCD):</strong>
-              </p>
-              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs sm:text-sm text-slate-800 dark:text-slate-200 space-y-2">
-                <p className="font-bold text-amber-700 dark:text-amber-400 uppercase">⚠️ CAM KẾT KHÔNG THU THẬP & KHÔNG LƯU TRỮ CCCD:</p>
-                <p>
-                  Để xác minh điều kiện được hưởng gói ưu đãi Học sinh - Sinh viên (U23) đối với những người dùng không sở hữu hòm thư điện tử giáo dục chuyên dụng (`.edu`), Hugo Studio hỗ trợ phương thức kiểm tra năm sinh qua mã số CCCD 12 chữ số.
-                </p>
-                <p>
-                  Chúng tôi long trọng tuyên bố: **Toàn bộ quá trình kiểm tra số CCCD được xử lý hoàn toàn bằng thuật toán Client-side JavaScript trực tiếp trên trình duyệt của máy khách hàng.** Hệ thống tuyệt đối không gửi chuỗi số CCCD này về máy chủ (Server), không truyền tải qua môi trường internet và hoàn toàn không lưu trữ trong bất kỳ cơ sở dữ liệu vật lý hay đám mây nào của Hugo Studio. Thuật toán chỉ thực hiện chức năng trích xuất năm sinh để đối chiếu tính tuổi và sẽ lập tức hủy bỏ dữ liệu ngay sau khi kết thúc tác vụ xác minh trên giao diện.
-                </p>
-              </div>
             </div>
           </section>
 
