@@ -146,41 +146,41 @@ export default function IntroductionPage() {
             CREATIVE
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
-            <div className="lg:col-span-7 space-y-6">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
+            <div className="lg:col-span-7 space-y-4 sm:space-y-5 md:space-y-6">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
                 ✦ Creative Developer Portal
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] text-slate-900 dark:text-white">
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] text-slate-900 dark:text-white">
                 Kiến tạo vũ trụ số <br className="hidden md:inline" />
                 <span className="bg-gradient-to-r from-[#6366f1] via-[#0ea5e9] to-[#fbbf24] bg-clip-text text-transparent">
                   bằng cả trái tim.
                 </span>
               </h1>
-              <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
                 Chào mừng bạn đến với ngôi nhà của <strong className="text-[#6366f1] dark:text-[#a5b4fc]">{data.profile.fullName}</strong>. Nơi định hình phong cách thiết kế sang trọng, tối ưu SEO và tương tác mượt mà.
               </p>
-              <div className="flex gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
                 <button 
                   onClick={() => scrollToSlide(1)}
-                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#6366f1] text-white font-semibold shadow-lg shadow-[#6366f1]/20 hover:scale-[1.03] transition-transform duration-300 text-xs"
+                  className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-[#6366f1] text-white font-semibold shadow-lg shadow-[#6366f1]/20 hover:scale-[1.03] transition-transform duration-300 text-xs sm:text-sm"
                 >
                   Khám Phá Portal
                 </button>
-                <Link to="/booking" className="inline-flex items-center justify-center px-6 py-4 rounded-full border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-xs">
+                <Link to="/booking" className="inline-flex items-center justify-center px-6 py-3 sm:py-4 rounded-full border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-xs sm:text-sm">
                   Đặt Lịch Hẹn
                 </Link>
               </div>
             </div>
             
-            {/* Enlarged Avatar with Overlapping Ring */}
-            <div className="lg:col-span-5 flex justify-center relative mt-4 lg:mt-0">
-              <div className="absolute w-[260px] h-[260px] sm:w-[480px] sm:h-[480px] rounded-full bg-[#6366f1]/15 blur-[60px] sm:blur-[100px]" />
+            {/* Enlarged Avatar with Overlapping Ring - visible on all sizes */}
+            <div className="w-full sm:w-auto flex lg:col-span-5 justify-center relative mt-4 lg:mt-0">
+              <div className="absolute w-[160px] h-[160px] sm:w-[260px] sm:h-[260px] md:w-[380px] md:h-[380px] lg:w-[480px] lg:h-[480px] rounded-full bg-[#6366f1]/15 blur-[40px] sm:blur-[60px] md:blur-[80px] lg:blur-[100px]" />
               
               {/* Overlapping offset back frame ring */}
-              <div className="absolute -top-6 -left-6 w-[300px] h-[300px] rounded-full border border-slate-200 dark:border-white/5 pointer-events-none hidden sm:block" />
+              <div className="absolute -top-4 -left-4 sm:-top-6 sm:-left-6 w-[180px] h-[180px] sm:w-[300px] sm:h-[300px] md:w-[420px] md:h-[420px] lg:w-[520px] lg:h-[520px] rounded-full border border-slate-200 dark:border-white/5 pointer-events-none" />
               
-              <div className="relative w-[220px] h-[220px] sm:w-[380px] sm:h-[380px] lg:w-[480px] lg:h-[480px] rounded-full bg-white/10 dark:bg-white/5 backdrop-blur-2xl border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-2xl overflow-hidden group">
+              <div className="relative w-[140px] h-[140px] sm:w-[220px] sm:h-[220px] md:w-[340px] md:h-[340px] lg:w-[480px] lg:h-[480px] rounded-full bg-white/10 dark:bg-white/5 backdrop-blur-2xl border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-2xl overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/20 via-transparent to-[#0ea5e9]/20" />
                 <img
                   src={avatarImages[currentAvtIndex]}
@@ -192,9 +192,10 @@ export default function IntroductionPage() {
               </div>
 
               {/* Overlapping glass status badge */}
-              <div className="absolute bottom-2 right-2 sm:bottom-6 sm:right-6 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-2xl shadow-lg z-20 text-[8px] sm:text-[10px] font-bold text-slate-800 dark:text-white flex items-center gap-1.5 transform rotate-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                <span>Available for Projects</span>
+              <div className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-4 md:right-4 lg:bottom-6 lg:right-6 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2.5 rounded-2xl shadow-lg z-20 text-[7px] sm:text-[8px] md:text-[10px] font-bold text-slate-800 dark:text-white flex items-center gap-1 transform rotate-3">
+                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                <span className="hidden sm:inline">Available for Projects</span>
+                <span className="sm:hidden">Available</span>
               </div>
             </div>
           </div>
@@ -208,18 +209,18 @@ export default function IntroductionPage() {
           </div>
 
           <div className="w-full max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className="lg:col-span-7 space-y-6 text-left relative z-10">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#0ea5e9]/10 text-[#0ea5e9] border border-[#0ea5e9]/25">
+            <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
+              <div className="lg:col-span-7 space-y-4 sm:space-y-5 md:space-y-6 text-left relative z-10">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-[#0ea5e9]/10 text-[#0ea5e9] border border-[#0ea5e9]/25">
                   ✦ Web Development
                 </span>
-                <h2 className="font-display text-4xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight">
                   Lập Trình Web <br />
                   <span className="bg-gradient-to-r from-[#0ea5e9] to-[#6366f1] bg-clip-text text-transparent">
                     Nơi Ý Tưởng Trở Thành Không Gian Tương Tác
                   </span>
                 </h2>
-                <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
                   Ngành lập trình Web là hành trình biến các ý tưởng sáng tạo thành các trang web sống động. Không chỉ là viết code thuần túy, lập trình web đòi hỏi tư duy thẩm mỹ cao kết hợp cùng giải pháp kỹ thuật tối ưu để mang lại trải nghiệm hoàn hảo cho người dùng.
                 </p>
                 <div className="pt-2">
@@ -232,20 +233,20 @@ export default function IntroductionPage() {
                 </div>
               </div>
 
-              {/* Overlapping Coding Window and Accent Card - hidden on mobile/tablet */}
-              <div className="hidden lg:flex lg:col-span-5 justify-center relative">
+              {/* Overlapping Coding Window and Accent Card - visible on all sizes */}
+              <div className="w-full flex lg:col-span-5 justify-center relative mt-2 sm:mt-4 md:mt-6 lg:mt-0">
                 {/* Back Underlapping Card */}
-                <div className="absolute -bottom-6 -left-6 w-48 h-48 rounded-[2rem] bg-gradient-to-tr from-[#6366f1]/20 to-transparent border border-slate-200/20 dark:border-white/5 pointer-events-none transform -rotate-6 hidden sm:block" />
+                <div className="absolute -bottom-3 sm:-bottom-6 -left-3 sm:-left-6 w-32 h-32 sm:w-48 sm:h-48 rounded-[2rem] bg-gradient-to-tr from-[#6366f1]/20 to-transparent border border-slate-200/20 dark:border-white/5 pointer-events-none transform -rotate-6" />
 
                 {/* VS Code Mockup */}
-                <div className="w-full max-w-[420px] rounded-[2rem] bg-slate-950 dark:bg-black/80 border border-slate-800 dark:border-white/10 p-6 sm:p-8 shadow-2xl space-y-4 font-mono text-[11px] sm:text-xs leading-relaxed text-slate-300 relative z-10">
+                <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-[420px] rounded-xl sm:rounded-[2rem] bg-slate-950 dark:bg-black/80 border border-slate-800 dark:border-white/10 p-3 sm:p-6 sm:p-8 shadow-2xl space-y-3 sm:space-y-4 font-mono text-[9px] sm:text-[11px] md:text-xs leading-relaxed text-slate-300 relative z-10">
                   <div className="flex justify-between items-center pb-2 border-b border-slate-900">
-                    <div className="flex gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 rounded-full bg-red-500/80" />
+                      <span className="w-2 h-2 rounded-full bg-yellow-500/80" />
+                      <span className="w-2 h-2 rounded-full bg-green-500/80" />
                     </div>
-                    <span className="text-[9px] text-slate-500">App.jsx</span>
+                    <span className="text-[8px] sm:text-[9px] text-slate-500">App.jsx</span>
                   </div>
                   <div className="space-y-1">
                     <p><span className="text-purple-400">import</span> React <span className="text-purple-400">from</span> <span className="text-emerald-400">"react"</span>;</p>
@@ -264,7 +265,7 @@ export default function IntroductionPage() {
                 </div>
 
                 {/* Front Overlapping floating pill */}
-                <div className="absolute -top-4 -right-4 bg-[#6366f1] text-white text-[9px] font-black tracking-widest uppercase px-4 py-2 rounded-2xl shadow-lg z-20 transform rotate-6">
+                <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-[#6366f1] text-white text-[8px] sm:text-[9px] font-black tracking-widest uppercase px-2.5 sm:px-4 py-1 sm:py-2 rounded-xl sm:rounded-2xl shadow-lg z-20 transform rotate-6">
                   React + Vite
                 </div>
               </div>
@@ -279,23 +280,23 @@ export default function IntroductionPage() {
             EST. 2004
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 md:gap-12 w-full max-w-7xl mx-auto items-center">
-            {/* Mobile Portrait - visible only on small/medium screens */}
-            <div className="flex lg:hidden justify-center mb-2 sm:mb-4">
-              <div className="w-full max-w-sm rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-900 to-slate-950 dark:from-[#12111a] dark:to-black border border-slate-700/50 dark:border-white/10 p-3 sm:p-4 shadow-2xl hover:shadow-[0_20px_40px_rgba(99,102,241,0.2)] transition-all duration-300 group overflow-hidden relative">
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center">
+            {/* Mobile Portrait - visible on small/medium screens */}
+            <div className="w-full flex lg:hidden justify-center">
+              <div className="w-full max-w-xs rounded-xl sm:rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 dark:from-[#12111a] dark:to-black border border-slate-700/50 dark:border-white/10 p-2.5 sm:p-3 shadow-xl hover:shadow-[0_20px_40px_rgba(99,102,241,0.2)] transition-all duration-300 group overflow-hidden relative">
                 {/* Decorative gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
-                <div className="aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative">
+                <div className="aspect-video rounded-lg sm:rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative">
                   <img 
                     src={realPhoto} 
                     alt="Hugo Portrait" 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   />
                 </div>
-                <div className="pt-3 sm:pt-4 text-center space-y-1">
-                  <span className="font-display text-base sm:text-lg font-bold bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 bg-clip-text text-transparent dark:from-white dark:via-slate-50 dark:to-white">Peter Hugo Wishpax Lê</span>
-                  <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-medium">Software Engineering Student</p>
+                <div className="pt-2.5 sm:pt-3 text-center space-y-0.5 sm:space-y-1">
+                  <span className="font-display text-sm sm:text-base font-bold bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 bg-clip-text text-transparent dark:from-white dark:via-slate-50 dark:to-white">Peter Hugo Wishpax Lê</span>
+                  <p className="text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 font-medium">Software Engineering Student</p>
                 </div>
               </div>
             </div>
@@ -324,7 +325,7 @@ export default function IntroductionPage() {
             </div>
 
             {/* Right: Personal Credentials Info overlapping background */}
-            <div className="lg:col-span-7 space-y-3 sm:space-y-4 md:space-y-6 relative z-10">
+            <div className="lg:col-span-7 space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-6 relative z-10 w-full">
               <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/25">
                 ✦ Personal Information
               </span>
@@ -332,27 +333,27 @@ export default function IntroductionPage() {
                 Lý lịch & Quá trình học tập
               </h2>
               
-              <div className="space-y-3 sm:space-y-4 md:space-y-6">
-                <div className="flex items-start gap-3 border-b border-slate-200/50 dark:border-white/5 pb-3 sm:pb-4">
-                  <span className="material-symbols-outlined text-[#6366f1] text-xl sm:text-2xl mt-0.5 flex-shrink-0">cake</span>
+              <div className="space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-6">
+                <div className="flex items-start gap-2.5 sm:gap-3 border-b border-slate-200/50 dark:border-white/5 pb-2.5 sm:pb-3 md:pb-4">
+                  <span className="material-symbols-outlined text-[#6366f1] text-lg sm:text-xl md:text-2xl mt-0.5 flex-shrink-0">cake</span>
                   <div>
                     <div className="text-[8px] sm:text-[10px] uppercase font-bold text-slate-400">Sinh Nhật</div>
-                    <div className="text-xs sm:text-base font-semibold text-slate-850 dark:text-slate-200 mt-0.5">{data.profile.birthday}</div>
+                    <div className="text-xs sm:text-sm md:text-base font-semibold text-slate-850 dark:text-slate-200 mt-0.5">{data.profile.birthday}</div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 border-b border-[#6366f1]/10 pb-3 sm:pb-4">
-                  <span className="material-symbols-outlined text-[#0ea5e9] text-xl sm:text-2xl mt-0.5 flex-shrink-0">school</span>
+                <div className="flex items-start gap-2.5 sm:gap-3 border-b border-[#6366f1]/10 pb-2.5 sm:pb-3 md:pb-4">
+                  <span className="material-symbols-outlined text-[#0ea5e9] text-lg sm:text-xl md:text-2xl mt-0.5 flex-shrink-0">school</span>
                   <div className="space-y-2 sm:space-y-3 w-full">
                     <div className="text-[8px] sm:text-[10px] uppercase font-bold text-slate-400">Học vấn / Trường học liên kết</div>
                     
-                    <div className="grid grid-cols-1 gap-2 sm:gap-4 w-full pt-0 sm:pt-1">
+                    <div className="grid grid-cols-1 gap-2 sm:gap-3 w-full pt-0 sm:pt-1">
                       {/* High school card */}
                       <a 
                         href="https://ndc.edu.vn" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="p-3 sm:p-4 rounded-lg sm:rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-[#6366f1] transition-colors group space-y-1 block text-left shadow-sm"
+                        className="p-2.5 sm:p-3 md:p-4 rounded-lg sm:rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-[#6366f1] transition-colors group space-y-1 block text-left shadow-sm"
                       >
                         <div className="flex justify-between items-start gap-2">
                           <span className="text-[8px] sm:text-[10px] font-bold text-[#6366f1] uppercase tracking-wider leading-tight">THPT Nguyễn Đình Chiểu</span>
@@ -366,7 +367,7 @@ export default function IntroductionPage() {
                         href="https://greenwich.edu.vn" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="p-3 sm:p-4 rounded-lg sm:rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-[#0ea5e9] transition-colors group space-y-1 block text-left shadow-sm"
+                        className="p-2.5 sm:p-3 md:p-4 rounded-lg sm:rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-[#0ea5e9] transition-colors group space-y-1 block text-left shadow-sm"
                       >
                         <div className="flex justify-between items-start gap-2">
                           <span className="text-[8px] sm:text-[10px] font-bold text-[#0ea5e9] uppercase tracking-wider leading-tight">Greenwich Vietnam</span>

@@ -14,7 +14,7 @@ const initialData = {
     headline: "Xin chào! Tôi là Peter Hugo Wishpax Lê",
     subtitle: "Kiến tạo thế giới số bằng những dòng code kẹo ngọt, thiết kế Claymorphism tinh tế kết hợp hiệu năng vượt trội.",
     country: "Việt Nam 🇻🇳",
-    birthday: "05/02/2004 (Bảo Bình nhiệt huyết)",
+    birthday: "2004",
     education: "Software Engineering • Greenwich VN 🎓",
     storyTitle: "Kiến tạo trải nghiệm bằng cả trái tim",
     storyContent: "Tôi theo đuổi triết lý lập trình kết hợp nghệ thuật: mỗi giao diện đều phải có linh hồn, mang lại sự ngạc nhiên, ngọt ngào cho người sử dụng từ cái nhìn đầu tiên, nhưng đồng thời bên dưới phải là hệ thống mã nguồn cực kỳ gọn gàng, hiệu năng vượt trội và chuẩn SEO tối đa.",
