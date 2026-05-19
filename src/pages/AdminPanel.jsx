@@ -29,6 +29,7 @@ const HugoStudioColoredBrandLogo = ({ className = "text-xl sm:text-2xl" }) => {
 };
 
 export default function AdminPanel() {
+  const { data, updateAdvertisement } = useData();
   const [activeTab, setActiveTab] = useState("users"); // 'users', 'bookings', 'partners', 'settings'
   const [users, setUsers] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -37,6 +38,9 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [toastMsg, setToastMsg] = useState("");
   const [toastType, setToastType] = useState("success");
+
+  // Advertisement State
+  const [uploadingAd, setUploadingAd] = useState(false);
 
   // Partner Form State
   const [partnerForm, setPartnerForm] = useState({ name: "", iframeUrl: "" });
@@ -60,6 +64,65 @@ export default function AdminPanel() {
       setVacationMode(JSON.parse(saved));
     }
   }, []);
+
+  const handleAdImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      showNotification("Vui lòng chọn một file hình ảnh.", "error");
+      return;
+    }
+
+    setUploadingAd(true);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Str = reader.result;
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/upload-ad`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            base64Str,
+            oldUrl: data?.advertisement?.imageUrl || ""
+          })
+        });
+        const result = await res.json();
+        if (res.ok && result.url) {
+          await updateAdvertisement({ imageUrl: result.url, isActive: true });
+          showNotification("Tải ảnh quảng cáo lên thành công!");
+        } else {
+          showNotification("Lỗi khi tải ảnh quảng cáo.", "error");
+        }
+      } catch (err) {
+        showNotification("Lỗi kết nối máy chủ.", "error");
+      } finally {
+        setUploadingAd(false);
+        e.target.value = "";
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAdDelete = async () => {
+    if (!window.confirm("Bạn có chắc muốn xoá ảnh quảng cáo này?")) return;
+    setUploadingAd(true);
+    try {
+      if (data?.advertisement?.imageUrl) {
+        await fetch(`${import.meta.env.VITE_API_URL}/delete-ad`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: data.advertisement.imageUrl })
+        });
+      }
+      await updateAdvertisement({ imageUrl: "", linkUrl: "", isActive: false });
+      showNotification("Đã xoá quảng cáo!");
+    } catch (err) {
+      showNotification("Lỗi kết nối máy chủ.", "error");
+    } finally {
+      setUploadingAd(false);
+    }
+  };
 
   const handleVacationModeChange = (value) => {
     setVacationMode(value);
@@ -904,8 +967,13 @@ export default function AdminPanel() {
 
       {/* TAB 4: SETTINGS */}
       {activeTab === "settings" && (
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden animate-fadeIn p-8">
-          <div className="space-y-4">
+        <div className="space-y-6 animate-fadeIn">
+          {/* Vacation Mode */}
+          <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden p-8">
+            <h3 className="font-bold text-sm text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-amber-500 text-lg">flight_takeoff</span>
+              Chế độ Du lịch
+            </h3>
             <label className="flex items-center gap-4 cursor-pointer">
               <input
                 type="checkbox"
@@ -913,10 +981,96 @@ export default function AdminPanel() {
                 onChange={(e) => handleVacationModeChange(e.target.checked)}
                 className="w-6 h-6 rounded-md bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 checked:bg-emerald-500 checked:border-emerald-500 cursor-pointer accent-emerald-500 flex-shrink-0"
               />
-              <span className="font-semibold text-base text-slate-800 dark:text-white">
-                Bật thông báo du lịch
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">
+                Bật thông báo du lịch (Ngừng nhận booking mới)
               </span>
             </label>
+          </div>
+
+          {/* Advertisement Settings */}
+          <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden p-8">
+            <h3 className="font-bold text-sm text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-lg">campaign</span>
+              Quản lý Quảng Cáo Popup (Ad Banner)
+            </h3>
+            <p className="text-xs text-slate-500 mb-6">
+              Ảnh quảng cáo sẽ hiển thị ở đầu trang khi người dùng truy cập. Chỉ cần tải lên 1 ảnh, nếu có ảnh thì popup sẽ tự động bật.
+            </p>
+            
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              <div className="w-full md:w-1/3 space-y-4">
+                <div className="relative group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="adUpload"
+                    className="hidden"
+                    onChange={handleAdImageUpload}
+                    disabled={uploadingAd}
+                  />
+                  <label 
+                    htmlFor="adUpload"
+                    className={`flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${uploadingAd ? 'opacity-50 pointer-events-none' : ''}`}
+                  >
+                    <span className="material-symbols-outlined text-3xl text-slate-400 mb-2">
+                      {uploadingAd ? 'hourglass_empty' : 'cloud_upload'}
+                    </span>
+                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300 text-center">
+                      {uploadingAd ? 'Đang tải lên...' : 'Tải Ảnh Quảng Cáo'}
+                    </span>
+                  </label>
+                </div>
+                
+                {data?.advertisement?.imageUrl && (
+                  <button
+                    onClick={handleAdDelete}
+                    disabled={uploadingAd}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 transition-colors border border-rose-200 dark:border-rose-900/50"
+                  >
+                    <span className="material-symbols-outlined text-sm">delete</span>
+                    Xoá Quảng Cáo
+                  </button>
+                )}
+              </div>
+
+              <div className="w-full md:w-2/3">
+                <div className="bg-slate-50 dark:bg-[#181622] rounded-2xl border border-slate-200 dark:border-slate-800 min-h-[160px] flex items-center justify-center p-4">
+                  {data?.advertisement?.imageUrl ? (
+                    <img 
+                      src={data.advertisement.imageUrl} 
+                      alt="Ad Preview" 
+                      className="max-h-64 object-contain rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
+                    />
+                  ) : (
+                    <div className="text-center text-slate-400 space-y-2">
+                      <span className="material-symbols-outlined text-3xl opacity-50">hide_image</span>
+                      <p className="text-xs font-medium">Chưa có ảnh quảng cáo nào được thiết lập.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {data?.advertisement?.imageUrl && (
+              <div className="mt-4 bg-slate-50 dark:bg-[#1f1929] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Liên kết đích (Tùy chọn):</label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={data?.advertisement?.linkUrl || ""}
+                    onChange={(e) => updateAdvertisement({ linkUrl: e.target.value })}
+                    className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-black/30 text-xs p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+                  />
+                  <button 
+                    onClick={() => showNotification("Đã lưu liên kết quảng cáo!")}
+                    className="px-5 bg-primary hover:bg-indigo-650 text-white text-xs font-bold rounded-xl transition-colors"
+                  >
+                    Lưu Link
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

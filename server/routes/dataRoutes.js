@@ -152,6 +152,34 @@ router.patch('/', async (req, res) => {
   }
 });
 
+import cloudinaryUtil from '../utils/cloudinary.js';
+
+// POST: Upload Ad Image
+router.post('/upload-ad', async (req, res) => {
+  try {
+    const { base64Str, oldUrl } = req.body;
+    if (!base64Str) return res.status(400).json({ error: "Missing image data" });
+    
+    const secureUrl = await cloudinaryUtil.uploadAdImage(base64Str, oldUrl);
+    res.json({ url: secureUrl });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE: Delete Ad Image
+router.delete('/delete-ad', async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (url) {
+      await cloudinaryUtil.deleteAvatar(url);
+    }
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST: Reset to initial data
 router.post('/reset', async (req, res) => {
   try {

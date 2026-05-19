@@ -4,6 +4,7 @@ import { DataProvider } from "./context/DataContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import VacationNotificationBanner from "./components/VacationNotificationBanner";
+import GlobalAdBanner from "./components/GlobalAdBanner";
 import IntroductionPage from "./pages/IntroductionPage";
 import ServicesPage from "./pages/ServicesPage";
 import BookingContactPage from "./pages/BookingContactPage";
@@ -41,6 +42,9 @@ function AppContent() {
       
       {/* Vacation Mode Notification Banner */}
       {!isEmbed && <VacationNotificationBanner />}
+
+      {/* Global Advertisement Banner */}
+      {!isEmbed && <GlobalAdBanner />}
       
       {/* Dynamic Content Router */}
       <div className="flex-grow">

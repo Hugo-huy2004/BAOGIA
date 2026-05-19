@@ -136,7 +136,12 @@ const initialData = {
       copyright: 350000
     }
   },
-  partnerIframe: ""
+  partnerIframe: "",
+  advertisement: {
+    imageUrl: "",
+    linkUrl: "",
+    isActive: false
+  }
 };
 
 export const DataProvider = ({ children }) => {
@@ -250,6 +255,19 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  const updateAdvertisement = async (adUpdates) => {
+    const newData = {
+      ...data,
+      advertisement: { ...(data.advertisement || {}), ...adUpdates }
+    };
+    setData(newData);
+    try {
+      await dataApi.updateField('advertisement', newData.advertisement);
+    } catch (err) {
+      console.error("Error updating advertisement:", err);
+    }
+  };
+
   const resetToDefaults = async () => {
     setData(initialData);
     try {
@@ -272,6 +290,7 @@ export const DataProvider = ({ children }) => {
         updateCatholicism,
         updatePricing,
         updatePartnerIframe,
+        updateAdvertisement,
         resetToDefaults
       }}
     >

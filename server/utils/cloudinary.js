@@ -86,26 +86,52 @@ export const uploadAvatar = async (base64Str, email, oldAvatarUrl = '') => {
   return uploadResponse.secure_url;
 };
 
-/**
- * Deletes an avatar by URL
- * @param {string} url 
- * @returns {Promise<boolean>}
- */
 export const deleteAvatar = async (url) => {
   const publicId = getPublicIdFromUrl(url);
   if (!publicId) return false;
   try {
     await cloudinary.uploader.destroy(publicId);
-    console.log(`🗑️ Deleted avatar on Cloudinary: ${publicId}`);
+    console.log(`Deleted image on Cloudinary: ${publicId}`);
     return true;
   } catch (err) {
-    console.error('❌ Failed to delete avatar on Cloudinary:', err);
+    console.error('Failed to delete image on Cloudinary:', err);
     return false;
   }
+};
+
+export const uploadAdImage = async (base64Str, oldUrl = '') => {
+  const isConfigured = process.env.CLOUDINARY_URL || 
+    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+
+  if (!isConfigured) {
+    throw new Error('Cloudinary is not configured.');
+  }
+
+  if (oldUrl) {
+    const oldPublicId = getPublicIdFromUrl(oldUrl);
+    if (oldPublicId) {
+      try {
+        await cloudinary.uploader.destroy(oldPublicId);
+      } catch (err) {}
+    }
+  }
+
+  const folderPath = 'hugo_wishpax/ads';
+  const publicId = `ad_${Date.now()}`;
+
+  const uploadResponse = await cloudinary.uploader.upload(base64Str, {
+    folder: folderPath,
+    public_id: publicId,
+    overwrite: true,
+    resource_type: 'image'
+  });
+
+  return uploadResponse.secure_url;
 };
 
 export default {
   uploadAvatar,
   deleteAvatar,
-  getPublicIdFromUrl
+  getPublicIdFromUrl,
+  uploadAdImage
 };

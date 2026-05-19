@@ -92,6 +92,11 @@ const DataSchema = new mongoose.Schema(
     partnerIframe: {
       type: String,
       default: ''
+    },
+    advertisement: {
+      imageUrl: { type: String, default: '' },
+      linkUrl: { type: String, default: '' },
+      isActive: { type: Boolean, default: false }
     }
   },
   { timestamps: true }
