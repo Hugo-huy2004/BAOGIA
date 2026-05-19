@@ -334,14 +334,6 @@ export default function IntroductionPage() {
               </h2>
               
               <div className="space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-6">
-                <div className="flex items-start gap-2.5 sm:gap-3 border-b border-slate-200/50 dark:border-white/5 pb-2.5 sm:pb-3 md:pb-4">
-                  <span className="material-symbols-outlined text-[#6366f1] text-lg sm:text-xl md:text-2xl mt-0.5 flex-shrink-0">cake</span>
-                  <div>
-                    <div className="text-[8px] sm:text-[10px] uppercase font-bold text-slate-400">Sinh Nhật</div>
-                    <div className="text-xs sm:text-sm md:text-base font-semibold text-slate-850 dark:text-slate-200 mt-0.5">{data.profile.birthday}</div>
-                  </div>
-                </div>
-
                 <div className="flex items-start gap-2.5 sm:gap-3 border-b border-[#6366f1]/10 pb-2.5 sm:pb-3 md:pb-4">
                   <span className="material-symbols-outlined text-[#0ea5e9] text-lg sm:text-xl md:text-2xl mt-0.5 flex-shrink-0">school</span>
                   <div className="space-y-2 sm:space-y-3 w-full">
