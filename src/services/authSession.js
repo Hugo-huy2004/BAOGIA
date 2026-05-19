@@ -3,28 +3,45 @@ const ADMIN_SESSION_KEY = "price-doc-admin-session";
 
 const readSession = (key) => {
   try {
-    const raw = sessionStorage.getItem(key);
-    return raw ? JSON.parse(raw) : null;
+    const raw = localStorage.getItem(key) || sessionStorage.getItem(key);
+    if (!raw) return null;
+    
+    const parsed = JSON.parse(raw);
+    
+    // Kiểm tra xem session đã hết hạn 14 ngày chưa
+    if (parsed.expiresAt) {
+      if (new Date().getTime() > new Date(parsed.expiresAt).getTime()) {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+        return null;
+      }
+    }
+    
+    return parsed;
   } catch {
     return null;
   }
 };
 
 const writeSession = (key, value) => {
-  sessionStorage.setItem(key, JSON.stringify(value));
+  localStorage.setItem(key, JSON.stringify(value));
 };
 
 export const getMemberSession = () => readSession(MEMBER_SESSION_KEY);
 export const getAdminSession = () => readSession(ADMIN_SESSION_KEY);
 
 export const loginMember = (member) => {
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
+
   const session = {
     role: "member",
     email: member.email,
     displayName: member.displayName || member.email,
     provider: member.provider || "google",
     avatarUrl: member.avatarUrl || "",
-    loginAt: new Date().toISOString()
+    loginAt: new Date().toISOString(),
+    expiresAt: expiresAt.toISOString()
   };
 
   writeSession(MEMBER_SESSION_KEY, session);
@@ -53,10 +70,14 @@ export const loginAdmin = async (credentials) => {
     return null;
   }
 
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
+
   const session = {
     role: "admin",
     username: credentials.username,
-    loginAt: new Date().toISOString()
+    loginAt: new Date().toISOString(),
+    expiresAt: expiresAt.toISOString()
   };
 
   writeSession(ADMIN_SESSION_KEY, session);
@@ -64,6 +85,8 @@ export const loginAdmin = async (credentials) => {
 };
 
 export const logoutAuth = () => {
+  localStorage.removeItem(MEMBER_SESSION_KEY);
+  localStorage.removeItem(ADMIN_SESSION_KEY);
   sessionStorage.removeItem(MEMBER_SESSION_KEY);
   sessionStorage.removeItem(ADMIN_SESSION_KEY);
 };
