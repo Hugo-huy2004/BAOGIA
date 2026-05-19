@@ -44,7 +44,7 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">1. Quyền sở hữu và Điều khoản sử dụng</h3>
             <p>
-              Chào mừng quý khách đến với **Hugo Studio**. Tài liệu này là sự thỏa thuận pháp lý ràng buộc giữa quý khách (sau đây gọi là "Người dùng" hoặc "Khách hàng") và Hugo Studio về việc sử dụng các dịch vụ tạo Bio Link cá nhân, thiết kế Bento Portfolio, và các dịch vụ đi kèm. Bằng cách đăng ký tài khoản, đăng nhập hoặc tiếp tục trải nghiệm trang web, người dùng thừa nhận đã đọc, hiểu rõ và đồng ý tuân thủ tuyệt đối các nội dung quy định tại đây.
+              Chào mừng quý khách đến với Hugo Studio. Tài liệu này là sự thỏa thuận pháp lý ràng buộc giữa quý khách (sau đây gọi là "Người dùng" hoặc "Khách hàng") và Hugo Studio về việc sử dụng các dịch vụ tạo Bio Link cá nhân, thiết kế Bento Portfolio, và các dịch vụ đi kèm. Bằng cách đăng ký tài khoản, đăng nhập hoặc tiếp tục trải nghiệm trang web, người dùng thừa nhận đã đọc, hiểu rõ và đồng ý tuân thủ tuyệt đối các nội dung quy định tại đây.
             </p>
           </section>
 
@@ -52,7 +52,7 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">2. Thu thập và Phân loại dữ liệu cá nhân</h3>
             <p>
-              Theo quy định của **Nghị định 13/2023/NĐ-CP**, chúng tôi chỉ thu thập và xử lý các thông tin cá nhân cần thiết phục vụ cho việc cung cấp dịch vụ công nghệ:
+              Theo quy định của Nghị định 13/2023/NĐ-CP, chúng tôi chỉ thu thập và xử lý các thông tin cá nhân cần thiết phục vụ cho việc cung cấp dịch vụ công nghệ:
             </p>
             <div className="space-y-3.5 pl-2 border-l-2 border-emerald-500/50">
               <p>
@@ -68,17 +68,17 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">3. Quy tắc tính toán Thời hạn dịch vụ và Phiên đăng nhập</h3>
             <p>
-              Căn cứ theo nguyên tắc xác định thời hạn quy định tại **Bộ luật Dân sự 2015**, để tối ưu hóa tài nguyên máy chủ và mang lại sự rõ ràng minh bạch trong vận hành, Hugo Studio áp dụng quy tắc tính thời hạn sử dụng dịch vụ dựa trên mốc thời gian chuyển giao ngày mới (**Mốc 00:00**):
+              Căn cứ theo nguyên tắc xác định thời hạn quy định tại Bộ luật Dân sự 2015, để tối ưu hóa tài nguyên máy chủ và mang lại sự rõ ràng minh bạch trong vận hành, Hugo Studio áp dụng quy tắc tính thời hạn sử dụng dịch vụ dựa trên mốc thời gian chuyển giao ngày mới (mốc 00:00):
             </p>
             <div className="space-y-3 pl-2 border-l-2 border-emerald-500/50">
               <p>
-                <strong>a) Định nghĩa "1 ngày sử dụng":</strong> Bất kỳ thời điểm kích hoạt gói dịch vụ hay đăng nhập tài khoản nào xảy ra trong ngày dương lịch hiện tại, dù là đầu ngày (00:01) hay cuối ngày (23:59), thì thời gian sử dụng thực tế từ lúc kích hoạt cho đến **00:00:00 (nửa đêm) của ngày mới** sẽ được tính tròn là **01 ngày sử dụng**.
+                <strong>a) Định nghĩa "1 ngày sử dụng":</strong> Bất kỳ thời điểm kích hoạt gói dịch vụ hay đăng nhập tài khoản nào xảy ra trong ngày dương lịch hiện tại, dù là đầu ngày (00:01) hay cuối ngày (23:59), thì thời gian sử dụng thực tế từ lúc kích hoạt cho đến 00:00:00 (nửa đêm) của ngày mới sẽ được tính tròn là 01 ngày sử dụng.
               </p>
               <p>
                 <strong>b) Áp dụng đối với Phiên Đăng Nhập (14 ngày):</strong> Thời gian lưu trữ trạng thái đăng nhập (Token session) tối đa là 14 ngày. Trình duyệt của bạn sẽ tự động đăng xuất vào lúc 00:00:00 của ngày thứ 14 kể từ ngày đăng nhập đầu tiên để bảo vệ an toàn danh tính của bạn.
               </p>
               <p>
-                <strong>c) Áp dụng đối với Gói Dịch Vụ Bio Link (365 ngày):</strong> Gói đặc quyền sinh viên được tài trợ sử dụng trong vòng 12 tháng (tương đương 365 ngày). Thời điểm hết hiệu lực của trang Bio sẽ được làm tròn về đúng mốc **00:00:00 của ngày hết hạn thứ 365** (tính theo ngày dương lịch Việt Nam).
+                <strong>c) Áp dụng đối với Gói Dịch Vụ Bio Link (365 ngày):</strong> Gói đặc quyền sinh viên được tài trợ sử dụng trong vòng 12 tháng (tương đương 365 ngày). Thời điểm hết hiệu lực của trang Bio sẽ được làm tròn về đúng mốc 00:00:00 của ngày hết hạn thứ 365 (tính theo ngày dương lịch Việt Nam).
               </p>
             </div>
           </section>
@@ -101,7 +101,7 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">5. Quyền hạn của Chủ thể dữ liệu</h3>
             <p>
-              Tuân thủ **Chương II Nghị định 13/2023/NĐ-CP**, người dùng tại Hugo Studio được bảo đảm các quyền năng pháp lý tối cao đối với thông tin cá nhân của mình:
+              Tuân thủ Chương II Nghị định 13/2023/NĐ-CP, người dùng tại Hugo Studio được bảo đảm các quyền năng pháp lý tối cao đối với thông tin cá nhân của mình:
             </p>
             <ul className="list-disc pl-5 space-y-2">
               <li><strong>Quyền được biết & Tiếp cận:</strong> Người dùng có quyền truy cập trang quản trị cá nhân bất cứ lúc nào để kiểm tra thông tin đang được lưu giữ.</li>
@@ -119,7 +119,7 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc pl-5 space-y-2">
               <li>Mã hóa các thông tin nhạy cảm trước khi lưu trữ trong cơ sở dữ liệu.</li>
               <li>Sử dụng chứng chỉ bảo mật SSL/TLS để mã hóa đường truyền thông tin giữa trình duyệt của người dùng và máy chủ.</li>
-              <li>**Cam kết tuyệt đối:** Hugo Studio cam kết không bán, không chuyển nhượng, không chia sẻ hay cung cấp thông tin cá nhân của bạn cho bất kỳ tổ chức hay cá nhân thứ ba nào vì mục đích thương mại, ngoại trừ các trường hợp khẩn cấp để ngăn chặn hành vi vi phạm pháp luật hoặc khi có yêu cầu bằng văn bản chính thức của cơ quan tiến hành tố tụng có thẩm quyền của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam.</li>
+              <li><strong>Cam kết tuyệt đối:</strong> Hugo Studio cam kết không bán, không chuyển nhượng, không chia sẻ hay cung cấp thông tin cá nhân của bạn cho bất kỳ tổ chức hay cá nhân thứ ba nào vì mục đích thương mại, ngoại trừ các trường hợp khẩn cấp để ngăn chặn hành vi vi phạm pháp luật hoặc khi có yêu cầu bằng văn bản chính thức của cơ quan tiến hành tố tụng có thẩm quyền của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam.</li>
             </ul>
           </section>
 
