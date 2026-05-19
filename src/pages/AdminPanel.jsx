@@ -79,7 +79,7 @@ export default function AdminPanel() {
     reader.onloadend = async () => {
       const base64Str = reader.result;
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/upload-ad`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/data/upload-ad`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -109,7 +109,7 @@ export default function AdminPanel() {
     setUploadingAd(true);
     try {
       if (data?.advertisement?.imageUrl) {
-        await fetch(`${import.meta.env.VITE_API_URL}/delete-ad`, {
+        await fetch(`${import.meta.env.VITE_API_URL}/data/delete-ad`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: data.advertisement.imageUrl })

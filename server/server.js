@@ -44,10 +44,10 @@ mongoose.connect(MONGODB_URI)
         console.log('👥 Default admin account seeded successfully in MongoDB');
       }
     } catch (err) {
-      console.error('❌ Error seeding admin account:', err);
+      console.error('Error seeding admin account:', err);
     }
   })
-  .catch(err => console.error('❌ MongoDB connection failed:', err));
+  .catch(err => console.error(' MongoDB connection failed:', err));
 
 // Routes
 app.use('/api/data', dataRoutes);
