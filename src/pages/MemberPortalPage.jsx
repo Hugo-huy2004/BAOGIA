@@ -435,7 +435,8 @@ export default function MemberPortalPage() {
       ctx.fillRect(0, 0, 1024, 1024);
       ctx.drawImage(imgElement, canvasX, canvasY, canvasW, canvasH);
 
-      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.95);
+      // Dùng định dạng WebP để ảnh cực kỳ sắc nét nhưng dung lượng siêu nhẹ (giảm gánh nặng cho DB)
+      const compressedBase64 = canvas.toDataURL("image/webp", 0.9);
       setFormData((prev) => ({ ...prev, avatarUrl: compressedBase64 }));
       setCropModal({ isOpen: false, imageSrc: null, zoom: 1, aspect: 1, offset: { x: 0, y: 0 } });
       showToast("Cắt ảnh đại diện thành công!", "success");

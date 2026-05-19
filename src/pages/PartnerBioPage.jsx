@@ -338,10 +338,11 @@ export default function PartnerBioPage() {
       ctx.fillRect(0, 0, 1024, 1024);
       ctx.drawImage(img, x * ratio, y * ratio, w * ratio, h * ratio);
 
-      const base64 = canvas.toDataURL("image/jpeg", 0.95);
+      // Dùng định dạng WebP để ảnh cực kỳ sắc nét nhưng dung lượng siêu nhẹ (giảm gánh nặng cho DB)
+      const compressedBase64 = canvas.toDataURL("image/webp", 0.9);
       setBioData(prev => ({
         ...prev,
-        avatarUrl: base64
+        avatarUrl: compressedBase64
       }));
       setCropper({ isOpen: false, imageSrc: null, zoom: 1, aspect: 1, offset: { x: 0, y: 0 } });
       showNotification("Đã chỉnh sửa ảnh đại diện thành công!");
