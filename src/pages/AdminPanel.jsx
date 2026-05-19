@@ -116,9 +116,9 @@ export default function AdminPanel() {
       setLoading(true);
       try {
         const [biosRes, bookingsRes, partnersRes] = await Promise.all([
-          fetch("/api/bios"),
-          fetch("/api/bookings"),
-          fetch("/api/partners")
+          fetch(process.env.VITE_API_BASE_URL + "/api/bios"),
+          fetch(process.env.VITE_API_BASE_URL + "/api/bookings"),
+          fetch(process.env.VITE_API_BASE_URL + "/api/partners")
         ]);
 
         if (biosRes.ok) setUsers(await biosRes.json());
@@ -156,7 +156,7 @@ export default function AdminPanel() {
     }
 
     try {
-      const response = await fetch(`/api/bios/${deleteTarget._id}`, {
+      const response = await fetch(`${process.env.VITE_API_BASE_URL}/api/bios/${deleteTarget._id}`, {
         method: "DELETE"
       });
 
@@ -177,8 +177,8 @@ export default function AdminPanel() {
   // 1. Bios Actions
   const handleToggleBioStatus = async (bioId, currentStatus) => {
     const nextStatus = currentStatus === 'locked' ? 'active' : 'locked';
-    try {
-      const response = await fetch(`/api/bios/${bioId}/status`, {
+      try {
+        const response = await fetch(`${process.env.VITE_API_BASE_URL}/api/bios/${bioId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus })
@@ -199,7 +199,7 @@ export default function AdminPanel() {
   const handleToggleBookingContacted = async (bookingId, currentContacted) => {
     const nextContacted = !currentContacted;
     try {
-      const response = await fetch(`/api/bookings/${bookingId}/contact`, {
+      const response = await fetch(`${process.env.VITE_API_BASE_URL}/api/bookings/${bookingId}/contact`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contacted: nextContacted })
@@ -220,7 +220,7 @@ export default function AdminPanel() {
   const handleDeleteBooking = async (bookingId) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn yêu cầu đặt lịch này không?")) return;
     try {
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await fetch(`${process.env.VITE_API_BASE_URL}/api/bookings/${bookingId}`, {
         method: "DELETE"
       });
       if (response.ok) {
@@ -245,14 +245,14 @@ export default function AdminPanel() {
     }
 
     try {
-      const response = await fetch("/api/partners", {
+      const response = await fetch(`${process.env.VITE_API_BASE_URL}/api/partners`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(partnerForm)
       });
       if (response.ok) {
         const newPartner = await response.json();
-        showNotification("Đã thêm đối tác thành công! 🤝");
+        showNotification("Đã thêm đối tác thành công!");
         setPartners(prev => [newPartner, ...prev]);
         setPartnerForm({ name: "", iframeUrl: "" });
         if (shouldExportIframe) {
@@ -270,7 +270,7 @@ export default function AdminPanel() {
   const handleDeletePartner = async (partnerId) => {
     if (!window.confirm("Bạn có chắc chắn muốn kết thúc liên kết với đối tác này?")) return;
     try {
-      const response = await fetch(`/api/partners/${partnerId}`, {
+      const response = await fetch(`${process.env.VITE_API_BASE_URL}/api/partners/${partnerId}`, {
         method: "DELETE"
       });
       if (response.ok) {
