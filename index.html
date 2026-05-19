@@ -1,43 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi" class="scroll-smooth">
-<head>
+  <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui"
+    />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="theme-color" content="#0b0a0f" />
     <title>Hugo Wishpax</title>
-    
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon/favicon-96x96.png"
+      sizes="96x96"
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon/favicon.ico" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/favicon/apple-touch-icon.png"
+    />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
+
     <!-- Premium SEO Meta Tags -->
-    <meta name="description" content="Khám phá vũ trụ sáng tạo của Peter Hugo Wishpax Lê - Kỹ sư phần mềm tương lai tại Greenwich Việt Nam. Chuyên gia thiết kế website độc bản, phong cách Claymorphism kẹo ngọt." />
-    <meta name="keywords" content="Hugo Wishpax Le, Dev.Architect, Hugo Le, Thiet Ke Website, Claymorphism React, Huynh Truong TNTT, Giao ly vien" />
-    
+    <meta
+      name="description"
+      content="Khám phá vũ trụ sáng tạo của Peter Hugo Wishpax Lê - Kỹ sư phần mềm tương lai tại Greenwich Việt Nam. Chuyên gia thiết kế website độc bản, phong cách Claymorphism kẹo ngọt."
+    />
+    <meta
+      name="keywords"
+      content="Hugo Wishpax Le, Dev.Architect, Hugo Le, Thiet Ke Website, Claymorphism React, Huynh Truong TNTT, Giao ly vien"
+    />
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet" />
-    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Google Material Symbols Outlined -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
+
     <style>
       /* Hide browser UI on mobile */
-      html, body {
+      html,
+      body {
         height: 100%;
         width: 100%;
         margin: 0;
         padding: 0;
         overflow: hidden;
       }
-      
+
       body {
         padding-top: env(safe-area-inset-top);
         padding-bottom: env(safe-area-inset-bottom);
         padding-left: env(safe-area-inset-left);
         padding-right: env(safe-area-inset-right);
       }
-      
+
       #root {
         height: 100%;
         width: 100%;
@@ -47,36 +81,48 @@
         -webkit-touch-callout: none;
       }
     </style>
-</head>
-<body class="bg-background dark:bg-[#0b0a0f] text-on-background dark:text-[#f8f5fa] font-body min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative">
-    
+  </head>
+  <body
+    class="bg-background dark:bg-[#0b0a0f] text-on-background dark:text-[#f8f5fa] font-body min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative"
+  >
     <!-- React Main Root Container -->
     <div id="root"></div>
 
     <!-- Main Module script entry point -->
     <script type="module" src="/src/main.jsx"></script>
-    
+
     <script>
       // Hide address bar on scroll for mobile browsers
       if (navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)) {
-        window.addEventListener('scroll', () => {
-          window.scrollTo(0, 1);
-        }, false);
-        
+        window.addEventListener(
+          "scroll",
+          () => {
+            window.scrollTo(0, 1);
+          },
+          false,
+        );
+
         // Trigger scroll on load
-        window.addEventListener('load', () => {
+        window.addEventListener("load", () => {
           setTimeout(() => window.scrollTo(0, 1), 100);
         });
       }
-      
+
       // Request fullscreen on iOS if available
-      if (document.documentElement.requestFullscreen && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
-        document.addEventListener('click', () => {
-          document.documentElement.requestFullscreen().catch(err => {
-            console.log('Fullscreen request failed:', err);
-          });
-        }, { once: true });
+      if (
+        document.documentElement.requestFullscreen &&
+        /iPhone|iPad|iPod/.test(navigator.userAgent)
+      ) {
+        document.addEventListener(
+          "click",
+          () => {
+            document.documentElement.requestFullscreen().catch((err) => {
+              console.log("Fullscreen request failed:", err);
+            });
+          },
+          { once: true },
+        );
       }
     </script>
-</body>
+  </body>
 </html>
