@@ -1,0 +1,33 @@
+# Hugo Studio - Robots.txt
+# Allow search engines to crawl all content
+User-agent: *
+Allow: /
+Allow: /introduction
+Allow: /services
+Allow: /faq
+Allow: /booking
+Allow: /bio/
+Allow: /login
+Allow: /member
+
+# Disallow admin and private pages
+Disallow: /admin
+Disallow: /admin/
+Disallow: /partner/bio-editor
+Disallow: /login?
+
+# Crawl delay (optional - helps manage server load)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://hugowishpax.studio/sitemap.xml
+
+# Allow major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
