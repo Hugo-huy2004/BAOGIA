@@ -13,6 +13,7 @@ import BioPublicPage from "./pages/BioPublicPage";
 import AdminPanel from "./pages/AdminPanel";
 import PartnerBioPage from "./pages/PartnerBioPage";
 import FAQPage from "./pages/FAQPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
 
 function AppContent() {
@@ -57,6 +58,7 @@ function AppContent() {
           } />
           <Route path="/bio/:slug" element={<BioPublicPage />} />
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/admin" element={isAdminAuthenticated() ? <AdminPanel /> : <Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/introduction" replace />} />
         </Routes>

@@ -80,9 +80,14 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div className="space-y-4 text-center lg:text-right">
+        <div className="space-y-4 text-center lg:text-right flex flex-col justify-between h-full">
           <div className="text-sm text-slate-500 dark:text-slate-500">
             © {new Date().getFullYear()} {data.profile.shortName}. All rights reserved.
+          </div>
+          <div className="mt-auto pt-4 lg:pt-0">
+            <Link to="/privacy-policy" className="text-[10px] text-slate-400/40 dark:text-slate-600/30 hover:text-slate-400 dark:hover:text-slate-500 transition-colors duration-300">
+              Chính sách bảo mật & Quyền lợi khách hàng
+            </Link>
           </div>
         </div>
       </div>
