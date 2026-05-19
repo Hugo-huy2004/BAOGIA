@@ -177,10 +177,14 @@ router.post('/', async (req, res) => {
       avatarUrl: finalAvatarUrl,
       links,
       theme: finalTheme,
-      tabs,
       serviceLabel: 'Free Bio',
       status: 'active',
-      expiresAt: new Date(Date.now() + TWELVE_MONTHS_MS)
+      expiresAt: (() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 365); // 12 tháng (365 ngày)
+        d.setHours(0, 0, 0, 0); // Qua 00:00 tính là 1 ngày dùng
+        return d;
+      })()
     });
 
     return res.status(201).json({ bio: created });
