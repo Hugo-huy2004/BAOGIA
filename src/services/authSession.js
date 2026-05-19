@@ -33,6 +33,7 @@ export const getAdminSession = () => readSession(ADMIN_SESSION_KEY);
 export const loginMember = (member) => {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
+  expiresAt.setHours(0, 0, 0, 0); // Qua 00:00 tính là 1 ngày dùng
 
   const session = {
     role: "member",
@@ -72,6 +73,7 @@ export const loginAdmin = async (credentials) => {
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
+  expiresAt.setHours(0, 0, 0, 0); // Qua 00:00 tính là 1 ngày dùng
 
   const session = {
     role: "admin",
