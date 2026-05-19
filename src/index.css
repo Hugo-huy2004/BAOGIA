@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom design system animations & overrides */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Premium Glassmorphic Cards - Refined for high-end look */
+.clay-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.clay-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.08), 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+/* Premium Button Primary */
+.clay-btn-primary {
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.clay-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+}
+
+.clay-btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Premium Button Secondary */
+.clay-btn-secondary {
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.15);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.clay-btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.25);
+}
+
+/* Dark Mode Adjustments */
+html.dark .clay-card {
+    background: rgba(18, 18, 24, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 1px 2px 0 rgba(255, 255, 255, 0.01);
+}
+
+html.dark .clay-card:hover {
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+html.dark .clay-btn-primary {
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+html.dark .clay-btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
+
+html.dark .clay-btn-secondary {
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
+}
+
+html.dark .clay-btn-secondary:hover {
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+}
+
+/* Reduce animations on mobile for better performance */
+@media (max-width: 640px) {
+    .clay-card, .clay-btn-primary, .clay-btn-secondary {
+        transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+}
+
+/* Speech bubble animations */
+.speech-bubble {
+    position: absolute;
+    bottom: 105%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.speech-bubble.active {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+}
+
+/* Smooth transitions */
+body, header, footer, section, nav {
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Premium scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+    transition: background 0.3s ease;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+    background: #27272a;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6366f1;
+}
+
+/* Mobile-friendly touch targets */
+button, a, input[type="button"], input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Fade-in animation for tab content */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
