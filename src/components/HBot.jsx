@@ -201,7 +201,7 @@ const HBot = () => {
         const prefill = PREFILL_MESSAGES[source] || PREFILL_MESSAGES.main;
         setTimeout(() => {
           setIsOpen(false);
-          navigate('/support-request', { state: { prefilledMessage: prefill } });
+          navigate('/support-request', { state: { prefilledMessage: prefill, fromBot: true } });
         }, 1500);
       }
     }, 600); // 600ms transition for a natural feel

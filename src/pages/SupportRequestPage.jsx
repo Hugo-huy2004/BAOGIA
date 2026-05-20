@@ -12,11 +12,19 @@ const SupportRequestPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isValidAccess, setIsValidAccess] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    // Check if the request is routed from the Bot. If not, redirect immediately.
+    if (!location.state || !location.state.fromBot) {
+      navigate('/', { replace: true });
+      return;
+    }
+    setIsValidAccess(true);
+
     // 1. Prefill issue details if passed from state
     if (location.state?.prefilledMessage) {
       setIssue(location.state.prefilledMessage);
@@ -48,7 +56,11 @@ const SupportRequestPage = () => {
           console.error("Failed to load bio details for prefill:", err);
         });
     }
-  }, [location.state]);
+  }, [location.state, navigate]);
+
+  if (!isValidAccess) {
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
