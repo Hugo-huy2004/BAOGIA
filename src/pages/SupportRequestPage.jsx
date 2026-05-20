@@ -18,8 +18,9 @@ const SupportRequestPage = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Check if the request is routed from the Bot. If not, redirect immediately.
-    if (!location.state || !location.state.fromBot) {
+    // Check if the user is logged in AND request is routed from the Bot. If not, redirect immediately.
+    const session = getMemberSession();
+    if (!session || !location.state || !location.state.fromBot) {
       navigate('/', { replace: true });
       return;
     }
@@ -31,7 +32,6 @@ const SupportRequestPage = () => {
     }
 
     // 2. Prefill info from session
-    const session = getMemberSession();
     if (session) {
       if (session.displayName) {
         setFullName(session.displayName);
