@@ -122,6 +122,17 @@ const QUESTION_TREE = {
   }
 };
 
+const PREFILL_MESSAGES = {
+  theme: "Hỗ trợ chỉnh sửa giao diện, tùy chỉnh Theme hoặc thiết kế nút bấm trên Bio Link.",
+  measurements: "Hỗ trợ thiết lập thông số cơ bản (chiều cao, cân nặng, số đo ba vòng) của Portfolio.",
+  booking: "Hỗ trợ về tính năng đặt lịch hẹn chụp/hẹn và đồng bộ lịch đặt của khách hàng.",
+  view_booking: "Hỗ trợ về tab Quản lý lịch hẹn và xem thông tin liên hệ của khách hàng.",
+  upgrade: "Yêu cầu kích hoạt/nâng cấp tài khoản lên gói trả phí (Bio Plus hoặc Bio VIP).",
+  partners: "Hỗ trợ và tư vấn tích hợp trình chỉnh sửa Bio Link (nhúng Iframe) lên website đối tác.",
+  how_to_cooperate: "Đề xuất hợp tác quảng cáo, nhúng Iframe hoặc dự án phát triển với Hugo Studio.",
+  main: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ để được giải quyết vấn đề."
+};
+
 const HBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -134,6 +145,7 @@ const HBot = () => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState('main');
+  const supportSourceRef = useRef('main');
   
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
@@ -166,6 +178,11 @@ const HBot = () => {
     const nextNodeKey = option.next;
     const nextNode = QUESTION_TREE[nextNodeKey];
 
+    // If transitioning to live_support, record which step we are coming from
+    if (nextNodeKey === 'live_support') {
+      supportSourceRef.current = currentStep;
+    }
+
     setTimeout(() => {
       // 2. Add Bot response to chat log
       const botMsg = {
@@ -180,9 +197,11 @@ const HBot = () => {
 
       // 3. Handle redirection to support request page if redirect_support
       if (nextNodeKey === 'redirect_support') {
+        const source = supportSourceRef.current || 'main';
+        const prefill = PREFILL_MESSAGES[source] || PREFILL_MESSAGES.main;
         setTimeout(() => {
           setIsOpen(false);
-          navigate('/support-request');
+          navigate('/support-request', { state: { prefilledMessage: prefill } });
         }, 1500);
       }
     }, 600); // 600ms transition for a natural feel

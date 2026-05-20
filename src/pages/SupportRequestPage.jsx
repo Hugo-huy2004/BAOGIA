@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { getMemberSession } from '../services/authSession';
+import { dataApi } from '../services/dataApi';
 
 const SupportRequestPage = () => {
   const [fullName, setFullName] = useState('');
@@ -12,6 +14,41 @@ const SupportRequestPage = () => {
   const [errorMsg, setErrorMsg] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // 1. Prefill issue details if passed from state
+    if (location.state?.prefilledMessage) {
+      setIssue(location.state.prefilledMessage);
+    }
+
+    // 2. Prefill info from session
+    const session = getMemberSession();
+    if (session) {
+      if (session.displayName) {
+        setFullName(session.displayName);
+      }
+      if (session.email) {
+        setEmail(session.email);
+      }
+
+      // Try to fetch member's bio detail to prefill saved phone & name
+      dataApi.getMemberBio(session.email)
+        .then(res => {
+          if (res?.bio) {
+            if (res.bio.displayName) {
+              setFullName(res.bio.displayName);
+            }
+            if (res.bio.phone) {
+              setPhone(res.bio.phone);
+            }
+          }
+        })
+        .catch(err => {
+          console.error("Failed to load bio details for prefill:", err);
+        });
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
