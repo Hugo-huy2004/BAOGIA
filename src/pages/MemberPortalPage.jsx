@@ -874,6 +874,28 @@ export default function MemberPortalPage() {
     }
   };
 
+  const getFlatPatternStyle = (pattern, bgColor) => {
+    const isDark = isColorDark(bgColor);
+    const lineColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+    
+    switch (pattern) {
+      case "grid":
+        return {
+          backgroundImage: `linear-gradient(${lineColor} 1px, transparent 1px), linear-gradient(90deg, ${lineColor} 1px, transparent 1px)`,
+          backgroundSize: "20px 20px"
+        };
+      case "dots":
+      case "dots-dense":
+        return {
+          backgroundImage: `radial-gradient(${lineColor} 1px, transparent 1px)`,
+          backgroundSize: "16px 16px"
+        };
+      default:
+        return {};
+    }
+  };
+
+
   const startLabel = bio?.createdAt
     ? new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(bio.createdAt))
     : "Chưa kích hoạt";
@@ -890,6 +912,219 @@ export default function MemberPortalPage() {
     const template = formData.theme?.template || "default";
     const effectiveBgColor = template === "brutalism" ? (formData.theme.bgColor === "#000000" || !formData.theme.bgColor ? "#facc15" : formData.theme.bgColor) : bgColor;
     const isDark = isColorDark(effectiveBgColor);
+
+    if (template === "flat") {
+      const flatCardStyle = {
+        backgroundColor: isDark ? "#1e1e24" : "#ffffff",
+        color: isDark ? "#ffffff" : "#111111",
+        border: `2px solid ${isDark ? "#3f3f46" : "#e4e4e7"}`,
+        boxShadow: "none",
+        borderRadius: "14px"
+      };
+
+      const flatBtnStyle = (color = accentColor) => ({
+        backgroundColor: color,
+        color: isColorDark(color) ? "#ffffff" : "#111111",
+        border: "none",
+        boxShadow: "none",
+        borderRadius: "10px",
+        fontWeight: "700"
+      });
+
+      const flatBgColor = (formData.theme.bgColor === "#000000" || !formData.theme.bgColor) ? "#f1f5f9" : formData.theme.bgColor;
+      const flatIsDark = isColorDark(flatBgColor);
+
+      return (
+        <>
+          <style>{`
+            .scrollbar-none::-webkit-scrollbar {
+              display: none !important;
+            }
+            .scrollbar-none {
+              -ms-overflow-style: none !important;
+              scrollbar-width: none !important;
+            }
+          `}</style>
+          <div
+            className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth text-white scrollbar-none flex flex-col bg-black"
+            style={{
+              backgroundColor: flatBgColor,
+              ...getFlatPatternStyle(formData.theme.pattern, flatBgColor)
+            }}
+          >
+            {/* Global Fixed Background (Avatar Image) */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              {formData.avatarUrl && (
+                <img src={formData.avatarUrl} alt="Cover" className="w-full h-full object-cover opacity-90" />
+              )}
+              <div
+                className="absolute inset-0"
+                style={getFlatPatternStyle(formData.theme.pattern, flatBgColor)}
+              />
+            </div>
+
+            {/* SLIDE 1: HERO COVER */}
+            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+              <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+
+              <div className={`relative z-20 w-full flex flex-col items-center text-center space-y-4 p-5 rounded-2xl ${flatIsDark ? 'bg-black/50 text-white' : 'bg-white/50 text-slate-900'} backdrop-blur-md border border-white/20 shadow-none max-w-[240px] mx-auto`}>
+                {formData.avatarUrl && (
+                  <div className="w-20 h-20 overflow-hidden rounded-full border-2 border-white">
+                    <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  </div>
+                )}
+
+                <div className="space-y-1 w-full">
+                  <h1 className="font-serif text-lg sm:text-xl uppercase tracking-wider leading-tight we-bare-bears">
+                    <RenderColoredText text={formData.displayName} />
+                  </h1>
+                  {formData.headline && (
+                    <h2 className="text-[9px] tracking-widest font-bold opacity-80 uppercase we-bare-bears">
+                      {formData.headline}
+                    </h2>
+                  )}
+                </div>
+
+                <div className="animate-bounce opacity-60">
+                  <span className="material-symbols-outlined text-sm">keyboard_double_arrow_down</span>
+                </div>
+              </div>
+            </section>
+
+            {/* SLIDE 2: BENTO TABS */}
+            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+              <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+
+              <div className="relative z-20 w-full flex flex-col items-center space-y-3">
+                {formData.tabs && formData.tabs.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 justify-center w-full max-w-[240px]">
+                    {formData.tabs.map((tab, idx) => {
+                      const isActive = activeBentoTab === idx;
+                      return (
+                        <div
+                          key={idx}
+                          onClick={() => setSimActiveTab(idx)}
+                          style={isActive ? flatBtnStyle() : {
+                            backgroundColor: flatIsDark ? "#27272a" : "#e4e4e7",
+                            color: flatIsDark ? "#ffffff" : "#111111",
+                            borderRadius: "8px",
+                            fontWeight: "600"
+                          }}
+                          className="px-3 py-1.5 text-[9px] uppercase tracking-wider cursor-pointer"
+                        >
+                          {tab.title}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div style={flatCardStyle} className="p-4 w-full min-h-[140px] max-h-[220px] overflow-y-auto scrollbar-none text-[10px] leading-relaxed text-left max-w-[240px] mx-auto font-medium">
+                  {formData.tabs && formData.tabs[activeBentoTab] ? (
+                    <div className="whitespace-pre-wrap">{formData.tabs[activeBentoTab].content}</div>
+                  ) : (
+                    <div className="text-center opacity-60">Không có thông tin chi tiết</div>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* SLIDE 2B: ACADEMIC & CAREER */}
+            {(formData.education || formData.skills || formData.jobTitle || formData.contactEmail) && (
+              <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+                <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+
+                <div className="relative z-20 w-full flex flex-col items-center space-y-3">
+                  <div className="px-3 py-1 bg-zinc-800 text-white dark:bg-zinc-200 dark:text-black text-[8px] font-black uppercase tracking-widest rounded-full">
+                    HỌC VẤN & SỰ NGHIỆP
+                  </div>
+
+                  <div style={flatCardStyle} className="p-4 w-full text-[9px] space-y-2 text-left max-w-[240px] mx-auto font-medium">
+                    {formData.jobTitle && (
+                      <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-1.5">
+                        <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Công việc</span>
+                        <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.jobTitle}</p>
+                      </div>
+                    )}
+                    {formData.education && (
+                      <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-1.5">
+                        <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Học vấn</span>
+                        <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.education}</p>
+                      </div>
+                    )}
+                    {formData.skills && (
+                      <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-1.5">
+                        <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Kỹ năng</span>
+                        <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.skills}</p>
+                      </div>
+                    )}
+                    {formData.contactEmail && (
+                      <div className="flex items-start justify-between">
+                        <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Email LH</span>
+                        <p className="font-bold break-all text-right max-w-[65%]">{formData.contactEmail}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* SLIDE 3: LINKS */}
+            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+              <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+
+              <div className="relative z-20 w-full space-y-4 max-w-[240px] mx-auto">
+                <div className="text-center">
+                  <span className="px-3 py-1 bg-zinc-800 text-white dark:bg-zinc-200 dark:text-black text-[8px] font-black uppercase tracking-widest rounded-full">
+                    LIÊN KẾT & THÔNG TIN
+                  </span>
+                </div>
+
+                {/* Buttons List */}
+                {formData.links && formData.links.length > 0 && (
+                  <div className="space-y-2 max-h-[160px] overflow-y-auto scrollbar-none">
+                    {formData.links.map((link, idx) => {
+                      const flatColors = ["#FF4B4B", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"];
+                      const color = flatColors[idx % flatColors.length];
+                      return (
+                        <div
+                          key={idx}
+                          style={flatBtnStyle(color)}
+                          className="block w-full py-2.5 px-4 text-center text-[10px] font-black uppercase tracking-widest"
+                        >
+                          {link.label}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* SLIDE 4: HUGO STUDIO FOOTER */}
+            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 bg-[#09090b] text-white shrink-0">
+              <div style={{
+                backgroundColor: "#1c1c1e",
+                color: "#ffffff",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "14px"
+              }} className="w-full text-center space-y-4 max-w-[200px] mx-auto p-5 font-mono">
+                <h3 className="text-base font-black tracking-tight uppercase">HUGO STUDIO</h3>
+                <p className="text-[7px] tracking-wider opacity-60 font-bold">PROFESSIONAL BOOKING & MANAGEMENT</p>
+
+                <div style={flatBtnStyle("#ffffff")} className="inline-block px-4 py-2 text-[8px] font-black uppercase tracking-widest text-black">
+                  Tạo ngay bio
+                </div>
+
+                <div className="pt-3 border-t border-white/10 mt-4 text-[7px] opacity-60">
+                  Sản phẩm của Hugo Portal
+                </div>
+              </div>
+            </section>
+          </div>
+        </>
+      );
+    }
 
     if (template === "brutalism") {
       const brutalCardStyle = {
@@ -1746,46 +1981,67 @@ export default function MemberPortalPage() {
                 <div className="space-y-2">
                   <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">PHONG CÁCH GIAO DIỆN (STYLE TEMPLATE)</h3>
                   
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'default' } }))}
-                      className={`p-4 rounded-2xl border text-left transition-all ${
-                        formData.theme?.template !== 'brutalism'
+                      className={`p-3.5 rounded-2xl border text-left transition-all ${
+                        (formData.theme?.template !== 'brutalism' && formData.theme?.template !== 'flat')
                           ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
                           : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="material-symbols-outlined text-xl">view_carousel</span>
-                        {formData.theme?.template !== 'brutalism' && (
-                          <span className="material-symbols-outlined text-[#0071e3] text-sm font-bold">check_circle</span>
+                        <span className="material-symbols-outlined text-lg">view_carousel</span>
+                        {(formData.theme?.template !== 'brutalism' && formData.theme?.template !== 'flat') && (
+                          <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
                         )}
                       </div>
-                      <h4 className="text-xs font-bold mt-3">Classic (Mặc định)</h4>
-                      <p className="text-[9px] text-zinc-450 dark:text-zinc-400 mt-1 leading-relaxed">
-                        Thiết kế cuộn trang mượt mà (Snap Scrolling), hiệu ứng bóng mờ cao cấp, bố cục tối giản sang trọng.
+                      <h4 className="text-[11px] font-bold mt-2">Classic (Mặc định)</h4>
+                      <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
+                        Bố cục cuộn trang snap mượt mà, hiệu ứng bóng mờ sang trọng.
                       </p>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'brutalism' } }))}
-                      className={`p-4 rounded-2xl border text-left transition-all ${
+                      className={`p-3.5 rounded-2xl border text-left transition-all ${
                         formData.theme?.template === 'brutalism'
                           ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
                           : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="material-symbols-outlined text-xl">token</span>
+                        <span className="material-symbols-outlined text-lg">token</span>
                         {formData.theme?.template === 'brutalism' && (
-                          <span className="material-symbols-outlined text-[#0071e3] text-sm font-bold">check_circle</span>
+                          <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
                         )}
                       </div>
-                      <h4 className="text-xs font-bold mt-3 text-red-500 dark:text-red-400 font-bold">Brutalism (Phá Cách)</h4>
-                      <p className="text-[9px] text-zinc-450 dark:text-zinc-400 mt-1 leading-relaxed">
-                        Phá vỡ quy tắc với màu chói, viền đen dày thô, bóng phẳng đổ khối đậm nét, gây sốc thị giác mạnh mẽ.
+                      <h4 className="text-[11px] font-bold mt-2 text-red-500 dark:text-red-400">Brutalism</h4>
+                      <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
+                        Phá quy tắc với màu chói, viền đen dày thô, bóng phẳng đổ khối đậm.
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'flat' } }))}
+                      className={`p-3.5 rounded-2xl border text-left transition-all ${
+                        formData.theme?.template === 'flat'
+                          ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
+                          : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="material-symbols-outlined text-lg">grid_view</span>
+                        {formData.theme?.template === 'flat' && (
+                          <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
+                        )}
+                      </div>
+                      <h4 className="text-[11px] font-bold mt-2 text-teal-650 dark:text-teal-400">Flat (Phẳng)</h4>
+                      <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
+                        Không đổ bóng, không 3D/gradient, dùng khối 2D phẳng và màu tươi sáng.
                       </p>
                     </button>
                   </div>
