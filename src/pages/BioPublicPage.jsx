@@ -287,9 +287,9 @@ export default function BioPublicPage() {
     const flatCardStyle = {
       backgroundColor: isDark ? "#1e1e24" : "#ffffff",
       color: isDark ? "#ffffff" : "#111111",
-      border: `2.5px solid ${isDark ? "#3f3f46" : "#e4e4e7"}`,
+      border: `2.5px solid ${isDark ? "#ffffff" : "#000000"}`,
       boxShadow: "none",
-      borderRadius: "16px"
+      borderRadius: "18px"
     };
 
     const flatBtnStyle = (color = accentColor) => ({
@@ -310,159 +310,166 @@ export default function BioPublicPage() {
         <HugoStudioLogo />
         <main 
           className="h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory relative scroll-smooth scrollbar-hide"
-          style={{ 
-            backgroundColor: flatBgColor,
-            ...getFlatPatternStyle(themeObj.pattern, flatBgColor)
-          }}
+          style={{ backgroundColor: flatBgColor }}
         >
           {/* Global Fixed Background (Avatar Image) */}
           <div className="fixed inset-0 z-0 pointer-events-none">
             {bio.avatarUrl && (
               <img src={bio.avatarUrl} alt="Cover" className="w-full h-full object-cover opacity-90" />
             )}
-            <div 
-              className="absolute inset-0"
-              style={getFlatPatternStyle(themeObj.pattern, flatBgColor)}
-            />
           </div>
 
           {/* SLIDE 1: HERO COVER */}
-          <section className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6">
+          <section 
+            style={{ 
+              backgroundColor: flatBgColor,
+              ...getFlatPatternStyle(themeObj.pattern, flatBgColor)
+            }}
+            className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6 transition-colors duration-500"
+          >
             <div className="absolute inset-0 bg-black/5 pointer-events-none" />
             
-            <div className={`relative z-20 w-full max-w-md mx-auto flex flex-col items-center text-center space-y-6 p-6 rounded-3xl ${flatIsDark ? 'bg-black/50 text-white' : 'bg-white/50 text-slate-900'} backdrop-blur-md border border-white/20 shadow-none`}>
-              {bio.avatarUrl && (
-                <div className="w-28 h-28 overflow-hidden rounded-full border-3 border-white">
-                  <img src={bio.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                </div>
-              )}
+            <div className="relative z-20 w-full max-w-md mx-auto flex flex-col items-center text-center space-y-6">
+              {/* Overlapping Background Banner Collage for avatar */}
+              <div className="relative w-36 h-36 flex items-center justify-center">
+                <div className="absolute w-32 h-32 bg-[#00f0ff] rounded-2xl rotate-6 transform border-2 border-black" />
+                <div className="absolute w-32 h-32 bg-[#ff007f] rounded-2xl -rotate-6 transform border-2 border-black" />
+                <div className="absolute w-32 h-32 bg-[#ffff00] rounded-2xl rotate-12 transform border-2 border-black" />
+                
+                {bio.avatarUrl ? (
+                  <div className="relative w-28 h-28 overflow-hidden rounded-full border-3 border-black z-10 bg-white">
+                    <img src={bio.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="relative w-28 h-28 rounded-full border-3 border-black z-10 bg-zinc-200 flex items-center justify-center font-bold text-xl text-black">
+                    HUGO
+                  </div>
+                )}
+              </div>
 
-              <div className="space-y-2 w-full">
-                <h1 className="font-serif text-3xl sm:text-4xl uppercase tracking-wider leading-tight we-bare-bears">
-                  <RenderColoredText text={bio.displayName} />
-                </h1>
+              {/* Overlapping Banners for Name & Headline */}
+              <div className="relative w-full py-4 flex flex-col items-center">
+                <div className="relative bg-[#ffff00] text-black border-2.5 border-black px-6 py-3 rounded-xl rotate-[-2deg] z-10 shadow-none">
+                  <h1 className="font-serif text-2xl sm:text-3xl uppercase tracking-wider leading-none font-black we-bare-bears">
+                    {bio.displayName}
+                  </h1>
+                </div>
+
                 {bio.headline && (
-                  <h2 className="text-[11px] sm:text-xs tracking-[0.25em] font-bold opacity-80 uppercase mt-2 we-bare-bears">
+                  <div className="relative bg-[#00f0ff] text-black border-2 border-black px-4 py-1.5 rounded-lg rotate-[3deg] -mt-2.5 z-20 shadow-none font-bold uppercase text-[10px] tracking-wider font-mono">
                     {bio.headline}
-                  </h2>
+                  </div>
                 )}
               </div>
 
               {/* Slide Indicator arrow */}
-              <div className="pt-2 animate-bounce opacity-60">
+              <div className="pt-2 animate-bounce opacity-60 text-slate-850 dark:text-white">
                 <span className="material-symbols-outlined text-lg">keyboard_double_arrow_down</span>
               </div>
             </div>
           </section>
 
-          {/* SLIDE 2: BENTO TABS */}
-          <section className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6">
-            <div className="absolute inset-0 bg-black/5 pointer-events-none" />
-            
-            <div className="relative z-20 w-full max-w-md mx-auto flex flex-col items-center space-y-4">
-              {/* Tab selector */}
-              {bio.tabs && bio.tabs.length > 0 && (
-                <div className="flex flex-wrap gap-2 justify-center w-full">
-                  {bio.tabs.map((tab, idx) => {
-                    const isActive = activeTab === idx;
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => setActiveTab(idx)}
-                        style={isActive ? flatBtnStyle() : {
-                          backgroundColor: flatIsDark ? "#27272a" : "#e4e4e7",
-                          color: flatIsDark ? "#ffffff" : "#111111",
-                          borderRadius: "10px",
-                          fontWeight: "600"
-                        }}
-                        className="px-4 py-2 text-xs uppercase tracking-wider transition-all"
-                      >
-                        {tab.title}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Tab content inside flat card */}
-              <div style={flatCardStyle} className="p-5 w-full min-h-[160px] max-h-[300px] overflow-y-auto scrollbar-hide text-xs sm:text-sm font-medium leading-relaxed">
-                {bio.tabs && bio.tabs[activeTab] ? (
-                  <div className="whitespace-pre-wrap">{bio.tabs[activeTab].content}</div>
-                ) : (
-                  <div className="text-center opacity-60">Không có thông tin chi tiết</div>
-                )}
-              </div>
-            </div>
-          </section>
 
           {/* SLIDE 2B: ACADEMIC & CAREER */}
           {(bio.education || bio.skills || bio.jobTitle || bio.contactEmail) && (
-            <section className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6">
+            <section 
+              style={{ 
+                backgroundColor: "#00f0ff",
+                ...getFlatPatternStyle(themeObj.pattern, "#00f0ff")
+              }}
+              className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6 transition-colors duration-500"
+            >
               <div className="absolute inset-0 bg-black/5 pointer-events-none" />
               
               <div className="relative z-20 w-full max-w-md mx-auto flex flex-col items-center space-y-6">
-                <div className="px-4 py-1.5 bg-zinc-850 text-white dark:bg-zinc-150 dark:text-black text-xs font-black uppercase tracking-widest rounded-full">
+                <div className="px-4 py-1.5 bg-[#ffff00] text-black text-xs font-black uppercase tracking-widest rounded-lg border-2 border-black rotate-[-1deg]">
                   HỌC VẤN & SỰ NGHIỆP
                 </div>
                 
-                <div style={flatCardStyle} className="p-5 w-full text-xs space-y-3.5 text-left">
-                  {bio.jobTitle && (
-                    <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2.5">
-                      <span className="uppercase tracking-widest text-[9px] font-bold opacity-60">Công việc</span>
-                      <p className="font-bold text-right max-w-[65%] leading-tight break-words">{bio.jobTitle}</p>
-                    </div>
-                  )}
-                  {bio.education && (
-                    <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2.5">
-                      <span className="uppercase tracking-widest text-[9px] font-bold opacity-60">Học vấn</span>
-                      <p className="font-bold text-right max-w-[65%] leading-tight break-words">{bio.education}</p>
-                    </div>
-                  )}
-                  {bio.skills && (
-                    <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2.5">
-                      <span className="uppercase tracking-widest text-[9px] font-bold opacity-60">Kỹ năng</span>
-                      <p className="font-bold text-right max-w-[65%] leading-tight break-words">{bio.skills}</p>
-                    </div>
-                  )}
-                  {bio.contactEmail && (
-                    <div className="flex items-start justify-between">
-                      <span className="uppercase tracking-widest text-[9px] font-bold opacity-60">Email LH</span>
-                      <p className="font-bold break-all text-right max-w-[65%]">{bio.contactEmail}</p>
-                    </div>
-                  )}
+                {/* Overlapping card wrapper */}
+                <div className="relative w-full">
+                  {/* Background overlapping pink banner */}
+                  <div className="absolute inset-0 bg-[#ff007f] rounded-3xl -rotate-1.5 translate-x-[-2px] translate-y-[2px] border-2.5 border-black pointer-events-none" />
+                  
+                  <div 
+                    style={{
+                      backgroundColor: "#ffffff",
+                      color: "#111111",
+                      border: "2.5px solid #000000",
+                      borderRadius: "18px"
+                    }}
+                    className="relative z-10 p-6 w-full text-xs space-y-3.5 text-left font-bold"
+                  >
+                    {bio.jobTitle && (
+                      <div className="flex items-start justify-between border-b border-black/10 pb-2.5">
+                        <span className="uppercase tracking-widest text-[9px] font-bold opacity-60">Công việc</span>
+                        <p className="font-bold text-right max-w-[65%] leading-tight break-words">{bio.jobTitle}</p>
+                      </div>
+                    )}
+                    {bio.education && (
+                      <div className="flex items-start justify-between border-b border-black/10 pb-2.5">
+                        <span className="uppercase tracking-widest text-[9px] font-bold opacity-60">Học vấn</span>
+                        <p className="font-bold text-right max-w-[65%] leading-tight break-words">{bio.education}</p>
+                      </div>
+                    )}
+                    {bio.skills && (
+                      <div className="flex items-start justify-between border-b border-black/10 pb-2.5">
+                        <span className="uppercase tracking-widest text-[9px] font-bold opacity-60">Kỹ năng</span>
+                        <p className="font-bold text-right max-w-[65%] leading-tight break-words">{bio.skills}</p>
+                      </div>
+                    )}
+                    {bio.contactEmail && (
+                      <div className="flex items-start justify-between">
+                        <span className="uppercase tracking-widest text-[9px] font-bold opacity-60">Email LH</span>
+                        <p className="font-bold break-all text-right max-w-[65%]">{bio.contactEmail}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </section>
           )}
 
           {/* SLIDE 3: LINKS & TABS */}
-          <section className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6 py-20">
+          <section 
+            style={{ 
+              backgroundColor: "#ffff00",
+              ...getFlatPatternStyle(themeObj.pattern, "#ffff00")
+            }}
+            className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6 py-20 transition-colors duration-500"
+          >
             <div className="absolute inset-0 bg-black/5 pointer-events-none" />
             
             <div className="relative z-20 w-full max-w-md mx-auto space-y-6">
               <div className="text-center">
-                <span className="px-4 py-1.5 bg-zinc-850 text-white dark:bg-zinc-150 dark:text-black text-xs font-black uppercase tracking-widest rounded-full">
+                <span className="px-4 py-1.5 bg-[#ff007f] text-white text-xs font-black uppercase tracking-widest rounded-lg border-2 border-black rotate-[1deg]">
                   LIÊN KẾT & THÔNG TIN
                 </span>
               </div>
 
               {/* Buttons List */}
               {bio.links && bio.links.length > 0 && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {bio.links.map((link, idx) => {
-                    const flatColors = ["#FF4B4B", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"];
+                    const flatColors = ["#FF4B4B", "#3b82f6", "#10b981", "#ff5f00", "#8b5cf6"];
                     const color = flatColors[idx % flatColors.length];
+                    const rotation = idx % 2 === 0 ? "rotate-1" : "-rotate-1";
+                    
                     return (
-                      <a
-                        key={idx}
-                        href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={flatBtnStyle(color)}
-                        className="block w-full py-4 px-6 text-center text-xs uppercase tracking-widest hover:scale-[1.01] active:scale-[0.99] transition-transform duration-100"
-                      >
-                        {link.label}
-                      </a>
+                      <div key={idx} className="relative w-full">
+                        {/* Background overlapping black/dark layer for flat effect */}
+                        <div className="absolute inset-0 bg-black rounded-xl translate-x-1.5 translate-y-1.5 border border-black pointer-events-none" />
+                        
+                        <a
+                          href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={flatBtnStyle(color)}
+                          className={`relative z-10 block w-full py-4 px-6 text-center text-xs font-black uppercase tracking-widest border-2 border-black transform transition-transform hover:-translate-y-0.5 active:translate-y-0.5 ${rotation}`}
+                        >
+                          {link.label}
+                        </a>
+                      </div>
                     );
                   })}
                 </div>
@@ -484,7 +491,7 @@ export default function BioPublicPage() {
               <a 
                 href="/" 
                 style={flatBtnStyle("#ffffff")} 
-                className="inline-block px-8 py-3.5 text-xs text-black"
+                className="inline-block px-8 py-3.5 text-xs text-black border-2 border-black"
               >
                 TẠO NGAY BIO
               </a>
@@ -729,41 +736,6 @@ export default function BioPublicPage() {
                 </div>
               )}
 
-              {/* Tabs */}
-              {bio.tabs && bio.tabs.length > 0 && (
-                <div className="mt-8 space-y-4">
-                  <div className="flex gap-2 flex-wrap">
-                    {bio.tabs.map((tab, idx) => {
-                      const isActive = activeTab === idx;
-                      return (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          onClick={() => setActiveTab(idx)}
-                          style={{
-                            backgroundColor: isActive ? accentColor : (isDark ? "#27272a" : "#e4e4e7"),
-                            color: isActive ? (isColorDark(accentColor) ? "#fff" : "#000") : (isDark ? "#fff" : "#000"),
-                            border: `3px solid ${isDark ? "#ffffff" : "#000000"}`,
-                            boxShadow: isActive ? "none" : `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
-                            borderRadius: "0px",
-                            transform: isActive ? "translate(2px, 2px)" : "none"
-                          }}
-                          className="flex-1 py-3 px-4 text-[10px] uppercase font-black tracking-widest transition-all duration-100"
-                        >
-                          {tab.title}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {activeTab !== null && bio.tabs[activeTab] && (
-                    <div style={brutalCardStyle} className="p-6 text-xs text-left font-mono leading-relaxed shadow-2xl animate-fadeIn">
-                      <p className="relative z-10 font-bold tracking-wide">
-                        {bio.tabs[activeTab].content}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </section>
 
@@ -1028,38 +1000,6 @@ export default function BioPublicPage() {
             </div>
           )}
 
-          {/* Tabs */}
-          {bio.tabs && bio.tabs.length > 0 && (
-            <div className="mt-8 space-y-4">
-              <div className="relative bg-white/5 p-1.5 rounded-2xl flex gap-1.5 border border-white/10 backdrop-blur-md">
-                {bio.tabs.map((tab, idx) => {
-                  const isActive = activeTab === idx;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setActiveTab(idx)}
-                      className={`flex-1 py-3 px-4 text-[10px] uppercase font-bold tracking-widest rounded-xl transition-all duration-300 ${
-                        isActive 
-                          ? "bg-white text-black shadow-lg scale-[1.02]" 
-                          : "text-white/50 hover:text-white/80 hover:bg-white/5"
-                      }`}
-                    >
-                      {tab.title}
-                    </button>
-                  );
-                })}
-              </div>
-              {activeTab !== null && bio.tabs[activeTab] && (
-                <div className="relative p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl text-xs text-white/90 leading-relaxed text-center shadow-2xl animate-fadeIn">
-                  <div className="absolute -top-12 -left-12 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-                  <p className="relative z-10 font-medium tracking-wide">
-                    {bio.tabs[activeTab].content}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </section>
 

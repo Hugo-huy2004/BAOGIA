@@ -175,7 +175,7 @@ export default function ServicesPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="material-symbols-outlined text-xs text-emerald-500 mt-0.5">check_circle</span>
-                  <span><strong>Công nghệ tối tân:</strong> Phát triển bằng React, Tailwind CSS cho hiệu năng tải trang nhanh vượt trội.</span>
+                  <span><strong>Công nghệ tối tân:</strong> Phát triển cho hiệu năng tải trang nhanh vượt trội.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="material-symbols-outlined text-xs text-emerald-500 mt-0.5">check_circle</span>
@@ -183,7 +183,7 @@ export default function ServicesPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="material-symbols-outlined text-xs text-emerald-500 mt-0.5">check_circle</span>
-                  <span><strong>Tối ưu SEO chuẩn Apple:</strong> Thiết kế cấu trúc thẻ chuẩn giúp website dễ dàng tiếp cận người dùng.</span>
+                  <span><strong>Tối ưu SEO:</strong> Thiết kế cấu trúc thẻ chuẩn giúp website dễ dàng tiếp cận người dùng.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="material-symbols-outlined text-xs text-emerald-500 mt-0.5">check_circle</span>
@@ -251,7 +251,7 @@ export default function ServicesPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="material-symbols-outlined text-xs text-[#a5b4fc] mt-0.5">verified</span>
-                  <span><strong>Bảo trì & Hỗ trợ trọn đời:</strong> Cam kết hỗ trợ kỹ thuật, tối ưu và sao lưu cơ sở dữ liệu định kỳ 24/7.</span>
+                  <span><strong>Hỗ trợ:</strong> Kỹ thuật, tối ưu và sao lưu cơ sở dữ liệu.</span>
                 </li>
               </ul>
             </div>

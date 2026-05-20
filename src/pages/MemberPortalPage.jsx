@@ -125,6 +125,7 @@ export default function MemberPortalPage() {
   };
 
   const [activeTab, setActiveTab] = useState("account");
+  const [accountSubTab, setAccountSubTab] = useState("profile");
   const [previewMode, setPreviewMode] = useState("mobile");
 
   // Partners state & loading
@@ -219,6 +220,8 @@ export default function MemberPortalPage() {
   });
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+  const [isDragOver, setIsDragOver] = useState(false);
+  const isFirstLoad = useRef(true);
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
@@ -343,6 +346,21 @@ export default function MemberPortalPage() {
     loadBio();
   }, [memberSession?.email, isGuestMode]);
 
+  useEffect(() => {
+    if (loading) return;
+
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      handleSave();
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [formData]);
+
   const avatarInputRef = useRef(null);
   const bioTextareaRef = useRef(null);
 
@@ -353,12 +371,11 @@ export default function MemberPortalPage() {
     }
   }, [formData.bio, activeTab]);
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
+  const processFile = (file) => {
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast("Kích thước ảnh quá lớn (tối đa 5MB).", "warning");
+    if (file.size > 20 * 1024 * 1024) {
+      showToast("Kích thước ảnh quá lớn (tối đa 20MB).", "warning");
       return;
     }
 
@@ -378,6 +395,11 @@ export default function MemberPortalPage() {
       };
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    processFile(file);
     e.target.value = ""; // Reset file input
   };
 
@@ -471,6 +493,11 @@ export default function MemberPortalPage() {
       ...prev,
       theme: { ...prev.theme, [field]: value }
     }));
+  };
+
+  const handleThemeColorChange = (e) => {
+    const { name, value } = e.target;
+    handleThemeChange(name, value);
   };
 
   const applyPreset = (preset) => {
@@ -905,19 +932,20 @@ export default function MemberPortalPage() {
     : "Hạn dùng 12 tháng (kể từ ngày tạo)";
 
   const renderSimulatedLayout = () => {
-    const bgColor = formData.theme.bgColor || "#000000";
-    const accentColor = formData.theme.accentColor || "#ffffff";
+    const themeObj = formData.theme || {};
+    const bgColor = themeObj.bgColor || "#000000";
+    const accentColor = themeObj.accentColor || "#ffffff";
     const socialLinks = formData.links ? formData.links.slice(0, 4) : [];
     const activeBentoTab = simActiveTab !== null ? simActiveTab : (formData.tabs?.length > 0 ? 0 : null);
-    const template = formData.theme?.template || "default";
-    const effectiveBgColor = template === "brutalism" ? (formData.theme.bgColor === "#000000" || !formData.theme.bgColor ? "#facc15" : formData.theme.bgColor) : bgColor;
+    const template = themeObj?.template || "default";
+    const effectiveBgColor = template === "brutalism" ? (themeObj.bgColor === "#000000" || !themeObj.bgColor ? "#facc15" : themeObj.bgColor) : bgColor;
     const isDark = isColorDark(effectiveBgColor);
 
     if (template === "flat") {
       const flatCardStyle = {
         backgroundColor: isDark ? "#1e1e24" : "#ffffff",
         color: isDark ? "#ffffff" : "#111111",
-        border: `2px solid ${isDark ? "#3f3f46" : "#e4e4e7"}`,
+        border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
         boxShadow: "none",
         borderRadius: "14px"
       };
@@ -931,7 +959,7 @@ export default function MemberPortalPage() {
         fontWeight: "700"
       });
 
-      const flatBgColor = (formData.theme.bgColor === "#000000" || !formData.theme.bgColor) ? "#f1f5f9" : formData.theme.bgColor;
+      const flatBgColor = (themeObj.bgColor === "#000000" || !themeObj.bgColor) ? "#f1f5f9" : themeObj.bgColor;
       const flatIsDark = isColorDark(flatBgColor);
 
       return (
@@ -946,153 +974,161 @@ export default function MemberPortalPage() {
             }
           `}</style>
           <div
-            className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth text-white scrollbar-none flex flex-col bg-black"
-            style={{
-              backgroundColor: flatBgColor,
-              ...getFlatPatternStyle(formData.theme.pattern, flatBgColor)
-            }}
+            className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth text-white scrollbar-none flex flex-col"
+            style={{ backgroundColor: flatBgColor }}
           >
             {/* Global Fixed Background (Avatar Image) */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               {formData.avatarUrl && (
                 <img src={formData.avatarUrl} alt="Cover" className="w-full h-full object-cover opacity-90" />
               )}
-              <div
-                className="absolute inset-0"
-                style={getFlatPatternStyle(formData.theme.pattern, flatBgColor)}
-              />
             </div>
 
             {/* SLIDE 1: HERO COVER */}
-            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+            <section 
+              style={{
+                backgroundColor: flatBgColor,
+                ...getFlatPatternStyle(themeObj.pattern, flatBgColor)
+              }}
+              className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0"
+            >
               <div className="absolute inset-0 bg-black/5 pointer-events-none" />
 
-              <div className={`relative z-20 w-full flex flex-col items-center text-center space-y-4 p-5 rounded-2xl ${flatIsDark ? 'bg-black/50 text-white' : 'bg-white/50 text-slate-900'} backdrop-blur-md border border-white/20 shadow-none max-w-[240px] mx-auto`}>
-                {formData.avatarUrl && (
-                  <div className="w-20 h-20 overflow-hidden rounded-full border-2 border-white">
-                    <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                  </div>
-                )}
+              <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4 max-w-[240px] mx-auto">
+                {/* Overlapping Background Banner Collage for avatar */}
+                <div className="relative w-28 h-28 flex items-center justify-center">
+                  <div className="absolute w-24 h-24 bg-[#00f0ff] rounded-2xl rotate-6 transform border border-black" />
+                  <div className="absolute w-24 h-24 bg-[#ff007f] rounded-2xl -rotate-6 transform border border-black" />
+                  <div className="absolute w-24 h-24 bg-[#ffff00] rounded-2xl rotate-12 transform border border-black" />
+                  
+                  {formData.avatarUrl ? (
+                    <div className="relative w-20 h-20 overflow-hidden rounded-full border-2 border-black z-10 bg-white">
+                      <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="relative w-20 h-20 rounded-full border-2 border-black z-10 bg-zinc-200 flex items-center justify-center font-bold text-sm text-black">
+                      HUGO
+                    </div>
+                  )}
+                </div>
 
-                <div className="space-y-1 w-full">
-                  <h1 className="font-serif text-lg sm:text-xl uppercase tracking-wider leading-tight we-bare-bears">
-                    <RenderColoredText text={formData.displayName} />
-                  </h1>
+                {/* Overlapping Banners for Name & Headline */}
+                <div className="relative w-full py-2 flex flex-col items-center">
+                  <div className="relative bg-[#ffff00] text-black border-2 border-black px-4 py-2 rounded-xl rotate-[-2deg] z-10 shadow-none">
+                    <h1 className="font-serif text-base uppercase tracking-wider leading-none font-black we-bare-bears">
+                      {formData.displayName}
+                    </h1>
+                  </div>
+
                   {formData.headline && (
-                    <h2 className="text-[9px] tracking-widest font-bold opacity-80 uppercase we-bare-bears">
+                    <div className="relative bg-[#00f0ff] text-black border border-black px-3 py-1 rounded-lg rotate-[3deg] -mt-2 z-20 shadow-none font-bold uppercase text-[8px] tracking-wider font-mono">
                       {formData.headline}
-                    </h2>
+                    </div>
                   )}
                 </div>
 
                 <div className="animate-bounce opacity-60">
-                  <span className="material-symbols-outlined text-sm">keyboard_double_arrow_down</span>
+                  <span className="material-symbols-outlined text-xs">keyboard_double_arrow_down</span>
                 </div>
               </div>
             </section>
 
-            {/* SLIDE 2: BENTO TABS */}
-            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-              <div className="absolute inset-0 bg-black/5 pointer-events-none" />
-
-              <div className="relative z-20 w-full flex flex-col items-center space-y-3">
-                {formData.tabs && formData.tabs.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 justify-center w-full max-w-[240px]">
-                    {formData.tabs.map((tab, idx) => {
-                      const isActive = activeBentoTab === idx;
-                      return (
-                        <div
-                          key={idx}
-                          onClick={() => setSimActiveTab(idx)}
-                          style={isActive ? flatBtnStyle() : {
-                            backgroundColor: flatIsDark ? "#27272a" : "#e4e4e7",
-                            color: flatIsDark ? "#ffffff" : "#111111",
-                            borderRadius: "8px",
-                            fontWeight: "600"
-                          }}
-                          className="px-3 py-1.5 text-[9px] uppercase tracking-wider cursor-pointer"
-                        >
-                          {tab.title}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <div style={flatCardStyle} className="p-4 w-full min-h-[140px] max-h-[220px] overflow-y-auto scrollbar-none text-[10px] leading-relaxed text-left max-w-[240px] mx-auto font-medium">
-                  {formData.tabs && formData.tabs[activeBentoTab] ? (
-                    <div className="whitespace-pre-wrap">{formData.tabs[activeBentoTab].content}</div>
-                  ) : (
-                    <div className="text-center opacity-60">Không có thông tin chi tiết</div>
-                  )}
-                </div>
-              </div>
-            </section>
 
             {/* SLIDE 2B: ACADEMIC & CAREER */}
             {(formData.education || formData.skills || formData.jobTitle || formData.contactEmail) && (
-              <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+              <section 
+                style={{
+                  backgroundColor: "#00f0ff",
+                  ...getFlatPatternStyle(themeObj.pattern, "#00f0ff")
+                }}
+                className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0"
+              >
                 <div className="absolute inset-0 bg-black/5 pointer-events-none" />
 
                 <div className="relative z-20 w-full flex flex-col items-center space-y-3">
-                  <div className="px-3 py-1 bg-zinc-800 text-white dark:bg-zinc-200 dark:text-black text-[8px] font-black uppercase tracking-widest rounded-full">
+                  <div className="px-3 py-1 bg-[#ffff00] text-black text-[8px] font-black uppercase tracking-widest rounded-lg border border-black rotate-[-1deg]">
                     HỌC VẤN & SỰ NGHIỆP
                   </div>
 
-                  <div style={flatCardStyle} className="p-4 w-full text-[9px] space-y-2 text-left max-w-[240px] mx-auto font-medium">
-                    {formData.jobTitle && (
-                      <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-1.5">
-                        <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Công việc</span>
-                        <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.jobTitle}</p>
-                      </div>
-                    )}
-                    {formData.education && (
-                      <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-1.5">
-                        <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Học vấn</span>
-                        <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.education}</p>
-                      </div>
-                    )}
-                    {formData.skills && (
-                      <div className="flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800 pb-1.5">
-                        <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Kỹ năng</span>
-                        <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.skills}</p>
-                      </div>
-                    )}
-                    {formData.contactEmail && (
-                      <div className="flex items-start justify-between">
-                        <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Email LH</span>
-                        <p className="font-bold break-all text-right max-w-[65%]">{formData.contactEmail}</p>
-                      </div>
-                    )}
+                  {/* Overlapping card wrapper */}
+                  <div className="relative w-full max-w-[240px] mx-auto">
+                    <div className="absolute inset-0 bg-[#ff007f] rounded-2xl -rotate-1.5 translate-x-[-1.5px] translate-y-[1.5px] border-2 border-black pointer-events-none" />
+
+                    <div 
+                      style={{
+                        backgroundColor: "#ffffff",
+                        color: "#111111",
+                        border: "2px solid #000000",
+                        borderRadius: "14px"
+                      }}
+                      className="relative z-10 p-4 w-full text-[9px] space-y-2 text-left font-bold border-2 border-black"
+                    >
+                      {formData.jobTitle && (
+                        <div className="flex items-start justify-between border-b border-black/10 pb-1.5">
+                          <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Công việc</span>
+                          <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.jobTitle}</p>
+                        </div>
+                      )}
+                      {formData.education && (
+                        <div className="flex items-start justify-between border-b border-black/10 pb-1.5">
+                          <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Học vấn</span>
+                          <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.education}</p>
+                        </div>
+                      )}
+                      {formData.skills && (
+                        <div className="flex items-start justify-between border-b border-black/10 pb-1.5">
+                          <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Kỹ năng</span>
+                          <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.skills}</p>
+                        </div>
+                      )}
+                      {formData.contactEmail && (
+                        <div className="flex items-start justify-between">
+                          <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Email LH</span>
+                          <p className="font-bold break-all text-right max-w-[65%]">{formData.contactEmail}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </section>
             )}
 
             {/* SLIDE 3: LINKS */}
-            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+            <section 
+              style={{
+                backgroundColor: "#ffff00",
+                ...getFlatPatternStyle(themeObj.pattern, "#ffff00")
+              }}
+              className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0"
+            >
               <div className="absolute inset-0 bg-black/5 pointer-events-none" />
 
               <div className="relative z-20 w-full space-y-4 max-w-[240px] mx-auto">
                 <div className="text-center">
-                  <span className="px-3 py-1 bg-zinc-800 text-white dark:bg-zinc-200 dark:text-black text-[8px] font-black uppercase tracking-widest rounded-full">
+                  <span className="px-3 py-1 bg-[#ff007f] text-white text-[8px] font-black uppercase tracking-widest rounded-lg border border-black rotate-[1deg]">
                     LIÊN KẾT & THÔNG TIN
                   </span>
                 </div>
 
                 {/* Buttons List */}
                 {formData.links && formData.links.length > 0 && (
-                  <div className="space-y-2 max-h-[160px] overflow-y-auto scrollbar-none">
+                  <div className="space-y-3 max-h-[180px] overflow-y-auto scrollbar-none">
                     {formData.links.map((link, idx) => {
-                      const flatColors = ["#FF4B4B", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"];
+                      const flatColors = ["#FF4B4B", "#3b82f6", "#10b981", "#ff5f00", "#8b5cf6"];
                       const color = flatColors[idx % flatColors.length];
+                      const rotation = idx % 2 === 0 ? "rotate-1" : "-rotate-1";
+
                       return (
-                        <div
-                          key={idx}
-                          style={flatBtnStyle(color)}
-                          className="block w-full py-2.5 px-4 text-center text-[10px] font-black uppercase tracking-widest"
-                        >
-                          {link.label}
+                        <div key={idx} className="relative w-full">
+                          {/* Background overlapping black/dark layer for flat effect */}
+                          <div className="absolute inset-0 bg-black rounded-lg translate-x-1 translate-y-1 border border-black pointer-events-none" />
+
+                          <div
+                            style={flatBtnStyle(color)}
+                            className={`relative z-10 block w-full py-2.5 px-4 text-center text-[9px] font-black uppercase tracking-widest border border-black ${rotation}`}
+                          >
+                            {link.label}
+                          </div>
                         </div>
                       );
                     })}
@@ -1159,7 +1195,7 @@ export default function MemberPortalPage() {
             className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth text-white scrollbar-none flex flex-col bg-black"
             style={{
               backgroundColor: effectiveBgColor,
-              ...getBrutalPatternStyle(formData.theme.pattern, effectiveBgColor)
+              ...getBrutalPatternStyle(themeObj.pattern, effectiveBgColor)
             }}
           >
           {/* Global Fixed Background (Avatar Image) */}
@@ -1169,7 +1205,7 @@ export default function MemberPortalPage() {
             )}
             <div
               className="absolute inset-0"
-              style={getBrutalPatternStyle(formData.theme.pattern, effectiveBgColor)}
+              style={getBrutalPatternStyle(themeObj.pattern, effectiveBgColor)}
             />
           </div>
 
@@ -1353,44 +1389,6 @@ export default function MemberPortalPage() {
                 </div>
               )}
 
-              {/* Tabs */}
-              {formData.tabs && formData.tabs.length > 0 && (
-                <div className="mt-4 space-y-3">
-                  <div className="flex gap-1.5 flex-wrap">
-                    {formData.tabs.map((tab, idx) => {
-                      const isActive = activeBentoTab === idx;
-                      return (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSimActiveTab(idx);
-                          }}
-                          style={{
-                            backgroundColor: isActive ? accentColor : (isDark ? "#27272a" : "#e4e4e7"),
-                            color: isActive ? (isColorDark(accentColor) ? "#fff" : "#000") : (isDark ? "#fff" : "#000"),
-                            border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
-                            boxShadow: isActive ? "none" : `2px 2px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
-                            borderRadius: "0px",
-                            transform: isActive ? "translate(2px, 2px)" : "none"
-                          }}
-                          className="flex-1 py-1.5 px-2 text-[7px] sm:text-[8px] uppercase font-black tracking-widest transition-all duration-100"
-                        >
-                          {tab.title}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {activeBentoTab !== null && formData.tabs[activeBentoTab] && (
-                    <div style={brutalCardStyle} className="p-4 text-[8px] sm:text-[9px] leading-relaxed text-left font-mono max-h-[100px] overflow-y-auto scrollbar-none">
-                      <p className="font-bold tracking-wide">
-                        {formData.tabs[activeBentoTab].content}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </section>
 
@@ -1452,7 +1450,7 @@ export default function MemberPortalPage() {
         className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth text-white scrollbar-none flex flex-col bg-black"
         style={{
           backgroundColor: bgColor,
-          ...getPatternStyle(formData.theme.pattern, bgColor)
+          ...getPatternStyle(themeObj.pattern, bgColor)
         }}
       >
         {/* Global Fixed Background (Avatar Image) */}
@@ -1462,7 +1460,7 @@ export default function MemberPortalPage() {
           )}
           <div
             className="absolute inset-0"
-            style={getPatternStyle(formData.theme.pattern, bgColor)}
+            style={getPatternStyle(themeObj.pattern, bgColor)}
           />
         </div>
 
@@ -1675,7 +1673,7 @@ export default function MemberPortalPage() {
                   <div
                     key={idx}
                     className="block w-full py-2.5 px-4 text-center text-[10px] font-bold uppercase tracking-widest transition-all bg-white/10 text-white border border-white/10"
-                    style={{ borderRadius: `${formData.theme.btnRadius || 12}px` }}
+                    style={{ borderRadius: `${themeObj.btnRadius || 12}px` }}
                   >
                     {link.label}
                   </div>
@@ -1683,40 +1681,6 @@ export default function MemberPortalPage() {
               </div>
             )}
 
-            {/* Tabs */}
-            {formData.tabs && formData.tabs.length > 0 && (
-              <div className="mt-4 space-y-3">
-                <div className="relative bg-white/5 p-1 rounded-xl flex gap-1 border border-white/10 backdrop-blur-md">
-                  {formData.tabs.map((tab, idx) => {
-                    const isActive = activeBentoTab === idx;
-                    return (
-                      <button
-                        key={tab.id}
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSimActiveTab(idx);
-                        }}
-                        className={`flex-1 py-1.5 px-2 text-[7px] sm:text-[8px] uppercase font-bold tracking-widest rounded-lg transition-all duration-300 ${isActive
-                            ? "bg-white text-black shadow-md scale-[1.02]"
-                            : "text-white/50 hover:text-white/80 hover:bg-white/5"
-                          }`}
-                      >
-                        {tab.title}
-                      </button>
-                    );
-                  })}
-                </div>
-                {activeBentoTab !== null && formData.tabs[activeBentoTab] && (
-                  <div className="relative p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl text-[8px] sm:text-[9px] text-white/90 leading-relaxed text-center shadow-2xl max-h-[100px] overflow-y-auto scrollbar-none animate-fadeIn">
-                    <div className="absolute -top-12 -left-12 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-                    <p className="relative z-10 font-medium tracking-wide">
-                      {formData.tabs[activeBentoTab].content}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </section>
 
@@ -1791,7 +1755,7 @@ export default function MemberPortalPage() {
       <main className="min-h-[60vh] flex items-center justify-center bg-[#f5f5f7] dark:bg-[#000000]">
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-3 border-[#0071e3] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-[10px] text-zinc-450 font-bold uppercase tracking-widest">Đang tải cấu hình Apple Portal...</p>
+          <p className="text-[10px] text-zinc-450 font-bold uppercase tracking-widest">Đang tải cấu hình Portal...</p>
         </div>
       </main>
     );
@@ -1924,554 +1888,607 @@ export default function MemberPortalPage() {
         {activeTab === "account" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-start animate-fadeIn">
 
-            {/* Left Content Area: iOS Form fields */}
-            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
-              <form onSubmit={handleSave} className="space-y-6">
+            {/* Left Content Area: iOS Form fields with Sub-tabs navigation */}
+            <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start">
+              
+              {/* Local Sub-tabs Navigation Menu */}
+              <div className="md:col-span-3 flex md:flex-col overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 gap-1.5 sticky top-20 z-20 scrollbar-none p-1 md:p-0">
+                {[
+                  { id: "profile", label: "Cá nhân", icon: "person" },
+                  { id: "design", label: "Giao diện", icon: "palette" },
+                  { id: "links", label: "Liên kết", icon: "link" },
+                  { id: "career", label: "Sự nghiệp", icon: "school" },
+                  { id: "body", label: "Hình thể", icon: "straighten" }
+                ].map((tab) => {
+                  const isActive = accountSubTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setAccountSubTab(tab.id)}
+                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider transition-all duration-200 shrink-0 border ${
+                        isActive
+                          ? "bg-[#0071e3] border-[#0071e3] text-white shadow-md shadow-[#0071e3]/10 transform md:translate-x-1"
+                          : "bg-white dark:bg-[#1c1c1e] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border-zinc-200 dark:border-zinc-800/60"
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-base shrink-0">{tab.icon}</span>
+                      <span className="truncate">{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-                {/* Section: Avatar Editor */}
-                <div className="space-y-2 text-center py-4 bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
-                  <div
-                    className="relative w-20 h-20 rounded-full border border-zinc-200 dark:border-zinc-800 shadow-md bg-zinc-100 dark:bg-zinc-900 mx-auto flex items-center justify-center overflow-hidden group cursor-pointer"
-                    onClick={() => !saving && avatarInputRef.current.click()}
-                  >
-                    {formData.avatarUrl ? (
-                      <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-850 text-zinc-400 dark:text-zinc-500">
-                        <span className="material-symbols-outlined text-3xl">add_a_photo</span>
-                      </div>
-                    )}
-                    {saving ? (
-                      <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white z-20">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-[7px] mt-1 font-bold tracking-wider">UPLOADING...</span>
-                      </div>
-                    ) : (
-                      <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold z-20">
-                        <span className="material-symbols-outlined text-sm">photo_camera</span>
-                        <span>THAY ẢNH</span>
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    ref={avatarInputRef}
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
-                    disabled={saving}
-                  />
-                  <div className="space-y-1">
-                    <p className="text-[10px] text-zinc-450 dark:text-zinc-400 font-bold uppercase tracking-wider">Ảnh Đại Diện Bio</p>
-                    <p className="text-[8px] text-zinc-400">Được tự động nén nhẹ tối ưu dung lượng trước khi tải lên Cloudinary</p>
-                    {formData.avatarUrl && (
-                      <button
-                        type="button"
-                        onClick={handleRemoveAvatar}
-                        disabled={saving}
-                        className="text-[9px] font-bold text-red-500 hover:text-red-650 transition-colors disabled:opacity-50"
-                      >
-                        Gỡ bỏ ảnh
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Section: Select Template Style */}
-                <div className="space-y-2">
-                  <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">PHONG CÁCH GIAO DIỆN (STYLE TEMPLATE)</h3>
+              {/* Active Form Fields Pane */}
+              <div className="md:col-span-9 space-y-4">
+                <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-5">
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'default' } }))}
-                      className={`p-3.5 rounded-2xl border text-left transition-all ${
-                        (formData.theme?.template !== 'brutalism' && formData.theme?.template !== 'flat')
-                          ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
-                          : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="material-symbols-outlined text-lg">view_carousel</span>
-                        {(formData.theme?.template !== 'brutalism' && formData.theme?.template !== 'flat') && (
-                          <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
-                        )}
-                      </div>
-                      <h4 className="text-[11px] font-bold mt-2">Classic (Mặc định)</h4>
-                      <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
-                        Bố cục cuộn trang snap mượt mà, hiệu ứng bóng mờ sang trọng.
-                      </p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'brutalism' } }))}
-                      className={`p-3.5 rounded-2xl border text-left transition-all ${
-                        formData.theme?.template === 'brutalism'
-                          ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
-                          : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="material-symbols-outlined text-lg">token</span>
-                        {formData.theme?.template === 'brutalism' && (
-                          <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
-                        )}
-                      </div>
-                      <h4 className="text-[11px] font-bold mt-2 text-red-500 dark:text-red-400">Brutalism</h4>
-                      <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
-                        Phá quy tắc với màu chói, viền đen dày thô, bóng phẳng đổ khối đậm.
-                      </p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'flat' } }))}
-                      className={`p-3.5 rounded-2xl border text-left transition-all ${
-                        formData.theme?.template === 'flat'
-                          ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
-                          : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="material-symbols-outlined text-lg">grid_view</span>
-                        {formData.theme?.template === 'flat' && (
-                          <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
-                        )}
-                      </div>
-                      <h4 className="text-[11px] font-bold mt-2 text-teal-650 dark:text-teal-400">Flat (Phẳng)</h4>
-                      <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
-                        Không đổ bóng, không 3D/gradient, dùng khối 2D phẳng và màu tươi sáng.
-                      </p>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Section A: Basic settings */}
-                <div className="space-y-2">
-                  <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">THÔNG TIN CƠ BẢN</h3>
-
-                  <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
-
-                    {/* Display name */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
-                        <span className="material-symbols-outlined text-base">person</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Họ và Tên
-                      </label>
-                      <input
-                        type="text"
-                        name="displayName"
-                        value={formData.displayName}
-                        onChange={handleFieldChange}
-                        required
-                        placeholder="Họ tên của bạn..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                    {/* Headline */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#30b0c7]">
-                        <span className="material-symbols-outlined text-base">badge</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Biệt danh
-                      </label>
-                      <input
-                        type="text"
-                        name="headline"
-                        value={formData.headline}
-                        onChange={handleFieldChange}
-                        placeholder="Designer, Web Architect, Developer..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                    {/* Birthday */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff2d55]">
-                        <span className="material-symbols-outlined text-base">cake</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Sinh Nhật
-                      </label>
-                      <input
-                        type="text"
-                        name="birthday"
-                        value={formData.birthday}
-                        onChange={handleFieldChange}
-                        placeholder="Ví dụ: 20/10/2004..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* Section B: Contact settings */}
-                <div className="space-y-2">
-                  <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">THÔNG TIN LIÊN HỆ</h3>
-
-                  <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
-
-                    {/* Read-only email */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px] bg-zinc-50/50 dark:bg-zinc-900/10">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
-                        <span className="material-symbols-outlined text-base">mail</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Gmail
-                      </label>
-                      <div className="flex-1 flex flex-wrap justify-between items-center gap-2">
-                        <span className="text-xs font-semibold text-zinc-500">
-                          {memberSession?.email || "-"}
-                        </span>
-                        <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[#34c759]/10 border border-[#34c759]/20 text-[9px] font-bold text-[#34c759] shrink-0">
-                          <span className="material-symbols-outlined text-[10px]">verified</span>
-                          Student verified
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Phone */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
-                        <span className="material-symbols-outlined text-base">phone</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Số điện thoại
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleFieldChange}
-                        placeholder="Số điện thoại dùng liên hệ..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                    {/* Contact Email */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
-                        <span className="material-symbols-outlined text-base">alternate_email</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Email liên hệ
-                      </label>
-                      <input
-                        type="email"
-                        name="contactEmail"
-                        value={formData.contactEmail}
-                        onChange={handleFieldChange}
-                        placeholder="Email hợp tác/công việc..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* Section C: Portfolio & Education */}
-                <div className="space-y-2">
-                  <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">HỌC VẤN & SỰ NGHIỆP</h3>
-                  <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
-
-                    {/* Job Title */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#af52de]">
-                        <span className="material-symbols-outlined text-base">work</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Vai trò / Công việc
-                      </label>
-                      <input
-                        type="text"
-                        name="jobTitle"
-                        value={formData.jobTitle}
-                        onChange={handleFieldChange}
-                        placeholder="Ví dụ: Photographer, UI/UX Designer..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                    {/* Education */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff9500]">
-                        <span className="material-symbols-outlined text-base">school</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Học vấn / Trường học
-                      </label>
-                      <input
-                        type="text"
-                        name="education"
-                        value={formData.education}
-                        onChange={handleFieldChange}
-                        placeholder="Ví dụ: Đại học Ngoại Thương..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                    {/* Skills */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
-                        <span className="material-symbols-outlined text-base">psychology</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Kỹ năng chuyên môn
-                      </label>
-                      <input
-                        type="text"
-                        name="skills"
-                        value={formData.skills}
-                        onChange={handleFieldChange}
-                        placeholder="Ví dụ: Photoshop, React, Figma..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* Section D: Body Measurements & Location */}
-                <div className="space-y-2">
-                  <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">HÌNH THỂ & ĐỊA ĐIỂM</h3>
-                  <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
-
-                    {/* Height */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
-                        <span className="material-symbols-outlined text-base">height</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Chiều cao
-                      </label>
-                      <input
-                        type="text"
-                        name="height"
-                        value={formData.height}
-                        onChange={handleFieldChange}
-                        placeholder="Ví dụ: 1m75..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                    {/* Weight */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#4cd964]">
-                        <span className="material-symbols-outlined text-base">monitor_weight</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Cân nặng
-                      </label>
-                      <input
-                        type="text"
-                        name="weight"
-                        value={formData.weight}
-                        onChange={handleFieldChange}
-                        placeholder="Ví dụ: 65kg..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                    {/* Measurements */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
-                        <span className="material-symbols-outlined text-base">straighten</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Số đo
-                      </label>
-                      <input
-                        type="text"
-                        name="measurements"
-                        value={formData.measurements}
-                        onChange={handleFieldChange}
-                        placeholder="Ví dụ: 90-60-90..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                    {/* Address */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
-                        <span className="material-symbols-outlined text-base">distance</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Khu vực
-                      </label>
-                      <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleFieldChange}
-                        placeholder="Ví dụ: Quận 1, TP. HCM..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* Section E: Biography and Hobbies */}
-                <div className="space-y-2">
-                  <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">THÔNG TIN KHÁC</h3>
-
-                  <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
-
-                    {/* Hobbies */}
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
-                        <span className="material-symbols-outlined text-base">star</span>
-                      </div>
-                      <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0">
-                        Sở thích
-                      </label>
-                      <input
-                        type="text"
-                        name="hobbies"
-                        value={formData.hobbies}
-                        onChange={handleFieldChange}
-                        placeholder="Ngăn cách bằng dấu phẩy: Lập Trình, Vẽ Tranh, Chụp Ảnh..."
-                        className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
-                      />
-                    </div>
-
-                    {/* Bio text (vertical on cell, left/right on md) */}
-                    <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-3 px-4 py-3 min-h-[70px]">
-                      <div className="flex items-center gap-3 shrink-0">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#8e8e93]">
-                          <span className="material-symbols-outlined text-base">edit_note</span>
-                        </div>
-                        <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-36 shrink-0 md:w-36">
-                          Mô tả
-                        </label>
-                      </div>
-                      <div className="flex-grow flex flex-col w-full">
-                        <textarea
-                          ref={bioTextareaRef}
-                          name="bio"
-                          value={formData.bio}
-                          onChange={handleFieldChange}
-                          placeholder="Viết một vài dòng giới thiệu bản thân của bạn..."
-                          className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed mt-1 md:mt-0 overflow-hidden"
-                        />
-                        <div className="flex justify-end text-[9px] font-bold text-zinc-400 dark:text-zinc-500 mt-1 select-none pr-2">
-                          {formData.bio ? formData.bio.trim().split(/\s+/).filter(Boolean).length : 0} / 110 chữ
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* Section D: Social Network Links */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center px-4">
-                    <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">LIÊN KẾT MẠNG XÃ HỘI</h3>
-                    <span className="text-[9px] font-semibold text-zinc-400">Tự động lưu khi thêm/xóa</span>
-                  </div>
-
-                  <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-4">
-
-                    {formData.links.length > 0 ? (
-                      <div className="space-y-2">
-                        {formData.links.map((link, idx) => {
-                          const brand = getSocialBrandStyle(link.label);
-                          return (
-                            <div key={idx} className="flex justify-between items-center p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/40 dark:border-zinc-800/40 text-xs transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
-                              <div className="flex items-center gap-2 truncate pr-2">
-                                <span className={`material-symbols-outlined text-base shrink-0 ${brand ? "text-[#0071e3]" : "text-zinc-450"
-                                  }`}>
-                                  {brand ? brand.icon : "link"}
-                                </span>
-                                <span className="font-bold text-zinc-800 dark:text-zinc-200 shrink-0">{link.label}:</span>
-                                <span className="text-zinc-450 truncate text-[11px] font-medium">{link.url}</span>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => removeSocialLink(idx)}
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-[#ff3b30] hover:bg-[#ff3b30]/10 transition-colors shrink-0"
-                              >
-                                <span className="material-symbols-outlined text-base">remove_circle</span>
-                              </button>
+                  {/* profile Sub-Tab */}
+                  {accountSubTab === "profile" && (
+                    <div className="space-y-4 animate-fadeIn">
+                      {/* Section: Avatar Editor */}
+                      <div className="space-y-2 text-center py-4 bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+                        <div
+                          className={`relative w-20 h-20 rounded-full border shadow-md bg-zinc-100 dark:bg-zinc-900 mx-auto flex items-center justify-center overflow-hidden group cursor-pointer transition-all duration-200 ${
+                            isDragOver
+                              ? "border-2 border-dashed border-[#0071e3] scale-105 bg-blue-50/10 dark:bg-blue-900/10"
+                              : "border-zinc-200 dark:border-zinc-800"
+                          }`}
+                          onClick={() => !saving && avatarInputRef.current.click()}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setIsDragOver(true);
+                          }}
+                          onDragLeave={() => setIsDragOver(false)}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            setIsDragOver(false);
+                            const file = e.dataTransfer.files[0];
+                            processFile(file);
+                          }}
+                        >
+                          {formData.avatarUrl ? (
+                            <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-850 text-zinc-400 dark:text-zinc-500">
+                              <span className="material-symbols-outlined text-3xl">add_a_photo</span>
                             </div>
-                          );
-                        })}
+                          )}
+                          {saving ? (
+                            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white z-20">
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-[7px] mt-1 font-bold tracking-wider">UPLOADING...</span>
+                            </div>
+                          ) : (
+                            <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold z-20">
+                              <span className="material-symbols-outlined text-sm">photo_camera</span>
+                              <span>THAY ẢNH</span>
+                            </div>
+                          )}
+                        </div>
+                        <input
+                          type="file"
+                          ref={avatarInputRef}
+                          accept="image/*"
+                          onChange={handleAvatarChange}
+                          className="hidden"
+                          disabled={saving}
+                        />
+                        <div className="space-y-1">
+                          <p className="text-[10px] text-zinc-450 dark:text-zinc-400 font-bold uppercase tracking-wider">Ảnh Đại Diện Bio</p>
+                          <p className="text-[8px] text-zinc-400">Được tự động nén nhẹ tối ưu dung lượng trước khi tải lên Cloudinary</p>
+                          {formData.avatarUrl && (
+                            <button
+                              type="button"
+                              onClick={handleRemoveAvatar}
+                              disabled={saving}
+                              className="text-[9px] font-bold text-red-500 hover:text-red-650 transition-colors disabled:opacity-50"
+                            >
+                              Gỡ bỏ ảnh
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    ) : (
-                      <div className="text-center py-6 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
-                        <span className="material-symbols-outlined text-2xl text-zinc-300">link_off</span>
-                        <p className="text-[11px] italic text-zinc-400 mt-1">Chưa có liên kết xã hội nào.</p>
-                      </div>
-                    )}
 
-                    {/* Add new link input rows */}
-                    <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/50 space-y-3">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">Nhãn liên kết</label>
-                          <input
-                            type="text"
-                            value={newLinkLabel}
-                            onKeyDown={handleLinkInputKeyDown}
-                            onChange={(e) => setNewLinkLabel(e.target.value)}
-                            placeholder="Ví dụ: Facebook, Github..."
-                            className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">Địa chỉ URL</label>
-                          <input
-                            type="text"
-                            value={newLinkUrl}
-                            onKeyDown={handleLinkInputKeyDown}
-                            onChange={(e) => setNewLinkUrl(e.target.value)}
-                            placeholder="Ví dụ: https://facebook.com/..."
-                            className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
-                          />
+                      {/* Section A: Basic settings */}
+                      <div className="space-y-2">
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">THÔNG TIN CƠ BẢN</h3>
+                        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                          {/* Display name */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
+                              <span className="material-symbols-outlined text-base">person</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Họ và Tên
+                            </label>
+                            <input
+                              type="text"
+                              name="displayName"
+                              value={formData.displayName}
+                              onChange={handleFieldChange}
+                              required
+                              placeholder="Họ tên của bạn..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+
+                          {/* Headline */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#30b0c7]">
+                              <span className="material-symbols-outlined text-base">badge</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Biệt danh
+                            </label>
+                            <input
+                              type="text"
+                              name="headline"
+                              value={formData.headline}
+                              onChange={handleFieldChange}
+                              placeholder="Designer, Web Architect, Developer..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+
+                          {/* Birthday */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff2d55]">
+                              <span className="material-symbols-outlined text-base">cake</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Sinh Nhật
+                            </label>
+                            <input
+                              type="text"
+                              name="birthday"
+                              value={formData.birthday}
+                              onChange={handleFieldChange}
+                              placeholder="Ví dụ: 20/10/2004..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={addSocialLink}
-                        className="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1 shadow-sm"
-                      >
-                        <span className="material-symbols-outlined text-sm">add</span>
-                        Thêm liên kết
-                      </button>
+
+                      {/* Section B: Contact settings */}
+                      <div className="space-y-2">
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">THÔNG TIN LIÊN HỆ</h3>
+                        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                          {/* Read-only email */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px] bg-zinc-50/50 dark:bg-zinc-900/10">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
+                              <span className="material-symbols-outlined text-base">mail</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Gmail
+                            </label>
+                            <div className="flex-1 flex flex-wrap justify-between items-center gap-2">
+                              <span className="text-xs font-semibold text-zinc-500">
+                                {memberSession?.email || "-"}
+                              </span>
+                              <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[#34c759]/10 border border-[#34c759]/20 text-[9px] font-bold text-[#34c759] shrink-0">
+                                <span className="material-symbols-outlined text-[10px]">verified</span>
+                                Student verified
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Phone */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
+                              <span className="material-symbols-outlined text-base">phone</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Số điện thoại
+                            </label>
+                            <input
+                              type="tel"
+                              name="phone"
+                              value={formData.phone}
+                              onChange={handleFieldChange}
+                              placeholder="Số điện thoại dùng liên hệ..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+
+                          {/* Contact Email */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
+                              <span className="material-symbols-outlined text-base">alternate_email</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Email liên hệ
+                            </label>
+                            <input
+                              type="email"
+                              name="contactEmail"
+                              value={formData.contactEmail}
+                              onChange={handleFieldChange}
+                              placeholder="Email hợp tác/công việc..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
+                  )}
 
+                  {/* design Sub-Tab */}
+                  {accountSubTab === "design" && (
+                    <div className="space-y-4 animate-fadeIn">
+                      {/* Section: Select Template Style */}
+                      <div className="space-y-2">
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">PHONG CÁCH GIAO DIỆN (STYLE TEMPLATE)</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'default' } }))}
+                            className={`p-3.5 rounded-2xl border text-left transition-all ${
+                              (formData.theme?.template !== 'brutalism' && formData.theme?.template !== 'flat')
+                                ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
+                                : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="material-symbols-outlined text-lg">view_carousel</span>
+                              {(formData.theme?.template !== 'brutalism' && formData.theme?.template !== 'flat') && (
+                                <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
+                              )}
+                            </div>
+                            <h4 className="text-[11px] font-bold mt-2">Classic (Mặc định)</h4>
+                            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
+                              Bố cục cuộn trang snap mượt mà, hiệu ứng bóng mờ sang trọng.
+                            </p>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'brutalism' } }))}
+                            className={`p-3.5 rounded-2xl border text-left transition-all ${
+                              formData.theme?.template === 'brutalism'
+                                ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
+                                : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="material-symbols-outlined text-lg">token</span>
+                              {formData.theme?.template === 'brutalism' && (
+                                <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
+                              )}
+                            </div>
+                            <h4 className="text-[11px] font-bold mt-2 text-red-500 dark:text-red-400">Brutalism</h4>
+                            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
+                              Phá quy tắc với màu chói, viền đen dày thô, bóng phẳng đổ khối đậm.
+                            </p>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'flat' } }))}
+                            className={`p-3.5 rounded-2xl border text-left transition-all ${
+                              formData.theme?.template === 'flat'
+                                ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
+                                : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-850 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="material-symbols-outlined text-lg">grid_view</span>
+                              {formData.theme?.template === 'flat' && (
+                                <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
+                              )}
+                            </div>
+                            <h4 className="text-[11px] font-bold mt-2 text-teal-650 dark:text-teal-400">Flat (Phẳng)</h4>
+                            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
+                              Không đổ bóng, không 3D/gradient, dùng khối 2D phẳng và màu tươi sáng.
+                            </p>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* links Sub-Tab */}
+                  {accountSubTab === "links" && (
+                    <div className="space-y-4 animate-fadeIn">
+                      {/* Section D: Social Network Links */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center px-4">
+                          <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">LIÊN KẾT MẠNG XÃ HỘI</h3>
+                          <span className="text-[8px] font-semibold text-zinc-400">Tự động lưu khi thêm/xóa</span>
+                        </div>
+
+                        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-4">
+                          {formData.links && formData.links.length > 0 ? (
+                            <div className="space-y-2">
+                              {formData.links.map((link, idx) => {
+                                const brand = getSocialBrandStyle(link.label);
+                                return (
+                                  <div key={idx} className="flex justify-between items-center p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/40 dark:border-zinc-800/40 text-xs transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
+                                    <div className="flex items-center gap-2 truncate pr-2">
+                                      <span className={`material-symbols-outlined text-base shrink-0 ${brand ? "text-[#0071e3]" : "text-zinc-450"}`}>
+                                        {brand ? brand.icon : "link"}
+                                      </span>
+                                      <span className="font-bold text-zinc-800 dark:text-zinc-200 shrink-0">{link.label}:</span>
+                                      <span className="text-zinc-450 truncate text-[11px] font-medium">{link.url}</span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => removeSocialLink(idx)}
+                                      className="w-8 h-8 rounded-full flex items-center justify-center text-[#ff3b30] hover:bg-[#ff3b30]/10 transition-colors shrink-0"
+                                    >
+                                      <span className="material-symbols-outlined text-base">remove_circle</span>
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="text-center py-6 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
+                              <span className="material-symbols-outlined text-2xl text-zinc-300">link_off</span>
+                              <p className="text-[11px] italic text-zinc-400 mt-1">Chưa có liên kết xã hội nào.</p>
+                            </div>
+                          )}
+
+                          {/* Add new link input rows */}
+                          <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/50 space-y-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">Nhãn liên kết</label>
+                                <input
+                                  type="text"
+                                  value={newLinkLabel}
+                                  onKeyDown={handleLinkInputKeyDown}
+                                  onChange={(e) => setNewLinkLabel(e.target.value)}
+                                  placeholder="Ví dụ: Facebook, Github..."
+                                  className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">Địa chỉ URL</label>
+                                <input
+                                  type="text"
+                                  value={newLinkUrl}
+                                  onKeyDown={handleLinkInputKeyDown}
+                                  onChange={(e) => setNewLinkUrl(e.target.value)}
+                                  placeholder="Ví dụ: https://facebook.com/..."
+                                  className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
+                                />
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={addSocialLink}
+                              className="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1 shadow-sm"
+                            >
+                              <span className="material-symbols-outlined text-sm">add</span>
+                              Thêm liên kết
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+
+
+                  {/* career Sub-Tab */}
+                  {accountSubTab === "career" && (
+                    <div className="space-y-4 animate-fadeIn">
+                      {/* Section C: Portfolio & Education */}
+                      <div className="space-y-2">
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">HỌC VẤN & SỰ NGHIỆP</h3>
+                        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                          {/* Job Title */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#af52de]">
+                              <span className="material-symbols-outlined text-base">work</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Vai trò / Công việc
+                            </label>
+                            <input
+                              type="text"
+                              name="jobTitle"
+                              value={formData.jobTitle}
+                              onChange={handleFieldChange}
+                              placeholder="Ví dụ: Photographer, UI/UX Designer..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+
+                          {/* Education */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff9500]">
+                              <span className="material-symbols-outlined text-base">school</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Học vấn / Trường học
+                            </label>
+                            <input
+                              type="text"
+                              name="education"
+                              value={formData.education}
+                              onChange={handleFieldChange}
+                              placeholder="Ví dụ: Đại học Ngoại Thương..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+
+                          {/* Skills */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
+                              <span className="material-symbols-outlined text-base">psychology</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Kỹ năng chuyên môn
+                            </label>
+                            <input
+                              type="text"
+                              name="skills"
+                              value={formData.skills}
+                              onChange={handleFieldChange}
+                              placeholder="Ví dụ: Photoshop, React, Figma..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* body Sub-Tab */}
+                  {accountSubTab === "body" && (
+                    <div className="space-y-4 animate-fadeIn">
+                      {/* Section D: Body Measurements & Location */}
+                      <div className="space-y-2">
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">HÌNH THỂ & ĐỊA ĐIỂM</h3>
+                        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                          {/* Height */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
+                              <span className="material-symbols-outlined text-base">height</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Chiều cao
+                            </label>
+                            <input
+                              type="text"
+                              name="height"
+                              value={formData.height}
+                              onChange={handleFieldChange}
+                              placeholder="Ví dụ: 1m75..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+
+                          {/* Weight */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#4cd964]">
+                              <span className="material-symbols-outlined text-base">monitor_weight</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Cân nặng
+                            </label>
+                            <input
+                              type="text"
+                              name="weight"
+                              value={formData.weight}
+                              onChange={handleFieldChange}
+                              placeholder="Ví dụ: 65kg..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+
+                          {/* Measurements */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
+                              <span className="material-symbols-outlined text-base">straighten</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Số đo
+                            </label>
+                            <input
+                              type="text"
+                              name="measurements"
+                              value={formData.measurements}
+                              onChange={handleFieldChange}
+                              placeholder="Ví dụ: 90-60-90..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+
+                          {/* Address */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
+                              <span className="material-symbols-outlined text-base">distance</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Khu vực
+                            </label>
+                            <input
+                              type="text"
+                              name="address"
+                              value={formData.address}
+                              onChange={handleFieldChange}
+                              placeholder="Ví dụ: Quận 1, TP. HCM..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section E: Biography and Hobbies */}
+                      <div className="space-y-2">
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">THÔNG TIN KHÁC</h3>
+                        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                          {/* Hobbies */}
+                          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
+                              <span className="material-symbols-outlined text-base">star</span>
+                            </div>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                              Sở thích
+                            </label>
+                            <input
+                              type="text"
+                              name="hobbies"
+                              value={formData.hobbies}
+                              onChange={handleFieldChange}
+                              placeholder="Cách bằng dấu phẩy: Lập Trình, Vẽ Tranh..."
+                              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+                            />
+                          </div>
+
+                          {/* Bio text */}
+                          <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-3 px-4 py-3 min-h-[70px]">
+                            <div className="flex items-center gap-3 shrink-0">
+                              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#8e8e93]">
+                                <span className="material-symbols-outlined text-base">edit_note</span>
+                              </div>
+                              <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+                                Mô tả
+                              </label>
+                            </div>
+                            <div className="flex-grow flex flex-col w-full">
+                              <textarea
+                                ref={bioTextareaRef}
+                                name="bio"
+                                value={formData.bio}
+                                onChange={handleFieldChange}
+                                placeholder="Viết một vài dòng giới thiệu bản thân..."
+                                className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed mt-1 md:mt-0 overflow-hidden"
+                              />
+                              <div className="flex justify-end text-[9px] font-bold text-zinc-400 dark:text-zinc-500 mt-1 select-none pr-2">
+                                {formData.bio ? formData.bio.trim().split(/\s+/).filter(Boolean).length : 0} / 110 chữ
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Submit save button/status */}
+                  <div className="pt-2">
+                    <div className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/60 rounded-2xl py-3 px-4 flex items-center justify-center gap-2 select-none">
+                      {saving ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-[#0071e3] border-t-transparent rounded-full animate-spin" />
+                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Đang tự động lưu...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-sm text-green-500">cloud_done</span>
+                          <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider">Đã tự động lưu mọi thay đổi</span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Submit save button */}
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="w-full bg-black dark:bg-white text-white dark:text-black hover:opacity-90 font-bold py-3.5 rounded-2xl transition-all shadow-md text-xs sm:text-sm flex items-center justify-center gap-2"
-                  >
-                    {saving ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" />
-                        <span>Đang xử lý...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="material-symbols-outlined text-base">cloud_sync</span>
-                        <span>{bio ? "Cập Nhật Hồ Sơ & Bio" : "Kích hoạt & Lưu hồ sơ"}</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                </form>
+              </div>
 
-              </form>
             </div>
 
             {/* Right Sticky Preview Area - Account Tab */}

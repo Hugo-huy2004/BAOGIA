@@ -53,10 +53,6 @@ export default function VacationNotificationBanner() {
 
         {/* Left side: Message */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          {/* Icon */}
-          <div className="flex-shrink-0 text-xl sm:text-2xl animate-bounce">
-            ✈️
-          </div>
 
           {/* Text */}
           <div className="min-w-0 flex-1">
