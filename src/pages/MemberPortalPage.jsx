@@ -113,6 +113,12 @@ export default function MemberPortalPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState({ message: "", type: "" });
 
+  // Custom confirmation modal state
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
+  const triggerConfirm = (message, onConfirm) => {
+    setConfirmModal({ isOpen: true, message, onConfirm });
+  };
+
   const handleLogout = () => {
     logoutAuth();
     window.location.href = "/login";
@@ -711,85 +717,86 @@ export default function MemberPortalPage() {
     }
   };
 
-  const handleDeleteBio = async () => {
+  const handleDeleteBio = () => {
     if (isGuestMode) {
-      if (!window.confirm("Xác nhận xóa hoàn toàn thiết kế Bio đối tác hiện tại?")) return;
-      localStorage.removeItem("hugo_guest_bio");
-      setBio(null);
-      setFormData({
-        displayName: "HUGO STUDIO PARTNER GUEST",
-        headline: "",
-        bio: "",
-        birthday: "",
-        phone: "",
-        hobbies: "",
-        height: "",
-        weight: "",
-        measurements: "",
-        address: "",
-        education: "",
-        skills: "",
-        jobTitle: "",
-        contactEmail: "",
-        avatarUrl: "",
-        links: [],
-        theme: {
-          bgColor: "#0f172a",
-          textColor: "#f8fafc",
-          accentColor: "#6366f1",
-          pattern: "none",
-          preset: "default",
-          btnRadius: 16,
-          btnBorderWidth: 0,
-          btnShadow: 4,
-          template: "default"
-        },
-        tabs: []
+      triggerConfirm("Xác nhận xóa hoàn toàn thiết kế Bio đối tác hiện tại?", () => {
+        localStorage.removeItem("hugo_guest_bio");
+        setBio(null);
+        setFormData({
+          displayName: "HUGO STUDIO PARTNER GUEST",
+          headline: "",
+          bio: "",
+          birthday: "",
+          phone: "",
+          hobbies: "",
+          height: "",
+          weight: "",
+          measurements: "",
+          address: "",
+          education: "",
+          skills: "",
+          jobTitle: "",
+          contactEmail: "",
+          avatarUrl: "",
+          links: [],
+          theme: {
+            bgColor: "#0f172a",
+            textColor: "#f8fafc",
+            accentColor: "#6366f1",
+            pattern: "none",
+            preset: "default",
+            btnRadius: 16,
+            btnBorderWidth: 0,
+            btnShadow: 4,
+            template: "default"
+          },
+          tabs: []
+        });
+        showToast("Đã xóa sạch dữ liệu thiết kế cục bộ.", "success");
       });
-      showToast("Đã xóa sạch dữ liệu thiết kế cục bộ.", "success");
       return;
     }
 
     if (!bio?._id) return;
-    if (!window.confirm("Xác nhận xóa hoàn toàn Bio cá nhân? Thao tác này không thể hoàn tác.")) return;
-
-    setSaving(true);
-    try {
-      await dataApi.deleteMemberBio(bio._id);
-      setBio(null);
-      setFormData({
-        displayName: memberSession?.displayName || "",
-        headline: "",
-        bio: "",
-        birthday: "",
-        phone: "",
-        hobbies: "",
-        height: "",
-        weight: "",
-        measurements: "",
-        address: "",
-        links: [],
-        theme: {
-          bgColor: "#ffffff",
-          textColor: "#0f172a",
-          accentColor: "#6366f1",
-          pattern: "none",
-          preset: "default",
-          btnRadius: 16,
-          btnBorderWidth: 0,
-          btnShadow: 4,
-          template: "default"
-        },
-        tabs: []
-      });
-      showToast("Đã gỡ bỏ Bio Link cá nhân của bạn.", "success");
-      setActiveTab("account");
-    } catch (error) {
-      console.error(error);
-      showToast("Không gỡ bỏ được Bio.", "error");
-    } finally {
-      setSaving(false);
-    }
+    triggerConfirm("Xác nhận xóa hoàn toàn Bio cá nhân? Thao tác này không thể hoàn tác.", async () => {
+      setSaving(true);
+      try {
+        await dataApi.deleteMemberBio(bio._id);
+        setBio(null);
+        setFormData({
+          displayName: memberSession?.displayName || "",
+          headline: "",
+          bio: "",
+          birthday: "",
+          phone: "",
+          hobbies: "",
+          height: "",
+          weight: "",
+          measurements: "",
+          address: "",
+          links: [],
+          theme: {
+            bgColor: "#ffffff",
+            textColor: "#0f172a",
+            accentColor: "#6366f1",
+            pattern: "none",
+            preset: "default",
+            btnRadius: 16,
+            btnBorderWidth: 0,
+            btnShadow: 4,
+            template: "default"
+          },
+          tabs: []
+        });
+        showToast("Đã gỡ bỏ Bio Link cá nhân của bạn.", "success");
+        setActiveTab("account");
+      } catch (error) {
+        console.error(error);
+        showToast("Không gỡ bỏ được Bio.", "error");
+      } finally {
+        setSaving(false);
+      }
+    });
   };
 
   const handleCopyLink = async () => {
@@ -2225,6 +2232,39 @@ export default function MemberPortalPage() {
                   className="py-2.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white text-[11px] font-bold shadow-md transition-colors"
                 >
                   CẮT & LƯU
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* CUSTOM CONFIRM MODAL */}
+        {confirmModal.isOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+              <div className="flex items-center gap-2 text-rose-500">
+                <span className="material-symbols-outlined text-2xl">warning</span>
+                <h3 className="font-extrabold text-sm uppercase tracking-wider text-zinc-900 dark:text-white">Xác Nhận Thao Tác</h3>
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                {confirmModal.message}
+              </p>
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: null })}
+                  className="py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
+                >
+                  HỦY BỎ
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirmModal.onConfirm) confirmModal.onConfirm();
+                    setConfirmModal({ isOpen: false, message: "", onConfirm: null });
+                  }}
+                  className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold shadow-md transition-colors"
+                >
+                  XÁC NHẬN
                 </button>
               </div>
             </div>

@@ -57,6 +57,12 @@ export default function AdminPanel() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmError, setConfirmError] = useState("");
 
+  // Reusable custom confirm modal state
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
+  const triggerConfirm = (message, onConfirm) => {
+    setConfirmModal({ isOpen: true, message, onConfirm });
+  };
+
   // Load vacation mode from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem("hugoStudioVacationMode");
@@ -104,24 +110,25 @@ export default function AdminPanel() {
     reader.readAsDataURL(file);
   };
 
-  const handleAdDelete = async () => {
-    if (!window.confirm("Bạn có chắc muốn xoá ảnh quảng cáo này?")) return;
-    setUploadingAd(true);
-    try {
-      if (data?.advertisement?.imageUrl) {
-        await fetch(`${import.meta.env.VITE_API_URL}/data/delete-ad`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: data.advertisement.imageUrl })
-        });
+  const handleAdDelete = () => {
+    triggerConfirm("Bạn có chắc muốn xoá ảnh quảng cáo này?", async () => {
+      setUploadingAd(true);
+      try {
+        if (data?.advertisement?.imageUrl) {
+          await fetch(`${import.meta.env.VITE_API_URL}/data/delete-ad`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: data.advertisement.imageUrl })
+          });
+        }
+        await updateAdvertisement({ imageUrl: "", linkUrl: "", isActive: false });
+        showNotification("Đã xoá quảng cáo!");
+      } catch (err) {
+        showNotification("Lỗi kết nối máy chủ.", "error");
+      } finally {
+        setUploadingAd(false);
       }
-      await updateAdvertisement({ imageUrl: "", linkUrl: "", isActive: false });
-      showNotification("Đã xoá quảng cáo!");
-    } catch (err) {
-      showNotification("Lỗi kết nối máy chủ.", "error");
-    } finally {
-      setUploadingAd(false);
-    }
+    });
   };
 
   const handleVacationModeChange = (value) => {
@@ -295,22 +302,23 @@ export default function AdminPanel() {
     }
   };
 
-  const handleDeleteBooking = async (bookingId) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn yêu cầu đặt lịch này không?")) return;
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}`, {
-        method: "DELETE"
-      });
-      if (response.ok) {
-        showNotification("Đã xóa yêu cầu đặt lịch! 🗑️");
-        setBookings(prev => prev.filter(b => b._id !== bookingId));
-      } else {
-        showNotification("Có lỗi khi xóa.", "error");
+  const handleDeleteBooking = (bookingId) => {
+    triggerConfirm("Bạn có chắc chắn muốn xóa vĩnh viễn yêu cầu đặt lịch này không?", async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}`, {
+          method: "DELETE"
+        });
+        if (response.ok) {
+          showNotification("Đã xóa yêu cầu đặt lịch! 🗑️");
+          setBookings(prev => prev.filter(b => b._id !== bookingId));
+        } else {
+          showNotification("Có lỗi khi xóa.", "error");
+        }
+      } catch (e) {
+        console.error(e);
+        showNotification("Lỗi kết nối.", "error");
       }
-    } catch (e) {
-      console.error(e);
-      showNotification("Lỗi kết nối.", "error");
-    }
+    });
   };
 
   // 3. Partner Actions
@@ -345,25 +353,26 @@ export default function AdminPanel() {
     }
   };
 
-  const handleDeletePartner = async (partnerId) => {
-    if (!window.confirm("Bạn có chắc chắn muốn kết thúc liên kết với đối tác này?")) return;
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/partners/${partnerId}`, {
-        method: "DELETE"
-      });
-      if (response.ok) {
-        showNotification("Đã xóa đối tác liên kết! 🗑️");
-        setPartners(prev => prev.filter(p => p._id !== partnerId));
-        if (previewPartner?._id === partnerId) setPreviewPartner(null);
-        if (exportPartner?._id === partnerId) setExportPartner(null);
-        if (exportLinkPartner?._id === partnerId) setExportLinkPartner(null);
-      } else {
-        showNotification("Có lỗi khi xóa đối tác.", "error");
+  const handleDeletePartner = (partnerId) => {
+    triggerConfirm("Bạn có chắc chắn muốn kết thúc liên kết với đối tác này?", async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/partners/${partnerId}`, {
+          method: "DELETE"
+        });
+        if (response.ok) {
+          showNotification("Đã xóa đối tác liên kết! 🗑️");
+          setPartners(prev => prev.filter(p => p._id !== partnerId));
+          if (previewPartner?._id === partnerId) setPreviewPartner(null);
+          if (exportPartner?._id === partnerId) setExportPartner(null);
+          if (exportLinkPartner?._id === partnerId) setExportLinkPartner(null);
+        } else {
+          showNotification("Có lỗi khi xóa đối tác.", "error");
+        }
+      } catch (e) {
+        console.error(e);
+        showNotification("Lỗi kết nối.", "error");
       }
-    } catch (e) {
-      console.error(e);
-      showNotification("Lỗi kết nối.", "error");
-    }
+    });
   };
 
   // Utility helpers
@@ -1274,6 +1283,38 @@ export default function AdminPanel() {
                 className="flex-grow bg-primary hover:bg-indigo-650 text-white font-bold text-xs py-3 rounded-xl hover:scale-102 transition-transform shadow-md"
               >
                 Sao Chép Mã Nhúng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM REUSABLE CONFIRM MODAL */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+            <div className="flex items-center gap-2 text-rose-500">
+              <span className="material-symbols-outlined text-2xl">warning</span>
+              <h3 className="font-extrabold text-sm uppercase tracking-wider text-slate-800 dark:text-white">Xác Nhận Thao Tác</h3>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              {confirmModal.message}
+            </p>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: null })}
+                className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-all"
+              >
+                Hủy Bỏ
+              </button>
+              <button
+                onClick={() => {
+                  if (confirmModal.onConfirm) confirmModal.onConfirm();
+                  setConfirmModal({ isOpen: false, message: "", onConfirm: null });
+                }}
+                className="flex-1 bg-rose-600 hover:bg-rose-550 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-md"
+              >
+                Xác Nhận
               </button>
             </div>
           </div>
