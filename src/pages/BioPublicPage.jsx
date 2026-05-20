@@ -636,25 +636,25 @@ export default function BioPublicPage() {
                     {bio.phone && (
                       <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-2">
                         <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Booking</span>
-                        <p className="font-bold text-white/90">{bio.phone}</p>
+                        <p className="font-bold opacity-90">{bio.phone}</p>
                       </div>
                     )}
                     {bio.birthday && (
                       <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-2">
                         <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Ngày sinh</span>
-                        <p className="font-bold text-white/90">{bio.birthday}</p>
+                        <p className="font-bold opacity-90">{bio.birthday}</p>
                       </div>
                     )}
                     {bio.address && (
                       <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-2">
                         <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Khu vực</span>
-                        <p className="font-bold text-white/90">{bio.address}</p>
+                        <p className="font-bold opacity-90">{bio.address}</p>
                       </div>
                     )}
                     {bio.hobbies && (
                       <div className="flex items-start justify-between">
                         <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70 mt-0.5">Sở thích</span>
-                        <p className="font-bold text-white/90 text-right max-w-[65%] leading-relaxed">{bio.hobbies}</p>
+                        <p className="font-bold opacity-90 text-right max-w-[65%] leading-relaxed">{bio.hobbies}</p>
                       </div>
                     )}
                   </div>
@@ -677,25 +677,25 @@ export default function BioPublicPage() {
                   {bio.jobTitle && (
                     <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-2.5">
                       <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Công việc</span>
-                      <p className="font-semibold text-white/90 text-right max-w-[65%]">{bio.jobTitle}</p>
+                      <p className="font-semibold opacity-90 text-right max-w-[65%]">{bio.jobTitle}</p>
                     </div>
                   )}
                   {bio.education && (
                     <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-2.5">
                       <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Học vấn</span>
-                      <p className="font-semibold text-white/90 text-right max-w-[65%]">{bio.education}</p>
+                      <p className="font-semibold opacity-90 text-right max-w-[65%]">{bio.education}</p>
                     </div>
                   )}
                   {bio.skills && (
                     <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-2.5">
                       <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Kỹ năng</span>
-                      <p className="font-semibold text-white/90 text-right max-w-[65%]">{bio.skills}</p>
+                      <p className="font-semibold opacity-90 text-right max-w-[65%]">{bio.skills}</p>
                     </div>
                   )}
                   {bio.contactEmail && (
                     <div className="flex items-center justify-between">
                       <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Email LH</span>
-                      <p className="font-semibold text-white/90 break-all text-right max-w-[65%]">{bio.contactEmail}</p>
+                      <p className="font-semibold opacity-90 break-all text-right max-w-[65%]">{bio.contactEmail}</p>
                     </div>
                   )}
                 </div>
