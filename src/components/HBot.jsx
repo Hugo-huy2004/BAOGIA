@@ -19,8 +19,8 @@ const HBot = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Hide H-Bot in working pages (AdminPanel and MemberPortal)
-  const isWorkingPage = location.pathname.startsWith('/admin') || location.pathname.startsWith('/member');
+  // Only show H-Bot in MemberPortal
+  const isMemberPage = location.pathname.startsWith('/member');
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -28,7 +28,7 @@ const HBot = () => {
     }
   }, [messages, isLoading]);
 
-  if (isWorkingPage) return null;
+  if (!isMemberPage) return null;
 
   const handleSend = async (e) => {
     if (e) e.preventDefault();
@@ -240,20 +240,18 @@ const HBot = () => {
       {!isOpen && (
         <button
           onClick={handleOpenChat}
-          className="group relative flex items-center gap-2 px-4 h-12 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-0.5 select-none hover:scale-105 active:scale-95"
+          className="group relative w-14 h-14 rounded-full overflow-visible transition-all duration-300 hover:-translate-y-0.5 select-none hover:scale-105 active:scale-95"
           style={{ minWidth: 0, minHeight: 0 }}
         >
-          {/* Glowing Ring */}
-          <span className="absolute inset-0 rounded-full border border-indigo-400/40 group-hover:scale-110 group-hover:opacity-0 transition-all duration-500 pointer-events-none" />
-          
-          <div className="flex items-center justify-center relative w-7 h-7 rounded-full overflow-hidden border border-white/20 shrink-0">
-            <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
-            {showBadge && (
-              <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full border border-white animate-pulse" />
-            )}
+          {/* Inner Avatar Container (No border, transparent background, simple shadow) */}
+          <div className="w-full h-full rounded-full overflow-hidden shadow-lg border-0 bg-transparent relative">
+            <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover" />
           </div>
           
-          <span className="font-bold text-xs tracking-wide">H-Bot Studio</span>
+          {/* Notification Badge */}
+          {showBadge && (
+            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#12111a] animate-pulse" />
+          )}
         </button>
       )}
     </div>
