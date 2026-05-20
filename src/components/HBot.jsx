@@ -215,18 +215,18 @@ const HBot = () => {
     <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end">
       {/* Floating Chat Box */}
       {isOpen && (
-        <div className="mb-4 w-[360px] max-w-[calc(100vw-32px)] h-[500px] max-h-[calc(100vh-120px)] bg-white/90 dark:bg-[#12111a]/95 backdrop-blur-md rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-2xl overflow-hidden flex flex-col animate-fadeIn select-none">
+        <div className="mb-4 w-[360px] max-w-[calc(100vw-32px)] h-[500px] max-h-[calc(100vh-120px)] bg-[#f5f5f7]/95 dark:bg-[#1c1c1e]/95 backdrop-blur-lg rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-2xl overflow-hidden flex flex-col animate-fadeIn select-none">
           {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex items-center justify-between shadow-sm">
+          <div className="p-4 bg-white/85 dark:bg-[#2c2c2e]/85 text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800/80 shadow-sm backdrop-blur-md">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 relative shrink-0">
                 <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
                 {/* Active Indicator */}
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-indigo-600 animate-pulse" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-white dark:border-[#2c2c2e] animate-pulse" />
               </div>
               <div>
-                <h4 className="font-bold text-sm leading-tight">Culi</h4>
-                <p className="text-[10px] text-indigo-100 flex items-center gap-1">
+                <h4 className="font-bold text-sm leading-tight text-[#1d1d1f] dark:text-white">Culi</h4>
+                <p className="text-[10px] text-slate-550 dark:text-slate-400 flex items-center gap-1 font-medium">
                   Trợ lý nhỏ đáng yêu
                 </p>
               </div>
@@ -234,15 +234,15 @@ const HBot = () => {
             
             <button
               onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+              className="w-7 h-7 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-650 dark:text-slate-350 transition-colors"
               style={{ minWidth: 0, minHeight: 0 }}
             >
-              <span className="material-symbols-outlined text-sm">close</span>
+              <span className="material-symbols-outlined text-sm font-bold">close</span>
             </button>
           </div>
 
           {/* Messages Container */}
-          <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-50/50 dark:bg-slate-900/10">
+          <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-white/50 dark:bg-black/10">
             {messages.map(msg => (
               <div
                 key={msg.id}
@@ -259,8 +259,8 @@ const HBot = () => {
                 <div
                   className={`p-3 rounded-2xl text-xs leading-relaxed ${
                     msg.sender === 'user'
-                      ? 'bg-indigo-600 text-white rounded-tr-none'
-                      : 'bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none shadow-sm'
+                      ? 'bg-[#007aff] text-white rounded-tr-none font-medium'
+                      : 'bg-[#e9e9eb] dark:bg-[#252528] text-[#1d1d1f] dark:text-[#f5f5f7] rounded-tl-none font-medium shadow-sm'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.text}</p>
@@ -274,7 +274,7 @@ const HBot = () => {
                 <div className="w-8 h-8 shrink-0">
                   <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
                 </div>
-                <div className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-800 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
+                <div className="p-3 bg-[#e9e9eb] dark:bg-[#252528] text-[#1d1d1f] dark:text-[#f5f5f7] rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -284,18 +284,18 @@ const HBot = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Options Menu Selection (Shopee Style) */}
+          {/* Options Menu Selection (Apple Style) */}
           {!isLoading && currentStep !== 'redirect_support' && (
-            <div className="p-3 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 flex flex-col gap-2 shrink-0 max-h-[190px] overflow-y-auto">
+            <div className="p-3 border-t border-slate-200/50 dark:border-slate-800/80 bg-[#fbfbfd] dark:bg-[#12111a] flex flex-col gap-2 shrink-0 max-h-[190px] overflow-y-auto">
               {QUESTION_TREE[currentStep]?.options.map((opt, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleOptionClick(opt)}
-                  className="w-full text-left px-4 py-2.5 bg-slate-50 hover:bg-indigo-50 dark:bg-slate-900 dark:hover:bg-indigo-950/40 border border-slate-200/50 dark:border-slate-800/80 hover:border-indigo-500/55 dark:hover:border-indigo-500/55 text-xs text-slate-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 rounded-xl font-semibold transition-all shadow-sm hover:shadow active:scale-[0.99] flex items-center justify-between group"
+                  className="w-full text-left px-4 py-2.5 bg-[#f5f5f7] hover:bg-[#e8e8ed] dark:bg-[#252528] dark:hover:bg-[#2c2c2e] border-0 text-xs text-[#1d1d1f] dark:text-[#f5f5f7] hover:text-[#007aff] dark:hover:text-[#007aff] rounded-xl font-semibold transition-all active:scale-[0.99] flex items-center justify-between group"
                   style={{ minWidth: 0, minHeight: 0 }}
                 >
                   <span>{opt.label}</span>
-                  <span className="material-symbols-outlined text-slate-400 group-hover:text-indigo-500 text-xs transition-colors">chevron_right</span>
+                  <span className="material-symbols-outlined text-slate-450 dark:text-slate-550 group-hover:text-[#007aff] text-xs transition-colors">chevron_right</span>
                 </button>
               ))}
             </div>
@@ -303,14 +303,14 @@ const HBot = () => {
 
           {/* Processing / Redirection Status Banner */}
           {(isLoading || currentStep === 'redirect_support') && (
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 text-center text-xs text-slate-500 shrink-0">
+            <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/80 bg-[#fbfbfd] dark:bg-[#12111a] text-center text-xs text-slate-500 shrink-0">
               {currentStep === 'redirect_support' ? (
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center justify-center gap-1.5 animate-pulse">
+                <span className="text-[#007aff] dark:text-[#0a84ff] font-semibold flex items-center justify-center gap-1.5 animate-pulse">
                   <span className="material-symbols-outlined text-sm animate-spin">sync</span>
                   Đang chuyển hướng sang Zalo Support...
                 </span>
               ) : (
-                <span className="text-slate-400">Culi đang xử lý...</span>
+                <span className="text-slate-450">Culi đang xử lý...</span>
               )}
             </div>
           )}
