@@ -121,10 +121,10 @@ const HBot = () => {
           {/* Header */}
           <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm relative">
-                <span className="material-symbols-outlined text-white text-xl">smart_toy</span>
+              <div className="w-9 h-9 bg-white/20 rounded-xl overflow-hidden flex items-center justify-center backdrop-blur-sm relative border border-white/10">
+                <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover" />
                 {/* Active Indicator */}
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-indigo-600 animate-pulse" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-indigo-600 animate-pulse" />
               </div>
               <div>
                 <h4 className="font-bold text-sm leading-tight">H-Bot Studio</h4>
@@ -153,8 +153,8 @@ const HBot = () => {
                 }`}
               >
                 {msg.sender === 'bot' && (
-                  <div className="w-7 h-7 bg-slate-100 dark:bg-slate-800/50 rounded-xl flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">smart_toy</span>
+                  <div className="w-7 h-7 bg-slate-100 dark:bg-slate-800/50 rounded-xl overflow-hidden flex items-center justify-center shrink-0 border border-slate-200/40 dark:border-slate-800/40">
+                    <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover" />
                   </div>
                 )}
                 
@@ -173,8 +173,8 @@ const HBot = () => {
             {/* AI Loading indicator */}
             {isLoading && (
               <div className="flex gap-2 max-w-[85%] mr-auto">
-                <div className="w-7 h-7 bg-slate-100 dark:bg-slate-800/50 rounded-xl flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">smart_toy</span>
+                <div className="w-7 h-7 bg-slate-100 dark:bg-slate-800/50 rounded-xl overflow-hidden flex items-center justify-center shrink-0 border border-slate-200/40 dark:border-slate-800/40">
+                  <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover" />
                 </div>
                 <div className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-800 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -246,10 +246,10 @@ const HBot = () => {
           {/* Glowing Ring */}
           <span className="absolute inset-0 rounded-full border border-indigo-400/40 group-hover:scale-110 group-hover:opacity-0 transition-all duration-500 pointer-events-none" />
           
-          <div className="flex items-center justify-center relative">
-            <span className="material-symbols-outlined text-white text-xl animate-wiggle group-hover:rotate-12 transition-transform">smart_toy</span>
+          <div className="flex items-center justify-center relative w-7 h-7 rounded-full overflow-hidden border border-white/20 shrink-0">
+            <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
             {showBadge && (
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white" />
+              <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full border border-white animate-pulse" />
             )}
           </div>
           
