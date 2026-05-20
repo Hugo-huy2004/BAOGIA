@@ -110,7 +110,14 @@ const QUESTION_TREE = {
     ]
   },
   live_support: {
-    text: "Tớ đang chuyển cậu sang trang điền biểu mẫu hỗ trợ đây ạ. Cậu điền thông tin vào form để anh Admin nhắn tin Zalo 1:1 hỗ trợ trực tiếp cho cậu ngay nha.",
+    text: "Để kết nối trực tiếp với Admin hỗ trợ, cậu xác nhận giúp tớ nhen! Tớ sẽ chuyển cậu sang trang điền biểu mẫu hỗ trợ ngay nè.",
+    options: [
+      { label: "Xác nhận giúp tớ nhen", next: "redirect_support" },
+      { label: "Quay lại Menu chính", next: "main" }
+    ]
+  },
+  redirect_support: {
+    text: "Đang kết nối... Cậu đợi tớ một xíu siêu nhé!",
     options: []
   }
 };
@@ -171,8 +178,8 @@ const HBot = () => {
       setCurrentStep(nextNodeKey);
       setIsLoading(false);
 
-      // 3. Handle redirection to support request page if live_support
-      if (nextNodeKey === 'live_support') {
+      // 3. Handle redirection to support request page if redirect_support
+      if (nextNodeKey === 'redirect_support') {
         setTimeout(() => {
           setIsOpen(false);
           navigate('/support-request');
@@ -259,7 +266,7 @@ const HBot = () => {
           </div>
 
           {/* Options Menu Selection (Shopee Style) */}
-          {!isLoading && currentStep !== 'live_support' && (
+          {!isLoading && currentStep !== 'redirect_support' && (
             <div className="p-3 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 flex flex-col gap-2 shrink-0 max-h-[190px] overflow-y-auto">
               {QUESTION_TREE[currentStep]?.options.map((opt, idx) => (
                 <button
@@ -276,15 +283,15 @@ const HBot = () => {
           )}
 
           {/* Processing / Redirection Status Banner */}
-          {(isLoading || currentStep === 'live_support') && (
+          {(isLoading || currentStep === 'redirect_support') && (
             <div className="p-4 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 text-center text-xs text-slate-500 shrink-0">
-              {currentStep === 'live_support' ? (
+              {currentStep === 'redirect_support' ? (
                 <span className="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center justify-center gap-1.5 animate-pulse">
                   <span className="material-symbols-outlined text-sm animate-spin">sync</span>
                   Đang chuyển hướng sang Zalo Support...
                 </span>
               ) : (
-                <span className="text-slate-400">H-Bot đang xử lý...</span>
+                <span className="text-slate-400">Bé Huy Chibi đang xử lý...</span>
               )}
             </div>
           )}
