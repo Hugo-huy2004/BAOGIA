@@ -180,7 +180,7 @@ const SupportRequestPage = () => {
                     required
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
-                    placeholder="Ví dụ: 0839909399"
+                    placeholder="Ví dụ: 0901234567"
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500/80 transition-colors text-slate-800 dark:text-slate-100"
                   />
                 </div>
