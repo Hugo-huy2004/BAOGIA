@@ -180,10 +180,15 @@ router.post('/', async (req, res) => {
       serviceLabel: 'Free Bio',
       status: 'active',
       expiresAt: (() => {
-        const d = new Date();
-        d.setDate(d.getDate() + 365); // 12 tháng (365 ngày)
-        d.setHours(0, 0, 0, 0); // Qua 00:00 tính là 1 ngày dùng
-        return d;
+        const now = new Date();
+        // Shift to Vietnam local time (UTC+7)
+        const vnTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+        // Add 365 days
+        vnTime.setDate(vnTime.getDate() + 365);
+        // Set to local Vietnam midnight
+        vnTime.setUTCHours(0, 0, 0, 0);
+        // Shift back to UTC to store in database
+        return new Date(vnTime.getTime() - 7 * 60 * 60 * 1000);
       })()
     });
 

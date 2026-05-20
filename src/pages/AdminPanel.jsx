@@ -384,8 +384,15 @@ export default function AdminPanel() {
   const formatExpiration = (expiresAt) => {
     if (!expiresAt) return "Vĩnh viễn";
     const expDate = new Date(expiresAt);
-    const diffTime = expDate.getTime() - Date.now();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Calculate calendar days difference by setting both times to local midnight
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+    const expMidnight = new Date(expiresAt);
+    expMidnight.setHours(0, 0, 0, 0);
+    
+    const diffTime = expMidnight.getTime() - todayMidnight.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
     const formattedDate = expDate.toLocaleDateString('vi-VN', {
       day: '2-digit',
@@ -406,9 +413,13 @@ export default function AdminPanel() {
 
   const getAutoDeleteDays = (booking) => {
     if (!booking.contacted || !booking.expiresAt) return null;
-    const expDate = new Date(booking.expiresAt);
-    const diffTime = expDate.getTime() - Date.now();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+    const expMidnight = new Date(booking.expiresAt);
+    expMidnight.setHours(0, 0, 0, 0);
+    
+    const diffTime = expMidnight.getTime() - todayMidnight.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     return diffDays > 0 ? diffDays : 0;
   };
 
