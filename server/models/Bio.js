@@ -108,6 +108,18 @@ const BioSchema = new mongoose.Schema(
       type: String,
       default: 'active'
     },
+    packages: {
+      type: [{
+        packageId: { type: String },
+        name: { type: String },
+        duration: { type: Number },
+        durationUnit: { type: String, default: 'months' },
+        benefits: [String],
+        color: { type: String },
+        addedAt: { type: Date, default: Date.now }
+      }],
+      default: []
+    },
     expiresAt: {
       type: Date,
       required: true,

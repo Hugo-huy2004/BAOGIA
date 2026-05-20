@@ -34,6 +34,13 @@ export default function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [partners, setPartners] = useState([]);
+  // Package Management States
+  const [packageTemplates, setPackageTemplates] = useState([]);
+  const [newPkg, setNewPkg] = useState({ name: "", duration: "", durationUnit: "months", benefits: "" });
+  const [editingPkg, setEditingPkg] = useState(null);
+  const [assignForm, setAssignForm] = useState({ email: "", packageId: "" });
+  const [memberPkgSearchEmail, setMemberPkgSearchEmail] = useState("");
+  const [searchedMemberBio, setSearchedMemberBio] = useState(null);
   const [vacationMode, setVacationMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [toastMsg, setToastMsg] = useState("");
@@ -200,15 +207,17 @@ export default function AdminPanel() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [biosRes, bookingsRes, partnersRes] = await Promise.all([
+        const [biosRes, bookingsRes, partnersRes, packagesRes] = await Promise.all([
           fetch(import.meta.env.VITE_API_URL + "/bios"),
           fetch(import.meta.env.VITE_API_URL + "/bookings"),
-          fetch(import.meta.env.VITE_API_URL + "/partners")
+          fetch(import.meta.env.VITE_API_URL + "/partners"),
+          fetch(import.meta.env.VITE_API_URL + "/packages")
         ]);
 
         if (biosRes.ok) setUsers(await biosRes.json());
         if (bookingsRes.ok) setBookings(await bookingsRes.json());
         if (partnersRes.ok) setPartners(await partnersRes.json());
+        if (packagesRes.ok) setPackageTemplates(await packagesRes.json());
       } catch (err) {
         console.error("Failed to load admin data:", err);
         showNotification("Có lỗi xảy ra khi tải dữ liệu từ máy chủ.", "error");
@@ -375,6 +384,156 @@ export default function AdminPanel() {
     });
   };
 
+  const fetchPackageTemplates = async () => {
+    try {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/packages");
+      if (res.ok) setPackageTemplates(await res.json());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleCreatePackage = async (e) => {
+    e.preventDefault();
+    if (!newPkg.name || !newPkg.duration) {
+      showNotification("Vui lòng nhập tên gói và thời hạn.", "error");
+      return;
+    }
+
+    try {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newPkg.name,
+          duration: Number(newPkg.duration),
+          durationUnit: newPkg.durationUnit,
+          benefits: newPkg.benefits.split("\n").map(b => b.trim()).filter(Boolean)
+        })
+      });
+
+      if (res.ok) {
+        showNotification("Đã tạo gói dịch vụ mới thành công!");
+        setNewPkg({ name: "", duration: "", durationUnit: "months", benefits: "" });
+        fetchPackageTemplates();
+      } else {
+        const err = await res.json();
+        showNotification(err.error || "Lỗi khi tạo gói dịch vụ.", "error");
+      }
+    } catch (e) {
+      showNotification("Lỗi kết nối máy chủ.", "error");
+    }
+  };
+
+  const handleDeletePackageTemplate = async (id) => {
+    triggerConfirm("Bạn có chắc chắn muốn xóa mẫu gói dịch vụ này không?", async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/packages/${id}`, {
+          method: "DELETE"
+        });
+        if (res.ok) {
+          showNotification("Đã xóa mẫu gói dịch vụ.");
+          fetchPackageTemplates();
+        } else {
+          showNotification("Lỗi khi xóa mẫu gói dịch vụ.", "error");
+        }
+      } catch (e) {
+        showNotification("Lỗi kết nối.", "error");
+      }
+    });
+  };
+
+  const handleAssignPackageToUser = async (e) => {
+    e.preventDefault();
+    if (!assignForm.email || !assignForm.packageId) {
+      showNotification("Vui lòng nhập email và chọn gói dịch vụ.", "error");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/packages/user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: assignForm.email,
+          packageId: assignForm.packageId
+        })
+      });
+
+      if (res.ok) {
+        showNotification(`Đã cấp gói và kích hoạt/tăng thời hạn cho ${assignForm.email} thành công!`);
+        setAssignForm({ email: "", packageId: "" });
+        // Refresh users list
+        const biosRes = await fetch(import.meta.env.VITE_API_URL + "/bios");
+        if (biosRes.ok) setUsers(await biosRes.json());
+        // If searching this user, refresh search
+        if (memberPkgSearchEmail.toLowerCase() === assignForm.email.toLowerCase()) {
+          handleSearchUserPackages(assignForm.email);
+        }
+      } else {
+        const err = await res.json();
+        showNotification(err.error || "Lỗi khi cấp gói cho thành viên.", "error");
+      }
+    } catch (e) {
+      showNotification("Lỗi kết nối.", "error");
+    }
+  };
+
+  const handleSearchUserPackages = async (emailToSearch) => {
+    const email = emailToSearch || memberPkgSearchEmail;
+    if (!email) {
+      showNotification("Vui lòng nhập email thành viên để tìm kiếm.", "error");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/bios/me?email=${encodeURIComponent(email)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.bio) {
+          setSearchedMemberBio(data.bio);
+        } else {
+          showNotification("Không tìm thấy Bio Link của thành viên này.", "error");
+          setSearchedMemberBio(null);
+        }
+      } else {
+        showNotification("Thành viên chưa khởi tạo Bio Link.", "error");
+        setSearchedMemberBio(null);
+      }
+    } catch (e) {
+      showNotification("Lỗi kết nối.", "error");
+    }
+  };
+
+  const handleRemoveUserPackage = async (packageInstanceId) => {
+    if (!searchedMemberBio) return;
+    triggerConfirm(`Bạn có chắc chắn muốn xóa gói này khỏi thành viên ${searchedMemberBio.email}? Thời hạn trang Bio của họ sẽ tự động bị trừ tương ứng.`, async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/packages/user`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: searchedMemberBio.email,
+            packageInstanceId
+          })
+        });
+
+        if (res.ok) {
+          showNotification("Đã xóa gói của thành viên và cập nhật lại thời hạn Bio.");
+          // Refresh search result
+          handleSearchUserPackages(searchedMemberBio.email);
+          // Refresh users list
+          const biosRes = await fetch(import.meta.env.VITE_API_URL + "/bios");
+          if (biosRes.ok) setUsers(await biosRes.json());
+        } else {
+          showNotification("Lỗi khi xóa gói của thành viên.", "error");
+        }
+      } catch (e) {
+        showNotification("Lỗi kết nối.", "error");
+      }
+    });
+  };
+
   // Utility helpers
   const getFaviconUrl = (iframeUrl) => {
     try {
@@ -482,7 +641,7 @@ export default function AdminPanel() {
       </div>
 
       {/* TAB NAVIGATION */}
-      <div className="bg-slate-100/70 dark:bg-[#161420] p-1 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 max-w-md flex">
+      <div className="bg-slate-100/70 dark:bg-[#161420] p-1 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 max-w-lg flex">
         <button
           onClick={() => { playPopSound(); setActiveTab("users"); }}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs transition-all ${
@@ -515,6 +674,17 @@ export default function AdminPanel() {
         >
           <span className="material-symbols-outlined text-sm">handshake</span>
           ĐỐI TÁC
+        </button>
+        <button
+          onClick={() => { playPopSound(); setActiveTab("packages"); }}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs transition-all ${
+            activeTab === "packages"
+              ? "bg-white dark:bg-[#251f30] text-primary dark:text-[#a5b4fc] shadow-sm"
+              : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+          }`}
+        >
+          <span className="material-symbols-outlined text-sm">featured_play_list</span>
+          GÓI DỊCH VỤ
         </button>
         <button
           onClick={() => { playPopSound(); setActiveTab("settings"); }}
@@ -979,6 +1149,278 @@ export default function AdminPanel() {
                 </div>
               </div>
             )}
+
+          </div>
+
+        </div>
+      )}
+
+      {/* TAB: PACKAGES MANAGEMENT */}
+      {activeTab === "packages" && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fadeIn">
+          
+          {/* Left panel: forms */}
+          <div className="lg:col-span-5 space-y-6">
+            
+            {/* Create package form */}
+            <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <h3 className="font-bold text-sm text-slate-850 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-base">add_card</span>
+                Tạo Gói Dịch Vụ Mới
+              </h3>
+              
+              <form onSubmit={handleCreatePackage} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Tên Gói Dịch Vụ:</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ví dụ: Gói tặng 3 tháng, Gói Bio VIP..."
+                    value={newPkg.name}
+                    onChange={(e) => setNewPkg(p => ({ ...p, name: e.target.value }))}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Thời Hạn:</label>
+                    <input
+                      type="number"
+                      required
+                      min="1"
+                      placeholder="Ví dụ: 3, 12, 30"
+                      value={newPkg.duration}
+                      onChange={(e) => setNewPkg(p => ({ ...p, duration: e.target.value }))}
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Đơn Vị:</label>
+                    <select
+                      value={newPkg.durationUnit}
+                      onChange={(e) => setNewPkg(p => ({ ...p, durationUnit: e.target.value }))}
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-855 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                    >
+                      <option value="months">Tháng</option>
+                      <option value="days">Ngày</option>
+                      <option value="years">Năm</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Quyền Lợi (Mỗi dòng 1 quyền lợi):</label>
+                  <textarea
+                    rows="4"
+                    placeholder="Quyền lợi 1&#10;Quyền lợi 2&#10;Quyền lợi 3"
+                    value={newPkg.benefits}
+                    onChange={(e) => setNewPkg(p => ({ ...p, benefits: e.target.value }))}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-primary hover:bg-indigo-650 text-white font-bold text-xs shadow-sm hover:scale-[1.01] active:scale-98 transition-all"
+                >
+                  <span className="material-symbols-outlined text-sm">save</span>
+                  Tạo Mẫu Gói Dịch Vụ
+                </button>
+              </form>
+            </div>
+
+            {/* Grant package form */}
+            <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <h3 className="font-bold text-sm text-slate-850 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-emerald-500 text-base">card_membership</span>
+                Cấp Gói Cho Thành Viên
+              </h3>
+
+              <form onSubmit={handleAssignPackageToUser} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Email Người Nhận:</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="partner@gmail.com..."
+                    value={assignForm.email}
+                    onChange={(e) => setAssignForm(p => ({ ...p, email: e.target.value }))}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Chọn Gói Dịch Vụ:</label>
+                  <select
+                    required
+                    value={assignForm.packageId}
+                    onChange={(e) => setAssignForm(p => ({ ...p, packageId: e.target.value }))}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                  >
+                    <option value="">-- Chọn một gói để cấp --</option>
+                    {packageTemplates.map(pkg => (
+                      <option key={pkg._id} value={pkg._id}>
+                        {pkg.name} ({pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm hover:scale-[1.01] active:scale-98 transition-all"
+                >
+                  <span className="material-symbols-outlined text-sm">verified</span>
+                  Cấp Gói & Kích Hoạt
+                </button>
+              </form>
+            </div>
+
+          </div>
+
+          {/* Right panel: Templates list & Member packages search */}
+          <div className="lg:col-span-7 space-y-6">
+            
+            {/* Search and delete user packages */}
+            <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <div className="space-y-1">
+                <h3 className="font-bold text-sm text-slate-850 dark:text-white flex items-center gap-2">
+                  <span className="material-symbols-outlined text-red-500 text-base">manage_accounts</span>
+                  Xóa / Quản Lý Gói Của Thành Viên
+                </h3>
+                <p className="text-[10px] text-slate-400">Nhập email thành viên để kiểm tra các gói đã nhận và hủy/xóa gói.</p>
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Nhập email thành viên cần xóa gói..."
+                  value={memberPkgSearchEmail}
+                  onChange={(e) => setMemberPkgSearchEmail(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleSearchUserPackages(); }}
+                  className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                />
+                <button
+                  onClick={() => handleSearchUserPackages()}
+                  className="px-5 bg-zinc-900 hover:bg-zinc-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-sm">search</span>
+                  Tìm
+                </button>
+              </div>
+
+              {searchedMemberBio && (
+                <div className="border border-zinc-150 dark:border-zinc-800/80 rounded-2xl p-4 space-y-4 bg-zinc-50/50 dark:bg-[#181622]/40">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-bold text-xs text-slate-850 dark:text-white">{searchedMemberBio.displayName}</h4>
+                      <p className="text-[10px] text-zinc-400">{searchedMemberBio.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">Hạn dùng Bio:</span>
+                      <span className="text-[10px] font-mono font-bold text-red-500">{formatExpiration(searchedMemberBio.expiresAt)}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Các gói dịch vụ đang có:</span>
+                    
+                    {/* Base package (non-deletable) */}
+                    <div className="flex items-center justify-between p-3 bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
+                        <div>
+                          <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">{searchedMemberBio.serviceLabel || "Student Bio"} (Gói gốc)</span>
+                          <span className="text-[9px] text-zinc-400 block">Tự động kích hoạt khi tạo Bio • Không thể xóa</span>
+                        </div>
+                      </div>
+                      <span className="text-[9.5px] font-bold text-zinc-400 italic">Mặc định</span>
+                    </div>
+
+                    {/* Custom packages */}
+                    {searchedMemberBio.packages && searchedMemberBio.packages.length > 0 ? (
+                      searchedMemberBio.packages.map((pkg) => (
+                        <div key={pkg._id} className="flex items-center justify-between p-3 bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 hover:border-red-500/20 transition-all">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: pkg.color }} />
+                            <div>
+                              <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{pkg.name}</span>
+                              <span className="text-[9px] text-zinc-400 block">Cấp ngày: {new Date(pkg.addedAt).toLocaleDateString('vi-VN')} (+{pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"})</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleRemoveUserPackage(pkg._id)}
+                            className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-bold text-[9px] uppercase tracking-wide transition-colors"
+                          >
+                            Hủy Gói
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-[10px] text-zinc-400 italic">Thành viên chưa được cấp gói khuyến mãi/bổ sung nào.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Package templates list */}
+            <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <h3 className="font-bold text-sm text-slate-850 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">list_alt</span>
+                Mẫu Gói Dịch Vụ Đã Tạo ({packageTemplates.length})
+              </h3>
+
+              {packageTemplates.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {packageTemplates.map(pkg => (
+                    <div 
+                      key={pkg._id} 
+                      className="rounded-2xl p-4 border border-zinc-200/60 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-900/10 space-y-3 relative group"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: pkg.color }} />
+                          <h4 className="font-bold text-xs text-slate-850 dark:text-white uppercase tracking-wide">{pkg.name}</h4>
+                        </div>
+                        <button
+                          onClick={() => handleDeletePackageTemplate(pkg._id)}
+                          className="text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Xóa mẫu gói"
+                        >
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                      </div>
+
+                      <div className="flex justify-between text-[10px] text-zinc-450">
+                        <span>Thời hạn:</span>
+                        <span className="font-bold text-slate-700 dark:text-zinc-300 font-mono">+{pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"}</span>
+                      </div>
+
+                      {pkg.benefits && pkg.benefits.length > 0 && (
+                        <div className="space-y-1 border-t border-zinc-200/50 dark:border-zinc-800/50 pt-2">
+                          <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block">Quyền lợi:</span>
+                          <ul className="space-y-1">
+                            {pkg.benefits.slice(0, 3).map((benefit, i) => (
+                              <li key={i} className="text-[9px] text-zinc-500 dark:text-zinc-400 truncate flex items-center gap-1">
+                                <span className="w-1 h-1 rounded-full bg-zinc-400 shrink-0" />
+                                {benefit}
+                              </li>
+                            ))}
+                            {pkg.benefits.length > 3 && (
+                              <li className="text-[8.5px] italic text-zinc-400 pl-2">và {pkg.benefits.length - 3} quyền lợi khác...</li>
+                            )}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400 italic text-center py-6">Chưa có mẫu gói dịch vụ nào được tạo.</p>
+              )}
+            </div>
 
           </div>
 

@@ -160,6 +160,107 @@ export const dataApi = {
       console.error('Error fetching partner:', error);
       throw error;
     }
+  },
+
+  // Fetch all packages
+  async getPackages() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/packages`);
+      if (!response.ok) throw new Error('Failed to fetch packages');
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Create new package template
+  async createPackage(pkg) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/packages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pkg)
+      });
+      if (!response.ok) throw new Error('Failed to create package');
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Edit package template
+  async updatePackage(id, pkg) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/packages/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pkg)
+      });
+      if (!response.ok) throw new Error('Failed to update package');
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Delete package template
+  async deletePackage(id) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/packages/${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to delete package');
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Get user packages by email
+  async getUserPackages(email) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/packages/user?email=${encodeURIComponent(email)}`);
+      if (!response.ok) throw new Error('Failed to fetch user packages');
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Assign package to user by email
+  async assignUserPackage(email, packageId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/packages/user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, packageId })
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || 'Failed to assign package');
+      }
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Remove package from user by email and instance ID
+  async removeUserPackage(email, packageInstanceId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/packages/user`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, packageInstanceId })
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || 'Failed to remove package');
+      }
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
   }
 };
 
