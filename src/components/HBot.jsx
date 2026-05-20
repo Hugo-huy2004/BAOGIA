@@ -158,10 +158,10 @@ const HBot = () => {
           {/* Header */}
           <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-white/20 rounded-xl overflow-hidden flex items-center justify-center backdrop-blur-sm relative border border-white/10">
-                <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover" />
+              <div className="w-10 h-10 relative shrink-0">
+                <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-contain" />
                 {/* Active Indicator */}
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-indigo-600 animate-pulse" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-indigo-600 animate-pulse" />
               </div>
               <div>
                 <h4 className="font-bold text-sm leading-tight">H-Bot Studio</h4>
@@ -190,8 +190,8 @@ const HBot = () => {
                 }`}
               >
                 {msg.sender === 'bot' && (
-                  <div className="w-7 h-7 bg-slate-100 dark:bg-slate-800/50 rounded-xl overflow-hidden flex items-center justify-center shrink-0 border border-slate-200/40 dark:border-slate-800/40">
-                    <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover" />
+                  <div className="w-8 h-8 shrink-0">
+                    <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-contain" />
                   </div>
                 )}
                 
@@ -210,8 +210,8 @@ const HBot = () => {
             {/* AI Loading indicator */}
             {isLoading && (
               <div className="flex gap-2 max-w-[85%] mr-auto">
-                <div className="w-7 h-7 bg-slate-100 dark:bg-slate-800/50 rounded-xl overflow-hidden flex items-center justify-center shrink-0 border border-slate-200/40 dark:border-slate-800/40">
-                  <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover" />
+                <div className="w-8 h-8 shrink-0">
+                  <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-contain" />
                 </div>
                 <div className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-800 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -260,17 +260,15 @@ const HBot = () => {
       {!isOpen && (
         <button
           onClick={handleOpenChat}
-          className="group relative w-14 h-14 rounded-full overflow-visible transition-all duration-300 hover:-translate-y-0.5 select-none hover:scale-105 active:scale-95"
+          className="group relative w-16 h-16 transition-all duration-300 hover:-translate-y-0.5 select-none hover:scale-105 active:scale-95"
           style={{ minWidth: 0, minHeight: 0 }}
         >
-          {/* Inner Avatar Container (No border, transparent background, simple shadow) */}
-          <div className="w-full h-full rounded-full overflow-hidden shadow-lg border-0 bg-transparent relative">
-            <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-cover" />
-          </div>
+          {/* Full transparent sticker rendering with no rounding or borders */}
+          <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-contain" />
           
           {/* Notification Badge */}
           {showBadge && (
-            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#12111a] animate-pulse" />
+            <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#12111a] animate-pulse" />
           )}
         </button>
       )}
