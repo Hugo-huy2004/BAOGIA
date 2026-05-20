@@ -5,75 +5,75 @@ const QUESTION_TREE = {
   main: {
     text: "Xin chào! Tôi là H-Bot, trợ lý hỗ trợ trực tuyến của Hugo Studio. Bạn cần tôi hỗ trợ vấn đề gì hôm nay? Vui lòng chọn một trong các mục dưới đây:",
     options: [
-      { label: "Thiết kế Bio Link 🎨", next: "bio_link" },
-      { label: "Đặt lịch hẹn (Booking) 📅", next: "booking" },
-      { label: "Gói dịch vụ (Packages) 💎", next: "packages" },
-      { label: "Tích hợp Đối tác 🔌", next: "partners" },
-      { label: "Gặp nhân viên hỗ trợ 1:1 Zalo 🧑‍💻", next: "live_support" }
+      { label: "Hướng dẫn thiết kế trang Bio Link", next: "bio_link" },
+      { label: "Hướng dẫn quản lý lịch đặt hẹn", next: "booking" },
+      { label: "Hướng dẫn nâng cấp gói dịch vụ", next: "packages" },
+      { label: "Hướng dẫn tích hợp Iframe đối tác", next: "partners" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   bio_link: {
-    text: "Để thiết kế Bio Link, bạn hãy vào mục 'Bio Editor' trong Member Portal. Bạn có thể cập nhật thông tin hồ sơ (ảnh đại diện, họ tên, chiều cao, cân nặng, số đo 3 vòng, kỹ năng) và chỉnh sửa giao diện ở tab 'Theme'.",
+    text: "Để thiết kế Bio Link, bạn hãy vào mục Bio Editor trong Member Portal. Tại đây bạn có thể cập nhật thông tin hồ sơ bao gồm ảnh đại diện, họ tên, chiều cao, cân nặng, số đo ba vòng, kỹ năng và tùy chỉnh giao diện ở tab Theme.",
     options: [
-      { label: "Cách đổi giao diện / Theme? 🎨", next: "theme" },
-      { label: "Cách điền số đo & chiều cao? 📏", next: "measurements" },
-      { label: "Quay lại Menu chính ↩️", next: "main" },
-      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+      { label: "Cách thay đổi giao diện và Theme", next: "theme" },
+      { label: "Cách cập nhật thông số đo chiều cao", next: "measurements" },
+      { label: "Quay lại Menu chính", next: "main" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   theme: {
-    text: "Tại tab 'Theme' trong 'Bio Editor', bạn có thể tùy chọn 4 mẫu thiết kế thời thượng: Flat (Tối giản), Brutalism (Góc cạnh), Neo-brutalism (Nổi bật), Glassmorphism (Kính mờ). Bạn cũng có thể phối màu nền, màu nhấn, bo góc nút (0-24px), kiểu viền và bóng đổ nút.",
+    text: "Tại tab Theme trong mục Bio Editor, bạn có thể lựa chọn một trong bốn mẫu thiết kế: Flat, Brutalism, Neo-brutalism, Glassmorphism. Ngoài ra, bạn được phép tùy chỉnh chi tiết màu nền, màu chữ, kiểu viền nút, bóng đổ nút và bo góc nút với bán kính từ 0px đến 24px.",
     options: [
-      { label: "Quay lại Menu chính ↩️", next: "main" },
-      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+      { label: "Quay lại Menu chính", next: "main" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   measurements: {
-    text: "Hugo Studio thiết kế chuyên biệt hỗ trợ Model/KOL tạo portfolio. Trong 'Bio Editor', bạn có thể nhập các thông tin chuyên nghiệp như: ngày sinh, chiều cao, cân nặng, số đo 3 vòng và kỹ năng đặc biệt để hiển thị công khai trên trang Bio Link.",
+    text: "Hugo Studio cung cấp các trường thông tin chuyên biệt cho KOL và Model để làm portfolio. Trong mục Bio Editor, tại phần thông tin cơ bản, bạn có thể điền thông tin về ngày sinh, chiều cao, cân nặng, số đo ba vòng ngực eo mông và danh sách kỹ năng nổi bật.",
     options: [
-      { label: "Quay lại Menu chính ↩️", next: "main" },
-      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+      { label: "Quay lại Menu chính", next: "main" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   booking: {
-    text: "Khách hàng truy cập trang Bio Link công khai của bạn (dạng '/bio/{slug}') -> nhấn nút 'Đăng ký lịch chụp/hẹn' để điền thông tin. Lịch đặt hẹn sẽ tự động đồng bộ về tab 'Quản lý lịch hẹn' trong Member Portal của bạn.",
+    text: "Khách hàng khi xem Bio Link công khai của bạn có thể bấm vào nút Đăng ký lịch chụp/hẹn để điền thông tin đăng ký. Các thông tin đặt hẹn của khách hàng sẽ được đồng bộ và lưu trữ trực tiếp tại tab Quản lý lịch hẹn trong Member Portal.",
     options: [
-      { label: "Xem lịch đặt hẹn ở đâu? 👁️", next: "view_booking" },
-      { label: "Quay lại Menu chính ↩️", next: "main" },
-      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+      { label: "Xem lịch đặt hẹn ở đâu", next: "view_booking" },
+      { label: "Quay lại Menu chính", next: "main" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   view_booking: {
-    text: "Tất cả lịch đặt hẹn từ khách hàng sẽ hiển thị trong mục 'Quản lý lịch hẹn' tại Member Portal. Tại đó, bạn có thể xem đầy đủ thông tin liên hệ Zalo/Email của họ để chủ động trao đổi công việc.",
+    text: "Tất cả các yêu cầu đặt hẹn từ khách hàng sẽ hiển thị tại danh sách Quản lý lịch hẹn trong Member Portal. Bạn có thể xem thông tin liên hệ Zalo hoặc Email của khách hàng để chủ động xác nhận lịch làm việc.",
     options: [
-      { label: "Quay lại Menu chính ↩️", next: "main" },
-      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+      { label: "Quay lại Menu chính", next: "main" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   packages: {
-    text: "Hugo Studio cung cấp các gói: Free Bio (Miễn phí), Bio Plus và Bio VIP. Các gói trả phí mở khóa toàn bộ theme cao cấp và ẩn quảng cáo hệ thống. Khi được Admin cấp gói dịch vụ trong Admin Panel, thời hạn sử dụng (expiresAt) của bạn sẽ được tự động gia hạn cộng thêm.",
+    text: "Hệ thống có ba gói dịch vụ chính: Free Bio, Bio Plus và Bio VIP. Gói trả phí Plus và VIP sẽ giúp bạn mở khóa các mẫu theme cao cấp và ẩn quảng cáo mặc định của hệ thống. Thời hạn sử dụng sẽ tự động được gia hạn khi tài khoản được Admin cấp gói dịch vụ mới.",
     options: [
-      { label: "Làm sao nâng cấp gói? 💎", next: "upgrade" },
-      { label: "Quay lại Menu chính ↩️", next: "main" },
-      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+      { label: "Làm sao để nâng cấp gói", next: "upgrade" },
+      { label: "Quay lại Menu chính", next: "main" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   upgrade: {
-    text: "Việc phê duyệt nâng cấp hoặc gia hạn gói hiện được xử lý thủ công bởi Admin hệ thống. Vui lòng bấm 'Gửi yêu cầu hỗ trợ' dưới đây để liên hệ trực tiếp với Admin.",
+    text: "Quy trình duyệt nâng cấp hoặc gia hạn các gói dịch vụ trả phí hiện được xử lý thủ công bởi Admin hệ thống. Vui lòng bấm chọn gửi yêu cầu để nhân viên liên hệ tư vấn trực tiếp cho bạn.",
     options: [
-      { label: "Gửi yêu cầu nâng cấp gói 🚀", next: "live_support" },
-      { label: "Quay lại Menu chính ↩️", next: "main" }
+      { label: "Gửi yêu cầu nâng cấp gói dịch vụ", next: "live_support" },
+      { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   partners: {
-    text: "Đối tác liên kết có thể nhúng trình soạn thảo Bio Link của Hugo Studio vào website của họ thông qua Iframe URL được Admin tạo và cấp khóa trong Admin Panel.",
+    text: "Đối tác liên kết có thể nhúng trực tiếp trình chỉnh sửa Bio Link của Hugo Studio vào website riêng của họ thông qua Iframe URL được cấp kèm theo mã khóa bảo mật do Admin quản lý trong Admin Panel.",
     options: [
-      { label: "Quay lại Menu chính ↩️", next: "main" },
-      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+      { label: "Quay lại Menu chính", next: "main" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   live_support: {
-    text: "Đang chuyển bạn sang trang gửi yêu cầu kết nối với nhân viên hỗ trợ... Vui lòng điền thông tin để Admin chủ động chat Zalo 1:1 với bạn nhé!",
+    text: "Đang tiến hành chuyển hướng bạn sang trang gửi yêu cầu hỗ trợ trực tiếp. Vui lòng hoàn thành biểu mẫu để Admin liên hệ qua Zalo hỗ trợ bạn trong thời gian sớm nhất.",
     options: []
   }
 };
