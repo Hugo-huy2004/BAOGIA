@@ -479,11 +479,11 @@ export default function IntroductionPage() {
                     </div>
                     <div>
                       <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#ec4899] transition-colors">THPT Cây Dương</h4>
-                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">Trường trung học phổ thông năng động tại Hậu Giang.</p>
+                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">Trường trung học phổ thông năng động tại An Giang (Kiên Giang cũ).</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between pt-2.5 lg:pt-4 mt-2.5 lg:mt-4 border-t border-slate-200/50 dark:border-white/5 text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                    <span>Hậu Giang</span>
+                    <span>An Giang (Kiên Giang cũ)</span>
                     <span className="material-symbols-outlined text-[10px] group-hover:translate-x-1 transition-transform">open_in_new</span>
                   </div>
                 </a>
