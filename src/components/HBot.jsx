@@ -1,19 +1,96 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+const QUESTION_TREE = {
+  main: {
+    text: "Xin chào! Tôi là H-Bot, trợ lý hỗ trợ trực tuyến của Hugo Studio. Bạn cần tôi hỗ trợ vấn đề gì hôm nay? Vui lòng chọn một trong các mục dưới đây:",
+    options: [
+      { label: "Thiết kế Bio Link 🎨", next: "bio_link" },
+      { label: "Đặt lịch hẹn (Booking) 📅", next: "booking" },
+      { label: "Gói dịch vụ (Packages) 💎", next: "packages" },
+      { label: "Tích hợp Đối tác 🔌", next: "partners" },
+      { label: "Gặp nhân viên hỗ trợ 1:1 Zalo 🧑‍💻", next: "live_support" }
+    ]
+  },
+  bio_link: {
+    text: "Để thiết kế Bio Link, bạn hãy vào mục 'Bio Editor' trong Member Portal. Bạn có thể cập nhật thông tin hồ sơ (ảnh đại diện, họ tên, chiều cao, cân nặng, số đo 3 vòng, kỹ năng) và chỉnh sửa giao diện ở tab 'Theme'.",
+    options: [
+      { label: "Cách đổi giao diện / Theme? 🎨", next: "theme" },
+      { label: "Cách điền số đo & chiều cao? 📏", next: "measurements" },
+      { label: "Quay lại Menu chính ↩️", next: "main" },
+      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+    ]
+  },
+  theme: {
+    text: "Tại tab 'Theme' trong 'Bio Editor', bạn có thể tùy chọn 4 mẫu thiết kế thời thượng: Flat (Tối giản), Brutalism (Góc cạnh), Neo-brutalism (Nổi bật), Glassmorphism (Kính mờ). Bạn cũng có thể phối màu nền, màu nhấn, bo góc nút (0-24px), kiểu viền và bóng đổ nút.",
+    options: [
+      { label: "Quay lại Menu chính ↩️", next: "main" },
+      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+    ]
+  },
+  measurements: {
+    text: "Hugo Studio thiết kế chuyên biệt hỗ trợ Model/KOL tạo portfolio. Trong 'Bio Editor', bạn có thể nhập các thông tin chuyên nghiệp như: ngày sinh, chiều cao, cân nặng, số đo 3 vòng và kỹ năng đặc biệt để hiển thị công khai trên trang Bio Link.",
+    options: [
+      { label: "Quay lại Menu chính ↩️", next: "main" },
+      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+    ]
+  },
+  booking: {
+    text: "Khách hàng truy cập trang Bio Link công khai của bạn (dạng '/bio/{slug}') -> nhấn nút 'Đăng ký lịch chụp/hẹn' để điền thông tin. Lịch đặt hẹn sẽ tự động đồng bộ về tab 'Quản lý lịch hẹn' trong Member Portal của bạn.",
+    options: [
+      { label: "Xem lịch đặt hẹn ở đâu? 👁️", next: "view_booking" },
+      { label: "Quay lại Menu chính ↩️", next: "main" },
+      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+    ]
+  },
+  view_booking: {
+    text: "Tất cả lịch đặt hẹn từ khách hàng sẽ hiển thị trong mục 'Quản lý lịch hẹn' tại Member Portal. Tại đó, bạn có thể xem đầy đủ thông tin liên hệ Zalo/Email của họ để chủ động trao đổi công việc.",
+    options: [
+      { label: "Quay lại Menu chính ↩️", next: "main" },
+      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+    ]
+  },
+  packages: {
+    text: "Hugo Studio cung cấp các gói: Free Bio (Miễn phí), Bio Plus và Bio VIP. Các gói trả phí mở khóa toàn bộ theme cao cấp và ẩn quảng cáo hệ thống. Khi được Admin cấp gói dịch vụ trong Admin Panel, thời hạn sử dụng (expiresAt) của bạn sẽ được tự động gia hạn cộng thêm.",
+    options: [
+      { label: "Làm sao nâng cấp gói? 💎", next: "upgrade" },
+      { label: "Quay lại Menu chính ↩️", next: "main" },
+      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+    ]
+  },
+  upgrade: {
+    text: "Việc phê duyệt nâng cấp hoặc gia hạn gói hiện được xử lý thủ công bởi Admin hệ thống. Vui lòng bấm 'Gửi yêu cầu hỗ trợ' dưới đây để liên hệ trực tiếp với Admin.",
+    options: [
+      { label: "Gửi yêu cầu nâng cấp gói 🚀", next: "live_support" },
+      { label: "Quay lại Menu chính ↩️", next: "main" }
+    ]
+  },
+  partners: {
+    text: "Đối tác liên kết có thể nhúng trình soạn thảo Bio Link của Hugo Studio vào website của họ thông qua Iframe URL được Admin tạo và cấp khóa trong Admin Panel.",
+    options: [
+      { label: "Quay lại Menu chính ↩️", next: "main" },
+      { label: "Gặp nhân viên hỗ trợ 🧑‍💻", next: "live_support" }
+    ]
+  },
+  live_support: {
+    text: "Đang chuyển bạn sang trang gửi yêu cầu kết nối với nhân viên hỗ trợ... Vui lòng điền thông tin để Admin chủ động chat Zalo 1:1 với bạn nhé!",
+    options: []
+  }
+};
+
 const HBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'bot',
-      text: 'Xin chào! Tôi là H-Bot, trợ lý hỗ trợ trực tuyến của Hugo Studio. Bạn cần tôi giải đáp thắc mắc gì về việc tạo Bio Link, đặt lịch chụp ảnh, gói dịch vụ hay tích hợp đối tác không?',
+      text: QUESTION_TREE.main.text,
       time: new Date()
     }
   ]);
-  const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showBadge, setShowBadge] = useState(true);
+  const [currentStep, setCurrentStep] = useState('main');
   
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
@@ -30,82 +107,42 @@ const HBot = () => {
 
   if (!isMemberPage) return null;
 
-  const handleSend = async (e) => {
-    if (e) e.preventDefault();
-    if (!inputText.trim()) return;
+  const handleOptionClick = (option) => {
+    if (isLoading) return;
 
+    // 1. Add User selection to chat log
     const userMsg = {
       id: Date.now(),
       sender: 'user',
-      text: inputText,
+      text: option.label,
       time: new Date()
     };
-
     setMessages(prev => [...prev, userMsg]);
-    setInputText('');
     setIsLoading(true);
 
-    try {
-      // Keep up to 10 latest messages for context history
-      const historyContext = messages
-        .slice(-10)
-        .map(msg => ({ sender: msg.sender, text: msg.text }));
+    const nextNodeKey = option.next;
+    const nextNode = QUESTION_TREE[nextNodeKey];
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/support/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: userMsg.text,
-          history: historyContext
-        })
-      });
-
-      if (!res.ok) throw new Error('API error');
-      const data = await res.json();
-      
-      let botReply = data.reply || 'Xin lỗi bạn, hệ thống của tôi đang bận xử lý. Bạn vui lòng thử lại sau nhé.';
-      const shouldRedirect = botReply.includes('[REDIRECT_TO_SUPPORT]');
-
-      // Clean the redirect tag from visible response
-      if (shouldRedirect) {
-        botReply = botReply.replace('[REDIRECT_TO_SUPPORT]', '').trim();
-        if (!botReply) {
-          botReply = 'Tôi hiểu bạn muốn gặp nhân viên hỗ trợ trực tiếp. Tôi sẽ chuyển bạn đến trang điền yêu cầu hỗ trợ ngay lập tức.';
-        }
-      }
-
+    setTimeout(() => {
+      // 2. Add Bot response to chat log
       const botMsg = {
         id: Date.now() + 1,
         sender: 'bot',
-        text: botReply,
+        text: nextNode.text,
         time: new Date()
       };
-
       setMessages(prev => [...prev, botMsg]);
+      setCurrentStep(nextNodeKey);
+      setIsLoading(false);
 
-      if (shouldRedirect) {
-        setIsLoading(false);
+      // 3. Handle redirection to support request page if live_support
+      if (nextNodeKey === 'live_support') {
         setTimeout(() => {
           setIsOpen(false);
           navigate('/support-request');
-        }, 1800);
+        }, 1500);
       }
-    } catch (err) {
-      console.error(err);
-      setMessages(prev => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          sender: 'bot',
-          text: 'Rất tiếc, đã xảy ra lỗi kết nối với máy chủ AI. Bạn hãy thử bấm nút "Hỗ trợ 1-1" bên dưới để gửi yêu cầu trực tiếp cho đội ngũ kỹ thuật nhé!',
-          time: new Date()
-        }
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
+    }, 600); // 600ms transition for a natural feel
   };
 
   const handleOpenChat = () => {
@@ -129,7 +166,7 @@ const HBot = () => {
               <div>
                 <h4 className="font-bold text-sm leading-tight">H-Bot Studio</h4>
                 <p className="text-[10px] text-indigo-100 flex items-center gap-1">
-                  Trợ lý ảo hỗ trợ 24/7
+                  Hỗ trợ tương tác tự động
                 </p>
               </div>
             </div>
@@ -144,7 +181,7 @@ const HBot = () => {
           </div>
 
           {/* Messages Container */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 dark:bg-slate-900/10">
+          <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-50/50 dark:bg-slate-900/10">
             {messages.map(msg => (
               <div
                 key={msg.id}
@@ -186,53 +223,36 @@ const HBot = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Footer Shortcuts */}
-          <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-800/50 bg-white/60 dark:bg-slate-950/20 flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                navigate('/support-request');
-              }}
-              className="px-3 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-950/70 border border-indigo-100/60 dark:border-indigo-900/60 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 rounded-full shrink-0 flex items-center gap-1 transition-all"
-              style={{ minWidth: 0, minHeight: 0 }}
-            >
-              <span className="material-symbols-outlined text-xs">support_agent</span>
-              Hỗ trợ 1-1 (Zalo)
-            </button>
-            
-            <button
-              onClick={() => {
-                setInputText("Cách tạo Bio Link như thế nào?");
-              }}
-              className="px-3 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[10px] text-slate-600 dark:text-slate-300 rounded-full shrink-0 transition-all"
-              style={{ minWidth: 0, minHeight: 0 }}
-            >
-              Cách tạo Bio Link?
-            </button>
-          </div>
+          {/* Options Menu Selection (Shopee Style) */}
+          {!isLoading && currentStep !== 'live_support' && (
+            <div className="p-3 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 flex flex-col gap-2 shrink-0 max-h-[190px] overflow-y-auto">
+              {QUESTION_TREE[currentStep]?.options.map((opt, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleOptionClick(opt)}
+                  className="w-full text-left px-4 py-2.5 bg-slate-50 hover:bg-indigo-50 dark:bg-slate-900 dark:hover:bg-indigo-950/40 border border-slate-200/50 dark:border-slate-800/80 hover:border-indigo-500/55 dark:hover:border-indigo-500/55 text-xs text-slate-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 rounded-xl font-semibold transition-all shadow-sm hover:shadow active:scale-[0.99] flex items-center justify-between group"
+                  style={{ minWidth: 0, minHeight: 0 }}
+                >
+                  <span>{opt.label}</span>
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-indigo-500 text-xs transition-colors">chevron_right</span>
+                </button>
+              ))}
+            </div>
+          )}
 
-          {/* Input Form */}
-          <form
-            onSubmit={handleSend}
-            className="p-3 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 flex gap-2 items-center shrink-0"
-          >
-            <input
-              type="text"
-              value={inputText}
-              onChange={e => setInputText(e.target.value)}
-              placeholder="Nhập câu hỏi của bạn..."
-              disabled={isLoading}
-              className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-indigo-500/80 dark:focus:border-indigo-500/80 transition-colors text-slate-800 dark:text-slate-100 disabled:opacity-50"
-            />
-            <button
-              type="submit"
-              disabled={isLoading || !inputText.trim()}
-              className="w-9 h-9 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors disabled:opacity-40 shadow-md shadow-indigo-600/20 shrink-0"
-              style={{ minWidth: 0, minHeight: 0 }}
-            >
-              <span className="material-symbols-outlined text-base">send</span>
-            </button>
-          </form>
+          {/* Processing / Redirection Status Banner */}
+          {(isLoading || currentStep === 'live_support') && (
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 text-center text-xs text-slate-500 shrink-0">
+              {currentStep === 'live_support' ? (
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center justify-center gap-1.5 animate-pulse">
+                  <span className="material-symbols-outlined text-sm animate-spin">sync</span>
+                  Đang chuyển hướng sang Zalo Support...
+                </span>
+              ) : (
+                <span className="text-slate-400">H-Bot đang xử lý...</span>
+              )}
+            </div>
+          )}
         </div>
       )}
 
