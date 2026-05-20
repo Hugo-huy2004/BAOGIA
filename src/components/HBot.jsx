@@ -3,40 +3,48 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 const QUESTION_TREE = {
   main: {
-    text: "Xin chào! Tôi là H-Bot, trợ lý hỗ trợ trực tuyến của Hugo Studio. Bạn cần tôi hỗ trợ vấn đề gì hôm nay? Vui lòng chọn một trong các mục dưới đây:",
+    text: "Xin chào! Tớ là H-Bot, trợ lý hỗ trợ của Hugo Studio. Cậu cần tớ hỗ trợ vấn đề gì hôm nay nè? Vui lòng chọn một trong các mục bên dưới nha:",
+    options: [
+      { label: "Hướng dẫn tính năng trong Member Portal", next: "portal_features" },
+      { label: "Tìm hiểu thông tin và dịch vụ Hugo Studio", next: "about_hugo" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+    ]
+  },
+  portal_features: {
+    text: "Cậu muốn tớ hướng dẫn tính năng nào trong trang quản trị thành viên (Member Portal) dưới đây nè?",
     options: [
       { label: "Hướng dẫn thiết kế trang Bio Link", next: "bio_link" },
       { label: "Hướng dẫn quản lý lịch đặt hẹn", next: "booking" },
       { label: "Hướng dẫn nâng cấp gói dịch vụ", next: "packages" },
       { label: "Hướng dẫn tích hợp Iframe đối tác", next: "partners" },
-      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+      { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   bio_link: {
-    text: "Để thiết kế Bio Link, bạn hãy vào mục Bio Editor trong Member Portal. Tại đây bạn có thể cập nhật thông tin hồ sơ bao gồm ảnh đại diện, họ tên, chiều cao, cân nặng, số đo ba vòng, kỹ năng và tùy chỉnh giao diện ở tab Theme.",
+    text: "Để thiết kế Bio Link, cậu hãy vào mục **Bio Editor** trong Member Portal nha. Tại đây cậu có thể điền thông tin hồ sơ và tùy chỉnh giao diện ở tab **Theme** theo phong cách riêng nè.",
     options: [
       { label: "Cách thay đổi giao diện và Theme", next: "theme" },
       { label: "Cách cập nhật thông số đo chiều cao", next: "measurements" },
-      { label: "Quay lại Menu chính", next: "main" },
-      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+      { label: "Quay lại mục trước", next: "portal_features" },
+      { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   theme: {
-    text: "Tại tab Theme trong mục Bio Editor, bạn có thể lựa chọn một trong bốn mẫu thiết kế: Flat, Brutalism, Neo-brutalism, Glassmorphism. Ngoài ra, bạn được phép tùy chỉnh chi tiết màu nền, màu chữ, kiểu viền nút, bóng đổ nút và bo góc nút với bán kính từ 0px đến 24px.",
+    text: "Tại tab **Theme** trong mục **Bio Editor**, cậu có thể lựa chọn 4 mẫu thiết kế gồm **Flat, Brutalism, Neo-brutalism, Glassmorphism**. Cậu cũng chỉnh sửa được màu nền, màu chữ, kiểu viền, bóng đổ và bo góc nút từ **0px đến 24px** đó nha.",
     options: [
       { label: "Quay lại Menu chính", next: "main" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   measurements: {
-    text: "Hugo Studio cung cấp các trường thông tin chuyên biệt cho KOL và Model để làm portfolio. Trong mục Bio Editor, tại phần thông tin cơ bản, bạn có thể điền thông tin về ngày sinh, chiều cao, cân nặng, số đo ba vòng ngực eo mông và danh sách kỹ năng nổi bật.",
+    text: "Hugo Studio thiết kế chuyên biệt cho KOL và Model làm portfolio. Trong mục **Bio Editor** -> phần **Thông số cơ bản**, cậu điền các thông tin về ngày sinh, chiều cao, cân nặng, số đo ba vòng ngực-eo-mông và kỹ năng nổi bật nhé.",
     options: [
       { label: "Quay lại Menu chính", next: "main" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   booking: {
-    text: "Khách hàng khi xem Bio Link công khai của bạn có thể bấm vào nút Đăng ký lịch chụp/hẹn để điền thông tin đăng ký. Các thông tin đặt hẹn của khách hàng sẽ được đồng bộ và lưu trữ trực tiếp tại tab Quản lý lịch hẹn trong Member Portal.",
+    text: "Khách hàng khi xem Bio Link công khai của cậu có thể bấm **Đăng ký lịch chụp/hẹn** để gửi thông tin đặt lịch. Các thông tin này sẽ đồng bộ trực tiếp về tab **Quản lý lịch hẹn** trong Member Portal của cậu nha.",
     options: [
       { label: "Xem lịch đặt hẹn ở đâu", next: "view_booking" },
       { label: "Quay lại Menu chính", next: "main" },
@@ -44,36 +52,65 @@ const QUESTION_TREE = {
     ]
   },
   view_booking: {
-    text: "Tất cả các yêu cầu đặt hẹn từ khách hàng sẽ hiển thị tại danh sách Quản lý lịch hẹn trong Member Portal. Bạn có thể xem thông tin liên hệ Zalo hoặc Email của khách hàng để chủ động xác nhận lịch làm việc.",
+    text: "Cậu chỉ cần vào mục **Quản lý lịch hẹn** trong Member Portal là thấy đầy đủ danh sách nha. Ở đó có lưu số Zalo và Email của khách để cậu tiện liên hệ xác nhận lịch hẹn nè.",
     options: [
       { label: "Quay lại Menu chính", next: "main" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   packages: {
-    text: "Hệ thống có ba gói dịch vụ chính: Free Bio, Bio Plus và Bio VIP. Gói trả phí Plus và VIP sẽ giúp bạn mở khóa các mẫu theme cao cấp và ẩn quảng cáo mặc định của hệ thống. Thời hạn sử dụng sẽ tự động được gia hạn khi tài khoản được Admin cấp gói dịch vụ mới.",
+    text: "Hệ thống có ba gói là **Free Bio, Bio Plus và Bio VIP**. Hai gói trả phí Plus và VIP sẽ giúp cậu mở khóa theme cao cấp và ẩn quảng cáo. Khi được Admin cấp gói dịch vụ, thời hạn sử dụng sẽ được gia hạn tự động nha.",
     options: [
       { label: "Làm sao để nâng cấp gói", next: "upgrade" },
-      { label: "Quay lại Menu chính", next: "main" },
-      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+      { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   upgrade: {
-    text: "Quy trình duyệt nâng cấp hoặc gia hạn các gói dịch vụ trả phí hiện được xử lý thủ công bởi Admin hệ thống. Vui lòng bấm chọn gửi yêu cầu để nhân viên liên hệ tư vấn trực tiếp cho bạn.",
+    text: "Quy trình nâng cấp hoặc gia hạn các gói trả phí hiện được phê duyệt thủ công bởi Admin. Cậu vui lòng bấm **Gửi yêu cầu** để nhân viên hỗ trợ liên hệ kích hoạt gói trực tiếp nha.",
     options: [
       { label: "Gửi yêu cầu nâng cấp gói dịch vụ", next: "live_support" },
       { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   partners: {
-    text: "Đối tác liên kết có thể nhúng trực tiếp trình chỉnh sửa Bio Link của Hugo Studio vào website riêng của họ thông qua Iframe URL được cấp kèm theo mã khóa bảo mật do Admin quản lý trong Admin Panel.",
+    text: "Đối tác liên kết muốn nhúng trình chỉnh sửa Bio Link của Hugo Studio vào trang web riêng có thể sử dụng **Iframe URL** kèm mã khóa bảo mật do Admin cấp trong **Admin Panel** nha.",
     options: [
       { label: "Quay lại Menu chính", next: "main" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
+  about_hugo: {
+    text: "Cậu muốn tìm hiểu thông tin nào về Hugo Studio dưới đây nè?",
+    options: [
+      { label: "Hugo Studio là của ai", next: "who_is_hugo" },
+      { label: "Hugo Studio cung cấp dịch vụ gì", next: "what_services" },
+      { label: "Làm thế nào để hợp tác với Hugo Studio", next: "how_to_cooperate" },
+      { label: "Quay lại Menu chính", next: "main" }
+    ]
+  },
+  who_is_hugo: {
+    text: "Hugo Studio được phát triển và vận hành bởi **Hugo Huy** cùng đội ngũ kỹ thuật hỗ trợ, mang đến giải pháp làm trang cá nhân thương hiệu hàng đầu cho cậu đó.",
+    options: [
+      { label: "Quay lại mục trước", next: "about_hugo" },
+      { label: "Quay lại Menu chính", next: "main" }
+    ]
+  },
+  what_services: {
+    text: "Hugo Studio cung cấp công cụ **tạo trang Bio Link cá nhân**, nền tảng **đồng bộ quản lý đặt lịch hẹn**, hỗ trợ các gói tài khoản chuyên nghiệp và giải pháp nhúng **Iframe cho đối tác**.",
+    options: [
+      { label: "Quay lại mục trước", next: "about_hugo" },
+      { label: "Quay lại Menu chính", next: "main" }
+    ]
+  },
+  how_to_cooperate: {
+    text: "Để hợp tác quảng cáo, liên kết đối tác nhúng Iframe hoặc đề xuất dự án, cậu có thể gửi yêu cầu hỗ trợ trực tiếp để tớ báo Admin làm việc nha.",
+    options: [
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" },
+      { label: "Quay lại Menu chính", next: "main" }
+    ]
+  },
   live_support: {
-    text: "Đang tiến hành chuyển hướng bạn sang trang gửi yêu cầu hỗ trợ trực tiếp. Vui lòng hoàn thành biểu mẫu để Admin liên hệ qua Zalo hỗ trợ bạn trong thời gian sớm nhất.",
+    text: "Tớ đang chuyển cậu sang trang gửi yêu cầu hỗ trợ trực tiếp... Cậu điền thông tin để Admin chủ động liên hệ nhắn Zalo 1:1 hỗ trợ cậu sớm nhất nhé.",
     options: []
   }
 };
