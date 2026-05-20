@@ -8,13 +8,13 @@ const initialData = {
   profile: {
     fullName: "Peter Hugo Wishpax Le",
     shortName: "Hugo Studio",
-    title: "Peter Hugo Wishpax Le • Bio & Premium Services ✨",
+    title: "Peter Hugo Wishpax Le • Bio & Premium Services",
     introBadge: "Hello! Chào mừng tới vũ trụ của Hugo Studio!",
     headline: "Xin chào! Tôi là Peter Hugo Wishpax Le",
     subtitle: "Kiến tạo thế giới số bằng những dòng code kẹo ngọt, thiết kế Claymorphism tinh tế kết hợp hiệu năng vượt trội.",
-    country: "Việt Nam 🇻🇳",
+    country: "Việt Nam",
     birthday: "2004",
-    education: "IT • Greenwich VN 🎓",
+    education: "IT • Greenwich VN",
     storyTitle: "Kiến tạo trải nghiệm bằng cả trái tim",
     storyContent: "Tôi theo đuổi triết lý lập trình kết hợp nghệ thuật: mỗi giao diện đều phải có linh hồn, mang lại sự ngạc nhiên, ngọt ngào cho người sử dụng từ cái nhìn đầu tiên, nhưng đồng thời bên dưới phải là hệ thống mã nguồn cực kỳ gọn gàng, hiệu năng vượt trội và chuẩn SEO tối đa.",
     avatarUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/e_bgremoval/v1779116182/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_21.56.14_imhujt.png",
@@ -55,23 +55,6 @@ const initialData = {
       desc: "Tích cực tham gia các dự án thiện nguyện, trao đi yêu thương và san sẻ khó khăn."
     }
   ],
-  pricing: {
-    tiers: {
-      portfolio: 800000,
-      single_page: 800000,
-      basic: 3000000,
-      plus: 6500000,
-      premium: 14000000
-    },
-    addons: {
-      cms: 1200000,
-      biometric: 800000,
-      sound: 450000,
-      seo: 650000,
-      anims: 500000,
-      copyright: 350000
-    }
-  },
   partnerIframe: "",
   advertisement: {
     imageUrl: "",
@@ -139,31 +122,7 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  const updateDongThap = async (dongThapUpdates) => {
-    const newData = {
-      ...data,
-      dongThap: { ...data.dongThap, ...dongThapUpdates }
-    };
-    setData(newData);
-    try {
-      await dataApi.updateField('dongThap', newData.dongThap);
-    } catch (err) {
-      console.error("Error updating dongThap:", err);
-    }
-  };
 
-  const updateCatholicism = async (catholicismUpdates) => {
-    const newData = {
-      ...data,
-      catholicism: { ...data.catholicism, ...catholicismUpdates }
-    };
-    setData(newData);
-    try {
-      await dataApi.updateField('catholicism', newData.catholicism);
-    } catch (err) {
-      console.error("Error updating catholicism:", err);
-    }
-  };
 
   const updatePricing = async (pricingUpdates) => {
     const newData = {
@@ -222,8 +181,6 @@ export const DataProvider = ({ children }) => {
         updateProfile,
         updateHobbies,
         updateGallery,
-        updateDongThap,
-        updateCatholicism,
         updatePricing,
         updatePartnerIframe,
         updateAdvertisement,

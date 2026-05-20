@@ -3,25 +3,6 @@ import { useData } from "../context/DataContext";
 import { getMemberSession, logoutAuth } from "../services/authSession";
 import dataApi from "../services/dataApi";
 
-const PRESETS = [
-  { id: "apple-light", name: "Apple Light Pro", bgColor: "#f5f5f7", textColor: "#1d1d1f", accentColor: "#0071e3", pattern: "none", btnRadius: 12, btnBorderWidth: 0, btnShadow: 2 },
-  { id: "google-pixel", name: "Google Material", bgColor: "#f8f9fa", textColor: "#202124", accentColor: "#1a73e8", pattern: "dots", btnRadius: 24, btnBorderWidth: 0, btnShadow: 3 },
-  { id: "apple-dark", name: "Apple Dark Glass", bgColor: "#000000", textColor: "#f5f5f7", accentColor: "#a8a8af", pattern: "none", btnRadius: 14, btnBorderWidth: 1, btnShadow: 0 },
-  { id: "aurora", name: "Colorful Aurora", bgColor: "#0c0a18", textColor: "#f4f4f5", accentColor: "#ec4899", pattern: "waves", btnRadius: 18, btnBorderWidth: 0, btnShadow: 8 },
-  { id: "sunset", name: "Sunset Minimalist", bgColor: "#fff7ed", textColor: "#7c2d12", accentColor: "#ea580c", pattern: "dots", btnRadius: 20, btnBorderWidth: 0, btnShadow: 4 },
-  { id: "forest", name: "Nordic Forest", bgColor: "#f4f7f6", textColor: "#164e63", accentColor: "#10b981", pattern: "stripes", btnRadius: 99, btnBorderWidth: 0, btnShadow: 2 },
-  { id: "sakura", name: "Sakura Dream", bgColor: "#fff1f2", textColor: "#9f1239", accentColor: "#ec4899", pattern: "dots", btnRadius: 99, btnBorderWidth: 1, btnShadow: 6 },
-  { id: "minty", name: "Material Mint", bgColor: "#e8f0fe", textColor: "#1967d2", accentColor: "#12b886", pattern: "dots-dense", btnRadius: 20, btnBorderWidth: 0, btnShadow: 4 }
-];
-
-const PATTERNS = [
-  { id: "none", name: "Không họa tiết" },
-  { id: "dots", name: "Lưới Chấm Tròn" },
-  { id: "dots-dense", name: "Hạt Mịn Mật Độ Cao" },
-  { id: "stripes", name: "Sọc Chéo Tinh Tế" },
-  { id: "grid", name: "Ô Lưới Bản Vẽ" },
-  { id: "waves", name: "Lượn Sóng Nhẹ" }
-];
 
 // Helper to check if dark contrast is needed
 const isColorDark = (color) => {

@@ -7,6 +7,7 @@ export default function IntroductionPage() {
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [demoName, setDemoName] = useState("hugo.le");
 
   // Avatar rotation list
   const avatarImages = [
@@ -76,11 +77,12 @@ export default function IntroductionPage() {
     "from-indigo-500/10 to-purple-500/10",  // 0 Welcome
     "from-cyan-500/10 to-indigo-500/10",    // 1 Web Dev
     "from-amber-500/10 to-orange-500/10",   // 2 Personal Info
-    "from-emerald-550/10 to-teal-500/10",    // 3 Bio Edu
-    "from-blue-500/10 to-indigo-500/10",     // 4 Web Service
-    "from-violet-500/10 to-pink-500/10",    // 5 Philosophy
-    "from-rose-500/10 to-orange-500/10",    // 6 Contacts
-    "from-indigo-500/10 to-emerald-500/10"  // 7 CTA Start
+    "from-fuchsia-500/10 to-pink-500/10",    // 3 Teammate Info
+    "from-emerald-500/10 to-teal-500/10",    // 4 Bio Edu
+    "from-blue-500/10 to-indigo-500/10",     // 5 Web Service
+    "from-violet-500/10 to-pink-500/10",    // 6 Philosophy
+    "from-rose-500/10 to-orange-500/10",    // 7 Contacts
+    "from-indigo-500/10 to-emerald-500/10"  // 8 CTA Start
   ];
 
   return (
@@ -99,7 +101,7 @@ export default function IntroductionPage() {
 
       {/* Slide Indicators - Fixed on Right */}
       <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4">
-        {[0, 1, 2, 3, 4, 5, 6, 7].map((idx) => (
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
           <button
             key={idx}
             onClick={() => scrollToSlide(idx)}
@@ -109,11 +111,12 @@ export default function IntroductionPage() {
               {idx === 0 && "Welcome"}
               {idx === 1 && "Ngành Lập Trình"}
               {idx === 2 && "Hồ Sơ Cá Nhân"}
-              {idx === 3 && "Dịch Vụ Bio Edu"}
-              {idx === 4 && "Dịch Vụ Làm Web"}
-              {idx === 5 && "Thông Điệp"}
-              {idx === 6 && "Liên Kết"}
-              {idx === 7 && "Bắt Đầu"}
+              {idx === 3 && "Thông Tin Đồng Đội"}
+              {idx === 4 && "Dịch Vụ Bio Edu"}
+              {idx === 5 && "Dịch Vụ Làm Web"}
+              {idx === 6 && "Thông Điệp"}
+              {idx === 7 && "Liên Kết"}
+              {idx === 8 && "Bắt Đầu"}
             </span>
             <div
               className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 ${
@@ -129,7 +132,7 @@ export default function IntroductionPage() {
       {/* --- DYNAMIC TRANSITION BACKGROUND GLOWS --- */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className={`absolute top-[-10%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-tr ${bgGlows[activeIndex]} blur-[150px] transition-all duration-1000 ease-in-out`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr ${bgGlows[(activeIndex + 1) % 8]} blur-[170px] transition-all duration-1000 ease-in-out`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr ${bgGlows[(activeIndex + 1) % 9]} blur-[170px] transition-all duration-1000 ease-in-out`} />
       </div>
 
       {/* --- SCROLL SNAP CONTAINER --- */}
@@ -375,7 +378,145 @@ export default function IntroductionPage() {
           </div>
         </section>
 
-        {/* SLIDE 4: Free Bio with Edu Mail (Overlapping Student Cards) */}
+        {/* SLIDE 4: Teammate Information (Modern ID Badge & Floating Cards Layout) */}
+        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 py-8 md:py-0 md:px-16 lg:px-24">
+          {/* Background Watermark */}
+          <div className="absolute right-[5%] bottom-[5%] text-[6rem] sm:text-[10rem] xl:text-[14rem] font-black text-slate-900/[0.015] dark:text-white/[0.007] pointer-events-none select-none tracking-tighter leading-none">
+            JASON
+          </div>
+
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-5 lg:gap-8 w-full max-w-7xl mx-auto items-center relative z-10">
+            
+            {/* Left side: Premium Digital Badge Card */}
+            <div className="w-full lg:col-span-5 flex justify-center relative">
+              {/* Pulsing neon back glow */}
+              <div className="absolute inset-0 w-full max-w-[280px] sm:max-w-[320px] h-full mx-auto rounded-2xl bg-gradient-to-tr from-[#ec4899]/15 to-[#d946ef]/15 blur-xl lg:blur-2xl animate-pulse" />
+              
+              {/* Single Unified Digital ID Card Container (Reduced rounded corners) */}
+              <div className="w-full max-w-[280px] sm:max-w-[320px] rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 p-3.5 sm:p-5 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 z-10">
+                {/* ID Header Decoration */}
+                <div className="flex justify-between items-center pb-2.5 sm:pb-3 border-b border-slate-200 dark:border-white/10 mb-3 sm:mb-4">
+                  <span className="text-[8px] sm:text-[9px] font-black tracking-widest text-[#ec4899] uppercase">GREENWICH CO-DEVELOPER</span>
+                  <div className="flex gap-1">
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#ec4899]" />
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#d946ef]" />
+                  </div>
+                </div>
+
+                {/* Portrait Container - aspect-[4/3] on mobile (to keep height low but image wide), aspect-[4/5] on desktop (Reduced rounded corners) */}
+                <div className="aspect-[4/3] lg:aspect-[4/5] rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 relative border border-slate-200/50 dark:border-white/5">
+                  <img 
+                    src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png" 
+                    alt="Jason Portrait" 
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" 
+                  />
+                  {/* Digital Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  
+                  {/* Status indicator on photo */}
+                  <div className="absolute bottom-2.5 left-2.5 bg-[#ec4899] text-white text-[7px] sm:text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-md">
+                    EST. 2005
+                  </div>
+                </div>
+
+                {/* ID Info Section */}
+                <div className="pt-3 sm:pt-4 space-y-2 sm:space-y-3 text-center">
+                  <div>
+                    <h3 className="font-display text-base sm:text-lg font-black text-slate-800 dark:text-white leading-tight">Jason Phan</h3>
+                    <p className="text-[9px] sm:text-[10px] text-slate-400 font-medium tracking-wider uppercase mt-0.5 sm:mt-1">Software Engineering Student</p>
+                  </div>
+                  
+                  {/* Decorative Scan/Chip/Details */}
+                  <div className="pt-2.5 sm:pt-3 border-t border-slate-200 dark:border-white/10 flex justify-between items-center text-[7px] sm:text-[8px] font-mono text-slate-400 text-left">
+                    <div>
+                      <div>CLASS: SE-GP</div>
+                      <div>ALLIANCE: TEAMMATE</div>
+                    </div>
+                    {/* Simulated barcode */}
+                    <div className="h-5 sm:h-6 flex items-center gap-0.5 opacity-60">
+                      <div className="w-[1px] h-full bg-slate-400" />
+                      <div className="w-[2px] h-full bg-slate-400" />
+                      <div className="w-[1px] h-full bg-slate-400" />
+                      <div className="w-[3px] h-full bg-slate-400" />
+                      <div className="w-[1px] h-full bg-slate-400" />
+                      <div className="w-[2px] h-full bg-slate-400" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side: Modern Cards & Strengths */}
+            <div className="w-full lg:col-span-7 space-y-4 lg:space-y-6 text-left">
+              <div className="space-y-2 lg:space-y-4">
+                <span className="inline-flex items-center gap-2 px-3 py-1 lg:px-3.5 lg:py-1.5 rounded-full text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.25em] bg-[#ec4899]/10 text-[#ec4899] border border-[#ec4899]/20">
+                  ✦ Co-Developer Partner
+                </span>
+                <h2 className="font-display text-2xl sm:text-3xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                  Đồng hành cùng kiến tạo <br />
+                  <span className="bg-gradient-to-r from-[#ec4899] via-[#d946ef] to-[#818cf8] bg-clip-text text-transparent">
+                    những trải nghiệm số độc bản.
+                  </span>
+                </h2>
+                <p className="hidden sm:block text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
+                  Jason Phan là người bạn đồng hành cùng tôi trên con đường học tập và phát triển dự án. Chúng tôi kết hợp tư duy hệ thống và niềm đam mê công nghệ để biến những ý tưởng phức tạp thành những ứng dụng mượt mà, tối ưu.
+                </p>
+              </div>
+
+              {/* Education Floating Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 pt-1 lg:pt-2">
+                
+                {/* High School Card (Reduced rounded corners) */}
+                <a 
+                  href="https://thptcayduong.edu.vn" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group p-3.5 lg:p-5 rounded-lg lg:rounded-xl bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 hover:border-[#ec4899] dark:hover:border-[#ec4899]/50 transition-all duration-300 hover:scale-[1.02] shadow-sm hover:shadow-lg flex flex-col justify-between h-full"
+                >
+                  <div className="space-y-2 lg:space-y-3">
+                    <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-md lg:rounded-lg bg-[#ec4899]/10 text-[#ec4899] flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <span className="material-symbols-outlined text-lg">school</span>
+                    </div>
+                    <div>
+                      <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#ec4899] transition-colors">THPT Cây Dương</h4>
+                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">Trường trung học phổ thông năng động tại Hậu Giang.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-2.5 lg:pt-4 mt-2.5 lg:mt-4 border-t border-slate-200/50 dark:border-white/5 text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span>Hậu Giang</span>
+                    <span className="material-symbols-outlined text-[10px] group-hover:translate-x-1 transition-transform">open_in_new</span>
+                  </div>
+                </a>
+
+                {/* University Card (Reduced rounded corners) */}
+                <a 
+                  href="https://greenwich.edu.vn" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group p-3.5 lg:p-5 rounded-lg lg:rounded-xl bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 hover:border-[#d946ef] dark:hover:border-[#d946ef]/50 transition-all duration-300 hover:scale-[1.02] shadow-sm hover:shadow-lg flex flex-col justify-between h-full"
+                >
+                  <div className="space-y-2 lg:space-y-3">
+                    <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-md lg:rounded-lg bg-[#d946ef]/10 text-[#d946ef] flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <span className="material-symbols-outlined text-lg">local_library</span>
+                    </div>
+                    <div>
+                      <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#d946ef] transition-colors">Greenwich Vietnam</h4>
+                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">Môi trường đào tạo quốc tế liên kết cùng Greenwich Vương Quốc Anh.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-2.5 lg:pt-4 mt-2.5 lg:mt-4 border-t border-slate-200/50 dark:border-white/5 text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span>Đại học liên kết</span>
+                    <span className="material-symbols-outlined text-[10px] group-hover:translate-x-1 transition-transform">open_in_new</span>
+                  </div>
+                </a>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* SLIDE 5: Free Bio with Edu Mail (Overlapping Student Cards) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full max-w-7xl mx-auto items-center">
             <div className="lg:col-span-7 space-y-6 relative z-10">

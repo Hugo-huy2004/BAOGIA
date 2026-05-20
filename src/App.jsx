@@ -21,7 +21,13 @@ function AppContent() {
   const location = useLocation();
   const isBioRoute = location.pathname.startsWith('/bio/');
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
-  const showFooter = !isBioRoute && !isPartnerBioRoute && location.pathname !== "/introduction" && location.pathname !== "/";
+  const showFooter = 
+    !isBioRoute && 
+    !isPartnerBioRoute && 
+    location.pathname !== "/introduction" && 
+    location.pathname !== "/" &&
+    location.pathname !== "/member" &&
+    location.pathname !== "/admin";
 
   if (isBioRoute || isPartnerBioRoute) {
     return (

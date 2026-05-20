@@ -1,28 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import dataApi from "../services/dataApi";
+import { useHeadMeta } from "../hooks/useHeadMeta";
 
-// Detect Social Brand Details
-const getSocialBrandStyle = (label = "") => {
-  const lowercase = label.toLowerCase();
-  if (lowercase.includes("facebook") || lowercase.includes("fb")) {
-    return { bgColor: "#e2e8f0", textColor: "#0f172a", icon: "facebook" }; // Light gray circle like screenshot
-  }
-  if (lowercase.includes("zalo")) {
-    return { bgColor: "#e2e8f0", textColor: "#0f172a", icon: "chat" };
-  }
-  if (lowercase.includes("instagram") || lowercase.includes("ig")) {
-    return { bgColor: "#e2e8f0", textColor: "#0f172a", icon: "photo_camera" };
-  }
-  if (lowercase.includes("tiktok")) {
-    return { bgColor: "#e2e8f0", textColor: "#0f172a", icon: "music_note" };
-  }
-  if (lowercase.includes("youtube") || lowercase.includes("yt")) {
-    return { bgColor: "#e2e8f0", textColor: "#0f172a", icon: "play_circle" };
-  }
-  // Generic link
-  return { bgColor: "#e2e8f0", textColor: "#0f172a", icon: "language" };
-};
+// Constants
+const BRAND_COLORS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#A855F7"];
+const FLAT_COLORS = ["#FF4B4B", "#3b82f6", "#10b981", "#ff5f00", "#8b5cf6"];
+const BRUTAL_COLORS = ["#FF3333", "#00E676", "#2979FF", "#D500F9", "#FFEA00"];
 
 // Hugo Studio Logo Style with Gradient and We Bare Bears Font
 const HugoStudioLogo = () => (
@@ -56,7 +40,7 @@ const HugoStudioLogo = () => (
 );
 
 // Gradient colors for brand identity
-const BRAND_COLORS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#A855F7"];
+const BRAND_COLORS_GRADIENT = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#A855F7"];
 
 // Function to render text with each character in a different color
 const RenderColoredText = ({ text }) => {
@@ -64,7 +48,7 @@ const RenderColoredText = ({ text }) => {
   return (
     <>
       {text.split("").map((char, idx) => (
-        <span key={idx} style={{ color: BRAND_COLORS[idx % BRAND_COLORS.length] }}>
+        <span key={idx} style={{ color: BRAND_COLORS_GRADIENT[idx % BRAND_COLORS_GRADIENT.length] }}>
           {char}
         </span>
       ))}
@@ -206,21 +190,23 @@ export default function BioPublicPage() {
   const [bio, setBio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expired, setExpired] = useState(false);
-  const [activeTab, setActiveTab] = useState(null);
-  const [globalData, setGlobalData] = useState(null);
+
+  // Initialize theme values early (before any returns)
+  const themeObj = useMemo(() => bio?.theme || {}, [bio]);
+  const bgColor = useMemo(() => themeObj.bgColor || "#000000", [themeObj]);
+  const accentColor = useMemo(() => themeObj.accentColor || "#ffffff", [themeObj]);
+  const template = useMemo(() => themeObj.template || "default", [themeObj]);
+  const effectiveBgColor = useMemo(() => 
+    template === "brutalism" ? (themeObj.bgColor === "#000000" || !themeObj.bgColor ? "#facc15" : themeObj.bgColor) : bgColor,
+    [template, themeObj, bgColor]
+  );
+  const isDark = useMemo(() => isColorDark(effectiveBgColor), [effectiveBgColor]);
+
   useEffect(() => {
     const loadBio = async () => {
       try {
         const response = await dataApi.getBioBySlug(slug);
-        const b = response.bio;
-        setBio(b);
-        if (b?.tabs && b.tabs.length > 0) {
-          setActiveTab(0);
-        }
-        const gData = await dataApi.getData().catch(() => null);
-        setGlobalData(gData);
-
-
+        setBio(response.bio);
       } catch (error) {
         if (error?.message === "Bio not found") {
           setExpired(true);
@@ -232,6 +218,18 @@ export default function BioPublicPage() {
 
     loadBio();
   }, [slug]);
+
+  // SEO Meta Tags - Dynamic based on bio data
+  useHeadMeta({
+    title: bio ? `${bio.displayName} | Hugo Studio` : 'Hugo Studio',
+    description: bio?.bio || 'Khám phá profile độc bản trên Hugo Studio - Nền tảng quản lý bio, booking và portfolio chuyên nghiệp.',
+    keywords: `${bio?.displayName || 'Hugo Studio'}, ${bio?.headline || 'Professional Bio'}, Bio page, Portfolio, Booking`,
+    ogTitle: bio ? `${bio.displayName} - Hugo Studio` : 'Hugo Studio',
+    ogDescription: bio?.bio || 'Tạo bio độc bản với Hugo Studio',
+    ogImage: bio?.avatarUrl || 'https://hugo.studio/og-image.jpg',
+    ogUrl: window.location.href,
+    canonicalUrl: window.location.href
+  });
 
 
 
@@ -270,24 +268,12 @@ export default function BioPublicPage() {
     );
   }
 
-  const themeObj = bio.theme || {};
-  const bgColor = themeObj.bgColor || "#000000";
-  const accentColor = themeObj.accentColor || "#ffffff";
-
-  // Filter links for Social Icons vs Normal Links
-  // For Slide 1: Show first 4 social links as circular icons
-  // For Slide 3: Show all links as big buttons
-  const socialLinks = bio.links ? bio.links.slice(0, 4) : [];
-
-  const template = themeObj.template || "default";
-  const effectiveBgColor = template === "brutalism" ? (themeObj.bgColor === "#000000" || !themeObj.bgColor ? "#facc15" : themeObj.bgColor) : bgColor;
-  const isDark = isColorDark(effectiveBgColor);
-
   if (template === "flat") {
+    const flatBgColor = (themeObj.bgColor === "#000000" || !themeObj.bgColor) ? "#f1f5f9" : themeObj.bgColor;
     const flatCardStyle = {
-      backgroundColor: isDark ? "#1e1e24" : "#ffffff",
-      color: isDark ? "#ffffff" : "#111111",
-      border: `2.5px solid ${isDark ? "#ffffff" : "#000000"}`,
+      backgroundColor: isColorDark(flatBgColor) ? "#1e1e24" : "#ffffff",
+      color: isColorDark(flatBgColor) ? "#ffffff" : "#111111",
+      border: `2.5px solid ${isColorDark(flatBgColor) ? "#ffffff" : "#000000"}`,
       boxShadow: "none",
       borderRadius: "18px"
     };
@@ -301,9 +287,6 @@ export default function BioPublicPage() {
       fontWeight: "700",
       transition: "transform 0.1s ease"
     });
-
-    const flatBgColor = (themeObj.bgColor === "#000000" || !themeObj.bgColor) ? "#f1f5f9" : themeObj.bgColor;
-    const flatIsDark = isColorDark(flatBgColor);
 
     return (
       <>
@@ -451,8 +434,7 @@ export default function BioPublicPage() {
               {bio.links && bio.links.length > 0 && (
                 <div className="space-y-4">
                   {bio.links.map((link, idx) => {
-                    const flatColors = ["#FF4B4B", "#3b82f6", "#10b981", "#ff5f00", "#8b5cf6"];
-                    const color = flatColors[idx % flatColors.length];
+                    const color = FLAT_COLORS[idx % FLAT_COLORS.length];
                     const rotation = idx % 2 === 0 ? "rotate-1" : "-rotate-1";
                     
                     return (
@@ -528,13 +510,6 @@ export default function BioPublicPage() {
     return (
       <>
         <HugoStudioLogo />
-        <style>{`
-          .brutal-active-tab {
-            transform: translate(2px, 2px);
-            box-shadow: none !important;
-          }
-        `}</style>
-
         <main 
           className="h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory relative text-white bg-black scroll-smooth scrollbar-hide"
           style={{ 
@@ -718,8 +693,7 @@ export default function BioPublicPage() {
               {bio.links && bio.links.length > 0 && (
                 <div className="space-y-3.5">
                   {bio.links.map((link, idx) => {
-                    const brutalColors = ["#FF3333", "#00E676", "#2979FF", "#D500F9", "#FFEA00"];
-                    const color = brutalColors[idx % brutalColors.length];
+                    const color = BRUTAL_COLORS[idx % BRUTAL_COLORS.length];
                     return (
                       <a
                         key={idx}

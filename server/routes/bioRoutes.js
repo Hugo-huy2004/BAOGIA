@@ -40,11 +40,80 @@ const removeExpiredBioIfNeeded = async (bio) => {
   return bio;
 };
 
-// GET: Fetch all bios (for Admin Panel)
+// GET: Fetch all bios (for Admin Panel) with search, filter, pagination, and stats
 router.get('/', async (req, res) => {
   try {
-    const bios = await Bio.find().sort({ createdAt: -1 });
-    res.json(bios);
+    const {
+      search = '',
+      status = '',
+      expiration = '',
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const query = {};
+
+    if (search.trim()) {
+      query.$or = [
+        { displayName: { $regex: search.trim(), $options: 'i' } },
+        { email: { $regex: search.trim(), $options: 'i' } },
+        { slug: { $regex: search.trim(), $options: 'i' } }
+      ];
+    }
+
+    if (status && ['active', 'locked'].includes(status)) {
+      query.status = status;
+    }
+
+    if (expiration) {
+      const now = new Date();
+      if (expiration === 'active') {
+        query.$or = [
+          { expiresAt: { $gt: now } },
+          { expiresAt: null }
+        ];
+      } else if (expiration === 'expired') {
+        query.expiresAt = { $lte: now };
+      } else if (expiration === 'lifetime') {
+        query.expiresAt = null;
+      }
+    }
+
+    const sortObj = {};
+    const order = sortOrder === 'asc' ? 1 : -1;
+    sortObj[sortBy] = order;
+
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.max(1, parseInt(limit));
+    const skip = (pageNum - 1) * limitNum;
+
+    // Run parallel counts & query
+    const [bios, totalMatched, totalCount, activeCount, lockedCount, lifetimeCount] = await Promise.all([
+      Bio.find(query).sort(sortObj).skip(skip).limit(limitNum),
+      Bio.countDocuments(query),
+      Bio.countDocuments(),
+      Bio.countDocuments({ status: 'active' }),
+      Bio.countDocuments({ status: 'locked' }),
+      Bio.countDocuments({ expiresAt: null })
+    ]);
+
+    res.json({
+      bios,
+      pagination: {
+        totalMatched,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(totalMatched / limitNum)
+      },
+      stats: {
+        total: totalCount,
+        active: activeCount,
+        locked: lockedCount,
+        lifetime: lifetimeCount
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

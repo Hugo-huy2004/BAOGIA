@@ -153,3 +153,16 @@ button, a, input[type="button"], input[type="submit"] {
     animation: fadeIn 0.3s ease-in-out;
 }
 
+/* Safe-area bottom navigation utilities for mobile */
+.nav-bottom-safe {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    height: calc(64px + env(safe-area-inset-bottom)) !important;
+}
+
+@media (max-width: 768px) {
+    .content-bottom-safe {
+        padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+    }
+}
+
+

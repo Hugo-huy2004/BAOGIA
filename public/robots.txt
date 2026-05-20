@@ -20,6 +20,9 @@ Disallow: /login?
 Crawl-delay: 1
 
 # Sitemap location
+Sitemap: https://www.hugowishpax.studio/sitemap.xml
+
+# Sitemap location
 Sitemap: https://hugowishpax.studio/sitemap.xml
 
 # Allow major search engines
