@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useData } from "../context/DataContext";
 import { getMemberSession, logoutAuth } from "../services/authSession";
 import dataApi from "../services/dataApi";
+import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
 
 
 // Helper to check if dark contrast is needed
@@ -1115,7 +1116,7 @@ export default function MemberPortalPage() {
             {/* Global Fixed Background (Avatar Image) */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               {formData.avatarUrl && (
-                <img src={formData.avatarUrl} alt="Cover" className="w-full h-full object-cover opacity-90" />
+                <img src={optimizeCloudinaryUrl(formData.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover opacity-90" />
               )}
             </div>
 
@@ -1138,7 +1139,7 @@ export default function MemberPortalPage() {
                   
                   {formData.avatarUrl ? (
                     <div className="relative w-20 h-20 overflow-hidden rounded-full border-2 border-black z-10 bg-white">
-                      <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      <img src={optimizeCloudinaryUrl(formData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <div className="relative w-20 h-20 rounded-full border-2 border-black z-10 bg-zinc-200 flex items-center justify-center font-bold text-sm text-black">
@@ -1336,7 +1337,7 @@ export default function MemberPortalPage() {
           {/* Global Fixed Background (Avatar Image) */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             {formData.avatarUrl && (
-              <img src={formData.avatarUrl} alt="Cover" className="w-full h-full object-cover opacity-85" />
+              <img src={optimizeCloudinaryUrl(formData.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover opacity-85" />
             )}
             <div
               className="absolute inset-0"
@@ -1357,7 +1358,7 @@ export default function MemberPortalPage() {
                   }}
                   className="w-24 h-24 overflow-hidden rotate-2 transform transition-transform duration-300 hover:rotate-0"
                 >
-                  <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={optimizeCloudinaryUrl(formData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover" />
                 </div>
               )}
 
@@ -1591,7 +1592,7 @@ export default function MemberPortalPage() {
         {/* Global Fixed Background (Avatar Image) */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           {formData.avatarUrl && (
-            <img src={formData.avatarUrl} alt="Cover" className="w-full h-full object-cover" />
+            <img src={optimizeCloudinaryUrl(formData.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover" />
           )}
           <div
             className="absolute inset-0"
@@ -1887,17 +1888,17 @@ export default function MemberPortalPage() {
 
   if (loading) {
     return (
-      <main className="min-h-[60vh] flex items-center justify-center bg-[#f5f5f7] dark:bg-[#000000]">
+      <div className="min-h-[60vh] flex items-center justify-center bg-[#f5f5f7] dark:bg-[#000000]">
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-3 border-[#0071e3] border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-[10px] text-zinc-450 font-bold uppercase tracking-widest">Đang tải cấu hình Portal...</p>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] font-body selection:bg-[#0071e3]/20 transition-colors duration-300">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] font-body selection:bg-[#0071e3]/20 transition-colors duration-300">
 
 
       {/* Toast Alert */}
@@ -2083,7 +2084,7 @@ export default function MemberPortalPage() {
                           }}
                         >
                           {formData.avatarUrl ? (
-                            <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                            <img src={optimizeCloudinaryUrl(formData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-850 text-zinc-400 dark:text-zinc-500">
                               <span className="material-symbols-outlined text-3xl">add_a_photo</span>
@@ -3044,6 +3045,6 @@ export default function MemberPortalPage() {
         )}
 
       </div>
-    </main>
+    </div>
   );
 }

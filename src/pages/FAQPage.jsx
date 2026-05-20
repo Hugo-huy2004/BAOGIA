@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useHeadMeta } from "../hooks/useHeadMeta";
 
 export default function FAQPage() {
+  useHeadMeta({
+    title: "FAQ | Hugo Studio",
+    description: "Giải đáp các thắc mắc thường gặp về dịch vụ thiết kế Bio Link cá nhân, chi phí thiết kế và cách thức hoạt động tại Hugo Studio.",
+    keywords: "câu hỏi thường gặp, FAQ Hugo Studio, liên hệ thiết kế, Bio Link giá rẻ, thiết kế portfolio",
+    canonicalUrl: "https://www.hugowishpax.studio/faq"
+  });
+
   const [expandedIdx, setExpandedIdx] = useState(null);
   const [floatingElements, setFloatingElements] = useState([]);
 
@@ -54,7 +62,7 @@ export default function FAQPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-[#0b0a0f] dark:via-slate-950 dark:to-black relative overflow-hidden pt-20 pb-16 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-[#0b0a0f] dark:via-slate-950 dark:to-black relative overflow-hidden pt-20 pb-16 transition-colors duration-300">
       {/* Animated background glows */}
       <style>{`
         @keyframes float-x {
@@ -275,6 +283,6 @@ export default function FAQPage() {
 
 
       </div>
-    </main>
+    </div>
   );
 }

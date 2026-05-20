@@ -1,11 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
+import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
+import { useHeadMeta } from "../hooks/useHeadMeta";
 
 export default function IntroductionPage() {
   const { data } = useData();
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  
+  useHeadMeta({
+    title: "Về Tôi | Peter Hugo Wishpax Lê",
+    description: "Khám phá thế giới sáng tạo, hành trình sự nghiệp và các dự án thiết kế Claymorphism tinh tế của Hugo Lê.",
+    keywords: "Peter Hugo Wishpax Lê, Hugo Lê, Greenwich VN, thiết kế Claymorphism, web developer, portfolio",
+    canonicalUrl: "https://www.hugowishpax.studio/introduction"
+  });
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [demoName, setDemoName] = useState("hugo.le");
 
@@ -70,7 +80,7 @@ export default function IntroductionPage() {
 
   if (!data) return null;
 
-  const realPhoto = data.gallery?.[0]?.url || "/image/avt1.png";
+  const realPhoto = optimizeCloudinaryUrl(data.gallery?.[0]?.url || "/image/avt1.png", 800);
 
   // Dynamic colors for transition bg glows
   const bgGlows = [
@@ -406,7 +416,7 @@ export default function IntroductionPage() {
                 {/* Portrait Container - aspect-[4/3] on mobile (to keep height low but image wide), aspect-[4/5] on desktop (Reduced rounded corners) */}
                 <div className="aspect-[4/3] lg:aspect-[4/5] rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 relative border border-slate-200/50 dark:border-white/5">
                   <img 
-                    src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png" 
+                    src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png", 600)} 
                     alt="Jason Portrait" 
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" 
                   />
@@ -761,7 +771,7 @@ export default function IntroductionPage() {
               <div className="flex justify-center mb-4">
                 <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#6366f1]/30 shadow-lg">
                   <img 
-                    src={data.profile.avatarUrl} 
+                    src={optimizeCloudinaryUrl(data.profile.avatarUrl, 300)} 
                     alt={data.profile.fullName}
                     className="w-full h-full object-cover"
                   />

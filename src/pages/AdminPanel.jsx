@@ -726,12 +726,12 @@ export default function AdminPanel() {
 
   if (loading) {
     return (
-      <main className="min-h-[70vh] flex items-center justify-center">
+      <div className="min-h-[70vh] flex items-center justify-center">
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
           <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Đang tải bảng điều khiển...</p>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -741,7 +741,7 @@ export default function AdminPanel() {
   const displayedBookings = bookingSubTab === "pending" ? pendingBookings : contactedBookings;
 
   return (
-    <main className="min-h-[calc(100vh-56px)] bg-slate-50 dark:bg-[#0b0910] text-slate-850 dark:text-slate-100 flex flex-col md:flex-row pb-20 md:pb-0 overflow-x-hidden">
+    <div className="min-h-[calc(100vh-56px)] bg-slate-50 dark:bg-[#0b0910] text-slate-850 dark:text-slate-100 flex flex-col md:flex-row pb-20 md:pb-0 overflow-x-hidden">
       
       {/* SUCCESS/WARNING TOAST */}
       {toastMsg && (
@@ -2563,6 +2563,6 @@ export default function AdminPanel() {
         </div>
       )}
 
-    </main>
+    </div>
   );
 }

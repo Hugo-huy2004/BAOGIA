@@ -1,8 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginAdmin, loginMember } from "../services/authSession";
+import { useHeadMeta } from "../hooks/useHeadMeta";
 
 export default function LoginPage() {
+  useHeadMeta({
+    title: "Đăng Nhập | Hugo Studio",
+    description: "Đăng ký Bio Link sinh viên miễn phí với email .edu hoặc đăng nhập trang quản trị viên của Hugo Studio.",
+    keywords: "đăng nhập Hugo Studio, tạo Bio sinh viên, đăng nhập quản trị, Bio Link edu",
+    canonicalUrl: "https://www.hugowishpax.studio/login"
+  });
+
   const navigate = useNavigate();
   const [activeMode, setActiveMode] = useState("member");
   const [adminForm, setAdminForm] = useState({ username: "", password: "" });
@@ -118,7 +126,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4 py-12 text-slate-800 dark:text-slate-100">
+    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4 py-12 text-slate-800 dark:text-slate-100">
       <style>{`
         @keyframes slideInDown {
           0% { transform: translate(-50%, -120%); opacity: 0; }
@@ -301,6 +309,6 @@ export default function LoginPage() {
       </section>
 
 
-    </main>
+    </div>
   );
 }

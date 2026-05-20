@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import dataApi from "../services/dataApi";
 import { useHeadMeta } from "../hooks/useHeadMeta";
+import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
 
 // Constants
 const BRAND_COLORS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#A855F7"];
@@ -298,7 +299,7 @@ export default function BioPublicPage() {
           {/* Global Fixed Background (Avatar Image) */}
           <div className="fixed inset-0 z-0 pointer-events-none">
             {bio.avatarUrl && (
-              <img src={bio.avatarUrl} alt="Cover" className="w-full h-full object-cover opacity-90" />
+              <img src={optimizeCloudinaryUrl(bio.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover opacity-90" />
             )}
           </div>
 
@@ -321,7 +322,7 @@ export default function BioPublicPage() {
                 
                 {bio.avatarUrl ? (
                   <div className="relative w-28 h-28 overflow-hidden rounded-full border-3 border-black z-10 bg-white">
-                    <img src={bio.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    <img src={optimizeCloudinaryUrl(bio.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div className="relative w-28 h-28 rounded-full border-3 border-black z-10 bg-zinc-200 flex items-center justify-center font-bold text-xl text-black">
@@ -520,7 +521,7 @@ export default function BioPublicPage() {
           {/* Global Fixed Background (Avatar Image) */}
           <div className="fixed inset-0 z-0 pointer-events-none">
             {bio.avatarUrl && (
-              <img src={bio.avatarUrl} alt="Cover" className="w-full h-full object-cover opacity-85" />
+              <img src={optimizeCloudinaryUrl(bio.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover opacity-85" />
             )}
             <div 
               className="absolute inset-0"
@@ -541,7 +542,7 @@ export default function BioPublicPage() {
                   }}
                   className="w-32 h-32 overflow-hidden rotate-2 transform transition-transform duration-300 hover:rotate-0"
                 >
-                  <img src={bio.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={optimizeCloudinaryUrl(bio.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover" />
                 </div>
               )}
 
@@ -752,7 +753,7 @@ export default function BioPublicPage() {
       {/* Global Fixed Background (Avatar Image) */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         {bio.avatarUrl && (
-          <img src={bio.avatarUrl} alt="Cover" className="w-full h-full object-cover" />
+          <img src={optimizeCloudinaryUrl(bio.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover" />
         )}
         <div 
           className="absolute inset-0"

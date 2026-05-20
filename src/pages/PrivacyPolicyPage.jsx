@@ -1,12 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
+import { useHeadMeta } from "../hooks/useHeadMeta";
 
 export default function PrivacyPolicyPage() {
   const { data } = useData();
 
+  useHeadMeta({
+    title: "Chính Sách Bảo Mật | Hugo Studio",
+    description: "Chính sách bảo mật và điều khoản dịch vụ chi tiết của Hugo Studio tuân thủ theo Nghị định 13/2023/NĐ-CP của pháp luật Việt Nam.",
+    keywords: "chính sách bảo mật, điều khoản sử dụng, điều khoản dịch vụ, Hugo Studio, bảo vệ dữ liệu cá nhân",
+    canonicalUrl: "https://www.hugowishpax.studio/policy"
+  });
+
   return (
-    <main className="min-h-screen bg-[#f5f5f7] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] py-12 px-4 sm:px-6 transition-colors duration-300 font-sans">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] py-12 px-4 sm:px-6 transition-colors duration-300 font-sans">
       <div className="max-w-4xl mx-auto space-y-8 bg-white/80 dark:bg-[#1c1c1e]/85 backdrop-blur-xl p-8 sm:p-12 rounded-3xl border border-[#e5e5e7] dark:border-[#2c2c2e] shadow-2xl transition-all duration-300">
         
         {/* Header */}
@@ -168,6 +176,6 @@ export default function PrivacyPolicyPage() {
         </div>
 
       </div>
-    </main>
+    </div>
   );
 }

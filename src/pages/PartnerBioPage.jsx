@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import dataApi from "../services/dataApi";
+import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
 
 const isColorDark = (color) => {
   if (!color) return false;
@@ -528,7 +529,7 @@ export default function PartnerBioPage() {
                       className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center cursor-pointer overflow-hidden group relative shrink-0"
                     >
                       {bioData.avatarUrl ? (
-                        <img src={bioData.avatarUrl} alt="Avatar" className="w-full h-full object-cover relative z-10" />
+                        <img src={optimizeCloudinaryUrl(bioData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover relative z-10" />
                       ) : (
                         <span className="material-symbols-outlined text-zinc-400 text-2xl relative z-10">add_a_photo</span>
                       )}
@@ -770,7 +771,7 @@ export default function PartnerBioPage() {
                   >
                     <div className="absolute inset-0 z-0 pointer-events-none">
                       {bioData.avatarUrl && (
-                        <img src={bioData.avatarUrl} alt="Cover" className="w-full h-full object-cover" />
+                        <img src={optimizeCloudinaryUrl(bioData.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover" />
                       )}
                       <div 
                         className="absolute inset-0"

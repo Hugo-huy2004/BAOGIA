@@ -55,7 +55,7 @@ function AppContent() {
       {!isEmbed && <GlobalAdBanner />}
       
       {/* Dynamic Content Router */}
-      <div className="flex-grow">
+      <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Navigate to="/introduction" replace />} />
           <Route path="/introduction" element={<IntroductionPage />} />
@@ -75,7 +75,7 @@ function AppContent() {
           <Route path="/support-request" element={<SupportRequestPage />} />
           <Route path="*" element={<Navigate to="/introduction" replace />} />
         </Routes>
-      </div>
+      </main>
 
       {/* Global Brand footer bar */}
       {!isEmbed && showFooter && <Footer />}

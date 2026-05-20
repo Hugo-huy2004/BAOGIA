@@ -18,7 +18,7 @@ const initialData = {
     education: "Software Engineering • Greenwich VN 🎓",
     storyTitle: "Kiến tạo trải nghiệm bằng cả trái tim",
     storyContent: "Tôi theo đuổi triết lý lập trình kết hợp nghệ thuật: mỗi giao diện đều phải có linh hồn, mang lại sự ngạc nhiên, ngọt ngào cho người sử dụng từ cái nhìn đầu tiên, nhưng đồng thời bên dưới phải là hệ thống mã nguồn cực kỳ gọn gàng, hiệu năng vượt trội và chuẩn SEO tối đa.",
-    avatarUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/e_bgremoval/v1779116182/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_21.56.14_imhujt.png",
+    avatarUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/e_bgremoval,f_auto,q_auto,w_300/v1779116182/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_21.56.14_imhujt.png",
     meetingQrUrl: "https://img.vietqr.io/image/MB-827052004-compact.png?amount=0&addInfo=Hugo%20Dat%20Lich%20Hen%20Thiet%20Ke&accountName=LE%20GIA%20HUY",
     bankName: "MBBank",
     accountNumber: "827052004",
@@ -43,14 +43,14 @@ const initialData = {
   gallery: [
     {
       id: "photo1",
-      url: "https://res.cloudinary.com/dyehwoscu/image/upload/v1779117104/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_22.11.38_vlij7l.png",
+      url: "https://res.cloudinary.com/dyehwoscu/image/upload/f_auto,q_auto,w_800/v1779117104/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_22.11.38_vlij7l.png",
       title: "Peter Hugo Wishpax Lê",
       category: "Chân dung cá nhân",
       desc: "Hình ảnh đại diện mang đậm phong thái lập trình viên & nhà thiết kế sáng tạo."
     },
     {
       id: "photo2",
-      url: "https://res.cloudinary.com/dyehwoscu/image/upload/v1779117069/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_22.10.59_cqxjne.png",
+      url: "https://res.cloudinary.com/dyehwoscu/image/upload/f_auto,q_auto,w_800/v1779117069/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_22.10.59_cqxjne.png",
       title: "Phụng Sự Cộng Đồng Xã Hội",
       category: "Hành trình tình nguyện",
       desc: "Tích cực tham gia các dự án thiện nguyện, trao đi yêu thương và san sẻ khó khăn."
@@ -65,7 +65,7 @@ const initialData = {
     photos: [
       {
         id: "dtp1",
-        url: "https://res.cloudinary.com/dyehwoscu/image/upload/v1779117377/c9da96fe_dcrslx.jpg",
+        url: "https://res.cloudinary.com/dyehwoscu/image/upload/f_auto,q_auto,w_800/v1779117377/c9da96fe_dcrslx.jpg",
         caption: "Bình minh rực rỡ giữa đầm sen Đồng Tháp"
       }
     ]
@@ -75,10 +75,10 @@ const initialData = {
     emoji: "⛪",
     title: "Sứ Vụ Huynh Trưởng TNTT",
     intro: "Đời sống tâm linh và hành trình tông đồ đầy ý nghĩa dưới vai trò là Huynh Trưởng Thiếu Nhi Thánh Thể.",
-    mainImageUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/v1779117963/erjri4f8ncia1zxxbu5t.jpg",
+    mainImageUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/f_auto,q_auto,w_800/v1779117963/erjri4f8ncia1zxxbu5t.jpg",
     content: `Chào bạn nha! Ở trang chính Bio Portal, bạn chắc chắn đã thấy Hugo giới thiệu đức tin của mình là Công Giáo Roma.`,
-    hierarchyImageUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/v1779117987/83928340_49676971467264_n_wtseuq.jpg",
-    popeImageUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/v1779118047/c8a3665e3390d3b1_fhwcox.jpg",
+    hierarchyImageUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/f_auto,q_auto,w_800/v1779117987/83928340_49676971467264_n_wtseuq.jpg",
+    popeImageUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/f_auto,q_auto,w_500/v1779118047/c8a3665e3390d3b1_fhwcox.jpg",
     popeName: "Đức Giáo Hoàng Phanxicô (Pope Francis)",
     popeDesc: "Vị cha chung thứ 266 của Giáo Hội Công Giáo toàn cầu.",
     hugoServicePhotos: [],

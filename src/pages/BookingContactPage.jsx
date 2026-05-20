@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useHeadMeta } from "../hooks/useHeadMeta";
 
 // Hugo Studio Brand Logo component to match styling exactly
 const HugoStudioColoredBrandLogo = ({ className = "text-xl sm:text-2xl" }) => {
@@ -27,6 +28,13 @@ const HugoStudioColoredBrandLogo = ({ className = "text-xl sm:text-2xl" }) => {
 };
 
 export default function BookingContactPage() {
+  useHeadMeta({
+    title: "Đặt Lịch & Liên Hệ | Hugo Studio",
+    description: "Đặt lịch hẹn thiết kế website hoặc gửi tin nhắn trực tiếp cho Hugo Studio để nhận báo giá chi tiết trong vòng 24 giờ.",
+    keywords: "đặt lịch thiết kế, liên hệ Hugo Studio, thiết kế web portfolio, thiết kế web cá nhân",
+    canonicalUrl: "https://www.hugowishpax.studio/booking"
+  });
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -84,7 +92,7 @@ export default function BookingContactPage() {
   };
 
   return (
-    <main className="min-h-[calc(100vh-140px)] w-full flex flex-col justify-start lg:justify-center items-center px-4 py-8 md:py-16 text-slate-800 dark:text-slate-100 relative overflow-hidden">
+    <div className="min-h-[calc(100vh-140px)] w-full flex flex-col justify-start lg:justify-center items-center px-4 py-8 md:py-16 text-slate-800 dark:text-slate-100 relative overflow-hidden">
       <style>{`
         @keyframes slideInDown {
           0% { transform: translate(-50%, -120%); opacity: 0; }
@@ -263,6 +271,6 @@ export default function BookingContactPage() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

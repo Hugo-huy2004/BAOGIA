@@ -2,8 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getMemberSession } from '../services/authSession';
 import { dataApi } from '../services/dataApi';
+import { useHeadMeta } from '../hooks/useHeadMeta';
 
 const SupportRequestPage = () => {
+  useHeadMeta({
+    title: "Yêu Cầu Hỗ Trợ | Hugo Studio",
+    description: "Trang gửi yêu cầu hỗ trợ kỹ thuật và giải quyết sự cố dành riêng cho thành viên đã đăng nhập của Hugo Studio.",
+    keywords: "yêu cầu hỗ trợ, support request, báo lỗi Hugo Studio, hỗ trợ kỹ thuật",
+    canonicalUrl: "https://www.hugowishpax.studio/support-request"
+  });
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');

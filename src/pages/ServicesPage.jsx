@@ -1,7 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useHeadMeta } from "../hooks/useHeadMeta";
 
 export default function ServicesPage() {
+  useHeadMeta({
+    title: "Dịch Vụ | Hugo Studio",
+    description: "Cung cấp các gói dịch vụ thiết kế Bio Link cá nhân, Signature Portfolio và ứng dụng Web App doanh nghiệp cao cấp.",
+    keywords: "dịch vụ thiết kế web, Bio Link sinh viên, Signature Portfolio, Ultimate Web App, Hugo Studio",
+    canonicalUrl: "https://www.hugowishpax.studio/services"
+  });
+
   const playPopSound = () => {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -22,7 +30,7 @@ export default function ServicesPage() {
   };
 
   return (
-    <main className="max-w-6xl mx-auto space-y-16 py-12 px-4 md:px-6 mb-16 text-slate-800 dark:text-slate-100">
+    <div className="max-w-6xl mx-auto space-y-16 py-12 px-4 md:px-6 mb-16 text-slate-800 dark:text-slate-100">
       
       {/* Header section */}
       <section className="text-center space-y-4 max-w-3xl mx-auto">
@@ -250,6 +258,6 @@ export default function ServicesPage() {
 
       </section>
 
-    </main>
+    </div>
   );
 }
