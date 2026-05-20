@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 const QUESTION_TREE = {
   main: {
-    text: "Xin chào cậu nha! Tớ là Bé Huy Chibi, trợ lý nhỏ siêu cute của Hugo Studio đây ạ. Cậu cần tớ hỗ trợ việc gì trong hệ thống thế nè?",
+    text: "Xin chào cậu nha! Tớ là Culi, trợ lý nhỏ siêu cute của Hugo Studio đây ạ. Cậu cần tớ hỗ trợ việc gì trong hệ thống thế nè?",
     options: [
       { label: "Hướng dẫn tính năng trong Member Portal", next: "portal_features" },
       { label: "Tìm hiểu thông tin và dịch vụ Hugo Studio", next: "about_hugo" },
@@ -201,12 +201,12 @@ const HBot = () => {
           <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 relative shrink-0">
-                <img src="/image/avt5.png" alt="Bé Huy Chibi" className="w-full h-full object-contain" />
+                <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
                 {/* Active Indicator */}
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-indigo-600 animate-pulse" />
               </div>
               <div>
-                <h4 className="font-bold text-sm leading-tight">Bé Huy Chibi</h4>
+                <h4 className="font-bold text-sm leading-tight">Culi</h4>
                 <p className="text-[10px] text-indigo-100 flex items-center gap-1">
                   Trợ lý nhỏ đáng yêu
                 </p>
@@ -233,7 +233,7 @@ const HBot = () => {
               >
                 {msg.sender === 'bot' && (
                   <div className="w-8 h-8 shrink-0">
-                    <img src="/image/avt5.png" alt="Bé Huy Chibi" className="w-full h-full object-contain" />
+                    <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
                   </div>
                 )}
                 
@@ -253,7 +253,7 @@ const HBot = () => {
             {isLoading && (
               <div className="flex gap-2 max-w-[85%] mr-auto">
                 <div className="w-8 h-8 shrink-0">
-                  <img src="/image/avt5.png" alt="Bé Huy Chibi" className="w-full h-full object-contain" />
+                  <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
                 </div>
                 <div className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-800 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -291,7 +291,7 @@ const HBot = () => {
                   Đang chuyển hướng sang Zalo Support...
                 </span>
               ) : (
-                <span className="text-slate-400">Bé Huy Chibi đang xử lý...</span>
+                <span className="text-slate-400">Culi đang xử lý...</span>
               )}
             </div>
           )}
@@ -306,7 +306,7 @@ const HBot = () => {
           style={{ minWidth: 0, minHeight: 0 }}
         >
           {/* Full transparent sticker rendering with no rounding or borders */}
-          <img src="/image/avt5.png" alt="Bé Huy Chibi" className="w-full h-full object-contain" />
+          <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
         </button>
       )}
     </div>
