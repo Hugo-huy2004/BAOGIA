@@ -283,13 +283,10 @@ export default function MemberPortalPage() {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        const res = await fetch("/api/partners");
-        if (res.ok) {
-          const list = await res.json();
-          setPartners(list);
-          if (list.length > 0) {
-            setSelectedPartner(list[0]);
-          }
+        const list = await dataApi.getPartners();
+        setPartners(list);
+        if (list.length > 0) {
+          setSelectedPartner(list[0]);
         }
       } catch (err) {
         console.error("Failed to load partners in member portal:", err);

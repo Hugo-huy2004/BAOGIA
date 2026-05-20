@@ -162,6 +162,18 @@ export const dataApi = {
     }
   },
 
+  // Fetch all partners
+  async getPartners() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/partners`);
+      if (!response.ok) throw new Error('Failed to fetch partners');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching partners:', error);
+      throw error;
+    }
+  },
+
   // Fetch all packages
   async getPackages() {
     try {
