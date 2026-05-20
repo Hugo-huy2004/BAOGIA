@@ -840,6 +840,40 @@ export default function MemberPortalPage() {
     }
   };
 
+  const getBrutalPatternStyle = (pattern, bgColor) => {
+    const isDark = isColorDark(bgColor);
+    const lineColor = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
+    const dotColor = isDark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.22)";
+    
+    switch (pattern) {
+      case "dots":
+      case "dots-dense":
+        return {
+          backgroundImage: `radial-gradient(${dotColor} 3px, transparent 3px)`,
+          backgroundSize: "16px 16px"
+        };
+      case "stripes":
+        return {
+          backgroundImage: `repeating-linear-gradient(-45deg, ${lineColor}, ${lineColor} 12px, transparent 12px, transparent 24px)`
+        };
+      case "grid":
+        return {
+          backgroundImage: `linear-gradient(${lineColor} 2px, transparent 2px), linear-gradient(90deg, ${lineColor} 2px, transparent 2px)`,
+          backgroundSize: "28px 28px"
+        };
+      case "waves":
+        return {
+          backgroundImage: `conic-gradient(${lineColor} 25%, transparent 25%, transparent 50%, ${lineColor} 50%, ${lineColor} 75%, transparent 75%)`,
+          backgroundSize: "40px 40px"
+        };
+      default: // "none" or anything else
+        return {
+          backgroundImage: `radial-gradient(${dotColor} 2.5px, transparent 2.5px)`,
+          backgroundSize: "24px 24px"
+        };
+    }
+  };
+
   const startLabel = bio?.createdAt
     ? new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(bio.createdAt))
     : "Chưa kích hoạt";
@@ -848,12 +882,335 @@ export default function MemberPortalPage() {
     ? new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(bio.expiresAt))
     : "Hạn dùng 12 tháng (kể từ ngày tạo)";
 
-  // Live Simulator Templates Renderer matching public page
   const renderSimulatedLayout = () => {
     const bgColor = formData.theme.bgColor || "#000000";
     const accentColor = formData.theme.accentColor || "#ffffff";
     const socialLinks = formData.links ? formData.links.slice(0, 4) : [];
     const activeBentoTab = simActiveTab !== null ? simActiveTab : (formData.tabs?.length > 0 ? 0 : null);
+    const template = formData.theme?.template || "default";
+    const effectiveBgColor = template === "brutalism" ? (formData.theme.bgColor === "#000000" || !formData.theme.bgColor ? "#facc15" : formData.theme.bgColor) : bgColor;
+    const isDark = isColorDark(effectiveBgColor);
+
+    if (template === "brutalism") {
+      const brutalCardStyle = {
+        backgroundColor: isDark ? "#121212" : "#ffffff",
+        color: isDark ? "#ffffff" : "#000000",
+        border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
+        boxShadow: `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
+        borderRadius: "0px"
+      };
+
+      const brutalBtnStyle = (color = accentColor) => ({
+        backgroundColor: color,
+        color: isColorDark(color) ? "#ffffff" : "#000000",
+        border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
+        boxShadow: `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
+        borderRadius: "0px",
+        fontWeight: "900"
+      });
+
+      return (
+        <>
+          <style>{`
+            .scrollbar-none::-webkit-scrollbar {
+              display: none !important;
+            }
+            .scrollbar-none {
+              -ms-overflow-style: none !important;
+              scrollbar-width: none !important;
+            }
+          `}</style>
+          <div
+            className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth text-white scrollbar-none flex flex-col bg-black"
+            style={{
+              backgroundColor: effectiveBgColor,
+              ...getBrutalPatternStyle(formData.theme.pattern, effectiveBgColor)
+            }}
+          >
+          {/* Global Fixed Background (Avatar Image) */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            {formData.avatarUrl && (
+              <img src={formData.avatarUrl} alt="Cover" className="w-full h-full object-cover opacity-85" />
+            )}
+            <div
+              className="absolute inset-0"
+              style={getBrutalPatternStyle(formData.theme.pattern, effectiveBgColor)}
+            />
+          </div>
+
+          {/* SLIDE 1: HERO COVER */}
+          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+            <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+
+            <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4 px-2">
+              {formData.avatarUrl && (
+                <div 
+                  style={{
+                    border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
+                    boxShadow: `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`
+                  }}
+                  className="w-24 h-24 overflow-hidden rotate-2 transform transition-transform duration-300 hover:rotate-0"
+                >
+                  <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              <div style={brutalCardStyle} className="p-4 w-full max-w-[240px] -rotate-1 transform">
+                <h1 className="font-mono text-base font-black uppercase tracking-tight leading-none">
+                  {formData.displayName || "HIỂN THỊ TÊN"}
+                </h1>
+                {formData.headline && (
+                  <div className="mt-2 px-2.5 py-0.5 bg-black text-white dark:bg-white dark:text-black inline-block text-[8px] font-mono font-bold uppercase tracking-wider border-2 border-black dark:border-white">
+                    {formData.headline}
+                  </div>
+                )}
+              </div>
+
+              {/* Scroll Down Indicator */}
+              <div className="pt-2 animate-bounce">
+                <span className="material-symbols-outlined text-lg text-white/70">keyboard_arrow_down</span>
+              </div>
+            </div>
+          </section>
+
+          {/* SLIDE 2: INFO (Thông tin) */}
+          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-md pointer-events-none" />
+
+            <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4">
+              <div className="px-3 py-1 bg-black text-white dark:bg-white dark:text-black text-[8px] font-mono font-black uppercase border-2 border-black dark:border-white tracking-widest shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                VỀ BẢN THÂN
+              </div>
+
+              {formData.bio && (
+                <div style={brutalCardStyle} className="p-4 w-full text-left font-mono">
+                  <p className="text-[10px] leading-relaxed">
+                    {formData.bio}
+                  </p>
+                </div>
+              )}
+
+              <div className="w-full space-y-3">
+                {/* Info Banner */}
+                {(formData.height || formData.weight || formData.measurements) && (
+                  <div className="grid grid-cols-3 gap-2 w-full">
+                    {formData.height && (
+                      <div style={brutalCardStyle} className="p-2 flex flex-col items-center justify-center">
+                        <span className="text-[6px] uppercase tracking-wider font-bold opacity-60">Cao</span>
+                        <p className="text-[9px] font-black mt-0.5">{formData.height}</p>
+                      </div>
+                    )}
+                    {formData.weight && (
+                      <div style={brutalCardStyle} className="p-2 flex flex-col items-center justify-center">
+                        <span className="text-[6px] uppercase tracking-wider font-bold opacity-60">Nặng</span>
+                        <p className="text-[9px] font-black mt-0.5">{formData.weight}</p>
+                      </div>
+                    )}
+                    {formData.measurements && (
+                      <div style={brutalCardStyle} className="p-2 flex flex-col items-center justify-center">
+                        <span className="text-[6px] uppercase tracking-wider font-bold opacity-60">Số đo</span>
+                        <p className="text-[9px] font-black mt-0.5 truncate w-full text-center">{formData.measurements}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Other details */}
+                {(formData.birthday || formData.address || formData.hobbies || formData.phone) && (
+                  <div style={brutalCardStyle} className="p-3 text-[8px] sm:text-[9px] space-y-2 text-left font-mono">
+                    {formData.phone && (
+                      <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
+                        <span className="uppercase tracking-wider font-bold opacity-65">Booking</span>
+                        <p className="font-black text-[9px]">{formData.phone}</p>
+                      </div>
+                    )}
+                    {formData.birthday && (
+                      <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
+                        <span className="uppercase tracking-wider font-bold opacity-65">Ngày sinh</span>
+                        <p className="font-black text-[9px]">{formData.birthday}</p>
+                      </div>
+                    )}
+                    {formData.address && (
+                      <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
+                        <span className="uppercase tracking-wider font-bold opacity-65">Khu vực</span>
+                        <p className="font-black text-[9px]">{formData.address}</p>
+                      </div>
+                    )}
+                    {formData.hobbies && (
+                      <div className="flex items-start justify-between">
+                        <span className="uppercase tracking-wider font-bold opacity-65">Sở thích</span>
+                        <p className="font-black text-[9px] text-right max-w-[65%] leading-tight">{formData.hobbies}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* SLIDE 2B: ACADEMIC & CAREER */}
+          {(formData.education || formData.skills || formData.jobTitle || formData.contactEmail) && (
+            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+              <div className="absolute inset-0 bg-black/35 backdrop-blur-md pointer-events-none" />
+
+              <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4">
+                <div className="px-3 py-1 bg-black text-white dark:bg-white dark:text-black text-[8px] font-mono font-black uppercase border-2 border-black dark:border-white tracking-widest shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                  HỌC VẤN & SỰ NGHIỆP
+                </div>
+
+                <div style={brutalCardStyle} className="p-3 w-full text-[8px] sm:text-[9px] space-y-2 text-left font-mono">
+                  {formData.jobTitle && (
+                    <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
+                      <span className="uppercase tracking-wider font-bold opacity-65">Công việc</span>
+                      <p className="font-black text-[9px] max-w-[65%] text-right leading-tight break-words">{formData.jobTitle}</p>
+                    </div>
+                  )}
+                  {formData.education && (
+                    <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
+                      <span className="uppercase tracking-wider font-bold opacity-65">Học vấn</span>
+                      <p className="font-black text-[9px] max-w-[65%] text-right leading-tight break-words">{formData.education}</p>
+                    </div>
+                  )}
+                  {formData.skills && (
+                    <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
+                      <span className="uppercase tracking-wider font-bold opacity-65">Kỹ năng</span>
+                      <p className="font-black text-[9px] max-w-[65%] text-right leading-tight break-words">{formData.skills}</p>
+                    </div>
+                  )}
+                  {formData.contactEmail && (
+                    <div className="flex items-start justify-between">
+                      <span className="uppercase tracking-wider font-bold opacity-65">Email LH</span>
+                      <p className="font-black text-[9px] break-all max-w-[65%] text-right">{formData.contactEmail}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* SLIDE 3: LINKS & TABS */}
+          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-md pointer-events-none" />
+
+            <div className="relative z-20 w-full space-y-4">
+              <div className="text-center">
+                <span className="px-2.5 py-0.5 bg-black text-white dark:bg-white dark:text-black text-[8px] font-mono font-black uppercase border-2 border-black dark:border-white tracking-widest shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                  LIÊN KẾT & THÔNG TIN
+                </span>
+              </div>
+
+              {/* Buttons List */}
+              {formData.links && formData.links.length > 0 && (
+                <div className="space-y-2.5 max-h-[160px] overflow-y-auto scrollbar-none">
+                  {formData.links.map((link, idx) => {
+                    const brutalColors = ["#FF3333", "#00E676", "#2979FF", "#D500F9", "#FFEA00"];
+                    const color = brutalColors[idx % brutalColors.length];
+                    return (
+                      <div
+                        key={idx}
+                        style={brutalBtnStyle(color)}
+                        className="block w-full py-2.5 px-4 text-center text-[10px] font-black uppercase tracking-widest"
+                      >
+                        {link.label}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Tabs */}
+              {formData.tabs && formData.tabs.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  <div className="flex gap-1.5 flex-wrap">
+                    {formData.tabs.map((tab, idx) => {
+                      const isActive = activeBentoTab === idx;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSimActiveTab(idx);
+                          }}
+                          style={{
+                            backgroundColor: isActive ? accentColor : (isDark ? "#27272a" : "#e4e4e7"),
+                            color: isActive ? (isColorDark(accentColor) ? "#fff" : "#000") : (isDark ? "#fff" : "#000"),
+                            border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
+                            boxShadow: isActive ? "none" : `2px 2px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
+                            borderRadius: "0px",
+                            transform: isActive ? "translate(2px, 2px)" : "none"
+                          }}
+                          className="flex-1 py-1.5 px-2 text-[7px] sm:text-[8px] uppercase font-black tracking-widest transition-all duration-100"
+                        >
+                          {tab.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {activeBentoTab !== null && formData.tabs[activeBentoTab] && (
+                    <div style={brutalCardStyle} className="p-4 text-[8px] sm:text-[9px] leading-relaxed text-left font-mono max-h-[100px] overflow-y-auto scrollbar-none">
+                      <p className="font-bold tracking-wide">
+                        {formData.tabs[activeBentoTab].content}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* SLIDE 3.5: PARTNER SERVICE */}
+          {data?.partnerIframe && (
+            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-md pointer-events-none" />
+
+              <div className="relative z-20 w-full flex flex-col h-full justify-center space-y-3 px-2">
+                <div className="text-center">
+                  <span className="px-2.5 py-0.5 bg-black text-white dark:bg-white dark:text-black text-[8px] font-mono font-black uppercase border-2 border-black dark:border-white tracking-widest shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
+                    DỊCH VỤ ĐỐI TÁC
+                  </span>
+                </div>
+
+                <div 
+                  style={{
+                    border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
+                    boxShadow: `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
+                    borderRadius: "0px"
+                  }}
+                  className="w-full flex-grow max-h-[320px] bg-white overflow-hidden p-0.5 relative flex flex-col"
+                >
+                  <div className="bg-zinc-100 border-b-2 border-black px-2 py-1 flex items-center justify-between text-[6px] font-mono text-black select-none shrink-0 font-bold">
+                    <span>partner.hugostudio.vn</span>
+                    <span className="material-symbols-outlined text-[8px]">refresh</span>
+                  </div>
+                  <div
+                    className="flex-1 w-full bg-white text-black text-[10px] overflow-hidden"
+                    dangerouslySetInnerHTML={{ __html: data.partnerIframe }}
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* SLIDE 4: HUGO STUDIO FOOTER */}
+          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 bg-[#09090b] text-white shrink-0">
+            <div style={brutalCardStyle} className="w-full text-center space-y-4 max-w-[240px] mx-auto p-5 font-mono">
+              <h3 className="text-base font-black tracking-tight uppercase">HUGO STUDIO</h3>
+              <p className="text-[7px] tracking-wider opacity-60 font-bold">PROFESSIONAL BOOKING & MANAGEMENT</p>
+
+              <div style={brutalBtnStyle("#ffffff")} className="inline-block px-4 py-2 text-[8px] font-black uppercase tracking-widest">
+                Tạo ngay bio
+              </div>
+
+              <div className="pt-3 border-t border-black/20 dark:border-white/20 mt-4 text-[7px] opacity-60">
+                Sản phẩm của Hugo Portal
+              </div>
+            </div>
+          </section>
+        </div>
+      </>
+    );
+  }
 
     return (
       <div
@@ -1026,39 +1383,39 @@ export default function MemberPortalPage() {
               <div className="w-full mt-2 space-y-3">
                 <div className="w-full p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm text-[8px] sm:text-[9px] space-y-2 text-left">
                   {formData.jobTitle && (
-                    <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
-                      <div className="flex items-center gap-1 text-white/40">
+                    <div className="flex items-start justify-between border-b border-white/5 pb-1.5">
+                      <div className="flex items-center gap-1 text-white/40 mt-0.5">
                         <span className="material-symbols-outlined text-xs">work</span>
                         <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Công việc</span>
                       </div>
-                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 truncate max-w-[65%] text-right">{formData.jobTitle}</p>
+                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 max-w-[65%] text-right leading-tight break-words">{formData.jobTitle}</p>
                     </div>
                   )}
                   {formData.education && (
-                    <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
-                      <div className="flex items-center gap-1 text-white/40">
+                    <div className="flex items-start justify-between border-b border-white/5 pb-1.5">
+                      <div className="flex items-center gap-1 text-white/40 mt-0.5">
                         <span className="material-symbols-outlined text-xs">school</span>
                         <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Học vấn</span>
                       </div>
-                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 truncate max-w-[65%] text-right">{formData.education}</p>
+                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 max-w-[65%] text-right leading-tight break-words">{formData.education}</p>
                     </div>
                   )}
                   {formData.skills && (
-                    <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
-                      <div className="flex items-center gap-1 text-white/40">
+                    <div className="flex items-start justify-between border-b border-white/5 pb-1.5">
+                      <div className="flex items-center gap-1 text-white/40 mt-0.5">
                         <span className="material-symbols-outlined text-xs">psychology</span>
                         <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Kỹ năng</span>
                       </div>
-                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 truncate max-w-[65%] text-right">{formData.skills}</p>
+                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 max-w-[65%] text-right leading-tight break-words">{formData.skills}</p>
                     </div>
                   )}
                   {formData.contactEmail && (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-white/40">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-1 text-white/40 mt-0.5">
                         <span className="material-symbols-outlined text-xs">alternate_email</span>
                         <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Email LH</span>
                       </div>
-                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 truncate max-w-[65%] text-right">{formData.contactEmail}</p>
+                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 max-w-[65%] text-right break-all">{formData.contactEmail}</p>
                     </div>
                   )}
                 </div>
@@ -1382,6 +1739,55 @@ export default function MemberPortalPage() {
                         Gỡ bỏ ảnh
                       </button>
                     )}
+                  </div>
+                </div>
+
+                {/* Section: Select Template Style */}
+                <div className="space-y-2">
+                  <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">PHONG CÁCH GIAO DIỆN (STYLE TEMPLATE)</h3>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'default' } }))}
+                      className={`p-4 rounded-2xl border text-left transition-all ${
+                        formData.theme?.template !== 'brutalism'
+                          ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
+                          : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="material-symbols-outlined text-xl">view_carousel</span>
+                        {formData.theme?.template !== 'brutalism' && (
+                          <span className="material-symbols-outlined text-[#0071e3] text-sm font-bold">check_circle</span>
+                        )}
+                      </div>
+                      <h4 className="text-xs font-bold mt-3">Classic (Mặc định)</h4>
+                      <p className="text-[9px] text-zinc-450 dark:text-zinc-400 mt-1 leading-relaxed">
+                        Thiết kế cuộn trang mượt mà (Snap Scrolling), hiệu ứng bóng mờ cao cấp, bố cục tối giản sang trọng.
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'brutalism' } }))}
+                      className={`p-4 rounded-2xl border text-left transition-all ${
+                        formData.theme?.template === 'brutalism'
+                          ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
+                          : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="material-symbols-outlined text-xl">token</span>
+                        {formData.theme?.template === 'brutalism' && (
+                          <span className="material-symbols-outlined text-[#0071e3] text-sm font-bold">check_circle</span>
+                        )}
+                      </div>
+                      <h4 className="text-xs font-bold mt-3 text-red-500 dark:text-red-400 font-bold">Brutalism (Phá Cách)</h4>
+                      <p className="text-[9px] text-zinc-450 dark:text-zinc-400 mt-1 leading-relaxed">
+                        Phá vỡ quy tắc với màu chói, viền đen dày thô, bóng phẳng đổ khối đậm nét, gây sốc thị giác mạnh mẽ.
+                      </p>
+                    </button>
                   </div>
                 </div>
 

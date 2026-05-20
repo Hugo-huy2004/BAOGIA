@@ -41,6 +41,17 @@ const HugoStudioLogo = () => (
       font-weight: 700;
       letter-spacing: -0.02em;
     }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none !important;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .scrollbar-hide {
+      -ms-overflow-style: none !important;  /* IE and Edge */
+      scrollbar-width: none !important;  /* Firefox */
+    }
   `}</style>
 );
 
@@ -133,6 +144,40 @@ const getPatternStyle = (pattern, bgColor) => {
   }
 };
 
+const getBrutalPatternStyle = (pattern, bgColor) => {
+  const isDark = isColorDark(bgColor);
+  const lineColor = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
+  const dotColor = isDark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.22)";
+  
+  switch (pattern) {
+    case "dots":
+    case "dots-dense":
+      return {
+        backgroundImage: `radial-gradient(${dotColor} 3px, transparent 3px)`,
+        backgroundSize: "16px 16px"
+      };
+    case "stripes":
+      return {
+        backgroundImage: `repeating-linear-gradient(-45deg, ${lineColor}, ${lineColor} 12px, transparent 12px, transparent 24px)`
+      };
+    case "grid":
+      return {
+        backgroundImage: `linear-gradient(${lineColor} 2px, transparent 2px), linear-gradient(90deg, ${lineColor} 2px, transparent 2px)`,
+        backgroundSize: "28px 28px"
+      };
+    case "waves":
+      return {
+        backgroundImage: `conic-gradient(${lineColor} 25%, transparent 25%, transparent 50%, ${lineColor} 50%, ${lineColor} 75%, transparent 75%)`,
+        backgroundSize: "40px 40px"
+      };
+    default: // "none" or anything else
+      return {
+        backgroundImage: `radial-gradient(${dotColor} 2.5px, transparent 2.5px)`,
+        backgroundSize: "24px 24px"
+      };
+  }
+};
+
 
 export default function BioPublicPage() {
   const { slug } = useParams();
@@ -211,6 +256,302 @@ export default function BioPublicPage() {
   // For Slide 1: Show first 4 social links as circular icons
   // For Slide 3: Show all links as big buttons
   const socialLinks = bio.links ? bio.links.slice(0, 4) : [];
+
+  const template = themeObj.template || "default";
+  const effectiveBgColor = template === "brutalism" ? (themeObj.bgColor === "#000000" || !themeObj.bgColor ? "#facc15" : themeObj.bgColor) : bgColor;
+  const isDark = isColorDark(effectiveBgColor);
+
+  if (template === "brutalism") {
+    const brutalCardStyle = {
+      backgroundColor: isDark ? "#121212" : "#ffffff",
+      color: isDark ? "#ffffff" : "#000000",
+      border: `3px solid ${isDark ? "#ffffff" : "#000000"}`,
+      boxShadow: `5px 5px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
+      borderRadius: "0px"
+    };
+
+    const brutalBtnStyle = (color = accentColor) => ({
+      backgroundColor: color,
+      color: isColorDark(color) ? "#ffffff" : "#000000",
+      border: `3px solid ${isDark ? "#ffffff" : "#000000"}`,
+      boxShadow: `4px 4px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
+      borderRadius: "0px",
+      fontWeight: "900",
+      transition: "all 0.1s ease"
+    });
+
+    return (
+      <>
+        <HugoStudioLogo />
+        <style>{`
+          .brutal-active-tab {
+            transform: translate(2px, 2px);
+            box-shadow: none !important;
+          }
+        `}</style>
+
+        <main 
+          className="h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory relative text-white bg-black scroll-smooth scrollbar-hide"
+          style={{ 
+            backgroundColor: effectiveBgColor,
+            ...getBrutalPatternStyle(themeObj.pattern, effectiveBgColor)
+          }}
+        >
+          {/* Global Fixed Background (Avatar Image) */}
+          <div className="fixed inset-0 z-0 pointer-events-none">
+            {bio.avatarUrl && (
+              <img src={bio.avatarUrl} alt="Cover" className="w-full h-full object-cover opacity-85" />
+            )}
+            <div 
+              className="absolute inset-0"
+              style={getBrutalPatternStyle(themeObj.pattern, effectiveBgColor)}
+            />
+          </div>
+
+          {/* SLIDE 1: HERO COVER */}
+          <section className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6">
+            <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+
+            <div className="relative z-20 w-full max-w-sm mx-auto flex flex-col items-center text-center space-y-6">
+              {bio.avatarUrl && (
+                <div 
+                  style={{
+                    border: `3px solid ${isDark ? "#ffffff" : "#000000"}`,
+                    boxShadow: `5px 5px 0px 0px ${isDark ? "#ffffff" : "#000000"}`
+                  }}
+                  className="w-32 h-32 overflow-hidden rotate-2 transform transition-transform duration-300 hover:rotate-0"
+                >
+                  <img src={bio.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              <div style={brutalCardStyle} className="p-6 w-full -rotate-1 transform">
+                <h1 className="font-mono text-2xl sm:text-3xl font-black uppercase tracking-tight leading-none">
+                  {bio.displayName}
+                </h1>
+                {bio.headline && (
+                  <div className="mt-3 px-3 py-1 bg-black text-white dark:bg-white dark:text-black inline-block text-[10px] font-mono font-bold uppercase tracking-wider border-2 border-black dark:border-white">
+                    {bio.headline}
+                  </div>
+                )}
+              </div>
+
+              {/* Scroll Down Indicator */}
+              <div className="pt-4 animate-bounce">
+                <span className="material-symbols-outlined text-3xl text-white/70">keyboard_arrow_down</span>
+              </div>
+            </div>
+          </section>
+
+          {/* SLIDE 2: INFO (Thông tin) */}
+          <section className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6">
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-md pointer-events-none" />
+            
+            <div className="relative z-20 w-full max-w-md mx-auto flex flex-col items-center text-center space-y-6">
+              <div className="px-4 py-1.5 bg-black text-white dark:bg-white dark:text-black text-xs font-mono font-black uppercase border-3 border-black dark:border-white tracking-widest shadow-[3px_3px_0px_0px_#000] dark:shadow-[3px_3px_0px_0px_#fff]">
+                VỀ BẢN THÂN
+              </div>
+              
+              {bio.bio && (
+                <div style={brutalCardStyle} className="p-5 w-full text-left font-mono">
+                  <p className="text-xs sm:text-sm leading-relaxed">
+                    {bio.bio}
+                  </p>
+                </div>
+              )}
+
+              <div className="w-full space-y-4">
+                {/* Info Banner */}
+                {(bio.height || bio.weight || bio.measurements) && (
+                  <div className="grid grid-cols-3 gap-3 w-full">
+                    {bio.height && (
+                      <div style={brutalCardStyle} className="p-3 flex flex-col items-center justify-center">
+                        <span className="text-[7px] uppercase tracking-wider font-bold opacity-60">Chiều cao</span>
+                        <p className="text-xs font-black mt-1">{bio.height}</p>
+                      </div>
+                    )}
+                    {bio.weight && (
+                      <div style={brutalCardStyle} className="p-3 flex flex-col items-center justify-center">
+                        <span className="text-[7px] uppercase tracking-wider font-bold opacity-60">Cân nặng</span>
+                        <p className="text-xs font-black mt-1">{bio.weight}</p>
+                      </div>
+                    )}
+                    {bio.measurements && (
+                      <div style={brutalCardStyle} className="p-3 flex flex-col items-center justify-center">
+                        <span className="text-[7px] uppercase tracking-wider font-bold opacity-60">Số đo</span>
+                        <p className="text-xs font-black mt-1 truncate w-full text-center">{bio.measurements}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Other details */}
+                {(bio.birthday || bio.address || bio.hobbies || bio.phone) && (
+                  <div style={brutalCardStyle} className="p-4 text-[10px] sm:text-xs space-y-3.5 text-left font-mono">
+                    {bio.phone && (
+                      <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-2">
+                        <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Booking</span>
+                        <p className="font-bold text-white/90">{bio.phone}</p>
+                      </div>
+                    )}
+                    {bio.birthday && (
+                      <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-2">
+                        <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Ngày sinh</span>
+                        <p className="font-bold text-white/90">{bio.birthday}</p>
+                      </div>
+                    )}
+                    {bio.address && (
+                      <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-2">
+                        <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Khu vực</span>
+                        <p className="font-bold text-white/90">{bio.address}</p>
+                      </div>
+                    )}
+                    {bio.hobbies && (
+                      <div className="flex items-start justify-between">
+                        <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70 mt-0.5">Sở thích</span>
+                        <p className="font-bold text-white/90 text-right max-w-[65%] leading-relaxed">{bio.hobbies}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* SLIDE 2B: ACADEMIC & CAREER */}
+          {(bio.education || bio.skills || bio.jobTitle || bio.contactEmail) && (
+            <section className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6">
+              <div className="absolute inset-0 bg-black/35 backdrop-blur-md pointer-events-none" />
+              
+              <div className="relative z-20 w-full max-w-md mx-auto flex flex-col items-center text-center space-y-6">
+                <div className="px-4 py-1.5 bg-black text-white dark:bg-white dark:text-black text-xs font-mono font-black uppercase border-3 border-black dark:border-white tracking-widest shadow-[3px_3px_0px_0px_#000] dark:shadow-[3px_3px_0px_0px_#fff]">
+                  HỌC VẤN & SỰ NGHIỆP
+                </div>
+                
+                <div style={brutalCardStyle} className="p-4 w-full text-[10px] sm:text-xs space-y-3 text-left font-mono">
+                  {bio.jobTitle && (
+                    <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-2.5">
+                      <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Công việc</span>
+                      <p className="font-semibold text-white/90 text-right max-w-[65%]">{bio.jobTitle}</p>
+                    </div>
+                  )}
+                  {bio.education && (
+                    <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-2.5">
+                      <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Học vấn</span>
+                      <p className="font-semibold text-white/90 text-right max-w-[65%]">{bio.education}</p>
+                    </div>
+                  )}
+                  {bio.skills && (
+                    <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-2.5">
+                      <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Kỹ năng</span>
+                      <p className="font-semibold text-white/90 text-right max-w-[65%]">{bio.skills}</p>
+                    </div>
+                  )}
+                  {bio.contactEmail && (
+                    <div className="flex items-center justify-between">
+                      <span className="uppercase tracking-widest text-[8px] sm:text-[9px] font-bold opacity-70">Email LH</span>
+                      <p className="font-semibold text-white/90 break-all text-right max-w-[65%]">{bio.contactEmail}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* SLIDE 3: LINKS & TABS */}
+          <section className="min-h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6 py-20">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-md pointer-events-none" />
+            
+            <div className="relative z-20 w-full max-w-md mx-auto space-y-8">
+              <div className="text-center">
+                <span className="px-4 py-1.5 bg-black text-white dark:bg-white dark:text-black text-xs font-mono font-black uppercase border-3 border-black dark:border-white tracking-widest shadow-[3px_3px_0px_0px_#000] dark:shadow-[3px_3px_0px_0px_#fff]">
+                  LIÊN KẾT & THÔNG TIN
+                </span>
+              </div>
+
+              {/* Buttons List */}
+              {bio.links && bio.links.length > 0 && (
+                <div className="space-y-3.5">
+                  {bio.links.map((link, idx) => {
+                    const brutalColors = ["#FF3333", "#00E676", "#2979FF", "#D500F9", "#FFEA00"];
+                    const color = brutalColors[idx % brutalColors.length];
+                    return (
+                      <a
+                        key={idx}
+                        href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={brutalBtnStyle(color)}
+                        className="block w-full py-4 px-6 text-center text-xs font-black uppercase tracking-widest hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[5px_5px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                      >
+                        {link.label}
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Tabs */}
+              {bio.tabs && bio.tabs.length > 0 && (
+                <div className="mt-8 space-y-4">
+                  <div className="flex gap-2 flex-wrap">
+                    {bio.tabs.map((tab, idx) => {
+                      const isActive = activeTab === idx;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => setActiveTab(idx)}
+                          style={{
+                            backgroundColor: isActive ? accentColor : (isDark ? "#27272a" : "#e4e4e7"),
+                            color: isActive ? (isColorDark(accentColor) ? "#fff" : "#000") : (isDark ? "#fff" : "#000"),
+                            border: `3px solid ${isDark ? "#ffffff" : "#000000"}`,
+                            boxShadow: isActive ? "none" : `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
+                            borderRadius: "0px",
+                            transform: isActive ? "translate(2px, 2px)" : "none"
+                          }}
+                          className="flex-1 py-3 px-4 text-[10px] uppercase font-black tracking-widest transition-all duration-100"
+                        >
+                          {tab.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {activeTab !== null && bio.tabs[activeTab] && (
+                    <div style={brutalCardStyle} className="p-6 text-xs text-left font-mono leading-relaxed shadow-2xl animate-fadeIn">
+                      <p className="relative z-10 font-bold tracking-wide">
+                        {bio.tabs[activeTab].content}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* SLIDE 4: HUGO STUDIO FOOTER */}
+          <section className="h-[100dvh] w-full snap-start relative z-10 flex flex-col items-center justify-center p-6 bg-[#09090b] text-white">
+            <div style={brutalCardStyle} className="p-8 max-w-sm w-full mx-auto space-y-6 text-center font-mono">
+              <h3 className="text-2xl font-black tracking-tight uppercase">HUGO STUDIO</h3>
+              <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">Professional Booking & Management</p>
+              
+              <a 
+                href="/" 
+                style={brutalBtnStyle("#ffffff")} 
+                className="inline-block px-8 py-3.5 text-xs hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[5px_5px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+              >
+                TẠO NGAY BIO
+              </a>
+              
+              <div className="pt-4 border-t border-black/20 dark:border-white/20 mt-4 text-[9px] opacity-60">
+                Sản phẩm được phát triển bởi Hugo Portal
+              </div>
+            </div>
+          </section>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
