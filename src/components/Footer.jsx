@@ -167,23 +167,29 @@ export default function Footer() {
         </div>
 
         {/* Bottom Section: Copyright & System Status */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-8 text-xs text-slate-400 dark:text-slate-500">
-          <div className="text-center sm:text-left">
-            © {new Date().getFullYear()} {data.profile.fullName || "Peter Hugo Wishpax Le"} Tất cả các quyền được bảo lưu 
-            <br className="hidden sm:block" />
-            <span className="text-[10px] text-slate-400/50 mt-1 inline-block">Designed by Hugo Studio</span>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 text-xs text-slate-400 dark:text-slate-500">
+          <div className="text-center md:text-left space-y-1">
+            <p className="font-medium text-slate-500 dark:text-slate-400">
+              © {new Date().getFullYear()} <span className="font-semibold text-slate-700 dark:text-slate-300">{data.profile.fullName || "Peter Hugo Wishpax Le"}</span>. Tất cả các quyền được bảo lưu.
+            </p>
+            <p className="text-[10px] text-slate-400/60 dark:text-slate-500/60">
+              Designed with 🤍 by <span className="font-semibold">Hugo Studio</span>
+            </p>
           </div>
 
-          <div className="flex items-center gap-6">
-            {/* Live system status indicator badge (Monochrome) */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5 text-[10px] font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 animate-pulse" />
-              <span>System operational</span>
-            </div>
-            
-            <Link to="/privacy-policy" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+          <div className="flex items-center flex-wrap justify-center gap-5 sm:gap-6">
+            <Link 
+              to="/privacy-policy" 
+              className="hover:text-slate-700 dark:hover:text-slate-350 hover:underline underline-offset-4 transition-colors font-medium"
+            >
               Chính sách bảo mật
             </Link>
+
+            {/* Live system status indicator badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5 text-[10px] font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
+              <span>System operational</span>
+            </div>
           </div>
         </div>
       </div>
