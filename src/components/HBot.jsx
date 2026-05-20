@@ -3,15 +3,15 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 const QUESTION_TREE = {
   main: {
-    text: "Xin chào! Tớ là H-Bot, trợ lý hỗ trợ của Hugo Studio. Cậu cần tớ hỗ trợ vấn đề gì hôm nay nè? Vui lòng chọn một trong các mục bên dưới nha:",
+    text: "Xin chào cậu nha! Tớ là Bé Huy Chibi, trợ lý nhỏ siêu cute của Hugo Studio đây ạ. Cậu cần tớ hỗ trợ việc gì trong hệ thống thế nè?",
     options: [
       { label: "Hướng dẫn tính năng trong Member Portal", next: "portal_features" },
       { label: "Tìm hiểu thông tin và dịch vụ Hugo Studio", next: "about_hugo" },
-      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+      { label: "Kết nối trực tiếp với Admin", next: "live_support" }
     ]
   },
   portal_features: {
-    text: "Cậu muốn tớ hướng dẫn tính năng nào trong trang quản trị thành viên (Member Portal) dưới đây nè?",
+    text: "Cậu muốn tìm hiểu tính năng nào của Member Portal nè? Bảo tớ tớ chỉ cho nha!",
     options: [
       { label: "Hướng dẫn thiết kế trang Bio Link", next: "bio_link" },
       { label: "Hướng dẫn quản lý lịch đặt hẹn", next: "booking" },
@@ -21,7 +21,7 @@ const QUESTION_TREE = {
     ]
   },
   bio_link: {
-    text: "Để thiết kế Bio Link, cậu hãy vào mục **Bio Editor** trong Member Portal nha. Tại đây cậu có thể điền thông tin hồ sơ và tùy chỉnh giao diện ở tab **Theme** theo phong cách riêng nè.",
+    text: "Để làm một trang Bio Link siêu chất, cậu hãy vào mục **Bio Editor** trong Member Portal nha. Ở đó cậu tha hồ chỉnh sửa thông tin cá nhân và chỉnh giao diện trong tab **Theme** theo style của riêng cậu nè.",
     options: [
       { label: "Cách thay đổi giao diện và Theme", next: "theme" },
       { label: "Cách cập nhật thông số đo chiều cao", next: "measurements" },
@@ -30,21 +30,21 @@ const QUESTION_TREE = {
     ]
   },
   theme: {
-    text: "Tại tab **Theme** trong mục **Bio Editor**, cậu có thể lựa chọn 4 mẫu thiết kế gồm **Flat, Brutalism, Neo-brutalism, Glassmorphism**. Cậu cũng chỉnh sửa được màu nền, màu chữ, kiểu viền, bóng đổ và bo góc nút từ **0px đến 24px** đó nha.",
+    text: "Trong tab **Theme** ở mục **Bio Editor**, cậu có thể chọn 4 mẫu theme cực xịn gồm **Flat, Brutalism, Neo-brutalism, Glassmorphism**. Cậu còn đổi được màu nền, bo góc nút từ **0px đến 24px**, viền nút và bóng đổ nữa đó nha.",
     options: [
       { label: "Quay lại Menu chính", next: "main" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   measurements: {
-    text: "Hugo Studio thiết kế chuyên biệt cho KOL và Model làm portfolio. Trong mục **Bio Editor** -> phần **Thông số cơ bản**, cậu điền các thông tin về ngày sinh, chiều cao, cân nặng, số đo ba vòng ngực-eo-mông và kỹ năng nổi bật nhé.",
+    text: "Hugo Studio có tính năng siêu đặc biệt dành cho KOL và Model nè! Cậu chỉ cần vào **Bio Editor** -> chọn **Thông số cơ bản** là điền được chiều cao, cân nặng, số đo ba vòng ngực-eo-mông và kỹ năng để làm portfolio nổi bật luôn.",
     options: [
       { label: "Quay lại Menu chính", next: "main" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   booking: {
-    text: "Khách hàng khi xem Bio Link công khai của cậu có thể bấm **Đăng ký lịch chụp/hẹn** để gửi thông tin đặt lịch. Các thông tin này sẽ đồng bộ trực tiếp về tab **Quản lý lịch hẹn** trong Member Portal của cậu nha.",
+    text: "Khách hàng khi ghé thăm Bio Link của cậu chỉ cần bấm vào nút **Đăng ký lịch chụp/hẹn** là điền được thông tin đặt lịch. Lịch đặt của khách sẽ tự động đồng bộ ngay lập tức về tab **Quản lý lịch hẹn** trong Member Portal của cậu luôn đó, tiện cực kỳ nha.",
     options: [
       { label: "Xem lịch đặt hẹn ở đâu", next: "view_booking" },
       { label: "Quay lại Menu chính", next: "main" },
@@ -52,35 +52,35 @@ const QUESTION_TREE = {
     ]
   },
   view_booking: {
-    text: "Cậu chỉ cần vào mục **Quản lý lịch hẹn** trong Member Portal là thấy đầy đủ danh sách nha. Ở đó có lưu số Zalo và Email của khách để cậu tiện liên hệ xác nhận lịch hẹn nè.",
+    text: "Cậu vào mục **Quản lý lịch hẹn** trong Member Portal là thấy ngay danh sách khách đăng ký nha. Ở đó hiển thị sẵn số Zalo và Email của khách để cậu liên hệ hẹn lịch chụp nhanh chóng nè.",
     options: [
       { label: "Quay lại Menu chính", next: "main" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   packages: {
-    text: "Hệ thống có ba gói là **Free Bio, Bio Plus và Bio VIP**. Hai gói trả phí Plus và VIP sẽ giúp cậu mở khóa theme cao cấp và ẩn quảng cáo. Khi được Admin cấp gói dịch vụ, thời hạn sử dụng sẽ được gia hạn tự động nha.",
+    text: "Hệ thống bên tớ có 3 gói siêu xịn: **Free Bio, Bio Plus và Bio VIP**. Hai gói trả phí Plus và VIP sẽ giúp cậu mở khóa toàn bộ theme cao cấp và ẩn sạch quảng cáo luôn nè. Khi Admin cấp gói, thời hạn dùng sẽ tự động cộng thêm vào tài khoản của cậu nhé.",
     options: [
       { label: "Làm sao để nâng cấp gói", next: "upgrade" },
       { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   upgrade: {
-    text: "Quy trình nâng cấp hoặc gia hạn các gói trả phí hiện được phê duyệt thủ công bởi Admin. Cậu vui lòng bấm **Gửi yêu cầu** để nhân viên hỗ trợ liên hệ kích hoạt gói trực tiếp nha.",
+    text: "Hiện tại quy trình kích hoạt gói Plus và VIP được duyệt thủ công bởi Admin hệ thống. Cậu hãy nhấn nút **Gửi yêu cầu** bên dưới để gửi thông tin cho Admin hỗ trợ kích hoạt gói cho cậu nha.",
     options: [
       { label: "Gửi yêu cầu nâng cấp gói dịch vụ", next: "live_support" },
       { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   partners: {
-    text: "Đối tác liên kết muốn nhúng trình chỉnh sửa Bio Link của Hugo Studio vào trang web riêng có thể sử dụng **Iframe URL** kèm mã khóa bảo mật do Admin cấp trong **Admin Panel** nha.",
+    text: "Các đối tác liên kết muốn nhúng trình chỉnh sửa Bio Link của Hugo Studio lên trang web riêng của họ thì có thể sử dụng **Iframe URL** cùng khóa bảo mật do Admin cấp riêng trong **Admin Panel** nha.",
     options: [
       { label: "Quay lại Menu chính", next: "main" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   about_hugo: {
-    text: "Cậu muốn tìm hiểu thông tin nào về Hugo Studio dưới đây nè?",
+    text: "Cậu muốn tìm hiểu thông tin nào về Hugo Studio tụi tớ nè?",
     options: [
       { label: "Hugo Studio là của ai", next: "who_is_hugo" },
       { label: "Hugo Studio cung cấp dịch vụ gì", next: "what_services" },
@@ -89,28 +89,28 @@ const QUESTION_TREE = {
     ]
   },
   who_is_hugo: {
-    text: "Hugo Studio được phát triển và vận hành bởi **Hugo Huy** cùng đội ngũ kỹ thuật hỗ trợ, mang đến giải pháp làm trang cá nhân thương hiệu hàng đầu cho cậu đó.",
+    text: "Hugo Studio được phát triển và vận hành bởi anh **Hugo Huy** đẹp trai cùng đội ngũ kỹ thuật hỗ trợ tận tình, luôn sẵn sàng đồng hành cùng cậu nè.",
     options: [
       { label: "Quay lại mục trước", next: "about_hugo" },
       { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   what_services: {
-    text: "Hugo Studio cung cấp công cụ **tạo trang Bio Link cá nhân**, nền tảng **đồng bộ quản lý đặt lịch hẹn**, hỗ trợ các gói tài khoản chuyên nghiệp và giải pháp nhúng **Iframe cho đối tác**.",
+    text: "Hugo Studio tụi tớ cung cấp công cụ **thiết kế trang Bio Link cá nhân**, nền tảng **quản lý lịch hẹn chụp ảnh cho KOL/Model**, gói tài khoản chuyên nghiệp và dịch vụ **tích hợp Iframe cho đối tác**.",
     options: [
       { label: "Quay lại mục trước", next: "about_hugo" },
       { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   how_to_cooperate: {
-    text: "Để hợp tác quảng cáo, liên kết đối tác nhúng Iframe hoặc đề xuất dự án, cậu có thể gửi yêu cầu hỗ trợ trực tiếp để tớ báo Admin làm việc nha.",
+    text: "Để hợp tác quảng cáo, làm đối tác nhúng Iframe hoặc đề xuất dự án phát triển, cậu hãy gửi yêu cầu hỗ trợ trực tiếp để tớ kết nối nhanh cho cậu với anh Admin nha.",
     options: [
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" },
       { label: "Quay lại Menu chính", next: "main" }
     ]
   },
   live_support: {
-    text: "Tớ đang chuyển cậu sang trang gửi yêu cầu hỗ trợ trực tiếp... Cậu điền thông tin để Admin chủ động liên hệ nhắn Zalo 1:1 hỗ trợ cậu sớm nhất nhé.",
+    text: "Tớ đang chuyển cậu sang trang điền biểu mẫu hỗ trợ đây ạ. Cậu điền thông tin vào form để anh Admin nhắn tin Zalo 1:1 hỗ trợ trực tiếp cho cậu ngay nha.",
     options: []
   }
 };
@@ -126,7 +126,6 @@ const HBot = () => {
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showBadge, setShowBadge] = useState(true);
   const [currentStep, setCurrentStep] = useState('main');
   
   const messagesEndRef = useRef(null);
@@ -184,7 +183,6 @@ const HBot = () => {
 
   const handleOpenChat = () => {
     setIsOpen(true);
-    setShowBadge(false);
   };
 
   return (
@@ -196,14 +194,14 @@ const HBot = () => {
           <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 relative shrink-0">
-                <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-contain" />
+                <img src="/image/avt5.png" alt="Bé Huy Chibi" className="w-full h-full object-contain" />
                 {/* Active Indicator */}
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-indigo-600 animate-pulse" />
               </div>
               <div>
-                <h4 className="font-bold text-sm leading-tight">H-Bot Studio</h4>
+                <h4 className="font-bold text-sm leading-tight">Bé Huy Chibi</h4>
                 <p className="text-[10px] text-indigo-100 flex items-center gap-1">
-                  Hỗ trợ tương tác tự động
+                  Trợ lý nhỏ đáng yêu
                 </p>
               </div>
             </div>
@@ -228,7 +226,7 @@ const HBot = () => {
               >
                 {msg.sender === 'bot' && (
                   <div className="w-8 h-8 shrink-0">
-                    <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-contain" />
+                    <img src="/image/avt5.png" alt="Bé Huy Chibi" className="w-full h-full object-contain" />
                   </div>
                 )}
                 
@@ -248,7 +246,7 @@ const HBot = () => {
             {isLoading && (
               <div className="flex gap-2 max-w-[85%] mr-auto">
                 <div className="w-8 h-8 shrink-0">
-                  <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-contain" />
+                  <img src="/image/avt5.png" alt="Bé Huy Chibi" className="w-full h-full object-contain" />
                 </div>
                 <div className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-800 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -301,12 +299,7 @@ const HBot = () => {
           style={{ minWidth: 0, minHeight: 0 }}
         >
           {/* Full transparent sticker rendering with no rounding or borders */}
-          <img src="/image/avt5.png" alt="H-Bot" className="w-full h-full object-contain" />
-          
-          {/* Notification Badge */}
-          {showBadge && (
-            <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#12111a] animate-pulse" />
-          )}
+          <img src="/image/avt5.png" alt="Bé Huy Chibi" className="w-full h-full object-contain" />
         </button>
       )}
     </div>
