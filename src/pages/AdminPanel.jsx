@@ -85,6 +85,14 @@ export default function AdminPanel() {
   const [copiedUserId, setCopiedUserId] = useState(null);
   const [bookingSubTab, setBookingSubTab] = useState("pending");
 
+  // Support Request States
+  const [supportTickets, setSupportTickets] = useState([]);
+  const [pendingTicketsCount, setPendingTicketsCount] = useState(0);
+  const [supportPage, setSupportPage] = useState(1);
+  const [supportLimit, setSupportLimit] = useState(8);
+  const [supportTotalPages, setSupportTotalPages] = useState(1);
+  const [supportStatusFilter, setSupportStatusFilter] = useState(""); // "" (All), "pending", "resolved"
+
   const triggerConfirm = (message, onConfirm) => {
     setConfirmModal({ isOpen: true, message, onConfirm });
   };
@@ -265,6 +273,30 @@ export default function AdminPanel() {
     }
   };
 
+  const handleRefreshTickets = async () => {
+    try {
+      const params = new URLSearchParams({
+        status: supportStatusFilter,
+        page: supportPage.toString(),
+        limit: supportLimit.toString()
+      });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/support/tickets?${params.toString()}`);
+      if (res.ok) {
+        const result = await res.json();
+        setSupportTickets(result.tickets || []);
+        setSupportTotalPages(result.pagination?.pages || 1);
+        setPendingTicketsCount(result.pendingCount || 0);
+      }
+    } catch (e) {
+      console.error("Error fetching support tickets:", e);
+    }
+  };
+
+  // Fetch support tickets when tab, filters or page changes
+  useEffect(() => {
+    handleRefreshTickets();
+  }, [supportPage, supportStatusFilter, activeTab]);
+
   // Fetch users whenever pagination, sorting or filter options change
   useEffect(() => {
     handleRefreshUsers();
@@ -279,20 +311,25 @@ export default function AdminPanel() {
     return () => clearTimeout(delayDebounce);
   }, [searchInput]);
 
-  // Fetch other dashboard data on mount (bookings, partners, packages)
+  // Fetch other dashboard data on mount (bookings, partners, packages, support tickets)
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [bookingsRes, partnersRes, packagesRes] = await Promise.all([
+        const [bookingsRes, partnersRes, packagesRes, ticketsRes] = await Promise.all([
           fetch(import.meta.env.VITE_API_URL + "/bookings"),
           fetch(import.meta.env.VITE_API_URL + "/partners"),
-          fetch(import.meta.env.VITE_API_URL + "/packages")
+          fetch(import.meta.env.VITE_API_URL + "/packages"),
+          fetch(import.meta.env.VITE_API_URL + "/support/tickets?limit=1")
         ]);
 
         if (bookingsRes.ok) setBookings(await bookingsRes.json());
         if (partnersRes.ok) setPartners(await partnersRes.json());
         if (packagesRes.ok) setPackageTemplates(await packagesRes.json());
+        if (ticketsRes.ok) {
+          const tData = await ticketsRes.json();
+          setPendingTicketsCount(tData.pendingCount || 0);
+        }
       } catch (err) {
         console.error("Failed to load admin data:", err);
         showNotification("Có lỗi xảy ra khi tải dữ liệu từ máy chủ.", "error");
@@ -405,6 +442,23 @@ export default function AdminPanel() {
         showNotification("Lỗi kết nối.", "error");
       }
     });
+  };
+
+  // Support Tickets Actions
+  const handleResolveTicket = async (ticketId) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/support/tickets/${ticketId}/resolve`, {
+        method: "PATCH"
+      });
+      if (res.ok) {
+        showNotification("Đã giải quyết yêu cầu hỗ trợ! ✅");
+        handleRefreshTickets();
+      } else {
+        showNotification("Lỗi khi cập nhật trạng thái.", "error");
+      }
+    } catch (err) {
+      showNotification("Lỗi kết nối máy chủ.", "error");
+    }
   };
 
   // 3. Partner Actions
@@ -722,6 +776,7 @@ export default function AdminPanel() {
               { id: "bookings", label: "Quản Lý Lịch Hẹn", icon: "calendar_month", count: pendingBookings.length },
               { id: "partners", label: "Đối Tác Liên Kết", icon: "handshake", count: partners.length },
               { id: "packages", label: "Gói Dịch Vụ", icon: "featured_play_list", count: packageTemplates.length },
+              { id: "support", label: "Hỗ Trợ 1:1", icon: "support_agent", count: pendingTicketsCount },
               { id: "settings", label: "Cài Đặt Hệ Thống", icon: "settings" }
             ].map(tab => (
               <button
@@ -739,7 +794,7 @@ export default function AdminPanel() {
                 </div>
                 {tab.count !== undefined && tab.count > 0 && (
                   <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
-                    tab.id === "bookings"
+                    tab.id === "bookings" || tab.id === "support"
                       ? "bg-rose-500 text-white animate-pulse"
                       : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                   }`}>
@@ -767,6 +822,7 @@ export default function AdminPanel() {
           { id: "bookings", label: "Lịch Đặt", icon: "calendar_month", count: pendingBookings.length },
           { id: "partners", label: "Đối Tác", icon: "handshake" },
           { id: "packages", label: "Gói DV", icon: "featured_play_list" },
+          { id: "support", label: "Hỗ Trợ", icon: "support_agent", count: pendingTicketsCount },
           { id: "settings", label: "Cài Đặt", icon: "settings" }
         ].map(tab => (
           <button
@@ -775,14 +831,14 @@ export default function AdminPanel() {
             className={`flex flex-col items-center justify-center flex-1 h-full relative transition-all ${
               activeTab === tab.id
                 ? "text-primary dark:text-[#a5b4fc]"
-                : "text-slate-400 hover:text-slate-650 dark:text-slate-500 dark:hover:text-slate-350"
+                : "text-slate-400 hover:text-slate-655 dark:text-slate-500 dark:hover:text-slate-350"
             }`}
           >
             <div className="relative">
               <span className="material-symbols-outlined text-lg">{tab.icon}</span>
               {tab.count !== undefined && tab.count > 0 && (
                 <span className={`absolute -top-1.5 -right-2 px-1 rounded-full text-[7.5px] font-black leading-none ${
-                  tab.id === "bookings"
+                  tab.id === "bookings" || tab.id === "support"
                     ? "bg-rose-500 text-white animate-pulse"
                     : "bg-slate-500 text-white"
                 }`}>
@@ -809,6 +865,7 @@ export default function AdminPanel() {
               {activeTab === "bookings" && "Quản Lý Lịch Hẹn"}
               {activeTab === "partners" && "Đối Tác Liên Kết"}
               {activeTab === "packages" && "Gói Dịch Vụ"}
+              {activeTab === "support" && "Hỗ Trợ Thành Viên 1:1"}
               {activeTab === "settings" && "Cài Đặt Hệ Thống"}
             </h2>
             <p className="text-xs text-slate-450 mt-1 hidden sm:block">
@@ -816,6 +873,7 @@ export default function AdminPanel() {
               {activeTab === "bookings" && "Giám sát, phân loại các yêu cầu đăng ký lịch chụp ảnh của khách hàng"}
               {activeTab === "partners" && "Cấu hình nhúng Bio Editor Iframe hoặc lấy đường dẫn truy cập cho đối tác"}
               {activeTab === "packages" && "Định nghĩa các mẫu gói dịch vụ và cấp thời gian dùng thử cho thành viên"}
+              {activeTab === "support" && "Xử lý trực tiếp các yêu cầu hỗ trợ kỹ thuật và kết nối Zalo 1:1 với thành viên"}
               {activeTab === "settings" && "Tùy chỉnh thông báo du lịch và quản lý Popup quảng cáo toàn hệ thống"}
             </p>
           </div>
@@ -2073,6 +2131,203 @@ export default function AdminPanel() {
                 <span className="material-symbols-outlined text-base">logout</span>
                 <span>Đăng Xuất Tài Khoản Admin</span>
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 6: SUPPORT TICKETS */}
+        {activeTab === "support" && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-[#a5b4fc] flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-xl">support_agent</span>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tổng số yêu cầu</div>
+                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{supportTickets.length || 0}</div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-[#fde047] flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-xl animate-pulse">pending</span>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Chưa xử lý</div>
+                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{pendingTicketsCount}</div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-[#86efac] flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-xl">check_circle</span>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đã giải quyết</div>
+                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">
+                    {Math.max(0, (supportTickets.length || 0) - pendingTicketsCount)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter and Content Card */}
+            <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
+              
+              {/* Header section with Filter controls */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
+                <div className="space-y-1">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Trạng Thái Yêu Cầu</h3>
+                  <p className="text-[10px] text-slate-400">Lọc danh sách các cuộc gọi hỗ trợ 1:1 từ người dùng</p>
+                </div>
+                
+                {/* Status Chips */}
+                <div className="flex gap-2">
+                  {[
+                    { id: "", label: "Tất cả" },
+                    { id: "pending", label: "Chờ xử lý" },
+                    { id: "resolved", label: "Đã giải quyết" }
+                  ].map(filter => (
+                    <button
+                      key={filter.id}
+                      onClick={() => {
+                        setSupportStatusFilter(filter.id);
+                        setSupportPage(1);
+                      }}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                        supportStatusFilter === filter.id
+                          ? "bg-primary text-white shadow-md"
+                          : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tickets Table / List */}
+              {supportTickets.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    {supportTickets.map(ticket => {
+                      const nameInitials = ticket.fullName ? ticket.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'HT';
+                      const formattedDate = new Date(ticket.createdAt).toLocaleString('vi-VN');
+                      
+                      return (
+                        <div
+                          key={ticket._id}
+                          className="p-5 rounded-2xl border border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-[#161420]/30 hover:border-slate-200 dark:hover:border-slate-700/60 transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
+                        >
+                          {/* Left column: User info & description */}
+                          <div className="flex gap-4 items-start min-w-0">
+                            {/* Initials Avatar */}
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-md">
+                              {nameInitials}
+                            </div>
+                            
+                            <div className="space-y-2 min-w-0">
+                              <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-extrabold text-sm text-slate-800 dark:text-white">{ticket.fullName}</span>
+                                  <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
+                                    ticket.status === 'pending'
+                                      ? "bg-amber-500/10 text-amber-500"
+                                      : "bg-emerald-500/10 text-emerald-500"
+                                  }`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${ticket.status === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+                                    {ticket.status === 'pending' ? 'Chờ xử lý' : 'Đã xử lý'}
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-slate-400 mt-0.5">Thời gian gửi: {formattedDate}</p>
+                              </div>
+
+                              <div className="space-y-1">
+                                <div className="flex gap-2 items-center text-xs">
+                                  <span className="font-bold text-slate-450 dark:text-zinc-550 shrink-0">Email:</span>
+                                  <span className="font-semibold text-slate-700 dark:text-zinc-300 break-all select-all">{ticket.email}</span>
+                                </div>
+                                <div className="flex gap-2 items-center text-xs">
+                                  <span className="font-bold text-slate-450 dark:text-zinc-550 shrink-0">SĐT Zalo:</span>
+                                  <span className="font-semibold text-slate-700 dark:text-zinc-300 select-all">{ticket.phone}</span>
+                                </div>
+                              </div>
+
+                              <div className="pt-2">
+                                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">Nội dung thắc mắc:</span>
+                                <p className="mt-1 text-xs text-slate-650 dark:text-slate-300 leading-relaxed font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-3.5 rounded-xl whitespace-pre-wrap select-text">
+                                  {ticket.issue}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right column: Action buttons */}
+                          <div className="flex md:flex-col gap-2 shrink-0 items-end justify-end pt-2 md:pt-0">
+                            {/* Zalo Direct Link Button */}
+                            <a
+                              href={`https://zalo.me/${ticket.phone.replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full sm:w-auto px-4 py-2.5 bg-[#0068ff] hover:bg-[#005ad4] text-white font-extrabold text-xs rounded-xl shadow-lg shadow-blue-500/10 flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95 transition-all text-center"
+                              style={{ minHeight: 0, minWidth: 0 }}
+                            >
+                              <span className="material-symbols-outlined text-sm">chat</span>
+                              Nhắn Zalo 1:1
+                            </a>
+
+                            {/* Resolve Ticket Button */}
+                            {ticket.status === 'pending' && (
+                              <button
+                                onClick={() => handleResolveTicket(ticket._id)}
+                                className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-600/10 flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95 transition-all"
+                                style={{ minHeight: 0, minWidth: 0 }}
+                              >
+                                <span className="material-symbols-outlined text-sm">check_circle</span>
+                                Đã giải quyết xong
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Pagination Section */}
+                  {supportTotalPages > 1 && (
+                    <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-5">
+                      <span className="text-xs font-bold text-slate-400">
+                        Trang {supportPage} / {supportTotalPages}
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          disabled={supportPage === 1}
+                          onClick={() => setSupportPage(prev => Math.max(1, prev - 1))}
+                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-350 hover:bg-slate-200 dark:hover:bg-slate-850 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                        >
+                          Trước
+                        </button>
+                        <button
+                          disabled={supportPage === supportTotalPages}
+                          onClick={() => setSupportPage(prev => Math.min(supportTotalPages, prev + 1))}
+                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-350 hover:bg-slate-200 dark:hover:bg-slate-850 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                        >
+                          Sau
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12 space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto text-slate-400">
+                    <span className="material-symbols-outlined text-2xl">support_agent</span>
+                  </div>
+                  <p className="text-xs text-slate-450 italic font-medium">Không tìm thấy yêu cầu hỗ trợ nào.</p>
+                </div>
+              )}
             </div>
           </div>
         )}

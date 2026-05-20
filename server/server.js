@@ -7,6 +7,7 @@ import bioRoutes from './routes/bioRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import partnerRoutes from './routes/partnerRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
+import supportRoutes from './routes/supportRoutes.js';
 
 dotenv.config();
 
@@ -56,6 +57,7 @@ app.use('/api/bios', bioRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/packages', packageRoutes);
+app.use('/api/support', supportRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

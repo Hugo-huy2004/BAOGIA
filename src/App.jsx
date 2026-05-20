@@ -16,6 +16,8 @@ import PartnerBioPage from "./pages/PartnerBioPage";
 import FAQPage from "./pages/FAQPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
+import SupportRequestPage from "./pages/SupportRequestPage";
+import HBot from "./components/HBot";
 
 function AppContent() {
   const location = useLocation();
@@ -70,12 +72,16 @@ function AppContent() {
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/admin" element={isAdminAuthenticated() ? <AdminPanel /> : <Navigate to="/login" replace />} />
+          <Route path="/support-request" element={<SupportRequestPage />} />
           <Route path="*" element={<Navigate to="/introduction" replace />} />
         </Routes>
       </div>
 
       {/* Global Brand footer bar */}
       {!isEmbed && showFooter && <Footer />}
+
+      {/* Floating AI chatbot support assistant */}
+      {!isEmbed && <HBot />}
     </div>
   );
 }
