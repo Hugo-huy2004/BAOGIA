@@ -17,6 +17,7 @@ const fetchWithAuth = async (url, options = {}) => {
 import HugoLogo from "../components/HugoLogo";
 import AdminSettingsTab from "../components/admin/AdminSettingsTab";
 import AdminUsersTab from "../components/admin/AdminUsersTab";
+import AdminProjectsTab from "../components/admin/AdminProjectsTab";
 
 // Hugo Studio Brand Logo component to match styling exactly
 
@@ -780,14 +781,21 @@ export default function AdminPanel() {
               { id: "bookings", label: "Quản Lý Lịch Hẹn", icon: "calendar_month", count: pendingBookings.length },
               { id: "partners", label: "Đối Tác Liên Kết", icon: "handshake", count: partners.length },
               { id: "packages", label: "Gói Dịch Vụ", icon: "featured_play_list", count: packageTemplates.length },
+              { id: "projects", label: "Quản Lý Dự Án", icon: "assignment" },
               { id: "support", label: "Hỗ Trợ 1:1", icon: "support_agent", count: pendingTicketsCount },
               { id: "settings", label: "Cài Đặt Hệ Thống", icon: "settings" }
             ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  if (tab.id === 'projects') {
+                    window.location.href = '/admin/projects';
+                  } else {
+                    setActiveTab(tab.id);
+                  }
+                }}
                 className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-xs transition-all ${
-                  activeTab === tab.id
+                  (activeTab === tab.id && tab.id !== 'projects')
                     ? "bg-primary/10 text-primary dark:bg-[#201830] dark:text-[#a5b4fc]"
                     : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/40"
                 }`}

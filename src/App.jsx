@@ -22,6 +22,9 @@ const FAQPage = lazy(() => import("./pages/FAQPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const LivePreviewPage = lazy(() => import("./pages/LivePreviewPage"));
 const SupportRequestPage = lazy(() => import("./pages/SupportRequestPage"));
+const CustomerPortalPage = lazy(() => import("./pages/CustomerPortalPage"));
+const AdminProjectsPage = lazy(() => import("./pages/AdminProjectsPage"));
+const AdminProjectDetailPage = lazy(() => import("./pages/AdminProjectDetailPage"));
 
 function AppContent() {
   const location = useLocation();
@@ -42,17 +45,20 @@ function AppContent() {
   const isVacationMode = data?.systemSettings?.vacationMode === true;
   const isAdminOrLoginRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/login');
 
-  if (isMaintenanceMode && !isAdminOrLoginRoute) {
+  const isCustomerPortalRoute = location.pathname.startsWith("/customer-portal");
+
+  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute) {
     return <MaintenancePage />;
   }
 
-  if (isBioRoute || isPartnerBioRoute || isPreviewRoute) {
+  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute) {
     return (
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
         <Routes>
           <Route path="/bio/:slug" element={<BioPublicPage />} />
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
           <Route path="/preview" element={<LivePreviewPage />} />
+          <Route path="/customer-portal" element={<CustomerPortalPage />} />
         </Routes>
       </Suspense>
     );
@@ -91,6 +97,8 @@ function AppContent() {
             <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/admin" element={isAdminAuthenticated() ? <AdminPanel /> : <Navigate to="/login" replace />} />
+            <Route path="/admin/projects" element={isAdminAuthenticated() ? <AdminProjectsPage /> : <Navigate to="/login" replace />} />
+            <Route path="/admin/projects/:id" element={isAdminAuthenticated() ? <AdminProjectDetailPage /> : <Navigate to="/login" replace />} />
             <Route path="/support-request" element={<SupportRequestPage />} />
             <Route path="*" element={<Navigate to="/introduction" replace />} />
           </Routes>

@@ -1,0 +1,98 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import CustomerProfileTab from '../components/customer/CustomerProfileTab';
+import CustomerServiceTab from '../components/customer/CustomerServiceTab';
+import CustomerRequestsTab from '../components/customer/CustomerRequestsTab';
+
+export default function CustomerPortalPage() {
+  const navigate = useNavigate();
+  const [project, setProject] = useState(null);
+  const [activeTab, setActiveTab] = useState('profile');
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem('customerProject');
+    if (!saved) {
+      navigate('/login');
+    } else {
+      setProject(JSON.parse(saved));
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('customerProject');
+    navigate('/login');
+  };
+
+  if (!project) return null;
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-slate-800 dark:text-slate-100">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-500/20">
+              {project.fullName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h1 className="font-bold text-sm">{project.fullName}</h1>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wider">{project.servicePackage}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-xs font-bold transition-colors"
+          >
+            Đăng xuất
+          </button>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Navigation Tabs */}
+        <div className="flex space-x-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'profile'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
+                : 'bg-white text-slate-500 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">person</span>
+            Hồ Sơ
+          </button>
+          <button
+            onClick={() => setActiveTab('service')}
+            className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'service'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
+                : 'bg-white text-slate-500 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">view_timeline</span>
+            Dịch Vụ
+          </button>
+          <button
+            onClick={() => setActiveTab('requests')}
+            className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'requests'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
+                : 'bg-white text-slate-500 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">forum</span>
+            Yêu Cầu
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        <div className="animate-fadeIn">
+          {activeTab === 'profile' && <CustomerProfileTab project={project} setProject={setProject} />}
+          {activeTab === 'service' && <CustomerServiceTab project={project} />}
+          {activeTab === 'requests' && <CustomerRequestsTab project={project} />}
+        </div>
+      </main>
+    </div>
+  );
+}

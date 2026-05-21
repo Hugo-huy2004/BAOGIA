@@ -15,8 +15,9 @@ export default function LoginPage() {
   });
 
   const navigate = useNavigate();
-  const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "admin");
+  const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "customer");
   const [adminForm, setAdminForm] = useState({ username: "", password: "" });
+  const [customerCode, setCustomerCode] = useState("");
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
   const googleButtonRef = useRef(null);
@@ -134,6 +135,59 @@ export default function LoginPage() {
     navigate("/admin");
   };
 
+  const handleCustomerLogin = async (e) => {
+    e.preventDefault();
+    setToast({ message: "", type: "" });
+    if (!customerCode || customerCode.trim().length !== 6) {
+      showToast("Mã dự án phải gồm 6 ký tự.", "error");
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loginCode: customerCode })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Lỗi đăng nhập');
+      
+      // Save project data to session storage for the customer portal to use
+      sessionStorage.setItem('customerProject', JSON.stringify(data.project));
+      navigate("/customer-portal");
+    } catch (error) {
+      showToast(error.message, "error");
+    }
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("portalCode");
+    if (code && code.length === 6) {
+      setActiveMode("customer");
+      setCustomerCode(code);
+      autoLoginCustomer(code);
+    }
+  }, []);
+
+  const autoLoginCustomer = async (code) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loginCode: code })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Lỗi đăng nhập portal');
+      
+      sessionStorage.setItem('customerProject', JSON.stringify(data.project));
+      navigate("/customer-portal");
+    } catch (error) {
+      showToast("Link truy cập không hợp lệ hoặc mã dự án sai.", "error");
+    }
+  };
+
   return (
     <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4 py-12 text-slate-800 dark:text-slate-100">
       <style>{`
@@ -199,10 +253,12 @@ export default function LoginPage() {
           </div>
 
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white transition-all">
-            {activeMode === "member" ? "Kích Hoạt Student Bio" : "Đăng Nhập Quản Trị"}
+            {activeMode === "customer" ? "Customer Portal" : activeMode === "member" ? "Kích Hoạt Student Bio" : "Đăng Nhập Quản Trị"}
           </h1>
           <p className="text-xs text-slate-450 dark:text-slate-400 font-medium">
-            {activeMode === "member" 
+            {activeMode === "customer"
+              ? "Theo dõi tiến độ & quản lý dịch vụ của bạn"
+              : activeMode === "member" 
               ? "Tạo lập trang Bio Link độc bản hoàn toàn miễn phí" 
               : "Truy cập hệ thống bảng điều khiển của nhà phát triển"
             }
@@ -210,45 +266,86 @@ export default function LoginPage() {
         </div>
 
         {/* Unified iOS-style Segmented Control */}
-        {allowRegistration && (
-          <div className="relative z-10 bg-slate-100 dark:bg-white/5 p-1 rounded-2xl flex w-full max-w-[280px] mx-auto border border-slate-200/50 dark:border-white/5">
-            <div 
-              className="absolute top-1 bottom-1 bg-white dark:bg-[#181720] rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
-              style={{
-                left: activeMode === "member" ? "4px" : "calc(50% + 2px)",
-                width: "calc(50% - 6px)"
-              }}
-            />
-            
-            <button
-              type="button"
-              onClick={() => setActiveMode("member")}
-              className={`w-1/2 py-2 text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
-                activeMode === "member"
-                  ? "text-slate-900 dark:text-white"
-                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-              }`}
-            >
-              Đăng ký Bio (.edu)
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveMode("admin")}
-              className={`w-1/2 py-2 text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
-                activeMode === "admin"
-                  ? "text-slate-900 dark:text-white"
-                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-              }`}
-            >
-              Quản trị viên
-            </button>
-          </div>
-        )}
+        <div className="relative z-10 bg-slate-100 dark:bg-white/5 p-1 rounded-2xl flex w-full max-w-[340px] mx-auto border border-slate-200/50 dark:border-white/5 overflow-hidden">
+          {(() => {
+            const tabs = [
+              { id: 'customer', label: 'Membership' },
+              ...(allowRegistration ? [{ id: 'member', label: 'Sinh Viên (.edu)' }] : []),
+              { id: 'admin', label: 'Quản Trị' }
+            ];
+            const activeIndex = tabs.findIndex(t => t.id === activeMode);
+            const tabWidth = 100 / tabs.length;
+
+            return (
+              <>
+                <div 
+                  className="absolute top-1 bottom-1 bg-white dark:bg-[#181720] rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                  style={{
+                    left: `calc(${activeIndex * tabWidth}% + 4px)`,
+                    width: `calc(${tabWidth}% - 8px)`
+                  }}
+                />
+                
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveMode(tab.id)}
+                    className={`flex-1 py-2 text-[10px] sm:text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
+                      activeMode === tab.id
+                        ? "text-slate-900 dark:text-white"
+                        : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </>
+            );
+          })()}
+        </div>
 
         {/* Minimalist Apple Glass Card */}
         <div className="relative z-10 bg-white/70 dark:bg-[#111016]/80 backdrop-blur-2xl border border-slate-200/50 dark:border-white/10 p-6 sm:p-8 rounded-3xl shadow-xl transition-all">
-          {activeMode === "member" ? (
-            <form onSubmit={handleMemberLogin} className="space-y-6">
+          {activeMode === "customer" ? (
+            <form key="form-customer" onSubmit={handleCustomerLogin} className="space-y-6">
+              <div className="text-center space-y-1">
+                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">Truy cập Customer Portal</h2>
+                <p className="text-[11px] text-slate-450 dark:text-slate-400 leading-relaxed">
+                  Quản lý dự án, xem tiến độ và trao đổi với đội ngũ.
+                </p>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1 text-center">Mã Dự Án (6 Ký Tự)</label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={customerCode}
+                    onChange={(e) => setCustomerCode(e.target.value.toUpperCase())}
+                    placeholder="VD: 1A2B3C"
+                    className="w-full px-4 py-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-lg uppercase font-mono tracking-[0.5em] font-bold text-center"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs sm:text-sm flex justify-center items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px]">login</span> Vào Portal Dự Án
+                </button>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 text-[11px] text-indigo-700 dark:text-indigo-300/80 flex gap-3 text-left leading-relaxed mt-4">
+                <span className="material-symbols-outlined text-indigo-500 shrink-0 text-lg mt-0.5 select-none">verified_user</span>
+                <div>
+                  <span className="font-bold text-indigo-900 dark:text-indigo-200 block mb-0.5">Bảo mật thông tin</span>
+                  Mã dự án được cung cấp riêng tư. Tuyệt đối không chia sẻ mã này cho người khác để đảm bảo an toàn dữ liệu dự án của bạn.
+                </div>
+              </div>
+            </form>
+          ) : activeMode === "member" ? (
+            <form key="form-member" onSubmit={handleMemberLogin} className="space-y-6">
               <div className="text-center space-y-1">
                 <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">Xác thực Google Workspace</h2>
                 <p className="text-[11px] text-slate-450 dark:text-slate-400 leading-relaxed">
@@ -269,7 +366,7 @@ export default function LoginPage() {
               </p>
 
               {/* Apple-style Educational Disclaimer Card */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 text-[11px] text-slate-500 dark:text-slate-400 flex gap-3 text-left leading-relaxed">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 text-[11px] text-slate-500 dark:text-slate-400 flex gap-3 text-left leading-relaxed mt-2">
                 <span className="material-symbols-outlined text-[#0071e3] dark:text-[#60a5fa] shrink-0 text-lg mt-0.5 select-none">school</span>
                 <div>
                   <span className="font-bold text-slate-800 dark:text-white block mb-0.5">Yêu cầu Email Giáo Dục (.edu)</span>
@@ -278,7 +375,7 @@ export default function LoginPage() {
               </div>
             </form>
           ) : (
-            <form onSubmit={handleAdminLogin} className="space-y-5">
+            <form key="form-admin" onSubmit={handleAdminLogin} className="space-y-5">
               <div className="text-center space-y-1">
                 <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">Đăng nhập Quản trị</h2>
                 <p className="text-[11px] text-slate-450 dark:text-slate-400">Nhập thông tin xác thực nhà phát triển</p>

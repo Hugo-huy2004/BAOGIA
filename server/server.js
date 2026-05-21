@@ -111,6 +111,8 @@ mongoose.connect(MONGODB_URI, {
   })
   .catch(err => console.error(' MongoDB connection failed:', err));
 
+import customerRoutes from './routes/customerRoutes.js';
+
 // Routes
 app.use('/api/data', dataRoutes);
 app.use('/api/bios', bioRoutes);
@@ -119,6 +121,7 @@ app.use('/api/partners', partnerRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/customer-projects', customerRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
