@@ -22,10 +22,25 @@ export default function CustomerRequestsTab({ project }) {
 
   useEffect(() => {
     fetchMessages();
+    markMessagesAsRead();
     // Polling every 10 seconds for new messages
-    const interval = setInterval(fetchMessages, 10000);
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, 10000);
     return () => clearInterval(interval);
   }, [project._id]);
+
+  const markMessagesAsRead = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages/read`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: 'customer' })
+      });
+      // Fire an event to update badge immediately if possible
+      window.dispatchEvent(new Event('messagesRead'));
+    } catch (err) {}
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

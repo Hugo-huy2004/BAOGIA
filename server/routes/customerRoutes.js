@@ -60,6 +60,16 @@ router.put('/:id/profile', async (req, res) => {
   }
 });
 
+// Get Unread Count for Customer
+router.get('/:id/messages/unread-count', async (req, res) => {
+  try {
+    const count = await CustomerMessage.countDocuments({ projectId: req.params.id, sender: 'admin', isRead: false });
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ error: 'Lỗi máy chủ' });
+  }
+});
+
 // Get Messages
 router.get('/:id/messages', async (req, res) => {
   try {
@@ -96,14 +106,54 @@ router.post('/:id/messages', async (req, res) => {
   }
 });
 
+// Mark messages as read
+router.put('/:id/messages/read', async (req, res) => {
+  try {
+    const { role } = req.body;
+    const senderToMark = role === 'admin' ? 'customer' : 'admin';
+    
+    await CustomerMessage.updateMany(
+      { projectId: req.params.id, sender: senderToMark, isRead: false },
+      { $set: { isRead: true } }
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Lỗi máy chủ' });
+  }
+});
+
 // ----------------------------------------------------
 // ADMIN ROUTES
 // ----------------------------------------------------
 
-// Get all projects
+// Get total unread count for admin
+router.get('/unread-total', requireAdmin, async (req, res) => {
+  try {
+    const total = await CustomerMessage.countDocuments({ sender: 'customer', isRead: false });
+    res.json({ total });
+  } catch (error) {
+    res.status(500).json({ error: 'Lỗi' });
+  }
+});
+
+// Get all projects with unread counts
 router.get('/', requireAdmin, async (req, res) => {
   try {
-    const projects = await CustomerProject.find().sort({ createdAt: -1 });
+    const projects = await CustomerProject.find().sort({ createdAt: -1 }).lean();
+    
+    // Fetch unread messages sent by customer
+    const unreadCounts = await CustomerMessage.aggregate([
+      { $match: { sender: 'customer', isRead: false } },
+      { $group: { _id: '$projectId', count: { $sum: 1 } } }
+    ]);
+    
+    const countMap = {};
+    unreadCounts.forEach(c => countMap[c._id.toString()] = c.count);
+    
+    projects.forEach(p => {
+      p.unreadCount = countMap[p._id.toString()] || 0;
+    });
+
     res.json(projects);
   } catch (error) {
     res.status(500).json({ error: 'Lỗi lấy danh sách dự án' });

@@ -184,7 +184,14 @@ export default function AdminProjectsTab({ showNotification }) {
               <div key={p._id} onClick={() => handleOpenDetail(p)} className="cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 p-4 rounded-2xl border border-slate-200 dark:border-white/5 transition-colors relative group">
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="font-bold text-sm text-slate-850 dark:text-white">{p.fullName}</div>
+                    <div className="font-bold text-sm text-slate-850 dark:text-white flex items-center gap-2">
+                      {p.fullName}
+                      {p.unreadCount > 0 && (
+                        <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                          {p.unreadCount} tin nhắn mới
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-semibold">{p.servicePackage}</div>
                   </div>
                   <div className="text-right">

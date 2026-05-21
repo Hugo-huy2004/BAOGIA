@@ -85,6 +85,8 @@ export default function AdminPanel() {
   const [supportTotalPages, setSupportTotalPages] = useState(1);
   const [supportStatusFilter, setSupportStatusFilter] = useState(""); // "" (All), "pending", "resolved"
 
+  const [projectsUnreadCount, setProjectsUnreadCount] = useState(0);
+
   const triggerConfirm = (message, onConfirm) => {
     setConfirmModal({ isOpen: true, message, onConfirm });
   };
@@ -294,11 +296,12 @@ export default function AdminPanel() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [bookingsRes, partnersRes, packagesRes, ticketsRes] = await Promise.all([
+        const [bookingsRes, partnersRes, packagesRes, ticketsRes, unreadProjectsRes] = await Promise.all([
           fetchWithAuth(import.meta.env.VITE_API_URL + "/bookings"),
           fetchWithAuth(import.meta.env.VITE_API_URL + "/partners"),
           fetchWithAuth(import.meta.env.VITE_API_URL + "/packages"),
-          fetchWithAuth(import.meta.env.VITE_API_URL + "/support/tickets?limit=1")
+          fetchWithAuth(import.meta.env.VITE_API_URL + "/support/tickets?limit=1"),
+          fetchWithAuth(import.meta.env.VITE_API_URL + "/customer-projects/unread-total")
         ]);
 
         if (bookingsRes.ok) setBookings(await bookingsRes.json());
@@ -307,6 +310,10 @@ export default function AdminPanel() {
         if (ticketsRes.ok) {
           const tData = await ticketsRes.json();
           setPendingTicketsCount(tData.pendingCount || 0);
+        }
+        if (unreadProjectsRes.ok) {
+          const uData = await unreadProjectsRes.json();
+          setProjectsUnreadCount(uData.total || 0);
         }
       } catch (err) {
         console.error("Failed to load admin data:", err);
@@ -781,7 +788,7 @@ export default function AdminPanel() {
               { id: "bookings", label: "Quản Lý Lịch Hẹn", icon: "calendar_month", count: pendingBookings.length },
               { id: "partners", label: "Đối Tác Liên Kết", icon: "handshake", count: partners.length },
               { id: "packages", label: "Gói Dịch Vụ", icon: "featured_play_list", count: packageTemplates.length },
-              { id: "projects", label: "Quản Lý Dự Án", icon: "assignment" },
+              { id: "projects", label: "Quản Lý Dự Án", icon: "assignment", count: projectsUnreadCount },
               { id: "support", label: "Hỗ Trợ 1:1", icon: "support_agent", count: pendingTicketsCount },
               { id: "settings", label: "Cài Đặt Hệ Thống", icon: "settings" }
             ].map(tab => (

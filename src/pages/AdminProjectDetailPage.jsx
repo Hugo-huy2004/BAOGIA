@@ -33,7 +33,21 @@ export default function AdminProjectDetailPage() {
   useEffect(() => {
     fetchProjectDetail();
     fetchMessages();
+    markMessagesAsRead();
   }, [id]);
+
+  const markMessagesAsRead = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${id}/messages/read`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ role: 'admin' })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchProjectDetail = async () => {
     try {
