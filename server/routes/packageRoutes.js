@@ -52,45 +52,10 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT update package template
-router.put('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, duration, durationUnit, benefits } = req.body;
-
-    const existing = await Package.findById(id);
-    if (!existing) {
-      return res.status(404).json({ error: 'Package template not found' });
-    }
-
-    if (name) existing.name = name;
-    if (duration !== undefined) existing.duration = Number(duration);
-    if (durationUnit) existing.durationUnit = durationUnit;
-    if (benefits) existing.benefits = benefits;
-
-    await existing.save();
-    res.json(existing);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// DELETE package template
-router.delete('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deleted = await Package.findByIdAndDelete(id);
-    if (!deleted) {
-      return res.status(404).json({ error: 'Package template not found' });
-    }
-    res.json({ message: 'Package template deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // ----------------------------------------------------
 // USER ASSIGNED PACKAGES ENDPOINTS
+// IMPORTANT: /user routes MUST be declared BEFORE /:id
+// to prevent Express matching "user" as a MongoDB ObjectId
 // ----------------------------------------------------
 
 // GET packages for specific user by email
@@ -212,5 +177,48 @@ router.delete('/user', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// ----------------------------------------------------
+// PACKAGE TEMPLATE WILDCARD ENDPOINTS (must come AFTER /user)
+// ----------------------------------------------------
+
+// PUT update package template
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, duration, durationUnit, benefits } = req.body;
+
+    const existing = await Package.findById(id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Package template not found' });
+    }
+
+    if (name) existing.name = name;
+    if (duration !== undefined) existing.duration = Number(duration);
+    if (durationUnit) existing.durationUnit = durationUnit;
+    if (benefits) existing.benefits = benefits;
+
+    await existing.save();
+    res.json(existing);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE package template
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Package.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ error: 'Package template not found' });
+    }
+    res.json({ message: 'Package template deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 export default router;
