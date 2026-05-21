@@ -81,7 +81,6 @@ export const uploadAvatar = async (base64Str, email, oldAvatarUrl = '') => {
     public_id: publicId,
     overwrite: true,
     resource_type: 'image',
-    format: 'auto',
     quality: 'auto'
   });
 
@@ -126,7 +125,6 @@ export const uploadAdImage = async (base64Str, oldUrl = '') => {
     public_id: publicId,
     overwrite: true,
     resource_type: 'image',
-    format: 'auto',
     quality: 'auto'
   });
 
