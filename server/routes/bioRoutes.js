@@ -365,33 +365,54 @@ router.put('/:id', async (req, res) => {
     const textFields = ['displayName','headline','bio','birthday','phone','contactEmail','hobbies','height','weight','measurements','address','education','skills','jobTitle'];
     const fieldValues = { displayName: nextDisplayName, headline, bio, birthday, phone, contactEmail, hobbies, height, weight, measurements, address, education, skills, jobTitle };
 
+    let updatedFieldsDetail = [];
+
     for (const field of textFields) {
       const oldVal = (existing[field] || '').toString().trim();
       const newVal = (fieldValues[field] || '').toString().trim();
       if (oldVal !== newVal && (oldVal || newVal)) {
         const label = HISTORY_LABELS[field] || field;
         if (!oldVal) {
-          pushHistory(existing, { type: 'profile_updated', icon: 'edit', title: `Đã thêm ${label}`, detail: `${label}: ${newVal}` });
+          updatedFieldsDetail.push(`• Đã bổ sung mới [${label}]: "${newVal}"`);
         } else if (!newVal) {
-          pushHistory(existing, { type: 'profile_updated', icon: 'edit', title: `Đã xóa ${label}`, detail: `${label} trước đây: ${oldVal}` });
+          updatedFieldsDetail.push(`• Đã xóa trống [${label}] (Nội dung cũ: "${oldVal}")`);
         } else {
-          pushHistory(existing, { type: 'profile_updated', icon: 'edit', title: `Đã cập nhật ${label}`, detail: `Từ "${oldVal.substring(0,60)}" → "${newVal.substring(0,60)}"` });
+          updatedFieldsDetail.push(`• Đã thay đổi [${label}]: Từ "${oldVal.substring(0,60)}" ➔ Thành "${newVal.substring(0,60)}"`);
         }
       }
     }
 
+    if (updatedFieldsDetail.length > 0) {
+      pushHistory(existing, { 
+        type: 'profile_updated', 
+        icon: 'edit_document', 
+        title: 'Đã cập nhật thông tin hồ sơ', 
+        detail: `Chi tiết các thay đổi của bạn:\n${updatedFieldsDetail.join('\n')}`
+      });
+    }
+
     // Track link changes
+    let linksDetail = [];
     const oldLinkUrls = (existing.links || []).map(l => l.url);
     const newLinkUrls = (links || []).map(l => l.url);
     for (const lnk of (links || [])) {
       if (!oldLinkUrls.includes(lnk.url)) {
-        pushHistory(existing, { type: 'link_added', icon: 'add_link', title: 'Đã thêm liên kết', detail: `${lnk.label}: ${lnk.url}` });
+        linksDetail.push(`• Đã gắn thêm liên kết: ${lnk.label} (${lnk.url})`);
       }
     }
     for (const lnk of (existing.links || [])) {
       if (!newLinkUrls.includes(lnk.url)) {
-        pushHistory(existing, { type: 'link_removed', icon: 'link_off', title: 'Đã xóa liên kết', detail: `${lnk.label}: ${lnk.url}` });
+        linksDetail.push(`• Đã gỡ bỏ liên kết: ${lnk.label} (${lnk.url})`);
       }
+    }
+    
+    if (linksDetail.length > 0) {
+      pushHistory(existing, { 
+        type: 'link_added', 
+        icon: 'link', 
+        title: 'Đã thay đổi liên kết mạng xã hội', 
+        detail: `Chi tiết các thay đổi liên kết:\n${linksDetail.join('\n')}`
+      });
     }
     // ─────────────────────────────────────────────────────────────────────────
 

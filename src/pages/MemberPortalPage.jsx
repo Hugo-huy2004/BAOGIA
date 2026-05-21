@@ -3,6 +3,9 @@ import { getMemberSession, logoutAuth } from "../services/authSession";
 import dataApi from "../services/dataApi";
 import MemberProjectsTab from "../components/member/MemberProjectsTab";
 import MemberServicesTab from "../components/member/MemberServicesTab";
+import MemberHistoryTab from "../components/member/MemberHistoryTab";
+import MemberManageTab from "../components/member/MemberManageTab";
+import MemberPartnerTab from "../components/member/MemberPartnerTab";
 import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
 
 
@@ -214,6 +217,28 @@ export default function MemberPortalPage() {
   const [activeTab, setActiveTab] = useState("account");
   const [accountSubTab, setAccountSubTab] = useState("profile");
   const [previewMode, setPreviewMode] = useState("mobile");
+
+  // Read History Tracking
+  const [readHistoryTimestamp, setReadHistoryTimestamp] = useState(() => {
+    return localStorage.getItem("read_history_timestamp") || null;
+  });
+
+  useEffect(() => {
+    if (activeTab === "history" && bio?.history?.length > 0) {
+      const latestTs = bio.history[bio.history.length - 1].timestamp;
+      setReadHistoryTimestamp(latestTs);
+      localStorage.setItem("read_history_timestamp", latestTs);
+    }
+  }, [activeTab, bio?.history]);
+
+  const unreadHistoryCount = useMemo(() => {
+    if (!bio?.history?.length) return 0;
+    if (!readHistoryTimestamp) return bio.history.length;
+    
+    const readDate = new Date(readHistoryTimestamp).getTime();
+    return bio.history.filter(entry => new Date(entry.timestamp).getTime() > readDate).length;
+  }, [bio?.history, readHistoryTimestamp]);
+
 
   // Partners state & loading
   const [partners, setPartners] = useState([]);
@@ -437,20 +462,7 @@ export default function MemberPortalPage() {
     loadBio();
   }, [memberSession?.email, isGuestMode]);
 
-  useEffect(() => {
-    if (loading) return;
 
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      handleSave();
-    }, 1200);
-
-    return () => clearTimeout(timer);
-  }, [formData]);
 
   useEffect(() => {
     const postToIframe = () => {
@@ -607,7 +619,7 @@ export default function MemberPortalPage() {
 
 
 
-  // Social Links Handlers (With Auto-Save capability)
+  // Social Links Handlers (Manual Save)
   const addSocialLink = async () => {
     if (formData.links.length >= 5) {
       showToast("Chỉ cho phép thêm tối đa 5 liên kết.", "warning");
@@ -631,20 +643,9 @@ export default function MemberPortalPage() {
       const updatedBio = { ...formData, links: updatedLinks };
       setBio(updatedBio);
       localStorage.setItem("hugo_guest_bio", JSON.stringify(updatedBio));
-      showToast("Đã lưu liên kết đối tác! ", "success");
-    } else if (bio?._id) {
-      try {
-        const response = await dataApi.updateMemberBio(bio._id, {
-          ...formData,
-          links: updatedLinks
-        });
-        setBio(response.bio);
-        showToast("Đã thêm và lưu liên kết thành công!", "success");
-      } catch (err) {
-        showToast("Thêm liên kết tạm thời (nhấn Cập Nhật ở dưới để lưu).", "warning");
-      }
+      showToast("Đã thêm liên kết đối tác tạm thời!", "success");
     } else {
-      showToast("Đã thêm liên kết tạm thời (nhấp Lưu thông tin để kích hoạt).", "success");
+      showToast("Đã thêm liên kết tạm thời (nhấp Lưu Thông Tin để cập nhật).", "success");
     }
   };
 
@@ -659,20 +660,9 @@ export default function MemberPortalPage() {
       const updatedBio = { ...formData, links: updatedLinks };
       setBio(updatedBio);
       localStorage.setItem("hugo_guest_bio", JSON.stringify(updatedBio));
-      showToast("Đã cập nhật liên kết đối tác! 📋", "success");
-    } else if (bio?._id) {
-      try {
-        const response = await dataApi.updateMemberBio(bio._id, {
-          ...formData,
-          links: updatedLinks
-        });
-        setBio(response.bio);
-        showToast("Đã xóa và cập nhật liên kết!", "success");
-      } catch (err) {
-        showToast("Đã xóa liên kết tạm thời.", "warning");
-      }
+      showToast("Đã xóa liên kết đối tác tạm thời!", "success");
     } else {
-      showToast("Đã xóa liên kết tạm thời.", "success");
+      showToast("Đã xóa liên kết tạm thời (nhấp Lưu Thông Tin để cập nhật).", "success");
     }
   };
 
@@ -954,10 +944,15 @@ export default function MemberPortalPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("history")}
-                  className={`w-1/4 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 ${activeTab === "history" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
+                  className={`w-1/4 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 flex items-center justify-center gap-1.5 ${activeTab === "history" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
                     }`}
                 >
-                  Lịch sử
+                  <span>Lịch sử</span>
+                  {unreadHistoryCount > 0 && (
+                    <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-sm animate-bounce-short">
+                      {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
+                    </span>
+                  )}
                 </button>
               </div>
 
@@ -1583,21 +1578,25 @@ export default function MemberPortalPage() {
                     </div>
                   )}
 
-                  {/* Submit save button/status */}
+                  {/* Submit save button */}
                   <div className="pt-2">
-                    <div className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/60 rounded-2xl py-3 px-4 flex items-center justify-center gap-2 select-none">
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 transition-colors rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-bold shadow-sm"
+                    >
                       {saving ? (
                         <>
-                          <div className="w-3.5 h-3.5 border-2 border-[#0071e3] border-t-transparent rounded-full animate-spin" />
-                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Đang tự động lưu...</span>
+                          <div className="w-3.5 h-3.5 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" />
+                          <span className="text-[10px] uppercase tracking-wider">Đang cập nhật...</span>
                         </>
                       ) : (
                         <>
-                          <span className="material-symbols-outlined text-sm text-green-500">cloud_done</span>
-                          <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider">Đã tự động lưu mọi thay đổi</span>
+                          <span className="material-symbols-outlined text-sm">save</span>
+                          <span className="text-[10px] uppercase tracking-wider">Thay Đổi Thông Tin</span>
                         </>
                       )}
-                    </div>
+                    </button>
                   </div>
 
                 </form>
@@ -1672,364 +1671,21 @@ export default function MemberPortalPage() {
         )}
 
         {/* Tab 3: Package Subscription & Link Management */}
-        {activeTab === "manage" && (() => {
-          const basePkg = getBasePackageDetails(bio?.serviceLabel);
-          const startLabel = bio?.createdAt ? new Date(bio.createdAt).toLocaleDateString('vi-VN') : '15/05/2026';
-          const expiresLabel = bio?.expiresAt ? new Date(bio.expiresAt).toLocaleDateString('vi-VN') : 'Lifetime (Vĩnh viễn)';
-          return (
-            <div className="max-w-2xl mx-auto space-y-5 px-3 sm:px-0 animate-fadeIn">
-              <div className="space-y-1">
-                <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                  <span className="material-symbols-outlined text-base text-[#0071e3]">wallet</span>
-                  Các gói dịch vụ sở hữu
-                </h2>
-                <p className="text-[10px] text-zinc-400">Xem thời hạn kích hoạt và nhấp vào từng thẻ để kiểm tra quyền lợi chi tiết.</p>
-              </div>
-
-              {/* Base Package Card */}
-              <PackageCard
-                name={basePkg.name}
-                duration={12}
-                durationUnit="months"
-                benefits={basePkg.benefits}
-                color={basePkg.color}
-                startLabel={startLabel}
-                expiresLabel={expiresLabel}
-                isBasePackage={true}
-              />
-
-              {/* Custom assigned packages from bio.packages */}
-              {bio?.packages && bio.packages.map((pkg) => (
-                <PackageCard
-                  key={pkg._id}
-                  name={pkg.name}
-                  duration={pkg.duration}
-                  durationUnit={pkg.durationUnit}
-                  benefits={pkg.benefits}
-                  color={pkg.color}
-                  startLabel={new Date(pkg.addedAt).toLocaleDateString('vi-VN')}
-                  isBasePackage={false}
-                />
-              ))}
-
-              {/* Public Link Card: Styled like Safari Search Capsule */}
-              <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 sm:p-8 space-y-5">
-                <div className="space-y-1">
-                  <h4 className="text-xs sm:text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                    <span className="material-symbols-outlined text-base text-[#0071e3]">link</span>
-                    ĐƯỜNG DẪN BIO PHÁT HÀNH
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-zinc-400">Được phân phối chính thức qua máy chủ của Hugo Studio.</p>
-                </div>
-
-                {bio?.slug ? (
-                  <div className="space-y-4">
-                    {/* Safari style Address Capsule */}
-                    <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 font-mono text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300 font-bold select-all shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
-                      <span className="material-symbols-outlined text-sm text-emerald-500 shrink-0">lock</span>
-                      <span className="flex-1 overflow-x-auto scrollbar-none whitespace-nowrap">{publicLink}</span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3.5 pt-1">
-                      <a
-                        href={publicLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-black dark:bg-white text-white dark:text-black hover:opacity-90 font-bold py-3 rounded-2xl transition-all text-center text-xs shadow-sm flex items-center justify-center gap-1.5"
-                      >
-                        <span className="material-symbols-outlined text-base">open_in_new</span>
-                        Xem Trang Live
-                      </a>
-                      <button
-                        type="button"
-                        onClick={handleCopyLink}
-                        className="bg-zinc-100 hover:bg-zinc-200/70 dark:bg-zinc-900/50 dark:hover:bg-zinc-900 text-zinc-800 dark:text-zinc-200 font-bold py-3 rounded-2xl transition-all text-xs border border-zinc-200/60 dark:border-zinc-800 flex items-center justify-center gap-1.5"
-                      >
-                        <span className="material-symbols-outlined text-base">content_copy</span>
-                        Sao Chép Link
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
-                    <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-750">link_off</span>
-                    <p className="text-[11px] italic text-zinc-400 mt-2">Bạn chưa kích hoạt thiết kế Bio. Hãy hoàn thành thiết lập ở tab Cá Nhân để kích hoạt.</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Warning Danger Zone */}
-              {bio?._id && (
-                <div className="bg-red-500/5 dark:bg-red-950/10 border border-red-200/40 dark:border-red-900/30 p-5 rounded-2xl shadow-sm space-y-4">
-                  <div className="flex gap-3">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
-                      <span className="material-symbols-outlined text-base">warning</span>
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-zinc-800 dark:text-white">GỠ BỎ DỊCH VỤ BIO</h4>
-                      <p className="text-[10px] text-zinc-450 dark:text-zinc-400 mt-0.5 leading-relaxed">Xóa vĩnh viễn trang Bio Link và thu hồi tên miền riêng của bạn lập tức. Bạn không thể hoàn tác thao tác này.</p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleDeleteBio}
-                    disabled={saving}
-                    className="w-full bg-[#ff3b30] hover:bg-[#ff3b30]/90 text-white font-bold py-2.5 rounded-xl transition-all text-xs shadow-sm flex items-center justify-center gap-1"
-                  >
-                    <span className="material-symbols-outlined text-sm">delete_forever</span>
-                    Xóa Bio Cá Nhân
-                  </button>
-                </div>
-              )}
-
-            </div>
-          );
-        })()}
-        {/* Tab 4: Partner Iframe Services inside Member Portal */}
-        {activeTab === "partner" && (
-          <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-0 animate-fadeIn">
-            <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl p-4 sm:p-6 md:p-8 border border-zinc-200/50 dark:border-zinc-800/80 shadow-xl flex flex-col justify-between min-h-[500px]">
-
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-zinc-200/50 dark:border-zinc-800/50 pb-4 shrink-0">
-                <div>
-                  <h3 className="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">
-                    Dịch Vụ Đối Tác Liên Kết
-                  </h3>
-                  <p className="text-[9px] sm:text-xs text-zinc-450 mt-1">Sử dụng dịch vụ của đối tác trực tiếp từ bảng điều khiển của bạn</p>
-                </div>
-
-                <span className="text-[8px] bg-zinc-100 dark:bg-zinc-800 text-zinc-550 dark:text-zinc-400 px-3 py-1.5 rounded-full font-bold uppercase tracking-wider border border-zinc-250/20">
-                  partner.hugowishpax.studio
-                </span>
-              </div>
-
-              {/* Multi-Partner list */}
-              {partners.length > 0 ? (
-                <div className="flex flex-col flex-grow mt-4 gap-4">
-
-                  {/* Search and Page Stats */}
-                  <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-                    {/* Search Field */}
-                    <div className="relative flex-grow max-w-sm">
-                      <input
-                        type="text"
-                        placeholder="Tìm kiếm đối tác liên kết..."
-                        value={partnerSearch}
-                        onChange={(e) => { setPartnerSearch(e.target.value); setPartnerPage(1); }}
-                        className="w-full rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-xs py-2 pl-9 pr-4 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white font-medium"
-                      />
-                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">search</span>
-                    </div>
-
-                    {/* Pagination Indicator */}
-                    {totalPartnerPages > 1 && (
-                      <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-450 uppercase tracking-wider select-none">
-                        <button
-                          onClick={() => setPartnerPage(p => Math.max(p - 1, 1))}
-                          disabled={partnerPage === 1}
-                          className="p-1 rounded bg-zinc-105 hover:bg-zinc-200 dark:bg-zinc-800 disabled:opacity-40 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-[10px] leading-none">chevron_left</span>
-                        </button>
-                        <span>Trang {partnerPage} / {totalPartnerPages}</span>
-                        <button
-                          onClick={() => setPartnerPage(p => Math.min(p + 1, totalPartnerPages))}
-                          disabled={partnerPage === totalPartnerPages}
-                          className="p-1 rounded bg-zinc-105 hover:bg-zinc-200 dark:bg-zinc-800 disabled:opacity-40 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-[10px] leading-none">chevron_right</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Selector Pills */}
-                  {paginatedPartners.length > 0 ? (
-                    <div className="flex flex-wrap gap-2 pb-2 border-b border-zinc-150 dark:border-zinc-800">
-                      {paginatedPartners.map((p) => {
-                        let domain = "google.com";
-                        try {
-                          let url = p.iframeUrl;
-                          if (url.includes('<iframe')) {
-                            const match = url.match(/src=["']([^"']+)["']/);
-                            if (match) url = match[1];
-                          }
-                          domain = new URL(url).hostname;
-                        } catch (e) {
-                          // Ignore url parse errors
-                        }
-                        const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-
-                        return (
-                          <button
-                            key={p._id}
-                            onClick={() => setSelectedPartner(p)}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${selectedPartner?._id === p._id
-                                ? "bg-black text-white dark:bg-white dark:text-black shadow-sm"
-                                : "bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 text-zinc-650 dark:text-zinc-300"
-                              }`}
-                          >
-                            <img
-                              src={faviconUrl}
-                              alt=""
-                              onError={(e) => { e.target.style.display = 'none'; }}
-                              className="w-4 h-4 rounded-sm object-contain"
-                            />
-                            <span>{p.name}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="py-8 text-center text-zinc-400 text-xs italic border-b border-zinc-150 dark:border-zinc-800">
-                      Không tìm thấy đối tác nào phù hợp.
-                    </div>
-                  )}
-
-                  {/* Selected Iframe Viewport Container */}
-                  {selectedPartner && paginatedPartners.some(p => p._id === selectedPartner._id) && (
-                    <div className="flex-grow w-full bg-white text-black rounded-2xl overflow-hidden min-h-[450px] border border-zinc-200/60 dark:border-zinc-800/80 relative z-10 shadow-inner">
-                      {selectedPartner.iframeUrl.includes('<iframe') ? (
-                        <div
-                          className="w-full h-full min-h-[450px] flex [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:min-h-[450px]"
-                          dangerouslySetInnerHTML={{ __html: selectedPartner.iframeUrl }}
-                        />
-                      ) : (
-                        <iframe
-                          src={selectedPartner.iframeUrl}
-                          className="w-full h-full min-h-[450px]"
-                          style={{ border: 'none' }}
-                          allowFullScreen
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="flex-grow flex flex-col items-center justify-center text-center p-8 space-y-3">
-                  <span className="material-symbols-outlined text-4xl text-zinc-400">handshake</span>
-                  <h4 className="text-xs font-bold text-zinc-550 dark:text-zinc-400">Không Có Dịch Vụ Đối Tác Kích Hoạt</h4>
-                  <p className="text-[10px] text-zinc-400 max-w-sm">Hiện tại chúng tôi chưa thiết lập hoặc liên kết dịch vụ đối tác nào. Vui lòng quay lại sau.</p>
-                </div>
-              )}
-
-            </div>
-          </div>
+        {activeTab === "manage" && (
+          <MemberManageTab
+            bio={bio}
+            publicLink={publicLink}
+            handleCopyLink={handleCopyLink}
+            handleDeleteBio={handleDeleteBio}
+            saving={saving}
+          />
         )}
 
+        {/* Tab 4: Partner Iframe Services inside Member Portal */}
+        {activeTab === "partner" && <MemberPartnerTab />}
+
         {/* Tab 5: Lịch Sử & Thông Báo */}
-        {activeTab === "history" && (() => {
-          const historyTypeConfig = {
-            welcome:         { color: '#34c759', bg: 'bg-emerald-500/10 dark:bg-emerald-500/10', border: 'border-emerald-400/30', label: 'Chào mừng' },
-            bio_link:        { color: '#0071e3', bg: 'bg-blue-500/10 dark:bg-blue-500/10',     border: 'border-blue-400/30',    label: 'Bio Link' },
-            package_received:{ color: '#6366f1', bg: 'bg-indigo-500/10 dark:bg-indigo-500/10', border: 'border-indigo-400/30',  label: 'Nhận gói' },
-            package_removed: { color: '#ff3b30', bg: 'bg-red-500/10 dark:bg-red-500/10',       border: 'border-red-400/30',     label: 'Gỡ gói' },
-            profile_updated: { color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/30',   label: 'Cập nhật' },
-            link_added:      { color: '#30b0c7', bg: 'bg-cyan-500/10 dark:bg-cyan-500/10',     border: 'border-cyan-400/30',    label: 'Thêm link' },
-            link_removed:    { color: '#8e8e93', bg: 'bg-zinc-500/10 dark:bg-zinc-500/10',     border: 'border-zinc-400/30',    label: 'Xóa link' },
-          };
-
-          const entries = [...(bio?.history || [])].reverse();
-
-          const formatTime = (ts) => {
-            if (!ts) return '';
-            const d = new Date(ts);
-            const now = new Date();
-            const diff = (now - d) / 1000;
-            if (diff < 60) return 'Vừa xong';
-            if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-            if (diff < 604800) return `${Math.floor(diff / 86400)} ngày trước`;
-            return d.toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-          };
-
-          return (
-            <div className="max-w-2xl mx-auto space-y-4 px-3 sm:px-0 animate-fadeIn">
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <h2 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                    <span className="material-symbols-outlined text-base text-[#0071e3]">history</span>
-                    Lịch Sử Hoạt Động
-                  </h2>
-                  <p className="text-[10px] text-zinc-400">
-                    {entries.length > 0 ? `${entries.length} sự kiện được ghi lại (tối đa 50)` : 'Chưa có sự kiện nào'}
-                  </p>
-                </div>
-                {entries.length > 0 && (
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full border border-zinc-200/50 dark:border-zinc-800">
-                    Mới nhất trên đầu
-                  </span>
-                )}
-              </div>
-
-              {/* Empty State */}
-              {entries.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-20 text-center space-y-3">
-                  <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-700">history</span>
-                  </div>
-                  <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Chưa có lịch sử nào</p>
-                  <p className="text-xs text-zinc-400 max-w-xs">Các thay đổi và sự kiện quan trọng sẽ được ghi lại tại đây tự động.</p>
-                </div>
-              )}
-
-              {/* Timeline */}
-              {entries.length > 0 && (
-                <div className="relative">
-                  {/* Vertical line */}
-                  <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-zinc-200 via-zinc-200 to-transparent dark:from-zinc-800 dark:via-zinc-800" />
-
-                  <div className="space-y-3">
-                    {entries.map((entry, idx) => {
-                      const cfg = historyTypeConfig[entry.type] || historyTypeConfig['profile_updated'];
-                      return (
-                        <div key={idx} className="flex gap-4 group">
-                          {/* Timeline dot */}
-                          <div className="shrink-0 relative z-10">
-                            <div
-                              className={`w-10 h-10 rounded-full flex items-center justify-center border-2 shadow-sm transition-transform duration-200 group-hover:scale-110 ${cfg.bg} ${cfg.border}`}
-                            >
-                              <span className="material-symbols-outlined text-base" style={{ color: cfg.color }}>{entry.icon || 'notifications'}</span>
-                            </div>
-                          </div>
-
-                          {/* Card */}
-                          <div className={`flex-1 mb-1 rounded-2xl border p-4 shadow-sm transition-all duration-200 group-hover:shadow-md bg-white dark:bg-[#1c1c1e] ${cfg.border}`}>
-                            <div className="flex items-start justify-between gap-2 flex-wrap">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span
-                                  className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${cfg.bg} border ${cfg.border}`}
-                                  style={{ color: cfg.color }}
-                                >
-                                  {cfg.label || entry.type}
-                                </span>
-                              </div>
-                              <span className="text-[9px] text-zinc-400 font-medium whitespace-nowrap">{formatTime(entry.timestamp)}</span>
-                            </div>
-
-                            <p className="text-xs font-bold text-zinc-800 dark:text-white mt-2 leading-snug">{entry.title}</p>
-                            {entry.detail && (
-                              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">{entry.detail}</p>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Footer note */}
-              {entries.length >= 50 && (
-                <p className="text-center text-[9px] text-zinc-400 italic pt-2">
-                  Lịch sử chỉ lưu tối đa 50 sự kiện gần nhất để tối ưu hiệu suất.
-                </p>
-              )}
-            </div>
-          );
-        })()}
+        {activeTab === "history" && <MemberHistoryTab bio={bio} />}
 
         {/* Cropper Modal */}
         {cropModal.isOpen && (
