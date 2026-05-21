@@ -1,6 +1,7 @@
 import React, { useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
+import ErrorBoundary from "./components/ErrorBoundary";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import VacationNotificationBanner from "./components/VacationNotificationBanner";
@@ -116,10 +117,12 @@ export default function App() {
   }, []);
 
   return (
-    <DataProvider>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AppContent />
-      </BrowserRouter>
-    </DataProvider>
+    <ErrorBoundary>
+      <DataProvider>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <AppContent />
+        </BrowserRouter>
+      </DataProvider>
+    </ErrorBoundary>
   );
 }

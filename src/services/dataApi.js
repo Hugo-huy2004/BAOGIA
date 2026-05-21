@@ -15,12 +15,42 @@ const getAuthHeaders = () => {
   return headers;
 };
 
+// Safe fetch with CORS error handling
+const safeFetch = async (url, options = {}) => {
+  try {
+    // First try with credentials
+    let response = await fetch(url, {
+      ...options,
+      credentials: 'include'
+    });
+
+    // If CORS error, retry without credentials
+    if (response.status === 0 && options.method === 'GET') {
+      response = await fetch(url, {
+        ...options,
+        credentials: 'omit'
+      });
+    }
+
+    return response;
+  } catch (error) {
+    // Network error - try without credentials as fallback
+    if (options.method === 'GET' || !options.method) {
+      return fetch(url, {
+        ...options,
+        credentials: 'omit'
+      });
+    }
+    throw error;
+  }
+};
+
 export const dataApi = {
   // Fetch all data
   async getData() {
     try {
       const endpoint = isAdminAuthenticated() ? `${API_BASE_URL}/data/admin` : `${API_BASE_URL}/data`;
-      const response = await fetch(endpoint, { credentials: 'include', headers: getAuthHeaders() });
+      const response = await safeFetch(endpoint, { headers: getAuthHeaders() });
       
       if (response.status === 401 || response.status === 403) {
         if (typeof window !== 'undefined') {
@@ -42,7 +72,7 @@ export const dataApi = {
   // Update entire data object
   async updateData(data) {
     try {
-      const response = await fetch(`${API_BASE_URL}/data`, { credentials: 'include',
+      const response = await safeFetch(`${API_BASE_URL}/data`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(data)
@@ -68,7 +98,7 @@ export const dataApi = {
   // Update specific field
   async updateField(field, value) {
     try {
-      const response = await fetch(`${API_BASE_URL}/data`, { credentials: 'include',
+      const response = await safeFetch(`${API_BASE_URL}/data`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
         body: JSON.stringify({ field, value })
@@ -94,7 +124,7 @@ export const dataApi = {
   // Reset to default data
   async resetData() {
     try {
-      const response = await fetch(`${API_BASE_URL}/data/reset`, { credentials: 'include',
+      const response = await safeFetch(`${API_BASE_URL}/data/reset`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
@@ -119,7 +149,7 @@ export const dataApi = {
   // Fetch current member bio by email
   async getMemberBio(email) {
     try {
-      const response = await fetch(`${API_BASE_URL}/bios/me?email=${encodeURIComponent(email)}`);
+      const response = await safeFetch(`${API_BASE_URL}/bios/me?email=${encodeURIComponent(email)}`, { headers: getAuthHeaders() });
       
       if (response.status === 401 || response.status === 403) {
         if (typeof window !== 'undefined') {
@@ -132,7 +162,7 @@ export const dataApi = {
       }
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
-        throw new Error(payload.error || 'Failed to fetch bio', { credentials: 'include', credentials: 'include' });
+        throw new Error(payload.error || 'Failed to fetch bio');
       }
       return await response.json();
     } catch (error) {
@@ -144,7 +174,7 @@ export const dataApi = {
   // Fetch public bio by slug
   async getBioBySlug(slug) {
     try {
-      const response = await fetch(`${API_BASE_URL}/bios/slug/${encodeURIComponent(slug)}`);
+      const response = await safeFetch(`${API_BASE_URL}/bios/slug/${encodeURIComponent(slug)}`, { headers: getAuthHeaders() });
       
       if (response.status === 401 || response.status === 403) {
         if (typeof window !== 'undefined') {
