@@ -159,6 +159,14 @@ export default function AdminProjectDetailPage() {
     ],
   };
 
+  const getHtmlContent = (text) => {
+    if (!text) return '';
+    if (!/<[a-z][\s\S]*>/i.test(text)) {
+      return text.replace(/\n/g, '<br />');
+    }
+    return text;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0b0a0f] flex items-center justify-center">
@@ -273,7 +281,7 @@ export default function AdminProjectDetailPage() {
                   <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' ? 'text-amber-600 dark:text-amber-500' : 'text-slate-800 dark:text-slate-200'}`}>
                     [{note.status === 'Hoàn tất' ? 'Bảo Trì' : note.status}]
                   </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.note }} />
+                  <div className="text-sm text-slate-600 dark:text-slate-400 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getHtmlContent(note.note) }} />
                 </div>
               ))
             ) : (

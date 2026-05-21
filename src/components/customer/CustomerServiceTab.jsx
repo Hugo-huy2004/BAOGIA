@@ -13,6 +13,13 @@ export default function CustomerServiceTab({ project }) {
   const currentStepIndex = STATUS_STEPS.indexOf(project.status);
 
   // Removed renderFormattedNote as we now use HTML from ReactQuill
+  const getHtmlContent = (text) => {
+    if (!text) return '';
+    if (!/<[a-z][\s\S]*>/i.test(text)) {
+      return text.replace(/\n/g, '<br />');
+    }
+    return text;
+  };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -95,7 +102,7 @@ export default function CustomerServiceTab({ project }) {
                 <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' ? 'text-amber-600 dark:text-amber-500' : 'text-slate-800 dark:text-slate-200'}`}>
                   [{note.status === 'Hoàn tất' ? 'Bảo Trì' : note.status}]
                 </div>
-                <div className="text-sm text-slate-600 dark:text-slate-400 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.note }} />
+                <div className="text-sm text-slate-600 dark:text-slate-400 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getHtmlContent(note.note) }} />
               </div>
             ))}
           </div>
@@ -109,7 +116,7 @@ export default function CustomerServiceTab({ project }) {
             <span className="material-symbols-outlined text-3xl text-emerald-500">task_alt</span>
             <h3 className="font-display text-xl font-bold text-emerald-700 dark:text-emerald-400">Tổng Kết Dự Án</h3>
           </div>
-          <div className="text-sm text-emerald-800 dark:text-emerald-200/80 leading-relaxed bg-white/50 dark:bg-black/20 p-5 rounded-xl prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: project.finalNote }} />
+          <div className="text-sm text-emerald-800 dark:text-emerald-200/80 leading-relaxed bg-white/50 dark:bg-black/20 p-5 rounded-xl prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getHtmlContent(project.finalNote) }} />
         </div>
       )}
     </div>
