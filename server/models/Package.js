@@ -23,6 +23,11 @@ const PackageSchema = new mongoose.Schema(
     color: {
       type: String,
       required: true
+    },
+    giftCode: {
+      type: String,
+      default: () => Math.random().toString(36).substring(2, 10).toUpperCase(),
+      unique: true
     }
   },
   { timestamps: true }

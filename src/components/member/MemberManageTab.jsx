@@ -167,8 +167,20 @@ class PackageCard extends Component {
 }
 
 class MemberManageTab extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { giftCode: "" };
+  }
+
+  handleRedeem = () => {
+    if (!this.state.giftCode.trim()) return;
+    this.props.handleRedeemCode(this.state.giftCode.trim());
+    this.setState({ giftCode: "" });
+  }
+
   render() {
     const { bio, publicLink, handleCopyLink, handleDeleteBio, saving } = this.props;
+    const { giftCode } = this.state;
 
     const basePkg = getBasePackageDetails(bio?.serviceLabel);
     const startLabel = bio?.createdAt ? new Date(bio.createdAt).toLocaleDateString('vi-VN') : '15/05/2026';
@@ -209,6 +221,37 @@ class MemberManageTab extends Component {
             isBasePackage={false}
           />
         ))}
+
+        {/* Redeem Gift Code Card */}
+        <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/5 dark:to-orange-500/5 rounded-3xl border border-amber-500/20 shadow-sm p-6 sm:p-8 space-y-4">
+          <div className="space-y-1">
+            <h4 className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-500 uppercase tracking-wider flex items-center gap-2">
+              <span className="material-symbols-outlined text-base">redeem</span>
+              MÃ QUÀ TẶNG / VOUCHER
+            </h4>
+            <p className="text-[10px] sm:text-xs text-amber-700/70 dark:text-amber-500/70">Nhập mã ưu đãi từ Hugo Studio để kích hoạt hoặc gia hạn gói Bio của bạn.</p>
+          </div>
+          
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Nhập mã quà tặng..."
+              value={giftCode}
+              onChange={(e) => this.setState({ giftCode: e.target.value.toUpperCase() })}
+              onKeyDown={(e) => { if (e.key === 'Enter') this.handleRedeem(); }}
+              className="flex-1 rounded-2xl border border-amber-500/30 bg-white/50 dark:bg-black/20 text-xs sm:text-sm p-3.5 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-bold font-mono tracking-widest placeholder:tracking-normal placeholder:font-medium placeholder:text-zinc-400"
+            />
+            <button
+              type="button"
+              onClick={this.handleRedeem}
+              disabled={!giftCode.trim()}
+              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-5 rounded-2xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 active:scale-95"
+            >
+              <span className="material-symbols-outlined text-sm hidden sm:block">verified</span>
+              <span className="text-xs">Nhận Gói</span>
+            </button>
+          </div>
+        </div>
 
         {/* Public Link Card */}
         <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 sm:p-8 space-y-5">

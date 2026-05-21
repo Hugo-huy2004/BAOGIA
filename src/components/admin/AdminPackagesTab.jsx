@@ -14,6 +14,7 @@ export default function AdminPackagesTab({
   searchedMemberBio,
   handleRemoveUserPackage,
   handleDeletePackageTemplate,
+  handleRegenerateGiftCode,
   formatExpiration
 }) {
   return (
@@ -98,11 +99,11 @@ export default function AdminPackagesTab({
 
           <form onSubmit={handleAssignPackageToUser} className="space-y-4">
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Email Người Nhận:</label>
+              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Email Người Nhận (Nhập "ALL" để cấp cho tất cả):</label>
               <input
-                type="email"
+                type="text"
                 required
-                placeholder="partner@gmail.com..."
+                placeholder="Ví dụ: partner@gmail.com HOẶC nhập ALL..."
                 value={assignForm.email}
                 onChange={(e) => setAssignForm(p => ({ ...p, email: e.target.value }))}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -124,6 +125,18 @@ export default function AdminPackagesTab({
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Tùy Chỉnh Số Ngày (Không bắt buộc):</label>
+              <input
+                type="number"
+                min="1"
+                placeholder="Nhập số ngày muốn cấp, để trống sẽ dùng số ngày gốc..."
+                value={assignForm.customDuration || ""}
+                onChange={(e) => setAssignForm(p => ({ ...p, customDuration: e.target.value }))}
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+              />
             </div>
 
             <button
@@ -255,6 +268,20 @@ export default function AdminPackagesTab({
                   <div className="flex justify-between text-[10px] text-zinc-455">
                     <span>Thời hạn:</span>
                     <span className="font-bold text-slate-700 dark:text-zinc-300 font-mono">+{pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center bg-white dark:bg-[#1c1c1e] p-2 rounded-xl border border-zinc-200/50 dark:border-zinc-800 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+                    <div className="flex items-center gap-1.5 overflow-hidden">
+                      <span className="material-symbols-outlined text-[11px] text-amber-500">redeem</span>
+                      <span className="font-mono text-xs font-black tracking-widest text-slate-800 dark:text-slate-200 truncate">{pkg.giftCode || "NONE"}</span>
+                    </div>
+                    <button
+                      onClick={() => handleRegenerateGiftCode(pkg._id)}
+                      className="text-[9px] font-bold text-primary hover:text-indigo-600 dark:text-[#a5b4fc] dark:hover:text-[#c7d2fe] bg-primary/5 dark:bg-[#a5b4fc]/10 px-2 py-1 rounded-md transition-colors whitespace-nowrap"
+                      title="Sinh mã mới (mã cũ sẽ bị hủy)"
+                    >
+                      Mã mới
+                    </button>
                   </div>
 
                   {pkg.benefits && pkg.benefits.length > 0 && (

@@ -807,7 +807,21 @@ export default function MemberPortalPage() {
     showToast("Đã sao chép liên kết vào bộ nhớ tạm.", "success");
   };
 
-
+  const handleRedeemCode = async (giftCode) => {
+    if (!giftCode) return;
+    try {
+      setSaving(true);
+      const res = await dataApi.redeemGiftCode(memberSession.email, giftCode);
+      if (res.bio) {
+        setBio(res.bio);
+        showToast(res.message || "Bạn đã nhận được gói quà tặng thành công!", "success");
+      }
+    } catch (err) {
+      showToast(err.message || "Lỗi khi đổi mã quà tặng.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const renderSimulatedLayout = () => {
     return (
@@ -1678,6 +1692,7 @@ export default function MemberPortalPage() {
             handleCopyLink={handleCopyLink}
             handleDeleteBio={handleDeleteBio}
             saving={saving}
+            handleRedeemCode={handleRedeemCode}
           />
         )}
 

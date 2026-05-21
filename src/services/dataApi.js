@@ -225,6 +225,26 @@ export const dataApi = {
     }
   },
 
+  // Redeem Gift Code
+  async redeemGiftCode(email, giftCode) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/packages/redeem`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ email, giftCode })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to redeem gift code');
+      }
+      return data;
+    } catch (error) {
+      console.error('Error redeeming gift code:', error);
+      throw error;
+    }
+  },
+
   // Update member bio
   async updateMemberBio(id, payload) {
     try {
