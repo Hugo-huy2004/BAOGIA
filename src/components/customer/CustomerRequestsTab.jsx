@@ -33,7 +33,7 @@ export default function CustomerRequestsTab({ project }) {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || isCompleted) return;
+    if (!newMessage.trim()) return;
 
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages`, {
@@ -50,7 +50,7 @@ export default function CustomerRequestsTab({ project }) {
   };
 
   return (
-    <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px] max-w-4xl mx-auto overflow-hidden">
+    <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px] max-w-4xl mx-auto overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-white/5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
@@ -97,30 +97,24 @@ export default function CustomerRequestsTab({ project }) {
       </div>
 
       {/* Input Area */}
-      {isCompleted ? (
-        <div className="p-4 bg-amber-50 dark:bg-amber-900/10 text-center text-xs text-amber-700 dark:text-amber-500 font-medium border-t border-amber-200 dark:border-amber-800/50 shrink-0">
-          Dự án đã hoàn tất, không thể gửi thêm yêu cầu.
-        </div>
-      ) : (
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12111a] shrink-0">
-          <form onSubmit={handleSend} className="flex items-center gap-2">
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Nhập yêu cầu hoặc tin nhắn..."
-              className="flex-1 px-4 py-3 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/25 text-slate-850 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm"
-            />
-            <button
-              type="submit"
-              disabled={!newMessage.trim()}
-              className="w-11 h-11 rounded-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white flex items-center justify-center transition-all shrink-0"
-            >
-              <span className="material-symbols-outlined text-[20px] ml-1">send</span>
-            </button>
-          </form>
-        </div>
-      )}
+      <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12111a] shrink-0">
+        <form onSubmit={handleSend} className="flex items-center gap-2">
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder={isCompleted ? "Nhập yêu cầu bảo trì hoặc tin nhắn..." : "Nhập yêu cầu hoặc tin nhắn..."}
+            className={`flex-1 px-4 py-3 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/25 text-slate-850 dark:text-white focus:outline-none focus:ring-1 text-sm ${isCompleted ? 'focus:ring-amber-500' : 'focus:ring-indigo-500'}`}
+          />
+          <button
+            type="submit"
+            disabled={!newMessage.trim()}
+            className={`w-11 h-11 rounded-full text-white flex items-center justify-center transition-all shrink-0 ${isCompleted ? 'bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 dark:disabled:bg-slate-700' : 'bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700'}`}
+          >
+            <span className="material-symbols-outlined text-[20px] ml-1">send</span>
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

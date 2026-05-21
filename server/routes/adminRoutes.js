@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import Admin from '../models/Admin.js';
+import { requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -61,4 +62,29 @@ export default router;
 router.post('/logout', (req, res) => {
   res.clearCookie('jwt');
   res.json({ success: true, message: 'Logged out successfully' });
+});
+
+// Verify password route
+router.post('/verify-password', requireAdmin, async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ error: 'Mật khẩu là bắt buộc' });
+    }
+
+    const admin = await Admin.findById(req.user.id);
+    if (!admin) {
+      return res.status(404).json({ error: 'Không tìm thấy tài khoản admin' });
+    }
+
+    const passwordHash = sha256(password);
+    if (admin.password !== passwordHash) {
+      return res.status(401).json({ error: 'Mật khẩu không chính xác' });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Verify password error:', error);
+    res.status(500).json({ error: 'Lỗi máy chủ' });
+  }
 });

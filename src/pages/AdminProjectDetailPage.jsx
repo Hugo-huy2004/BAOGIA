@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { logoutAuth } from '../services/authSession';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function AdminProjectDetailPage() {
   const { id } = useParams();
@@ -84,16 +86,14 @@ export default function AdminProjectDetailPage() {
     }
   };
 
-  const handleNoteChange = (e) => {
-    const val = e.target.value;
-    setNoteUpdate(val);
-    if (project) localStorage.setItem(`draft_note_${project._id}`, val);
+  const handleNoteChange = (content) => {
+    setNoteUpdate(content);
+    if (project) localStorage.setItem(`draft_note_${project._id}`, content);
   };
 
-  const handleFinalNoteChange = (e) => {
-    const val = e.target.value;
-    setFinalNoteUpdate(val);
-    if (project) localStorage.setItem(`draft_final_note_${project._id}`, val);
+  const handleFinalNoteChange = (content) => {
+    setFinalNoteUpdate(content);
+    if (project) localStorage.setItem(`draft_final_note_${project._id}`, content);
   };
 
   const handleUpdateStatus = async (e) => {
@@ -150,20 +150,13 @@ export default function AdminProjectDetailPage() {
     }
   };
 
-  const renderFormattedNote = (text) => {
-    if (!text) return null;
-    return text.split('\n').map((line, i) => {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('-') || trimmed.startsWith('•') || trimmed.startsWith('+') || trimmed.startsWith('*')) {
-        return (
-          <div key={i} className="flex gap-2 mb-1">
-            <span className="text-slate-400 mt-[5px] text-[8px]">●</span>
-            <span className="flex-1">{trimmed.substring(1).trim()}</span>
-          </div>
-        );
-      }
-      return <div key={i} className="mb-1 last:mb-0">{line}</div>;
-    });
+  // Custom CSS for Quill content in global index.css or inline
+  const quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['clean']
+    ],
   };
 
   if (loading) {
@@ -227,7 +220,7 @@ export default function AdminProjectDetailPage() {
         {/* Left Column (Status Updater & History) */}
         <div className="lg:col-span-5 space-y-6">
           {/* Status Updater */}
-          <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm">
+          <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm">
             <form onSubmit={handleUpdateStatus} className="bg-slate-50 dark:bg-black/20 p-5 rounded-2xl border border-slate-200 dark:border-white/5 space-y-4">
             <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider">Cập nhật tiến trình dự án</h4>
             
@@ -246,13 +239,17 @@ export default function AdminProjectDetailPage() {
 
             <div className="space-y-1">
               <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Ghi chú tiến trình (Gửi cho khách hàng)</label>
-              <textarea rows="2" placeholder="Ví dụ: Đã gửi bản thiết kế qua email, chờ phản hồi..." value={noteUpdate} onChange={handleNoteChange} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+              <div className="bg-white dark:bg-[#1f1929] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+                <ReactQuill theme="snow" value={noteUpdate} onChange={handleNoteChange} modules={quillModules} placeholder="Ghi chú cập nhật tiến độ cho khách hàng..." className="quill-editor" />
+              </div>
             </div>
 
             {statusUpdate === 'Hoàn tất' && (
               <div className="space-y-1">
                 <label className="block text-[9px] font-bold text-emerald-500 uppercase tracking-wider">Note Tổng Kết & Bảo Hành (Sẽ hiển thị vĩnh viễn trên portal khách)</label>
-                <textarea rows="4" placeholder="Nội dung chi tiết toàn bộ dự án, thời gian bảo dưỡng, thời gian hoàn tất..." value={finalNoteUpdate} onChange={handleFinalNoteChange} className="w-full rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/50 dark:bg-emerald-900/10 text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+                <div className="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-xl overflow-hidden border border-emerald-200 dark:border-emerald-800/50">
+                  <ReactQuill theme="snow" value={finalNoteUpdate} onChange={handleFinalNoteChange} modules={quillModules} placeholder="Nội dung chi tiết toàn bộ dự án, thời gian bảo dưỡng, thời gian hoàn tất..." className="quill-editor" />
+                </div>
               </div>
             )}
 
@@ -263,7 +260,7 @@ export default function AdminProjectDetailPage() {
         </div>
 
         {/* History Notes */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
           <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider border-b border-slate-100 dark:border-white/5 pb-2">Lịch sử cập nhật tiến trình</h4>
           <div className="space-y-4 pl-2 max-h-[300px] overflow-y-auto">
             {project.progressNotes && project.progressNotes.length > 0 ? (
@@ -273,12 +270,10 @@ export default function AdminProjectDetailPage() {
                   <div className="text-[10px] text-slate-400 font-mono mb-1">
                     {new Date(note.createdAt).toLocaleString('vi-VN')}
                   </div>
-                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-0.5">
-                    [{note.status}]
+                  <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' ? 'text-amber-600 dark:text-amber-500' : 'text-slate-800 dark:text-slate-200'}`}>
+                    [{note.status === 'Hoàn tất' ? 'Bảo Trì' : note.status}]
                   </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">
-                    {renderFormattedNote(note.note)}
-                  </div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.note }} />
                 </div>
               ))
             ) : (
@@ -291,7 +286,7 @@ export default function AdminProjectDetailPage() {
         {/* Right Column (Chat) */}
         <div className="lg:col-span-7">
           {/* Chat/Messages */}
-          <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px]">
+          <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px]">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-4 shrink-0">
             <span className="material-symbols-outlined text-indigo-500 text-base">forum</span>
             Tin nhắn yêu cầu từ khách hàng
@@ -317,12 +312,10 @@ export default function AdminProjectDetailPage() {
             )}
           </div>
 
-          {project.status !== 'Hoàn tất' && (
-            <form onSubmit={handleSendMessage} className="mt-4 flex gap-2 shrink-0">
-              <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Nhắn lại cho khách hàng..." className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#1f1929] text-slate-850 dark:text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-              <button type="submit" disabled={!newMessage.trim()} className="px-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-bold rounded-xl transition-all">Gửi</button>
-            </form>
-          )}
+          <form onSubmit={handleSendMessage} className="mt-4 flex gap-2 shrink-0">
+            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={project.status === 'Hoàn tất' ? "Nhắn lại bảo trì cho khách hàng..." : "Nhắn lại cho khách hàng..."} className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#1f1929] text-slate-850 dark:text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+            <button type="submit" disabled={!newMessage.trim()} className="px-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-bold rounded-xl transition-all">Gửi</button>
+          </form>
           </div>
         </div>
       </div>

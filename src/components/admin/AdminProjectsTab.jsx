@@ -6,6 +6,12 @@ export default function AdminProjectsTab({ showNotification }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Delete modal state
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // New Project Form
   const [newProject, setNewProject] = useState({
     fullName: '',
@@ -60,19 +66,57 @@ export default function AdminProjectsTab({ showNotification }) {
     }
   };
 
-  const handleDeleteProject = async (id) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa dự án này?')) return;
+  const handleDeleteClick = (e, project) => {
+    e.stopPropagation();
+    setDeleteTarget(project);
+    setDeletePassword('');
+    setDeleteError('');
+  };
+
+  const handleConfirmDelete = async (e) => {
+    e.preventDefault();
+    if (!deletePassword) {
+      setDeleteError('Vui lòng nhập mật khẩu');
+      return;
+    }
+    
+    setDeleteError('');
+    setIsDeleting(true);
+    
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${id}`, {
+      // Verify admin password
+      const verifyRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/admin/verify-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ password: deletePassword })
+      });
+      
+      const verifyData = await verifyRes.json();
+      if (!verifyRes.ok) {
+        setDeleteError(verifyData.error || 'Mật khẩu không chính xác');
+        setIsDeleting(false);
+        return;
+      }
+      
+      // Proceed to delete
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${deleteTarget._id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
+      
       if (res.ok) {
-        showNotification('Đã xóa dự án!');
+        showNotification('Đã xóa dự án và mọi dữ liệu liên quan thành công!');
         fetchProjects();
+        setDeleteTarget(null);
+        setDeletePassword('');
+      } else {
+        showNotification('Lỗi khi xóa dự án', 'error');
       }
     } catch (err) {
-      showNotification('Lỗi khi xóa dự án', 'error');
+      setDeleteError('Lỗi kết nối máy chủ');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -94,7 +138,7 @@ export default function AdminProjectsTab({ showNotification }) {
     <div className="animate-fadeIn">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Create Form */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-base">add_business</span>
             Thêm Khách Hàng Mới
@@ -130,7 +174,7 @@ export default function AdminProjectsTab({ showNotification }) {
         </div>
 
         {/* Project List */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-emerald-500 text-base">view_list</span>
             Danh Sách Khách Hàng
@@ -161,7 +205,7 @@ export default function AdminProjectsTab({ showNotification }) {
                     </div>
                   </div>
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); handleDeleteProject(p._id); }} className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-rose-100 text-rose-500 dark:bg-rose-900/30 dark:text-rose-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={(e) => handleDeleteClick(e, p)} className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-rose-100 text-rose-500 dark:bg-rose-900/30 dark:text-rose-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white shadow-sm" title="Xóa khách hàng">
                   <span className="material-symbols-outlined text-sm">delete</span>
                 </button>
               </div>
@@ -172,6 +216,65 @@ export default function AdminProjectsTab({ showNotification }) {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-[#161420] w-full max-w-sm rounded-xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center space-y-3 mb-6">
+              <div className="w-14 h-14 bg-rose-100 dark:bg-rose-900/30 text-rose-500 dark:text-rose-400 rounded-full flex items-center justify-center mb-1">
+                <span className="material-symbols-outlined text-3xl">warning</span>
+              </div>
+              <h3 className="text-lg font-black text-slate-800 dark:text-white">Xóa Khách Hàng?</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 px-2 leading-relaxed">
+                Bạn đang chuẩn bị xóa toàn bộ dữ liệu của <strong className="text-slate-700 dark:text-slate-300">{deleteTarget.fullName}</strong>. Bao gồm dự án, mã đăng nhập và toàn bộ tin nhắn. 
+                <span className="block mt-1 text-rose-500 font-semibold">Hành động này không thể hoàn tác!</span>
+              </p>
+            </div>
+            
+            <form onSubmit={handleConfirmDelete} className="space-y-4">
+              <div className="space-y-1.5 text-left">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider pl-1">Nhập mật khẩu Admin</label>
+                <input 
+                  type="password" 
+                  autoFocus
+                  required
+                  placeholder="Xác thực quyền xóa..."
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 transition-all dark:text-white placeholder-slate-400"
+                />
+                {deleteError && (
+                  <p className="text-[11px] text-rose-500 font-medium pl-1 animate-fadeIn">{deleteError}</p>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button 
+                  type="button" 
+                  onClick={() => setDeleteTarget(null)}
+                  disabled={isDeleting}
+                  className="py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 transition-colors text-xs"
+                >
+                  Hủy Bỏ
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isDeleting}
+                  className="py-3 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-600 flex items-center justify-center gap-2 transition-colors text-xs disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-rose-500/20"
+                >
+                  {isDeleting ? (
+                    <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                  ) : (
+                    <span className="material-symbols-outlined text-sm">delete_forever</span>
+                  )}
+                  {isDeleting ? 'Đang xóa...' : 'Xóa Vĩnh Viễn'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
