@@ -1,35 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useData } from "../context/DataContext";
-import { logoutAuth } from "../services/authSession";
+import { logoutAuth, getAdminSession } from "../services/authSession";
+
+const fetchWithAuth = async (url, options = {}) => {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+  const response = await fetch(url, { ...options, credentials: "include", headers });
+  if (response.status === 401 || response.status === 403) {
+    await logoutAuth();
+    window.location.href = '/login';
+  }
+  return response;
+};
+import HugoLogo from "../components/HugoLogo";
+import AdminSettingsTab from "../components/admin/AdminSettingsTab";
+import AdminUsersTab from "../components/admin/AdminUsersTab";
 
 // Hugo Studio Brand Logo component to match styling exactly
-const HugoStudioColoredBrandLogo = ({ className = "text-xl sm:text-2xl" }) => {
-  const chars = [
-    { char: "H", color: "#EF4444" },
-    { char: "u", color: "#F97316" },
-    { char: "g", color: "#EAB308" },
-    { char: "o", color: "#22C55E" },
-    { char: " ", color: "transparent" },
-    { char: "S", color: "#3B82F6" },
-    { char: "t", color: "#6366F1" },
-    { char: "u", color: "#A855F7" },
-    { char: "d", color: "#EC4899" },
-    { char: "i", color: "#06B6D4" },
-    { char: "o", color: "#0ea5e9" }
-  ];
-  return (
-    <span className={`we-bare-bears select-none ${className}`}>
-      {chars.map((item, idx) => (
-        <span key={idx} style={{ color: item.color }}>
-          {item.char}
-        </span>
-      ))}
-    </span>
-  );
-};
 
 export default function AdminPanel() {
-  const { data, updateAdvertisement } = useData();
+  const { data, updateAdvertisement, updateSystemSettings } = useData();
   const [activeTab, setActiveTab] = useState("users");
   const [users, setUsers] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -51,11 +43,10 @@ export default function AdminPanel() {
   // Package Management States
   const [packageTemplates, setPackageTemplates] = useState([]);
   const [newPkg, setNewPkg] = useState({ name: "", duration: "", durationUnit: "months", benefits: "" });
-  const [editingPkg, setEditingPkg] = useState(null);
   const [assignForm, setAssignForm] = useState({ email: "", packageId: "" });
   const [memberPkgSearchEmail, setMemberPkgSearchEmail] = useState("");
   const [searchedMemberBio, setSearchedMemberBio] = useState(null);
-  const [vacationMode, setVacationMode] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [toastMsg, setToastMsg] = useState("");
   const [toastType, setToastType] = useState("success");
@@ -89,21 +80,13 @@ export default function AdminPanel() {
   const [supportTickets, setSupportTickets] = useState([]);
   const [pendingTicketsCount, setPendingTicketsCount] = useState(0);
   const [supportPage, setSupportPage] = useState(1);
-  const [supportLimit, setSupportLimit] = useState(8);
+  const [supportLimit] = useState(15);
   const [supportTotalPages, setSupportTotalPages] = useState(1);
   const [supportStatusFilter, setSupportStatusFilter] = useState(""); // "" (All), "pending", "resolved"
 
   const triggerConfirm = (message, onConfirm) => {
     setConfirmModal({ isOpen: true, message, onConfirm });
   };
-
-  // Load vacation mode from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("hugoStudioVacationMode");
-    if (saved) {
-      setVacationMode(JSON.parse(saved));
-    }
-  }, []);
 
   const handleAdImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -119,7 +102,7 @@ export default function AdminPanel() {
     reader.onloadend = async () => {
       const base64Str = reader.result;
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/data/upload-ad`, {
+        const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/data/upload-ad`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -149,7 +132,7 @@ export default function AdminPanel() {
       setUploadingAd(true);
       try {
         if (data?.advertisement?.imageUrl) {
-          await fetch(`${import.meta.env.VITE_API_URL}/data/delete-ad`, {
+          await fetchWithAuth(`${import.meta.env.VITE_API_URL}/data/delete-ad`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url: data.advertisement.imageUrl })
@@ -163,12 +146,6 @@ export default function AdminPanel() {
         setUploadingAd(false);
       }
     });
-  };
-
-  const handleVacationModeChange = (value) => {
-    setVacationMode(value);
-    localStorage.setItem("hugoStudioVacationMode", JSON.stringify(value));
-    showNotification(value ? "Bật chế độ đi du lịch!" : "Tắt chế độ đi du lịch.");
   };
 
   const sha256 = async (message) => {
@@ -248,7 +225,7 @@ export default function AdminPanel() {
         page: userPage,
         limit: userLimit
       });
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/bios?${params.toString()}`);
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/bios?${params.toString()}`);
       if (res.ok) {
         const result = await res.json();
         if (result && result.bios && result.pagination && result.stats) {
@@ -280,7 +257,7 @@ export default function AdminPanel() {
         page: supportPage.toString(),
         limit: supportLimit.toString()
       });
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/support/tickets?${params.toString()}`);
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/support/tickets?${params.toString()}`);
       if (res.ok) {
         const result = await res.json();
         setSupportTickets(result.tickets || []);
@@ -317,10 +294,10 @@ export default function AdminPanel() {
       setLoading(true);
       try {
         const [bookingsRes, partnersRes, packagesRes, ticketsRes] = await Promise.all([
-          fetch(import.meta.env.VITE_API_URL + "/bookings"),
-          fetch(import.meta.env.VITE_API_URL + "/partners"),
-          fetch(import.meta.env.VITE_API_URL + "/packages"),
-          fetch(import.meta.env.VITE_API_URL + "/support/tickets?limit=1")
+          fetchWithAuth(import.meta.env.VITE_API_URL + "/bookings"),
+          fetchWithAuth(import.meta.env.VITE_API_URL + "/partners"),
+          fetchWithAuth(import.meta.env.VITE_API_URL + "/packages"),
+          fetchWithAuth(import.meta.env.VITE_API_URL + "/support/tickets?limit=1")
         ]);
 
         if (bookingsRes.ok) setBookings(await bookingsRes.json());
@@ -362,7 +339,7 @@ export default function AdminPanel() {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/bios/${deleteTarget._id}`, {
+      const response = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/bios/${deleteTarget._id}`, {
         method: "DELETE"
       });
 
@@ -385,7 +362,7 @@ export default function AdminPanel() {
   const handleToggleBioStatus = async (bioId, currentStatus) => {
     const nextStatus = currentStatus === 'locked' ? 'active' : 'locked';
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/bios/${bioId}/status`, {
+      const response = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/bios/${bioId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus })
@@ -407,7 +384,7 @@ export default function AdminPanel() {
   const handleToggleBookingContacted = async (bookingId, currentContacted) => {
     const nextContacted = !currentContacted;
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}/contact`, {
+      const response = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}/contact`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contacted: nextContacted })
@@ -428,7 +405,7 @@ export default function AdminPanel() {
   const handleDeleteBooking = (bookingId) => {
     triggerConfirm("Bạn có chắc chắn muốn xóa vĩnh viễn yêu cầu đặt lịch này không?", async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}`, {
+        const response = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}`, {
           method: "DELETE"
         });
         if (response.ok) {
@@ -447,7 +424,7 @@ export default function AdminPanel() {
   // Support Tickets Actions
   const handleResolveTicket = async (ticketId) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/support/tickets/${ticketId}/resolve`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/support/tickets/${ticketId}/resolve`, {
         method: "PATCH"
       });
       if (res.ok) {
@@ -471,7 +448,7 @@ export default function AdminPanel() {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/partners`, {
+      const response = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/partners`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(partnerForm)
@@ -496,7 +473,7 @@ export default function AdminPanel() {
   const handleDeletePartner = (partnerId) => {
     triggerConfirm("Bạn có chắc chắn muốn kết thúc liên kết với đối tác này?", async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/partners/${partnerId}`, {
+        const response = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/partners/${partnerId}`, {
           method: "DELETE"
         });
         if (response.ok) {
@@ -517,7 +494,7 @@ export default function AdminPanel() {
 
   const fetchPackageTemplates = async () => {
     try {
-      const res = await fetch(import.meta.env.VITE_API_URL + "/packages");
+      const res = await fetchWithAuth(import.meta.env.VITE_API_URL + "/packages");
       if (res.ok) setPackageTemplates(await res.json());
     } catch (e) {
       console.error(e);
@@ -532,7 +509,7 @@ export default function AdminPanel() {
     }
 
     try {
-      const res = await fetch(import.meta.env.VITE_API_URL + "/packages", {
+      const res = await fetchWithAuth(import.meta.env.VITE_API_URL + "/packages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -559,7 +536,7 @@ export default function AdminPanel() {
   const handleDeletePackageTemplate = async (id) => {
     triggerConfirm("Bạn có chắc chắn muốn xóa mẫu gói dịch vụ này không?", async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/packages/${id}`, {
+        const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/packages/${id}`, {
           method: "DELETE"
         });
         if (res.ok) {
@@ -582,7 +559,7 @@ export default function AdminPanel() {
     }
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/packages/user`, {
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/packages/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -617,7 +594,7 @@ export default function AdminPanel() {
     }
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/bios/me?email=${encodeURIComponent(email)}`);
+      const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/bios/me?email=${encodeURIComponent(email)}`);
       if (res.ok) {
         const data = await res.json();
         if (data && data.bio) {
@@ -639,7 +616,7 @@ export default function AdminPanel() {
     if (!searchedMemberBio) return;
     triggerConfirm(`Bạn có chắc chắn muốn xóa gói này khỏi thành viên ${searchedMemberBio.email}? Thời hạn trang Bio của họ sẽ tự động bị trừ tương ứng.`, async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/packages/user`, {
+        const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/packages/user`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -765,7 +742,7 @@ export default function AdminPanel() {
               Admin Workspace
             </span>
             <h1 className="font-display text-lg font-black text-slate-800 dark:text-white mt-2">
-              <HugoStudioColoredBrandLogo className="text-xl font-black tracking-tight" />
+              <HugoLogo className="text-xl font-black tracking-tight" />
             </h1>
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Bảng điều khiển</p>
           </div>
@@ -881,401 +858,34 @@ export default function AdminPanel() {
 
         {/* TAB 1: USERS */}
         {activeTab === "users" && (
-          <div className="space-y-6 animate-fadeIn">
-            {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Card 1: Total */}
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-[#a5b4fc] flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-xl">group</span>
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tổng thành viên</div>
-                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.total.toLocaleString()}</div>
-                </div>
-              </div>
-              {/* Card 2: Active */}
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-xl">person_play</span>
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đang hoạt động</div>
-                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.active.toLocaleString()}</div>
-                </div>
-              </div>
-              {/* Card 3: Locked */}
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-xl">block</span>
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bị khóa</div>
-                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.locked.toLocaleString()}</div>
-                </div>
-              </div>
-              {/* Card 4: Lifetime */}
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-xl">workspace_premium</span>
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vô thời hạn</div>
-                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.lifetime.toLocaleString()}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Filter and Search Bar */}
-            <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-3">
-              <div className="flex flex-col md:flex-row gap-3">
-                {/* Search Input */}
-                <div className="relative flex-grow">
-                  <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
-                  <input
-                    type="text"
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                    placeholder="Tìm theo tên, email, slug..."
-                    className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder-slate-400 text-slate-850 dark:text-white outline-none"
-                  />
-                  {searchInput && (
-                    <button
-                      onClick={() => setSearchInput("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 dark:hover:text-white flex items-center justify-center w-5 h-5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-850"
-                    >
-                      <span className="material-symbols-outlined text-sm">close</span>
-                    </button>
-                  )}
-                </div>
-                
-                {/* Filters */}
-                <div className="flex flex-wrap gap-2">
-                  {/* Status filter */}
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => { setStatusFilter(e.target.value); setUserPage(1); }}
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Trạng thái: Tất cả</option>
-                    <option value="active">Hoạt động</option>
-                    <option value="locked">Bị khóa</option>
-                  </select>
-
-                  {/* Expiration filter */}
-                  <select
-                    value={expirationFilter}
-                    onChange={(e) => { setExpirationFilter(e.target.value); setUserPage(1); }}
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Thời hạn: Tất cả</option>
-                    <option value="active">Còn hạn</option>
-                    <option value="expired">Hết hạn</option>
-                    <option value="lifetime">Vô thời hạn</option>
-                  </select>
-
-                  {/* Sort by */}
-                  <select
-                    value={userSortBy}
-                    onChange={(e) => { setUserSortBy(e.target.value); setUserPage(1); }}
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="createdAt">Sắp xếp: Ngày tạo</option>
-                    <option value="expiresAt">Sắp xếp: Ngày hết hạn</option>
-                    <option value="displayName">Sắp xếp: Tên hiển thị</option>
-                  </select>
-
-                  {/* Sort Order Toggle */}
-                  <button
-                    onClick={() => setUserSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 flex items-center gap-1 hover:bg-slate-105 dark:hover:bg-slate-900 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-sm font-bold">
-                      {userSortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}
-                    </span>
-                    <span>{userSortOrder === 'asc' ? 'Tăng' : 'Giảm'}</span>
-                  </button>
-
-                  {/* Limit filter */}
-                  <select
-                    value={userLimit}
-                    onChange={(e) => { setUserLimit(parseInt(e.target.value)); setUserPage(1); }}
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value={10}>Hiện: 10</option>
-                    <option value={20}>Hiện: 20</option>
-                    <option value={50}>Hiện: 50</option>
-                    <option value={100}>Hiện: 100</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Users Table / List Card */}
-            <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex justify-between items-center">
-                <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-slate-550 dark:text-slate-455 text-base">group</span>
-                  Danh sách thành viên ({totalMatchedUsers})
-                </h3>
-              </div>
-
-              {users.length > 0 ? (
-                <div>
-                  {/* Desktop Table View */}
-                  <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full text-left text-xs border-collapse">
-                      <thead>
-                        <tr className="bg-slate-100/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800/70 font-bold uppercase tracking-wider text-[9px]">
-                          <th className="px-6 py-4">Thành viên</th>
-                          <th className="px-6 py-4">Bio Link</th>
-                          <th className="px-6 py-4">Thời hạn</th>
-                          <th className="px-6 py-4">Trạng thái</th>
-                          <th className="px-6 py-4 text-center">Hành động</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-150 dark:divide-slate-800/60 font-medium">
-                        {users.map((user) => {
-                          const bioUrl = `${window.location.origin}/bio/${user.slug}`;
-                          return (
-                            <tr key={user._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
-                              <td className="px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-750 flex items-center justify-center shrink-0 shadow-inner">
-                                    {user.avatarUrl ? (
-                                      <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                      <span className="material-symbols-outlined text-slate-400 text-sm">person</span>
-                                    )}
-                                  </div>
-                                  <div className="min-w-0">
-                                    <div className="font-bold text-slate-850 dark:text-white text-xs truncate">{user.displayName}</div>
-                                    <div className="text-[10px] text-slate-400 truncate">{user.email}</div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 font-mono text-[11px]">
-                                <div className="flex items-center gap-2">
-                                  <a href={bioUrl} target="_blank" rel="noreferrer" className="text-primary dark:text-[#a5b4fc] hover:underline font-bold truncate">
-                                    /bio/{user.slug}
-                                  </a>
-                                  <button
-                                    onClick={() => handleCopyText(bioUrl, user._id)}
-                                    className="text-slate-400 hover:text-slate-650 dark:hover:text-white shrink-0 flex items-center justify-center w-6 h-6 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                    title="Sao chép liên kết"
-                                  >
-                                    <span className={`material-symbols-outlined text-xs ${copiedUserId === user._id ? "text-emerald-500 font-bold" : ""}`}>
-                                      {copiedUserId === user._id ? "check" : "content_copy"}
-                                    </span>
-                                  </button>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                {formatExpiration(user.expiresAt)}
-                              </td>
-                              <td className="px-6 py-4">
-                                {user.status === 'locked' ? (
-                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                                    Bị khóa
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    Hoạt động
-                                  </span>
-                                )}
-                              </td>
-                              <td className="px-6 py-4 text-center">
-                                <div className="flex items-center justify-center gap-2">
-                                  <button
-                                    onClick={() => handleToggleBioStatus(user._id, user.status)}
-                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm active:scale-95 ${
-                                      user.status === 'locked'
-                                        ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                        : "bg-rose-600 hover:bg-rose-700 text-white"
-                                    }`}
-                                  >
-                                    {user.status === 'locked' ? "Mở khóa" : "Khóa"}
-                                  </button>
-                                  <button
-                                    onClick={() => triggerConfirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của ${user.displayName}?`, () => setDeleteTarget(user))}
-                                    className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-slate-200 hover:bg-slate-350 dark:bg-slate-880 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-all shadow-sm active:scale-95"
-                                  >
-                                    Xóa
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Compressed Mobile List View */}
-                  <div className="md:hidden divide-y divide-slate-150 dark:divide-slate-800/60 px-4">
-                    {users.map((user) => {
-                      const bioUrl = `${window.location.origin}/bio/${user.slug}`;
-                      const isLocked = user.status === 'locked';
-                      const expDays = getExpirationDaysOnly(user.expiresAt);
-                      return (
-                        <div key={user._id} className="py-4 space-y-3 first:pt-2 last:pb-2">
-                          {/* Top info row */}
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-750 flex items-center justify-center shrink-0">
-                                {user.avatarUrl ? (
-                                  <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                                ) : (
-                                  <span className="material-symbols-outlined text-slate-400 text-xs">person</span>
-                                )}
-                              </div>
-                              <div className="min-w-0">
-                                <h4 className="font-bold text-slate-850 dark:text-white text-xs truncate leading-tight">{user.displayName}</h4>
-                                <p className="text-[10px] text-slate-400 truncate leading-none mt-0.5">{user.email}</p>
-                              </div>
-                            </div>
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] font-extrabold border shrink-0 ${
-                              isLocked
-                                ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-455 dark:border-rose-900/30"
-                                : "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30"
-                            }`}>
-                              {isLocked ? "Bị khóa" : "Hoạt động"}
-                            </span>
-                          </div>
-
-                          {/* Copy Link Pill Row */}
-                          <div className="flex items-center justify-between bg-slate-100/60 dark:bg-[#1a1626]/80 px-3 py-1.5 rounded-xl border border-slate-200/40 dark:border-slate-800/80">
-                            <a href={bioUrl} target="_blank" rel="noreferrer" className="text-primary dark:text-[#a5b4fc] text-xs font-mono font-bold truncate hover:underline flex-1">
-                              /bio/{user.slug}
-                            </a>
-                            <button
-                              onClick={() => handleCopyText(bioUrl, user._id)}
-                              className="text-slate-400 hover:text-slate-650 dark:hover:text-white shrink-0 ml-2"
-                              title="Sao chép"
-                            >
-                              <span className={`material-symbols-outlined text-xs ${copiedUserId === user._id ? "text-emerald-500 font-bold" : ""}`}>
-                                {copiedUserId === user._id ? "check" : "content_copy"}
-                              </span>
-                            </button>
-                          </div>
-
-                          {/* Metadata & Mini Actions Row */}
-                          <div className="flex items-center justify-between text-xs gap-4 pt-1">
-                            <div className="text-[10px] font-medium text-slate-450 dark:text-slate-400">
-                              {user.expiresAt ? (
-                                <span>Hạn: <strong className="text-slate-700 dark:text-slate-200">{new Date(user.expiresAt).toLocaleDateString('vi-VN')}</strong> ({expDays <= 0 ? "Hết hạn" : `còn ${expDays} ngày`})</span>
-                              ) : (
-                                <span className="text-emerald-600 dark:text-emerald-400 font-bold">Vĩnh viễn</span>
-                              )}
-                            </div>
-                            
-                            <div className="flex gap-2 shrink-0">
-                              <button
-                                onClick={() => handleToggleBioStatus(user._id, user.status)}
-                                className={`px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase transition-all border ${
-                                  isLocked
-                                    ? "bg-emerald-500 border-emerald-500 text-white"
-                                    : "bg-white border-rose-200 text-rose-600 hover:bg-rose-50 dark:bg-slate-850 dark:border-rose-900/45 dark:text-rose-455"
-                                }`}
-                              >
-                                {isLocked ? "Mở" : "Khóa"}
-                              </button>
-                              <button
-                                onClick={() => triggerConfirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của ${user.displayName}?`, () => setDeleteTarget(user))}
-                                className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-605 hover:bg-slate-200 dark:bg-slate-850 dark:border-slate-800 dark:text-slate-350 transition-all"
-                              >
-                                Xóa
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Smart Pagination Controls */}
-                  <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/30 dark:bg-[#181622]/20 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
-                    <div className="text-slate-550 dark:text-slate-400 font-medium">
-                      Hiển thị từ <strong className="text-slate-700 dark:text-white">{totalMatchedUsers > 0 ? (userPage - 1) * userLimit + 1 : 0}</strong> đến <strong className="text-slate-700 dark:text-white">{Math.min(userPage * userLimit, totalMatchedUsers)}</strong> trong tổng số <strong className="text-slate-700 dark:text-white">{totalMatchedUsers}</strong> thành viên
-                    </div>
-
-                    {totalPages > 1 && (
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          disabled={userPage === 1}
-                          onClick={() => setUserPage(1)}
-                          className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
-                          title="Trang đầu"
-                        >
-                          <span className="material-symbols-outlined text-sm font-bold">first_page</span>
-                        </button>
-                        <button
-                          disabled={userPage === 1}
-                          onClick={() => setUserPage(prev => Math.max(1, prev - 1))}
-                          className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
-                          title="Trang trước"
-                        >
-                          <span className="material-symbols-outlined text-sm font-bold">chevron_left</span>
-                        </button>
-
-                        {/* Page Numbers */}
-                        {Array.from({ length: totalPages }).map((_, i) => {
-                          const p = i + 1;
-                          if (p === 1 || p === totalPages || (p >= userPage - 1 && p <= userPage + 1)) {
-                            return (
-                              <button
-                                key={p}
-                                onClick={() => setUserPage(p)}
-                                className={`w-8 h-8 rounded-lg border font-bold transition-all ${
-                                  userPage === p
-                                    ? "bg-indigo-600 border-indigo-600 text-white shadow-sm"
-                                    : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-650 dark:text-slate-350"
-                                }`}
-                              >
-                                {p}
-                              </button>
-                            );
-                          } else if (p === userPage - 2 || p === userPage + 2) {
-                            return (
-                              <span key={p} className="text-slate-400 select-none px-0.5">...</span>
-                            );
-                          }
-                          return null;
-                        })}
-
-                        <button
-                          disabled={userPage === totalPages}
-                          onClick={() => setUserPage(prev => Math.min(totalPages, prev + 1))}
-                          className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
-                          title="Trang sau"
-                        >
-                          <span className="material-symbols-outlined text-sm font-bold">chevron_right</span>
-                        </button>
-                        <button
-                          disabled={userPage === totalPages}
-                          onClick={() => setUserPage(totalPages)}
-                          className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
-                          title="Trang cuối"
-                        >
-                          <span className="material-symbols-outlined text-sm font-bold">last_page</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
-                  <span className="material-symbols-outlined text-3xl opacity-40">group</span>
-                  <p className="font-bold text-xs uppercase tracking-wider text-slate-400">Không tìm thấy thành viên nào</p>
-                  <p className="text-[10px] text-slate-450 dark:text-slate-400 mt-1 max-w-[280px]">
-                    {searchQuery ? "Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc." : "Chưa có thành viên nào tạo tài khoản."}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+          <AdminUsersTab
+            userStats={userStats}
+            searchInput={searchInput}
+            setSearchInput={setSearchInput}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            setUserPage={setUserPage}
+            expirationFilter={expirationFilter}
+            setExpirationFilter={setExpirationFilter}
+            userSortBy={userSortBy}
+            setUserSortBy={setUserSortBy}
+            userSortOrder={userSortOrder}
+            setUserSortOrder={setUserSortOrder}
+            userLimit={userLimit}
+            setUserLimit={setUserLimit}
+            totalMatchedUsers={totalMatchedUsers}
+            users={users}
+            handleCopyText={handleCopyText}
+            copiedUserId={copiedUserId}
+            handleToggleBioStatus={handleToggleBioStatus}
+            triggerConfirm={triggerConfirm}
+            setDeleteTarget={setDeleteTarget}
+            userPage={userPage}
+            totalPages={totalPages}
+            searchQuery={searchQuery}
+            getExpirationDaysOnly={getExpirationDaysOnly}
+            formatExpiration={formatExpiration}
+          />
         )}
 
         {/* TAB 2: BOOKINGS */}
@@ -1985,154 +1595,16 @@ export default function AdminPanel() {
 
         {/* TAB 5: SETTINGS */}
         {activeTab === "settings" && (
-          <div className="space-y-6 animate-fadeIn">
-            {/* Vacation Mode Toggle */}
-            <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8">
-              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-amber-500 text-lg">flight_takeoff</span>
-                Chế độ Du lịch
-              </h3>
-              
-              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
-                <div>
-                  <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">
-                    Bật thông báo du lịch (Ngừng nhận lịch đặt mới)
-                  </span>
-                  <p className="text-[10px] text-slate-400 mt-1">Khi kích hoạt, hệ thống sẽ tạm dừng nhận yêu cầu đặt lịch hẹn mới từ khách hàng</p>
-                </div>
-                
-                {/* Elegant Toggle Switch */}
-                <button
-                  type="button"
-                  onClick={() => handleVacationModeChange(!vacationMode)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    vacationMode ? "bg-emerald-500 shadow-[0_2px_8px_rgba(16,185,129,0.35)]" : "bg-slate-200 dark:bg-slate-800"
-                  }`}
-                  style={{ minHeight: '0', minWidth: '0' }}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                      vacationMode ? "translate-x-5" : "translate-x-0"
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-
-            {/* Advertisement Settings */}
-            <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
-              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-base">campaign</span>
-                Quản lý Quảng Cáo Popup (Ad Banner)
-              </h3>
-              <p className="text-xs text-slate-450 leading-relaxed">
-                Cấu hình hình ảnh và liên kết URL của Popup quảng cáo toàn hệ thống. Ảnh banner sẽ tự động xuất hiện làm nổi bật chiến dịch khi người dùng truy cập.
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start border-t border-slate-100 dark:border-slate-800/60 pt-6">
-                {/* Left side: Upload card */}
-                <div className="md:col-span-5 space-y-4">
-                  <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Ảnh quảng cáo banner:</span>
-                  
-                  {data?.advertisement?.imageUrl ? (
-                    <div className="relative group rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/30 p-2 shadow-inner">
-                      <img 
-                        src={data.advertisement.imageUrl} 
-                        alt="Ad Banner Preview" 
-                        className="w-full max-h-56 object-contain rounded-xl"
-                      />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          onClick={handleAdDelete}
-                          className="p-2.5 rounded-full bg-red-655 hover:bg-red-700 text-white shadow-md active:scale-95 transition-transform"
-                          title="Xóa quảng cáo"
-                        >
-                          <span className="material-symbols-outlined text-base font-bold">delete</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/10 transition-colors gap-2">
-                      <span className="material-symbols-outlined text-slate-400 text-3xl">upload_file</span>
-                      <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Tải ảnh lên (JPEG/PNG)</span>
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        className="hidden" 
-                        onChange={handleAdImageUpload}
-                        disabled={uploadingAd}
-                      />
-                    </label>
-                  )}
-
-                  {uploadingAd && (
-                    <div className="text-center py-2 flex items-center justify-center gap-2 text-xs font-bold text-slate-500">
-                      <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                      <span>Đang tải ảnh quảng cáo...</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Right side: settings */}
-                <div className="md:col-span-7 space-y-5">
-                  <div className="space-y-1">
-                    <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Trạng Thái Kích Hoạt:</span>
-                    <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80">
-                      <div>
-                        <span className="font-semibold text-xs text-slate-855 dark:text-slate-350">Hiển thị popup quảng cáo</span>
-                        <p className="text-[9.5px] text-slate-405 mt-0.5">Bật/tắt quảng cáo popup đối với khách truy cập</p>
-                      </div>
-                      <button
-                        type="button"
-                        disabled={!data?.advertisement?.imageUrl}
-                        onClick={() => updateAdvertisement({ isActive: !data?.advertisement?.isActive })}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
-                          data?.advertisement?.isActive ? "bg-emerald-500" : "bg-slate-200 dark:bg-slate-800"
-                        }`}
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            data?.advertisement?.isActive ? "translate-x-4" : "translate-x-0"
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Liên Kết Bấm Vào (Link URL):</span>
-                    <div className="flex gap-2">
-                      <input
-                        type="url"
-                        placeholder="Ví dụ: https://hugostudio.vn/khuyen-mai"
-                        value={data?.advertisement?.linkUrl || ""}
-                        onChange={(e) => updateAdvertisement({ linkUrl: e.target.value })}
-                        className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold font-mono"
-                      />
-                      <button 
-                        onClick={() => showNotification("Đã lưu liên kết quảng cáo! 💾")}
-                        className="px-5 bg-primary hover:bg-indigo-650 text-white text-xs font-bold rounded-xl transition-colors active:scale-95 shrink-0"
-                      >
-                        Lưu Link
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Logout Button */}
-            <div className="md:hidden pt-4">
-              <button 
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-3.5 rounded-2xl transition-all shadow-md active:scale-95"
-              >
-                <span className="material-symbols-outlined text-base">logout</span>
-                <span>Đăng Xuất Tài Khoản Admin</span>
-              </button>
-            </div>
-          </div>
+          <AdminSettingsTab
+            data={data}
+            updateSystemSettings={updateSystemSettings}
+            updateAdvertisement={updateAdvertisement}
+            showNotification={showNotification}
+            handleLogout={handleLogout}
+            uploadingAd={uploadingAd}
+            handleAdImageUpload={handleAdImageUpload}
+            handleAdDelete={handleAdDelete}
+          />
         )}
 
         {/* TAB 6: SUPPORT TICKETS */}

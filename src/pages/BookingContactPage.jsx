@@ -1,31 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useHeadMeta } from "../hooks/useHeadMeta";
+import HugoLogo from "../components/HugoLogo";
 
 // Hugo Studio Brand Logo component to match styling exactly
-const HugoStudioColoredBrandLogo = ({ className = "text-xl sm:text-2xl" }) => {
-  const chars = [
-    { char: "H", color: "#EF4444" },
-    { char: "u", color: "#F97316" },
-    { char: "g", color: "#EAB308" },
-    { char: "o", color: "#22C55E" },
-    { char: " ", color: "transparent" },
-    { char: "S", color: "#3B82F6" },
-    { char: "t", color: "#6366F1" },
-    { char: "u", color: "#A855F7" },
-    { char: "d", color: "#EC4899" },
-    { char: "i", color: "#06B6D4" },
-    { char: "o", color: "#0ea5e9" }
-  ];
-  return (
-    <span className={`we-bare-bears select-none ${className}`}>
-      {chars.map((item, idx) => (
-        <span key={idx} style={{ color: item.color }}>
-          {item.char}
-        </span>
-      ))}
-    </span>
-  );
-};
 
 export default function BookingContactPage() {
   useHeadMeta({
@@ -138,7 +115,7 @@ export default function BookingContactPage() {
         <div className="lg:col-span-5 space-y-6 relative z-10 text-center lg:text-left">
           {/* Brand Logo Header */}
           <div className="flex justify-center lg:justify-start items-center select-none">
-            <HugoStudioColoredBrandLogo className="text-xs font-black tracking-tight" />
+            <HugoLogo className="text-xs font-black tracking-tight" />
           </div>
 
           <div className="space-y-4">

@@ -1,42 +1,59 @@
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { DataProvider } from "./context/DataContext";
+import { DataProvider, useData } from "./context/DataContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import VacationNotificationBanner from "./components/VacationNotificationBanner";
+import MaintenancePage from "./components/MaintenancePage";
 import GlobalAdBanner from "./components/GlobalAdBanner";
-import IntroductionPage from "./pages/IntroductionPage";
-import ServicesPage from "./pages/ServicesPage";
-import BookingContactPage from "./pages/BookingContactPage";
-import LoginPage from "./pages/LoginPage";
-import MemberPortalPage from "./pages/MemberPortalPage";
-import BioPublicPage from "./pages/BioPublicPage";
-import AdminPanel from "./pages/AdminPanel";
-import PartnerBioPage from "./pages/PartnerBioPage";
-import FAQPage from "./pages/FAQPage";
-import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
-import SupportRequestPage from "./pages/SupportRequestPage";
 import HBot from "./components/HBot";
+
+const IntroductionPage = lazy(() => import("./pages/IntroductionPage"));
+const ServicesPage = lazy(() => import("./pages/ServicesPage"));
+const BookingContactPage = lazy(() => import("./pages/BookingContactPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const MemberPortalPage = lazy(() => import("./pages/MemberPortalPage"));
+const BioPublicPage = lazy(() => import("./pages/BioPublicPage"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const PartnerBioPage = lazy(() => import("./pages/PartnerBioPage"));
+const FAQPage = lazy(() => import("./pages/FAQPage"));
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const LivePreviewPage = lazy(() => import("./pages/LivePreviewPage"));
+const SupportRequestPage = lazy(() => import("./pages/SupportRequestPage"));
 
 function AppContent() {
   const location = useLocation();
+  const { data } = useData();
   const isBioRoute = location.pathname.startsWith('/bio/');
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
+  const isPreviewRoute = location.pathname === "/preview";
   const showFooter = 
     !isBioRoute && 
     !isPartnerBioRoute && 
+    !isPreviewRoute &&
     location.pathname !== "/introduction" && 
     location.pathname !== "/" &&
     location.pathname !== "/member" &&
     location.pathname !== "/admin";
 
-  if (isBioRoute || isPartnerBioRoute) {
+  const isMaintenanceMode = data?.systemSettings?.maintenanceMode === true;
+  const isVacationMode = data?.systemSettings?.vacationMode === true;
+  const isAdminOrLoginRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/login');
+
+  if (isMaintenanceMode && !isAdminOrLoginRoute) {
+    return <MaintenancePage />;
+  }
+
+  if (isBioRoute || isPartnerBioRoute || isPreviewRoute) {
     return (
-      <Routes>
-        <Route path="/bio/:slug" element={<BioPublicPage />} />
-        <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
-      </Routes>
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
+        <Routes>
+          <Route path="/bio/:slug" element={<BioPublicPage />} />
+          <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
+          <Route path="/preview" element={<LivePreviewPage />} />
+        </Routes>
+      </Suspense>
     );
   }
 
@@ -49,39 +66,41 @@ function AppContent() {
       {!isEmbed && <Navbar />}
       
       {/* Vacation Mode Notification Banner */}
-      {!isEmbed && <VacationNotificationBanner />}
+      {!isEmbed && <VacationNotificationBanner isVacationMode={isVacationMode} />}
 
       {/* Global Advertisement Banner */}
       {!isEmbed && <GlobalAdBanner />}
       
       {/* Dynamic Content Router */}
       <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Navigate to="/introduction" replace />} />
-          <Route path="/introduction" element={<IntroductionPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/faq" element={<FAQPage />} />
-          <Route path="/booking" element={<BookingContactPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/member" element={
-            (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
-              ? <MemberPortalPage />
-              : <Navigate to="/login" replace />
-          } />
-          <Route path="/bio/:slug" element={<BioPublicPage />} />
-          <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="/admin" element={isAdminAuthenticated() ? <AdminPanel /> : <Navigate to="/login" replace />} />
-          <Route path="/support-request" element={<SupportRequestPage />} />
-          <Route path="*" element={<Navigate to="/introduction" replace />} />
-        </Routes>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/introduction" replace />} />
+            <Route path="/introduction" element={<IntroductionPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/faq" element={<FAQPage />} />
+            <Route path="/booking" element={<BookingContactPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/member" element={
+              (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
+                ? <MemberPortalPage />
+                : <Navigate to="/login" replace />
+            } />
+            <Route path="/bio/:slug" element={<BioPublicPage />} />
+            <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/admin" element={isAdminAuthenticated() ? <AdminPanel /> : <Navigate to="/login" replace />} />
+            <Route path="/support-request" element={<SupportRequestPage />} />
+            <Route path="*" element={<Navigate to="/introduction" replace />} />
+          </Routes>
+        </Suspense>
       </main>
 
       {/* Global Brand footer bar */}
       {!isEmbed && showFooter && <Footer />}
 
       {/* Floating AI chatbot support assistant */}
-      {!isEmbed && <HBot />}
+      {!isEmbed && data?.systemSettings?.enableHBot !== false && <HBot />}
     </div>
   );
 }
@@ -98,7 +117,7 @@ export default function App() {
 
   return (
     <DataProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AppContent />
       </BrowserRouter>
     </DataProvider>

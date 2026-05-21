@@ -163,6 +163,19 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  const updateSystemSettings = async (settingsUpdates) => {
+    const newData = {
+      ...data,
+      systemSettings: { ...(data.systemSettings || {}), ...settingsUpdates }
+    };
+    setData(newData);
+    try {
+      await dataApi.updateField('systemSettings', newData.systemSettings);
+    } catch (err) {
+      console.error("Error updating system settings:", err);
+    }
+  };
+
   const resetToDefaults = async () => {
     setData(initialData);
     try {
@@ -184,6 +197,7 @@ export const DataProvider = ({ children }) => {
         updatePricing,
         updatePartnerIframe,
         updateAdvertisement,
+        updateSystemSettings,
         resetToDefaults
       }}
     >

@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useData } from "../context/DataContext";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSession";
+import { useData } from "../context/DataContext";
 
 export default function MobileDrawer() {
-  const { data } = useData();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
@@ -13,11 +12,14 @@ export default function MobileDrawer() {
   const accountLabel = isLoggedIn ? "Tài Khoản" : "Đăng Nhập";
   const accountIcon = isLoggedIn ? "account_circle" : "login";
 
+  const { data } = useData();
+  const allowBooking = data?.systemSettings?.allowBooking !== false;
+
   const mainMenuItems = [
     { label: "Giới Thiệu", path: "/introduction" },
     { label: "Dịch Vụ", path: "/services" },
     { label: "Hỏi Đáp", path: "/faq" },
-    { label: "Đặt Lịch & Liên Hệ", path: "/booking" }
+    ...(allowBooking ? [{ label: "Đặt Lịch & Liên Hệ", path: "/booking" }] : [])
   ];
 
   return (

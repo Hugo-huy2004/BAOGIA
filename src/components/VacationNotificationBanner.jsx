@@ -1,27 +1,16 @@
 import React, { useState, useEffect } from "react";
 
-export default function VacationNotificationBanner() {
-  const [isVacation, setIsVacation] = useState(false);
+export default function VacationNotificationBanner({ isVacationMode = false }) {
   const [isVisible, setIsVisible] = useState(true);
 
+  // Auto show when vacation mode is enabled
   useEffect(() => {
-    const saved = localStorage.getItem("hugoStudioVacationMode");
-    if (saved) {
-      setIsVacation(JSON.parse(saved));
+    if (isVacationMode) {
+      setIsVisible(true);
     }
+  }, [isVacationMode]);
 
-    // Listen for storage changes (when settings change in another tab)
-    const handleStorageChange = () => {
-      const updated = localStorage.getItem("hugoStudioVacationMode");
-      setIsVacation(updated ? JSON.parse(updated) : false);
-      setIsVisible(true); // Reset visibility when mode changes
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-
-  if (!isVacation || !isVisible) return null;
+  if (!isVacationMode || !isVisible) return null;
 
   return (
     <div className="sticky top-14 z-40 bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 dark:from-amber-600 dark:via-orange-600 dark:to-rose-600 backdrop-blur-lg border-b border-amber-500/50 dark:border-amber-700/50 shadow-lg animate-slideDown overflow-hidden">

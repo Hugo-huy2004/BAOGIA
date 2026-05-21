@@ -50,47 +50,64 @@ export const loginMember = (member) => {
 };
 
 export const loginAdmin = async (credentials) => {
-  const expectedUsernameHash = import.meta.env.VITE_ADMIN_USERNAME_HASH || "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
-  const expectedPasswordHash = import.meta.env.VITE_ADMIN_PASSWORD_HASH || "2403926830cc16d2db7b34fe5047b2029577501a3e61c5b8b9f39e31d4d38c53";
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+    const response = await fetch(`${API_BASE_URL}/admin/login`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: credentials.username,
+        password: credentials.password
+      })
+    });
 
-  // SHA-256 helper
-  const sha256 = async (message) => {
-    const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
+    if (!response.ok) {
+      return null;
+    }
 
-  const usernameHash = await sha256(credentials.username || '');
-  const passwordHash = await sha256(credentials.password || '');
+    const data = await response.json();
+    
+    if (!data.success) {
+      return null;
+    }
 
-  if (
-    usernameHash !== expectedUsernameHash ||
-    passwordHash !== expectedPasswordHash
-  ) {
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
+    expiresAt.setHours(0, 0, 0, 0); // Qua 00:00 tính là 1 ngày dùng
+
+    const session = {
+      role: "admin",
+      username: credentials.username,
+      loginAt: new Date().toISOString(),
+      expiresAt: expiresAt.toISOString()
+    };
+
+    writeSession(ADMIN_SESSION_KEY, session);
+    return session;
+  } catch (error) {
+    console.error('Lỗi khi đăng nhập admin:', error);
     return null;
   }
-
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
-  expiresAt.setHours(0, 0, 0, 0); // Qua 00:00 tính là 1 ngày dùng
-
-  const session = {
-    role: "admin",
-    username: credentials.username,
-    loginAt: new Date().toISOString(),
-    expiresAt: expiresAt.toISOString()
-  };
-
-  writeSession(ADMIN_SESSION_KEY, session);
-  return session;
 };
 
-export const logoutAuth = () => {
+export const logoutAuth = async () => {
   localStorage.removeItem(MEMBER_SESSION_KEY);
   localStorage.removeItem(ADMIN_SESSION_KEY);
   sessionStorage.removeItem(MEMBER_SESSION_KEY);
   sessionStorage.removeItem(ADMIN_SESSION_KEY);
+
+  // Gọi API để xóa HttpOnly Cookie
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+    await fetch(`${API_BASE_URL}/admin/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
 };
 
 export const isMemberAuthenticated = () => Boolean(getMemberSession());

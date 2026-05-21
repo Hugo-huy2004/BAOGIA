@@ -18,8 +18,13 @@ const ensurePartnerAccessToken = async (partner) => {
 router.get('/', async (req, res) => {
   try {
     const partners = await Partner.find().sort({ createdAt: -1 });
-    const partnersWithTokens = await Promise.all(partners.map(ensurePartnerAccessToken));
-    res.json(partnersWithTokens);
+    // Remove accessToken from public payload for security
+    const sanitizedPartners = partners.map(p => {
+      const pObj = p.toObject();
+      delete pObj.accessToken;
+      return pObj;
+    });
+    res.json(sanitizedPartners);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

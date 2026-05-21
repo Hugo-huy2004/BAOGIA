@@ -1,65 +1,14 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { useData } from "../context/DataContext";
 import { getMemberSession, logoutAuth } from "../services/authSession";
 import dataApi from "../services/dataApi";
+import MemberProjectsTab from "../components/member/MemberProjectsTab";
+import MemberServicesTab from "../components/member/MemberServicesTab";
 import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
 
 
-// Helper to check if dark contrast is needed
-const isColorDark = (color) => {
-  if (!color) return false;
-  const c = color.substring(1);
-  const rgb = parseInt(c, 16);
-  if (isNaN(rgb)) return false;
-  const r = (rgb >> 16) & 0xff;
-  const g = (rgb >> 8) & 0xff;
-  const b = (rgb >> 0) & 0xff;
-  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return luma < 140;
-};
-
-// Gradient colors for brand identity
-const BRAND_COLORS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#A855F7"];
-
 // Function to render text with each character in a different color
-const RenderColoredText = ({ text }) => {
-  if (!text) return null;
-  return (
-    <>
-      {text.split("").map((char, idx) => (
-        <span key={idx} style={{ color: BRAND_COLORS[idx % BRAND_COLORS.length] }}>
-          {char}
-        </span>
-      ))}
-    </>
-  );
-};
 
 // Hugo Studio Brand Logo component to match styling exactly
-const HugoStudioColoredBrandLogo = ({ className = "text-xl sm:text-2xl" }) => {
-  const chars = [
-    { char: "H", color: "#EF4444" },
-    { char: "u", color: "#F97316" },
-    { char: "g", color: "#EAB308" },
-    { char: "o", color: "#22C55E" },
-    { char: " ", color: "transparent" },
-    { char: "S", color: "#3B82F6" },
-    { char: "t", color: "#6366F1" },
-    { char: "u", color: "#A855F7" },
-    { char: "d", color: "#EC4899" },
-    { char: "i", color: "#06B6D4" },
-    { char: "o", color: "#0ea5e9" }
-  ];
-  return (
-    <span className={`we-bare-bears select-none ${className}`}>
-      {chars.map((item, idx) => (
-        <span key={idx} style={{ color: item.color }}>
-          {item.char}
-        </span>
-      ))}
-    </span>
-  );
-};
 
 // Social Brand Style detector
 const getSocialBrandStyle = (label = "") => {
@@ -245,7 +194,6 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
 }
 
 export default function MemberPortalPage() {
-  const { data } = useData();
   const memberSession = getMemberSession();
   const [bio, setBio] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -280,6 +228,8 @@ export default function MemberPortalPage() {
   const isGuestMode = useMemo(() => {
     return isEmbedded && !memberSession?.email;
   }, [isEmbedded, memberSession]);
+
+  const previewIframeRef = useRef(null);
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -336,16 +286,17 @@ export default function MemberPortalPage() {
       btnShadow: 4,
       template: "default"
     },
-    tabs: []
+    tabs: [],
+    projects: [],
+    services: []
   });
 
   const [newLinkLabel, setNewLinkLabel] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
 
-  const [newTabTitle, setNewTabTitle] = useState("");
-  const [newTabContent, setNewTabContent] = useState("");
 
-  const [simActiveTab, setSimActiveTab] = useState(null);
+
+
 
   const [cropModal, setCropModal] = useState({
     isOpen: false,
@@ -417,7 +368,9 @@ export default function MemberPortalPage() {
                 btnShadow: 6,
                 template: "default"
               },
-              tabs: []
+              tabs: [],
+              projects: [],
+              services: []
             };
             setBio(defaultGuest);
             setFormData(defaultGuest);
@@ -468,7 +421,9 @@ export default function MemberPortalPage() {
               btnShadow: typeof b.theme?.btnShadow === "number" ? b.theme.btnShadow : 4,
               template: b.theme?.template || "default"
             },
-            tabs: b.tabs || []
+            tabs: b.tabs || [],
+            projects: b.projects || [],
+            services: b.services || []
           });
         }
       } catch (error) {
@@ -495,6 +450,30 @@ export default function MemberPortalPage() {
     }, 1200);
 
     return () => clearTimeout(timer);
+  }, [formData]);
+
+  useEffect(() => {
+    const postToIframe = () => {
+      if (previewIframeRef.current && previewIframeRef.current.contentWindow) {
+        previewIframeRef.current.contentWindow.postMessage({
+          type: "UPDATE_PREVIEW",
+          payload: formData
+        }, "*");
+      }
+    };
+
+    // Post immediately when formData changes
+    postToIframe();
+
+    // Listen for iframe readiness to post initial data
+    const handleMessage = (e) => {
+      if (e.data && e.data.type === "PREVIEW_READY") {
+        postToIframe();
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, [formData]);
 
   const avatarInputRef = useRef(null);
@@ -624,73 +603,9 @@ export default function MemberPortalPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleThemeChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      theme: { ...prev.theme, [field]: value }
-    }));
-  };
 
-  const handleThemeColorChange = (e) => {
-    const { name, value } = e.target;
-    handleThemeChange(name, value);
-  };
 
-  const applyPreset = (preset) => {
-    setFormData((prev) => ({
-      ...prev,
-      theme: {
-        ...prev.theme,
-        bgColor: preset.bgColor,
-        textColor: preset.textColor,
-        accentColor: preset.accentColor,
-        pattern: preset.pattern,
-        preset: preset.id,
-        btnRadius: preset.btnRadius,
-        btnBorderWidth: preset.btnBorderWidth,
-        btnShadow: preset.btnShadow
-      }
-    }));
-    showToast(`Đã áp dụng phối màu: ${preset.name}`, "success");
-  };
 
-  const applyRandomTheme = () => {
-    const isDarkProfile = Math.random() > 0.5;
-
-    const bgColor = isDarkProfile
-      ? ["#09090b", "#0f172a", "#111827", "#1e1b4b", "#1c1917", "#061325"][Math.floor(Math.random() * 6)]
-      : ["#ffffff", "#fafaf9", "#f0fdf4", "#fff7ed", "#fff1f2", "#f0f9ff"][Math.floor(Math.random() * 6)];
-
-    const textColor = isDarkProfile ? "#f8fafc" : "#0f172a";
-
-    const accentColors = ["#6366f1", "#ec4899", "#10b981", "#f59e0b", "#3b82f6", "#ef4444", "#8b5cf6", "#14b8a6"];
-    const accentColor = accentColors[Math.floor(Math.random() * accentColors.length)];
-
-    const randomPattern = PATTERNS[Math.floor(Math.random() * PATTERNS.length)].id;
-    const randomRadius = Math.floor(Math.random() * 32);
-    const randomBorderWidth = Math.random() > 0.6 ? Math.floor(Math.random() * 3) : 0;
-    const randomShadow = Math.floor(Math.random() * 12);
-
-    const templatesList = ["default", "retro-grid", "hero-image", "social-branded", "neon-glass", "natural-leaves", "bento-peach", "editorial-mono"];
-    const randomTemplate = templatesList[Math.floor(Math.random() * templatesList.length)];
-
-    setFormData((prev) => ({
-      ...prev,
-      theme: {
-        bgColor,
-        textColor,
-        accentColor,
-        pattern: randomPattern,
-        preset: "custom",
-        btnRadius: randomRadius,
-        btnBorderWidth: randomBorderWidth,
-        btnShadow: randomShadow,
-        template: randomTemplate
-      }
-    }));
-
-    showToast("Đã thiết kế giao diện ngẫu nhiên!", "success");
-  };
 
   // Social Links Handlers (With Auto-Save capability)
   const addSocialLink = async () => {
@@ -761,70 +676,9 @@ export default function MemberPortalPage() {
     }
   };
 
-  // Custom Tabs Handlers (With Auto-Save capability)
-  const addCustomTab = async () => {
-    if (!newTabTitle.trim() || !newTabContent.trim()) {
-      showToast("Vui lòng điền đủ tiêu đề và nội dung thẻ tab.", "warning");
-      return;
-    }
-    const tabId = "tab_" + Date.now();
-    const updatedTabs = [...formData.tabs, { id: tabId, title: newTabTitle.trim(), content: newTabContent.trim() }];
 
-    setFormData((prev) => ({
-      ...prev,
-      tabs: updatedTabs
-    }));
-    setNewTabTitle("");
-    setNewTabContent("");
 
-    if (isGuestMode) {
-      const updatedBio = { ...formData, tabs: updatedTabs };
-      setBio(updatedBio);
-      localStorage.setItem("hugo_guest_bio", JSON.stringify(updatedBio));
-      showToast("Đã lưu tab bento đối tác! 📋", "success");
-    } else if (bio?._id) {
-      try {
-        const response = await dataApi.updateMemberBio(bio._id, {
-          ...formData,
-          tabs: updatedTabs
-        });
-        setBio(response.bio);
-        showToast("Đã lưu tab bento thành công!", "success");
-      } catch (err) {
-        showToast("Đã thêm tab tạm thời.", "warning");
-      }
-    } else {
-      showToast("Đã thêm tab tạm thời.", "success");
-    }
-  };
 
-  const removeCustomTab = async (idToKill) => {
-    const updatedTabs = formData.tabs.filter((t) => t.id !== idToKill);
-    setFormData((prev) => ({
-      ...prev,
-      tabs: updatedTabs
-    }));
-
-    if (isGuestMode) {
-      const updatedBio = { ...formData, tabs: updatedTabs };
-      setBio(updatedBio);
-      localStorage.setItem("hugo_guest_bio", JSON.stringify(updatedBio));
-      showToast("Đã cập nhật bento tab! 📋", "success");
-    } else if (bio?._id) {
-      try {
-        const response = await dataApi.updateMemberBio(bio._id, {
-          ...formData,
-          tabs: updatedTabs
-        });
-        setBio(response.bio);
-        showToast("Đã cập nhật danh sách bento tab!", "success");
-      } catch (err) {
-        showToast("Đã xóa tab tạm thời.", "warning");
-      }
-    } else {
-      showToast("Đã xóa tab tạm thời.", "success");
-    }
-  };
 
   // Keyboard Enter Interceptors to prevent default form submits
   const handleLinkInputKeyDown = (e) => {
@@ -834,12 +688,7 @@ export default function MemberPortalPage() {
     }
   };
 
-  const handleTabInputKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addCustomTab();
-    }
-  };
+
 
   // Save / Activate flow
   const handleSave = async (e) => {
@@ -968,921 +817,16 @@ export default function MemberPortalPage() {
     showToast("Đã sao chép liên kết vào bộ nhớ tạm.", "success");
   };
 
-  // Helper to get CSS inline styles for background patterns
-  const getPatternStyle = (pattern, bgColor) => {
-    const isDark = isColorDark(bgColor);
-    const opacityColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
 
-    switch (pattern) {
-      case "dots":
-        return {
-          backgroundImage: `radial-gradient(${opacityColor} 1.5px, transparent 1.5px)`,
-          backgroundSize: "16px 16px"
-        };
-      case "dots-dense":
-        return {
-          backgroundImage: `radial-gradient(${opacityColor} 1.2px, transparent 1.2px)`,
-          backgroundSize: "8px 8px"
-        };
-      case "stripes":
-        return {
-          backgroundImage: `linear-gradient(135deg, ${opacityColor} 25%, transparent 25%, transparent 50%, ${opacityColor} 50%, ${opacityColor} 75%, transparent 75%, transparent)`,
-          backgroundSize: "24px 24px"
-        };
-      case "grid":
-        return {
-          backgroundImage: `linear-gradient(${opacityColor} 1px, transparent 1px), linear-gradient(90deg, ${opacityColor} 1px, transparent 1px)`,
-          backgroundSize: "20px 20px"
-        };
-      case "waves":
-        return {
-          backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 8px, ${opacityColor} 8px, ${opacityColor} 16px)`
-        };
-      default:
-        return {};
-    }
-  };
-
-  const getBrutalPatternStyle = (pattern, bgColor) => {
-    const isDark = isColorDark(bgColor);
-    const lineColor = isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
-    const dotColor = isDark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.22)";
-    
-    switch (pattern) {
-      case "dots":
-      case "dots-dense":
-        return {
-          backgroundImage: `radial-gradient(${dotColor} 3px, transparent 3px)`,
-          backgroundSize: "16px 16px"
-        };
-      case "stripes":
-        return {
-          backgroundImage: `repeating-linear-gradient(-45deg, ${lineColor}, ${lineColor} 12px, transparent 12px, transparent 24px)`
-        };
-      case "grid":
-        return {
-          backgroundImage: `linear-gradient(${lineColor} 2px, transparent 2px), linear-gradient(90deg, ${lineColor} 2px, transparent 2px)`,
-          backgroundSize: "28px 28px"
-        };
-      case "waves":
-        return {
-          backgroundImage: `conic-gradient(${lineColor} 25%, transparent 25%, transparent 50%, ${lineColor} 50%, ${lineColor} 75%, transparent 75%)`,
-          backgroundSize: "40px 40px"
-        };
-      default: // "none" or anything else
-        return {
-          backgroundImage: `radial-gradient(${dotColor} 2.5px, transparent 2.5px)`,
-          backgroundSize: "24px 24px"
-        };
-    }
-  };
-
-  const getFlatPatternStyle = (pattern, bgColor) => {
-    const isDark = isColorDark(bgColor);
-    const lineColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
-    
-    switch (pattern) {
-      case "grid":
-        return {
-          backgroundImage: `linear-gradient(${lineColor} 1px, transparent 1px), linear-gradient(90deg, ${lineColor} 1px, transparent 1px)`,
-          backgroundSize: "20px 20px"
-        };
-      case "dots":
-      case "dots-dense":
-        return {
-          backgroundImage: `radial-gradient(${lineColor} 1px, transparent 1px)`,
-          backgroundSize: "16px 16px"
-        };
-      default:
-        return {};
-    }
-  };
-
-
-  const startLabel = bio?.createdAt
-    ? new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(bio.createdAt))
-    : "Chưa kích hoạt";
-
-  const expiresLabel = bio?.expiresAt
-    ? new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(bio.expiresAt))
-    : "Hạn dùng 12 tháng (kể từ ngày tạo)";
 
   const renderSimulatedLayout = () => {
-    const themeObj = formData.theme || {};
-    const bgColor = themeObj.bgColor || "#000000";
-    const accentColor = themeObj.accentColor || "#ffffff";
-    const socialLinks = formData.links ? formData.links.slice(0, 4) : [];
-    const activeBentoTab = simActiveTab !== null ? simActiveTab : (formData.tabs?.length > 0 ? 0 : null);
-    const template = themeObj?.template || "default";
-    const effectiveBgColor = template === "brutalism" ? (themeObj.bgColor === "#000000" || !themeObj.bgColor ? "#facc15" : themeObj.bgColor) : bgColor;
-    const isDark = isColorDark(effectiveBgColor);
-
-    if (template === "flat") {
-      const flatCardStyle = {
-        backgroundColor: isDark ? "#1e1e24" : "#ffffff",
-        color: isDark ? "#ffffff" : "#111111",
-        border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
-        boxShadow: "none",
-        borderRadius: "14px"
-      };
-
-      const flatBtnStyle = (color = accentColor) => ({
-        backgroundColor: color,
-        color: isColorDark(color) ? "#ffffff" : "#111111",
-        border: "none",
-        boxShadow: "none",
-        borderRadius: "10px",
-        fontWeight: "700"
-      });
-
-      const flatBgColor = (themeObj.bgColor === "#000000" || !themeObj.bgColor) ? "#f1f5f9" : themeObj.bgColor;
-      const flatIsDark = isColorDark(flatBgColor);
-
-      return (
-        <>
-          <style>{`
-            .scrollbar-none::-webkit-scrollbar {
-              display: none !important;
-            }
-            .scrollbar-none {
-              -ms-overflow-style: none !important;
-              scrollbar-width: none !important;
-            }
-          `}</style>
-          <div
-            className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth text-white scrollbar-none flex flex-col"
-            style={{ backgroundColor: flatBgColor }}
-          >
-            {/* Global Fixed Background (Avatar Image) */}
-            <div className="absolute inset-0 z-0 pointer-events-none">
-              {formData.avatarUrl && (
-                <img src={optimizeCloudinaryUrl(formData.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover opacity-90" />
-              )}
-            </div>
-
-            {/* SLIDE 1: HERO COVER */}
-            <section 
-              style={{
-                backgroundColor: flatBgColor,
-                ...getFlatPatternStyle(themeObj.pattern, flatBgColor)
-              }}
-              className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0"
-            >
-              <div className="absolute inset-0 bg-black/5 pointer-events-none" />
-
-              <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4 max-w-[240px] mx-auto">
-                {/* Overlapping Background Banner Collage for avatar */}
-                <div className="relative w-28 h-28 flex items-center justify-center">
-                  <div className="absolute w-24 h-24 bg-[#00f0ff] rounded-2xl rotate-6 transform border border-black" />
-                  <div className="absolute w-24 h-24 bg-[#ff007f] rounded-2xl -rotate-6 transform border border-black" />
-                  <div className="absolute w-24 h-24 bg-[#ffff00] rounded-2xl rotate-12 transform border border-black" />
-                  
-                  {formData.avatarUrl ? (
-                    <div className="relative w-20 h-20 overflow-hidden rounded-full border-2 border-black z-10 bg-white">
-                      <img src={optimizeCloudinaryUrl(formData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="relative w-20 h-20 rounded-full border-2 border-black z-10 bg-zinc-200 flex items-center justify-center font-bold text-sm text-black">
-                      HUGO
-                    </div>
-                  )}
-                </div>
-
-                {/* Overlapping Banners for Name & Headline */}
-                <div className="relative w-full py-2 flex flex-col items-center">
-                  <div className="relative bg-[#ffff00] text-black border-2 border-black px-4 py-2 rounded-xl rotate-[-2deg] z-10 shadow-none">
-                    <h1 className="font-serif text-base uppercase tracking-wider leading-none font-black we-bare-bears">
-                      {formData.displayName}
-                    </h1>
-                  </div>
-
-                  {formData.headline && (
-                    <div className="relative bg-[#00f0ff] text-black border border-black px-3 py-1 rounded-lg rotate-[3deg] -mt-2 z-20 shadow-none font-bold uppercase text-[8px] tracking-wider font-mono">
-                      {formData.headline}
-                    </div>
-                  )}
-                </div>
-
-                <div className="animate-bounce opacity-60">
-                  <span className="material-symbols-outlined text-xs">keyboard_double_arrow_down</span>
-                </div>
-              </div>
-            </section>
-
-
-            {/* SLIDE 2B: ACADEMIC & CAREER */}
-            {(formData.education || formData.skills || formData.jobTitle || formData.contactEmail) && (
-              <section 
-                style={{
-                  backgroundColor: "#00f0ff",
-                  ...getFlatPatternStyle(themeObj.pattern, "#00f0ff")
-                }}
-                className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0"
-              >
-                <div className="absolute inset-0 bg-black/5 pointer-events-none" />
-
-                <div className="relative z-20 w-full flex flex-col items-center space-y-3">
-                  <div className="px-3 py-1 bg-[#ffff00] text-black text-[8px] font-black uppercase tracking-widest rounded-lg border border-black rotate-[-1deg]">
-                    HỌC VẤN & SỰ NGHIỆP
-                  </div>
-
-                  {/* Overlapping card wrapper */}
-                  <div className="relative w-full max-w-[240px] mx-auto">
-                    <div className="absolute inset-0 bg-[#ff007f] rounded-2xl -rotate-1.5 translate-x-[-1.5px] translate-y-[1.5px] border-2 border-black pointer-events-none" />
-
-                    <div 
-                      style={{
-                        backgroundColor: "#ffffff",
-                        color: "#111111",
-                        border: "2px solid #000000",
-                        borderRadius: "14px"
-                      }}
-                      className="relative z-10 p-4 w-full text-[9px] space-y-2 text-left font-bold border-2 border-black"
-                    >
-                      {formData.jobTitle && (
-                        <div className="flex items-start justify-between border-b border-black/10 pb-1.5">
-                          <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Công việc</span>
-                          <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.jobTitle}</p>
-                        </div>
-                      )}
-                      {formData.education && (
-                        <div className="flex items-start justify-between border-b border-black/10 pb-1.5">
-                          <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Học vấn</span>
-                          <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.education}</p>
-                        </div>
-                      )}
-                      {formData.skills && (
-                        <div className="flex items-start justify-between border-b border-black/10 pb-1.5">
-                          <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Kỹ năng</span>
-                          <p className="font-bold text-right max-w-[65%] leading-tight break-words">{formData.skills}</p>
-                        </div>
-                      )}
-                      {formData.contactEmail && (
-                        <div className="flex items-start justify-between">
-                          <span className="uppercase tracking-widest text-[8px] font-bold opacity-60">Email LH</span>
-                          <p className="font-bold break-all text-right max-w-[65%]">{formData.contactEmail}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {/* SLIDE 3: LINKS */}
-            <section 
-              style={{
-                backgroundColor: "#ffff00",
-                ...getFlatPatternStyle(themeObj.pattern, "#ffff00")
-              }}
-              className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0"
-            >
-              <div className="absolute inset-0 bg-black/5 pointer-events-none" />
-
-              <div className="relative z-20 w-full space-y-4 max-w-[240px] mx-auto">
-                <div className="text-center">
-                  <span className="px-3 py-1 bg-[#ff007f] text-white text-[8px] font-black uppercase tracking-widest rounded-lg border border-black rotate-[1deg]">
-                    LIÊN KẾT & THÔNG TIN
-                  </span>
-                </div>
-
-                {/* Buttons List */}
-                {formData.links && formData.links.length > 0 && (
-                  <div className="space-y-3 max-h-[180px] overflow-y-auto scrollbar-none">
-                    {formData.links.map((link, idx) => {
-                      const flatColors = ["#FF4B4B", "#3b82f6", "#10b981", "#ff5f00", "#8b5cf6"];
-                      const color = flatColors[idx % flatColors.length];
-                      const rotation = idx % 2 === 0 ? "rotate-1" : "-rotate-1";
-
-                      return (
-                        <div key={idx} className="relative w-full">
-                          {/* Background overlapping black/dark layer for flat effect */}
-                          <div className="absolute inset-0 bg-black rounded-lg translate-x-1 translate-y-1 border border-black pointer-events-none" />
-
-                          <div
-                            style={flatBtnStyle(color)}
-                            className={`relative z-10 block w-full py-2.5 px-4 text-center text-[9px] font-black uppercase tracking-widest border border-black ${rotation}`}
-                          >
-                            {link.label}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </section>
-
-            {/* SLIDE 4: HUGO STUDIO FOOTER */}
-            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 bg-[#09090b] text-white shrink-0">
-              <div style={{
-                backgroundColor: "#1c1c1e",
-                color: "#ffffff",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "14px"
-              }} className="w-full text-center space-y-4 max-w-[200px] mx-auto p-5 font-mono">
-                <h3 className="text-base font-black tracking-tight uppercase">HUGO STUDIO</h3>
-                <p className="text-[7px] tracking-wider opacity-60 font-bold">PROFESSIONAL BOOKING & MANAGEMENT</p>
-
-                <div style={flatBtnStyle("#ffffff")} className="inline-block px-4 py-2 text-[8px] font-black uppercase tracking-widest text-black">
-                  Tạo ngay bio
-                </div>
-
-                <div className="pt-3 border-t border-white/10 mt-4 text-[7px] opacity-60">
-                  Sản phẩm của Hugo Portal
-                </div>
-              </div>
-            </section>
-          </div>
-        </>
-      );
-    }
-
-    if (template === "brutalism") {
-      const brutalCardStyle = {
-        backgroundColor: isDark ? "#121212" : "#ffffff",
-        color: isDark ? "#ffffff" : "#000000",
-        border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
-        boxShadow: `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
-        borderRadius: "0px"
-      };
-
-      const brutalBtnStyle = (color = accentColor) => ({
-        backgroundColor: color,
-        color: isColorDark(color) ? "#ffffff" : "#000000",
-        border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
-        boxShadow: `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
-        borderRadius: "0px",
-        fontWeight: "900"
-      });
-
-      return (
-        <>
-          <style>{`
-            .scrollbar-none::-webkit-scrollbar {
-              display: none !important;
-            }
-            .scrollbar-none {
-              -ms-overflow-style: none !important;
-              scrollbar-width: none !important;
-            }
-          `}</style>
-          <div
-            className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth text-white scrollbar-none flex flex-col bg-black"
-            style={{
-              backgroundColor: effectiveBgColor,
-              ...getBrutalPatternStyle(themeObj.pattern, effectiveBgColor)
-            }}
-          >
-          {/* Global Fixed Background (Avatar Image) */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            {formData.avatarUrl && (
-              <img src={optimizeCloudinaryUrl(formData.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover opacity-85" />
-            )}
-            <div
-              className="absolute inset-0"
-              style={getBrutalPatternStyle(themeObj.pattern, effectiveBgColor)}
-            />
-          </div>
-
-          {/* SLIDE 1: HERO COVER */}
-          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-            <div className="absolute inset-0 bg-black/15 pointer-events-none" />
-
-            <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4 px-2">
-              {formData.avatarUrl && (
-                <div 
-                  style={{
-                    border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
-                    boxShadow: `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`
-                  }}
-                  className="w-24 h-24 overflow-hidden rotate-2 transform transition-transform duration-300 hover:rotate-0"
-                >
-                  <img src={optimizeCloudinaryUrl(formData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover" />
-                </div>
-              )}
-
-              <div style={brutalCardStyle} className="p-4 w-full max-w-[240px] -rotate-1 transform">
-                <h1 className="font-mono text-base font-black uppercase tracking-tight leading-none">
-                  {formData.displayName || "HIỂN THỊ TÊN"}
-                </h1>
-                {formData.headline && (
-                  <div className="mt-2 px-2.5 py-0.5 bg-black text-white dark:bg-white dark:text-black inline-block text-[8px] font-mono font-bold uppercase tracking-wider border-2 border-black dark:border-white">
-                    {formData.headline}
-                  </div>
-                )}
-              </div>
-
-              {/* Scroll Down Indicator */}
-              <div className="pt-2 animate-bounce">
-                <span className="material-symbols-outlined text-lg text-white/70">keyboard_arrow_down</span>
-              </div>
-            </div>
-          </section>
-
-          {/* SLIDE 2: INFO (Thông tin) */}
-          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-            <div className="absolute inset-0 bg-black/30 backdrop-blur-md pointer-events-none" />
-
-            <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4">
-              <div className="px-3 py-1 bg-black text-white dark:bg-white dark:text-black text-[8px] font-mono font-black uppercase border-2 border-black dark:border-white tracking-widest shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                VỀ BẢN THÂN
-              </div>
-
-              {formData.bio && (
-                <div style={brutalCardStyle} className="p-4 w-full text-left font-mono">
-                  <p className="text-[10px] leading-relaxed">
-                    {formData.bio}
-                  </p>
-                </div>
-              )}
-
-              <div className="w-full space-y-3">
-                {/* Info Banner */}
-                {(formData.height || formData.weight || formData.measurements) && (
-                  <div className="grid grid-cols-3 gap-2 w-full">
-                    {formData.height && (
-                      <div style={brutalCardStyle} className="p-2 flex flex-col items-center justify-center">
-                        <span className="text-[6px] uppercase tracking-wider font-bold opacity-60">Cao</span>
-                        <p className="text-[9px] font-black mt-0.5">{formData.height}</p>
-                      </div>
-                    )}
-                    {formData.weight && (
-                      <div style={brutalCardStyle} className="p-2 flex flex-col items-center justify-center">
-                        <span className="text-[6px] uppercase tracking-wider font-bold opacity-60">Nặng</span>
-                        <p className="text-[9px] font-black mt-0.5">{formData.weight}</p>
-                      </div>
-                    )}
-                    {formData.measurements && (
-                      <div style={brutalCardStyle} className="p-2 flex flex-col items-center justify-center">
-                        <span className="text-[6px] uppercase tracking-wider font-bold opacity-60">Số đo</span>
-                        <p className="text-[9px] font-black mt-0.5 truncate w-full text-center">{formData.measurements}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Other details */}
-                {(formData.birthday || formData.address || formData.hobbies || formData.phone) && (
-                  <div style={brutalCardStyle} className="p-3 text-[8px] sm:text-[9px] space-y-2 text-left font-mono">
-                    {formData.phone && (
-                      <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
-                        <span className="uppercase tracking-wider font-bold opacity-65">Booking</span>
-                        <p className="font-black text-[9px]">{formData.phone}</p>
-                      </div>
-                    )}
-                    {formData.birthday && (
-                      <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
-                        <span className="uppercase tracking-wider font-bold opacity-65">Ngày sinh</span>
-                        <p className="font-black text-[9px]">{formData.birthday}</p>
-                      </div>
-                    )}
-                    {formData.address && (
-                      <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
-                        <span className="uppercase tracking-wider font-bold opacity-65">Khu vực</span>
-                        <p className="font-black text-[9px]">{formData.address}</p>
-                      </div>
-                    )}
-                    {formData.hobbies && (
-                      <div className="flex items-start justify-between">
-                        <span className="uppercase tracking-wider font-bold opacity-65">Sở thích</span>
-                        <p className="font-black text-[9px] text-right max-w-[65%] leading-tight">{formData.hobbies}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-
-          {/* SLIDE 2B: ACADEMIC & CAREER */}
-          {(formData.education || formData.skills || formData.jobTitle || formData.contactEmail) && (
-            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-              <div className="absolute inset-0 bg-black/35 backdrop-blur-md pointer-events-none" />
-
-              <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4">
-                <div className="px-3 py-1 bg-black text-white dark:bg-white dark:text-black text-[8px] font-mono font-black uppercase border-2 border-black dark:border-white tracking-widest shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                  HỌC VẤN & SỰ NGHIỆP
-                </div>
-
-                <div style={brutalCardStyle} className="p-3 w-full text-[8px] sm:text-[9px] space-y-2 text-left font-mono">
-                  {formData.jobTitle && (
-                    <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
-                      <span className="uppercase tracking-wider font-bold opacity-65">Công việc</span>
-                      <p className="font-black text-[9px] max-w-[65%] text-right leading-tight break-words">{formData.jobTitle}</p>
-                    </div>
-                  )}
-                  {formData.education && (
-                    <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
-                      <span className="uppercase tracking-wider font-bold opacity-65">Học vấn</span>
-                      <p className="font-black text-[9px] max-w-[65%] text-right leading-tight break-words">{formData.education}</p>
-                    </div>
-                  )}
-                  {formData.skills && (
-                    <div className="flex items-start justify-between border-b border-black/20 dark:border-white/20 pb-1.5">
-                      <span className="uppercase tracking-wider font-bold opacity-65">Kỹ năng</span>
-                      <p className="font-black text-[9px] max-w-[65%] text-right leading-tight break-words">{formData.skills}</p>
-                    </div>
-                  )}
-                  {formData.contactEmail && (
-                    <div className="flex items-start justify-between">
-                      <span className="uppercase tracking-wider font-bold opacity-65">Email LH</span>
-                      <p className="font-black text-[9px] break-all max-w-[65%] text-right">{formData.contactEmail}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* SLIDE 3: LINKS & TABS */}
-          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-md pointer-events-none" />
-
-            <div className="relative z-20 w-full space-y-4">
-              <div className="text-center">
-                <span className="px-2.5 py-0.5 bg-black text-white dark:bg-white dark:text-black text-[8px] font-mono font-black uppercase border-2 border-black dark:border-white tracking-widest shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                  LIÊN KẾT & THÔNG TIN
-                </span>
-              </div>
-
-              {/* Buttons List */}
-              {formData.links && formData.links.length > 0 && (
-                <div className="space-y-2.5 max-h-[160px] overflow-y-auto scrollbar-none">
-                  {formData.links.map((link, idx) => {
-                    const brutalColors = ["#FF3333", "#00E676", "#2979FF", "#D500F9", "#FFEA00"];
-                    const color = brutalColors[idx % brutalColors.length];
-                    return (
-                      <div
-                        key={idx}
-                        style={brutalBtnStyle(color)}
-                        className="block w-full py-2.5 px-4 text-center text-[10px] font-black uppercase tracking-widest"
-                      >
-                        {link.label}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-            </div>
-          </section>
-
-          {/* SLIDE 3.5: PARTNER SERVICE */}
-          {data?.partnerIframe && (
-            <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-              <div className="absolute inset-0 bg-black/50 backdrop-blur-md pointer-events-none" />
-
-              <div className="relative z-20 w-full flex flex-col h-full justify-center space-y-3 px-2">
-                <div className="text-center">
-                  <span className="px-2.5 py-0.5 bg-black text-white dark:bg-white dark:text-black text-[8px] font-mono font-black uppercase border-2 border-black dark:border-white tracking-widest shadow-[2px_2px_0px_0px_#000] dark:shadow-[2px_2px_0px_0px_#fff]">
-                    DỊCH VỤ ĐỐI TÁC
-                  </span>
-                </div>
-
-                <div 
-                  style={{
-                    border: `2px solid ${isDark ? "#ffffff" : "#000000"}`,
-                    boxShadow: `3px 3px 0px 0px ${isDark ? "#ffffff" : "#000000"}`,
-                    borderRadius: "0px"
-                  }}
-                  className="w-full flex-grow max-h-[320px] bg-white overflow-hidden p-0.5 relative flex flex-col"
-                >
-                  <div className="bg-zinc-100 border-b-2 border-black px-2 py-1 flex items-center justify-between text-[6px] font-mono text-black select-none shrink-0 font-bold">
-                    <span>partner.hugostudio.vn</span>
-                    <span className="material-symbols-outlined text-[8px]">refresh</span>
-                  </div>
-                  <div
-                    className="flex-1 w-full bg-white text-black text-[10px] overflow-hidden"
-                    dangerouslySetInnerHTML={{ __html: data.partnerIframe }}
-                  />
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* SLIDE 4: HUGO STUDIO FOOTER */}
-          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 bg-[#09090b] text-white shrink-0">
-            <div style={brutalCardStyle} className="w-full text-center space-y-4 max-w-[240px] mx-auto p-5 font-mono">
-              <h3 className="text-base font-black tracking-tight uppercase">HUGO STUDIO</h3>
-              <p className="text-[7px] tracking-wider opacity-60 font-bold">PROFESSIONAL BOOKING & MANAGEMENT</p>
-
-              <div style={brutalBtnStyle("#ffffff")} className="inline-block px-4 py-2 text-[8px] font-black uppercase tracking-widest">
-                Tạo ngay bio
-              </div>
-
-              <div className="pt-3 border-t border-black/20 dark:border-white/20 mt-4 text-[7px] opacity-60">
-                Sản phẩm của Hugo Portal
-              </div>
-            </div>
-          </section>
-        </div>
-      </>
-    );
-  }
-
     return (
-      <div
-        className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth text-white scrollbar-none flex flex-col bg-black"
-        style={{
-          backgroundColor: bgColor,
-          ...getPatternStyle(themeObj.pattern, bgColor)
-        }}
-      >
-        {/* Global Fixed Background (Avatar Image) */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          {formData.avatarUrl && (
-            <img src={optimizeCloudinaryUrl(formData.avatarUrl, 800)} alt="Cover" className="w-full h-full object-cover" />
-          )}
-          <div
-            className="absolute inset-0"
-            style={getPatternStyle(themeObj.pattern, bgColor)}
-          />
-        </div>
-
-        {/* CSS for custom fonts and styles to match BioPublicPage */}
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
-          
-          .hugo-studio-gradient {
-            background: linear-gradient(90deg, #EF4444 0%, #F97316 20%, #EAB308 40%, #22C55E 60%, #3B82F6 80%, #A855F7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
-          
-          .we-bare-bears {
-            font-family: 'Fredoka', sans-serif;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-          }
-
-          /* Hide scrollbar for simulator */
-          .scrollbar-none::-webkit-scrollbar {
-            display: none;
-          }
-          .scrollbar-none {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-        `}</style>
-
-        {/* SLIDE 1: HERO COVER */}
-        <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-end pb-8 px-4 shrink-0">
-          <div className="absolute inset-0 bg-black/20 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent pointer-events-none" />
-
-          <div className="relative z-20 w-full flex flex-col items-center text-center space-y-3 px-2">
-            <h1 className="font-serif text-lg sm:text-xl uppercase tracking-[0.12em] leading-tight we-bare-bears drop-shadow-md">
-              <RenderColoredText text={formData.displayName || "HIỂN THỊ TÊN"} />
-            </h1>
-            {formData.headline && (
-              <h2 className="text-[9px] tracking-[0.25em] font-light text-white/80 uppercase mt-1 we-bare-bears drop-shadow-md">
-                {formData.headline}
-              </h2>
-            )}
-
-            {/* Scroll Down Indicator */}
-            <div className="pt-4 animate-bounce">
-              <span className="material-symbols-outlined text-lg text-white/70">keyboard_arrow_down</span>
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 2: INFO (Thông tin) */}
-        <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-md pointer-events-none" />
-
-          <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4">
-            <div className="w-8 h-0.5 bg-white/20 rounded-full mb-1" />
-
-            <h3 className="text-[8px] tracking-[0.3em] uppercase text-white/50 font-bold">Về Bản Thân</h3>
-
-            {formData.bio && (
-              <p className="text-[10px] sm:text-xs leading-relaxed text-white/90 font-light px-2 font-serif tracking-wide">
-                {formData.bio}
-              </p>
-            )}
-
-            <div className="w-full mt-2 space-y-3">
-              {/* Info Banner */}
-              {(formData.height || formData.weight || formData.measurements) && (
-                <div className="w-full px-2 py-3 rounded-2xl bg-gradient-to-r from-white/10 via-white/15 to-white/10 border border-white/20 backdrop-blur-sm">
-                  <div className="grid grid-cols-3 gap-1 w-full">
-                    {formData.height && (
-                      <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/5">
-                        <span className="material-symbols-outlined text-white/70 mb-1 text-sm">height</span>
-                        <span className="text-[6px] uppercase tracking-[0.1em] text-white/40 mb-0.5">Chiều cao</span>
-                        <p className="text-[9px] font-serif tracking-widest text-white/95">{formData.height}</p>
-                      </div>
-                    )}
-                    {formData.weight && (
-                      <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/5">
-                        <span className="material-symbols-outlined text-white/70 mb-1 text-sm">monitor_weight</span>
-                        <span className="text-[6px] uppercase tracking-[0.1em] text-white/40 mb-0.5">Cân nặng</span>
-                        <p className="text-[9px] font-serif tracking-widest text-white/95">{formData.weight}</p>
-                      </div>
-                    )}
-                    {formData.measurements && (
-                      <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/5">
-                        <span className="material-symbols-outlined text-white/70 mb-1 text-sm">straighten</span>
-                        <span className="text-[6px] uppercase tracking-[0.1em] text-white/40 mb-0.5">Số đo</span>
-                        <p className="text-[9px] font-serif tracking-widest text-white/95">{formData.measurements}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Other details */}
-              {(formData.birthday || formData.address || formData.hobbies || formData.phone) && (
-                <div className="w-full p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm text-[8px] sm:text-[9px] space-y-2 text-left">
-                  {formData.phone && (
-                    <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
-                      <div className="flex items-center gap-1 text-white/40">
-                        <span className="material-symbols-outlined text-xs">call</span>
-                        <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Booking</span>
-                      </div>
-                      <p className="font-serif font-bold text-[9px] sm:text-[10px] tracking-widest text-white/90 uppercase">{formData.phone}</p>
-                    </div>
-                  )}
-                  {formData.birthday && (
-                    <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
-                      <div className="flex items-center gap-1 text-white/40">
-                        <span className="material-symbols-outlined text-xs">cake</span>
-                        <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Ngày sinh</span>
-                      </div>
-                      <p className="font-serif font-bold text-[9px] sm:text-[10px] tracking-widest text-white/90 uppercase">{formData.birthday}</p>
-                    </div>
-                  )}
-                  {formData.address && (
-                    <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
-                      <div className="flex items-center gap-1 text-white/40">
-                        <span className="material-symbols-outlined text-xs">distance</span>
-                        <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Khu vực</span>
-                      </div>
-                      <p className="font-serif font-bold text-[9px] sm:text-[10px] tracking-widest text-white/90 uppercase">{formData.address}</p>
-                    </div>
-                  )}
-                  {formData.hobbies && (
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-1 text-white/40 mt-0.5">
-                        <span className="material-symbols-outlined text-xs">favorite</span>
-                        <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Sở thích</span>
-                      </div>
-                      <p className="font-serif font-bold text-[9px] sm:text-[10px] tracking-wide text-white/90 text-right max-w-[65%] leading-relaxed uppercase">{formData.hobbies}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 2B: ACADEMIC & CAREER (Học vấn & Sự nghiệp) - Simulated */}
-        {(formData.education || formData.skills || formData.jobTitle || formData.contactEmail) && (
-          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-            <div className="absolute inset-0 bg-black/45 backdrop-blur-md pointer-events-none" />
-
-            <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4">
-              <div className="w-8 h-0.5 bg-white/20 rounded-full mb-1" />
-
-              <h3 className="text-[8px] tracking-[0.3em] uppercase text-white/50 font-bold">Học vấn & Sự nghiệp</h3>
-
-              <div className="w-full mt-2 space-y-3">
-                <div className="w-full p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm text-[8px] sm:text-[9px] space-y-2 text-left">
-                  {formData.jobTitle && (
-                    <div className="flex items-start justify-between border-b border-white/5 pb-1.5">
-                      <div className="flex items-center gap-1 text-white/40 mt-0.5">
-                        <span className="material-symbols-outlined text-xs">work</span>
-                        <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Công việc</span>
-                      </div>
-                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 max-w-[65%] text-right leading-tight break-words">{formData.jobTitle}</p>
-                    </div>
-                  )}
-                  {formData.education && (
-                    <div className="flex items-start justify-between border-b border-white/5 pb-1.5">
-                      <div className="flex items-center gap-1 text-white/40 mt-0.5">
-                        <span className="material-symbols-outlined text-xs">school</span>
-                        <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Học vấn</span>
-                      </div>
-                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 max-w-[65%] text-right leading-tight break-words">{formData.education}</p>
-                    </div>
-                  )}
-                  {formData.skills && (
-                    <div className="flex items-start justify-between border-b border-white/5 pb-1.5">
-                      <div className="flex items-center gap-1 text-white/40 mt-0.5">
-                        <span className="material-symbols-outlined text-xs">psychology</span>
-                        <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Kỹ năng</span>
-                      </div>
-                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 max-w-[65%] text-right leading-tight break-words">{formData.skills}</p>
-                    </div>
-                  )}
-                  {formData.contactEmail && (
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-1 text-white/40 mt-0.5">
-                        <span className="material-symbols-outlined text-xs">alternate_email</span>
-                        <span className="uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Email LH</span>
-                      </div>
-                      <p className="font-semibold text-[9px] sm:text-[10px] text-white/90 max-w-[65%] text-right break-all">{formData.contactEmail}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* SLIDE 3: LINKS & TABS (Liên kết mở rộng) */}
-        <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-lg pointer-events-none" />
-
-          <div className="relative z-20 w-full space-y-4">
-            <div className="text-center space-y-1">
-              <h3 className="text-[8px] tracking-[0.3em] uppercase text-white/50 font-bold">Các Liên Kết</h3>
-            </div>
-
-            {/* Buttons List */}
-            {formData.links && formData.links.length > 0 && (
-              <div className="space-y-2 max-h-[160px] overflow-y-auto scrollbar-none">
-                {formData.links.map((link, idx) => (
-                  <div
-                    key={idx}
-                    className="block w-full py-2.5 px-4 text-center text-[10px] font-bold uppercase tracking-widest transition-all bg-white/10 text-white border border-white/10"
-                    style={{ borderRadius: `${themeObj.btnRadius || 12}px` }}
-                  >
-                    {link.label}
-                  </div>
-                ))}
-              </div>
-            )}
-
-          </div>
-        </section>
-
-        {/* SLIDE 3.5: PARTNER SERVICE IFRAME (Dịch Vụ Đối Tác) */}
-        {data?.partnerIframe && (
-          <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 shrink-0">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-none" />
-
-            <div className="relative z-20 w-full flex flex-col h-full justify-center space-y-3 px-2">
-              <div className="text-center space-y-1">
-                <span className="text-[6px] bg-white/10 text-white/70 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest border border-white/10">
-                  Đối tác liên kết
-                </span>
-                <h3 className="text-[10px] tracking-[0.2em] uppercase text-white font-black mt-1">Dịch Vụ Đối Tác</h3>
-              </div>
-
-              {/* Iframe wrapper mimicking a mobile frame inside the simulator */}
-              <div className="w-full flex-grow max-h-[320px] bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl p-0.5 relative flex flex-col">
-                {/* Simulated browser bar */}
-                <div className="bg-white/10 border-b border-white/5 px-2 py-1 flex items-center justify-between text-[7px] text-white/60 select-none shrink-0">
-                  <div className="flex gap-1 shrink-0">
-                    <span className="w-1 h-1 rounded-full bg-red-500/80" />
-                    <span className="w-1 h-1 rounded-full bg-yellow-500/80" />
-                    <span className="w-1 h-1 rounded-full bg-green-500/80" />
-                  </div>
-                  <div className="bg-black/40 px-2 py-0.5 rounded-full border border-white/10 truncate max-w-[120px] text-[6px] font-mono">
-                    partner.hugostudio.vn
-                  </div>
-                  <span className="material-symbols-outlined text-[8px]">refresh</span>
-                </div>
-
-                {/* Iframe content container */}
-                <div
-                  className="flex-1 w-full bg-white text-black text-[10px] overflow-hidden rounded-b-xl"
-                  dangerouslySetInnerHTML={{ __html: data.partnerIframe }}
-                />
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* SLIDE 4: HUGO STUDIO FOOTER */}
-        <section className="h-full min-h-[520px] w-full snap-start relative z-10 flex flex-col items-center justify-center p-4 bg-[#09090b] text-white shrink-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.06)_0%,transparent_70%)] pointer-events-none" />
-
-          <div className="relative z-20 w-full text-center space-y-4 max-w-[240px] mx-auto p-4 rounded-2xl bg-white/[0.01] border border-white/5 backdrop-blur-md">
-            <div className="flex justify-center">
-              <HugoStudioColoredBrandLogo className="text-sm font-black tracking-tight" />
-            </div>
-            <p className="text-[7px] tracking-[0.2em] font-medium text-white/40 uppercase">Professional Booking & Management</p>
-
-            <div className="inline-block px-4 py-2 rounded-xl bg-white text-black text-[8px] font-bold uppercase tracking-widest we-bare-bears shadow-sm">
-              Tạo ngay bio
-            </div>
-
-            <div className="pt-4 space-y-1.5 border-t border-white/5 mt-4">
-              <p className="text-[6px] text-white/30 uppercase tracking-widest">Sản phẩm được phát triển bởi</p>
-              <div className="flex justify-center items-center gap-1 font-display text-[8px] font-black tracking-[0.2em] uppercase text-white/80">
-                <span>Hugo</span>
-                <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Portal</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
+      <iframe
+        ref={previewIframeRef}
+        src="/preview"
+        className="w-full h-full border-none"
+        title="Live Preview"
+      />
     );
   };
 
@@ -2033,6 +977,8 @@ export default function MemberPortalPage() {
                   { id: "profile", label: "Cá nhân", icon: "person" },
                   { id: "design", label: "Giao diện", icon: "palette" },
                   { id: "links", label: "Liên kết", icon: "link" },
+                  { id: "projects", label: "Dự án", icon: "folder_special" },
+                  { id: "services", label: "Dịch vụ", icon: "storefront" },
                   { id: "career", label: "Sự nghiệp", icon: "school" },
                   { id: "body", label: "Hình thể", icon: "straighten" }
                 ].map((tab) => {
@@ -2406,7 +1352,29 @@ export default function MemberPortalPage() {
                     </div>
                   )}
 
+                  {/* SUB-TAB: PROJECTS */}
+                  {accountSubTab === "projects" && (
+                    <MemberProjectsTab
+                      formData={formData}
+                      setFormData={setFormData}
+                      handleSave={handleSave}
+                      showToast={showToast}
+                      isGuestMode={isGuestMode}
+                      bio={bio}
+                    />
+                  )}
 
+                  {/* SUB-TAB: SERVICES */}
+                  {accountSubTab === "services" && (
+                    <MemberServicesTab
+                      formData={formData}
+                      setFormData={setFormData}
+                      handleSave={handleSave}
+                      showToast={showToast}
+                      isGuestMode={isGuestMode}
+                      bio={bio}
+                    />
+                  )}
 
                   {/* career Sub-Tab */}
                   {accountSubTab === "career" && (
@@ -2696,6 +1664,8 @@ export default function MemberPortalPage() {
         {/* Tab 3: Package Subscription & Link Management */}
         {activeTab === "manage" && (() => {
           const basePkg = getBasePackageDetails(bio?.serviceLabel);
+          const startLabel = bio?.createdAt ? new Date(bio.createdAt).toLocaleDateString('vi-VN') : '15/05/2026';
+          const expiresLabel = bio?.expiresAt ? new Date(bio.expiresAt).toLocaleDateString('vi-VN') : 'Lifetime (Vĩnh viễn)';
           return (
             <div className="max-w-2xl mx-auto space-y-5 px-3 sm:px-0 animate-fadeIn">
               <div className="space-y-1">
@@ -2876,7 +1846,9 @@ export default function MemberPortalPage() {
                             if (match) url = match[1];
                           }
                           domain = new URL(url).hostname;
-                        } catch (e) { }
+                        } catch (e) {
+                          // Ignore url parse errors
+                        }
                         const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
 
                         return (

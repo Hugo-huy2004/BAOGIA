@@ -17,7 +17,7 @@ if (isConfigured) {
     api_secret: process.env.CLOUDINARY_API_SECRET || ''
   });
 } else {
-  console.warn('⚠️ Warning: Cloudinary configuration is missing credentials in .env!');
+  console.warn('Warning: Cloudinary configuration is missing credentials in .env!');
 }
 
 /**
@@ -63,9 +63,9 @@ export const uploadAvatar = async (base64Str, email, oldAvatarUrl = '') => {
     if (oldPublicId) {
       try {
         await cloudinary.uploader.destroy(oldPublicId);
-        console.log(`🗑️ Deleted old avatar on Cloudinary: ${oldPublicId}`);
+        console.log(`Deleted old avatar on Cloudinary: ${oldPublicId}`);
       } catch (err) {
-        console.error('❌ Failed to delete old avatar on Cloudinary:', err);
+        console.error('Failed to delete old avatar on Cloudinary:', err);
       }
     }
   }
@@ -80,7 +80,9 @@ export const uploadAvatar = async (base64Str, email, oldAvatarUrl = '') => {
     folder: folderPath,
     public_id: publicId,
     overwrite: true,
-    resource_type: 'image'
+    resource_type: 'image',
+    format: 'auto',
+    quality: 'auto'
   });
 
   return uploadResponse.secure_url;
@@ -123,7 +125,9 @@ export const uploadAdImage = async (base64Str, oldUrl = '') => {
     folder: folderPath,
     public_id: publicId,
     overwrite: true,
-    resource_type: 'image'
+    resource_type: 'image',
+    format: 'auto',
+    quality: 'auto'
   });
 
   return uploadResponse.secure_url;

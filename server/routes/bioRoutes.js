@@ -1,6 +1,8 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
+import { requireAdmin } from '../middleware/authMiddleware.js';
+import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 
 const router = express.Router();
 
@@ -41,7 +43,7 @@ const removeExpiredBioIfNeeded = async (bio) => {
 };
 
 // GET: Fetch all bios (for Admin Panel) with search, filter, pagination, and stats
-router.get('/', async (req, res) => {
+router.get('/', requireAdmin, async (req, res) => {
   try {
     const {
       search = '',
@@ -157,12 +159,29 @@ router.get('/me', async (req, res) => {
 
 router.get('/slug/:slug', async (req, res) => {
   try {
-    const bio = await removeExpiredBioIfNeeded(await Bio.findOne({ slug: req.params.slug }));
+    const slug = req.params.slug;
+    
+    // Thuật toán O(1) Bloom Filter: Chặn ngay nếu Slug không tồn tại trong DB (Tránh DDoS DB)
+    if (global.validSlugs && !global.validSlugs.has(slug)) {
+      return res.status(404).json({ error: 'Bio not found (Bloom Filter rejected)' });
+    }
+
+    const cacheKey = `bio_slug_${slug}`;
+    
+    // Kích hoạt Single-flight & Stale-while-revalidate (giữ fresh trong 60 giây)
+    const bio = await fetchWithCache(cacheKey, 60000, async () => {
+      const found = await Bio.findOne({ slug });
+      const bioDoc = await removeExpiredBioIfNeeded(found);
+      return bioDoc ? bioDoc.toObject() : null;
+    });
 
     if (!bio) {
+      // Nếu không tìm thấy, xóa khỏi Bloom Filter
+      if (global.validSlugs) global.validSlugs.delete(slug);
       return res.status(404).json({ error: 'Bio not found' });
     }
 
+    res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
     return res.json({ bio });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -187,49 +206,24 @@ router.post('/', async (req, res) => {
       skills = '',
       jobTitle = '',
       contactEmail = '',
-      avatarUrl = '',
-      links = [],
+      socialLinks = {},
       theme = {},
-      tabs = []
+      pricing = { standard: '', premium: '', custom: '' },
+      portfolio = [],
+      services = [],
+      baseSlug = ''
     } = req.body;
 
     if (!email || !displayName) {
-      return res.status(400).json({ error: 'Email and displayName are required' });
+      return res.status(400).json({ error: 'Email and Display Name are required' });
     }
 
-    const existing = await Bio.findOne({ email });
-    if (existing) {
-      return res.status(409).json({ error: 'Bio already exists for this email' });
-    }
+    const newSlug = await createUniqueSlug(baseSlug || normalizeSlug(displayName));
 
-    const baseSlug = normalizeSlug(displayName || email.split('@')[0]);
-    const slug = await createUniqueSlug(baseSlug);
-
-    // Upload to Cloudinary if base64 avatar is provided
-    let finalAvatarUrl = '';
-    if (avatarUrl && avatarUrl.startsWith('data:image')) {
-      finalAvatarUrl = await uploadAvatar(avatarUrl, email);
-    } else if (avatarUrl) {
-      finalAvatarUrl = avatarUrl;
-    }
-
-    // Apply strict property-level defaults
-    const finalTheme = {
-      bgColor: theme.bgColor || '#ffffff',
-      textColor: theme.textColor || '#0f172a',
-      accentColor: theme.accentColor || '#6366f1',
-      pattern: theme.pattern || 'none',
-      preset: theme.preset || 'default',
-      btnRadius: typeof theme.btnRadius === 'number' ? theme.btnRadius : 16,
-      btnBorderWidth: typeof theme.btnBorderWidth === 'number' ? theme.btnBorderWidth : 0,
-      btnShadow: typeof theme.btnShadow === 'number' ? theme.btnShadow : 4,
-      template: theme.template || 'default'
-    };
-
-    const created = await Bio.create({
+    const newBio = new Bio({
       email,
       displayName,
-      slug,
+      slug: newSlug,
       headline,
       bio,
       birthday,
@@ -243,25 +237,20 @@ router.post('/', async (req, res) => {
       skills,
       jobTitle,
       contactEmail,
-      avatarUrl: finalAvatarUrl,
-      links,
-      theme: finalTheme,
-      serviceLabel: 'Free Bio',
-      status: 'active',
-      expiresAt: (() => {
-        const now = new Date();
-        // Shift to Vietnam local time (UTC+7)
-        const vnTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-        // Add 365 days
-        vnTime.setDate(vnTime.getDate() + 365);
-        // Set to local Vietnam midnight
-        vnTime.setUTCHours(0, 0, 0, 0);
-        // Shift back to UTC to store in database
-        return new Date(vnTime.getTime() - 7 * 60 * 60 * 1000);
-      })()
+      socialLinks,
+      theme,
+      pricing,
+      portfolio,
+      services,
+      createdAt: new Date(),
     });
 
-    return res.status(201).json({ bio: created });
+    const savedBio = await newBio.save();
+    
+    // Cập nhật Bloom Filter
+    if (global.validSlugs) global.validSlugs.add(savedBio.slug);
+
+    return res.status(201).json(savedBio);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -269,7 +258,14 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const { id } = req.params;
+    const existing = await Bio.findById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Bio not found' });
+    }
+    
+    // Xóa Cache nếu bio bị chỉnh sửa
+    clearCache(`bio_slug_${existing.slug}`);
+    
     const { 
       displayName, 
       headline = '', 
@@ -288,13 +284,10 @@ router.put('/:id', async (req, res) => {
       avatarUrl,
       links = [],
       theme = {},
-      tabs = []
+      tabs = [],
+      projects = [],
+      services = []
     } = req.body;
-
-    const existing = await Bio.findById(id);
-    if (!existing) {
-      return res.status(404).json({ error: 'Bio not found' });
-    }
 
     // Handle avatar update / delete / overwrite
     if (avatarUrl !== undefined) {
@@ -342,6 +335,8 @@ router.put('/:id', async (req, res) => {
     existing.links = links;
     existing.theme = finalTheme;
     existing.tabs = tabs;
+    existing.projects = projects;
+    existing.services = services;
     existing.slug = nextSlug;
     existing.status = 'active';
 
@@ -353,23 +348,25 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
-    const { id } = req.params;
-    const deleted = await Bio.findByIdAndDelete(id);
-
-    if (!deleted) {
+    const existing = await Bio.findById(req.params.id);
+    if (!existing) {
       return res.status(404).json({ error: 'Bio not found' });
     }
 
-    // Clean up avatar image on Cloudinary
-    if (deleted.avatarUrl) {
-      await deleteAvatar(deleted.avatarUrl);
+    if (existing.avatarUrl) {
+      await deleteAvatar(existing.avatarUrl);
     }
+    await Bio.findByIdAndDelete(req.params.id);
+    
+    // Xóa khỏi Cache và Bloom Filter
+    clearCache(`bio_slug_${existing.slug}`);
+    if (global.validSlugs) global.validSlugs.delete(existing.slug);
 
-    return res.json({ message: 'Bio deleted successfully' });
+    res.json({ message: 'Bio deleted successfully' });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -1,13 +1,13 @@
 import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useData } from "../context/DataContext";
+import { Link, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSession";
+import { useData } from "../context/DataContext";
 import MobileDrawer from "./MobileDrawer";
 
 export default function Navbar() {
-  const { data } = useData();
   const location = useLocation();
-  const navigate = useNavigate();
+  const { data } = useData();
+  const allowBooking = data?.systemSettings?.allowBooking !== false;
 
   const playPopSound = () => {
     try {
@@ -28,19 +28,6 @@ export default function Navbar() {
     }
   };
 
-  const handleNavClick = (anchor) => {
-    playPopSound();
-    if (location.pathname !== "/introduction" && location.pathname !== "/bio") {
-      navigate("/introduction" + anchor);
-    } else {
-      const element = document.querySelector(anchor);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  };
-
-  const isMainPage = location.pathname === "/introduction" || location.pathname === "/bio";
   const isLoggedIn = isMemberAuthenticated() || isAdminAuthenticated();
   const accountPath = isAdminAuthenticated() ? "/admin" : (isMemberAuthenticated() ? "/member" : "/login");
   const accountLabel = isLoggedIn ? "Tài khoản" : "Đăng nhập";
@@ -105,17 +92,19 @@ export default function Navbar() {
             Hỏi đáp
           </Link>
 
-          <Link 
-            to="/booking" 
-            onClick={playPopSound} 
-            className={`inline-flex h-8 items-center text-[12px] font-normal leading-none tracking-wide transition-colors duration-200 select-none ${
-              location.pathname === "/booking"
-                ? "text-slate-900 dark:text-white font-medium"
-                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-            }`}
-          >
-            Đặt lịch
-          </Link>
+          {allowBooking && (
+            <Link 
+              to="/booking" 
+              onClick={playPopSound} 
+              className={`inline-flex h-8 items-center text-[12px] font-normal leading-none tracking-wide transition-colors duration-200 select-none ${
+                location.pathname === "/booking"
+                  ? "text-slate-900 dark:text-white font-medium"
+                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              }`}
+            >
+              Đặt lịch
+            </Link>
+          )}
 
           <Link 
             to={accountPath} 

@@ -100,6 +100,26 @@ const BioSchema = new mongoose.Schema(
       }],
       default: []
     },
+    projects: {
+      type: [{
+        id: { type: String },
+        title: { type: String },
+        description: { type: String },
+        imageUrl: { type: String },
+        link: { type: String }
+      }],
+      default: []
+    },
+    services: {
+      type: [{
+        id: { type: String },
+        name: { type: String },
+        description: { type: String },
+        price: { type: String },
+        icon: { type: String }
+      }],
+      default: []
+    },
     serviceLabel: {
       type: String,
       default: 'Free Bio'

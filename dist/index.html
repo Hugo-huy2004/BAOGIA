@@ -32,8 +32,6 @@
     <meta name="twitter:description" content="Nền tảng quản lý bio, booking và portfolio chuyên nghiệp cho influencer, freelancer và entrepreneur." />
     <meta name="twitter:image" content="https://hugo.studio/og-image.jpg" />
 
-    <!-- Canonical Tag -->
-    <link rel="canonical" href="https://www.hugowishpax.studio" />
 
     <link
       rel="icon"
@@ -160,8 +158,9 @@
         user-select: none;
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-F6XJ-hXu.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Cv3W9DUv.css">
+    <script type="module" crossorigin src="/assets/index-C4o22-5Z.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-DqTEnvJf.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-BbpNPHhj.css">
   </head>
   <body
     class="bg-background dark:bg-[#0b0a0f] text-on-background dark:text-[#f8f5fa] font-body min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative"
@@ -172,29 +171,7 @@
     <!-- Main Module script entry point -->
 
     <script>
-      // Prevent pinch zoom
-      document.addEventListener('touchmove', (e) => {
-        if (e.touches.length > 1) {
-          e.preventDefault();
-        }
-      }, { passive: false });
 
-      // Prevent double-tap zoom
-      let lastTouchEnd = 0;
-      document.addEventListener('touchend', (e) => {
-        const now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-          e.preventDefault();
-        }
-        lastTouchEnd = now;
-      }, false);
-
-      // Prevent wheel zoom (Ctrl + scroll)
-      document.addEventListener('wheel', (e) => {
-        if (e.ctrlKey) {
-          e.preventDefault();
-        }
-      }, { passive: false });
 
       // Hide address bar on scroll for mobile browsers
       if (navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)) {

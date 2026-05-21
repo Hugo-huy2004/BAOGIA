@@ -97,6 +97,19 @@ const DataSchema = new mongoose.Schema(
       imageUrl: { type: String, default: '' },
       linkUrl: { type: String, default: '' },
       isActive: { type: Boolean, default: false }
+    },
+    systemSettings: {
+      maintenanceMode: { type: Boolean, default: false },
+      enableHBot: { type: Boolean, default: true },
+      vacationMode: { type: Boolean, default: false },
+      allowRegistration: { type: Boolean, default: true },
+      allowBooking: { type: Boolean, default: true },
+      primaryColor: { type: String, default: '#3B82F6' },
+      globalSeo: {
+        title: { type: String, default: 'Hugo Studio - Professional Bio & Booking Platform' },
+        description: { type: String, default: 'Nền tảng quản lý bio, booking và portfolio chuyên nghiệp cho influencer, freelancer và entrepreneur.' },
+        keywords: { type: String, default: 'Hugo Studio, Tạo bio, Bio page, Booking platform' },
+      }
     }
   },
   { timestamps: true }

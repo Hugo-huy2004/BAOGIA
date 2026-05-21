@@ -17,7 +17,6 @@ export default function IntroductionPage() {
   });
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [demoName, setDemoName] = useState("hugo.le");
 
   // Avatar rotation list
   const avatarImages = [
@@ -64,7 +63,9 @@ export default function IntroductionPage() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.08);
-    } catch (e) {}
+    } catch (e) {
+      // Ignore audio context errors if user hasn't interacted
+    }
   };
 
   const scrollToSlide = (idx) => {

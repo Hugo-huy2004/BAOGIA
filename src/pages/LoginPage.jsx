@@ -2,8 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginAdmin, loginMember } from "../services/authSession";
 import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useData } from "../context/DataContext";
 
 export default function LoginPage() {
+  const { data } = useData();
+  const allowRegistration = data?.systemSettings?.allowRegistration !== false;
   useHeadMeta({
     title: "Đăng Nhập | Hugo Studio",
     description: "Đăng ký Bio Link sinh viên miễn phí với email .edu hoặc đăng nhập trang quản trị viên của Hugo Studio.",
@@ -12,7 +15,7 @@ export default function LoginPage() {
   });
 
   const navigate = useNavigate();
-  const [activeMode, setActiveMode] = useState("member");
+  const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "admin");
   const [adminForm, setAdminForm] = useState({ username: "", password: "" });
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
@@ -29,6 +32,12 @@ export default function LoginPage() {
     }, 4500);
     return () => clearTimeout(timer);
   }, [toast.message]);
+
+  useEffect(() => {
+    if (!allowRegistration && activeMode === "member") {
+      setActiveMode("admin");
+    }
+  }, [allowRegistration, activeMode]);
 
   const handleGoogleCredential = (response) => {
     setToast({ message: "", type: "" });
@@ -201,38 +210,40 @@ export default function LoginPage() {
         </div>
 
         {/* Unified iOS-style Segmented Control */}
-        <div className="relative z-10 bg-slate-100 dark:bg-white/5 p-1 rounded-2xl flex w-full max-w-[280px] mx-auto border border-slate-200/50 dark:border-white/5">
-          <div 
-            className="absolute top-1 bottom-1 bg-white dark:bg-[#181720] rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
-            style={{
-              left: activeMode === "member" ? "4px" : "calc(50% + 2px)",
-              width: "calc(50% - 6px)"
-            }}
-          />
-          
-          <button
-            type="button"
-            onClick={() => setActiveMode("member")}
-            className={`w-1/2 py-2 text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
-              activeMode === "member"
-                ? "text-slate-900 dark:text-white"
-                : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-            }`}
-          >
-            Đăng ký Bio (.edu)
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMode("admin")}
-            className={`w-1/2 py-2 text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
-              activeMode === "admin"
-                ? "text-slate-900 dark:text-white"
-                : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-            }`}
-          >
-            Quản trị viên
-          </button>
-        </div>
+        {allowRegistration && (
+          <div className="relative z-10 bg-slate-100 dark:bg-white/5 p-1 rounded-2xl flex w-full max-w-[280px] mx-auto border border-slate-200/50 dark:border-white/5">
+            <div 
+              className="absolute top-1 bottom-1 bg-white dark:bg-[#181720] rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+              style={{
+                left: activeMode === "member" ? "4px" : "calc(50% + 2px)",
+                width: "calc(50% - 6px)"
+              }}
+            />
+            
+            <button
+              type="button"
+              onClick={() => setActiveMode("member")}
+              className={`w-1/2 py-2 text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
+                activeMode === "member"
+                  ? "text-slate-900 dark:text-white"
+                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+              }`}
+            >
+              Đăng ký Bio (.edu)
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMode("admin")}
+              className={`w-1/2 py-2 text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
+                activeMode === "admin"
+                  ? "text-slate-900 dark:text-white"
+                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+              }`}
+            >
+              Quản trị viên
+            </button>
+          </div>
+        )}
 
         {/* Minimalist Apple Glass Card */}
         <div className="relative z-10 bg-white/70 dark:bg-[#111016]/80 backdrop-blur-2xl border border-slate-200/50 dark:border-white/10 p-6 sm:p-8 rounded-3xl shadow-xl transition-all">

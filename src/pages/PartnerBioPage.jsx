@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import dataApi from "../services/dataApi";
 import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
+import HugoLogo, { RenderColoredText } from "../components/HugoLogo";
 
 const isColorDark = (color) => {
   if (!color) return false;
@@ -15,7 +16,7 @@ const isColorDark = (color) => {
   return luma < 140;
 };
 
-const BRAND_COLORS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#A855F7"];
+
 
 const DEFAULT_PARTNER_THEME = {
   bgColor: "#f5f5f7",
@@ -29,43 +30,7 @@ const DEFAULT_PARTNER_THEME = {
   template: "default"
 };
 
-const RenderColoredText = ({ text }) => {
-  if (!text) return null;
-  return (
-    <>
-      {text.split("").map((char, idx) => (
-        <span key={idx} style={{ color: BRAND_COLORS[idx % BRAND_COLORS.length] }}>
-          {char}
-        </span>
-      ))}
-    </>
-  );
-};
 
-const HugoStudioColoredBrandLogo = ({ className = "text-xl sm:text-2xl" }) => {
-  const chars = [
-    { char: "H", color: "#EF4444" },
-    { char: "u", color: "#F97316" },
-    { char: "g", color: "#EAB308" },
-    { char: "o", color: "#22C55E" },
-    { char: " ", color: "transparent" },
-    { char: "S", color: "#3B82F6" },
-    { char: "t", color: "#6366F1" },
-    { char: "u", color: "#A855F7" },
-    { char: "d", color: "#EC4899" },
-    { char: "i", color: "#06B6D4" },
-    { char: "o", color: "#0ea5e9" }
-  ];
-  return (
-    <span className={`we-bare-bears select-none ${className}`}>
-      {chars.map((item, idx) => (
-        <span key={idx} style={{ color: item.color }}>
-          {item.char}
-        </span>
-      ))}
-    </span>
-  );
-};
 
 const PreviewTypographyStyles = () => (
   <style>{`
@@ -420,7 +385,7 @@ export default function PartnerBioPage() {
       <main className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center justify-center p-4">
         <div className="bg-white dark:bg-[#12111a] border border-zinc-200/50 dark:border-zinc-800/80 p-8 rounded-3xl max-w-sm w-full shadow-2xl text-center space-y-6">
           <div className="flex justify-center">
-            <HugoStudioColoredBrandLogo className="text-sm font-black" />
+            <HugoLogo className="text-sm font-black" />
           </div>
           <div className="space-y-2">
             <h2 className="text-base font-bold">Kích Hoạt Bio Link</h2>

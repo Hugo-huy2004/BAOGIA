@@ -1,5 +1,7 @@
 import express from 'express';
 import Data from '../models/Data.js';
+import { requireAdmin } from '../middleware/authMiddleware.js';
+import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 
 const router = express.Router();
 
@@ -101,19 +103,60 @@ const initialData = {
       copyright: 350000
     }
   },
-  partnerIframe: ""
+  partnerIframe: "",
+  advertisement: {
+    imageUrl: "",
+    linkUrl: "",
+    isActive: false
+  },
+  systemSettings: {
+    maintenanceMode: false,
+    enableHBot: true,
+    vacationMode: false,
+    globalSeo: {
+      title: "Hugo Studio - Professional Bio & Booking Platform",
+      description: "Nền tảng quản lý bio, booking và portfolio chuyên nghiệp cho influencer, freelancer và entrepreneur.",
+      keywords: "Hugo Studio, Tạo bio, Bio page, Booking platform"
+    }
+  }
 };
 
 // GET: Fetch all data
 router.get('/', async (req, res) => {
   try {
+    // Thuật toán Queue / LRU: Check Cache với Single-flight & SWR O(1)
+    const sanitizedData = await fetchWithCache("public_data", 60000, async () => {
+      let data = await Data.findOne({ userId: 'default' });
+      
+      // If no data exists, create with initial data
+      if (!data) {
+        data = await Data.create(initialData);
+      }
+      
+      // Create sanitized version for public viewing
+      const sanitized = data.toObject();
+      if (sanitized.profile) {
+        delete sanitized.profile.accountNumber;
+        delete sanitized.profile.bankName;
+        delete sanitized.profile.accountHolder;
+      }
+      return sanitized;
+    });
+
+    res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    res.json(sanitizedData);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET: Fetch all data for ADMIN ONLY
+router.get('/admin', requireAdmin, async (req, res) => {
+  try {
     let data = await Data.findOne({ userId: 'default' });
-    
-    // If no data exists, create with initial data
     if (!data) {
       data = await Data.create(initialData);
     }
-    
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -121,21 +164,25 @@ router.get('/', async (req, res) => {
 });
 
 // PUT: Update entire data
-router.put('/', async (req, res) => {
+router.put('/', requireAdmin, async (req, res) => {
   try {
     let data = await Data.findOneAndUpdate(
       { userId: 'default' },
       req.body,
       { new: true, upsert: true }
     );
+    
+    // Xóa Cache ngay lập tức khi Admin cập nhật dữ liệu
+    clearCache("public_data");
+    
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// PATCH: Update specific fields
-router.patch('/', async (req, res) => {
+// PATCH: Update specific field
+router.patch('/', requireAdmin, async (req, res) => {
   try {
     const { field, value } = req.body;
     const updateData = { [field]: value };
@@ -146,6 +193,9 @@ router.patch('/', async (req, res) => {
       { new: true }
     );
     
+    // Xóa Cache ngay lập tức khi Admin cập nhật dữ liệu
+    clearCache("public_data");
+
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -180,8 +230,8 @@ router.delete('/delete-ad', async (req, res) => {
   }
 });
 
-// POST: Reset to initial data
-router.post('/reset', async (req, res) => {
+// POST: Reset to default data
+router.post('/reset', requireAdmin, async (req, res) => {
   try {
     await Data.deleteOne({ userId: 'default' });
     const data = await Data.create(initialData);

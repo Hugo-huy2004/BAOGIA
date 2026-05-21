@@ -23,6 +23,20 @@
     border-color: rgba(99, 102, 241, 0.2);
 }
 
+/* Editor workspace active states */
+.hugo-editor-active-ring {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #6366f1;
+}
+
+/* Hide scrollbar utility class */
+.scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
 /* Premium Button Primary */
 .clay-btn-primary {
     box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
@@ -107,34 +121,66 @@ body, header, footer, section, nav {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Premium scrollbar styling */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+/* Premium scrollbar styling - Desktop only */
+@media (min-width: 1024px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
+        transition: background 0.3s ease;
+    }
+
+    html.dark ::-webkit-scrollbar-thumb {
+        background: #27272a;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #6366f1;
+    }
 }
 
-::-webkit-scrollbar-track {
-    background: transparent;
+/* Hide scrollbar on mobile but keep scrolling */
+@media (max-width: 767px) {
+    html, body {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
+    html::-webkit-scrollbar, body::-webkit-scrollbar {
+        display: none;
+    }
+    
 }
 
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 9999px;
-    transition: background 0.3s ease;
+/* Universal scrollbar hide */
+.scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
 
-html.dark ::-webkit-scrollbar-thumb {
-    background: #27272a;
+/* Mobile-friendly touch targets - Use Tailwind classes like min-h-[44px] min-w-[44px] instead of global overrides */
+
+/* Improve mobile tap feedback */
+button {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #6366f1;
-}
-
-/* Mobile-friendly touch targets */
-button, a, input[type="button"], input[type="submit"] {
-    min-height: 44px;
-    min-width: 44px;
+/* Better mobile text selection */
+input, textarea, select {
+    font-size: 16px; /* Prevents auto-zoom on iOS */
 }
 
 /* Fade-in animation for tab content */
@@ -153,6 +199,266 @@ button, a, input[type="button"], input[type="submit"] {
     animation: fadeIn 0.3s ease-in-out;
 }
 
+/* ✨ NEW CUTE ANIMATIONS ✨ */
+
+/* Slide-up animation */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slideUp {
+    animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Bounce animation */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.animate-bounce-gentle {
+    animation: bounce 2s infinite;
+}
+
+/* Glow effect */
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
+    }
+}
+
+.animate-glow {
+    animation: glow 3s ease-in-out infinite;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.animate-pulse-soft {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Shimmer/shine effect */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.animate-shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Wiggle animation */
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-1deg); }
+    75% { transform: rotate(1deg); }
+}
+
+.animate-wiggle {
+    animation: wiggle 0.5s ease-in-out;
+}
+
+/* Float animation */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Scale hover effect */
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-scaleIn {
+    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Rotate animation */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-rotate {
+    animation: rotate 2s linear infinite;
+}
+
+/* Rainbow text effect */
+@keyframes rainbow {
+    0% { color: #ff0000; }
+    16% { color: #ff7f00; }
+    33% { color: #ffff00; }
+    50% { color: #00ff00; }
+    66% { color: #0000ff; }
+    83% { color: #4b0082; }
+    100% { color: #9400d3; }
+}
+
+.animate-rainbow {
+    animation: rainbow 3s linear infinite;
+}
+
+/* Heartbeat animation */
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.15); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.15); }
+    70% { transform: scale(1); }
+}
+
+.animate-heartbeat {
+    animation: heartbeat 1.3s ease-in-out infinite;
+}
+
+/* Gradient shift */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.animate-gradientShift {
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+}
+
+/* Link and button enhancements */
+a, button {
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+a:hover, button:hover {
+    transform: translateY(-2px);
+}
+
+/* Underline animation on links */
+a {
+    text-decoration: none;
+    background: linear-gradient(to right, currentColor, currentColor) bottom / 0 2px no-repeat;
+    transition: background-size 0.3s ease;
+}
+
+a:hover {
+    background-size: 100% 2px;
+}
+
+/* Button ripple effect */
+button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    transition: width 0.6s, height 0.6s;
+}
+
+button:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Card hover lift effect */
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-8px);
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.15));
+}
+
+/* Icon rotation on hover */
+.icon-hover {
+    transition: transform 0.3s ease;
+}
+
+.icon-hover:hover {
+    transform: rotate(10deg) scale(1.1);
+}
+
+/* Text glow on hover */
+.text-glow:hover {
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+}
+
+/* Badge pulse */
+.badge-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Loading spinner */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin-slow {
+    animation: spin 3s linear infinite;
+}
+
+.animate-spin-fast {
+    animation: spin 1s linear infinite;
+}
+
 /* Safe-area bottom navigation utilities for mobile */
 .nav-bottom-safe {
     padding-bottom: env(safe-area-inset-bottom) !important;
@@ -163,6 +469,29 @@ button, a, input[type="button"], input[type="submit"] {
     .content-bottom-safe {
         padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
     }
+}
+
+/* Full-screen bio pages - hide overflow completely */
+.fullscreen-bio {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* Allow snap scrolling when needed */
+.snap-scroll {
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+}
+
+.snap-scroll > * {
+    scroll-snap-align: start;
 }
 
 
