@@ -4,6 +4,15 @@ import Bio from '../models/Bio.js';
 
 const router = express.Router();
 
+// ─── Reuse same capped-history helper ────────────────────────────────────────
+const pushHistory = (bio, entry) => {
+  bio.history.push({ ...entry, timestamp: new Date() });
+  if (bio.history.length > 50) {
+    bio.history = bio.history.slice(bio.history.length - 50);
+  }
+};
+
+
 const LOGO_COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#10b981', '#3b82f6', 
   '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#06b6d4'
@@ -123,6 +132,16 @@ router.post('/user', async (req, res) => {
     }
 
     bio.expiresAt = expires;
+
+    // Ghi lịch sử: nhận gói từ Hugo Studio (admin)
+    const expireStr = expires.toLocaleDateString('vi-VN');
+    pushHistory(bio, {
+      type: 'package_received',
+      icon: 'card_membership',
+      title: `Bạn đã được nhận gói "${pkg.name}" từ Hugo Studio`,
+      detail: `Gói dịch vụ "${pkg.name}" vừa được kích hoạt cho tài khoản của bạn. Bio Link có hiệu lực đến ngày ${expireStr}.`
+    });
+
     await bio.save();
 
     res.json({ 
@@ -165,6 +184,14 @@ router.delete('/user', async (req, res) => {
 
     bio.expiresAt = expires;
     bio.packages.pull(packageInstanceId);
+
+    // Ghi lịch sử: gói bị thu hồi
+    pushHistory(bio, {
+      type: 'package_removed',
+      icon: 'remove_circle',
+      title: `Gói "${pkgInstance.name}" đã được gỡ bỏ`,
+      detail: `Gói dịch vụ "${pkgInstance.name}" đã bị thu hồi khỏi tài khoản của bạn. Thời hạn Bio Link được điều chỉnh tương ứng.`
+    });
     
     await bio.save();
 

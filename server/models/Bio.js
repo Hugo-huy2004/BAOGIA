@@ -140,6 +140,16 @@ const BioSchema = new mongoose.Schema(
       }],
       default: []
     },
+    history: {
+      type: [{
+        type:      { type: String, default: 'info' },
+        icon:      { type: String, default: 'notifications' },
+        title:     { type: String, default: '' },
+        detail:    { type: String, default: '' },
+        timestamp: { type: Date,   default: Date.now }
+      }],
+      default: []
+    },
     expiresAt: {
       type: Date,
       required: true,

@@ -8,6 +8,31 @@ const router = express.Router();
 
 const TWELVE_MONTHS_MS = 1000 * 60 * 60 * 24 * 365;
 
+// ─── Helper: Append a history entry (capped at 50) ───────────────────────────
+const HISTORY_LABELS = {
+  displayName:  'Họ và tên',
+  headline:     'Biệt danh',
+  bio:          'Mô tả bản thân',
+  birthday:     'Sinh nhật',
+  phone:        'Số điện thoại',
+  contactEmail: 'Email liên hệ',
+  hobbies:      'Sở thích',
+  height:       'Chiều cao',
+  weight:       'Cân nặng',
+  measurements: 'Số đo',
+  address:      'Địa chỉ',
+  education:    'Học vấn',
+  skills:       'Kỹ năng',
+  jobTitle:     'Nghề nghiệp'
+};
+
+const pushHistory = (bio, entry) => {
+  bio.history.push({ ...entry, timestamp: new Date() });
+  if (bio.history.length > 50) {
+    bio.history = bio.history.slice(bio.history.length - 50);
+  }
+};
+
 const normalizeSlug = (value) => {
   return (value || '')
     .toLowerCase()
@@ -220,6 +245,23 @@ router.post('/', async (req, res) => {
 
     const newSlug = await createUniqueSlug(baseSlug || normalizeSlug(displayName));
 
+    const welcomeHistory = [
+      {
+        type: 'welcome',
+        icon: 'celebration',
+        title: 'Chào mừng bạn đến với Hugo Studio! 🎉',
+        detail: `Xin chào ${displayName}! Trang Bio cá nhân của bạn đã được khởi tạo thành công. Hãy thoả sức sáng tạo và cá nhân hoá trang Bio của mình nhé — chúng tôi luôn đồng hành cùng bạn.`,
+        timestamp: new Date()
+      },
+      {
+        type: 'bio_link',
+        icon: 'link',
+        title: 'Bio Link của bạn đã sẵn sàng',
+        detail: `Đường dẫn Bio công khai của bạn là: hugowishpax.studio/bio/${newSlug}`,
+        timestamp: new Date()
+      }
+    ];
+
     const newBio = new Bio({
       email,
       displayName,
@@ -242,6 +284,7 @@ router.post('/', async (req, res) => {
       pricing,
       portfolio,
       services,
+      history: welcomeHistory,
       createdAt: new Date(),
     });
 
@@ -317,6 +360,40 @@ router.put('/:id', async (req, res) => {
       btnShadow: typeof theme.btnShadow === 'number' ? theme.btnShadow : 4,
       template: theme.template || 'default'
     };
+
+    // ── Track field changes for history ──────────────────────────────────────
+    const textFields = ['displayName','headline','bio','birthday','phone','contactEmail','hobbies','height','weight','measurements','address','education','skills','jobTitle'];
+    const fieldValues = { displayName: nextDisplayName, headline, bio, birthday, phone, contactEmail, hobbies, height, weight, measurements, address, education, skills, jobTitle };
+
+    for (const field of textFields) {
+      const oldVal = (existing[field] || '').toString().trim();
+      const newVal = (fieldValues[field] || '').toString().trim();
+      if (oldVal !== newVal && (oldVal || newVal)) {
+        const label = HISTORY_LABELS[field] || field;
+        if (!oldVal) {
+          pushHistory(existing, { type: 'profile_updated', icon: 'edit', title: `Đã thêm ${label}`, detail: `${label}: ${newVal}` });
+        } else if (!newVal) {
+          pushHistory(existing, { type: 'profile_updated', icon: 'edit', title: `Đã xóa ${label}`, detail: `${label} trước đây: ${oldVal}` });
+        } else {
+          pushHistory(existing, { type: 'profile_updated', icon: 'edit', title: `Đã cập nhật ${label}`, detail: `Từ "${oldVal.substring(0,60)}" → "${newVal.substring(0,60)}"` });
+        }
+      }
+    }
+
+    // Track link changes
+    const oldLinkUrls = (existing.links || []).map(l => l.url);
+    const newLinkUrls = (links || []).map(l => l.url);
+    for (const lnk of (links || [])) {
+      if (!oldLinkUrls.includes(lnk.url)) {
+        pushHistory(existing, { type: 'link_added', icon: 'add_link', title: 'Đã thêm liên kết', detail: `${lnk.label}: ${lnk.url}` });
+      }
+    }
+    for (const lnk of (existing.links || [])) {
+      if (!newLinkUrls.includes(lnk.url)) {
+        pushHistory(existing, { type: 'link_removed', icon: 'link_off', title: 'Đã xóa liên kết', detail: `${lnk.label}: ${lnk.url}` });
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     existing.displayName = nextDisplayName;
     existing.headline = headline;
