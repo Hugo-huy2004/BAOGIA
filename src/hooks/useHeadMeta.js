@@ -19,7 +19,7 @@ export const useHeadMeta = (options = {}) => {
     keywords = 'Hugo Studio, Bio page, Booking platform',
     ogTitle = title,
     ogDescription = description,
-    ogImage = 'https://www.hugowishpax.studio/og-image.jpg',
+    ogImage = 'https://www.hugowishpax.studio/og-image.png',
     ogUrl = window.location.href,
     canonicalUrl = `https://www.hugowishpax.studio${window.location.pathname}`
   } = options;
