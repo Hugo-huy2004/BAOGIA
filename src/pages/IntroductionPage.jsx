@@ -91,9 +91,10 @@ export default function IntroductionPage() {
     "from-fuchsia-500/10 to-pink-500/10",    // 3 Teammate Info
     "from-emerald-500/10 to-teal-500/10",    // 4 Bio Edu
     "from-blue-500/10 to-indigo-500/10",     // 5 Web Service
-    "from-violet-500/10 to-pink-500/10",    // 6 Philosophy
-    "from-rose-500/10 to-orange-500/10",    // 7 Contacts
-    "from-indigo-500/10 to-emerald-500/10"  // 8 CTA Start
+    "from-green-500/10 to-emerald-500/10",   // 6 Ferns (new)
+    "from-violet-500/10 to-pink-500/10",    // 7 Philosophy
+    "from-rose-500/10 to-orange-500/10",    // 8 Contacts
+    "from-indigo-500/10 to-emerald-500/10"  // 9 CTA Start
   ];
 
   return (
@@ -112,7 +113,7 @@ export default function IntroductionPage() {
 
       {/* Slide Indicators - Fixed on Right */}
       <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4">
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((idx) => (
           <button
             key={idx}
             onClick={() => scrollToSlide(idx)}
@@ -125,9 +126,10 @@ export default function IntroductionPage() {
               {idx === 3 && "Thông Tin Đồng Đội"}
               {idx === 4 && "Dịch Vụ Bio Edu"}
               {idx === 5 && "Dịch Vụ Làm Web"}
-              {idx === 6 && "Thông Điệp"}
-              {idx === 7 && "Liên Kết"}
-              {idx === 8 && "Bắt Đầu"}
+              {idx === 6 && "Sở Thích Cá Nhân"}
+              {idx === 7 && "Thông Điệp"}
+              {idx === 8 && "Liên Kết"}
+              {idx === 9 && "Bắt Đầu"}
             </span>
             <div
               className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 ${
@@ -143,7 +145,7 @@ export default function IntroductionPage() {
       {/* --- DYNAMIC TRANSITION BACKGROUND GLOWS --- */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className={`absolute top-[-10%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-tr ${bgGlows[activeIndex]} blur-[150px] transition-all duration-1000 ease-in-out`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr ${bgGlows[(activeIndex + 1) % 9]} blur-[170px] transition-all duration-1000 ease-in-out`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr ${bgGlows[(activeIndex + 1) % 10]} blur-[170px] transition-all duration-1000 ease-in-out`} />
       </div>
 
       {/* --- SCROLL SNAP CONTAINER --- */}
@@ -691,7 +693,55 @@ export default function IntroductionPage() {
           </div>
         </section>
 
-        {/* SLIDE 6: Philosophy & Experience (Overlapping Typography quotes) */}
+        {/* SLIDE 6: Personal Hobby (Sở thích cá nhân - Dương xỉ) */}
+        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
+          {/* Background Watermark */}
+          <div className="absolute right-[5%] top-[10%] text-[8rem] xl:text-[12rem] font-black text-slate-900/[0.02] dark:text-white/[0.01] pointer-events-none select-none tracking-tighter leading-none">
+            FERNS
+          </div>
+
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
+            {/* Left side text */}
+            <div className="lg:col-span-5 space-y-4 lg:space-y-6 text-left">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/25">
+                ✦ Personal Hobby
+              </span>
+              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                Góc chữa lành: <br />
+                <span className="bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
+                  Cây Dương Xỉ.
+                </span>
+              </h2>
+              <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+                Sau những giờ phút gõ code căng thẳng, niềm đam mê lớn nhất của tôi là nhìn ngắm và chăm sóc những chậu cây dương xỉ. Sức sống mãnh liệt và vẻ đẹp nguyên thủy của chúng mang lại một sự bình yên vô tận.
+              </p>
+            </div>
+            
+            {/* Right side Images with floating animation */}
+            <div className="lg:col-span-7 flex justify-center relative h-[320px] sm:h-[400px] lg:h-[500px] w-full mt-4 lg:mt-0">
+              {/* Backglow sphere */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-emerald-500/20 blur-[80px]" />
+              
+              {/* Main Large Image */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[280px] sm:w-[260px] sm:h-[340px] lg:w-[320px] lg:h-[440px] rounded-[2rem] bg-slate-200 dark:bg-slate-800/50 border border-white/50 dark:border-white/10 shadow-2xl overflow-hidden z-10 hover:scale-105 transition-transform duration-700">
+                <img src="/image/fern-main.jpg" alt="Main Fern" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-emerald-900/10 pointer-events-none" />
+              </div>
+              
+              {/* Small Image 1 (Floating top left) */}
+              <div className="absolute top-[5%] sm:top-[10%] left-[5%] sm:left-[10%] lg:left-[8%] w-[100px] h-[100px] sm:w-[130px] sm:h-[130px] rounded-[1.5rem] bg-slate-200 dark:bg-slate-800/50 border border-white/50 dark:border-white/10 shadow-xl overflow-hidden z-20 animate-float">
+                <img src="/image/fern-sub1.jpg" alt="Fern Details" className="w-full h-full object-cover" />
+              </div>
+              
+              {/* Small Image 2 (Floating bottom right) */}
+              <div className="absolute bottom-[5%] sm:bottom-[10%] right-[5%] sm:right-[10%] lg:right-[8%] w-[110px] h-[110px] sm:w-[150px] sm:h-[150px] rounded-full bg-slate-200 dark:bg-slate-800/50 border border-white/50 dark:border-white/10 shadow-xl overflow-hidden z-20 animate-float" style={{ animationDelay: '1.5s' }}>
+                <img src="/image/fern-sub2.jpg" alt="Fern Decor" className="w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SLIDE 7: Philosophy & Experience (Overlapping Typography quotes) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
             {/* Left: philosophy quotes overlapping watermarks */}
@@ -764,7 +814,7 @@ export default function IntroductionPage() {
           </div>
         </section>
 
-        {/* SLIDE 7: Social Links (Liên kết của tôi, overlapping icons) */}
+        {/* SLIDE 8: Social Links (Liên kết của tôi, overlapping icons) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
           <div className="w-full max-w-7xl mx-auto space-y-8 md:space-y-12 relative z-10">
             {/* Profile Header with Avatar */}
@@ -854,7 +904,7 @@ export default function IntroductionPage() {
           </div>
         </section>
 
-        {/* SLIDE 8: Register & Start Journey (đăng ký và bắt đầu hành trình) */}
+        {/* SLIDE 9: Register & Start Journey (đăng ký và bắt đầu hành trình) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
           <div className="w-full max-w-4xl mx-auto text-center space-y-8 relative z-10">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
