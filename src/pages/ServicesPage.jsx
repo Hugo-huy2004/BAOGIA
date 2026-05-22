@@ -30,7 +30,7 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-16 py-12 px-4 md:px-6 mb-16 text-slate-800 dark:text-slate-100">
+    <div className="max-w-6xl mx-auto space-y-12 md:space-y-16 py-8 md:py-12 px-4 md:px-6 mb-16 text-slate-800 dark:text-slate-100">
       
       {/* Header section */}
       <section className="text-center space-y-4 max-w-3xl mx-auto">
@@ -46,7 +46,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-8 items-stretch mt-4 md:mt-8">
         
         {/* Tier 1: Student Bio (Free) */}
         <div className="flex flex-col justify-between rounded-[2rem] bg-gradient-to-br from-white to-slate-50 dark:from-[#12111a] dark:to-black border border-slate-200/50 dark:border-white/10 p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300 relative group overflow-visible">
