@@ -174,7 +174,7 @@ export default function Footer() {
         </div>
 
         {/* Certifications Section: render all logo components from src/components/logos */}
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pb-4">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 pb-6 px-1 sm:px-4">
           {logos.map((Logo, idx) => (
             <React.Fragment key={idx}>
               {Logo ? <Logo /> : null}
