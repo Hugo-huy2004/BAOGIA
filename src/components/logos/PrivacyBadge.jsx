@@ -3,9 +3,11 @@ import React from 'react';
 const PrivacyBadge = () => {
   return (
     <a
-      href="/privacy-policy"
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 hover:scale-105 transition-transform"
-      title="100% Privacy Protected - GDPR Compliant"
+      href="https://themarkup.org/blacklight?url=hugowishpax.studio"
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-blue-50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50 hover:scale-105 transition-transform"
+      title="Verified Tracking-Free by Blacklight"
     >
       <div className="flex items-center gap-0.5">
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
