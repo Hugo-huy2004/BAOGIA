@@ -46,7 +46,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="flex lg:grid lg:grid-cols-3 gap-6 lg:gap-8 overflow-x-auto lg:overflow-visible pb-8 lg:pb-0 snap-x snap-mandatory scrollbar-hide items-stretch mt-4 md:mt-8 px-4 lg:px-0 -mx-4 lg:mx-0">
+      <section className="flex lg:grid lg:grid-cols-3 gap-6 lg:gap-8 overflow-x-auto lg:overflow-visible pt-6 lg:pt-0 pb-8 lg:pb-0 snap-x snap-mandatory scrollbar-hide items-stretch mt-4 md:mt-8 px-4 lg:px-0 -mx-4 lg:mx-0">
         
         {/* Tier 1: Student Bio (Free) */}
         <div className="flex-none w-[85vw] sm:w-[380px] lg:w-auto snap-center lg:snap-align-none flex flex-col justify-between rounded-[2rem] bg-gradient-to-br from-white to-slate-50 dark:from-[#12111a] dark:to-black border border-slate-200/50 dark:border-white/10 p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300 relative group overflow-visible">
