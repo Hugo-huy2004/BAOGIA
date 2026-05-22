@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { playPopSound } from "../utils/audio";
 import logos from "./logos";
+import TrustpilotReviewWidget from "./TrustpilotReviewWidget";
 
 export default function Footer() {
   const { data } = useData();
@@ -166,8 +167,14 @@ export default function Footer() {
             </div>
           </div>
         </div>
+        
+        {/* Trustpilot Stars Widget */}
+        <div className="border-t border-slate-200/50 dark:border-slate-800/40 pt-8 pb-2">
+          <TrustpilotReviewWidget />
+        </div>
+
         {/* Certifications Section: render all logo components from src/components/logos */}
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-8 pb-4">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pb-4">
           {logos.map((Logo, idx) => (
             <React.Fragment key={idx}>
               {Logo ? <Logo /> : null}

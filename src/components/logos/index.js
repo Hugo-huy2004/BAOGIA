@@ -6,6 +6,8 @@ import DMCABadge from './DMCABadge.jsx';
 import LighthouseBestPracticesBadge from './LighthouseBestPracticesBadge.jsx';
 import A11yBadge from './A11yBadge.jsx';
 import NortonSafeWebBadge from './NortonSafeWebBadge.jsx';
+import TrustpilotBadge from './TrustpilotBadge.jsx';
+import BingWebmasterBadge from './BingWebmasterBadge.jsx';
 
 // Export an array of logo components so Footer can render them dynamically
 const logos = [
@@ -14,6 +16,8 @@ const logos = [
   GoogleSEO100Badge,
   GoogleSafeBrowsingBadge,
   NortonSafeWebBadge,
+  BingWebmasterBadge,
+  TrustpilotBadge,
   LighthouseBestPracticesBadge,
   A11yBadge,
   DMCABadge,
