@@ -695,6 +695,22 @@ export default function IntroductionPage() {
 
         {/* SLIDE 6: Personal Hobby (Sở thích cá nhân - Dương xỉ) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
+          {/* RAIN EFFECT BACKGROUND */}
+          <div className="absolute inset-0 pointer-events-none z-0 opacity-50">
+            {[...Array(30)].map((_, i) => (
+              <div 
+                key={`rain-${i}`}
+                className="absolute w-[1px] h-[80px] bg-gradient-to-b from-transparent via-emerald-200 to-transparent animate-rain-drop"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `-${Math.random() * 20 + 10}%`,
+                  animationDelay: `${Math.random() * 2}s`,
+                  animationDuration: `${Math.random() * 0.5 + 0.5}s`
+                }}
+              />
+            ))}
+          </div>
+
           {/* Background Watermark */}
           <div className="absolute right-[5%] top-[10%] text-[8rem] xl:text-[12rem] font-black text-slate-900/[0.02] dark:text-white/[0.01] pointer-events-none select-none tracking-tighter leading-none">
             FERNS
@@ -745,14 +761,23 @@ export default function IntroductionPage() {
                 </div>
               </div>
               
-              {/* Small Image 1 (Floating top left) */}
-              <div className="absolute top-[5%] sm:top-[10%] left-[5%] sm:left-[10%] lg:left-[8%] w-[100px] h-[100px] sm:w-[130px] sm:h-[130px] rounded-[1.5rem] bg-slate-200 dark:bg-slate-800/50 border border-white/50 dark:border-white/10 shadow-xl overflow-hidden z-20 animate-float">
-                <img src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6575_ko0sly.heic", 400)} alt="Fern Details" className="w-full h-full object-cover" />
+              {/* Ripple Effect Under Main Drop */}
+              <div className="absolute top-[85%] sm:top-[85%] lg:top-[90%] left-1/2 -translate-x-1/2 z-0 pointer-events-none">
+                <div className="absolute w-[80px] sm:w-[120px] lg:w-[160px] h-[20px] sm:h-[30px] lg:h-[40px] border border-emerald-400 rounded-full animate-ripple-splash" style={{ animationDelay: '0s' }} />
+                <div className="absolute w-[80px] sm:w-[120px] lg:w-[160px] h-[20px] sm:h-[30px] lg:h-[40px] border border-emerald-300 rounded-full animate-ripple-splash" style={{ animationDelay: '0.8s' }} />
+                <div className="absolute w-[80px] sm:w-[120px] lg:w-[160px] h-[20px] sm:h-[30px] lg:h-[40px] border border-emerald-200 rounded-full animate-ripple-splash" style={{ animationDelay: '1.6s' }} />
+              </div>
+
+              {/* Small Image 1 (Floating top left, overlapping) */}
+              <div className="absolute top-[10%] sm:top-[12%] lg:top-[15%] left-[10%] sm:left-[20%] lg:left-[22%] w-[100px] h-[100px] sm:w-[130px] sm:h-[130px] rounded-full bg-slate-200 dark:bg-slate-800/50 border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 animate-float" style={{ animationDelay: '0.5s' }}>
+                <img src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6575_ko0sly.heic", 400)} alt="Fern Details" className="w-full h-full object-cover mix-blend-normal" />
+                <div className="absolute inset-0 rounded-full shadow-inner pointer-events-none" />
               </div>
               
-              {/* Small Image 2 (Floating bottom right) */}
-              <div className="absolute bottom-[5%] sm:bottom-[10%] right-[5%] sm:right-[10%] lg:right-[8%] w-[110px] h-[110px] sm:w-[150px] sm:h-[150px] rounded-full bg-slate-200 dark:bg-slate-800/50 border border-white/50 dark:border-white/10 shadow-xl overflow-hidden z-20 animate-float" style={{ animationDelay: '1.5s' }}>
-                <img src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6574_rwhajd.heic", 400)} alt="Fern Decor" className="w-full h-full object-cover" />
+              {/* Small Image 2 (Floating bottom right, overlapping) */}
+              <div className="absolute bottom-[10%] sm:bottom-[15%] lg:bottom-[20%] right-[10%] sm:right-[20%] lg:right-[22%] w-[110px] h-[110px] sm:w-[150px] sm:h-[150px] rounded-full bg-slate-200 dark:bg-slate-800/50 border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 animate-float" style={{ animationDelay: '1.5s' }}>
+                <img src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6574_rwhajd.heic", 400)} alt="Fern Decor" className="w-full h-full object-cover mix-blend-normal" />
+                <div className="absolute inset-0 rounded-full shadow-inner pointer-events-none" />
               </div>
             </div>
           </div>
