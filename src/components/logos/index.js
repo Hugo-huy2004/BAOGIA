@@ -13,6 +13,9 @@ import PrivacyBadge from './PrivacyBadge.jsx';
 import VietnamBadge from './VietnamBadge.jsx';
 import TechStackBadge from './TechStackBadge.jsx';
 import PinterestBadge from './PinterestBadge.jsx';
+import SSLBadge from './SSLBadge.jsx';
+import DDoSBadge from './DDoSBadge.jsx';
+import IPv6Badge from './IPv6Badge.jsx';
 
 // Export an array of logo components so Footer can render them dynamically
 const logos = [
@@ -31,6 +34,9 @@ const logos = [
   PrivacyBadge,
   VietnamBadge,
   TechStackBadge,
+  SSLBadge,
+  DDoSBadge,
+  IPv6Badge,
 ];
 
 export default logos;
