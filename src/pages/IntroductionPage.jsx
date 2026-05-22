@@ -304,7 +304,7 @@ export default function IntroductionPage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="aspect-video rounded-lg sm:rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative">
-                  <img 
+                  <img loading="lazy" 
                     src={realPhoto} 
                     alt="Hugo Portrait" 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
@@ -327,7 +327,7 @@ export default function IntroductionPage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/5 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="aspect-video rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative">
-                  <img 
+                  <img loading="lazy" 
                     src={realPhoto} 
                     alt="Hugo Portrait" 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
@@ -418,7 +418,7 @@ export default function IntroductionPage() {
 
                 {/* Portrait Container - aspect-[4/3] on mobile (to keep height low but image wide), aspect-[4/5] on desktop (Reduced rounded corners) */}
                 <div className="aspect-[4/3] lg:aspect-[4/5] rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 relative border border-slate-200/50 dark:border-white/5">
-                  <img 
+                  <img loading="lazy" 
                     src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png", 600)} 
                     alt="Jason Portrait" 
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" 
@@ -751,7 +751,7 @@ export default function IntroductionPage() {
                     border: '4px solid rgba(255,255,255,0.3)'
                   }}
                 >
-                  <img 
+                  <img loading="lazy" 
                     src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443455/IMG_6573_rrrbpn.heic", 800)} 
                     alt="Main Fern" 
                     className="w-[145%] h-[145%] max-w-none object-cover absolute top-1/2 left-1/2" 
@@ -770,13 +770,13 @@ export default function IntroductionPage() {
 
               {/* Small Image 1 (Floating top left, overlapping) */}
               <div className="absolute top-[10%] sm:top-[12%] lg:top-[15%] left-[10%] sm:left-[20%] lg:left-[22%] w-[100px] h-[100px] sm:w-[130px] sm:h-[130px] rounded-full bg-slate-200 dark:bg-slate-800/50 border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 animate-float" style={{ animationDelay: '0.5s' }}>
-                <img src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6575_ko0sly.heic", 400)} alt="Fern Details" className="w-full h-full object-cover mix-blend-normal" />
+                <img loading="lazy" src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6575_ko0sly.heic", 400)} alt="Fern Details" className="w-full h-full object-cover mix-blend-normal" />
                 <div className="absolute inset-0 rounded-full shadow-inner pointer-events-none" />
               </div>
               
               {/* Small Image 2 (Floating bottom right, overlapping) */}
               <div className="absolute bottom-[10%] sm:bottom-[15%] lg:bottom-[20%] right-[10%] sm:right-[20%] lg:right-[22%] w-[110px] h-[110px] sm:w-[150px] sm:h-[150px] rounded-full bg-slate-200 dark:bg-slate-800/50 border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 animate-float" style={{ animationDelay: '1.5s' }}>
-                <img src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6574_rwhajd.heic", 400)} alt="Fern Decor" className="w-full h-full object-cover mix-blend-normal" />
+                <img loading="lazy" src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6574_rwhajd.heic", 400)} alt="Fern Decor" className="w-full h-full object-cover mix-blend-normal" />
                 <div className="absolute inset-0 rounded-full shadow-inner pointer-events-none" />
               </div>
             </div>
@@ -863,7 +863,7 @@ export default function IntroductionPage() {
             <div className="text-center space-y-4 max-w-2xl mx-auto">
               <div className="flex justify-center mb-4">
                 <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#6366f1]/30 shadow-lg">
-                  <img 
+                  <img loading="lazy" 
                     src={optimizeCloudinaryUrl(data.profile.avatarUrl, 300)} 
                     alt={data.profile.fullName}
                     className="w-full h-full object-cover"
