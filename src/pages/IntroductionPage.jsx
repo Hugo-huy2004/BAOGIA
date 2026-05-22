@@ -722,20 +722,37 @@ export default function IntroductionPage() {
               {/* Backglow sphere */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-emerald-500/20 blur-[80px]" />
               
-              {/* Main Large Image */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[280px] sm:w-[260px] sm:h-[340px] lg:w-[320px] lg:h-[440px] rounded-[2rem] bg-slate-200 dark:bg-slate-800/50 border border-white/50 dark:border-white/10 shadow-2xl overflow-hidden z-10 hover:scale-105 transition-transform duration-700">
-                <img src="/image/fern-main.jpg" alt="Main Fern" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-emerald-900/10 pointer-events-none" />
+              {/* Main Large Image (Water Drop Shape) */}
+              <div 
+                className="absolute top-1/2 left-1/2 z-10 hover:scale-105 transition-transform duration-700"
+                style={{ transform: 'translate(-50%, -50%)' }}
+              >
+                <div 
+                  className="w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] lg:w-[340px] lg:h-[340px] bg-slate-200 dark:bg-slate-800/50 overflow-hidden shadow-2xl relative"
+                  style={{ 
+                    borderRadius: '50% 0 50% 50%', 
+                    transform: 'rotate(-45deg)',
+                    border: '4px solid rgba(255,255,255,0.3)'
+                  }}
+                >
+                  <img 
+                    src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443455/IMG_6573_rrrbpn.heic", 800)} 
+                    alt="Main Fern" 
+                    className="w-[145%] h-[145%] max-w-none object-cover absolute top-1/2 left-1/2" 
+                    style={{ transform: 'translate(-50%, -50%) rotate(45deg)' }}
+                  />
+                  <div className="absolute inset-0 bg-emerald-900/10 pointer-events-none" />
+                </div>
               </div>
               
               {/* Small Image 1 (Floating top left) */}
               <div className="absolute top-[5%] sm:top-[10%] left-[5%] sm:left-[10%] lg:left-[8%] w-[100px] h-[100px] sm:w-[130px] sm:h-[130px] rounded-[1.5rem] bg-slate-200 dark:bg-slate-800/50 border border-white/50 dark:border-white/10 shadow-xl overflow-hidden z-20 animate-float">
-                <img src="/image/fern-sub1.jpg" alt="Fern Details" className="w-full h-full object-cover" />
+                <img src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6575_ko0sly.heic", 400)} alt="Fern Details" className="w-full h-full object-cover" />
               </div>
               
               {/* Small Image 2 (Floating bottom right) */}
               <div className="absolute bottom-[5%] sm:bottom-[10%] right-[5%] sm:right-[10%] lg:right-[8%] w-[110px] h-[110px] sm:w-[150px] sm:h-[150px] rounded-full bg-slate-200 dark:bg-slate-800/50 border border-white/50 dark:border-white/10 shadow-xl overflow-hidden z-20 animate-float" style={{ animationDelay: '1.5s' }}>
-                <img src="/image/fern-sub2.jpg" alt="Fern Decor" className="w-full h-full object-cover" />
+                <img src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6574_rwhajd.heic", 400)} alt="Fern Decor" className="w-full h-full object-cover" />
               </div>
             </div>
           </div>
