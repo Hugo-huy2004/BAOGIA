@@ -243,7 +243,7 @@ export default function AdminProjectDetailPage() {
         <div className="lg:col-span-5 space-y-6">
           {/* Status Updater */}
           <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm">
-            <form onSubmit={handleUpdateStatus} className="bg-slate-50 dark:bg-black/20 p-5 rounded-2xl border border-slate-200 dark:border-white/5 space-y-4">
+            <form onSubmit={handleUpdateStatus} className="bg-slate-50 dark:bg-black/20 p-5 rounded-xl border border-slate-200 dark:border-white/5 space-y-4">
             <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider">Cập nhật tiến trình dự án</h4>
             
             <div className="grid grid-cols-2 gap-4">
@@ -314,7 +314,7 @@ export default function AdminProjectDetailPage() {
             Tin nhắn yêu cầu từ khách hàng
           </h3>
           
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2 bg-slate-50 dark:bg-black/20 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2 bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-100 dark:border-white/5">
             {messages.length === 0 ? (
               <div className="text-center text-xs text-slate-500 italic py-10">Chưa có tin nhắn nào</div>
             ) : (
@@ -322,7 +322,7 @@ export default function AdminProjectDetailPage() {
                 const isAdmin = msg.sender === 'admin';
                 return (
                   <div key={i} className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] p-3 rounded-2xl text-xs ${isAdmin ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none'}`}>
+                    <div className={`max-w-[80%] p-3 rounded-xl text-xs ${isAdmin ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none'}`}>
                       <div className="whitespace-pre-wrap">{msg.message}</div>
                       <div className={`text-[9px] mt-1 text-right ${isAdmin ? 'text-indigo-200' : 'text-slate-400'}`}>
                         {new Date(msg.createdAt).toLocaleString('vi-VN')}

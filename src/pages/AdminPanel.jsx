@@ -757,7 +757,7 @@ export default function AdminPanel() {
       
       {/* SUCCESS/WARNING TOAST */}
       {toastMsg && (
-        <div className={`fixed top-16 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 z-50 flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-white dark:bg-[#161420] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] max-w-md border-2 transition-all ${
+        <div className={`fixed top-16 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 z-50 flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl bg-white dark:bg-[#161420] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] max-w-md border-2 transition-all ${
           toastType === "success" 
             ? "border-emerald-500 dark:border-emerald-600" 
             : "border-red-500 dark:border-rose-500"
@@ -932,7 +932,7 @@ export default function AdminPanel() {
 
         {/* TAB 2: BOOKINGS */}
         {activeTab === "bookings" && (
-          <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden animate-fadeIn">
+          <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden animate-fadeIn">
             
             {/* Split sub-tabs navigation */}
             <div className="flex border-b border-slate-200 dark:border-slate-800 px-6 pt-4 bg-slate-50/50 dark:bg-[#181622]/40 gap-4">
@@ -1133,7 +1133,7 @@ export default function AdminPanel() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fadeIn">
             
             {/* Left panel: Add partner form */}
-            <div className="lg:col-span-4 bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+            <div className="lg:col-span-4 bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
               <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-base">add_link</span>
                 Thêm Đối Tác Mới
@@ -1188,7 +1188,7 @@ export default function AdminPanel() {
             <div className="lg:col-span-8 space-y-6">
               
               {/* List */}
-              <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden flex flex-col justify-between min-h-[350px]">
+              <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden flex flex-col justify-between min-h-[350px]">
                 
                 {/* Header with Search */}
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -1310,7 +1310,7 @@ export default function AdminPanel() {
 
               {/* Preview modal drawer formatted as a browser frame */}
               {previewPartner && (
-                <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4 animate-fadeIn">
+                <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4 animate-fadeIn">
                   <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                     <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                       <span className="material-symbols-outlined text-slate-550 dark:text-slate-400 text-sm">visibility</span>
@@ -1325,7 +1325,7 @@ export default function AdminPanel() {
                   </div>
 
                   {/* Modern Browser Mock Frame */}
-                  <div className="w-full bg-[#f1f5f9] dark:bg-[#1c1a27] rounded-2xl overflow-hidden border border-slate-250 dark:border-slate-800 flex flex-col shadow-inner">
+                  <div className="w-full bg-[#f1f5f9] dark:bg-[#1c1a27] rounded-xl overflow-hidden border border-slate-250 dark:border-slate-800 flex flex-col shadow-inner">
                     {/* Browser top-bar */}
                     <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-200/60 dark:bg-slate-900/60 border-b border-slate-250 dark:border-slate-800 select-none">
                       <div className="flex gap-1.5">
@@ -1371,7 +1371,7 @@ export default function AdminPanel() {
             <div className="lg:col-span-5 space-y-6">
               
               {/* Create package form */}
-              <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-base">add_card</span>
                   Tạo Gói Dịch Vụ Mới
@@ -1439,7 +1439,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Grant package form */}
-              <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-emerald-500 text-base">card_membership</span>
                   Cấp Gói Cho Thành Viên
@@ -1503,7 +1503,7 @@ export default function AdminPanel() {
             <div className="lg:col-span-7 space-y-6">
               
               {/* Search and delete user packages */}
-              <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <div className="space-y-1">
                   <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                     <span className="material-symbols-outlined text-rose-500 text-base">manage_accounts</span>
@@ -1531,7 +1531,7 @@ export default function AdminPanel() {
                 </div>
 
                 {searchedMemberBio && (
-                  <div className="border border-zinc-150 dark:border-zinc-800/85 rounded-2xl p-4 space-y-4 bg-zinc-50/50 dark:bg-[#181622]/40 animate-fadeIn">
+                  <div className="border border-zinc-150 dark:border-zinc-800/85 rounded-xl p-4 space-y-4 bg-zinc-50/50 dark:bg-[#181622]/40 animate-fadeIn">
                     <div className="flex justify-between items-start gap-4">
                       <div>
                         <h4 className="font-bold text-xs text-slate-855 dark:text-white">{searchedMemberBio.displayName}</h4>
@@ -1586,7 +1586,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Package templates list */}
-              <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-slate-550 dark:text-slate-450 text-base">list_alt</span>
                   Mẫu Gói Dịch Vụ Đã Tạo ({packageTemplates.length})
@@ -1597,7 +1597,7 @@ export default function AdminPanel() {
                     {packageTemplates.map(pkg => (
                       <div 
                         key={pkg._id} 
-                        className="rounded-2xl p-4 border border-zinc-200/60 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-900/10 space-y-3 relative group"
+                        className="rounded-xl p-4 border border-zinc-200/60 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-900/10 space-y-3 relative group"
                       >
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex items-center gap-2">
@@ -1680,7 +1680,7 @@ export default function AdminPanel() {
           <div className="space-y-6 animate-fadeIn">
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+              <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
                 <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-[#a5b4fc] flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-xl">support_agent</span>
                 </div>
@@ -1690,7 +1690,7 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+              <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
                 <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-[#fde047] flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-xl animate-pulse">pending</span>
                 </div>
@@ -1700,7 +1700,7 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+              <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
                 <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-[#86efac] flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-xl">check_circle</span>
                 </div>
@@ -1714,7 +1714,7 @@ export default function AdminPanel() {
             </div>
 
             {/* Filter and Content Card */}
-            <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
+            <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
               
               {/* Header section with Filter controls */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
@@ -1759,7 +1759,7 @@ export default function AdminPanel() {
                       return (
                         <div
                           key={ticket._id}
-                          className="p-5 rounded-2xl border border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-[#161420]/30 hover:border-slate-200 dark:hover:border-slate-700/60 transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
+                          className="p-5 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-[#161420]/30 hover:border-slate-200 dark:hover:border-slate-700/60 transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
                         >
                           {/* Left column: User info & description */}
                           <div className="flex gap-4 items-start min-w-0">
@@ -1862,7 +1862,7 @@ export default function AdminPanel() {
                 </div>
               ) : (
                 <div className="text-center py-12 space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto text-slate-400">
+                  <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto text-slate-400">
                     <span className="material-symbols-outlined text-2xl">support_agent</span>
                   </div>
                   <p className="text-xs text-slate-450 italic font-medium">Không tìm thấy yêu cầu hỗ trợ nào.</p>
@@ -1877,7 +1877,7 @@ export default function AdminPanel() {
       {/* CONFIRM DELETE BIO ACCOUNT MODAL */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center gap-2 text-rose-500">
               <span className="material-symbols-outlined text-2xl animate-pulse">warning</span>
               <h3 className="font-extrabold text-sm uppercase tracking-wider">Xác Nhận Xóa Tài Khoản</h3>
@@ -1931,7 +1931,7 @@ export default function AdminPanel() {
       {/* EXPORT DIRECT PARTNER LINK MODAL */}
       {exportLinkPartner && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-xl w-full shadow-2xl space-y-4">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-405">
                 <span className="material-symbols-outlined text-xl">link</span>
@@ -1991,7 +1991,7 @@ export default function AdminPanel() {
       {/* EXPORT IFRAME PARTNER MODAL */}
       {exportPartner && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-xl w-full shadow-2xl space-y-4">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                 <span className="material-symbols-outlined text-xl">share</span>
@@ -2074,7 +2074,7 @@ export default function AdminPanel() {
       {/* CUSTOM REUSABLE CONFIRM MODAL */}
       {confirmModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-sm w-full shadow-2xl space-y-4">
             <div className="flex items-center gap-2 text-rose-500">
               <span className="material-symbols-outlined text-2xl">warning</span>
               <h3 className="font-extrabold text-sm uppercase tracking-wider text-slate-800 dark:text-white">Xác Nhận Thao Tác</h3>

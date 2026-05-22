@@ -23,7 +23,7 @@ export default function AdminPackagesTab({
       <div className="lg:col-span-5 space-y-6">
         
         {/* Create package form */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-base">add_card</span>
             Tạo Gói Dịch Vụ Mới
@@ -91,7 +91,7 @@ export default function AdminPackagesTab({
         </div>
 
         {/* Grant package form */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-emerald-500 text-base">card_membership</span>
             Cấp Gói Cho Thành Viên
@@ -155,7 +155,7 @@ export default function AdminPackagesTab({
       <div className="lg:col-span-7 space-y-6">
         
         {/* Search and delete user packages */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <div className="space-y-1">
             <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
               <span className="material-symbols-outlined text-rose-500 text-base">manage_accounts</span>
@@ -183,7 +183,7 @@ export default function AdminPackagesTab({
           </div>
 
           {searchedMemberBio && (
-            <div className="border border-zinc-150 dark:border-zinc-800/85 rounded-2xl p-4 space-y-4 bg-zinc-50/50 dark:bg-[#181622]/40 animate-fadeIn">
+            <div className="border border-zinc-150 dark:border-zinc-800/85 rounded-xl p-4 space-y-4 bg-zinc-50/50 dark:bg-[#181622]/40 animate-fadeIn">
               <div className="flex justify-between items-start gap-4">
                 <div>
                   <h4 className="font-bold text-xs text-slate-855 dark:text-white">{searchedMemberBio.displayName}</h4>
@@ -238,7 +238,7 @@ export default function AdminPackagesTab({
         </div>
 
         {/* Package templates list */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-slate-550 dark:text-slate-450 text-base">list_alt</span>
             Mẫu Gói Dịch Vụ Đã Tạo ({packageTemplates.length})
@@ -249,7 +249,7 @@ export default function AdminPackagesTab({
               {packageTemplates.map(pkg => (
                 <div 
                   key={pkg._id} 
-                  className="rounded-2xl p-4 border border-zinc-200/60 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-900/10 space-y-3 relative group"
+                  className="rounded-xl p-4 border border-zinc-200/60 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-900/10 space-y-3 relative group"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex items-center gap-2">

@@ -181,7 +181,7 @@ export default function AdminProjectsTab({ showNotification }) {
           </h3>
           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
             {projects.map(p => (
-              <div key={p._id} onClick={() => handleOpenDetail(p)} className="cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 p-4 rounded-2xl border border-slate-200 dark:border-white/5 transition-colors relative group">
+              <div key={p._id} onClick={() => handleOpenDetail(p)} className="cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 p-4 rounded-xl border border-slate-200 dark:border-white/5 transition-colors relative group">
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="font-bold text-sm text-slate-850 dark:text-white flex items-center gap-2">

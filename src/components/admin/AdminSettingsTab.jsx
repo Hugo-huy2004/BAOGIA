@@ -7,7 +7,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Vacation & Maintenance Card */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined text-rose-500 text-lg">admin_panel_settings</span>
             Hệ Thống Trực Tuyến
@@ -49,7 +49,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
         </div>
 
         {/* Feature Flags Card */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-lg">toggle_on</span>
             Tính Năng Nâng Cao
@@ -109,7 +109,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       </div>
 
       {/* SEO Settings */}
-      <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-4">
+      <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-4">
         <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-2">
           <span className="material-symbols-outlined text-blue-500 text-lg">search</span>
           Cấu hình SEO Tổng Hệ Thống
@@ -147,7 +147,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       </div>
 
       {/* Advertisement Settings */}
-      <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
+      <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
         <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-base">campaign</span>
           Quản lý Quảng Cáo Popup (Ad Banner)
@@ -158,7 +158,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
             <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Ảnh quảng cáo:</span>
             
             {data?.advertisement?.imageUrl ? (
-              <div className="relative group rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800/80 p-2">
+              <div className="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800/80 p-2">
                 <img 
                   src={data.advertisement.imageUrl} 
                   alt="Ad Banner Preview" 
@@ -171,7 +171,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
                 </div>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/10">
+              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/10">
                 <span className="material-symbols-outlined text-3xl">upload_file</span>
                 <span className="text-[10px] font-semibold mt-2">Tải ảnh (JPEG/PNG)</span>
                 <input type="file" accept="image/*" className="hidden" onChange={handleAdImageUpload} disabled={uploadingAd} />
@@ -183,7 +183,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           <div className="md:col-span-7 space-y-5">
             <div className="space-y-1">
               <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Trạng Thái:</span>
-              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80">
+              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800/80">
                 <span className="font-semibold text-xs text-slate-855 dark:text-slate-350">Hiển thị quảng cáo</span>
                 <button
                   type="button"
@@ -216,7 +216,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       </div>
 
       <div className="pt-4 flex justify-end">
-        <button onClick={handleLogout} className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-3.5 px-6 rounded-2xl transition-all shadow-md active:scale-95">
+        <button onClick={handleLogout} className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-3.5 px-6 rounded-xl transition-all shadow-md active:scale-95">
           <span className="material-symbols-outlined text-base">logout</span>
           <span>Đăng Xuất Tài Khoản Admin</span>
         </button>

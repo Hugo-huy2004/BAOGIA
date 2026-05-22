@@ -136,7 +136,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fadeIn">
       {/* Left panel: Add partner form */}
-      <div className="lg:col-span-4 bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+      <div className="lg:col-span-4 bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
         <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-base">add_link</span>
           Thêm Đối Tác Mới
@@ -191,7 +191,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
       <div className="lg:col-span-8 space-y-6">
         
         {/* List */}
-        <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden flex flex-col justify-between min-h-[350px]">
+        <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden flex flex-col justify-between min-h-[350px]">
           
           {/* Header with Search */}
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -313,7 +313,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
 
         {/* Preview modal drawer formatted as a browser frame */}
         {previewPartner && (
-          <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4 animate-fadeIn">
+          <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4 animate-fadeIn">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                 <span className="material-symbols-outlined text-slate-550 dark:text-slate-400 text-sm">visibility</span>
@@ -328,7 +328,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
             </div>
 
             {/* Modern Browser Mock Frame */}
-            <div className="w-full bg-[#f1f5f9] dark:bg-[#1c1a27] rounded-2xl overflow-hidden border border-slate-250 dark:border-slate-800 flex flex-col shadow-inner">
+            <div className="w-full bg-[#f1f5f9] dark:bg-[#1c1a27] rounded-xl overflow-hidden border border-slate-250 dark:border-slate-800 flex flex-col shadow-inner">
               {/* Browser top-bar */}
               <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-200/60 dark:bg-slate-900/60 border-b border-slate-250 dark:border-slate-800 select-none">
                 <div className="flex gap-1.5">
@@ -365,7 +365,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
       {/* EXPORT DIRECT PARTNER LINK MODAL */}
       {exportLinkPartner && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-xl w-full shadow-2xl space-y-4">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-405">
                 <span className="material-symbols-outlined text-xl">link</span>
@@ -425,7 +425,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
       {/* EXPORT IFRAME PARTNER MODAL */}
       {exportPartner && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-xl w-full shadow-2xl space-y-4">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                 <span className="material-symbols-outlined text-xl">share</span>
