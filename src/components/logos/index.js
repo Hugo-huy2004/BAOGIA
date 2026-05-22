@@ -9,6 +9,9 @@ import NortonSafeWebBadge from './NortonSafeWebBadge.jsx';
 import TrustpilotBadge from './TrustpilotBadge.jsx';
 import BingWebmasterBadge from './BingWebmasterBadge.jsx';
 import BraveVerifiedBadge from './BraveVerifiedBadge.jsx';
+import PrivacyBadge from './PrivacyBadge.jsx';
+import VietnamBadge from './VietnamBadge.jsx';
+import TechStackBadge from './TechStackBadge.jsx';
 
 // Export an array of logo components so Footer can render them dynamically
 const logos = [
@@ -23,6 +26,9 @@ const logos = [
   LighthouseBestPracticesBadge,
   A11yBadge,
   DMCABadge,
+  PrivacyBadge,
+  VietnamBadge,
+  TechStackBadge,
 ];
 
 export default logos;
