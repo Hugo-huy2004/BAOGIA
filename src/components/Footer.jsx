@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { playPopSound } from "../utils/audio";
+import DMCABadge from "./DMCABadge";
 
 export default function Footer() {
   const { data } = useData();
@@ -165,9 +166,38 @@ export default function Footer() {
             </div>
           </div>
         </div>
+        {/* Certifications Section */}
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-8 pb-4">
+          {/* 100% Safe & Secure */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 hover:scale-105 transition-transform cursor-default" title="100% Safe & Secure">
+            <span className="material-symbols-outlined text-blue-600 dark:text-blue-500 text-[20px]">verified_user</span>
+            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Safe & Secure</span>
+          </div>
+
+          {/* DMCA Protected Component */}
+          <DMCABadge />
+
+          {/* SSL Secured */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 hover:scale-105 transition-transform cursor-default" title="256-bit SSL Secured">
+            <span className="material-symbols-outlined text-green-600 dark:text-green-500 text-[20px]">lock</span>
+            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">SSL Secured</span>
+          </div>
+
+          {/* Privacy Protected */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 hover:scale-105 transition-transform cursor-default" title="Data Privacy Protected">
+            <span className="material-symbols-outlined text-purple-600 dark:text-purple-500 text-[20px]">shield_person</span>
+            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Privacy Protected</span>
+          </div>
+
+          {/* Google Safe Browsing / Verified */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 hover:scale-105 transition-transform cursor-default" title="Verified Safe Browsing">
+            <span className="material-symbols-outlined text-amber-600 dark:text-amber-500 text-[20px]">gpp_good</span>
+            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Verified Site</span>
+          </div>
+        </div>
 
         {/* Bottom Section: Copyright & System Status */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 text-xs text-slate-400 dark:text-slate-500">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-4 text-xs text-slate-400 dark:text-slate-500">
           <div className="text-center md:text-left space-y-1">
             <p className="font-medium text-slate-500 dark:text-slate-400">
               © {new Date().getFullYear()} <span className="font-semibold text-slate-700 dark:text-slate-300">{data.profile.fullName || "Peter Hugo Wishpax Le"}</span>. Tất cả các quyền được bảo lưu.

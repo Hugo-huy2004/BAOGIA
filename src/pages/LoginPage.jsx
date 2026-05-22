@@ -153,7 +153,7 @@ export default function LoginPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Lỗi đăng nhập');
       
-      // Save project data to session storage for the customer portal to use
+      // Save project data to session storage for the Quản trị dự án to use
       sessionStorage.setItem('customerProject', JSON.stringify(data.project));
       navigate("/customer-portal");
     } catch (error) {
@@ -253,7 +253,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white transition-all">
-            {activeMode === "customer" ? "Customer Portal" : activeMode === "member" ? "Kích Hoạt Student Bio" : "Đăng Nhập Quản Trị"}
+            {activeMode === "customer" ? "Quản trị dự án" : activeMode === "member" ? "Kích Hoạt Student Bio" : "Đăng Nhập Quản Trị"}
           </h1>
           <p className="text-xs text-slate-450 dark:text-slate-400 font-medium">
             {activeMode === "customer"
@@ -310,7 +310,7 @@ export default function LoginPage() {
           {activeMode === "customer" ? (
             <form key="form-customer" onSubmit={handleCustomerLogin} className="space-y-6">
               <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">Truy cập Customer Portal</h2>
+                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">Truy cập Quản trị dự án</h2>
                 <p className="text-[11px] text-slate-450 dark:text-slate-400 leading-relaxed">
                   Quản lý dự án, xem tiến độ và trao đổi với đội ngũ.
                 </p>
