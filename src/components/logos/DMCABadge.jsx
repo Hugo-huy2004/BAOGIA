@@ -1,29 +1,19 @@
 import React, { useEffect, useState } from 'react';
 
 const DMCABadge = () => {
-  const [shouldShow, setShouldShow] = useState(false);
-
   useEffect(() => {
-    // Check if 30 days have passed since May 22, 2026
-    const targetDate = new Date('2026-06-21T00:00:00').getTime();
-    if (Date.now() >= targetDate) {
-      setShouldShow(true);
-      
-      // Dynamically load the DMCA helper script when component mounts
-      const script = document.createElement('script');
-      script.src = "https://images.dmca.com/Badges/DMCABadgeHelper.min.js";
-      script.async = true;
-      document.body.appendChild(script);
+    // Dynamically load the DMCA helper script when component mounts
+    const script = document.createElement('script');
+    script.src = "https://images.dmca.com/Badges/DMCABadgeHelper.min.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-      return () => {
-        if (document.body.contains(script)) {
-          document.body.removeChild(script);
-        }
-      };
-    }
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
   }, []);
-
-  if (!shouldShow) return null;
 
   return (
     <a 
