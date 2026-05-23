@@ -12,6 +12,7 @@ import HBot from "./components/HBot";
 
 const IntroductionPage = lazy(() => import("./pages/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/ServicesPage"));
+const TemplatesPage = lazy(() => import("./pages/TemplatesPage"));
 const BookingContactPage = lazy(() => import("./pages/BookingContactPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const MemberPortalPage = lazy(() => import("./pages/MemberPortalPage"));
@@ -85,6 +86,7 @@ function AppContent() {
             <Route path="/" element={<Navigate to="/introduction" replace />} />
             <Route path="/introduction" element={<IntroductionPage />} />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/templates" element={<TemplatesPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/booking" element={<BookingContactPage />} />
             <Route path="/login" element={<LoginPage />} />

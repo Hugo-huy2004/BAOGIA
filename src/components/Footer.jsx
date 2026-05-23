@@ -166,22 +166,15 @@ export default function Footer() {
               </a>
             </div>
             {/* Partner Logo */}
-            <div className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-550">
-              Đối tác
+            <div className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">
+              Đối tác chiến lược
             </div>
-            <div className="flex justify-center items-center gap-4 mt-3">
+            <div className="flex justify-center items-center mt-4">
               <img 
                 src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png" 
-                alt="Partner 1 Logo" 
-                className="h-8 sm:h-10 w-auto object-contain transition-transform hover:scale-105 duration-300"
+                alt="Jason Dev Partner Logo" 
+                className="h-12 sm:h-16 w-auto object-contain opacity-25 dark:opacity-15 grayscale contrast-125 mix-blend-luminosity hover:opacity-45 transition-opacity duration-300"
               />
-              <a href="https://minhoimedia.digital" target="_blank" rel="noreferrer" title="Minh Khoi Media" className="inline-block">
-                <img 
-                  src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514445/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.34.00_qwgakb.png" 
-                  alt="Partner 2 Logo" 
-                  className="h-8 sm:h-10 w-8 sm:w-10 rounded-full object-cover transition-transform hover:scale-105 duration-300 border border-slate-200 dark:border-slate-700"
-                />
-              </a>
             </div>
           </div>
         </div>
