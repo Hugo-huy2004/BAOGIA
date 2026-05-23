@@ -175,11 +175,13 @@ export default function Footer() {
                 alt="Partner 1 Logo" 
                 className="h-8 sm:h-10 w-auto object-contain transition-transform hover:scale-105 duration-300"
               />
-              <img 
-                src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514445/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.34.00_qwgakb.png" 
-                alt="Partner 2 Logo" 
-                className="h-8 sm:h-10 w-8 sm:w-10 rounded-full object-cover transition-transform hover:scale-105 duration-300 border border-slate-200 dark:border-slate-700"
-              />
+              <a href="https://minhoimedia.digital" target="_blank" rel="noreferrer" title="Minh Khoi Media" className="inline-block">
+                <img 
+                  src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514445/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.34.00_qwgakb.png" 
+                  alt="Partner 2 Logo" 
+                  className="h-8 sm:h-10 w-8 sm:w-10 rounded-full object-cover transition-transform hover:scale-105 duration-300 border border-slate-200 dark:border-slate-700"
+                />
+              </a>
             </div>
           </div>
         </div>
