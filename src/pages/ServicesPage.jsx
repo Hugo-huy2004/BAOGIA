@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useHeadMeta } from "../hooks/useHeadMeta";
-import { JasonCode } from "hwagfu-link";
 
 export default function ServicesPage() {
   useHeadMeta({
@@ -273,8 +272,12 @@ export default function ServicesPage() {
           </p>
         </div>
         
-        <div className="flex justify-center items-center p-8 rounded-2xl bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200/50 dark:border-white/5">
-          <JasonCode />
+        <div className="flex justify-center items-center">
+          <img 
+            src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png" 
+            alt="Partner Logo" 
+            className="w-48 sm:w-56 md:w-64 h-auto object-contain transition-transform hover:scale-105 duration-300"
+          />
         </div>
       </section>
 

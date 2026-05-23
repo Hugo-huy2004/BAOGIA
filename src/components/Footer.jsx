@@ -165,6 +165,15 @@ export default function Footer() {
                 </svg>
               </a>
             </div>
+            {/* Partner Logo */}
+            <div className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-550">
+              Đối tác
+            </div>
+            <img 
+              src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png" 
+              alt="Partner Logo" 
+              className="h-8 sm:h-10 w-auto object-contain mx-auto mt-2 transition-transform hover:scale-105 duration-300"
+            />
           </div>
         </div>
         
