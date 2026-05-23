@@ -6,6 +6,7 @@ export default function CoffeeDemo({ isMobile = false }) {
   const [orderSubmitted, setOrderSubmitted] = useState(false);
   const [menuTab, setMenuTab] = useState("coffee");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const slides = [
     { title: "Ưu Đãi Sáng Sớm - Đồng Giá 29k", desc: "Thưởng thức Combo Espresso & Croissant bơ tỏi nóng hổi từ 7h - 9h sáng hằng ngày.", btnText: "Gọi món ngay", badge: "Morning Combo" },
@@ -67,6 +68,18 @@ export default function CoffeeDemo({ isMobile = false }) {
 
         <div className="flex items-center gap-3">
           <span className="bg-[#8D6E63]/10 border border-[#8D6E63]/30 text-amber-900 text-[10px] px-2.5 py-1 rounded font-mono font-bold">BÀN 08</span>
+          {/* Hamburger button — only on mobile */}
+          {isMobile && (
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-lg bg-[#4E342E]/8 hover:bg-amber-800/10 transition-colors"
+              aria-label="Mở menu"
+            >
+              <span className="w-[18px] h-0.5 bg-[#4E342E] rounded-full block"></span>
+              <span className="w-[18px] h-0.5 bg-[#4E342E] rounded-full block"></span>
+              <span className="w-3 h-0.5 bg-[#4E342E] rounded-full block self-start ml-[3px]"></span>
+            </button>
+          )}
         </div>
       </header>
 
@@ -308,36 +321,103 @@ export default function CoffeeDemo({ isMobile = false }) {
         </footer>
       )}
 
-      {/* Custom Bottom Tab Bar for Mobile */}
+      {/* Mobile Page Indicator Bar \u2014 thin bottom bar showing current page (nav is via drawer) */}
       {isMobile && (
-        <div className="bg-[#FAF6F0]/95 backdrop-blur-md border-t border-[#4E342E]/10 px-6 pt-3 pb-5 flex justify-around items-center shrink-0 z-30 select-none">
-          <button 
-            onClick={() => setActivePage("home")} 
-            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "home" ? "text-amber-800 font-bold" : "text-[#4E342E]/50 hover:text-[#4E342E]"}`}
-          >
-            <span className="material-symbols-outlined text-xl">home</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Trang chủ</span>
-          </button>
-          <button 
-            onClick={() => setActivePage("menu")} 
-            className={`flex flex-col items-center gap-1 transition-colors relative ${activePage === "menu" ? "text-amber-800 font-bold" : "text-[#4E342E]/50 hover:text-[#4E342E]"}`}
-          >
-            <span className="material-symbols-outlined text-xl">restaurant_menu</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">E-Menu</span>
+        <div className="bg-[#FAF6F0]/95 backdrop-blur-md border-t border-[#4E342E]/10 px-4 pt-2 pb-5 flex justify-between items-center shrink-0 z-30 select-none">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-amber-800 text-[15px]">
+              {activePage === "home" ? "home" : activePage === "menu" ? "restaurant_menu" : "contact_support"}
+            </span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#4E342E]">
+              {activePage === "home" ? "Trang Chủ" : activePage === "menu" ? "E-Menu Gọi Món" : "Liên Hệ & Đặt Bàn"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
             {totalQty > 0 && (
-              <span className="absolute -top-1 -right-2 bg-red-650 text-white font-mono text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black animate-scaleIn">
-                {totalQty}
+              <span className="flex items-center gap-1 bg-amber-800/10 text-amber-900 text-[9px] font-bold px-2 py-0.5 rounded-full">
+                <span className="material-symbols-outlined text-[11px]">shopping_bag</span>
+                {totalQty} món · {totalPrice.toLocaleString("vi-VN")}đ
               </span>
             )}
-          </button>
-          <button 
-            onClick={() => setActivePage("contact")} 
-            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "contact" ? "text-amber-800 font-bold" : "text-[#4E342E]/50 hover:text-[#4E342E]"}`}
-          >
-            <span className="material-symbols-outlined text-xl">contact_support</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Liên hệ</span>
-          </button>
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center gap-1.5 text-[10px] font-bold text-[#4E342E]/60 hover:text-[#4E342E] transition-colors"
+            >
+              <span className="material-symbols-outlined text-[15px]">menu</span>
+              <span className="uppercase tracking-wider">Menu</span>
+            </button>
+          </div>
         </div>
+      )}
+
+      {/* Hamburger Drawer Sidebar — Mobile Only */}
+      {isMobile && (
+        <>
+          {/* Backdrop Overlay */}
+          <div
+            onClick={() => setDrawerOpen(false)}
+            className={`absolute inset-0 bg-zinc-950/40 backdrop-blur-sm z-40 transition-opacity duration-300 ${drawerOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+          />
+          {/* Drawer Panel */}
+          <div
+            className={`absolute top-0 left-0 h-full w-[75%] max-w-[270px] bg-[#FAF6F0] shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out ${drawerOpen ? "translate-x-0" : "-translate-x-full"}`}
+          >
+            {/* Drawer Header */}
+            <div className="pt-12 px-5 pb-4 border-b border-[#4E342E]/10 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-800 text-xl">local_cafe</span>
+                <span className="font-serif text-base font-black tracking-wider text-[#4E342E]">HUGO CAFE</span>
+              </div>
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-[#4E342E]/8 hover:bg-amber-800/15 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[#4E342E] text-base">close</span>
+              </button>
+            </div>
+
+            {/* Drawer Navigation Links */}
+            <nav className="flex-grow px-4 py-6 space-y-1">
+              {[
+                { id: "home", label: "Trang Chủ", icon: "home" },
+                { id: "menu", label: "E-Menu Gọi Món", icon: "restaurant_menu" },
+                { id: "contact", label: "Liên Hệ & Đặt Bàn", icon: "contact_support" },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => { setActivePage(item.id); setDrawerOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all text-left ${
+                    activePage === item.id
+                      ? "bg-amber-800 text-white shadow-sm"
+                      : "text-[#4E342E]/70 hover:bg-[#4E342E]/8 hover:text-[#4E342E]"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-lg">{item.icon}</span>
+                  <span>{item.label}</span>
+                  {item.id === "menu" && totalQty > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-[9px] font-mono w-4.5 h-4.5 rounded-full flex items-center justify-center font-black">{totalQty}</span>
+                  )}
+                </button>
+              ))}
+            </nav>
+
+            {/* Drawer Footer Info */}
+            <div className="px-5 py-5 border-t border-[#4E342E]/10 space-y-3">
+              <div className="flex items-center gap-2 text-xs text-[#4E342E]/60">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                <span className="font-semibold">Đang mở cửa · 07:00 – 22:00</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-[#4E342E]/50">
+                <span className="material-symbols-outlined text-xs">location_on</span>
+                <span>128 Nguyễn Trãi, Q.1</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-[#4E342E]/50">
+                <span className="material-symbols-outlined text-xs">table_restaurant</span>
+                <span className="font-mono font-bold text-amber-900">BÀN 08</span>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Order Complete Print Receipt Animation Modal Overlay - Made absolute inside mobile container */}

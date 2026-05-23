@@ -23,23 +23,23 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative mt-20 border-t border-slate-200/60 bg-white/40 dark:border-slate-800/50 dark:bg-slate-950/40 backdrop-blur-xl py-12 md:py-16 text-slate-650 dark:text-slate-400">
+    <footer className="relative mt-16 md:mt-20 border-t border-slate-200/60 bg-white/40 dark:border-slate-800/50 dark:bg-slate-950/40 backdrop-blur-xl py-8 md:py-16 text-slate-650 dark:text-slate-400">
       {/* Background soft glow accents */}
       <div className="absolute top-0 left-1/4 -translate-y-1/2 w-72 h-72 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
       <div className="absolute top-0 right-1/4 -translate-y-1/2 w-72 h-72 rounded-full bg-cyan-500/5 blur-3xl pointer-events-none" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Top Section: Main Footer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-200/50 dark:border-slate-800/40">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 pb-8 md:pb-12 border-b border-slate-200/50 dark:border-slate-800/40">
           
-          {/* Column 1: Brand & Bio */}
-          <div className="space-y-4 text-left">
+          {/* Column 1: Brand & Bio — full width on mobile */}
+          <div className="col-span-2 lg:col-span-1 space-y-3 text-left">
             <Link
               to="/introduction"
               onClick={playPopSound}
               className="inline-flex items-center gap-3 transition-opacity duration-200 hover:opacity-85"
             >
-              <span className="font-display text-[20px] font-black tracking-tight sm:text-[22px]">
+              <span className="font-display text-[18px] md:text-[20px] font-black tracking-tight">
                 {brandLetters.map(({ char, color }) => (
                   <span key={`${char}-${color}`} style={{ color }}>
                     {char}
@@ -47,54 +47,56 @@ export default function Footer() {
                 ))}
               </span>
             </Link>
-            <p className="text-xs sm:text-sm leading-relaxed text-slate-500 dark:text-slate-400 max-w-xs">
-              Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng
+            {/* Tagline — hidden on small mobile to save space */}
+            <p className="hidden sm:block text-xs leading-relaxed text-slate-500 dark:text-slate-400 max-w-xs">
+              Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.
             </p>
-            {/* Quick Contact Info */}
-            <div className="space-y-2 pt-2 text-xs">
+            {/* Contact row — compact on mobile */}
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
               <a 
                 href={`mailto:${data.profile.emailAddress || "hugowishpax@gmail.com"}`}
-                className="flex items-center gap-2 hover:text-slate-900 dark:hover:text-white transition-colors"
+                className="flex items-center gap-1.5 hover:text-slate-900 dark:hover:text-white transition-colors"
               >
-                <span className="material-symbols-outlined text-[15px]">mail</span>
-                <span>{data.profile.emailAddress || "hugowishpax@gmail.com"}</span>
+                <span className="material-symbols-outlined text-[13px]">mail</span>
+                <span className="hidden sm:inline">{data.profile.emailAddress || "hugowishpax@gmail.com"}</span>
+                <span className="sm:hidden">Email</span>
               </a>
               <a 
                 href={`https://zalo.me/${data.profile.zaloNumber || "0839909399"}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 hover:text-slate-900 dark:hover:text-white transition-colors"
+                className="flex items-center gap-1.5 hover:text-slate-900 dark:hover:text-white transition-colors"
               >
-                <span className="material-symbols-outlined text-[15px]">chat</span>
-                <span>Liên hệ Zalo</span>
+                <span className="material-symbols-outlined text-[13px]">chat</span>
+                <span>Zalo</span>
               </a>
             </div>
           </div>
 
           {/* Column 2: Services */}
           <div className="text-left">
-            <div className="mb-4 text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-550">
-              Dịch vụ nổi bật
+            <div className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550">
+              Dịch vụ
             </div>
-            <ul className="space-y-2.5 text-xs sm:text-sm font-medium">
+            <ul className="space-y-2 text-xs font-medium">
               <li>
                 <Link to="/services" className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">
-                  Thiết kế Landing Page
+                  Landing Page
                 </Link>
               </li>
               <li>
                 <Link to="/services" className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">
-                  Website Portfolio Cá Nhân
+                  Portfolio Cá Nhân
                 </Link>
               </li>
               <li>
                 <Link to="/introduction" className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">
-                  Bio Link Sinh Viên (edu)
+                  Bio Link (edu)
                 </Link>
               </li>
               <li>
                 <Link to="/booking" className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">
-                  Thiết kế UI/UX theo yêu cầu
+                  UI/UX Theo Yêu Cầu
                 </Link>
               </li>
             </ul>
@@ -102,10 +104,10 @@ export default function Footer() {
 
           {/* Column 3: Navigation */}
           <div className="text-left">
-            <div className="mb-4 text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-550">
-              Đường dẫn tắt
+            <div className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550">
+              Đường dẫn
             </div>
-            <ul className="space-y-2.5 text-xs sm:text-sm font-medium">
+            <ul className="space-y-2 text-xs font-medium">
               <li>
                 <Link to="/" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Trang Chủ</Link>
               </li>
@@ -113,24 +115,21 @@ export default function Footer() {
                 <Link to="/introduction" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Giới Thiệu</Link>
               </li>
               <li>
-                <Link to="/services" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Bảng Giá Dịch Vụ</Link>
+                <Link to="/services" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Bảng Giá</Link>
               </li>
               <li>
-                <Link to="/booking" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Đăng Ký Đặt Lịch</Link>
+                <Link to="/booking" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Đặt Lịch</Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 4: Socials & Connect */}
-          <div className="text-left space-y-4">
-            <div className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-550">
-              Kết nối với chúng tôi
+          {/* Column 4: Socials — hidden on small mobile, shown md+ OR as last item */}
+          <div className="col-span-2 lg:col-span-1 text-left space-y-3">
+            <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550">
+              Kết nối
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Theo dõi và cập nhật các dự án thiết kế mới nhất của Hugo Studio.
-            </p>
-            <div className="flex flex-wrap gap-2.5 pt-1">
-              {/* GitHub SVG */}
+            <div className="flex flex-wrap gap-2">
+              {/* GitHub */}
               <a 
                 href="https://github.com" 
                 target="_blank" 
@@ -142,7 +141,7 @@ export default function Footer() {
                   <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
                 </svg>
               </a>
-              {/* Zalo Chat Icon */}
+              {/* Zalo */}
               <a 
                 href={`https://zalo.me/${data.profile.zaloNumber || "0839909399"}`}
                 target="_blank" 
@@ -152,7 +151,7 @@ export default function Footer() {
               >
                 <span className="material-symbols-outlined text-[18px] text-slate-700 dark:text-slate-300">chat_bubble</span>
               </a>
-              {/* Facebook SVG */}
+              {/* Facebook */}
               <a 
                 href="https://facebook.com" 
                 target="_blank" 
@@ -166,14 +165,12 @@ export default function Footer() {
               </a>
             </div>
             {/* Partner Logo */}
-            <div className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">
-              Đối tác chiến lược
-            </div>
-            <div className="flex justify-center items-center mt-4">
+            <div>
+              <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550 mb-2">Đối tác</div>
               <img 
                 src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png" 
-                alt="Jason Dev Partner Logo" 
-                className="h-12 sm:h-16 w-auto object-contain opacity-25 dark:opacity-15 grayscale contrast-125 mix-blend-luminosity hover:opacity-45 transition-opacity duration-300"
+                alt="Partner Logo" 
+                className="h-7 md:h-10 w-auto object-contain transition-transform hover:scale-105 duration-300"
               />
             </div>
           </div>
@@ -194,17 +191,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom Section: Copyright & System Status */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-4 text-xs text-slate-400 dark:text-slate-500">
-          <div className="text-center md:text-left space-y-1">
-            <p className="font-medium text-slate-500 dark:text-slate-400">
-              © {new Date().getFullYear()} <span className="font-semibold text-slate-700 dark:text-slate-300">{data.profile.fullName || "Peter Hugo Wishpax Le"}</span>. Tất cả các quyền được bảo lưu.
-            </p>
-            <p className="text-[10px] text-slate-400/60 dark:text-slate-500/60">
-              Designed with by <span className="font-semibold">Hugo Studio</span>
-            </p>
-          </div>
-
-          <div className="flex items-center flex-wrap justify-center gap-5 sm:gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 text-xs text-slate-400 dark:text-slate-500">
+          <p className="font-medium text-slate-500 dark:text-slate-400 text-center sm:text-left">
+            © {new Date().getFullYear()} <span className="font-semibold text-slate-700 dark:text-slate-300">{data.profile.fullName || "Peter Hugo Wishpax Le"}</span>. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4">
             <Link 
               to="/privacy-policy" 
               className="hover:text-slate-700 dark:hover:text-slate-350 hover:underline underline-offset-4 transition-colors font-medium"

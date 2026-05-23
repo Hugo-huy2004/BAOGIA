@@ -89,7 +89,7 @@ export default function Navbar() {
                 : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             }`}
           >
-            Mẫu website
+            Tác Phẩm
           </Link>
 
           <Link 
