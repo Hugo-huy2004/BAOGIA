@@ -272,11 +272,16 @@ export default function ServicesPage() {
           </p>
         </div>
         
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center gap-8 sm:gap-12 md:gap-16 flex-wrap">
           <img 
             src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png" 
-            alt="Partner Logo" 
-            className="w-48 sm:w-56 md:w-64 h-auto object-contain transition-transform hover:scale-105 duration-300"
+            alt="Partner 1 Logo" 
+            className="w-32 sm:w-40 md:w-48 h-auto object-contain transition-transform hover:scale-105 duration-300"
+          />
+          <img 
+            src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514445/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.34.00_qwgakb.png" 
+            alt="Partner 2 Logo" 
+            className="w-24 sm:w-32 md:w-36 aspect-square rounded-full object-cover transition-transform hover:scale-105 duration-300 shadow-md border-2 border-white/50 dark:border-slate-800/50"
           />
         </div>
       </section>
