@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useHeadMeta } from "../hooks/useHeadMeta";
+import { JasonCode } from "hwagfu-link";
 
 export default function ServicesPage() {
   useHeadMeta({
@@ -256,6 +257,25 @@ export default function ServicesPage() {
           </div>
         </div>
 
+      </section>
+
+      {/* Partner Section */}
+      <section className="mt-16 md:mt-24 text-center space-y-8 max-w-3xl mx-auto px-4">
+        <div className="space-y-3">
+          <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">
+            Đối tác chiến lược
+          </span>
+          <h2 className="font-display text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">
+            Đối Tác Của Chúng Tôi
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Hugo Studio tự hào được đồng hành cùng các đối tác công nghệ, mang đến những trải nghiệm tối ưu nhất cho khách hàng.
+          </p>
+        </div>
+        
+        <div className="flex justify-center items-center p-8 rounded-2xl bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200/50 dark:border-white/5">
+          <JasonCode />
+        </div>
       </section>
 
     </div>
