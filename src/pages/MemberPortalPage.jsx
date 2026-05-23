@@ -827,7 +827,7 @@ export default function MemberPortalPage() {
     return (
       <iframe
         ref={previewIframeRef}
-        src="/preview"
+        src="/preview?v=2"
         className="w-full h-full border-none"
         title="Live Preview"
       />

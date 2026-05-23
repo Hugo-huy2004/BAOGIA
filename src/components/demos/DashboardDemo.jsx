@@ -726,8 +726,8 @@ export default function DashboardDemo({ isMobile = false }) {
 
       {/* Live toast notification banner when a simulated sale happens */}
       {showToast && (
-        <div className={`absolute ${isMobile ? "bottom-20" : "bottom-6"} left-1/2 -translate-x-1/2 bg-emerald-600 text-white font-extrabold text-[10px] sm:text-[11px] px-5 py-3 rounded-full shadow-2xl flex items-center gap-1.5 z-50 border border-emerald-400 animate-slideUp`}>
-          <span className="material-symbols-outlined text-xs animate-bounce">notifications_active</span>
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-max max-w-[90%] bg-emerald-600/95 backdrop-blur-md text-white font-extrabold text-[10px] sm:text-[11px] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-1.5 z-50 border border-emerald-400/50 animate-fadeIn text-center">
+          <span className="material-symbols-outlined text-[16px] animate-bounce">notifications_active</span>
           <span>{toastMessage}</span>
         </div>
       )}

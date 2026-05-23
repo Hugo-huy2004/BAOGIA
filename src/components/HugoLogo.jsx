@@ -3,7 +3,7 @@ import React from "react";
 const BRAND_COLORS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#A855F7"];
 
 export const RenderColoredText = ({ text }) => {
-  if (!text) return null;
+  if (!text || typeof text !== "string") return null;
   return (
     <>
       {text.split("").map((char, idx) => (

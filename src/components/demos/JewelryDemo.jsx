@@ -332,11 +332,11 @@ export default function JewelryDemo({ isMobile = false }) {
         </div>
       )}
 
-      {/* Floating Toast - Made responsive bottom offset on mobile */}
+      {/* Floating Toast */}
       {toast.show && (
-        <div className={`absolute ${isMobile ? "bottom-20" : "bottom-6"} left-1/2 -translate-x-1/2 bg-[#2C3E29] text-[#FAF9F6] border border-[#B89855] text-xs px-5 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2 animate-slideUp`}>
-          <span className="material-symbols-outlined text-[#B89855] text-base font-black">verified</span>
-          <span className="font-bold tracking-wider">{toast.message}</span>
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-max max-w-[90%] bg-[#2C3E29]/95 backdrop-blur-md text-[#FAF9F6] border border-[#B89855]/50 text-[11px] px-4 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2 animate-fadeIn">
+          <span className="material-symbols-outlined text-[#B89855] text-[18px] font-black">verified</span>
+          <span className="font-bold tracking-wider text-center">{toast.message}</span>
         </div>
       )}
 
