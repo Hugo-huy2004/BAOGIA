@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
 import { useHeadMeta } from "../hooks/useHeadMeta";
-
+import { motion } from "framer-motion";
 export default function IntroductionPage() {
   const { data } = useData();
   const navigate = useNavigate();
@@ -156,65 +156,188 @@ export default function IntroductionPage() {
       >
         
         {/* SLIDE 1: Welcome Section */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
+        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24 pt-6 pb-20 md:py-0">
           {/* Background Watermark */}
-          <div className="absolute left-[5%] bottom-[10%] text-[12rem] xl:text-[15rem] font-black text-slate-900/[0.02] dark:text-white/[0.01] pointer-events-none select-none tracking-tighter leading-none">
+          <motion.div 
+            initial={{ opacity: 0, x: -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="absolute left-[-10%] top-[10%] md:left-[5%] md:bottom-[10%] md:top-auto text-[8rem] md:text-[12rem] xl:text-[15rem] font-black text-slate-900/[0.03] dark:text-white/[0.02] pointer-events-none select-none tracking-tighter leading-none transform -rotate-12 md:rotate-0"
+          >
             CREATIVE
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
-            <div className="lg:col-span-7 space-y-4 sm:space-y-5 md:space-y-6">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
-                ✦ Creative Developer Portal
-              </span>
-              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] text-slate-900 dark:text-white">
-                Kiến tạo vũ trụ số <br className="hidden md:inline" />
-                <span className="bg-gradient-to-r from-[#6366f1] via-[#0ea5e9] to-[#fbbf24] bg-clip-text text-transparent">
+          {/* Floating animated orbs for premium aesthetic */}
+          <motion.div 
+            animate={{ 
+              y: [0, -30, 0],
+              x: [0, 20, 0],
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[10%] md:top-[20%] right-[5%] md:right-[15%] w-24 h-24 md:w-32 md:h-32 bg-[#fbbf24]/30 rounded-full blur-[40px] md:blur-[60px] pointer-events-none"
+          />
+          <motion.div 
+            animate={{ 
+              y: [0, 40, 0],
+              x: [0, -30, 0],
+              scale: [1, 1.2, 1],
+              opacity: [0.2, 0.5, 0.2]
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute bottom-[15%] md:bottom-[25%] left-[5%] md:left-[25%] w-32 h-32 md:w-48 md:h-48 bg-[#6366f1]/30 rounded-full blur-[50px] md:blur-[80px] pointer-events-none"
+          />
+
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10 h-full justify-center">
+            
+            {/* TEXT CONTENT - Centered on Mobile, Left on Desktop */}
+            <div className="lg:col-span-7 space-y-3 sm:space-y-5 md:space-y-6 text-center lg:text-left mt-8 md:mt-0 order-1 lg:order-none">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="flex justify-center lg:justify-start"
+              >
+                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-[#6366f1]/20 to-[#0ea5e9]/20 text-[#6366f1] dark:text-[#a5b4fc] border border-[#6366f1]/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                  ✦ Creative Developer Portal
+                </span>
+              </motion.div>
+              
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+                className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-slate-900 dark:text-white"
+              >
+                Kiến tạo vũ trụ số <br className="hidden sm:inline" />
+                <span className="bg-gradient-to-r from-[#6366f1] via-[#0ea5e9] to-[#fbbf24] bg-clip-text text-transparent animate-gradientShift">
                   bằng cả trái tim.
                 </span>
-              </h1>
-              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
-                Chào mừng bạn đến với ngôi nhà của <strong className="text-[#6366f1] dark:text-[#a5b4fc]">{data.profile.fullName}</strong>. Nơi định hình phong cách thiết kế sang trọng, tối ưu SEO và tương tác mượt mà.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+              </motion.h1>
+
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+                className="text-[13px] sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed mx-auto lg:mx-0 px-2 sm:px-0"
+              >
+                Chào mừng bạn đến với không gian sáng tạo của <strong className="text-[#6366f1] dark:text-[#a5b4fc] font-bold">{data.profile.fullName}</strong>. Nơi tôi kết hợp tính nghệ thuật tinh tế và sức mạnh kỹ thuật để tạo ra những sản phẩm số đẳng cấp.
+              </motion.p>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 md:pt-4 justify-center lg:justify-start px-4 sm:px-0"
+              >
                 <button 
                   onClick={() => scrollToSlide(1)}
-                  className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-[#6366f1] text-white font-semibold shadow-lg shadow-[#6366f1]/20 hover:scale-[1.03] transition-transform duration-300 text-xs sm:text-sm"
+                  className="group relative inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 text-xs sm:text-sm"
                 >
-                  Khám Phá Portal
+                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#6366f1] to-[#0ea5e9] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span className="relative z-10 flex items-center gap-2">
+                    Khám Phá Portal
+                    <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+                  </span>
                 </button>
-                <Link to="/booking" className="inline-flex items-center justify-center px-6 py-3 sm:py-4 rounded-full border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-xs sm:text-sm">
+                <Link to="/booking" className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-slate-200 dark:border-white/10 text-slate-700 dark:text-white font-bold hover:border-[#6366f1] hover:text-[#6366f1] dark:hover:border-white/30 transition-all duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-sm">
                   Đặt Lịch Hẹn
                 </Link>
-              </div>
+              </motion.div>
             </div>
             
-            {/* Enlarged Avatar with Overlapping Ring - visible on all sizes */}
-            <div className="w-full sm:w-auto flex lg:col-span-5 justify-center relative mt-4 lg:mt-0">
-              <div className="absolute w-[160px] h-[160px] sm:w-[260px] sm:h-[260px] md:w-[380px] md:h-[380px] lg:w-[480px] lg:h-[480px] rounded-full bg-[#6366f1]/15 blur-[40px] sm:blur-[60px] md:blur-[80px] lg:blur-[100px]" />
+            {/* AVATAR SECTION - More prominent on mobile */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+              className="w-full lg:col-span-5 flex justify-center relative mt-6 mb-4 md:mt-0 order-2 lg:order-none scale-[1.05] md:scale-100"
+            >
+              <div className="absolute w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] md:w-[380px] md:h-[380px] lg:w-[480px] lg:h-[480px] rounded-full bg-gradient-to-br from-[#6366f1]/30 to-[#0ea5e9]/30 blur-[50px] lg:blur-[100px] animate-pulse-soft" />
               
-              {/* Overlapping offset back frame ring */}
-              <div className="absolute -top-4 -left-4 sm:-top-6 sm:-left-6 w-[180px] h-[180px] sm:w-[300px] sm:h-[300px] md:w-[420px] md:h-[420px] lg:w-[520px] lg:h-[520px] rounded-full border border-slate-200 dark:border-white/5 pointer-events-none" />
+              {/* Spinning geometric rings */}
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+                className="absolute -top-3 -left-3 sm:-top-6 sm:-left-6 w-[250px] h-[250px] sm:w-[360px] sm:h-[360px] md:w-[420px] md:h-[420px] lg:w-[520px] lg:h-[520px] rounded-full border border-dashed border-slate-300 dark:border-white/10 pointer-events-none" 
+              />
+              <motion.div 
+                animate={{ rotate: -360 }}
+                transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+                className="absolute top-2 left-2 sm:top-4 sm:left-4 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] lg:w-[420px] lg:h-[420px] rounded-full border border-slate-200 dark:border-[#6366f1]/20 pointer-events-none" 
+              />
+
+              {/* Floating Tech Badges - Specifically added for mobile pop */}
+              <motion.div 
+                animate={{ y: [-10, 10, -10], rotate: [0, 10, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -left-2 top-8 md:-left-8 md:top-20 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-2 md:p-3 rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 z-30"
+              >
+                <div className="text-[#0ea5e9] font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
+                  <span className="material-symbols-outlined text-lg md:text-xl">code</span>
+                  <span>REACT</span>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                animate={{ y: [10, -10, 10], rotate: [0, -10, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                className="absolute -right-2 top-10 md:-right-4 md:top-24 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-2 md:p-3 rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 z-30"
+              >
+                <div className="text-[#ec4899] font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
+                  <span className="material-symbols-outlined text-lg md:text-xl">draw</span>
+                  <span>DESIGN</span>
+                </div>
+              </motion.div>
               
-              <div className="relative w-[140px] h-[140px] sm:w-[220px] sm:h-[220px] md:w-[340px] md:h-[340px] lg:w-[480px] lg:h-[480px] rounded-full bg-white/10 dark:bg-white/5 backdrop-blur-2xl border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-2xl overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/20 via-transparent to-[#0ea5e9]/20" />
-                <img
+              {/* Main Avatar Container - Squircle on mobile, Circle on desktop */}
+              <div className="relative w-[220px] h-[220px] sm:w-[300px] sm:h-[300px] md:w-[340px] md:h-[340px] lg:w-[480px] lg:h-[480px] rounded-[3rem] sm:rounded-[4rem] md:rounded-full bg-white/30 dark:bg-black/20 backdrop-blur-3xl border border-white/60 dark:border-white/10 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(99,102,241,0.15)] overflow-hidden group z-20">
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/20 via-transparent to-[#fbbf24]/20" />
+                
+                {/* Floating animation for avatar */}
+                <motion.img
+                  animate={{ y: [-5, 5, -5] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   src={avatarImages[currentAvtIndex]}
                   alt={data.profile.fullName}
-                  className={`relative z-10 w-[85%] h-[85%] object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.15)] hover:scale-105 transition-all duration-300 ${
+                  className={`relative z-10 w-[90%] h-[90%] md:w-[85%] md:h-[85%] object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.2)] md:hover:scale-110 transition-all duration-500 ${
                     avtFade ? "opacity-100 scale-100" : "opacity-0 scale-95"
                   }`}
                 />
               </div>
 
-              {/* Overlapping glass status badge */}
-              <div className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-4 md:right-4 lg:bottom-6 lg:right-6 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2.5 rounded-2xl shadow-lg z-20 text-[7px] sm:text-[8px] md:text-[10px] font-bold text-slate-800 dark:text-white flex items-center gap-1 transform rotate-3">
-                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                <span className="hidden sm:inline">Available for Projects</span>
-                <span className="sm:hidden">Available</span>
-              </div>
-            </div>
+              {/* Enhanced floating badge */}
+              <motion.div 
+                animate={{ y: [-3, 3, -3] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                className="absolute bottom-[-10px] sm:bottom-0 right-4 lg:bottom-8 lg:right-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/20 backdrop-blur-xl px-4 py-2 sm:px-5 sm:py-3 rounded-2xl shadow-2xl z-30 text-[10px] sm:text-xs font-bold text-slate-800 dark:text-white flex items-center gap-2 transform rotate-[-2deg]"
+              >
+                <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-emerald-500"></span>
+                </span>
+                <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">Available for Projects</span>
+              </motion.div>
+            </motion.div>
+            
           </div>
+          
+          {/* Scroll Down Indicator - Mobile Only */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 md:hidden"
+          >
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Cuộn Xuống</span>
+            <motion.div 
+              animate={{ y: [0, 5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <span className="material-symbols-outlined text-slate-400 text-lg">keyboard_arrow_down</span>
+            </motion.div>
+          </motion.div>
         </section>
 
         {/* SLIDE 2: Introduction to Web Development (Giới thiệu ngành lập trình Web) */}
@@ -292,100 +415,186 @@ export default function IntroductionPage() {
         {/* SLIDE 3: Personal Information (Overlapping asymmetric stacks) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
           {/* Background Watermark */}
-          <div className="absolute left-[8%] top-[8%] text-[8rem] sm:text-[10rem] xl:text-[12rem] font-black text-slate-900/[0.015] dark:text-white/[0.007] pointer-events-none select-none tracking-tighter leading-none">
+          <motion.div 
+            initial={{ opacity: 0, x: -100 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="absolute left-[5%] top-[10%] text-[7rem] sm:text-[10rem] xl:text-[12rem] font-black text-slate-900/[0.03] dark:text-white/[0.015] pointer-events-none select-none tracking-tighter leading-none transform -rotate-6 md:rotate-0"
+          >
             EST. 2004
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center">
+          {/* Floating animated orbs for premium aesthetic */}
+          <motion.div 
+            animate={{ 
+              y: [0, -20, 0],
+              x: [0, 10, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[15%] right-[10%] w-32 h-32 bg-[#fbbf24]/10 rounded-full blur-[40px] pointer-events-none"
+          />
+
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 w-full max-w-7xl mx-auto items-center">
             {/* Mobile Portrait - visible on small/medium screens */}
-            <div className="w-full flex lg:hidden justify-center">
-              <div className="w-full max-w-xs rounded-xl sm:rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 dark:from-[#12111a] dark:to-black border border-slate-700/50 dark:border-white/10 p-2.5 sm:p-3 shadow-xl hover:shadow-[0_20px_40px_rgba(99,102,241,0.2)] transition-all duration-300 group overflow-hidden relative">
-                {/* Decorative gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.6 }}
+              className="w-full flex lg:hidden justify-center relative z-10"
+            >
+              <div className="w-[70%] max-w-[240px] relative group mt-6 mb-2">
+                {/* Back shadow for depth */}
+                <div className="absolute inset-0 bg-black/20 dark:bg-black/40 rounded-sm blur-xl transform translate-y-3"></div>
                 
-                <div className="aspect-video rounded-lg sm:rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative">
-                  <img loading="lazy" 
-                    src={realPhoto} 
-                    alt="Hugo Portrait" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                  />
-                </div>
-                <div className="pt-2.5 sm:pt-3 text-center space-y-0.5 sm:space-y-1">
-                  <span className="font-display text-sm sm:text-base font-bold bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 bg-clip-text text-transparent dark:from-white dark:via-slate-50 dark:to-white">Peter Hugo Wishpax Lê</span>
-                  <p className="text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 font-medium">Software Engineering Student</p>
+                {/* Polaroid Frame */}
+                <motion.div 
+                  whileTap={{ scale: 0.98, rotate: 0 }}
+                  className="relative bg-white dark:bg-[#f8f9fa] p-2.5 sm:p-3 shadow-[0_15px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_15px_40px_rgba(0,0,0,0.3)] transform rotate-[-3deg] hover:rotate-[1deg] transition-all duration-500 origin-bottom flex flex-col"
+                >
+                  {/* Tape on top */}
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-20 h-5 bg-white/40 dark:bg-white/20 backdrop-blur-sm border border-white/50 shadow-sm transform -rotate-2 z-20" />
+                  
+                  {/* Photo Area */}
+                  <div className="aspect-[4/5] w-full bg-slate-200 overflow-hidden relative shadow-inner shrink-0">
+                    <img loading="lazy" 
+                      src={realPhoto} 
+                      alt="Hugo Portrait" 
+                      className="absolute inset-0 w-full h-full object-cover filter contrast-110 saturate-[0.9]" 
+                    />
+                    {/* Vintage photo overlay effect */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#facc15]/10 via-transparent to-[#6366f1]/10 mix-blend-overlay pointer-events-none" />
+                    <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] pointer-events-none" />
+                  </div>
+                  
+                  {/* Handwritten Text Area */}
+                  <div className="w-full h-14 sm:h-16 flex flex-col items-center justify-center shrink-0">
+                    <span className="font-display text-lg sm:text-xl font-bold text-slate-800 transform -rotate-2 opacity-90 drop-shadow-sm">
+                      Peter Hugo W. Lê
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-0.5 transform rotate-1">
+                      Est. 2004
+                    </span>
+                  </div>
+                </motion.div>
+                
+                {/* Secondary polaroid stacked behind */}
+                <div className="absolute inset-0 bg-slate-100 dark:bg-[#e2e8f0] p-2.5 shadow-lg transform rotate-[4deg] translate-x-2 translate-y-2 -z-10 flex items-center justify-center">
+                   <div className="w-full h-full border-2 border-dashed border-slate-300 dark:border-slate-400 opacity-50"></div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Left: Asymmetric Stacked Portrait - hidden on mobile/tablet */}
             <div className="hidden lg:flex lg:col-span-5 justify-center relative">
               {/* Stacked background frame */}
-              <div className="absolute w-[420px] h-[280px] rounded-[2.5rem] bg-[#6366f1]/5 dark:bg-[#1f1b2e]/50 border border-slate-200/50 dark:border-white/5 transform rotate-[2deg] translate-x-4 translate-y-4" />
+              <motion.div 
+                initial={{ opacity: 0, rotate: 0 }}
+                whileInView={{ opacity: 1, rotate: 2 }}
+                transition={{ duration: 0.8 }}
+                className="absolute w-[420px] h-[280px] rounded-[2.5rem] bg-[#6366f1]/10 dark:bg-[#1f1b2e]/80 border border-slate-200/50 dark:border-white/10 transform translate-x-4 translate-y-4 shadow-xl" 
+              />
 
-              <div className="w-[420px] rounded-[2.5rem] bg-gradient-to-br from-white to-slate-50 dark:from-[#12111a] dark:to-black border border-slate-200/50 dark:border-white/10 p-5 shadow-2xl hover:shadow-[0_25px_50px_rgba(99,102,241,0.2)] transform rotate-[-2deg] hover:rotate-0 transition-all duration-500 relative z-10 group overflow-hidden">
+              <motion.div 
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="w-[420px] rounded-[2.5rem] bg-white/60 dark:bg-black/60 backdrop-blur-2xl border border-white/80 dark:border-white/20 p-5 shadow-2xl hover:shadow-[0_25px_50px_rgba(99,102,241,0.3)] transform rotate-[-2deg] hover:rotate-0 transition-all duration-500 relative z-10 group overflow-hidden"
+              >
                 {/* Decorative gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/5 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
-                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative">
+                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative shadow-inner">
                   <img loading="lazy" 
                     src={realPhoto} 
                     alt="Hugo Portrait" 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   />
+                  <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full text-xs font-bold text-white flex items-center gap-1.5 shadow-lg">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    Online
+                  </div>
                 </div>
-                <div className="pt-5 text-center space-y-1.5">
-                  <span className="font-display text-lg font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-50 dark:to-white bg-clip-text text-transparent">Peter Hugo Wishpax Lê</span>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Software Engineering Student</p>
+                <div className="pt-5 text-center space-y-2 relative z-10">
+                  <span className="font-display text-xl font-black bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent">Peter Hugo Wishpax Lê</span>
+                  <p className="text-xs text-[#6366f1] font-bold uppercase tracking-[0.2em] bg-[#6366f1]/10 inline-block px-3 py-1 rounded-lg">Software Engineering Student</p>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Right: Personal Credentials Info overlapping background */}
-            <div className="lg:col-span-7 space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-6 relative z-10 w-full">
-              <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/25">
-                ✦ Personal Information
-              </span>
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                Lý lịch & Quá trình học tập
-              </h2>
+            <div className="lg:col-span-7 space-y-3 sm:space-y-4 md:space-y-6 relative z-10 w-full text-center lg:text-left mt-2 lg:mt-0">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex justify-center lg:justify-start"
+              >
+                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-[#fbbf24]/20 to-[#f59e0b]/20 text-[#d97706] dark:text-[#fbbf24] border border-[#fbbf24]/30 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
+                  ✦ Personal Information
+                </span>
+              </motion.div>
               
-              <div className="space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-6">
-                <div className="flex items-start gap-2.5 sm:gap-3 border-b border-[#6366f1]/10 pb-2.5 sm:pb-3 md:pb-4">
-                  <span className="material-symbols-outlined text-[#0ea5e9] text-lg sm:text-xl md:text-2xl mt-0.5 flex-shrink-0">school</span>
-                  <div className="space-y-2 sm:space-y-3 w-full">
-                    <div className="text-[8px] sm:text-[10px] uppercase font-bold text-slate-400">Học vấn / Trường học liên kết</div>
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight hidden lg:block"
+              >
+                Lý lịch & <br className="hidden sm:inline lg:hidden"/> Quá trình học tập
+              </motion.h2>
+              
+              <div className="space-y-4 sm:space-y-5 lg:space-y-6 mt-6">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 lg:border-b lg:border-[#6366f1]/10 lg:pb-4"
+                >
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 shadow-inner">
+                    <span className="material-symbols-outlined text-[#0ea5e9] text-xl sm:text-2xl">school</span>
+                  </div>
+                  
+                  <div className="space-y-3 sm:space-y-4 w-full">
+                    <div className="text-[10px] sm:text-xs uppercase font-extrabold text-slate-400 tracking-widest text-center sm:text-left pt-1">Học vấn / Bằng cấp</div>
                     
-                    <div className="grid grid-cols-1 gap-2 sm:gap-3 w-full pt-0 sm:pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 w-full px-2 sm:px-0">
                       {/* High school card */}
-                      <a 
+                      <motion.a 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         href="https://ndc.edu.vn" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="p-2.5 sm:p-3 md:p-4 rounded-lg sm:rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-[#6366f1] transition-colors group space-y-1 block text-left shadow-sm"
+                        className="p-3 sm:p-4 rounded-2xl bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/80 dark:border-white/10 hover:border-[#6366f1] transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
                       >
                         <div className="flex justify-between items-start gap-2">
-                          <span className="text-[8px] sm:text-[10px] font-bold text-[#6366f1] uppercase tracking-wider leading-tight">THPT Nguyễn Đình Chiểu</span>
-                          <span className="material-symbols-outlined text-xs text-slate-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0">open_in_new</span>
+                          <span className="text-[10px] sm:text-xs font-black text-[#6366f1] uppercase tracking-wider leading-tight">THPT Nguyễn Đình Chiểu</span>
+                          <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-[#6366f1] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-slate-100 dark:bg-slate-800 w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
                         </div>
-                        <p className="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400">Mỹ Tho (Collège de MyTho)</p>
-                      </a>
+                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Mỹ Tho (Collège de MyTho)</p>
+                      </motion.a>
 
                       {/* University card */}
-                      <a 
+                      <motion.a 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         href="https://greenwich.edu.vn" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="p-2.5 sm:p-3 md:p-4 rounded-lg sm:rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-[#0ea5e9] transition-colors group space-y-1 block text-left shadow-sm"
+                        className="p-3 sm:p-4 rounded-2xl bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/80 dark:border-white/10 hover:border-[#0ea5e9] transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
                       >
                         <div className="flex justify-between items-start gap-2">
-                          <span className="text-[8px] sm:text-[10px] font-bold text-[#0ea5e9] uppercase tracking-wider leading-tight">Greenwich Vietnam</span>
-                          <span className="material-symbols-outlined text-xs text-slate-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0">open_in_new</span>
+                          <span className="text-[10px] sm:text-xs font-black text-[#0ea5e9] uppercase tracking-wider leading-tight">Greenwich Vietnam</span>
+                          <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-[#0ea5e9] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-slate-100 dark:bg-slate-800 w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
                         </div>
-                        <p className="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400">Greenwich University</p>
-                      </a>
+                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Greenwich University</p>
+                      </motion.a>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
           </div>

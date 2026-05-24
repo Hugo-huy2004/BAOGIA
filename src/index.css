@@ -613,3 +613,21 @@ button:active::before {
   pointer-events: none;
   z-index: 30;
 }
+
+/* =========================================
+   PERFORMANCE UTILITIES
+   ========================================= */
+
+/* Hardware acceleration for complex animations */
+.gpu-accelerate {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Skip rendering off-screen content */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 500px; /* Provide a placeholder size */
+}
