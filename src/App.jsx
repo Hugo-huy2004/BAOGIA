@@ -20,6 +20,7 @@ const BioPublicPage = lazy(() => import("./pages/BioPublicPage"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const PartnerBioPage = lazy(() => import("./pages/PartnerBioPage"));
 const FAQPage = lazy(() => import("./pages/FAQPage"));
+const StudentBenefitsPage = lazy(() => import("./pages/StudentBenefitsPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const LivePreviewPage = lazy(() => import("./pages/LivePreviewPage"));
 const SupportRequestPage = lazy(() => import("./pages/SupportRequestPage"));
@@ -86,6 +87,7 @@ function AppContent() {
             <Route path="/" element={<Navigate to="/introduction" replace />} />
             <Route path="/introduction" element={<IntroductionPage />} />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/student-benefits" element={<StudentBenefitsPage />} />
             <Route path="/templates" element={<TemplatesPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/booking" element={<BookingContactPage />} />

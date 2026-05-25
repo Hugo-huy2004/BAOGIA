@@ -75,7 +75,8 @@ router.get('/user', async (req, res) => {
       return res.status(400).json({ error: 'Email query param is required' });
     }
 
-    const bio = await Bio.findOne({ email });
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) {
       return res.status(404).json({ error: 'Bio not found for this email' });
     }
@@ -99,7 +100,8 @@ router.post('/user', async (req, res) => {
       return res.status(404).json({ error: 'Package template not found' });
     }
 
-    const bio = await Bio.findOne({ email });
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) {
       return res.status(404).json({ error: 'Bio not found for this email' });
     }
@@ -231,7 +233,8 @@ router.post('/redeem', async (req, res) => {
       return res.status(400).json({ error: 'Mã không hợp lệ hoặc đã được sử dụng.' });
     }
 
-    const bio = await Bio.findOne({ email });
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) {
       return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
     }
@@ -294,7 +297,8 @@ router.delete('/user', async (req, res) => {
       return res.status(400).json({ error: 'Email and packageInstanceId are required in body' });
     }
 
-    const bio = await Bio.findOne({ email });
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) {
       return res.status(404).json({ error: 'Bio not found for this email' });
     }

@@ -175,7 +175,11 @@ router.get('/me', async (req, res) => {
       return res.status(400).json({ error: 'Missing email' });
     }
 
-    const bio = await removeExpiredBioIfNeeded(await Bio.findOne({ email }));
+    let bioDoc = await Bio.findOne({ email });
+    if (!bioDoc) {
+      bioDoc = await Bio.findOne({ contactEmail: email });
+    }
+    const bio = await removeExpiredBioIfNeeded(bioDoc);
     return res.json({ bio });
   } catch (error) {
     return res.status(500).json({ error: error.message });

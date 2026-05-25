@@ -107,9 +107,9 @@ export default function ServicesPage() {
                 * Hệ thống sẽ tự động xét duyệt. Mỗi sinh viên nhận 1 suất tài trợ trọn gói.
               </p>
               <Link 
-                to="/login"
+                to="/student-benefits"
                 onClick={playPopSound}
-                className="w-full inline-flex justify-center items-center py-3.5 rounded-full border border-slate-300 dark:border-white/10 hover:border-slate-800 dark:hover:border-white text-slate-700 dark:text-slate-350 dark:hover:text-white font-bold text-xs hover:scale-[1.01] active:scale-98 transition-all duration-200 text-center"
+                className="w-full inline-flex justify-center items-center py-3.5 rounded-full border border-slate-300 dark:border-white/30 hover:border-slate-800 dark:hover:border-white text-slate-700 dark:text-slate-200 dark:hover:text-white font-bold text-xs hover:scale-[1.01] active:scale-98 transition-all duration-200 text-center dark:bg-white/5 hover:dark:bg-white/10"
               >
                 KÍCH HOẠT ĐẶC QUYỀN
               </Link>
@@ -274,11 +274,11 @@ export default function ServicesPage() {
           </p>
         </div>
         
-        <div className="flex justify-center items-center py-4">
+        <div className="flex justify-center items-center py-8">
           <img 
             src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png" 
             alt="Jason Dev Partner Logo" 
-            className="w-48 sm:w-64 md:w-80 h-auto object-contain transition-all duration-300 opacity-25 dark:opacity-15 mix-blend-luminosity hover:opacity-50 filter grayscale dark:brightness-125"
+            className="w-48 sm:w-64 md:w-80 h-auto object-contain transition-all duration-500 opacity-40 filter grayscale hover:opacity-70 dark:opacity-100 dark:brightness-0 dark:invert dark:drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] hover:dark:drop-shadow-[0_0_25px_rgba(255,255,255,1)]"
           />
         </div>
       </section>
