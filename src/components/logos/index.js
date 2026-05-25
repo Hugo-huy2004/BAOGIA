@@ -18,9 +18,18 @@ import DDoSBadge from './DDoSBadge.jsx';
 import IPv6Badge from './IPv6Badge.jsx';
 import GreenWebBadge from './GreenWebBadge.jsx';
 
+import GDPRCompliantBadge from './GDPRCompliantBadge.jsx';
+import PCICompliantBadge from './PCICompliantBadge.jsx';
+import ISO27001Badge from './ISO27001Badge.jsx';
+import CloudflareProtectedBadge from './CloudflareProtectedBadge.jsx';
+
 // Export an array of logo components so Footer can render them dynamically
 const logos = [
   GreenWebBadge,
+  CloudflareProtectedBadge,
+  GDPRCompliantBadge,
+  PCICompliantBadge,
+  ISO27001Badge,
   CreativeCommonsBadge,
   W3CBadge,
   GoogleSEO100Badge,
