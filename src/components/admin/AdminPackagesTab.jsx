@@ -1,4 +1,5 @@
-import React from "react";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminPackagesTab({
   newPkg,
@@ -17,6 +18,7 @@ export default function AdminPackagesTab({
   handleRegenerateGiftCode,
   formatExpiration
 }) {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fadeIn">
       {/* Left panel: forms */}
@@ -26,16 +28,16 @@ export default function AdminPackagesTab({
         <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-base">add_card</span>
-            Tạo Gói Dịch Vụ Mới
+            {t("admin.texts.txt_108")}
           </h3>
           
           <form onSubmit={handleCreatePackage} className="space-y-4">
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Tên Gói Dịch Vụ:</label>
+              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_109")}</label>
               <input
                 type="text"
                 required
-                placeholder="Ví dụ: Gói tặng 3 tháng, Gói Bio VIP..."
+                placeholder={t("admin.texts.txt_115")}
                 value={newPkg.name}
                 onChange={(e) => setNewPkg(p => ({ ...p, name: e.target.value }))}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -44,33 +46,33 @@ export default function AdminPackagesTab({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Thời Hạn:</label>
+                <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_110")}</label>
                 <input
                   type="number"
                   required
                   min="1"
-                  placeholder="Ví dụ: 3"
+                  placeholder={t("admin.texts.txt_116")}
                   value={newPkg.duration}
                   onChange={(e) => setNewPkg(p => ({ ...p, duration: e.target.value }))}
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                 />
               </div>
               <div className="space-y-1">
-                <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Đơn Vị:</label>
+                <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_111")}</label>
                 <select
                   value={newPkg.durationUnit}
                   onChange={(e) => setNewPkg(p => ({ ...p, durationUnit: e.target.value }))}
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-855 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                 >
-                  <option value="months">Tháng</option>
-                  <option value="days">Ngày</option>
-                  <option value="years">Năm</option>
+                  <option value="months">{t("adminTabs.packages.months")}</option>
+                  <option value="days">{t("adminTabs.packages.days")}</option>
+                  <option value="years">{t("adminTabs.packages.years")}</option>
                 </select>
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Quyền Lợi (Mỗi dòng 1 quyền lợi):</label>
+              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createBenefits")}</label>
               <textarea
                 rows="4"
                 placeholder="Quyền lợi 1&#10;Quyền lợi 2&#10;Quyền lợi 3"
@@ -85,7 +87,7 @@ export default function AdminPackagesTab({
               className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-primary hover:bg-indigo-650 text-white font-bold text-xs shadow-sm hover:scale-[1.01] active:scale-98 transition-all"
             >
               <span className="material-symbols-outlined text-sm">save</span>
-              Tạo Mẫu Gói Dịch Vụ
+              {t("admin.texts.txt_112")}
             </button>
           </form>
         </div>
@@ -94,16 +96,16 @@ export default function AdminPackagesTab({
         <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-emerald-500 text-base">card_membership</span>
-            Cấp Gói Cho Thành Viên
+            {t("admin.texts.txt_113")}
           </h3>
 
           <form onSubmit={handleAssignPackageToUser} className="space-y-4">
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Email Người Nhận (Nhập "ALL" để cấp cho tất cả):</label>
+              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantEmail")}</label>
               <input
                 type="text"
                 required
-                placeholder="Ví dụ: partner@gmail.com HOẶC nhập ALL..."
+                placeholder={t("adminTabs.packages.grantEmailPlaceholder")}
                 value={assignForm.email}
                 onChange={(e) => setAssignForm(p => ({ ...p, email: e.target.value }))}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -111,28 +113,28 @@ export default function AdminPackagesTab({
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Chọn Gói Dịch Vụ:</label>
+              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantSelect")}</label>
               <select
                 required
                 value={assignForm.packageId}
                 onChange={(e) => setAssignForm(p => ({ ...p, packageId: e.target.value }))}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               >
-                <option value="">-- Chọn một gói để cấp --</option>
+                <option value="">{t("adminTabs.packages.grantSelectOption")}</option>
                 {packageTemplates.map(pkg => (
                   <option key={pkg._id} value={pkg._id}>
-                    {pkg.name} ({pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"})
+                    {pkg.name} ({pkg.duration} {pkg.durationUnit === "days" ? t("admin.texts.txt_117") : pkg.durationUnit === "years" ? t("admin.texts.txt_118") : t("admin.texts.txt_119")})
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Tùy Chỉnh Số Ngày (Không bắt buộc):</label>
+              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantCustomDays")}</label>
               <input
                 type="number"
                 min="1"
-                placeholder="Nhập số ngày muốn cấp, để trống sẽ dùng số ngày gốc..."
+                placeholder={t("adminTabs.packages.grantCustomDaysPlaceholder")}
                 value={assignForm.customDuration || ""}
                 onChange={(e) => setAssignForm(p => ({ ...p, customDuration: e.target.value }))}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -144,8 +146,9 @@ export default function AdminPackagesTab({
               className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm hover:scale-[1.01] active:scale-98 transition-all"
             >
               <span className="material-symbols-outlined text-sm">verified</span>
-              Cấp Gói & Kích Hoạt
-            </button>
+                  <span className="material-symbols-outlined text-sm">rocket_launch</span>
+                  {t("adminTabs.packages.grantBtn")}
+                </button>
           </form>
         </div>
 
@@ -159,15 +162,15 @@ export default function AdminPackagesTab({
           <div className="space-y-1">
             <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
               <span className="material-symbols-outlined text-rose-500 text-base">manage_accounts</span>
-              Xóa / Quản Lý Gói Của Thành Viên
+              {t("admin.texts.txt_114")}
             </h3>
-            <p className="text-[10px] text-slate-400 font-medium">Nhập email thành viên để kiểm tra các gói đã nhận và hủy/xóa gói.</p>
+            <p className="text-[10px] text-slate-400 font-medium">{t("adminTabs.packages.manageDesc")}</p>
           </div>
 
           <div className="flex gap-2">
             <input
               type="email"
-              placeholder="Nhập email thành viên cần quản lý..."
+              placeholder={t("adminTabs.packages.managePlaceholder")}
               value={memberPkgSearchEmail}
               onChange={(e) => setMemberPkgSearchEmail(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSearchUserPackages(); }}
@@ -178,8 +181,9 @@ export default function AdminPackagesTab({
               className="px-5 bg-zinc-900 hover:bg-zinc-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1 active:scale-95"
             >
               <span className="material-symbols-outlined text-sm">search</span>
-              Tìm
-            </button>
+                  <span className="material-symbols-outlined text-sm">search</span>
+                  {t("adminTabs.packages.manageSearch")}
+                </button>
           </div>
 
           {searchedMemberBio && (
@@ -190,24 +194,24 @@ export default function AdminPackagesTab({
                   <p className="text-[10px] text-zinc-400 mt-0.5">{searchedMemberBio.email}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-[8px] font-bold text-slate-450 uppercase tracking-wider">Hạn dùng Bio:</div>
+                  <div className="text-[8px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.expiry")}</div>
                   <div className="text-[10px] font-mono font-bold text-rose-500 mt-0.5">{formatExpiration(searchedMemberBio.expiresAt)}</div>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Các gói dịch vụ đang có:</span>
+                <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.currentPackages")}</span>
                 
                 {/* Base package (non-deletable) */}
                 <div className="flex items-center justify-between p-3 bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
                     <div>
-                      <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{searchedMemberBio.serviceLabel || "Student Bio"} (Gói gốc)</span>
-                      <span className="text-[9px] text-zinc-400 block mt-0.5">Kích hoạt khi tạo Bio • Không thể xóa</span>
+                      <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{searchedMemberBio.serviceLabel || t("adminTabs.packages.defaultPackage")} {t("adminTabs.packages.originalPackage")}</span>
+                      <span className="text-[9px] text-zinc-400 block mt-0.5">{t("adminTabs.packages.packageDefaultNote")}</span>
                     </div>
                   </div>
-                  <span className="text-[9.5px] font-bold text-zinc-455 italic">Mặc định</span>
+                  <span className="text-[9.5px] font-bold text-zinc-455 italic">{t("adminTabs.packages.defaultBadge")}</span>
                 </div>
 
                 {/* Custom packages */}
@@ -218,19 +222,20 @@ export default function AdminPackagesTab({
                         <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: pkg.color || "#10b981" }} />
                         <div>
                           <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{pkg.name}</span>
-                          <span className="text-[9px] text-zinc-400 block mt-0.5">Cấp ngày: {new Date(pkg.addedAt).toLocaleDateString('vi-VN')} (+{pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"})</span>
+                          <span className="text-[9px] text-zinc-400 block mt-0.5">Cấp ngày: {new Date(pkg.addedAt).toLocaleDateString('vi-VN')} (+{pkg.duration} {pkg.durationUnit === "days" ? t("adminTabs.packages.days") : pkg.durationUnit === "years" ? t("adminTabs.packages.years") : t("adminTabs.packages.months")})</span>
                         </div>
                       </div>
                       <button
                         onClick={() => handleRemoveUserPackage(pkg._id)}
                         className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-455 font-bold text-[9px] uppercase tracking-wide transition-colors active:scale-95"
                       >
-                        Hủy Gói
-                      </button>
+                          <span className="material-symbols-outlined text-[10px]">cancel</span>
+                          {t("adminTabs.packages.cancelPackage")}
+                        </button>
                     </div>
                   ))
                 ) : (
-                  <p className="text-[10px] text-zinc-455 italic">Thành viên chưa được cấp gói khuyến mãi/bổ sung nào.</p>
+                  <p className="text-[10px] text-zinc-455 italic">{t("adminTabs.packages.noPackages")}</p>
                 )}
               </div>
             </div>
@@ -259,15 +264,15 @@ export default function AdminPackagesTab({
                     <button
                       onClick={() => handleDeletePackageTemplate(pkg._id)}
                       className="text-zinc-455 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Xóa mẫu gói"
+                      title={t("adminTabs.packages.delTpl")}
                     >
                       <span className="material-symbols-outlined text-sm">delete</span>
                     </button>
                   </div>
 
                   <div className="flex justify-between text-[10px] text-zinc-455">
-                    <span>Thời hạn:</span>
-                    <span className="font-bold text-slate-700 dark:text-zinc-300 font-mono">+{pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"}</span>
+                    <span>{t("adminTabs.packages.duration")}</span>
+                    <span className="font-bold text-slate-700 dark:text-zinc-300 font-mono">+{pkg.duration} {pkg.durationUnit === "days" ? t("adminTabs.packages.days") : pkg.durationUnit === "years" ? t("adminTabs.packages.years") : t("adminTabs.packages.months")}</span>
                   </div>
 
                   <div className="flex justify-between items-center bg-white dark:bg-[#1c1c1e] p-2 rounded-xl border border-zinc-200/50 dark:border-zinc-800 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
@@ -278,15 +283,16 @@ export default function AdminPackagesTab({
                     <button
                       onClick={() => handleRegenerateGiftCode(pkg._id)}
                       className="text-[9px] font-bold text-primary hover:text-indigo-600 dark:text-[#a5b4fc] dark:hover:text-[#c7d2fe] bg-primary/5 dark:bg-[#a5b4fc]/10 px-2 py-1 rounded-md transition-colors whitespace-nowrap"
-                      title="Sinh mã mới (mã cũ sẽ bị hủy)"
+                      title={t("adminTabs.packages.newCode")}
                     >
-                      Mã mới
-                    </button>
+                        <span className="material-symbols-outlined text-[10px]">refresh</span>
+                        {t("adminTabs.packages.newCodeBtn")}
+                      </button>
                   </div>
 
                   {pkg.benefits && pkg.benefits.length > 0 && (
                     <div className="space-y-1.5 border-t border-zinc-200/50 dark:border-zinc-800/50 pt-2.5">
-                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block">Quyền lợi:</span>
+                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block">{t("adminTabs.packages.benefits")}</span>
                       <ul className="space-y-1">
                         {pkg.benefits.slice(0, 3).map((benefit, i) => (
                           <li key={i} className="text-[9.5px] text-zinc-500 dark:text-zinc-400 truncate flex items-center gap-1.5">
@@ -295,7 +301,7 @@ export default function AdminPackagesTab({
                           </li>
                         ))}
                         {pkg.benefits.length > 3 && (
-                          <li className="text-[8.5px] italic text-zinc-400 pl-2">và {pkg.benefits.length - 3} quyền lợi khác...</li>
+                          <li className="text-[8.5px] italic text-zinc-400 pl-2">{t("adminTabs.packages.andMore", { count: pkg.benefits.length - 3 })}</li>
                         )}
                       </ul>
                     </div>
@@ -304,7 +310,7 @@ export default function AdminPackagesTab({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-400 italic text-center py-6">Chưa có mẫu gói dịch vụ nào được tạo.</p>
+            <p className="text-xs text-slate-400 italic text-center py-6">{t("adminTabs.packages.emptyTpl")}</p>
           )}
         </div>
 

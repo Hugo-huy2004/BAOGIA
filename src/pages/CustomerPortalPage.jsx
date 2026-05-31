@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import CustomerProfileTab from '../components/customer/CustomerProfileTab';
 import CustomerServiceTab from '../components/customer/CustomerServiceTab';
 import CustomerRequestsTab from '../components/customer/CustomerRequestsTab';
 
 export default function CustomerPortalPage() {
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith("vi") ? "en" : "vi";
+    i18n.changeLanguage(newLang);
+  };
+
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [activeTab, setActiveTab] = useState('profile');
@@ -61,6 +69,7 @@ export default function CustomerPortalPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-slate-800 dark:text-slate-100">
+      <button onClick={toggleLanguage} className="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex h-9 w-12 items-center justify-center rounded-full bg-slate-200/80 dark:bg-[#1f1929]/80 backdrop-blur shadow-sm text-[11px] font-bold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-300 dark:hover:bg-[#2d253b] transition-all">{i18n.language.startsWith("en") ? "EN" : "VI"}</button>
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -94,7 +103,8 @@ export default function CustomerPortalPage() {
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">person</span>
-            Hồ Sơ
+            <span className="material-symbols-outlined text-[18px]">person</span>
+            {t("customerPortal.tabs.profile")}
           </button>
           <button
             onClick={() => setActiveTab('service')}
@@ -105,7 +115,8 @@ export default function CustomerPortalPage() {
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">view_timeline</span>
-            Dịch Vụ
+            <span className="material-symbols-outlined text-[18px]">view_timeline</span>
+            {t("customerPortal.tabs.service")}
           </button>
           <button
             onClick={() => setActiveTab('requests')}
@@ -116,7 +127,7 @@ export default function CustomerPortalPage() {
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">forum</span>
-            Yêu Cầu
+            {t("customerPortal.tabs.requests")}
             {unreadCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-[#09090b] animate-pulse">
                 {unreadCount}

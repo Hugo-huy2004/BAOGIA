@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const AdminUsersTab = ({
   userStats,
@@ -28,6 +29,7 @@ const AdminUsersTab = ({
   getExpirationDaysOnly,
   formatExpiration
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Quick Stats Grid */}
@@ -38,7 +40,7 @@ const AdminUsersTab = ({
             <span className="material-symbols-outlined text-xl">group</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tổng thành viên</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_26")}</div>
             <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.total.toLocaleString()}</div>
           </div>
         </div>
@@ -48,7 +50,7 @@ const AdminUsersTab = ({
             <span className="material-symbols-outlined text-xl">person_play</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đang hoạt động</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_27")}</div>
             <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.active.toLocaleString()}</div>
           </div>
         </div>
@@ -58,7 +60,7 @@ const AdminUsersTab = ({
             <span className="material-symbols-outlined text-xl">block</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bị khóa</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_28")}</div>
             <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.locked.toLocaleString()}</div>
           </div>
         </div>
@@ -68,7 +70,7 @@ const AdminUsersTab = ({
             <span className="material-symbols-outlined text-xl">workspace_premium</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vô thời hạn</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_29")}</div>
             <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.lifetime.toLocaleString()}</div>
           </div>
         </div>
@@ -84,7 +86,7 @@ const AdminUsersTab = ({
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Tìm theo tên, email, slug..."
+              placeholder={t("admin.texts.txt_55")}
               className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder-slate-400 text-slate-850 dark:text-white outline-none"
             />
             {searchInput && (
@@ -105,9 +107,9 @@ const AdminUsersTab = ({
               onChange={(e) => { setStatusFilter(e.target.value); setUserPage(1); }}
               className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Trạng thái: Tất cả</option>
-              <option value="active">Hoạt động</option>
-              <option value="locked">Bị khóa</option>
+              <option value="">{t("admin.texts.txt_30")}</option>
+              <option value="active">{t("admin.texts.txt_31")}</option>
+              <option value="locked">{t("admin.texts.txt_32")}</option>
             </select>
 
             {/* Expiration filter */}
@@ -116,10 +118,10 @@ const AdminUsersTab = ({
               onChange={(e) => { setExpirationFilter(e.target.value); setUserPage(1); }}
               className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">Thời hạn: Tất cả</option>
-              <option value="active">Còn hạn</option>
-              <option value="expired">Hết hạn</option>
-              <option value="lifetime">Vô thời hạn</option>
+              <option value="">{t("admin.texts.txt_33")}</option>
+              <option value="active">{t("admin.texts.txt_34")}</option>
+              <option value="expired">{t("admin.texts.txt_35")}</option>
+              <option value="lifetime">{t("admin.texts.txt_36")}</option>
             </select>
 
             {/* Sort by */}
@@ -128,9 +130,9 @@ const AdminUsersTab = ({
               onChange={(e) => { setUserSortBy(e.target.value); setUserPage(1); }}
               className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="createdAt">Sắp xếp: Ngày tạo</option>
-              <option value="expiresAt">Sắp xếp: Ngày hết hạn</option>
-              <option value="displayName">Sắp xếp: Tên hiển thị</option>
+              <option value="createdAt">{t("admin.texts.txt_37")}</option>
+              <option value="expiresAt">{t("admin.texts.txt_38")}</option>
+              <option value="displayName">{t("admin.texts.txt_39")}</option>
             </select>
 
             {/* Sort Order Toggle */}
@@ -141,7 +143,7 @@ const AdminUsersTab = ({
               <span className="material-symbols-outlined text-sm font-bold">
                 {userSortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}
               </span>
-              <span>{userSortOrder === 'asc' ? 'Tăng' : 'Giảm'}</span>
+              <span>{userSortOrder === 'asc' ? t("admin.texts.txt_56") : t("admin.texts.txt_57")}</span>
             </button>
 
             {/* Limit filter */}
@@ -150,10 +152,10 @@ const AdminUsersTab = ({
               onChange={(e) => { setUserLimit(parseInt(e.target.value)); setUserPage(1); }}
               className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value={10}>Hiện: 10</option>
-              <option value={20}>Hiện: 20</option>
-              <option value={50}>Hiện: 50</option>
-              <option value={100}>Hiện: 100</option>
+              <option value={10}>{t("admin.texts.txt_40")}</option>
+              <option value={20}>{t("admin.texts.txt_41")}</option>
+              <option value={50}>{t("admin.texts.txt_42")}</option>
+              <option value={100}>{t("admin.texts.txt_43")}</option>
             </select>
           </div>
         </div>
@@ -175,11 +177,11 @@ const AdminUsersTab = ({
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-100/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800/70 font-bold uppercase tracking-wider text-[9px]">
-                    <th className="px-6 py-4">Thành viên</th>
+                    <th className="px-6 py-4">{t("admin.texts.txt_44")}</th>
                     <th className="px-6 py-4">Bio Link</th>
-                    <th className="px-6 py-4">Thời hạn</th>
-                    <th className="px-6 py-4">Trạng thái</th>
-                    <th className="px-6 py-4 text-center">Hành động</th>
+                    <th className="px-6 py-4">{t("admin.texts.txt_45")}</th>
+                    <th className="px-6 py-4">{t("admin.texts.txt_46")}</th>
+                    <th className="px-6 py-4 text-center">{t("admin.texts.txt_47")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-150 dark:divide-slate-800/60 font-medium">
@@ -210,7 +212,7 @@ const AdminUsersTab = ({
                             <button
                               onClick={() => handleCopyText(bioUrl, user._id)}
                               className="text-slate-400 hover:text-slate-650 dark:hover:text-white shrink-0 flex items-center justify-center w-6 h-6 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                              title="Sao chép liên kết"
+                              title={t("admin.texts.txt_58")}
                             >
                               <span className={`material-symbols-outlined text-xs ${copiedUserId === user._id ? "text-emerald-500 font-bold" : ""}`}>
                                 {copiedUserId === user._id ? "check" : "content_copy"}
@@ -225,12 +227,12 @@ const AdminUsersTab = ({
                           {user.status === 'locked' ? (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30">
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                              Bị khóa
+                              {t("admin.texts.txt_48")}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                              Hoạt động
+                              {t("admin.texts.txt_49")}
                             </span>
                           )}
                         </td>
@@ -244,7 +246,7 @@ const AdminUsersTab = ({
                                   : "bg-rose-600 hover:bg-rose-700 text-white"
                               }`}
                             >
-                              {user.status === 'locked' ? "Mở khóa" : "Khóa"}
+                              {user.status === 'locked' ? t("admin.texts.txt_59") : t("admin.texts.txt_60")}
                             </button>
                             <button
                               onClick={() => triggerConfirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của ${user.displayName}?`, () => setDeleteTarget(user))}
@@ -289,7 +291,7 @@ const AdminUsersTab = ({
                           ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-455 dark:border-rose-900/30"
                           : "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30"
                       }`}>
-                        {isLocked ? "Bị khóa" : "Hoạt động"}
+                        {isLocked ? t("admin.texts.txt_61") : t("admin.texts.txt_62")}
                       </span>
                     </div>
 
@@ -301,7 +303,7 @@ const AdminUsersTab = ({
                       <button
                         onClick={() => handleCopyText(bioUrl, user._id)}
                         className="text-slate-400 hover:text-slate-650 dark:hover:text-white shrink-0 ml-2"
-                        title="Sao chép"
+                        title={t("admin.texts.txt_63")}
                       >
                         <span className={`material-symbols-outlined text-xs ${copiedUserId === user._id ? "text-emerald-500 font-bold" : ""}`}>
                           {copiedUserId === user._id ? "check" : "content_copy"}
@@ -313,9 +315,9 @@ const AdminUsersTab = ({
                     <div className="flex items-center justify-between text-xs gap-4 pt-1">
                       <div className="text-[10px] font-medium text-slate-450 dark:text-slate-400">
                         {user.expiresAt ? (
-                          <span>Hạn: <strong className="text-slate-700 dark:text-slate-200">{new Date(user.expiresAt).toLocaleDateString('vi-VN')}</strong> ({expDays <= 0 ? "Hết hạn" : `còn ${expDays} ngày`})</span>
+                          <span>{t("admin.texts.txt_50")} <strong className="text-slate-700 dark:text-slate-200">{new Date(user.expiresAt).toLocaleDateString('vi-VN')}</strong> ({expDays <= 0 ? t("admin.texts.txt_64") : `còn ${expDays} ngày`})</span>
                         ) : (
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">Vĩnh viễn</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t("admin.texts.txt_51")}</span>
                         )}
                       </div>
                       
@@ -328,7 +330,7 @@ const AdminUsersTab = ({
                               : "bg-white border-rose-200 text-rose-600 hover:bg-rose-50 dark:bg-slate-850 dark:border-rose-900/45 dark:text-rose-455"
                           }`}
                         >
-                          {isLocked ? "Mở" : "Khóa"}
+                          {isLocked ? t("admin.texts.txt_65") : t("admin.texts.txt_66")}
                         </button>
                         <button
                           onClick={() => triggerConfirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của ${user.displayName}?`, () => setDeleteTarget(user))}
@@ -346,7 +348,7 @@ const AdminUsersTab = ({
             {/* Smart Pagination Controls */}
             <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/30 dark:bg-[#181622]/20 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
               <div className="text-slate-550 dark:text-slate-400 font-medium">
-                Hiển thị từ <strong className="text-slate-700 dark:text-white">{totalMatchedUsers > 0 ? (userPage - 1) * userLimit + 1 : 0}</strong> đến <strong className="text-slate-700 dark:text-white">{Math.min(userPage * userLimit, totalMatchedUsers)}</strong> trong tổng số <strong className="text-slate-700 dark:text-white">{totalMatchedUsers}</strong> thành viên
+                Hiển thị từ <strong className="text-slate-700 dark:text-white">{totalMatchedUsers > 0 ? (userPage - 1) * userLimit + 1 : 0}</strong> {t("admin.texts.txt_52")} <strong className="text-slate-700 dark:text-white">{Math.min(userPage * userLimit, totalMatchedUsers)}</strong> {t("admin.texts.txt_53")} <strong className="text-slate-700 dark:text-white">{totalMatchedUsers}</strong> thành viên
               </div>
 
               {totalPages > 1 && (
@@ -355,7 +357,7 @@ const AdminUsersTab = ({
                     disabled={userPage === 1}
                     onClick={() => setUserPage(1)}
                     className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
-                    title="Trang đầu"
+                    title={t("admin.texts.txt_67")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">first_page</span>
                   </button>
@@ -363,7 +365,7 @@ const AdminUsersTab = ({
                     disabled={userPage === 1}
                     onClick={() => setUserPage(prev => Math.max(1, prev - 1))}
                     className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
-                    title="Trang trước"
+                    title={t("admin.texts.txt_68")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">chevron_left</span>
                   </button>
@@ -405,7 +407,7 @@ const AdminUsersTab = ({
                     disabled={userPage === totalPages}
                     onClick={() => setUserPage(totalPages)}
                     className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
-                    title="Trang cuối"
+                    title={t("admin.texts.txt_69")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">last_page</span>
                   </button>
@@ -416,9 +418,9 @@ const AdminUsersTab = ({
         ) : (
           <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
             <span className="material-symbols-outlined text-3xl opacity-40">group</span>
-            <p className="font-bold text-xs uppercase tracking-wider text-slate-400">Không tìm thấy thành viên nào</p>
+            <p className="font-bold text-xs uppercase tracking-wider text-slate-400">{t("admin.texts.txt_54")}</p>
             <p className="text-[10px] text-slate-450 dark:text-slate-400 mt-1 max-w-[280px]">
-              {searchQuery ? "Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc." : "Chưa có thành viên nào tạo tài khoản."}
+              {searchQuery ? t("admin.texts.txt_70") : t("admin.texts.txt_71")}
             </p>
           </div>
         )}

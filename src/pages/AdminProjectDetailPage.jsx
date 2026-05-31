@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { logoutAuth } from '../services/authSession';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 export default function AdminProjectDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -15,6 +17,13 @@ export default function AdminProjectDetailPage() {
   const [statusUpdate, setStatusUpdate] = useState('');
   const [noteUpdate, setNoteUpdate] = useState('');
   const [finalNoteUpdate, setFinalNoteUpdate] = useState('');
+
+  // Status Modal State
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [modalStep, setModalStep] = useState(1);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // Messages
   const [messages, setMessages] = useState([]);
@@ -76,12 +85,12 @@ export default function AdminProjectDetailPage() {
         setNoteUpdate(localStorage.getItem(`draft_note_${p._id}`) || '');
         setFinalNoteUpdate(localStorage.getItem(`draft_final_note_${p._id}`) || p.finalNote || '');
       } else {
-        showNotification('Không tìm thấy dự án', 'error');
+        showNotification(t("adminProjectDetail.notFound"), 'error');
         setTimeout(() => navigate('/admin/projects'), 1500);
       }
     } catch (err) {
       console.error(err);
-      showNotification('Lỗi lấy dữ liệu', 'error');
+      showNotification(t("adminProjectDetail.fetchError"), 'error');
     } finally {
       setLoading(false);
     }
@@ -110,9 +119,35 @@ export default function AdminProjectDetailPage() {
     if (project) localStorage.setItem(`draft_final_note_${project._id}`, content);
   };
 
-  const handleUpdateStatus = async (e) => {
+  const handleOpenStatusModal = (e) => {
     e.preventDefault();
+    if (statusUpdate === project?.status && !noteUpdate && !finalNoteUpdate) {
+      showNotification(t("adminProjectDetail.missingUpdate"), 'error');
+      return;
+    }
+    setModalStep(1);
+    setPasswordError('');
+    setAdminPassword('');
+    setShowStatusModal(true);
+  };
+
+  const handleConfirmStatus = async () => {
+    setIsVerifying(true);
+    setPasswordError('');
     try {
+      const verifyRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/admin/verify-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ password: adminPassword })
+      });
+      
+      if (!verifyRes.ok) {
+        setPasswordError(t("adminProjectDetail.wrongPassword"));
+        setIsVerifying(false);
+        return;
+      }
+
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -123,14 +158,23 @@ export default function AdminProjectDetailPage() {
           finalNote: finalNoteUpdate 
         })
       });
+
       if (res.ok) {
-        showNotification('Cập nhật trạng thái thành công!');
-        fetchProjectDetail(); // re-fetch to get updated project
+        setModalStep(5);
+        fetchProjectDetail(); 
         setNoteUpdate('');
         localStorage.removeItem(`draft_note_${project._id}`);
+        setTimeout(() => {
+          setShowStatusModal(false);
+          showNotification(t("adminProjectDetail.updateSuccess"));
+        }, 3000);
+      } else {
+        setPasswordError(t("adminProjectDetail.updateError"));
       }
     } catch (err) {
-      showNotification('Lỗi khi cập nhật trạng thái', 'error');
+      setPasswordError(t("adminProjectDetail.connError"));
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -149,7 +193,7 @@ export default function AdminProjectDetailPage() {
         fetchMessages();
       }
     } catch (err) {
-      showNotification('Lỗi gửi tin nhắn', 'error');
+      showNotification(t("adminProjectDetail.msgError"), 'error');
     }
   };
 
@@ -160,7 +204,7 @@ export default function AdminProjectDetailPage() {
   const handleCopyLink = () => {
     if (project) {
       navigator.clipboard.writeText(getShareLink(project.loginCode));
-      showNotification('Đã copy link Portal của khách!');
+      showNotification(t("adminProjectDetail.copySuccess"));
     }
   };
 
@@ -195,7 +239,7 @@ export default function AdminProjectDetailPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-[#0b0a0f] text-slate-800 dark:text-slate-100 p-4 md:p-8 animate-fadeIn">
       {/* Toast Notification */}
       {toastMsg && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg font-bold text-sm animate-fadeInUp ${
+        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-md shadow-lg font-bold text-sm animate-fadeInUp ${
           toastType === 'error' ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'
         }`}>
           {toastMsg}
@@ -207,7 +251,7 @@ export default function AdminProjectDetailPage() {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate('/admin/projects')}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-indigo-500 transition-colors shadow-sm"
+            className="w-10 h-10 flex items-center justify-center rounded-md bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-indigo-500 transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
@@ -217,19 +261,20 @@ export default function AdminProjectDetailPage() {
                 Chi Tiết Dự Án
               </span>
             </div>
-            <h1 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white mt-1">{project.fullName}</h1>
-            <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-1">
+            <h1 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white mt-1 leading-tight">{project.fullName}</h1>
+            <div className="text-[11px] text-slate-500 flex flex-wrap items-center gap-2 mt-1.5">
               <span className="material-symbols-outlined text-sm">vpn_key</span>
-              Mã truy cập Khách Hàng: 
-              <span className="font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 rounded-md border border-amber-200 dark:border-amber-800/50">
+              <span className="hidden sm:inline">{t("adminProjectDetail.accessCodeFull")}</span>
+              <span className="sm:hidden">{t("adminProjectDetail.accessCodeShort")}</span>
+              <span className="font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800/50 flex items-center">
                 {project.loginCode}
               </span>
               <button 
                 onClick={handleCopyLink}
                 className="p-1 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors flex items-center justify-center"
-                title="Copy link gửi khách hàng"
+                title={t("adminProjectDetail.copyTooltip")}
               >
-                <span className="material-symbols-outlined text-[14px]">share</span>
+                <span className="material-symbols-outlined text-[14px]">content_copy</span>
               </button>
             </div>
           </div>
@@ -242,48 +287,31 @@ export default function AdminProjectDetailPage() {
         {/* Left Column (Status Updater & History) */}
         <div className="lg:col-span-5 space-y-6">
           {/* Status Updater */}
-          <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm">
-            <form onSubmit={handleUpdateStatus} className="bg-slate-50 dark:bg-black/20 p-5 rounded-xl border border-slate-200 dark:border-white/5 space-y-4">
-            <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider">Cập nhật tiến trình dự án</h4>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Trạng Thái</label>
-                <select value={statusUpdate} onChange={e => setStatusUpdate(e.target.value)} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                  <option value="Đang liên hệ">Đang liên hệ</option>
-                  <option value="Đang lên thiết kế">Đang lên thiết kế</option>
-                  <option value="Đang thực hiện">Đang thực hiện</option>
-                  <option value="Đang Kiểm tra">Đang Kiểm tra</option>
-                  <option value="Hoàn tất">Hoàn tất</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Ghi chú tiến trình (Gửi cho khách hàng)</label>
-              <div className="bg-white dark:bg-[#1f1929] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
-                <ReactQuill theme="snow" value={noteUpdate} onChange={handleNoteChange} modules={quillModules} placeholder="Ghi chú cập nhật tiến độ cho khách hàng..." className="quill-editor" />
-              </div>
-            </div>
-
-            {statusUpdate === 'Hoàn tất' && (
-              <div className="space-y-1">
-                <label className="block text-[9px] font-bold text-emerald-500 uppercase tracking-wider">Note Tổng Kết & Bảo Hành (Sẽ hiển thị vĩnh viễn trên portal khách)</label>
-                <div className="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-xl overflow-hidden border border-emerald-200 dark:border-emerald-800/50">
-                  <ReactQuill theme="snow" value={finalNoteUpdate} onChange={handleFinalNoteChange} modules={quillModules} placeholder="Nội dung chi tiết toàn bộ dự án, thời gian bảo dưỡng, thời gian hoàn tất..." className="quill-editor" />
+          <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm">
+            <form onSubmit={handleOpenStatusModal} className="bg-slate-50 dark:bg-black/20 p-5 rounded-md border border-slate-200 dark:border-white/5 space-y-4">
+              <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider">{t("adminProjectDetail.updateProcessTitle")}</h4>
+              
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("adminProjectDetail.newStatusLabel")}</label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <select value={statusUpdate} onChange={e => setStatusUpdate(e.target.value)} className="w-full sm:flex-1 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-sm p-3 text-slate-850 dark:text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <option value="Đang liên hệ">{t("adminProjectDetail.statusOptions.contacting")}</option>
+                    <option value="Đang lên thiết kế">{t("adminProjectDetail.statusOptions.designing")}</option>
+                    <option value="Đang thực hiện">{t("adminProjectDetail.statusOptions.implementing")}</option>
+                    <option value="Đang Kiểm tra">{t("adminProjectDetail.statusOptions.testing")}</option>
+                    <option value="Hoàn tất">{t("adminProjectDetail.statusOptions.completed")}</option>
+                  </select>
+                  <button type="submit" className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap">
+                    <span className="material-symbols-outlined text-[18px]">update</span> {t("adminProjectDetail.updateBtn")}
+                  </button>
                 </div>
               </div>
-            )}
-
-            <button type="submit" className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px]">update</span> Lưu Cập Nhật
-            </button>
-          </form>
+            </form>
         </div>
 
         {/* History Notes */}
-        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
-          <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider border-b border-slate-100 dark:border-white/5 pb-2">Lịch sử cập nhật tiến trình</h4>
+        <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
+          <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider border-b border-slate-100 dark:border-white/5 pb-2">{t("adminProjectDetail.historyTitle")}</h4>
           <div className="space-y-4 pl-2 max-h-[300px] overflow-y-auto">
             {project.progressNotes && project.progressNotes.length > 0 ? (
               [...project.progressNotes].reverse().map((note, idx) => (
@@ -293,13 +321,13 @@ export default function AdminProjectDetailPage() {
                     {new Date(note.createdAt).toLocaleString('vi-VN')}
                   </div>
                   <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' ? 'text-amber-600 dark:text-amber-500' : 'text-slate-800 dark:text-slate-200'}`}>
-                    [{note.status === 'Hoàn tất' ? 'Bảo Trì' : note.status}]
+                    [{note.status === 'Hoàn tất' ? t("adminProjectDetail.maintenance") : note.status}]
                   </div>
                   <div className="text-sm text-slate-600 dark:text-slate-400 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getHtmlContent(note.note) }} />
                 </div>
               ))
             ) : (
-              <div className="text-[11px] text-slate-400 italic">Chưa có lịch sử cập nhật.</div>
+              <div className="text-[11px] text-slate-400 italic">{t("adminProjectDetail.emptyHistory")}</div>
             )}
           </div>
         </div>
@@ -308,21 +336,21 @@ export default function AdminProjectDetailPage() {
         {/* Right Column (Chat) */}
         <div className="lg:col-span-7">
           {/* Chat/Messages */}
-          <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px]">
+          <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px]">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-4 shrink-0">
             <span className="material-symbols-outlined text-indigo-500 text-base">forum</span>
-            Tin nhắn yêu cầu từ khách hàng
-          </h3>
+              {t("adminProjectDetail.msgTitle")}
+            </h3>
           
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2 bg-slate-50 dark:bg-black/20 p-4 rounded-xl border border-slate-100 dark:border-white/5">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2 bg-slate-50 dark:bg-black/20 p-4 rounded-md border border-slate-100 dark:border-white/5">
             {messages.length === 0 ? (
-              <div className="text-center text-xs text-slate-500 italic py-10">Chưa có tin nhắn nào</div>
+              <div className="text-center text-xs text-slate-500 italic py-10">{t("adminProjectDetail.emptyMsg")}</div>
             ) : (
               messages.map((msg, i) => {
                 const isAdmin = msg.sender === 'admin';
                 return (
                   <div key={i} className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] p-3 rounded-xl text-xs ${isAdmin ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none'}`}>
+                    <div className={`max-w-[80%] p-3 rounded-md text-xs ${isAdmin ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none'}`}>
                       <div className="whitespace-pre-wrap">{msg.message}</div>
                       <div className={`text-[9px] mt-1 text-right ${isAdmin ? 'text-indigo-200' : 'text-slate-400'}`}>
                         {new Date(msg.createdAt).toLocaleString('vi-VN')}
@@ -335,12 +363,176 @@ export default function AdminProjectDetailPage() {
           </div>
 
           <form onSubmit={handleSendMessage} className="mt-4 flex gap-2 shrink-0">
-            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={project.status === 'Hoàn tất' ? "Nhắn lại bảo trì cho khách hàng..." : "Nhắn lại cho khách hàng..."} className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#1f1929] text-slate-850 dark:text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-            <button type="submit" disabled={!newMessage.trim()} className="px-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-bold rounded-xl transition-all">Gửi</button>
+            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={project.status === 'Hoàn tất' ? t("adminProjectDetail.msgPlaceholderCompleted") : t("adminProjectDetail.msgPlaceholderNormal")} className="flex-1 px-4 py-3 rounded-md border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#1f1929] text-slate-850 dark:text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+            <button type="submit" disabled={!newMessage.trim()} className="px-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-bold rounded-md transition-all">{t("adminProjectDetail.sendBtn")}</button>
           </form>
           </div>
         </div>
       </div>
+
+      {/* Multi-step Status Modal */}
+      {showStatusModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-md w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-black/20 shrink-0">
+              <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 text-sm">
+                <span className="material-symbols-outlined text-indigo-500 text-[20px]">security_update_good</span>
+                  {t("adminProjectDetail.modal.title")}
+                </h3>
+              {modalStep !== 5 && (
+                <button onClick={() => setShowStatusModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              )}
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto">
+              {modalStep === 1 && (
+                <div className="space-y-4 animate-fadeIn">
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-md">
+                    <h4 className="font-bold text-amber-700 dark:text-amber-500 mb-2 flex items-center gap-1 text-sm">
+                      <span className="material-symbols-outlined text-[18px]">warning</span>
+                      {t("adminProjectDetail.modal.noticeTitle")}
+                    </h4>
+                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                      {project.status === statusUpdate ? (
+                        <>{t("adminProjectDetail.modal.keepStatus")} <strong>{t("adminProjectDetail.modal.keepStatusStrong")}</strong> {project.fullName} {t("adminProjectDetail.modal.keepStatusAnd")}</>
+                      ) : (
+                        <>{t("adminProjectDetail.modal.changeStatusFrom")} <strong>{project.fullName}</strong> {t("adminProjectDetail.modal.changeStatusTo")} <strong className="text-rose-500">{project.status}</strong> {t("adminProjectDetail.modal.changeStatusInto")} <strong className="text-emerald-500">{statusUpdate}</strong>.</>
+                      )}
+                    </p>
+                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mt-2">
+                      {t("adminProjectDetail.modal.confirmPrompt")}
+                    </p>
+                  </div>
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button onClick={() => setShowStatusModal(false)} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md">{t("adminProjectDetail.modal.cancelBtn")}</button>
+                    <button onClick={() => setModalStep(2)} className="px-4 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-md">{t("adminProjectDetail.modal.confirmBtn")}</button>
+                  </div>
+                </div>
+              )}
+
+              {modalStep === 2 && (
+                <div className="space-y-4 animate-fadeIn">
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t("adminProjectDetail.modal.noteLabel")}</label>
+                    <p className="text-xs text-slate-400 mb-2">{t("adminProjectDetail.modal.noteDesc")}</p>
+                    <div className="bg-white dark:bg-[#1f1929] rounded-md overflow-hidden border border-slate-200 dark:border-slate-700 [&_.ql-editor]:min-h-[120px]">
+                      <ReactQuill theme="snow" value={noteUpdate} onChange={handleNoteChange} modules={quillModules} placeholder={t("adminProjectDetail.modal.notePlaceholder")} className="quill-editor" />
+                    </div>
+                  </div>
+                  
+                  {statusUpdate === 'Hoàn tất' && (
+                    <div className="space-y-2 mt-4">
+                      <label className="block text-xs font-bold text-emerald-500 uppercase tracking-wider">{t("adminProjectDetail.modal.finalNoteLabel")}</label>
+                      <div className="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-md overflow-hidden border border-emerald-200 dark:border-emerald-800/50 [&_.ql-editor]:min-h-[120px]">
+                        <ReactQuill theme="snow" value={finalNoteUpdate} onChange={handleFinalNoteChange} modules={quillModules} placeholder={t("adminProjectDetail.modal.finalNotePlaceholder")} className="quill-editor" />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/50">
+                    <button onClick={() => setModalStep(1)} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md">{t("adminProjectDetail.modal.backBtn")}</button>
+                    <button onClick={() => setModalStep(3)} className="px-4 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-md">{t("adminProjectDetail.modal.checkInfoBtn")}</button>
+                  </div>
+                </div>
+              )}
+
+              {modalStep === 3 && (
+                <div className="space-y-4 animate-fadeIn">
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700 pb-2">{t("adminProjectDetail.modal.confirmInfoTitle")}</h4>
+                  <div className="space-y-4">
+                    <div className="py-3 px-4 bg-slate-50 dark:bg-[#1f1929] rounded-md border border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-500 block text-[10px] font-bold uppercase tracking-wider mb-1.5">{t("adminProjectDetail.modal.projectStatusLabel")}</span>
+                      {project.status === statusUpdate ? (
+                        <span className="text-slate-700 dark:text-slate-300 text-sm font-medium">{t("adminProjectDetail.modal.keepSame")} <strong className="text-indigo-500">{project.status}</strong></span>
+                      ) : (
+                        <span className="text-slate-700 dark:text-slate-300 text-sm font-medium flex items-center gap-2">
+                          <strong className="text-rose-500">{project.status}</strong>
+                          <span className="material-symbols-outlined text-[16px] text-slate-400">arrow_forward</span>
+                          <strong className="text-emerald-500">{statusUpdate}</strong>
+                        </span>
+                      )}
+                    </div>
+                    <div className="py-3 px-4 bg-slate-50 dark:bg-[#1f1929] rounded-md border border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-500 block text-[10px] font-bold uppercase tracking-wider mb-2">{t("adminProjectDetail.modal.attachedNoteLabel")}</span>
+                      {noteUpdate && noteUpdate !== '<p><br></p>' ? (
+                        <div className="text-sm prose prose-sm dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 bg-white dark:bg-black/20 p-3 rounded border border-slate-100 dark:border-white/5" dangerouslySetInnerHTML={{ __html: getHtmlContent(noteUpdate) }} />
+                      ) : (
+                        <span className="text-slate-400 italic text-sm">{t("adminProjectDetail.modal.noNote")}</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/50">
+                    <button onClick={() => setModalStep(2)} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md">{t("adminProjectDetail.modal.editBtn")}</button>
+                    <button onClick={() => setModalStep(4)} className="px-4 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-md shadow-md flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                      {t("adminProjectDetail.modal.confirmCorrectBtn")}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {modalStep === 4 && (
+                <div className="space-y-4 animate-fadeIn">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-200 dark:border-indigo-800/50">
+                      <span className="material-symbols-outlined text-3xl text-indigo-600 dark:text-indigo-400">admin_panel_settings</span>
+                    </div>
+                    <h4 className="font-bold text-slate-800 dark:text-white">{t("adminProjectDetail.modal.securityTitle")}</h4>
+                    <p className="text-xs text-slate-500 mt-1">{t("adminProjectDetail.modal.securityDesc")}</p>
+                  </div>
+                  
+                  <div className="space-y-2 max-w-xs mx-auto">
+                    <input 
+                      type="password" 
+                      value={adminPassword}
+                      onChange={e => {setAdminPassword(e.target.value); setPasswordError('');}}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && adminPassword && !isVerifying) {
+                          e.preventDefault();
+                          handleConfirmStatus();
+                        }
+                      }}
+                      placeholder={t("adminProjectDetail.modal.passwordPlaceholder")} 
+                      className="w-full px-4 py-3 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1f1929] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center tracking-widest"
+                      autoFocus
+                    />
+                    {passwordError && <p className="text-rose-500 text-xs font-bold text-center mt-1">{passwordError}</p>}
+                  </div>
+
+                  <div className="flex justify-center gap-3 pt-4">
+                    <button onClick={() => setModalStep(3)} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md" disabled={isVerifying}>{t("adminProjectDetail.modal.backBtn")}</button>
+                    <button onClick={handleConfirmStatus} disabled={!adminPassword || isVerifying} className="px-6 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white rounded-md shadow-md flex items-center gap-2">
+                      {isVerifying ? (
+                        <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                      ) : (
+                        <span className="material-symbols-outlined text-[18px]">lock_open</span>
+                      )}
+                      {t("admin.texts.txt_224")}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {modalStep === 5 && (
+                <div className="space-y-4 text-center py-8 animate-fadeIn">
+                  <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce border border-emerald-200 dark:border-emerald-800/50">
+                    <span className="material-symbols-outlined text-4xl text-emerald-600 dark:text-emerald-400">task_alt</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-800 dark:text-white">{t("adminProjectDetail.modal.successTitle")}</h4>
+                  <p className="text-sm text-slate-500">{t("adminProjectDetail.modal.successDesc")}</p>
+                  <p className="text-xs text-slate-400 mt-4 italic">{t("adminProjectDetail.modal.autoClose")}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

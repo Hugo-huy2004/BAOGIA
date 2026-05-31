@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_STEPS = [
   'Đang liên hệ',
@@ -9,6 +10,7 @@ const STATUS_STEPS = [
 ];
 
 export default function CustomerServiceTab({ project }) {
+  const { t } = useTranslation();
   const isCompleted = project.status === 'Hoàn tất';
   const currentStepIndex = STATUS_STEPS.indexOf(project.status);
 
@@ -100,7 +102,7 @@ export default function CustomerServiceTab({ project }) {
                   {new Date(note.createdAt).toLocaleString('vi-VN')}
                 </div>
                 <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' ? 'text-amber-600 dark:text-amber-500' : 'text-slate-800 dark:text-slate-200'}`}>
-                  [{note.status === 'Hoàn tất' ? 'Bảo Trì' : note.status}]
+                  [{note.status === 'Hoàn tất' ? t('customerPortal.service.maintenance') : note.status}]
                 </div>
                 <div className="text-sm text-slate-600 dark:text-slate-400 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getHtmlContent(note.note) }} />
               </div>
@@ -114,7 +116,7 @@ export default function CustomerServiceTab({ project }) {
         <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-xl p-6 md:p-8 border border-emerald-200 dark:border-emerald-800/50 shadow-sm relative z-20 animate-fadeInUp">
           <div className="flex items-center gap-3 mb-4">
             <span className="material-symbols-outlined text-3xl text-emerald-500">task_alt</span>
-            <h3 className="font-display text-xl font-bold text-emerald-700 dark:text-emerald-400">Tổng Kết Dự Án</h3>
+            <h3 className="font-display text-xl font-bold text-emerald-700 dark:text-emerald-400">{t("customerPortal.service.summary")}</h3>
           </div>
           <div className="text-sm text-emerald-800 dark:text-emerald-200/80 leading-relaxed bg-white/50 dark:bg-black/20 p-5 rounded-xl prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getHtmlContent(project.finalNote) }} />
         </div>

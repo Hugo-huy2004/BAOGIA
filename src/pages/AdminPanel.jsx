@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useData } from "../context/DataContext";
 import { logoutAuth, getAdminSession } from "../services/authSession";
 
@@ -22,6 +23,13 @@ import AdminProjectsTab from "../components/admin/AdminProjectsTab";
 // Hugo Studio Brand Logo component to match styling exactly
 
 export default function AdminPanel() {
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith("vi") ? "en" : "vi";
+    i18n.changeLanguage(newLang);
+  };
+
   const { data, updateAdvertisement, updateSystemSettings } = useData();
   const [activeTab, setActiveTab] = useState("users");
   const [users, setUsers] = useState([]);
@@ -96,7 +104,7 @@ export default function AdminPanel() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      showNotification("Vui lòng chọn một file hình ảnh.", "error");
+      showNotification(t("admin.texts.txt_130"), "error");
       return;
     }
 
@@ -116,12 +124,12 @@ export default function AdminPanel() {
         const result = await res.json();
         if (res.ok && result.url) {
           await updateAdvertisement({ imageUrl: result.url, isActive: true });
-          showNotification("Tải ảnh quảng cáo lên thành công!");
+          showNotification(t("admin.texts.txt_131"));
         } else {
-          showNotification("Lỗi khi tải ảnh quảng cáo.", "error");
+          showNotification(t("admin.texts.txt_132"), "error");
         }
       } catch (err) {
-        showNotification("Lỗi kết nối máy chủ.", "error");
+        showNotification(t("admin.texts.txt_133"), "error");
       } finally {
         setUploadingAd(false);
         e.target.value = "";
@@ -131,7 +139,7 @@ export default function AdminPanel() {
   };
 
   const handleAdDelete = () => {
-    triggerConfirm("Bạn có chắc muốn xoá ảnh quảng cáo này?", async () => {
+    triggerConfirm(t("admin.texts.txt_134"), async () => {
       setUploadingAd(true);
       try {
         if (data?.advertisement?.imageUrl) {
@@ -142,9 +150,9 @@ export default function AdminPanel() {
           });
         }
         await updateAdvertisement({ imageUrl: "", linkUrl: "", isActive: false });
-        showNotification("Đã xoá quảng cáo!");
+        showNotification(t("admin.texts.txt_135"));
       } catch (err) {
-        showNotification("Lỗi kết nối máy chủ.", "error");
+        showNotification(t("admin.texts.txt_136"), "error");
       } finally {
         setUploadingAd(false);
       }
@@ -199,7 +207,7 @@ export default function AdminPanel() {
   const handleCopyText = (text, userId) => {
     navigator.clipboard.writeText(text);
     setCopiedUserId(userId);
-    showNotification("Đã sao chép! 📋");
+    showNotification(t("admin.texts.txt_137"));
     setTimeout(() => setCopiedUserId(null), 2000);
   };
 
@@ -317,7 +325,7 @@ export default function AdminPanel() {
         }
       } catch (err) {
         console.error("Failed to load admin data:", err);
-        showNotification("Có lỗi xảy ra khi tải dữ liệu từ máy chủ.", "error");
+        showNotification(t("admin.texts.txt_138"), "error");
       } finally {
         setLoading(false);
       }
@@ -334,7 +342,7 @@ export default function AdminPanel() {
   const handleExecuteDelete = async () => {
     setConfirmError("");
     if (!confirmPassword) {
-      setConfirmError("Vui lòng nhập mật khẩu quản trị.");
+      setConfirmError(t("admin.texts.txt_139"));
       return;
     }
 
@@ -342,7 +350,7 @@ export default function AdminPanel() {
     const inputHash = await sha256(confirmPassword);
 
     if (inputHash !== expectedPasswordHash) {
-      setConfirmError("Mật khẩu quản trị không chính xác. Vui lòng nhập lại.");
+      setConfirmError(t("admin.texts.txt_140"));
       return;
     }
 
@@ -358,11 +366,11 @@ export default function AdminPanel() {
         setConfirmPassword("");
         handleRefreshUsers();
       } else {
-        setConfirmError("Có lỗi xảy ra khi xóa tài khoản trên máy chủ.");
+        setConfirmError(t("admin.texts.txt_141"));
       }
     } catch (err) {
       console.error(err);
-      setConfirmError("Lỗi kết nối đến máy chủ.");
+      setConfirmError(t("admin.texts.txt_142"));
     }
   };
 
@@ -376,15 +384,15 @@ export default function AdminPanel() {
         body: JSON.stringify({ status: nextStatus })
       });
       if (response.ok) {
-        showNotification(nextStatus === 'locked' ? "Đã khóa liên kết người dùng! 🔒" : "Đã mở khóa liên kết người dùng! 🔓");
+        showNotification(nextStatus === 'locked' ? t("admin.texts.txt_143") : t("admin.texts.txt_144"));
         setUsers(prev => prev.map(u => u._id === bioId ? { ...u, status: nextStatus } : u));
         handleRefreshUsers();
       } else {
-        showNotification("Có lỗi khi cập nhật trạng thái.", "error");
+        showNotification(t("admin.texts.txt_145"), "error");
       }
     } catch (e) {
       console.error(e);
-      showNotification("Lỗi kết nối.", "error");
+      showNotification(t("admin.texts.txt_146"), "error");
     }
   };
 
@@ -399,32 +407,32 @@ export default function AdminPanel() {
       });
       if (response.ok) {
         const updated = await response.json();
-        showNotification(nextContacted ? "Đã đánh dấu liên hệ! 📞" : "Đã bỏ đánh dấu liên hệ.");
+        showNotification(nextContacted ? t("admin.texts.txt_147") : t("admin.texts.txt_148"));
         setBookings(prev => prev.map(b => b._id === bookingId ? updated : b));
       } else {
-        showNotification("Có lỗi khi cập nhật trạng thái.", "error");
+        showNotification(t("admin.texts.txt_149"), "error");
       }
     } catch (e) {
       console.error(e);
-      showNotification("Lỗi kết nối.", "error");
+      showNotification(t("admin.texts.txt_150"), "error");
     }
   };
 
   const handleDeleteBooking = (bookingId) => {
-    triggerConfirm("Bạn có chắc chắn muốn xóa vĩnh viễn yêu cầu đặt lịch này không?", async () => {
+    triggerConfirm(t("admin.texts.txt_151"), async () => {
       try {
         const response = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}`, {
           method: "DELETE"
         });
         if (response.ok) {
-          showNotification("Đã xóa yêu cầu đặt lịch! 🗑️");
+          showNotification(t("admin.texts.txt_152"));
           setBookings(prev => prev.filter(b => b._id !== bookingId));
         } else {
-          showNotification("Có lỗi khi xóa.", "error");
+          showNotification(t("admin.texts.txt_153"), "error");
         }
       } catch (e) {
         console.error(e);
-        showNotification("Lỗi kết nối.", "error");
+        showNotification(t("admin.texts.txt_154"), "error");
       }
     });
   };
@@ -436,13 +444,13 @@ export default function AdminPanel() {
         method: "PATCH"
       });
       if (res.ok) {
-        showNotification("Đã giải quyết yêu cầu hỗ trợ! ✅");
+        showNotification(t("admin.texts.txt_155"));
         handleRefreshTickets();
       } else {
-        showNotification("Lỗi khi cập nhật trạng thái.", "error");
+        showNotification(t("admin.texts.txt_156"), "error");
       }
     } catch (err) {
-      showNotification("Lỗi kết nối máy chủ.", "error");
+      showNotification(t("admin.texts.txt_157"), "error");
     }
   };
 
@@ -451,7 +459,7 @@ export default function AdminPanel() {
     e.preventDefault();
     const shouldExportIframe = e.nativeEvent?.submitter?.value === "export-iframe";
     if (!partnerForm.name || !partnerForm.iframeUrl) {
-      showNotification("Vui lòng điền đầy đủ tên và đường dẫn/mã nhúng.", "error");
+      showNotification(t("admin.texts.txt_158"), "error");
       return;
     }
 
@@ -463,39 +471,39 @@ export default function AdminPanel() {
       });
       if (response.ok) {
         const newPartner = await response.json();
-        showNotification("Đã thêm đối tác thành công!");
+        showNotification(t("admin.texts.txt_159"));
         setPartners(prev => [newPartner, ...prev]);
         setPartnerForm({ name: "", iframeUrl: "" });
         if (shouldExportIframe) {
           setExportPartner(newPartner);
         }
       } else {
-        showNotification("Có lỗi khi thêm đối tác.", "error");
+        showNotification(t("admin.texts.txt_160"), "error");
       }
     } catch (e) {
       console.error(e);
-      showNotification("Lỗi kết nối.", "error");
+      showNotification(t("admin.texts.txt_161"), "error");
     }
   };
 
   const handleDeletePartner = (partnerId) => {
-    triggerConfirm("Bạn có chắc chắn muốn kết thúc liên kết với đối tác này?", async () => {
+    triggerConfirm(t("admin.texts.txt_162"), async () => {
       try {
         const response = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/partners/${partnerId}`, {
           method: "DELETE"
         });
         if (response.ok) {
-          showNotification("Đã xóa đối tác liên kết! 🗑️");
+          showNotification(t("admin.texts.txt_163"));
           setPartners(prev => prev.filter(p => p._id !== partnerId));
           if (previewPartner?._id === partnerId) setPreviewPartner(null);
           if (exportPartner?._id === partnerId) setExportPartner(null);
           if (exportLinkPartner?._id === partnerId) setExportLinkPartner(null);
         } else {
-          showNotification("Có lỗi khi xóa đối tác.", "error");
+          showNotification(t("admin.texts.txt_164"), "error");
         }
       } catch (e) {
         console.error(e);
-        showNotification("Lỗi kết nối.", "error");
+        showNotification(t("admin.texts.txt_165"), "error");
       }
     });
   };
@@ -512,7 +520,7 @@ export default function AdminPanel() {
   const handleCreatePackage = async (e) => {
     e.preventDefault();
     if (!newPkg.name || !newPkg.duration) {
-      showNotification("Vui lòng nhập tên gói và thời hạn.", "error");
+      showNotification(t("admin.texts.txt_166"), "error");
       return;
     }
 
@@ -529,32 +537,32 @@ export default function AdminPanel() {
       });
 
       if (res.ok) {
-        showNotification("Đã tạo gói dịch vụ mới thành công!");
+        showNotification(t("admin.texts.txt_167"));
         setNewPkg({ name: "", duration: "", durationUnit: "months", benefits: "" });
         fetchPackageTemplates();
       } else {
         const err = await res.json();
-        showNotification(err.error || "Lỗi khi tạo gói dịch vụ.", "error");
+        showNotification(err.error || t("admin.texts.txt_168"), "error");
       }
     } catch (e) {
-      showNotification("Lỗi kết nối máy chủ.", "error");
+      showNotification(t("admin.texts.txt_169"), "error");
     }
   };
 
   const handleDeletePackageTemplate = async (id) => {
-    triggerConfirm("Bạn có chắc chắn muốn xóa mẫu gói dịch vụ này không?", async () => {
+    triggerConfirm(t("admin.texts.txt_170"), async () => {
       try {
         const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/packages/${id}`, {
           method: "DELETE"
         });
         if (res.ok) {
-          showNotification("Đã xóa mẫu gói dịch vụ.");
+          showNotification(t("admin.texts.txt_171"));
           fetchPackageTemplates();
         } else {
-          showNotification("Lỗi khi xóa mẫu gói dịch vụ.", "error");
+          showNotification(t("admin.texts.txt_172"), "error");
         }
       } catch (e) {
-        showNotification("Lỗi kết nối.", "error");
+        showNotification(t("admin.texts.txt_173"), "error");
       }
     });
   };
@@ -562,7 +570,7 @@ export default function AdminPanel() {
   const handleAssignPackageToUser = async (e) => {
     e.preventDefault();
     if (!assignForm.email || !assignForm.packageId) {
-      showNotification("Vui lòng nhập email và chọn gói dịch vụ.", "error");
+      showNotification(t("admin.texts.txt_174"), "error");
       return;
     }
 
@@ -585,7 +593,7 @@ export default function AdminPanel() {
       });
 
       if (res.ok) {
-        showNotification(isAssignAll ? "Đã cấp gói thành công cho toàn bộ thành viên!" : `Đã cấp gói cho ${assignForm.email} thành công!`);
+        showNotification(isAssignAll ? t("admin.texts.txt_175") : `Đã cấp gói cho ${assignForm.email} thành công!`);
         setAssignForm({ email: "", packageId: "", customDuration: "" });
         // Refresh users list
         handleRefreshUsers();
@@ -595,28 +603,28 @@ export default function AdminPanel() {
         }
       } else {
         const err = await res.json();
-        showNotification(err.error || "Lỗi khi cấp gói cho thành viên.", "error");
+        showNotification(err.error || t("admin.texts.txt_176"), "error");
       }
     } catch (e) {
-      showNotification("Lỗi kết nối.", "error");
+      showNotification(t("admin.texts.txt_177"), "error");
     }
   };
 
   const handleRegenerateGiftCode = async (packageId) => {
-    triggerConfirm("Bạn có chắc chắn muốn làm mới mã của gói này không? Mã cũ sẽ mất hiệu lực.", async () => {
+    triggerConfirm(t("admin.texts.txt_178"), async () => {
       try {
         const res = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/packages/${packageId}/regenerate-code`, {
           method: "POST"
         });
         if (res.ok) {
           const data = await res.json();
-          showNotification("Đã sinh mã mới thành công!");
+          showNotification(t("admin.texts.txt_179"));
           setPackageTemplates(prev => prev.map(pkg => pkg._id === packageId ? data.package : pkg));
         } else {
-          showNotification("Có lỗi khi làm mới mã.", "error");
+          showNotification(t("admin.texts.txt_180"), "error");
         }
       } catch (e) {
-        showNotification("Lỗi kết nối.", "error");
+        showNotification(t("admin.texts.txt_181"), "error");
       }
     });
   };
@@ -624,7 +632,7 @@ export default function AdminPanel() {
   const handleSearchUserPackages = async (emailToSearch) => {
     const email = emailToSearch || memberPkgSearchEmail;
     if (!email) {
-      showNotification("Vui lòng nhập email thành viên để tìm kiếm.", "error");
+      showNotification(t("admin.texts.txt_182"), "error");
       return;
     }
 
@@ -635,15 +643,15 @@ export default function AdminPanel() {
         if (data && data.bio) {
           setSearchedMemberBio(data.bio);
         } else {
-          showNotification("Không tìm thấy Bio Link của thành viên này.", "error");
+          showNotification(t("admin.texts.txt_183"), "error");
           setSearchedMemberBio(null);
         }
       } else {
-        showNotification("Thành viên chưa khởi tạo Bio Link.", "error");
+        showNotification(t("admin.texts.txt_184"), "error");
         setSearchedMemberBio(null);
       }
     } catch (e) {
-      showNotification("Lỗi kết nối.", "error");
+      showNotification(t("admin.texts.txt_185"), "error");
     }
   };
 
@@ -661,16 +669,16 @@ export default function AdminPanel() {
         });
 
         if (res.ok) {
-          showNotification("Đã xóa gói của thành viên và cập nhật lại thời hạn Bio.");
+          showNotification(t("admin.texts.txt_186"));
           // Refresh search result
           handleSearchUserPackages(searchedMemberBio.email);
           // Refresh users list
           handleRefreshUsers();
         } else {
-          showNotification("Lỗi khi xóa gói của thành viên.", "error");
+          showNotification(t("admin.texts.txt_187"), "error");
         }
       } catch (e) {
-        showNotification("Lỗi kết nối.", "error");
+        showNotification(t("admin.texts.txt_188"), "error");
       }
     });
   };
@@ -691,7 +699,7 @@ export default function AdminPanel() {
   };
 
   const formatExpiration = (expiresAt) => {
-    if (!expiresAt) return <span className="font-bold text-emerald-650 dark:text-emerald-400">Vĩnh viễn</span>;
+    if (!expiresAt) return <span className="font-bold text-emerald-650 dark:text-emerald-400">{t("admin.texts.txt_120")}</span>;
     const expDate = new Date(expiresAt);
     const diffDays = getExpirationDaysOnly(expiresAt);
     
@@ -741,7 +749,9 @@ export default function AdminPanel() {
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Đang tải bảng điều khiển...</p>
+          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+            {t("adminPanel.core.loading")}
+          </p>
         </div>
       </div>
     );
@@ -754,6 +764,7 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-[calc(100vh-56px)] bg-slate-50 dark:bg-[#0b0910] text-slate-850 dark:text-slate-100 flex flex-col md:flex-row pb-20 md:pb-0 overflow-x-hidden">
+      <button onClick={toggleLanguage} className="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex h-9 w-12 items-center justify-center rounded-full bg-slate-200/80 dark:bg-[#1f1929]/80 backdrop-blur shadow-sm text-[11px] font-bold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-300 dark:hover:bg-[#2d253b] transition-all">{i18n.language.startsWith("en") ? "EN" : "VI"}</button>
       
       {/* SUCCESS/WARNING TOAST */}
       {toastMsg && (
@@ -779,18 +790,18 @@ export default function AdminPanel() {
             <h1 className="font-display text-lg font-black text-slate-800 dark:text-white mt-2">
               <HugoLogo className="text-xl font-black tracking-tight" />
             </h1>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Bảng điều khiển</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">{t("admin.texts.txt_121")}</p>
           </div>
 
           <nav className="space-y-1">
             {[
-              { id: "users", label: "Quản Lý Thành Viên", icon: "group", count: users.length },
-              { id: "bookings", label: "Quản Lý Lịch Hẹn", icon: "calendar_month", count: pendingBookings.length },
-              { id: "partners", label: "Đối Tác Liên Kết", icon: "handshake", count: partners.length },
-              { id: "packages", label: "Gói Dịch Vụ", icon: "featured_play_list", count: packageTemplates.length },
-              { id: "projects", label: "Quản Lý Dự Án", icon: "assignment", count: projectsUnreadCount },
-              { id: "support", label: "Hỗ Trợ 1:1", icon: "support_agent", count: pendingTicketsCount },
-              { id: "settings", label: "Cài Đặt Hệ Thống", icon: "settings" }
+              { id: "users", label: t("admin.texts.txt_189"), icon: "group", count: users.length },
+              { id: "bookings", label: t("admin.texts.txt_190"), icon: "calendar_month", count: pendingBookings.length },
+              { id: "partners", label: t("admin.texts.txt_191"), icon: "handshake", count: partners.length },
+              { id: "packages", label: t("admin.texts.txt_192"), icon: "featured_play_list", count: packageTemplates.length },
+              { id: "projects", label: t("admin.texts.txt_193"), icon: "assignment", count: projectsUnreadCount },
+              { id: "support", label: t("admin.texts.txt_194"), icon: "support_agent", count: pendingTicketsCount },
+              { id: "settings", label: t("admin.texts.txt_195"), icon: "settings" }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -830,19 +841,19 @@ export default function AdminPanel() {
           className="flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl border border-slate-200 dark:border-slate-750 transition-colors"
         >
           <span className="material-symbols-outlined text-sm">logout</span>
-          <span>Đăng Xuất</span>
+          <span>{t("admin.texts.txt_122")}</span>
         </button>
       </aside>
 
       {/* MOBILE BOTTOM NAVIGATION BAR */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 nav-bottom-safe bg-white/95 dark:bg-[#12111a]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-40 flex items-center justify-around px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
         {[
-          { id: "users", label: "Quản Lý", icon: "group", count: users.length },
-          { id: "bookings", label: "Lịch Đặt", icon: "calendar_month", count: pendingBookings.length },
-          { id: "partners", label: "Đối Tác", icon: "handshake" },
-          { id: "packages", label: "Gói DV", icon: "featured_play_list" },
-          { id: "support", label: "Hỗ Trợ", icon: "support_agent", count: pendingTicketsCount },
-          { id: "settings", label: "Cài Đặt", icon: "settings" }
+          { id: "users", label: t("admin.texts.txt_196"), icon: "group", count: users.length },
+          { id: "bookings", label: t("admin.texts.txt_197"), icon: "calendar_month", count: pendingBookings.length },
+          { id: "partners", label: t("admin.texts.txt_198"), icon: "handshake" },
+          { id: "packages", label: t("admin.texts.txt_199"), icon: "featured_play_list" },
+          { id: "support", label: t("admin.texts.txt_200"), icon: "support_agent", count: pendingTicketsCount },
+          { id: "settings", label: t("admin.texts.txt_201"), icon: "settings" }
         ].map(tab => (
           <button
             key={tab.id}
@@ -880,20 +891,20 @@ export default function AdminPanel() {
         <div className="border-b border-slate-200 dark:border-slate-800/80 pb-3 flex justify-between items-center">
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">
-              {activeTab === "users" && "Quản Lý Thành Viên"}
-              {activeTab === "bookings" && "Quản Lý Lịch Hẹn"}
-              {activeTab === "partners" && "Đối Tác Liên Kết"}
-              {activeTab === "packages" && "Gói Dịch Vụ"}
-              {activeTab === "support" && "Hỗ Trợ Thành Viên 1:1"}
-              {activeTab === "settings" && "Cài Đặt Hệ Thống"}
+              {activeTab === "users" && t("admin.texts.txt_202")}
+              {activeTab === "bookings" && t("admin.texts.txt_203")}
+              {activeTab === "partners" && t("admin.texts.txt_204")}
+              {activeTab === "packages" && t("admin.texts.txt_205")}
+              {activeTab === "support" && t("admin.texts.txt_206")}
+              {activeTab === "settings" && t("admin.texts.txt_207")}
             </h2>
             <p className="text-xs text-slate-450 mt-1 hidden sm:block">
-              {activeTab === "users" && "Quản lý quyền lợi, khóa/mở khóa và xóa liên kết Bio Link của thành viên"}
-              {activeTab === "bookings" && "Giám sát, phân loại các yêu cầu đăng ký lịch chụp ảnh của khách hàng"}
-              {activeTab === "partners" && "Cấu hình nhúng Bio Editor Iframe hoặc lấy đường dẫn truy cập cho đối tác"}
-              {activeTab === "packages" && "Định nghĩa các mẫu gói dịch vụ và cấp thời gian dùng thử cho thành viên"}
-              {activeTab === "support" && "Xử lý trực tiếp các yêu cầu hỗ trợ kỹ thuật và kết nối Zalo 1:1 với thành viên"}
-              {activeTab === "settings" && "Tùy chỉnh thông báo du lịch và quản lý Popup quảng cáo toàn hệ thống"}
+              {activeTab === "users" && t("admin.texts.txt_208")}
+              {activeTab === "bookings" && t("admin.texts.txt_209")}
+              {activeTab === "partners" && t("admin.texts.txt_210")}
+              {activeTab === "packages" && t("admin.texts.txt_211")}
+              {activeTab === "support" && t("admin.texts.txt_212")}
+              {activeTab === "settings" && t("admin.texts.txt_213")}
             </p>
           </div>
         </div>
@@ -944,7 +955,7 @@ export default function AdminPanel() {
                     : "text-slate-450 hover:text-slate-800 dark:text-slate-550 dark:hover:text-slate-350"
                 }`}
               >
-                <span>Chờ Liên Hệ</span>
+                <span>{t("admin.texts.txt_123")}</span>
                 {pendingBookings.length > 0 && (
                   <span className="bg-rose-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full animate-pulse">
                     {pendingBookings.length}
@@ -963,7 +974,7 @@ export default function AdminPanel() {
                     : "text-slate-450 hover:text-slate-800 dark:text-slate-550 dark:hover:text-slate-350"
                 }`}
               >
-                <span>Đã Liên Hệ</span>
+                <span>{t("admin.texts.txt_124")}</span>
                 {contactedBookings.length > 0 && (
                   <span className="bg-slate-200 dark:bg-slate-800 text-slate-655 dark:text-slate-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
                     {contactedBookings.length}
@@ -982,11 +993,11 @@ export default function AdminPanel() {
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-100/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800/70 font-bold uppercase tracking-wider text-[9px]">
-                        <th className="px-6 py-4 w-16 text-center">Trạng thái</th>
-                        <th className="px-6 py-4">Khách hàng</th>
-                        <th className="px-6 py-4">Lời nhắn</th>
-                        <th className="px-6 py-4">Ngày gửi</th>
-                        <th className="px-6 py-4 text-center">Xóa</th>
+                        <th className="px-6 py-4 w-16 text-center">{t("admin.texts.txt_125")}</th>
+                        <th className="px-6 py-4">{t("admin.texts.txt_126")}</th>
+                        <th className="px-6 py-4">{t("admin.texts.txt_127")}</th>
+                        <th className="px-6 py-4">{t("admin.texts.txt_128")}</th>
+                        <th className="px-6 py-4 text-center">{t("admin.texts.txt_129")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-150 dark:divide-slate-800/60 font-medium">
@@ -1002,7 +1013,7 @@ export default function AdminPanel() {
                                     ? "bg-emerald-50 border-emerald-255 text-emerald-600 dark:bg-[#102a1e] dark:border-[#104a30] dark:text-emerald-455"
                                     : "bg-white border-slate-200 text-slate-400 hover:border-primary hover:text-primary dark:bg-slate-850 dark:border-slate-800"
                                 }`}
-                                title={booking.contacted ? "Đánh dấu chưa liên hệ" : "Đánh dấu đã liên hệ"}
+                                title={booking.contacted ? t("admin.texts.txt_214") : t("admin.texts.txt_215")}
                               >
                                 <span className="material-symbols-outlined text-base">
                                   {booking.contacted ? "check_box" : "check_box_outline_blank"}
@@ -1018,7 +1029,7 @@ export default function AdminPanel() {
                             </td>
                             <td className="px-6 py-4 max-w-xs">
                               <p className="text-slate-600 dark:text-slate-350 text-xs line-clamp-3 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
-                                {booking.message || "Không có lời nhắn"}
+                                {booking.message || t("admin.texts.txt_216")}
                               </p>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-xs">
@@ -1040,7 +1051,7 @@ export default function AdminPanel() {
                               <button
                                 onClick={() => handleDeleteBooking(booking._id)}
                                 className="text-rose-555 hover:text-rose-700 dark:hover:text-rose-400 w-8 h-8 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors flex items-center justify-center mx-auto"
-                                title="Xóa yêu cầu"
+                                title={t("admin.texts.txt_217")}
                               >
                                 <span className="material-symbols-outlined text-sm">delete</span>
                               </button>
@@ -1079,7 +1090,7 @@ export default function AdminPanel() {
                               <span className="material-symbols-outlined text-[10px] font-bold">
                                 {booking.contacted ? "check_box" : "check_box_outline_blank"}
                               </span>
-                              <span>{booking.contacted ? "Đã Gọi" : "Chờ"}</span>
+                              <span>{booking.contacted ? t("admin.texts.txt_218") : t("admin.texts.txt_219")}</span>
                             </button>
                             
                             <button
@@ -1105,13 +1116,13 @@ export default function AdminPanel() {
 
                         {/* Message content */}
                         <p className="text-xs text-slate-655 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed italic">
-                          "{booking.message || "Không có lời nhắn"}"
+                          "{booking.message || t('adminTabs.bookings.empty')}"
                         </p>
 
                         {deleteDays !== null && (
                           <div className="text-[9px] text-rose-600 dark:text-rose-450 bg-rose-500/5 border border-rose-500/10 p-2 rounded-lg font-bold flex items-center gap-1">
                             <span className="material-symbols-outlined text-[10px]">info</span>
-                            <span>Tự động xóa sau {deleteDays} ngày</span>
+                            <span>{t("adminTabs.bookings.autoDelete", { days: deleteDays })}</span>
                           </div>
                         )}
                       </div>
@@ -1122,7 +1133,7 @@ export default function AdminPanel() {
             ) : (
               <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
                 <span className="material-symbols-outlined text-3xl opacity-40">calendar_today</span>
-                <p className="text-sm font-semibold">Chưa có lịch hẹn nào ở mục này</p>
+                <p className="text-sm font-semibold">{t("adminTabs.bookings.empty")}</p>
               </div>
             )}
           </div>
@@ -1136,16 +1147,16 @@ export default function AdminPanel() {
             <div className="lg:col-span-4 bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
               <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-base">add_link</span>
-                Thêm Đối Tác Mới
-              </h3>
+                    {t("adminTabs.partners.addBtn")}
+                  </h3>
               
               <form onSubmit={handleAddPartner} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Tên Đối Tác:</label>
+                  <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.partners.partnerName")}</label>
                   <input
                     type="text"
                     required
-                    placeholder="Ví dụ: VNPAY, Minh Oi Media..."
+                    placeholder={t("adminTabs.partners.partnerNamePlaceholder")}
                     value={partnerForm.name}
                     onChange={(e) => setPartnerForm(p => ({ ...p, name: e.target.value }))}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-805 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -1153,11 +1164,11 @@ export default function AdminPanel() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[9px] font-bold text-slate-455 uppercase tracking-wider">Website / Ghi Chú Đối Tác:</label>
+                  <label className="block text-[9px] font-bold text-slate-455 uppercase tracking-wider">{t("adminTabs.partners.website")}</label>
                   <textarea
                     rows="5"
                     required
-                    placeholder="Ví dụ: https://doitac.vn hoặc ghi chú nơi đối tác sẽ nhúng iframe"
+                    placeholder={t("adminTabs.partners.websitePlaceholder")}
                     value={partnerForm.iframeUrl}
                     onChange={(e) => setPartnerForm(p => ({ ...p, iframeUrl: e.target.value }))}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-805 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-mono leading-relaxed"
@@ -1178,8 +1189,9 @@ export default function AdminPanel() {
                     className="w-full bg-primary hover:bg-indigo-650 text-white font-bold text-xs py-3 rounded-xl hover:scale-102 transition-transform shadow-md flex items-center justify-center gap-1.5 active:scale-98"
                   >
                     <span className="material-symbols-outlined text-sm">iframe</span>
-                    Tạo & Xuất
-                  </button>
+                      <span className="material-symbols-outlined text-sm">add_link</span>
+                      {t("adminTabs.partners.createExportBtn")}
+                    </button>
                 </div>
               </form>
             </div>
@@ -1201,7 +1213,7 @@ export default function AdminPanel() {
                   <div className="w-full sm:w-56 relative shrink-0">
                     <input
                       type="text"
-                      placeholder="Tìm đối tác..."
+                      placeholder={t("adminTabs.partners.search")}
                       value={partnerSearch}
                       onChange={(e) => { setPartnerSearch(e.target.value); setPartnerPage(1); }}
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#1c1626] text-[11px] py-1.5 pl-8 pr-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -1243,13 +1255,15 @@ export default function AdminPanel() {
                               onClick={() => setExportPartner(partner)}
                               className="bg-primary hover:bg-indigo-650 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-lg transition-colors shadow-sm active:scale-95"
                             >
-                              Xuất Iframe
+                              <span className="material-symbols-outlined text-[10px]">code</span>
+                              {t("adminTabs.partners.exportIframe")}
                             </button>
                             <button
                               onClick={() => setExportLinkPartner(partner)}
                               className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-lg transition-colors shadow-sm active:scale-95"
                             >
-                              Xuất Link
+                              <span className="material-symbols-outlined text-[10px]">link</span>
+                              {t("adminTabs.partners.exportLink")}
                             </button>
                             <button
                               onClick={() => setPreviewPartner(partner)}
@@ -1260,7 +1274,7 @@ export default function AdminPanel() {
                             <button
                               onClick={() => handleDeletePartner(partner._id)}
                               className="text-rose-500 hover:text-rose-700 dark:hover:text-rose-450 p-1.5 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
-                              title="Xóa đối tác"
+                              title={t("adminTabs.partners.delete")}
                             >
                               <span className="material-symbols-outlined text-lg">delete</span>
                             </button>
@@ -1272,12 +1286,12 @@ export default function AdminPanel() {
                 ) : (
                   <div className="p-12 text-center text-slate-400 flex-grow flex items-center justify-center">
                     {partnerSearch ? (
-                      <p className="italic">Không tìm thấy đối tác phù hợp.</p>
+                      <p className="italic">{t("adminTabs.partners.empty")}</p>
                     ) : (
                       <div className="space-y-2 max-w-sm">
-                        <p className="font-bold text-slate-500 dark:text-slate-350 not-italic">Chưa có đối tác liên kết dịch vụ nào.</p>
+                        <p className="font-bold text-slate-500 dark:text-slate-350 not-italic">{t("adminTabs.partners.empty")}</p>
                         <p className="text-[11px] leading-relaxed">
-                          Nhập thông tin ở khung bên trái rồi bấm <strong>Tạo & Xuất</strong> để lấy mã nhúng ngay.
+                          {t("adminTabs.partners.createInstruction")}
                         </p>
                       </div>
                     )}
@@ -1314,7 +1328,7 @@ export default function AdminPanel() {
                   <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                     <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                       <span className="material-symbols-outlined text-slate-550 dark:text-slate-400 text-sm">visibility</span>
-                      Xem trước đối tác: {previewPartner.name}
+                      {t("adminTabs.partners.previewPrefix")} {previewPartner.name}
                     </h4>
                     <button 
                       onClick={() => setPreviewPartner(null)}
@@ -1374,16 +1388,16 @@ export default function AdminPanel() {
               <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-base">add_card</span>
-                  Tạo Gói Dịch Vụ Mới
+                  {t("adminTabs.packages.createTpl")}
                 </h3>
                 
                 <form onSubmit={handleCreatePackage} className="space-y-4">
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Tên Gói Dịch Vụ:</label>
+                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createName")}</label>
                     <input
                       type="text"
                       required
-                      placeholder="Ví dụ: Gói tặng 3 tháng, Gói Bio VIP..."
+                      placeholder={t("adminTabs.packages.createNamePlaceholder")}
                       value={newPkg.name}
                       onChange={(e) => setNewPkg(p => ({ ...p, name: e.target.value }))}
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -1392,33 +1406,33 @@ export default function AdminPanel() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Thời Hạn:</label>
+                      <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createDurationValue")}</label>
                       <input
                         type="number"
                         required
                         min="1"
-                        placeholder="Ví dụ: 3"
+                        placeholder={t("adminTabs.packages.createDurationPlaceholder")}
                         value={newPkg.duration}
                         onChange={(e) => setNewPkg(p => ({ ...p, duration: e.target.value }))}
                         className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Đơn Vị:</label>
+                      <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createDurationType")}</label>
                       <select
                         value={newPkg.durationUnit}
                         onChange={(e) => setNewPkg(p => ({ ...p, durationUnit: e.target.value }))}
                         className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-855 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                       >
-                        <option value="months">Tháng</option>
-                        <option value="days">Ngày</option>
-                        <option value="years">Năm</option>
+                        <option value="months">{t("adminTabs.packages.months")}</option>
+                        <option value="days">{t("adminTabs.packages.days")}</option>
+                        <option value="years">{t("adminTabs.packages.years")}</option>
                       </select>
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Quyền Lợi (Mỗi dòng 1 quyền lợi):</label>
+                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createBenefits")}</label>
                     <textarea
                       rows="4"
                       placeholder="Quyền lợi 1&#10;Quyền lợi 2&#10;Quyền lợi 3"
@@ -1433,8 +1447,9 @@ export default function AdminPanel() {
                     className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-primary hover:bg-indigo-650 text-white font-bold text-xs shadow-sm hover:scale-[1.01] active:scale-98 transition-all"
                   >
                     <span className="material-symbols-outlined text-sm">save</span>
-                    Tạo Mẫu Gói Dịch Vụ
-                  </button>
+                      <span className="material-symbols-outlined text-sm">add_circle</span>
+                      {t("adminTabs.packages.createBtn")}
+                    </button>
                 </form>
               </div>
 
@@ -1442,16 +1457,16 @@ export default function AdminPanel() {
               <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-emerald-500 text-base">card_membership</span>
-                  Cấp Gói Cho Thành Viên
+                  {t("adminTabs.packages.grant")}
                 </h3>
 
                 <form onSubmit={handleAssignPackageToUser} className="space-y-4">
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Email Người Nhận (Nhập "ALL" để cấp cho tất cả):</label>
+                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantEmail")}</label>
                     <input
                       type="text"
                       required
-                      placeholder="Ví dụ: partner@gmail.com HOẶC nhập ALL..."
+                      placeholder={t("adminTabs.packages.grantEmailPlaceholder")}
                       value={assignForm.email}
                       onChange={(e) => setAssignForm(p => ({ ...p, email: e.target.value }))}
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -1459,28 +1474,28 @@ export default function AdminPanel() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Chọn Gói Dịch Vụ:</label>
+                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantSelect")}</label>
                     <select
                       required
                       value={assignForm.packageId}
                       onChange={(e) => setAssignForm(p => ({ ...p, packageId: e.target.value }))}
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                     >
-                      <option value="">-- Chọn một gói để cấp --</option>
+                      <option value="">{t("adminTabs.packages.grantSelectOption")}</option>
                       {packageTemplates.map(pkg => (
                         <option key={pkg._id} value={pkg._id}>
-                          {pkg.name} ({pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"})
+                          {pkg.name} ({pkg.duration} {pkg.durationUnit === "days" ? t("adminTabs.packages.days") : pkg.durationUnit === "years" ? t("adminTabs.packages.years") : t("adminTabs.packages.months")})
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Tùy Chỉnh Số Ngày (Không bắt buộc):</label>
+                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantCustomDays")}</label>
                     <input
                       type="number"
                       min="1"
-                      placeholder="Nhập số ngày muốn cấp, để trống sẽ dùng số ngày gốc..."
+                      placeholder={t("adminTabs.packages.grantCustomDaysPlaceholder")}
                       value={assignForm.customDuration || ""}
                       onChange={(e) => setAssignForm(p => ({ ...p, customDuration: e.target.value }))}
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -1492,8 +1507,9 @@ export default function AdminPanel() {
                     className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm hover:scale-[1.01] active:scale-98 transition-all"
                   >
                     <span className="material-symbols-outlined text-sm">verified</span>
-                    Cấp Gói & Kích Hoạt
-                  </button>
+                      <span className="material-symbols-outlined text-sm">rocket_launch</span>
+                      {t("adminTabs.packages.grantBtn")}
+                    </button>
                 </form>
               </div>
 
@@ -1507,15 +1523,15 @@ export default function AdminPanel() {
                 <div className="space-y-1">
                   <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                     <span className="material-symbols-outlined text-rose-500 text-base">manage_accounts</span>
-                    Xóa / Quản Lý Gói Của Thành Viên
-                  </h3>
-                  <p className="text-[10px] text-slate-400 font-medium">Nhập email thành viên để kiểm tra các gói đã nhận và hủy/xóa gói.</p>
+                  {t("adminTabs.packages.manageTitle")}
+                </h3>
+                  <p className="text-[10px] text-slate-400 font-medium">{t("adminTabs.packages.manageDesc")}</p>
                 </div>
 
                 <div className="flex gap-2">
                   <input
                     type="email"
-                    placeholder="Nhập email thành viên cần quản lý..."
+                    placeholder={t("adminTabs.packages.managePlaceholder")}
                     value={memberPkgSearchEmail}
                     onChange={(e) => setMemberPkgSearchEmail(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleSearchUserPackages(); }}
@@ -1526,8 +1542,9 @@ export default function AdminPanel() {
                     className="px-5 bg-zinc-900 hover:bg-zinc-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1 active:scale-95"
                   >
                     <span className="material-symbols-outlined text-sm">search</span>
-                    Tìm
-                  </button>
+                      <span className="material-symbols-outlined text-sm">search</span>
+                      {t("adminTabs.packages.manageSearch")}
+                    </button>
                 </div>
 
                 {searchedMemberBio && (
@@ -1538,24 +1555,24 @@ export default function AdminPanel() {
                         <p className="text-[10px] text-zinc-400 mt-0.5">{searchedMemberBio.email}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-[8px] font-bold text-slate-450 uppercase tracking-wider">Hạn dùng Bio:</div>
+                        <div className="text-[8px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.expiry")}</div>
                         <div className="text-[10px] font-mono font-bold text-rose-500 mt-0.5">{formatExpiration(searchedMemberBio.expiresAt)}</div>
                       </div>
                     </div>
 
                     <div className="space-y-3">
-                      <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Các gói dịch vụ đang có:</span>
+                      <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.currentPackages")}</span>
                       
                       {/* Base package (non-deletable) */}
                       <div className="flex items-center justify-between p-3 bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
                         <div className="flex items-center gap-2">
                           <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
                           <div>
-                            <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{searchedMemberBio.serviceLabel || "Student Bio"} (Gói gốc)</span>
-                            <span className="text-[9px] text-zinc-400 block mt-0.5">Kích hoạt khi tạo Bio • Không thể xóa</span>
+                            <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{searchedMemberBio.serviceLabel || t("adminTabs.packages.defaultPackage")} {t("adminTabs.packages.originalPackage")}</span>
+                            <span className="text-[9px] text-zinc-400 block mt-0.5">{t("adminTabs.packages.packageDefaultNote")}</span>
                           </div>
                         </div>
-                        <span className="text-[9.5px] font-bold text-zinc-455 italic">Mặc định</span>
+                        <span className="text-[9.5px] font-bold text-zinc-455 italic">{t("adminTabs.packages.defaultBadge")}</span>
                       </div>
 
                       {/* Custom packages */}
@@ -1566,19 +1583,20 @@ export default function AdminPanel() {
                               <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: pkg.color || "#10b981" }} />
                               <div>
                                 <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{pkg.name}</span>
-                                <span className="text-[9px] text-zinc-400 block mt-0.5">Cấp ngày: {new Date(pkg.addedAt).toLocaleDateString('vi-VN')} (+{pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"})</span>
+                                <span className="text-[9px] text-zinc-400 block mt-0.5">{t("adminTabs.packages.grantedOn")} {new Date(pkg.addedAt).toLocaleDateString("vi-VN")} (+{pkg.duration} {pkg.durationUnit === "days" ? t("adminTabs.packages.days") : pkg.durationUnit === "years" ? t("adminTabs.packages.years") : t("adminTabs.packages.months")})</span>
                               </div>
                             </div>
                             <button
                               onClick={() => handleRemoveUserPackage(pkg._id)}
                               className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-455 font-bold text-[9px] uppercase tracking-wide transition-colors active:scale-95"
                             >
-                              Hủy Gói
-                            </button>
+                                  <span className="material-symbols-outlined text-[10px]">cancel</span>
+                                  {t("adminTabs.packages.cancelPackage")}
+                                </button>
                           </div>
                         ))
                       ) : (
-                        <p className="text-[10px] text-zinc-455 italic">Thành viên chưa được cấp gói khuyến mãi/bổ sung nào.</p>
+                        <p className="text-[10px] text-zinc-455 italic">{t("adminTabs.packages.noPackages")}</p>
                       )}
                     </div>
                   </div>
@@ -1589,8 +1607,8 @@ export default function AdminPanel() {
               <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-slate-550 dark:text-slate-450 text-base">list_alt</span>
-                  Mẫu Gói Dịch Vụ Đã Tạo ({packageTemplates.length})
-                </h3>
+                    {t("adminTabs.packages.templates")} ({packageTemplates.length})
+                  </h3>
 
                 {packageTemplates.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1607,15 +1625,15 @@ export default function AdminPanel() {
                           <button
                             onClick={() => handleDeletePackageTemplate(pkg._id)}
                             className="text-zinc-455 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Xóa mẫu gói"
+                            title={t("adminTabs.packages.delTpl")}
                           >
                             <span className="material-symbols-outlined text-sm">delete</span>
                           </button>
                         </div>
 
                         <div className="flex justify-between text-[10px] text-zinc-455">
-                          <span>Thời hạn:</span>
-                          <span className="font-bold text-slate-700 dark:text-zinc-300 font-mono">+{pkg.duration} {pkg.durationUnit === "days" ? "ngày" : pkg.durationUnit === "years" ? "năm" : "tháng"}</span>
+                          <span>{t("adminTabs.packages.duration")}</span>
+                          <span className="font-bold text-slate-700 dark:text-zinc-300 font-mono">+{pkg.duration} {pkg.durationUnit === "days" ? t("adminTabs.packages.days") : pkg.durationUnit === "years" ? t("adminTabs.packages.years") : t("adminTabs.packages.months")}</span>
                         </div>
 
                         <div className="flex justify-between items-center bg-white dark:bg-[#1c1c1e] p-2 rounded-xl border border-zinc-200/50 dark:border-zinc-800 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
@@ -1626,15 +1644,16 @@ export default function AdminPanel() {
                           <button
                             onClick={() => handleRegenerateGiftCode(pkg._id)}
                             className="text-[9px] font-bold text-primary hover:text-indigo-600 dark:text-[#a5b4fc] dark:hover:text-[#c7d2fe] bg-primary/5 dark:bg-[#a5b4fc]/10 px-2 py-1 rounded-md transition-colors whitespace-nowrap"
-                            title="Sinh mã mới (mã cũ sẽ bị hủy)"
+                            title={t("adminTabs.packages.newCode")}
                           >
-                            Mã mới
-                          </button>
+                                <span className="material-symbols-outlined text-[10px]">refresh</span>
+                                {t("adminTabs.packages.newCodeBtn")}
+                              </button>
                         </div>
 
                         {pkg.benefits && pkg.benefits.length > 0 && (
                           <div className="space-y-1.5 border-t border-zinc-200/50 dark:border-zinc-800/50 pt-2.5">
-                            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block">Quyền lợi:</span>
+                            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block">{t("adminTabs.packages.benefits")}</span>
                             <ul className="space-y-1">
                               {pkg.benefits.slice(0, 3).map((benefit, i) => (
                                 <li key={i} className="text-[9.5px] text-zinc-500 dark:text-zinc-400 truncate flex items-center gap-1.5">
@@ -1643,7 +1662,7 @@ export default function AdminPanel() {
                                 </li>
                               ))}
                               {pkg.benefits.length > 3 && (
-                                <li className="text-[8.5px] italic text-zinc-400 pl-2">và {pkg.benefits.length - 3} quyền lợi khác...</li>
+                                <li className="text-[8.5px] italic text-zinc-400 pl-2">{t("adminTabs.packages.andMore", { count: pkg.benefits.length - 3 })}</li>
                               )}
                             </ul>
                           </div>
@@ -1652,7 +1671,7 @@ export default function AdminPanel() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400 italic text-center py-6">Chưa có mẫu gói dịch vụ nào được tạo.</p>
+                  <p className="text-xs text-slate-400 italic text-center py-6">{t("adminTabs.packages.emptyTpl")}</p>
                 )}
               </div>
 
@@ -1685,7 +1704,9 @@ export default function AdminPanel() {
                   <span className="material-symbols-outlined text-xl">support_agent</span>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tổng số yêu cầu</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    {t("adminSupport.totalReq")}
+                  </div>
                   <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{supportTickets.length || 0}</div>
                 </div>
               </div>
@@ -1695,7 +1716,9 @@ export default function AdminPanel() {
                   <span className="material-symbols-outlined text-xl animate-pulse">pending</span>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Chưa xử lý</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    {t("adminSupport.pending")}
+                  </div>
                   <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{pendingTicketsCount}</div>
                 </div>
               </div>
@@ -1705,7 +1728,9 @@ export default function AdminPanel() {
                   <span className="material-symbols-outlined text-xl">check_circle</span>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Đã giải quyết</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    {t("adminSupport.resolved")}
+                  </div>
                   <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">
                     {Math.max(0, (supportTickets.length || 0) - pendingTicketsCount)}
                   </div>
@@ -1719,16 +1744,20 @@ export default function AdminPanel() {
               {/* Header section with Filter controls */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
                 <div className="space-y-1">
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Trạng Thái Yêu Cầu</h3>
-                  <p className="text-[10px] text-slate-400">Lọc danh sách các cuộc gọi hỗ trợ 1:1 từ người dùng</p>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">
+                  {t("adminSupport.statusTitle")}
+                </h3>
+                  <p className="text-[10px] text-slate-400">
+                  {t("adminSupport.statusDesc")}
+                </p>
                 </div>
                 
                 {/* Status Chips */}
                 <div className="flex gap-2">
                   {[
-                    { id: "", label: "Tất cả" },
-                    { id: "pending", label: "Chờ xử lý" },
-                    { id: "resolved", label: "Đã giải quyết" }
+                    { id: "", label: t("adminSupport.filterAll") },
+                    { id: "pending", label: t("adminSupport.filterPending") },
+                    { id: "resolved", label: t("adminSupport.filterResolved") }
                   ].map(filter => (
                     <button
                       key={filter.id}
@@ -1778,10 +1807,10 @@ export default function AdminPanel() {
                                       : "bg-emerald-500/10 text-emerald-500"
                                   }`}>
                                     <span className={`w-1.5 h-1.5 rounded-full ${ticket.status === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
-                                    {ticket.status === 'pending' ? 'Chờ xử lý' : 'Đã xử lý'}
+                                    {ticket.status === "pending" ? t("adminSupport.reqPending") : t("adminSupport.reqResolved")}
                                   </span>
                                 </div>
-                                <p className="text-[10px] text-slate-400 mt-0.5">Thời gian gửi: {formattedDate}</p>
+                                <p className="text-[10px] text-slate-400 mt-0.5">{t("adminSupport.sendTime")} {formattedDate}</p>
                               </div>
 
                               <div className="space-y-1">
@@ -1790,13 +1819,13 @@ export default function AdminPanel() {
                                   <span className="font-semibold text-slate-700 dark:text-zinc-300 break-all select-all">{ticket.email}</span>
                                 </div>
                                 <div className="flex gap-2 items-center text-xs">
-                                  <span className="font-bold text-slate-450 dark:text-zinc-550 shrink-0">SĐT Zalo:</span>
+                                  <span className="font-bold text-slate-450 dark:text-zinc-550 shrink-0">{t("adminSupport.zaloPhone")}</span>
                                   <span className="font-semibold text-slate-700 dark:text-zinc-300 select-all">{ticket.phone}</span>
                                 </div>
                               </div>
 
                               <div className="pt-2">
-                                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">Nội dung thắc mắc:</span>
+                                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">{t("adminSupport.inquiry")}</span>
                                 <p className="mt-1 text-xs text-slate-650 dark:text-slate-300 leading-relaxed font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-3.5 rounded-xl whitespace-pre-wrap select-text">
                                   {ticket.issue}
                                 </p>
@@ -1815,8 +1844,9 @@ export default function AdminPanel() {
                               style={{ minHeight: 0, minWidth: 0 }}
                             >
                               <span className="material-symbols-outlined text-sm">chat</span>
-                              Nhắn Zalo 1:1
-                            </a>
+                                <span className="material-symbols-outlined text-sm">chat</span>
+                                {t("adminSupport.chatZalo")}
+                              </a>
 
                             {/* Resolve Ticket Button */}
                             {ticket.status === 'pending' && (
@@ -1826,7 +1856,8 @@ export default function AdminPanel() {
                                 style={{ minHeight: 0, minWidth: 0 }}
                               >
                                 <span className="material-symbols-outlined text-sm">check_circle</span>
-                                Đã giải quyết xong
+                                <span className="material-symbols-outlined text-sm">check_circle</span>
+                                {t("adminSupport.markResolved")}
                               </button>
                             )}
                           </div>
@@ -1865,7 +1896,7 @@ export default function AdminPanel() {
                   <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto text-slate-400">
                     <span className="material-symbols-outlined text-2xl">support_agent</span>
                   </div>
-                  <p className="text-xs text-slate-450 italic font-medium">Không tìm thấy yêu cầu hỗ trợ nào.</p>
+                  <p className="text-xs text-slate-450 italic font-medium">{t("adminSupport.notFound")}</p>
                 </div>
               )}
             </div>
@@ -1880,21 +1911,21 @@ export default function AdminPanel() {
           <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center gap-2 text-rose-500">
               <span className="material-symbols-outlined text-2xl animate-pulse">warning</span>
-              <h3 className="font-extrabold text-sm uppercase tracking-wider">Xác Nhận Xóa Tài Khoản</h3>
+              <h3 className="font-extrabold text-sm uppercase tracking-wider">{t("adminPanel.modals.delAccountTitle")}</h3>
             </div>
             
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Bạn đang yêu cầu xóa vĩnh viễn tài khoản của thành viên <strong>{deleteTarget.displayName}</strong> ({deleteTarget.email}) cùng trang Bio <code>/bio/{deleteTarget.slug}</code>.
+              {t("adminPanel.modals.delAccountReq1")} <strong>{deleteTarget.displayName}</strong> ({deleteTarget.email}) {t("adminPanel.modals.delAccountReq2")} <code>/bio/{deleteTarget.slug}</code>.
             </p>
             <div className="text-xs text-red-600 bg-red-50 dark:bg-red-950/20 p-3 rounded-xl border border-red-100 dark:border-red-900/30 font-semibold">
-              ⚠️ Hành động này KHÔNG THỂ HOÀN TÁC và toàn bộ thông tin sẽ bị xóa sạch khỏi hệ thống.
+              {t("adminPanel.modals.delAccountWarn")}
             </div>
 
             <div className="space-y-1.5 pt-2">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Nhập Mật Khẩu Quản Trị:</label>
+              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminPanel.modals.delPassLabel")}</label>
               <input
                 type="password"
-                placeholder="Nhập mật khẩu admin..."
+                placeholder={t("adminPanel.modals.delPassPlaceholder")}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleExecuteDelete(); }}
@@ -1915,14 +1946,14 @@ export default function AdminPanel() {
                 }}
                 className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-all"
               >
-                Hủy Bỏ
+                {t("adminPanel.core.modalCancel")}
               </button>
               <button
                 onClick={handleExecuteDelete}
                 className="flex-1 bg-red-650 hover:bg-red-600 text-white font-bold text-xs py-3 rounded-xl hover:scale-102 transition-transform shadow-md"
               >
-                Xác Nhận Xóa
-              </button>
+                  {t("adminPanel.modals.delConfirmBtn")}
+                </button>
             </div>
           </div>
         </div>
@@ -1935,7 +1966,7 @@ export default function AdminPanel() {
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-405">
                 <span className="material-symbols-outlined text-xl">link</span>
-                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">Xuất Link Đối Tác: {exportLinkPartner.name}</h3>
+                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">{t("adminPanel.modals.exportLinkTitle")} {exportLinkPartner.name}</h3>
               </div>
               <button 
                 onClick={() => setExportLinkPartner(null)}
@@ -1947,11 +1978,11 @@ export default function AdminPanel() {
 
             <div className="space-y-3">
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-                Link này dùng để đặt nút, menu hoặc đường dẫn trực tiếp trên website của đối tác. Khách hàng bấm vào là có thể nhập email và tạo Bio Link miễn phí ngay, không cần đăng nhập vào hệ thống Hugo Studio.
+                {t("adminPanel.modals.exportLinkDesc")}
               </p>
 
               <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-3.5 rounded-xl border border-emerald-100 dark:border-emerald-900/30 space-y-2">
-                <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">Link dùng ngay cho khách hàng:</span>
+                <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">{t("adminPanel.modals.exportLinkReady")}</span>
                 <textarea
                   readOnly
                   rows={3}
@@ -1970,7 +2001,7 @@ export default function AdminPanel() {
                 onClick={() => setExportLinkPartner(null)}
                 className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-all"
               >
-                Đóng
+                {t("adminPanel.core.iframeClose")}
               </button>
               <button
                 onClick={() => {
@@ -1981,7 +2012,7 @@ export default function AdminPanel() {
                 }}
                 className="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl hover:scale-102 transition-transform shadow-md"
               >
-                Sao Chép Link
+                {t("adminPanel.modals.copyLinkBtn")}
               </button>
             </div>
           </div>
@@ -1995,7 +2026,7 @@ export default function AdminPanel() {
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                 <span className="material-symbols-outlined text-xl">share</span>
-                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">Xuất Iframe Đối Tác: {exportPartner.name}</h3>
+                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">{t("adminPanel.modals.exportIframeTitle")} {exportPartner.name}</h3>
               </div>
               <button 
                 onClick={() => setExportPartner(null)}
@@ -2007,26 +2038,26 @@ export default function AdminPanel() {
 
             <div className="space-y-3">
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-                Nhúng trình thiết kế Bio miễn phí của <strong>Hugo Studio</strong> trực tiếp vào website của đối tác. Khi người dùng của đối tác truy cập, hệ thống sẽ sử dụng email được truyền qua tham số <code>email</code> để lưu và hiển thị thông tin mà không cần đăng nhập.
+                {t("adminPanel.modals.exportIframeDesc1")} <strong>Hugo Studio</strong> {t("adminPanel.modals.exportIframeDesc2")} <code>email</code> {t("adminPanel.modals.exportIframeDesc3")}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-indigo-50/70 dark:bg-indigo-950/20 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
-                  <span className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-305 uppercase tracking-wider">Link iframe dùng ngay:</span>
+                  <span className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-305 uppercase tracking-wider">{t("adminPanel.modals.exportIframeReady")}</span>
                   <p className="mt-1 text-[10px] font-mono text-slate-650 dark:text-slate-305 break-all">
                     {getPartnerBioEditorUrl(exportPartner)}
                   </p>
                 </div>
                 <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
-                  <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">Tùy chọn tự động:</span>
+                  <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">{t("adminPanel.modals.exportIframeAuto")}</span>
                   <p className="mt-1 text-[10px] text-slate-650 dark:text-slate-305 leading-relaxed">
-                    Có thể thêm <code>&email=CUSTOMER_EMAIL</code> nếu đối tác muốn tự truyền email người dùng.
+                    {t("adminPanel.modals.exportIframeAutoDesc")}
                   </p>
                 </div>
               </div>
 
               <div className="bg-slate-50 dark:bg-[#1f1929] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2">
-                <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Mã nhúng Iframe đề xuất:</span>
+                <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminPanel.modals.exportIframeCode")}</span>
                 <textarea
                   readOnly
                   rows={4}
@@ -2038,12 +2069,13 @@ export default function AdminPanel() {
               <div className="text-[10px] text-amber-600 dark:text-amber-400 bg-amber-500/5 border border-amber-500/10 p-3 rounded-xl space-y-1.5 leading-relaxed">
                 <p className="font-bold flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-xs">info</span>
-                  Hướng dẫn nhúng cho đối tác:
+                  <span className="material-symbols-outlined text-xs">info</span>
+                  {t("adminPanel.modals.exportIframeGuide")}
                 </p>
                 <ol className="list-decimal pl-4 space-y-1">
-                  <li>Dán nguyên mã iframe vào website của đối tác để khách hàng dùng ngay.</li>
-                  <li>Khi chưa truyền email, giao diện iframe sẽ yêu cầu khách hàng nhập email trước khi tạo Bio Link.</li>
-                  <li>Nếu đối tác đã có email khách hàng, thêm <code>&email=CUSTOMER_EMAIL</code> vào link iframe để vào thẳng trình tạo Bio.</li>
+                  <li>{t("adminPanel.modals.exportIframeRule1")}</li>
+                  <li>{t("adminPanel.modals.exportIframeRule2")}</li>
+                  <li>{t("adminPanel.modals.exportIframeRule3")}</li>
                 </ol>
               </div>
             </div>
@@ -2053,18 +2085,18 @@ export default function AdminPanel() {
                 onClick={() => setExportPartner(null)}
                 className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-all"
               >
-                Đóng
+                {t("adminPanel.core.iframeClose")}
               </button>
               <button
                 onClick={() => {
                   const code = getPartnerBioIframeCode(exportPartner);
                   navigator.clipboard.writeText(code);
-                  showNotification(`Đã sao chép mã nhúng Iframe đối tác ${exportPartner.name}! 📋`);
+                  showNotification(`${t("adminPanel.core.copySuccess")} ${exportPartner.name}! 📋`);
                   setExportPartner(null);
                 }}
                 className="flex-grow bg-primary hover:bg-indigo-650 text-white font-bold text-xs py-3 rounded-xl hover:scale-102 transition-transform shadow-md"
               >
-                Sao Chép Mã Nhúng
+                {t("adminPanel.core.iframeCopy")}
               </button>
             </div>
           </div>
@@ -2077,7 +2109,7 @@ export default function AdminPanel() {
           <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-sm w-full shadow-2xl space-y-4">
             <div className="flex items-center gap-2 text-rose-500">
               <span className="material-symbols-outlined text-2xl">warning</span>
-              <h3 className="font-extrabold text-sm uppercase tracking-wider text-slate-800 dark:text-white">Xác Nhận Thao Tác</h3>
+              <h3 className="font-extrabold text-sm uppercase tracking-wider text-slate-800 dark:text-white">{t("adminPanel.core.modalConfirmTitle")}</h3>
             </div>
             <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed">
               {confirmModal.message}
@@ -2087,7 +2119,7 @@ export default function AdminPanel() {
                 onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: null })}
                 className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-all"
               >
-                Hủy Bỏ
+                {t("adminPanel.core.modalCancel")}
               </button>
               <button
                 onClick={() => {
@@ -2096,7 +2128,7 @@ export default function AdminPanel() {
                 }}
                 className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-md"
               >
-                Xác Nhận
+                {t("adminPanel.core.modalConfirm")}
               </button>
             </div>
           </div>

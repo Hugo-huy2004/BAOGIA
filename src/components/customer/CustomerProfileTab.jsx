@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function CustomerProfileTab({ project, setProject }) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     fullName: project.fullName || '',
     phone: project.phone || '',
@@ -45,11 +47,11 @@ export default function CustomerProfileTab({ project, setProject }) {
   return (
     <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800/80 shadow-sm max-w-2xl mx-auto">
       <div className="mb-6 space-y-1">
-        <h2 className="text-lg font-bold text-slate-850 dark:text-white">Thông tin cá nhân</h2>
-        <p className="text-xs text-slate-500">Cập nhật thông tin liên hệ để chúng tôi hỗ trợ tốt nhất.</p>
+        <h2 className="text-lg font-bold text-slate-850 dark:text-white">{t("customerPortal.profile.title")}</h2>
+        <p className="text-xs text-slate-500">{t("customerPortal.profile.subtitle")}</p>
         {isCompleted && (
           <div className="mt-2 text-[11px] text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg font-medium">
-            Dự án đã hoàn tất, không thể thay đổi thông tin.
+            {t("customerPortal.profile.completedWarn")}
           </div>
         )}
       </div>
@@ -57,7 +59,7 @@ export default function CustomerProfileTab({ project, setProject }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">Họ và Tên</label>
+            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.fullName")}</label>
             <input
               type="text"
               name="fullName"
@@ -68,7 +70,7 @@ export default function CustomerProfileTab({ project, setProject }) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">Số điện thoại</label>
+            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.phone")}</label>
             <input
               type="tel"
               name="phone"
@@ -82,7 +84,7 @@ export default function CustomerProfileTab({ project, setProject }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">Email liên hệ</label>
+            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.email")}</label>
             <input
               type="email"
               name="email"
@@ -93,7 +95,7 @@ export default function CustomerProfileTab({ project, setProject }) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">Ngày sinh</label>
+            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.birthday")}</label>
             <input
               type="date"
               name="birthday"
@@ -106,7 +108,7 @@ export default function CustomerProfileTab({ project, setProject }) {
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">Địa chỉ</label>
+          <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.address")}</label>
           <input
             type="text"
             name="address"
@@ -119,16 +121,16 @@ export default function CustomerProfileTab({ project, setProject }) {
 
         {!isCompleted && (
           <div className="pt-4 flex items-center justify-between">
-            {success && <span className="text-xs font-bold text-emerald-500">Đã cập nhật thành công!</span>}
+            {success && <span className="text-xs font-bold text-emerald-500">{t("customerPortal.profile.updateSuccess")}</span>}
             <button
               type="submit"
               disabled={loading}
               className="ml-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs flex items-center gap-2"
             >
-              {loading ? 'Đang lưu...' : (
+              {loading ? t("customerPortal.profile.savingBtn") : (
                 <>
                   <span className="material-symbols-outlined text-[18px]">save</span>
-                  Lưu Thông Tin
+                  {t("customerPortal.profile.saveBtn")}
                 </>
               )}
             </button>

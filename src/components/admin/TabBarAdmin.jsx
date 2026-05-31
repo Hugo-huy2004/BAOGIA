@@ -8,6 +8,7 @@ export default function AdminTabBar({
   counts, 
   handleLogout 
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <AdminSidebar 

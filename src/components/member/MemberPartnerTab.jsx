@@ -1,3 +1,4 @@
+import { withTranslation } from "react-i18next";
 import React, { Component } from 'react';
 import dataApi from "../../services/dataApi";
 
@@ -41,6 +42,7 @@ class MemberPartnerTab extends Component {
   };
 
   render() {
+    const { t } = this.props;
     const { partners, selectedPartner, partnerSearch, partnerPage } = this.state;
     
     const filteredPartners = partners.filter(p =>
@@ -59,10 +61,8 @@ class MemberPartnerTab extends Component {
         <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl p-4 sm:p-6 md:p-8 border border-zinc-200/50 dark:border-zinc-800/80 shadow-xl flex flex-col justify-between min-h-[500px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-zinc-200/50 dark:border-zinc-800/50 pb-4 shrink-0">
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">
-                Dịch Vụ Đối Tác Liên Kết
-              </h3>
-              <p className="text-[9px] sm:text-xs text-zinc-450 mt-1">Sử dụng dịch vụ của đối tác trực tiếp từ bảng điều khiển của bạn</p>
+              <h3 className="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">{t("memberTabs.partner.title")}</h3>
+              <p className="text-[9px] sm:text-xs text-zinc-450 mt-1">{t("memberTabs.partner.desc")}</p>
             </div>
 
             <span className="text-[8px] bg-zinc-100 dark:bg-zinc-800 text-zinc-550 dark:text-zinc-400 px-3 py-1.5 rounded-full font-bold uppercase tracking-wider border border-zinc-250/20">
@@ -80,7 +80,7 @@ class MemberPartnerTab extends Component {
                 <div className="relative flex-grow max-w-sm">
                   <input
                     type="text"
-                    placeholder="Tìm kiếm đối tác liên kết..."
+                    placeholder={t("memberTabs.partner.searchPlaceholder")}
                     value={partnerSearch}
                     onChange={this.handleSearchChange}
                     className="w-full rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-xs py-2 pl-9 pr-4 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white font-medium"
@@ -176,8 +176,8 @@ class MemberPartnerTab extends Component {
           ) : (
             <div className="flex-grow flex flex-col items-center justify-center text-center p-8 space-y-3">
               <span className="material-symbols-outlined text-4xl text-zinc-400">handshake</span>
-              <h4 className="text-xs font-bold text-zinc-550 dark:text-zinc-400">Không Có Dịch Vụ Đối Tác Kích Hoạt</h4>
-              <p className="text-[10px] text-zinc-400 max-w-sm">Hiện tại chúng tôi chưa thiết lập hoặc liên kết dịch vụ đối tác nào. Vui lòng quay lại sau.</p>
+              <h4 className="text-xs font-bold text-zinc-550 dark:text-zinc-400">{t("memberTabs.partner.emptyTitle")}</h4>
+              <p className="text-[10px] text-zinc-400 max-w-sm">{t("memberTabs.partner.emptyDesc")}</p>
             </div>
           )}
         </div>
@@ -186,4 +186,4 @@ class MemberPartnerTab extends Component {
   }
 }
 
-export default MemberPartnerTab;
+export default withTranslation()(MemberPartnerTab);

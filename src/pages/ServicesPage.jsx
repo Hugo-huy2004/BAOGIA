@@ -1,8 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useTranslation } from "react-i18next";
 
 export default function ServicesPage() {
+  const { t } = useTranslation();
   useHeadMeta({
     title: "Dịch Vụ | Hugo Studio",
     description: "Cung cấp các gói dịch vụ thiết kế Bio Link cá nhân, Signature Portfolio và ứng dụng Web App doanh nghiệp cao cấp.",
@@ -36,43 +38,33 @@ export default function ServicesPage() {
       
       {/* Header section */}
       <section className="text-center space-y-4 max-w-3xl mx-auto">
-        <span className="inline-flex px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.24em] bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5">
-          Premium Portfolios & Web Applications
-        </span>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-          Các Gói Dịch Vụ Của Tôi
-        </h1>
-        <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed">
-          Cung cấp các giải pháp thiết kế website chuyên nghiệp, từ trang Bio Link tối giản cho học sinh sinh viên đến các ứng dụng web quản trị doanh nghiệp cao cấp độc bản.
-        </p>
+        <span className="inline-flex px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.24em] bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5">{t("servicesPage.header.badge")}</span>
+        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white">{t("servicesPage.header.title")}</h1>
+        <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed">{t("servicesPage.header.desc")}</p>
       </section>
 
       {/* Services Grid */}
       <section className="flex lg:grid lg:grid-cols-3 gap-6 lg:gap-8 overflow-x-auto lg:overflow-visible pt-6 lg:pt-0 pb-8 lg:pb-0 snap-x snap-mandatory scrollbar-hide items-stretch mt-4 md:mt-8 px-4 lg:px-0 -mx-4 lg:mx-0 animate-fadeIn">
           
-          {/* Tier 1: Student Bio (Free) */}
+          {/* Tier 1: {t("servicesPage.tier1.title")} (Free) */}
           <div className="flex-none w-[85vw] sm:w-[380px] lg:w-auto snap-center lg:snap-align-none flex flex-col justify-between rounded-[2rem] bg-gradient-to-br from-white to-slate-50 dark:from-[#12111a] dark:to-black border border-slate-200/50 dark:border-white/10 p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300 relative group overflow-visible">
             
             {/* Badge */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
               <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-slate-900 dark:bg-white text-white dark:text-slate-950 border border-slate-200 dark:border-white/10 shadow-sm flex items-center gap-1 whitespace-nowrap">
-                <span className="material-symbols-outlined text-[10px]">school</span>
-                Đặc quyền .edu
-              </span>
+                <span className="material-symbols-outlined text-[10px]">school</span>{t("servicesPage.tier1.badge")}</span>
             </div>
             
             <div className="space-y-6 relative z-10">
               <div className="space-y-2 text-left">
-                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5">
-                  Tài Trợ 100% Cho Sinh Viên
-                </span>
+                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5">{t("servicesPage.tier1.subtitle")}</span>
                 <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  Student Bio
+                  {t("servicesPage.tier1.title")}
                   <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-xl" title="Đã xác thực">verified</span>
                 </h3>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-black text-slate-800 dark:text-white font-mono">0đ <span className="text-xs font-normal text-slate-400">/năm</span></p>
-                  <p className="text-sm text-slate-400 line-through decoration-slate-300 dark:decoration-slate-600 font-medium">500.000đ</p>
+                  <p className="text-2xl font-black text-slate-800 dark:text-white font-mono">{t("servicesPage.tier1.price")} <span className="text-xs font-normal text-slate-400">{t("servicesPage.tier1.priceUnit")}</span></p>
+                  <p className="text-sm text-slate-400 line-through decoration-slate-300 dark:decoration-slate-600 font-medium">{t("servicesPage.tier1.oldPrice")}</p>
                 </div>
               </div>
 
@@ -80,38 +72,36 @@ export default function ServicesPage() {
                 <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-350">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Chỉ dành riêng</strong> cho các bạn HSSV sở hữu email đuôi <code>.edu</code>.</span>
+                    <span><strong>{t("servicesPage.tier1.f1_bold")}</strong> {t("servicesPage.tier1.f1_text")}<code>.edu</code>.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Giao diện Premium:</strong> Không chứa quảng cáo, thiết kế aesthetic chuẩn Gen Z.</span>
+                    <span><strong>{t("servicesPage.tier1.f2_bold")}</strong> {t("servicesPage.tier1.f2_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Toàn quyền làm chủ:</strong> Tùy biến hình ảnh, liên kết MXH & chỉnh sửa 24/7.</span>
+                    <span><strong>{t("servicesPage.tier1.f3_bold")}</strong> {t("servicesPage.tier1.f3_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Tối ưu tốc độ:</strong> Trải nghiệm lướt mượt mà như một App thực thụ.</span>
+                    <span><strong>{t("servicesPage.tier1.f4_bold")}</strong> {t("servicesPage.tier1.f4_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Thời hạn 12 tháng:</strong> Gia hạn hoặc đóng tự do, không ràng buộc.</span>
+                    <span><strong>{t("servicesPage.tier1.f5_bold")}</strong> {t("servicesPage.tier1.f5_text")}</span>
                   </li>
                 </ul>
               </div>
             </div>
 
             <div className="space-y-4 pt-8 relative z-10">
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed bg-slate-50 dark:bg-white/5 p-2.5 rounded-lg border border-slate-100 dark:border-white/5 text-left">
-                * Hệ thống sẽ tự động xét duyệt. Mỗi sinh viên nhận 1 suất tài trợ trọn gói.
-              </p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed bg-slate-50 dark:bg-white/5 p-2.5 rounded-lg border border-slate-100 dark:border-white/5 text-left">{t("servicesPage.tier1.note")}</p>
               <Link 
                 to="/student-benefits"
                 onClick={playPopSound}
                 className="w-full inline-flex justify-center items-center py-3.5 rounded-full border border-slate-300 dark:border-white/30 hover:border-slate-800 dark:hover:border-white text-slate-700 dark:text-slate-200 dark:hover:text-white font-bold text-xs hover:scale-[1.01] active:scale-98 transition-all duration-200 text-center dark:bg-white/5 hover:dark:bg-white/10"
               >
-                KÍCH HOẠT ĐẶC QUYỀN
+                {t("servicesPage.tier1.btn")}
               </Link>
             </div>
           </div>
@@ -122,20 +112,16 @@ export default function ServicesPage() {
             {/* Top Badge */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
               <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-primary text-white shadow-md flex items-center gap-1 whitespace-nowrap">
-                <span className="material-symbols-outlined text-[10px]">star</span>
-                Phổ biến nhất
-              </span>
+                <span className="material-symbols-outlined text-[10px]">star</span>{t("servicesPage.tier2.badge")}</span>
             </div>
             
             <div className="space-y-6">
               <div className="space-y-2 text-left">
-                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-primary/10 text-primary dark:text-[#a5b4fc] border border-primary/20">
-                  Cá Nhân & Doanh Nghiệp
-                </span>
-                <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">Signature Portfolio</h3>
+                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-primary/10 text-primary dark:text-[#a5b4fc] border border-primary/20">{t("servicesPage.tier2.subtitle")}</span>
+                <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">{t("servicesPage.tier2.title")}</h3>
                 <div className="space-y-1">
-                  <p className="text-xl font-black text-slate-800 dark:text-white">Thiết kế theo yêu cầu</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Báo giá tùy chỉnh theo quy mô dự án</p>
+                  <p className="text-xl font-black text-slate-800 dark:text-white">{t("servicesPage.tier2.for")}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{t("servicesPage.tier2.desc")}</p>
                 </div>
               </div>
 
@@ -143,47 +129,43 @@ export default function ServicesPage() {
                 <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-350">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Thiết kế độc bản hoàn toàn:</strong> Nói không với template có sẵn, kiến tạo giao diện mang bản sắc cá nhân.</span>
+                    <span><strong>{t("servicesPage.tier2.f1_bold")}</strong> {t("servicesPage.tier2.f1_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Trang riêng biệt (Landing Page):</strong> Bố cục nghệ thuật, tập trung tối đa vào thông điệp cốt lõi.</span>
+                    <span><strong>{t("servicesPage.tier2.f2_bold")}</strong> {t("servicesPage.tier2.f2_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Hồ sơ năng lực số:</strong> Tích hợp thông tin cá nhân, doanh nghiệp và kinh nghiệm làm việc trực quan.</span>
+                    <span><strong>{t("servicesPage.tier2.f3_bold")}</strong> {t("servicesPage.tier2.f3_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Công nghệ tối tân:</strong> Phát triển cho hiệu năng tải trang nhanh vượt trội.</span>
+                    <span><strong>{t("servicesPage.tier2.f4_bold")}</strong> {t("servicesPage.tier2.f4_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Đa phương tiện:</strong> Hỗ trợ hiển thị tối đa 15 hình ảnh sắc nét và 8 video chất lượng cao.</span>
+                    <span><strong>{t("servicesPage.tier2.f5_bold")}</strong> {t("servicesPage.tier2.f5_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Tối ưu SEO:</strong> Thiết kế cấu trúc thẻ chuẩn giúp website dễ dàng tiếp cận người dùng.</span>
+                    <span><strong>{t("servicesPage.tier2.f6_bold")}</strong> {t("servicesPage.tier2.f6_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Tương thích đa thiết bị:</strong> Hiển thị mượt mà trên Mobile, Tablet, Laptop và Desktop.</span>
+                    <span><strong>{t("servicesPage.tier2.f7_bold")}</strong> {t("servicesPage.tier2.f7_text")}</span>
                   </li>
                 </ul>
               </div>
             </div>
 
             <div className="space-y-4 pt-8 text-left">
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">
-                * Chưa bao gồm chi phí tên miền, hosting và các dịch vụ bên thứ 3.
-              </p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
               <Link 
                 to="/booking"
                 onClick={playPopSound}
                 className="w-full inline-flex justify-center items-center py-3.5 rounded-full bg-primary text-white font-bold text-xs hover:scale-[1.01] active:scale-98 transition-all duration-200 text-center shadow-lg shadow-primary/25"
-              >
-                TƯ VẤN NGAY
-              </Link>
+              >{t("servicesPage.tier2.btn")}</Link>
             </div>
           </div>
 
@@ -193,20 +175,16 @@ export default function ServicesPage() {
             {/* Top Badge */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
               <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-slate-900 dark:bg-white text-white dark:text-slate-950 border border-slate-200 dark:border-white/10 shadow-sm flex items-center gap-1 whitespace-nowrap">
-                <span className="material-symbols-outlined text-[10px]">business_center</span>
-                Doanh nghiệp
-              </span>
+                <span className="material-symbols-outlined text-[10px]">business_center</span>{t("servicesPage.tier3.badge")}</span>
             </div>
             
             <div className="space-y-6">
               <div className="space-y-2 text-left">
-                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5">
-                  Cửa Hàng & Doanh Nghiệp
-                </span>
-                <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">Ultimate Web App</h3>
+                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5">{t("servicesPage.tier3.subtitle")}</span>
+                <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">{t("servicesPage.tier3.title")}</h3>
                 <div className="space-y-1">
-                  <p className="text-xl font-black text-slate-800 dark:text-white">Hệ thống cao cấp</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Đo ni đóng giày cho mọi mô hình kinh doanh</p>
+                  <p className="text-xl font-black text-slate-800 dark:text-white">{t("servicesPage.tier3.for")}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{t("servicesPage.tier3.desc")}</p>
                 </div>
               </div>
 
@@ -214,47 +192,43 @@ export default function ServicesPage() {
                 <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-350">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Độc bản & Đẳng cấp:</strong> Giao diện tùy chỉnh 100% phù hợp hoàn hảo với nhận diện thương hiệu.</span>
+                    <span><strong>{t("servicesPage.tier3.f1_bold")}</strong> {t("servicesPage.tier3.f1_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Quản trị CMS chuyên sâu:</strong> Trang Dashboard Admin riêng bảo mật để dễ dàng tự quản lý nội dung.</span>
+                    <span><strong>{t("servicesPage.tier3.f2_bold")}</strong> {t("servicesPage.tier3.f2_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Quản lý sản phẩm & Giỏ hàng:</strong> Tích hợp kho hàng, thuộc tính sản phẩm và quy trình mua sắm.</span>
+                    <span><strong>{t("servicesPage.tier3.f3_bold")}</strong> {t("servicesPage.tier3.f3_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Cổng thanh toán tự động:</strong> Tích hợp quét mã QR ngân hàng, chuyển khoản, ví điện tử Momo/ZaloPay.</span>
+                    <span><strong>{t("servicesPage.tier3.f4_bold")}</strong> {t("servicesPage.tier3.f4_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Form Booking & Liên hệ:</strong> Thu thập thông tin khách hàng và gửi thông báo trực tiếp qua Telegram/Email.</span>
+                    <span><strong>{t("servicesPage.tier3.f5_bold")}</strong> {t("servicesPage.tier3.f5_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Báo cáo & Phân tích:</strong> Theo dõi doanh số, số đơn hàng và lượng khách truy cập theo thời gian thực.</span>
+                    <span><strong>{t("servicesPage.tier3.f6_bold")}</strong> {t("servicesPage.tier3.f6_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
-                    <span><strong>Hỗ trợ:</strong> Kỹ thuật, tối ưu và sao lưu cơ sở dữ liệu.</span>
+                    <span><strong>{t("servicesPage.tier3.f7_bold")}</strong> {t("servicesPage.tier3.f7_text")}</span>
                   </li>
                 </ul>
               </div>
             </div>
 
             <div className="space-y-4 pt-8 text-left">
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">
-                * Chưa bao gồm chi phí tên miền, hosting và các dịch vụ bên thứ 3.
-              </p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
               <Link 
                 to="/booking"
                 onClick={playPopSound}
                 className="w-full inline-flex justify-center items-center py-3.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-xs hover:scale-[1.01] active:scale-98 transition-all duration-200 text-center shadow-md"
-              >
-                TƯ VẤN NGAY
-              </Link>
+              >{t("servicesPage.tier2.btn")}</Link>
             </div>
           </div>
 
@@ -263,15 +237,9 @@ export default function ServicesPage() {
       {/* Strategic Partner Section */}
       <section className="mt-16 md:mt-24 text-center space-y-8 max-w-3xl mx-auto px-4">
         <div className="space-y-3">
-          <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">
-            Đối tác chiến lược
-          </span>
-          <h2 className="font-display text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">
-            Đối Tác Chiến Lược
-          </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Hugo Studio tự hào được đồng hành cùng đối tác công nghệ chiến lược, mang đến những trải nghiệm tối ưu nhất cho khách hàng.
-          </p>
+          <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">{t("servicesPage.partner.badge")}</span>
+          <h2 className="font-display text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">{t("servicesPage.partner.title")}</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{t("servicesPage.partner.desc")}</p>
         </div>
         
         <div className="flex justify-center items-center py-8">

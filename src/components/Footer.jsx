@@ -4,9 +4,11 @@ import { useData } from "../context/DataContext";
 import { playPopSound } from "../utils/audio";
 import logos from "./logos";
 import TrustpilotReviewWidget from "./TrustpilotReviewWidget";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
   const { data } = useData();
+  const { t } = useTranslation();
 
   const brandLetters = [
     { char: "H", color: "#EF4444" },
@@ -49,7 +51,7 @@ export default function Footer() {
             </Link>
             {/* Tagline — hidden on small mobile to save space */}
             <p className="hidden sm:block text-xs leading-relaxed text-slate-500 dark:text-slate-400 max-w-xs">
-              Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.
+              {t("footer.tagline", "Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.")}
             </p>
             {/* Contact row — compact on mobile */}
             <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
@@ -76,27 +78,27 @@ export default function Footer() {
           {/* Column 2: Services */}
           <div className="text-left">
             <div className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550">
-              Dịch vụ
+              {t("footer.services", "Dịch vụ")}
             </div>
             <ul className="space-y-2 text-xs font-medium">
               <li>
                 <Link to="/services" className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">
-                  Landing Page
+                  {t("footer.landingPage", "Landing Page")}
                 </Link>
               </li>
               <li>
                 <Link to="/services" className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">
-                  Portfolio Cá Nhân
+                  {t("footer.portfolio", "Portfolio Cá Nhân")}
                 </Link>
               </li>
               <li>
                 <Link to="/introduction" className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">
-                  Bio Link (edu)
+                  {t("footer.bioLink", "Bio Link (edu)")}
                 </Link>
               </li>
               <li>
                 <Link to="/booking" className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">
-                  UI/UX Theo Yêu Cầu
+                  {t("footer.customUIUX", "UI/UX Theo Yêu Cầu")}
                 </Link>
               </li>
             </ul>
@@ -105,20 +107,20 @@ export default function Footer() {
           {/* Column 3: Navigation */}
           <div className="text-left">
             <div className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550">
-              Đường dẫn
+              {t("footer.links", "Đường dẫn")}
             </div>
             <ul className="space-y-2 text-xs font-medium">
               <li>
-                <Link to="/" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Trang Chủ</Link>
+                <Link to="/" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">{t("footer.home", "Trang Chủ")}</Link>
               </li>
               <li>
-                <Link to="/introduction" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Giới Thiệu</Link>
+                <Link to="/introduction" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">{t("footer.introduction", "Giới Thiệu")}</Link>
               </li>
               <li>
-                <Link to="/services" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Bảng Giá</Link>
+                <Link to="/services" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">{t("footer.pricing", "Bảng Giá")}</Link>
               </li>
               <li>
-                <Link to="/booking" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">Đặt Lịch</Link>
+                <Link to="/booking" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">{t("footer.booking", "Đặt Lịch")}</Link>
               </li>
             </ul>
           </div>
@@ -126,7 +128,7 @@ export default function Footer() {
           {/* Column 4: Socials — hidden on small mobile, shown md+ OR as last item */}
           <div className="col-span-2 lg:col-span-1 text-left space-y-3">
             <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550">
-              Kết nối
+              {t("footer.connect", "Kết nối")}
             </div>
             <div className="flex flex-wrap gap-2">
               {/* GitHub */}
@@ -166,7 +168,7 @@ export default function Footer() {
             </div>
             {/* Partner Logo */}
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550 mb-2">Đối tác</div>
+              <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550 mb-2">{t("footer.partner", "Đối tác")}</div>
               <img 
                 src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png" 
                 alt="Partner Logo" 
@@ -200,7 +202,7 @@ export default function Footer() {
               to="/privacy-policy" 
               className="hover:text-slate-700 dark:hover:text-slate-350 hover:underline underline-offset-4 transition-colors font-medium"
             >
-              Chính sách bảo mật
+              {t("footer.privacyPolicy", "Chính sách bảo mật")}
             </Link>
           </div>
         </div>

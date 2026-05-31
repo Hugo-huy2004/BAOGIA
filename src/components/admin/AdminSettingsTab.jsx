@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, showNotification, handleLogout, uploadingAd, handleAdImageUpload, handleAdDelete }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Settings Grid */}
@@ -10,14 +12,14 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
         <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined text-rose-500 text-lg">admin_panel_settings</span>
-            Hệ Thống Trực Tuyến
+            {t("adminTabs.settings.onlineSys")}
           </h3>
 
           {/* Maintenance Mode */}
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">Bảo trì hệ thống</span>
-              <p className="text-[10px] text-slate-400 mt-1">Chặn truy cập khách ngoài</p>
+              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.maintenance")}</span>
+              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.maintenanceDesc")}</p>
             </div>
             <button
               type="button"
@@ -33,8 +35,8 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           {/* Vacation Mode */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">Chế độ Du Lịch</span>
-              <p className="text-[10px] text-slate-400 mt-1">Thông báo chủ tài khoản đi vắng</p>
+              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.vacation")}</span>
+              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.vacationDesc")}</p>
             </div>
             <button
               type="button"
@@ -52,14 +54,14 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
         <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-lg">toggle_on</span>
-            Tính Năng Nâng Cao
+            {t("adminTabs.settings.advanced")}
           </h3>
 
           {/* HBot */}
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">Trợ lý H-Bot AI</span>
-              <p className="text-[10px] text-slate-400 mt-1">Bật chat bot toàn trang</p>
+              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.aiBot")}</span>
+              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.aiBotDesc")}</p>
             </div>
             <button
               type="button"
@@ -75,8 +77,8 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           {/* Allow Registration */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">Cho phép Đăng Ký</span>
-              <p className="text-[10px] text-slate-400 mt-1">Mở cổng đăng ký Partner mới</p>
+              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.allowReg")}</span>
+              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.allowRegDesc")}</p>
             </div>
             <button
               type="button"
@@ -92,8 +94,8 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           {/* Allow Booking */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">Cho phép Booking</span>
-              <p className="text-[10px] text-slate-400 mt-1">Cho khách hàng tạo form đặt lịch hẹn</p>
+              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.allowBooking")}</span>
+              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.allowBookingDesc")}</p>
             </div>
             <button
               type="button"
@@ -112,9 +114,9 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-4">
         <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-2">
           <span className="material-symbols-outlined text-blue-500 text-lg">search</span>
-          Cấu hình SEO Tổng Hệ Thống
+          {t("admin.texts.txt_1")}
         </h3>
-        <p className="text-[10px] text-slate-450 mb-4">Các giá trị mặc định cho công cụ tìm kiếm Google khi thẻ Meta chưa được định nghĩa.</p>
+        <p className="text-[10px] text-slate-450 mb-4">{t("adminTabs.settings.seoDesc")}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -150,12 +152,12 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
         <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-base">campaign</span>
-          Quản lý Quảng Cáo Popup (Ad Banner)
+          {t("admin.texts.txt_2")}
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start border-t border-slate-100 dark:border-slate-800/60 pt-6">
           <div className="md:col-span-5 space-y-4">
-            <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Ảnh quảng cáo:</span>
+            <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.settings.adImage")}</span>
             
             {data?.advertisement?.imageUrl ? (
               <div className="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800/80 p-2">
@@ -173,18 +175,18 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
             ) : (
               <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/10">
                 <span className="material-symbols-outlined text-3xl">upload_file</span>
-                <span className="text-[10px] font-semibold mt-2">Tải ảnh (JPEG/PNG)</span>
+                <span className="text-[10px] font-semibold mt-2">{t("adminTabs.settings.adUpload")}</span>
                 <input type="file" accept="image/*" className="hidden" onChange={handleAdImageUpload} disabled={uploadingAd} />
               </label>
             )}
-            {uploadingAd && <div className="text-xs font-bold text-center text-primary mt-2">Đang tải lên...</div>}
+            {uploadingAd && <div className="text-xs font-bold text-center text-primary mt-2">{t("adminTabs.settings.adUploading")}</div>}
           </div>
 
           <div className="md:col-span-7 space-y-5">
             <div className="space-y-1">
-              <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Trạng Thái:</span>
+              <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.settings.adStatus")}</span>
               <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800/80">
-                <span className="font-semibold text-xs text-slate-855 dark:text-slate-350">Hiển thị quảng cáo</span>
+                <span className="font-semibold text-xs text-slate-855 dark:text-slate-350">{t("adminTabs.settings.adShow")}</span>
                 <button
                   type="button"
                   disabled={!data?.advertisement?.imageUrl}
@@ -208,7 +210,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
                   onChange={(e) => updateAdvertisement({ linkUrl: e.target.value })}
                   className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 focus:ring-1 focus:ring-primary"
                 />
-                <button onClick={() => showNotification("Đã lưu liên kết! 💾")} className="px-5 bg-primary text-white text-xs font-bold rounded-xl">Lưu Link</button>
+                <button onClick={() => showNotification(t("admin.texts.txt_3"))} className="px-5 bg-primary text-white text-xs font-bold rounded-xl">{t("adminTabs.settings.adSave")}</button>
               </div>
             </div>
           </div>
@@ -218,7 +220,9 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       <div className="pt-4 flex justify-end">
         <button onClick={handleLogout} className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-3.5 px-6 rounded-xl transition-all shadow-md active:scale-95">
           <span className="material-symbols-outlined text-base">logout</span>
-          <span>Đăng Xuất Tài Khoản Admin</span>
+          <span>
+              {t("adminTabs.settings.logout")}
+            </span>
         </button>
       </div>
     </div>

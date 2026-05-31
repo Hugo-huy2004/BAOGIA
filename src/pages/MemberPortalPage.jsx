@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { getMemberSession, logoutAuth } from "../services/authSession";
 import dataApi from "../services/dataApi";
@@ -115,29 +116,27 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
           <div className="space-y-1.5">
             <div className="flex items-center gap-1.5 text-white/60 font-black uppercase text-[9px] tracking-[0.25em]">
               <span className="material-symbols-outlined text-xs">workspace_premium</span>
-              {isBasePackage ? "GÓI CƠ BẢN" : "GÓI KHUYẾN MÃI"}
+              {isBasePackage ? t("memberPortal.package.base") : t("memberPortal.package.promo")}
             </div>
             <h3 className="text-xl sm:text-2xl font-black tracking-tight uppercase bg-gradient-to-r from-white via-zinc-150 to-zinc-400 bg-clip-text text-transparent">{name}</h3>
           </div>
 
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-white">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Đang hoạt động
-          </div>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />{t("memberPortal.package.activeStatus")}</div>
         </div>
 
         <div className="space-y-3 relative z-10 mt-auto">
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div className="text-xs sm:text-sm font-semibold flex items-center gap-4 sm:gap-6">
               <div>
-                <span className="text-[8px] sm:text-[9px] block text-white/50 font-bold uppercase tracking-wider mb-0.5">Ngày bắt đầu</span>
+                <span className="text-[8px] sm:text-[9px] block text-white/50 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.startDate")}</span>
                 <span className="text-xs sm:text-sm font-mono text-zinc-150">{startLabel}</span>
               </div>
               {expiresLabel && (
                 <>
                   <div className="w-[1px] h-6 bg-white/10" />
                   <div>
-                    <span className="text-[8px] sm:text-[9px] block text-white/50 font-bold uppercase tracking-wider mb-0.5">Hạn dùng Bio</span>
+                    <span className="text-[8px] sm:text-[9px] block text-white/50 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.bioDuration")}</span>
                     <span className="text-red-300 font-bold text-xs sm:text-sm font-mono">{expiresLabel}</span>
                   </div>
                 </>
@@ -146,7 +145,7 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
                 <>
                   <div className="w-[1px] h-6 bg-white/10" />
                   <div>
-                    <span className="text-[8px] sm:text-[9px] block text-white/50 font-bold uppercase tracking-wider mb-0.5">Thời hạn cộng thêm</span>
+                    <span className="text-[8px] sm:text-[9px] block text-white/50 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.addedDuration")}</span>
                     <span className="text-white font-bold text-xs sm:text-sm font-mono">+{duration} {durationUnit === "days" ? "ngày" : durationUnit === "years" ? "năm" : "tháng"}</span>
                   </div>
                 </>
@@ -172,10 +171,8 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
         <div className="bg-zinc-50 dark:bg-[#181622]/40 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 p-6 space-y-4">
           <div className="space-y-0.5">
             <h4 className="text-[11px] sm:text-xs font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm" style={{ color }}>verified_user</span>
-              Quyền lợi gói dịch vụ
-            </h4>
-            <p className="text-[9px] sm:text-[10px] text-zinc-400">Xem các quyền lợi độc quyền đi kèm gói này.</p>
+              <span className="material-symbols-outlined text-sm" style={{ color }}>verified_user</span>{t("memberPortal.package.benefitsTitle")}</h4>
+            <p className="text-[9px] sm:text-[10px] text-zinc-400">{t("memberPortal.package.benefitsDesc")}</p>
           </div>
 
           {formattedBenefits.length > 0 ? (
@@ -188,7 +185,7 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
               ))}
             </div>
           ) : (
-            <p className="text-[10px] text-zinc-450 italic py-2">Gói này không đi kèm danh sách quyền lợi chi tiết.</p>
+            <p className="text-[10px] text-zinc-450 italic py-2">{t("memberPortal.package.noDetails")}</p>
           )}
         </div>
       </div>
@@ -197,6 +194,13 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
 }
 
 export default function MemberPortalPage() {
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith("vi") ? "en" : "vi";
+    i18n.changeLanguage(newLang);
+  };
+
   const memberSession = getMemberSession();
   const [bio, setBio] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -364,23 +368,23 @@ export default function MemberPortalPage() {
           } else {
             const defaultGuest = {
               displayName: "HUGO STUDIO PARTNER GUEST",
-              headline: "THIẾT KẾ BIO PHONG CÁCH BENTO",
-              bio: "Chào mừng bạn! Hãy chỉnh sửa thông tin ở cột trái và xem giao diện thay đổi thời gian thực ở chiếc điện thoại bên phải nhé.",
+              headline: t("memberPortal.guest.headline"),
+              bio: t("memberPortal.guest.bio"),
               birthday: "19/05/2026",
               phone: "0999.888.777",
               hobbies: "Design, Code, Coffee, Music",
               height: "1m75",
               weight: "65kg",
               measurements: "90-60-90",
-              address: "TP. Hồ Chí Minh",
-              education: "Đại học Kiến trúc",
+              address: t("memberPortal.guest.address"),
+              education: t("memberPortal.guest.education"),
               skills: "Figma, React, UI/UX",
               jobTitle: "UI/UX Designer",
               contactEmail: "hello@hugostudio.vn",
               avatarUrl: "",
               links: [
                 { label: "Instagram", url: "https://instagram.com" },
-                { label: "Facebook cá nhân", url: "https://facebook.com" }
+                { label: t("memberPortal.guest.fb"), url: "https://facebook.com" }
               ],
               theme: {
                 bgColor: "#0f172a",
@@ -453,7 +457,7 @@ export default function MemberPortalPage() {
         }
       } catch (error) {
         console.error(error);
-        showToast("Không thể tải thông tin Bio.", "error");
+        showToast(t("memberPortal.toast.loadError"), "error");
       } finally {
         setLoading(false);
       }
@@ -502,7 +506,7 @@ export default function MemberPortalPage() {
     if (!file) return;
 
     if (file.size > 20 * 1024 * 1024) {
-      showToast("Kích thước ảnh quá lớn (tối đa 20MB).", "warning");
+      showToast(t("memberPortal.toast.largeImage"), "warning");
       return;
     }
 
@@ -594,13 +598,13 @@ export default function MemberPortalPage() {
       const compressedBase64 = canvas.toDataURL("image/webp", 0.9);
       setFormData((prev) => ({ ...prev, avatarUrl: compressedBase64 }));
       setCropModal({ isOpen: false, imageSrc: null, zoom: 1, aspect: 1, offset: { x: 0, y: 0 } });
-      showToast("Cắt ảnh đại diện thành công!", "success");
+      showToast(t("memberPortal.toast.cropSuccess"), "success");
     };
   };
 
   const handleRemoveAvatar = () => {
     setFormData((prev) => ({ ...prev, avatarUrl: "" }));
-    showToast("Đã gỡ bỏ ảnh đại diện tạm thời.", "success");
+    showToast(t("memberPortal.toast.avatarRemovedTemp"), "success");
   };
 
   const handleFieldChange = (e) => {
@@ -608,7 +612,7 @@ export default function MemberPortalPage() {
     if (name === "bio") {
       const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
       if (wordCount > 110) {
-        showToast("Giới hạn mô tả bản thân dưới 110 chữ.", "warning");
+        showToast(t("memberPortal.toast.descLimit"), "warning");
         return;
       }
     }
@@ -622,11 +626,11 @@ export default function MemberPortalPage() {
   // Social Links Handlers (Manual Save)
   const addSocialLink = async () => {
     if (formData.links.length >= 5) {
-      showToast("Chỉ cho phép thêm tối đa 5 liên kết.", "warning");
+      showToast(t("memberPortal.toast.linkLimit"), "warning");
       return;
     }
     if (!newLinkLabel.trim() || !newLinkUrl.trim()) {
-      showToast("Vui lòng nhập tên nhãn và đường dẫn liên kết.", "warning");
+      showToast(t("memberPortal.toast.linkEmpty"), "warning");
       return;
     }
 
@@ -643,9 +647,9 @@ export default function MemberPortalPage() {
       const updatedBio = { ...formData, links: updatedLinks };
       setBio(updatedBio);
       localStorage.setItem("hugo_guest_bio", JSON.stringify(updatedBio));
-      showToast("Đã thêm liên kết đối tác tạm thời!", "success");
+      showToast(t("memberPortal.toast.partnerLinkAdded"), "success");
     } else {
-      showToast("Đã thêm liên kết tạm thời (nhấp Lưu Thông Tin để cập nhật).", "success");
+      showToast(t("memberPortal.toast.linkAdded"), "success");
     }
   };
 
@@ -660,9 +664,9 @@ export default function MemberPortalPage() {
       const updatedBio = { ...formData, links: updatedLinks };
       setBio(updatedBio);
       localStorage.setItem("hugo_guest_bio", JSON.stringify(updatedBio));
-      showToast("Đã xóa liên kết đối tác tạm thời!", "success");
+      showToast(t("memberPortal.toast.partnerLinkDeleted"), "success");
     } else {
-      showToast("Đã xóa liên kết tạm thời (nhấp Lưu Thông Tin để cập nhật).", "success");
+      showToast(t("memberPortal.toast.linkDeleted"), "success");
     }
   };
 
@@ -688,7 +692,7 @@ export default function MemberPortalPage() {
     if (formData.bio) {
       const wordCount = formData.bio.trim().split(/\s+/).filter(Boolean).length;
       if (wordCount > 110) {
-        showToast("Mô tả bản thân không được vượt quá 110 chữ.", "error");
+        showToast(t("memberPortal.toast.descLimitExceeded"), "error");
         return;
       }
     }
@@ -698,22 +702,22 @@ export default function MemberPortalPage() {
       if (isGuestMode) {
         setBio(formData);
         localStorage.setItem("hugo_guest_bio", JSON.stringify(formData));
-        showToast("Lưu cài đặt Bio Đối tác thành công! 🌐", "success");
+        showToast(t("memberPortal.toast.partnerSaveSuccess"), "success");
       } else if (bio?._id) {
         const response = await dataApi.updateMemberBio(bio._id, formData);
         setBio(response.bio);
-        showToast("Lưu cài đặt Bio thành công!", "success");
+        showToast(t("memberPortal.toast.saveSuccess"), "success");
       } else {
         const response = await dataApi.createMemberBio({
           ...formData,
           email: memberSession.email
         });
         setBio(response.bio);
-        showToast("Kích hoạt Bio Link thành công!", "success");
+        showToast(t("memberPortal.toast.activateSuccess"), "success");
       }
     } catch (error) {
       console.error(error);
-      showToast(error.message || "Lỗi hệ thống khi lưu thông tin.", "error");
+      showToast(error.message || t("memberPortal.toast.saveError"), "error");
     } finally {
       setSaving(false);
     }
@@ -721,7 +725,7 @@ export default function MemberPortalPage() {
 
   const handleDeleteBio = () => {
     if (isGuestMode) {
-      triggerConfirm("Xác nhận xóa hoàn toàn thiết kế Bio đối tác hiện tại?", () => {
+      triggerConfirm(t("memberPortal.confirm.deletePartner"), () => {
         localStorage.removeItem("hugo_guest_bio");
         setBio(null);
         setFormData({
@@ -754,13 +758,13 @@ export default function MemberPortalPage() {
           },
           tabs: []
         });
-        showToast("Đã xóa sạch dữ liệu thiết kế cục bộ.", "success");
+        showToast(t("memberPortal.toast.deleteLocalSuccess"), "success");
       });
       return;
     }
 
     if (!bio?._id) return;
-    triggerConfirm("Xác nhận xóa hoàn toàn Bio cá nhân? Thao tác này không thể hoàn tác.", async () => {
+    triggerConfirm(t("memberPortal.confirm.deletePersonal"), async () => {
       setSaving(true);
       try {
         await dataApi.deleteMemberBio(bio._id);
@@ -790,11 +794,11 @@ export default function MemberPortalPage() {
           },
           tabs: []
         });
-        showToast("Đã gỡ bỏ Bio Link cá nhân của bạn.", "success");
+        showToast(t("memberPortal.toast.deletePersonalSuccess"), "success");
         setActiveTab("account");
       } catch (error) {
         console.error(error);
-        showToast("Không gỡ bỏ được Bio.", "error");
+        showToast(t("memberPortal.toast.deletePersonalError"), "error");
       } finally {
         setSaving(false);
       }
@@ -804,7 +808,7 @@ export default function MemberPortalPage() {
   const handleCopyLink = async () => {
     if (!publicLink) return;
     await navigator.clipboard.writeText(publicLink);
-    showToast("Đã sao chép liên kết vào bộ nhớ tạm.", "success");
+    showToast(t("memberPortal.toast.copySuccess"), "success");
   };
 
   const handleRedeemCode = async (giftCode) => {
@@ -814,10 +818,10 @@ export default function MemberPortalPage() {
       const res = await dataApi.redeemGiftCode(memberSession.email, giftCode);
       if (res.bio) {
         setBio(res.bio);
-        showToast(res.message || "Bạn đã nhận được gói quà tặng thành công!", "success");
+        showToast(res.message || t("memberPortal.toast.giftSuccess"), "success");
       }
     } catch (err) {
-      showToast(err.message || "Lỗi khi đổi mã quà tặng.", "error");
+      showToast(err.message || t("memberPortal.toast.giftError"), "error");
     } finally {
       setSaving(false);
     }
@@ -839,7 +843,7 @@ export default function MemberPortalPage() {
       <div className="min-h-[60vh] flex items-center justify-center bg-[#f5f5f7] dark:bg-[#000000]">
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-3 border-[#0071e3] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-[10px] text-zinc-450 font-bold uppercase tracking-widest">Đang tải cấu hình Portal...</p>
+          <p className="text-[10px] text-zinc-450 font-bold uppercase tracking-widest">{t("memberPortal.loadingConfig")}</p>
         </div>
       </div>
     );
@@ -847,6 +851,7 @@ export default function MemberPortalPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] font-body selection:bg-[#0071e3]/20 transition-colors duration-300">
+      <button onClick={toggleLanguage} className="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex h-9 w-12 items-center justify-center rounded-full bg-slate-200/80 dark:bg-[#1f1929]/80 backdrop-blur shadow-sm text-[11px] font-bold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-300 dark:hover:bg-[#2d253b] transition-all">{i18n.language.startsWith("en") ? "EN" : "VI"}</button>
 
 
       {/* Toast Alert */}
@@ -880,20 +885,18 @@ export default function MemberPortalPage() {
           <div className="flex justify-between items-start w-full md:w-auto">
             <div className="space-y-1 text-left">
               <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#0071e3] dark:text-[#0a84ff] block">
-                {isGuestMode ? "CHẾ ĐỘ ĐỐI TÁC" : "BẢNG ĐIỀU KHIỂN SINH VIÊN"}
+                {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
               </span>
               <h1 className="text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-black dark:text-white line-clamp-2">
-                {isGuestMode ? "Thiết Kế Bio Link Của Bạn" : `Chào, ${memberSession?.displayName || "Bạn học"}`}
+                {isGuestMode ? t("memberPortal.designYourBio") : `${t("memberPortal.greeting")}, ${memberSession?.displayName || t("memberPortal.student")}`}
               </h1>
               <div className="text-[9px] sm:text-xs text-zinc-500 dark:text-zinc-400 flex flex-col sm:flex-row sm:items-center justify-start gap-1 mt-1 sm:mt-0.5">
                 {isGuestMode ? (
                   <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-[8px] sm:text-[9px] bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 px-2 py-0.5 rounded-full">
-                    <span className="material-symbols-outlined text-[10px] animate-pulse">local_activity</span>
-                    Lưu trữ trực tiếp trên thiết bị của bạn
-                  </span>
+                    <span className="material-symbols-outlined text-[10px] animate-pulse">local_activity</span>{t("memberPortal.bio.localSave")}</span>
                 ) : (
                   <p className="flex flex-col sm:flex-row sm:items-center gap-1">
-                    <span className="hidden sm:inline">Hồ sơ học thuật:</span>
+                    <span className="hidden sm:inline">{t("memberPortal.academicProfile")}:</span>
                     <strong className="text-zinc-700 dark:text-zinc-200 break-all text-[9px] sm:text-xs">{memberSession?.email}</strong>
                   </p>
                 )}
@@ -906,7 +909,7 @@ export default function MemberPortalPage() {
                 type="button"
                 onClick={handleLogout}
                 className="md:hidden w-8 h-8 rounded-full border border-red-200/50 dark:border-red-950/40 bg-red-500/5 flex items-center justify-center text-red-500 hover:text-red-600 active:bg-red-500/10 active:scale-95 transition-all shadow-sm shrink-0"
-                title="Đăng xuất"
+                title={t("memberPortal.logout")}
               >
                 <span className="material-symbols-outlined text-sm">logout</span>
               </button>
@@ -936,32 +939,26 @@ export default function MemberPortalPage() {
                   onClick={() => setActiveTab("account")}
                   className={`w-1/4 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 ${activeTab === "account" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
                     }`}
-                >
-                  Hồ sơ Bio
-                </button>
+                >{t("memberPortal.tabs.bio")}</button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("manage")}
                   className={`w-1/4 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 ${activeTab === "manage" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
                     }`}
-                >
-                  Gói dịch vụ
-                </button>
+                >{t("memberPortal.tabs.package")}</button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("partner")}
                   className={`w-1/4 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 ${activeTab === "partner" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
                     }`}
-                >
-                  Đối tác
-                </button>
+                >{t("memberPortal.tabs.partner")}</button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("history")}
                   className={`w-1/4 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 flex items-center justify-center gap-1.5 ${activeTab === "history" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
                     }`}
                 >
-                  <span>Lịch sử</span>
+                  <span>{t("memberPortal.tabs.history")}</span>
                   {unreadHistoryCount > 0 && (
                     <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-sm animate-bounce-short">
                       {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
@@ -977,7 +974,7 @@ export default function MemberPortalPage() {
                 className="hidden md:flex px-4 py-2 rounded-full border border-red-200 dark:border-red-900/30 bg-red-500/5 hover:bg-red-500/10 text-red-500 hover:text-red-600 dark:hover:text-red-400 items-center justify-center gap-1.5 text-[9px] sm:text-[11px] font-bold uppercase tracking-wider transition-all duration-200 shadow-sm shrink-0"
               >
                 <span className="material-symbols-outlined text-xs sm:text-sm">logout</span>
-                <span>Đăng xuất</span>
+                <span>{t("memberPortal.logout")}</span>
               </button>
             </div>
           )}
@@ -993,13 +990,13 @@ export default function MemberPortalPage() {
               {/* Local Sub-tabs Navigation Menu */}
               <div className="md:col-span-3 flex md:flex-col overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 gap-1.5 sticky top-20 z-20 scrollbar-none p-1 md:p-0">
                 {[
-                  { id: "profile", label: "Cá nhân", icon: "person" },
-                  { id: "design", label: "Giao diện", icon: "palette" },
-                  { id: "links", label: "Liên kết", icon: "link" },
-                  { id: "projects", label: "Dự án", icon: "folder_special" },
-                  { id: "services", label: "Dịch vụ", icon: "storefront" },
-                  { id: "career", label: "Sự nghiệp", icon: "school" },
-                  { id: "body", label: "Hình thể", icon: "straighten" }
+                  { id: "profile", label: t("memberPortal.sidebar.personal"), icon: "person" },
+                  { id: "design", label: t("memberPortal.sidebar.theme"), icon: "palette" },
+                  { id: "links", label: t("memberPortal.sidebar.links"), icon: "link" },
+                  { id: "projects", label: t("memberPortal.sidebar.projects"), icon: "folder_special" },
+                  { id: "services", label: t("memberPortal.sidebar.services"), icon: "storefront" },
+                  { id: "career", label: t("memberPortal.sidebar.career"), icon: "school" },
+                  { id: "body", label: t("memberPortal.sidebar.physical"), icon: "straighten" }
                 ].map((tab) => {
                   const isActive = accountSubTab === tab.id;
                   return (
@@ -1063,7 +1060,7 @@ export default function MemberPortalPage() {
                           ) : (
                             <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold z-20">
                               <span className="material-symbols-outlined text-sm">photo_camera</span>
-                              <span>THAY ẢNH</span>
+                              <span>{t("memberPortal.bio.changeAvatar")}</span>
                             </div>
                           )}
                         </div>
@@ -1076,40 +1073,36 @@ export default function MemberPortalPage() {
                           disabled={saving}
                         />
                         <div className="space-y-1">
-                          <p className="text-[10px] text-zinc-450 dark:text-zinc-400 font-bold uppercase tracking-wider">Ảnh Đại Diện Bio</p>
-                          <p className="text-[8px] text-zinc-400">Được tự động nén nhẹ tối ưu dung lượng trước khi tải lên Cloudinary</p>
+                          <p className="text-[10px] text-zinc-450 dark:text-zinc-400 font-bold uppercase tracking-wider">{t("memberPortal.bio.avatarTitle")}</p>
+                          <p className="text-[8px] text-zinc-400">{t("memberPortal.bio.avatarDesc")}</p>
                           {formData.avatarUrl && (
                             <button
                               type="button"
                               onClick={handleRemoveAvatar}
                               disabled={saving}
                               className="text-[9px] font-bold text-red-500 hover:text-red-650 transition-colors disabled:opacity-50"
-                            >
-                              Gỡ bỏ ảnh
-                            </button>
+                            >{t("memberPortal.bio.removeAvatar")}</button>
                           )}
                         </div>
                       </div>
 
                       {/* Section A: Basic settings */}
                       <div className="space-y-2">
-                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">THÔNG TIN CƠ BẢN</h3>
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.basicInfo")}</h3>
                         <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                           {/* Display name */}
                           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
                               <span className="material-symbols-outlined text-base">person</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Họ và Tên
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.fullName")}</label>
                             <input
                               type="text"
                               name="displayName"
                               value={formData.displayName}
                               onChange={handleFieldChange}
                               required
-                              placeholder="Họ tên của bạn..."
+                              placeholder={t("memberPortal.bio.placeholderName")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1119,9 +1112,7 @@ export default function MemberPortalPage() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#30b0c7]">
                               <span className="material-symbols-outlined text-base">badge</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Biệt danh
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.nickname")}</label>
                             <input
                               type="text"
                               name="headline"
@@ -1137,15 +1128,13 @@ export default function MemberPortalPage() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff2d55]">
                               <span className="material-symbols-outlined text-base">cake</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Sinh Nhật
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.birthday")}</label>
                             <input
                               type="text"
                               name="birthday"
                               value={formData.birthday}
                               onChange={handleFieldChange}
-                              placeholder="Ví dụ: 20/10/2004..."
+                              placeholder={t("memberPortal.bio.placeholderBirthday")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1154,7 +1143,7 @@ export default function MemberPortalPage() {
 
                       {/* Section B: Contact settings */}
                       <div className="space-y-2">
-                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">THÔNG TIN LIÊN HỆ</h3>
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.contactInfo")}</h3>
                         <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                           {/* Read-only email */}
                           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px] bg-zinc-50/50 dark:bg-zinc-900/10">
@@ -1180,15 +1169,13 @@ export default function MemberPortalPage() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
                               <span className="material-symbols-outlined text-base">phone</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Số điện thoại
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.phone")}</label>
                             <input
                               type="tel"
                               name="phone"
                               value={formData.phone}
                               onChange={handleFieldChange}
-                              placeholder="Số điện thoại dùng liên hệ..."
+                              placeholder={t("memberPortal.bio.placeholderPhone")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1198,15 +1185,13 @@ export default function MemberPortalPage() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
                               <span className="material-symbols-outlined text-base">alternate_email</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Email liên hệ
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.email")}</label>
                             <input
                               type="email"
                               name="contactEmail"
                               value={formData.contactEmail}
                               onChange={handleFieldChange}
-                              placeholder="Email hợp tác/công việc..."
+                              placeholder={t("memberPortal.bio.placeholderEmail")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1220,7 +1205,7 @@ export default function MemberPortalPage() {
                     <div className="space-y-4 animate-fadeIn">
                       {/* Section: Select Template Style */}
                       <div className="space-y-2">
-                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">PHONG CÁCH GIAO DIỆN (STYLE TEMPLATE)</h3>
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.design.title")}</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <button
                             type="button"
@@ -1237,10 +1222,8 @@ export default function MemberPortalPage() {
                                 <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
                               )}
                             </div>
-                            <h4 className="text-[11px] font-bold mt-2">Classic (Mặc định)</h4>
-                            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
-                              Bố cục cuộn trang snap mượt mà, hiệu ứng bóng mờ sang trọng.
-                            </p>
+                            <h4 className="text-[11px] font-bold mt-2">{t("memberPortal.design.classicTitle")}</h4>
+                            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">{t("memberPortal.design.classicDesc")}</p>
                           </button>
 
                           <button
@@ -1259,9 +1242,7 @@ export default function MemberPortalPage() {
                               )}
                             </div>
                             <h4 className="text-[11px] font-bold mt-2 text-red-500 dark:text-red-400">Brutalism</h4>
-                            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
-                              Phá quy tắc với màu chói, viền đen dày thô, bóng phẳng đổ khối đậm.
-                            </p>
+                            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">{t("memberPortal.design.brutalismDesc")}</p>
                           </button>
 
                           <button
@@ -1279,10 +1260,8 @@ export default function MemberPortalPage() {
                                 <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
                               )}
                             </div>
-                            <h4 className="text-[11px] font-bold mt-2 text-teal-650 dark:text-teal-400">Flat (Phẳng)</h4>
-                            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">
-                              Không đổ bóng, không 3D/gradient, dùng khối 2D phẳng và màu tươi sáng.
-                            </p>
+                            <h4 className="text-[11px] font-bold mt-2 text-teal-650 dark:text-teal-400">{t("memberPortal.design.flatTitle")}</h4>
+                            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">{t("memberPortal.design.flatDesc")}</p>
                           </button>
                         </div>
                       </div>
@@ -1295,8 +1274,8 @@ export default function MemberPortalPage() {
                       {/* Section D: Social Network Links */}
                       <div className="space-y-2">
                         <div className="flex justify-between items-center px-4">
-                          <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">LIÊN KẾT MẠNG XÃ HỘI</h3>
-                          <span className="text-[8px] font-semibold text-zinc-400">Tự động lưu khi thêm/xóa</span>
+                          <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">{t("memberPortal.links.title")}</h3>
+                          <span className="text-[8px] font-semibold text-zinc-400">{t("memberPortal.links.autoSave")}</span>
                         </div>
 
                         <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-4">
@@ -1327,7 +1306,7 @@ export default function MemberPortalPage() {
                           ) : (
                             <div className="text-center py-6 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
                               <span className="material-symbols-outlined text-2xl text-zinc-300">link_off</span>
-                              <p className="text-[11px] italic text-zinc-400 mt-1">Chưa có liên kết xã hội nào.</p>
+                              <p className="text-[11px] italic text-zinc-400 mt-1">{t("memberPortal.links.empty")}</p>
                             </div>
                           )}
 
@@ -1335,24 +1314,24 @@ export default function MemberPortalPage() {
                           <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/50 space-y-3">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="space-y-1">
-                                <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">Nhãn liên kết</label>
+                                <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">{t("memberPortal.links.label")}</label>
                                 <input
                                   type="text"
                                   value={newLinkLabel}
                                   onKeyDown={handleLinkInputKeyDown}
                                   onChange={(e) => setNewLinkLabel(e.target.value)}
-                                  placeholder="Ví dụ: Facebook, Github..."
+                                  placeholder={t("memberPortal.links.placeholderLabel")}
                                   className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">Địa chỉ URL</label>
+                                <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">{t("memberPortal.links.url")}</label>
                                 <input
                                   type="text"
                                   value={newLinkUrl}
                                   onKeyDown={handleLinkInputKeyDown}
                                   onChange={(e) => setNewLinkUrl(e.target.value)}
-                                  placeholder="Ví dụ: https://facebook.com/..."
+                                  placeholder={t("memberPortal.links.placeholderUrl")}
                                   className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
                                 />
                               </div>
@@ -1362,9 +1341,7 @@ export default function MemberPortalPage() {
                               onClick={addSocialLink}
                               className="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1 shadow-sm"
                             >
-                              <span className="material-symbols-outlined text-sm">add</span>
-                              Thêm liên kết
-                            </button>
+                              <span className="material-symbols-outlined text-sm">add</span>{t("memberPortal.links.addLink")}</button>
                           </div>
                         </div>
                       </div>
@@ -1400,22 +1377,20 @@ export default function MemberPortalPage() {
                     <div className="space-y-4 animate-fadeIn">
                       {/* Section C: Portfolio & Education */}
                       <div className="space-y-2">
-                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">HỌC VẤN & SỰ NGHIỆP</h3>
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.career.title")}</h3>
                         <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                           {/* Job Title */}
                           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#af52de]">
                               <span className="material-symbols-outlined text-base">work</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Vai trò / Công việc
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.role")}</label>
                             <input
                               type="text"
                               name="jobTitle"
                               value={formData.jobTitle}
                               onChange={handleFieldChange}
-                              placeholder="Ví dụ: Photographer, UI/UX Designer..."
+                              placeholder={t("memberPortal.career.placeholderRole")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1425,15 +1400,13 @@ export default function MemberPortalPage() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff9500]">
                               <span className="material-symbols-outlined text-base">school</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Học vấn / Trường học
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.education")}</label>
                             <input
                               type="text"
                               name="education"
                               value={formData.education}
                               onChange={handleFieldChange}
-                              placeholder="Ví dụ: Đại học Ngoại Thương..."
+                              placeholder={t("memberPortal.career.placeholderEdu")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1443,15 +1416,13 @@ export default function MemberPortalPage() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
                               <span className="material-symbols-outlined text-base">psychology</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Kỹ năng chuyên môn
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.skills")}</label>
                             <input
                               type="text"
                               name="skills"
                               value={formData.skills}
                               onChange={handleFieldChange}
-                              placeholder="Ví dụ: Photoshop, React, Figma..."
+                              placeholder={t("memberPortal.career.placeholderSkills")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1465,22 +1436,20 @@ export default function MemberPortalPage() {
                     <div className="space-y-4 animate-fadeIn">
                       {/* Section D: Body Measurements & Location */}
                       <div className="space-y-2">
-                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">HÌNH THỂ & ĐỊA ĐIỂM</h3>
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.physical.title")}</h3>
                         <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                           {/* Height */}
                           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
                               <span className="material-symbols-outlined text-base">height</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Chiều cao
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.height")}</label>
                             <input
                               type="text"
                               name="height"
                               value={formData.height}
                               onChange={handleFieldChange}
-                              placeholder="Ví dụ: 1m75..."
+                              placeholder={t("memberPortal.physical.placeholderHeight")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1490,15 +1459,13 @@ export default function MemberPortalPage() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#4cd964]">
                               <span className="material-symbols-outlined text-base">monitor_weight</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Cân nặng
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.weight")}</label>
                             <input
                               type="text"
                               name="weight"
                               value={formData.weight}
                               onChange={handleFieldChange}
-                              placeholder="Ví dụ: 65kg..."
+                              placeholder={t("memberPortal.physical.placeholderWeight")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1508,15 +1475,13 @@ export default function MemberPortalPage() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
                               <span className="material-symbols-outlined text-base">straighten</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Số đo
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.measurements")}</label>
                             <input
                               type="text"
                               name="measurements"
                               value={formData.measurements}
                               onChange={handleFieldChange}
-                              placeholder="Ví dụ: 90-60-90..."
+                              placeholder={t("memberPortal.physical.placeholderMeasure")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1526,15 +1491,13 @@ export default function MemberPortalPage() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
                               <span className="material-symbols-outlined text-base">distance</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Khu vực
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.location")}</label>
                             <input
                               type="text"
                               name="address"
                               value={formData.address}
                               onChange={handleFieldChange}
-                              placeholder="Ví dụ: Quận 1, TP. HCM..."
+                              placeholder={t("memberPortal.physical.placeholderLocation")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1543,22 +1506,20 @@ export default function MemberPortalPage() {
 
                       {/* Section E: Biography and Hobbies */}
                       <div className="space-y-2">
-                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">THÔNG TIN KHÁC</h3>
+                        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.other.title")}</h3>
                         <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                           {/* Hobbies */}
                           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
                               <span className="material-symbols-outlined text-base">star</span>
                             </div>
-                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                              Sở thích
-                            </label>
+                            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.hobbies")}</label>
                             <input
                               type="text"
                               name="hobbies"
                               value={formData.hobbies}
                               onChange={handleFieldChange}
-                              placeholder="Cách bằng dấu phẩy: Lập Trình, Vẽ Tranh..."
+                              placeholder={t("memberPortal.other.placeholderHobbies")}
                               className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
                             />
                           </div>
@@ -1569,9 +1530,7 @@ export default function MemberPortalPage() {
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#8e8e93]">
                                 <span className="material-symbols-outlined text-base">edit_note</span>
                               </div>
-                              <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
-                                Mô tả
-                              </label>
+                              <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.desc")}</label>
                             </div>
                             <div className="flex-grow flex flex-col w-full">
                               <textarea
@@ -1579,7 +1538,7 @@ export default function MemberPortalPage() {
                                 name="bio"
                                 value={formData.bio}
                                 onChange={handleFieldChange}
-                                placeholder="Viết một vài dòng giới thiệu bản thân..."
+                                placeholder={t("memberPortal.other.placeholderDesc")}
                                 className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed mt-1 md:mt-0 overflow-hidden"
                               />
                               <div className="flex justify-end text-[9px] font-bold text-zinc-400 dark:text-zinc-500 mt-1 select-none pr-2">
@@ -1602,12 +1561,12 @@ export default function MemberPortalPage() {
                       {saving ? (
                         <>
                           <div className="w-3.5 h-3.5 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" />
-                          <span className="text-[10px] uppercase tracking-wider">Đang cập nhật...</span>
+                          <span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updating")}</span>
                         </>
                       ) : (
                         <>
                           <span className="material-symbols-outlined text-sm">save</span>
-                          <span className="text-[10px] uppercase tracking-wider">Thay Đổi Thông Tin</span>
+                          <span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updateInfo")}</span>
                         </>
                       )}
                     </button>
@@ -1621,7 +1580,7 @@ export default function MemberPortalPage() {
             {/* Right Sticky Preview Area - Account Tab */}
             <div className="lg:col-span-5 lg:sticky lg:top-6 flex flex-col items-center space-y-3 sm:space-y-4 w-full">
               <div className="flex items-center gap-2 sm:gap-3 w-full justify-center sm:justify-start">
-                <span className="text-[8px] sm:text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">XEM TRƯỚC LIVE</span>
+                <span className="text-[8px] sm:text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">{t("memberPortal.preview.livePreview")}</span>
                 <div className="flex bg-[#767680]/10 dark:bg-[#767680]/20 p-0.5 rounded-full border border-zinc-200/10 dark:border-zinc-800/10 shadow-[inset_0_1px_1px_rgba(0,0,0,0.05)]">
                   <button
                     type="button"
@@ -1707,8 +1666,8 @@ export default function MemberPortalPage() {
           <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
             <div className="bg-white dark:bg-[#1c1c1e] w-full max-w-sm rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-2xl p-6 text-center space-y-6">
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Cắt ảnh đại diện</h3>
-                <p className="text-[10px] text-zinc-450 dark:text-zinc-400">Kéo thả để di chuyển, dùng thanh trượt để phóng to/thu nhỏ</p>
+                <h3 className="text-sm font-bold text-zinc-900 dark:text-white">{t("memberPortal.crop.title")}</h3>
+                <p className="text-[10px] text-zinc-450 dark:text-zinc-400">{t("memberPortal.crop.desc")}</p>
               </div>
 
               {/* Circular Crop Frame container */}
@@ -1742,8 +1701,8 @@ export default function MemberPortalPage() {
               {/* Zoom Slider */}
               <div className="space-y-2 px-4">
                 <div className="flex justify-between text-[10px] text-zinc-450 dark:text-zinc-400 font-bold">
-                  <span>Thu nhỏ</span>
-                  <span>Phóng to</span>
+                  <span>{t("memberPortal.crop.zoomOut")}</span>
+                  <span>{t("memberPortal.crop.zoomIn")}</span>
                 </div>
                 <input
                   type="range"
@@ -1762,16 +1721,12 @@ export default function MemberPortalPage() {
                   type="button"
                   onClick={() => setCropModal({ isOpen: false, imageSrc: null, zoom: 1, aspect: 1, offset: { x: 0, y: 0 } })}
                   className="py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
-                >
-                  HỦY
-                </button>
+                >{t("memberPortal.crop.cancel")}</button>
                 <button
                   type="button"
                   onClick={handleCropSave}
                   className="py-2.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white text-[11px] font-bold shadow-md transition-colors"
-                >
-                  CẮT & LƯU
-                </button>
+                >{t("memberPortal.crop.save")}</button>
               </div>
             </div>
           </div>
@@ -1782,7 +1737,7 @@ export default function MemberPortalPage() {
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
               <div className="flex items-center gap-2 text-rose-500">
                 <span className="material-symbols-outlined text-2xl">warning</span>
-                <h3 className="font-extrabold text-sm uppercase tracking-wider text-zinc-900 dark:text-white">Xác Nhận Thao Tác</h3>
+                <h3 className="font-extrabold text-sm uppercase tracking-wider text-zinc-900 dark:text-white">{t("memberPortal.confirm.title")}</h3>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
                 {confirmModal.message}
@@ -1792,9 +1747,7 @@ export default function MemberPortalPage() {
                   type="button"
                   onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: null })}
                   className="py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
-                >
-                  HỦY BỎ
-                </button>
+                >{t("memberPortal.confirm.cancel")}</button>
                 <button
                   type="button"
                   onClick={() => {
@@ -1802,9 +1755,7 @@ export default function MemberPortalPage() {
                     setConfirmModal({ isOpen: false, message: "", onConfirm: null });
                   }}
                   className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold shadow-md transition-colors"
-                >
-                  XÁC NHẬN
-                </button>
+                >{t("memberPortal.confirm.confirm")}</button>
               </div>
             </div>
           </div>

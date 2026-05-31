@@ -4,8 +4,10 @@ import { useData } from "../context/DataContext";
 import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
 import { useHeadMeta } from "../hooks/useHeadMeta";
 import { motion } from "framer-motion";
+import { useTranslation, Trans } from "react-i18next";
 export default function IntroductionPage() {
   const { data } = useData();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const containerRef = useRef(null);
   
@@ -120,16 +122,16 @@ export default function IntroductionPage() {
             className="group flex items-center justify-end gap-3 text-right focus:outline-none"
           >
             <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-[10px] font-bold tracking-widest text-[#6366f1] dark:text-[#a5b4fc] uppercase">
-              {idx === 0 && "Welcome"}
-              {idx === 1 && "Ngành Lập Trình"}
-              {idx === 2 && "Hồ Sơ Cá Nhân"}
-              {idx === 3 && "Thông Tin Đồng Đội"}
-              {idx === 4 && "Dịch Vụ Bio Edu"}
-              {idx === 5 && "Dịch Vụ Làm Web"}
-              {idx === 6 && "Sở Thích Cá Nhân"}
-              {idx === 7 && "Thông Điệp"}
-              {idx === 8 && "Liên Kết"}
-              {idx === 9 && "Bắt Đầu"}
+              {idx === 0 && t("intro.nav.welcome")}
+              {idx === 1 && t("intro.nav.webDev")}
+              {idx === 2 && t("intro.nav.personalInfo")}
+              {idx === 3 && t("intro.nav.teammateInfo")}
+              {idx === 4 && t("intro.nav.bioEdu")}
+              {idx === 5 && t("intro.nav.webService")}
+              {idx === 6 && t("intro.nav.hobbies")}
+              {idx === 7 && t("intro.nav.philosophy")}
+              {idx === 8 && t("intro.nav.contacts")}
+              {idx === 9 && t("intro.nav.start")}
             </span>
             <div
               className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 ${
@@ -200,7 +202,7 @@ export default function IntroductionPage() {
                 className="flex justify-center lg:justify-start"
               >
                 <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-[#6366f1]/20 to-[#0ea5e9]/20 text-[#6366f1] dark:text-[#a5b4fc] border border-[#6366f1]/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-                  ✦ Creative Developer Portal
+                  {t("intro.slide1.badge")}
                 </span>
               </motion.div>
               
@@ -210,9 +212,9 @@ export default function IntroductionPage() {
                 transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
                 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-slate-900 dark:text-white"
               >
-                Kiến tạo vũ trụ số <br className="hidden sm:inline" />
+                {t("intro.slide1.title1")} <br className="hidden sm:inline" />
                 <span className="bg-gradient-to-r from-[#6366f1] via-[#0ea5e9] to-[#fbbf24] bg-clip-text text-transparent animate-gradientShift">
-                  bằng cả trái tim.
+                  {t("intro.slide1.title2")}
                 </span>
               </motion.h1>
 
@@ -222,7 +224,9 @@ export default function IntroductionPage() {
                 transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
                 className="text-[13px] sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed mx-auto lg:mx-0 px-2 sm:px-0"
               >
-                Chào mừng bạn đến với không gian sáng tạo của <strong className="text-[#6366f1] dark:text-[#a5b4fc] font-bold">{data.profile.fullName}</strong>. Nơi tôi kết hợp tính nghệ thuật tinh tế và sức mạnh kỹ thuật để tạo ra những sản phẩm số đẳng cấp.
+                <Trans i18nKey="intro.slide1.desc" values={{ name: data.profile.fullName }}>
+                  Chào mừng bạn đến với không gian sáng tạo của <strong className="text-[#6366f1] dark:text-[#a5b4fc] font-bold">{{name: data.profile.fullName}}</strong>. Nơi tôi kết hợp tính nghệ thuật tinh tế và sức mạnh kỹ thuật để tạo ra những sản phẩm số đẳng cấp.
+                </Trans>
               </motion.p>
               
               <motion.div 
@@ -237,12 +241,12 @@ export default function IntroductionPage() {
                 >
                   <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#6366f1] to-[#0ea5e9] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   <span className="relative z-10 flex items-center gap-2">
-                    Khám Phá Portal
+                    {t("intro.slide1.explore")}
                     <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
                   </span>
                 </button>
                 <Link to="/booking" className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-slate-200 dark:border-white/10 text-slate-700 dark:text-white font-bold hover:border-[#6366f1] hover:text-[#6366f1] dark:hover:border-white/30 transition-all duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-sm">
-                  Đặt Lịch Hẹn
+                  {t("intro.slide1.book")}
                 </Link>
               </motion.div>
             </div>
@@ -317,7 +321,7 @@ export default function IntroductionPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-emerald-500"></span>
                 </span>
-                <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">Available for Projects</span>
+                <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">{t("intro.slide1.available")}</span>
               </motion.div>
             </motion.div>
             
@@ -330,7 +334,7 @@ export default function IntroductionPage() {
             transition={{ delay: 1 }}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 md:hidden"
           >
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Cuộn Xuống</span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{t("intro.slide1.scrollDown")}</span>
             <motion.div 
               animate={{ y: [0, 5, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
@@ -351,23 +355,23 @@ export default function IntroductionPage() {
             <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
               <div className="lg:col-span-7 space-y-4 sm:space-y-5 md:space-y-6 text-left relative z-10">
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-[#0ea5e9]/10 text-[#0ea5e9] border border-[#0ea5e9]/25">
-                  ✦ Web Development
+                  {t("intro.slide2.badge")}
                 </span>
                 <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                  Lập Trình Web <br />
+                  {t("intro.slide2.title1")} <br />
                   <span className="bg-gradient-to-r from-[#0ea5e9] to-[#6366f1] bg-clip-text text-transparent">
-                    Nơi Ý Tưởng Trở Thành Không Gian Tương Tác
+                    {t("intro.slide2.title2")}
                   </span>
                 </h2>
                 <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
-                  Ngành lập trình Web là hành trình biến các ý tưởng sáng tạo thành các trang web sống động. Không chỉ là viết code thuần túy, lập trình web đòi hỏi tư duy thẩm mỹ cao kết hợp cùng giải pháp kỹ thuật tối ưu để mang lại trải nghiệm hoàn hảo cho người dùng.
+                  {t("intro.slide2.desc")}
                 </p>
                 <div className="pt-2">
                   <button 
                     onClick={() => scrollToSlide(2)}
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0ea5e9] text-white font-bold text-xs shadow-lg shadow-[#0ea5e9]/20 hover:scale-[1.03] transition-transform"
                   >
-                    Xem Hồ Sơ Cá Nhân <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                    {t("intro.slide2.viewProfile")} <span className="material-symbols-outlined text-xs">arrow_forward</span>
                   </button>
                 </div>
               </div>
@@ -533,7 +537,7 @@ export default function IntroductionPage() {
                 className="flex justify-center lg:justify-start"
               >
                 <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-[#fbbf24]/20 to-[#f59e0b]/20 text-[#d97706] dark:text-[#fbbf24] border border-[#fbbf24]/30 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
-                  ✦ Personal Information
+                  {t("intro.slide3.badge")}
                 </span>
               </motion.div>
               
@@ -543,7 +547,7 @@ export default function IntroductionPage() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight hidden lg:block"
               >
-                Lý lịch & <br className="hidden sm:inline lg:hidden"/> Quá trình học tập
+                {t("intro.slide3.title1")} <br className="hidden sm:inline lg:hidden"/> {t("intro.slide3.title2")}
               </motion.h2>
               
               <div className="space-y-4 sm:space-y-5 lg:space-y-6 mt-6">
@@ -558,7 +562,7 @@ export default function IntroductionPage() {
                   </div>
                   
                   <div className="space-y-3 sm:space-y-4 w-full">
-                    <div className="text-[10px] sm:text-xs uppercase font-extrabold text-slate-400 tracking-widest text-center sm:text-left pt-1">Học vấn / Bằng cấp</div>
+                    <div className="text-[10px] sm:text-xs uppercase font-extrabold text-slate-400 tracking-widest text-center sm:text-left pt-1">{t("intro.slide3.eduTitle")}</div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 w-full px-2 sm:px-0">
                       {/* High school card */}
@@ -571,10 +575,10 @@ export default function IntroductionPage() {
                         className="p-3 sm:p-4 rounded-2xl bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/80 dark:border-white/10 hover:border-[#6366f1] transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
                       >
                         <div className="flex justify-between items-start gap-2">
-                          <span className="text-[10px] sm:text-xs font-black text-[#6366f1] uppercase tracking-wider leading-tight">THPT Nguyễn Đình Chiểu</span>
+                          <span className="text-[10px] sm:text-xs font-black text-[#6366f1] uppercase tracking-wider leading-tight">{t("intro.slide3.highSchool")}</span>
                           <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-[#6366f1] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-slate-100 dark:bg-slate-800 w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
                         </div>
-                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Mỹ Tho (Collège de MyTho)</p>
+                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">{t("intro.slide3.highSchoolDesc")}</p>
                       </motion.a>
 
                       {/* University card */}
@@ -587,10 +591,10 @@ export default function IntroductionPage() {
                         className="p-3 sm:p-4 rounded-2xl bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/80 dark:border-white/10 hover:border-[#0ea5e9] transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
                       >
                         <div className="flex justify-between items-start gap-2">
-                          <span className="text-[10px] sm:text-xs font-black text-[#0ea5e9] uppercase tracking-wider leading-tight">Greenwich Vietnam</span>
+                          <span className="text-[10px] sm:text-xs font-black text-[#0ea5e9] uppercase tracking-wider leading-tight">{t("intro.slide3.uni")}</span>
                           <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-[#0ea5e9] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-slate-100 dark:bg-slate-800 w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
                         </div>
-                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Greenwich University</p>
+                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">{t("intro.slide3.uniDesc")}</p>
                       </motion.a>
                     </div>
                   </div>
@@ -618,7 +622,7 @@ export default function IntroductionPage() {
               <div className="w-full max-w-[280px] sm:max-w-[320px] rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 p-3.5 sm:p-5 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 z-10">
                 {/* ID Header Decoration */}
                 <div className="flex justify-between items-center pb-2.5 sm:pb-3 border-b border-slate-200 dark:border-white/10 mb-3 sm:mb-4">
-                  <span className="text-[8px] sm:text-[9px] font-black tracking-widest text-[#ec4899] uppercase">GREENWICH CO-DEVELOPER</span>
+                  <span className="text-[8px] sm:text-[9px] font-black tracking-widest text-[#ec4899] uppercase">{t("intro.slide4.idTitle")}</span>
                   <div className="flex gap-1">
                     <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#ec4899]" />
                     <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#d946ef]" />
@@ -672,16 +676,16 @@ export default function IntroductionPage() {
             <div className="w-full lg:col-span-7 space-y-4 lg:space-y-6 text-left">
               <div className="space-y-2 lg:space-y-4">
                 <span className="inline-flex items-center gap-2 px-3 py-1 lg:px-3.5 lg:py-1.5 rounded-full text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.25em] bg-[#ec4899]/10 text-[#ec4899] border border-[#ec4899]/20">
-                  ✦ Co-Developer Partner
+                  {t("intro.slide4.badge")}
                 </span>
                 <h2 className="font-display text-2xl sm:text-3xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                  Đồng hành cùng kiến tạo <br />
+                  {t("intro.slide4.title1")} <br />
                   <span className="bg-gradient-to-r from-[#ec4899] via-[#d946ef] to-[#818cf8] bg-clip-text text-transparent">
-                    những trải nghiệm số độc bản.
+                    {t("intro.slide4.title2")}
                   </span>
                 </h2>
                 <p className="hidden sm:block text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
-                  Jason Phan là người bạn đồng hành cùng tôi trên con đường học tập và phát triển dự án. Chúng tôi kết hợp tư duy hệ thống và niềm đam mê công nghệ để biến những ý tưởng phức tạp thành những ứng dụng mượt mà, tối ưu.
+                  {t("intro.slide4.desc")}
                 </p>
               </div>
 
@@ -700,12 +704,12 @@ export default function IntroductionPage() {
                       <span className="material-symbols-outlined text-lg">school</span>
                     </div>
                     <div>
-                      <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#ec4899] transition-colors">THPT Cây Dương</h4>
-                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">Trường trung học phổ thông năng động tại An Giang (Kiên Giang cũ).</p>
+                      <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#ec4899] transition-colors">{t("intro.slide4.highSchool")}</h4>
+                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.highSchoolDesc")}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between pt-2.5 lg:pt-4 mt-2.5 lg:mt-4 border-t border-slate-200/50 dark:border-white/5 text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                    <span>An Giang (Kiên Giang cũ)</span>
+                    <span>{t("intro.slide4.highSchoolProvince")}</span>
                     <span className="material-symbols-outlined text-[10px] group-hover:translate-x-1 transition-transform">open_in_new</span>
                   </div>
                 </a>
@@ -722,12 +726,12 @@ export default function IntroductionPage() {
                       <span className="material-symbols-outlined text-lg">local_library</span>
                     </div>
                     <div>
-                      <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#d946ef] transition-colors">Greenwich Vietnam</h4>
-                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">Môi trường đào tạo quốc tế liên kết cùng Greenwich Vương Quốc Anh.</p>
+                      <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#d946ef] transition-colors">{t("intro.slide4.uniTitle")}</h4>
+                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.uniDesc")}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between pt-2.5 lg:pt-4 mt-2.5 lg:mt-4 border-t border-slate-200/50 dark:border-white/5 text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                    <span>Đại học liên kết</span>
+                    <span>{t("intro.slide4.uniTag")}</span>
                     <span className="material-symbols-outlined text-[10px] group-hover:translate-x-1 transition-transform">open_in_new</span>
                   </div>
                 </a>
@@ -743,32 +747,34 @@ export default function IntroductionPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full max-w-7xl mx-auto items-center">
             <div className="lg:col-span-7 space-y-6 relative z-10">
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
-                ✦ Student Benefits
+                {t("intro.slide5.badge")}
               </span>
               <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                Trang Bio Link Miễn Phí <br />
-                Cho Sinh Viên Dùng Email .edu
+                {t("intro.slide5.title1")} <br />
+                {t("intro.slide5.title2")}
               </h2>
               <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-350 leading-relaxed">
-                Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố <strong className="text-[#6366f1] dark:text-[#a5b4fc]">.edu</strong> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh hoàn toàn miễn phí.
+                <Trans i18nKey="intro.slide5.desc">
+                  Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố <strong className="text-[#6366f1] dark:text-[#a5b4fc]">.edu</strong> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh hoàn toàn miễn phí.
+                </Trans>
               </p>
               <div className="space-y-2.5 text-xs sm:text-sm text-slate-650 dark:text-slate-350">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-sm text-emerald-500">verified_user</span>
-                  <span>Xác thực email giáo dục tự động trong 3 giây.</span>
+                  <span>{t("intro.slide5.check1")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-sm text-emerald-500">verified_user</span>
-                  <span>Hỗ trợ tạo link đẹp theo tên riêng biệt (Ví dụ: bio/ten-cua-ban).</span>
+                  <span>{t("intro.slide5.check2")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-sm text-emerald-500">verified_user</span>
-                  <span>Thời hạn sử dụng Bio Link trong vòng 12 tháng.</span>
+                  <span>{t("intro.slide5.check3")}</span>
                 </div>
               </div>
               <div className="pt-2">
                 <Link to="/login" className="px-8 py-4 rounded-full bg-[#6366f1] text-white font-bold text-xs shadow-lg shadow-[#6366f1]/20 hover:scale-[1.03] transition-transform inline-block">
-                  Bắt Đầu Tạo Bio .edu
+                  {t("intro.slide5.createBtn")}
                 </Link>
               </div>
             </div>
@@ -785,8 +791,8 @@ export default function IntroductionPage() {
                 
                 <div className="flex justify-between items-start border-b border-slate-200/50 dark:border-white/5 pb-4">
                   <div>
-                    <span className="text-[8px] font-bold text-[#10b981] uppercase tracking-widest block">STUDENT IDENTIFICATION</span>
-                    <span className="font-display text-sm font-black text-slate-800 dark:text-white">HUGO PORTAL SYSTEM</span>
+                    <span className="text-[8px] font-bold text-[#10b981] uppercase tracking-widest block">{t("intro.slide5.idTitle")}</span>
+                    <span className="font-display text-sm font-black text-slate-800 dark:text-white">{t("intro.slide5.idName")}</span>
                   </div>
                   {/* Metallic smart card chip */}
                   <div className="w-9 h-7 rounded-md bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 shadow border border-yellow-600/30 flex items-center justify-center overflow-hidden">
@@ -798,23 +804,23 @@ export default function IntroductionPage() {
 
                 <div className="py-6 space-y-4 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">REQUIRED EMAIL</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idEmailTitle")}</span>
                     <span className="font-mono font-bold text-slate-800 dark:text-white">name@school.edu.vn</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">BENEFIT</span>
-                    <span className="font-bold text-[#10b981]">1x FREE Bio Page</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idBenefitTitle")}</span>
+                    <span className="font-bold text-[#10b981]">{t("intro.slide5.idBenefitDesc")}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">VALIDITY</span>
-                    <span className="font-bold text-slate-600 dark:text-slate-350">12 Months</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idValidityTitle")}</span>
+                    <span className="font-bold text-slate-600 dark:text-slate-350">{t("intro.slide5.idValidityDesc")}</span>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center border-t border-slate-200/50 dark:border-white/5 pt-4">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[9px] font-bold text-slate-400">AUTHENTICATED</span>
+                    <span className="text-[9px] font-bold text-slate-400">{t("intro.slide5.idAuth")}</span>
                   </div>
                   <span className="text-[9px] font-mono text-slate-400">ID: 2004-EDU-VALID</span>
                 </div>
@@ -849,21 +855,21 @@ export default function IntroductionPage() {
 
                 {/* Browser Content */}
                 <div className="p-6 space-y-4">
-                  <span className="text-[9px] font-extrabold text-[#0ea5e9] uppercase tracking-wider block">SERVICE OPTIONS</span>
+                  <span className="text-[9px] font-extrabold text-[#0ea5e9] uppercase tracking-wider block">{t("intro.slide6.serviceOption")}</span>
                   <div className="space-y-3">
                     {/* Item 1 */}
                     <div className="flex justify-between items-center p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 shadow-sm">
                       <div>
-                        <div className="text-xs font-bold text-slate-800 dark:text-white">Signature Portfolio</div>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Thiết kế độc bản, trang riêng lẻ</p>
+                        <div className="text-xs font-bold text-slate-800 dark:text-white">{t("intro.slide6.item1Title")}</div>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{t("intro.slide6.item1Desc")}</p>
                       </div>
                       <span className="text-[10px] font-bold text-[#0ea5e9] bg-[#0ea5e9]/10 px-2.5 py-1 rounded-full shrink-0">Pro</span>
                     </div>
                     {/* Item 2 */}
                     <div className="flex justify-between items-center p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 shadow-sm">
                       <div>
-                        <div className="text-xs font-bold text-slate-800 dark:text-white">Ultimate Web App</div>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Admin Dashboard, Quản lý sản phẩm</p>
+                        <div className="text-xs font-bold text-slate-800 dark:text-white">{t("intro.slide6.item2Title")}</div>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{t("intro.slide6.item2Desc")}</p>
                       </div>
                       <span className="text-[10px] font-bold text-[#6366f1] bg-[#6366f1]/10 px-2.5 py-1 rounded-full shrink-0">Apex</span>
                     </div>
@@ -875,14 +881,14 @@ export default function IntroductionPage() {
             {/* Right Column details */}
             <div className="lg:col-span-7 space-y-6 relative z-10">
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#0ea5e9]/10 text-[#0ea5e9] border border-[#0ea5e9]/25">
-                ✦ Professional Web Services
+                {t("intro.slide6.badge")}
               </span>
               <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                Thiết Kế Web Chuyên Nghiệp <br />
-                Tối Ưu Trải Nghiệm Số
+                {t("intro.slide6.title1")} <br />
+                {t("intro.slide6.title2")}
               </h2>
               <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-                Tôi phát triển các ứng dụng web với triết lý mã nguồn tinh gọn, tải trang nhanh chóng, áp dụng tối ưu các hiệu ứng chuyển động mượt mà và chuẩn SEO để giúp thương hiệu của bạn tiếp cận người dùng tốt nhất.
+                {t("intro.slide6.desc")}
               </p>
               <div className="flex gap-4">
                 <button 
@@ -892,10 +898,10 @@ export default function IntroductionPage() {
                   }}
                   className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#6366f1] text-white font-bold text-xs shadow-lg shadow-[#6366f1]/20 hover:scale-[1.03] transition-transform"
                 >
-                  Xem Bảng Giá & Chi Tiết
+                  {t("intro.slide6.pricingBtn")}
                 </button>
                 <Link to="/booking" className="inline-flex items-center justify-center px-6 py-4 rounded-full border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                  Đặt Lịch Thiết Kế
+                  {t("intro.slide6.bookBtn")}
                 </Link>
               </div>
             </div>
@@ -929,16 +935,16 @@ export default function IntroductionPage() {
             {/* Left side text */}
             <div className="lg:col-span-5 space-y-4 lg:space-y-6 text-left">
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/25">
-                ✦ Personal Hobby
+                {t("intro.slide7.badge")}
               </span>
               <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                Góc chữa lành: <br />
+                {t("intro.slide7.title1")} <br />
                 <span className="bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
-                  Cây Dương Xỉ.
+                  {t("intro.slide7.title2")}
                 </span>
               </h2>
               <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-                Sau những giờ phút gõ code căng thẳng, niềm đam mê lớn nhất của tôi là nhìn ngắm và chăm sóc những chậu cây dương xỉ. Sức sống mãnh liệt và vẻ đẹp nguyên thủy của chúng mang lại một sự bình yên vô tận.
+                {t("intro.slide7.desc")}
               </p>
             </div>
             
@@ -1002,34 +1008,34 @@ export default function IntroductionPage() {
               <span className="absolute -top-12 -left-10 text-[8rem] sm:text-[10rem] font-serif text-[#6366f1]/10 pointer-events-none select-none">“</span>
               
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/25 relative z-10">
-                ✦ Design Philosophy
+                {t("intro.slide8.badge")}
               </span>
               <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white relative z-10">
-                Cách tôi kiến tạo <br />
-                Trải nghiệm người dùng
+                {t("intro.slide8.title1")} <br />
+                {t("intro.slide8.title2")}
               </h2>
               
               <blockquote className="text-2xl sm:text-3xl lg:text-4xl italic font-semibold text-[#6366f1] dark:text-[#a5b4fc] border-l-4 border-[#6366f1] pl-6 py-1 relative z-10 leading-snug">
-                "Kiến tạo trải nghiệm bằng cả trái tim. Mỗi dòng code đều phải có linh hồn, mang lại sự ngạc nhiên và ngọt ngào."
+                {t("intro.slide8.quote")}
               </blockquote>
 
               <div className="grid grid-cols-2 gap-6 pt-2 text-xs sm:text-sm relative z-10">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
                     <span className="material-symbols-outlined text-sm text-[#6366f1]">magic_button</span>
-                    <span>Sự Ngạc Nhiên (Wow Factor)</span>
+                    <span>{t("intro.slide8.wowTitle")}</span>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Tôi tin rằng giao diện kỹ thuật số không được vô cảm. Mọi nút bấm, thẻ thông tin hay hiệu ứng cuộn trang đều phải được phủ lên một lớp chuyển động tinh tế để kích thích sự hào hứng.
+                    {t("intro.slide8.wowDesc")}
                   </p>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
                     <span className="material-symbols-outlined text-sm text-[#0ea5e9]">fit_screen</span>
-                    <span>Sự Ngọt Ngào & Chỉn Chu</span>
+                    <span>{t("intro.slide8.sweetTitle")}</span>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Sự mượt mà và đồng bộ trong bảng màu, khoảng cách thiết kế và độ phản hồi tức thời của cơ sở dữ liệu tạo nên một tổng thể trọn vẹn và an tâm nhất cho người trải nghiệm.
+                    {t("intro.slide8.sweetDesc")}
                   </p>
                 </div>
               </div>
@@ -1042,19 +1048,19 @@ export default function IntroductionPage() {
 
               <div className="w-[420px] h-[360px] rounded-[2.5rem] bg-white dark:bg-[#12111a] border border-slate-200 dark:border-white/10 p-8 shadow-2xl flex flex-col justify-between relative overflow-hidden transform rotate-[1.5deg]">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-[#fbbf24]/10 rounded-full blur-xl" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">CREATIVE PRINCIPLES</span>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">{t("intro.slide8.principles")}</span>
                 <div className="space-y-4 text-xs sm:text-sm">
                   <div className="flex items-center gap-3">
                     <span className="text-sm sm:text-base font-bold text-[#6366f1] font-mono">01</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">Đặt trái tim làm trung tâm trải nghiệm.</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{t("intro.slide8.p1")}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-sm sm:text-base font-bold text-[#0ea5e9] font-mono">02</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">Tối giản thư viện ngoài để đạt hiệu năng 100%.</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{t("intro.slide8.p2")}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-sm sm:text-base font-bold text-[#fbbf24] font-mono">03</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">Đồng bộ ngôn ngữ thiết kế từ đầu đến cuối.</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{t("intro.slide8.p3")}</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center">
@@ -1088,13 +1094,13 @@ export default function IntroductionPage() {
                 </p>
               </div>
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
-                ✦ Keep In Touch
+                {t("intro.slide9.badge")}
               </span>
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white">
-                Liên Kết Kết Nối Với Hugo
+                {t("intro.slide9.title")}
               </h2>
               <p className="text-xs sm:text-sm lg:text-base text-slate-500 dark:text-slate-400">
-                Nhấn vào các biểu tượng bên dưới để chuyển tiếp kết nối trực tiếp đến các trang mạng xã hội và kênh thông tin liên hệ chính thức của tôi.
+                {t("intro.slide9.desc")}
               </p>
             </div>
 
@@ -1112,7 +1118,7 @@ export default function IntroductionPage() {
                 <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/20 text-[#6366f1] dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-2xl md:text-3xl">sms</span>
                 </div>
-                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">Zalo Chat</span>
+                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.zalo")}</span>
               </a>
 
               {/* Email */}
@@ -1120,10 +1126,10 @@ export default function IntroductionPage() {
                 href={`mailto:${data.profile.emailAddress}`}
                 className="clay-card rounded-2xl md:rounded-[2rem] p-6 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-2 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
               >
-                <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-red-100 dark:bg-red-900/20 text-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-red-100 dark:bg-red-900/20 text-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-2xl md:text-3xl">mail</span>
                 </div>
-                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">Gửi Email</span>
+                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.email")}</span>
               </a>
 
               {/* Facebook */}
@@ -1136,7 +1142,7 @@ export default function IntroductionPage() {
                 <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-2xl md:text-3xl">group</span>
                 </div>
-                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">Facebook</span>
+                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.fb")}</span>
               </a>
 
               {/* TikTok */}
@@ -1149,7 +1155,7 @@ export default function IntroductionPage() {
                 <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-black/10 dark:bg-white/10 text-slate-800 dark:text-white flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-2xl md:text-3xl">play_circle</span>
                 </div>
-                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">TikTok</span>
+                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.tiktok")}</span>
               </a>
             </div>
           </div>
@@ -1159,25 +1165,25 @@ export default function IntroductionPage() {
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
           <div className="w-full max-w-4xl mx-auto text-center space-y-8 relative z-10">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
-              ✦ Start Now
+              {t("intro.slide10.badge")}
             </span>
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight">
-              Đăng ký & Bắt đầu <br />
+              {t("intro.slide10.title1")} <br />
               <span className="bg-gradient-to-r from-[#6366f1] via-[#0ea5e9] to-[#fbbf24] bg-clip-text text-transparent">
-                Hành trình số của bạn.
+                {t("intro.slide10.title2")}
               </span>
             </h2>
             <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Tạo lập các trang liên kết sinh viên cực đẹp hoàn toàn miễn phí hoặc kết nối cùng tôi để thiết kế nên những trang web Bespoke chuyên nghiệp ngay hôm nay.
+              {t("intro.slide10.desc")}
             </p>
             
             {/* Overlapping buttons and accent shadow */}
             <div className="flex justify-center gap-4 pt-4 relative">
               <Link to="/login" className="px-8 py-4 rounded-full bg-[#6366f1] text-white font-bold hover:scale-[1.03] transition-transform shadow-xl shadow-[#6366f1]/25 text-xs sm:text-sm z-10">
-                Đăng Ký Tài Khoản
+                {t("intro.slide10.registerBtn")}
               </Link>
               <Link to="/booking" className="px-8 py-4 rounded-full border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-xs sm:text-sm z-10">
-                Đặt Lịch Tư Vấn
+                {t("intro.slide10.bookBtn")}
               </Link>
             </div>
           </div>

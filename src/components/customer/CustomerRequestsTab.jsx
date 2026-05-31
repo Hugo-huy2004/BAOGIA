@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function CustomerRequestsTab({ project }) {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -74,8 +76,8 @@ export default function CustomerRequestsTab({ project }) {
             <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-[#12111a] rounded-full"></span>
           </div>
           <div>
-            <h3 className="font-bold text-sm text-slate-850 dark:text-white">{project.handlerName || 'Đội ngũ hỗ trợ'}</h3>
-            <p className="text-[10px] text-slate-500">Quản lý dự án của bạn</p>
+            <h3 className="font-bold text-sm text-slate-850 dark:text-white">{project.handlerName || t("customerPortal.requests.supportTitle")}</h3>
+            <p className="text-[10px] text-slate-500">{t("customerPortal.requests.supportSubtitle")}</p>
           </div>
         </div>
       </div>
@@ -83,11 +85,11 @@ export default function CustomerRequestsTab({ project }) {
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 dark:bg-black/20">
         {loading ? (
-          <div className="text-center text-xs text-slate-400 py-4">Đang tải tin nhắn...</div>
+          <div className="text-center text-xs text-slate-400 py-4">{t("customerPortal.requests.loading")}</div>
         ) : messages.length === 0 ? (
           <div className="text-center text-xs text-slate-400 py-10 flex flex-col items-center gap-2">
             <span className="material-symbols-outlined text-4xl opacity-50">forum</span>
-            Chưa có yêu cầu nào. Hãy nhắn tin cho chúng tôi nếu bạn có bất kỳ thắc mắc nào!
+            {t("customerPortal.requests.empty")}
           </div>
         ) : (
           messages.map((msg, idx) => {
@@ -118,7 +120,7 @@ export default function CustomerRequestsTab({ project }) {
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder={isCompleted ? "Nhập yêu cầu bảo trì hoặc tin nhắn..." : "Nhập yêu cầu hoặc tin nhắn..."}
+            placeholder={isCompleted ? t("customerPortal.requests.placeholderCompleted") : t("customerPortal.requests.placeholderNormal")}
             className={`flex-1 px-4 py-3 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/25 text-slate-850 dark:text-white focus:outline-none focus:ring-1 text-sm ${isCompleted ? 'focus:ring-amber-500' : 'focus:ring-indigo-500'}`}
           />
           <button

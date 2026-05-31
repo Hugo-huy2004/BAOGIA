@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useTranslation } from "react-i18next";
 import HugoLogo from "../components/HugoLogo";
 
 // Hugo Studio Brand Logo component to match styling exactly
 
 export default function BookingContactPage() {
+  const { t } = useTranslation();
   useHeadMeta({
     title: "Đặt Lịch & Liên Hệ | Hugo Studio",
     description: "Đặt lịch hẹn thiết kế website hoặc gửi tin nhắn trực tiếp cho Hugo Studio để nhận báo giá chi tiết trong vòng 24 giờ.",
@@ -52,7 +54,7 @@ export default function BookingContactPage() {
       });
 
       if (response.ok) {
-        showToast("Yêu cầu của bạn đã được gửi thành công! Tôi sẽ liên hệ trong 24h.", "success");
+        showToast(t("bookingPage.toast.success"), "success");
         setFormData({
           fullName: "",
           email: "",
@@ -60,11 +62,11 @@ export default function BookingContactPage() {
           message: ""
         });
       } else {
-        showToast("Có lỗi khi gửi form. Vui lòng thử lại sau.", "error");
+        showToast(t("bookingPage.toast.error"), "error");
       }
     } catch (error) {
       console.error("Form submission error:", error);
-      showToast("Lỗi kết nối. Vui lòng kiểm tra internet và thử lại.", "error");
+      showToast(t("bookingPage.toast.networkError"), "error");
     }
   };
 
@@ -119,39 +121,25 @@ export default function BookingContactPage() {
           </div>
 
           <div className="space-y-4">
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-              Đặt Lịch Thiết Kế.
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-md mx-auto lg:mx-0">
-              Hãy phác thảo sơ bộ về dự án của bạn. Tôi sẽ liên lạc trực tiếp qua Zalo/Email trong vòng 24h để trao đổi chi tiết và lập báo giá phù hợp nhất.
-            </p>
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">{t("bookingPage.header.title")}</h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-md mx-auto lg:mx-0">{t("bookingPage.header.desc")}</p>
           </div>
 
           {/* Feature List/Workflow */}
           <div className="hidden lg:block space-y-5 pt-4">
-            <div className="flex items-start gap-4">
-              <span className="material-symbols-outlined text-[#6366f1] text-lg mt-0.5">palette</span>
-              <div>
-                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Ý tưởng độc bản</h4>
-                <p className="text-[11px] text-slate-450 dark:text-slate-400 mt-0.5">Không dùng template rập khuôn. Giao diện được may đo phù hợp định dạng thương hiệu.</p>
+            {[
+              { icon: "palette", color: "text-[#6366f1]" },
+              { icon: "bolt", color: "text-[#0ea5e9]" },
+              { icon: "chat_bubble", color: "text-[#10b981]" }
+            ].map((f, idx) => (
+              <div key={idx} className="flex items-start gap-4">
+                <span className={`material-symbols-outlined ${f.color} text-lg mt-0.5`}>{f.icon}</span>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">{t(`bookingPage.features.${idx}.title`)}</h4>
+                  <p className="text-[11px] text-slate-450 dark:text-slate-400 mt-0.5">{t(`bookingPage.features.${idx}.desc`)}</p>
+                </div>
               </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <span className="material-symbols-outlined text-[#0ea5e9] text-lg mt-0.5">bolt</span>
-              <div>
-                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Hiệu năng & SEO</h4>
-                <p className="text-[11px] text-slate-450 dark:text-slate-400 mt-0.5">Mã nguồn được viết sạch sẽ, tối ưu chuẩn Apple giúp tải trang nhanh và đạt thứ hạng Google tốt.</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <span className="material-symbols-outlined text-[#10b981] text-lg mt-0.5">chat_bubble</span>
-              <div>
-                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Hỗ trợ 1-1 qua Zalo</h4>
-                <p className="text-[11px] text-slate-450 dark:text-slate-400 mt-0.5">Trao đổi nhanh chóng trực tiếp. Cam kết bảo trì và sửa lỗi trọn đời sản phẩm.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -165,62 +153,54 @@ export default function BookingContactPage() {
                 
                 {/* Full Name */}
                 <div className="px-4 py-3.5 flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 min-h-[56px]">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full md:w-44 shrink-0">
-                    Quý danh:
-                  </label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full md:w-44 shrink-0">{t("bookingPage.form.nameLabel")}</label>
                   <input
                     type="text"
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
                     required
-                    placeholder="Nhập tên của bạn..."
+                    placeholder={t("bookingPage.form.namePlaceholder")}
                     className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none text-xs sm:text-sm font-semibold"
                   />
                 </div>
 
                 {/* Email */}
                 <div className="px-4 py-3.5 flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 min-h-[56px]">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full md:w-44 shrink-0">
-                    Email:
-                  </label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full md:w-44 shrink-0">{t("bookingPage.form.emailLabel")}</label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    placeholder="yourname@domain.com"
+                    placeholder={t("bookingPage.form.emailPlaceholder")}
                     className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none text-xs sm:text-sm font-semibold"
                   />
                 </div>
 
                 {/* Phone */}
                 <div className="px-4 py-3.5 flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 min-h-[56px]">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full md:w-44 shrink-0">
-                    Số Điện Thoại (Zalo):
-                  </label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full md:w-44 shrink-0">{t("bookingPage.form.phoneLabel")}</label>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    placeholder="Số kết nối Zalo..."
+                    placeholder={t("bookingPage.form.phonePlaceholder")}
                     className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none text-xs sm:text-sm font-semibold"
                   />
                 </div>
 
                 {/* Message */}
                 <div className="px-4 py-4 flex flex-col gap-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full shrink-0">
-                    Lời Nhắn (Tùy Chọn):
-                  </label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full shrink-0">{t("bookingPage.form.messageLabel")}</label>
                   <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Chia sẻ mong muốn của bạn về giao diện, tính năng hoặc ý tưởng riêng..."
+                    placeholder={t("bookingPage.form.messagePlaceholder")}
                     rows="4"
                     className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed"
                   />
@@ -232,16 +212,12 @@ export default function BookingContactPage() {
               <button
                 type="submit"
                 className="w-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 font-bold py-4 rounded-xl hover:scale-[1.01] active:scale-99 transition-all text-xs sm:text-sm shadow-md"
-              >
-                Gửi Yêu Cầu Đặt Lịch
-              </button>
+              >{t("bookingPage.form.submitBtn")}</button>
 
               {/* Apple-style Educational Disclaimer Card */}
               <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 text-[10px] text-slate-450 dark:text-slate-400 flex gap-2.5 text-left leading-relaxed">
                 <span className="material-symbols-outlined text-[#0ea5e9] shrink-0 text-base mt-0.5">info</span>
-                <span>
-                  Tôi cung cấp dịch vụ trực tuyến (Online). Thông tin của quý khách sẽ được bảo mật tuyệt đối và chỉ dùng để thực hiện cuộc gọi Zalo tư vấn.
-                </span>
+                <span>{t("bookingPage.form.disclaimer")}</span>
               </div>
 
             </form>

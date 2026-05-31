@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState([]);
   const [bookingSubTab, setBookingSubTab] = useState("pending");
   const [loading, setLoading] = useState(true);
@@ -18,7 +20,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
       }
     } catch (err) {
       console.error(err);
-      showNotification("Lỗi kết nối khi tải lịch hẹn.", "error");
+      showNotification(t("admin.texts.txt_12"), "error");
     } finally {
       setLoading(false);
     }
@@ -34,25 +36,26 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
       if (res.ok) {
         const updated = await res.json();
         setBookings(prev => prev.map(b => b._id === bookingId ? updated : b));
-        showNotification(!currentStatus ? "Đã chuyển sang: Đã Liên Hệ" : "Đã chuyển về: Chờ Liên Hệ");
+        showNotification(!currentStatus ? t("admin.texts.txt_13") : t("admin.texts.txt_14"));
       }
     } catch (err) {
-      showNotification("Lỗi cập nhật trạng thái.", "error");
+      showNotification(t("admin.texts.txt_15"), "error");
     }
   };
 
   const handleDeleteBooking = (bookingId) => {
-    triggerConfirm("Xóa yêu cầu này? Bạn không thể khôi phục.", async () => {
+  const { t } = useTranslation();
+    triggerConfirm(t("admin.texts.txt_16"), async () => {
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}`, {
           method: "DELETE"
         });
         if (res.ok) {
           setBookings(prev => prev.filter(b => b._id !== bookingId));
-          showNotification("Đã xóa lịch hẹn.");
+          showNotification(t("admin.texts.txt_17"));
         }
       } catch (err) {
-        showNotification("Lỗi khi xóa lịch hẹn.", "error");
+        showNotification(t("admin.texts.txt_18"), "error");
       }
     });
   };
@@ -88,7 +91,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
               : "text-slate-450 hover:text-slate-800 dark:text-slate-550 dark:hover:text-slate-350"
           }`}
         >
-          <span>Chờ Liên Hệ</span>
+          <span>{t("admin.texts.txt_4")}</span>
           {pendingBookings.length > 0 && (
             <span className="bg-rose-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full animate-pulse">
               {pendingBookings.length}
@@ -107,7 +110,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
               : "text-slate-450 hover:text-slate-800 dark:text-slate-550 dark:hover:text-slate-350"
           }`}
         >
-          <span>Đã Liên Hệ</span>
+          <span>{t("admin.texts.txt_5")}</span>
           {contactedBookings.length > 0 && (
             <span className="bg-slate-200 dark:bg-slate-800 text-slate-655 dark:text-slate-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
               {contactedBookings.length}
@@ -126,11 +129,11 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-100/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800/70 font-bold uppercase tracking-wider text-[9px]">
-                  <th className="px-6 py-4 w-16 text-center">Trạng thái</th>
-                  <th className="px-6 py-4">Khách hàng</th>
-                  <th className="px-6 py-4">Lời nhắn</th>
-                  <th className="px-6 py-4">Ngày gửi</th>
-                  <th className="px-6 py-4 text-center">Xóa</th>
+                  <th className="px-6 py-4 w-16 text-center">{t("admin.texts.txt_6")}</th>
+                  <th className="px-6 py-4">{t("admin.texts.txt_7")}</th>
+                  <th className="px-6 py-4">{t("admin.texts.txt_8")}</th>
+                  <th className="px-6 py-4">{t("admin.texts.txt_9")}</th>
+                  <th className="px-6 py-4 text-center">{t("admin.texts.txt_10")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-150 dark:divide-slate-800/60 font-medium">
@@ -146,7 +149,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                               ? "bg-emerald-50 border-emerald-255 text-emerald-600 dark:bg-[#102a1e] dark:border-[#104a30] dark:text-emerald-455"
                               : "bg-white border-slate-200 text-slate-400 hover:border-primary hover:text-primary dark:bg-slate-850 dark:border-slate-800"
                           }`}
-                          title={booking.contacted ? "Đánh dấu chưa liên hệ" : "Đánh dấu đã liên hệ"}
+                          title={booking.contacted ? t("admin.texts.txt_19") : t("admin.texts.txt_20")}
                         >
                           <span className="material-symbols-outlined text-base">
                             {booking.contacted ? "check_box" : "check_box_outline_blank"}
@@ -162,7 +165,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                       </td>
                       <td className="px-6 py-4 max-w-xs">
                         <p className="text-slate-600 dark:text-slate-350 text-xs line-clamp-3 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
-                          {booking.message || "Không có lời nhắn"}
+                          {booking.message || t("admin.texts.txt_21")}
                         </p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-xs">
@@ -184,7 +187,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                         <button
                           onClick={() => handleDeleteBooking(booking._id)}
                           className="text-rose-555 hover:text-rose-700 dark:hover:text-rose-400 w-8 h-8 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors flex items-center justify-center mx-auto"
-                          title="Xóa yêu cầu"
+                          title={t("admin.texts.txt_22")}
                         >
                           <span className="material-symbols-outlined text-sm">delete</span>
                         </button>
@@ -222,7 +225,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                         <span className="material-symbols-outlined text-[10px] font-bold">
                           {booking.contacted ? "check_box" : "check_box_outline_blank"}
                         </span>
-                        <span>{booking.contacted ? "Đã Gọi" : "Chờ"}</span>
+                        <span>{booking.contacted ? t("admin.texts.txt_23") : t("admin.texts.txt_24")}</span>
                       </button>
                       
                       <button
@@ -246,7 +249,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                   </div>
 
                   <p className="text-xs text-slate-655 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed italic">
-                    "{booking.message || "Không có lời nhắn"}"
+                    "{booking.message || t("admin.texts.txt_25")}"
                   </p>
 
                   {deleteDays !== null && (
@@ -263,7 +266,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
       ) : (
         <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
           <span className="material-symbols-outlined text-3xl opacity-40">calendar_today</span>
-          <p className="text-sm font-semibold">Chưa có lịch hẹn nào ở mục này</p>
+          <p className="text-sm font-semibold">{t("admin.texts.txt_11")}</p>
         </div>
       )}
     </div>

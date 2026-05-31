@@ -1,19 +1,21 @@
-import React from "react";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminBottomNav({ 
   activeTab, 
   setActiveTab, 
   counts 
 }) {
+  const { t } = useTranslation();
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 nav-bottom-safe bg-white/95 dark:bg-[#12111a]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-40 flex items-center justify-around px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
       {[
-        { id: "users", label: "Quản Lý", icon: "group", count: counts.users },
-        { id: "bookings", label: "Lịch Đặt", icon: "calendar_month", count: counts.bookings },
-        { id: "partners", label: "Đối Tác", icon: "handshake" },
-        { id: "packages", label: "Gói DV", icon: "featured_play_list" },
-        { id: "support", label: "Hỗ Trợ", icon: "support_agent", count: counts.support },
-        { id: "settings", label: "Cài Đặt", icon: "settings" }
+        { id: "users", label: t("adminPanel.bottomNav.users"), icon: "group", count: counts.users },
+        { id: "bookings", label: t("adminPanel.bottomNav.bookings"), icon: "calendar_month", count: counts.bookings },
+        { id: "partners", label: t("adminPanel.bottomNav.partners"), icon: "handshake" },
+        { id: "packages", label: t("adminPanel.bottomNav.packages"), icon: "featured_play_list" },
+        { id: "support", label: t("adminPanel.bottomNav.support"), icon: "support_agent", count: counts.support },
+        { id: "settings", label: t("adminPanel.bottomNav.settings"), icon: "settings" }
       ].map(tab => (
         <button
           key={tab.id}

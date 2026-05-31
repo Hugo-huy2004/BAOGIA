@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginAdmin, loginMember } from "../services/authSession";
 import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useTranslation } from "react-i18next";
 import { useData } from "../context/DataContext";
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const { data } = useData();
   const allowRegistration = data?.systemSettings?.allowRegistration !== false;
   useHeadMeta({
@@ -44,7 +46,7 @@ export default function LoginPage() {
     setToast({ message: "", type: "" });
 
     if (!response?.credential) {
-      showToast("Không thể xác thực với Google.", "error");
+      showToast(t("loginPage.toast.noGoogle"), "error");
       return;
     }
 
@@ -55,7 +57,7 @@ export default function LoginPage() {
     const email = profile.email || "";
     if (!email.toLowerCase().includes(".edu")) {
       showToast(
-        "Đăng ký bị từ chối: Cổng đăng ký tự động chỉ chấp nhận email trường học có chứa đuôi giáo dục (.edu / .edu.vn). Vui lòng đăng nhập Google bằng email sinh viên của bạn.",
+        t("loginPage.toast.noEdu"),
         "error"
       );
       return;
@@ -119,7 +121,7 @@ export default function LoginPage() {
 
   const handleMemberLogin = (e) => {
     e.preventDefault();
-    showToast("Hãy dùng nút Google bên dưới để đăng nhập.", "warning");
+    showToast(t("loginPage.toast.useGoogleBtn"), "warning");
   };
 
   const handleAdminLogin = async (e) => {
@@ -128,7 +130,7 @@ export default function LoginPage() {
 
     const session = await loginAdmin(adminForm);
     if (!session) {
-      showToast("Sai tên đăng nhập hoặc mật khẩu quản trị.", "error");
+      showToast(t("loginPage.toast.adminError"), "error");
       return;
     }
 
@@ -139,7 +141,7 @@ export default function LoginPage() {
     e.preventDefault();
     setToast({ message: "", type: "" });
     if (!customerCode || customerCode.trim().length !== 6) {
-      showToast("Mã dự án phải gồm 6 ký tự.", "error");
+      showToast(t("loginPage.toast.codeLength"), "error");
       return;
     }
     
@@ -184,7 +186,7 @@ export default function LoginPage() {
       sessionStorage.setItem('customerProject', JSON.stringify(data.project));
       navigate("/customer-portal");
     } catch (error) {
-      showToast("Link truy cập không hợp lệ hoặc mã dự án sai.", "error");
+      showToast(t("loginPage.toast.invalidLink"), "error");
     }
   };
 
@@ -253,15 +255,10 @@ export default function LoginPage() {
           </div>
 
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white transition-all">
-            {activeMode === "customer" ? "Quản trị dự án" : activeMode === "member" ? "Kích Hoạt Student Bio" : "Đăng Nhập Quản Trị"}
+            {activeMode === "customer" ? t("loginPage.header.titleCustomer") : activeMode === "member" ? t("loginPage.header.titleMember") : t("loginPage.header.titleAdmin")}
           </h1>
           <p className="text-xs text-slate-450 dark:text-slate-400 font-medium">
-            {activeMode === "customer"
-              ? "Theo dõi tiến độ & quản lý dịch vụ của bạn"
-              : activeMode === "member" 
-              ? "Tạo lập trang Bio Link độc bản hoàn toàn miễn phí" 
-              : "Truy cập hệ thống bảng điều khiển của nhà phát triển"
-            }
+            {activeMode === "customer" ? t("loginPage.header.descCustomer") : activeMode === "member" ? t("loginPage.header.descMember") : t("loginPage.header.descAdmin")}
           </p>
         </div>
 
@@ -269,9 +266,9 @@ export default function LoginPage() {
         <div className="relative z-10 bg-slate-100 dark:bg-white/5 p-1 rounded-2xl flex w-full max-w-[340px] mx-auto border border-slate-200/50 dark:border-white/5 overflow-hidden">
           {(() => {
             const tabs = [
-              { id: 'customer', label: 'Membership' },
-              ...(allowRegistration ? [{ id: 'member', label: 'Sinh Viên (.edu)' }] : []),
-              { id: 'admin', label: 'Quản Trị' }
+              { id: 'customer', label: t("loginPage.tabs.customer") },
+              ...(allowRegistration ? [{ id: 'member', label: t("loginPage.tabs.member") }] : []),
+              { id: 'admin', label: t("loginPage.tabs.admin") }
             ];
             const activeIndex = tabs.findIndex(t => t.id === activeMode);
             const tabWidth = 100 / tabs.length;
@@ -310,21 +307,19 @@ export default function LoginPage() {
           {activeMode === "customer" ? (
             <form key="form-customer" onSubmit={handleCustomerLogin} className="space-y-6">
               <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">Truy cập Quản trị dự án</h2>
-                <p className="text-[11px] text-slate-450 dark:text-slate-400 leading-relaxed">
-                  Quản lý dự án, xem tiến độ và trao đổi với đội ngũ.
-                </p>
+                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">{t("loginPage.customerForm.title")}</h2>
+                <p className="text-[11px] text-slate-450 dark:text-slate-400 leading-relaxed">{t("loginPage.customerForm.desc")}</p>
               </div>
 
               <div className="space-y-4 pt-2">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1 text-center">Mã Dự Án (6 Ký Tự)</label>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1 text-center">{t("loginPage.customerForm.codeLabel")}</label>
                   <input
                     type="text"
                     maxLength={6}
                     value={customerCode}
                     onChange={(e) => setCustomerCode(e.target.value.toUpperCase())}
-                    placeholder="VD: 1A2B3C"
+                    placeholder={t("loginPage.customerForm.codePlaceholder")}
                     className="w-full px-4 py-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-lg uppercase font-mono tracking-[0.5em] font-bold text-center"
                   />
                 </div>
@@ -332,25 +327,23 @@ export default function LoginPage() {
                   type="submit"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs sm:text-sm flex justify-center items-center gap-2"
                 >
-                  <span className="material-symbols-outlined text-[18px]">login</span> Vào Portal Dự Án
+                  <span className="material-symbols-outlined text-[18px]">login</span> {t("loginPage.customerForm.btn")}
                 </button>
               </div>
 
               <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 text-[11px] text-indigo-700 dark:text-indigo-300/80 flex gap-3 text-left leading-relaxed mt-4">
                 <span className="material-symbols-outlined text-indigo-500 shrink-0 text-lg mt-0.5 select-none">verified_user</span>
                 <div>
-                  <span className="font-bold text-indigo-900 dark:text-indigo-200 block mb-0.5">Bảo mật thông tin</span>
-                  Mã dự án được cung cấp riêng tư. Tuyệt đối không chia sẻ mã này cho người khác để đảm bảo an toàn dữ liệu dự án của bạn.
+                  <span className="font-bold text-indigo-900 dark:text-indigo-200 block mb-0.5">{t("loginPage.customerForm.securityTitle")}</span>
+                  {t("loginPage.customerForm.securityDesc")}
                 </div>
               </div>
             </form>
           ) : activeMode === "member" ? (
             <form key="form-member" onSubmit={handleMemberLogin} className="space-y-6">
               <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">Xác thực Google Workspace</h2>
-                <p className="text-[11px] text-slate-450 dark:text-slate-400 leading-relaxed">
-                  Để đảm bảo tính xác thực của lợi ích sinh viên, vui lòng liên kết qua Google.
-                </p>
+                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">{t("loginPage.memberForm.title")}</h2>
+                <p className="text-[11px] text-slate-450 dark:text-slate-400 leading-relaxed">{t("loginPage.memberForm.desc")}</p>
               </div>
 
               <div className="py-2 flex justify-center">
@@ -358,47 +351,47 @@ export default function LoginPage() {
               </div>
 
               {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
-                <p className="text-[10px] text-center text-red-500 font-medium">Thiếu VITE_GOOGLE_CLIENT_ID trong file cấu hình.</p>
+                <p className="text-[10px] text-center text-red-500 font-medium">{t("loginPage.memberForm.missingClientId")}</p>
               )}
 
               <p className="text-[10px] text-center text-slate-400 dark:text-slate-500 font-medium">
-                {gisReady ? "Kích hoạt tự động 1 Bio Link / 12 tháng bằng email giáo dục." : "Đang tải thành phần Google..."}
+                {gisReady ? t("loginPage.memberForm.gisReady") : t("loginPage.memberForm.gisLoading")}
               </p>
 
               {/* Apple-style Educational Disclaimer Card */}
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 text-[11px] text-slate-500 dark:text-slate-400 flex gap-3 text-left leading-relaxed mt-2">
                 <span className="material-symbols-outlined text-[#0071e3] dark:text-[#60a5fa] shrink-0 text-lg mt-0.5 select-none">school</span>
                 <div>
-                  <span className="font-bold text-slate-800 dark:text-white block mb-0.5">Yêu cầu Email Giáo Dục (.edu)</span>
-                  Hệ thống tự động kiểm tra và chỉ chấp nhận tài khoản sử dụng email giáo dục của trường học.
+                  <span className="font-bold text-slate-800 dark:text-white block mb-0.5">{t("loginPage.memberForm.reqTitle")}</span>
+                  {t("loginPage.memberForm.reqDesc")}
                 </div>
               </div>
             </form>
           ) : (
             <form key="form-admin" onSubmit={handleAdminLogin} className="space-y-5">
               <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">Đăng nhập Quản trị</h2>
-                <p className="text-[11px] text-slate-450 dark:text-slate-400">Nhập thông tin xác thực nhà phát triển</p>
+                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">{t("loginPage.adminForm.title")}</h2>
+                <p className="text-[11px] text-slate-450 dark:text-slate-400">{t("loginPage.adminForm.desc")}</p>
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1">Tên đăng nhập</label>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1">{t("loginPage.adminForm.userLabel")}</label>
                 <input
                   type="text"
                   value={adminForm.username}
                   onChange={(e) => setAdminForm((prev) => ({ ...prev, username: e.target.value }))}
-                  placeholder="Nhập tên đăng nhập..."
+                  placeholder={t("loginPage.adminForm.userPlaceholder")}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1">Mật khẩu</label>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1">{t("loginPage.adminForm.passLabel")}</label>
                 <input
                   type="password"
                   value={adminForm.password}
                   onChange={(e) => setAdminForm((prev) => ({ ...prev, password: e.target.value }))}
-                  placeholder="••••••••"
+                  placeholder={t("loginPage.adminForm.passPlaceholder")}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
                 />
               </div>
@@ -407,10 +400,10 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 font-bold py-3.5 rounded-xl hover:scale-[1.01] active:scale-99 transition-all text-xs shadow-md mt-2"
               >
-                Đăng Nhập
+                {t("loginPage.adminForm.btn")}
               </button>
 
-              <p className="text-[10px] text-center text-slate-400 dark:text-slate-500">Đồng bộ an toàn qua HTTPS</p>
+              <p className="text-[10px] text-center text-slate-400 dark:text-slate-500">{t("loginPage.adminForm.https")}</p>
             </form>
           )}
         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useTranslation } from "react-i18next";
 import PhotographyDemo from "../components/demos/PhotographyDemo";
 import CoffeeDemo from "../components/demos/CoffeeDemo";
 import JewelryDemo from "../components/demos/JewelryDemo";
@@ -8,14 +9,6 @@ import PortfolioDemo from "../components/demos/PortfolioDemo";
 import ECommerceDemo from "../components/demos/ECommerceDemo";
 import DashboardDemo from "../components/demos/DashboardDemo";
 import HugoLogo from "../components/HugoLogo";
-
-// --- Fake Comments Data ---
-const comments = [
-  { id: 1, name: "Nguyễn Thị Phương", role: "Chủ quán Cafe Mộc", avatar: "/image/avt1.png", text: "Từ khi Hugo Studio thiết kế lại website, khách hàng của quán tôi tăng lên đáng kể. Giao diện mượt mà như trôi giữa ngân hà!" },
-  { id: 2, name: "Trần Minh Hoàng", role: "CEO TechVision", avatar: "/image/avt2.png", text: "Thật sự ấn tượng với cách làm việc của Hugo Studio. Các bạn không chỉ mang đến một trang web, mà là một tác phẩm nghệ thuật vũ trụ. Rất tuyệt!" },
-  { id: 3, name: "Lê Ngọc Hân", role: "Nhiếp ảnh gia tự do", avatar: "/image/avt3.png", text: "Website portfolio mà Hugo Studio làm cho mình như một tác phẩm nghệ thuật 3D. Chế độ tối cực kỳ sang trọng và hiệu ứng thì miễn chê." },
-  { id: 4, name: "Phạm Văn Đức", role: "Giám đốc Marketing", avatar: "/image/avt4.png", text: "Sự kết hợp giữa công nghệ hiện đại và yếu tố nghệ thuật, sự tĩnh lặng trong từng thiết kế mang lại cảm giác vô cùng cao cấp và chuyên nghiệp." }
-];
 
 const coreValues = [
   { id: 1, title: "Tận Tâm", desc: "Tỉ mỉ từng tinh vân mã nguồn", img: "/image/avt5.png", color: "from-blue-500/30 to-cyan-500/30", neon: "shadow-[0_0_30px_rgba(6,182,212,0.5)]" },
@@ -35,7 +28,7 @@ const templates = [
   { id: "dashboard", title: "Trang Quản Lý", short: "Dashboard", subtitle: "Dashboard", url: "hugo.dev/admin", icon: "dashboard" }
 ];
 
-const TOTAL_SLIDES = 7;
+const TOTAL_SLIDES = 6;
 
 // --- Background Stars ---
 const Starfield = ({ normalizedX, normalizedY }) => {
@@ -73,6 +66,7 @@ const Starfield = ({ normalizedX, normalizedY }) => {
 
 
 export default function TemplatesPage() {
+  const { t } = useTranslation();
   useHeadMeta({
     title: "Galaxy of Art | Hugo Studio",
     description: "Khám phá vũ trụ nghệ thuật số của Hugo Studio.",
@@ -198,14 +192,12 @@ export default function TemplatesPage() {
       <motion.div animate={{ rotate: 360 }} transition={{ duration: 60, repeat: Infinity, ease: "linear" }} className="absolute w-[40vw] h-[40vw] rounded-full border border-white/5 border-dashed pointer-events-none" />
       <motion.div animate={{ rotate: -360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute w-[60vw] h-[60vw] rounded-full border border-white/5 border-dotted pointer-events-none" />
       
-      <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="inline-flex px-4 md:px-6 py-1.5 md:py-2 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 mb-6 md:mb-8">Galaxy of Art</motion.span>
+      <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="inline-flex px-4 md:px-6 py-1.5 md:py-2 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 mb-6 md:mb-8">{t("templatesPage.hero.badge")}</motion.span>
       <motion.h1 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7, duration: 1 }} className="font-display text-4xl sm:text-6xl md:text-8xl font-black tracking-tighter text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] leading-tight">
-        Vũ Trụ <br />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-indigo-400 to-purple-400 drop-shadow-[0_0_50px_rgba(129,140,248,0.5)]">Nghệ Thuật Số</span>
+        {t("templatesPage.hero.title1")} <br />
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-indigo-400 to-purple-400 drop-shadow-[0_0_50px_rgba(129,140,248,0.5)]">{t("templatesPage.hero.title2")}</span>
       </motion.h1>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="mt-8 text-lg md:text-xl text-slate-400 max-w-2xl font-light tracking-wide">
-        Lướt qua những dải ngân hà tĩnh lặng. Mỗi trang web là một tinh tú độc bản.
-      </motion.p>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="mt-8 text-lg md:text-xl text-slate-400 max-w-2xl font-light tracking-wide">{t("templatesPage.hero.desc")}</motion.p>
     </div>
   );
 
@@ -213,20 +205,18 @@ export default function TemplatesPage() {
     <div className="w-full h-full flex flex-col lg:flex-row items-center justify-center px-4 md:px-20 max-w-7xl mx-auto gap-4 md:gap-8 lg:gap-16 relative">
       <div className="flex-1 space-y-4 md:space-y-6 z-10 text-center lg:text-left mt-8 md:mt-0">
         <div>
-          <span className="text-pink-400 font-bold tracking-[0.3em] uppercase text-xs">The Core</span>
-          <h2 className="font-display text-3xl md:text-5xl font-black text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">Hạt Nhân <br className="hidden lg:block"/>Thương Hiệu</h2>
+          <span className="text-pink-400 font-bold tracking-[0.3em] uppercase text-xs">{t("templatesPage.core.badge")}</span>
+          <h2 className="font-display text-3xl md:text-5xl font-black text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">{t("templatesPage.core.title1")} <br className="hidden lg:block"/>{t("templatesPage.core.title2")}</h2>
         </div>
         <div className="text-slate-300 text-sm md:text-base font-light leading-relaxed max-w-2xl mx-auto lg:mx-0 space-y-3 md:space-y-4">
-          <p>
-            Tâm điểm của vũ trụ Hugo Studio là logo hội tụ 6 dải màu đa sắc, một tuyên ngôn mạnh mẽ về sự sáng tạo không giới hạn và khát vọng tiên phong:
-          </p>
+          <p>{t("templatesPage.core.desc")}</p>
           <ul className="text-left space-y-2 pl-2 md:pl-4 border-l-2 border-white/10 text-xs md:text-sm">
-            <li><b className="text-red-400 font-bold">Đỏ (Red):</b> Đại diện cho nhiệt huyết rực cháy, đam mê mãnh liệt và sự tận tâm trong từng chi tiết mã nguồn.</li>
-            <li><b className="text-orange-400 font-bold">Cam (Orange):</b> Tượng trưng cho năng lượng tích cực, sự năng động và khao khát không ngừng đổi mới.</li>
-            <li><b className="text-yellow-400 font-bold">Vàng (Yellow):</b> Tỏa sáng sự lạc quan, mang đến niềm tin và sự thịnh vượng cho mọi khách hàng.</li>
-            <li><b className="text-green-400 font-bold">Xanh lá (Green):</b> Biểu tượng của sự tăng trưởng bền vững, luôn sinh sôi và phát triển mạnh mẽ.</li>
-            <li><b className="text-blue-400 font-bold">Xanh dương (Blue):</b> Cốt lõi của công nghệ, đại diện cho sự uy tín, minh bạch và chuyên nghiệp tuyệt đối.</li>
-            <li><b className="text-purple-400 font-bold">Tím (Purple):</b> Tầm nhìn xa trông rộng, sự huyền bí và khả năng tạo ra những đột phá mang tính nghệ thuật.</li>
+            <li><b className="text-red-400 font-bold">{t("templatesPage.core.redBold")}</b> {t("templatesPage.core.redText")}</li>
+            <li><b className="text-orange-400 font-bold">{t("templatesPage.core.orangeBold")}</b> {t("templatesPage.core.orangeText")}</li>
+            <li><b className="text-yellow-400 font-bold">{t("templatesPage.core.yellowBold")}</b> {t("templatesPage.core.yellowText")}</li>
+            <li><b className="text-green-400 font-bold">{t("templatesPage.core.greenBold")}</b> {t("templatesPage.core.greenText")}</li>
+            <li><b className="text-blue-400 font-bold">{t("templatesPage.core.blueBold")}</b> {t("templatesPage.core.blueText")}</li>
+            <li><b className="text-purple-400 font-bold">{t("templatesPage.core.purpleBold")}</b> {t("templatesPage.core.purpleText")}</li>
           </ul>
         </div>
       </div>
@@ -242,8 +232,8 @@ export default function TemplatesPage() {
   const Slide2_Typography = () => (
     <div className="w-full h-full flex flex-col items-center justify-center px-4 max-w-6xl mx-auto space-y-4 md:space-y-16">
       <div className="text-center space-y-1 md:space-y-4">
-        <span className="text-purple-400 font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs">The Language</span>
-        <h2 className="font-display text-2xl md:text-6xl font-black text-white">Lựa chọn font chữ</h2>
+        <span className="text-purple-400 font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs">{t("templatesPage.typography.badge")}</span>
+        <h2 className="font-display text-2xl md:text-6xl font-black text-white">{t("templatesPage.typography.title")}</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 w-full max-h-[65vh] overflow-y-auto md:overflow-visible custom-scrollbar pb-8 md:pb-0">
         <motion.div whileHover={{ scale: 1.05, rotateY: 5 }} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] md:rounded-3xl p-4 sm:p-10 space-y-2 sm:space-y-6 shadow-[0_0_30px_rgba(255,255,255,0.02)]">
@@ -253,7 +243,7 @@ export default function TemplatesPage() {
           </div>
           <h3 className="font-display text-3xl sm:text-5xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">Outfit</h3>
           <p className="font-display text-lg sm:text-2xl text-slate-300">A B C D E F G</p>
-          <p className="text-slate-400 font-light text-xs sm:text-base">Mang dáng vẻ hiện đại, dứt khoát như những chòm sao rõ nét trên bầu trời đêm. Dùng cho tiêu đề lớn.</p>
+          <p className="text-slate-400 font-light text-xs sm:text-base">{t("templatesPage.typography.displayDesc")}</p>
         </motion.div>
         <motion.div whileHover={{ scale: 1.05, rotateY: -5 }} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] md:rounded-3xl p-4 sm:p-10 space-y-2 sm:space-y-6 shadow-[0_0_30px_rgba(255,255,255,0.02)]">
           <div className="flex items-center justify-between">
@@ -262,7 +252,7 @@ export default function TemplatesPage() {
           </div>
           <h3 className="font-sans text-3xl sm:text-5xl font-normal text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Inter</h3>
           <p className="font-sans text-lg sm:text-2xl text-slate-300 font-light">A B C D E F G</p>
-          <p className="text-slate-400 font-light text-xs sm:text-base">Tối giản, tinh tế và mượt mà. Dẫn dắt ánh nhìn qua từng đoạn văn bản như quỹ đạo của các hành tinh.</p>
+          <p className="text-slate-400 font-light text-xs sm:text-base">{t("templatesPage.typography.bodyDesc")}</p>
         </motion.div>
       </div>
     </div>
@@ -271,9 +261,9 @@ export default function TemplatesPage() {
   const Slide3_Chibi = () => (
     <div className="w-full h-full flex flex-col items-center justify-center px-4 max-w-7xl mx-auto space-y-4 md:space-y-16 mt-4 md:mt-0">
       <div className="text-center space-y-1 md:space-y-4">
-        <span className="text-teal-400 font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs">The Souls</span>
-        <h2 className="font-display text-2xl md:text-6xl font-black text-white">Linh Hồn Vũ Trụ</h2>
-        <p className="text-slate-400 text-xs md:text-base max-w-xl mx-auto hidden sm:block">Những phi hành gia đáng yêu mang trong mình 6 giá trị cốt lõi của Hugo Studio.</p>
+        <span className="text-teal-400 font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs">{t("templatesPage.souls.badge")}</span>
+        <h2 className="font-display text-2xl md:text-6xl font-black text-white">{t("templatesPage.souls.title")}</h2>
+        <p className="text-slate-400 text-xs md:text-base max-w-xl mx-auto hidden sm:block">{t("templatesPage.souls.desc")}</p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-6 w-full px-2 sm:px-0">
         {coreValues.map((val, idx) => (
@@ -283,8 +273,8 @@ export default function TemplatesPage() {
               <img src={val.img} alt={val.title} className="w-full h-full object-contain" />
             </div>
             <div className="relative z-10 space-y-1 sm:space-y-2">
-              <h3 className="font-display text-sm sm:text-2xl font-bold text-white drop-shadow-md">{val.title}</h3>
-              <p className="text-[10px] sm:text-xs text-slate-300 leading-relaxed hidden sm:block">{val.desc}</p>
+              <h3 className="font-display text-sm sm:text-2xl font-bold text-white drop-shadow-md">{t(`templatesPage.souls.values.${idx}.title`)}</h3>
+              <p className="text-[10px] sm:text-xs text-slate-300 leading-relaxed hidden sm:block">{t(`templatesPage.souls.values.${idx}.desc`)}</p>
             </div>
           </motion.div>
         ))}
@@ -314,12 +304,12 @@ export default function TemplatesPage() {
       <div className="flex flex-col md:flex-row items-center justify-center px-4 max-w-7xl mx-auto gap-3 md:gap-12 relative z-10 min-h-full py-2 md:py-0 mt-2 md:mt-0">
         <div className="w-full md:flex-1 space-y-2 md:space-y-8 md:w-auto">
           <div>
-            <span className="text-blue-400 font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs">The Constellations</span>
-            <h2 className="font-display text-2xl md:text-5xl font-black text-white mt-0.5 md:mt-2">Bảng Điều Khiển<br className="hidden md:block"/> Thực Tế</h2>
-            <p className="text-slate-400 mt-0.5 md:mt-4 text-[11px] sm:text-xs md:text-base font-light">Lướt qua các chòm sao mẫu thiết kế tương tác thực tế.</p>
+            <span className="text-blue-400 font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs">{t("templatesPage.demos.badge")}</span>
+            <h2 className="font-display text-2xl md:text-5xl font-black text-white mt-0.5 md:mt-2">{t("templatesPage.demos.title1")}<br className="hidden md:block"/> {t("templatesPage.demos.title2")}</h2>
+            <p className="text-slate-400 mt-0.5 md:mt-4 text-[11px] sm:text-xs md:text-base font-light">{t("templatesPage.demos.desc")}</p>
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 md:pb-2 scrollbar-hide w-full md:flex-col md:overflow-visible">
-            {templates.map(tpl => (
+            {templates.map((tpl, idx) => (
               <button
                 key={tpl.id}
                 onClick={() => setActiveTemplateId(tpl.id)}
@@ -329,10 +319,10 @@ export default function TemplatesPage() {
               >
                 <span className="material-symbols-outlined text-[14px] md:text-lg">{tpl.icon}</span>
                 <div className="text-left hidden md:block">
-                  <p className="font-bold text-sm font-display">{tpl.title}</p>
-                  <p className="text-[10px]">{tpl.subtitle}</p>
+                  <p className="font-bold text-sm font-display">{t(`templatesPage.demos.templates.${idx}.title`)}</p>
+                  <p className="text-[10px]">{t(`templatesPage.demos.templates.${idx}.subtitle`)}</p>
                 </div>
-                <p className="md:hidden text-[10px] font-bold">{tpl.short}</p>
+                <p className="md:hidden text-[10px] font-bold">{t(`templatesPage.demos.templates.${idx}.short`)}</p>
               </button>
             ))}
           </div>
@@ -369,11 +359,9 @@ export default function TemplatesPage() {
     <div className="w-full h-full overflow-y-auto custom-scrollbar">
       <div className="flex flex-col items-center justify-center px-4 max-w-7xl mx-auto space-y-6 md:space-y-8 min-h-full py-8 md:py-0">
         <div className="text-center space-y-2 md:space-y-3">
-          <span className="text-emerald-400 font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs">The Archive</span>
-          <h2 className="font-display text-3xl md:text-5xl font-black text-white">Kho Lưu Trữ Dự Án</h2>
-          <p className="text-slate-400 font-light text-xs sm:text-sm md:text-base max-w-xl mx-auto">
-            Truy cập trực tiếp vào cơ sở dữ liệu các dự án thực tế đã được triển khai, nguyên bản và không giới hạn.
-          </p>
+          <span className="text-emerald-400 font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs">{t("templatesPage.archive.badge")}</span>
+          <h2 className="font-display text-3xl md:text-5xl font-black text-white">{t("templatesPage.archive.title")}</h2>
+          <p className="text-slate-400 font-light text-xs sm:text-sm md:text-base max-w-xl mx-auto">{t("templatesPage.archive.desc")}</p>
         </div>
 
         <motion.div 
@@ -415,55 +403,7 @@ export default function TemplatesPage() {
     </div>
   );
 
-  const [currentComment, setCurrentComment] = useState(0);
-  useEffect(() => {
-    if (currentSlide === 6) {
-      const interval = setInterval(() => {
-        setCurrentComment(prev => (prev + 1) % comments.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [currentSlide]);
-
-  const Slide6_Guestbook = () => (
-    <div className="w-full h-full flex flex-col items-center justify-center px-4 max-w-4xl mx-auto relative overflow-hidden">
-
-
-      <div className="text-center space-y-2 md:space-y-4 mb-8 md:mb-12 z-10">
-        <span className="text-pink-400 font-bold tracking-[0.3em] uppercase text-xs">The Echoes</span>
-        <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-[0_0_30px_rgba(236,72,153,0.4)]">Lời nhắn nhủ của khách hàng</h2>
-      </div>
-
-      <div className="relative w-full h-[250px] md:h-[300px] flex items-center justify-center perspective-[1000px] z-10">
-        <AnimatePresence mode="wait">
-          <motion.div key={currentComment} initial={{ opacity: 0, rotateY: 90, scale: 0.8, z: -200 }} animate={{ opacity: 1, rotateY: 0, scale: 1, z: 0 }} exit={{ opacity: 0, rotateY: -90, scale: 0.8, z: -200 }} transition={{ duration: 0.8, type: "spring", bounce: 0.3 }} className="absolute w-full p-6 sm:p-8 md:p-12 bg-white/5 backdrop-blur-2xl border border-white/20 rounded-[2rem] md:rounded-[3rem] shadow-[0_0_50px_rgba(255,255,255,0.05)] text-center flex flex-col items-center gap-4 md:gap-6" style={{ transformStyle: "preserve-3d" }}>
-            <div className="transform translate-z-[40px] mb-2">
-              <span 
-                className="material-symbols-outlined text-5xl md:text-7xl text-slate-400/50"
-                style={{
-                  textShadow: "-2px -2px 4px rgba(255,255,255,0.2), 4px 4px 8px rgba(0,0,0,0.8)"
-                }}
-              >
-                format_quote
-              </span>
-            </div>
-            <p className="text-base md:text-2xl text-slate-200 font-light italic leading-relaxed transform translate-z-[30px]">"{comments[currentComment].text}"</p>
-            <div className="transform translate-z-[20px]">
-              <h4 className="font-display text-lg md:text-xl font-bold text-white">{comments[currentComment].name}</h4>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      <div className="flex gap-3 mt-12 z-10">
-        {comments.map((_, idx) => (
-          <div key={idx} className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentComment ? "w-8 bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.8)]" : "w-3 bg-white/20"}`} />
-        ))}
-      </div>
-    </div>
-  );
-
-  const slides = [Slide0_Hero, Slide1_Logo, Slide2_Typography, Slide3_Chibi, Slide4_Demos, Slide5_Archive, Slide6_Guestbook];
+  const slides = [Slide0_Hero, Slide1_Logo, Slide2_Typography, Slide3_Chibi, Slide4_Demos, Slide5_Archive];
   const CurrentSlideComponent = slides[currentSlide];
 
   return (

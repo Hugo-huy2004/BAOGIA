@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 
 const COMMON_ICONS = [
@@ -6,6 +7,8 @@ const COMMON_ICONS = [
 ];
 
 export default function MemberServicesTab({ formData, setFormData, showToast, isGuestMode, bio }) {
+  const { t } = useTranslation();
+
   const [newService, setNewService] = useState({
     name: "",
     description: "",
@@ -15,7 +18,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
 
   const handleAddService = () => {
     if (!newService.name.trim() || !newService.description.trim() || !newService.price.trim()) {
-      showToast("Vui lòng nhập đủ tên, mô tả và giá dịch vụ.", "warning");
+      showToast(t("memberTabs.services.toastEmpty"), "warning");
       return;
     }
 
@@ -26,70 +29,66 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
     setNewService({ name: "", description: "", price: "", icon: "design_services" });
 
     if (isGuestMode || !bio?._id) {
-      showToast("Đã thêm dịch vụ tạm thời (nhấp Lưu Thông Tin để cập nhật).", "success");
+      showToast(t("memberTabs.services.toastAddedTemp"), "success");
     } else {
-      showToast("Đã thêm dịch vụ tạm thời. Hãy nhấp Cập Nhật để lưu vào cơ sở dữ liệu.", "success");
+      showToast(t("memberTabs.services.toastAddedTempInfo"), "success");
     }
   };
 
   const handleRemoveService = (idToKill) => {
     const updatedServices = (formData.services || []).filter(s => s.id !== idToKill);
     setFormData(prev => ({ ...prev, services: updatedServices }));
-    showToast("Đã xóa dịch vụ.", "success");
+    showToast(t("memberTabs.services.toastDeleted"), "success");
   };
 
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="bg-white dark:bg-[#12111a] rounded-3xl border border-slate-200 dark:border-slate-800/80 p-6 shadow-sm">
         <h3 className="font-black text-sm uppercase tracking-wider text-slate-850 dark:text-white mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-emerald-500 text-lg">storefront</span>
-          Dịch Vụ Báo Giá (Services)
-        </h3>
+          <span className="material-symbols-outlined text-emerald-500 text-lg">storefront</span>{t("memberTabs.services.title")}</h3>
         
-        <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
-          Khai báo các dịch vụ bạn đang cung cấp kèm báo giá. Dữ liệu này sẽ được lưu đè trực tiếp (Embedded) vào hồ sơ để tránh gây phình to database (tối ưu hiệu năng).
-        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">{t("memberTabs.services.desc")}</p>
 
         {/* Thêm dịch vụ mới */}
         <div className="bg-slate-50 dark:bg-slate-900/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/60 mb-6 space-y-4">
-          <h4 className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Thêm Dịch Vụ Mới</h4>
+          <h4 className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">{t("memberTabs.services.addNew")}</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">Tên dịch vụ *</label>
+              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">{t("memberTabs.services.nameLabel")}</label>
               <input
                 type="text"
                 value={newService.name}
                 onChange={(e) => setNewService(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Vd: Thiết kế Website"
+                placeholder={t("memberTabs.services.namePlaceholder")}
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-750 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-850 dark:text-white"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">Mức giá *</label>
+              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">{t("memberTabs.services.priceLabel")}</label>
               <input
                 type="text"
                 value={newService.price}
                 onChange={(e) => setNewService(prev => ({ ...prev, price: e.target.value }))}
-                placeholder="Vd: Liên hệ / 500.000đ"
+                placeholder={t("memberTabs.services.pricePlaceholder")}
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-750 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-850 dark:text-white"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">Mô tả ngắn gọn *</label>
+            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">{t("memberTabs.services.descLabel")}</label>
             <input
               type="text"
               value={newService.description}
               onChange={(e) => setNewService(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Giới thiệu nhanh về dịch vụ này..."
+              placeholder={t("memberTabs.services.descPlaceholder")}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-750 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-850 dark:text-white"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">Biểu tượng (Icon)</label>
+            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">{t("memberTabs.services.iconLabel")}</label>
             <div className="flex flex-wrap gap-2">
               {COMMON_ICONS.map(icon => (
                 <button
@@ -112,22 +111,19 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
               onClick={handleAddService}
               className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center gap-2"
             >
-              <span className="material-symbols-outlined text-sm">add_circle</span>
-              Thêm Dịch Vụ
-            </button>
+              <span className="material-symbols-outlined text-sm">add_circle</span>{t("memberTabs.services.addButton")}</button>
           </div>
         </div>
 
         {/* Danh sách dịch vụ */}
         <div className="space-y-4">
-          <h4 className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
-            Danh sách dịch vụ <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">{(formData.services || []).length}</span>
+          <h4 className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">{t("memberTabs.services.listTitle")} <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">{(formData.services || []).length}</span>
           </h4>
 
           {(!formData.services || formData.services.length === 0) ? (
             <div className="py-8 text-center bg-slate-50/50 dark:bg-[#0c0b11]/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800/60">
               <span className="material-symbols-outlined text-3xl text-slate-300 dark:text-slate-700 mb-2">shopping_bag</span>
-              <p className="text-[10px] text-slate-400 font-medium">Chưa có dịch vụ nào.</p>
+              <p className="text-[10px] text-slate-400 font-medium">{t("memberTabs.services.emptyList")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -148,7 +144,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
                   <button
                     onClick={() => handleRemoveService(srv.id)}
                     className="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500 dark:hover:text-white flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-all absolute right-3"
-                    title="Xóa dịch vụ"
+                    title={t("memberTabs.services.deleteBtn")}
                   >
                     <span className="material-symbols-outlined text-sm">delete</span>
                   </button>

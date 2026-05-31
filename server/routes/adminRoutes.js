@@ -56,7 +56,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-export default router;
 
 // Logout route
 router.post('/logout', (req, res) => {
@@ -72,7 +71,7 @@ router.post('/verify-password', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Mật khẩu là bắt buộc' });
     }
 
-    const admin = await Admin.findById(req.user.id);
+    const admin = await Admin.findById(req.admin.id);
     if (!admin) {
       return res.status(404).json({ error: 'Không tìm thấy tài khoản admin' });
     }
@@ -88,3 +87,5 @@ router.post('/verify-password', requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'Lỗi máy chủ' });
   }
 });
+
+export default router;

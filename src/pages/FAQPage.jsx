@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useTranslation } from "react-i18next";
 
 export default function FAQPage() {
+  const { t } = useTranslation();
   useHeadMeta({
     title: "FAQ | Hugo Studio",
     description: "Giải đáp các thắc mắc thường gặp về dịch vụ thiết kế Bio Link cá nhân, chi phí thiết kế và cách thức hoạt động tại Hugo Studio.",
@@ -10,278 +12,183 @@ export default function FAQPage() {
     canonicalUrl: "https://www.hugowishpax.studio/faq"
   });
 
-  const [expandedIdx, setExpandedIdx] = useState(null);
-  const [floatingElements, setFloatingElements] = useState([]);
+  const [expandedIdx, setExpandedIdx] = useState(0); // Mở sẵn câu đầu tiên
+  const [floatingDots, setFloatingDots] = useState([]);
 
   useEffect(() => {
-    // Generate random floating elements
-    const elements = Array.from({ length: 8 }).map((_, i) => ({
+    // Generate subtle floating dots for background
+    setFloatingDots(Array.from({ length: 6 }).map((_, i) => ({
       id: i,
       left: Math.random() * 100,
-      delay: Math.random() * 0.5,
-      duration: 15 + Math.random() * 10
-    }));
-    setFloatingElements(elements);
+      top: Math.random() * 100,
+      size: Math.random() * 4 + 2,
+      delay: Math.random() * 2,
+      duration: Math.random() * 10 + 10
+    })));
   }, []);
 
   const faqs = [
-    {
-      question: "Hugo Studio có giờ làm việc không?",
-      answer: "Hugo Studio là cung cấp dịch vụ cá nhân và trực tiếp 1:1 với khách hàng, nên không có thời gian cố định, nên các bạn cứ thoải mái gửi ping pong tin nhắn đến Hugo Studio nha!",
-      icon: "schedule",
-      color: "from-amber-500 to-orange-500"
-    },
-    {
-      question: "Hugo Studio hiện team có nhiều thành viên không?",
-      answer: "Chúng tớ chỉ có 2 thành viên là Hugo Wishpax Lê và Jason Phan đang cùng một team full-stack để mang đến trải nghiệm tối ưu cho các bạn.",
-      icon: "people",
-      color: "from-emerald-500 to-teal-500"
-    },
-    {
-      question: "Có dịch vụ nào được trải nghiệm thử tại Hugo Studio không?",
-      answer: "Do đang là sinh viên, nên tớ biết các bạn nhà sỉ tử của chúng mình rất mong mỏi có được một trang giới thiệu về bản thân mình. Chính vì thế, Hugo Studio đang cung cấp dịch vụ tạo Bio miễn phí bao gồm tên miền đọc quyền dành cho các bạn có mail .edu. Hãy vào trang Đăng Nhập và trải nghiệm với Hugo Studio nha.",
-      icon: "card_giftcard",
-      color: "from-pink-500 to-rose-500"
-    },
-    {
-      question: "Chi phí của Hugo Studio thế nào?",
-      answer: "Rất rẻ, và kết quả hơn với những gì các bạn mong đợi.",
-      icon: "price_check",
-      color: "from-cyan-500 to-blue-500"
-    },
-    {
-      question: "Ngày lễ, Hugo Studio có nghỉ không?",
-      answer: "Các bạn cứ an tâm nha, khi nào nghỉ, chúng mình sẽ có một thông báo trên trang, mà đa số chúng tớ đang đi du lịch đấy.",
-      icon: "beach_access",
-      color: "from-violet-500 to-purple-500"
-    }
+    { icon: "schedule", color: "from-amber-400 to-orange-500" },
+    { icon: "group", color: "from-emerald-400 to-teal-500" },
+    { icon: "featured_seasonal_and_gifts", color: "from-pink-400 to-rose-500", hasAction: true, actionLink: "/student-benefits" },
+    { icon: "payments", color: "from-cyan-400 to-blue-500" },
+    { icon: "flight_takeoff", color: "from-violet-400 to-purple-500" }
   ];
 
-  const toggleExpand = (idx) => {
-    setExpandedIdx(expandedIdx === idx ? null : idx);
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-[#0b0a0f] dark:via-slate-950 dark:to-black relative overflow-hidden pt-20 pb-16 transition-colors duration-300">
-      {/* Animated background glows */}
-      <style>{`
-        @keyframes float-x {
-          0%, 100% { transform: translateX(0) translateY(0); }
-          50% { transform: translateX(30px) translateY(-30px); }
-        }
-        @keyframes float-y {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-30px); }
-        }
-        @keyframes pulse-glow {
-          0%, 100% { opacity: 0.5; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.1); }
-        }
-        @keyframes shimmer {
-          0% { background-position: -1000px 0; }
-          100% { background-position: 1000px 0; }
-        }
-        @keyframes gradient-shift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-float-x {
-          animation: float-x 6s ease-in-out infinite;
-        }
-        .animate-float-y {
-          animation: float-y 8s ease-in-out infinite;
-        }
-        .animate-pulse-glow {
-          animation: pulse-glow 4s ease-in-out infinite;
-        }
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-          background-size: 1000px 100%;
-        }
-        .gradient-animated {
-          background-size: 400% 400%;
-          animation: gradient-shift 8s ease infinite;
-        }
-      `}</style>
-
-      {/* Animated background elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 rounded-full bg-[#6366f1]/20 blur-3xl animate-pulse-glow" />
-      <div className="absolute top-1/4 right-0 w-96 h-96 rounded-full bg-[#0ea5e9]/20 blur-3xl animate-pulse-glow" style={{ animationDelay: '2s' }} />
-      <div className="absolute bottom-0 left-1/3 w-96 h-96 rounded-full bg-[#fbbf24]/20 blur-3xl animate-pulse-glow" style={{ animationDelay: '1s' }} />
-
-      {/* Floating animated elements */}
-      {floatingElements.map((el) => (
-        <div
-          key={el.id}
-          className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-[#6366f1] to-[#0ea5e9] opacity-30 animate-float-y pointer-events-none"
+    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] relative overflow-hidden pt-24 pb-20 transition-colors duration-300">
+      
+      {/* Background Animated Glows */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/10 dark:bg-indigo-500/10 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-500/10 dark:bg-cyan-400/10 blur-[120px] pointer-events-none" />
+      
+      {/* Floating ambient dots */}
+      {floatingDots.map((dot) => (
+        <div 
+          key={dot.id}
+          className="absolute rounded-full bg-indigo-500/20 dark:bg-indigo-400/20 blur-[1px] pointer-events-none"
           style={{
-            left: `${el.left}%`,
-            top: `${Math.random() * 100}%`,
-            animation: `float-y ${el.duration}s ease-in-out infinite`,
-            animationDelay: `${el.delay}s`
+            width: dot.size,
+            height: dot.size,
+            left: `${dot.left}%`,
+            top: `${dot.top}%`,
+            animation: `float-y ${dot.duration}s ease-in-out infinite`,
+            animationDelay: `${dot.delay}s`
           }}
         />
       ))}
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-0 relative z-10">
-        {/* Animated Header Section */}
-        <div className="text-center space-y-4 sm:space-y-6 mb-16 md:mb-20">
-          {/* Top badge with shimmer */}
-          <div className="inline-block animate-shimmer">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-[#6366f1]/20 via-[#0ea5e9]/20 to-[#fbbf24]/20 text-[#6366f1] border border-[#6366f1]/40 backdrop-blur-sm">
-              ✦ Câu Hỏi Thường Gặp
-            </span>
-          </div>
+      <style>{`
+        @keyframes float-y {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-40px); }
+        }
+      `}</style>
 
-          {/* Main heading with gradient animation */}
-          <div className="space-y-2">
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight">
-              <span className="text-slate-900 dark:text-white">Giải Đáp</span>
-              <br />
-              <span className="bg-gradient-to-r from-[#6366f1] via-[#0ea5e9] via-[#fbbf24] to-[#ec4899] bg-clip-text text-transparent bg-[length:200%_auto] gradient-animated">
-                Những Thắc Mắc
-              </span>
-            </h1>
-          </div>
-
-          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0">
-            Có bất kỳ câu hỏi gì về Hugo Studio? Chúng tớ đây sẵn sàng giúp bạn! 😊
-          </p>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+        
+        {/* Header Section */}
+        <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-100/50 dark:bg-indigo-500/10 border border-indigo-200/50 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>{t("faqPage.header.badge")}</div>
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight mb-5 leading-[1.1]">{t("faqPage.header.title1")} <br className="sm:hidden" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">{t("faqPage.header.title2")}</span>
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">{t("faqPage.header.desc")}</p>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
-          {/* FAQ Items */}
-          <div className="lg:col-span-2 space-y-4">
-            {faqs.map((faq, idx) => (
-              <div
-                key={idx}
-                onClick={() => toggleExpand(idx)}
-                className="group cursor-pointer"
-              >
-                {/* Question Card with hover effects */}
-                <div className="relative bg-white dark:bg-white/8 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-6 hover:bg-slate-50 dark:hover:bg-white/12 transition-all duration-300 shadow-md dark:shadow-xl hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-[#6366f1]/10 overflow-hidden">
-                  {/* Hover gradient background */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1]/0 to-[#0ea5e9]/0 group-hover:from-[#6366f1]/5 group-hover:to-[#0ea5e9]/5 transition-all duration-300 pointer-events-none" />
-                  
-                  {/* Top accent line */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#6366f1] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  <div className="relative flex items-start justify-between gap-3 sm:gap-4">
-                    <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
-                      {/* Icon with animated background */}
-                      <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${faq.color} flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
-                        <span className="material-symbols-outlined text-xl sm:text-2xl text-white">
-                          {faq.icon}
-                        </span>
-                      </div>
-                      
-                      {/* Question Text */}
-                      <div className="flex-1 min-w-0 pt-1">
-                        <h3 className="font-display text-base sm:text-xl font-bold text-slate-800 dark:text-white leading-tight group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-[#6366f1] group-hover:to-[#0ea5e9] group-hover:bg-clip-text transition-all duration-300">
-                          {faq.question}
-                        </h3>
-                      </div>
-                    </div>
-
-                    {/* Animated expand icon */}
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                      expandedIdx === idx 
-                        ? `bg-gradient-to-br ${faq.color} shadow-lg` 
-                        : "bg-slate-100 dark:bg-white/10 group-hover:bg-slate-200 dark:group-hover:bg-white/20"
+        {/* Main Layout Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          
+          {/* FAQ Accordion List (Left/Main Column) */}
+          <div className="lg:col-span-8 space-y-4">
+            {faqs.map((faq, idx) => {
+              const isExpanded = expandedIdx === idx;
+              return (
+                <div 
+                  key={idx}
+                  onClick={() => setExpandedIdx(isExpanded ? null : idx)}
+                  className={`group cursor-pointer rounded-2xl transition-all duration-300 overflow-hidden border ${
+                    isExpanded 
+                      ? "bg-white dark:bg-white/5 border-indigo-200 dark:border-indigo-500/30 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(99,102,241,0.05)]" 
+                      : "bg-white/60 dark:bg-transparent border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-white dark:hover:bg-white/5"
+                  }`}
+                >
+                  <div className="p-5 md:p-6 flex items-start gap-4 md:gap-5">
+                    {/* Icon Bubble */}
+                    <div className={`shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
+                      isExpanded 
+                        ? `bg-gradient-to-br ${faq.color} shadow-lg text-white scale-110 rotate-3` 
+                        : "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 group-hover:scale-105"
                     }`}>
-                      <span className={`material-symbols-outlined text-lg sm:text-xl transition-all duration-300 ${
-                        expandedIdx === idx ? "text-white rotate-180" : "text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white"
+                      <span className="material-symbols-outlined text-lg md:text-xl">{faq.icon}</span>
+                    </div>
+
+                    {/* Question Content */}
+                    <div className="flex-1 min-w-0 pt-0.5 md:pt-1">
+                      <div className="flex justify-between items-start gap-4">
+                        <h3 className={`text-base md:text-lg font-bold leading-tight transition-colors duration-300 ${
+                          isExpanded ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white"
+                        }`}>
+                          {t(`faqPage.faqs.${idx}.question`)}
+                        </h3>
+                        {/* Expand Caret */}
+                        <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center bg-slate-100 dark:bg-white/5 transition-transform duration-500 ${
+                          isExpanded ? "rotate-180 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400" : "text-slate-400"
+                        }`}>
+                          <span className="material-symbols-outlined text-lg">expand_more</span>
+                        </div>
+                      </div>
+
+                      {/* Expandable Answer Body (Using CSS Grid Trick for smooth height transition) */}
+                      <div className={`grid transition-all duration-500 ease-in-out ${
+                        isExpanded ? "grid-rows-[1fr] opacity-100 mt-3 md:mt-4" : "grid-rows-[0fr] opacity-0 mt-0"
                       }`}>
-                        expand_more
-                      </span>
+                        <div className="overflow-hidden">
+                          <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm md:text-[15px]">
+                            {t(`faqPage.faqs.${idx}.answer`)}
+                          </p>
+                          {faq.hasAction && (
+                            <div className="mt-4 md:mt-5">
+                              <Link 
+                                to={faq.actionLink || "/login"}
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-semibold text-sm hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                              >
+                                <span>{t(`faqPage.faqs.${idx}.actionText`)}</span>
+                                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Answer Section - Smooth expandable */}
-                <div className={`overflow-hidden transition-all duration-500 ease-out ${
-                  expandedIdx === idx ? "max-h-96 opacity-100 mt-2 sm:mt-3" : "max-h-0 opacity-0"
-                }`}>
-                  <div className="bg-white dark:bg-gradient-to-r dark:from-white/5 dark:to-white/10 backdrop-blur-xl border border-slate-100 dark:border-white/10 rounded-2xl p-4 sm:p-6 ml-0 sm:ml-10 shadow-md dark:shadow-xl">
-                    {/* Animated left border */}
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#6366f1] via-[#0ea5e9] to-[#fbbf24]" />
-                    
-                    <p className="text-slate-600 dark:text-slate-200 leading-relaxed text-sm sm:text-base relative pl-4">
-                      {faq.answer}
-                    </p>
-                    
-                    {/* Special CTA */}
-                    {idx === 2 && (
-                      <Link 
-                        to="/login"
-                        className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#0ea5e9] text-white font-semibold text-sm hover:scale-105 hover:shadow-lg hover:shadow-[#6366f1]/20 transition-all duration-300 group/btn relative overflow-hidden"
-                      >
-                        <span className="relative z-10">Đăng Nhập Ngay</span>
-                        <span className="material-symbols-outlined text-sm relative z-10 group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#0ea5e9] to-[#6366f1] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Illustration Side - Right Column */}
-          <div className="lg:col-span-1 flex justify-center lg:justify-end mt-8 sm:mt-12 lg:mt-0">
-            <div className="relative w-full max-w-xs">
-              {/* Multi-layer decorative background */}
-              <div className="absolute -inset-8 bg-gradient-to-r from-[#6366f1]/20 via-[#0ea5e9]/20 to-[#fbbf24]/20 rounded-3xl blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+          {/* Contact Sticky Card (Right Column) */}
+          <div className="lg:col-span-4 relative mt-4 lg:mt-0">
+            <div className="sticky top-28 bg-white dark:bg-[#12111a] border border-slate-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-xl dark:shadow-2xl overflow-hidden group">
+              {/* Card Decorative Glow */}
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/20 dark:bg-indigo-500/10 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-transform duration-700" />
               
-              {/* Main image card with premium styling */}
-              <div className="relative bg-white dark:bg-gradient-to-br dark:from-white/10 dark:to-white/5 backdrop-blur-2xl border border-slate-200 dark:border-white/20 rounded-3xl p-6 shadow-xl dark:shadow-2xl overflow-hidden group hover:shadow-[0_20px_60px_rgba(99,102,241,0.15)] dark:hover:shadow-[0_20px_60px_rgba(99,102,241,0.3)] transition-all duration-500">
-                {/* Animated overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/0 via-transparent to-[#0ea5e9]/0 group-hover:from-[#6366f1]/5 group-hover:to-[#0ea5e9]/5 transition-all duration-500 pointer-events-none" />
-                
-                {/* Image with frame */}
-                <div className="relative overflow-hidden rounded-2xl aspect-square mb-6 border border-slate-100 dark:border-white/20">
-                  <img
-                    src="/image/avt5.png"
-                    alt="Hugo Studio Team"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              <div className="relative z-10 text-center">
+                {/* Avatar */}
+                <div className="relative w-28 h-28 mx-auto mb-4 hover:scale-105 transition-transform duration-300">
+                  <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl animate-pulse" />
+                  <img 
+                    src="/image/avt5.png" 
+                    alt="Hugo Support" 
+                    className="relative z-10 w-full h-full object-contain drop-shadow-xl"
                   />
-                  {/* Image overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#6366f1]/20 dark:from-[#6366f1]/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Status Indicator */}
+                  <div className="absolute bottom-2 right-4 z-20 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-[#12111a] rounded-full shadow-sm" title="Online" />
                 </div>
+                
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t("faqPage.contact.title")}</h3>
+                <p className="text-[13px] text-slate-500 dark:text-slate-400 mb-8 px-2">{t("faqPage.contact.desc")}</p>
 
-                {/* Text section with animation */}
-                <div className="relative z-10 text-center space-y-3">
-                  <h3 className="font-display text-2xl font-bold text-slate-900 dark:text-white">
-                    Đội Ngũ
-                    <br />
-                    <span className="bg-gradient-to-r from-[#6366f1] to-[#0ea5e9] bg-clip-text text-transparent">
-                      Hugo Studio
-                    </span>
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Sẵn sàng giúp bạn mang ý tưởng thành hiện thực 🚀
-                  </p>
-                  
-                  {/* Animated badges */}
-                  <div className="flex flex-wrap gap-2 justify-center pt-4">
-                    <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 transition-colors duration-300">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      Available
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30 transition-colors duration-300">
-                      <span className="material-symbols-outlined text-xs">favorite</span>
-                      Passionate
-                    </span>
-                  </div>
+                <div className="space-y-3">
+                  <a 
+                    href="https://zalo.me/0839909399" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-[#0068ff] hover:bg-[#0054cc] text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/25"
+                  >
+                    <span className="material-symbols-outlined text-lg">chat</span>{t("faqPage.contact.chatBtn")}</a>
+                  <a 
+                    href="mailto:hugowishpax@gmail.com" 
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-bold transition-all border border-slate-200 dark:border-white/5"
+                  >
+                    <span className="material-symbols-outlined text-lg">mail</span>{t("faqPage.contact.emailBtn")}</a>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
-
-
       </div>
     </div>
   );

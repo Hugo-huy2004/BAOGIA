@@ -3,11 +3,19 @@ import { Link, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSession";
 import { useData } from "../context/DataContext";
 import MobileDrawer from "./MobileDrawer";
+import { useTranslation } from "react-i18next";
 
 export default function Navbar() {
   const location = useLocation();
   const { data } = useData();
   const allowBooking = data?.systemSettings?.allowBooking !== false;
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith('vi') ? 'en' : 'vi';
+    i18n.changeLanguage(newLang);
+    playPopSound();
+  };
 
   const playPopSound = () => {
     try {
@@ -30,7 +38,6 @@ export default function Navbar() {
 
   const isLoggedIn = isMemberAuthenticated() || isAdminAuthenticated();
   const accountPath = isAdminAuthenticated() ? "/admin" : (isMemberAuthenticated() ? "/member" : "/login");
-  const accountLabel = isLoggedIn ? "Tài khoản" : "Đăng nhập";
 
   return (
     <header className="sticky top-0 z-50 flex h-14 w-full items-center border-b border-[#eaeaea] bg-[#f5f5f7]/80 px-3 backdrop-blur-md transition-colors duration-300 dark:border-[#2a2a2d] dark:bg-[#161617]/80 sm:px-4 md:px-6">
@@ -65,7 +72,7 @@ export default function Navbar() {
                 : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             }`}
           >
-            Giới thiệu
+            {t("navbar.home", "Giới thiệu")}
           </Link>
 
           <Link 
@@ -77,7 +84,7 @@ export default function Navbar() {
                 : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             }`}
           >
-            Dịch vụ
+            {t("navbar.services", "Dịch vụ")}
           </Link>
 
           <Link 
@@ -89,7 +96,7 @@ export default function Navbar() {
                 : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             }`}
           >
-            Tác Phẩm
+            {t("navbar.templates", "Tác Phẩm")}
           </Link>
 
           <Link 
@@ -101,7 +108,7 @@ export default function Navbar() {
                 : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             }`}
           >
-            Hỏi đáp
+            {t("navbar.faq", "Hỏi đáp")}
           </Link>
 
           {allowBooking && (
@@ -114,31 +121,39 @@ export default function Navbar() {
                   : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               }`}
             >
-              Đặt lịch
+              {t("navbar.booking", "Đặt lịch")}
             </Link>
           )}
 
           <Link 
             to={accountPath} 
             onClick={playPopSound} 
-            className={`inline-flex h-8 items-center text-[12px] font-normal leading-none tracking-wide transition-colors duration-200 select-none ${
+            className={`inline-flex h-8 items-center gap-1 text-[12px] font-normal leading-none tracking-wide transition-colors duration-200 select-none ${
               location.pathname === "/login" || location.pathname === "/member" || location.pathname === "/admin"
                 ? "text-slate-900 dark:text-white font-medium"
                 : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             }`}
           >
-            {accountLabel}
+            <span className="material-symbols-outlined text-[16px]">account_circle</span>
+            {t("navbar.account", "Tài khoản")}
           </Link>
         </nav>
 
         {/* Right Side Controls */}
         <div className="flex h-8 items-center gap-1 sm:gap-2 md:gap-4 ml-auto flex-shrink-0">
+          <button
+            onClick={toggleLanguage}
+            className="hidden sm:flex h-8 w-12 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-300 dark:hover:bg-slate-700"
+          >
+            {i18n.language.startsWith('en') ? 'EN' : 'VI'}
+          </button>
+
           <Link 
             to="/services"
             onClick={playPopSound} 
             className="hidden sm:inline-flex h-8 min-w-[76px] items-center justify-center rounded-full bg-[#0071e3] hover:bg-[#0077ed] px-3 md:px-4 text-[11px] md:text-[12px] font-semibold leading-none text-white shadow-sm transition-all duration-200 active:scale-95"
           >
-            Báo Giá
+            {t("navbar.pricing", "Báo Giá")}
           </Link>
 
           {/* Mobile Menu Drawer */}

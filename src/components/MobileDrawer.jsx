@@ -2,25 +2,33 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSession";
 import { useData } from "../context/DataContext";
+import { useTranslation } from "react-i18next";
 
 export default function MobileDrawer() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith('vi') ? 'en' : 'vi';
+    i18n.changeLanguage(newLang);
+  };
+
   const isLoggedIn = isMemberAuthenticated() || isAdminAuthenticated();
   const accountPath = isAdminAuthenticated() ? "/admin" : (isMemberAuthenticated() ? "/member" : "/login");
-  const accountLabel = isLoggedIn ? "Tài Khoản" : "Đăng Nhập";
+  const accountLabel = isLoggedIn ? t("navbar.account", "Tài Khoản") : t("navbar.login", "Đăng Nhập");
   const accountIcon = isLoggedIn ? "account_circle" : "login";
 
   const { data } = useData();
   const allowBooking = data?.systemSettings?.allowBooking !== false;
 
   const mainMenuItems = [
-    { label: "Giới Thiệu", path: "/introduction" },
-    { label: "Dịch Vụ", path: "/services" },
-    { label: "Tác Phẩm", path: "/templates" },
-    { label: "Hỏi Đáp", path: "/faq" },
-    ...(allowBooking ? [{ label: "Đặt Lịch & Liên Hệ", path: "/booking" }] : [])
+    { label: t("navbar.home", "Giới Thiệu"), path: "/introduction" },
+    { label: t("navbar.services", "Dịch Vụ"), path: "/services" },
+    { label: t("navbar.templates", "Tác Phẩm"), path: "/templates" },
+    { label: t("navbar.faq", "Hỏi Đáp"), path: "/faq" },
+    ...(allowBooking ? [{ label: t("navbar.booking", "Đặt Lịch & Liên Hệ"), path: "/booking" }] : [])
   ];
 
   return (
@@ -79,7 +87,7 @@ export default function MobileDrawer() {
         {/* Main Menu */}
         <div className="p-4 space-y-1">
           <p className="px-4 py-2 text-xs font-bold text-on-surface-variant dark:text-slate-500 uppercase">
-            Menu Chính
+            {t("navbar.mainMenu", "Menu Chính")}
           </p>
           {mainMenuItems.map((item, idx) => (
             <Link
@@ -97,8 +105,16 @@ export default function MobileDrawer() {
           ))}
         </div>
 
-        {/* Auth Link */}
-        <div className="absolute bottom-20 left-0 right-0 px-4 py-4 border-t border-outline-variant/30 dark:border-slate-700">
+        {/* Auth Link & Lang Switcher */}
+        <div className="absolute bottom-4 left-0 right-0 px-4 py-4 border-t border-outline-variant/30 dark:border-slate-700 flex flex-col gap-1">
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-2 px-4 py-3 rounded-lg text-on-surface dark:text-slate-200 hover:bg-surface-container dark:hover:bg-slate-700 font-medium text-sm transition-colors text-left w-full"
+          >
+            <span className="material-symbols-outlined text-base">language</span>
+            {i18n.language.startsWith('en') ? 'Tiếng Việt (VI)' : 'English (EN)'}
+          </button>
+
           <Link
             to={accountPath}
             onClick={() => setIsOpen(false)}

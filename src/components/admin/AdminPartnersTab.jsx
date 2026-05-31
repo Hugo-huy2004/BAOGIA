@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
+  const { t } = useTranslation();
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -27,7 +29,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
       }
     } catch (err) {
       console.error(err);
-      showNotification("Lỗi kết nối khi tải đối tác.", "error");
+      showNotification(t("admin.texts.txt_95"), "error");
     } finally {
       setLoading(false);
     }
@@ -38,7 +40,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
     const shouldExportIframe = e.nativeEvent.submitter.value === 'export-iframe';
     
     if (!partnerForm.name.trim() || !partnerForm.iframeUrl.trim()) {
-      showNotification("Vui lòng điền đủ thông tin đối tác.", "warning");
+      showNotification(t("admin.texts.txt_96"), "warning");
       return;
     }
 
@@ -50,39 +52,40 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
       });
       if (response.ok) {
         const newPartner = await response.json();
-        showNotification("Đã thêm đối tác thành công!");
+        showNotification(t("admin.texts.txt_97"));
         setPartners(prev => [newPartner, ...prev]);
         setPartnerForm({ name: "", iframeUrl: "" });
         if (shouldExportIframe) {
           setExportPartner(newPartner);
         }
       } else {
-        showNotification("Có lỗi khi thêm đối tác.", "error");
+        showNotification(t("admin.texts.txt_98"), "error");
       }
     } catch (err) {
       console.error(err);
-      showNotification("Lỗi kết nối.", "error");
+      showNotification(t("admin.texts.txt_99"), "error");
     }
   };
 
   const handleDeletePartner = (partnerId) => {
-    triggerConfirm("Bạn có chắc chắn muốn kết thúc liên kết với đối tác này?", async () => {
+  const { t } = useTranslation();
+    triggerConfirm(t("admin.texts.txt_100"), async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/partners/${partnerId}`, {
           method: "DELETE"
         });
         if (response.ok) {
-          showNotification("Đã xóa đối tác liên kết! 🗑️");
+          showNotification(t("admin.texts.txt_101"));
           setPartners(prev => prev.filter(p => p._id !== partnerId));
           if (previewPartner?._id === partnerId) setPreviewPartner(null);
           if (exportPartner?._id === partnerId) setExportPartner(null);
           if (exportLinkPartner?._id === partnerId) setExportLinkPartner(null);
         } else {
-          showNotification("Có lỗi khi xóa đối tác.", "error");
+          showNotification(t("admin.texts.txt_102"), "error");
         }
       } catch (err) {
         console.error(err);
-        showNotification("Lỗi kết nối.", "error");
+        showNotification(t("admin.texts.txt_103"), "error");
       }
     });
   };
@@ -144,11 +147,11 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
         
         <form onSubmit={handleAddPartner} className="space-y-4">
           <div className="space-y-1">
-            <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Tên Đối Tác:</label>
+            <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_89")}</label>
             <input
               type="text"
               required
-              placeholder="Ví dụ: VNPAY, Minh Oi Media..."
+              placeholder={t("admin.texts.txt_104")}
               value={partnerForm.name}
               onChange={(e) => setPartnerForm(p => ({ ...p, name: e.target.value }))}
               className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-805 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -156,11 +159,11 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
           </div>
 
           <div className="space-y-1">
-            <label className="block text-[9px] font-bold text-slate-455 uppercase tracking-wider">Website / Ghi Chú Đối Tác:</label>
+            <label className="block text-[9px] font-bold text-slate-455 uppercase tracking-wider">{t("admin.texts.txt_90")}</label>
             <textarea
               rows="5"
               required
-              placeholder="Ví dụ: https://doitac.vn hoặc ghi chú nơi đối tác sẽ nhúng iframe"
+              placeholder={t("admin.texts.txt_105")}
               value={partnerForm.iframeUrl}
               onChange={(e) => setPartnerForm(p => ({ ...p, iframeUrl: e.target.value }))}
               className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-805 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-mono leading-relaxed"
@@ -181,7 +184,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
               className="w-full bg-primary hover:bg-indigo-650 text-white font-bold text-xs py-3 rounded-xl hover:scale-102 transition-transform shadow-md flex items-center justify-center gap-1.5 active:scale-98"
             >
               <span className="material-symbols-outlined text-sm">iframe</span>
-              Tạo & Xuất
+              {t("admin.texts.txt_91")}
             </button>
           </div>
         </form>
@@ -204,7 +207,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
             <div className="w-full sm:w-56 relative shrink-0">
               <input
                 type="text"
-                placeholder="Tìm đối tác..."
+                placeholder={t("admin.texts.txt_106")}
                 value={partnerSearch}
                 onChange={(e) => { setPartnerSearch(e.target.value); setPartnerPage(1); }}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#1c1626] text-[11px] py-1.5 pl-8 pr-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -263,7 +266,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
                       <button
                         onClick={() => handleDeletePartner(partner._id)}
                         className="text-rose-500 hover:text-rose-700 dark:hover:text-rose-450 p-1.5 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
-                        title="Xóa đối tác"
+                        title={t("admin.texts.txt_107")}
                       >
                         <span className="material-symbols-outlined text-lg">delete</span>
                       </button>
@@ -275,12 +278,12 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
           ) : (
             <div className="p-12 text-center text-slate-400 flex-grow flex items-center justify-center">
               {partnerSearch ? (
-                <p className="italic">Không tìm thấy đối tác phù hợp.</p>
+                <p className="italic">{t("admin.texts.txt_92")}</p>
               ) : (
                 <div className="space-y-2 max-w-sm">
-                  <p className="font-bold text-slate-500 dark:text-slate-350 not-italic">Chưa có đối tác liên kết dịch vụ nào.</p>
+                  <p className="font-bold text-slate-500 dark:text-slate-350 not-italic">{t("admin.texts.txt_93")}</p>
                   <p className="text-[11px] leading-relaxed">
-                    Nhập thông tin ở khung bên trái rồi bấm <strong>Tạo & Xuất</strong> để lấy mã nhúng ngay.
+                    Nhập thông tin ở khung bên trái rồi bấm <strong>{t("admin.texts.txt_94")}</strong> để lấy mã nhúng ngay.
                   </p>
                 </div>
               )}
@@ -381,11 +384,11 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
 
             <div className="space-y-3">
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-                Link này dùng để đặt nút, menu hoặc đường dẫn trực tiếp trên website của đối tác. Khách hàng bấm vào là có thể nhập email và tạo Bio Link miễn phí ngay, không cần đăng nhập vào hệ thống Hugo Studio.
+                {t("adminTabs.partners.linkModalDesc1")}
               </p>
 
               <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-3.5 rounded-xl border border-emerald-100 dark:border-emerald-900/30 space-y-2">
-                <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">Link dùng ngay cho khách hàng:</span>
+                <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">{t("adminTabs.partners.linkReady")}</span>
                 <textarea
                   readOnly
                   rows={3}
@@ -395,7 +398,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
               </div>
 
               <div className="bg-slate-50 dark:bg-[#1f1929] p-3 rounded-xl border border-slate-200 dark:border-slate-800/80 text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                If partner website already has member's email, auto-pass via param: <code>{`${getPartnerBioEditorUrl(exportLinkPartner)}&email=CUSTOMER_EMAIL`}</code>
+                {t("adminTabs.partners.linkParam")} <code>{`${getPartnerBioEditorUrl(exportLinkPartner)}&email=CUSTOMER_EMAIL`}</code>
               </div>
             </div>
 
@@ -404,7 +407,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
                 onClick={() => setExportLinkPartner(null)}
                 className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-all"
               >
-                Đóng
+                {t("adminTabs.partners.close")}
               </button>
               <button
                 onClick={() => {
@@ -415,7 +418,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
                 }}
                 className="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl hover:scale-102 transition-transform shadow-md"
               >
-                Sao Chép Link
+                {t("adminTabs.partners.copyLink")}
               </button>
             </div>
           </div>
@@ -429,7 +432,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                 <span className="material-symbols-outlined text-xl">share</span>
-                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">Xuất Iframe Đối Tác: {exportPartner.name}</h3>
+                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">{t("adminTabs.partners.iframeModalTitle")} {exportPartner.name}</h3>
               </div>
               <button 
                 onClick={() => setExportPartner(null)}
@@ -441,26 +444,26 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
 
             <div className="space-y-3">
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-                Nhúng trình thiết kế Bio miễn phí của <strong>Hugo Studio</strong> trực tiếp vào website của đối tác. Khi người dùng của đối tác truy cập, hệ thống sẽ sử dụng email được truyền qua tham số <code>email</code> để lưu và hiển thị thông tin mà không cần đăng nhập.
+                {t("adminTabs.partners.iframeModalDesc1")} <strong>Hugo Studio</strong> {t("adminTabs.partners.iframeModalDesc2")} <code>email</code> {t("adminTabs.partners.iframeModalDesc3")}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-indigo-50/70 dark:bg-indigo-950/20 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
-                  <span className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-305 uppercase tracking-wider">Link iframe dùng ngay:</span>
+                  <span className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-305 uppercase tracking-wider">{t("adminTabs.partners.iframeReady")}</span>
                   <p className="mt-1 text-[10px] font-mono text-slate-650 dark:text-slate-305 break-all">
                     {getPartnerBioEditorUrl(exportPartner)}
                   </p>
                 </div>
                 <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
-                  <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">Tùy chọn tự động:</span>
+                  <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">{t("adminTabs.partners.iframeAuto")}</span>
                   <p className="mt-1 text-[10px] text-slate-650 dark:text-slate-305 leading-relaxed">
-                    Có thể thêm <code>&email=CUSTOMER_EMAIL</code> nếu đối tác muốn tự truyền email người dùng.
+                    {t("adminTabs.partners.iframeAutoDesc")}
                   </p>
                 </div>
               </div>
 
               <div className="bg-slate-50 dark:bg-[#1f1929] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2">
-                <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Mã nhúng Iframe đề xuất:</span>
+                <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.partners.iframeCode")}</span>
                 <textarea
                   readOnly
                   rows={4}
@@ -472,12 +475,13 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
               <div className="text-[10px] text-amber-600 dark:text-amber-400 bg-amber-500/5 border border-amber-500/10 p-3 rounded-xl space-y-1.5 leading-relaxed">
                 <p className="font-bold flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-xs">info</span>
-                  Hướng dẫn nhúng cho đối tác:
+                  <span className="material-symbols-outlined text-xs">info</span>
+                  {t("adminTabs.partners.iframeGuide")}
                 </p>
                 <ol className="list-decimal pl-4 space-y-1">
-                  <li>Dán nguyên mã iframe vào website của đối tác để khách hàng dùng ngay.</li>
-                  <li>Khi chưa truyền email, giao diện iframe sẽ yêu cầu khách hàng nhập email trước khi tạo Bio Link.</li>
-                  <li>Nếu đối tác đã có email khách hàng, thêm <code>&email=CUSTOMER_EMAIL</code> vào link iframe để vào thẳng trình tạo Bio.</li>
+                  <li>{t("adminTabs.partners.iframeRule1")}</li>
+                  <li>{t("adminTabs.partners.iframeRule2")}</li>
+                  <li>{t("adminTabs.partners.iframeRule3")}</li>
                 </ol>
               </div>
             </div>
@@ -487,7 +491,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
                 onClick={() => setExportPartner(null)}
                 className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-all"
               >
-                Đóng
+                {t("adminTabs.partners.close")}
               </button>
               <button
                 onClick={() => {
@@ -498,7 +502,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
                 }}
                 className="flex-grow bg-primary hover:bg-indigo-650 text-white font-bold text-xs py-3 rounded-xl hover:scale-102 transition-transform shadow-md"
               >
-                Sao Chép Iframe
+                {t("adminTabs.partners.copyIframe")}
               </button>
             </div>
           </div>

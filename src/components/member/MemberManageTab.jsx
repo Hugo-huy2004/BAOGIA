@@ -1,3 +1,4 @@
+import { withTranslation } from "react-i18next";
 import React, { Component } from 'react';
 
 const getBasePackageDetails = (serviceLabel) => {
@@ -60,6 +61,7 @@ class PackageCard extends Component {
   }
 
   render() {
+    const { t } = this.props;
     const { name, duration, durationUnit, benefits, color, startLabel, expiresLabel, isBasePackage = false } = this.props;
     const { isOpen } = this.state;
     const formattedBenefits = benefits || [];
@@ -85,7 +87,7 @@ class PackageCard extends Component {
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5 text-white/60 font-black uppercase text-[9px] tracking-[0.25em]">
                 <span className="material-symbols-outlined text-xs">workspace_premium</span>
-                {isBasePackage ? "GÓI CƠ BẢN" : "GÓI KHUYẾN MÃI"}
+                {isBasePackage ? t("memberPortal.package.base") : t("memberPortal.package.promo")}
               </div>
               <h3 className="text-xl sm:text-2xl font-black tracking-tight uppercase bg-gradient-to-r from-white via-zinc-150 to-zinc-400 bg-clip-text text-transparent">{name}</h3>
             </div>
@@ -141,9 +143,7 @@ class PackageCard extends Component {
           <div className="bg-zinc-50 dark:bg-[#181622]/40 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 p-6 space-y-4">
             <div className="space-y-0.5">
               <h4 className="text-[11px] sm:text-xs font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm" style={{ color }}>verified_user</span>
-                Quyền lợi gói dịch vụ
-              </h4>
+                <span className="material-symbols-outlined text-sm" style={{ color }}>verified_user</span>{t("memberTabs.manage.benefitsTitle")}</h4>
               <p className="text-[9px] sm:text-[10px] text-zinc-400">Xem các quyền lợi độc quyền đi kèm gói này.</p>
             </div>
 
@@ -179,6 +179,7 @@ class MemberManageTab extends Component {
   }
 
   render() {
+    const { t } = this.props;
     const { bio, publicLink, handleCopyLink, handleDeleteBio, saving } = this.props;
     const { giftCode } = this.state;
 
@@ -190,14 +191,12 @@ class MemberManageTab extends Component {
       <div className="max-w-2xl mx-auto space-y-5 px-3 sm:px-0 animate-fadeIn">
         <div className="space-y-1">
           <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-            <span className="material-symbols-outlined text-base text-[#0071e3]">wallet</span>
-            Các gói dịch vụ sở hữu
-          </h2>
-          <p className="text-[10px] text-zinc-400">Xem thời hạn kích hoạt và nhấp vào từng thẻ để kiểm tra quyền lợi chi tiết.</p>
+            <span className="material-symbols-outlined text-base text-[#0071e3]">wallet</span>{t("memberTabs.manage.ownedPackagesTitle")}</h2>
+          <p className="text-[10px] text-zinc-400">{t("memberTabs.manage.ownedPackagesDesc")}</p>
         </div>
 
         {/* Base Package Card */}
-        <PackageCard
+        <PackageCard t={t}
           name={basePkg.name}
           duration={12}
           durationUnit="months"
@@ -210,7 +209,7 @@ class MemberManageTab extends Component {
 
         {/* Custom assigned packages from bio.packages */}
         {bio?.packages && bio.packages.map((pkg) => (
-          <PackageCard
+          <PackageCard t={t}
             key={pkg._id}
             name={pkg.name}
             duration={pkg.duration}
@@ -235,7 +234,7 @@ class MemberManageTab extends Component {
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Nhập mã quà tặng..."
+              placeholder={t("memberTabs.manage.placeholderGift")}
               value={giftCode}
               onChange={(e) => this.setState({ giftCode: e.target.value.toUpperCase() })}
               onKeyDown={(e) => { if (e.key === 'Enter') this.handleRedeem(); }}
@@ -306,7 +305,7 @@ class MemberManageTab extends Component {
                 <span className="material-symbols-outlined text-base">warning</span>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-zinc-800 dark:text-white">GỠ BỎ DỊCH VỤ BIO</h4>
+                <h4 className="text-xs font-bold text-zinc-800 dark:text-white">{t("memberTabs.manage.removeBioTitle")}</h4>
                 <p className="text-[10px] text-zinc-450 dark:text-zinc-400 mt-0.5 leading-relaxed">Xóa vĩnh viễn trang Bio Link và thu hồi tên miền riêng của bạn lập tức. Bạn không thể hoàn tác thao tác này.</p>
               </div>
             </div>
@@ -328,4 +327,4 @@ class MemberManageTab extends Component {
   }
 }
 
-export default MemberManageTab;
+export default withTranslation()(MemberManageTab);

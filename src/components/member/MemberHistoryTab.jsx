@@ -1,32 +1,37 @@
+import { withTranslation } from "react-i18next";
 import React, { Component } from 'react';
 
 class MemberHistoryTab extends Component {
   constructor(props) {
     super(props);
-    this.historyTypeConfig = {
-      welcome:         { color: '#34c759', bg: 'bg-emerald-500/10 dark:bg-emerald-500/10', border: 'border-emerald-400/30', label: 'Chào mừng' },
+  }
+
+  getHistoryTypeConfig(t) {
+    return {
+      welcome:         { color: '#34c759', bg: 'bg-emerald-500/10 dark:bg-emerald-500/10', border: 'border-emerald-400/30', label: t("memberTabs.history.labels.welcome") },
       bio_link:        { color: '#0071e3', bg: 'bg-blue-500/10 dark:bg-blue-500/10',     border: 'border-blue-400/30',    label: 'Bio Link' },
-      package_received:{ color: '#6366f1', bg: 'bg-indigo-500/10 dark:bg-indigo-500/10', border: 'border-indigo-400/30',  label: 'Nhận gói' },
-      package_removed: { color: '#ff3b30', bg: 'bg-red-500/10 dark:bg-red-500/10',       border: 'border-red-400/30',     label: 'Gỡ gói' },
-      profile_updated: { color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/30',   label: 'Cập nhật' },
-      link_added:      { color: '#30b0c7', bg: 'bg-cyan-500/10 dark:bg-cyan-500/10',     border: 'border-cyan-400/30',    label: 'Thêm link' },
-      link_removed:    { color: '#8e8e93', bg: 'bg-zinc-500/10 dark:bg-zinc-500/10',     border: 'border-zinc-400/30',    label: 'Xóa link' },
+      package_received:{ color: '#6366f1', bg: 'bg-indigo-500/10 dark:bg-indigo-500/10', border: 'border-indigo-400/30',  label: t("memberTabs.history.labels.package_received") },
+      package_removed: { color: '#ff3b30', bg: 'bg-red-500/10 dark:bg-red-500/10',       border: 'border-red-400/30',     label: t("memberTabs.history.labels.package_removed") },
+      profile_updated: { color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/30',   label: t("memberTabs.history.labels.profile_updated") },
+      link_added:      { color: '#30b0c7', bg: 'bg-cyan-500/10 dark:bg-cyan-500/10',     border: 'border-cyan-400/30',    label: t("memberTabs.history.labels.link_added") },
+      link_removed:    { color: '#8e8e93', bg: 'bg-zinc-500/10 dark:bg-zinc-500/10',     border: 'border-zinc-400/30',    label: t("memberTabs.history.labels.link_removed") },
     };
   }
 
-  formatTime(ts) {
+  formatTime(ts, t) {
     if (!ts) return '';
     const d = new Date(ts);
     const now = new Date();
     const diff = (now - d) / 1000;
-    if (diff < 60) return 'Vừa xong';
-    if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)} ngày trước`;
+    if (diff < 60) return t("memberTabs.history.time.just_now");
+    if (diff < 3600) return `${Math.floor(diff / 60)} ${t("memberTabs.history.time.minutes_ago")}`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} ${t("memberTabs.history.time.hours_ago")}`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)} ${t("memberTabs.history.time.days_ago")}`;
     return d.toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
   }
 
   render() {
+    const { t } = this.props;
     const { bio } = this.props;
     const entries = [...(bio?.history || [])].reverse();
 
@@ -36,17 +41,13 @@ class MemberHistoryTab extends Component {
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <h2 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-              <span className="material-symbols-outlined text-base text-[#0071e3]">history</span>
-              Lịch Sử Hoạt Động
-            </h2>
+              <span className="material-symbols-outlined text-base text-[#0071e3]">history</span>{t("memberTabs.history.title")}</h2>
             <p className="text-[10px] text-zinc-400">
-              {entries.length > 0 ? `${entries.length} sự kiện được ghi lại (tối đa 50)` : 'Chưa có sự kiện nào'}
+              {entries.length > 0 ? `${entries.length} ${t("memberTabs.history.events_recorded")}` : t("memberTabs.history.no_events")}
             </p>
           </div>
           {entries.length > 0 && (
-            <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full border border-zinc-200/50 dark:border-zinc-800">
-              Mới nhất trên đầu
-            </span>
+            <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full border border-zinc-200/50 dark:border-zinc-800">{t("memberTabs.history.newest_first")}</span>
           )}
         </div>
 
@@ -56,8 +57,8 @@ class MemberHistoryTab extends Component {
             <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
               <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-700">history</span>
             </div>
-            <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Chưa có lịch sử nào</p>
-            <p className="text-xs text-zinc-400 max-w-xs">Các thay đổi và sự kiện quan trọng sẽ được ghi lại tại đây tự động.</p>
+            <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t("memberTabs.history.empty_title")}</p>
+            <p className="text-xs text-zinc-400 max-w-xs">{t("memberTabs.history.empty_desc")}</p>
           </div>
         )}
 
@@ -69,7 +70,7 @@ class MemberHistoryTab extends Component {
 
             <div className="space-y-3">
               {entries.map((entry, idx) => {
-                const cfg = this.historyTypeConfig[entry.type] || this.historyTypeConfig['profile_updated'];
+                const cfg = this.getHistoryTypeConfig(t)[entry.type] || this.getHistoryTypeConfig(t)['profile_updated'];
                 return (
                   <div key={idx} className="flex gap-4 group">
                     {/* Timeline dot */}
@@ -92,7 +93,7 @@ class MemberHistoryTab extends Component {
                             {cfg.label || entry.type}
                           </span>
                         </div>
-                        <span className="text-[9px] text-zinc-400 font-medium whitespace-nowrap">{this.formatTime(entry.timestamp)}</span>
+                        <span className="text-[9px] text-zinc-400 font-medium whitespace-nowrap">{this.formatTime(entry.timestamp, t)}</span>
                       </div>
 
                       <p className="text-xs font-bold text-zinc-800 dark:text-white mt-2 leading-snug">{entry.title}</p>
@@ -109,13 +110,11 @@ class MemberHistoryTab extends Component {
 
         {/* Footer note */}
         {entries.length >= 50 && (
-          <p className="text-center text-[9px] text-zinc-400 italic pt-2">
-            Lịch sử chỉ lưu tối đa 50 sự kiện gần nhất để tối ưu hiệu suất.
-          </p>
+          <p className="text-center text-[9px] text-zinc-400 italic pt-2">{t("memberTabs.history.footer_note")}</p>
         )}
       </div>
     );
   }
 }
 
-export default MemberHistoryTab;
+export default withTranslation()(MemberHistoryTab);
