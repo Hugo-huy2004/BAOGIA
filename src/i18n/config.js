@@ -15,15 +15,15 @@ const resources = {
 };
 
 i18n
-  .use(LanguageDetector) // detect user language
-  .use(initReactI18next) // pass the i18n instance to react-i18next.
+  .use(LanguageDetector) 
+  .use(initReactI18next) 
   .init({
     resources,
-    fallbackLng: 'vi', // default language
+    fallbackLng: 'vi', 
     debug: false,
     
     interpolation: {
-      escapeValue: false, // not needed for react as it escapes by default
+      escapeValue: false, 
     }
   });
 

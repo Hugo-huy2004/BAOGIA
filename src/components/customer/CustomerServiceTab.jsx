@@ -101,8 +101,8 @@ export default function CustomerServiceTab({ project }) {
                 <div className="text-[10px] text-slate-400 font-mono mb-1">
                   {new Date(note.createdAt).toLocaleString('vi-VN')}
                 </div>
-                <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' ? 'text-amber-600 dark:text-amber-500' : 'text-slate-800 dark:text-slate-200'}`}>
-                  [{note.status === 'Hoàn tất' ? t('customerPortal.service.maintenance') : note.status}]
+                <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' || note.status === 'Hỗ trợ và bảo trì' ? 'text-amber-600 dark:text-amber-500' : 'text-slate-800 dark:text-slate-200'}`}>
+                  [{note.status === 'Hoàn tất' || note.status === 'Hỗ trợ và bảo trì' ? 'HỖ TRỢ VÀ BẢO TRÌ' : note.status}]
                 </div>
                 <div className="text-sm text-slate-600 dark:text-slate-400 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getHtmlContent(note.note) }} />
               </div>

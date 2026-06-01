@@ -1,6 +1,7 @@
 import express from 'express';
 import Package from '../models/Package.js';
 import Bio from '../models/Bio.js';
+import { parseBirthday } from '../utils/birthdayAutomation.js';
 
 const router = express.Router();
 
@@ -228,15 +229,84 @@ router.post('/redeem', async (req, res) => {
       return res.status(400).json({ error: 'Email and giftCode are required' });
     }
 
-    const pkg = await Package.findOne({ giftCode: giftCode.toUpperCase().trim() });
-    if (!pkg) {
-      return res.status(400).json({ error: 'Mã không hợp lệ hoặc đã được sử dụng.' });
-    }
-
+    const cleanCode = giftCode.toUpperCase().trim();
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) {
       return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+    }
+
+    // Find if this birthday voucher code belongs to anyone in the database
+    const targetBio = await Bio.findOne({ birthdayVoucherCode: cleanCode });
+    if (targetBio) {
+      if (targetBio.email !== bio.email && targetBio.contactEmail !== bio.email) {
+        return res.status(400).json({ 
+          error: `Mã Quà Tặng này không dành cho bạn, đây là món quà do Hugo Studio dành tặng cho ${targetBio.displayName}.` 
+        });
+      }
+
+      if (bio.birthdayVoucherClaimed) {
+        return res.status(400).json({ error: 'Mã quà tặng sinh nhật này đã được sử dụng.' });
+      }
+
+      // Check if it is currently their birthday month
+      const parsed = parseBirthday(bio.birthday);
+      const currentMonth = new Date().getMonth() + 1;
+      if (!parsed || parsed.month !== currentMonth) {
+        return res.status(400).json({ error: 'Mã quà tặng sinh nhật này chỉ có hiệu lực trong tháng sinh nhật của bạn.' });
+      }
+
+      // Check if remaining days < 365
+      let remainingDays = 0;
+      const now = new Date();
+      if (bio.expiresAt) {
+        const diffTime = new Date(bio.expiresAt).getTime() - now.getTime();
+        remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      }
+      if (bio.expiresAt && remainingDays >= 365) {
+        return res.status(400).json({ error: 'Gói dịch vụ còn lại của bạn lớn hơn hoặc bằng 365 ngày, không đủ điều kiện nhận quà.' });
+      }
+
+      // Successful birthday voucher claim!
+      const birthdayPkg = {
+        packageId: 'birthday_gift',
+        name: 'Card Sinh Nhật',
+        duration: 14,
+        durationUnit: 'days',
+        benefits: ['14 ngày sử dụng Bio Link', 'Thiệp chúc mừng sinh nhật từ Hugo Studio'],
+        color: '#ff2d55',
+        addedAt: new Date()
+      };
+      bio.packages.push(birthdayPkg);
+
+      let expires = new Date(bio.expiresAt);
+      if (isNaN(expires.getTime()) || expires.getTime() < Date.now()) {
+        expires = new Date();
+      }
+      expires.setDate(expires.getDate() + 14);
+      bio.expiresAt = expires;
+
+      bio.birthdayVoucherClaimed = true;
+
+      const expireStr = expires.toLocaleDateString('vi-VN');
+      pushHistory(bio, {
+        type: 'package_redeemed',
+        icon: 'redeem',
+        title: `Nhận quà sinh nhật thành công! 🎁`,
+        detail: `Bạn đã nhận quà sinh nhật từ Hugo Studio thành công. Gói "Card Sinh Nhật" (thêm 14 ngày) đã được kích hoạt. Bio Link có hiệu lực đến ngày ${expireStr}.`
+      });
+
+      await bio.save();
+      return res.json({ 
+        message: 'Redeemed successfully',
+        bio: bio
+      });
+    }
+
+    // Fallback to standard packages
+    const pkg = await Package.findOne({ giftCode: cleanCode });
+    if (!pkg) {
+      return res.status(400).json({ error: 'Mã không hợp lệ hoặc đã được sử dụng.' });
     }
 
     // Add package to user

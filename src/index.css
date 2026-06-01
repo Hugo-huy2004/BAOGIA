@@ -631,3 +631,17 @@ button:active::before {
   content-visibility: auto;
   contain-intrinsic-size: 1px 500px; /* Provide a placeholder size */
 }
+
+/* Premium Card shine animations */
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) skewX(-25deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-25deg);
+  }
+}
+
+.group:hover .group-hover\:animate-shine {
+  animation: shine 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}

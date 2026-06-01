@@ -166,7 +166,7 @@ const AdminUsersTab = ({
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex justify-between items-center">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-slate-550 dark:text-slate-455 text-base">group</span>
-            Danh sách thành viên ({totalMatchedUsers})
+            {t("admin.texts.txt_229")} ({totalMatchedUsers})
           </h3>
         </div>
 
@@ -249,10 +249,10 @@ const AdminUsersTab = ({
                               {user.status === 'locked' ? t("admin.texts.txt_59") : t("admin.texts.txt_60")}
                             </button>
                             <button
-                              onClick={() => triggerConfirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của ${user.displayName}?`, () => setDeleteTarget(user))}
+                              onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
                               className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-slate-200 hover:bg-slate-350 dark:bg-slate-880 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-all shadow-sm active:scale-95"
                             >
-                              Xóa
+                              {t("admin.texts.txt_231")}
                             </button>
                           </div>
                         </td>
@@ -315,7 +315,7 @@ const AdminUsersTab = ({
                     <div className="flex items-center justify-between text-xs gap-4 pt-1">
                       <div className="text-[10px] font-medium text-slate-450 dark:text-slate-400">
                         {user.expiresAt ? (
-                          <span>{t("admin.texts.txt_50")} <strong className="text-slate-700 dark:text-slate-200">{new Date(user.expiresAt).toLocaleDateString('vi-VN')}</strong> ({expDays <= 0 ? t("admin.texts.txt_64") : `còn ${expDays} ngày`})</span>
+                          <span>{t("admin.texts.txt_50")} <strong className="text-slate-700 dark:text-slate-200">{new Date(user.expiresAt).toLocaleDateString('vi-VN')}</strong> ({expDays <= 0 ? t("admin.texts.txt_64") : `${t("admin.texts.txt_235")} ${expDays} ${t("admin.texts.txt_236")}`})</span>
                         ) : (
                           <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t("admin.texts.txt_51")}</span>
                         )}
@@ -333,10 +333,10 @@ const AdminUsersTab = ({
                           {isLocked ? t("admin.texts.txt_65") : t("admin.texts.txt_66")}
                         </button>
                         <button
-                          onClick={() => triggerConfirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của ${user.displayName}?`, () => setDeleteTarget(user))}
+                          onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
                           className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-605 hover:bg-slate-200 dark:bg-slate-850 dark:border-slate-800 dark:text-slate-350 transition-all"
                         >
-                          Xóa
+                          {t("admin.texts.txt_231")}
                         </button>
                       </div>
                     </div>
@@ -348,7 +348,7 @@ const AdminUsersTab = ({
             {/* Smart Pagination Controls */}
             <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/30 dark:bg-[#181622]/20 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
               <div className="text-slate-550 dark:text-slate-400 font-medium">
-                Hiển thị từ <strong className="text-slate-700 dark:text-white">{totalMatchedUsers > 0 ? (userPage - 1) * userLimit + 1 : 0}</strong> {t("admin.texts.txt_52")} <strong className="text-slate-700 dark:text-white">{Math.min(userPage * userLimit, totalMatchedUsers)}</strong> {t("admin.texts.txt_53")} <strong className="text-slate-700 dark:text-white">{totalMatchedUsers}</strong> thành viên
+                {t("admin.texts.txt_232")} <strong className="text-slate-700 dark:text-white">{totalMatchedUsers > 0 ? (userPage - 1) * userLimit + 1 : 0}</strong> {t("admin.texts.txt_52")} <strong className="text-slate-700 dark:text-white">{Math.min(userPage * userLimit, totalMatchedUsers)}</strong> {t("admin.texts.txt_53")} <strong className="text-slate-700 dark:text-white">{totalMatchedUsers}</strong> {t("admin.texts.txt_233")}
               </div>
 
               {totalPages > 1 && (
@@ -399,7 +399,7 @@ const AdminUsersTab = ({
                     disabled={userPage === totalPages}
                     onClick={() => setUserPage(prev => Math.min(totalPages, prev + 1))}
                     className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
-                    title="Trang sau"
+                    title={t("admin.texts.txt_234")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">chevron_right</span>
                   </button>

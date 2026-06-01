@@ -112,6 +112,7 @@ mongoose.connect(MONGODB_URI, {
   .catch(err => console.error(' MongoDB connection failed:', err));
 
 import customerRoutes from './routes/customerRoutes.js';
+import vcardRoutes from './routes/vcardRoutes.js';
 
 // Routes
 app.use('/api/data', dataRoutes);
@@ -122,14 +123,29 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/customer-projects', customerRoutes);
+app.use('/api/vcard', vcardRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running', timestamp: new Date() });
 });
 
+import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  
+  // Initialize birthday automation check
+  let lastCheckedDay = null;
+  setInterval(async () => {
+    const now = new Date();
+    const currentDay = now.getDate();
+    if (lastCheckedDay !== currentDay) {
+      lastCheckedDay = currentDay;
+      console.log(`[Birthday Automation] Running daily checks at ${now.toLocaleString()}`);
+      await runBirthdayAutomation().catch(console.error);
+    }
+  }, 60000);
 });
 // Nodemon watch trigger

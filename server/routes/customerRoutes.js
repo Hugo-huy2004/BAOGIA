@@ -221,6 +221,11 @@ router.put('/:id', requireAdmin, async (req, res) => {
 
     if (status === 'Hoàn tất' && finalNote !== undefined) {
       project.finalNote = finalNote;
+      project.progressNotes.push({
+        note: finalNote,
+        status: 'Hỗ trợ và bảo trì',
+        createdAt: new Date()
+      });
     }
 
     await project.save();

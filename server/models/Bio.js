@@ -150,6 +150,26 @@ const BioSchema = new mongoose.Schema(
       }],
       default: []
     },
+    birthdayVoucherCode: {
+      type: String,
+      default: ''
+    },
+    birthdayVoucherClaimed: {
+      type: Boolean,
+      default: false
+    },
+    birthdayVoucherYear: {
+      type: Number,
+      default: 0
+    },
+    backedUpContacts: {
+      type: [{
+        name: { type: String, required: true },
+        phone: { type: String, default: '' },
+        email: { type: String, default: '' }
+      }],
+      default: []
+    },
     expiresAt: {
       type: Date,
       required: true,

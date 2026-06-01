@@ -3,6 +3,7 @@ import Bio from '../models/Bio.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
+import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation.js';
 
 const router = express.Router();
 
@@ -161,6 +162,9 @@ router.patch('/:id/status', async (req, res) => {
       return res.status(404).json({ error: 'Bio not found' });
     }
 
+    // Clear public cache so guest devices reflect status changes instantly
+    clearCache(`bio_slug_${bio.slug}`);
+
     res.json({ bio });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -180,6 +184,9 @@ router.get('/me', async (req, res) => {
       bioDoc = await Bio.findOne({ contactEmail: email });
     }
     const bio = await removeExpiredBioIfNeeded(bioDoc);
+    if (bio) {
+      await cleanupExpiredBirthdayNotifications(bio);
+    }
     return res.json({ bio });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -467,6 +474,65 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     if (global.validSlugs) global.validSlugs.delete(existing.slug);
 
     res.json({ message: 'Bio deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /contacts/sync/:id - Batch synchronize contacts from mobile
+router.post('/contacts/sync/:id', async (req, res) => {
+  try {
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) {
+      return res.status(404).json({ error: 'Bio not found' });
+    }
+
+    const incoming = req.body.contacts || [];
+    const existingPhones = new Set(bio.backedUpContacts.map(c => (c.phone || '').replace(/\s+/g, '')));
+    
+    let addedCount = 0;
+    for (const c of incoming) {
+      const tel = (c.phone || c.tel || c.telUrl || '').replace(/\s+/g, '').trim();
+      const name = (c.name || '').trim();
+      if (!name) continue;
+
+      if (!tel || !existingPhones.has(tel)) {
+        bio.backedUpContacts.push({
+          name,
+          phone: tel,
+          email: (c.email || '').trim()
+        });
+        if (tel) {
+          existingPhones.add(tel);
+        }
+        addedCount++;
+      }
+    }
+
+    if (addedCount > 0) {
+      await bio.save();
+      clearCache(`bio_slug_${bio.slug}`);
+    }
+
+    res.json({ success: true, count: addedCount, contacts: bio.backedUpContacts });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /contacts/:id/:contactId - Delete a single backed up contact
+router.delete('/contacts/:id/:contactId', async (req, res) => {
+  try {
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) {
+      return res.status(404).json({ error: 'Bio not found' });
+    }
+
+    bio.backedUpContacts = bio.backedUpContacts.filter(c => c._id.toString() !== req.params.contactId);
+    await bio.save();
+    clearCache(`bio_slug_${bio.slug}`);
+
+    res.json({ success: true, contacts: bio.backedUpContacts });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

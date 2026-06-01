@@ -1,5 +1,6 @@
 import { withTranslation } from "react-i18next";
 import React, { Component } from 'react';
+import HugoLogo from "../HugoLogo";
 
 class MemberHistoryTab extends Component {
   constructor(props) {
@@ -15,6 +16,8 @@ class MemberHistoryTab extends Component {
       profile_updated: { color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/30',   label: t("memberTabs.history.labels.profile_updated") },
       link_added:      { color: '#30b0c7', bg: 'bg-cyan-500/10 dark:bg-cyan-500/10',     border: 'border-cyan-400/30',    label: t("memberTabs.history.labels.link_added") },
       link_removed:    { color: '#8e8e93', bg: 'bg-zinc-500/10 dark:bg-zinc-500/10',     border: 'border-zinc-400/30',    label: t("memberTabs.history.labels.link_removed") },
+      birthday_wish:   { color: '#ff2d55', bg: 'bg-rose-500/10 dark:bg-rose-500/10',     border: 'border-rose-400/30',    label: 'Sinh Nhật' },
+      birthday_voucher:{ color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/30',   label: 'Quà Tặng' },
     };
   }
 
@@ -41,7 +44,7 @@ class MemberHistoryTab extends Component {
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <h2 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-              <span className="material-symbols-outlined text-base text-[#0071e3]">history</span>{t("memberTabs.history.title")}</h2>
+              <span className="material-symbols-outlined text-base text-[#0071e3]">notifications</span>{t("memberTabs.history.title")}</h2>
             <p className="text-[10px] text-zinc-400">
               {entries.length > 0 ? `${entries.length} ${t("memberTabs.history.events_recorded")}` : t("memberTabs.history.no_events")}
             </p>
@@ -55,7 +58,7 @@ class MemberHistoryTab extends Component {
         {entries.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center space-y-3">
             <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
-              <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-700">history</span>
+              <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-700">notifications</span>
             </div>
             <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t("memberTabs.history.empty_title")}</p>
             <p className="text-xs text-zinc-400 max-w-xs">{t("memberTabs.history.empty_desc")}</p>
@@ -96,9 +99,52 @@ class MemberHistoryTab extends Component {
                         <span className="text-[9px] text-zinc-400 font-medium whitespace-nowrap">{this.formatTime(entry.timestamp, t)}</span>
                       </div>
 
+                      {entry.type === 'birthday_wish' && (
+                        <div className="mt-3 mb-2 pb-2 border-b border-rose-100 dark:border-rose-900/30 flex items-center gap-2">
+                          <HugoLogo className="text-[14px] font-black" />
+                          <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">Official Wish</span>
+                        </div>
+                      )}
+
+                      {entry.type === 'birthday_voucher' && (
+                        <div className="mt-3 mb-2 pb-2 border-b border-amber-100 dark:border-amber-900/30 flex items-center gap-2">
+                          <HugoLogo className="text-[14px] font-black" />
+                          <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Official Gift</span>
+                        </div>
+                      )}
+
                       <p className="text-xs font-bold text-zinc-800 dark:text-white mt-2 leading-snug">{entry.title}</p>
                       {entry.detail && (
                         <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed whitespace-pre-wrap">{entry.detail}</p>
+                      )}
+                      
+                      {entry.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
+                        <div className="mt-3 p-3 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100 dark:border-rose-900/20 rounded-xl flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-[9px] font-bold text-rose-550 uppercase tracking-wider">Mã Quà Tặng Sinh Nhật</p>
+                            <p className="text-sm font-black font-mono tracking-wider text-rose-700 dark:text-rose-350">{bio.birthdayVoucherCode}</p>
+                          </div>
+                          {bio.birthdayVoucherClaimed ? (
+                            <span className="px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1 shrink-0">
+                              <span className="material-symbols-outlined text-xs font-bold">check_circle</span>Đã nhận quà
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(bio.birthdayVoucherCode);
+                                if (this.props.showToast) {
+                                  this.props.showToast(`Đã sao chép mã quà tặng! Hãy dán mã tại tab "Gói dịch vụ" để nhận quà.`, "success");
+                                } else {
+                                  alert(`Đã sao chép mã voucher: ${bio.birthdayVoucherCode}`);
+                                }
+                              }}
+                              className="px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase bg-rose-600 hover:bg-rose-700 text-white transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
+                            >
+                              <span className="material-symbols-outlined text-xs">content_copy</span>Sao chép
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

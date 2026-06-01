@@ -1189,9 +1189,8 @@ export default function AdminPanel() {
                     className="w-full bg-primary hover:bg-indigo-650 text-white font-bold text-xs py-3 rounded-xl hover:scale-102 transition-transform shadow-md flex items-center justify-center gap-1.5 active:scale-98"
                   >
                     <span className="material-symbols-outlined text-sm">iframe</span>
-                      <span className="material-symbols-outlined text-sm">add_link</span>
-                      {t("adminTabs.partners.createExportBtn")}
-                    </button>
+                    {t("adminTabs.partners.createExportBtn")}
+                  </button>
                 </div>
               </form>
             </div>
@@ -1447,9 +1446,8 @@ export default function AdminPanel() {
                     className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-primary hover:bg-indigo-650 text-white font-bold text-xs shadow-sm hover:scale-[1.01] active:scale-98 transition-all"
                   >
                     <span className="material-symbols-outlined text-sm">save</span>
-                      <span className="material-symbols-outlined text-sm">add_circle</span>
-                      {t("adminTabs.packages.createBtn")}
-                    </button>
+                    {t("adminTabs.packages.createBtn")}
+                  </button>
                 </form>
               </div>
 
@@ -1507,9 +1505,8 @@ export default function AdminPanel() {
                     className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm hover:scale-[1.01] active:scale-98 transition-all"
                   >
                     <span className="material-symbols-outlined text-sm">verified</span>
-                      <span className="material-symbols-outlined text-sm">rocket_launch</span>
-                      {t("adminTabs.packages.grantBtn")}
-                    </button>
+                    {t("adminTabs.packages.grantBtn")}
+                  </button>
                 </form>
               </div>
 
@@ -1542,9 +1539,8 @@ export default function AdminPanel() {
                     className="px-5 bg-zinc-900 hover:bg-zinc-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1 active:scale-95"
                   >
                     <span className="material-symbols-outlined text-sm">search</span>
-                      <span className="material-symbols-outlined text-sm">search</span>
-                      {t("adminTabs.packages.manageSearch")}
-                    </button>
+                    {t("adminTabs.packages.manageSearch")}
+                  </button>
                 </div>
 
                 {searchedMemberBio && (

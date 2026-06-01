@@ -18,6 +18,15 @@ export default function AdminProjectDetailPage() {
   const [noteUpdate, setNoteUpdate] = useState('');
   const [finalNoteUpdate, setFinalNoteUpdate] = useState('');
 
+  const [startDateStr, setStartDateStr] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().split('T')[0];
+  });
+  const [endDateStr, setEndDateStr] = useState(() => new Date().toISOString().split('T')[0]);
+  const [warrantyDays, setWarrantyDays] = useState(30);
+  const [developerName, setDeveloperName] = useState('');
+
   // Status Modal State
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [modalStep, setModalStep] = useState(1);
@@ -38,6 +47,101 @@ export default function AdminProjectDetailPage() {
     setToastType(type);
     setTimeout(() => setToastMsg(''), 3000);
   };
+
+  const lastGeneratedTemplateRef = React.useRef('');
+  const prevStatusRef = React.useRef('');
+
+  const regenerateTemplate = (start, end, warranty, devName, force = false) => {
+    if (!project) return;
+    
+    const startDateObj = new Date(start);
+    const endDateObj = new Date(end);
+    
+    const diffTime = Math.max(0, endDateObj.getTime() - startDateObj.getTime());
+    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 0;
+    const totalHours = totalDays * 8; // 8 working hours/day
+    
+    const formatDate = (dateObj) => {
+      if (isNaN(dateObj.getTime())) return '......';
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const yyyy = dateObj.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    };
+    
+    const startFormatted = formatDate(startDateObj);
+    const endFormatted = formatDate(endDateObj);
+    
+    const warrantyEndDateObj = new Date(endDateObj);
+    if (!isNaN(warrantyEndDateObj.getTime())) {
+      warrantyEndDateObj.setDate(warrantyEndDateObj.getDate() + Number(warranty));
+    }
+    const warrantyEndFormatted = formatDate(warrantyEndDateObj);
+    
+    const handler = devName || project.handlerName || 'Nguyễn Văn A';
+    const pkg = project.servicePackage || 'Signature Portfolio';
+    
+    const logoHtml = `<span style="font-size: 18px; font-family: sans-serif; font-weight: 900; letter-spacing: -0.5px; white-space: nowrap;"><strong style="color: #EF4444;">H</strong><strong style="color: #F97316;">u</strong><strong style="color: #EAB308;">g</strong><strong style="color: #22C55E;">o</strong> <strong style="color: #3B82F6;">S</strong><strong style="color: #6366F1;">t</strong><strong style="color: #A855F7;">u</strong><strong style="color: #EC4899;">d</strong><strong style="color: #06B6D4;">i</strong><strong style="color: #0ea5e9;">o</strong></span>`;
+
+    const template = `<h3><strong>TỔNG KẾT DỰ ÁN</strong></h3>
+<p>Dự án <strong>${project.fullName}</strong> được triển khai từ <strong>${startFormatted}</strong> đến <strong>${endFormatted}</strong> với tổng thời gian <strong>${totalHours} giờ (${totalDays} ngày)</strong> do hỗ trợ/lập trình viên <strong>${handler}</strong> đã thực hiện dự án <strong>${project.fullName}</strong> theo yêu cầu.</p>
+<br>
+<h3><strong>BẢO TRÌ VÀ HỖ TRỢ</strong></h3>
+<h4><strong>1. THÔNG TIN BẢO TRÌ:</strong></h4>
+<ul>
+  <li>Tên gói: <strong>${pkg}</strong></li>
+  <li>Thời gian hoàn tất: <strong>${endFormatted}</strong></li>
+  <li>Thời gian bảo trì: <strong>${warranty}</strong> ngày từ <strong>${endFormatted}</strong> đến <strong>${warrantyEndFormatted}</strong></li>
+  <li>Gồm:
+    <ul>
+      <li>Sửa lỗi phát sinh trong quá trình vận hành</li>
+      <li>Tối ưu hóa hiệu năng và tốc độ tải trang</li>
+      <li>Cập nhật bảo mật hệ thống</li>
+    </ul>
+  </li>
+</ul>
+<br>
+<h4><strong>2. CÁC TRƯỜNG HỢP KHÔNG ĐƯỢC HỖ TRỢ TRONG GÓI</strong></h4>
+<ul>
+  <li>Tự ý chỉnh sửa mã nguồn cốt lõi làm hỏng cấu trúc hệ thống</li>
+  <li>Các yêu cầu thay đổi thiết kế hoặc tính năng mới ngoài thỏa thuận</li>
+  <li>Lỗi do máy chủ hoặc nhà cung cấp dịch vụ thứ ba của khách hàng</li>
+  <li>Mất dữ liệu do lỗi từ phía người dùng</li>
+</ul>
+<br>
+<h4><strong>3. CÁC MỤC THÊM</strong></h4>
+<ul>
+  <li>Hỗ trợ hướng dẫn quản trị trực tuyến 1-1</li>
+</ul>
+<br>
+<h4><strong>4. GHI CHÚ VỀ VIỆC HỖ TRỢ VÀ BẢO HÀNH</strong></h4>
+<p>Mọi yêu cầu hỗ trợ vui lòng gửi qua phần Yêu Cầu của trang thành viên để được xử lý nhanh nhất.</p>
+<br>
+<p><strong>Đại Diện Phụ Trách</strong></p>
+<p>${logoHtml}</p>
+<p><strong>${handler}</strong></p>`;
+
+    if (force || !finalNoteUpdate || finalNoteUpdate === '<p><br></p>' || finalNoteUpdate.trim() === '' || finalNoteUpdate === lastGeneratedTemplateRef.current) {
+      setFinalNoteUpdate(template);
+      lastGeneratedTemplateRef.current = template;
+      localStorage.setItem(`draft_final_note_${project._id}`, template);
+    }
+  };
+
+  useEffect(() => {
+    if (!project) return;
+
+    if (statusUpdate === 'Hoàn tất' && prevStatusRef.current !== 'Hoàn tất' && prevStatusRef.current !== '') {
+      regenerateTemplate(startDateStr, endDateStr, warrantyDays, developerName, true);
+    }
+    else if (statusUpdate === 'Hoàn tất' && prevStatusRef.current === 'Hoàn tất') {
+      regenerateTemplate(startDateStr, endDateStr, warrantyDays, developerName, false);
+    }
+
+    if (statusUpdate) {
+      prevStatusRef.current = statusUpdate;
+    }
+  }, [statusUpdate, project, startDateStr, endDateStr, warrantyDays, developerName]);
 
   useEffect(() => {
     fetchProjectDetail();
@@ -84,6 +188,7 @@ export default function AdminProjectDetailPage() {
         setStatusUpdate(p.status);
         setNoteUpdate(localStorage.getItem(`draft_note_${p._id}`) || '');
         setFinalNoteUpdate(localStorage.getItem(`draft_final_note_${p._id}`) || p.finalNote || '');
+        setDeveloperName(p.handlerName || '');
       } else {
         showNotification(t("adminProjectDetail.notFound"), 'error');
         setTimeout(() => navigate('/admin/projects'), 1500);
@@ -320,8 +425,8 @@ export default function AdminProjectDetailPage() {
                   <div className="text-[10px] text-slate-400 font-mono mb-1">
                     {new Date(note.createdAt).toLocaleString('vi-VN')}
                   </div>
-                  <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' ? 'text-amber-600 dark:text-amber-500' : 'text-slate-800 dark:text-slate-200'}`}>
-                    [{note.status === 'Hoàn tất' ? t("adminProjectDetail.maintenance") : note.status}]
+                  <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' || note.status === 'Hỗ trợ và bảo trì' ? 'text-amber-600 dark:text-amber-500' : 'text-slate-800 dark:text-slate-200'}`}>
+                    [{note.status === 'Hoàn tất' || note.status === 'Hỗ trợ và bảo trì' ? 'HỖ TRỢ VÀ BẢO TRÌ' : note.status}]
                   </div>
                   <div className="text-sm text-slate-600 dark:text-slate-400 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getHtmlContent(note.note) }} />
                 </div>
@@ -428,6 +533,64 @@ export default function AdminProjectDetailPage() {
                   {statusUpdate === 'Hoàn tất' && (
                     <div className="space-y-2 mt-4">
                       <label className="block text-xs font-bold text-emerald-500 uppercase tracking-wider">{t("adminProjectDetail.modal.finalNoteLabel")}</label>
+                      
+                      {/* Configuration Panel for Automation */}
+                      <div className="bg-slate-50 dark:bg-[#1a1523] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-3 mb-3">
+                        <div className="text-[10px] font-black text-slate-450 uppercase tracking-wider">Cấu Hình Thông Tin Mẫu Bảo Hành & Tổng Kết</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Triển khai từ ngày</label>
+                            <input 
+                              type="date" 
+                              value={startDateStr} 
+                              onChange={e => setStartDateStr(e.target.value)} 
+                              className="w-full rounded-lg border border-slate-250 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Đến ngày (Hoàn tất)</label>
+                            <input 
+                              type="date" 
+                              value={endDateStr} 
+                              onChange={e => setEndDateStr(e.target.value)} 
+                              className="w-full rounded-lg border border-slate-250 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Số ngày bảo trì</label>
+                            <input 
+                              type="number" 
+                              min="1"
+                              value={warrantyDays} 
+                              onChange={e => setWarrantyDays(Number(e.target.value))} 
+                              className="w-full rounded-lg border border-slate-250 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Lập trình viên phụ trách</label>
+                            <input 
+                              type="text" 
+                              value={developerName} 
+                              onChange={e => setDeveloperName(e.target.value)} 
+                              className="w-full rounded-lg border border-slate-250 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                              placeholder="Tên lập trình viên"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center pt-1 border-t border-slate-200/50 dark:border-slate-800/50">
+                          <span className="text-[9px] text-indigo-500 dark:text-indigo-400 font-bold">★ Thay đổi các trường trên sẽ tự động tính toán lại mẫu văn bản bên dưới.</span>
+                          <button 
+                            type="button"
+                            onClick={() => regenerateTemplate(startDateStr, endDateStr, warrantyDays, developerName, true)} 
+                            className="text-[9.5px] font-black text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded-lg transition-all active:scale-95 shadow-sm"
+                          >
+                            Tạo lại mẫu
+                          </button>
+                        </div>
+                      </div>
+
                       <div className="bg-emerald-50/50 dark:bg-emerald-900/10 rounded-md overflow-hidden border border-emerald-200 dark:border-emerald-800/50 [&_.ql-editor]:min-h-[120px]">
                         <ReactQuill theme="snow" value={finalNoteUpdate} onChange={handleFinalNoteChange} modules={quillModules} placeholder={t("adminProjectDetail.modal.finalNotePlaceholder")} className="quill-editor" />
                       </div>
