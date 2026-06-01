@@ -2010,7 +2010,7 @@ const BirthdaySurprise = ({ displayName, onClose }) => {
             Happy Birthday!
           </h2>
           <p className="text-white text-sm font-semibold">
-            Chúc mừng sinh nhật, <span className="text-rose-500 font-bold">{displayName}</span>! 🎉
+            Chúc mừng sinh nhật, <span className="text-rose-500 font-bold">{displayName}</span>! 
           </p>
           <p className="text-xs text-zinc-400 leading-relaxed px-2">
             Hugo Studio mến chúc bạn tuổi mới ngập tràn niềm vui, sức khỏe dồi dào, luôn tươi trẻ và gặt hái được nhiều thắng lợi rực rỡ!
@@ -2021,7 +2021,7 @@ const BirthdaySurprise = ({ displayName, onClose }) => {
           onClick={onClose}
           className="w-full py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold text-xs uppercase tracking-widest transition-all active:scale-95 shadow-md shadow-rose-500/20"
         >
-          Nhận lời chúc 🎂
+          Nhận lời chúc
         </button>
       </div>
     </div>

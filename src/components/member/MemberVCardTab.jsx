@@ -4,12 +4,55 @@ import SubUtilityHeader from "./SubUtilityHeader";
 
 export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
   const { t } = useTranslation();
+  const fileInputRef = React.useRef(null);
   const [vcardSubTab, setVcardSubTab] = useState("mycard"); // 'mycard', 'backup'
   const [contactsList, setContactsList] = useState(bio?.backedUpContacts || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [showManualAdd, setShowManualAdd] = useState(false);
   const [newContact, setNewContact] = useState({ name: "", phone: "", email: "" });
+
+  const syncGoogleContacts = () => {
+    if (typeof window === "undefined" || !window.google) {
+      if (showToast) showToast("Google API chưa sẵn sàng. Vui lòng thử lại sau.", "error");
+      return;
+    }
+
+    const client = window.google.accounts.oauth2.initTokenClient({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      scope: "https://www.googleapis.com/auth/contacts.readonly",
+      callback: async (tokenResponse) => {
+        if (tokenResponse && tokenResponse.access_token) {
+          try {
+            setSyncing(true);
+            const res = await fetch("https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,emailAddresses&pageSize=1000", {
+              headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+            });
+            const data = await res.json();
+            
+            const formatted = (data.connections || []).map(person => {
+              const name = person.names?.[0]?.displayName || "";
+              const phone = person.phoneNumbers?.[0]?.value || "";
+              const email = person.emailAddresses?.[0]?.value || "";
+              return { name, phone, email };
+            }).filter(c => c.name && c.phone);
+
+            if (formatted.length > 0) {
+              await syncWithBackend(formatted);
+            } else {
+              if (showToast) showToast("Không tìm thấy danh bạ trong tài khoản Google.", "info");
+            }
+          } catch (err) {
+            console.error(err);
+            if (showToast) showToast("Lỗi khi lấy dữ liệu từ Google.", "error");
+          } finally {
+            setSyncing(false);
+          }
+        }
+      },
+    });
+    client.requestAccessToken();
+  };
 
   useEffect(() => {
     if (bio?.backedUpContacts) {
@@ -20,42 +63,13 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
   const vcardDownloadUrl = `${getApiUrl()}/vcard/${bio?.slug}`;
   const backupDownloadUrl = `${getApiUrl()}/vcard/backup/${bio?.slug}`;
 
-  const handleMobileSync = async () => {
-    if (typeof window !== "undefined" && !window.isSecureContext && window.location.hostname !== "localhost") {
-      if (showToast) {
-        showToast("Tính năng đồng bộ yêu cầu kết nối bảo mật (HTTPS).", "warning");
-      }
-      return;
-    }
-
-    if (typeof navigator === "undefined" || !navigator.contacts) {
-      if (showToast) {
-        showToast(t("memberPortal.utilitiesPage.vcard.toastUnsupported") || "Trình duyệt của bạn chưa hỗ trợ tự động đồng bộ danh bạ. Vui lòng sử dụng Chrome trên Android hoặc thêm thủ công.", "warning");
-      }
-      return;
-    }
-
+  const syncWithBackend = async (contacts) => {
     try {
       setSyncing(true);
-      const fields = ["name", "tel", "email"];
-      const options = { multiple: true };
-      const selected = await navigator.contacts.select(fields, options);
-      
-      if (!selected || selected.length === 0) {
-        setSyncing(false);
-        return;
-      }
-
-      const formatted = selected.map(c => ({
-        name: c.name?.[0] || "",
-        phone: c.tel?.[0] || "",
-        email: c.email?.[0] || ""
-      }));
-
       const res = await fetch(`${getApiUrl()}/bios/contacts/sync/${bio._id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contacts: formatted })
+        body: JSON.stringify({ contacts })
       });
 
       if (!res.ok) throw new Error("Sync failed");
@@ -65,13 +79,97 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
       if (showToast) {
         showToast(t("memberPortal.utilitiesPage.vcard.toastSyncSuccess", { count: data.count }), "success");
       }
+      return true;
     } catch (err) {
       console.error(err);
       if (showToast) {
         showToast(t("memberPortal.utilitiesPage.vcard.toastSyncError"), "error");
       }
+      return false;
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const parseVCF = (text) => {
+    const contacts = [];
+    const blocks = text.split(/BEGIN:VCARD/i);
+    
+    blocks.forEach(block => {
+      if (!block.trim()) return;
+      
+      // Extract Name (FN or N)
+      let name = "";
+      const fnMatch = block.match(/FN:(.*)/i);
+      const nMatch = block.match(/N:(.*)/i);
+      if (fnMatch) name = fnMatch[1].trim();
+      else if (nMatch) name = nMatch[1].replace(/;/g, ' ').trim();
+
+      // Extract Phone (TEL) - handles multiple formats
+      const telMatch = block.match(/TEL(?:.*)?:(.*)/i);
+      let phone = telMatch ? telMatch[1].replace(/[^\d+]/g, '').trim() : "";
+
+      // Extract Email (EMAIL)
+      const emailMatch = block.match(/EMAIL(?:.*)?:(.*)/i);
+      let email = emailMatch ? emailMatch[1].trim() : "";
+
+      if (name || phone) {
+        contacts.push({ name: name || "Unnamed Contact", phone, email });
+      }
+    });
+    return contacts;
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const text = event.target.result;
+      const contacts = parseVCF(text);
+      if (contacts.length === 0) {
+        if (showToast) showToast("Không tìm thấy dữ liệu liên hệ trong file.", "warning");
+        return;
+      }
+      await syncWithBackend(contacts);
+      // Reset input
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  };
+
+  const handleMobileSync = async () => {
+    // 1. If Contact Picker API is supported (Chrome/Android/Edge)
+    if (typeof navigator !== "undefined" && navigator.contacts && window.isSecureContext) {
+      try {
+        const fields = ["name", "tel", "email"];
+        const selected = await navigator.contacts.select(fields, { multiple: true });
+        
+        if (selected && selected.length > 0) {
+          const formatted = selected.map(c => ({
+            name: c.name?.[0] || "",
+            phone: c.tel?.[0] || "",
+            email: c.email?.[0] || ""
+          }));
+          await syncWithBackend(formatted);
+        }
+      } catch (err) {
+        console.error("Native Contact Picker Error:", err);
+        // Fallback to file picker if native picker fails
+        if (fileInputRef.current) fileInputRef.current.click();
+      }
+      return;
+    }
+
+    // 2. Fallback for Safari/iOS or older browsers: Use VCF File Sync
+    if (fileInputRef.current) {
+      if (showToast && !navigator.contacts) {
+        showToast("Safari yêu cầu bạn chọn file danh bạ (.vcf) đã xuất từ máy.", "info");
+      }
+      fileInputRef.current.click();
+    } else {
+      if (showToast) showToast(t("memberPortal.utilitiesPage.vcard.toastUnsupported"), "warning");
     }
   };
 
@@ -143,6 +241,13 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
 
   return (
     <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-6">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        accept=".vcf,text/vcard" 
+        className="hidden" 
+      />
       <SubUtilityHeader 
         title={t("memberPortal.utilitiesPage.vcard.title")} 
         icon="contact_phone" 
@@ -304,19 +409,36 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
                     <p className="text-[10px] text-indigo-500 font-bold">{t("memberPortal.utilitiesPage.vcard.syncingText")}</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-3">
                     <button
-                      onClick={handleMobileSync}
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold text-[10.5px] uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                      onClick={syncGoogleContacts}
+                      className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-[11px] uppercase tracking-wider shadow-lg flex items-center justify-center gap-2.5 transition-all active:scale-95 group"
                     >
-                      <span className="material-symbols-outlined text-[16px]">cloud_upload</span> {t("memberPortal.utilitiesPage.vcard.syncBtn")}
+                      <div className="bg-white p-1 rounded-full group-hover:rotate-12 transition-transform">
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1 .67-2.28 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                      </div>
+                      {t("memberPortal.utilitiesPage.vcard.syncGoogleBtn") || "Tự động đồng bộ từ Google"}
                     </button>
-                    <button
-                      onClick={() => setShowManualAdd(true)}
-                      className="w-full py-3 rounded-xl bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-bold text-[10.5px] uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">person_add</span> {t("memberPortal.utilitiesPage.vcard.manualAddBtn") || "Thêm thủ công"}
-                    </button>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={handleMobileSync}
+                        className="w-full py-3 rounded-xl bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-bold text-[10.5px] uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">cloud_upload</span> {t("memberPortal.utilitiesPage.vcard.syncBtn")}
+                      </button>
+                      <button
+                        onClick={() => setShowManualAdd(true)}
+                        className="w-full py-3 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold text-[10.5px] uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">person_add</span> {t("memberPortal.utilitiesPage.vcard.manualAddBtn") || "Thêm lẻ"}
+                      </button>
+                    </div>
                   </div>
                 )}
                 

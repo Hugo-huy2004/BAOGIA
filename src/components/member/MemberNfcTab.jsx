@@ -4,20 +4,30 @@ import HugoLogo from "../HugoLogo";
 
 export default function MemberNfcTab({ bio, publicLink, showToast }) {
   const { t } = useTranslation();
-  const [writeStatus, setWriteStatus] = useState("idle"); // idle, scanning, success, error
+  const [writeStatus, setWriteStatus] = useState("check"); // check, idle, scanning, success, error, unsupported
   const [nfcError, setNfcError] = useState("");
   const [nfcSupported, setNfcSupported] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "NDEFReader" in window) {
       setNfcSupported(true);
+      setWriteStatus("idle");
+    } else {
+      setNfcSupported(false);
+      setWriteStatus("unsupported");
     }
   }, []);
 
   const handleWriteNfc = async () => {
-    if (!nfcSupported) {
+    // Check for Secure Context (Required for Web NFC)
+    if (typeof window !== "undefined" && !window.isSecureContext && window.location.hostname !== "localhost") {
       setWriteStatus("error");
-      setNfcError(t("memberPortal.utilitiesPage.nfc.toastUnsupported") || "Web NFC is not supported on this browser/device.");
+      setNfcError(t("memberPortal.utilitiesPage.vcard.toastInsecureContext") || "NFC requires an HTTPS connection.");
+      return;
+    }
+
+    if (!nfcSupported) {
+      setWriteStatus("unsupported"); // Changed from "error" to be friendlier
       return;
     }
 
@@ -26,7 +36,26 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
       setNfcError("");
       const ndef = new window.NDEFReader();
       
-      // Start writing
+      // Start scanning first to request permission "hiển thị cho phép"
+      await ndef.scan();
+      
+      // Listen for reading if user wants "auto add" behavior
+      ndef.onreading = async (event) => {
+        console.log("Tag detected, auto-writing...");
+        try {
+          await ndef.write({
+            records: [{ recordType: "url", data: publicLink }]
+          });
+          setWriteStatus("success");
+          if (showToast) {
+            showToast(t("memberPortal.utilitiesPage.nfc.success"), "success");
+          }
+        } catch (err) {
+          console.error("Auto write failed:", err);
+        }
+      };
+
+      // Also do a direct write for the first tap
       await ndef.write({
         records: [{ recordType: "url", data: publicLink }]
       });
@@ -37,8 +66,12 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
       }
     } catch (err) {
       console.error("NFC Write Error:", err);
-      setWriteStatus("error");
-      setNfcError(err.message || t("memberPortal.utilitiesPage.nfc.retry"));
+      if (err.name === "NotAllowedError") {
+        setWriteStatus("idle"); // User denied permission
+      } else {
+        setWriteStatus("error");
+        setNfcError(err.message || t("memberPortal.utilitiesPage.nfc.retry"));
+      }
     }
   };
 
@@ -166,6 +199,18 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
                 <span className="material-symbols-outlined text-sm">sensors</span>
                 {t("memberPortal.utilitiesPage.nfc.writeBtn")}
               </button>
+            )}
+
+            {writeStatus === "unsupported" && (
+              <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-center space-y-2">
+                <span className="material-symbols-outlined text-2xl text-amber-500">info</span>
+                <p className="text-[10px] font-bold text-amber-600/80 uppercase tracking-widest">Thiết bị không hỗ trợ ghi Web-NFC</p>
+                <p className="text-[10px] text-zinc-400">Vui lòng sử dụng App hướng dẫn bên dưới để ghi thẻ.</p>
+              </div>
+            )}
+
+            {writeStatus === "check" && (
+              <div className="w-full py-3.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
             )}
 
             {writeStatus === "scanning" && (
