@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import dataApi from '../../services/dataApi';
+import { getAdminSession } from '../../services/authSession';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export default function AdminPaymentsTab() {
   const { t } = useTranslation();
@@ -10,11 +12,22 @@ export default function AdminPaymentsTab() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const getHeaders = () => {
+    const session = getAdminSession();
+    return {
+      'Content-Type': 'application/json',
+      ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {})
+    };
+  };
+
   const fetchLinks = async () => {
     try {
-      const res = await dataApi.get('/api/payos/all');
-      if (res.data.success) {
-        setLinks(res.data.data);
+      const response = await fetch(`${API_BASE_URL}/payos/all`, {
+        headers: getHeaders()
+      });
+      const data = await response.json();
+      if (data.success) {
+        setLinks(data.data);
       }
     } catch (err) {
       console.error('Failed to fetch links', err);
@@ -32,20 +45,26 @@ export default function AdminPaymentsTab() {
     setSuccess('');
 
     try {
-      const res = await dataApi.post('/api/payos/create', {
-        amount: Number(formData.amount),
-        reason: formData.reason,
+      const response = await fetch(`${API_BASE_URL}/payos/create`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          amount: Number(formData.amount),
+          reason: formData.reason,
+        })
       });
 
-      if (res.data.success) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         setSuccess('Tạo link thành công!');
         setFormData({ amount: '', reason: '' });
         fetchLinks();
       } else {
-        setError(res.data.error || 'Lỗi khi tạo link');
+        setError(data.error || 'Lỗi khi tạo link');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Lỗi kết nối server');
+      setError('Lỗi kết nối server');
     } finally {
       setLoading(false);
     }
