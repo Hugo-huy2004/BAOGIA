@@ -22,6 +22,17 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       scope: "https://www.googleapis.com/auth/contacts.readonly",
       callback: async (tokenResponse) => {
+        if (tokenResponse && tokenResponse.error) {
+          console.error("Google Auth Error:", tokenResponse);
+          if (showToast) {
+            const msg = tokenResponse.error === "popup_closed_by_user" 
+              ? "Bạn đã đóng cửa sổ đăng nhập." 
+              : `Lỗi Google: ${tokenResponse.error_description || tokenResponse.error}`;
+            showToast(msg, "error");
+          }
+          return;
+        }
+
         if (tokenResponse && tokenResponse.access_token) {
           try {
             setSyncing(true);
