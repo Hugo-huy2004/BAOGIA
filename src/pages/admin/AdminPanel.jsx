@@ -764,7 +764,7 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-[calc(100vh-56px)] bg-slate-50 dark:bg-[#0b0910] text-slate-850 dark:text-slate-100 flex flex-col md:flex-row pb-20 md:pb-0 overflow-x-hidden">
-      <button onClick={toggleLanguage} className="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex h-9 w-12 items-center justify-center rounded-full bg-slate-200/80 dark:bg-[#1f1929]/80 backdrop-blur shadow-sm text-[11px] font-bold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-300 dark:hover:bg-[#2d253b] transition-all">{i18n.language.startsWith("en") ? "EN" : "VI"}</button>
+
       
       {/* SUCCESS/WARNING TOAST */}
       {toastMsg && (

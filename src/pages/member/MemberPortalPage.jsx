@@ -876,7 +876,7 @@ export default function MemberPortalPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] font-body selection:bg-[#0071e3]/20 transition-colors duration-300">
-      <button onClick={toggleLanguage} className="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex h-9 w-12 items-center justify-center rounded-full bg-slate-200/80 dark:bg-[#1f1929]/80 backdrop-blur shadow-sm text-[11px] font-bold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-300 dark:hover:bg-[#2d253b] transition-all">{i18n.language.startsWith("en") ? "EN" : "VI"}</button>
+
 
 
       {/* Toast Alert */}
