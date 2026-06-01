@@ -1035,7 +1035,14 @@
         "toastSyncError": "Sync error. Please check your file or access permissions.",
         "toastDeleteSuccess": "Removed contact from cloud backup.",
         "toastDeleteError": "Unable to delete contact.",
-        "toastCopySuccess": "Copied smart contact download link!"
+        "toastCopySuccess": "Copied smart contact download link!",
+        "syncedStatus": "{{count}} contacts saved in Cloud",
+        "syncedStatusDesc": "Contacts are backed up. Press Update to re-sync.",
+        "resyncGoogleBtn": "Update from Google",
+        "resyncBtn": "Update",
+        "colName": "Name",
+        "colPhone": "Phone Number",
+        "colAction": "Actions"
       },
       "signature": {
         "title": "Brand Email Signature",

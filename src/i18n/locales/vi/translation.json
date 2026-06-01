@@ -1035,7 +1035,14 @@
         "toastSyncError": "Lỗi đồng bộ. Hãy kiểm tra lại file hoặc quyền truy cập.",
         "toastDeleteSuccess": "Đã gỡ bỏ liên hệ khỏi danh sách sao lưu.",
         "toastDeleteError": "Không thể xóa liên hệ.",
-        "toastCopySuccess": "Đã sao chép liên kết tải danh bạ thông minh!"
+        "toastCopySuccess": "Đã sao chép liên kết tải danh bạ thông minh!",
+        "syncedStatus": "Đã lưu {{count}} liên hệ trên Cloud",
+        "syncedStatusDesc": "Danh bạ đã được sao lưu. Nhấn Cập nhật để đồng bộ lại.",
+        "resyncGoogleBtn": "Cập nhật Google",
+        "resyncBtn": "Cập nhật",
+        "colName": "Tên",
+        "colPhone": "Số điện thoại",
+        "colAction": "Thao tác"
       },
       "signature": {
         "title": "Chữ ký Email Thương hiệu",
