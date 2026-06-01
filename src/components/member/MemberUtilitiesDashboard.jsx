@@ -25,6 +25,20 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       title: t("memberPortal.utilitiesPage.signature.title"),
       desc: t("memberPortal.utilitiesPage.signature.desc"),
       btnText: t("intro.slide5.createBtn")
+    },
+    {
+      id: "secret_link",
+      icon: "lock",
+      title: "Khóa Link Bảo Mật",
+      desc: "Tạo link chia sẻ ẩn danh yêu cầu mật khẩu để xem.",
+      btnText: "Thiết Lập Ngay"
+    },
+    {
+      id: "file_tools",
+      icon: "folder_zip",
+      title: "Công Cụ Xử Lý File",
+      desc: "Giải nén file ZIP và tối ưu dung lượng (Nén Ảnh/Video).",
+      btnText: "Mở Công Cụ"
     }
   ];
 

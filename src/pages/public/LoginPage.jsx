@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginAdmin, loginMember } from "../services/authSession";
-import { useHeadMeta } from "../hooks/useHeadMeta";
+import { loginAdmin, loginMember } from "../../services/authSession";
+import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
-import { useData } from "../context/DataContext";
+import { useData } from "../../context/DataContext";
 
 export default function LoginPage() {
   const { t } = useTranslation();

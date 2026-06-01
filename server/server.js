@@ -9,7 +9,7 @@ import partnerRoutes from './routes/partnerRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
-
+import fileToolsRoutes from './routes/fileToolsRoutes.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
@@ -46,16 +46,18 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com"],
       imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://img.vietqr.io"],
-      connectSrc: ["'self'", "https://api.cloudinary.com"],
+      connectSrc: ["'self'", "https://api.cloudinary.com", "https://accounts.google.com"],
+      frameSrc: ["'self'", "https://accounts.google.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
     },
   },
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
 }));
 
 // CDN Edge Cache middleware (Bỏ đi, sẽ set trực tiếp trong route để không bị ghi đè)
@@ -122,6 +124,7 @@ app.use('/api/partners', partnerRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/files', fileToolsRoutes);
 app.use('/api/customer-projects', customerRoutes);
 app.use('/api/vcard', vcardRoutes);
 

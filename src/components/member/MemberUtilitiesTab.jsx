@@ -4,9 +4,11 @@ import MemberNfcTab from "./MemberNfcTab";
 import MemberUtilitiesDashboard from "./MemberUtilitiesDashboard";
 import MemberVCardTab from "./MemberVCardTab";
 import MemberSignatureTab from "./MemberSignatureTab";
+import MemberSecretLinkTab from "./MemberSecretLinkTab";
+import MemberFileToolsTab from "./MemberFileToolsTab";
 import SubUtilityHeader from "./SubUtilityHeader";
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave }) {
   const { t } = useTranslation();
   const [selectedUtility, setSelectedUtility] = useState(null); // null, 'nfc', 'vcard', 'signature'
 
@@ -59,6 +61,26 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast }) {
           publicLink={publicLink} 
           showToast={showToast} 
           onBack={() => setSelectedUtility(null)} 
+        />
+      )}
+
+      {/* Secret Link Tool */}
+      {selectedUtility === "secret_link" && (
+        <MemberSecretLinkTab 
+          bio={bio} 
+          publicLink={publicLink} 
+          showToast={showToast} 
+          onBack={() => setSelectedUtility(null)} 
+          setFormData={setFormData}
+          handleSave={handleSave}
+        />
+      )}
+
+      {/* File Tools */}
+      {selectedUtility === "file_tools" && (
+        <MemberFileToolsTab 
+          onBack={() => setSelectedUtility(null)} 
+          showToast={showToast} 
         />
       )}
     </div>

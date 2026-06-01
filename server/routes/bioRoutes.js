@@ -3,6 +3,7 @@ import Bio from '../models/Bio.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
+import { encryptText, decryptText, hashPassword, comparePassword } from '../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation.js';
 
 const router = express.Router();
@@ -66,6 +67,34 @@ const removeExpiredBioIfNeeded = async (bio) => {
   }
 
   return bio;
+};
+
+const processSecretLinks = async (newLinks, existingLinks = []) => {
+  if (!newLinks || !Array.isArray(newLinks)) return [];
+  const result = [];
+  for (const link of newLinks) {
+    let newLink = { ...link };
+    const oldLink = existingLinks.find(l => l.id === link.id);
+    
+    if (newLink.password) {
+      if (!newLink.password.startsWith('$2a$') && !newLink.password.startsWith('$2b$')) {
+         newLink.password = await hashPassword(newLink.password);
+      }
+    } else if (oldLink && oldLink.password) {
+      newLink.password = oldLink.password;
+    }
+    
+    if (newLink.url) {
+      if (!newLink.url.startsWith('enc:')) {
+         newLink.url = encryptText(newLink.url);
+      }
+    } else if (oldLink && oldLink.url) {
+      newLink.url = oldLink.url;
+    }
+    
+    result.push(newLink);
+  }
+  return result;
 };
 
 // GET: Fetch all bios (for Admin Panel) with search, filter, pagination, and stats
@@ -179,15 +208,24 @@ router.get('/me', async (req, res) => {
       return res.status(400).json({ error: 'Missing email' });
     }
 
-    let bioDoc = await Bio.findOne({ email });
-    if (!bioDoc) {
-      bioDoc = await Bio.findOne({ contactEmail: email });
+    let doc = await Bio.findOne({ email });
+    if (!doc) {
+      doc = await Bio.findOne({ contactEmail: email });
     }
-    const bio = await removeExpiredBioIfNeeded(bioDoc);
-    if (bio) {
-      await cleanupExpiredBirthdayNotifications(bio);
+    const bioDoc = await removeExpiredBioIfNeeded(doc);
+    if (bioDoc) {
+      await cleanupExpiredBirthdayNotifications(bioDoc);
+      const bioObj = bioDoc.toObject();
+      if (bioObj.secretLinks && Array.isArray(bioObj.secretLinks)) {
+        bioObj.secretLinks = bioObj.secretLinks.map(link => ({
+          ...link,
+          url: decryptText(link.url),
+          password: '' // Hide hashed password from frontend, allow user to input new one if needed
+        }));
+      }
+      return res.json({ bio: bioObj });
     }
-    return res.json({ bio });
+    return res.json({ bio: null });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -208,7 +246,19 @@ router.get('/slug/:slug', async (req, res) => {
     const bio = await fetchWithCache(cacheKey, 60000, async () => {
       const found = await Bio.findOne({ slug });
       const bioDoc = await removeExpiredBioIfNeeded(found);
-      return bioDoc ? bioDoc.toObject() : null;
+      if (bioDoc) {
+        const doc = bioDoc.toObject();
+        // Remove sensitive info for public view
+        if (doc.secretLinks && Array.isArray(doc.secretLinks)) {
+          doc.secretLinks = doc.secretLinks.map(link => ({
+            id: link.id,
+            title: link.title,
+            hasPassword: !!link.password
+          }));
+        }
+        return doc;
+      }
+      return null;
     });
 
     if (!bio) {
@@ -219,6 +269,31 @@ router.get('/slug/:slug', async (req, res) => {
 
     res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
     return res.json({ bio });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/slug/:slug/secret-link/:linkId/unlock', async (req, res) => {
+  try {
+    const { slug, linkId } = req.params;
+    const { password } = req.body;
+    
+    if (!password) {
+      return res.status(400).json({ error: 'Mật khẩu không được để trống' });
+    }
+
+    const bioDoc = await Bio.findOne({ slug });
+    if (!bioDoc) return res.status(404).json({ error: 'Bio not found' });
+    
+    const link = (bioDoc.secretLinks || []).find(l => l.id === linkId);
+    if (!link) return res.status(404).json({ error: 'Secret link not found' });
+    
+    const isValid = await comparePassword(password, link.password);
+    if (!isValid) return res.status(401).json({ error: 'Mật khẩu không chính xác' });
+    
+    const decryptedUrl = decryptText(link.url);
+    return res.json({ url: decryptedUrl });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -247,6 +322,7 @@ router.post('/', async (req, res) => {
       pricing = { standard: '', premium: '', custom: '' },
       portfolio = [],
       services = [],
+      secretLinks = [],
       baseSlug = ''
     } = req.body;
 
@@ -295,6 +371,7 @@ router.post('/', async (req, res) => {
       pricing,
       portfolio,
       services,
+      secretLinks: await processSecretLinks(secretLinks || []),
       history: welcomeHistory,
       createdAt: new Date(),
     });
@@ -340,7 +417,8 @@ router.put('/:id', async (req, res) => {
       theme = {},
       tabs = [],
       projects = [],
-      services = []
+      services = [],
+      secretLinks = []
     } = req.body;
 
     // Handle avatar update / delete / overwrite
@@ -446,6 +524,7 @@ router.put('/:id', async (req, res) => {
     existing.tabs = tabs;
     existing.projects = projects;
     existing.services = services;
+    existing.secretLinks = await processSecretLinks(secretLinks || [], existing.secretLinks || []);
     existing.slug = nextSlug;
     existing.status = 'active';
 

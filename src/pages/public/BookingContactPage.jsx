@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
-import HugoLogo from "../components/HugoLogo";
+import HugoLogo from "../../components/HugoLogo";
 
 // Hugo Studio Brand Logo component to match styling exactly
 

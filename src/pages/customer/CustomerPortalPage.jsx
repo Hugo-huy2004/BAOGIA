@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import CustomerProfileTab from '../components/customer/CustomerProfileTab';
-import CustomerServiceTab from '../components/customer/CustomerServiceTab';
-import CustomerRequestsTab from '../components/customer/CustomerRequestsTab';
+import CustomerProfileTab from '../../components/customer/CustomerProfileTab';
+import CustomerServiceTab from '../../components/customer/CustomerServiceTab';
+import CustomerRequestsTab from '../../components/customer/CustomerRequestsTab';
 
 export default function CustomerPortalPage() {
   const { t, i18n } = useTranslation();

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useData } from "../context/DataContext";
-import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
-import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useData } from "../../context/DataContext";
+import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
+import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { motion } from "framer-motion";
 import { useTranslation, Trans } from "react-i18next";
 export default function IntroductionPage() {

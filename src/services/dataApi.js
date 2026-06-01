@@ -196,6 +196,26 @@ export const dataApi = {
     }
   },
 
+  // Unlock secret link
+  async unlockSecretLink(slug, linkId, password) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/bios/slug/${encodeURIComponent(slug)}/secret-link/${encodeURIComponent(linkId)}/unlock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to unlock secret link');
+      }
+      return data; // contains { url: '...' }
+    } catch (error) {
+      console.error('Error unlocking secret link:', error);
+      throw error;
+    }
+  },
+
   // Create member bio
   async createMemberBio(payload) {
     try {

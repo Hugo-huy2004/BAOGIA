@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from "react";
 
 // Lazy-load themes to reduce initial bundle size
-const DefaultTheme = lazy(() => import("../components/themes/DefaultTheme"));
-const BrutalismTheme = lazy(() => import("../components/themes/BrutalismTheme"));
-const FlatTheme = lazy(() => import("../components/themes/FlatTheme"));
+const DefaultTheme = lazy(() => import("../../components/themes/DefaultTheme"));
+const BrutalismTheme = lazy(() => import("../../components/themes/BrutalismTheme"));
+const FlatTheme = lazy(() => import("../../components/themes/FlatTheme"));
 
 // MobilePreview removed as we now always render the actual responsive themes
 

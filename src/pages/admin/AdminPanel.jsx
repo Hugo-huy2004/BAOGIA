@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useData } from "../context/DataContext";
-import { logoutAuth, getAdminSession } from "../services/authSession";
+import { useData } from "../../context/DataContext";
+import { logoutAuth, getAdminSession } from "../../services/authSession";
 
 const fetchWithAuth = async (url, options = {}) => {
   const headers = {
@@ -15,10 +15,10 @@ const fetchWithAuth = async (url, options = {}) => {
   }
   return response;
 };
-import HugoLogo from "../components/HugoLogo";
-import AdminSettingsTab from "../components/admin/AdminSettingsTab";
-import AdminUsersTab from "../components/admin/AdminUsersTab";
-import AdminProjectsTab from "../components/admin/AdminProjectsTab";
+import HugoLogo from "../../components/HugoLogo";
+import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
+import AdminUsersTab from "../../components/admin/AdminUsersTab";
+import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 
 // Hugo Studio Brand Logo component to match styling exactly
 

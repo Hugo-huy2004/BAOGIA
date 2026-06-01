@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import dataApi from "../services/dataApi";
-import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
-import HugoLogo, { RenderColoredText } from "../components/HugoLogo";
+import dataApi from "../../services/dataApi";
+import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
+import HugoLogo, { RenderColoredText } from "../../components/HugoLogo";
 
 const isColorDark = (color) => {
   if (!color) return false;

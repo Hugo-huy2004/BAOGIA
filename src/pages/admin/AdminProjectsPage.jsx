@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import AdminProjectsTab from '../components/admin/AdminProjectsTab';
-import { logoutAuth } from '../services/authSession';
+import AdminProjectsTab from '../../components/admin/AdminProjectsTab';
+import { logoutAuth } from '../../services/authSession';
 
 export default function AdminProjectsPage() {
   const { t } = useTranslation();

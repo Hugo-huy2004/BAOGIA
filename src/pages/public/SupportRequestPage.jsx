@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getMemberSession } from '../services/authSession';
-import { dataApi } from '../services/dataApi';
-import { useHeadMeta } from '../hooks/useHeadMeta';
+import { getMemberSession } from '../../services/authSession';
+import { dataApi } from '../../services/dataApi';
+import { useHeadMeta } from '../../hooks/useHeadMeta';
 
 const SupportRequestPage = () => {
   useHeadMeta({

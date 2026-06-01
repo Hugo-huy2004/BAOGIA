@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { logoutAuth } from '../services/authSession';
+import { logoutAuth } from '../../services/authSession';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 

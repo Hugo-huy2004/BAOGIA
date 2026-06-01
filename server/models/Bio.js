@@ -100,6 +100,16 @@ const BioSchema = new mongoose.Schema(
       }],
       default: []
     },
+    secretLinks: {
+      type: [{
+        id: { type: String, required: true },
+        title: { type: String, default: '' },
+        url: { type: String, required: true },
+        password: { type: String, required: true },
+        visits: { type: Number, default: 0 }
+      }],
+      default: []
+    },
     projects: {
       type: [{
         id: { type: String },

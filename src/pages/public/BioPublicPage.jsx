@@ -1,13 +1,13 @@
 import React, { useMemo } from "react";
 import useSWR from "swr";
 import { useParams } from "react-router-dom";
-import dataApi from "../services/dataApi";
-import { useHeadMeta } from "../hooks/useHeadMeta";
+import dataApi from "../../services/dataApi";
+import { useHeadMeta } from "../../hooks/useHeadMeta";
 
 // Themes
-import DefaultTheme from "../components/themes/DefaultTheme";
-import BrutalismTheme from "../components/themes/BrutalismTheme";
-import FlatTheme from "../components/themes/FlatTheme";
+import DefaultTheme from "../../components/themes/DefaultTheme";
+import BrutalismTheme from "../../components/themes/BrutalismTheme";
+import FlatTheme from "../../components/themes/FlatTheme";
 
 export default function BioPublicPage() {
   const { slug } = useParams();

@@ -15,6 +15,7 @@ const QUESTION_TREE = {
     options: [
       { label: "Hướng dẫn thiết kế trang Bio Link", next: "bio_link" },
       { label: "Hướng dẫn quản lý lịch đặt hẹn", next: "booking" },
+      { label: "Hướng dẫn Tiện ích (Mã QR, Danh bạ, Chữ ký)", next: "utilities_features" },
       { label: "Hướng dẫn nâng cấp gói dịch vụ", next: "packages" },
       { label: "Hướng dẫn tích hợp Iframe đối tác", next: "partners" },
       { label: "Quay lại Menu chính", next: "main" }
@@ -79,6 +80,36 @@ const QUESTION_TREE = {
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
+  utilities_features: {
+    text: "Hệ thống cung cấp 3 tiện ích cực đỉnh cho cậu nha:\n1. Trình tạo mã QR đa năng (QR Wi-Fi, Link, Text)\n2. Danh bạ thông minh vCard offline\n3. Chữ ký Email thương hiệu xịn xò\nCậu muốn Culi hướng dẫn cái nào nè?",
+    options: [
+      { label: "Trình tạo mã QR", next: "qr_generator" },
+      { label: "Danh bạ vCard", next: "vcard_info" },
+      { label: "Chữ ký Email", next: "email_signature" },
+      { label: "Quay lại mục trước", next: "portal_features" }
+    ]
+  },
+  qr_generator: {
+    text: "Trình tạo QR (nằm ở Tab QR Code) cho phép cậu tạo mã QR cho Wi-Fi, URL, Văn bản,... tải về siêu nét (PNG) hoặc in ra quét offline mượt mà không cần mạng luôn đó!",
+    options: [
+      { label: "Quay lại", next: "utilities_features" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+    ]
+  },
+  vcard_info: {
+    text: "Tab Danh Bạ (vCard) tạo ra một mã QR chứa toàn bộ thông tin của cậu. Người khác chỉ cần dùng camera quét là điện thoại tự động bật popup lưu danh bạ mà không cần Internet!",
+    options: [
+      { label: "Quay lại", next: "utilities_features" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+    ]
+  },
+  email_signature: {
+    text: "Tab Chữ ký Email giúp cậu tạo chữ ký xịn xò. Cậu có thể chọn Font, màu sắc, tích hợp icon mạng xã hội tự động, rồi tải file HTML về hoặc Copy chèn thẳng vào Gmail/Outlook nha.",
+    options: [
+      { label: "Quay lại", next: "utilities_features" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+    ]
+  },
   about_hugo: {
     text: "Cậu muốn tìm hiểu thông tin nào về Hugo Studio tụi tớ nè?",
     options: [
@@ -129,6 +160,9 @@ const PREFILL_MESSAGES = {
   view_booking: "Hỗ trợ về tab Quản lý lịch hẹn và xem thông tin liên hệ của khách hàng.",
   upgrade: "Yêu cầu kích hoạt/nâng cấp tài khoản lên gói trả phí (Bio Plus hoặc Bio VIP).",
   partners: "Hỗ trợ và tư vấn tích hợp trình chỉnh sửa Bio Link (nhúng Iframe) lên website đối tác.",
+  qr_generator: "Hỗ trợ sử dụng Trình tạo mã QR đa năng.",
+  vcard_info: "Hỗ trợ thiết lập và sử dụng tính năng Danh bạ thông minh (vCard).",
+  email_signature: "Hỗ trợ thiết kế và nhúng Chữ ký Email thương hiệu.",
   how_to_cooperate: "Đề xuất hợp tác quảng cáo, nhúng Iframe hoặc dự án phát triển với Hugo Studio.",
   main: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ để được giải quyết vấn đề."
 };

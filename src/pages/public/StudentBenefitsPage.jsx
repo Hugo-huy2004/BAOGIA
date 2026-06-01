@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useHeadMeta } from "../hooks/useHeadMeta";
-import { loginMember } from "../services/authSession";
+import { useHeadMeta } from "../../hooks/useHeadMeta";
+import { loginMember } from "../../services/authSession";
 
 export default function StudentBenefitsPage() {
   useHeadMeta({

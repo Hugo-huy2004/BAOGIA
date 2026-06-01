@@ -1,149 +1,187 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { QRCodeSVG } from "qrcode.react";
 import SubUtilityHeader from "./SubUtilityHeader";
 
-export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
+export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
   const { t } = useTranslation();
+  const qrRef = useRef(null);
 
+  const publicLink = typeof window !== "undefined" ? window.location.origin + "/" + (bio?.slug || "") : "";
   const vcardDownloadUrl = `${getApiUrl()}/vcard/${bio?.slug}`;
+
+  // The offline vCard content embedded in the QR Code
+  const vcardData = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    `FN:${bio?.displayName || ""}`,
+    bio?.phone ? `TEL:${bio.phone}` : "",
+    bio?.contactEmail || bio?.email ? `EMAIL:${bio?.contactEmail || bio?.email}` : "",
+    bio?.jobTitle ? `TITLE:${bio.jobTitle}` : "",
+    `URL:${publicLink}`,
+    "END:VCARD"
+  ].filter(Boolean).join("\n");
 
   const copyVcardLink = () => {
     navigator.clipboard.writeText(vcardDownloadUrl);
     if (showToast) {
-      showToast(t("memberPortal.utilitiesPage.vcard.toastCopySuccess"), "success");
+      showToast(t("memberPortal.utilitiesPage.vcard.toastCopySuccess") || "Đã sao chép liên kết!", "success");
     }
   };
 
-  const isMobile = typeof navigator !== "undefined" && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Danh bạ của ${bio?.displayName || "tôi"}`,
+          text: `Lưu nhanh danh bạ của ${bio?.displayName || "tôi"} vào điện thoại của bạn nhé!`,
+          url: vcardDownloadUrl,
+        });
+        if (showToast) showToast("Đã mở giao diện chia sẻ!", "success");
+      } catch (err) {
+        console.log("Share cancelled or failed", err);
+      }
+    } else {
+      copyVcardLink();
+    }
+  };
+
+  const handleDownloadQR = () => {
+    try {
+      const svgElement = qrRef.current.querySelector("svg");
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svgElement);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+      const DOMURL = window.URL || window.webkitURL || window;
+      const url = DOMURL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        canvas.width = 1000;
+        canvas.height = 1000;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const padding = 100;
+        ctx.drawImage(img, padding, padding, canvas.width - padding*2, canvas.height - padding*2);
+        DOMURL.revokeObjectURL(url);
+        
+        const pngUrl = canvas.toDataURL("image/png");
+        const downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        downloadLink.download = `vCard_QR_${bio?.slug || "contact"}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        if (showToast) showToast("Tải mã QR thành công!", "success");
+      };
+      img.src = url;
+    } catch (err) {
+      if (showToast) showToast("Lỗi khi tải mã QR.", "error");
+    }
+  };
 
   return (
-    <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 bg-white dark:bg-[#12111a] rounded-[2rem] p-6 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
       <SubUtilityHeader
-        title={t("memberPortal.utilitiesPage.vcard.title")}
+        title="Mã QR Danh bạ (vCard)"
         icon="contact_phone"
         colorClass="text-rose-500"
         onBack={onBack}
       />
+      
+      {/* Header Info */}
+      <div className="text-center space-y-2 pt-2">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed">
+          Quét mã này để điện thoại tự động kích hoạt màn hình <strong>Thêm vào Danh bạ</strong> mà không cần mạng. Gửi link trực tuyến để chia sẻ qua tin nhắn.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
-        {/* Profile Card Mockup */}
-        <div className="md:col-span-5 bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl p-6 text-center flex flex-col justify-between space-y-4">
-          <div className="space-y-4">
-            <div className="w-16 h-16 rounded-full overflow-hidden mx-auto border-2 border-rose-500 shadow-lg bg-zinc-950">
-              {bio?.avatarUrl ? (
-                <img src={bio.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-rose-500 font-black text-xl">
-                  {bio?.displayName?.charAt(0)}
-                </div>
-              )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        
+        {/* LEFT: QR Code Display */}
+        <div className="flex flex-col items-center justify-center p-8 bg-zinc-50 dark:bg-zinc-900/20 rounded-[2rem] border border-dashed border-zinc-300 dark:border-zinc-800/80 min-h-[380px]">
+          <div className="relative">
+            <div ref={qrRef} className="bg-white p-5 rounded-3xl shadow-xl border border-zinc-200">
+              <QRCodeSVG 
+                  value={vcardData} 
+                  size={200} 
+                  level="Q" 
+                  includeMargin={false}
+                  fgColor="#e11d48" // Rose 600
+              />
             </div>
-
-            <div className="space-y-1">
-              <h4 className="text-sm font-black text-zinc-800 dark:text-zinc-100">{bio?.displayName}</h4>
-              <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">{bio?.jobTitle || t("memberPortal.utilitiesPage.vcard.defaultJobTitle") || "Hugo Studio Member"}</p>
-            </div>
-
-            <div className="pt-2 border-t border-zinc-200/50 dark:border-zinc-800/50 space-y-2 text-left">
-              <div className="flex items-center gap-2 text-[10px] text-zinc-500">
-                <span className="material-symbols-outlined text-xs">phone</span>
-                <span>{bio?.phone || t("memberPortal.utilitiesPage.vcard.noPhone") || "No phone number"}</span>
-              </div>
-              <div className="flex items-center gap-2 text-[10px] text-zinc-500">
-                <span className="material-symbols-outlined text-xs">mail</span>
-                <span className="truncate">{bio?.contactEmail || bio?.email}</span>
-              </div>
+            
+            {/* Floating icon */}
+            <div className="absolute -bottom-4 -right-4 w-12 h-12 rounded-2xl bg-rose-500 text-white border-2 border-white shadow-lg flex items-center justify-center">
+              <span className="material-symbols-outlined text-2xl">contact_page</span>
             </div>
           </div>
 
-          {isMobile ? (
-            <a
-              href={vcardDownloadUrl}
-              download
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-black text-[11.5px] uppercase tracking-wider shadow-md flex items-center justify-center gap-1.5 transition-all active:scale-95 animate-pulse"
-            >
-              <span className="material-symbols-outlined text-sm">download</span>
-              {t("memberPortal.utilitiesPage.vcard.mobileSaveBtn")}
-            </a>
-          ) : (
-            <a
-              href={vcardDownloadUrl}
-              download
-              className="w-full py-2.5 rounded-xl bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-bold text-[10.5px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-95"
-            >
-              <span className="material-symbols-outlined text-xs">download</span>
-              {t("memberPortal.utilitiesPage.vcard.desktopDownloadBtn")}
-            </a>
-          )}
+          <button 
+            onClick={handleDownloadQR}
+            className="mt-10 px-8 py-3.5 rounded-2xl text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-500/25 transition-all active:scale-[0.98] flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:brightness-110"
+          >
+            <span className="material-symbols-outlined text-lg">download</span>
+            Tải Mã QR Này
+          </button>
         </div>
 
-        {/* Right: QR + Public Link */}
-        <div className="md:col-span-7 flex flex-col justify-between space-y-6">
-          {isMobile ? (
-            <div className="p-5 bg-rose-500/5 border border-rose-500/10 rounded-2xl space-y-3">
-              <h4 className="text-xs font-black text-rose-500 uppercase tracking-wider flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">phone_iphone</span>
-                {t("memberPortal.utilitiesPage.vcard.mobileInstructionTitle")}
-              </h4>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                {t("memberPortal.utilitiesPage.vcard.mobileInstructionDesc")}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center p-6 bg-zinc-50 dark:bg-[#1a1926]/40 border border-zinc-200/50 dark:border-zinc-800/80 rounded-[24px] shadow-sm">
-              <div className="sm:col-span-4 flex flex-col items-center justify-center space-y-2">
-                <div
-                  className="bg-white p-2.5 border border-zinc-200/80 flex items-center justify-center shrink-0 w-28 h-28 shadow-sm"
-                  style={{ borderRadius: "20px" }}
-                >
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(vcardDownloadUrl)}`}
-                    alt="vCard QR Code"
-                    className="w-full h-full object-contain"
-                    style={{ borderRadius: "12px" }}
-                  />
-                </div>
-                <span className="text-[8px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
-                  {t("memberPortal.utilitiesPage.vcard.qrLabel") || "Quick Save QR"}
-                </span>
+        {/* RIGHT: Action Tools */}
+        <div className="bg-white dark:bg-[#12111a] rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 p-6 shadow-sm flex flex-col justify-center space-y-6 min-h-[380px]">
+          
+          <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl space-y-2">
+             <h4 className="text-xs font-black text-rose-500 uppercase flex items-center gap-1.5"><span className="material-symbols-outlined text-[16px]">info</span> Cơ chế Tự Động</h4>
+             <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">Vì lý do bảo mật của iOS/Android, một trang web <strong>không thể ngầm tự động thêm số điện thoại</strong> vào danh bạ của người dùng nếu không có thao tác xác nhận. Mã QR này chứa gói lệnh VCF, khi camera nhận dạng được, nó sẽ <strong>tự động bật popup Lưu Danh Bạ</strong> để người dùng bấm Lưu là xong.</p>
+          </div>
+
+          <div className="space-y-4">
+            <a
+              href={vcardDownloadUrl}
+              download
+              className="w-full p-4 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-4 group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">cloud_download</span>
               </div>
-
-              <div className="sm:col-span-8 space-y-2">
-                <h4 className="text-xs font-black text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-sm">qr_code_scanner</span>
-                  {t("memberPortal.utilitiesPage.vcard.desktopInstructionTitle")}
-                </h4>
-                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-                  {t("memberPortal.utilitiesPage.vcard.desktopInstructionDesc")}
-                </p>
+              <div className="flex-1 text-left">
+                <h4 className="text-[11px] font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider mb-0.5">Tải file Danh bạ (.VCF)</h4>
+                <p className="text-[10px] text-zinc-500 font-medium">Tải file nén chuẩn VCF về thiết bị hiện tại.</p>
               </div>
-            </div>
-          )}
+            </a>
 
-          {/* Public Link Box */}
-          <div className="bg-zinc-50 dark:bg-[#1a1926]/40 border border-zinc-200/50 dark:border-zinc-800/80 rounded-[24px] p-6 shadow-sm space-y-4">
-            <div className="space-y-1">
-              <h4 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
-                {t("memberPortal.utilitiesPage.vcard.publicLinkTitle")}
-              </h4>
-              <p className="text-[9.5px] text-zinc-400">
-                {t("memberPortal.utilitiesPage.vcard.publicLinkDesc")}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 p-1.5 bg-white dark:bg-[#12111a] border border-zinc-200/80 dark:border-zinc-800/80 rounded-xl">
-              <div className="font-mono text-[10.5px] text-zinc-550 dark:text-zinc-400 break-all select-all flex-1 px-3 py-1 font-bold">
+            <button
+              onClick={handleShare}
+              className="w-full p-4 rounded-xl bg-rose-50 dark:bg-rose-500/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 border border-rose-100 dark:border-rose-500/10 transition-colors flex items-center gap-4 group cursor-pointer text-left"
+            >
+              <div className="w-10 h-10 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">{navigator.share ? "ios_share" : "content_copy"}</span>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-[11px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5">{navigator.share ? "Chia sẻ qua App" : "Copy Link Trực Tuyến"}</h4>
+                <p className="text-[10px] text-rose-600/70 dark:text-rose-400/70 font-medium">{navigator.share ? "Gửi ngay danh bạ qua AirDrop, Zalo, SMS..." : "Sao chép link tải danh bạ trực tuyến."}</p>
+              </div>
+            </button>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Link Cố định</label>
+            <div className="flex items-center gap-2 p-1.5 bg-zinc-50 dark:bg-[#1a1926]/40 border border-zinc-200/80 dark:border-zinc-800/80 rounded-xl shadow-inner">
+              <div className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400 truncate flex-1 px-3 py-1 font-bold">
                 {vcardDownloadUrl}
               </div>
               <button
                 onClick={copyVcardLink}
-                className="px-4 py-2 rounded-lg text-[9.5px] font-extrabold uppercase bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white tracking-wider transition-all active:scale-95 flex items-center gap-1.5 shadow-sm shrink-0"
+                className="px-4 py-2 rounded-lg text-[9.5px] font-black uppercase bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center gap-1.5 shadow-sm shrink-0"
               >
-                <span className="material-symbols-outlined text-[11px]">content_copy</span>
-                {t("memberPortal.utilitiesPage.vcard.copyBtn")}
+                <span className="material-symbols-outlined text-[14px]">content_copy</span>
+                Copy
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>

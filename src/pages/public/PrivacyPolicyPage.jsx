@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useData } from "../context/DataContext";
-import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useData } from "../../context/DataContext";
+import { useHeadMeta } from "../../hooks/useHeadMeta";
 
 export default function PrivacyPolicyPage() {
   const { data } = useData();

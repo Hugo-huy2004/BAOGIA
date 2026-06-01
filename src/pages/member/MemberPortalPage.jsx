@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { getMemberSession, logoutAuth } from "../services/authSession";
-import dataApi from "../services/dataApi";
-import MemberProjectsTab from "../components/member/MemberProjectsTab";
-import MemberServicesTab from "../components/member/MemberServicesTab";
-import MemberHistoryTab from "../components/member/MemberHistoryTab";
-import MemberManageTab from "../components/member/MemberManageTab";
-import MemberPartnerTab from "../components/member/MemberPartnerTab";
-import MemberUtilitiesTab from "../components/member/MemberUtilitiesTab";
-import { optimizeCloudinaryUrl } from "../utils/imageOptimizer";
+import { getMemberSession, logoutAuth } from "../../services/authSession";
+import dataApi from "../../services/dataApi";
+import MemberProjectsTab from "../../components/member/MemberProjectsTab";
+import MemberServicesTab from "../../components/member/MemberServicesTab";
+import MemberHistoryTab from "../../components/member/MemberHistoryTab";
+import MemberManageTab from "../../components/member/MemberManageTab";
+import MemberPartnerTab from "../../components/member/MemberPartnerTab";
+import MemberUtilitiesTab from "../../components/member/MemberUtilitiesTab";
+import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 
 
 // Function to render text with each character in a different color
@@ -477,7 +477,9 @@ export default function MemberPortalPage() {
             },
             tabs: b.tabs || [],
             projects: b.projects || [],
-            services: b.services || []
+            services: b.services || [],
+            secretLinks: b.secretLinks || [],
+            slug: b.slug || ""
           });
         }
       } catch (error) {
@@ -660,38 +662,33 @@ export default function MemberPortalPage() {
     }
 
     const updatedLinks = [...formData.links, { label: newLinkLabel.trim(), url: newLinkUrl.trim() }];
-
-    setFormData((prev) => ({
-      ...prev,
-      links: updatedLinks
-    }));
+    const newData = { ...formData, links: updatedLinks };
+    setFormData(newData);
     setNewLinkLabel("");
     setNewLinkUrl("");
 
     if (isGuestMode) {
-      const updatedBio = { ...formData, links: updatedLinks };
-      setBio(updatedBio);
-      localStorage.setItem("hugo_guest_bio", JSON.stringify(updatedBio));
+      setBio(newData);
+      localStorage.setItem("hugo_guest_bio", JSON.stringify(newData));
       showToast(t("memberPortal.toast.partnerLinkAdded"), "success");
     } else {
-      showToast(t("memberPortal.toast.linkAdded"), "success");
+      handleSave(null, newData);
+      // Toast is handled by handleSave
     }
   };
 
   const removeSocialLink = async (indexToKill) => {
     const updatedLinks = formData.links.filter((_, idx) => idx !== indexToKill);
-    setFormData((prev) => ({
-      ...prev,
-      links: updatedLinks
-    }));
+    const newData = { ...formData, links: updatedLinks };
+    setFormData(newData);
 
     if (isGuestMode) {
-      const updatedBio = { ...formData, links: updatedLinks };
-      setBio(updatedBio);
-      localStorage.setItem("hugo_guest_bio", JSON.stringify(updatedBio));
+      setBio(newData);
+      localStorage.setItem("hugo_guest_bio", JSON.stringify(newData));
       showToast(t("memberPortal.toast.partnerLinkDeleted"), "success");
     } else {
-      showToast(t("memberPortal.toast.linkDeleted"), "success");
+      handleSave(null, newData);
+      // Toast is handled by handleSave
     }
   };
 
@@ -710,12 +707,13 @@ export default function MemberPortalPage() {
 
 
   // Save / Activate flow
-  const handleSave = async (e) => {
+  const handleSave = async (e, overrideData = null) => {
     if (e) e.preventDefault();
+    const dataToSave = overrideData || formData;
 
     // Validate bio word count
-    if (formData.bio) {
-      const wordCount = formData.bio.trim().split(/\s+/).filter(Boolean).length;
+    if (dataToSave.bio) {
+      const wordCount = dataToSave.bio.trim().split(/\s+/).filter(Boolean).length;
       if (wordCount > 110) {
         showToast(t("memberPortal.toast.descLimitExceeded"), "error");
         return;
@@ -725,16 +723,16 @@ export default function MemberPortalPage() {
     setSaving(true);
     try {
       if (isGuestMode) {
-        setBio(formData);
-        localStorage.setItem("hugo_guest_bio", JSON.stringify(formData));
+        setBio(dataToSave);
+        localStorage.setItem("hugo_guest_bio", JSON.stringify(dataToSave));
         showToast(t("memberPortal.toast.partnerSaveSuccess"), "success");
       } else if (bio?._id) {
-        const response = await dataApi.updateMemberBio(bio._id, formData);
+        const response = await dataApi.updateMemberBio(bio._id, dataToSave);
         setBio(response.bio);
         showToast(t("memberPortal.toast.saveSuccess"), "success");
       } else {
         const response = await dataApi.createMemberBio({
-          ...formData,
+          ...dataToSave,
           email: memberSession.email
         });
         setBio(response.bio);
@@ -1693,7 +1691,7 @@ export default function MemberPortalPage() {
 
         {/* Tab 4.5: Member Utilities Dashboard */}
         {activeTab === "utilities" && (
-          <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} />
+          <MemberUtilitiesTab bio={formData} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} />
         )}
 
         {/* Tab 5: Lịch Sử & Thông Báo */}

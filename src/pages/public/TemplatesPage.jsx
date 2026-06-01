@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useHeadMeta } from "../hooks/useHeadMeta";
+import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
-import PhotographyDemo from "../components/demos/PhotographyDemo";
-import CoffeeDemo from "../components/demos/CoffeeDemo";
-import JewelryDemo from "../components/demos/JewelryDemo";
-import PortfolioDemo from "../components/demos/PortfolioDemo";
-import ECommerceDemo from "../components/demos/ECommerceDemo";
-import DashboardDemo from "../components/demos/DashboardDemo";
-import HugoLogo from "../components/HugoLogo";
+import PhotographyDemo from "../../components/demos/PhotographyDemo";
+import CoffeeDemo from "../../components/demos/CoffeeDemo";
+import JewelryDemo from "../../components/demos/JewelryDemo";
+import PortfolioDemo from "../../components/demos/PortfolioDemo";
+import ECommerceDemo from "../../components/demos/ECommerceDemo";
+import DashboardDemo from "../../components/demos/DashboardDemo";
+import HugoLogo from "../../components/HugoLogo";
 
 const coreValues = [
   { id: 1, title: "Tận Tâm", desc: "Tỉ mỉ từng tinh vân mã nguồn", img: "/image/avt5.png", color: "from-blue-500/30 to-cyan-500/30", neon: "shadow-[0_0_30px_rgba(6,182,212,0.5)]" },
