@@ -594,7 +594,24 @@ export const dataApi = {
       console.error('Error uploading image:', error);
       throw error;
     }
+  },
+
+  // Helper to support Axios-like GET request
+  async get(url, options = {}) {
+    try {
+      const targetUrl = url.startsWith('http') ? url : `${API_BASE_URL.replace(/\/api$/, '')}${url}`;
+      const response = await safeFetch(targetUrl, {
+        headers: getAuthHeaders(),
+        ...options
+      });
+      const data = await response.json();
+      return { data };
+    } catch (error) {
+      console.error('GET request failed:', error);
+      throw error;
+    }
   }
 };
 
 export default dataApi;
+
