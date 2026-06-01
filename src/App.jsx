@@ -28,7 +28,7 @@ const CustomerPortalPage = lazy(() => import("./pages/customer/CustomerPortalPag
 const AdminProjectsPage = lazy(() => import("./pages/admin/AdminProjectsPage"));
 const AdminProjectDetailPage = lazy(() => import("./pages/admin/AdminProjectDetailPage"));
 const SecretLinkUnlock = lazy(() => import("./pages/member/SecretLinkUnlock"));
-
+const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
 
 function AppContent() {
   const location = useLocation();
@@ -51,12 +51,13 @@ function AppContent() {
 
   const isCustomerPortalRoute = location.pathname.startsWith("/customer-portal");
   const isSecretLinkRoute = location.pathname.startsWith("/s/");
+  const isPayRoute = location.pathname.startsWith("/pay/");
 
-  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute) {
+  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute) {
     return <MaintenancePage />;
   }
 
-  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute) {
+  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute) {
     return (
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
         <Routes>
@@ -65,6 +66,7 @@ function AppContent() {
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
           <Route path="/preview" element={<LivePreviewPage />} />
           <Route path="/customer-portal" element={<CustomerPortalPage />} />
+          <Route path="/pay/:id" element={<PaymentGatewayPage />} />
         </Routes>
       </Suspense>
     );

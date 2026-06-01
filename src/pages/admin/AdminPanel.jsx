@@ -19,7 +19,7 @@ import HugoLogo from "../../components/HugoLogo";
 import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
-
+import AdminPaymentsTab from "../../components/admin/AdminPaymentsTab";
 // Hugo Studio Brand Logo component to match styling exactly
 
 export default function AdminPanel() {
@@ -800,6 +800,7 @@ export default function AdminPanel() {
               { id: "partners", label: t("admin.texts.txt_191"), icon: "handshake", count: partners.length },
               { id: "packages", label: t("admin.texts.txt_192"), icon: "featured_play_list", count: packageTemplates.length },
               { id: "projects", label: t("admin.texts.txt_193"), icon: "assignment", count: projectsUnreadCount },
+              { id: "payments", label: "Tạo Link Chuyển Khoản", icon: "payments" },
               { id: "support", label: t("admin.texts.txt_194"), icon: "support_agent", count: pendingTicketsCount },
               { id: "settings", label: t("admin.texts.txt_195"), icon: "settings" }
             ].map(tab => (
@@ -852,6 +853,7 @@ export default function AdminPanel() {
           { id: "bookings", label: t("admin.texts.txt_197"), icon: "calendar_month", count: pendingBookings.length },
           { id: "partners", label: t("admin.texts.txt_198"), icon: "handshake" },
           { id: "packages", label: t("admin.texts.txt_199"), icon: "featured_play_list" },
+          { id: "payments", label: "PayOS", icon: "payments" },
           { id: "support", label: t("admin.texts.txt_200"), icon: "support_agent", count: pendingTicketsCount },
           { id: "settings", label: t("admin.texts.txt_201"), icon: "settings" }
         ].map(tab => (
@@ -894,9 +896,10 @@ export default function AdminPanel() {
               {activeTab === "users" && t("admin.texts.txt_202")}
               {activeTab === "bookings" && t("admin.texts.txt_203")}
               {activeTab === "partners" && t("admin.texts.txt_204")}
-              {activeTab === "packages" && t("admin.texts.txt_205")}
-              {activeTab === "support" && t("admin.texts.txt_206")}
-              {activeTab === "settings" && t("admin.texts.txt_207")}
+              { activeTab === "packages" && t("admin.texts.txt_205") }
+              { activeTab === "payments" && "Quản lý Link Chuyển Khoản" }
+              { activeTab === "support" && t("admin.texts.txt_206") }
+              { activeTab === "settings" && t("admin.texts.txt_207") }
             </h2>
             <p className="text-xs text-slate-450 mt-1 hidden sm:block">
               {activeTab === "users" && t("admin.texts.txt_208")}
@@ -1673,6 +1676,13 @@ export default function AdminPanel() {
 
             </div>
 
+          </div>
+        )}
+
+        {/* TAB: PAYMENTS */}
+        {activeTab === "payments" && (
+          <div className="animate-fadeIn">
+            <AdminPaymentsTab />
           </div>
         )}
 

@@ -2,16 +2,17 @@ import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { getMemberSession, logoutAuth } from "../../services/authSession";
 import dataApi from "../../services/dataApi";
-import MemberProjectsTab from "../../components/member/MemberProjectsTab";
-import MemberServicesTab from "../../components/member/MemberServicesTab";
-import MemberHistoryTab from "../../components/member/MemberHistoryTab";
-import MemberManageTab from "../../components/member/MemberManageTab";
-import MemberPartnerTab from "../../components/member/MemberPartnerTab";
-import MemberUtilitiesTab from "../../components/member/MemberUtilitiesTab";
+import ErrorBoundary from "../../components/ErrorBoundary";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
+import OptimizedInput from "../../components/common/OptimizedInput";
+import OptimizedTextarea from "../../components/common/OptimizedTextarea";
 
-
-// Function to render text with each character in a different color
+const MemberProjectsTab = React.lazy(() => import("../../components/member/MemberProjectsTab"));
+const MemberServicesTab = React.lazy(() => import("../../components/member/MemberServicesTab"));
+const MemberHistoryTab = React.lazy(() => import("../../components/member/MemberHistoryTab"));
+const MemberManageTab = React.lazy(() => import("../../components/member/MemberManageTab"));
+const MemberPartnerTab = React.lazy(() => import("../../components/member/MemberPartnerTab"));
+const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
 
 // Hugo Studio Brand Logo component to match styling exactly
 
@@ -90,7 +91,8 @@ const getBasePackageDetails = (serviceLabel) => {
   };
 };
 
-function PackageCard({ name, duration, durationUnit, benefits, color, startLabel, expiresLabel, isBasePackage = false }) {
+const PackageCard = React.memo(function PackageCard({ name, duration, durationUnit, benefits, color, startLabel, expiresLabel, isBasePackage = false }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
   const formattedBenefits = benefits || [];
 
@@ -192,7 +194,7 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
       </div>
     </div>
   );
-}
+});
 
 export default function MemberPortalPage() {
   const { t, i18n } = useTranslation();
@@ -1011,7 +1013,14 @@ export default function MemberPortalPage() {
           )}
         </section>
 
-        {/* Tab 1: Account / Profile Details */}
+        <ErrorBoundary>
+          <React.Suspense fallback={
+            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-zinc-200 border-t-zinc-800 dark:border-zinc-800 dark:border-t-white"></div>
+              <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">Đang tải dữ liệu...</p>
+            </div>
+          }>
+            {/* Tab 1: Account / Profile Details */}
         {activeTab === "account" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-start animate-fadeIn">
 
@@ -1127,7 +1136,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">person</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.fullName")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="displayName"
                               value={formData.displayName}
@@ -1144,7 +1153,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">badge</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.nickname")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="headline"
                               value={formData.headline}
@@ -1160,7 +1169,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">cake</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.birthday")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="birthday"
                               value={formData.birthday}
@@ -1201,7 +1210,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">phone</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.phone")}</label>
-                            <input
+                            <OptimizedInput
                               type="tel"
                               name="phone"
                               value={formData.phone}
@@ -1217,7 +1226,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">alternate_email</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.email")}</label>
-                            <input
+                            <OptimizedInput
                               type="email"
                               name="contactEmail"
                               value={formData.contactEmail}
@@ -1346,7 +1355,7 @@ export default function MemberPortalPage() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="space-y-1">
                                 <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">{t("memberPortal.links.label")}</label>
-                                <input
+                                <OptimizedInput
                                   type="text"
                                   value={newLinkLabel}
                                   onKeyDown={handleLinkInputKeyDown}
@@ -1357,7 +1366,7 @@ export default function MemberPortalPage() {
                               </div>
                               <div className="space-y-1">
                                 <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">{t("memberPortal.links.url")}</label>
-                                <input
+                                <OptimizedInput
                                   type="text"
                                   value={newLinkUrl}
                                   onKeyDown={handleLinkInputKeyDown}
@@ -1416,7 +1425,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">work</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.role")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="jobTitle"
                               value={formData.jobTitle}
@@ -1432,7 +1441,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">school</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.education")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="education"
                               value={formData.education}
@@ -1448,7 +1457,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">psychology</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.skills")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="skills"
                               value={formData.skills}
@@ -1475,7 +1484,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">height</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.height")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="height"
                               value={formData.height}
@@ -1491,7 +1500,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">monitor_weight</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.weight")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="weight"
                               value={formData.weight}
@@ -1507,7 +1516,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">straighten</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.measurements")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="measurements"
                               value={formData.measurements}
@@ -1523,7 +1532,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">distance</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.location")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="address"
                               value={formData.address}
@@ -1545,7 +1554,7 @@ export default function MemberPortalPage() {
                               <span className="material-symbols-outlined text-base">star</span>
                             </div>
                             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.hobbies")}</label>
-                            <input
+                            <OptimizedInput
                               type="text"
                               name="hobbies"
                               value={formData.hobbies}
@@ -1564,7 +1573,7 @@ export default function MemberPortalPage() {
                               <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.desc")}</label>
                             </div>
                             <div className="flex-grow flex flex-col w-full">
-                              <textarea
+                              <OptimizedTextarea
                                 ref={bioTextareaRef}
                                 name="bio"
                                 value={formData.bio}
@@ -1696,6 +1705,8 @@ export default function MemberPortalPage() {
 
         {/* Tab 5: Lịch Sử & Thông Báo */}
         {activeTab === "history" && <MemberHistoryTab bio={bio} showToast={showToast} />}
+          </React.Suspense>
+        </ErrorBoundary>
 
         {/* Cropper Modal */}
         {cropModal.isOpen && (

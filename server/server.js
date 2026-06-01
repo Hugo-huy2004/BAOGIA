@@ -115,6 +115,7 @@ mongoose.connect(MONGODB_URI, {
 
 import customerRoutes from './routes/customerRoutes.js';
 import vcardRoutes from './routes/vcardRoutes.js';
+import payosRoutes from './routes/payosRoutes.js';
 
 // Routes
 app.use('/api/data', dataRoutes);
@@ -127,6 +128,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/files', fileToolsRoutes);
 app.use('/api/customer-projects', customerRoutes);
 app.use('/api/vcard', vcardRoutes);
+app.use('/api/payos', payosRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
