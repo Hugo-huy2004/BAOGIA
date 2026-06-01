@@ -8,6 +8,8 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
   const [contactsList, setContactsList] = useState(bio?.backedUpContacts || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [syncing, setSyncing] = useState(false);
+  const [showManualAdd, setShowManualAdd] = useState(false);
+  const [newContact, setNewContact] = useState({ name: "", phone: "", email: "" });
 
   useEffect(() => {
     if (bio?.backedUpContacts) {
@@ -19,9 +21,16 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
   const backupDownloadUrl = `${getApiUrl()}/vcard/backup/${bio?.slug}`;
 
   const handleMobileSync = async () => {
+    if (typeof window !== "undefined" && !window.isSecureContext && window.location.hostname !== "localhost") {
+      if (showToast) {
+        showToast("Tính năng đồng bộ yêu cầu kết nối bảo mật (HTTPS).", "warning");
+      }
+      return;
+    }
+
     if (typeof navigator === "undefined" || !navigator.contacts) {
       if (showToast) {
-        showToast(t("memberPortal.utilitiesPage.vcard.toastUnsupported"), "warning");
+        showToast(t("memberPortal.utilitiesPage.vcard.toastUnsupported") || "Trình duyệt của bạn chưa hỗ trợ tự động đồng bộ danh bạ. Vui lòng sử dụng Chrome trên Android hoặc thêm thủ công.", "warning");
       }
       return;
     }
@@ -60,6 +69,40 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
       console.error(err);
       if (showToast) {
         showToast(t("memberPortal.utilitiesPage.vcard.toastSyncError"), "error");
+      }
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleManualAdd = async (e) => {
+    e.preventDefault();
+    if (!newContact.name || !newContact.phone) {
+      if (showToast) showToast("Vui lòng nhập tên và số điện thoại", "warning");
+      return;
+    }
+
+    try {
+      setSyncing(true);
+      const res = await fetch(`${getApiUrl()}/bios/contacts/sync/${bio._id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contacts: [newContact] })
+      });
+
+      if (!res.ok) throw new Error("Add failed");
+      const data = await res.json();
+      
+      setContactsList(data.contacts || []);
+      setNewContact({ name: "", phone: "", email: "" });
+      setShowManualAdd(false);
+      if (showToast) {
+        showToast("Đã thêm liên hệ vào danh sách sao lưu", "success");
+      }
+    } catch (err) {
+      console.error(err);
+      if (showToast) {
+        showToast("Lỗi khi thêm liên hệ thủ công", "error");
       }
     } finally {
       setSyncing(false);
@@ -261,12 +304,20 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
                     <p className="text-[10px] text-indigo-500 font-bold">{t("memberPortal.utilitiesPage.vcard.syncingText")}</p>
                   </div>
                 ) : (
-                  <button
-                    onClick={handleMobileSync}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
-                  >
-                    <span className="material-symbols-outlined text-sm">cloud_upload</span> {t("memberPortal.utilitiesPage.vcard.syncBtn")}
-                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={handleMobileSync}
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold text-[10.5px] uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">cloud_upload</span> {t("memberPortal.utilitiesPage.vcard.syncBtn")}
+                    </button>
+                    <button
+                      onClick={() => setShowManualAdd(true)}
+                      className="w-full py-3 rounded-xl bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-bold text-[10.5px] uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">person_add</span> {t("memberPortal.utilitiesPage.vcard.manualAddBtn") || "Thêm thủ công"}
+                    </button>
+                  </div>
                 )}
                 
                 <div className="text-[9px] text-zinc-400 leading-relaxed pt-1 italic">
@@ -373,6 +424,87 @@ export default function MemberVCardTab({ bio, showToast, onBack, getApiUrl }) {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manual Add Contact Modal */}
+      {showManualAdd && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#12111a] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-5">
+            <div className="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-3">
+              <h3 className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm text-rose-500">person_add</span>
+                Thêm liên hệ thủ công
+              </h3>
+              <button 
+                onClick={() => setShowManualAdd(false)} 
+                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors"
+                disabled={syncing}
+              >
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleManualAdd} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest px-1">Tên liên hệ</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Vd: Nguyễn Văn A"
+                  value={newContact.name}
+                  onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#1a1824] text-[11.5px] focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest px-1">Số điện thoại</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="Vd: 0912345678"
+                  value={newContact.phone}
+                  onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#1a1824] text-[11.5px] focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all font-mono"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest px-1">Email (không bắt buộc)</label>
+                <input
+                  type="email"
+                  placeholder="Vd: email@example.com"
+                  value={newContact.email}
+                  onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#1a1824] text-[11.5px] focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowManualAdd(false)}
+                  disabled={syncing}
+                  className="py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors disabled:opacity-50 uppercase tracking-widest"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={syncing}
+                  className="py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-[11px] font-black shadow-md transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  {syncing ? (
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <span className="material-symbols-outlined text-sm">save</span>
+                  )}
+                  Lưu liên hệ
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
