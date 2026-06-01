@@ -64,7 +64,8 @@ export default function AdminPaymentsTab() {
         setError(data.error || 'Lỗi khi tạo link');
       }
     } catch (err) {
-      setError('Lỗi kết nối server');
+      console.error('Submit Error:', err);
+      setError('Lỗi kết nối server: ' + (err.message || ''));
     } finally {
       setLoading(false);
     }
@@ -137,19 +138,19 @@ export default function AdminPaymentsTab() {
             <tbody>
               {links.map(link => (
                 <tr key={link._id} className="border-t border-zinc-100 dark:border-zinc-800">
-                  <td className="p-3 font-mono">{link.customLinkId}</td>
-                  <td className="p-3 font-semibold">{link.amount.toLocaleString()} đ</td>
-                  <td className="p-3">{link.reason}</td>
+                  <td className="p-3 font-mono">{link?.customLinkId || 'N/A'}</td>
+                  <td className="p-3 font-semibold">{(link?.amount || 0).toLocaleString()} đ</td>
+                  <td className="p-3">{link?.reason || ''}</td>
                   <td className="p-3">
                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${
-                      link.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
-                      link.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                      link?.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
+                      link?.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
                       'bg-orange-100 text-orange-700'
                     }`}>
-                      {link.status}
+                      {link?.status || 'UNKNOWN'}
                     </span>
                   </td>
-                  <td className="p-3 text-zinc-500">{new Date(link.createdAt).toLocaleString()}</td>
+                  <td className="p-3 text-zinc-500">{link?.createdAt ? new Date(link.createdAt).toLocaleString() : ''}</td>
                   <td className="p-3">
                     <button
                       onClick={() => copyToClipboard(link.customLinkId)}
