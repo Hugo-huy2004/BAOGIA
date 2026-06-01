@@ -800,7 +800,7 @@ export default function AdminPanel() {
               { id: "partners", label: t("admin.texts.txt_191"), icon: "handshake", count: partners.length },
               { id: "packages", label: t("admin.texts.txt_192"), icon: "featured_play_list", count: packageTemplates.length },
               { id: "projects", label: t("admin.texts.txt_193"), icon: "assignment", count: projectsUnreadCount },
-              { id: "payments", label: "Tạo Link Chuyển Khoản", icon: "payments" },
+              { id: "payments", label: "Chuyển Khoản", icon: "payments" },
               { id: "support", label: t("admin.texts.txt_194"), icon: "support_agent", count: pendingTicketsCount },
               { id: "settings", label: t("admin.texts.txt_195"), icon: "settings" }
             ].map(tab => (
@@ -897,7 +897,7 @@ export default function AdminPanel() {
               {activeTab === "bookings" && t("admin.texts.txt_203")}
               {activeTab === "partners" && t("admin.texts.txt_204")}
               { activeTab === "packages" && t("admin.texts.txt_205") }
-              { activeTab === "payments" && "Quản lý Link Chuyển Khoản" }
+              { activeTab === "payments" && "Quản lý Chuyển Khoản" }
               { activeTab === "support" && t("admin.texts.txt_206") }
               { activeTab === "settings" && t("admin.texts.txt_207") }
             </h2>

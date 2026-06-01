@@ -79,91 +79,128 @@ export default function AdminPaymentsTab() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800">
-        <h3 className="text-lg font-bold mb-4">Tạo Link Chuyển Khoản (PayOS)</h3>
+    <div className="space-y-8 animate-fade-in">
+      {/* Header / Form Section */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-800 rounded-3xl p-8 sm:p-12 shadow-2xl text-white">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+        <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl pointer-events-none"></div>
         
-        {error && <div className="mb-4 p-3 bg-red-50 text-red-500 rounded-lg text-sm">{error}</div>}
-        {success && <div className="mb-4 p-3 bg-emerald-50 text-emerald-500 rounded-lg text-sm">{success}</div>}
+        <div className="relative z-10 max-w-2xl mx-auto text-center">
+          <div className="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-md rounded-2xl mb-6 shadow-inner ring-1 ring-white/20">
+            <span className="material-icons-round text-4xl text-blue-100">payments</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold mb-3 tracking-tight">{t('admin.payments.form_title')}</h2>
+          <p className="text-blue-100/80 mb-10 text-lg">{t('admin.payments.reason_placeholder')}</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-          <div>
-            <label className="block text-sm font-medium mb-1">Số tiền (VNĐ)</label>
-            <input
-              type="number"
-              required
-              min="2000"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="VD: 50000"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Lý do chuyển khoản</label>
-            <input
-              type="text"
-              required
-              maxLength={25}
-              value={formData.reason}
-              onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Tối đa 25 ký tự"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
-          >
-            {loading ? 'Đang tạo...' : 'Tạo Link'}
-          </button>
-        </form>
+          {error && <div className="mb-6 p-4 bg-red-500/20 backdrop-blur-md border border-red-500/30 text-white rounded-xl text-sm font-medium animate-shake">{error}</div>}
+          {success && <div className="mb-6 p-4 bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-white rounded-xl text-sm font-medium animate-fade-in">{success}</div>}
+
+          <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-xl p-6 sm:p-8 rounded-2xl shadow-inner ring-1 ring-white/20 text-left space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-blue-50">{t('admin.payments.amount')}</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-200 font-medium">₫</span>
+                  <input
+                    type="number"
+                    required
+                    min="2000"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:bg-white/20 focus:border-white/40 focus:ring-4 focus:ring-white/10 transition-all outline-none"
+                    placeholder={t('admin.payments.amount_placeholder')}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-blue-50">{t('admin.payments.reason')}</label>
+                <input
+                  type="text"
+                  required
+                  maxLength={25}
+                  value={formData.reason}
+                  onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:bg-white/20 focus:border-white/40 focus:ring-4 focus:ring-white/10 transition-all outline-none"
+                  placeholder={t('admin.payments.reason_placeholder')}
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 bg-white text-blue-600 hover:bg-blue-50 hover:shadow-lg rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99] shadow-md flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <span className="w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+              ) : (
+                <>
+                  <span>{t('admin.payments.submit')}</span>
+                  <span className="material-icons-round text-xl">arrow_forward</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800">
-        <h3 className="text-lg font-bold mb-4">Danh sách Link đã tạo</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-zinc-50 dark:bg-zinc-800">
+      {/* History Section */}
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-zinc-200/50 dark:border-zinc-800/50">
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="text-xl font-bold flex items-center gap-2">
+            <span className="material-icons-round text-blue-500">history</span>
+            {t('admin.payments.history_title')}
+          </h3>
+        </div>
+        <div className="overflow-x-auto rounded-2xl ring-1 ring-zinc-200 dark:ring-zinc-800">
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-zinc-50/80 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 font-medium">
               <tr>
-                <th className="p-3">Mã Link</th>
-                <th className="p-3">Số tiền</th>
-                <th className="p-3">Lý do</th>
-                <th className="p-3">Trạng thái</th>
-                <th className="p-3">Thời gian</th>
-                <th className="p-3">Hành động</th>
+                <th className="p-4">{t('admin.payments.table_id')}</th>
+                <th className="p-4">{t('admin.payments.table_amount')}</th>
+                <th className="p-4">{t('admin.payments.table_reason')}</th>
+                <th className="p-4">{t('admin.payments.table_status')}</th>
+                <th className="p-4">{t('admin.payments.table_time')}</th>
+                <th className="p-4 text-center">{t('admin.payments.table_actions')}</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {links.map(link => (
-                <tr key={link._id} className="border-t border-zinc-100 dark:border-zinc-800">
-                  <td className="p-3 font-mono">{link?.customLinkId || 'N/A'}</td>
-                  <td className="p-3 font-semibold">{(link?.amount || 0).toLocaleString()} đ</td>
-                  <td className="p-3">{link?.reason || ''}</td>
-                  <td className="p-3">
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${
-                      link?.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
-                      link?.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                      'bg-orange-100 text-orange-700'
+                <tr key={link._id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
+                  <td className="p-4 font-mono text-xs">{link?.customLinkId || 'N/A'}</td>
+                  <td className="p-4 font-bold text-blue-600 dark:text-blue-400">{(link?.amount || 0).toLocaleString()} ₫</td>
+                  <td className="p-4">{link?.reason || ''}</td>
+                  <td className="p-4">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ring-1 ring-inset ${
+                      link?.status === 'PAID' ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                      link?.status === 'CANCELLED' ? 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400' :
+                      'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-400'
                     }`}>
                       {link?.status || 'UNKNOWN'}
                     </span>
                   </td>
-                  <td className="p-3 text-zinc-500">{link?.createdAt ? new Date(link.createdAt).toLocaleString() : ''}</td>
-                  <td className="p-3">
+                  <td className="p-4 text-zinc-500 dark:text-zinc-400 text-xs">
+                    {link?.createdAt ? new Date(link.createdAt).toLocaleString() : ''}
+                  </td>
+                  <td className="p-4 text-center">
                     <button
                       onClick={() => copyToClipboard(link.customLinkId)}
-                      className="text-blue-500 hover:text-blue-700 font-medium"
+                      className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all group"
+                      title={t('admin.payments.copy_link')}
                     >
-                      Copy Link
+                      <span className="material-icons-round text-lg group-active:scale-90 transition-transform">content_copy</span>
                     </button>
                   </td>
                 </tr>
               ))}
               {links.length === 0 && (
                 <tr>
-                  <td colSpan="6" className="p-6 text-center text-zinc-500">Chưa có link nào.</td>
+                  <td colSpan="6" className="p-12 text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 mb-4 text-zinc-400">
+                      <span className="material-icons-round text-3xl">inbox</span>
+                    </div>
+                    <p className="text-zinc-500 dark:text-zinc-400 font-medium">{t('admin.payments.empty')}</p>
+                  </td>
                 </tr>
               )}
             </tbody>

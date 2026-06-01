@@ -1444,6 +1444,27 @@
       "txt_234": "Trang sau",
       "txt_235": "còn",
       "txt_236": "ngày"
+    },
+    "payments": {
+      "tab_title": "Chuyển Khoản",
+      "form_title": "Chuyển Khoản",
+      "amount": "Số tiền (VNĐ)",
+      "amount_placeholder": "VD: 50000",
+      "reason": "Lý do chuyển khoản",
+      "reason_placeholder": "Tối đa 25 ký tự",
+      "submit": "Tiến hành chuyển khoản",
+      "history_title": "Lịch sử chuyển khoản",
+      "table_id": "Mã giao dịch",
+      "table_amount": "Số tiền",
+      "table_reason": "Lý do",
+      "table_status": "Trạng thái",
+      "table_time": "Thời gian",
+      "table_actions": "Hành động",
+      "copy_link": "Copy link",
+      "copied": "Đã copy link!",
+      "empty": "Chưa có giao dịch nào.",
+      "success_create": "Tạo link thành công!",
+      "error_server": "Lỗi kết nối server"
     }
   }
 }
