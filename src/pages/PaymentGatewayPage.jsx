@@ -142,7 +142,7 @@ export default function PaymentGatewayPage() {
               </button>
               
               <div className="mt-6 flex items-center justify-center gap-4 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
-                <img src="https://payos.vn/wp-content/uploads/sites/13/2023/07/logo-payos.svg" alt="PayOS" className="h-5" />
+                <img src="https://payos.vn/wp-content/uploads/2025/06/Casso-payOSLogo-1.svg" alt="PayOS" className="h-5" />
                 <div className="w-1 h-1 rounded-full bg-white/30" />
                 <span className="text-xs font-bold uppercase tracking-widest">Powered by PayOS</span>
               </div>

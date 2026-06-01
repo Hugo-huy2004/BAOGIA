@@ -183,7 +183,7 @@ export default function AdminPaymentsTab() {
 
           <div className="mt-6 border-t border-slate-100 dark:border-slate-800/60 pt-4 flex items-center justify-between opacity-80">
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Powered by</span>
-            <img src="https://payos.vn/wp-content/uploads/sites/13/2023/07/logo-payos.svg" alt="PayOS" className="h-4 dark:brightness-125" />
+            <img src="https://payos.vn/wp-content/uploads/2025/06/Casso-payOSLogo-1.svg" alt="PayOS" className="h-4 dark:brightness-125" />
           </div>
         </div>
       </div>
