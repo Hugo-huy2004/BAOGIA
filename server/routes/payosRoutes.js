@@ -45,7 +45,7 @@ router.post('/create', requireAdmin, async (req, res) => {
 
     let paymentData;
     try {
-      paymentData = await payos.createPaymentLink(requestData);
+      paymentData = await payos.paymentRequests.create(requestData);
     } catch (payosError) {
       console.error("PayOS Error:", payosError);
       return res.status(500).json({ error: 'Lỗi khi gọi PayOS: ' + (payosError.message || 'Unknown') });
@@ -95,7 +95,7 @@ router.get('/info/:customLinkId', async (req, res) => {
     // Optionally check if it's already paid and update status from PayOS
     try {
       if (link.status === 'PENDING') {
-        const paymentInfo = await payos.getPaymentLinkInformation(link.orderCode);
+        const paymentInfo = await payos.paymentRequests.get(String(link.orderCode));
         if (paymentInfo.status === 'PAID') {
           link.status = 'PAID';
           await link.save();
@@ -130,9 +130,9 @@ router.get('/info/:customLinkId', async (req, res) => {
 router.post('/webhook', async (req, res) => {
   try {
     // Verify webhook signature (Requires body to be parsed properly)
-    const webhookData = payos.verifyPaymentWebhookData(req.body);
+    const webhookData = payos.webhooks.verify(req.body);
 
-    if (webhookData.code === '00' && webhookData.data) {
+    if (webhookData && webhookData.code === '00') {
       const { orderCode, success } = webhookData.data;
       if (success) {
         await PaymentLink.findOneAndUpdate(
