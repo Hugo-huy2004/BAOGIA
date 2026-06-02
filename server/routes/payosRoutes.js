@@ -57,7 +57,11 @@ router.post('/create', requireAdmin, async (req, res) => {
       amount: Number(amount),
       reason,
       checkoutUrl: paymentData.checkoutUrl,
-      status: 'PENDING'
+      status: 'PENDING',
+      bin: paymentData.bin,
+      accountNumber: paymentData.accountNumber,
+      accountName: paymentData.accountName,
+      qrCode: paymentData.qrCode
     });
 
     await newLink.save();
@@ -116,7 +120,11 @@ router.get('/info/:customLinkId', async (req, res) => {
         reason: link.reason,
         status: link.status,
         checkoutUrl: link.checkoutUrl,
-        createdAt: link.createdAt
+        createdAt: link.createdAt,
+        bin: link.bin,
+        accountNumber: link.accountNumber,
+        accountName: link.accountName,
+        qrCode: link.qrCode
       }
     });
 

@@ -23,6 +23,18 @@ const paymentLinkSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  bin: {
+    type: String,
+  },
+  accountNumber: {
+    type: String,
+  },
+  accountName: {
+    type: String,
+  },
+  qrCode: {
+    type: String,
+  },
   status: {
     type: String,
     enum: ['PENDING', 'PAID', 'CANCELLED'],
