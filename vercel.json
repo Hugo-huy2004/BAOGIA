@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/pay/:id",
+      "destination": "/api/pay?id=:id"
+    },
+    {
       "source": "/((?!assets/|image/|public/|.*\\..*$).*)",
       "destination": "/index.html"
     }
