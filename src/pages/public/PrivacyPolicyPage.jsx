@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
             HỆ THỐNG QUẢN LÝ THÀNH VIÊN & NỀN TẢNG THIẾT KẾ BIO LINK
           </p>
           <p className="text-[10px] text-slate-400 dark:text-slate-500 italic">
-            Cập nhật lần cuối: Ngày 20 tháng 05 năm 2026
+            Cập nhật lần cuối: Ngày 02 tháng 06 năm 2026
           </p>
         </div>
 
@@ -40,13 +40,14 @@ export default function PrivacyPolicyPage() {
               Căn cứ pháp lý thiết lập chính sách
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Chính sách bảo mật và điều khoản dịch vụ này được xây dựng và ban hành tuân thủ chặt chẽ các quy định pháp luật của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam:
+              Chính sách bảo mật và điều khoản dịch vụ này được xây dựng và ban hành tuân thủ chặt chẽ các quy định pháp luật của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam và các tiêu chuẩn bảo mật quốc tế hiện hành đối với website và thu thập thông tin:
             </p>
             <ul className="list-disc pl-5 text-xs text-slate-500 dark:text-slate-400 space-y-1">
               <li>Nghị định số 13/2023/NĐ-CP của Chính phủ về Bảo vệ dữ liệu cá nhân (GDPR Việt Nam);</li>
+              <li>Nghị định số 52/2013/NĐ-CP và Nghị định số 85/2021/NĐ-CP của Chính phủ về Thương mại điện tử;</li>
               <li>Bộ luật Dân sự nước CHXHCN Việt Nam năm 2015;</li>
               <li>Luật An toàn thông tin mạng năm 2015 và Luật An ninh mạng năm 2018;</li>
-              <li>Luật Giao dịch điện tử năm 2005 (bao gồm các sửa đổi bổ sung hiện hành).</li>
+              <li>Tiêu chuẩn bảo mật quốc tế GDPR (Quy định bảo vệ dữ liệu chung châu Âu) và COPPA (Đạo luật bảo vệ quyền riêng tư trực tuyến của trẻ em).</li>
             </ul>
           </section>
 
@@ -89,6 +90,12 @@ export default function PrivacyPolicyPage() {
               </p>
               <p>
                 <strong>d) Dữ liệu kỹ thuật tự động:</strong> Địa chỉ IP, loại trình duyệt, hệ điều hành thiết bị và cookie phiên làm việc nhằm kiểm soát an ninh hệ thống và ngăn ngừa truy cập bất hợp pháp.
+              </p>
+              <p>
+                <strong>e) Quyền chủ thể dữ liệu & Sự đồng thuận:</strong> Hệ thống chỉ thu thập dữ liệu khi nhận được sự đồng ý tự nguyện và rõ ràng của Thành viên tại thời điểm đăng ký tài khoản. Theo Nghị định 13/2023/NĐ-CP và tiêu chuẩn GDPR, Thành viên có đầy đủ các quyền: quyền được biết, quyền đồng ý, quyền truy cập, quyền đính chính, quyền rút lại sự đồng ý, quyền yêu cầu xóa dữ liệu và yêu cầu cung cấp bản sao dữ liệu cá nhân của mình bất kỳ lúc nào.
+              </p>
+              <p>
+                <strong>f) Bảo vệ dữ liệu trẻ em:</strong> Tuân thủ luật quốc tế COPPA, hệ thống không chủ động thu thập hoặc tiếp nhận thông tin của trẻ em dưới 13 tuổi. Trong trường hợp phát hiện tài khoản đăng ký bởi cá nhân dưới 13 tuổi mà không có sự đồng ý của cha mẹ hoặc người giám hộ hợp pháp, ban quản trị sẽ lập tức xóa bỏ vĩnh viễn toàn bộ dữ liệu liên quan.
               </p>
             </div>
           </section>
@@ -142,7 +149,32 @@ export default function PrivacyPolicyPage() {
             </p>
           </section>
 
-          {/* 6. Thông tin liên hệ */}
+          {/* 6. Chính sách giao dịch thanh toán */}
+          <section className="space-y-2.5">
+            <h3 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white uppercase flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-[#007aff] rounded-full inline-block" />
+              6. Chính sách Giao dịch Thanh toán & Giới hạn hoạt động Cổng
+            </h3>
+            <p>
+              Để tuân thủ các quy định pháp luật Việt Nam về quản lý tài chính trực tuyến và đảm bảo tính minh bạch giao dịch trên môi trường Internet:
+            </p>
+            <div className="space-y-3 pl-4 border-l-2 border-[#e5e5e7] dark:border-[#2c2c2e]">
+              <p>
+                <strong>a) Sở hữu cổng thanh toán:</strong> Cổng chuyển khoản và thanh toán trực tuyến tích hợp trên website được sở hữu, quản lý trực tiếp và duy nhất bởi cá nhân Quản trị viên (Admin) điều hành hệ thống. Hệ thống hoạt động dưới sự quản trị độc quyền của **01 Admin duy nhất**, không có sự tham gia của tổ chức pháp nhân hay nhiều đại lý trung gian.
+              </p>
+              <p>
+                <strong>b) Cam kết phi trung gian (Không thu hộ/Không thanh toán hộ):</strong> Hugo Studio là một nền tảng tạo Bio Link cá nhân, **không phải là đơn vị cung ứng dịch vụ trung gian thanh toán**. Chúng tôi cam kết tuyệt đối không thực hiện các hoạt động thu hộ tiền, chi hộ tiền, thanh toán trung gian, chuyển nhận tiền hộ hoặc thu ngân quỹ thay cho bất kỳ thành viên, cá nhân hay tổ chức bên thứ ba nào khác.
+              </p>
+              <p>
+                <strong>c) Mục đích thanh toán:</strong> Mọi giao dịch phát sinh thông qua cổng thanh toán (chuyển khoản VietQR, thanh toán thẻ) chỉ nhằm một mục đích duy nhất là thanh toán phí bản quyền nâng cấp dịch vụ trực tiếp cho chính Hugo Studio cung cấp (gói Bio Plus, Bio VIP, thiết kế Portfolio).
+              </p>
+              <p>
+                <strong>d) Tuân thủ thương mại điện tử:</strong> Quy trình giao dịch trực tuyến tuân thủ Nghị định 52/2013/NĐ-CP và sửa đổi bổ sung Nghị định 85/2021/NĐ-CP về Thương mại điện tử. Thông tin tài khoản ngân hàng và thẻ thanh toán được mã hóa đầu cuối thông qua đối tác thanh toán liên kết (PayOS), đảm bảo hệ thống không tiếp cận hay lưu trữ dữ liệu tài chính nhạy cảm của khách hàng.
+              </p>
+            </div>
+          </section>
+
+          {/* 7. Thông tin liên hệ */}
           <section className="space-y-3 p-5 rounded-2xl bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e]">
             <h4 className="font-bold text-[#1d1d1f] dark:text-white uppercase tracking-wider text-xs sm:text-sm">
               Thông tin liên hệ & Giải quyết khiếu nại
