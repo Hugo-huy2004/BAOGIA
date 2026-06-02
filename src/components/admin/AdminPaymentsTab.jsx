@@ -9,9 +9,15 @@ export default function AdminPaymentsTab() {
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ amount: '', reason: '' });
+  const [displayAmount, setDisplayAmount] = useState(''); // Handles formatted dots display
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [copiedLinkId, setCopiedLinkId] = useState('');
+
+  const generateRandomCode = (prefix = 'HUGO') => {
+    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `${prefix}-${randomPart}`;
+  };
 
   const getHeaders = () => {
     const session = getAdminSession();
@@ -37,8 +43,28 @@ export default function AdminPaymentsTab() {
   };
 
   useEffect(() => {
+    // Fill in a default unique code on mount
+    setFormData(prev => ({ ...prev, reason: generateRandomCode() }));
     fetchLinks();
   }, []);
+
+  const formatAmount = (value) => {
+    if (!value) return '';
+    const cleanNumber = value.replace(/\D/g, '');
+    return cleanNumber.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  const handleAmountChange = (e) => {
+    const rawValue = e.target.value;
+    const cleanValue = rawValue.replace(/\D/g, '');
+    
+    // Limits max digits to 12 to prevent input overflow
+    if (cleanValue.length > 12) return;
+    
+    const formatted = formatAmount(cleanValue);
+    setDisplayAmount(formatted);
+    setFormData(prev => ({ ...prev, amount: cleanValue }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,14 +72,21 @@ export default function AdminPaymentsTab() {
     setError('');
     setSuccess('');
 
+    const numericAmount = Number(formData.amount);
+    if (!numericAmount || numericAmount < 2000) {
+      setError('Số tiền tối thiểu phải là 2.000 đ');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/payos/create`, {
         method: 'POST',
         headers: getHeaders(),
         credentials: 'include',
         body: JSON.stringify({
-          amount: Number(formData.amount),
-          reason: formData.reason,
+          amount: numericAmount,
+          reason: formData.reason.toUpperCase(),
         })
       });
 
@@ -61,7 +94,8 @@ export default function AdminPaymentsTab() {
 
       if (response.ok && data.success) {
         setSuccess(t('admin.payments.success_create') || 'Tạo link thành công!');
-        setFormData({ amount: '', reason: '' });
+        setFormData({ amount: '', reason: generateRandomCode() }); // Reset with a new code
+        setDisplayAmount(''); // Clear display amount
         fetchLinks();
       } else {
         setError(data.error || 'Lỗi khi tạo link');
@@ -85,9 +119,16 @@ export default function AdminPaymentsTab() {
     }, 2000);
   };
 
-  const formattedPreviewAmount = Number(formData.amount) 
-    ? Number(formData.amount).toLocaleString('vi-VN') + ' ₫' 
-    : '';
+  const suggestions = [
+    { label: 'Thanh toán Profile', prefix: 'PROFILE' },
+    { label: 'Dịch vụ thiết kế', prefix: 'THIETKE' },
+    { label: 'Gia hạn gói', prefix: 'GIAHAN' },
+    { label: 'Mã mặc định', prefix: 'HUGO' }
+  ];
+
+  const applySuggestion = (prefix) => {
+    setFormData(prev => ({ ...prev, reason: generateRandomCode(prefix) }));
+  };
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -122,21 +163,14 @@ export default function AdminPaymentsTab() {
                 <div className="relative">
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold">₫</span>
                   <input
-                    type="number"
+                    type="text"
                     required
-                    min="2000"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-slate-800 dark:text-white"
+                    value={displayAmount}
+                    onChange={handleAmountChange}
+                    className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-slate-800 dark:text-white font-bold"
                     placeholder={t('admin.payments.amount_placeholder')}
                   />
                 </div>
-                {/* Instant Amount Live Preview */}
-                {formattedPreviewAmount && (
-                  <div className="text-[10px] text-emerald-500 font-bold mt-1 px-1.5 animate-fadeIn">
-                    Xem trước: {formattedPreviewAmount}
-                  </div>
-                )}
               </div>
 
               {/* Description input */}
@@ -150,9 +184,22 @@ export default function AdminPaymentsTab() {
                   maxLength={25}
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-slate-800 dark:text-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-slate-800 dark:text-white font-mono uppercase font-bold"
                   placeholder={t('admin.payments.reason_placeholder')}
                 />
+                {/* Suggested quick tags */}
+                <div className="flex flex-wrap gap-1.5 pt-1.5">
+                  {suggestions.map((item, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => applySuggestion(item.prefix)}
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-700/60 text-[8px] sm:text-[9px] font-bold text-slate-500 dark:text-slate-400 rounded-lg border border-slate-200/40 dark:border-slate-750/30 transition-colors uppercase tracking-tight"
+                    >
+                      + {item.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -241,7 +288,7 @@ export default function AdminPaymentsTab() {
                         {link?.status}
                       </span>
                     ) : link?.status === 'CANCELLED' ? (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border bg-red-50 text-red-700 border-red-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/25">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border bg-red-50 text-red-700 border-red-200 dark:bg-rose-500/10 dark:text-rose-455 dark:border-rose-500/20">
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-550 mr-1.5"></span>
                         {link?.status}
                       </span>
