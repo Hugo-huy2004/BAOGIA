@@ -8,9 +8,9 @@ export default function PrivacyPolicyPage() {
   const [activeSection, setActiveSection] = useState("chuong-1");
 
   useHeadMeta({
-    title: "Điều Khoản Dịch Vụ & Chính Sách Bảo Mật Toàn Diện | Hugo Studio",
-    description: "Điều khoản sử dụng và chính sách bảo mật chi tiết của Hugo Studio tuân thủ Nghị định 13/2023/NĐ-CP, Nghị định 52/2013/NĐ-CP, Nghị định 85/2021/NĐ-CP và tiêu chuẩn quốc tế GDPR, COPPA.",
-    keywords: "chính sách bảo mật, điều khoản sử dụng, điều khoản dịch vụ, Hugo Studio, bảo vệ dữ liệu cá nhân, Nghị định 13, GDPR Việt Nam, e-commerce policy",
+    title: "Điều Khoản Sử Dụng & Chính Sách Bảo Mật Toàn Diện | Hugo Studio",
+    description: "Điều khoản sử dụng và chính sách bảo mật chi tiết của Hugo Studio. Tuyên bố hoạt động dự án phi thương mại nhận đóng góp tự nguyện duy trì hệ thống và tuân thủ Nghị định 13/2023/NĐ-CP.",
+    keywords: "chính sách bảo mật, điều khoản sử dụng, điều khoản dịch vụ, Hugo Studio, bảo vệ dữ liệu cá nhân, Nghị định 13, phi thương mại, đóng góp tự nguyện, donate website",
     canonicalUrl: "https://www.hugowishpax.studio/policy"
   });
 
@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
     { id: "chuong-4", title: "Chương IV: Danh Mục Dữ Liệu Thu Thập", icon: "database" },
     { id: "chuong-5", title: "Chương V: Mục Đích & Biện Pháp Xử Lý Dữ Liệu", icon: "security" },
     { id: "chuong-6", title: "Chương VI: Quy Tắc Mốc Thời Gian (00:00 & 14 Ngày)", icon: "schedule" },
-    { id: "chuong-7", title: "Chương VII: Quy Chế Giao Dịch & Cổng Thanh Toán Cá Nhân", icon: "credit_card" },
+    { id: "chuong-7", title: "Chương VII: Quy Chế Đóng Góp & Cam Kết Phi Thương Mại", icon: "credit_card" },
     { id: "chuong-8", title: "Chương VIII: Cam Kết Bảo Mật & Chống Thương Mại Hóa", icon: "shield_heart" },
     { id: "chuong-9", title: "Chương IX: Quyền & Nghĩa Vụ Của Chủ Thể Dữ Liệu", icon: "badge" },
     { id: "chuong-10", title: "Chương X: Giới Hạn & Miễn Trừ Trách Nhiệm Pháp Lý", icon: "block" },
@@ -57,7 +57,7 @@ export default function PrivacyPolicyPage() {
           <div className="bg-white/80 dark:bg-[#1c1c1e]/85 backdrop-blur-xl border border-[#e5e5e7] dark:border-[#2c2c2e] p-6 rounded-3xl shadow-xl space-y-4 max-h-[85vh] overflow-y-auto scrollbar-hide">
             <div className="border-b border-[#e5e5e7] dark:border-[#2c2c2e] pb-3 text-center">
               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block">Mục lục điều khoản</span>
-              <span className="text-xs text-slate-400 dark:text-slate-500 font-bold">Hugo Studio Legal Version 4.0</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-bold">Hugo Studio Legal Version 5.0</span>
             </div>
             <nav className="space-y-1">
               {chapters.map((chapter) => (
@@ -83,11 +83,11 @@ export default function PrivacyPolicyPage() {
           
           {/* Header Title */}
           <div className="space-y-4 text-center pb-6 border-b border-[#e5e5e7] dark:border-[#2c2c2e] relative">
-            <span className="absolute top-0 right-0 bg-red-500/10 border border-red-500/20 text-red-500 text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+            <span className="absolute top-0 right-0 bg-[#007aff]/10 border border-[#007aff]/20 text-[#007aff] text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
               Bản đầy đủ pháp lý
             </span>
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-white uppercase leading-snug">
-              Chính Sách Bảo Mật & Điều Khoản Sử Dụng Dịch Vụ Toàn Diện
+              Chính Sách Bảo Mật & Điều Khoản Sử Dụng Toàn Diện
             </h1>
             <p className="text-xs text-slate-550 dark:text-slate-450 font-bold tracking-wider">
               VĂN BẢN QUY ĐỊNH PHÁP LÝ CHÍNH THỨC CỦA HỆ THỐNG HUGO STUDIO
@@ -108,25 +108,37 @@ export default function PrivacyPolicyPage() {
               </h2>
               <div className="space-y-4">
                 <p>
-                  Văn bản Điều khoản sử dụng và Chính sách Bảo mật này (sau đây gọi tắt là "Điều khoản" hoặc "Quy chế") thiết lập một thỏa thuận ràng buộc pháp lý đầy đủ và tối cao giữa người sử dụng (bao gồm Thành viên đăng ký và Khách hàng tương tác) và cá nhân Quản trị viên (Admin) duy nhất điều hành Hugo Studio. Toàn bộ nội dung quy chế này được biên soạn, đối chiếu và ban hành căn cứ trên tinh thần nghiêm túc tuân thủ các quy định hiện hành của hệ thống luật pháp nước Cộng hòa Xã hội Chủ nghĩa Việt Nam và các công ước pháp luật quốc tế về an ninh mạng, thương mại điện tử và bảo vệ thông tin đời tư cá nhân.
+                  Văn bản Điều khoản sử dụng và Chính sách Bảo mật này (sau đây gọi tắt là "Điều khoản" hoặc "Quy chế") thiết lập một thỏa thuận ràng buộc pháp lý đầy đủ và tối cao giữa người sử dụng (bao gồm Thành viên đăng ký và Khách hàng tương tác) và cá nhân Quản trị viên (Admin) duy nhất điều hành Hugo Studio. Toàn bộ nội dung quy chế này được biên soạn, đối chiếu và ban hành căn cứ trên tinh thần nghiêm túc tuân thủ các quy định hiện hành của hệ thống luật pháp nước Cộng hòa Xã hội Chủ nghĩa Việt Nam và các công ước pháp luật quốc tế về an ninh mạng, bảo vệ thông tin đời tư cá nhân và giao dịch dân sự tự nguyện.
                 </p>
                 
                 <div className="bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e] p-6 rounded-2xl space-y-4">
-                  <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
+                  <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                     I. Hệ thống pháp luật áp dụng của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam:
                   </h4>
                   
                   <div className="space-y-3 text-xs text-slate-650 dark:text-slate-400">
                     <p>
-                      <strong>1. Thừa nhận tính pháp lý của Giao dịch điện tử và Hợp đồng trực tuyến:</strong>
+                      <strong>1. Thừa nhận tính pháp lý của Giao dịch dân sự tự nguyện và Hợp đồng điện tử:</strong>
                       <br />
-                      - Căn cứ <strong>Bộ luật Dân sự nước CHXHCN Việt Nam năm 2015 (Luật số 91/2015/QH13)</strong>, đặc biệt tại <em>Điều 117</em> (Điều kiện có hiệu lực của giao dịch dân sự), <em>Điều 119</em> (Hình thức giao dịch dân sự, thừa nhận giao dịch thông qua phương tiện điện tử dưới hình thức thông điệp dữ liệu có giá trị như văn bản), <em>Điều 385</em> (Khái niệm hợp đồng), và <em>Điều 401</em> (Hiệu lực của hợp đồng, xác lập quyền ràng buộc của các điều khoản khi các bên có hành vi đồng ý gián tiếp hoặc trực tiếp).
+                      - Căn cứ <strong>Bộ luật Dân sự nước CHXHCN Việt Nam năm 2015 (Luật số 91/2015/QH13)</strong>, đặc biệt tại <em>Điều 117</em> (Điều kiện có hiệu lực của giao dịch dân sự), <em>Điều 119</em> (Hình thức giao dịch dân sự, thừa nhận giao dịch thông qua phương tiện điện tử dưới hình thức thông điệp dữ liệu có giá trị như văn bản), <em>Điều 385</em> (Khái niệm hợp đồng), và <em>Điều 401</em> (Hiệu lực của hợp đồng, xác lập quyền ràng buộc của các điều khoản khi các bên có hành vi đồng ý gián tiếp hoặc trực tiếp thông qua hành động sử dụng dịch vụ).
                       <br />
-                      - Căn cứ <strong>Luật Giao dịch điện tử năm 2023</strong> (được thông qua bởi Quốc hội Việt Nam khóa XV), điều chỉnh giá trị pháp lý của thông điệp dữ liệu, việc sử dụng các phương thức xác thực điện tử (như mã OTP gửi qua Email hoặc số điện thoại), và việc giao kết hợp đồng trên môi trường điện tử. Hành động nhấp vào nút "Đăng ký" hoặc "Đồng ý điều khoản" của Thành viên được pháp luật thừa nhận là chữ ký điện tử hợp pháp biểu thị sự cam kết ràng buộc dân sự.
+                      - Căn cứ <strong>Luật Giao dịch điện tử năm 2023</strong> (được thông qua bởi Quốc hội Việt Nam khóa XV), điều chỉnh giá trị pháp lý của thông điệp dữ liệu, việc sử dụng các phương thức xác thực điện tử (như mã OTP gửi qua Email hoặc số điện thoại), và việc giao kết thỏa thuận trên môi trường điện tử. Hành động nhấp vào nút "Đăng ký", "Đồng ý điều khoản" hoặc thực hiện chuyển khoản ủng hộ duy trì hệ thống của Thành viên được pháp luật thừa nhận là chữ ký điện tử hợp pháp biểu thị sự cam kết ràng buộc dân sự tự nguyện.
                     </p>
 
                     <p>
-                      <strong>2. Quy chế Bảo vệ Dữ liệu cá nhân (GDPR của Việt Nam):</strong>
+                      <strong>2. Tuyên bố về Tính Chất Phi Thương Mại và Miễn Trừ Phạm Vi Đăng Ký Thương Mại Điện Tử (Nghị định 52/2013/NĐ-CP & Nghị định 85/2021/NĐ-CP):</strong>
+                      <br />
+                      - Hugo Studio được xây dựng, thiết kế và vận hành dưới dạng một <strong>Dự án nghiên cứu thử nghiệm công nghệ cá nhân phi thương mại</strong> do duy nhất cá nhân Admin sở hữu và tự tài trợ kinh phí ban đầu. Nền tảng này không hoạt động như một doanh nghiệp kinh doanh chuyên nghiệp, không bán hàng hóa thương mại hay cung cấp dịch vụ thương mại có tính chất sinh lợi nhuận pháp nhân.
+                      <br />
+                      - Mọi giao dịch đóng góp tài chính nâng cấp tài khoản (nâng lên các gói đặc quyền Plus, VIP) thực chất là <strong>Khoản hỗ trợ tài chính tự nguyện (Donation / Sponsorship)</strong> của các Thành viên nhằm chung tay đóng góp trực tiếp cho cá nhân Admin để chi trả và bù đắp các chi phí vận hành máy chủ lưu trữ (Vercel, Cloudflare, MongoDB Atlas), bản quyền API và công lao lao động lập trình phần mềm phát triển mã nguồn của Admin.
+                      <br />
+                      - Đổi lại việc đóng góp tài trợ tài chính tự nguyện này, Admin thiết lập việc mở khóa các đặc quyền kỹ thuật tương ứng trên nền tảng như một món quà tri ân phi thương mại.
+                      <br />
+                      - Do đó, căn cứ theo phạm vi điều chỉnh và đối tượng áp dụng của <em>Nghị định số 52/2013/NĐ-CP</em> ngày 16/05/2013 và <em>Nghị định số 85/2021/NĐ-CP</em> ngày 25/09/2021 về Thương mại điện tử của Việt Nam, website Hugo Studio **không thuộc diện phải thực hiện thủ tục Thông báo hoặc Đăng ký website thương mại điện tử trực tiếp với Bộ Công Thương**.
+                    </p>
+
+                    <p>
+                      <strong>3. Quy chế Bảo vệ Dữ liệu cá nhân (GDPR của Việt Nam):</strong>
                       <br />
                       - Căn cứ <strong>Nghị định số 13/2023/NĐ-CP</strong> của Chính phủ ban hành ngày 17/04/2023 về Bảo vệ dữ liệu cá nhân (sau đây gọi tắt là "Nghị định 13"). Chúng tôi cam kết thiết lập hệ thống bảo mật, lưu trữ, xử lý thông tin cá nhân của công dân Việt Nam đúng theo các nguyên tắc được quy định tại:
                       <br />
@@ -134,15 +146,9 @@ export default function PrivacyPolicyPage() {
                       <br />
                       &nbsp;&nbsp;+ <em>Điều 11 (Đồng ý của chủ thể dữ liệu)</em>: Quy định sự đồng ý phải được thể hiện dưới dạng rõ ràng, tự nguyện, có thể in ấn hoặc lưu giữ bằng văn bản hoặc thông điệp dữ liệu.
                       <br />
-                      &nbsp;&nbsp;+ <em>Điều 16 (Xử lý dữ liệu cá nhân nhạy cảm)</em>: Bắt buộc áp dụng biện pháp bảo vệ và thông báo đặc biệt đối với thông tin về số đo hình thể (Measurements) và lịch sử giao dịch thanh toán trực tuyến.
+                      &nbsp;&nbsp;+ <em>Điều 16 (Xử lý dữ liệu cá nhân nhạy cảm)</em>: Bắt buộc áp dụng biện pháp bảo vệ và thông báo đặc biệt đối với thông tin về số đo hình thể (Measurements) và lịch sử đóng góp tài chính trực tuyến.
                       <br />
                       &nbsp;&nbsp;+ <em>Điều 38 (Trách nhiệm hành chính và hình sự)</em>: Quy định các chế tài xử phạt khi có hành vi vi phạm bảo vệ dữ liệu cá nhân.
-                    </p>
-
-                    <p>
-                      <strong>3. Quy định về Hoạt động Thương mại điện tử trực tuyến:</strong>
-                      <br />
-                      - Căn cứ <strong>Nghị định số 52/2013/NĐ-CP</strong> ngày 16/05/2013 của Chính phủ về Thương mại điện tử và <strong>Nghị định số 85/2021/NĐ-CP</strong> sửa đổi, bổ sung một số điều của Nghị định 52. Các văn bản này quy định chặt chẽ về việc công khai thông tin chủ sở hữu website, minh bạch biểu phí các gói dịch vụ nâng cấp (như Premium Bio Plus/Bio VIP), cơ chế xử lý khiếu nại của khách hàng mua hàng trực tuyến và bảo mật thông tin thanh toán tài chính của người tiêu dùng.
                     </p>
 
                     <p>
@@ -156,7 +162,7 @@ export default function PrivacyPolicyPage() {
                 </div>
 
                 <div className="bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e] p-6 rounded-2xl space-y-4">
-                  <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
+                  <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                     II. Các Hiến chương và Đạo luật Quốc tế được Viện dẫn Đối chiếu:
                   </h4>
                   <div className="space-y-3 text-xs text-slate-655 dark:text-slate-400">
@@ -167,7 +173,7 @@ export default function PrivacyPolicyPage() {
                       <br />
                       &nbsp;&nbsp;+ Căn cứ <em>Article 3 (Territorial scope)</em>: Quy định phạm vi áp dụng ngoài lãnh thổ EU khi xử lý dữ liệu của người dùng sống trong EU.
                       <br />
-                      &nbsp;&nbsp;+ Căn cứ <em>Article 6 (Lawfulness of processing)</em>: Cơ sở pháp lý hợp pháp để xử lý dữ liệu dựa trên sự đồng ý tự nguyện (Consent) hoặc thực hiện hợp đồng.
+                      &nbsp;&nbsp;+ Căn cứ <em>Article 5 & 6 (Lawfulness of processing)</em>: Cơ sở pháp lý hợp pháp để xử lý dữ liệu dựa trên sự đồng ý tự nguyện (Consent) hoặc thực hiện thỏa thuận sử dụng dịch vụ.
                       <br />
                       &nbsp;&nbsp;+ Căn cứ <em>Article 17 (Right to erasure - 'Right to be forgotten')</em>: Quyền yêu cầu xóa bỏ hoàn toàn dữ liệu cá nhân vĩnh viễn khỏi mọi cơ sở dữ liệu vật lý và đám mây của nhà cung cấp.
                       <br />
@@ -189,7 +195,7 @@ export default function PrivacyPolicyPage() {
                 </div>
                 
                 <p className="text-slate-500 dark:text-slate-450 italic text-[11px] border-l-4 border-amber-500 pl-4">
-                  * Khuyến cáo pháp lý đặc biệt: Việc người sử dụng tiếp tục các thao tác điều hướng trên website, thực hiện điền biểu mẫu, tạo lập Bio Link, Bento Portfolio hoặc thanh toán nâng cấp tài khoản biểu thị rằng người sử dụng đã dành thời gian đọc kỹ, thấu hiểu toàn bộ nội dung và tự nguyện cam kết tuân thủ không điều kiện các thỏa thuận được lập ra tại đây. Nếu không đồng ý với bất kỳ điều khoản nào, xin vui lòng ngừng truy cập website ngay lập tức.
+                  * Khuyến cáo pháp lý đặc biệt: Việc người sử dụng tiếp tục các thao tác điều hướng trên website, thực hiện điền biểu mẫu, tạo lập Bio Link, Bento Portfolio hoặc gửi đóng góp tự nguyện nâng cấp tài khoản biểu thị rằng người sử dụng đã dành thời gian đọc kỹ, thấu hiểu toàn bộ nội dung và tự nguyện cam kết tuân thủ không điều kiện các thỏa thuận được lập ra tại đây. Nếu không đồng ý với bất kỳ điều khoản nào, xin vui lòng ngừng truy cập website ngay lập tức.
                 </p>
               </div>
             </section>
@@ -215,7 +221,7 @@ export default function PrivacyPolicyPage() {
                   </p>
 
                   <p>
-                    <strong>3. Dữ liệu cá nhân nhạy cảm (Sensitive Personal Data):</strong> Là dữ liệu cá nhân gắn liền với quyền riêng tư của cá nhân mà khi bị xâm phạm sẽ ảnh hưởng trực tiếp đến quyền và lợi ích hợp pháp của cá nhân đó. Tại Hugo Studio, dữ liệu nhạy cảm bao gồm: Số đo hình thể nhân trắc học của Thành viên (chiều cao, cân nặng, số đo vòng ngực, vòng eo, vòng mông) và thông tin về lịch sử giao dịch thanh toán (mã tham chiếu giao dịch, lịch sử chuyển khoản, số tiền giao dịch).
+                    <strong>3. Dữ liệu cá nhân nhạy cảm (Sensitive Personal Data):</strong> Là dữ liệu cá nhân gắn liền với quyền riêng tư của cá nhân mà khi bị xâm phạm sẽ ảnh hưởng trực tiếp đến quyền và lợi ích hợp pháp của cá nhân đó. Tại Hugo Studio, dữ liệu nhạy cảm bao gồm: Số đo hình thể nhân trắc học của Thành viên (chiều cao, cân nặng, số đo vòng ngực, vòng eo, vòng mông) và thông tin về lịch sử đóng góp hỗ trợ tài chính tự nguyện (mã tham chiếu giao dịch, lịch sử chuyển khoản ủng hộ, số tiền đóng góp).
                   </p>
 
                   <p>
@@ -243,7 +249,7 @@ export default function PrivacyPolicyPage() {
                   </p>
 
                   <p>
-                    <strong>10. Cổng thanh toán liên kết:</strong> Giao diện kết nối API với đối tác cung ứng cổng trung gian thanh toán đã được Ngân hàng Nhà nước cấp phép (ở đây cụ thể là đối tác PayOS) nhằm sinh mã VietQR tự động để Thành viên chuyển khoản nâng cấp tài khoản.
+                    <strong>10. Cổng tiếp nhận đóng góp liên kết:</strong> Giao diện kết nối API với đối tác cung ứng cổng trung gian thanh toán đã được Ngân hàng Nhà nước cấp phép (ở đây cụ thể là đối tác PayOS) nhằm sinh mã VietQR tự động để Thành viên dễ dàng chuyển khoản ủng hộ tài chính tự nguyện cho hệ thống.
                   </p>
 
                   <p>
@@ -259,7 +265,7 @@ export default function PrivacyPolicyPage() {
                   </p>
 
                   <p>
-                    <strong>14. Gói dịch vụ Premium (Plus/VIP):</strong> Các gói nâng cấp có trả phí bản quyền của hệ thống nhằm kích hoạt đầy đủ các tính năng nâng cao như: ẩn nhãn hiệu Hugo Studio, thêm Bento blocks không giới hạn, sử dụng nhạc nền tự phát, mở rộng lưu trữ hình ảnh chất lượng cao và xem thống kê lượt truy cập chi tiết.
+                    <strong>14. Gói đặc quyền Premium (Plus/VIP):</strong> Các đặc quyền kỹ thuật nâng cao được mở khóa để tri ân Thành viên có đóng góp tài trợ tài chính tự nguyện, bao gồm: ẩn nhãn hiệu Hugo Studio, thêm Bento blocks không giới hạn, sử dụng nhạc nền tự phát, mở rộng dung lượng hình ảnh chất lượng cao và xem thống kê lượt truy cập chi tiết.
                   </p>
 
                   <p>
@@ -358,7 +364,7 @@ export default function PrivacyPolicyPage() {
                       <br />
                       - <strong>Thông tin liên hệ kết nối xã hội:</strong> Số điện thoại cá nhân (để liên kết gọi điện hoặc chat Zalo); Các liên kết mạng xã hội do Thành viên tự điền (Facebook, Instagram, TikTok, LinkedIn, YouTube, v.v.).
                       <br />
-                      - <strong>Dữ liệu Email Giáo Dục:</strong> Đối với các Thành viên tham gia chương trình tài trợ sinh viên (Gói Premium Student), chúng tôi thu thập địa chỉ email giáo dục (có đuôi dạng `.edu` hoặc `.edu.vn`) để làm cơ sở tự động phê duyệt tính trạng sinh viên hợp lệ.
+                      - <strong>Dữ liệu Email Giáo Dục:</strong> Đối với các Thành viên tham gia chương trình tài trợ sinh viên (Gói Premium Student), chúng tôi thu thập địa chỉ email giáo dục (có đuôi dạng `.edu` hoặc `.edu.vn`) để làm cơ sở tự động phê duyệt trạng thái sinh viên hợp lệ.
                     </p>
                   </div>
 
@@ -369,7 +375,7 @@ export default function PrivacyPolicyPage() {
                     <p className="text-xs text-slate-606 dark:text-slate-400 text-justify">
                       - <strong>Thông số nhân trắc học hình thể:</strong> Chiều cao (cm), Cân nặng (kg), Số đo Vòng 1 - Vòng 2 - Vòng 3 (cm), Kiểu dáng cơ thể. Dữ liệu này chỉ được lưu trữ khi Thành viên chủ động điền vào mục Thiết lập số đo trong trang quản trị.
                       <br />
-                      - <strong>Lịch sử giao dịch tài chính:</strong> Khi Thành viên tiến hành thanh toán nâng cấp tài khoản, chúng tôi ghi nhận thông tin bao gồm: Mã tham chiếu giao dịch của PayOS (Transaction ID), Số tiền chuyển khoản, Tên ngân hàng thực hiện giao dịch, Thời gian giao dịch thành công. Toàn bộ thông tin này được lưu để thực hiện đối soát tự động kích hoạt tài khoản.
+                      - <strong>Lịch sử đóng góp tài trợ tài chính:</strong> Khi Thành viên tiến hành thanh toán ủng hộ tự nguyện để nhận đặc quyền, chúng tôi ghi nhận thông tin bao gồm: Mã tham chiếu đóng góp của PayOS (Transaction ID), Số tiền chuyển khoản tài trợ, Tên ngân hàng thực hiện giao dịch, Thời gian giao dịch thành công. Toàn bộ thông tin này được lưu để đối soát tự động kích hoạt các đặc quyền kỹ thuật cho tài khoản.
                     </p>
                   </div>
 
@@ -416,8 +422,8 @@ export default function PrivacyPolicyPage() {
                       <li>Xác thực quyền đăng nhập tài khoản và khôi phục tài khoản khi xảy ra sự cố quên mật khẩu thông qua mã OTP điện tử gửi tới email đã đăng ký.</li>
                       <li>Khởi tạo, duy trì hiển thị và quản lý trang Bio Link, Bento Portfolio cá nhân của Thành viên trên internet theo đúng tùy biến thiết kế.</li>
                       <li>Đồng bộ hóa dữ liệu lịch hẹn, chuyển tiếp thông tin liên lạc của Khách hàng trực tiếp đến trang quản trị Dashboard của Thành viên để phục vụ công tác trao đổi công việc.</li>
-                      <li>Thực hiện kiểm tra tính hợp lệ của địa chỉ email giáo dục nhằm phê duyệt tham gia gói tài trợ sinh viên.</li>
-                      <li>Lưu trữ tạm thời và đối soát trạng thái giao dịch thanh toán nâng cấp tài khoản qua cổng trung gian thanh toán PayOS.</li>
+                      <li>Thực hiện kiểm tra tính hợp lệ của địa chỉ email giáo dục nhằm phê duyệt tham gia gói tài trợ sinh viên phi thương mại.</li>
+                      <li>Lưu trữ tạm thời và đối soát trạng thái giao dịch chuyển khoản đóng góp tự nguyện qua cổng trung gian thanh toán PayOS.</li>
                       <li>Phát hiện, ngăn chặn kịp thời các hành vi đăng nhập trái phép, spam phá hoại hệ thống, tấn công từ chối dịch vụ hoặc tải lên mã nguồn độc hại.</li>
                     </ul>
                   </div>
@@ -432,28 +438,28 @@ export default function PrivacyPolicyPage() {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                       <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1.5">
-                        <h6 className="font-bold text-emerald-600 dark:text-emerald-450">a) Mã hóa Mật khẩu bảo mật mật thiết:</h6>
+                        <h6 className="font-bold text-emerald-600 dark:text-emerald-455">a) Mã hóa Mật khẩu bảo mật mật thiết:</h6>
                         <p className="text-slate-500 dark:text-slate-400 text-justify">
                           Toàn bộ mật khẩu của Thành viên đều được băm một chiều (One-way Cryptographic Hashing) bằng thuật toán <strong>SHA-256</strong> kết hợp với mã muối ngẫu nhiên (Salt) có độ phức tạp cao trước khi lưu vào MongoDB. Cơ chế này đảm bảo ngay cả khi cơ sở dữ liệu bị lộ lọt, kẻ tấn công cũng không thể dịch ngược để đọc mật khẩu gốc dưới dạng văn bản thuần (Plaintext).
                         </p>
                       </div>
 
                       <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1.5">
-                        <h6 className="font-bold text-emerald-600 dark:text-emerald-450">b) Bộ lọc CORS và cách ly máy chủ API:</h6>
+                        <h6 className="font-bold text-emerald-600 dark:text-emerald-455">b) Bộ lọc CORS và cách ly máy chủ API:</h6>
                         <p className="text-slate-500 dark:text-slate-400 text-justify">
                           Máy chủ API (Node.js/Express) thiết lập cấu hình chính sách chia sẻ tài nguyên nguồn gốc chéo <strong>CORS (Cross-Origin Resource Sharing)</strong> cực kỳ chặt chẽ. Hệ thống chỉ phê duyệt và tiếp nhận các yêu cầu truy vấn đến từ các tên miền chính thức của Hugo Studio. Mọi yêu cầu API giả mạo hoặc xuất phát từ các nguồn gốc lạ ngoài danh sách sẽ bị từ chối xử lý ngay lập tức tại tầng mạng.
                         </p>
                       </div>
 
                       <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1.5">
-                        <h6 className="font-bold text-emerald-600 dark:text-emerald-450">c) Cơ chế Route Guard & Chặn bypass luồng:</h6>
+                        <h6 className="font-bold text-emerald-600 dark:text-emerald-455">c) Cơ chế Route Guard & Chặn bypass luồng:</h6>
                         <p className="text-slate-500 dark:text-slate-400 text-justify">
                           Các biểu mẫu hỗ trợ kỹ thuật được bảo vệ nghiêm ngặt bằng cơ chế kiểm soát định tuyến (Route Guard). Hệ thống sẽ chặn kết nối và trả về trang lỗi nếu phát hiện trình duyệt cố tình bỏ qua (bypass) luồng gửi biểu mẫu thông tin tiêu chuẩn hoặc truy cập trực tiếp vào các liên kết xử lý nội bộ mà không có sự chỉ dẫn của Trợ lý ảo Bot Culi.
                         </p>
                       </div>
 
                       <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1.5">
-                        <h6 className="font-bold text-emerald-600 dark:text-emerald-450">d) Nén mã hóa hình ảnh và Lưu trữ đám mây phân quyền:</h6>
+                        <h6 className="font-bold text-emerald-600 dark:text-emerald-455">d) Nén mã hóa hình ảnh và Lưu trữ đám mây phân quyền:</h6>
                         <p className="text-slate-500 dark:text-slate-400 text-justify">
                           Mọi hình ảnh đại diện, ảnh Portfolio tải lên hệ thống đều được nén tự động và chuyển đổi sang định dạng hình ảnh thế hệ mới <strong>WebP</strong> nhằm tối ưu băng thông. Các tập tin này được lưu giữ trên hệ thống lưu trữ đám mây phân quyền cao, ngăn chặn việc quét tập tin hàng loạt từ bên ngoài thông qua các script tự động.
                         </p>
@@ -478,10 +484,10 @@ export default function PrivacyPolicyPage() {
                 <div className="space-y-4 text-xs text-justify">
                   <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
                     <h5 className="font-bold text-slate-800 dark:text-white text-xs">
-                      a) Cách tính ngày sử dụng dịch vụ nâng cấp (Áp dụng Quy tắc mốc thời gian 00:00:00):
+                      a) Cách tính ngày áp dụng đặc quyền tri ân (Mốc thời gian 00:00:00):
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                      - Chiểu theo các quy định về cách tính thời hạn được thiết lập tại Bộ luật Dân sự năm 2015, thời hạn sử dụng các gói Premium (Plus/VIP) được tính dựa trên lịch dương lịch. Bất kỳ sự thay đổi trạng thái kích hoạt nâng cấp gói dịch vụ nào diễn ra vào bất kỳ thời điểm nào trong ngày hiện tại sẽ được hệ thống tính trọn vẹn là 01 ngày sử dụng kể từ thời điểm giao dịch được ghi nhận thành công trên cơ sở dữ liệu cho đến đúng 00:00:00 của ngày dương lịch tiếp theo. Hệ thống tự động khấu trừ số ngày sử dụng còn lại của tài khoản Thành viên vào thời điểm 00:00:00 mỗi đêm.
+                      - Chiểu theo các quy định về cách tính thời hạn được thiết lập tại Bộ luật Dân sự năm 2015, thời hạn áp dụng các đặc quyền Premium (Plus/VIP) được tính dựa trên lịch dương lịch. Bất kỳ sự thay đổi trạng thái kích hoạt đặc quyền nào diễn ra vào bất kỳ thời điểm nào trong ngày hiện tại sẽ được hệ thống tính trọn vẹn là 01 ngày sử dụng kể từ thời điểm giao dịch đóng góp được ghi nhận thành công trên cơ sở dữ liệu cho đến đúng 00:00:00 của ngày dương lịch tiếp theo. Hệ thống tự động khấu trừ số ngày áp dụng còn lại của tài khoản Thành viên vào thời điểm 00:00:00 mỗi đêm.
                     </p>
                   </div>
 
@@ -498,12 +504,12 @@ export default function PrivacyPolicyPage() {
 
                   <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
                     <h5 className="font-bold text-slate-800 dark:text-white text-xs">
-                      c) Mốc thời hạn áp dụng cho Gói tài trợ Sinh viên (Quy tắc 365 Ngày):
+                      c) Mốc thời hạn áp dụng cho Gói tài trợ Sinh viên phi thương mại (Quy tắc 365 Ngày):
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                      - Các tài khoản được phê duyệt nâng cấp lên gói Premium Student theo diện tài trợ giáo dục sẽ có thời hạn kích hoạt tối đa là <strong>365 ngày</strong> (01 năm dương lịch).
+                      - Các tài khoản được phê duyệt mở khóa Premium Student theo diện tài trợ giáo dục phi thương mại sẽ có thời hạn kích hoạt tối đa là <strong>365 ngày</strong> (01 năm dương lịch).
                       <br />
-                      - Hệ thống lập trình kiểm tra tự động sẽ quét thời hạn kích hoạt của các tài khoản sinh viên. Vào đúng mốc 00:00:00 của ngày thứ 365 kể từ thời điểm gói tài trợ được xác nhận kích hoạt thành công, hệ thống sẽ tự động thu hồi các quyền lợi Premium nâng cao và đưa tài khoản trở về Gói Free tiêu chuẩn. Thành viên muốn tiếp tục sử dụng diện tài trợ bắt buộc phải thực hiện lại quy trình gửi yêu cầu xác thực email giáo dục mới.
+                      - Hệ thống lập trình kiểm tra tự động sẽ quét thời hạn kích hoạt của các tài khoản sinh viên. Vào đúng mốc 00:00:00 của ngày thứ 365 kể từ thời điểm gói tài trợ được xác nhận kích hoạt thành công, hệ thống sẽ tự động thu hồi các đặc quyền kỹ thuật nâng cao và đưa tài khoản trở về Gói Free tiêu chuẩn. Thành viên muốn tiếp tục sử dụng diện tài trợ bắt buộc phải thực hiện lại quy trình gửi yêu cầu xác thực email giáo dục mới.
                     </p>
                   </div>
 
@@ -516,7 +522,7 @@ export default function PrivacyPolicyPage() {
                       <br />
                       - <strong>Xóa cứng vĩnh viễn (Hard Delete):</strong> Đúng 30 ngày kể từ ngày Thành viên xác nhận yêu cầu xóa, hệ thống sẽ tự động quét cơ sở dữ liệu và thực hiện xóa cứng vĩnh viễn không thể phục hồi toàn bộ thông tin đăng ký, ảnh đại diện, số đo cơ thể, dữ liệu lịch hẹn Booking trên máy chủ MongoDB Atlas.
                       <br />
-                      - <strong>Ngoại lệ lưu trữ bắt buộc theo luật định:</strong> Hugo Studio buộc phải lưu trữ thông tin về lịch sử giao dịch thanh toán nâng cấp tài khoản của Thành viên trong thời hạn tối thiểu 05 năm kể từ ngày giao dịch thành công. Đây là nghĩa vụ pháp lý bắt buộc được quy định tại Luật Kế toán và các Nghị định về Thương mại điện tử của Việt Nam phục vụ công tác thanh tra thuế và đối soát tài chính của cơ quan chức năng, dữ liệu này chỉ được lưu trữ nội bộ và tuyệt đối không hiển thị hay sử dụng cho bất kỳ mục đích nào khác.
+                      - <strong>Ngoại lệ lưu trữ bắt buộc theo luật thuế và giao dịch dân sự:</strong> Hugo Studio buộc phải lưu giữ thông tin về lịch sử giao dịch đóng góp tài trợ tài chính tự nguyện của Thành viên trong thời hạn tối thiểu 05 năm kể từ ngày giao dịch thành công. Đây là nghĩa vụ pháp lý bắt buộc phục vụ nghĩa vụ quyết toán thuế thu nhập cá nhân của Admin đối với nhà nước và giải quyết khiếu nại tài chính dân sự phát sinh, dữ liệu này chỉ được lưu trữ nội bộ và tuyệt đối không hiển thị hay sử dụng cho bất kỳ mục đích nào khác.
                     </p>
                   </div>
                 </div>
@@ -527,33 +533,46 @@ export default function PrivacyPolicyPage() {
             <section id="chuong-7" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-[#007aff]">credit_card</span>
-                Chương VII: Quy Chế Giao Dịch Tài Chính & Cổng Thanh Toán Cá Nhân Nghiêm Ngặt
+                Chương VII: Quy Chế Đóng Góp Tài Chính, Hỗ Trợ Duy Trì Máy Chủ & Cam Kết Phi Thương Mại
               </h2>
               <div className="space-y-4">
                 <p>
-                  Để đảm bảo tính minh bạch tài chính tối đa, loại trừ mọi rủi ro pháp lý liên quan đến hoạt động huy động vốn trái phép, rửa tiền hoặc kinh doanh dịch vụ thanh toán không phép, Hugo Studio long trọng công bố quy chế giao dịch tài chính với các điều khoản đặc thù như sau:
+                  Nhằm củng cố tính chất phi thương mại của nền tảng, loại trừ mọi khả năng vi phạm quy định pháp lý về đăng ký website thương mại điện tử do Hugo Studio không tiến hành thông báo Bộ Công Thương Việt Nam, quy chế tiếp nhận tài chính trên hệ thống được định nghĩa chặt chẽ như sau:
                 </p>
 
                 <div className="bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e] p-6 rounded-2xl space-y-4 text-xs">
                   <div className="space-y-1.5">
-                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
-                      a) Khẳng định Quyền sở hữu Cổng thanh toán Cá nhân duy nhất (Tuyên bố 1 Admin):
+                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px] text-emerald-600 dark:text-emerald-400">
+                      a) Quyền sở hữu và Vận hành Cổng tiếp nhận đóng góp Cá nhân (Quy tắc 1 Admin):
                     </h5>
                     <p className="text-justify text-slate-600 dark:text-slate-400">
-                      - Cổng nhận tiền chuyển khoản trực tuyến được tích hợp trên website Hugo Studio (được kết nối thông qua giải pháp công nghệ tạo mã VietQR của đối tác PayOS) thuộc quyền sở hữu, quản lý và sử dụng trực tiếp của **01 Quản trị viên (Admin) duy nhất** dưới tư cách cá nhân.
+                      - Giao diện chuyển khoản hiển thị trên hệ thống (liên kết qua đối tác công nghệ PayOS để sinh mã VietQR) thuộc quyền sở hữu, quản lý và sử dụng trực tiếp của **01 cá nhân Admin duy nhất** dưới tư cách tài khoản ngân hàng cá nhân.
                       <br />
-                      - Hệ thống Hugo Studio được phát triển, vận hành độc lập bởi cá nhân Admin này, không chịu sự điều hành, sở hữu hay góp vốn của bất kỳ tổ chức kinh tế, công ty cổ phần, nhóm cổ đông hoặc liên doanh bên thứ ba nào. Mọi dòng tiền phát sinh từ việc người dùng trả phí nâng cấp bản quyền dịch vụ sẽ được chuyển trực tiếp vào tài khoản ngân hàng cá nhân của Admin duy nhất này.
+                      - Mọi dòng tiền chuyển khoản ủng hộ từ Thành viên sẽ chạy trực tiếp vào tài khoản ngân hàng cá nhân của Admin này, không thông qua tài khoản công ty, pháp nhân kinh tế hay quỹ đầu tư đa chủ sở hữu.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-800 pt-3">
+                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px] text-amber-600 dark:text-amber-450">
+                      b) Định nghĩa pháp lý về khoản thanh toán nâng cấp (Hợp đồng tặng cho tài sản có điều kiện):
+                    </h5>
+                    <p className="text-justify text-slate-600 dark:text-slate-400">
+                      - Người dùng hiểu rõ và đồng ý rằng: Giao dịch chuyển tiền nâng cấp gói Premium (Plus/VIP) trên hệ thống **không phải là giao dịch mua bán hàng hóa, cung ứng dịch vụ thương mại**.
+                      <br />
+                      - Bản chất pháp lý của giao dịch này là **Giao dịch tặng cho tài sản có điều kiện** (được điều chỉnh trực tiếp bởi các điều khoản liên quan trong <em>Bộ luật Dân sự năm 2015</em>). Trong đó, Thành viên tự nguyện chuyển giao một khoản tiền tài trợ (Donate) cho cá nhân Admin nhằm hỗ trợ chi phí vận hành máy chủ, và cá nhân Admin đồng ý mở khóa một số đặc quyền kỹ thuật trên mã nguồn phần mềm để tri ân Thành viên.
+                      <br />
+                      - Việc định nghĩa này giúp phân định rõ Hugo Studio là một trang cá nhân phi thương mại nhận ủng hộ quyên góp, do đó **miễn trừ nghĩa vụ và không thuộc đối tượng phải thông báo hay đăng ký website thương mại điện tử trực tuyến với Bộ Công Thương Việt Nam**.
                     </p>
                   </div>
 
                   <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-800 pt-3">
                     <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px] text-red-550">
-                      b) Cam kết tuyệt đối Phi Trung gian thanh toán (Không thu hộ / Không chi hộ):
+                      c) Cam kết tuyệt đối Phi Trung gian thanh toán (Không thu hộ / Không chi hộ):
                     </h5>
                     <p className="text-justify text-slate-600 dark:text-slate-400">
-                      - Hugo Studio là công cụ phần mềm trực tuyến hỗ trợ thiết kế trang Bio Link cá nhân, hoàn toàn **không phải là đơn vị cung ứng dịch vụ trung gian thanh toán** theo quy định của Ngân hàng Nhà nước Việt Nam.
+                      - Hugo Studio là công cụ trực tuyến hỗ trợ thiết kế trang Bio Link, hoàn toàn **không phải là đơn vị cung ứng dịch vụ trung gian thanh toán** theo quy định của Ngân hàng Nhà nước Việt Nam.
                       <br />
-                      - Ban quản trị cam kết tuyệt đối: **Không thực hiện hoạt động thu hộ tiền; Không chi hộ tiền; Không hỗ trợ nhận chuyển tiền trung gian; Không làm đại lý thu gom tiền trực tuyến; Không nhận ủy thác giữ tiền hay thanh toán hộ** cho bất kỳ Thành viên hay dịch vụ thương mại của bên thứ ba nào.
+                      - Ban quản trị cam kết tuyệt đối: **Không thực hiện hoạt động thu hộ tiền; Không chi hộ tiền; Không hỗ trợ nhận chuyển tiền trung gian; Không làm đại lý thu gom tiền trực tuyến; Không nhận ủy thác giữ tiền hay thanh toán hộ** cho bất kỳ thành viên hay bên thứ ba nào.
                       <br />
                       - Khách hàng khi thực hiện đặt lịch hẹn (Booking) với Thành viên trên trang Bio Link công cộng tuyệt đối không thực hiện bất kỳ giao dịch chuyển tiền trực tiếp nào thông qua máy chủ của Hugo Studio. Mọi giao dịch tài chính, thanh toán cát-xê công việc giữa Khách hàng và Thành viên phải được thực hiện độc lập, trực tiếp thông qua các kênh thanh toán riêng của họ ngoài phạm vi kiểm soát của Hugo Studio.
                     </p>
@@ -561,23 +580,23 @@ export default function PrivacyPolicyPage() {
 
                   <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-800 pt-3">
                     <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
-                      c) Bảo mật dữ liệu giao dịch thẻ ngân hàng theo Tiêu chuẩn PCI DSS:
+                      d) Bảo mật dữ liệu giao dịch thẻ ngân hàng theo Tiêu chuẩn PCI DSS:
                     </h5>
                     <p className="text-justify text-slate-600 dark:text-slate-400">
-                      - Khi Thành viên thực hiện thanh toán nâng cấp tài khoản, toàn bộ giao diện thanh toán, xử lý mã QR và xác thực chuyển khoản đều do hệ thống của cổng thanh toán đối tác PayOS xử lý trực tiếp.
+                      - Khi Thành viên thực hiện thanh toán ủng hộ, toàn bộ giao diện thanh toán, xử lý mã QR và xác thực chuyển khoản đều do hệ thống của cổng thanh toán đối tác PayOS xử lý trực tiếp.
                       <br />
                       - Hệ thống máy chủ của Hugo Studio cam kết tuyệt đối **không thu thập, không xử lý, không ghi chép, không lưu trữ** bất kỳ thông tin nhạy cảm nào liên quan đến tài khoản ngân hàng cá nhân, số thẻ tín dụng/thẻ ghi nợ quốc tế (Visa, Mastercard, JCB), ngày hết hạn thẻ, hoặc mã số bảo mật CVV/CVC của người dùng. Quy trình xử lý thông tin tài chính này tuân thủ hoàn toàn tiêu chuẩn an toàn bảo mật dữ liệu thẻ quốc tế <strong>PCI DSS</strong> của đối tác PayOS.
                     </p>
                   </div>
 
                   <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-800 pt-3">
-                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
-                      d) Tuân thủ Quy chế Công khai Biểu phí và Hoàn tiền (Refund Policy):
+                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px] text-red-550">
+                      e) Miễn trừ nghĩa vụ hóa đơn thương mại (VAT Invoice Exemption):
                     </h5>
                     <p className="text-justify text-slate-600 dark:text-slate-400">
-                      - Biểu phí nâng cấp các gói Premium (Plus/VIP) được hiển thị công khai, rõ ràng, minh bạch tại bảng giá dịch vụ trên website theo quy định của Nghị định 52/2013/NĐ-CP về thương mại điện tử.
+                      - Do giao dịch trên hệ thống là khoản đóng góp tự nguyện (Donate) cá nhân phi thương mại và là hợp đồng tặng cho tài sản giữa cá nhân với cá nhân, Admin **không có nghĩa vụ pháp lý và không thể xuất Hóa đơn Giá trị gia tăng (VAT - Hóa đơn đỏ)** cho Thành viên.
                       <br />
-                      - <strong>Chính sách không hoàn tiền:</strong> Do đặc thù dịch vụ của Hugo Studio là sản phẩm phần mềm số hóa được kích hoạt tự động ngay lập tức ngay sau khi nhận được tiền thanh toán, Thành viên đồng ý rằng phí bản quyền nâng cấp dịch vụ đã thanh toán sẽ **không được hoàn lại** dưới bất kỳ hình thức nào, trừ trường hợp lỗi kỹ thuật nghiêm trọng phát sinh từ phía máy chủ Hugo Studio dẫn đến việc Thành viên hoàn toàn không thể sử dụng các tính năng nâng cao trong vòng 07 ngày liên tục và Admin không thể khắc phục được sự cố.
+                      - Thay vào đó, hệ thống sẽ tự động gửi biên lai kỹ thuật số ảo (Sponsorship Receipt) trực tiếp trên trang Dashboard để xác nhận khoản đóng góp hỗ trợ máy chủ đã được ghi nhận thành công.
                     </p>
                   </div>
                 </div>
@@ -637,28 +656,28 @@ export default function PrivacyPolicyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
                     <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">1. Quyền được biết & Quyền đồng ý:</h6>
-                    <p className="text-justify text-slate-550 dark:text-slate-400">
+                    <p className="text-justify text-slate-555 dark:text-slate-400">
                       Người dùng có quyền được biết rõ ràng, chi tiết mục đích, phạm vi thu thập, phương thức xử lý dữ liệu cá nhân của mình thông qua văn bản này. Mọi hành vi xử lý dữ liệu chỉ được thực hiện khi có sự đồng ý tự nguyện của người dùng bằng cách chủ động tích chọn hộp kiểm đồng ý khi đăng ký tài khoản.
                     </p>
                   </div>
 
                   <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
                     <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">2. Quyền truy cập, chỉnh sửa & Đính chính dữ liệu:</h6>
-                    <p className="text-justify text-slate-550 dark:text-slate-400">
+                    <p className="text-justify text-slate-555 dark:text-slate-400">
                       Thành viên có quyền đăng nhập vào giao diện quản trị Dashboard cá nhân vào bất kỳ thời điểm nào để xem lại dữ liệu đang lưu trữ trên máy chủ, tự đính chính thông tin bị sai sót (như thay đổi họ tên hiển thị, cập nhật lại số điện thoại Zalo, chỉnh sửa các liên kết mạng xã hội hoặc cập nhật lại số đo cơ thể).
                     </p>
                   </div>
 
                   <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
                     <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">3. Quyền rút lại sự đồng ý & Quyền yêu cầu xóa:</h6>
-                    <p className="text-justify text-slate-550 dark:text-slate-400">
+                    <p className="text-justify text-slate-555 dark:text-slate-400">
                       Người dùng có quyền rút lại sự đồng ý cho phép xử lý dữ liệu bất cứ lúc nào bằng cách gửi yêu cầu hủy tài khoản trực tuyến hoặc liên hệ qua kênh hỗ trợ của Admin. Sau khi nhận được yêu cầu, hệ thống cam kết sẽ thực hiện quy trình xóa bỏ dữ liệu vĩnh viễn (Hard Delete) theo đúng thời hạn 30 ngày quy định tại Chương VI.
                     </p>
                   </div>
 
                   <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
                     <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">4. Quyền khiếu nại, tố cáo & Khởi kiện:</h6>
-                    <p className="text-justify text-slate-550 dark:text-slate-400">
+                    <p className="text-justify text-slate-555 dark:text-slate-400">
                       Người dùng có quyền khiếu nại trực tiếp đến Admin nếu phát hiện dữ liệu của mình bị xử lý sai mục đích cam kết. Ngoài ra, người dùng có quyền gửi đơn tố cáo đến các cơ quan quản lý chuyên trách về bảo vệ dữ liệu cá nhân hoặc khởi kiện ra Tòa án nhân dân để đòi bồi thường thiệt hại thực tế phát sinh.
                     </p>
                   </div>
