@@ -127,6 +127,15 @@ export default function PaymentGatewayPage() {
     ? `https://img.vietqr.io/image/${paymentInfo.bin}-${paymentInfo.accountNumber}-compact2.png?amount=${paymentInfo.amount}&addInfo=${encodeURIComponent(paymentInfo.reason)}&accountName=${encodeURIComponent(paymentInfo.accountName)}`
     : null;
 
+  const tabs = [
+    { id: 'banking', name: 'Banking App', icon: 'phone_iphone', desc: 'Mở App tự động điền' },
+    { id: 'vietqr', name: 'Mã VietQR', icon: 'qr_code_scanner', desc: 'Quét mã chuyển khoản' },
+    { id: 'momo', name: 'Ví MoMo', icon: 'account_balance_wallet', desc: 'Quét qua MoMo' },
+    { id: 'applepay', name: 'Thẻ / Apple Pay', icon: 'credit_card', desc: 'Visa, Master, Apple Pay' }
+  ];
+
+  const RECOMMENDED_BANKS = ['vcb', 'mb', 'tcb'];
+
   return (
     <div className="min-h-screen bg-[#07050a] text-zinc-100 flex flex-col font-sans relative overflow-x-hidden pb-12">
       {/* Ambient background glows */}
@@ -135,7 +144,7 @@ export default function PaymentGatewayPage() {
 
       {/* Top Brand Header */}
       <header className="py-6 px-6 relative z-10 flex flex-col items-center justify-center border-b border-white/5 bg-white/[0.02] backdrop-blur-md">
-        <HugoLogo className="text-2xl mb-1.5" />
+        <HugoLogo className="text-2xl mb-1.5 animate-pulse-soft" />
         <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-[0.25em] bg-emerald-400/10 px-4 py-1.5 rounded-full border border-emerald-400/20">
           CỔNG CHUYỂN KHOẢN THÔNG MINH
         </span>
@@ -160,7 +169,7 @@ export default function PaymentGatewayPage() {
             </div>
 
             {/* Virtual Dotted Receipt */}
-            <div className="bg-black/30 rounded-2xl p-5 border border-white/5 text-left text-xs space-y-4 relative">
+            <div className="bg-black/40 rounded-2xl p-5 border border-white/5 text-left text-xs space-y-4 relative">
               <div className="flex justify-between items-center py-1.5 border-b border-white/5">
                 <span className="text-zinc-500 font-bold uppercase tracking-wider">Số tiền đã trả</span>
                 <span className="text-lg font-black text-emerald-400">
@@ -221,7 +230,7 @@ export default function PaymentGatewayPage() {
             {/* Header / Amount Block */}
             <div className="p-6 sm:p-8 bg-gradient-to-b from-white/[0.03] to-transparent border-b border-white/5 text-center relative">
               <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full px-2.5 py-1 text-[9px] font-bold text-amber-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-soft" />
                 CHỜ THANH TOÁN
               </div>
 
@@ -234,53 +243,27 @@ export default function PaymentGatewayPage() {
               </p>
             </div>
 
-            {/* Methods Selector (Tabs Navigation) */}
+            {/* Methods Selector (Tabs Navigation - Premium Glass Pill layout) */}
             <div className="px-4 py-3 bg-black/40 border-b border-white/5">
-              <div className="grid grid-cols-4 gap-1.5 bg-white/[0.02] p-1 rounded-2xl border border-white/5">
-                <button
-                  onClick={() => setActiveTab('banking')}
-                  className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-1 sm:px-3 rounded-xl transition-all text-center ${
-                    activeTab === 'banking'
-                      ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-md font-bold'
-                      : 'hover:bg-white/[0.02] border border-transparent text-zinc-400 font-medium'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm sm:text-base">phone_iphone</span>
-                  <span className="text-[9px] sm:text-xs">Banking App</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('vietqr')}
-                  className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-1 sm:px-3 rounded-xl transition-all text-center ${
-                    activeTab === 'vietqr'
-                      ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-md font-bold'
-                      : 'hover:bg-white/[0.02] border border-transparent text-zinc-400 font-medium'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm sm:text-base">qr_code_scanner</span>
-                  <span className="text-[9px] sm:text-xs">Mã VietQR</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('momo')}
-                  className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-1 sm:px-3 rounded-xl transition-all text-center ${
-                    activeTab === 'momo'
-                      ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-md font-bold'
-                      : 'hover:bg-white/[0.02] border border-transparent text-zinc-400 font-medium'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm sm:text-base">account_balance_wallet</span>
-                  <span className="text-[9px] sm:text-xs">Ví MoMo</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('applepay')}
-                  className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2 px-1 sm:px-3 rounded-xl transition-all text-center ${
-                    activeTab === 'applepay'
-                      ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-md font-bold'
-                      : 'hover:bg-white/[0.02] border border-transparent text-zinc-400 font-medium'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm sm:text-base">credit_card</span>
-                  <span className="text-[9px] sm:text-xs">Thẻ/Apple Pay</span>
-                </button>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-white/[0.01] p-1.5 rounded-[22px] border border-white/5">
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all relative overflow-hidden ${
+                      activeTab === tab.id
+                        ? 'bg-gradient-to-b from-emerald-500/10 to-teal-500/5 border border-emerald-500/25 text-emerald-400 shadow-[0_4px_20px_-5px_rgba(16,185,129,0.15)] font-bold'
+                        : 'hover:bg-white/[0.02] border border-transparent text-zinc-400 font-medium hover:text-zinc-200'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-lg mb-1">{tab.icon}</span>
+                    <span className="text-[10px] uppercase tracking-wider">{tab.name}</span>
+                    <span className="text-[8px] text-zinc-500 mt-0.5 hidden sm:inline-block font-normal">{tab.desc}</span>
+                    {activeTab === tab.id && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full" />
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -298,14 +281,19 @@ export default function PaymentGatewayPage() {
                   </div>
 
                   {hasBankDetails ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
                       {BANKS.map(bank => (
                         <button
                           key={bank.code}
                           onClick={() => handleOpenBankApp(bank.code)}
-                          className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-emerald-500/30 hover:bg-emerald-500/[0.02] transition-all group active:scale-95 text-center"
+                          className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-emerald-500/30 hover:bg-emerald-500/[0.02] hover:shadow-[0_4px_20px_rgba(16,185,129,0.05)] transition-all group active:scale-95 text-center relative overflow-hidden"
                           title={`Mở ứng dụng ${bank.name}`}
                         >
+                          {RECOMMENDED_BANKS.includes(bank.code) && (
+                            <span className="absolute top-1 right-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[6px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full scale-90">
+                              Nhanh
+                            </span>
+                          )}
                           <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center p-1.5 mb-2 group-hover:bg-white/10 transition-colors border border-white/5">
                             <img 
                               src={bank.logo} 
@@ -325,9 +313,9 @@ export default function PaymentGatewayPage() {
                     </div>
                   )}
 
-                  <div className="pt-2 text-center text-[10px] text-zinc-500 flex items-center justify-center gap-1">
-                    <span className="material-symbols-outlined text-xs">info</span>
-                    Tính năng tự động điền chỉ tương thích khi mở link trên Thiết bị di động (Mobile).
+                  <div className="pt-2 text-center text-[10px] text-zinc-550 flex items-center justify-center gap-1.5">
+                    <span className="material-symbols-outlined text-xs text-zinc-500">info</span>
+                    <span>Chức năng tự động điền chỉ khả dụng khi thao tác trên thiết bị di động (Mobile).</span>
                   </div>
                 </div>
               )}
@@ -342,41 +330,42 @@ export default function PaymentGatewayPage() {
                     </p>
                   </div>
 
-                  <div className="flex flex-col md:flex-row items-center gap-6 bg-white/[0.01] border border-white/5 p-5 sm:p-6 rounded-3xl">
+                  <div className="flex flex-col md:flex-row items-center gap-6 bg-white/[0.01] border border-white/5 p-5 sm:p-6 rounded-[28px]">
                     {/* QR Display Card */}
                     {qrImageUrl ? (
                       <div className="w-full md:w-auto shrink-0 flex flex-col items-center">
-                        <div className="relative p-3.5 bg-white rounded-2xl shadow-xl w-48 h-48 sm:w-52 sm:h-52 flex items-center justify-center group overflow-hidden">
-                          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-scan" />
+                        <div className="relative p-4 bg-white rounded-[24px] shadow-2xl w-52 h-52 flex items-center justify-center border-4 border-black/40 group overflow-hidden">
+                          <div className="absolute inset-0 border border-emerald-400/25 rounded-[20px] pointer-events-none z-10" />
+                          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-scan z-10" />
                           <img 
                             src={qrImageUrl} 
                             alt="VietQR Code" 
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-contain relative z-0"
                           />
                         </div>
                         <button
                           onClick={handleOpenQRNewTab}
-                          className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                          className="mt-3.5 inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[12px]">open_in_new</span>
+                          <span className="material-symbols-outlined text-[13px]">open_in_new</span>
                           Mở mã QR tab mới
                         </button>
                       </div>
                     ) : (
-                      <div className="w-48 h-48 sm:w-52 sm:h-52 bg-white/5 border border-dashed border-white/10 rounded-2xl flex items-center justify-center text-center text-xs text-zinc-500">
+                      <div className="w-52 h-52 bg-white/5 border border-dashed border-white/10 rounded-[24px] flex items-center justify-center text-center text-xs text-zinc-500">
                         Không tạo được mã QR
                       </div>
                     )}
 
                     {/* Detailed Invoice Info */}
-                    <div className="flex-1 w-full space-y-3.5 text-xs">
+                    <div className="flex-1 w-full space-y-4 text-xs">
                       <div className="space-y-1">
                         <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Ngân hàng thụ hưởng</span>
-                        <div className="font-bold text-zinc-200">{getMerchantBankName(paymentInfo.bin)}</div>
+                        <div className="font-bold text-zinc-200 text-sm">{getMerchantBankName(paymentInfo.bin)}</div>
                       </div>
                       <div className="space-y-1">
                         <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Chủ tài khoản nhận</span>
-                        <div className="font-bold text-zinc-200 uppercase">{paymentInfo.accountName}</div>
+                        <div className="font-bold text-zinc-200 text-sm uppercase">{paymentInfo.accountName}</div>
                       </div>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -467,7 +456,7 @@ export default function PaymentGatewayPage() {
                   </div>
 
                   {/* Glassmorphic Credit Card mockup */}
-                  <div className="relative w-full max-w-sm mx-auto h-40 bg-gradient-to-br from-indigo-500/20 via-cyan-500/10 to-transparent border border-white/10 rounded-2xl p-5 shadow-xl flex flex-col justify-between overflow-hidden group">
+                  <div className="relative w-full max-w-sm mx-auto h-44 bg-gradient-to-br from-[#1c1a2e] to-[#0a0812] border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col justify-between overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700" />
                     <div className="flex justify-between items-start">
                       <span className="material-symbols-outlined text-3xl text-white/70">contactless</span>
@@ -518,13 +507,13 @@ export default function PaymentGatewayPage() {
             </div>
 
             {/* Bottom metadata */}
-            <div className="px-6 py-4 bg-white/[0.01] border-t border-white/5 text-[10px] text-zinc-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div className="px-6 py-4 bg-white/[0.01] border-t border-white/5 text-[10px] text-zinc-550 flex flex-col sm:flex-row justify-between items-center gap-2">
               <div className="flex items-center gap-1">
                 <span>Mã giao dịch:</span>
                 <span className="font-mono text-zinc-400 bg-white/5 px-2 py-0.5 rounded">{paymentInfo.customLinkId}</span>
               </div>
               <div>
-                Ngày tạo: <span className="font-semibold text-zinc-400">{new Date(paymentInfo.createdAt).toLocaleString('vi-VN')}</span>
+                Ngày tạo: <span className="font-semibold text-zinc-455">{new Date(paymentInfo.createdAt).toLocaleString('vi-VN')}</span>
               </div>
             </div>
 
@@ -541,7 +530,7 @@ export default function PaymentGatewayPage() {
             <h4 className="text-white font-bold text-xs mb-0.5">Thiết kế Profile Chuyên Nghiệp</h4>
             <p className="text-zinc-400 text-[10px] leading-relaxed mb-2">Nâng tầm thương hiệu cá nhân của bạn với danh thiếp điện tử Bento từ Hugo Studio.</p>
             <a 
-              href="https://wishpax.hugo/services" 
+              href="https://www.hugowishpax.studio" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="inline-block text-primary hover:text-indigo-400 font-bold text-[9px] uppercase tracking-widest transition-colors"

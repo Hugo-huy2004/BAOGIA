@@ -11,6 +11,7 @@ export default function AdminPaymentsTab() {
   const [formData, setFormData] = useState({ amount: '', reason: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [copiedLinkId, setCopiedLinkId] = useState('');
 
   const getHeaders = () => {
     const session = getAdminSession();
@@ -76,9 +77,17 @@ export default function AdminPaymentsTab() {
   const copyToClipboard = (linkId) => {
     const url = `${window.location.origin}/pay/${linkId}`;
     navigator.clipboard.writeText(url);
+    setCopiedLinkId(linkId);
     setSuccess(t('admin.payments.copied') || 'Đã copy link!');
-    setTimeout(() => setSuccess(''), 2000);
+    setTimeout(() => {
+      setSuccess('');
+      setCopiedLinkId('');
+    }, 2000);
   };
+
+  const formattedPreviewAmount = Number(formData.amount) 
+    ? Number(formData.amount).toLocaleString('vi-VN') + ' ₫' 
+    : '';
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -86,7 +95,7 @@ export default function AdminPaymentsTab() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Payment Creation Form Card */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-5">
+        <div className="lg:col-span-2 bg-white dark:bg-[#12111a] rounded-[22px] border border-slate-200/80 dark:border-slate-800/80 shadow-sm p-6 space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-lg">payments</span>
             {t('admin.payments.form_title')}
@@ -118,10 +127,16 @@ export default function AdminPaymentsTab() {
                     min="2000"
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:ring-1 focus:ring-primary focus:outline-none transition-all text-slate-800 dark:text-white"
+                    className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-slate-800 dark:text-white"
                     placeholder={t('admin.payments.amount_placeholder')}
                   />
                 </div>
+                {/* Instant Amount Live Preview */}
+                {formattedPreviewAmount && (
+                  <div className="text-[10px] text-emerald-500 font-bold mt-1 px-1.5 animate-fadeIn">
+                    Xem trước: {formattedPreviewAmount}
+                  </div>
+                )}
               </div>
 
               {/* Description input */}
@@ -135,7 +150,7 @@ export default function AdminPaymentsTab() {
                   maxLength={25}
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:ring-1 focus:ring-primary focus:outline-none transition-all text-slate-800 dark:text-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-slate-800 dark:text-white"
                   placeholder={t('admin.payments.reason_placeholder')}
                 />
               </div>
@@ -159,7 +174,7 @@ export default function AdminPaymentsTab() {
         </div>
 
         {/* Info & Integration Card */}
-        <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#12111a] rounded-[22px] border border-slate-200/80 dark:border-slate-800/80 shadow-sm p-6 flex flex-col justify-between">
           <div className="space-y-4">
             <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
               <span className="material-symbols-outlined text-secondary text-lg">info</span>
@@ -167,15 +182,15 @@ export default function AdminPaymentsTab() {
             </h3>
             <ul className="space-y-3 text-[11px] text-slate-500 dark:text-slate-400">
               <li className="flex items-start gap-2.5">
-                <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span>
+                <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5 animate-pulse-soft">check_circle</span>
                 <span>Tự động tạo link thanh toán VietQR chuyển khoản nhanh 24/7.</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span>
+                <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5 animate-pulse-soft">check_circle</span>
                 <span>Xác minh giao dịch realtime qua Webhook phản hồi tức thời.</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span>
+                <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5 animate-pulse-soft">check_circle</span>
                 <span>Mã hóa bảo mật HMAC-SHA256 đầu cuối cực kỳ an toàn.</span>
               </li>
             </ul>
@@ -189,15 +204,15 @@ export default function AdminPaymentsTab() {
       </div>
 
       {/* History Table Card */}
-      <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
+      <div className="bg-white dark:bg-[#12111a] rounded-[22px] border border-slate-200/80 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
         <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-lg">history</span>
           {t('admin.payments.history_title')}
         </h3>
 
-        <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800">
+        <div className="overflow-x-auto rounded-[18px] border border-slate-100 dark:border-slate-800/80">
           <table className="w-full text-left text-xs whitespace-nowrap">
-            <thead className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+            <thead className="bg-slate-50/50 dark:bg-slate-900/30 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-800/80">
               <tr>
                 <th className="p-4">{t('admin.payments.table_id')}</th>
                 <th className="p-4">{t('admin.payments.table_amount')}</th>
@@ -209,7 +224,7 @@ export default function AdminPaymentsTab() {
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {links.map(link => (
-                <tr key={link._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition-colors">
+                <tr key={link._id} className="table-row-floating hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition-all">
                   <td className="p-4 font-mono text-[10px] text-slate-500 dark:text-slate-400">
                     {link?.customLinkId || 'N/A'}
                   </td>
@@ -220,15 +235,22 @@ export default function AdminPaymentsTab() {
                     {link?.reason || ''}
                   </td>
                   <td className="p-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                      link?.status === 'PAID' 
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-450 dark:border-emerald-500/20' 
-                        : link?.status === 'CANCELLED' 
-                        ? 'bg-red-50 text-red-700 border-red-200 dark:bg-rose-500/10 dark:text-rose-450 dark:border-rose-500/20' 
-                        : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
-                    }`}>
-                      {link?.status || 'UNKNOWN'}
-                    </span>
+                    {link?.status === 'PAID' ? (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/25">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse-dot-green"></span>
+                        {link?.status}
+                      </span>
+                    ) : link?.status === 'CANCELLED' ? (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border bg-red-50 text-red-700 border-red-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/25">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-550 mr-1.5"></span>
+                        {link?.status}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/25">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse-dot-amber"></span>
+                        {link?.status}
+                      </span>
+                    )}
                   </td>
                   <td className="p-4 text-slate-400 text-[10px]">
                     {link?.createdAt ? new Date(link.createdAt).toLocaleString('vi-VN') : ''}
@@ -239,7 +261,9 @@ export default function AdminPaymentsTab() {
                       className="inline-flex items-center justify-center p-2 text-slate-400 hover:text-primary dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 rounded-lg transition-all"
                       title={t('admin.payments.copy_link')}
                     >
-                      <span className="material-symbols-outlined text-base">content_copy</span>
+                      <span className="material-symbols-outlined text-base">
+                        {copiedLinkId === link.customLinkId ? 'check' : 'content_copy'}
+                      </span>
                     </button>
                   </td>
                 </tr>
