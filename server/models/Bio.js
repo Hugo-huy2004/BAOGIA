@@ -180,6 +180,16 @@ const BioSchema = new mongoose.Schema(
       }],
       default: []
     },
+    verificationRequest: {
+      fullName: { type: String, default: '' },
+      birthday: { type: String, default: '' },
+      schoolLevel: { type: String, default: '' },
+      schoolName: { type: String, default: '' },
+      phoneZalo: { type: String, default: '' },
+      avatarUrl: { type: String, default: '' },
+      submitted: { type: Boolean, default: false },
+      notifiedStatus: { type: String, default: 'none' }
+    },
     expiresAt: {
       type: Date,
       required: true,

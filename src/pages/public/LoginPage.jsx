@@ -57,10 +57,9 @@ export default function LoginPage() {
     const email = profile.email || "";
     if (!email.toLowerCase().includes(".edu")) {
       showToast(
-        t("loginPage.toast.noEdu"),
-        "error"
+        "Tài khoản của bạn sẽ ở trạng thái chờ duyệt vì đây không phải email .edu. Đang chuyển hướng...",
+        "warning"
       );
-      return;
     }
 
     loginMember({

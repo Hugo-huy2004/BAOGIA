@@ -47,7 +47,7 @@ export default function AdminPanel() {
   const [userLimit, setUserLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalMatchedUsers, setTotalMatchedUsers] = useState(0);
-  const [userStats, setUserStats] = useState({ total: 0, active: 0, locked: 0, lifetime: 0 });
+  const [userStats, setUserStats] = useState({ total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0 });
   
   // Package Management States
   const [packageTemplates, setPackageTemplates] = useState([]);
@@ -243,14 +243,16 @@ export default function AdminPanel() {
           setUsers(result.bios || []);
           setTotalPages(result.pagination.pages || 1);
           setTotalMatchedUsers(result.pagination.totalMatched || 0);
-          setUserStats(result.stats || { total: 0, active: 0, locked: 0, lifetime: 0 });
+          setUserStats(result.stats || { total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0 });
         } else if (Array.isArray(result)) {
           setUsers(result);
           setTotalPages(1);
           setTotalMatchedUsers(result.length);
           setUserStats({
             total: result.length,
-            active: result.filter(u => u.status !== 'locked').length,
+            active: result.filter(u => u.status === 'active').length,
+            pending: result.filter(u => u.status === 'pending').length,
+            rejected: result.filter(u => u.status === 'rejected').length,
             locked: result.filter(u => u.status === 'locked').length,
             lifetime: result.filter(u => !u.expiresAt).length
           });
@@ -375,8 +377,19 @@ export default function AdminPanel() {
   };
 
   // 1. Bios Actions
-  const handleToggleBioStatus = async (bioId, currentStatus) => {
-    const nextStatus = currentStatus === 'locked' ? 'active' : 'locked';
+  const handleToggleBioStatus = async (bioId, currentStatus, targetStatus = null) => {
+    let nextStatus = targetStatus;
+    if (!nextStatus) {
+      nextStatus = 'active';
+      if (currentStatus === 'active') {
+        nextStatus = 'locked';
+      } else if (currentStatus === 'locked') {
+        nextStatus = 'active';
+      } else if (currentStatus === 'pending') {
+        nextStatus = 'active';
+      }
+    }
+
     try {
       const response = await fetchWithAuth(`${import.meta.env.VITE_API_URL}/bios/${bioId}/status`, {
         method: "PATCH",
@@ -384,7 +397,13 @@ export default function AdminPanel() {
         body: JSON.stringify({ status: nextStatus })
       });
       if (response.ok) {
-        showNotification(nextStatus === 'locked' ? t("admin.texts.txt_143") : t("admin.texts.txt_144"));
+        if (targetStatus === 'active' && currentStatus === 'pending') {
+          showNotification("Đã phê duyệt tài khoản thành viên thành công! 🌟");
+        } else if (targetStatus === 'rejected') {
+          showNotification("Đã từ chối tài khoản thành viên. ❌");
+        } else {
+          showNotification(nextStatus === 'locked' ? t("admin.texts.txt_143") : t("admin.texts.txt_144"));
+        }
         setUsers(prev => prev.map(u => u._id === bioId ? { ...u, status: nextStatus } : u));
         handleRefreshUsers();
       } else {

@@ -147,9 +147,9 @@ export const dataApi = {
   },
 
   // Fetch current member bio by email
-  async getMemberBio(email) {
+  async getMemberBio(email, displayName = "", avatarUrl = "") {
     try {
-      const response = await safeFetch(`${API_BASE_URL}/bios/me?email=${encodeURIComponent(email)}`, { headers: getAuthHeaders() });
+      const response = await safeFetch(`${API_BASE_URL}/bios/me?email=${encodeURIComponent(email)}&displayName=${encodeURIComponent(displayName)}&avatarUrl=${encodeURIComponent(avatarUrl)}`, { headers: getAuthHeaders() });
       
       if (response.status === 401 || response.status === 403) {
         if (typeof window !== 'undefined') {
@@ -241,6 +241,62 @@ export const dataApi = {
       return await response.json();
     } catch (error) {
       console.error('Error creating member bio:', error);
+      throw error;
+    }
+  },
+
+  // Submit verification request for non-edu members
+  async submitVerification(email, verificationData) {
+    try {
+      const response = await safeFetch(`${API_BASE_URL}/bios/me/verification`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ email, ...verificationData })
+      });
+      if (response.status === 401 || response.status === 403) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('price-doc-member-session');
+          localStorage.removeItem('price-doc-admin-session');
+          sessionStorage.removeItem('price-doc-member-session');
+          sessionStorage.removeItem('price-doc-admin-session');
+          window.location.href = '/login';
+        }
+      }
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit verification request');
+      }
+      return data;
+    } catch (error) {
+      console.error('Error submitting verification request:', error);
+      throw error;
+    }
+  },
+
+  // Dismiss verification notification banner
+  async dismissVerificationNotification(email) {
+    try {
+      const response = await safeFetch(`${API_BASE_URL}/bios/me/dismiss-notification`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ email })
+      });
+      if (response.status === 401 || response.status === 403) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('price-doc-member-session');
+          localStorage.removeItem('price-doc-admin-session');
+          sessionStorage.removeItem('price-doc-member-session');
+          sessionStorage.removeItem('price-doc-admin-session');
+          window.location.href = '/login';
+        }
+      }
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to dismiss notification');
+      }
+      return data;
+    } catch (error) {
+      console.error('Error dismissing notification:', error);
       throw error;
     }
   },

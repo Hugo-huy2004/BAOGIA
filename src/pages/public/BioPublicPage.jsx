@@ -49,17 +49,25 @@ export default function BioPublicPage() {
     );
   }
 
-  if (!bio || expired || bio.status === 'locked') {
+  if (!bio || expired || bio.status === 'locked' || bio.status === 'pending') {
     return (
       <main className="min-h-[100dvh] flex items-center justify-center bg-[#0b0910] px-4">
         <div className="w-full max-w-md bg-white/5 border border-white/10 p-8 rounded-3xl text-center space-y-4 shadow-xl">
-          <span className="material-symbols-outlined text-4xl text-red-500">lock</span>
+          <span className={`material-symbols-outlined text-4xl ${bio?.status === 'pending' ? 'text-amber-550 dark:text-amber-500' : 'text-red-550 dark:text-red-500'}`}>
+            {bio?.status === 'pending' ? 'hourglass_empty' : 'lock'}
+          </span>
           <h1 className="font-display text-2xl font-extrabold text-white">
-            {bio?.status === 'locked' ? 'Liên Kết Bị Tạm Khóa' : 'Bio Không Tồn Tại'}
+            {bio?.status === 'locked' 
+              ? 'Liên Kết Bị Tạm Khóa' 
+              : bio?.status === 'pending' 
+              ? 'Liên Kết Đang Chờ Duyệt' 
+              : 'Bio Không Tồn Tại'}
           </h1>
           <p className="text-xs text-slate-400 leading-relaxed">
             {bio?.status === 'locked' 
               ? 'Trang Bio này đã bị khóa tạm thời bởi quản trị viên hệ thống.' 
+              : bio?.status === 'pending'
+              ? 'Trang Bio này đang chờ quản trị viên phê duyệt.'
               : 'Liên kết này đã hết hạn sau 12 tháng sử dụng, bị gỡ bỏ hoặc chưa bao giờ được kích hoạt trên hệ thống.'}
           </p>
           <a

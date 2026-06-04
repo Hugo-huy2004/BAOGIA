@@ -46,10 +46,9 @@ export default function StudentBenefitsPage() {
     const email = profile.email || "";
     if (!email.toLowerCase().includes(".edu")) {
       showToast(
-        "Xác thực bị từ chối: Cổng này chỉ chấp nhận email trường học (.edu / .edu.vn). Vui lòng chọn tài khoản có đuôi giáo dục.",
-        "error",
+        "Tài khoản của bạn sẽ ở trạng thái chờ duyệt vì đây không phải email .edu. Đang chuyển hướng...",
+        "warning",
       );
-      return;
     }
 
     loginMember({
@@ -163,6 +162,8 @@ export default function StudentBenefitsPage() {
           className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-[#161420] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] w-[calc(100vw-32px)] sm:w-auto sm:max-w-md border-2 transition-all animate-fadeIn ${
             toast.type === "success"
               ? "border-emerald-500"
+              : toast.type === "warning"
+              ? "border-amber-500 dark:border-amber-600"
               : "border-red-500 dark:border-rose-500"
           }`}
         >
@@ -170,10 +171,12 @@ export default function StudentBenefitsPage() {
             className={`material-symbols-outlined shrink-0 text-xl ${
               toast.type === "success"
                 ? "text-emerald-500"
+                : toast.type === "warning"
+                ? "text-amber-500"
                 : "text-red-500 dark:text-rose-500"
             }`}
           >
-            {toast.type === "success" ? "check_circle" : "error"}
+            {toast.type === "success" ? "check_circle" : toast.type === "warning" ? "warning" : "error"}
           </span>
           <div className="flex-1 text-xs sm:text-sm font-semibold leading-snug">
             {toast.message}

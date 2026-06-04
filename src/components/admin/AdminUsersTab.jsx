@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const AdminUsersTab = ({
@@ -30,10 +30,11 @@ const AdminUsersTab = ({
   formatExpiration
 }) => {
   const { t } = useTranslation();
+  const [selectedVerificationUser, setSelectedVerificationUser] = useState(null);
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Card 1: Total */}
         <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-[#a5b4fc] flex items-center justify-center shrink-0">
@@ -54,7 +55,27 @@ const AdminUsersTab = ({
             <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.active.toLocaleString()}</div>
           </div>
         </div>
-        {/* Card 3: Locked */}
+        {/* Card 3: Pending */}
+        <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-xl">hourglass_empty</span>
+          </div>
+          <div className="min-w-0">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Chờ duyệt</div>
+            <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{(userStats.pending || 0).toLocaleString()}</div>
+          </div>
+        </div>
+        {/* Card 4: Rejected */}
+        <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-455 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-xl">cancel</span>
+          </div>
+          <div className="min-w-0">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Từ chối</div>
+            <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{(userStats.rejected || 0).toLocaleString()}</div>
+          </div>
+        </div>
+        {/* Card 5: Locked */}
         <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-xl">block</span>
@@ -64,9 +85,9 @@ const AdminUsersTab = ({
             <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.locked.toLocaleString()}</div>
           </div>
         </div>
-        {/* Card 4: Lifetime */}
+        {/* Card 6: Lifetime */}
         <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-amber-550 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-xl">workspace_premium</span>
           </div>
           <div className="min-w-0">
@@ -109,6 +130,7 @@ const AdminUsersTab = ({
             >
               <option value="">{t("admin.texts.txt_30")}</option>
               <option value="active">{t("admin.texts.txt_31")}</option>
+              <option value="pending">Chờ duyệt</option>
               <option value="locked">{t("admin.texts.txt_32")}</option>
             </select>
 
@@ -229,6 +251,16 @@ const AdminUsersTab = ({
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                               {t("admin.texts.txt_48")}
                             </span>
+                          ) : user.status === 'pending' ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                              Chờ duyệt
+                            </span>
+                          ) : user.status === 'rejected' ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                              Từ chối
+                            </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -238,16 +270,38 @@ const AdminUsersTab = ({
                         </td>
                         <td className="px-6 py-4 text-center">
                           <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() => handleToggleBioStatus(user._id, user.status)}
-                              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm active:scale-95 ${
-                                user.status === 'locked'
-                                  ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                                  : "bg-rose-600 hover:bg-rose-700 text-white"
-                              }`}
-                            >
-                              {user.status === 'locked' ? t("admin.texts.txt_59") : t("admin.texts.txt_60")}
-                            </button>
+                            {user.verificationRequest?.submitted && (
+                              <button
+                                onClick={() => setSelectedVerificationUser(user)}
+                                className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm active:scale-95 flex items-center gap-1.5"
+                                title="Xem hồ sơ yêu cầu xác minh sinh viên"
+                              >
+                                <span className="material-symbols-outlined text-[14px]">school</span>
+                                Hồ sơ
+                              </button>
+                            )}
+                            {user.status === 'locked' || user.status === 'rejected' ? (
+                              <button
+                                onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
+                                className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm active:scale-95"
+                              >
+                                Kích hoạt
+                              </button>
+                            ) : user.status === 'pending' ? (
+                              <button
+                                onClick={() => handleToggleBioStatus(user._id, 'pending', 'active')}
+                                className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm active:scale-95"
+                              >
+                                Duyệt
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleToggleBioStatus(user._id, 'active', 'locked')}
+                                className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-rose-600 hover:bg-rose-700 text-white shadow-sm active:scale-95"
+                              >
+                                Khóa
+                              </button>
+                            )}
                             <button
                               onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
                               className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-slate-200 hover:bg-slate-350 dark:bg-slate-880 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-all shadow-sm active:scale-95"
@@ -287,11 +341,15 @@ const AdminUsersTab = ({
                         </div>
                       </div>
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] font-extrabold border shrink-0 ${
-                        isLocked
+                        user.status === 'locked'
+                          ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-455 dark:border-rose-900/30"
+                          : user.status === 'pending'
+                          ? "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30"
+                          : user.status === 'rejected'
                           ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-455 dark:border-rose-900/30"
                           : "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30"
                       }`}>
-                        {isLocked ? t("admin.texts.txt_61") : t("admin.texts.txt_62")}
+                        {user.status === 'locked' ? t("admin.texts.txt_61") : user.status === 'pending' ? 'Chờ duyệt' : user.status === 'rejected' ? 'Từ chối' : t("admin.texts.txt_62")}
                       </span>
                     </div>
 
@@ -322,16 +380,36 @@ const AdminUsersTab = ({
                       </div>
                       
                       <div className="flex gap-2 shrink-0">
-                        <button
-                          onClick={() => handleToggleBioStatus(user._id, user.status)}
-                          className={`px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase transition-all border ${
-                            isLocked
-                              ? "bg-emerald-500 border-emerald-500 text-white"
-                              : "bg-white border-rose-200 text-rose-600 hover:bg-rose-50 dark:bg-slate-850 dark:border-rose-900/45 dark:text-rose-455"
-                          }`}
-                        >
-                          {isLocked ? t("admin.texts.txt_65") : t("admin.texts.txt_66")}
-                        </button>
+                        {user.verificationRequest?.submitted && (
+                          <button
+                            onClick={() => setSelectedVerificationUser(user)}
+                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-indigo-500 border-indigo-500 text-white transition-all"
+                          >
+                            Hồ sơ
+                          </button>
+                        )}
+                        {user.status === 'locked' || user.status === 'rejected' ? (
+                          <button
+                            onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
+                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-emerald-500 border-emerald-500 text-white transition-all"
+                          >
+                            Kích hoạt
+                          </button>
+                        ) : user.status === 'pending' ? (
+                          <button
+                            onClick={() => handleToggleBioStatus(user._id, 'pending', 'active')}
+                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-emerald-500 border-emerald-500 text-white transition-all"
+                          >
+                            Duyệt
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleToggleBioStatus(user._id, 'active', 'locked')}
+                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-white border-rose-250 text-rose-600 hover:bg-rose-50 dark:bg-slate-850 dark:border-rose-900/45 dark:text-rose-455 transition-all"
+                          >
+                            Khóa
+                          </button>
+                        )}
                         <button
                           onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
                           className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-605 hover:bg-slate-200 dark:bg-slate-850 dark:border-slate-800 dark:text-slate-350 transition-all"
@@ -425,6 +503,100 @@ const AdminUsersTab = ({
           </div>
         )}
       </div>
+      {/* Verification Details Modal */}
+      {selectedVerificationUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-white dark:bg-[#12111a] rounded-[2rem] border border-slate-200 dark:border-slate-800/80 shadow-2xl overflow-hidden relative space-y-6 p-6 sm:p-8">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+            
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-indigo-500 text-2xl">school</span>
+                <h3 className="text-base sm:text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight">Chi tiết yêu cầu xác minh</h3>
+              </div>
+              <button
+                onClick={() => setSelectedVerificationUser(null)}
+                className="text-slate-405 hover:text-slate-650 dark:hover:text-white flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
+                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Email Google</span>
+                <span className="col-span-2 font-mono text-slate-700 dark:text-slate-205 font-bold truncate">{selectedVerificationUser.email}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
+                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Họ và tên</span>
+                <span className="col-span-2 text-slate-800 dark:text-white font-bold">{selectedVerificationUser.verificationRequest?.fullName}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
+                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Sinh nhật</span>
+                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-bold">
+                  {selectedVerificationUser.verificationRequest?.birthday ? new Date(selectedVerificationUser.verificationRequest.birthday).toLocaleDateString('vi-VN') : 'Chưa cung cấp'}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
+                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Trường học</span>
+                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-bold">
+                  [{selectedVerificationUser.verificationRequest?.schoolLevel}] {selectedVerificationUser.verificationRequest?.schoolName}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
+                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Số điện thoại (Zalo)</span>
+                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-mono font-bold">{selectedVerificationUser.verificationRequest?.phoneZalo}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
+                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Trạng thái hiện tại</span>
+                <span className="col-span-2">
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold ${
+                    selectedVerificationUser.status === 'pending'
+                      ? 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30'
+                      : selectedVerificationUser.status === 'rejected'
+                      ? 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-455 dark:border-rose-900/30'
+                      : 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30'
+                  }`}>
+                    {selectedVerificationUser.status === 'pending' ? 'Chờ duyệt' : selectedVerificationUser.status === 'rejected' ? 'Từ chối' : 'Đã duyệt'}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setSelectedVerificationUser(null)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold rounded-xl transition-all active:scale-95"
+              >
+                Đóng
+              </button>
+              
+              {selectedVerificationUser.status === 'pending' && (
+                <>
+                  <button
+                    onClick={() => {
+                      handleToggleBioStatus(selectedVerificationUser._id, 'pending', 'rejected');
+                      setSelectedVerificationUser(null);
+                    }}
+                    className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all active:scale-95 shadow-md"
+                  >
+                    Từ chối
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleToggleBioStatus(selectedVerificationUser._id, 'pending', 'active');
+                      setSelectedVerificationUser(null);
+                    }}
+                    className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all active:scale-95 shadow-md"
+                  >
+                    Phê duyệt
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

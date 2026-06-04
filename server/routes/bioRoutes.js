@@ -120,7 +120,7 @@ router.get('/', requireAdmin, async (req, res) => {
       ];
     }
 
-    if (status && ['active', 'locked'].includes(status)) {
+    if (status && ['active', 'locked', 'pending', 'rejected'].includes(status)) {
       query.status = status;
     }
 
@@ -147,12 +147,14 @@ router.get('/', requireAdmin, async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     // Run parallel counts & query
-    const [bios, totalMatched, totalCount, activeCount, lockedCount, lifetimeCount] = await Promise.all([
+    const [bios, totalMatched, totalCount, activeCount, lockedCount, pendingCount, rejectedCount, lifetimeCount] = await Promise.all([
       Bio.find(query).sort(sortObj).skip(skip).limit(limitNum),
       Bio.countDocuments(query),
       Bio.countDocuments(),
       Bio.countDocuments({ status: 'active' }),
       Bio.countDocuments({ status: 'locked' }),
+      Bio.countDocuments({ status: 'pending' }),
+      Bio.countDocuments({ status: 'rejected' }),
       Bio.countDocuments({ expiresAt: null })
     ]);
 
@@ -168,6 +170,8 @@ router.get('/', requireAdmin, async (req, res) => {
         total: totalCount,
         active: activeCount,
         locked: lockedCount,
+        pending: pendingCount,
+        rejected: rejectedCount,
         lifetime: lifetimeCount
       }
     });
@@ -176,20 +180,40 @@ router.get('/', requireAdmin, async (req, res) => {
   }
 });
 
-// PATCH: Lock/Unlock bio
+// PATCH: Lock/Unlock/Approve/Reject bio
 router.patch('/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // 'active' or 'locked'
+    const { status } = req.body;
 
-    if (!['active', 'locked'].includes(status)) {
+    if (!['active', 'locked', 'pending', 'rejected'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status value' });
     }
 
-    const bio = await Bio.findByIdAndUpdate(id, { status }, { new: true });
+    const bio = await Bio.findById(id);
     if (!bio) {
       return res.status(404).json({ error: 'Bio not found' });
     }
+
+    // Auto-fill profile fields when approving from pending to active
+    if (status === 'active' && bio.status === 'pending') {
+      if (bio.verificationRequest && bio.verificationRequest.submitted) {
+        bio.displayName = bio.verificationRequest.fullName || bio.displayName;
+        bio.birthday = bio.verificationRequest.birthday || bio.birthday;
+        bio.phone = bio.verificationRequest.phoneZalo || bio.phone;
+        if (bio.verificationRequest.schoolName) {
+          bio.education = `${bio.verificationRequest.schoolLevel || ''} - ${bio.verificationRequest.schoolName}`.trim().replace(/^- /, '');
+        }
+        bio.verificationRequest.notifiedStatus = 'approved';
+      }
+    } else if (status === 'rejected') {
+      if (bio.verificationRequest) {
+        bio.verificationRequest.notifiedStatus = 'rejected';
+      }
+    }
+
+    bio.status = status;
+    await bio.save();
 
     // Clear public cache so guest devices reflect status changes instantly
     clearCache(`bio_slug_${bio.slug}`);
@@ -202,7 +226,7 @@ router.patch('/:id/status', async (req, res) => {
 
 router.get('/me', async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email, displayName, avatarUrl } = req.query;
 
     if (!email) {
       return res.status(400).json({ error: 'Missing email' });
@@ -212,7 +236,42 @@ router.get('/me', async (req, res) => {
     if (!doc) {
       doc = await Bio.findOne({ contactEmail: email });
     }
-    const bioDoc = await removeExpiredBioIfNeeded(doc);
+    let bioDoc = await removeExpiredBioIfNeeded(doc);
+
+    // Auto-create a placeholder Bio document if it doesn't exist and we have the Google displayName
+    if (!bioDoc && displayName) {
+      const isEdu = email.toLowerCase().includes('.edu');
+      const baseSlug = normalizeSlug(displayName);
+      const newSlug = await createUniqueSlug(baseSlug);
+      
+      const expiresAt = new Date();
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1); // Default to 1 year expiration
+      
+      const welcomeHistory = [
+        {
+          type: 'welcome',
+          icon: 'celebration',
+          title: 'Chào mừng bạn đến với Hugo Studio! 🎉',
+          detail: `Xin chào ${displayName}! Trang Bio cá nhân của bạn đã được khởi tạo thành công. Hãy thoả sức sáng tạo và cá nhân hoá trang Bio của mình nhé — chúng tôi luôn đồng hành cùng bạn.`,
+          timestamp: new Date()
+        }
+      ];
+
+      bioDoc = new Bio({
+        email,
+        displayName,
+        avatarUrl: avatarUrl || '',
+        slug: newSlug,
+        status: isEdu ? 'active' : 'pending',
+        expiresAt,
+        history: welcomeHistory,
+        createdAt: new Date()
+      });
+      
+      await bioDoc.save();
+      if (global.validSlugs) global.validSlugs.add(bioDoc.slug);
+    }
+
     if (bioDoc) {
       await cleanupExpiredBirthdayNotifications(bioDoc);
       const bioObj = bioDoc.toObject();
@@ -225,9 +284,65 @@ router.get('/me', async (req, res) => {
       }
       return res.json({ bio: bioObj });
     }
-    return res.json({ bio: null });
   } catch (error) {
     return res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /me/verification - Submit student verification request form
+router.post('/me/verification', async (req, res) => {
+  try {
+    const { email, fullName, birthday, schoolLevel, schoolName, phoneZalo, avatarUrl } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Missing email' });
+    }
+
+    const bio = await Bio.findOne({ email });
+    if (!bio) {
+      return res.status(404).json({ error: 'Bio not found' });
+    }
+
+    bio.verificationRequest = {
+      fullName: fullName || '',
+      birthday: birthday || '',
+      schoolLevel: schoolLevel || '',
+      schoolName: schoolName || '',
+      phoneZalo: phoneZalo || '',
+      avatarUrl: avatarUrl || '',
+      submitted: true,
+      notifiedStatus: 'none'
+    };
+
+    await bio.save();
+    res.json({ success: true, bio });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /me/dismiss-notification - Dismiss approval/rejection banner state
+router.post('/me/dismiss-notification', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Missing email' });
+    }
+
+    const bio = await Bio.findOne({ email });
+    if (!bio) {
+      return res.status(404).json({ error: 'Bio not found' });
+    }
+
+    if (bio.verificationRequest) {
+      bio.verificationRequest.notifiedStatus = 'done';
+      await bio.save();
+    }
+
+    res.json({ success: true, bio });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
