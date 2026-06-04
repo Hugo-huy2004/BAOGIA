@@ -39,6 +39,13 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       title: "Công Cụ Xử Lý File",
       desc: "Giải nén file ZIP và tối ưu dung lượng (Nén Ảnh/Video).",
       btnText: "Mở Công Cụ"
+    },
+    {
+      id: "psychology",
+      icon: "psychology",
+      title: "Bạn Học Đường",
+      desc: "Góc lắng nghe chia sẻ, thực hiện trắc nghiệm tâm lý DASS-21 & Mini-MMPI trực quan cùng nhiều công cụ giảm tải áp lực.",
+      btnText: "Mở Tiện Ích"
     }
   ];
 

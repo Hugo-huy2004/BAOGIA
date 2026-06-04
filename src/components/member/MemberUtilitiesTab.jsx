@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import MemberNfcTab from "./MemberNfcTab";
 import MemberUtilitiesDashboard from "./MemberUtilitiesDashboard";
@@ -6,11 +6,18 @@ import MemberVCardTab from "./MemberVCardTab";
 import MemberSignatureTab from "./MemberSignatureTab";
 import MemberSecretLinkTab from "./MemberSecretLinkTab";
 import MemberFileToolsTab from "./MemberFileToolsTab";
+import BanhocduongTab from "./banhocduong/BanhocduongTab";
 import SubUtilityHeader from "./SubUtilityHeader";
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, defaultUtility, defaultPsychologySubTab, defaultPsychologyPresetTest }) {
   const { t } = useTranslation();
-  const [selectedUtility, setSelectedUtility] = useState(null); // null, 'nfc', 'vcard', 'signature'
+  const [selectedUtility, setSelectedUtility] = useState(defaultUtility || null); // null, 'nfc', 'vcard', 'signature'
+
+  useEffect(() => {
+    if (defaultUtility) {
+      setSelectedUtility(defaultUtility);
+    }
+  }, [defaultUtility]);
 
   // Dynamic API host determination for local dev and hosting domains
   const getApiUrl = () => {
@@ -81,6 +88,16 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         <MemberFileToolsTab 
           onBack={() => setSelectedUtility(null)} 
           showToast={showToast} 
+        />
+      )}
+
+      {/* Psychology Advisor Tool - Bạn Học Đường */}
+      {selectedUtility === "psychology" && (
+        <BanhocduongTab 
+          onBack={() => setSelectedUtility(null)} 
+          defaultSubTab={defaultPsychologySubTab}
+          defaultPresetTest={defaultPsychologyPresetTest}
+          bio={bio}
         />
       )}
     </div>

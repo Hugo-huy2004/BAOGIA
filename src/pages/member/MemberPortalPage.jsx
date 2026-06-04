@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 import { getMemberSession, logoutAuth } from "../../services/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import memberService from "../../services/classes/MemberService";
@@ -59,6 +61,25 @@ export default function MemberPortalPage() {
   const [activeTab, setActiveTab] = useState("account");
   const [accountSubTab, setAccountSubTab] = useState("profile");
   const [previewMode, setPreviewMode] = useState("mobile");
+
+  // --- Chế độ Chăm sóc Sức khỏe Tinh thần (Healing Journey) ---
+  const [showHealingModal, setShowHealingModal] = useState(false);
+  const [healingState, setHealingState] = useState({
+    active: false,
+    day: 1,
+    duration: 30,
+    isExpired: false
+  });
+  const [healingMood, setHealingMood] = useState(3);
+  const [healingNote, setHealingNote] = useState("");
+  const [healingSubStep, setHealingSubStep] = useState("checkin"); // 'checkin', 'reminder', 'graduation'
+  const [consecutiveLowMood, setConsecutiveLowMood] = useState(false);
+  const [wheelRatings, setWheelRatings] = useState([5, 5, 5, 5, 5]);
+
+  // Redirection states for MemberUtilitiesTab
+  const [defaultUtility, setDefaultUtility] = useState(null);
+  const [defaultPsychologySubTab, setDefaultPsychologySubTab] = useState("chat");
+  const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
 
   // Read History Tracking
   const [readHistoryTimestamp, setReadHistoryTimestamp] = useState(() => {
@@ -285,6 +306,189 @@ export default function MemberPortalPage() {
 
     loadBio();
   }, [memberSession?.email, isGuestMode]);
+
+  // --- Check-in Blocker logic for Mental Health Care Mode ---
+  useEffect(() => {
+    const mode = localStorage.getItem("banhocduong_healing_mode");
+    if (mode === "active") {
+      const startDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
+      const duration = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
+      const lastCheckIn = localStorage.getItem("banhocduong_last_checkin_date") || "";
+
+      if (startDateStr) {
+        const start = new Date(startDateStr).getTime();
+        const now = new Date().getTime();
+        const diffTime = Math.max(0, now - start);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+        if (diffDays > duration) {
+          // Journey completed!
+          setHealingState({
+            active: true,
+            day: diffDays,
+            duration,
+            isExpired: true
+          });
+          setHealingSubStep("graduation");
+          setShowHealingModal(true);
+        } else {
+          // Check if checked in today
+          const todayStr = new Date().toDateString();
+          if (lastCheckIn !== todayStr) {
+            setHealingState({
+              active: true,
+              day: diffDays,
+              duration,
+              isExpired: false
+            });
+            setHealingSubStep("checkin");
+            setShowHealingModal(true);
+          }
+        }
+      }
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (showHealingModal && healingSubStep === "graduation") {
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
+      
+      const end = Date.now() + (3 * 1000);
+      const interval = setInterval(() => {
+        if (Date.now() > end) {
+          return clearInterval(interval);
+        }
+        confetti({
+          startVelocity: 30,
+          spread: 360,
+          ticks: 60,
+          origin: { x: Math.random(), y: Math.random() - 0.2 }
+        });
+      }, 500);
+      return () => clearInterval(interval);
+    }
+  }, [showHealingModal, healingSubStep]);
+
+  const finalizeHealingCheckIn = (mood, note, wheelData) => {
+    try {
+      const rawLogs = localStorage.getItem("banhocduong_history");
+      const logs = rawLogs ? JSON.parse(rawLogs) : [];
+      
+      const newLog = {
+        date: new Date().toISOString(),
+        type: "checkin",
+        day: healingState.day,
+        mood: mood,
+        note: note,
+        wheelRatings: wheelData
+      };
+      logs.push(newLog);
+      localStorage.setItem("banhocduong_history", JSON.stringify(logs));
+      localStorage.setItem("banhocduong_last_checkin_date", new Date().toDateString());
+
+      // Check if consecutive low mood (<= 2) for last two checkins
+      const checkins = logs.filter(item => item.type === "checkin");
+      let consecutiveLow = false;
+      if (checkins.length >= 2) {
+        const last = checkins[checkins.length - 1];
+        const prev = checkins[checkins.length - 2];
+        if (last.mood <= 2 && prev.mood <= 2) {
+          consecutiveLow = true;
+        }
+      }
+      setConsecutiveLowMood(consecutiveLow);
+
+      // Check if a clinical test is recommended:
+      const lastTestDate = localStorage.getItem("banhocduong_last_test_date") || "";
+      let needsTest = false;
+      if (mood <= 2) {
+        needsTest = true;
+      } else if (lastTestDate) {
+        const lastT = new Date(lastTestDate).getTime();
+        const now = new Date().getTime();
+        const diffDays = Math.floor((now - lastT) / (1000 * 60 * 60 * 24));
+        const interval = mood >= 4 ? 6 : 3;
+        if (diffDays >= interval) {
+          needsTest = true;
+        }
+      } else {
+        needsTest = true; // First check-in requires a baseline test
+      }
+
+      if (needsTest) {
+        setHealingSubStep("reminder");
+      } else {
+        setShowHealingModal(false);
+        if (mood >= 4) {
+          showToast("Thật tuyệt khi biết hôm nay cậu có tâm trạng tốt! Hãy tiếp tục duy trì năng lượng tích cực này nhé! ☀️", "success");
+        } else {
+          showToast("Đã ghi nhận cảm xúc của cậu hôm nay! Chúc cậu một ngày tốt lành 🌟", "success");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setShowHealingModal(false);
+    }
+  };
+
+  const handleHealingSubmit = () => {
+    const isWheelDay = healingState.day === 1 || healingState.day % 3 === 0;
+    if (isWheelDay) {
+      // Direct to Wheel of life evaluation sub-step first
+      setHealingSubStep("wheel");
+    } else {
+      finalizeHealingCheckIn(healingMood, healingNote, null);
+    }
+  };
+
+  const handleHealingWheelSubmit = () => {
+    finalizeHealingCheckIn(healingMood, healingNote, wheelRatings);
+  };
+
+  const handleGraduationConfirm = () => {
+    // Purge all psychological data!
+    localStorage.removeItem("banhocduong_healing_mode");
+    localStorage.removeItem("banhocduong_healing_duration");
+    localStorage.removeItem("banhocduong_healing_start_date");
+    localStorage.removeItem("banhocduong_last_checkin_date");
+    localStorage.removeItem("banhocduong_history");
+    localStorage.removeItem("banhocduong_last_test_date");
+    localStorage.removeItem("banhocduong_chat_distress_count");
+    
+    setShowHealingModal(false);
+    showToast("Hoàn thành hành trình chữa lành! Cảm ơn cậu đã tin tưởng Bạn Học Đường 💖", "success");
+  };
+
+  const handleGoToTest = () => {
+    setShowHealingModal(false);
+    setDefaultUtility("psychology");
+    setDefaultPsychologySubTab("tests");
+    setDefaultPsychologyPresetTest("dass");
+    setActiveTab("utilities");
+    showToast("Đã chuyển hướng cậu đến bài trắc nghiệm lâm sàng DASS-42.", "success");
+  };
+
+  const handleGoToBreath = () => {
+    setShowHealingModal(false);
+    setDefaultUtility("psychology");
+    setDefaultPsychologySubTab("breath");
+    setDefaultPsychologyPresetTest(null);
+    setActiveTab("utilities");
+    showToast("Đã chuyển hướng cậu đến bài tập Hít thở 4-7-8.", "success");
+  };
+
+  const handleGoToChat = () => {
+    setShowHealingModal(false);
+    setDefaultUtility("psychology");
+    setDefaultPsychologySubTab("chat");
+    setDefaultPsychologyPresetTest(null);
+    setActiveTab("utilities");
+    showToast("Đã chuyển hướng cậu đến Trợ lý Bạn Học Đường.", "success");
+  };
 
   const handleVerificationSubmit = async (e) => {
     e.preventDefault();
@@ -708,6 +912,322 @@ export default function MemberPortalPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] font-body selection:bg-[#0071e3]/20 transition-colors duration-300">
       
+      <AnimatePresence>
+        {showHealingModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              transition={{ type: "spring", duration: 0.4 }}
+              className="bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/60 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[40px] pointer-events-none" />
+              
+              {/* Step 1: Graduation completed journey message */}
+              {healingSubStep === "graduation" && (
+                <div className="space-y-6 text-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 flex items-center justify-center mx-auto text-white shadow-lg animate-bounce-short">
+                    <span className="material-symbols-outlined text-2xl">workspace_premium</span>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-[8.5px] font-black tracking-widest text-indigo-500 dark:text-indigo-400 uppercase">
+                      Hành trình hoàn tất
+                    </span>
+                    <h3 className="text-base font-black text-zinc-900 dark:text-white uppercase tracking-wider">
+                      Chúc mừng cậu đã hoàn thành!
+                    </h3>
+                    <p className="text-xs text-zinc-650 dark:text-zinc-350 leading-relaxed font-semibold">
+                      Hành trình chữa lành của bạn đã hết rồi. Tớ hy vọng bạn đã vượt qua tất cả, bạn thực sự rất mạnh mẽ và xứng đáng được hạnh phúc... Nếu muốn kích hoạt lại, cậu sẽ cần thực hiện bài đánh giá mới vì toàn bộ dữ liệu trước đó đã được xóa sạch bảo mật.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleGraduationConfirm}
+                    className="w-full py-3 bg-gradient-to-r from-pink-500 to-indigo-650 hover:from-pink-650 hover:to-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
+                  >
+                    Hoàn thành và Xóa dữ liệu bảo mật
+                  </button>
+                </div>
+              )}
+
+              {/* Step 2: Daily Check-in Form */}
+              {healingSubStep === "checkin" && (
+                <div className="space-y-5">
+                  <div className="text-center space-y-1">
+                    <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 dark:text-indigo-400 uppercase">
+                      Ngày {healingState.day} của lộ trình
+                    </span>
+                    <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">
+                      Hôm nay cậu thế nào?
+                    </h3>
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
+                      Hãy chia sẻ ngắn cảm xúc của cậu cùng Bạn Học Đường nhé.
+                    </p>
+                  </div>
+
+                  {/* Emojis list selection */}
+                  <div className="flex justify-between gap-2 py-2">
+                    {[
+                      { val: 1, char: "😢", label: "Rất tệ" },
+                      { val: 2, char: "😕", label: "Hơi buồn" },
+                      { val: 3, char: "😐", label: "Bình thường" },
+                      { val: 4, char: "🙂", label: "Khá tốt" },
+                      { val: 5, char: "😄", label: "Rất tuyệt" }
+                    ].map((item) => (
+                      <button
+                        key={item.val}
+                        type="button"
+                        onClick={() => setHealingMood(item.val)}
+                        className={`flex-1 py-3.5 rounded-2xl border text-center transition-all ${
+                          healingMood === item.val
+                            ? "bg-indigo-500/10 border-indigo-500 scale-[1.08] shadow-md shadow-indigo-500/5"
+                            : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:scale-[1.02]"
+                        }`}
+                      >
+                        <span className="text-2xl block">{item.char}</span>
+                        <span className="text-[7.5px] font-black uppercase tracking-wider block mt-1">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10.5px] font-bold text-zinc-500 dark:text-zinc-450 pl-0.5">
+                      Ghi lại một chút suy nghĩ của cậu lúc này (nếu muốn):
+                    </label>
+                    <textarea
+                      placeholder="Đồ án khó, thi cử áp lực, hay hôm nay là một ngày tuyệt vời..."
+                      value={healingNote}
+                      onChange={(e) => setHealingNote(e.target.value)}
+                      className="w-full h-20 px-3 py-2.5 rounded-2xl border border-zinc-250 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/20 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-zinc-400 font-semibold"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleHealingSubmit}
+                    className="w-full py-3 bg-gradient-to-r from-indigo-650 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
+                  >
+                    Tiếp tục
+                  </button>
+                </div>
+              )}
+
+              {/* Step 2b: Wheel of Life assessment sub-step */}
+              {healingSubStep === "wheel" && (
+                <div className="space-y-5 animate-scaleUp">
+                  <div className="text-center space-y-1">
+                    <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">
+                      Cập nhật Bánh xe Cuộc sống
+                    </span>
+                    <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">
+                      Định vị Cân Bằng Hôm Nay
+                    </h3>
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
+                      Nhìn nhận mức độ hài lòng (1-10) trong 5 khía cạnh cốt lõi của cậu.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-4">
+                    {/* Compact Radar SVG */}
+                    <div className="relative w-40 h-40 bg-white dark:bg-[#15141c] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-inner flex items-center justify-center">
+                      <svg className="w-full h-full" viewBox="0 0 300 300">
+                        {/* Concentric grid lines pentagons */}
+                        {[2, 4, 6, 8, 10].map((level) => {
+                          const r = level * 10;
+                          const pts = [90, 18, 306, 234, 162]
+                            .map((angle) => {
+                              const rad = (angle * Math.PI) / 180;
+                              return `${150 + r * Math.cos(rad)},${150 - r * Math.sin(rad)}`;
+                            })
+                            .join(" ");
+                          return (
+                            <polygon
+                              key={level}
+                              points={pts}
+                              fill="none"
+                              className="stroke-zinc-200 dark:stroke-zinc-800"
+                              strokeWidth="1"
+                              strokeDasharray={level === 10 ? "0" : "3 3"}
+                            />
+                          );
+                        })}
+
+                        {/* Web spokes */}
+                        {[90, 18, 306, 234, 162].map((angle, idx) => {
+                          const rad = (angle * Math.PI) / 180;
+                          const x = 150 + 100 * Math.cos(rad);
+                          const y = 150 - 100 * Math.sin(rad);
+                          return (
+                            <line
+                              key={idx}
+                              x1={150}
+                              y1={150}
+                              x2={x}
+                              y2={y}
+                              className="stroke-zinc-200 dark:stroke-zinc-800"
+                              strokeWidth="1"
+                            />
+                          );
+                        })}
+
+                        {/* Rating Polygon */}
+                        <polygon
+                          points={wheelRatings
+                            .map((v, i) => {
+                              const rad = ([90, 18, 306, 234, 162][i] * Math.PI) / 180;
+                              const r = v * 10;
+                              return `${150 + r * Math.cos(rad)},${150 - r * Math.sin(rad)}`;
+                            })
+                            .join(" ")}
+                          fill="rgba(16, 185, 129, 0.12)"
+                          className="stroke-emerald-500 dark:stroke-emerald-400"
+                          strokeWidth="2.5"
+                        />
+
+                        {/* Axis Vertex Dots */}
+                        {wheelRatings.map((v, i) => {
+                          const rad = ([90, 18, 306, 234, 162][i] * Math.PI) / 180;
+                          const r = v * 10;
+                          return (
+                            <circle
+                              key={i}
+                              cx={150 + r * Math.cos(rad)}
+                              cy={150 - r * Math.sin(rad)}
+                              r="4"
+                              className="fill-emerald-500 dark:fill-emerald-450 stroke-white dark:stroke-[#15141c]"
+                              strokeWidth="1.5"
+                            />
+                          );
+                        })}
+                      </svg>
+                    </div>
+
+                    {/* Sliders list */}
+                    <div className="w-full space-y-2.5 max-h-48 overflow-y-auto pr-1">
+                      {["Bản thân", "Học tập", "Công việc", "Gia đình", "Mối quan hệ"].map((cat, idx) => (
+                        <div key={idx} className="space-y-0.5">
+                          <div className="flex justify-between text-[10px] font-bold text-zinc-650 dark:text-zinc-450 pl-0.5">
+                            <span>{cat}</span>
+                            <span className="font-mono text-emerald-500 font-black">{wheelRatings[idx]}/10</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={wheelRatings[idx]}
+                            onChange={(e) => {
+                              const copy = [...wheelRatings];
+                              copy[idx] = parseInt(e.target.value, 10);
+                              setWheelRatings(copy);
+                            }}
+                            className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleHealingWheelSubmit}
+                    className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-650 hover:from-emerald-600 hover:to-teal-750 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
+                  >
+                    Gửi cảm xúc & Bắt đầu ngày mới
+                  </button>
+                </div>
+              )}
+
+              {/* Step 3: periodic test reminder prompt */}
+              {healingSubStep === "reminder" && (
+                <div className="space-y-5 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-indigo-550/10 border border-indigo-550/20 text-indigo-500 flex items-center justify-center mx-auto shadow-sm">
+                    <span className="material-symbols-outlined text-2xl animate-pulse">quiz</span>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-[8.5px] font-black tracking-widest text-indigo-500 dark:text-indigo-400 uppercase">
+                      {consecutiveLowMood ? "Hỗ trợ phục hồi khẩn cấp" : "Đề xuất kiểm tra định kỳ"}
+                    </span>
+                    <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider">
+                      {consecutiveLowMood ? "Hãy yêu thương bản thân hơn nhé" : "Đã đến lúc làm bài trắc nghiệm lâm sàng"}
+                    </h3>
+                    <p className="text-xs text-zinc-650 dark:text-zinc-350 leading-relaxed font-semibold max-w-sm mx-auto">
+                      {consecutiveLowMood 
+                        ? "Bạn Học Đường nhận thấy tâm trạng cậu đang khá trầm xuống liên tục trong 2 ngày qua. Hãy thực hành một số bài tập điều hòa nhịp thở hoặc trò chuyện tâm sự cùng tớ để lòng dịu lại nha." 
+                        : "Bạn Học Đường nhận thấy tâm trạng cậu có chút mỏi mệt hoặc đã đến chu kỳ đánh giá định kỳ (3 ngày). Cậu hãy làm một bài test DASS-42 nhỏ để tớ đối chiếu chẩn đoán chính xác nhất nhé."
+                      }
+                    </p>
+                  </div>
+                  
+                  {consecutiveLowMood ? (
+                    <div className="flex flex-col gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={handleGoToBreath}
+                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <span className="material-symbols-outlined text-sm">air</span>
+                        Luyện Hít Thở 4-7-8 (2 phút)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleGoToChat}
+                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-550 to-indigo-650 hover:from-indigo-650 hover:to-indigo-750 text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <span className="material-symbols-outlined text-sm">forum</span>
+                        Tâm sự giải tỏa cùng Trợ lý (3 phút)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleGoToTest}
+                        className="w-full py-2 rounded-xl border border-zinc-250 dark:border-zinc-800 text-[9.5px] font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
+                      >
+                        Làm test lâm sàng DASS-42
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowHealingModal(false);
+                          showToast("Chúc cậu luôn kiên cường và bình an nhé! ❤️", "success");
+                        }}
+                        className="py-2 text-[9px] font-bold text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 uppercase tracking-wider"
+                      >
+                        Bỏ qua
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowHealingModal(false);
+                          showToast("Cậu đã chọn làm khảo sát sau. Hãy chú ý giữ gìn sức khỏe nhé! 🌟", "success");
+                        }}
+                        className="py-2.5 rounded-xl border border-zinc-250 dark:border-zinc-800 text-[10px] font-black uppercase tracking-wider text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
+                      >
+                        Để sau
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleGoToTest}
+                        className="py-2.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors"
+                      >
+                        Làm test ngay
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Toast Alert */}
       {toast.message && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/90 dark:bg-[#1c1c1e]/90 backdrop-blur-xl shadow-2xl border border-zinc-200/50 dark:border-zinc-800/80 w-[calc(100vw-32px)] max-w-md animate-toast-in">
@@ -1056,7 +1576,16 @@ export default function MemberPortalPage() {
 
                 {/* Tab 4.5: Member Utilities Dashboard */}
                 {activeTab === "utilities" && (
-                  <MemberUtilitiesTab bio={formData} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} />
+                  <MemberUtilitiesTab 
+                    bio={formData} 
+                    publicLink={publicLink} 
+                    showToast={showToast} 
+                    setFormData={setFormData} 
+                    handleSave={handleSave} 
+                    defaultUtility={defaultUtility}
+                    defaultPsychologySubTab={defaultPsychologySubTab}
+                    defaultPsychologyPresetTest={defaultPsychologyPresetTest}
+                  />
                 )}
 
                 {/* Tab 5: Lịch Sử & Thông Báo */}
