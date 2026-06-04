@@ -22,6 +22,7 @@ const PartnerBioPage = lazy(() => import("./pages/member/PartnerBioPage"));
 const FAQPage = lazy(() => import("./pages/public/FAQPage"));
 const StudentBenefitsPage = lazy(() => import("./pages/public/StudentBenefitsPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/public/PrivacyPolicyPage"));
+const UserGuidePage = lazy(() => import("./pages/public/UserGuidePage"));
 const LivePreviewPage = lazy(() => import("./pages/member/LivePreviewPage"));
 const SupportRequestPage = lazy(() => import("./pages/public/SupportRequestPage"));
 const CustomerPortalPage = lazy(() => import("./pages/customer/CustomerPortalPage"));
@@ -107,6 +108,7 @@ function AppContent() {
             <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
             <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/user-guide" element={<UserGuidePage />} />
             <Route path="/admin" element={isAdminAuthenticated() ? <AdminPanel /> : <Navigate to="/login" replace />} />
             <Route path="/admin/projects" element={isAdminAuthenticated() ? <AdminProjectsPage /> : <Navigate to="/login" replace />} />
             <Route path="/admin/projects/:id" element={isAdminAuthenticated() ? <AdminProjectDetailPage /> : <Navigate to="/login" replace />} />

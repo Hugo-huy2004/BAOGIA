@@ -30,7 +30,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
       const formData = new FormData();
       formData.append("file", zipFile);
 
-      const res = await fetch("http://localhost:8081/api/files/extract/upload", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/files/extract/upload`, {
         method: 'POST',
         body: formData
       });
@@ -52,7 +52,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
 
   const handleDownloadZipEntry = (entryName) => {
     if (!zipResult) return;
-    const downloadUrl = `http://localhost:8081/api/files/extract/download/${zipResult.fileId}?entryName=${encodeURIComponent(entryName)}`;
+    const downloadUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/files/extract/download/${zipResult.fileId}?entryName=${encodeURIComponent(entryName)}`;
     
     // Create a temporary link to download
     const link = document.createElement("a");
@@ -74,7 +74,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
       formData.append("file", compressFile);
       formData.append("level", compressLevel);
 
-      const res = await fetch("http://localhost:8081/api/files/compress", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/files/compress`, {
         method: 'POST',
         body: formData
       });

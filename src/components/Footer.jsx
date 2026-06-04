@@ -204,6 +204,13 @@ export default function Footer() {
             >
               {t("footer.privacyPolicy", "Chính sách bảo mật")}
             </Link>
+            <span className="text-slate-300 dark:text-slate-800 text-[10px] select-none">•</span>
+            <Link 
+              to="/user-guide" 
+              className="hover:text-slate-700 dark:hover:text-slate-350 hover:underline underline-offset-4 transition-colors font-medium"
+            >
+              Hướng dẫn sử dụng
+            </Link>
           </div>
         </div>
       </div>
