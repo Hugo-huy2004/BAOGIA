@@ -51,7 +51,7 @@ export default function PreviewSimulator({
           className={`${
             previewMode === "mobile"
               ? "w-[280px] sm:w-[295px] h-[580px] sm:h-[610px] rounded-[2.5rem] sm:rounded-[3rem] border-[6px] sm:border-[8px] border-zinc-950 dark:border-zinc-800 bg-black shadow-2xl p-1.5 sm:p-2 relative flex flex-col justify-between"
-              : "w-full h-[580px] sm:h-[610px] rounded-2xl sm:rounded-3xl border-2 sm:border-4 border-zinc-200 dark:border-zinc-800 bg-[#f5f5f7] dark:bg-zinc-950 shadow-2xl p-0.5 sm:p-1 relative flex flex-col justify-between"
+              : "w-full h-[580px] sm:h-[610px] rounded-lg sm:rounded-xl border-2 sm:border-4 border-zinc-200 dark:border-zinc-800 bg-[#f5f5f7] dark:bg-zinc-950 shadow-2xl p-0.5 sm:p-1 relative flex flex-col justify-between"
           }`}
         >
           {/* Dynamic Island for mobile preview */}

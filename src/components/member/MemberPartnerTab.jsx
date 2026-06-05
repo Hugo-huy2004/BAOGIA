@@ -58,7 +58,7 @@ class MemberPartnerTab extends Component {
 
     return (
       <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-0 animate-fadeIn">
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl p-4 sm:p-6 md:p-8 border border-zinc-200/50 dark:border-zinc-800/80 shadow-xl flex flex-col justify-between min-h-[500px]">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-xl p-4 sm:p-6 md:p-8 border border-zinc-200/50 dark:border-zinc-800/80 shadow-xl flex flex-col justify-between min-h-[500px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-zinc-200/50 dark:border-zinc-800/50 pb-4 shrink-0">
             <div>
               <h3 className="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">{t("memberTabs.partner.title")}</h3>
@@ -155,7 +155,7 @@ class MemberPartnerTab extends Component {
 
               {/* Selected Iframe Viewport Container */}
               {selectedPartner && paginatedPartners.some(p => p._id === selectedPartner._id) && (
-                <div className="flex-grow w-full bg-white text-black rounded-2xl overflow-hidden min-h-[450px] border border-zinc-200/60 dark:border-zinc-800/80 relative z-10 shadow-inner">
+                <div className="flex-grow w-full bg-white text-black rounded-lg overflow-hidden min-h-[450px] border border-zinc-200/60 dark:border-zinc-800/80 relative z-10 shadow-inner">
                   {selectedPartner.iframeUrl.includes('<iframe') ? (
                     <div
                       className="w-full h-full min-h-[450px] flex [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:min-h-[450px]"

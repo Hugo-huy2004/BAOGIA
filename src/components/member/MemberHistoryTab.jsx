@@ -86,7 +86,7 @@ class MemberHistoryTab extends Component {
                     </div>
 
                     {/* Card */}
-                    <div className={`flex-1 mb-1 rounded-2xl border p-4 shadow-sm transition-all duration-200 group-hover:shadow-md bg-white dark:bg-[#1c1c1e] ${cfg.border}`}>
+                    <div className={`flex-1 mb-1 rounded-lg border p-4 shadow-sm transition-all duration-200 group-hover:shadow-md bg-white dark:bg-[#1c1c1e] ${cfg.border}`}>
                       <div className="flex items-start justify-between gap-2 flex-wrap">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span
@@ -119,13 +119,13 @@ class MemberHistoryTab extends Component {
                       )}
                       
                       {entry.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
-                        <div className="mt-3 p-3 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100 dark:border-rose-900/20 rounded-xl flex items-center justify-between gap-3">
+                        <div className="mt-3 p-3 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100 dark:border-rose-900/20 rounded-md flex items-center justify-between gap-3">
                           <div>
                             <p className="text-[9px] font-bold text-rose-550 uppercase tracking-wider">Mã Quà Tặng Sinh Nhật</p>
                             <p className="text-sm font-black font-mono tracking-wider text-rose-700 dark:text-rose-350">{bio.birthdayVoucherCode}</p>
                           </div>
                           {bio.birthdayVoucherClaimed ? (
-                            <span className="px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1 shrink-0">
+                            <span className="px-3 py-1.5 rounded text-[9px] font-bold uppercase bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1 shrink-0">
                               <span className="material-symbols-outlined text-xs font-bold">check_circle</span>Đã nhận quà
                             </span>
                           ) : (
@@ -139,7 +139,7 @@ class MemberHistoryTab extends Component {
                                   alert(`Đã sao chép mã voucher: ${bio.birthdayVoucherCode}`);
                                 }
                               }}
-                              className="px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase bg-rose-600 hover:bg-rose-700 text-white transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
+                              className="px-3 py-1.5 rounded text-[9px] font-bold uppercase bg-rose-600 hover:bg-rose-700 text-white transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
                             >
                               <span className="material-symbols-outlined text-xs">content_copy</span>Sao chép
                             </button>

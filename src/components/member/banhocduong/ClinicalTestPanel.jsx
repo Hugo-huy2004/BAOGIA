@@ -79,7 +79,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="w-full relative p-4 rounded-2xl border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-[#1a1924] shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)] text-zinc-800 dark:text-zinc-100 font-bold text-xs text-center leading-relaxed"
+            className="w-full relative p-4 rounded-lg border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-[#1a1924] shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)] text-zinc-800 dark:text-zinc-100 font-bold text-xs text-center leading-relaxed"
           >
             "{activeTest.questions[currentQuestionIdx]}"
           </motion.div>
@@ -93,7 +93,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
             key={opt.value}
             type="button"
             onClick={() => handleAnswerClick(opt.value)}
-            className="w-full py-2 px-3.5 rounded-xl border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-[10px] font-black text-zinc-800 dark:text-zinc-250 uppercase tracking-wider text-left hover:bg-zinc-50 dark:hover:bg-zinc-850 active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center justify-between"
+            className="w-full py-2 px-3.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-[10px] font-black text-zinc-800 dark:text-zinc-250 uppercase tracking-wider text-left hover:bg-zinc-50 dark:hover:bg-zinc-850 active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center justify-between"
           >
             <span>{opt.label}</span>
             <span className="font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded text-[8px]">{opt.value} điểm</span>

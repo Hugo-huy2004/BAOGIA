@@ -52,7 +52,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header section */}
-      <div className="bg-gradient-to-r from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900 rounded-3xl p-6 md:p-8 text-white relative overflow-hidden border border-zinc-200/10 shadow-lg">
+      <div className="bg-gradient-to-r from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900 rounded-xl p-6 md:p-8 text-white relative overflow-hidden border border-zinc-200/10 shadow-lg">
         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-[60px] pointer-events-none" />
         
@@ -75,10 +75,10 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
           <div 
             key={util.id}
             onClick={() => setSelectedUtility(util.id)}
-            className="group cursor-pointer bg-white dark:bg-[#12111a] rounded-3xl p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-zinc-800 dark:hover:border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-[210px]"
+            className="group cursor-pointer bg-white dark:bg-[#12111a] rounded-xl p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-zinc-800 dark:hover:border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-[210px]"
           >
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-colors group-hover:bg-zinc-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black">
+              <div className="w-12 h-12 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-colors group-hover:bg-zinc-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black">
                 <span className="material-symbols-outlined text-2xl">{util.icon}</span>
               </div>
               <div className="space-y-1">

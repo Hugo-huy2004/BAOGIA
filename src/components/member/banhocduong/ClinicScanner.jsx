@@ -101,7 +101,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
     const kY = getY(scores.K);
 
     return (
-      <div className="bg-[#15141c] rounded-2xl p-3 border border-zinc-800 shadow-lg relative">
+      <div className="bg-[#15141c] rounded-lg p-3 border border-zinc-800 shadow-lg relative">
         <h4 className="text-[9px] font-black tracking-widest text-[#0071e3] uppercase mb-2 text-center">
           Biểu đồ L - F - K
         </h4>
@@ -168,7 +168,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
       </div>
 
       {scanState === "idle" && (
-        <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-3xl p-6 text-center space-y-4 hover:border-[#0071e3] transition-all">
+        <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-xl p-6 text-center space-y-4 hover:border-[#0071e3] transition-all">
           <input
             type="file"
             accept="image/*,application/pdf"
@@ -198,7 +198,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                 File đã chọn: {scanFile.name}
               </div>
               {scanFilePreview && (
-                <img src={scanFilePreview} className="w-16 h-16 object-cover rounded-lg mx-auto border" alt="Preview" />
+                <img src={scanFilePreview} className="w-16 h-16 object-cover rounded mx-auto border" alt="Preview" />
               )}
               <div className="flex gap-2 justify-center">
                 <button
@@ -208,7 +208,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                     setScanState("scanning");
                     setScanStepIdx(0);
                   }}
-                  className="px-3 py-1.5 bg-[#0071e3] text-white text-[9.5px] font-black uppercase rounded-lg shadow hover:bg-[#0077ed]"
+                  className="px-3 py-1.5 bg-[#0071e3] text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-[#0077ed]"
                 >
                   DASS-42
                 </button>
@@ -219,7 +219,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                     setScanState("scanning");
                     setScanStepIdx(0);
                   }}
-                  className="px-3 py-1.5 bg-indigo-500 text-white text-[9.5px] font-black uppercase rounded-lg shadow hover:bg-indigo-650"
+                  className="px-3 py-1.5 bg-indigo-500 text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-indigo-650"
                 >
                   MMPI-30
                 </button>
@@ -230,7 +230,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
       )}
 
       {scanState === "scanning" && (
-        <div className="p-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-3xl space-y-4 text-center">
+        <div className="p-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl space-y-4 text-center">
           <span className="material-symbols-outlined text-2xl text-[#0071e3] animate-spin">refresh</span>
           <p className="text-[10.5px] font-bold text-zinc-800 dark:text-zinc-200">
             {SCAN_STEPS[scanStepIdx]}
@@ -242,7 +242,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
       )}
 
       {scanState === "verified" && (
-        <div className="p-5 pt-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-[#1a1924] rounded-3xl space-y-5 animate-scaleUp max-h-[340px] md:max-h-[360px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800">
+        <div className="p-5 pt-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-[#1a1924] rounded-xl space-y-5 animate-scaleUp max-h-[340px] md:max-h-[360px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800">
           <h5 className="text-[11px] font-black uppercase tracking-wider text-zinc-900 dark:text-white border-b pb-1">
             Xác thực thông tin trích xuất
           </h5>
@@ -265,7 +265,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                         const val = Math.max(0, Math.min(42, parseInt(e.target.value, 10) || 0));
                         setScanDassScores((prev) => ({ ...prev, [scale]: val }));
                       }}
-                      className="w-full text-center px-2 py-1.5 border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs rounded-lg font-bold"
+                      className="w-full text-center px-2 py-1.5 border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs rounded font-bold"
                     />
                   </div>
                 ))}
@@ -299,7 +299,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                 <span className="text-[9px] font-black uppercase text-indigo-500 tracking-widest block">10 Thang đo lâm sàng</span>
                 <div className="grid grid-cols-2 gap-2">
                   {Object.keys(scanMmpiClinical).map((scale) => (
-                    <div key={scale} className="flex justify-between items-center gap-2 p-1.5 border border-zinc-200 dark:border-zinc-800 rounded-lg">
+                    <div key={scale} className="flex justify-between items-center gap-2 p-1.5 border border-zinc-200 dark:border-zinc-800 rounded">
                       <span className="text-[9.5px] font-black text-zinc-650 dark:text-zinc-350">{scale}</span>
                       <input
                         type="number"
@@ -321,14 +321,14 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 py-2 border border-zinc-300 text-zinc-550 hover:bg-zinc-50 text-[9.5px] font-black uppercase rounded-lg"
+              className="flex-1 py-2 border border-zinc-300 text-zinc-550 hover:bg-zinc-50 text-[9.5px] font-black uppercase rounded"
             >
               Hủy bỏ
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="flex-1 py-2 bg-[#0071e3] text-white hover:bg-[#0077ed] text-[9.5px] font-black uppercase rounded-lg"
+              className="flex-1 py-2 bg-[#0071e3] text-white hover:bg-[#0077ed] text-[9.5px] font-black uppercase rounded"
             >
               Lưu hồ sơ & Trả lời
             </button>

@@ -18,7 +18,7 @@ export default function ProfileSubTab({
   return (
     <div className="space-y-4 animate-fadeIn">
       {/* Section: Avatar Editor */}
-      <div className="space-y-2 text-center py-4 bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+      <div className="space-y-2 text-center py-4 bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
         <div
           className={`relative w-20 h-20 rounded-full border shadow-md bg-zinc-100 dark:bg-zinc-900 mx-auto flex items-center justify-center overflow-hidden group cursor-pointer transition-all duration-200 ${
             isDragOver
@@ -82,10 +82,10 @@ export default function ProfileSubTab({
       {/* Section A: Basic settings */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.basicInfo")}</h3>
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Display name */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
               <span className="material-symbols-outlined text-base">person</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.fullName")}</label>
@@ -102,7 +102,7 @@ export default function ProfileSubTab({
 
           {/* Headline */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#30b0c7]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#30b0c7]">
               <span className="material-symbols-outlined text-base">badge</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.nickname")}</label>
@@ -118,7 +118,7 @@ export default function ProfileSubTab({
 
           {/* Birthday */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff2d55]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#ff2d55]">
               <span className="material-symbols-outlined text-base">cake</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.birthday")}</label>
@@ -137,10 +137,10 @@ export default function ProfileSubTab({
       {/* Section B: Contact settings */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.contactInfo")}</h3>
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Read-only email */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px] bg-zinc-50/50 dark:bg-zinc-900/10">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#34c759]">
               <span className="material-symbols-outlined text-base">mail</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
@@ -159,7 +159,7 @@ export default function ProfileSubTab({
 
           {/* Phone */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#34c759]">
               <span className="material-symbols-outlined text-base">phone</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.phone")}</label>
@@ -175,7 +175,7 @@ export default function ProfileSubTab({
 
           {/* Contact Email */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
               <span className="material-symbols-outlined text-base">alternate_email</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.email")}</label>

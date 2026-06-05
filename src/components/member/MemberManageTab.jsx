@@ -140,7 +140,7 @@ class PackageCard extends Component {
             opacity: isOpen ? 1 : 0
           }}
         >
-          <div className="bg-zinc-50 dark:bg-[#181622]/40 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 p-6 space-y-4">
+          <div className="bg-zinc-50 dark:bg-[#181622]/40 rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 p-6 space-y-4">
             <div className="space-y-0.5">
               <h4 className="text-[11px] sm:text-xs font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm" style={{ color }}>verified_user</span>{t("memberTabs.manage.benefitsTitle")}</h4>
@@ -150,7 +150,7 @@ class PackageCard extends Component {
             {formattedBenefits.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 {formattedBenefits.map((benefit, i) => (
-                  <div key={i} className="flex gap-2.5 items-start p-3.5 rounded-2xl bg-white dark:bg-[#1c1c1e] border border-zinc-150 dark:border-zinc-800/60 transition-all hover:scale-[1.01]">
+                  <div key={i} className="flex gap-2.5 items-start p-3.5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-150 dark:border-zinc-800/60 transition-all hover:scale-[1.01]">
                     <span className="material-symbols-outlined text-[13px] mt-0.5 shrink-0" style={{ color }}>check_circle</span>
                     <p className="text-[10px] sm:text-[11px] font-medium text-zinc-750 dark:text-zinc-300 leading-relaxed">{benefit}</p>
                   </div>
@@ -222,7 +222,7 @@ class MemberManageTab extends Component {
         ))}
 
         {/* Redeem Gift Code Card */}
-        <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/5 dark:to-orange-500/5 rounded-3xl border border-amber-500/20 shadow-sm p-6 sm:p-8 space-y-4">
+        <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/5 dark:to-orange-500/5 rounded-xl border border-amber-500/20 shadow-sm p-6 sm:p-8 space-y-4">
           <div className="space-y-1">
             <h4 className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-500 uppercase tracking-wider flex items-center gap-2">
               <span className="material-symbols-outlined text-base">redeem</span>
@@ -238,13 +238,13 @@ class MemberManageTab extends Component {
               value={giftCode}
               onChange={(e) => this.setState({ giftCode: e.target.value.toUpperCase() })}
               onKeyDown={(e) => { if (e.key === 'Enter') this.handleRedeem(); }}
-              className="flex-1 rounded-2xl border border-amber-500/30 bg-white/50 dark:bg-black/20 text-xs sm:text-sm p-3.5 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-bold font-mono tracking-widest placeholder:tracking-normal placeholder:font-medium placeholder:text-zinc-400"
+              className="flex-1 rounded-lg border border-amber-500/30 bg-white/50 dark:bg-black/20 text-xs sm:text-sm p-3.5 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-bold font-mono tracking-widest placeholder:tracking-normal placeholder:font-medium placeholder:text-zinc-400"
             />
             <button
               type="button"
               onClick={this.handleRedeem}
               disabled={!giftCode.trim()}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-5 rounded-2xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 active:scale-95"
+              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-5 rounded-lg transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 active:scale-95"
             >
               <span className="material-symbols-outlined text-sm hidden sm:block">verified</span>
               <span className="text-xs">Nhận Gói</span>
@@ -253,7 +253,7 @@ class MemberManageTab extends Component {
         </div>
 
         {/* Public Link Card */}
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 sm:p-8 space-y-5">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 sm:p-8 space-y-5">
           <div className="space-y-1">
             <h4 className="text-xs sm:text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <span className="material-symbols-outlined text-base text-[#0071e3]">link</span>
@@ -264,7 +264,7 @@ class MemberManageTab extends Component {
 
           {bio?.slug ? (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 font-mono text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300 font-bold select-all shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+              <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 font-mono text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300 font-bold select-all shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                 <span className="material-symbols-outlined text-sm text-emerald-500 shrink-0">lock</span>
                 <span className="flex-1 overflow-x-auto scrollbar-none whitespace-nowrap">{publicLink}</span>
               </div>
@@ -274,7 +274,7 @@ class MemberManageTab extends Component {
                   href={publicLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-black dark:bg-white text-white dark:text-black hover:opacity-90 font-bold py-3 rounded-2xl transition-all text-center text-xs shadow-sm flex items-center justify-center gap-1.5"
+                  className="bg-black dark:bg-white text-white dark:text-black hover:opacity-90 font-bold py-3 rounded-lg transition-all text-center text-xs shadow-sm flex items-center justify-center gap-1.5"
                 >
                   <span className="material-symbols-outlined text-base">open_in_new</span>
                   Xem Trang Live
@@ -282,7 +282,7 @@ class MemberManageTab extends Component {
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="bg-zinc-100 hover:bg-zinc-200/70 dark:bg-zinc-900/50 dark:hover:bg-zinc-900 text-zinc-800 dark:text-zinc-200 font-bold py-3 rounded-2xl transition-all text-xs border border-zinc-200/60 dark:border-zinc-800 flex items-center justify-center gap-1.5"
+                  className="bg-zinc-100 hover:bg-zinc-200/70 dark:bg-zinc-900/50 dark:hover:bg-zinc-900 text-zinc-800 dark:text-zinc-200 font-bold py-3 rounded-lg transition-all text-xs border border-zinc-200/60 dark:border-zinc-800 flex items-center justify-center gap-1.5"
                 >
                   <span className="material-symbols-outlined text-base">content_copy</span>
                   Sao Chép Link
@@ -290,7 +290,7 @@ class MemberManageTab extends Component {
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+            <div className="text-center py-8 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-lg">
               <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-750">link_off</span>
               <p className="text-[11px] italic text-zinc-400 mt-2">Bạn chưa kích hoạt thiết kế Bio. Hãy hoàn thành thiết lập ở tab Cá Nhân để kích hoạt.</p>
             </div>
@@ -299,9 +299,9 @@ class MemberManageTab extends Component {
 
         {/* Warning Danger Zone */}
         {bio?._id && (
-          <div className="bg-red-500/5 dark:bg-red-950/10 border border-red-200/40 dark:border-red-900/30 p-5 rounded-2xl shadow-sm space-y-4">
+          <div className="bg-red-500/5 dark:bg-red-950/10 border border-red-200/40 dark:border-red-900/30 p-5 rounded-lg shadow-sm space-y-4">
             <div className="flex gap-3">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
+              <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
                 <span className="material-symbols-outlined text-base">warning</span>
               </div>
               <div>
@@ -314,7 +314,7 @@ class MemberManageTab extends Component {
               type="button"
               onClick={handleDeleteBio}
               disabled={saving}
-              className="w-full bg-[#ff3b30] hover:bg-[#ff3b30]/90 text-white font-bold py-2.5 rounded-xl transition-all text-xs shadow-sm flex items-center justify-center gap-1"
+              className="w-full bg-[#ff3b30] hover:bg-[#ff3b30]/90 text-white font-bold py-2.5 rounded-md transition-all text-xs shadow-sm flex items-center justify-center gap-1"
             >
               <span className="material-symbols-outlined text-sm">delete_forever</span>
               Xóa Bio Cá Nhân

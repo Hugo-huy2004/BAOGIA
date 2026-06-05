@@ -211,21 +211,21 @@ export default function ReadingTherapy({ onBack, onCompleteActivity, showToast }
           <button
             type="button"
             onClick={() => { resetTimer(); startTimer(1800); }}
-            className="px-3 py-1.5 rounded-xl border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
+            className="px-3 py-1.5 rounded-md border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
           >
             30 phút
           </button>
           <button
             type="button"
             onClick={() => { resetTimer(); startTimer(2700); }}
-            className="px-3 py-1.5 rounded-xl border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
+            className="px-3 py-1.5 rounded-md border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
           >
             45 phút
           </button>
           <button
             type="button"
             onClick={() => { resetTimer(); startTimer(3600); }}
-            className="px-3 py-1.5 rounded-xl border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
+            className="px-3 py-1.5 rounded-md border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
           >
             60 phút
           </button>
@@ -247,7 +247,7 @@ export default function ReadingTherapy({ onBack, onCompleteActivity, showToast }
                   setSelectedMusicChannel(item.ch);
                   if (isMusicPlaying) startMusic(item.ch);
                 }}
-                className={`py-2 rounded-xl text-[9px] font-black uppercase border-2 transition-all ${
+                className={`py-2 rounded-md text-[9px] font-black uppercase border-2 transition-all ${
                   selectedMusicChannel === item.ch
                     ? "bg-indigo-500 border-zinc-950 dark:border-zinc-800 text-white"
                     : "bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-850 text-zinc-550"

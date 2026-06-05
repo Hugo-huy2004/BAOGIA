@@ -11,10 +11,10 @@ export default function CareerSubTab({
       {/* Section C: Portfolio & Education */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.career.title")}</h3>
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Job Title */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#af52de]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#af52de]">
               <span className="material-symbols-outlined text-base">work</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.role")}</label>
@@ -30,7 +30,7 @@ export default function CareerSubTab({
 
           {/* Education */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff9500]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#ff9500]">
               <span className="material-symbols-outlined text-base">school</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.education")}</label>
@@ -46,7 +46,7 @@ export default function CareerSubTab({
 
           {/* Skills */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#34c759]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#34c759]">
               <span className="material-symbols-outlined text-base">psychology</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.skills")}</label>

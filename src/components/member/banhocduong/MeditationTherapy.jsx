@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Play, Pause, Square } from "lucide-react";
 
 export default function MeditationTherapy({ onBack, onCompleteActivity, showToast }) {
-  const [timerDuration, setTimerDuration] = useState(600); 
-  const [timerSecondsLeft, setTimerSecondsLeft] = useState(600);
+  const [timerDuration, setTimerDuration] = useState(1800); 
+  const [timerSecondsLeft, setTimerSecondsLeft] = useState(1800);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const timerIntervalRef = useRef(null);
 
@@ -211,23 +211,23 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
           <button
             type="button"
             onClick={() => { resetTimer(); startTimer(600); }}
-            className="px-3 py-1.5 rounded-xl border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
+            className="px-3 py-1.5 rounded-md border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
           >
             10 phút
           </button>
           <button
             type="button"
-            onClick={() => { resetTimer(); startTimer(900); }}
-            className="px-3 py-1.5 rounded-xl border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
+            onClick={() => { resetTimer(); startTimer(1200); }}
+            className="px-3 py-1.5 rounded-md border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
           >
-            15 phút
+            20 phút
           </button>
           <button
             type="button"
-            onClick={() => { resetTimer(); startTimer(1200); }}
-            className="px-3 py-1.5 rounded-xl border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
+            onClick={() => { resetTimer(); startTimer(1800); }}
+            className="px-3 py-1.5 rounded-md border border-zinc-350 dark:border-zinc-800 text-[9px] font-black uppercase tracking-wider text-zinc-650 hover:bg-zinc-55"
           >
-            20 phút
+            30 phút
           </button>
         </div>
 
@@ -247,7 +247,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
                   setSelectedMusicChannel(item.ch);
                   if (isMusicPlaying) startMusic(item.ch);
                 }}
-                className={`py-2 rounded-xl text-[9px] font-black uppercase border-2 transition-all ${
+                className={`py-2 rounded-md text-[9px] font-black uppercase border-2 transition-all ${
                   selectedMusicChannel === item.ch
                     ? "bg-teal-500 border-zinc-950 dark:border-zinc-800 text-white"
                     : "bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-850 text-zinc-550"

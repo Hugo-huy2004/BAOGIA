@@ -103,7 +103,7 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
       
       {!isEditing ? (
         <div className="space-y-6">
-          <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl p-4 border border-zinc-200/60 dark:border-zinc-800/80">
+          <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200/60 dark:border-zinc-800/80">
             <h4 className="text-[11px] font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-1 flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px]">info</span>
               Về tính năng này
@@ -115,15 +115,15 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
 
           <div className="space-y-3">
             {secretLinks.length === 0 ? (
-              <div className="text-center py-10 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl">
+              <div className="text-center py-10 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
                 <span className="material-symbols-outlined text-4xl text-zinc-300 dark:text-zinc-700 mb-2">lock_open</span>
                 <p className="text-xs text-zinc-500 font-medium">Bạn chưa tạo Link Bảo Mật nào.</p>
               </div>
             ) : (
               secretLinks.map((link, index) => (
-                <div key={link.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] gap-4 transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
+                <div key={link.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] gap-4 transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0">
                       <span className="material-symbols-outlined text-[20px] text-zinc-600 dark:text-zinc-400">link</span>
                     </div>
                     <div>
@@ -168,7 +168,7 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
           <button
             onClick={() => handleOpenForm()}
             disabled={secretLinks.length >= 5}
-            className={`w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+            className={`w-full py-4 rounded-lg font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
               secretLinks.length >= 5 
                 ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 cursor-not-allowed" 
                 : "bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black shadow-md active:scale-[0.98]"
@@ -188,7 +188,7 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
                 value={form.title}
                 onChange={(e) => setForm({...form, title: e.target.value})}
                 placeholder="VD: Kho ảnh hậu trường"
-                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition-all font-medium"
+                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition-all font-medium"
               />
             </div>
             <div className="space-y-1.5">
@@ -198,7 +198,7 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
                 value={form.url}
                 onChange={(e) => setForm({...form, url: e.target.value})}
                 placeholder="VD: https://drive.google.com/..."
-                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition-all font-medium"
+                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition-all font-medium"
               />
             </div>
             <div className="space-y-1.5">
@@ -208,7 +208,7 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
                 value={form.password}
                 onChange={(e) => setForm({...form, password: e.target.value})}
                 placeholder="Nhập mật khẩu để mở khóa"
-                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition-all font-medium"
+                className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition-all font-medium"
               />
             </div>
           </div>
@@ -216,13 +216,13 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleCloseForm}
-              className="py-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-900 font-black text-[11px] uppercase tracking-widest transition-colors"
+              className="py-4 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-900 font-black text-[11px] uppercase tracking-widest transition-colors"
             >
               Hủy Bỏ
             </button>
             <button
               onClick={handleSaveLink}
-              className="py-4 rounded-xl bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-black text-[11px] uppercase tracking-widest shadow-md transition-transform active:scale-[0.98]"
+              className="py-4 rounded-md bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-black text-[11px] uppercase tracking-widest shadow-md transition-transform active:scale-[0.98]"
             >
               {editingId ? "Cập Nhật" : "Tạo Mới"}
             </button>

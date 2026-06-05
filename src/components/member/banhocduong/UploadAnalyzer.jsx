@@ -208,7 +208,7 @@ export default function UploadAnalyzer() {
     const kY = getY(scores.K);
 
     return (
-      <div className="bg-[#15141c] rounded-3xl p-4.5 border border-zinc-800 shadow-2xl relative">
+      <div className="bg-[#15141c] rounded-xl p-4.5 border border-zinc-800 shadow-2xl relative">
         <h4 className="text-[10px] font-black tracking-widest text-[#0071e3] uppercase mb-3 text-center">
           Biểu đồ Kiểm định độ tin cậy L - F - K
         </h4>
@@ -275,7 +275,7 @@ export default function UploadAnalyzer() {
 
       {/* Upload zone */}
       {scanState === "idle" && (
-        <div className="max-w-xl mx-auto border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-3xl p-8 text-center space-y-4 hover:border-[#0071e3] transition-all">
+        <div className="max-w-xl mx-auto border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-xl p-8 text-center space-y-4 hover:border-[#0071e3] transition-all">
           <input
             type="file"
             accept="image/*,application/pdf"
@@ -284,7 +284,7 @@ export default function UploadAnalyzer() {
             className="hidden"
           />
           <label htmlFor="file-scanner-input" className="cursor-pointer space-y-3 block">
-            <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto text-zinc-550 dark:text-zinc-300">
+            <div className="w-12 h-12 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto text-zinc-550 dark:text-zinc-300">
               <span className="material-symbols-outlined text-2xl animate-bounce">cloud_upload</span>
             </div>
             <div>
@@ -298,7 +298,7 @@ export default function UploadAnalyzer() {
           </label>
           
           {file && (
-            <div className="pt-2 flex items-center justify-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-2 px-4 rounded-xl max-w-sm mx-auto">
+            <div className="pt-2 flex items-center justify-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-2 px-4 rounded-md max-w-sm mx-auto">
               <span className="material-symbols-outlined text-sm">check_circle</span>
               <span className="truncate max-w-[200px]">{file.name}</span>
             </div>
@@ -309,7 +309,7 @@ export default function UploadAnalyzer() {
               <button
                 type="button"
                 onClick={handleStartScan}
-                className="px-6 py-2.5 bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 mx-auto active:scale-[0.98]"
+                className="px-6 py-2.5 bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-black uppercase tracking-wider rounded-md transition-all flex items-center gap-1.5 mx-auto active:scale-[0.98]"
               >
                 <span className="material-symbols-outlined text-sm animate-spin">sync</span>
                 Bắt đầu quét kết quả
@@ -321,15 +321,15 @@ export default function UploadAnalyzer() {
 
       {/* Sweep laser line scanner view */}
       {scanState === "scanning" && (
-        <div className="max-w-xl mx-auto border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#12111a] rounded-3xl p-6 space-y-6 shadow-xl text-center relative overflow-hidden">
+        <div className="max-w-xl mx-auto border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#12111a] rounded-xl p-6 space-y-6 shadow-xl text-center relative overflow-hidden">
           <div className="absolute left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[#0071e3] to-transparent animate-laser-scan shadow-[0_0_10px_2px_rgba(0,113,227,0.7)]" />
 
           {filePreview ? (
-            <div className="w-full h-44 rounded-2xl overflow-hidden border border-zinc-250 dark:border-zinc-800 bg-zinc-150 relative">
+            <div className="w-full h-44 rounded-lg overflow-hidden border border-zinc-250 dark:border-zinc-800 bg-zinc-150 relative">
               <img src={filePreview} alt="Preview" className="w-full h-full object-cover opacity-45 blur-[0.5px]" />
             </div>
           ) : (
-            <div className="w-full h-44 rounded-2xl border border-zinc-250 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex flex-col items-center justify-center text-zinc-400">
+            <div className="w-full h-44 rounded-lg border border-zinc-250 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex flex-col items-center justify-center text-zinc-400">
               <span className="material-symbols-outlined text-4xl animate-pulse">picture_as_pdf</span>
               <p className="text-[10px] mt-2 font-black uppercase tracking-wider">{file?.name}</p>
             </div>
@@ -352,7 +352,7 @@ export default function UploadAnalyzer() {
       {/* Scan completed results editor and graphs view */}
       {scanState === "verified" && (
         <div className="space-y-6 animate-fadeIn">
-          <div className="bg-zinc-100/50 dark:bg-zinc-900/40 p-4.5 rounded-2xl border border-zinc-200/40 dark:border-zinc-800/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="bg-zinc-100/50 dark:bg-zinc-900/40 p-4.5 rounded-lg border border-zinc-200/40 dark:border-zinc-800/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <span className="text-[9px] font-black tracking-widest text-emerald-500 uppercase block">
                 Nhận diện thành công
@@ -361,11 +361,11 @@ export default function UploadAnalyzer() {
                 Vui lòng hiệu chỉnh lại điểm số theo báo cáo thực tế:
               </h3>
             </div>
-            <div className="flex bg-white dark:bg-zinc-950 p-[3px] border border-zinc-200 dark:border-zinc-800 rounded-xl">
+            <div className="flex bg-white dark:bg-zinc-950 p-[3px] border border-zinc-200 dark:border-zinc-800 rounded-md">
               <button
                 type="button"
                 onClick={() => setTestType("dass")}
-                className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                className={`px-3 py-1.5 rounded text-[9px] font-black uppercase tracking-wider transition-all ${
                   testType === "dass" ? "bg-[#0071e3] text-white shadow" : "text-zinc-450 hover:text-zinc-700"
                 }`}
               >
@@ -374,7 +374,7 @@ export default function UploadAnalyzer() {
               <button
                 type="button"
                 onClick={() => setTestType("mmpi")}
-                className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                className={`px-3 py-1.5 rounded text-[9px] font-black uppercase tracking-wider transition-all ${
                   testType === "mmpi" ? "bg-indigo-650 text-white shadow" : "text-zinc-450 hover:text-zinc-700"
                 }`}
               >
@@ -386,7 +386,7 @@ export default function UploadAnalyzer() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             {/* Left: Input Editor Panel */}
-            <div className="lg:col-span-5 border border-zinc-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-3xl p-5 space-y-4 shadow-sm">
+            <div className="lg:col-span-5 border border-zinc-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-xl p-5 space-y-4 shadow-sm">
               <h4 className="text-xs font-black text-zinc-850 dark:text-zinc-200 uppercase tracking-wider border-b border-zinc-200/40 dark:border-zinc-800/40 pb-2">
                 Thông số nhập liệu
               </h4>
@@ -409,7 +409,7 @@ export default function UploadAnalyzer() {
                         max="42"
                         value={dassScores[field.key]}
                         onChange={(e) => handleDassChange(field.key, e.target.value)}
-                        className="w-20 px-3 py-1.5 rounded-xl border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center text-xs font-mono font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="w-20 px-3 py-1.5 rounded-md border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center text-xs font-mono font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       />
                     </div>
                   ))}
@@ -429,7 +429,7 @@ export default function UploadAnalyzer() {
                           max="120"
                           value={mmpiValidity[scale]}
                           onChange={(e) => handleMmpiValidityChange(scale, e.target.value)}
-                          className="w-18 px-2 py-1 rounded-lg border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center text-xs font-mono font-bold focus:ring-1 focus:ring-indigo-500"
+                          className="w-18 px-2 py-1 rounded border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center text-xs font-mono font-bold focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                     ))}
@@ -446,7 +446,7 @@ export default function UploadAnalyzer() {
                           max="120"
                           value={mmpiClinical[key]}
                           onChange={(e) => handleMmpiClinicalChange(key, e.target.value)}
-                          className="w-18 px-2 py-1 rounded-lg border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center text-xs font-mono font-bold focus:ring-1 focus:ring-indigo-500"
+                          className="w-18 px-2 py-1 rounded border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center text-xs font-mono font-bold focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                     ))}
@@ -455,7 +455,7 @@ export default function UploadAnalyzer() {
               )}
 
               {saveSuccess && (
-                <div className="p-3 mb-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-[10px] font-black uppercase tracking-wider text-center animate-scaleUp">
+                <div className="p-3 mb-3 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-[10px] font-black uppercase tracking-wider text-center animate-scaleUp">
                   Đã lưu báo cáo thành công!
                 </div>
               )}
@@ -463,7 +463,7 @@ export default function UploadAnalyzer() {
               <button
                 type="button"
                 onClick={handleSaveReport}
-                className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-md active:scale-[0.98] mb-3 flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-md text-[10px] font-black uppercase tracking-wider transition-all shadow-md active:scale-[0.98] mb-3 flex items-center justify-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-sm">save</span>
                 Lưu báo cáo vào lịch sử
@@ -475,7 +475,7 @@ export default function UploadAnalyzer() {
                   setFile(null);
                   setScanState("idle");
                 }}
-                className="w-full py-2.5 border border-zinc-300 dark:border-zinc-850 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
+                className="w-full py-2.5 border border-zinc-300 dark:border-zinc-850 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300 rounded-md text-[10px] font-black uppercase tracking-wider transition-all"
               >
                 Tải lên tệp tin khác
               </button>
@@ -484,7 +484,7 @@ export default function UploadAnalyzer() {
             {/* Right: Reports & Visualizations */}
             <div className="lg:col-span-7 space-y-5">
               {testType === "dass" ? (
-                <div className="border border-zinc-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-3xl p-5 space-y-4.5 shadow-sm">
+                <div className="border border-zinc-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-xl p-5 space-y-4.5 shadow-sm">
                   <h4 className="text-xs font-black text-zinc-850 dark:text-zinc-200 uppercase tracking-wider pb-2 border-b border-zinc-200/30">Kết quả đo DASS-42</h4>
                   {[
                     { key: "D", title: "Trầm Cảm", color: "bg-red-500", score: dassScores.D },
@@ -525,13 +525,13 @@ export default function UploadAnalyzer() {
 
                   {/* Low validity alert */}
                   {!isReliable && (
-                    <div className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 text-red-500 text-[10.5px] font-bold leading-relaxed shadow-sm">
+                    <div className="p-4 rounded-md border border-red-500/20 bg-red-500/5 text-red-500 text-[10.5px] font-bold leading-relaxed shadow-sm">
                       ⚠️ Cảnh báo: Điểm số trích xuất ghi nhận mức độ tin cậy thấp (Chỉ số F hoặc L tăng vượt ngưỡng). Tài liệu có thể bị nhòe hoặc số liệu chưa phản ánh đúng quy định lâm sàng.
                     </div>
                   )}
 
                   {/* Clinical scores list */}
-                  <div className="border border-zinc-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-3xl p-5 space-y-4.5 shadow-sm">
+                  <div className="border border-zinc-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-xl p-5 space-y-4.5 shadow-sm">
                     <h4 className="text-xs font-black text-zinc-850 dark:text-zinc-200 uppercase tracking-wider pb-2 border-b border-zinc-200/30">10 Thang đo lâm sàng nhân cách</h4>
                     
                     <div className="space-y-3.5 max-h-[300px] overflow-y-auto scrollbar-none pr-1">

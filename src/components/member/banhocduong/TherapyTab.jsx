@@ -76,7 +76,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
           </div>
  
           {!hasActiveJourneyOrResults ? (
-            <div className="max-w-md mx-auto text-center p-8 border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-3xl space-y-4 animate-scaleUp shadow-sm">
+            <div className="max-w-md mx-auto text-center p-8 border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-xl space-y-4 animate-scaleUp shadow-sm">
               <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mx-auto text-zinc-400">
                 <Lock className="w-5 h-5" />
               </div>
@@ -87,7 +87,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
               <button
                 type="button"
                 onClick={() => onNavigateToTab && onNavigateToTab("chat")}
-                className="px-5 py-2.5 rounded-xl border-2 border-zinc-900 dark:border-zinc-800 bg-[#0071e3] text-white text-[9.5px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] hover:bg-[#0077ed] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                className="px-5 py-2.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-[#0071e3] text-white text-[9.5px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] hover:bg-[#0077ed] active:translate-x-0.5 active:translate-y-0.5 transition-all"
               >
                 Trò chuyện cùng Chuyên viên ngay
               </button>
@@ -95,14 +95,14 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Activity 1: Đọc sách */}
-              <div className={`p-5 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+              <div className={`p-5 rounded-lg border-2 transition-all flex flex-col justify-between ${
                 isReadingUnlocked 
                   ? "bg-white dark:bg-zinc-900/50 border-zinc-950 dark:border-zinc-800 shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]" 
                   : "bg-zinc-100 dark:bg-zinc-955/20 border-zinc-200 dark:border-zinc-900 opacity-60"
               }`}>
                 <div className="space-y-2 text-left">
                   <div className="flex justify-between items-center">
-                    <span className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500 shrink-0">
+                    <span className="p-2 rounded-md bg-indigo-500/10 text-indigo-500 shrink-0">
                       <BookOpen className="w-5 h-5" />
                     </span>
                     {isReadingUnlocked ? (
@@ -125,7 +125,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
                     <button
                       type="button"
                       onClick={() => setActivePanel("reading")}
-                      className="w-full py-2 bg-indigo-500 hover:bg-indigo-650 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95"
+                      className="w-full py-2 bg-indigo-500 hover:bg-indigo-650 text-white text-[10px] font-black uppercase tracking-wider rounded-md transition-all shadow-sm active:scale-95"
                     >
                       Bắt đầu ngay
                     </button>
@@ -136,14 +136,14 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
               </div>
 
               {/* Activity 2: Ngồi tĩnh tâm */}
-              <div className={`p-5 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+              <div className={`p-5 rounded-lg border-2 transition-all flex flex-col justify-between ${
                 isMeditationUnlocked 
                   ? "bg-white dark:bg-zinc-900/50 border-zinc-950 dark:border-zinc-800 shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]" 
                   : "bg-zinc-100 dark:bg-zinc-955/20 border-zinc-200 dark:border-zinc-900 opacity-60"
               }`}>
                 <div className="space-y-2 text-left">
                   <div className="flex justify-between items-center">
-                    <span className="p-2 rounded-xl bg-teal-500/10 text-teal-500 shrink-0">
+                    <span className="p-2 rounded-md bg-teal-500/10 text-teal-500 shrink-0">
                       <Activity className="w-5 h-5" />
                     </span>
                     {isMeditationUnlocked ? (
@@ -166,7 +166,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
                     <button
                       type="button"
                       onClick={() => setActivePanel("meditation")}
-                      className="w-full py-2 bg-teal-500 hover:bg-teal-650 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95"
+                      className="w-full py-2 bg-teal-500 hover:bg-teal-650 text-white text-[10px] font-black uppercase tracking-wider rounded-md transition-all shadow-sm active:scale-95"
                     >
                       Bắt đầu ngay
                     </button>
@@ -177,14 +177,14 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
               </div>
 
               {/* Activity 3: Hít thở 4-7-8 */}
-              <div className={`p-5 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+              <div className={`p-5 rounded-lg border-2 transition-all flex flex-col justify-between ${
                 isBreathingUnlocked 
                   ? "bg-white dark:bg-zinc-900/50 border-zinc-950 dark:border-zinc-800 shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]" 
                   : "bg-zinc-100 dark:bg-zinc-955/20 border-zinc-200 dark:border-zinc-900 opacity-60"
               }`}>
                 <div className="space-y-2 text-left">
                   <div className="flex justify-between items-center">
-                    <span className="p-2 rounded-xl bg-amber-500/10 text-amber-500 shrink-0">
+                    <span className="p-2 rounded-md bg-amber-500/10 text-amber-500 shrink-0">
                       <Activity className="w-5 h-5 animate-pulse" />
                     </span>
                     {isBreathingUnlocked ? (
@@ -207,7 +207,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
                     <button
                       type="button"
                       onClick={() => setActivePanel("breath")}
-                      className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95"
+                      className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 text-[10px] font-black uppercase tracking-wider rounded-md transition-all shadow-sm active:scale-95"
                     >
                       Bắt đầu ngay
                     </button>
@@ -218,14 +218,14 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
               </div>
 
               {/* Activity 4: Depression CBT */}
-              <div className={`p-5 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+              <div className={`p-5 rounded-lg border-2 transition-all flex flex-col justify-between ${
                 isDepressionUnlocked 
                   ? "bg-white dark:bg-zinc-900/50 border-zinc-950 dark:border-zinc-800 shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]" 
                   : "bg-zinc-100 dark:bg-zinc-955/20 border-zinc-200 dark:border-zinc-900 opacity-60"
               }`}>
                 <div className="space-y-2 text-left">
                   <div className="flex justify-between items-center">
-                    <span className="p-2 rounded-xl bg-red-500/10 text-red-500 shrink-0">
+                    <span className="p-2 rounded-md bg-red-500/10 text-red-500 shrink-0">
                       <Heart className="w-5 h-5 animate-pulse" />
                     </span>
                     {isDepressionUnlocked ? (
@@ -248,7 +248,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
                     <button
                       type="button"
                       onClick={() => setActivePanel("depression")}
-                      className="w-full py-2 bg-red-500 hover:bg-red-650 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95"
+                      className="w-full py-2 bg-red-500 hover:bg-red-650 text-white text-[10px] font-black uppercase tracking-wider rounded-md transition-all shadow-sm active:scale-95"
                     >
                       Bắt đầu ngay
                     </button>
@@ -284,6 +284,8 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
       {activePanel === "breath" && (
         <BreathingTherapy
           onBack={() => setActivePanel(null)}
+          onCompleteActivity={handleCompleteActivity}
+          showToast={showToast}
         />
       )}
 

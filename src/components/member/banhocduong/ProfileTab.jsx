@@ -295,8 +295,8 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
     <div className="p-4 sm:p-6 space-y-6 text-left animate-fadeIn">
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500">
+        <div className="p-4 rounded-lg border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm flex items-center gap-3">
+          <div className="p-3 rounded-md bg-blue-500/10 text-blue-500">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
@@ -305,8 +305,8 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
+        <div className="p-4 rounded-lg border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm flex items-center gap-3">
+          <div className="p-3 rounded-md bg-emerald-500/10 text-emerald-500">
             <TrendingDown className="w-6 h-6" />
           </div>
           <div>
@@ -322,8 +322,8 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
+        <div className="p-4 rounded-lg border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm flex items-center gap-3">
+          <div className="p-3 rounded-md bg-amber-500/10 text-amber-500">
             <AlertTriangle className="w-6 h-6" />
           </div>
           <div>
@@ -335,7 +335,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
 
       {/* Due cycle alert warning */}
       {getCycleAndNextDueDate.isOverdue && (
-        <div className="p-4.5 rounded-2xl border border-red-500/25 bg-red-500/5 dark:bg-red-950/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 animate-pulse">
+        <div className="p-4.5 rounded-lg border border-red-500/25 bg-red-500/5 dark:bg-red-950/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 animate-pulse">
           <div className="flex items-center gap-2.5">
             <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
             <div>
@@ -363,7 +363,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
               }
               onNavigateToTab && onNavigateToTab("chat", getCycleAndNextDueDate.latestTestId || "dass42");
             }}
-            className="px-4.5 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-black text-[9px] uppercase tracking-wider shrink-0 shadow-sm flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
+            className="px-4.5 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white font-black text-[9px] uppercase tracking-wider shrink-0 shadow-sm flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
           >
             <Play className="w-3 h-3 fill-white" />
             Kiểm tra lại ngay
@@ -372,13 +372,13 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
       )}
 
       {/* Testing Cycle & Recommendation Card */}
-      <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-3">
+      <div className="p-5 rounded-lg border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-3">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-indigo-500 text-lg font-black font-semibold">health_and_safety</span>
           <h4 className="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white">Khuyến nghị Lâm sàng & Chu kỳ Theo dõi</h4>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-3.5 rounded-xl border border-zinc-150/70 dark:border-zinc-800/40 bg-zinc-50/20 dark:bg-black/5 text-[10px] space-y-1">
+          <div className="p-3.5 rounded-md border border-zinc-150/70 dark:border-zinc-800/40 bg-zinc-50/20 dark:bg-black/5 text-[10px] space-y-1">
             <span className="text-[8.5px] text-zinc-400 dark:text-zinc-500 font-black uppercase block">Thông tin chu kỳ</span>
             <div className="font-bold text-zinc-700 dark:text-zinc-350 space-y-0.5">
               <div>• Chu kỳ đánh giá: <span className="text-indigo-500 font-extrabold">{getCycleAndNextDueDate.cycle} ngày một lần</span></div>
@@ -389,7 +389,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
               )}
             </div>
           </div>
-          <div className="p-3.5 rounded-xl border border-zinc-150/70 dark:border-zinc-800/40 bg-zinc-50/20 dark:bg-black/5 text-[10px] flex items-center">
+          <div className="p-3.5 rounded-md border border-zinc-150/70 dark:border-zinc-800/40 bg-zinc-50/20 dark:bg-black/5 text-[10px] flex items-center">
             <p className="text-[9.5px] text-zinc-550 dark:text-zinc-400 font-semibold leading-relaxed">
               {getPersonalizedRecommendation()}
             </p>
@@ -398,7 +398,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
       </div>
 
       {/* 3. Metrics/Tests Status indicators list */}
-      <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-4">
+      <div className="p-5 rounded-lg border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-4">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-indigo-500 text-lg font-black">assignment</span>
           <h4 className="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white">Danh sách Chỉ số Đánh giá Lâm sàng</h4>
@@ -408,7 +408,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
             const hasTested = test.logs.length > 0;
             const latestLog = hasTested ? test.logs[test.logs.length - 1] : null;
             return (
-              <div key={test.id} className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/5 flex flex-col justify-between space-y-3 shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.05)]">
+              <div key={test.id} className="p-4 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/5 flex flex-col justify-between space-y-3 shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.05)]">
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between gap-1.5">
                     <span className="text-[10px] font-black text-indigo-600 dark:text-emerald-450 uppercase tracking-wider">{test.name}</span>
@@ -450,7 +450,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
                       }
                       onNavigateToTab && onNavigateToTab("chat", test.id);
                     }}
-                    className={`px-3 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-wider transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer shrink-0 ${
+                    className={`px-3 py-1.5 rounded font-black text-[8px] uppercase tracking-wider transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer shrink-0 ${
                       hasTested 
                         ? "bg-zinc-100 hover:bg-zinc-250 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-350/30"
                         : "bg-[#0071e3] hover:bg-[#0077ed] text-white shadow-sm"
@@ -476,7 +476,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
       </div>
 
       {/* Comparisons Table */}
-      <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-4">
+      <div className="p-5 rounded-lg border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-4">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-indigo-500 text-lg font-black">compare_arrows</span>
           <h4 className="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white">Bảng Đánh Giá Trước & Sau Khi Trị Liệu</h4>
@@ -629,14 +629,14 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
 
       {/* Warning/Abnormalities section */}
       {anomalies.length > 0 && (
-        <div className="p-5 rounded-2xl border border-red-500/20 bg-red-500/5 dark:bg-red-950/10 space-y-3">
+        <div className="p-5 rounded-lg border border-red-500/20 bg-red-500/5 dark:bg-red-950/10 space-y-3">
           <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
             <AlertTriangle className="w-5 h-5 text-red-500" />
             <h4 className="text-xs font-black uppercase tracking-wider">Cảnh Báo Biến Động Bất Thường Phát Hiện</h4>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
             {anomalies.map((a, idx) => (
-              <div key={idx} className="p-3.5 rounded-xl border border-red-500/10 bg-white/40 dark:bg-[#1a1924]/40 space-y-1.5 shadow-sm">
+              <div key={idx} className="p-3.5 rounded-md border border-red-500/10 bg-white/40 dark:bg-[#1a1924]/40 space-y-1.5 shadow-sm">
                 <span className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider">{a.title}</span>
                 <p className="text-[9.5px] text-zinc-650 dark:text-zinc-400 leading-relaxed font-bold">{a.desc}</p>
               </div>
@@ -646,7 +646,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
       )}
 
       {/* Visual chronological timeline */}
-      <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-4">
+      <div className="p-5 rounded-lg border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-4">
         <div className="flex items-center gap-2">
           <Clock className="w-5 h-5 text-indigo-500" />
           <h4 className="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white">Dòng Thời Gian Lịch Sử Điều Trị & Phân Tích</h4>
@@ -691,7 +691,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
                   {/* Timeline dot */}
                   <div className={`absolute left-[-6.5px] top-1.5 w-3 h-3 rounded-full border-2 ${color} z-10`} />
                   
-                  <div className="space-y-1.5 p-3 rounded-xl border border-zinc-150/70 dark:border-zinc-800/40 bg-zinc-50/20 dark:bg-black/5 hover:border-indigo-500/20 transition-all">
+                  <div className="space-y-1.5 p-3 rounded-md border border-zinc-150/70 dark:border-zinc-800/40 bg-zinc-50/20 dark:bg-black/5 hover:border-indigo-500/20 transition-all">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                       <span className="text-[10px] font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">{title}</span>
                       <div className="flex items-center gap-1 text-[8.5px] text-zinc-400 font-bold">

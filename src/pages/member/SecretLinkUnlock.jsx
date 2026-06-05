@@ -78,13 +78,13 @@ export default function SecretLinkUnlock() {
   if (error) {
     return (
       <div className="min-h-screen bg-[#0b0a0f] flex items-center justify-center p-4">
-        <div className="bg-[#12111a] rounded-3xl p-8 max-w-sm w-full text-center border border-zinc-800 shadow-2xl">
+        <div className="bg-[#12111a] rounded-xl p-8 max-w-sm w-full text-center border border-zinc-800 shadow-2xl">
           <span className="material-symbols-outlined text-rose-500 text-5xl mb-4">error</span>
           <h2 className="text-white font-black text-xl mb-2">Lỗi Truy Cập</h2>
           <p className="text-zinc-400 text-sm">{error}</p>
           <button 
             onClick={() => navigate('/')}
-            className="mt-6 bg-white text-black font-black uppercase text-xs py-3 px-6 rounded-xl hover:bg-zinc-200 transition-colors w-full"
+            className="mt-6 bg-white text-black font-black uppercase text-xs py-3 px-6 rounded-md hover:bg-zinc-200 transition-colors w-full"
           >
             Về Trang Chủ
           </button>
@@ -102,7 +102,7 @@ export default function SecretLinkUnlock() {
       <div className={`relative z-10 bg-[#12111a] rounded-[2rem] p-8 sm:p-10 max-w-sm w-full border border-zinc-800 shadow-2xl transition-transform ${shake ? 'animate-shake' : ''}`}>
         
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white">
+          <div className="w-16 h-16 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white">
             <span className="material-symbols-outlined text-3xl">lock</span>
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function SecretLinkUnlock() {
               value={passwordInput}
               onChange={(e) => setPasswordInput(e.target.value)}
               disabled={checking}
-              className={`w-full bg-zinc-900 border ${passwordError ? 'border-rose-500/50 focus:border-rose-500 focus:ring-rose-500' : 'border-zinc-800 focus:border-indigo-500 focus:ring-indigo-500'} text-white rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-1 transition-all font-mono`}
+              className={`w-full bg-zinc-900 border ${passwordError ? 'border-rose-500/50 focus:border-rose-500 focus:ring-rose-500' : 'border-zinc-800 focus:border-indigo-500 focus:ring-indigo-500'} text-white rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:ring-1 transition-all font-mono`}
             />
           </div>
           {passwordError && (
@@ -133,7 +133,7 @@ export default function SecretLinkUnlock() {
           <button
             type="submit"
             disabled={checking || !passwordInput.trim()}
-            className="w-full py-4 rounded-2xl bg-white text-black font-black uppercase text-xs tracking-widest hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-lg bg-white text-black font-black uppercase text-xs tracking-widest hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
             {checking ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>

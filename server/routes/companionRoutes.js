@@ -11,19 +11,29 @@ router.get('/history', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    let historyDoc = await CompanionHistory.findOne({ email });
-    if (!historyDoc) {
-      historyDoc = new CompanionHistory({
-        email,
-        healingActive: false,
-        healingDuration: 30,
-        historyLogs: []
-      });
-      await historyDoc.save();
-    }
+    const historyDoc = await CompanionHistory.findOneAndUpdate(
+      { email },
+      {
+        $setOnInsert: {
+          email,
+          healingActive: false,
+          healingDuration: 30,
+          historyLogs: [],
+          chatMessages: []
+        }
+      },
+      {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true
+      }
+    );
 
     res.json(historyDoc);
   } catch (error) {
+    import('fs').then(fs => {
+      fs.writeFileSync('/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/error_log.txt', error.stack || error.message);
+    }).catch(console.error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -47,30 +57,45 @@ router.post('/history', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    let historyDoc = await CompanionHistory.findOne({ email });
-    if (!historyDoc) {
-      historyDoc = new CompanionHistory({ email });
+    const $set = {};
+
+    if (healingActive !== undefined) $set.healingActive = healingActive;
+    if (healingDuration !== undefined) {
+      const dur = Number(healingDuration);
+      $set.healingDuration = !isNaN(dur) ? dur : 30;
     }
+    if (healingStartDate !== undefined) $set.healingStartDate = healingStartDate;
+    if (lastCheckinDate !== undefined) $set.lastCheckinDate = lastCheckinDate;
+    if (chatDistressCount !== undefined) {
+      const val = Number(chatDistressCount);
+      $set.chatDistressCount = !isNaN(val) ? val : 0;
+    }
+    if (lastTestDate !== undefined) $set.lastTestDate = lastTestDate;
+    if (historyLogs !== undefined) $set.historyLogs = historyLogs;
+    if (chatMessages !== undefined) $set.chatMessages = chatMessages;
 
-    if (healingActive !== undefined) historyDoc.healingActive = healingActive;
-    if (healingDuration !== undefined) historyDoc.healingDuration = healingDuration;
-    if (healingStartDate !== undefined) historyDoc.healingStartDate = healingStartDate;
-    if (lastCheckinDate !== undefined) historyDoc.lastCheckinDate = lastCheckinDate;
-    if (chatDistressCount !== undefined) historyDoc.chatDistressCount = chatDistressCount;
-    if (lastTestDate !== undefined) historyDoc.lastTestDate = lastTestDate;
-    if (historyLogs !== undefined) historyDoc.historyLogs = historyLogs;
-    if (chatMessages !== undefined) historyDoc.chatMessages = chatMessages;
-
-    await historyDoc.save();
+    const historyDoc = await CompanionHistory.findOneAndUpdate(
+      { email },
+      {
+        $setOnInsert: { email },
+        ...(Object.keys($set).length ? { $set } : {})
+      },
+      {
+        upsert: true,
+        new: true,
+        runValidators: true,
+        setDefaultsOnInsert: true
+      }
+    );
 
     // Sync new companion logs to user Bio history if Bio exists
     try {
       const Bio = (await import('../models/Bio.js')).default;
       const bioDoc = await Bio.findOne({ email });
-      if (bioDoc && historyLogs && historyLogs.length > 0) {
+      if (bioDoc && historyDoc.historyLogs && historyDoc.historyLogs.length > 0) {
         const existingBioLogs = bioDoc.history.filter(h => h.title && h.title.startsWith('Bạn Học Đường:'));
-        if (historyLogs.length > existingBioLogs.length) {
-          const newLogs = historyLogs.slice(existingBioLogs.length);
+        if (historyDoc.historyLogs.length > existingBioLogs.length) {
+          const newLogs = historyDoc.historyLogs.slice(existingBioLogs.length);
           newLogs.forEach(log => {
             let type = 'info';
             let icon = 'psychology';
@@ -89,7 +114,7 @@ router.post('/history', async (req, res) => {
               title = `Bạn Học Đường: Hoàn thành bài test ${log.test.toUpperCase()}`;
               if (log.test === 'dass42' && log.scores) {
                 detail = `Trầm cảm: ${log.scores.D}/42, Lo âu: ${log.scores.A}/42, Căng thẳng: ${log.scores.S}/42.`;
-              } else if (log.test === 'mmpi30') {
+              } else if (log.test === 'mmpi30' && log.clinical) {
                 const elev = log.clinical ? log.clinical.filter(c => c.score >= 70).length : 0;
                 detail = `Mini-MMPI: ${elev}/10 thang đo vượt ngưỡng lâm sàng.`;
               } else {
@@ -124,6 +149,9 @@ router.post('/history', async (req, res) => {
 
     res.json({ success: true, companionHistory: historyDoc });
   } catch (error) {
+    import('fs').then(fs => {
+      fs.writeFileSync('/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/error_log.txt', error.stack || error.message);
+    }).catch(console.error);
     res.status(500).json({ error: error.message });
   }
 });

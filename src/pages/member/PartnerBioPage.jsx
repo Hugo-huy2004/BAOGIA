@@ -367,8 +367,8 @@ export default function PartnerBioPage() {
   if (accessStatus === "denied") {
     return (
       <main className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-[#12111a] border border-zinc-200/50 dark:border-zinc-800/80 p-8 rounded-3xl max-w-sm w-full shadow-2xl text-center space-y-4">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-rose-50 dark:bg-rose-950/20 text-rose-500 flex items-center justify-center">
+        <div className="bg-white dark:bg-[#12111a] border border-zinc-200/50 dark:border-zinc-800/80 p-8 rounded-xl max-w-sm w-full shadow-2xl text-center space-y-4">
+          <div className="w-12 h-12 mx-auto rounded-lg bg-rose-50 dark:bg-rose-950/20 text-rose-500 flex items-center justify-center">
             <span className="material-symbols-outlined">lock</span>
           </div>
           <h2 className="text-base font-bold">Không Có Quyền Truy Cập</h2>
@@ -383,7 +383,7 @@ export default function PartnerBioPage() {
   if (!email) {
     return (
       <main className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-[#12111a] border border-zinc-200/50 dark:border-zinc-800/80 p-8 rounded-3xl max-w-sm w-full shadow-2xl text-center space-y-6">
+        <div className="bg-white dark:bg-[#12111a] border border-zinc-200/50 dark:border-zinc-800/80 p-8 rounded-xl max-w-sm w-full shadow-2xl text-center space-y-6">
           <div className="flex justify-center">
             <HugoLogo className="text-sm font-black" />
           </div>
@@ -395,7 +395,7 @@ export default function PartnerBioPage() {
           </div>
 
           {toast.message && (
-            <div className="text-[10px] font-semibold text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-xl px-3 py-2">
+            <div className="text-[10px] font-semibold text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-md px-3 py-2">
               {toast.message}
             </div>
           )}
@@ -406,12 +406,12 @@ export default function PartnerBioPage() {
               placeholder="Email của bạn..."
               value={inputEmail}
               onChange={(e) => setInputEmail(e.target.value)}
-              className="w-full text-center px-4 py-3 rounded-xl bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-zinc-800 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+              className="w-full text-center px-4 py-3 rounded-md bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-zinc-800 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
               required
             />
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-indigo-650 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-all"
+              className="w-full bg-primary hover:bg-indigo-650 text-white font-bold py-3 rounded-md text-xs uppercase tracking-wider transition-all"
             >
               Thiết Kế Ngay
             </button>
@@ -440,7 +440,7 @@ export default function PartnerBioPage() {
       
       {/* Toast alert */}
       {toast.message && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/90 dark:bg-[#1c1c1e]/90 backdrop-blur-xl shadow-2xl border border-zinc-200/50 dark:border-zinc-800/80 w-[calc(100vw-32px)] max-w-md animate-toast-in">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-lg bg-white/90 dark:bg-[#1c1c1e]/90 backdrop-blur-xl shadow-2xl border border-zinc-200/50 dark:border-zinc-800/80 w-[calc(100vw-32px)] max-w-md animate-toast-in">
           <span className={`material-symbols-outlined shrink-0 text-xl ${
             toast.type === "success" ? "text-emerald-500" : "text-rose-500"
           }`}>
@@ -488,10 +488,10 @@ export default function PartnerBioPage() {
               
               <div className="space-y-4">
                   {/* Photo upload header */}
-                  <div className="flex items-center gap-4 bg-white dark:bg-[#1c1c1e] p-4 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+                  <div className="flex items-center gap-4 bg-white dark:bg-[#1c1c1e] p-4 rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
                     <div 
                       onClick={() => avatarInputRef.current?.click()}
-                      className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center cursor-pointer overflow-hidden group relative shrink-0"
+                      className="w-16 h-16 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center cursor-pointer overflow-hidden group relative shrink-0"
                     >
                       {bioData.avatarUrl ? (
                         <img src={optimizeCloudinaryUrl(bioData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover relative z-10" />
@@ -526,7 +526,7 @@ export default function PartnerBioPage() {
                   </div>
 
                   {/* Basic fields */}
-                  <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                  <div className="bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">person</span>
                       <label className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider w-24 shrink-0">Họ và Tên</label>
@@ -564,7 +564,7 @@ export default function PartnerBioPage() {
                   </div>
 
                   {/* Contact Info */}
-                  <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                  <div className="bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">school</span>
                       <label className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider w-24 shrink-0">Học vấn</label>
@@ -612,13 +612,13 @@ export default function PartnerBioPage() {
                   </div>
 
                   {/* Links Editor */}
-                  <div className="bg-white dark:bg-[#1c1c1e] p-5 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
+                  <div className="bg-white dark:bg-[#1c1c1e] p-5 rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
                     <h3 className="text-[10px] font-bold text-zinc-450 uppercase tracking-widest">LIÊN KẾT MẠNG XÃ HỘI (Tối đa 5)</h3>
                     
                     {bioData.links.length > 0 && (
                       <div className="space-y-2">
                         {bioData.links.map((link, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 dark:bg-black/25 border border-zinc-150 dark:border-zinc-800/80">
+                          <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-black/25 border border-zinc-150 dark:border-zinc-800/80">
                             <div className="min-w-0">
                               <span className="font-bold text-xs block text-slate-800 dark:text-zinc-100 truncate">{link.label}</span>
                               <span className="text-[9px] text-zinc-400 dark:text-zinc-500 font-mono truncate block max-w-md">{link.url}</span>
@@ -636,27 +636,27 @@ export default function PartnerBioPage() {
                     )}
 
                     {bioData.links.length < 5 && (
-                      <div className="bg-zinc-50 dark:bg-black/10 p-3.5 rounded-2xl border border-zinc-200/40 space-y-3">
+                      <div className="bg-zinc-50 dark:bg-black/10 p-3.5 rounded-lg border border-zinc-200/40 space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <input
                             type="text"
                             placeholder="Nhãn (VD: Zalo, Instagram...)"
                             value={newLinkLabel}
                             onChange={(e) => setNewLinkLabel(e.target.value)}
-                            className="bg-white dark:bg-[#12111a] border border-zinc-200 dark:border-zinc-800 rounded-xl p-2.5 text-xs focus:outline-none"
+                            className="bg-white dark:bg-[#12111a] border border-zinc-200 dark:border-zinc-800 rounded-md p-2.5 text-xs focus:outline-none"
                           />
                           <input
                             type="url"
                             placeholder="https://link-lien-ket.com"
                             value={newLinkUrl}
                             onChange={(e) => setNewLinkUrl(e.target.value)}
-                            className="bg-white dark:bg-[#12111a] border border-zinc-200 dark:border-zinc-800 rounded-xl p-2.5 text-xs focus:outline-none"
+                            className="bg-white dark:bg-[#12111a] border border-zinc-200 dark:border-zinc-800 rounded-md p-2.5 text-xs focus:outline-none"
                           />
                         </div>
                         <button
                           type="button"
                           onClick={addLink}
-                          className="w-full bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold py-2 rounded-xl text-[10px] uppercase tracking-wider transition-colors"
+                          className="w-full bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold py-2 rounded-md text-[10px] uppercase tracking-wider transition-colors"
                         >
                           + Thêm liên kết mạng xã hội
                         </button>
@@ -666,7 +666,7 @@ export default function PartnerBioPage() {
               </div>
 
               {/* Form submit controller */}
-              <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-[#1c1c1e] rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+              <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">LƯU CÀI ĐẶT</p>
                   <p className="text-[8px] text-zinc-400 truncate">Hệ thống đồng bộ dữ liệu đám mây của đối tác.</p>
@@ -784,7 +784,7 @@ export default function PartnerBioPage() {
                         </div>
 
                         {bioData.bio && (
-                          <div className="relative w-full p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-inner text-left">
+                          <div className="relative w-full p-5 rounded-lg bg-white/5 border border-white/10 backdrop-blur-md shadow-inner text-left">
                             <span className="absolute -top-3 -left-1 font-serif text-4xl text-white/20 select-none">“</span>
                             <p className="text-xs leading-relaxed text-white/90 font-serif tracking-wide italic pl-4 pr-2">
                               {bioData.bio}
@@ -794,7 +794,7 @@ export default function PartnerBioPage() {
                         )}
 
                         {(bioData.education || bioData.jobTitle || bioData.phone || bioData.contactEmail) && (
-                          <div className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm text-[10px] space-y-3 text-left">
+                          <div className="w-full p-4 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm text-[10px] space-y-3 text-left">
                             {bioData.jobTitle && (
                               <div className="flex items-center justify-between border-b border-white/5 pb-2">
                                 <div className="flex items-center gap-1.5 text-white/40">
@@ -899,14 +899,14 @@ export default function PartnerBioPage() {
       {/* CROPPER IMAGE MODAL */}
       {cropper.isOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#12111a] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
+          <div className="bg-white dark:bg-[#12111a] border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
             <div className="text-center space-y-1">
               <h3 className="font-bold text-xs text-slate-800 dark:text-white uppercase tracking-wider">Căn Chỉnh Hình Ảnh</h3>
               <p className="text-[9px] text-zinc-400">Nhấn và kéo để di chuyển vùng cắt thích hợp.</p>
             </div>
 
             <div 
-              className="w-48 h-48 rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-black/40 mx-auto relative cursor-move select-none"
+              className="w-48 h-48 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-black/40 mx-auto relative cursor-move select-none"
               onMouseDown={startDrag}
               onMouseMove={doDrag}
               onMouseUp={endDrag}
@@ -928,7 +928,7 @@ export default function PartnerBioPage() {
                 }}
               />
               {/* Highlight circle boundary overlay */}
-              <div className="absolute inset-0 border border-indigo-500/30 rounded-2xl pointer-events-none" />
+              <div className="absolute inset-0 border border-indigo-500/30 rounded-lg pointer-events-none" />
             </div>
 
             {/* Slider zoom */}
@@ -952,14 +952,14 @@ export default function PartnerBioPage() {
               <button
                 type="button"
                 onClick={() => setCropper({ isOpen: false, imageSrc: null, zoom: 1, aspect: 1, offset: { x: 0, y: 0 } })}
-                className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-zinc-200 py-2.5 rounded-xl text-[10px] font-bold transition-all"
+                className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-zinc-200 py-2.5 rounded-md text-[10px] font-bold transition-all"
               >
                 Hủy
               </button>
               <button
                 type="button"
                 onClick={saveCroppedImage}
-                className="flex-grow bg-indigo-650 hover:bg-indigo-700 text-white py-2.5 rounded-xl text-[10px] font-bold transition-all"
+                className="flex-grow bg-indigo-650 hover:bg-indigo-700 text-white py-2.5 rounded-md text-[10px] font-bold transition-all"
               >
                 Lưu Vùng Cắt
               </button>

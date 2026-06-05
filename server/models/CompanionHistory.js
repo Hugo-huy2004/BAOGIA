@@ -94,7 +94,7 @@ const CompanionHistorySchema = new mongoose.Schema(
       default: []
     }
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 const CompanionHistory = mongoose.model('CompanionHistory', CompanionHistorySchema);

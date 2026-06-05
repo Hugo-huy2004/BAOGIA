@@ -36,8 +36,39 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
       }
     }
   };
+  const getQualifiedActivitiesCount = (logs) => {
+    if (!logs) return 0;
+    return logs.filter(log => {
+      if (log.type !== "therapy_activity") return false;
+      const name = (log.name || "").toLowerCase();
+      const desc = (log.desc || "").toLowerCase();
+      if (name.includes("đọc sách")) {
+        const match = desc.match(/(\d+)\s*phút/);
+        return (match ? parseInt(match[1]) : 0) >= 30;
+      }
+      if (name.includes("tĩnh tâm")) {
+        const match = desc.match(/(\d+)\s*phút/);
+        return (match ? parseInt(match[1]) : 0) >= 30;
+      }
+      if (name.includes("hít thở")) {
+        const match = desc.match(/(\d+)\s*phút/);
+        return (match ? parseInt(match[1]) : 0) >= 10;
+      }
+      if (name.includes("trầm cảm") || name.includes("cbt")) {
+        const match = desc.match(/(\d+)\s*phút/);
+        return (match ? parseInt(match[1]) : 0) >= 10;
+      }
+      return false;
+    }).length;
+  };
+
   const currentDay = getProgressDay();
-  const progressPercent = Math.min(100, Math.round((currentDay / duration) * 100));
+  const qualifiedCount = getQualifiedActivitiesCount(historyLogs);
+  const bonusPercent = qualifiedCount * 2;
+  const shortenedDays = Math.floor(qualifiedCount * 0.6);
+  const effectiveDuration = Math.max(1, duration - shortenedDays);
+  
+  const progressPercent = Math.min(100, Math.round((currentDay / duration) * 100) + bonusPercent);
 
   const formatDateTime = (isoString) => {
     try {
@@ -191,7 +222,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
   }, [historyLogs]);
 
   return (
-    <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-zinc-500/5 dark:from-emerald-950/15 dark:via-zinc-900/40 dark:to-zinc-950/20 backdrop-blur-xl rounded-3xl border border-emerald-500/20 dark:border-emerald-500/10 shadow-lg p-5 space-y-4 animate-scaleUp">
+    <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-zinc-500/5 dark:from-emerald-950/15 dark:via-zinc-900/40 dark:to-zinc-950/20 backdrop-blur-xl rounded-xl border border-emerald-500/20 dark:border-emerald-500/10 shadow-lg p-5 space-y-4 animate-scaleUp">
       {/* Journey details */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-zinc-250/50 dark:border-zinc-800/40 pb-3">
         <div className="space-y-1">
@@ -199,8 +230,18 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <h3 className="text-xs sm:text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider">Hành Trình Chăm Sóc Tinh Thần</h3>
           </div>
-          <p className="text-[10px] text-zinc-550 dark:text-zinc-400 font-bold uppercase tracking-widest">
-            Ngày {currentDay}/{duration} • Bắt đầu: {startDate ? new Date(startDate).toLocaleDateString("vi-VN") : "Hôm nay"}
+          <p className="text-[10px] text-zinc-550 dark:text-zinc-400 font-bold uppercase tracking-widest flex flex-wrap items-center gap-1.5">
+            <span>Ngày {currentDay}/{effectiveDuration}</span>
+            <span>•</span>
+            <span>Bắt đầu: {startDate ? new Date(startDate).toLocaleDateString("vi-VN") : "Hôm nay"}</span>
+            {shortenedDays > 0 && (
+              <>
+                <span>•</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-black animate-pulse bg-emerald-500/10 px-2 py-0.5 rounded-full text-[9px] uppercase">
+                  Rút ngắn -{shortenedDays} ngày 🎉
+                </span>
+              </>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -208,7 +249,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
             <button
               type="button"
               onClick={handleEnablePush}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-500/20 hover:border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/15 text-[10px] font-black text-emerald-600 dark:text-emerald-450 uppercase tracking-wider transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-emerald-500/20 hover:border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/15 text-[10px] font-black text-emerald-600 dark:text-emerald-450 uppercase tracking-wider transition-all"
             >
               <Bell className="w-3.5 h-3.5 animate-bounce text-emerald-500" />
               Bật nhắc nhở đẩy
@@ -217,7 +258,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
           <button
             type="button"
             onClick={onCancel}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-500/20 hover:border-red-500 bg-red-500/5 hover:bg-red-500/15 text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-red-500/20 hover:border-red-500 bg-red-500/5 hover:bg-red-500/15 text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider transition-all"
           >
             <Trash2 className="w-3.5 h-3.5" />
             Dừng lộ trình
@@ -272,7 +313,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                 };
 
                 return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2">
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2">
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-500">
                       <span>DASS-42 (Trầm cảm / Lo âu / Căng thẳng)</span>
                       {showCompare && <span className="text-[8.5px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-full uppercase font-black">Có biến động</span>}
@@ -323,7 +364,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                 const elevDiff = currElev - initElev;
 
                 return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2">
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2">
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-500">
                       <span>Mini-MMPI (10 Thang Lâm Sàng)</span>
                       {showCompare && <span className="text-[8.5px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-full uppercase font-black">Có biến động</span>}
@@ -363,7 +404,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                 const diff = current.score - initial.score;
 
                 return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2">
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2">
                     <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500">PHQ-9 Trầm Cảm</div>
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div>
@@ -392,7 +433,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                 const diff = current.score - initial.score;
 
                 return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2">
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2">
                     <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500">GAD-7 Lo Âu</div>
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div>
@@ -421,7 +462,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                 const diff = (current.score * 4) - (initial.score * 4);
 
                 return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2 sm:col-span-2">
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2 sm:col-span-2">
                     <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500">WHO-5 Chỉ Số Hạnh Phúc</div>
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div>
@@ -460,7 +501,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
             {anomalies.map((anom, idx) => (
               <div
                 key={idx}
-                className={`p-3 rounded-2xl flex gap-3 items-start border ${
+                className={`p-3 rounded-lg flex gap-3 items-start border ${
                   anom.severity === "high"
                     ? "bg-red-500/5 dark:bg-red-950/10 border-red-500/20 text-red-800 dark:text-red-300"
                     : "bg-amber-500/5 dark:bg-amber-950/10 border-amber-500/20 text-amber-800 dark:text-amber-300"
@@ -475,14 +516,14 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
             ))}
           </div>
         ) : (
-          <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl flex gap-3 items-center text-emerald-800 dark:text-emerald-350">
+          <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-lg flex gap-3 items-center text-emerald-800 dark:text-emerald-350">
             <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
             <p className="text-[10px] font-black uppercase tracking-wider">Chưa phát hiện biểu hiện bất thường nào. Tinh thần của cậu đang được bảo vệ rất tốt!</p>
           </div>
         )}
 
         {/* Recommendation box */}
-        <div className="p-3.5 bg-white/40 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/40 rounded-2xl flex gap-3 items-start">
+        <div className="p-3.5 bg-white/40 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/40 rounded-lg flex gap-3 items-start">
           <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5 animate-pulse" />
           <p className="text-[10.5px] text-zinc-650 dark:text-zinc-350 font-semibold leading-relaxed">
             {recommendation}
@@ -575,7 +616,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                         log.type === "duration_change" ? "bg-purple-500" : "bg-zinc-400"
                       }`} />
                       
-                      <div className="flex-1 space-y-1 bg-white/30 dark:bg-zinc-900/25 p-3 rounded-2xl border border-zinc-200/40 dark:border-zinc-800/20 shadow-sm">
+                      <div className="flex-1 space-y-1 bg-white/30 dark:bg-zinc-900/25 p-3 rounded-lg border border-zinc-200/40 dark:border-zinc-800/20 shadow-sm">
                         <div className="flex justify-between items-center text-[8.5px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pl-0.5">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3 text-emerald-500/60" />
@@ -643,7 +684,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
 
   useEffect(() => {
     syncWithDb();
-  }, [bio]);
+  }, [bio?.email]);
 
   // Unified updates dispatcher to save to MongoDB
   const handleUpdateCompanionState = async (updates) => {
@@ -673,10 +714,14 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
 
       // 2. Build payload using localStorage as the synchronous source of truth
       const isHealingActive = localStorage.getItem("banhocduong_healing_mode") === "active";
-      const healingDur = Number(localStorage.getItem("banhocduong_healing_duration") || 30);
+      const parsedDur = parseInt(localStorage.getItem("banhocduong_healing_duration"), 10);
+      const healingDur = (!isNaN(parsedDur) && parsedDur > 0) ? parsedDur : 30;
       const healingStart = localStorage.getItem("banhocduong_healing_start_date") || "";
       const logs = JSON.parse(localStorage.getItem("banhocduong_history") || "[]");
       const msgs = JSON.parse(localStorage.getItem("banhocduong_chat_messages") || "[]");
+
+      const rawDistressCount = Number(localStorage.getItem("banhocduong_chat_distress_count") || 0);
+      const distressCount = !isNaN(rawDistressCount) ? rawDistressCount : 0;
 
       const payload = {
         email: bio.email,
@@ -685,7 +730,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
         healingStartDate: healingStart,
         lastCheckinDate: updates.lastCheckinDate !== undefined ? updates.lastCheckinDate : (localStorage.getItem("banhocduong_last_checkin_date") || ""),
         lastTestDate: updates.lastTestDate !== undefined ? updates.lastTestDate : (localStorage.getItem("banhocduong_last_test_date") || ""),
-        chatDistressCount: updates.chatDistressCount !== undefined ? updates.chatDistressCount : Number(localStorage.getItem("banhocduong_chat_distress_count") || 0),
+        chatDistressCount: updates.chatDistressCount !== undefined ? updates.chatDistressCount : distressCount,
         historyLogs: logs,
         chatMessages: msgs
       };
@@ -756,6 +801,43 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
   };
 
   const handleCancelHealing = () => {
+    const currentDay = getProgressDay();
+    const getQualifiedActivitiesCount = (logs) => {
+      if (!logs) return 0;
+      return logs.filter(log => {
+        if (log.type !== "therapy_activity") return false;
+        const name = (log.name || "").toLowerCase();
+        const desc = (log.desc || "").toLowerCase();
+        if (name.includes("đọc sách")) {
+          const match = desc.match(/(\d+)\s*phút/);
+          return (match ? parseInt(match[1]) : 0) >= 30;
+        }
+        if (name.includes("tĩnh tâm")) {
+          const match = desc.match(/(\d+)\s*phút/);
+          return (match ? parseInt(match[1]) : 0) >= 30;
+        }
+        if (name.includes("hít thở")) {
+          const match = desc.match(/(\d+)\s*phút/);
+          return (match ? parseInt(match[1]) : 0) >= 10;
+        }
+        if (name.includes("trầm cảm") || name.includes("cbt")) {
+          const match = desc.match(/(\d+)\s*phút/);
+          return (match ? parseInt(match[1]) : 0) >= 10;
+        }
+        return false;
+      }).length;
+    };
+
+    const qualifiedCount = getQualifiedActivitiesCount(historyLogs);
+    const bonusPercent = qualifiedCount * 2;
+    const progressPercent = Math.min(100, Math.round((currentDay / healingDuration) * 100) + bonusPercent);
+
+    if (progressPercent < 60) {
+      if (showToast) {
+        showToast(`Cậu ơi, để dừng lộ trình đồng hành thì tụi mình cần hoàn tất tối thiểu 60% chặng đường nhé (hiện tại cậu đạt: ${progressPercent}%). Hãy kiên trì thêm chút nữa nha, tớ luôn ở bên cạnh tiếp thêm sức mạnh cho cậu! 💪🌸`, 'warning');
+      }
+      return;
+    }
     setShowCancelModal(true);
   };
 
@@ -765,10 +847,10 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
       healingActive: false,
       healingDuration: 30,
       healingStartDate: null,
-      historyLogs: []
+      historyLogs: historyLogs // Keep existing history logs!
     });
     if (showToast) {
-      showToast('Đã dừng chế độ chăm sóc tinh thần và xóa sạch lịch sử.', 'success');
+      showToast('Cậu đã dừng lộ trình chăm sóc tinh thần hiện tại thành công. Lịch sử tiến trình của cậu vẫn được tớ lưu trữ đầy đủ ở Hồ Sơ nhé! 🌸', 'success');
     }
   };
 
@@ -795,7 +877,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
       )}
 
       {/* Subtabs headers */}
-      <div className="flex items-center justify-start md:justify-center gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none p-[4px] rounded-2xl bg-zinc-150/60 dark:bg-zinc-900/65 border border-zinc-250/30 dark:border-zinc-800/50 max-w-3xl mx-auto w-full">
+      <div className="flex items-center justify-start md:justify-center gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none p-[4px] rounded-lg bg-zinc-150/60 dark:bg-zinc-900/65 border border-zinc-250/30 dark:border-zinc-800/50 max-w-3xl mx-auto w-full">
         {[
           { id: "chat", label: "Tâm Sự", icon: MessageSquare },
           { id: "therapy", label: "Trị Liệu", icon: Heart },
@@ -808,7 +890,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
               key={tab.id}
               type="button"
               onClick={() => handleSubTabChange(tab.id)}
-              className={`flex items-center justify-center gap-2 px-4 py-2.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-300 shrink-0 ${
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-md transition-all duration-300 shrink-0 ${
                 isActive
                   ? "bg-white dark:bg-zinc-800 text-[#0071e3] dark:text-emerald-450 shadow-md scale-[1.02]"
                   : "text-zinc-550 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-white/30 dark:hover:bg-white/5"
@@ -822,7 +904,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
       </div>
 
       {/* Main tab wrapper */}
-      <div className="bg-white/70 dark:bg-[#12111a]/70 backdrop-blur-2xl rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-xl overflow-hidden min-h-[500px] flex flex-col justify-between transition-all">
+      <div className="bg-white/70 dark:bg-[#12111a]/70 backdrop-blur-2xl rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-xl overflow-hidden min-h-[500px] flex flex-col justify-between transition-all">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeSubTab}
@@ -882,7 +964,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-gradient-to-br from-emerald-500/10 via-[#12111a] to-teal-500/15 backdrop-blur-2xl rounded-3xl border border-emerald-500/30 p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-5 relative overflow-hidden"
+              className="bg-gradient-to-br from-emerald-500/10 via-[#12111a] to-teal-500/15 backdrop-blur-2xl rounded-xl border border-emerald-500/30 p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-5 relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500" />
               
@@ -895,7 +977,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-bold">Lộ trình đồng hành thích ứng</p>
               </div>
 
-              <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl space-y-2 text-left">
+              <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-lg space-y-2 text-left">
                 <p className="text-[10.5px] text-zinc-350 leading-relaxed font-medium">
                   Hệ thống ghi nhận: <span className="text-emerald-450 font-bold">{adaptationAlert.improvement}</span>.
                 </p>
@@ -915,7 +997,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
               <button
                 type="button"
                 onClick={() => setAdaptationAlert(null)}
-                className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-emerald-500/10 active:scale-[0.98]"
+                className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-black uppercase tracking-wider rounded-md transition-all shadow-lg shadow-emerald-500/10 active:scale-[0.98]"
               >
                 Tuyệt vời, tiếp tục thôi!
               </button>
@@ -937,7 +1019,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-gradient-to-br from-red-500/10 via-[#12111a] to-zinc-900/40 backdrop-blur-2xl rounded-3xl border border-red-500/30 p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-5 relative overflow-hidden"
+              className="bg-gradient-to-br from-red-500/10 via-[#12111a] to-zinc-900/40 backdrop-blur-2xl rounded-xl border border-red-500/30 p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-5 relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-red-500 via-orange-400 to-red-500" />
               
@@ -950,7 +1032,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-bold">Thao tác này không thể hoàn tác</p>
               </div>
 
-              <div className="p-4 bg-red-500/5 border border-red-500/10 rounded-2xl text-left">
+              <div className="p-4 bg-red-500/5 border border-red-500/10 rounded-lg text-left">
                 <p className="text-[10.5px] text-zinc-300 leading-relaxed font-semibold">
                   Cậu có chắc chắn muốn dừng chế độ chăm sóc tinh thần? Toàn bộ nhật ký cảm xúc check-in và lịch sử trắc nghiệm lưu trữ sẽ bị xóa sạch vĩnh viễn bảo mật.
                 </p>
@@ -960,14 +1042,14 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 <button
                   type="button"
                   onClick={() => setShowCancelModal(false)}
-                  className="flex-1 py-2.5 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 text-xs font-black uppercase tracking-wider rounded-xl transition-all"
+                  className="flex-1 py-2.5 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 text-xs font-black uppercase tracking-wider rounded-md transition-all"
                 >
                   Quay lại
                 </button>
                 <button
                   type="button"
                   onClick={confirmCancelHealing}
-                  className="flex-1 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-650 hover:to-orange-650 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-red-500/10 active:scale-[0.98]"
+                  className="flex-1 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-650 hover:to-orange-650 text-white text-xs font-black uppercase tracking-wider rounded-md transition-all shadow-lg shadow-red-500/10 active:scale-[0.98]"
                 >
                   Xác nhận xóa
                 </button>

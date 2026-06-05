@@ -147,7 +147,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
                   <button 
                     key={tpl.id}
                     onClick={() => setSignatureTemplate(tpl.id)}
-                    className={`p-3 rounded-2xl border text-left flex flex-col gap-2 transition-all active:scale-95 ${
+                    className={`p-3 rounded-lg border text-left flex flex-col gap-2 transition-all active:scale-95 ${
                       signatureTemplate === tpl.id 
                         ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-black font-extrabold shadow-md" 
                         : "border-zinc-200/80 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300"
@@ -196,7 +196,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
               <select 
                 value={fontFamily}
                 onChange={(e) => setFontFamily(e.target.value)}
-                className="w-full p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-xs font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
+                className="w-full p-3.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-xs font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
               >
                 <option value="Arial, sans-serif">Arial (Mặc định)</option>
                 <option value="Georgia, serif">Georgia (Sang trọng)</option>
@@ -208,7 +208,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
 
             {/* Smart Toggles */}
             <div className="space-y-4 pt-6 border-t border-zinc-100 dark:border-zinc-800/80">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
+              <div className="flex items-center justify-between p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
                 <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
                    <span className="material-symbols-outlined text-[16px] text-zinc-400">account_circle</span>
                    {t("memberPortal.utilitiesPage.signature.showAvatar") || "Hiển thị ảnh đại diện"}
@@ -225,7 +225,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
+              <div className="flex items-center justify-between p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
                 <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
                    <span className="material-symbols-outlined text-[16px] text-zinc-400">qr_code_2</span>
                    {t("memberPortal.utilitiesPage.signature.includeQr") || "Tích hợp QR Code"}
@@ -251,7 +251,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
               <select 
                 value={signatureDisclaimer}
                 onChange={(e) => setSignatureDisclaimer(e.target.value)}
-                className="w-full p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-[11px] font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
+                className="w-full p-3.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-[11px] font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
               >
                 <option value="none">Không đính kèm</option>
                 <option value="green">Bảo vệ môi trường (Green eco)</option>
@@ -491,14 +491,14 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
              <button
               onClick={copySignatureToClipboard}
-              className="py-4 rounded-xl bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-black text-[11px] uppercase tracking-widest shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
+              className="py-4 rounded-md bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-black text-[11px] uppercase tracking-widest shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
             >
               <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">content_copy</span> 
               Copy Chữ Ký (Rich Text)
             </button>
             <button
               onClick={downloadSignatureHTML}
-              className="py-4 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 font-black text-[11px] uppercase tracking-widest shadow-sm transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
+              className="py-4 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 font-black text-[11px] uppercase tracking-widest shadow-sm transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
             >
               <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">html</span> 
               Tải File (.HTML)

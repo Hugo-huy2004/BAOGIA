@@ -56,7 +56,7 @@ export default function ChatMessages({
             
             <div className="space-y-2 flex-1">
               <div
-                className={`relative p-3.5 rounded-2xl border-2 text-xs leading-relaxed ${
+                className={`relative p-3.5 rounded-lg border-2 text-xs leading-relaxed ${
                   isBot
                     ? "bg-white dark:bg-[#1a1924] border-zinc-950 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-tl-none shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]"
                     : "bg-[#0071e3] border-[#0051bb] text-white rounded-tr-none shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)]"
@@ -88,7 +88,7 @@ export default function ChatMessages({
                   <button
                     type="button"
                     onClick={() => onNavigateToTab && onNavigateToTab("therapy")}
-                    className="mt-3.5 w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[9px] uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                    className="mt-3.5 w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[9px] uppercase tracking-wider rounded-md transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-xs font-black">favorite</span>
                     Mở Trị Liệu & Thực Hành ngay
@@ -97,7 +97,7 @@ export default function ChatMessages({
               </div>
 
               {isBot && (msg.suggestPhq9 || msg.suggestGad7 || msg.suggestWho5 || msg.suggestBigFive) && (
-                <div className="p-3.5 rounded-2xl border-2 border-zinc-950 dark:border-zinc-800 bg-amber-500/5 dark:bg-amber-500/10 space-y-2.5 max-w-xs shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] animate-scaleUp">
+                <div className="p-3.5 rounded-lg border-2 border-zinc-950 dark:border-zinc-800 bg-amber-500/5 dark:bg-amber-500/10 space-y-2.5 max-w-xs shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] animate-scaleUp">
                   <div className="flex gap-1.5 text-amber-600 dark:text-amber-400 items-center">
                     <span className="material-symbols-outlined text-sm font-black">medical_services</span>
                     <span className="text-[9px] font-black uppercase tracking-wider">Chỉ định kiểm tra</span>
@@ -110,7 +110,7 @@ export default function ChatMessages({
                       <button
                         type="button"
                         onClick={() => onStartTest("phq9")}
-                        className="w-full py-1.5 bg-red-500 hover:bg-red-650 text-white font-black text-[8.5px] uppercase tracking-wider rounded-lg transition-all"
+                        className="w-full py-1.5 bg-red-500 hover:bg-red-650 text-white font-black text-[8.5px] uppercase tracking-wider rounded transition-all"
                       >
                         [PHQ-9] Trầm cảm (3 phút)
                       </button>
@@ -119,7 +119,7 @@ export default function ChatMessages({
                       <button
                         type="button"
                         onClick={() => onStartTest("gad7")}
-                        className="w-full py-1.5 bg-cyan-500 hover:bg-cyan-650 text-white font-black text-[8.5px] uppercase tracking-wider rounded-lg transition-all"
+                        className="w-full py-1.5 bg-cyan-500 hover:bg-cyan-650 text-white font-black text-[8.5px] uppercase tracking-wider rounded transition-all"
                       >
                         [GAD-7] Lo âu (2 phút)
                       </button>
@@ -128,7 +128,7 @@ export default function ChatMessages({
                       <button
                         type="button"
                         onClick={() => onStartTest("who5")}
-                        className="w-full py-1.5 bg-emerald-500 hover:bg-emerald-650 text-white font-black text-[8.5px] uppercase tracking-wider rounded-lg transition-all"
+                        className="w-full py-1.5 bg-emerald-500 hover:bg-emerald-650 text-white font-black text-[8.5px] uppercase tracking-wider rounded transition-all"
                       >
                         [WHO-5] Hạnh phúc (1 phút)
                       </button>
@@ -137,7 +137,7 @@ export default function ChatMessages({
                       <button
                         type="button"
                         onClick={() => onStartTest("bigfive")}
-                        className="w-full py-1.5 bg-indigo-500 hover:bg-indigo-650 text-white font-black text-[8.5px] uppercase tracking-wider rounded-lg transition-all"
+                        className="w-full py-1.5 bg-indigo-500 hover:bg-indigo-650 text-white font-black text-[8.5px] uppercase tracking-wider rounded transition-all"
                       >
                         [Big Five] Nhân cách
                       </button>
@@ -147,7 +147,7 @@ export default function ChatMessages({
               )}
 
               {isBot && msg.isCompanionSetup && !msg.selectedChoice && (
-                <div className="p-3.5 rounded-2xl border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-[#1a1924] space-y-2.5 max-w-xs shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] animate-scaleUp">
+                <div className="p-3.5 rounded-lg border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-[#1a1924] space-y-2.5 max-w-xs shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] animate-scaleUp">
                   <div className="flex gap-1.5 text-indigo-600 dark:text-indigo-400 items-center">
                     <span className="material-symbols-outlined text-sm font-black">favorite</span>
                     <span className="text-[9px] font-black uppercase tracking-wider">Chọn số ngày đồng hành</span>
@@ -156,7 +156,7 @@ export default function ChatMessages({
                     <button
                       type="button"
                       onClick={() => onSelectDuration(msg.id, msg.recommendedDays)}
-                      className="w-full py-2 bg-[#0071e3] hover:bg-[#0077ed] text-white font-black text-[9px] uppercase tracking-wider rounded-lg transition-all"
+                      className="w-full py-2 bg-[#0071e3] hover:bg-[#0077ed] text-white font-black text-[9px] uppercase tracking-wider rounded transition-all"
                     >
                       Đồng ý lộ trình ({msg.recommendedDays} ngày)
                     </button>
@@ -166,7 +166,7 @@ export default function ChatMessages({
                           key={d}
                           type="button"
                           onClick={() => onSelectDuration(msg.id, d)}
-                          className="py-1.5 bg-zinc-150 hover:bg-zinc-250 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-black text-[8px] uppercase tracking-wider rounded-lg transition-all"
+                          className="py-1.5 bg-zinc-150 hover:bg-zinc-250 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-black text-[8px] uppercase tracking-wider rounded transition-all"
                         >
                           {d} ngày
                         </button>
@@ -175,7 +175,7 @@ export default function ChatMessages({
                     <button
                       type="button"
                       onClick={() => onSelectDuration(msg.id, "cancel")}
-                      className="w-full py-1.5 border border-zinc-300 dark:border-zinc-800 text-zinc-500 font-black text-[8.5px] uppercase tracking-wider rounded-lg transition-all"
+                      className="w-full py-1.5 border border-zinc-300 dark:border-zinc-800 text-zinc-500 font-black text-[8.5px] uppercase tracking-wider rounded transition-all"
                     >
                       Để sau, hiện tại em chưa cần
                     </button>
@@ -184,7 +184,7 @@ export default function ChatMessages({
               )}
 
               {msg.isCompanionSetup && msg.selectedChoice && (
-                <div className="p-2.5 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-800 text-zinc-400 dark:text-zinc-500 text-[9px] font-black uppercase tracking-wider text-center max-w-xs">
+                <div className="p-2.5 rounded-md border border-dashed border-zinc-300 dark:border-zinc-800 text-zinc-400 dark:text-zinc-500 text-[9px] font-black uppercase tracking-wider text-center max-w-xs">
                   Đã chọn: {msg.selectedChoice === "cancel" ? "Từ chối" : `${msg.selectedChoice} ngày`}
                 </div>
               )}
@@ -195,7 +195,7 @@ export default function ChatMessages({
 
       {loading && (
         <div className="flex gap-2.5 max-w-[85%] mr-auto animate-pulse">
-          <div className="p-3.5 bg-white dark:bg-[#1a1924] border-2 border-zinc-950 dark:border-zinc-850 rounded-2xl rounded-tl-none shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center gap-1">
+          <div className="p-3.5 bg-white dark:bg-[#1a1924] border-2 border-zinc-950 dark:border-zinc-850 rounded-lg rounded-tl-none shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center gap-1">
             <span className="w-1 h-1 bg-zinc-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
             <span className="w-1 h-1 bg-zinc-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
             <span className="w-1 h-1 bg-zinc-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />

@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 
-export default function BreathingTherapy({ onBack }) {
+export default function BreathingTherapy({ onBack, onCompleteActivity, showToast }) {
   const [breathState, setBreathState] = useState("idle"); // 'idle', 'inhale', 'hold', 'exhale'
   const [breathTimer, setBreathTimer] = useState(4);
   const breathTimerRef = useRef(null);
 
+  const [timerSecondsLeft, setTimerSecondsLeft] = useState(600);
+  const [targetDuration, setTargetDuration] = useState(600);
+
+  // Breathing pattern cycle logic (4-7-8)
   useEffect(() => {
     if (breathState === "idle") {
       setBreathTimer(4);
@@ -35,6 +39,47 @@ export default function BreathingTherapy({ onBack }) {
     };
   }, [breathState]);
 
+  // Session duration countdown timer logic
+  useEffect(() => {
+    if (breathState === "idle") {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimerSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setBreathState("idle");
+          if (onCompleteActivity) {
+            onCompleteActivity(
+              "Hít thở 4-7-8",
+              `Hoàn thành liệu pháp thời lượng ${Math.round(targetDuration / 60)} phút.`
+            );
+          }
+          if (showToast) {
+            showToast("Tuyệt vời! Cậu vừa hoàn thành thời gian hít thở 4-7-8 điều hòa. Tớ rất tự hào về cậu! 🌸💨", "success");
+          }
+          return targetDuration;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [breathState, targetDuration, onCompleteActivity, showToast]);
+
+  const selectDuration = (secs) => {
+    setBreathState("idle");
+    setTargetDuration(secs);
+    setTimerSecondsLeft(secs);
+  };
+
+  const formatTimerTime = (secs) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
   return (
     <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp">
       <div className="flex items-center justify-between border-b pb-2 border-zinc-200/50">
@@ -45,6 +90,38 @@ export default function BreathingTherapy({ onBack }) {
       </div>
 
       <div className="py-4 space-y-4 flex flex-col items-center">
+        {/* Timer Presets */}
+        <div className="flex justify-center gap-2 mb-2">
+          <button
+            type="button"
+            onClick={() => selectDuration(300)}
+            className={`px-3 py-1.5 rounded-md border text-[9px] font-black uppercase tracking-wider transition-colors ${
+              targetDuration === 300
+                ? "bg-amber-500 border-zinc-950 dark:border-zinc-800 text-zinc-950"
+                : "border-zinc-350 dark:border-zinc-800 text-zinc-650 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+            }`}
+          >
+            5 phút
+          </button>
+          <button
+            type="button"
+            onClick={() => selectDuration(600)}
+            className={`px-3 py-1.5 rounded-md border text-[9px] font-black uppercase tracking-wider transition-colors ${
+              targetDuration === 600
+                ? "bg-amber-500 border-zinc-950 dark:border-zinc-800 text-zinc-950"
+                : "border-zinc-350 dark:border-zinc-800 text-zinc-650 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+            }`}
+          >
+            10 phút
+          </button>
+        </div>
+
+        {breathState !== "idle" && (
+          <div className="text-zinc-500 dark:text-zinc-400 font-mono font-black text-xs">
+            Thời gian phiên: {formatTimerTime(timerSecondsLeft)}
+          </div>
+        )}
+
         {/* Breathing Ring visual guide */}
         <div className="relative flex items-center justify-center select-none w-44 h-44 my-4">
           <div className={`absolute w-36 h-36 rounded-full border-2 transition-all duration-[3000ms] ${
@@ -75,23 +152,29 @@ export default function BreathingTherapy({ onBack }) {
           {breathState === "idle" ? (
             <button
               type="button"
-              onClick={() => setBreathState("inhale")}
-              className="px-6 py-2.5 rounded-xl border-2 border-zinc-950 dark:border-zinc-800 bg-[#0071e3] text-white text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] transition-all active:translate-x-0.5 active:translate-y-0.5"
+              onClick={() => {
+                setTimerSecondsLeft(targetDuration);
+                setBreathState("inhale");
+              }}
+              className="px-6 py-2.5 rounded-md border-2 border-zinc-950 dark:border-zinc-800 bg-[#0071e3] text-white text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] transition-all active:translate-x-0.5 active:translate-y-0.5"
             >
               Bắt đầu tập thở
             </button>
           ) : (
             <button
               type="button"
-              onClick={() => setBreathState("idle")}
-              className="px-6 py-2.5 rounded-xl border-2 border-red-500 text-red-500 bg-white dark:bg-zinc-900 text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(239,68,68,0.2)] transition-all active:scale-95"
+              onClick={() => {
+                setBreathState("idle");
+                setTimerSecondsLeft(targetDuration);
+              }}
+              className="px-6 py-2.5 rounded-md border-2 border-red-500 text-red-500 bg-white dark:bg-zinc-900 text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(239,68,68,0.2)] transition-all active:scale-95"
             >
               Dừng tập thở
             </button>
           )}
         </div>
         <p className="text-[10px] text-zinc-400 italic max-w-xs mx-auto leading-relaxed font-semibold">
-          Mẹo: Tập trung cao vào đếm nhịp hít (4s), nén hơi trong lồng ngực (7s) và thở ra hoàn toàn qua kẽ môi (8s). Lặp lại 4-5 chu kỳ để ức chế các cơn lo âu đột ngột.
+          Mẹo: Tập trung cao vào đếm nhịp hít (4s), nén hơi trong lồng ngực (7s) và thở ra hoàn toàn qua kẽ môi (8s). Lặp lại liên tục trong chu kỳ tập để làm dịu tâm trạng.
         </p>
       </div>
     </div>

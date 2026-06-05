@@ -45,6 +45,23 @@ const safeFetch = async (url, options = {}) => {
   }
 };
 
+const companionHistoryRequests = new Map();
+
+const createHttpError = async (response, fallbackMessage) => {
+  let responseBody = '';
+  try {
+    responseBody = await response.text();
+  } catch (error) {
+    responseBody = error?.message || '';
+  }
+
+  const bodyPreview = responseBody ? ` Body: ${responseBody.slice(0, 500)}` : '';
+  const error = new Error(`${fallbackMessage}. Status: ${response.status} ${response.statusText}.${bodyPreview}`);
+  error.status = response.status;
+  error.responseBody = responseBody;
+  return error;
+};
+
 export const dataApi = {
   // Fetch all data
   async getData() {
@@ -654,13 +671,32 @@ export const dataApi = {
 
   // Fetch companion history from MongoDB
   async getCompanionHistory(email) {
-    try {
-      const response = await safeFetch(`${API_BASE_URL}/companion/history?email=${encodeURIComponent(email)}`, { headers: getAuthHeaders() });
-      if (!response.ok) throw new Error('Failed to fetch companion history');
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    if (!normalizedEmail) {
+      throw new Error('Email is required to fetch companion history');
+    }
+
+    if (companionHistoryRequests.has(normalizedEmail)) {
+      return companionHistoryRequests.get(normalizedEmail);
+    }
+
+    const request = (async () => {
+      const response = await safeFetch(`${API_BASE_URL}/companion/history?email=${encodeURIComponent(normalizedEmail)}`, { headers: getAuthHeaders() });
+      if (!response.ok) {
+        throw await createHttpError(response, 'Failed to fetch companion history');
+      }
       return await response.json();
+    })();
+
+    companionHistoryRequests.set(normalizedEmail, request);
+
+    try {
+      return await request;
     } catch (error) {
       console.error('Error fetching companion history:', error);
       throw error;
+    } finally {
+      companionHistoryRequests.delete(normalizedEmail);
     }
   },
 
@@ -672,7 +708,9 @@ export const dataApi = {
         headers: getAuthHeaders(),
         body: JSON.stringify(payload)
       });
-      if (!response.ok) throw new Error('Failed to save companion history');
+      if (!response.ok) {
+        throw await createHttpError(response, 'Failed to save companion history');
+      }
       return await response.json();
     } catch (error) {
       console.error('Error saving companion history:', error);
@@ -698,4 +736,3 @@ export const dataApi = {
 };
 
 export default dataApi;
-

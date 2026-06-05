@@ -397,27 +397,33 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
           time: new Date()
         };
 
-        const pkgNames = {
-          7: "Hành trình Nuôi dưỡng Bình yên (Peace)",
-          14: "Hành trình Chăm sóc Tinh thần (Mindfulness)",
-          30: "Hành trình Tái tạo Cân bằng (Balance)",
-          50: "Hành trình Phục hồi Thấu cảm (Compassionate)",
-          90: "Hành trình Đồng hành Chuyên sâu (Intensive)"
-        };
-        const name = pkgNames[sevOpt.recommendedDays] || "Hành trình Chăm sóc Tinh thần (Mindfulness)";
+        if (healingActive) {
+          setMessages((prev) => [...prev, botMsg]);
+          setLoading(false);
+          setDialogStage(0);
+        } else {
+          const pkgNames = {
+            7: "Hành trình Nuôi dưỡng Bình yên (Peace)",
+            14: "Hành trình Chăm sóc Tinh thần (Mindfulness)",
+            30: "Hành trình Tái tạo Cân bằng (Balance)",
+            50: "Hành trình Phục hồi Thấu cảm (Compassionate)",
+            90: "Hành trình Đồng hành Chuyên sâu (Intensive)"
+          };
+          const name = pkgNames[sevOpt.recommendedDays] || "Hành trình Chăm sóc Tinh thần (Mindfulness)";
 
-        const proposalMsg = {
-          id: `bot-proposal-${Date.now() + 10}`,
-          sender: "bot",
-          text: `Để hỗ trợ tốt nhất cho tình trạng hiện tại của cậu, tớ khuyên cậu nên kích hoạt **${name}** với thời gian **${sevOpt.recommendedDays} ngày** để tớ đồng hành chăm sóc sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
-          time: new Date(Date.now() + 10),
-          isCompanionSetup: true,
-          recommendedDays: sevOpt.recommendedDays
-        };
+          const proposalMsg = {
+            id: `bot-proposal-${Date.now() + 10}`,
+            sender: "bot",
+            text: `Để hỗ trợ tốt nhất cho tình trạng hiện tại của cậu, tớ khuyên cậu nên kích hoạt **${name}** với thời gian **${sevOpt.recommendedDays} ngày** để tớ đồng hành chăm sóc sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
+            time: new Date(Date.now() + 10),
+            isCompanionSetup: true,
+            recommendedDays: sevOpt.recommendedDays
+          };
 
-        setMessages((prev) => [...prev, botMsg, proposalMsg]);
-        setLoading(false);
-        setDialogStage(5);
+          setMessages((prev) => [...prev, botMsg, proposalMsg]);
+          setLoading(false);
+          setDialogStage(5);
+        }
       }
     }, 1000);
   };
@@ -434,16 +440,29 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
     );
 
     if (typeof duration === "number") {
+      const isCurrentlyActive = healingActive;
+      const healingStartDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
+      let currentDay = 1;
+      if (healingStartDateStr) {
+        const start = new Date(healingStartDateStr).getTime();
+        const now = new Date().getTime();
+        currentDay = Math.max(1, Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1);
+      }
+
       const updatedLogs = [...historyLogs, {
         date: new Date().toISOString(),
         type: "duration_change",
-        reason: `Kích hoạt lộ trình đồng hành: ${duration} ngày.`
+        reason: isCurrentlyActive
+          ? `Điều chỉnh thời gian lộ trình đồng hành thành: ${duration} ngày.`
+          : `Kích hoạt lộ trình đồng hành: ${duration} ngày.`
       }];
       
       onUpdateCompanionState({
         healingActive: true,
         healingDuration: duration,
-        healingStartDate: new Date().toISOString(),
+        healingStartDate: isCurrentlyActive 
+          ? (healingStartDateStr || new Date().toISOString())
+          : new Date().toISOString(),
         historyLogs: updatedLogs
       });
 
@@ -461,13 +480,17 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
       const userMsg = {
         id: `user-select-${Date.now()}`,
         sender: "user",
-        text: `Dạ, tớ đồng ý kích hoạt lộ trình trị liệu ${duration} ngày cùng cậu.`,
+        text: isCurrentlyActive
+          ? `Dạ, tớ đồng ý điều chỉnh thời gian lộ trình thành ${duration} ngày cùng cậu.`
+          : `Dạ, tớ đồng ý kích hoạt lộ trình trị liệu ${duration} ngày cùng cậu.`,
         time: new Date()
       };
       const botMsg = {
         id: `bot-confirm-${Date.now()}`,
         sender: "bot",
-        text: `Tớ đã thiết lập lộ trình đồng hành ${duration} ngày cho cậu rồi. Kể từ ngày mai, cậu hãy duy trì việc check-in cảm xúc hằng ngày tại đây để nhận các bài tập tự chữa lành thích ứng từ tớ nhé.`,
+        text: isCurrentlyActive
+          ? `Tớ đã cập nhật tổng thời gian lộ trình đồng hành thành ${duration} ngày cho cậu rồi. Mọi dữ liệu check-in và tiến trình ngày thứ ${currentDay} của cậu đều được giữ nguyên vẹn nhé cậu yêu! 🌟`
+          : `Tớ đã thiết lập lộ trình đồng hành ${duration} ngày cho cậu rồi. Kể từ ngày mai, cậu hãy duy trì việc check-in cảm xúc hằng ngày tại đây để nhận các bài tập tự chữa lành thích ứng từ tớ nhé.`,
         time: new Date(),
         showTherapyButton: true
       };
@@ -624,6 +647,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
       // Check if this test score is worse than the previous test result of the same type
       const pastTests = historyLogs.filter(log => (log.test === testId || (testId === "who5" && log.type === "clinical_test" && log.test === "who5")));
       let isWorse = false;
+      let isImproved = false;
       let diffVal = 0;
       if (pastTests.length > 0) {
         const lastPast = pastTests[pastTests.length - 1];
@@ -633,13 +657,29 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
           if (score < lastScore) {
             isWorse = true;
             diffVal = lastScore - score;
+          } else if (score > lastScore) {
+            isImproved = true;
+            diffVal = score - lastScore;
           }
         } else {
           // For PHQ-9 and GAD-7, higher score is worse
           if (score > lastScore) {
             isWorse = true;
             diffVal = score - lastScore;
+          } else if (score < lastScore) {
+            isImproved = true;
+            diffVal = lastScore - score;
           }
+        }
+      } else {
+        // Fallback: If no past tests, compare current recommended package days with active duration
+        const healingDurationVal = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
+        if (days > healingDurationVal) {
+          isWorse = true;
+          diffVal = Math.ceil((days - healingDurationVal) / 10) || 1;
+        } else if (days < healingDurationVal) {
+          isImproved = true;
+          diffVal = Math.ceil((healingDurationVal - days) / 10) || 1;
         }
       }
 
@@ -655,50 +695,88 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
         }
         const remainingDays = Math.max(0, healingDurationVal - progressDays);
 
-        if (isWorse) {
-          // Calculate dynamically how many additional days of recovery support are needed depending on symptom surge
-          let addDays = 7;
-          if (testId === "phq9" && diffVal >= 5) addDays = 14;
-          if (testId === "gad7" && diffVal >= 4) addDays = 14;
-          if (testId === "who5" && diffVal >= 3) addDays = 10;
-
-          const finalRecommendedDuration = healingDurationVal + addDays;
-          const worseningMsg = {
-            id: `bot-worsening-${Date.now() + 5}`,
-            sender: "bot",
-            text: `📊 **Đánh giá Chuyên sâu & Chẩn đoán Lâm sàng**: Kết quả trắc nghiệm tái đánh giá ${testId.toUpperCase()} ghi nhận chỉ số chuyển biến chưa thuận lợi (tăng ${diffVal} điểm so với lần test trước). \n\nDưới góc độ **Tâm lý học đường & Nhân cách học**, đây là phản ứng tự nhiên của hệ thần kinh khi đối mặt với các nguồn gây căng thẳng đột biến (như mùa ôn thi dồn dập, lo lắng trước áp lực, hoặc giấc ngủ bị gián đoạn).\n\nĐể hỗ trợ cậu vượt qua giai đoạn nhạy cảm này mà **không làm gián đoạn hay bác bỏ hành trình cậu đã cố gắng qua**, tớ khuyến nghị chúng ta giữ nguyên lộ trình cũ và tích hợp thêm **+${addDays} ngày** hỗ trợ đặc biệt (Nâng tổng lộ trình thành **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + addDays} ngày** đồng hành phía trước). Cậu có đồng ý bổ sung thêm thời gian để tớ hỗ trợ cậu điều tiết lại sóng não lo âu và cân bằng tinh thần không?`,
-            time: new Date(Date.now() + 5),
-            isCompanionSetup: true,
-            recommendedDays: finalRecommendedDuration
-          };
-          newMsgs.push(worseningMsg);
-          setDialogStage(5);
-        } else {
-          // If there is progress/improvement, check if we can reduce remaining days slightly to motivate, while keeping the journey intact
-          let reduceDays = 0;
-          if (pastTests.length > 0) {
-            const lastPast = pastTests[pastTests.length - 1];
-            const lastScore = lastPast.score;
-            const improvementVal = testId === "who5" ? (score - lastScore) : (lastScore - score);
-            if (improvementVal > 0) {
-              reduceDays = Math.min(Math.floor(remainingDays / 2), improvementVal * 2);
-            }
-          }
-
-          if (reduceDays > 0 && remainingDays > 3) {
-            const finalRecommendedDuration = Math.max(progressDays + 3, healingDurationVal - reduceDays);
-            const progressMsg = {
-              id: `bot-improvement-${Date.now() + 5}`,
+        if (progressDays >= healingDurationVal) {
+          // Exceeded current duration (e.g. Day 57 of a 50-day journey)
+          if (isImproved || days <= 14) {
+            // Suggest graduation!
+            const graduationMsg = {
+              id: `bot-graduation-${Date.now() + 5}`,
               sender: "bot",
-              text: `🎉 **Ghi nhận Tiến trình Tuyệt vời**: Chỉ số tái đánh giá tinh thần của cậu chuyển biến rất khả quan! Dưới góc nhìn khoa học hành vi, các hoạt động chánh niệm trị liệu đang thích ứng và phát huy tác dụng tích lũy lên trường năng lượng nội tại.\n\nĐể khích lệ và tối ưu lộ trình **dựa trên số liệu khoa học thực tế**, tớ đề xuất rút ngắn thời gian điều trị còn lại đi **-${reduceDays} ngày** (Tổng lộ trình đồng hành rút xuống **${finalRecommendedDuration} ngày**, cậu còn lại **${remainingDays - reduceDays} ngày**). Cậu có đồng ý áp dụng đề xuất thích ứng mới này để tiếp tục duy trì thói quen tự nhận thức lành mạnh không?`,
+              text: `🎉 **Ghi nhận Tiến trình Phục hồi Tuyệt vời**: Chỉ số tái đánh giá ${testId.toUpperCase()} cho thấy sức khỏe tinh thần của cậu chuyển biến rất tốt và đã ổn định trở lại! \n\nCậu đã kiên trì vượt qua **${progressDays} ngày** của lộ trình tự chữa lành một cách xuất sắc. Tớ rất tự hào về cậu! Cậu hoàn toàn đã sẵn sàng để **tốt nghiệp lộ trình đồng hành** này rồi nhé. Cậu hãy bấm sang tab **Trị Liệu** hoặc **Hồ Sơ** để thực hiện tốt nghiệp nha! 🌸`,
+              time: new Date(Date.now() + 5)
+            };
+            newMsgs.push(graduationMsg);
+            setDialogStage(0);
+          } else {
+            // Suggest extension
+            const extendDays = days;
+            const finalRecommendedDuration = healingDurationVal + extendDays;
+            const extensionMsg = {
+              id: `bot-extend-${Date.now() + 5}`,
+              sender: "bot",
+              text: `📊 **Tái đánh giá Tinh thần**: Cậu đã đi qua **${progressDays} ngày** của lộ trình, nhưng kết quả test ${testId.toUpperCase()} lần này ghi nhận cậu vẫn còn gặp khá nhiều lo âu/mệt mỏi (${score} điểm). \n\nĐể tiếp tục nâng đỡ và hỗ trợ tinh thần cậu tốt nhất mà **không làm mất đi ${progressDays} ngày cậu đã kiên trì qua**, tớ đề xuất mở rộng thêm **+${extendDays} ngày** hỗ trợ (Tổng lộ trình nâng lên **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + extendDays} ngày**). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
               time: new Date(Date.now() + 5),
               isCompanionSetup: true,
               recommendedDays: finalRecommendedDuration
             };
-            newMsgs.push(progressMsg);
+            newMsgs.push(extensionMsg);
             setDialogStage(5);
+          }
+        } else {
+          // Within active journey
+          if (isWorse) {
+            // Calculate dynamically how many additional days of recovery support are needed depending on symptom surge
+            let addDays = 7;
+            if (testId === "phq9" && diffVal >= 5) addDays = 14;
+            if (testId === "gad7" && diffVal >= 4) addDays = 14;
+            if (testId === "who5" && diffVal >= 3) addDays = 10;
+            if (pastTests.length === 0) addDays = Math.max(7, days - healingDurationVal);
+
+            const finalRecommendedDuration = healingDurationVal + addDays;
+            const worseningMsg = {
+              id: `bot-worsening-${Date.now() + 5}`,
+              sender: "bot",
+              text: `📊 **Tái đánh giá Thích ứng**: Kết quả trắc nghiệm ${testId.toUpperCase()} ghi nhận chỉ số chuyển biến chưa thuận lợi (tăng ${diffVal} điểm so với lần trước). \n\nĐể hỗ trợ cậu vượt qua giai đoạn nhạy cảm này mà **không làm gián đoạn hay bác bỏ hành trình ${progressDays} ngày cậu đã cố gắng qua**, tớ đề xuất giữ nguyên tiến trình cũ và bổ sung thêm **+${addDays} ngày** hỗ trợ đặc biệt (Nâng tổng lộ trình thành **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + addDays} ngày** phía trước). Cậu có đồng ý áp dụng đề xuất này để tớ tiếp tục bên cạnh che chở cậu không?`,
+              time: new Date(Date.now() + 5),
+              isCompanionSetup: true,
+              recommendedDays: finalRecommendedDuration
+            };
+            newMsgs.push(worseningMsg);
+            setDialogStage(5);
+          } else if (isImproved) {
+            // If there is progress/improvement, check if we can reduce remaining days slightly to motivate, while keeping the journey intact
+            let reduceDays = 0;
+            if (pastTests.length > 0) {
+              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, diffVal * 2));
+            } else {
+              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, Math.floor((healingDurationVal - days) / 2)));
+            }
+
+            if (reduceDays > 0 && remainingDays > 3) {
+              const finalRecommendedDuration = Math.max(progressDays + 3, healingDurationVal - reduceDays);
+              const progressMsg = {
+                id: `bot-improvement-${Date.now() + 5}`,
+                sender: "bot",
+                text: `🎉 **Ghi nhận Tiến trình Tuyệt vời**: Chỉ số tái đánh giá tinh thần của cậu chuyển biến rất khả quan! Dưới góc nhìn khoa học hành vi, các hoạt động chánh niệm trị liệu đang thích ứng và phát huy tác dụng tích lũy lên trường năng lượng nội tại.\n\nĐể khích lệ và tối ưu lộ trình **dựa trên số liệu khoa học thực tế**, tớ đề xuất rút ngắn thời gian điều trị còn lại đi **-${reduceDays} ngày** (Tổng lộ trình đồng hành rút xuống **${finalRecommendedDuration} ngày**, cậu còn lại **${remainingDays - reduceDays} ngày** và giữ nguyên tiến trình đã tích lũy). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
+                time: new Date(Date.now() + 5),
+                isCompanionSetup: true,
+                recommendedDays: finalRecommendedDuration
+              };
+              newMsgs.push(progressMsg);
+              setDialogStage(5);
+            } else {
+              // Stable
+              const stayMsg = {
+                id: `bot-proposal-${Date.now() + 10}`,
+                sender: "bot",
+                text: `Kết quả đánh giá định kỳ cho thấy tinh thần của cậu đang duy trì ở mức ổn định. Cậu hãy tiếp tục theo sát lộ trình chăm sóc hiện tại (**${remainingDays} ngày** còn lại trên tổng số **${healingDurationVal} ngày**) nhé!`,
+                time: new Date(Date.now() + 10)
+              };
+              newMsgs.push(stayMsg);
+              setDialogStage(0);
+            }
           } else {
-            // Keep unchanged
+            // Stable
             const stayMsg = {
               id: `bot-proposal-${Date.now() + 10}`,
               sender: "bot",
@@ -714,7 +792,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
         const proposalMsg = {
           id: `bot-proposal-${Date.now() + 10}`,
           sender: "bot",
-          text: `Dựa trên kết quả đánh giá ${testId.toUpperCase()} vừa rồi, tớ khuyên cậu nên kích hoạt **${name}** với thời gian **${days} ngày** để tớ đồng hành chăm sóc sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
+          text: `Dựa trên kết quả đánh giá ${testId.toUpperCase()} vừa rồi, tớ khuyên cậu nên kích hoạt **${name}** với thời gian **${days} ngày** để tớ đồng hành chăm sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
           time: new Date(Date.now() + 10),
           isCompanionSetup: true,
           recommendedDays: days
@@ -853,18 +931,176 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
       else if (!resultLog.isReliable) { recommendedDays = 14; pkgName = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
     }
 
-    const proposalMsg = {
-      id: `bot-proposal-${Date.now() + 10}`,
-      sender: "bot",
-      text: `Dựa trên kết quả Quét hồ sơ lâm sàng của cậu, tớ khuyên cậu nên kích hoạt **${pkgName}** với thời gian **${recommendedDays} ngày** để tớ đồng hành chăm sóc sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
-      time: new Date(Date.now() + 10),
-      isCompanionSetup: true,
-      recommendedDays: recommendedDays
-    };
+    let proposalMsg = null;
+    let targetDialogStage = 5;
 
-    setMessages((prev) => [...prev, botMsg, proposalMsg]);
+    if (healingActive) {
+      const healingStartDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
+      const healingDurationVal = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
+      let progressDays = 1;
+      if (healingStartDateStr) {
+        const start = new Date(healingStartDateStr).getTime();
+        const now = new Date().getTime();
+        progressDays = Math.max(1, Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1);
+      }
+      const remainingDays = Math.max(0, healingDurationVal - progressDays);
+
+      // Compare new scan with the previous test logs of same type
+      let isWorse = false;
+      let isImproved = false;
+      let diffVal = 0;
+      if (testType === "dass") {
+        const pastDass = historyLogs.filter(l => l.scores && l.scores.D !== undefined);
+        if (pastDass.length > 0) {
+          const lastPast = pastDass[pastDass.length - 1];
+          const newSum = resultLog.scores.D + resultLog.scores.A + resultLog.scores.S;
+          const prevSum = lastPast.scores.D + lastPast.scores.A + lastPast.scores.S;
+          if (newSum > prevSum) {
+            isWorse = true;
+            diffVal = newSum - prevSum;
+          } else if (newSum < prevSum) {
+            isImproved = true;
+            diffVal = prevSum - newSum;
+          }
+        } else {
+          if (recommendedDays > healingDurationVal) {
+            isWorse = true;
+            diffVal = Math.ceil((recommendedDays - healingDurationVal) / 10) || 1;
+          } else if (recommendedDays < healingDurationVal) {
+            isImproved = true;
+            diffVal = Math.ceil((healingDurationVal - recommendedDays) / 10) || 1;
+          }
+        }
+      } else {
+        const pastMmpi = historyLogs.filter(l => l.clinical);
+        if (pastMmpi.length > 0) {
+          const lastPast = pastMmpi[pastMmpi.length - 1];
+          const newElevated = resultLog.clinical.filter(c => c.score >= 70).length;
+          const prevElevated = lastPast.clinical.filter(c => c.score >= 70).length;
+          if (newElevated > prevElevated) {
+            isWorse = true;
+            diffVal = newElevated - prevElevated;
+          } else if (newElevated < prevElevated) {
+            isImproved = true;
+            diffVal = prevElevated - newElevated;
+          }
+        } else {
+          if (recommendedDays > healingDurationVal) {
+            isWorse = true;
+            diffVal = Math.ceil((recommendedDays - healingDurationVal) / 10) || 1;
+          } else if (recommendedDays < healingDurationVal) {
+            isImproved = true;
+            diffVal = Math.ceil((healingDurationVal - recommendedDays) / 10) || 1;
+          }
+        }
+      }
+
+      if (progressDays >= healingDurationVal) {
+        // Exceeded current duration (e.g. Day 57 of a 50-day journey)
+        if (isImproved || recommendedDays <= 14) {
+          // Suggest graduation!
+          proposalMsg = {
+            id: `bot-graduation-${Date.now() + 10}`,
+            sender: "bot",
+            text: `🎉 **Ghi nhận Tiến trình Phục hồi Tuyệt vời**: Kết quả quét hồ sơ lâm sàng mới nhất cho thấy tình trạng của cậu chuyển biến rất tốt và đã ổn định trở lại! \n\nCậu đã kiên trì vượt qua **${progressDays} ngày** của lộ trình tự chữa lành một cách xuất sắc. Tớ rất tự hào về cậu! Cậu hoàn toàn đã sẵn sàng để **tốt nghiệp lộ trình đồng hành** này rồi nhé. Cậu hãy bấm sang tab **Trị Liệu** hoặc **Hồ Sơ** để thực hiện tốt nghiệp nha! 🌸`,
+            time: new Date(Date.now() + 10)
+          };
+          targetDialogStage = 0;
+        } else {
+          // Suggest extension
+          const extendDays = recommendedDays;
+          const finalRecommendedDuration = healingDurationVal + extendDays;
+          proposalMsg = {
+            id: `bot-extend-${Date.now() + 10}`,
+            sender: "bot",
+            text: `📊 **Tái đánh giá Tinh thần**: Cậu đã đi qua **${progressDays} ngày** của lộ trình, nhưng kết quả quét hồ sơ lâm sàng lần này ghi nhận cậu vẫn còn gặp một số áp lực lâm sàng. \n\nĐể tiếp tục nâng đỡ và hỗ trợ tinh thần cậu tốt nhất mà **không làm mất đi ${progressDays} ngày cậu đã kiên trì qua**, tớ đề xuất mở rộng thêm **+${extendDays} ngày** hỗ trợ (Tổng lộ trình nâng lên **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + extendDays} ngày**). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
+            time: new Date(Date.now() + 10),
+            isCompanionSetup: true,
+            recommendedDays: finalRecommendedDuration
+          };
+          targetDialogStage = 5;
+        }
+      } else {
+        // Within active journey
+        if (isWorse) {
+          const addDays = testType === "dass" ? Math.min(14, Math.max(7, diffVal)) : Math.min(14, diffVal * 7);
+          const finalRecommendedDuration = healingDurationVal + addDays;
+          
+          proposalMsg = {
+            id: `bot-worsening-${Date.now() + 10}`,
+            sender: "bot",
+            text: `📊 **Tái đánh giá Thích ứng**: Kết quả quét bệnh án mới nhất cho thấy tình trạng của cậu có phần căng thẳng hơn trước (các chỉ số lâm sàng tăng nhẹ). \n\nĐể hỗ trợ cậu vượt qua giai đoạn này mà **không làm mất đi ${progressDays} ngày cậu đã cố gắng trước đó**, tớ đề xuất giữ nguyên tiến trình cũ và bổ sung thêm **+${addDays} ngày** đồng hành hỗ trợ (Nâng tổng lộ trình thành **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + addDays} ngày** phía trước). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
+            time: new Date(Date.now() + 10),
+            isCompanionSetup: true,
+            recommendedDays: finalRecommendedDuration
+          };
+          targetDialogStage = 5;
+        } else if (isImproved) {
+          // Improvement
+          let reduceDays = 0;
+          if (testType === "dass") {
+            const pastDass = historyLogs.filter(l => l.scores && l.scores.D !== undefined);
+            if (pastDass.length > 0) {
+              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, diffVal));
+            } else {
+              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, Math.floor((healingDurationVal - recommendedDays) / 2)));
+            }
+          } else {
+            const pastMmpi = historyLogs.filter(l => l.clinical);
+            if (pastMmpi.length > 0) {
+              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, diffVal * 3));
+            } else {
+              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, Math.floor((healingDurationVal - recommendedDays) / 2)));
+            }
+          }
+
+          if (reduceDays > 0 && remainingDays > 3) {
+            const finalRecommendedDuration = Math.max(progressDays + 3, healingDurationVal - reduceDays);
+            proposalMsg = {
+              id: `bot-improvement-${Date.now() + 10}`,
+              sender: "bot",
+              text: `🎉 **Ghi nhận Tiến trình Tuyệt vời**: Chỉ số tái đánh giá tinh thần qua bệnh án mới quét của cậu chuyển biến rất khả quan! \n\nĐể khích lệ và tối ưu lộ trình **dựa trên số liệu khoa học thực tế**, tớ đề xuất rút ngắn thời gian điều trị còn lại đi **-${reduceDays} ngày** (Tổng lộ trình đồng hành rút xuống **${finalRecommendedDuration} ngày**, cậu còn lại **${remainingDays - reduceDays} ngày** và giữ nguyên tiến trình đã tích lũy). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
+              time: new Date(Date.now() + 10),
+              isCompanionSetup: true,
+              recommendedDays: finalRecommendedDuration
+            };
+            targetDialogStage = 5;
+          } else {
+            proposalMsg = {
+              id: `bot-proposal-${Date.now() + 10}`,
+              sender: "bot",
+              text: `Kết quả quét bệnh án định kỳ cho thấy tinh thần của cậu đang duy trì ở mức ổn định. Cậu hãy tiếp tục theo sát lộ trình chăm sóc hiện tại (**${remainingDays} ngày** còn lại trên tổng số **${healingDurationVal} ngày**) nhé!`,
+              time: new Date(Date.now() + 10)
+            };
+            targetDialogStage = 0;
+          }
+        } else {
+          // Stable
+          proposalMsg = {
+            id: `bot-proposal-${Date.now() + 10}`,
+            sender: "bot",
+            text: `Kết quả quét bệnh án định kỳ cho thấy tinh thần của cậu đang duy trì ở mức ổn định. Cậu hãy tiếp tục theo sát lộ trình chăm sóc hiện tại (**${remainingDays} ngày** còn lại trên tổng số **${healingDurationVal} ngày**) nhé!`,
+            time: new Date(Date.now() + 10)
+          };
+          targetDialogStage = 0;
+        }
+      }
+    } else {
+      // Normal setup proposal for new journeys
+      proposalMsg = {
+        id: `bot-proposal-${Date.now() + 10}`,
+        sender: "bot",
+        text: `Dựa trên kết quả Quét hồ sơ lâm sàng của cậu, tớ khuyên cậu nên kích hoạt **${pkgName}** với thời gian **${recommendedDays} ngày** để tớ đồng hành chăm sóc sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
+        time: new Date(Date.now() + 10),
+        isCompanionSetup: true,
+        recommendedDays: recommendedDays
+      };
+      targetDialogStage = 5;
+    }
+
+    setMessages((prev) => [...prev, botMsg, ...(proposalMsg ? [proposalMsg] : [])]);
     setChatMode("normal");
-    setDialogStage(5); // Show companion setup choice inside bubble
+    setDialogStage(targetDialogStage);
   };
 
   return (
@@ -918,7 +1154,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
               }
               setShowTestsMenu(true);
             }}
-            className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-500 to-indigo-650 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-wider shadow-md transition-all active:scale-[0.98] flex items-center gap-1"
+            className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-500 to-indigo-650 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-md text-[9px] font-black uppercase tracking-wider shadow-md transition-all active:scale-[0.98] flex items-center gap-1"
           >
             <span className="material-symbols-outlined text-[10px] font-bold">refresh</span>
             Chủ động test lại
@@ -928,7 +1164,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
 
       {/* Clinical Test Selection Menu Popup */}
       {showTestsMenu && (
-        <div className="absolute top-[55px] right-4 w-64 p-4 rounded-2xl border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-[#12111a] shadow-xl z-20 space-y-2 animate-scaleUp">
+        <div className="absolute top-[55px] right-4 w-64 p-4 rounded-lg border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-[#12111a] shadow-xl z-20 space-y-2 animate-scaleUp">
           <div className="flex justify-between items-center pb-1 border-b border-zinc-150/40">
             <h5 className="text-[9.5px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Bài đánh giá chuẩn lâm sàng</h5>
             <button type="button" onClick={() => setShowTestsMenu(false)} className="text-zinc-400 hover:text-zinc-650 text-[10px] font-bold">Đóng</button>
@@ -937,28 +1173,28 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
             <button
               type="button"
               onClick={() => handleStartTest("phq9")}
-              className="w-full text-left px-3 py-2 bg-red-500/5 hover:bg-red-500/10 text-red-650 rounded-xl text-[10px] font-black uppercase tracking-wider border border-red-500/10"
+              className="w-full text-left px-3 py-2 bg-red-500/5 hover:bg-red-500/10 text-red-650 rounded-md text-[10px] font-black uppercase tracking-wider border border-red-500/10"
             >
               [PHQ-9] Đánh giá Trầm cảm
             </button>
             <button
               type="button"
               onClick={() => handleStartTest("gad7")}
-              className="w-full text-left px-3 py-2 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-650 rounded-xl text-[10px] font-black uppercase tracking-wider border border-cyan-500/10"
+              className="w-full text-left px-3 py-2 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-650 rounded-md text-[10px] font-black uppercase tracking-wider border border-cyan-500/10"
             >
               [GAD-7] Đánh giá Lo âu
             </button>
             <button
               type="button"
               onClick={() => handleStartTest("who5")}
-              className="w-full text-left px-3 py-2 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-650 rounded-xl text-[10px] font-black uppercase tracking-wider border border-emerald-500/10"
+              className="w-full text-left px-3 py-2 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-650 rounded-md text-[10px] font-black uppercase tracking-wider border border-emerald-500/10"
             >
               [WHO-5] Đánh giá Hạnh phúc
             </button>
             <button
               type="button"
               onClick={() => handleStartTest("bigfive")}
-              className="w-full text-left px-3 py-2 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-655 rounded-xl text-[10px] font-black uppercase tracking-wider border border-indigo-500/10"
+              className="w-full text-left px-3 py-2 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-655 rounded-md text-[10px] font-black uppercase tracking-wider border border-indigo-500/10"
             >
               [Big Five] Trắc nghiệm Nhân cách
             </button>
@@ -1028,7 +1264,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                       key={aspect.id}
                       type="button"
                       onClick={() => handleAspectSelect(aspect)}
-                      className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-855 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
+                      className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-855 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
                     >
                       <span>{aspect.text}</span>
                       <span className="material-symbols-outlined text-[11px]">arrow_forward</span>
@@ -1044,7 +1280,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                       key={opt.id}
                       type="button"
                       onClick={() => handleSubAspectSelect(opt)}
-                      className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
+                      className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
                     >
                       <span>{opt.text}</span>
                       <span className="material-symbols-outlined text-[11px]">arrow_forward</span>
@@ -1064,7 +1300,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                       };
                       setMessages(prev => [...prev, botMsg]);
                     }}
-                    className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-850 bg-zinc-100 dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-550 hover:bg-zinc-50 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-center"
+                    className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-850 bg-zinc-100 dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-550 hover:bg-zinc-50 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-center"
                   >
                     Quay lại chọn khía cạnh khác
                   </button>
@@ -1078,7 +1314,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                       key={sevOpt.id}
                       type="button"
                       onClick={() => handleSeveritySelect(sevOpt)}
-                      className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
+                      className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
                     >
                       <span>{sevOpt.text}</span>
                       <span className="material-symbols-outlined text-[11px]">arrow_forward</span>
@@ -1089,7 +1325,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                     onClick={() => {
                       setDialogStage(2);
                     }}
-                    className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-850 bg-zinc-100 dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-550 hover:bg-zinc-50 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-center"
+                    className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-850 bg-zinc-100 dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-550 hover:bg-zinc-50 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-center"
                   >
                     Quay lại câu trước
                   </button>
@@ -1104,7 +1340,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                       const sevHigh = selectedSubOption.severityOptions.find(o => o.nextAction === "recommend_test");
                       if (sevHigh) handleStartTest(sevHigh.test);
                     }}
-                    className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-850 bg-[#0071e3] text-white text-[9.5px] font-black uppercase hover:bg-[#0077ed] shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
+                    className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-850 bg-[#0071e3] text-white text-[9.5px] font-black uppercase hover:bg-[#0077ed] shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
                   >
                     <span>Làm bài test đánh giá</span>
                     <span className="material-symbols-outlined text-[11px]">play_arrow</span>
@@ -1112,7 +1348,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                   <button
                     type="button"
                     onClick={() => setChatMode("scan")}
-                    className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
+                    className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
                   >
                     <span>Quét kết quả phòng khám</span>
                     <span className="material-symbols-outlined text-[11px]">cloud_upload</span>
@@ -1131,7 +1367,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                       };
                       setMessages(prev => [...prev, botMsg]);
                     }}
-                    className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-855 bg-zinc-150 dark:bg-zinc-900 hover:bg-zinc-250 dark:hover:bg-zinc-800 text-[9.5px] font-black uppercase text-zinc-600 dark:text-zinc-300 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-center col-span-2"
+                    className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-855 bg-zinc-150 dark:bg-zinc-900 hover:bg-zinc-250 dark:hover:bg-zinc-800 text-[9.5px] font-black uppercase text-zinc-600 dark:text-zinc-300 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-center col-span-2"
                   >
                     Quay lại từ đầu
                   </button>
@@ -1154,7 +1390,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                       };
                       setMessages(prev => [...prev, botMsg]);
                     }}
-                    className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-855 bg-zinc-100 dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-550 hover:bg-zinc-50 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-center"
+                    className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-855 bg-zinc-100 dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-550 hover:bg-zinc-50 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-center"
                   >
                     Quay lại từ đầu
                   </button>
@@ -1177,7 +1413,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                       };
                       setMessages(prev => [...prev, botMsg]);
                     }}
-                    className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-805 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
+                    className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-805 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
                   >
                     <span>[Trò chuyện] Chia sẻ thêm khía cạnh khác</span>
                     <span className="material-symbols-outlined text-[11px]">chat</span>
@@ -1185,7 +1421,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                   <button
                     type="button"
                     onClick={() => setShowTestsMenu(true)}
-                    className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-805 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
+                    className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-805 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
                   >
                     <span>[Đánh giá] Thực hiện bài test</span>
                     <span className="material-symbols-outlined text-[11px]">arrow_forward</span>
@@ -1193,7 +1429,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                   <button
                     type="button"
                     onClick={() => setChatMode("scan")}
-                    className="py-2.5 px-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-805 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
+                    className="py-2.5 px-3 rounded-md border-2 border-zinc-900 dark:border-zinc-850 bg-white dark:bg-zinc-900 text-[9.5px] font-black uppercase text-zinc-805 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-[1px_1px_0px_0px_rgba(9,9,11,1)] text-left flex items-center justify-between"
                   >
                     <span>[Quét kết quả] Phân tích hồ sơ</span>
                     <span className="material-symbols-outlined text-[11px]">cloud_upload</span>

@@ -11,10 +11,10 @@ export default function BodySubTab({
       {/* Section D: Body Measurements & Location */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.physical.title")}</h3>
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Height */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
               <span className="material-symbols-outlined text-base">height</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.height")}</label>
@@ -30,7 +30,7 @@ export default function BodySubTab({
 
           {/* Weight */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#4cd964]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#4cd964]">
               <span className="material-symbols-outlined text-base">monitor_weight</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-450 dark:text-zinc-550 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.weight")}</label>
@@ -46,7 +46,7 @@ export default function BodySubTab({
 
           {/* Measurements */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
               <span className="material-symbols-outlined text-base">straighten</span>
             </div>
             <label className="text-[11px] font-semibold text-[#8e8e93] dark:text-[#8e8e93] uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.measurements")}</label>
@@ -62,7 +62,7 @@ export default function BodySubTab({
 
           {/* Address */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
               <span className="material-symbols-outlined text-base">distance</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-550 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.location")}</label>

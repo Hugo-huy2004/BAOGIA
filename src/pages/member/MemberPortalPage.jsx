@@ -198,7 +198,7 @@ function CompanionHistoryReportPanel({ historyLogs }) {
             {anomalies.map((anom, idx) => (
               <div
                 key={idx}
-                className={`p-2.5 rounded-2xl flex gap-2.5 items-start border ${
+                className={`p-2.5 rounded-lg flex gap-2.5 items-start border ${
                   anom.severity === "high"
                     ? "bg-red-550/5 dark:bg-red-950/10 border-red-500/20 text-red-800 dark:text-red-300"
                     : "bg-amber-500/5 dark:bg-amber-955/10 border-amber-500/20 text-amber-800 dark:text-amber-300"
@@ -215,7 +215,7 @@ function CompanionHistoryReportPanel({ historyLogs }) {
             ))}
           </div>
         ) : (
-          <div className="p-2.5 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl flex gap-2 items-center text-emerald-800 dark:text-emerald-350">
+          <div className="p-2.5 bg-emerald-500/5 border border-emerald-500/20 rounded-lg flex gap-2 items-center text-emerald-800 dark:text-emerald-350">
             <span className="material-symbols-outlined text-emerald-500 text-sm shrink-0">check_circle</span>
             <p className="text-[9.5px] font-black uppercase tracking-wider">Tinh thần cân bằng, chưa phát hiện bất thường.</p>
           </div>
@@ -223,7 +223,7 @@ function CompanionHistoryReportPanel({ historyLogs }) {
       </div>
 
       {/* Recommendation Box */}
-      <div className="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl flex gap-2.5 items-start text-left">
+      <div className="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-lg flex gap-2.5 items-start text-left">
         <span className="material-symbols-outlined text-indigo-500 text-sm shrink-0 mt-0.5">lightbulb</span>
         <p className="text-[10px] text-zinc-650 dark:text-zinc-350 font-semibold leading-relaxed">
           {recommendation}
@@ -279,7 +279,7 @@ function CompanionHistoryReportPanel({ historyLogs }) {
               }
 
               return (
-                <div key={idx} className="relative space-y-1 bg-zinc-50/50 dark:bg-zinc-950/20 p-2.5 rounded-2xl border border-zinc-200/40 dark:border-zinc-800/20 shadow-sm">
+                <div key={idx} className="relative space-y-1 bg-zinc-50/50 dark:bg-zinc-950/20 p-2.5 rounded-lg border border-zinc-200/40 dark:border-zinc-800/20 shadow-sm">
                   <div className="flex justify-between items-center text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                     <span className="flex items-center gap-1">
                       <span className="material-symbols-outlined text-[10px]">schedule</span>
@@ -337,6 +337,7 @@ export default function MemberPortalPage() {
   const [activeTab, setActiveTab] = useState("account");
   const [accountSubTab, setAccountSubTab] = useState("profile");
   const [previewMode, setPreviewMode] = useState("mobile");
+  const [mobileView, setMobileView] = useState("edit"); // 'edit', 'preview' for mobile layout toggling
 
   // --- Chế độ Chăm sóc Sức khỏe Tinh thần (Healing Journey) ---
   const [showHealingModal, setShowHealingModal] = useState(false);
@@ -810,17 +811,16 @@ export default function MemberPortalPage() {
         lastCheckinDate: "",
         lastTestDate: "",
         chatDistressCount: 0,
-        historyLogs: []
+        historyLogs: historyLogs // Keep existing history logs!
       };
       await dataApi.saveCompanionHistory(payload).catch(console.error);
     }
 
-    // Purge all psychological data!
+    // Purge active journey state but preserve history logs!
     localStorage.removeItem("banhocduong_healing_mode");
     localStorage.removeItem("banhocduong_healing_duration");
     localStorage.removeItem("banhocduong_healing_start_date");
     localStorage.removeItem("banhocduong_last_checkin_date");
-    localStorage.removeItem("banhocduong_history");
     localStorage.removeItem("banhocduong_last_test_date");
     localStorage.removeItem("banhocduong_chat_distress_count");
     
@@ -830,7 +830,6 @@ export default function MemberPortalPage() {
       duration: 30,
       isExpired: false
     });
-    setHistoryLogs([]);
     setShowHealingModal(false);
     showToast("Chúc cậu luôn mạnh mẽ, kiên cường và hạnh phúc trên con đường phía trước! ❤️", "success");
   };
@@ -1318,7 +1317,7 @@ export default function MemberPortalPage() {
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
               transition={{ type: "spring", duration: 0.4 }}
-              className={`bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/60 rounded-3xl p-6 sm:p-8 w-full shadow-2xl space-y-6 relative overflow-hidden transition-all duration-300 ${
+              className={`bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/60 rounded-xl p-6 sm:p-8 w-full shadow-2xl space-y-6 relative overflow-hidden transition-all duration-300 ${
                 (healingSubStep === "checkin" || healingSubStep === "wheel") ? "max-w-md md:max-w-4xl" : "max-w-md"
               }`}
             >
@@ -1344,7 +1343,7 @@ export default function MemberPortalPage() {
                   <button
                     type="button"
                     onClick={handleGraduationConfirm}
-                    className="w-full py-3 bg-gradient-to-r from-pink-500 to-indigo-650 hover:from-pink-650 hover:to-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
+                    className="w-full py-3 bg-gradient-to-r from-pink-500 to-indigo-650 hover:from-pink-650 hover:to-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-md active:scale-[0.98]"
                   >
                     Hoàn thành và Xóa dữ liệu bảo mật
                   </button>
@@ -1381,7 +1380,7 @@ export default function MemberPortalPage() {
                             key={item.val}
                             type="button"
                             onClick={() => setHealingMood(item.val)}
-                            className={`flex-1 py-3.5 rounded-2xl border text-center transition-all ${
+                            className={`flex-1 py-3.5 rounded-lg border text-center transition-all ${
                               healingMood === item.val
                                 ? "bg-indigo-500/10 border-indigo-500 scale-[1.08] shadow-md shadow-indigo-500/5"
                                 : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:scale-[1.02]"
@@ -1401,7 +1400,7 @@ export default function MemberPortalPage() {
                           placeholder="Đồ án khó, thi cử áp lực, hay hôm nay là một ngày tuyệt vời..."
                           value={healingNote}
                           onChange={(e) => setHealingNote(e.target.value)}
-                          className="w-full h-20 px-3 py-2.5 rounded-2xl border border-zinc-250 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/20 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-zinc-400 font-semibold"
+                          className="w-full h-20 px-3 py-2.5 rounded-lg border border-zinc-250 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/20 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-zinc-400 font-semibold"
                         />
                       </div>
                     </div>
@@ -1409,7 +1408,7 @@ export default function MemberPortalPage() {
                     <button
                       type="button"
                       onClick={handleHealingSubmit}
-                      className="w-full py-3 mt-4 bg-gradient-to-r from-indigo-650 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
+                      className="w-full py-3 mt-4 bg-gradient-to-r from-indigo-650 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-md active:scale-[0.98]"
                     >
                       Tiếp tục
                     </button>
@@ -1440,7 +1439,7 @@ export default function MemberPortalPage() {
 
                       <div className="flex flex-col items-center gap-4">
                         {/* Compact Radar SVG */}
-                        <div className="relative w-40 h-40 bg-white dark:bg-[#15141c] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-inner flex items-center justify-center">
+                        <div className="relative w-40 h-40 bg-white dark:bg-[#15141c] rounded-lg border border-zinc-200/50 dark:border-zinc-800/40 shadow-inner flex items-center justify-center">
                           <svg className="w-full h-full" viewBox="0 0 300 300">
                             {/* Concentric grid lines pentagons */}
                             {[2, 4, 6, 8, 10].map((level) => {
@@ -1531,7 +1530,7 @@ export default function MemberPortalPage() {
                                   copy[idx] = parseInt(e.target.value, 10);
                                   setWheelRatings(copy);
                                 }}
-                                className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded appearance-none cursor-pointer accent-emerald-500"
                               />
                             </div>
                           ))}
@@ -1542,7 +1541,7 @@ export default function MemberPortalPage() {
                     <button
                       type="button"
                       onClick={handleHealingWheelSubmit}
-                      className="w-full py-3 mt-4 bg-gradient-to-r from-emerald-500 to-teal-650 hover:from-emerald-600 hover:to-teal-750 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
+                      className="w-full py-3 mt-4 bg-gradient-to-r from-emerald-500 to-teal-650 hover:from-emerald-600 hover:to-teal-750 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-md active:scale-[0.98]"
                     >
                       Gửi cảm xúc & Bắt đầu ngày mới
                     </button>
@@ -1557,7 +1556,7 @@ export default function MemberPortalPage() {
               {/* Step 3: periodic test reminder prompt */}
               {healingSubStep === "reminder" && (
                 <div className="space-y-5 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-indigo-550/10 border border-indigo-550/20 text-indigo-500 flex items-center justify-center mx-auto shadow-sm">
+                  <div className="w-14 h-14 rounded-lg bg-indigo-550/10 border border-indigo-550/20 text-indigo-500 flex items-center justify-center mx-auto shadow-sm">
                     <span className="material-symbols-outlined text-2xl animate-pulse">quiz</span>
                   </div>
                   <div className="space-y-2">
@@ -1580,7 +1579,7 @@ export default function MemberPortalPage() {
                       <button
                         type="button"
                         onClick={handleGoToBreath}
-                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors flex items-center justify-center gap-1.5"
+                        className="w-full py-2.5 rounded-md bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors flex items-center justify-center gap-1.5"
                       >
                         <span className="material-symbols-outlined text-sm">air</span>
                         Luyện Hít Thở 4-7-8 (2 phút)
@@ -1588,7 +1587,7 @@ export default function MemberPortalPage() {
                       <button
                         type="button"
                         onClick={handleGoToChat}
-                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-550 to-indigo-650 hover:from-indigo-650 hover:to-indigo-750 text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors flex items-center justify-center gap-1.5"
+                        className="w-full py-2.5 rounded-md bg-gradient-to-r from-indigo-550 to-indigo-650 hover:from-indigo-650 hover:to-indigo-750 text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors flex items-center justify-center gap-1.5"
                       >
                         <span className="material-symbols-outlined text-sm">forum</span>
                         Tâm sự giải tỏa cùng Trợ lý (3 phút)
@@ -1596,7 +1595,7 @@ export default function MemberPortalPage() {
                       <button
                         type="button"
                         onClick={handleGoToTest}
-                        className="w-full py-2 rounded-xl border border-zinc-250 dark:border-zinc-800 text-[9.5px] font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
+                        className="w-full py-2 rounded-md border border-zinc-250 dark:border-zinc-800 text-[9.5px] font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
                       >
                         Làm test lâm sàng DASS-42
                       </button>
@@ -1619,14 +1618,14 @@ export default function MemberPortalPage() {
                           setShowHealingModal(false);
                           showToast("Cậu đã chọn làm khảo sát sau. Hãy chú ý giữ gìn sức khỏe nhé! 🌟", "success");
                         }}
-                        className="py-2.5 rounded-xl border border-zinc-250 dark:border-zinc-800 text-[10px] font-black uppercase tracking-wider text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
+                        className="py-2.5 rounded-md border border-zinc-250 dark:border-zinc-800 text-[10px] font-black uppercase tracking-wider text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
                       >
                         Để sau
                       </button>
                       <button
                         type="button"
                         onClick={handleGoToTest}
-                        className="py-2.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors"
+                        className="py-2.5 rounded-md bg-[#0071e3] hover:bg-[#0077ed] text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors"
                       >
                         Làm test ngay
                       </button>
@@ -1641,7 +1640,7 @@ export default function MemberPortalPage() {
 
       {/* Toast Alert */}
       {toast.message && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/90 dark:bg-[#1c1c1e]/90 backdrop-blur-xl shadow-2xl border border-zinc-200/50 dark:border-zinc-800/80 w-[calc(100vw-32px)] max-w-md animate-toast-in">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-lg bg-white/90 dark:bg-[#1c1c1e]/90 backdrop-blur-xl shadow-2xl border border-zinc-200/50 dark:border-zinc-800/80 w-[calc(100vw-32px)] max-w-md animate-toast-in">
           <span className={`material-symbols-outlined shrink-0 text-xl ${
             toast.type === "success" ? "text-[#34c759]" : toast.type === "warning" ? "text-[#ff9500]" : "text-[#ff3b30]"
           }`}>
@@ -1664,7 +1663,7 @@ export default function MemberPortalPage() {
       <div className="absolute top-0 left-1/4 w-[40%] h-[400px] bg-gradient-to-br from-[#0071e3]/10 to-[#5856d6]/10 rounded-full filter blur-[120px] pointer-events-none opacity-40 dark:opacity-20" />
       <div className="absolute top-1/3 right-1/4 w-[35%] h-[350px] bg-gradient-to-br from-[#30b0c7]/10 to-[#34c759]/5 rounded-full filter blur-[100px] pointer-events-none opacity-30 dark:opacity-10" />
 
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8 md:py-12 space-y-6 sm:space-y-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 pt-6 sm:pt-8 md:pt-12 pb-24 md:pb-12 space-y-6 sm:space-y-8 relative z-10">
 
         {/* Dynamic iOS Segmented Navigation Header */}
         <section className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 md:gap-6 pb-3 sm:pb-4 border-b border-zinc-200/50 dark:border-zinc-800/30">
@@ -1704,7 +1703,7 @@ export default function MemberPortalPage() {
           </div>
 
           {!isGuestMode && (
-            <div className="flex items-center gap-3 w-full md:w-auto shrink-0">
+            <div className="hidden md:flex items-center gap-3 w-full md:w-auto shrink-0">
               {/* iOS Style Segmented Control */}
               {bio?.status !== 'pending' && (
                 <div className="relative bg-[#767680]/12 dark:bg-[#767680]/24 p-[3px] rounded-full flex w-full md:w-auto md:min-w-[560px] border border-zinc-200/20 dark:border-zinc-800/20 shadow-[inset_0_1px_1px_rgba(0,0,0,0.05)] shrink-0">
@@ -1808,165 +1807,203 @@ export default function MemberPortalPage() {
               <>
                 {/* Tab 1: Account / Profile Details */}
                 {activeTab === "account" && (
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-start animate-fadeIn">
+                  <div className="space-y-4">
+                    {/* Mobile Edit/Preview Toggle Switch */}
+                    <div className="block lg:hidden w-full px-1">
+                      <div className="relative bg-[#767680]/12 dark:bg-[#767680]/24 p-[3px] rounded-lg flex border border-zinc-200/10 dark:border-zinc-800/20 shadow-inner">
+                        <div
+                          className="absolute top-[3px] bottom-[3px] bg-white dark:bg-[#636366] rounded-md shadow-sm transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                          style={{
+                            left: mobileView === "edit" ? "3px" : "calc(50% + 1px)",
+                            width: "calc(50% - 4px)"
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setMobileView("edit")}
+                          className={`w-1/2 py-2 text-xs font-black uppercase tracking-wider rounded-md relative z-10 transition-colors ${
+                            mobileView === "edit" ? "text-black dark:text-white" : "text-zinc-500"
+                          }`}
+                        >
+                          Chỉnh sửa
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setMobileView("preview")}
+                          className={`w-1/2 py-2 text-xs font-black uppercase tracking-wider rounded-md relative z-10 transition-colors ${
+                            mobileView === "preview" ? "text-black dark:text-white" : "text-zinc-500"
+                          }`}
+                        >
+                          Xem trước
+                        </button>
+                      </div>
+                    </div>
 
-                    {/* Left Content Area: iOS Form fields with Sub-tabs navigation */}
-                    <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start">
-                      
-                      {/* Local Sub-tabs Navigation Menu */}
-                      <div className="md:col-span-3 flex md:flex-col overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 gap-1.5 sticky top-20 z-20 scrollbar-none p-1 md:p-0">
-                        {[
-                          { id: "profile", label: t("memberPortal.sidebar.personal"), icon: "person" },
-                          { id: "design", label: t("memberPortal.sidebar.theme"), icon: "palette" },
-                          { id: "links", label: t("memberPortal.sidebar.links"), icon: "link" },
-                          { id: "projects", label: t("memberPortal.sidebar.projects"), icon: "folder_special" },
-                          { id: "services", label: t("memberPortal.sidebar.services"), icon: "storefront" },
-                          { id: "career", label: t("memberPortal.sidebar.career"), icon: "school" },
-                          { id: "body", label: t("memberPortal.sidebar.physical"), icon: "straighten" }
-                        ].map((tab) => {
-                          const isActive = accountSubTab === tab.id;
-                          return (
-                            <button
-                              key={tab.id}
-                              type="button"
-                              onClick={() => setAccountSubTab(tab.id)}
-                              className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider transition-all duration-200 shrink-0 border ${
-                                isActive
-                                  ? "bg-[#0071e3] border-[#0071e3] text-white shadow-md shadow-[#0071e3]/10 transform md:translate-x-1"
-                                  : "bg-white dark:bg-[#1c1c1e] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border-zinc-200 dark:border-zinc-800/60"
-                              }`}
-                            >
-                              <span className="material-symbols-outlined text-base shrink-0">{tab.icon}</span>
-                              <span className="truncate">{tab.label}</span>
-                            </button>
-                          );
-                        })}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-start animate-fadeIn">
+                      {/* Left Content Area: iOS Form fields with Sub-tabs navigation */}
+                      <div className={`lg:col-span-7 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start ${
+                        mobileView === "preview" ? "hidden lg:grid" : "grid"
+                      }`}>
+                        
+                        {/* Local Sub-tabs Navigation Menu */}
+                        <div className="md:col-span-3 flex md:flex-col overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 gap-1.5 sticky top-20 z-20 scrollbar-none p-1 md:p-0">
+                          {[
+                            { id: "profile", label: t("memberPortal.sidebar.personal"), icon: "person" },
+                            { id: "design", label: t("memberPortal.sidebar.theme"), icon: "palette" },
+                            { id: "links", label: t("memberPortal.sidebar.links"), icon: "link" },
+                            { id: "projects", label: t("memberPortal.sidebar.projects"), icon: "folder_special" },
+                            { id: "services", label: t("memberPortal.sidebar.services"), icon: "storefront" },
+                            { id: "career", label: t("memberPortal.sidebar.career"), icon: "school" },
+                            { id: "body", label: t("memberPortal.sidebar.physical"), icon: "straighten" }
+                          ].map((tab) => {
+                            const isActive = accountSubTab === tab.id;
+                            return (
+                              <button
+                                key={tab.id}
+                                type="button"
+                                onClick={() => setAccountSubTab(tab.id)}
+                                className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-left text-[10px] font-black uppercase tracking-wider transition-all duration-200 shrink-0 border ${
+                                  isActive
+                                    ? "bg-[#0071e3] border-[#0071e3] text-white shadow-md shadow-[#0071e3]/10 transform md:translate-x-1"
+                                    : "bg-white dark:bg-[#1c1c1e] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border-zinc-200 dark:border-zinc-800/60"
+                                }`}
+                              >
+                                <span className="material-symbols-outlined text-base shrink-0">{tab.icon}</span>
+                                <span className="truncate">{tab.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Active Form Fields Pane */}
+                        <div className="md:col-span-9 space-y-4">
+                          <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-5">
+                            
+                            {/* profile Sub-Tab */}
+                            {accountSubTab === "profile" && (
+                              <ProfileSubTab 
+                                formData={formData}
+                                handleFieldChange={handleFieldChange}
+                                saving={saving}
+                                isDragOver={isDragOver}
+                                setIsDragOver={setIsDragOver}
+                                processFile={processFile}
+                                avatarInputRef={avatarInputRef}
+                                handleAvatarChange={handleAvatarChange}
+                                handleRemoveAvatar={handleRemoveAvatar}
+                                memberSession={memberSession}
+                                t={t}
+                              />
+                            )}
+
+                            {/* design Sub-Tab */}
+                            {accountSubTab === "design" && (
+                              <DesignSubTab 
+                                formData={formData}
+                                setFormData={setFormData}
+                                t={t}
+                              />
+                            )}
+
+                            {/* links Sub-Tab */}
+                            {accountSubTab === "links" && (
+                              <LinksSubTab 
+                                formData={formData}
+                                newLinkLabel={newLinkLabel}
+                                setNewLinkLabel={setNewLinkLabel}
+                                newLinkUrl={newLinkUrl}
+                                setNewLinkUrl={setNewLinkUrl}
+                                handleLinkInputKeyDown={handleLinkInputKeyDown}
+                                addSocialLink={addSocialLink}
+                                removeSocialLink={removeSocialLink}
+                                handleFieldChange={handleFieldChange}
+                                bioTextareaRef={bioTextareaRef}
+                                t={t}
+                              />
+                            )}
+
+                            {/* SUB-TAB: PROJECTS */}
+                            {accountSubTab === "projects" && (
+                              <MemberProjectsTab
+                                formData={formData}
+                                setFormData={setFormData}
+                                handleSave={handleSave}
+                                showToast={showToast}
+                                isGuestMode={isGuestMode}
+                                bio={bio}
+                              />
+                            )}
+
+                            {/* SUB-TAB: SERVICES */}
+                            {accountSubTab === "services" && (
+                              <MemberServicesTab
+                                formData={formData}
+                                setFormData={setFormData}
+                                handleSave={handleSave}
+                                showToast={showToast}
+                                isGuestMode={isGuestMode}
+                                bio={bio}
+                              />
+                            )}
+
+                            {/* career Sub-Tab */}
+                            {accountSubTab === "career" && (
+                              <CareerSubTab 
+                                formData={formData}
+                                handleFieldChange={handleFieldChange}
+                                t={t}
+                              />
+                            )}
+
+                            {/* body Sub-Tab */}
+                            {accountSubTab === "body" && (
+                              <BodySubTab 
+                                formData={formData}
+                                handleFieldChange={handleFieldChange}
+                                t={t}
+                              />
+                            )}
+
+                            {/* Submit save button */}
+                            <div className="pt-2">
+                              <button
+                                type="submit"
+                                disabled={saving}
+                                className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 transition-colors rounded-lg py-3 px-4 flex items-center justify-center gap-2 font-bold shadow-sm"
+                              >
+                                {saving ? (
+                                  <>
+                                    <div className="w-3.5 h-3.5 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" />
+                                    <span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updating")}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span className="material-symbols-outlined text-sm">save</span>
+                                    <span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updateInfo")}</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+
+                          </form>
+                        </div>
+
                       </div>
 
-                      {/* Active Form Fields Pane */}
-                      <div className="md:col-span-9 space-y-4">
-                        <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-5">
-                          
-                          {/* profile Sub-Tab */}
-                          {accountSubTab === "profile" && (
-                            <ProfileSubTab 
-                              formData={formData}
-                              handleFieldChange={handleFieldChange}
-                              saving={saving}
-                              isDragOver={isDragOver}
-                              setIsDragOver={setIsDragOver}
-                              processFile={processFile}
-                              avatarInputRef={avatarInputRef}
-                              handleAvatarChange={handleAvatarChange}
-                              handleRemoveAvatar={handleRemoveAvatar}
-                              memberSession={memberSession}
-                              t={t}
-                            />
-                          )}
-
-                          {/* design Sub-Tab */}
-                          {accountSubTab === "design" && (
-                            <DesignSubTab 
-                              formData={formData}
-                              setFormData={setFormData}
-                              t={t}
-                            />
-                          )}
-
-                          {/* links Sub-Tab */}
-                          {accountSubTab === "links" && (
-                            <LinksSubTab 
-                              formData={formData}
-                              newLinkLabel={newLinkLabel}
-                              setNewLinkLabel={setNewLinkLabel}
-                              newLinkUrl={newLinkUrl}
-                              setNewLinkUrl={setNewLinkUrl}
-                              handleLinkInputKeyDown={handleLinkInputKeyDown}
-                              addSocialLink={addSocialLink}
-                              removeSocialLink={removeSocialLink}
-                              handleFieldChange={handleFieldChange}
-                              bioTextareaRef={bioTextareaRef}
-                              t={t}
-                            />
-                          )}
-
-                          {/* SUB-TAB: PROJECTS */}
-                          {accountSubTab === "projects" && (
-                            <MemberProjectsTab
-                              formData={formData}
-                              setFormData={setFormData}
-                              handleSave={handleSave}
-                              showToast={showToast}
-                              isGuestMode={isGuestMode}
-                              bio={bio}
-                            />
-                          )}
-
-                          {/* SUB-TAB: SERVICES */}
-                          {accountSubTab === "services" && (
-                            <MemberServicesTab
-                              formData={formData}
-                              setFormData={setFormData}
-                              handleSave={handleSave}
-                              showToast={showToast}
-                              isGuestMode={isGuestMode}
-                              bio={bio}
-                            />
-                          )}
-
-                          {/* career Sub-Tab */}
-                          {accountSubTab === "career" && (
-                            <CareerSubTab 
-                              formData={formData}
-                              handleFieldChange={handleFieldChange}
-                              t={t}
-                            />
-                          )}
-
-                          {/* body Sub-Tab */}
-                          {accountSubTab === "body" && (
-                            <BodySubTab 
-                              formData={formData}
-                              handleFieldChange={handleFieldChange}
-                              t={t}
-                            />
-                          )}
-
-                          {/* Submit save button */}
-                          <div className="pt-2">
-                            <button
-                              type="submit"
-                              disabled={saving}
-                              className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 transition-colors rounded-2xl py-3 px-4 flex items-center justify-center gap-2 font-bold shadow-sm"
-                            >
-                              {saving ? (
-                                <>
-                                  <div className="w-3.5 h-3.5 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" />
-                                  <span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updating")}</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="material-symbols-outlined text-sm">save</span>
-                                  <span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updateInfo")}</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-
-                        </form>
+                      {/* Right Sticky Preview Area - Account Tab */}
+                      <div className={`lg:col-span-5 lg:sticky lg:top-6 w-full flex justify-center ${
+                        mobileView === "edit" ? "hidden lg:flex" : "flex"
+                      }`}>
+                        <PreviewSimulator 
+                          previewMode={previewMode}
+                          setPreviewMode={setPreviewMode}
+                          previewIframeRef={previewIframeRef}
+                          slug={bio?.slug}
+                          t={t}
+                        />
                       </div>
 
                     </div>
-
-                    {/* Right Sticky Preview Area - Account Tab */}
-                    <PreviewSimulator 
-                      previewMode={previewMode}
-                      setPreviewMode={setPreviewMode}
-                      previewIframeRef={previewIframeRef}
-                      slug={bio?.slug}
-                      t={t}
-                    />
-
                   </div>
                 )}
 
@@ -2020,7 +2057,7 @@ export default function MemberPortalPage() {
         {/* CUSTOM CONFIRM MODAL */}
         {confirmModal.isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 max-w-sm w-full shadow-2xl space-y-4">
               <div className="flex items-center gap-2 text-rose-500">
                 <span className="material-symbols-outlined text-2xl">warning</span>
                 <h3 className="font-extrabold text-sm uppercase tracking-wider text-zinc-900 dark:text-white">{t("memberPortal.confirm.title")}</h3>
@@ -2032,7 +2069,7 @@ export default function MemberPortalPage() {
                 <button
                   type="button"
                   onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: null })}
-                  className="py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
+                  className="py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
                 >{t("memberPortal.confirm.cancel")}</button>
                 <button
                   type="button"
@@ -2040,7 +2077,7 @@ export default function MemberPortalPage() {
                     if (confirmModal.onConfirm) confirmModal.onConfirm();
                     setConfirmModal({ isOpen: false, message: "", onConfirm: null });
                   }}
-                  className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold shadow-md transition-colors"
+                  className="py-2.5 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold shadow-md transition-colors"
                 >{t("memberPortal.confirm.confirm")}</button>
               </div>
             </div>
@@ -2055,6 +2092,44 @@ export default function MemberPortalPage() {
         )}
 
       </div>
+
+      {/* Fixed Bottom Navigation Bar for Mobile */}
+      {!isGuestMode && bio?.status !== 'pending' && (
+        <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-xl border-t border-zinc-200/50 dark:border-zinc-800/60 pb-[calc(env(safe-area-inset-bottom,0px)+10px)] pt-2.5 px-2 flex justify-around shadow-lg">
+          {[
+            { id: "account", label: t("memberPortal.tabs.bio"), icon: "person" },
+            { id: "manage", label: t("memberPortal.tabs.package"), icon: "card_membership" },
+            { id: "partner", label: t("memberPortal.tabs.partner"), icon: "handshake" },
+            { id: "utilities", label: t("memberPortal.tabs.utilities"), icon: "apps" },
+            { id: "history", label: t("memberPortal.tabs.history"), icon: "history" }
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex flex-col items-center justify-center gap-1.5 py-1 px-2.5 relative transition-colors duration-200 flex-1 min-w-0 ${
+                  isActive
+                    ? "text-[#0071e3] dark:text-[#0a84ff]"
+                    : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-650 dark:hover:text-zinc-350"
+                }`}
+              >
+                <span className="material-symbols-outlined text-lg leading-none">{tab.icon}</span>
+                <span className="text-[8.5px] font-black tracking-wider uppercase truncate max-w-full">
+                  {tab.label}
+                </span>
+                
+                {tab.id === "history" && unreadHistoryCount > 0 && (
+                  <span className="absolute top-0.5 right-[20%] bg-red-500 text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm animate-bounce-short animate-pulse">
+                    {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

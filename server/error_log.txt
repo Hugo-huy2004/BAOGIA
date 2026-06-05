@@ -1,0 +1,5 @@
+VersionError: No matching document found for id "6a2254f0523733ee254b3776" version 61 modifiedPaths "historyLogs, chatMessages"
+    at generateVersionError (/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/node_modules/mongoose/lib/model.js:566:10)
+    at model.save (/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/node_modules/mongoose/lib/model.js:624:28)
+    at file:///Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/routes/companionRoutes.js:73:22
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)

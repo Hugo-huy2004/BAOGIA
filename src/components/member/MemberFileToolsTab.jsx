@@ -117,10 +117,10 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
       />
 
       {/* Tabs */}
-      <div className="flex bg-zinc-100 dark:bg-zinc-800/50 p-1 rounded-xl">
+      <div className="flex bg-zinc-100 dark:bg-zinc-800/50 p-1 rounded-md">
         <button
           onClick={() => setActiveSubTab("extract")}
-          className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
+          className={`flex-1 py-2 text-sm font-medium rounded transition-colors ${
             activeSubTab === "extract" 
             ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm" 
             : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
@@ -130,7 +130,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
         </button>
         <button
           onClick={() => setActiveSubTab("compress")}
-          className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
+          className={`flex-1 py-2 text-sm font-medium rounded transition-colors ${
             activeSubTab === "compress" 
             ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm" 
             : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
@@ -150,7 +150,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="p-5 rounded-2xl bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+            <div className="p-5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Chọn File ZIP (Tối đa 50MB)
               </label>
@@ -161,12 +161,12 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                   setZipFile(e.target.files[0]);
                   setZipResult(null); // reset old result
                 }}
-                className="w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 dark:file:bg-blue-500/10 dark:file:text-blue-400"
+                className="w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 dark:file:bg-blue-500/10 dark:file:text-blue-400"
               />
               <button
                 onClick={handleZipUpload}
                 disabled={!zipFile || extracting}
-                className="mt-4 w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-medium transition-colors"
+                className="mt-4 w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md font-medium transition-colors"
               >
                 {extracting ? "Đang xử lý..." : "Tải lên & Đọc nội dung"}
               </button>
@@ -174,13 +174,13 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
 
             {/* Hiển thị kết quả ZIP */}
             {zipResult && zipResult.entries && (
-              <div className="p-5 rounded-2xl bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+              <div className="p-5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
                 <h4 className="text-sm font-medium text-zinc-900 dark:text-white mb-3">
                   Danh sách File trong ZIP:
                 </h4>
                 <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                   {zipResult.entries.filter(e => !e.isDirectory && !e.name.includes('__MACOSX')).map((entry, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
+                    <div key={idx} className="flex items-center justify-between p-3 rounded bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
                       <div className="flex items-center gap-3 overflow-hidden">
                         <span className="material-symbols-outlined text-zinc-400">insert_drive_file</span>
                         <div className="flex flex-col truncate">
@@ -194,7 +194,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                       </div>
                       <button
                         onClick={() => handleDownloadZipEntry(entry.name)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors flex-shrink-0"
+                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded transition-colors flex-shrink-0"
                         title="Tải về file này"
                       >
                         <span className="material-symbols-outlined text-lg">download</span>
@@ -216,7 +216,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="p-5 rounded-2xl bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-5">
+            <div className="p-5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-5">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                   Chọn Hình Ảnh / Video (Tối đa 50MB)
@@ -225,7 +225,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                   type="file"
                   accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime"
                   onChange={(e) => setCompressFile(e.target.files[0])}
-                  className="w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 dark:file:bg-blue-500/10 dark:file:text-blue-400"
+                  className="w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 dark:file:bg-blue-500/10 dark:file:text-blue-400"
                 />
               </div>
 
@@ -242,7 +242,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                     <button
                       key={level.id}
                       onClick={() => setCompressLevel(level.id)}
-                      className={`py-2 px-1 text-xs sm:text-sm font-medium rounded-lg border transition-all ${
+                      className={`py-2 px-1 text-xs sm:text-sm font-medium rounded border transition-all ${
                         compressLevel === level.id
                           ? "border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
                           : "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
@@ -257,7 +257,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
               <button
                 onClick={handleCompress}
                 disabled={!compressFile || compressing}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {compressing && <span className="material-symbols-outlined animate-spin">refresh</span>}
                 {compressing ? "Đang xử lý..." : "Nén & Tải Về"}

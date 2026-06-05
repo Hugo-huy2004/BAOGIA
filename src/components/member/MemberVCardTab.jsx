@@ -104,7 +104,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
         {/* LEFT: QR Code Display */}
         <div className="flex flex-col items-center justify-center p-8 bg-zinc-50 dark:bg-zinc-900/20 rounded-[2rem] border border-dashed border-zinc-300 dark:border-zinc-800/80 min-h-[380px]">
           <div className="relative">
-            <div ref={qrRef} className="bg-white p-5 rounded-3xl shadow-xl border border-zinc-200">
+            <div ref={qrRef} className="bg-white p-5 rounded-xl shadow-xl border border-zinc-200">
               <QRCodeSVG 
                   value={vcardData} 
                   size={200} 
@@ -115,14 +115,14 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
             </div>
             
             {/* Floating icon */}
-            <div className="absolute -bottom-4 -right-4 w-12 h-12 rounded-2xl bg-rose-500 text-white border-2 border-white shadow-lg flex items-center justify-center">
+            <div className="absolute -bottom-4 -right-4 w-12 h-12 rounded-lg bg-rose-500 text-white border-2 border-white shadow-lg flex items-center justify-center">
               <span className="material-symbols-outlined text-2xl">contact_page</span>
             </div>
           </div>
 
           <button 
             onClick={handleDownloadQR}
-            className="mt-10 px-8 py-3.5 rounded-2xl text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-500/25 transition-all active:scale-[0.98] flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:brightness-110"
+            className="mt-10 px-8 py-3.5 rounded-lg text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-500/25 transition-all active:scale-[0.98] flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:brightness-110"
           >
             <span className="material-symbols-outlined text-lg">download</span>
             Tải Mã QR Này
@@ -132,7 +132,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
         {/* RIGHT: Action Tools */}
         <div className="bg-white dark:bg-[#12111a] rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 p-6 shadow-sm flex flex-col justify-center space-y-6 min-h-[380px]">
           
-          <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl space-y-2">
+          <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800/80 rounded-lg space-y-2">
              <h4 className="text-xs font-black text-rose-500 uppercase flex items-center gap-1.5"><span className="material-symbols-outlined text-[16px]">info</span> Cơ chế Tự Động</h4>
              <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">Vì lý do bảo mật của iOS/Android, một trang web <strong>không thể ngầm tự động thêm số điện thoại</strong> vào danh bạ của người dùng nếu không có thao tác xác nhận. Mã QR này chứa gói lệnh VCF, khi camera nhận dạng được, nó sẽ <strong>tự động bật popup Lưu Danh Bạ</strong> để người dùng bấm Lưu là xong.</p>
           </div>
@@ -141,7 +141,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
             <a
               href={vcardDownloadUrl}
               download
-              className="w-full p-4 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-4 group cursor-pointer"
+              className="w-full p-4 rounded-md bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-4 group cursor-pointer"
             >
               <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">cloud_download</span>
@@ -154,7 +154,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
 
             <button
               onClick={handleShare}
-              className="w-full p-4 rounded-xl bg-rose-50 dark:bg-rose-500/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 border border-rose-100 dark:border-rose-500/10 transition-colors flex items-center gap-4 group cursor-pointer text-left"
+              className="w-full p-4 rounded-md bg-rose-50 dark:bg-rose-500/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 border border-rose-100 dark:border-rose-500/10 transition-colors flex items-center gap-4 group cursor-pointer text-left"
             >
               <div className="w-10 h-10 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">{navigator.share ? "ios_share" : "content_copy"}</span>
@@ -168,13 +168,13 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
           
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Link Cố định</label>
-            <div className="flex items-center gap-2 p-1.5 bg-zinc-50 dark:bg-[#1a1926]/40 border border-zinc-200/80 dark:border-zinc-800/80 rounded-xl shadow-inner">
+            <div className="flex items-center gap-2 p-1.5 bg-zinc-50 dark:bg-[#1a1926]/40 border border-zinc-200/80 dark:border-zinc-800/80 rounded-md shadow-inner">
               <div className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400 truncate flex-1 px-3 py-1 font-bold">
                 {vcardDownloadUrl}
               </div>
               <button
                 onClick={copyVcardLink}
-                className="px-4 py-2 rounded-lg text-[9.5px] font-black uppercase bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center gap-1.5 shadow-sm shrink-0"
+                className="px-4 py-2 rounded text-[9.5px] font-black uppercase bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center gap-1.5 shadow-sm shrink-0"
               >
                 <span className="material-symbols-outlined text-[14px]">content_copy</span>
                 Copy

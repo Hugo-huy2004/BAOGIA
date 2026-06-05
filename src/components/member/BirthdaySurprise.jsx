@@ -187,7 +187,7 @@ export default function BirthdaySurprise({ displayName, onClose }) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md transition-all duration-300">
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
       
-      <div className="relative max-w-sm w-full mx-4 p-8 rounded-3xl bg-[#1c1c1e] border border-rose-500/30 text-center shadow-[0_0_50px_rgba(255,45,85,0.25)] space-y-6 animate-scaleUp z-10">
+      <div className="relative max-w-sm w-full mx-4 p-8 rounded-xl bg-[#1c1c1e] border border-rose-500/30 text-center shadow-[0_0_50px_rgba(255,45,85,0.25)] space-y-6 animate-scaleUp z-10">
         
         {/* Animated Cake Icon */}
         <div className="relative w-20 h-20 mx-auto flex items-center justify-center bg-rose-500/10 rounded-full border border-rose-500/20 text-rose-500 animate-pulse">
@@ -208,7 +208,7 @@ export default function BirthdaySurprise({ displayName, onClose }) {
 
         <button
           onClick={onClose}
-          className="w-full py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold text-xs uppercase tracking-widest transition-all active:scale-95 shadow-md shadow-rose-500/20"
+          className="w-full py-3 rounded-lg bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold text-xs uppercase tracking-widest transition-all active:scale-95 shadow-md shadow-rose-500/20"
         >
           Nhận lời chúc
         </button>

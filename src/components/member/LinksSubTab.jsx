@@ -48,13 +48,13 @@ export default function LinksSubTab({
           <span className="text-[8px] font-semibold text-zinc-400">{t("memberPortal.links.autoSave")}</span>
         </div>
 
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-4">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-4">
           {formData.links && formData.links.length > 0 ? (
             <div className="space-y-2">
               {formData.links.map((link, idx) => {
                 const brand = getSocialBrandStyle(link.label);
                 return (
-                  <div key={idx} className="flex justify-between items-center p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/40 dark:border-zinc-800/40 text-xs transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
+                  <div key={idx} className="flex justify-between items-center p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/40 dark:border-zinc-800/40 text-xs transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
                     <div className="flex items-center gap-2 truncate pr-2">
                       <span className={`material-symbols-outlined text-base shrink-0 ${brand ? "text-[#0071e3]" : "text-zinc-450"}`}>
                         {brand ? brand.icon : "link"}
@@ -74,7 +74,7 @@ export default function LinksSubTab({
               })}
             </div>
           ) : (
-            <div className="text-center py-6 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
+            <div className="text-center py-6 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-md">
               <span className="material-symbols-outlined text-2xl text-zinc-300">link_off</span>
               <p className="text-[11px] italic text-zinc-400 mt-1">{t("memberPortal.links.empty")}</p>
             </div>
@@ -91,7 +91,7 @@ export default function LinksSubTab({
                   onKeyDown={handleLinkInputKeyDown}
                   onChange={(e) => setNewLinkLabel(e.target.value)}
                   placeholder={t("memberPortal.links.placeholderLabel")}
-                  className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
+                  className="w-full px-3 py-2 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
                 />
               </div>
               <div className="space-y-1">
@@ -102,14 +102,14 @@ export default function LinksSubTab({
                   onKeyDown={handleLinkInputKeyDown}
                   onChange={(e) => setNewLinkUrl(e.target.value)}
                   placeholder={t("memberPortal.links.placeholderUrl")}
-                  className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
+                  className="w-full px-3 py-2 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[#1d1d1f] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
                 />
               </div>
             </div>
             <button
               type="button"
               onClick={addSocialLink}
-              className="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1 shadow-sm"
+              className="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-bold py-2.5 rounded-md transition-colors flex items-center justify-center gap-1 shadow-sm"
             >
               <span className="material-symbols-outlined text-sm">add</span>{t("memberPortal.links.addLink")}
             </button>
@@ -120,10 +120,10 @@ export default function LinksSubTab({
       {/* Section E: Biography and Hobbies */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.other.title")}</h3>
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Hobbies */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
               <span className="material-symbols-outlined text-base">star</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.hobbies")}</label>
@@ -140,7 +140,7 @@ export default function LinksSubTab({
           {/* Bio text */}
           <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-3 px-4 py-3 min-h-[70px]">
             <div className="flex items-center gap-3 shrink-0">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0 bg-[#8e8e93]">
+              <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#8e8e93]">
                 <span className="material-symbols-outlined text-base">edit_note</span>
               </div>
               <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.desc")}</label>

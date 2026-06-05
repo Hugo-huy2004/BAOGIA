@@ -873,7 +873,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
     const kY = getY(scores.K);
 
     return (
-      <div className="bg-[#15141c] rounded-3xl p-4.5 border border-zinc-800/80 shadow-2xl relative">
+      <div className="bg-[#15141c] rounded-xl p-4.5 border border-zinc-800/80 shadow-2xl relative">
         <h4 className="text-[10px] font-black tracking-widest text-[#0071e3] uppercase mb-3 text-center">
           Biểu đồ Kiểm định độ tin cậy L - F - K
         </h4>
@@ -956,9 +956,9 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-2xl mx-auto pt-2">
             {/* DASS-42 card */}
-            <div className="group border border-zinc-200/50 dark:border-zinc-800/60 bg-gradient-to-b from-white to-zinc-50/50 dark:from-[#1b1a24]/30 dark:to-zinc-950/20 rounded-2xl p-5 hover:border-[#0071e3] transition-all flex flex-col justify-between h-[220px] shadow-sm hover:shadow-xl duration-300">
+            <div className="group border border-zinc-200/50 dark:border-zinc-800/60 bg-gradient-to-b from-white to-zinc-50/50 dark:from-[#1b1a24]/30 dark:to-zinc-950/20 rounded-lg p-5 hover:border-[#0071e3] transition-all flex flex-col justify-between h-[220px] shadow-sm hover:shadow-xl duration-300">
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <div className="w-10 h-10 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
                   <span className="material-symbols-outlined text-xl">psychology_alt</span>
                 </div>
                 <div className="space-y-1">
@@ -971,16 +971,16 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
               <button
                 type="button"
                 onClick={() => handleStartTest("dass")}
-                className="w-full py-2.5 bg-gradient-to-r from-[#0071e3] to-[#0077ed] hover:from-[#0077ed] hover:to-[#007fed] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
+                className="w-full py-2.5 bg-gradient-to-r from-[#0071e3] to-[#0077ed] hover:from-[#0077ed] hover:to-[#007fed] text-white rounded-md text-[10px] font-black uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
               >
                 Bắt đầu khảo sát DASS-42
               </button>
             </div>
 
             {/* MMPI-30 card */}
-            <div className="group border border-zinc-200/50 dark:border-zinc-800/60 bg-gradient-to-b from-white to-zinc-50/50 dark:from-[#1b1a24]/30 dark:to-zinc-950/20 rounded-2xl p-5 hover:border-indigo-500 transition-all flex flex-col justify-between h-[220px] shadow-sm hover:shadow-xl duration-300">
+            <div className="group border border-zinc-200/50 dark:border-zinc-800/60 bg-gradient-to-b from-white to-zinc-50/50 dark:from-[#1b1a24]/30 dark:to-zinc-950/20 rounded-lg p-5 hover:border-indigo-500 transition-all flex flex-col justify-between h-[220px] shadow-sm hover:shadow-xl duration-300">
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
+                <div className="w-10 h-10 rounded-md bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
                   <span className="material-symbols-outlined text-xl">neurology</span>
                 </div>
                 <div className="space-y-1">
@@ -993,7 +993,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
               <button
                 type="button"
                 onClick={() => handleStartTest("mmpi")}
-                className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
+                className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-md text-[10px] font-black uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
               >
                 Bắt đầu khảo sát MMPI-30
               </button>
@@ -1013,7 +1013,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
           className="space-y-6 w-full"
         >
           {/* Top Progress bar */}
-          <div className="bg-zinc-100/50 dark:bg-zinc-900/40 p-4.5 rounded-2xl border border-zinc-200/40 dark:border-zinc-800/45 flex items-center justify-between">
+          <div className="bg-zinc-100/50 dark:bg-zinc-900/40 p-4.5 rounded-lg border border-zinc-200/40 dark:border-zinc-800/45 flex items-center justify-between">
             <div>
               <span className="text-[8px] font-black tracking-widest text-[#0071e3] uppercase block">
                 Đang tiến hành đánh giá
@@ -1061,7 +1061,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
               transition={{ duration: 0.2 }}
               className="space-y-5"
             >
-              <div className="divide-y divide-zinc-200/40 dark:divide-zinc-800/40 border border-zinc-200/50 dark:border-zinc-850/50 bg-white/40 dark:bg-black/5 rounded-2xl overflow-hidden shadow-inner p-3 sm:p-5">
+              <div className="divide-y divide-zinc-200/40 dark:divide-zinc-800/40 border border-zinc-200/50 dark:border-zinc-850/50 bg-white/40 dark:bg-black/5 rounded-lg overflow-hidden shadow-inner p-3 sm:p-5">
                 {adaptedDassQuestions.slice(dassPage * questionsPerPage, (dassPage + 1) * questionsPerPage).map((q, idx) => {
                   const globalIdx = dassPage * questionsPerPage + idx + 1;
                   const currentAnswer = dassAnswers[q.id];
@@ -1083,7 +1083,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                             key={opt.value}
                             type="button"
                             onClick={() => setDassAnswers(prev => ({ ...prev, [q.id]: opt.value }))}
-                            className={`flex flex-col items-center p-2 rounded-xl border text-center transition-all duration-200 hover:scale-[1.02] ${
+                            className={`flex flex-col items-center p-2 rounded-md border text-center transition-all duration-200 hover:scale-[1.02] ${
                               currentAnswer === opt.value
                                 ? "bg-[#0071e3]/10 border-[#0071e3] text-[#0071e3] dark:text-[#0077ed] shadow-sm"
                                 : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-550 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700"
@@ -1105,7 +1105,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                   type="button"
                   onClick={handleDassPrev}
                   disabled={dassPage === 0}
-                  className="px-5 py-2.5 rounded-xl border border-zinc-350 dark:border-zinc-700 text-zinc-650 dark:text-zinc-450 text-xs font-black transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none uppercase tracking-wider"
+                  className="px-5 py-2.5 rounded-md border border-zinc-350 dark:border-zinc-700 text-zinc-650 dark:text-zinc-450 text-xs font-black transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none uppercase tracking-wider"
                 >
                   Quay lại
                 </button>
@@ -1113,7 +1113,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                   type="button"
                   onClick={handleDassNext}
                   disabled={!isDassPageComplete()}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#0071e3] to-[#0077ed] hover:from-[#0077ed] hover:to-[#007fed] text-white text-xs font-black transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none uppercase tracking-wider shadow-sm"
+                  className="px-6 py-2.5 rounded-md bg-gradient-to-r from-[#0071e3] to-[#0077ed] hover:from-[#0077ed] hover:to-[#007fed] text-white text-xs font-black transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none uppercase tracking-wider shadow-sm"
                 >
                   {dassPage === 5 ? "Nộp bài & Xem kết quả" : "Tiếp theo"}
                 </button>
@@ -1130,7 +1130,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="border border-zinc-200/50 dark:border-zinc-850/50 bg-gradient-to-b from-white to-zinc-50/50 dark:from-[#1b1a24]/30 dark:to-zinc-950/20 rounded-3xl p-6 sm:p-8 space-y-6 shadow-md text-center"
+                className="border border-zinc-200/50 dark:border-zinc-850/50 bg-gradient-to-b from-white to-zinc-50/50 dark:from-[#1b1a24]/30 dark:to-zinc-950/20 rounded-xl p-6 sm:p-8 space-y-6 shadow-md text-center"
               >
                 <span className="px-3 py-1 rounded-full text-[8.5px] font-black tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 uppercase">
                   Câu hỏi {mmpiPageIndex + 1} trên 30
@@ -1144,14 +1144,14 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                   <button
                     type="button"
                     onClick={() => handleMmpiAnswer(true)}
-                    className="py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/10 transition-all active:scale-95 duration-200"
+                    className="py-4 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/10 transition-all active:scale-95 duration-200"
                   >
                     ĐÚNG
                   </button>
                   <button
                     type="button"
                     onClick={() => handleMmpiAnswer(false)}
-                    className="py-4 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-red-500/10 transition-all active:scale-95 duration-200"
+                    className="py-4 rounded-lg bg-red-500 hover:bg-red-600 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-red-500/10 transition-all active:scale-95 duration-200"
                   >
                     SAI
                   </button>
@@ -1163,7 +1163,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                   type="button"
                   onClick={handleMmpiPrev}
                   disabled={mmpiPageIndex === 0}
-                  className="px-5 py-2.5 rounded-xl border border-zinc-350 dark:border-zinc-700 text-zinc-650 dark:text-zinc-450 text-xs font-black transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none uppercase tracking-wider"
+                  className="px-5 py-2.5 rounded-md border border-zinc-350 dark:border-zinc-700 text-zinc-650 dark:text-zinc-450 text-xs font-black transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none uppercase tracking-wider"
                 >
                   Quay lại câu trước
                 </button>
@@ -1183,7 +1183,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
           transition={{ duration: 0.25 }}
           className="space-y-6 max-w-xl mx-auto py-4"
         >
-          <div className="p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 text-amber-700 dark:text-amber-400 space-y-1.5 text-center">
+          <div className="p-4 rounded-lg border border-amber-500/20 bg-amber-500/5 text-amber-700 dark:text-amber-400 space-y-1.5 text-center">
             <div className="flex justify-center items-center gap-1.5 font-black text-xs uppercase tracking-wider">
               <span className="material-symbols-outlined text-sm font-black">report</span>
               Phát hiện phản hồi không nhất quán
@@ -1199,7 +1199,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="border border-zinc-200/50 dark:border-zinc-850/50 bg-gradient-to-b from-white to-zinc-50/50 dark:from-[#1b1a24]/30 dark:to-zinc-950/20 rounded-3xl p-6 sm:p-8 space-y-6 shadow-md text-center"
+            className="border border-zinc-200/50 dark:border-zinc-850/50 bg-gradient-to-b from-white to-zinc-50/50 dark:from-[#1b1a24]/30 dark:to-zinc-950/20 rounded-xl p-6 sm:p-8 space-y-6 shadow-md text-center"
           >
             <span className="px-3 py-1 rounded-full text-[8.5px] font-black tracking-widest bg-[#0071e3]/10 border border-[#0071e3]/20 text-[#0071e3] uppercase">
               Xác thực bổ sung {suppPageIndex + 1} trên 10
@@ -1213,14 +1213,14 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
               <button
                 type="button"
                 onClick={() => handleSupplementaryAnswer(true)}
-                className="py-4 rounded-2xl bg-indigo-650 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-indigo-500/10 transition-all active:scale-95"
+                className="py-4 rounded-lg bg-indigo-650 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-indigo-500/10 transition-all active:scale-95"
               >
                 ĐÚNG
               </button>
               <button
                 type="button"
                 onClick={() => handleSupplementaryAnswer(false)}
-                className="py-4 rounded-2xl bg-zinc-700 hover:bg-zinc-850 text-white font-black text-xs uppercase tracking-wider shadow-lg transition-all active:scale-95"
+                className="py-4 rounded-lg bg-zinc-700 hover:bg-zinc-850 text-white font-black text-xs uppercase tracking-wider shadow-lg transition-all active:scale-95"
               >
                 SAI
               </button>
@@ -1232,7 +1232,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
               type="button"
               onClick={handleSuppPrev}
               disabled={suppPageIndex === 0}
-              className="px-5 py-2.5 rounded-xl border border-zinc-350 dark:border-zinc-700 text-zinc-650 dark:text-zinc-450 text-xs font-black transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none uppercase tracking-wider"
+              className="px-5 py-2.5 rounded-md border border-zinc-350 dark:border-zinc-700 text-zinc-650 dark:text-zinc-450 text-xs font-black transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none uppercase tracking-wider"
             >
               Quay lại câu trước
             </button>
@@ -1251,7 +1251,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
           className="space-y-6"
         >
           {/* Header row */}
-          <div className="bg-gradient-to-r from-zinc-900 via-zinc-850 to-zinc-800 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 rounded-3xl p-6 text-white border border-zinc-200/10 shadow-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="bg-gradient-to-r from-zinc-900 via-zinc-850 to-zinc-800 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 rounded-xl p-6 text-white border border-zinc-200/10 shadow-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
               <span className="text-[9px] font-black tracking-widest text-[#0071e3] uppercase block">
                 Bản đồ Sức khỏe Tâm thần Lâm sàng
@@ -1266,7 +1266,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
             <button
               type="button"
               onClick={handleReset}
-              className="px-4.5 py-2.5 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-sm"
+              className="px-4.5 py-2.5 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded-md text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-sm"
             >
               Làm lại bài test
             </button>
@@ -1285,7 +1285,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                   ].map((scale) => (
                     <div
                       key={scale.key}
-                      className="border border-zinc-250/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-2xl p-5 space-y-4 shadow-sm hover:shadow-md transition-all duration-300"
+                      className="border border-zinc-250/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-lg p-5 space-y-4 shadow-sm hover:shadow-md transition-all duration-300"
                     >
                       <div>
                         <div className="flex justify-between items-center">
@@ -1316,7 +1316,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                 </div>
 
                 {/* Synthesis Recommendations */}
-                <div className="border border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-55/40 dark:bg-zinc-950/20 rounded-2xl p-5 space-y-4 shadow-inner">
+                <div className="border border-zinc-200/50 dark:border-zinc-800/50 bg-zinc-55/40 dark:bg-zinc-950/20 rounded-lg p-5 space-y-4 shadow-inner">
                   <div className="flex items-center gap-2 text-emerald-500">
                     <span className="material-symbols-outlined text-lg">verified_user</span>
                     <h4 className="text-xs font-black text-zinc-850 dark:text-zinc-200 uppercase tracking-wider">
@@ -1346,7 +1346,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                 
                 {/* 1. Validity Check Status & warning if unreliable */}
                 {!validityStatus.isReliable ? (
-                  <div className="p-5 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-650 dark:text-red-400 space-y-2 animate-pulse">
+                  <div className="p-5 rounded-lg border border-red-500/20 bg-red-500/5 text-red-650 dark:text-red-400 space-y-2 animate-pulse">
                     <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wider">
                       <span className="material-symbols-outlined">warning</span>
                       Kết quả độ tin cậy không đạt (Low Reliability Warning)
@@ -1356,7 +1356,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                     </p>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 flex items-center gap-3">
+                  <div className="p-4 rounded-lg border border-emerald-500/25 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 flex items-center gap-3">
                     <span className="material-symbols-outlined">verified</span>
                     <div className="text-xs font-black uppercase tracking-wider">Kết quả bài test đã qua kiểm định độ tin cậy lâm sàng</div>
                   </div>
@@ -1369,7 +1369,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                   <div className="lg:col-span-5 space-y-4">
                     {renderValidityGraph(validityStatus.scores)}
                     
-                    <div className="border border-zinc-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-2xl p-4.5 space-y-3.5 shadow-sm text-[10px] text-zinc-550 dark:text-zinc-400 leading-relaxed font-bold">
+                    <div className="border border-zinc-200/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-lg p-4.5 space-y-3.5 shadow-sm text-[10px] text-zinc-550 dark:text-zinc-400 leading-relaxed font-bold">
                       <p className="uppercase tracking-widest text-[#0071e3] text-[9px] font-black">
                         Giải nghĩa thang kiểm chứng:
                       </p>
@@ -1386,7 +1386,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                   </div>
 
                   {/* Right Column: 10 clinical scales bars list */}
-                  <div className="lg:col-span-7 border border-zinc-250/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-3xl p-5 space-y-5 shadow-sm">
+                  <div className="lg:col-span-7 border border-zinc-250/50 dark:border-zinc-800/50 bg-white/40 dark:bg-black/10 rounded-xl p-5 space-y-5 shadow-sm">
                     <h4 className="text-xs font-black text-zinc-850 dark:text-zinc-200 uppercase tracking-wider border-b border-zinc-200/40 dark:border-zinc-800/40 pb-2 flex justify-between items-center">
                       <span>10 Chỉ số Nhân Cách Lâm Sàng (MMPI T-Score)</span>
                       {elevations.length > 0 && (
@@ -1469,7 +1469,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
           <button
             type="button"
             onClick={handleTransitionToChat}
-            className="mt-4 px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.03] active:scale-[0.98] duration-200 flex items-center gap-2"
+            className="mt-4 px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xs uppercase tracking-wider rounded-lg shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.03] active:scale-[0.98] duration-200 flex items-center gap-2"
           >
             <span>Xem kết quả & Nhận đề xuất</span>
             <span className="material-symbols-outlined text-sm font-black">arrow_forward</span>
