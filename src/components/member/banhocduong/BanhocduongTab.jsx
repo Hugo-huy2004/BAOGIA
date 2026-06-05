@@ -826,6 +826,8 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 historyLogs={historyLogs}
                 onUpdateCompanionState={handleUpdateCompanionState}
                 chatMessages={chatMessages}
+                presetTest={presetTest}
+                setPresetTest={setPresetTest}
               />
             )}
 
@@ -843,6 +845,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
               <ProfileTab
                 historyLogs={historyLogs}
                 bio={bio}
+                onNavigateToTab={handleNavigateToTab}
               />
             )}
           </motion.div>

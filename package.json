@@ -15,6 +15,7 @@
   "dependencies": {
     "canvas-confetti": "^1.9.3",
     "framer-motion": "^12.39.0",
+    "hwagfu-cursor": "^0.1.0",
     "hwagfu-link": "^1.0.1",
     "i18next": "^26.3.0",
     "i18next-browser-languagedetector": "^8.2.1",

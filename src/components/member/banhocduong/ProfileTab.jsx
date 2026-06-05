@@ -1,7 +1,7 @@
 import React from "react";
-import { ShieldCheck, TrendingDown, TrendingUp, AlertTriangle, Clock, Calendar, CheckCircle, ArrowRight } from "lucide-react";
+import { ShieldCheck, TrendingDown, TrendingUp, AlertTriangle, Clock, Calendar, CheckCircle, ArrowRight, Play, RefreshCw, MessageSquare } from "lucide-react";
 
-export default function ProfileTab({ historyLogs, bio }) {
+export default function ProfileTab({ historyLogs, bio, onNavigateToTab }) {
   const dassTests = historyLogs.filter(l => l.test === "dass42");
   const mmpiTests = historyLogs.filter(l => l.test === "mmpi30");
   const phq9Tests = historyLogs.filter(l => l.test === "phq9");
@@ -47,6 +47,187 @@ export default function ProfileTab({ historyLogs, bio }) {
       initialElev: getElevated(initial),
       currentElev: getElevated(current)
     };
+  };
+
+  // 1. Identify clinical metrics statuses for all 5 tests
+  const testsList = [
+    {
+      id: "dass42",
+      name: "DASS-42",
+      fullName: "Thang đo Trầm cảm - Lo âu - Căng thẳng",
+      desc: "Thang đánh giá chuẩn lâm sàng 3 yếu tố sức khỏe tâm thần chính.",
+      logs: dassTests,
+      getSummary: (log) => `D: ${log.scores?.D}, A: ${log.scores?.A}, S: ${log.scores?.S} (${log.severities?.D || "Bình thường"})`
+    },
+    {
+      id: "mmpi30",
+      name: "Mini-MMPI",
+      fullName: "Trắc nghiệm Cấu trúc Nhân cách",
+      desc: "Khảo sát xu hướng nhân cách lâm sàng & thang kiểm tra độ trung thực.",
+      logs: mmpiTests,
+      getSummary: (log) => {
+        const count = log.clinical ? log.clinical.filter(c => c.score >= 70).length : 0;
+        return `${count}/10 thang đo vượt ngưỡng thích ứng (>70 T-score)`;
+      }
+    },
+    {
+      id: "phq9",
+      name: "PHQ-9",
+      fullName: "Tầm soát Mức độ Trầm cảm",
+      desc: "Công cụ đánh giá tần suất uất ức và dấu hiệu suy giảm năng lượng.",
+      logs: phq9Tests,
+      getSummary: (log) => {
+        const score = log.score;
+        const level = score >= 20 ? "Rất nặng" : score >= 15 ? "Nặng" : score >= 10 ? "Trung bình" : score >= 5 ? "Nhẹ" : "Bình thường";
+        return `${score} điểm - Mức độ: ${level}`;
+      }
+    },
+    {
+      id: "gad7",
+      name: "GAD-7",
+      fullName: "Đánh giá Rối loạn Lo âu",
+      desc: "Tầm soát các cơn bồn chồn lo lắng bất an lan tỏa.",
+      logs: gad7Tests,
+      getSummary: (log) => {
+        const score = log.score;
+        const level = score >= 15 ? "Nặng" : score >= 10 ? "Trung bình" : score >= 5 ? "Nhẹ" : "Bình thường";
+        return `${score} điểm - Mức độ: ${level}`;
+      }
+    },
+    {
+      id: "who5",
+      name: "WHO-5",
+      fullName: "Chỉ số Hạnh phúc tổng thể",
+      desc: "Đo lường mức độ khỏe mạnh về mặt tinh thần trong 2 tuần qua.",
+      logs: who5Tests,
+      getSummary: (log) => `${log.score * 4}% chỉ số hạnh phúc (Khuyến nghị: >50%)`
+    }
+  ];
+
+  // 2. Dynamic test cycle & recommendations logic (Medical standard)
+  const getCycleAndNextDueDate = React.useMemo(() => {
+    const allTests = historyLogs.filter(l => l.test);
+    if (allTests.length === 0) {
+      return { cycle: 14, isOverdue: false, daysRemaining: 14, nextDueDateStr: "Chưa thực hiện test", severityLabel: "Chưa xác định" };
+    }
+    
+    // Sort all tests to get the latest completed test
+    const latestTest = [...allTests].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    
+    let isSevere = false;
+    let isModerate = false;
+    let severityLabel = "Bình thường / Nhẹ";
+    
+    const testId = latestTest.test;
+    if (testId === "dass42" && latestTest.severities) {
+      const checkSevere = (sev) => {
+        if (!sev) return false;
+        const s = sev.toLowerCase();
+        return s.includes("nặng") || s.includes("rất nặng") || s.includes("extremely");
+      };
+      const checkMod = (sev) => {
+        if (!sev) return false;
+        const s = sev.toLowerCase();
+        return s.includes("vừa") || s.includes("trung bình") || s.includes("moderate");
+      };
+      if (checkSevere(latestTest.severities.D) || checkSevere(latestTest.severities.A) || checkSevere(latestTest.severities.S)) {
+        isSevere = true;
+        severityLabel = "Nặng / Rất nặng (DASS-42)";
+      } else if (checkMod(latestTest.severities.D) || checkMod(latestTest.severities.A) || checkMod(latestTest.severities.S)) {
+        isModerate = true;
+        severityLabel = "Trung bình (DASS-42)";
+      }
+    } else if (testId === "mmpi30") {
+      const elev = latestTest.clinical ? latestTest.clinical.filter(c => c.score >= 70).length : 0;
+      if (elev >= 3) {
+        isSevere = true;
+        severityLabel = `Nặng (${elev} thang đo MMPI vượt ngưỡng)`;
+      } else if (elev >= 1) {
+        isModerate = true;
+        severityLabel = `Trung bình (${elev} thang đo MMPI vượt ngưỡng)`;
+      }
+    } else if (testId === "phq9") {
+      if (latestTest.score >= 15) {
+        isSevere = true;
+        severityLabel = "Nặng (Trầm cảm PHQ-9)";
+      } else if (latestTest.score >= 10) {
+        isModerate = true;
+        severityLabel = "Trung bình (Trầm cảm PHQ-9)";
+      }
+    } else if (testId === "gad7") {
+      if (latestTest.score >= 15) {
+        isSevere = true;
+        severityLabel = "Nặng (Lo âu GAD-7)";
+      } else if (latestTest.score >= 10) {
+        isModerate = true;
+        severityLabel = "Trung bình (Lo âu GAD-7)";
+      }
+    } else if (testId === "who5") {
+      const percent = latestTest.score * 4;
+      if (percent <= 28) {
+        isSevere = true;
+        severityLabel = "Thấp - Rất nặng (Hạnh phúc WHO-5)";
+      } else if (percent <= 50) {
+        isModerate = true;
+        severityLabel = "Trung bình (Hạnh phúc WHO-5)";
+      }
+    }
+    
+    // Severe -> 3 days/test. Moderate -> 7 days/test. Mild/Normal -> 14 days/test.
+    const cycle = isSevere ? 3 : (isModerate ? 7 : 14);
+    
+    const lastTestDateObj = new Date(latestTest.date);
+    const nextDueDateObj = new Date(lastTestDateObj.getTime() + cycle * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    
+    const diffTime = nextDueDateObj.getTime() - now.getTime();
+    const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const isOverdue = now.getTime() >= nextDueDateObj.getTime();
+    
+    const pad = (n) => n.toString().padStart(2, '0');
+    const nextDueDateStr = `${pad(nextDueDateObj.getDate())}/${pad(nextDueDateObj.getMonth() + 1)}/${nextDueDateObj.getFullYear()}`;
+    
+    return { cycle, isOverdue, daysRemaining, nextDueDateStr, severityLabel, latestTestId: testId };
+  }, [historyLogs]);
+
+  // Request browser Notification API permission & send local Chrome alert on mount
+  React.useEffect(() => {
+    if (getCycleAndNextDueDate.isOverdue) {
+      if ('Notification' in window) {
+        if (Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+        if (Notification.permission === 'granted') {
+          new Notification("Nhắc Nhở Bạn Học Đường 🧡", {
+            body: `Đã đến chu kỳ kiểm tra lại sức khỏe tinh thần định kỳ của lộ trình của bạn (${getCycleAndNextDueDate.cycle} ngày/lần). Hãy bấm vào làm bài test ngay nhé!`,
+            icon: "/image/avt7.png",
+            badge: "/favicon.ico"
+          });
+        }
+      }
+    }
+  }, [getCycleAndNextDueDate]);
+
+  // Generate personalized medical advice based on latest testing status
+  const getPersonalizedRecommendation = () => {
+    const { cycle, severityLabel, isOverdue } = getCycleAndNextDueDate;
+    if (totalTestsCount === 0) {
+      return "Khuyến nghị khởi đầu: Chưa ghi nhận chỉ số kiểm tra lâm sàng nào trong hồ sơ. Em nên thực hiện bài đánh giá nhanh DASS-42 hoặc GAD-7 để tớ hỗ trợ định hình chính xác lộ trình trị liệu tốt nhất nhé.";
+    }
+
+    let recommendation = "";
+    if (cycle === 3) {
+      recommendation = `⚠️ [Khuyến nghị khẩn cấp - Mức độ: ${severityLabel}]: Chỉ số kiểm tra lâm sàng của cậu có dấu hiệu bất ổn vượt ngưỡng ở mức nặng. Để đảm bảo an toàn y khoa, cậu cần tự thực hiện bài đánh giá DASS-42 hoặc GAD-7 định kỳ **3 ngày một lần**. Hãy duy trì thực hành thở 4-7-8, thiền giảm căng thẳng mỗi ngày và chủ động nhắn tin tâm sự cùng trợ lý. Nếu cảm xúc bế tắc kéo dài, vui lòng liên hệ chuyên gia tâm lý học đường tại trường hoặc cơ sở y tế gần nhất.`;
+    } else if (cycle === 7) {
+      recommendation = `🍃 [Khuyến nghị theo dõi - Mức độ: ${severityLabel}]: Trạng thái tinh thần của cậu nằm ở mức vừa/trung bình. Chu kỳ làm bài kiểm tra tự đánh giá của cậu là **7 ngày một lần** để kiểm chứng sự cải thiện tâm trạng. Hãy duy trì đọc sách trị liệu kết hợp nghe nhạc sóng não thư giãn hằng ngày nhé.`;
+    } else {
+      recommendation = `🎉 [Khuyến nghị duy trì - Mức độ: ${severityLabel}]: Tinh thần của cậu đang ở trạng thái nhẹ hoặc bình thường cân bằng rất tốt. Chu kỳ đánh giá định kỳ là **14 ngày một lần** để duy trì rèn luyện thói quen tự nhận thức. Hãy tiếp tục check-in cảm xúc hằng ngày để chăm sóc tinh thần bền vững!`;
+    }
+
+    if (isOverdue) {
+      recommendation += " ĐẶC BIỆT: Bài kiểm tra định kỳ của cậu đã quá hạn thực hiện. Hãy bấm làm bài kiểm tra lại ngay hôm nay để cập nhật hồ sơ.";
+    }
+    return recommendation;
   };
 
   // Detect anomalies
@@ -149,6 +330,118 @@ export default function ProfileTab({ historyLogs, bio }) {
             <span className="text-[9px] text-zinc-400 dark:text-zinc-500 uppercase font-black block">Cảnh báo bất thường</span>
             <span className="text-lg font-black text-zinc-850 dark:text-white">{anomalies.length} cảnh báo</span>
           </div>
+        </div>
+      </div>
+
+      {/* Due cycle alert warning */}
+      {getCycleAndNextDueDate.isOverdue && (
+        <div className="p-4.5 rounded-2xl border border-red-500/25 bg-red-500/5 dark:bg-red-950/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 animate-pulse">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
+            <div>
+              <span className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider block">Yêu cầu đánh giá lại định kỳ</span>
+              <p className="text-[9.5px] text-zinc-650 dark:text-zinc-350 leading-relaxed font-bold">
+                Đã quá hạn chu kỳ kiểm tra định kỳ của lộ trình của cậu (Chu kỳ {getCycleAndNextDueDate.cycle} ngày/lần). Hãy làm bài test lại ngay hôm nay nhé!
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onNavigateToTab && onNavigateToTab("chat", getCycleAndNextDueDate.latestTestId || "dass42")}
+            className="px-4.5 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-black text-[9px] uppercase tracking-wider shrink-0 shadow-sm flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
+          >
+            <Play className="w-3 h-3 fill-white" />
+            Kiểm tra lại ngay
+          </button>
+        </div>
+      )}
+
+      {/* Testing Cycle & Recommendation Card */}
+      <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-indigo-500 text-lg font-black font-semibold">health_and_safety</span>
+          <h4 className="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white">Khuyến nghị Lâm sàng & Chu kỳ Theo dõi</h4>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-3.5 rounded-xl border border-zinc-150/70 dark:border-zinc-800/40 bg-zinc-50/20 dark:bg-black/5 text-[10px] space-y-1">
+            <span className="text-[8.5px] text-zinc-400 dark:text-zinc-500 font-black uppercase block">Thông tin chu kỳ</span>
+            <div className="font-bold text-zinc-700 dark:text-zinc-350 space-y-0.5">
+              <div>• Chu kỳ đánh giá: <span className="text-indigo-500 font-extrabold">{getCycleAndNextDueDate.cycle} ngày một lần</span></div>
+              <div>• Trạng thái hiện tại: <span className="text-zinc-850 dark:text-white font-extrabold">{getCycleAndNextDueDate.severityLabel}</span></div>
+              <div>• Ngày cần kiểm tra lại tiếp theo: <span className="text-zinc-850 dark:text-white font-extrabold">{getCycleAndNextDueDate.nextDueDateStr}</span></div>
+              {getCycleAndNextDueDate.daysRemaining !== null && !getCycleAndNextDueDate.isOverdue && (
+                <div>• Còn lại: <span className="text-emerald-500 font-extrabold">{getCycleAndNextDueDate.daysRemaining} ngày</span></div>
+              )}
+            </div>
+          </div>
+          <div className="p-3.5 rounded-xl border border-zinc-150/70 dark:border-zinc-800/40 bg-zinc-50/20 dark:bg-black/5 text-[10px] flex items-center">
+            <p className="text-[9.5px] text-zinc-550 dark:text-zinc-400 font-semibold leading-relaxed">
+              {getPersonalizedRecommendation()}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Metrics/Tests Status indicators list */}
+      <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-250/50 dark:border-zinc-800/60 shadow-sm space-y-4">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-indigo-500 text-lg font-black">assignment</span>
+          <h4 className="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white">Danh sách Chỉ số Đánh giá Lâm sàng</h4>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {testsList.map((test) => {
+            const hasTested = test.logs.length > 0;
+            const latestLog = hasTested ? test.logs[test.logs.length - 1] : null;
+            return (
+              <div key={test.id} className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/5 flex flex-col justify-between space-y-3 shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.05)]">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-1.5">
+                    <span className="text-[10px] font-black text-indigo-600 dark:text-emerald-450 uppercase tracking-wider">{test.name}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider ${hasTested ? "bg-emerald-500/10 text-emerald-600" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400"}`}>
+                      {hasTested ? "Đã thực hiện" : "Chưa thực hiện"}
+                    </span>
+                  </div>
+                  <h5 className="text-[10.5px] font-black text-zinc-850 dark:text-zinc-100 uppercase tracking-wide leading-tight">{test.fullName}</h5>
+                  <p className="text-[9.5px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-semibold">{test.desc}</p>
+                </div>
+
+                <div className="pt-2.5 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2 text-[9px] font-bold">
+                  <div>
+                    {hasTested && latestLog ? (
+                      <div className="text-zinc-550 dark:text-zinc-400 font-bold">
+                        <span className="block text-[8px] text-zinc-400 uppercase font-black">Kết quả lần cuối:</span>
+                        <span className="text-zinc-850 dark:text-zinc-150 font-black">{test.getSummary(latestLog)}</span>
+                        <span className="block text-[7.5px] text-zinc-400 font-bold mt-0.5">Ngày: {formatDateTime(latestLog.date)}</span>
+                      </div>
+                    ) : (
+                      <span className="text-zinc-400 dark:text-zinc-500 font-bold block">Hãy hoàn thành test này để thu thập chỉ số đầu tiên</span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onNavigateToTab && onNavigateToTab("chat", test.id)}
+                    className={`px-3 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-wider transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer shrink-0 ${
+                      hasTested 
+                        ? "bg-zinc-100 hover:bg-zinc-250 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-350/30"
+                        : "bg-[#0071e3] hover:bg-[#0077ed] text-white shadow-sm"
+                    }`}
+                  >
+                    {hasTested ? (
+                      <>
+                        <RefreshCw className="w-2.5 h-2.5" />
+                        Làm lại test
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-2.5 h-2.5 fill-current" />
+                        Làm test ngay
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

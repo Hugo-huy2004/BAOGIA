@@ -135,11 +135,21 @@ const DIALOGUE_TREE = {
   ]
 };
 
-export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, chatMessages }) {
+export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, chatMessages, presetTest, setPresetTest }) {
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showTestsMenu, setShowTestsMenu] = useState(false);
+
+  // Auto-launch preset test from redirects
+  useEffect(() => {
+    if (presetTest) {
+      handleStartTest(presetTest);
+      if (setPresetTest) {
+        setPresetTest(null);
+      }
+    }
+  }, [presetTest]);
 
   // dialogStage: 1 (aspect concern), 2 (probing question), 3 (severity check), 4 (test recommend), 5 (advice duration setup), 0 (loop options)
   const [dialogStage, setDialogStage] = useState(1);

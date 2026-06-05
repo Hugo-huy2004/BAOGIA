@@ -64,16 +64,75 @@ export async function runCompanionReminders(timeStr) {
 
     for (const companion of activeCompanions) {
       const { email, historyLogs } = companion;
-      
-      // Kiểm tra xem hôm nay người dùng đã làm hoạt động trị liệu (therapy_activity) hoặc bài test (clinical_test) chưa
+
+      // 1. Calculate clinical test cycle & check if overdue
+      const allTests = historyLogs.filter(l => l.test);
+      let isTestOverdue = false;
+      let nextCycleDays = 14;
+      let overdueTestId = 'dass42';
+
+      if (allTests.length > 0) {
+        // Get the latest completed test
+        const latestTest = [...allTests].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+        overdueTestId = latestTest.test;
+
+        let isSevere = false;
+        let isModerate = false;
+
+        const testId = latestTest.test;
+        if (testId === 'dass42' && latestTest.severities) {
+          const checkSevere = (sev) => {
+            if (!sev) return false;
+            const s = sev.toLowerCase();
+            return s.includes('nặng') || s.includes('rất nặng') || s.includes('extremely');
+          };
+          const checkMod = (sev) => {
+            if (!sev) return false;
+            const s = sev.toLowerCase();
+            return s.includes('vừa') || s.includes('trung bình') || s.includes('moderate');
+          };
+          if (checkSevere(latestTest.severities.D) || checkSevere(latestTest.severities.A) || checkSevere(latestTest.severities.S)) {
+            isSevere = true;
+          } else if (checkMod(latestTest.severities.D) || checkMod(latestTest.severities.A) || checkMod(latestTest.severities.S)) {
+            isModerate = true;
+          }
+        } else if (testId === 'mmpi30') {
+          const elev = latestTest.clinical ? latestTest.clinical.filter(c => c.score >= 70).length : 0;
+          if (elev >= 3) isSevere = true;
+          else if (elev >= 1) isModerate = true;
+        } else if (testId === 'phq9') {
+          if (latestTest.score >= 15) isSevere = true;
+          else if (latestTest.score >= 10) isModerate = true;
+        } else if (testId === 'gad7') {
+          if (latestTest.score >= 15) isSevere = true;
+          else if (latestTest.score >= 10) isModerate = true;
+        } else if (testId === 'who5') {
+          const percent = latestTest.score * 4;
+          if (percent <= 28) isSevere = true;
+          else if (percent <= 50) isModerate = true;
+        }
+
+        nextCycleDays = isSevere ? 3 : (isModerate ? 7 : 14);
+        const lastTestDateObj = new Date(latestTest.date);
+        const nextDueDateObj = new Date(lastTestDateObj.getTime() + nextCycleDays * 24 * 60 * 60 * 1000);
+        isTestOverdue = new Date().getTime() >= nextDueDateObj.getTime();
+      }
+
+      // Check if user completed therapy or test today
       const hasCompletedToday = historyLogs.some(log => {
         if (!log.date) return false;
         const logDateStr = getVietnamDateStr(log.date);
         return logDateStr === todayVnStr && (log.type === 'therapy_activity' || log.type === 'clinical_test');
       });
 
-      if (!hasCompletedToday) {
-        // Gửi thông báo nhắc nhở đẩy
+      if (isTestOverdue) {
+        // Send a specific overdue test reminder push notification!
+        const alertTitle = 'Yêu cầu kiểm tra lại định kỳ 🧡';
+        const alertBody = `Đã đến chu kỳ kiểm tra định kỳ (${nextCycleDays} ngày/lần) của lộ trình của cậu. Hãy click vào làm bài test ngay nhé!`;
+        await sendPushNotification(email, alertTitle, alertBody, `/member/portal?tab=utilities&subtab=chat&preset=${overdueTestId}`);
+        sentCount++;
+      } else if (!hasCompletedToday) {
+        // Send normal daily activity reminder
         await sendPushNotification(email, title, body, '/member/portal?tab=utilities');
         sentCount++;
       }
