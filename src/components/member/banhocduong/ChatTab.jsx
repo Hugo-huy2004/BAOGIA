@@ -491,16 +491,33 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
   };
 
   const handleStartTest = (testId) => {
-    const test = CLINICAL_TESTS[testId];
-    if (!test) return;
+    const baseTest = CLINICAL_TESTS[testId];
+    if (!baseTest) return;
+
+    // Sample a random variant for each question index
+    let randomizedQuestions = [];
+    if (baseTest.questionPool) {
+      randomizedQuestions = baseTest.questionPool.map((variants) => {
+        const idx = Math.floor(Math.random() * variants.length);
+        return variants[idx];
+      });
+    } else {
+      randomizedQuestions = [...baseTest.questions];
+    }
+
+    const testInstance = {
+      ...baseTest,
+      questions: randomizedQuestions
+    };
+
     setShowTestsMenu(false);
     setChatMode("test");
-    setActiveTest(test);
+    setActiveTest(testInstance);
 
     const userMsg = {
       id: `user-test-${Date.now()}`,
       sender: "user",
-      text: `Tớ muốn thực hiện bài test ${test.name}`,
+      text: `Tớ muốn thực hiện bài test ${baseTest.name}`,
       time: new Date()
     };
     setMessages((prev) => [...prev, userMsg]);
