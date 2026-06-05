@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Calendar, AlertCircle, Trash2, ShieldCheck, MessageSquare, Award, Wind, ScanLine, ClipboardList, AlertTriangle, ChevronDown, ChevronUp, Clock, Sparkles } from "lucide-react";
+import { Heart, Trash2, ShieldCheck, MessageSquare, AlertTriangle, ChevronDown, ChevronUp, Clock, Sparkles } from "lucide-react";
 import SubUtilityHeader from "../SubUtilityHeader";
 import ChatTab from "./ChatTab";
-import TestTab from "./TestTab";
-import UploadAnalyzer from "./UploadAnalyzer";
-import BreathTab from "./BreathTab";
+import TherapyTab from "./TherapyTab";
+import dataApi from "../../../services/dataApi";
+import psychologyService from "../../../services/classes/PsychologyService";
 
 function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, historyLogs }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,12 +24,12 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
 
   const getMoodEmoji = (mood) => {
     switch (mood) {
-      case 5: return "☀️ Rất tốt";
-      case 4: return "🌤️ Tốt";
-      case 3: return "☁️ Bình thường";
-      case 2: return "🌧️ Mỏi mệt";
-      case 1: return "⛈️ Kiệt sức";
-      default: return "☁️ Không xác định";
+      case 5: return "Rất tốt";
+      case 4: return "Tốt";
+      case 3: return "Bình thường";
+      case 2: return "Mỏi mệt";
+      case 1: return "Kiệt sức";
+      default: return "Không xác định";
     }
   };
 
@@ -110,9 +110,11 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
     if (dassTests.length > 0) {
       const latest = dassTests[dassTests.length - 1];
       const elevated = [];
-      if (["severe", "extremely_severe"].includes(latest.severities?.D)) elevated.push(`Trầm cảm (${latest.severities.D === "severe" ? "Nặng" : "Cực đoan"})`);
-      if (["severe", "extremely_severe"].includes(latest.severities?.A)) elevated.push(`Lo âu (${latest.severities.A === "severe" ? "Nặng" : "Cực đoan"})`);
-      if (["severe", "extremely_severe"].includes(latest.severities?.S)) elevated.push(`Căng thẳng (${latest.severities.S === "severe" ? "Nặng" : "Cực đoan"})`);
+      if (latest.severities) {
+        if (["severe", "extremely_severe"].includes(latest.severities.D)) elevated.push(`Trầm cảm (${latest.severities.D === "severe" ? "Nặng" : "Cực đoan"})`);
+        if (["severe", "extremely_severe"].includes(latest.severities.A)) elevated.push(`Lo âu (${latest.severities.A === "severe" ? "Nặng" : "Cực đoan"})`);
+        if (["severe", "extremely_severe"].includes(latest.severities.S)) elevated.push(`Căng thẳng (${latest.severities.S === "severe" ? "Nặng" : "Cực đoan"})`);
+      }
       
       if (elevated.length > 0) {
         anomaliesList.push({
@@ -123,7 +125,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
       }
     }
 
-    // 7. MMPI clinical scales (Aligned pathology T-score >= 70)
+    // 7. MMPI clinical scales
     if (mmpiTests.length > 0) {
       const latest = mmpiTests[mmpiTests.length - 1];
       const elevatedScales = latest.clinical ? latest.clinical.filter(c => c.score >= 70) : [];
@@ -151,18 +153,18 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
     // Generate custom recommendations
     let rec = "";
     if (anomaliesList.some(a => a.severity === "high")) {
-      rec = "Khuyến nghị: Chỉ số sức khỏe tinh thần của cậu đang có dấu hiệu bất ổn lâm sàng nghiêm trọng. Cậu nên giảm bớt cường độ bài vở, thực hành thở sâu 4-7-8 mỗi đêm và trò chuyện thường xuyên hơn với Trợ lý Bạn Học Đường. Nếu cảm xúc này kéo dài liên tục trên 2 tuần, hãy liên hệ trực tiếp với chuyên viên tư vấn tâm lý hoặc phòng y tế trường học để được hỗ trợ kịp thời nhé.";
+      rec = "Khuyến nghị: Chỉ số sức khỏe tinh thần của cậu đang có dấu hiệu bất ổn lâm sàng nghiêm trọng. Cậu nên giảm bớt cường độ bài vở, thực hành thở sâu 4-7-8 mỗi đêm và trò chuyện thường xuyên hơn với Chuyên viên Đồng Hành. Nếu cảm xúc này kéo dài liên tục trên 2 tuần, hãy liên hệ trực tiếp với chuyên viên tư vấn tâm lý hoặc phòng y tế trường học để được hỗ trợ kịp thời nhé.";
     } else if (anomaliesList.length > 0) {
-      rec = "Khuyến nghị: Hệ thống phát hiện một vài căng thẳng nhẹ và sự mất cân bằng trong sinh hoạt/học tập của cậu. Cậu hãy dành thêm thời gian nghỉ ngơi, ngủ đủ giấc và tiếp tục chia sẻ nỗi lòng cùng Trợ lý mỗi khi mệt mỏi nhé.";
+      rec = "Khuyến nghị: Hệ thống phát hiện một vài căng thẳng nhẹ và sự mất cân bằng trong sinh hoạt/học tập của cậu. Cậu hãy dành thêm thời gian nghỉ ngơi, ngủ đủ giấc và tiếp tục chia sẻ nỗi lòng cùng Chuyên viên Đồng Hành mỗi khi mệt mỏi nhé.";
     } else {
-      rec = "Khuyến nghị: Cảm xúc và chỉ số sinh hoạt của cậu dạo gần đây cực kỳ tốt và cân bằng ổn định. Hãy tiếp tục duy trì năng lượng tích cực này, hít thở điều hòa và trò chuyện cùng Trợ lý khi cần nhé!";
+      rec = "Khuyến nghị: Cảm xúc và chỉ số sinh hoạt của cậu dạo gần đây cực kỳ tốt và cân bằng ổn định. Hãy tiếp tục duy trì năng lượng tích cực này, hít thở điều hòa và trò chuyện cùng Chuyên viên Đồng Hành khi cần nhé!";
     }
 
     return { anomalies: anomaliesList, recommendation: rec };
   }, [historyLogs]);
 
   return (
-    <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-zinc-500/5 dark:from-emerald-550/15 dark:via-zinc-900/40 dark:to-zinc-950/20 backdrop-blur-xl rounded-3xl border border-emerald-500/20 dark:border-emerald-500/10 shadow-lg p-5 space-y-4 animate-scaleUp">
+    <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-zinc-500/5 dark:from-emerald-950/15 dark:via-zinc-900/40 dark:to-zinc-950/20 backdrop-blur-xl rounded-3xl border border-emerald-500/20 dark:border-emerald-500/10 shadow-lg p-5 space-y-4 animate-scaleUp">
       {/* Journey details */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-zinc-250/50 dark:border-zinc-800/40 pb-3">
         <div className="space-y-1">
@@ -170,7 +172,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <h3 className="text-xs sm:text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider">Hành Trình Chăm Sóc Tinh Thần</h3>
           </div>
-          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-widest">
+          <p className="text-[10px] text-zinc-550 dark:text-zinc-400 font-bold uppercase tracking-widest">
             Ngày {currentDay}/{duration} • Bắt đầu: {startDate ? new Date(startDate).toLocaleDateString("vi-VN") : "Hôm nay"}
           </p>
         </div>
@@ -192,7 +194,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
         </div>
         <div className="w-full h-2.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden p-[2px]">
           <div
-            className="h-full bg-gradient-to-r from-emerald-500 to-teal-550 rounded-full transition-all duration-1000"
+            className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-1000"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -213,8 +215,8 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                 key={idx}
                 className={`p-3 rounded-2xl flex gap-3 items-start border ${
                   anom.severity === "high"
-                    ? "bg-red-550/5 dark:bg-red-950/10 border-red-500/20 text-red-800 dark:text-red-300"
-                    : "bg-amber-500/5 dark:bg-amber-955/10 border-amber-500/20 text-amber-800 dark:text-amber-300"
+                    ? "bg-red-500/5 dark:bg-red-950/10 border-red-500/20 text-red-800 dark:text-red-300"
+                    : "bg-amber-500/5 dark:bg-amber-950/10 border-amber-500/20 text-amber-800 dark:text-amber-300"
                 }`}
               >
                 <AlertTriangle className={`w-4 h-4 shrink-0 mt-0.5 ${anom.severity === "high" ? "text-red-500" : "text-amber-500"}`} />
@@ -241,7 +243,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
         </div>
       </div>
 
-      {/* History Timeline Panel (Expandable) */}
+      {/* History Timeline Panel */}
       <div className="border-t border-zinc-250/50 dark:border-zinc-800/40 pt-3">
         <button
           type="button"
@@ -266,12 +268,10 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
             >
               <div className="max-h-60 overflow-y-auto space-y-3.5 pr-1 scrollbar-none pb-2 pl-1.5 border-l border-emerald-500/20 dark:border-emerald-500/10 ml-2">
                 {[...historyLogs].reverse().map((log, idx) => {
-                  let iconColor = "text-zinc-500 bg-zinc-100 dark:bg-zinc-800";
                   let eventTitle = "";
                   let eventDetails = "";
                   
                   if (log.type === "checkin") {
-                    iconColor = "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20";
                     eventTitle = `Đánh giá cảm xúc: ${getMoodEmoji(log.mood)}`;
                     eventDetails = log.note ? `Nỗi lòng: "${log.note}"` : "";
                     if (log.wheelRatings) {
@@ -280,34 +280,49 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                       eventDetails += (eventDetails ? "\n" : "") + `Bánh xe cuộc sống: ${ratingsStr}`;
                     }
                   } else if (log.test === "dass42") {
-                    iconColor = "text-[#0071e3] bg-[#0071e3]/10 border border-[#0071e3]/20";
-                    eventTitle = "Trắc nghiệm DASS-21 chuẩn lâm sàng";
-                    eventDetails = `Depression: ${log.scores.D} (${log.severities.D}) • Anxiety: ${log.scores.A} (${log.severities.A}) • Stress: ${log.scores.S} (${log.severities.S})`;
+                    eventTitle = "Trắc nghiệm DASS-42 chuẩn lâm sàng";
+                    if (log.scores && log.severities) {
+                      eventDetails = `Depression: ${log.scores.D}/42 (${log.severities.D}) • Anxiety: ${log.scores.A}/42 (${log.severities.A}) • Stress: ${log.scores.S}/42 (${log.severities.S})`;
+                    }
                   } else if (log.test === "mmpi30") {
-                    iconColor = "text-indigo-500 bg-indigo-500/10 border border-indigo-500/20";
                     eventTitle = "Khảo sát lâm sàng Mini-MMPI";
-                    eventDetails = `Độ tin cậy: ${log.isReliable ? "Hợp lệ" : "Nghi ngờ"} • Các thang đo: ${log.clinical.map(c => `${c.code}: ${c.score}T`).join(" • ")}`;
+                    eventDetails = `Độ tin cậy: ${log.isReliable ? "Hợp lệ" : "Nghi ngờ"}` + (log.clinical ? ` • Các thang đo: ${log.clinical.map(c => `${c.code}: ${c.score}T`).join(" • ")}` : "");
+                  } else if (log.test === "phq9") {
+                    eventTitle = "Đánh giá Trầm cảm PHQ-9";
+                    eventDetails = `Tổng điểm: ${log.score}/27 • Mức độ: ${log.severity}`;
+                  } else if (log.test === "gad7") {
+                    eventTitle = "Đánh giá Lo âu GAD-7";
+                    eventDetails = `Tổng điểm: ${log.score}/21 • Mức độ: ${log.severity}`;
+                  } else if (log.test === "who5") {
+                    eventTitle = "Chỉ số Hạnh phúc WHO-5";
+                    eventDetails = `Điểm số: ${log.score}/25 • Trạng thái: ${log.status}`;
+                  } else if (log.test === "bigfive") {
+                    eventTitle = "Trắc nghiệm Nhân cách Big Five";
+                    eventDetails = log.desc;
+                  } else if (log.type === "therapy_activity") {
+                    eventTitle = `Hoạt động trị liệu: ${log.name}`;
+                    eventDetails = log.desc;
                   } else if (log.type === "chat_anomaly") {
-                    iconColor = "text-amber-500 bg-amber-500/10 border border-amber-500/20";
                     eventTitle = "Phát hiện bất ổn tâm trạng qua cuộc chat";
                     eventDetails = `Tin nhắn: "${log.text}"\nTừ khóa bất thường: ${log.triggers ? log.triggers.join(", ") : "stress"}`;
                   } else if (log.type === "upload_anomaly") {
-                    iconColor = "text-red-500 bg-red-500/10 border border-red-500/20";
                     eventTitle = "Lỗi tải báo cáo lâm sàng";
                     eventDetails = log.desc;
                   } else if (log.type === "duration_change") {
-                    iconColor = "text-purple-500 bg-purple-500/10 border border-purple-500/20";
                     eventTitle = "Thay đổi lộ trình đồng hành";
                     eventDetails = log.reason;
                   }
 
                   return (
                     <div key={idx} className="relative flex gap-3 pl-4">
-                      {/* Timeline dot styled dynamically */}
+                      {/* Timeline dot */}
                       <div className={`absolute -left-[9.5px] top-1.5 w-4.5 h-4.5 rounded-full border-4 border-white dark:border-[#12111a] ${
                         log.type === "checkin" ? "bg-emerald-500" :
-                        log.test === "dass42" ? "bg-[#0071e3]" :
-                        log.test === "mmpi30" ? "bg-indigo-500" :
+                        (log.test === "dass42" || log.test === "phq9") ? "bg-[#0071e3]" :
+                        log.test === "gad7" ? "bg-cyan-500" :
+                        log.test === "who5" ? "bg-teal-500" :
+                        (log.test === "mmpi30" || log.test === "bigfive") ? "bg-indigo-500" :
+                        log.type === "therapy_activity" ? "bg-emerald-500" :
                         log.type === "chat_anomaly" ? "bg-amber-500" :
                         log.type === "upload_anomaly" ? "bg-red-500" :
                         log.type === "duration_change" ? "bg-purple-500" : "bg-zinc-400"
@@ -321,7 +336,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                           </span>
                           {log.day && <span>Ngày {log.day}</span>}
                         </div>
-                        <h5 className="text-[10.5px] font-black text-zinc-800 dark:text-zinc-150 leading-snug">{eventTitle}</h5>
+                        <h5 className="text-[10.5px] font-black text-zinc-850 dark:text-zinc-150 leading-snug">{eventTitle}</h5>
                         {eventDetails && (
                           <p className="text-[9.5px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-semibold whitespace-pre-wrap mt-0.5">
                             {eventDetails}
@@ -341,22 +356,70 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
 }
 
 export default function BanhocduongTab({ onBack, defaultSubTab = "chat", defaultPresetTest = null, bio }) {
-  const [activeSubTab, setActiveSubTab] = useState(defaultSubTab); // 'chat', 'tests', 'upload', 'breath'
-  const [presetTest, setPresetTest] = useState(defaultPresetTest); // 'dass' | 'mmpi' | null
+  const [activeSubTab, setActiveSubTab] = useState(defaultSubTab === "tests" || defaultSubTab === "breath" || defaultSubTab === "upload" ? "chat" : defaultSubTab); // 'chat', 'therapy'
+  const [presetTest, setPresetTest] = useState(defaultPresetTest);
 
-  // Healing Companion Journey States
-  const [healingActive, setHealingActive] = useState(() => {
-    return localStorage.getItem("banhocduong_healing_mode") === "active";
-  });
-  const [healingDuration, setHealingDuration] = useState(() => {
-    return parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
-  });
-  const [healingStartDate, setHealingStartDate] = useState(() => {
-    return localStorage.getItem("banhocduong_healing_start_date") || "";
-  });
-
+  // States synchronized from DB
+  const [healingActive, setHealingActive] = useState(false);
+  const [healingDuration, setHealingDuration] = useState(30);
+  const [healingStartDate, setHealingStartDate] = useState("");
   const [historyLogs, setHistoryLogs] = useState([]);
   const [adaptationAlert, setAdaptationAlert] = useState(null);
+
+  // Sync state from Database
+  const syncWithDb = async () => {
+    if (!bio || !bio.email) return;
+    try {
+      const db = await dataApi.getCompanionHistory(bio.email);
+      if (db) {
+        setHealingActive(db.healingActive);
+        setHealingDuration(db.healingDuration);
+        setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
+        setHistoryLogs(db.historyLogs || []);
+
+        localStorage.setItem("banhocduong_healing_mode", db.healingActive ? "active" : "");
+        localStorage.setItem("banhocduong_healing_duration", db.healingDuration.toString());
+        localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
+        localStorage.setItem("banhocduong_history", JSON.stringify(db.historyLogs || []));
+      }
+    } catch (e) {
+      console.error("Failed to sync companion history from DB", e);
+    }
+  };
+
+  useEffect(() => {
+    syncWithDb();
+  }, [bio]);
+
+  // Unified updates dispatcher to save to MongoDB
+  const handleUpdateCompanionState = async (updates) => {
+    if (!bio || !bio.email) return;
+    try {
+      const payload = {
+        email: bio.email,
+        healingActive: updates.healingActive !== undefined ? updates.healingActive : healingActive,
+        healingDuration: updates.healingDuration !== undefined ? updates.healingDuration : healingDuration,
+        healingStartDate: updates.healingStartDate !== undefined ? updates.healingStartDate : healingStartDate,
+        historyLogs: updates.historyLogs !== undefined ? updates.historyLogs : historyLogs
+      };
+
+      const res = await dataApi.saveCompanionHistory(payload);
+      if (res && res.companionHistory) {
+        const db = res.companionHistory;
+        setHealingActive(db.healingActive);
+        setHealingDuration(db.healingDuration);
+        setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
+        setHistoryLogs(db.historyLogs || []);
+
+        localStorage.setItem("banhocduong_healing_mode", db.healingActive ? "active" : "");
+        localStorage.setItem("banhocduong_healing_duration", db.healingDuration.toString());
+        localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
+        localStorage.setItem("banhocduong_history", JSON.stringify(db.historyLogs || []));
+      }
+    } catch (e) {
+      console.error("Failed to save companion state", e);
+    }
+  };
 
   useEffect(() => {
     const checkAdaptationAlert = () => {
@@ -366,10 +429,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
           const alertData = JSON.parse(alertRaw);
           setAdaptationAlert(alertData);
           localStorage.removeItem("banhocduong_duration_adaptation_alert");
-          // Refresh duration from localStorage
-          const newDur = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
-          setHealingDuration(newDur);
-          loadHistory();
+          syncWithDb();
         } catch (e) {
           console.error(e);
         }
@@ -377,39 +437,12 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
     };
     
     checkAdaptationAlert();
-    window.addEventListener("storage", checkAdaptationAlert);
     const interval = setInterval(checkAdaptationAlert, 1500);
     
     return () => {
-      window.removeEventListener("storage", checkAdaptationAlert);
       clearInterval(interval);
     };
   }, []);
-
-  // Recommendation info state
-  const [recommendation, setRecommendation] = useState({ days: 20, name: "Hành trình Vun đắp Bình yên", reason: "", hasData: false });
-
-  const loadHistory = () => {
-    try {
-      const raw = localStorage.getItem("banhocduong_history");
-      setHistoryLogs(raw ? JSON.parse(raw) : []);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  useEffect(() => {
-    if (defaultSubTab) {
-      setActiveSubTab(defaultSubTab);
-    }
-    if (defaultPresetTest) {
-      setPresetTest(defaultPresetTest);
-    }
-  }, [defaultSubTab, defaultPresetTest]);
-
-  useEffect(() => {
-    loadHistory();
-  }, [activeSubTab, healingActive]);
 
   const handleSubTabChange = (tabId) => {
     setActiveSubTab(tabId);
@@ -421,100 +454,6 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
     setPresetTest(preset);
   };
 
-  // Recalculate adaptive journey duration based on history logs
-  const calculateRecommendation = () => {
-    try {
-      const rawHistory = localStorage.getItem("banhocduong_history");
-      const history = rawHistory ? JSON.parse(rawHistory) : [];
-      
-      const dassLogs = history.filter(h => h.test === "dass42");
-      const mmpiLogs = history.filter(h => h.test === "mmpi30");
-      const chatLogsCount = parseInt(localStorage.getItem("banhocduong_chat_distress_count") || "0", 10);
-
-      let maxSeverity = "normal";
-      let reason = "Hệ thống chưa ghi nhận chỉ số bất ổn nào. Lộ trình tối ưu cho cậu là 20 ngày chăm sóc bản thân nhẹ nhàng.";
-      let hasData = dassLogs.length > 0 || mmpiLogs.length > 0 || chatLogsCount > 0;
-
-      if (dassLogs.length > 0) {
-        const latest = dassLogs[dassLogs.length - 1];
-        const scores = latest.scores;
-        const maxScore = Math.max(scores.D, scores.A, scores.S);
-
-        const isExtremelySevere = scores.D >= 28 || scores.A >= 20 || scores.S >= 34;
-        const isSevere = scores.D >= 21 || scores.A >= 15 || scores.S >= 26;
-        const isModerate = scores.D >= 14 || scores.A >= 10 || scores.S >= 19;
-
-        if (isExtremelySevere) {
-          maxSeverity = "extremely_severe";
-          reason = `Kết quả trắc nghiệm DASS-42 ngày ${new Date(latest.date).toLocaleDateString()} ghi nhận chỉ số trầm cảm/lo âu ở mức Cực kỳ nghiêm trọng.`;
-        } else if (isSevere) {
-          maxSeverity = "severe";
-          reason = `Kết quả trắc nghiệm DASS-42 ngày ${new Date(latest.date).toLocaleDateString()} ghi nhận chỉ số ở mức Nặng.`;
-        } else if (isModerate) {
-          maxSeverity = "moderate";
-          reason = `Kết quả trắc nghiệm DASS-42 ngày ${new Date(latest.date).toLocaleDateString()} ghi nhận các căng thẳng ở mức Vừa phải.`;
-        } else {
-          maxSeverity = "normal";
-          reason = `Kết quả trắc nghiệm DASS-42 gần nhất ghi nhận các chỉ số tâm trạng ở mức Bình thường.`;
-        }
-      }
-
-      // Check MMPI clinical scales
-      if (mmpiLogs.length > 0 && maxSeverity !== "extremely_severe") {
-        const latest = mmpiLogs[mmpiLogs.length - 1];
-        const elevatedCount = latest.clinical.filter(c => c.score >= 70).length;
-        if (elevatedCount >= 5) {
-          maxSeverity = "extremely_severe";
-          reason = `Bản đồ MMPI ngày ${new Date(latest.date).toLocaleDateString()} phát hiện ${elevatedCount} thang đo nhân cách tăng cao cảnh báo lâm sàng.`;
-        } else if (elevatedCount >= 3) {
-          if (maxSeverity === "normal" || maxSeverity === "moderate") {
-            maxSeverity = "severe";
-            reason = `Bản đồ MMPI phát hiện ${elevatedCount} khía cạnh hành vi nhạy cảm tăng cao.`;
-          }
-        } else if (elevatedCount >= 1) {
-          if (maxSeverity === "normal") {
-            maxSeverity = "moderate";
-            reason = `Bản đồ MMPI ghi nhận một số xu hướng hành vi nhạy cảm nhẹ.`;
-          }
-        }
-      }
-
-      // Check chat logs
-      if (dassLogs.length === 0 && mmpiLogs.length === 0 && chatLogsCount > 0) {
-        if (chatLogsCount >= 5) {
-          maxSeverity = "severe";
-          reason = "Bạn Học Đường ghi nhận nhiều tần suất từ khóa căng thẳng thần kinh trong hội thoại.";
-        } else if (chatLogsCount >= 2) {
-          maxSeverity = "moderate";
-          reason = "Cậu đã chia sẻ một vài mệt mỏi, deadline hoặc áp lực học tập trong tin nhắn.";
-        }
-      }
-
-      let days = 20;
-      let name = "Hành trình Vun đắp Bình yên";
-
-      if (maxSeverity === "extremely_severe") {
-        days = 90;
-        name = "Hành trình Đồng hành Chuyên sâu (Intensive Companion)";
-      } else if (maxSeverity === "severe") {
-        days = 50;
-        name = "Hành trình Phục hồi Thấu cảm (Compassionate Recovery)";
-      } else if (maxSeverity === "moderate") {
-        days = 30;
-        name = "Hành trình Tái tạo Cân bằng (Balance Program)";
-      }
-
-      setRecommendation({ days, name, reason, hasData });
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  useEffect(() => {
-    calculateRecommendation();
-  }, [healingActive]);
-
-  // Calculate day count
   const getProgressDay = () => {
     if (!healingStartDate) return 1;
     const start = new Date(healingStartDate).getTime();
@@ -524,34 +463,14 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
     return diffDays;
   };
 
-  const handleActivateHealing = (duration) => {
-    localStorage.setItem("banhocduong_healing_mode", "active");
-    localStorage.setItem("banhocduong_healing_duration", duration.toString());
-    localStorage.setItem("banhocduong_healing_start_date", new Date().toISOString());
-    localStorage.setItem("banhocduong_last_checkin_date", "");
-    
-    if (!localStorage.getItem("banhocduong_history")) {
-      localStorage.setItem("banhocduong_history", JSON.stringify([]));
-    }
-
-    setHealingActive(true);
-    setHealingDuration(duration);
-    setHealingStartDate(new Date().toISOString());
-  };
-
-  const handleCancelHealing = () => {
+  const handleCancelHealing = async () => {
     if (window.confirm("Cậu có chắc chắn muốn dừng chế độ chăm sóc tinh thần? Toàn bộ nhật ký cảm xúc check-in và lịch sử trắc nghiệm lưu trữ sẽ bị xóa sạch vĩnh viễn bảo mật.")) {
-      localStorage.removeItem("banhocduong_healing_mode");
-      localStorage.removeItem("banhocduong_healing_duration");
-      localStorage.removeItem("banhocduong_healing_start_date");
-      localStorage.removeItem("banhocduong_last_checkin_date");
-      localStorage.removeItem("banhocduong_history");
-      localStorage.removeItem("banhocduong_last_test_date");
-      localStorage.removeItem("banhocduong_chat_distress_count");
-      
-      setHealingActive(false);
-      setHealingDuration(30);
-      setHealingStartDate("");
+      await handleUpdateCompanionState({
+        healingActive: false,
+        healingDuration: 30,
+        healingStartDate: null,
+        historyLogs: []
+      });
     }
   };
 
@@ -565,7 +484,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
         onBack={onBack}
       />
 
-      {/* Companion Dashboard Card rendered above subtabs when active */}
+      {/* Companion Dashboard Card */}
       {healingActive && (
         <CompanionDashboard
           duration={healingDuration}
@@ -576,13 +495,11 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
         />
       )}
 
-      {/* Segmented subtab headers */}
+      {/* Subtabs headers */}
       <div className="flex items-center justify-start md:justify-center gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none p-[4px] rounded-2xl bg-zinc-150/60 dark:bg-zinc-900/65 border border-zinc-250/30 dark:border-zinc-800/50 max-w-3xl mx-auto w-full">
         {[
           { id: "chat", label: "Tâm Sự", icon: MessageSquare },
-          { id: "tests", label: "Trắc Nghiệm", icon: ClipboardList },
-          { id: "upload", label: "Quét Kết Quả", icon: ScanLine },
-          { id: "breath", label: "Hít Thở 4-7-8", icon: Wind },
+          { id: "therapy", label: "Trị Liệu", icon: Heart },
         ].map((tab) => {
           const isActive = activeSubTab === tab.id;
           const IconComponent = tab.icon;
@@ -593,7 +510,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
               onClick={() => handleSubTabChange(tab.id)}
               className={`flex items-center justify-center gap-2 px-4 py-2.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-300 shrink-0 ${
                 isActive
-                  ? "bg-white dark:bg-zinc-800 text-[#0071e3] dark:text-emerald-400 shadow-md scale-[1.02]"
+                  ? "bg-white dark:bg-zinc-800 text-[#0071e3] dark:text-emerald-450 shadow-md scale-[1.02]"
                   : "text-zinc-550 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-white/30 dark:hover:bg-white/5"
               }`}
             >
@@ -616,19 +533,21 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
             className="flex-1 flex flex-col justify-between"
           >
             {activeSubTab === "chat" && (
-              <ChatTab onNavigateToTab={handleNavigateToTab} />
-            )}
-            
-            {activeSubTab === "tests" && (
-              <TestTab presetTest={presetTest} bio={bio} onNavigateToTab={handleNavigateToTab} />
-            )}
-
-            {activeSubTab === "upload" && (
-              <UploadAnalyzer />
+              <ChatTab
+                onNavigateToTab={handleNavigateToTab}
+                bio={bio}
+                historyLogs={historyLogs}
+                onUpdateCompanionState={handleUpdateCompanionState}
+              />
             )}
 
-            {activeSubTab === "breath" && (
-              <BreathTab />
+            {activeSubTab === "therapy" && (
+              <TherapyTab
+                onNavigateToTab={handleNavigateToTab}
+                bio={bio}
+                historyLogs={historyLogs}
+                onUpdateCompanionState={handleUpdateCompanionState}
+              />
             )}
           </motion.div>
         </AnimatePresence>
@@ -651,25 +570,25 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
             >
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500" />
               
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-450">
                 <Sparkles className="w-8 h-8 animate-pulse" />
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-sm font-black text-emerald-400 uppercase tracking-widest">Tiến Triển Tinh Thần Tuyệt Vời</h4>
+                <h4 className="text-sm font-black text-emerald-450 uppercase tracking-widest">Tiến Triển Tinh Thần Tuyệt Vời</h4>
                 <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-bold">Lộ trình đồng hành thích ứng</p>
               </div>
 
               <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl space-y-2 text-left">
                 <p className="text-[10.5px] text-zinc-350 leading-relaxed font-medium">
-                  Hệ thống ghi nhận: <span className="text-emerald-400 font-bold">{adaptationAlert.improvement}</span>.
+                  Hệ thống ghi nhận: <span className="text-emerald-450 font-bold">{adaptationAlert.improvement}</span>.
                 </p>
                 <p className="text-[10.5px] text-zinc-350 leading-relaxed font-medium">
-                  Thời gian đồng hành được rút ngắn: <span className="text-emerald-400 font-black">-{adaptationAlert.reducedDays} ngày</span>
+                  Thời gian đồng hành được rút ngắn: <span className="text-emerald-450 font-black">-{adaptationAlert.reducedDays} ngày</span>
                 </p>
                 <div className="flex justify-between items-center pt-2 border-t border-emerald-500/10 text-[10px] font-bold text-zinc-500">
                   <span>Trước: {adaptationAlert.oldDuration} ngày</span>
-                  <span className="text-emerald-400 font-black">Mới: {adaptationAlert.newDuration} ngày</span>
+                  <span className="text-emerald-450 font-black">Mới: {adaptationAlert.newDuration} ngày</span>
                 </div>
               </div>
 

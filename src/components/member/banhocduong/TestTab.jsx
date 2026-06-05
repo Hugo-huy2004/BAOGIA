@@ -296,7 +296,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
       if (score <= 6) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Có dấu hiệu buồn chán nhẹ. Cậu nên tăng cường đi dạo, trò chuyện và nghỉ ngơi hợp lý." };
       if (score <= 10) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Trầm cảm mức độ vừa phải. Có biểu hiện cạn kiệt động lực và trống rỗng tâm lý kéo dài." };
       if (score <= 17) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Trầm cảm mức độ nặng nề. Cậu thường xuyên cảm thấy bế tắc, cô độc sâu sắc. Hãy chia sẻ với người thân thiết." };
-      return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Nguy cơ trầm cảm vô cùng nghiêm trọng. Hãy kết nối khẩn cấp với bác sĩ tâm lý để được chẩn đoán và can thiệp." };
+      return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Nguy cơ trầm cảm vô cùng nghiêm trọng. Hãy kết nối khẩn cấp với chuyên viên đồng hành hoặc chuyên gia tâm lý để được chẩn đoán và can thiệp." };
     }
     if (scale === "A") {
       if (score <= 3) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Hệ thống thần kinh lo âu bình thường, khả năng thích ứng cơ thể trước áp lực ở mức an toàn." };
@@ -1075,7 +1075,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                       Kết quả độ tin cậy không đạt (Low Reliability Warning)
                     </div>
                     <p className="text-xs leading-relaxed font-semibold">
-                      {validityStatus.reason} Báo cáo lâm sàng dưới đây chỉ mang tính chất tham khảo do biểu hiện phòng thủ hoặc nói dối vượt khung quy chuẩn. Cậu hãy cân nhắc làm lại bài test sau khi thư giãn hoàn toàn để có độ chuẩn bác sĩ cao nhất.
+                      {validityStatus.reason} Báo cáo lâm sàng dưới đây chỉ mang tính chất tham khảo do biểu hiện phòng thủ hoặc nói dối vượt khung quy chuẩn. Cậu hãy cân nhắc làm lại bài test sau khi thư giãn hoàn toàn để có độ chuẩn chuyên gia cao nhất.
                     </p>
                   </div>
                 ) : (

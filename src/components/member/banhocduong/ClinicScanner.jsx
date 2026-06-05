@@ -1,0 +1,340 @@
+import React, { useState, useEffect } from "react";
+
+const SCAN_STEPS = [
+  "Đang nhận diện ký tự quang học (OCR)...",
+  "Đang định vị bảng điểm L - F - K và chỉ số tâm lý...",
+  "Đang trích xuất dữ liệu Trầm cảm, Lo âu, Căng thẳng...",
+  "Đang hoàn tất phân tích lâm sàng..."
+];
+
+export default function ClinicScanner({ onScanComplete, onCancel }) {
+  const [scanFile, setScanFile] = useState(null);
+  const [scanFilePreview, setScanFilePreview] = useState(null);
+  const [scanState, setScanState] = useState("idle"); // 'idle' | 'scanning' | 'verified'
+  const [scanStepIdx, setScanStepIdx] = useState(0);
+  const [scanTestType, setScanTestType] = useState("dass"); // 'dass' | 'mmpi'
+
+  // Editable scores
+  const [scanDassScores, setScanDassScores] = useState({ D: 17, A: 11, S: 17 });
+  const [scanMmpiClinical, setScanMmpiClinical] = useState({
+    Hs: 68, D: 72, Hy: 85, Pd: 77, Mf: 55, Pa: 95, Pt: 73, Sc: 81, Ma: 68, Si: 68
+  });
+  const [scanMmpiValidity, setScanMmpiValidity] = useState({ L: 47, F: 79, K: 40 });
+
+  // Simulate scanning steps
+  useEffect(() => {
+    if (scanState !== "scanning") return;
+
+    const interval = setInterval(() => {
+      setScanStepIdx((prev) => {
+        if (prev < SCAN_STEPS.length - 1) {
+          return prev + 1;
+        } else {
+          clearInterval(interval);
+          setScanState("verified");
+          return prev;
+        }
+      });
+    }, 700);
+
+    return () => clearInterval(interval);
+  }, [scanState]);
+
+  const handleSave = () => {
+    let resultLog = {};
+    if (scanTestType === "dass") {
+      const getDassInterpret = (scale, score) => {
+        if (scale === "D") {
+          if (score <= 9) return "Bình thường";
+          if (score <= 13) return "Nhẹ";
+          if (score <= 20) return "Vừa phải";
+          if (score <= 27) return "Nặng";
+          return "Rất nặng";
+        }
+        if (scale === "A") {
+          if (score <= 7) return "Bình thường";
+          if (score <= 9) return "Nhẹ";
+          if (score <= 14) return "Vừa phải";
+          if (score <= 19) return "Nặng";
+          return "Rất nặng";
+        }
+        if (score <= 14) return "Bình thường";
+        if (score <= 18) return "Nhẹ";
+        if (score <= 25) return "Vừa phải";
+        if (score <= 33) return "Nặng";
+        return "Rất nặng";
+      };
+
+      const dLvl = getDassInterpret("D", scanDassScores.D);
+      const aLvl = getDassInterpret("A", scanDassScores.A);
+      const sLvl = getDassInterpret("S", scanDassScores.S);
+
+      resultLog = {
+        date: new Date().toISOString(),
+        test: "dass42",
+        scores: { D: scanDassScores.D, A: scanDassScores.A, S: scanDassScores.S },
+        severities: { D: dLvl, A: aLvl, S: sLvl },
+        isUploaded: true
+      };
+    } else {
+      const isReliable = scanMmpiValidity.L < 70 && scanMmpiValidity.F < 80 && scanMmpiValidity.K < 70;
+      resultLog = {
+        date: new Date().toISOString(),
+        test: "mmpi30",
+        validity: scanMmpiValidity,
+        isReliable,
+        clinical: Object.entries(scanMmpiClinical).map(([code, score]) => ({ code, score })),
+        isUploaded: true
+      };
+    }
+
+    onScanComplete(scanTestType, resultLog);
+  };
+
+  const renderValidityGraph = (scores) => {
+    const graphH = 180;
+    const graphW = 280;
+    const getY = (val) => graphH - 20 - ((val - 20) / 100) * (graphH - 40);
+
+    const lY = getY(scores.L);
+    const fY = getY(scores.F);
+    const kY = getY(scores.K);
+
+    return (
+      <div className="bg-[#15141c] rounded-2xl p-3 border border-zinc-800 shadow-lg relative">
+        <h4 className="text-[9px] font-black tracking-widest text-[#0071e3] uppercase mb-2 text-center">
+          Biểu đồ L - F - K
+        </h4>
+        <div className="relative flex justify-center">
+          <svg width={graphW} height={graphH} className="overflow-visible select-none">
+            {[30, 50, 70, 90, 110].map((t) => {
+              const y = getY(t);
+              return (
+                <g key={t}>
+                  <line x1={30} y1={y} x2={graphW - 10} y2={y} className="stroke-zinc-800" strokeWidth="0.8" strokeDasharray="3 3" />
+                  <text x={24} y={y + 3} className="fill-zinc-650 font-mono text-[8px]" textAnchor="end">{t}</text>
+                </g>
+              );
+            })}
+
+            {[
+              { x: 50, label: "L" },
+              { x: 140, label: "F" },
+              { x: 230, label: "K" }
+            ].map((spoke, idx) => (
+              <g key={idx}>
+                <line x1={spoke.x} y1={getY(20)} x2={spoke.x} y2={getY(120)} className="stroke-zinc-800" strokeWidth="1" />
+                <text x={spoke.x} y={graphH - 5} className="fill-zinc-400 font-black text-[9px]" textAnchor="middle">{spoke.label}</text>
+              </g>
+            ))}
+
+            <polyline
+              points={`50,${lY} 140,${fY} 230,${kY}`}
+              fill="none"
+              className="stroke-emerald-450"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+
+            {[
+              { x: 50, y: lY, val: scores.L, color: scores.L >= 70 ? "fill-red-500" : "fill-emerald-450" },
+              { x: 140, y: fY, val: scores.F, color: scores.F >= 80 ? "fill-red-500" : "fill-emerald-450" },
+              { x: 230, y: kY, val: scores.K, color: scores.K >= 70 ? "fill-red-500" : "fill-emerald-450" }
+            ].map((dot, idx) => (
+              <g key={idx}>
+                <circle cx={dot.x} cy={dot.y} r="4" className={`${dot.color} stroke-[#15141c]`} strokeWidth="1.5" />
+                <text x={dot.x + 8} y={dot.y - 6} className="fill-white font-mono font-black text-[8.5px]">{dot.val}</text>
+              </g>
+            ))}
+          </svg>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6 pt-2 max-w-md mx-auto animate-scaleUp text-left">
+      <div className="text-center space-y-1">
+        <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-zinc-900/10 border border-zinc-900/20 text-zinc-855 dark:bg-white/10 dark:text-white dark:border-white/20 uppercase">
+          Quét hồ sơ phòng khám
+        </span>
+        <h4 className="text-xs font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">
+          Phân tích kết quả DASS / MMPI
+        </h4>
+        <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
+          Gửi ảnh chụp phiếu kiểm tra hoặc file PDF để Chuyên viên Đồng Hành trích xuất chỉ số lâm sàng lập tức.
+        </p>
+      </div>
+
+      {scanState === "idle" && (
+        <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-3xl p-6 text-center space-y-4 hover:border-[#0071e3] transition-all">
+          <input
+            type="file"
+            accept="image/*,application/pdf"
+            onChange={(e) => {
+              const selectedFile = e.target.files[0];
+              if (selectedFile) {
+                setScanFile(selectedFile);
+                if (selectedFile.type.startsWith("image/")) {
+                  setScanFilePreview(URL.createObjectURL(selectedFile));
+                } else {
+                  setScanFilePreview(null);
+                }
+              }
+            }}
+            id="chat-scanner-input-sub"
+            className="hidden"
+          />
+          <label htmlFor="chat-scanner-input-sub" className="cursor-pointer block space-y-3 py-2">
+            <span className="material-symbols-outlined text-3xl text-zinc-450 block">cloud_upload</span>
+            <span className="text-[10.5px] font-black uppercase text-[#0071e3] hover:underline block">Chọn file ảnh hoặc PDF</span>
+            <span className="text-[9px] text-zinc-400 dark:text-zinc-500 block">Chấp nhận PNG, JPG, PDF bệnh án</span>
+          </label>
+
+          {scanFile && (
+            <div className="pt-2 space-y-2 border-t border-dashed border-zinc-200 dark:border-zinc-800">
+              <div className="text-[10px] text-zinc-700 dark:text-zinc-300 font-bold truncate max-w-xs mx-auto">
+                File đã chọn: {scanFile.name}
+              </div>
+              {scanFilePreview && (
+                <img src={scanFilePreview} className="w-16 h-16 object-cover rounded-lg mx-auto border" alt="Preview" />
+              )}
+              <div className="flex gap-2 justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScanTestType("dass");
+                    setScanState("scanning");
+                    setScanStepIdx(0);
+                  }}
+                  className="px-3 py-1.5 bg-[#0071e3] text-white text-[9.5px] font-black uppercase rounded-lg shadow hover:bg-[#0077ed]"
+                >
+                  DASS-42
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScanTestType("mmpi");
+                    setScanState("scanning");
+                    setScanStepIdx(0);
+                  }}
+                  className="px-3 py-1.5 bg-indigo-500 text-white text-[9.5px] font-black uppercase rounded-lg shadow hover:bg-indigo-650"
+                >
+                  MMPI-30
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {scanState === "scanning" && (
+        <div className="p-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-3xl space-y-4 text-center">
+          <span className="material-symbols-outlined text-2xl text-[#0071e3] animate-spin">refresh</span>
+          <p className="text-[10.5px] font-bold text-zinc-800 dark:text-zinc-200">
+            {SCAN_STEPS[scanStepIdx]}
+          </p>
+          <div className="w-full bg-zinc-100 dark:bg-zinc-850 h-2 rounded-full overflow-hidden">
+            <div className="bg-[#0071e3] h-full transition-all duration-300" style={{ width: `${((scanStepIdx + 1) / 4) * 100}%` }} />
+          </div>
+        </div>
+      )}
+
+      {scanState === "verified" && (
+        <div className="p-4 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-[#1a1924] rounded-3xl space-y-4 animate-scaleUp">
+          <h5 className="text-[11px] font-black uppercase tracking-wider text-zinc-900 dark:text-white border-b pb-1">
+            Xác thực thông tin trích xuất
+          </h5>
+
+          {scanTestType === "dass" ? (
+            <div className="space-y-3">
+              <p className="text-[10px] text-zinc-550 font-semibold leading-relaxed">
+                Cậu hãy kiểm tra và điều chỉnh điểm số gốc (tối đa 42 điểm):
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {["D", "A", "S"].map((scale) => (
+                  <div key={scale} className="space-y-1 text-center">
+                    <label className="text-[9px] font-black text-zinc-450 uppercase tracking-wider block">
+                      {scale === "D" ? "Trầm Cảm" : scale === "A" ? "Lo Âu" : "Căng Thẳng"}
+                    </label>
+                    <input
+                      type="number"
+                      value={scanDassScores[scale]}
+                      onChange={(e) => {
+                        const val = Math.max(0, Math.min(42, parseInt(e.target.value, 10) || 0));
+                        setScanDassScores((prev) => ({ ...prev, [scale]: val }));
+                      }}
+                      className="w-full text-center px-2 py-1.5 border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs rounded-lg font-bold"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <span className="text-[9px] font-black uppercase text-[#0071e3] tracking-widest block">Thang đo kiểm định L-F-K</span>
+                <div className="grid grid-cols-3 gap-2">
+                  {["L", "F", "K"].map((scale) => (
+                    <div key={scale} className="space-y-1 text-center">
+                      <label className="text-[9px] font-black text-zinc-450 uppercase block">{scale}</label>
+                      <input
+                        type="number"
+                        value={scanMmpiValidity[scale]}
+                        onChange={(e) => {
+                          const val = Math.max(0, Math.min(120, parseInt(e.target.value, 10) || 0));
+                          setScanMmpiValidity((prev) => ({ ...prev, [scale]: val }));
+                        }}
+                        className="w-full text-center py-1 border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-[10px] rounded font-bold"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {renderValidityGraph(scanMmpiValidity)}
+
+              <div className="space-y-2 max-h-40 overflow-y-auto pr-1 scrollbar-none border-t pt-2">
+                <span className="text-[9px] font-black uppercase text-indigo-500 tracking-widest block">10 Thang đo lâm sàng</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.keys(scanMmpiClinical).map((scale) => (
+                    <div key={scale} className="flex justify-between items-center gap-2 p-1.5 border border-zinc-200 dark:border-zinc-800 rounded-lg">
+                      <span className="text-[9.5px] font-black text-zinc-650 dark:text-zinc-350">{scale}</span>
+                      <input
+                        type="number"
+                        value={scanMmpiClinical[scale]}
+                        onChange={(e) => {
+                          const val = Math.max(0, Math.min(120, parseInt(e.target.value, 10) || 0));
+                          setScanMmpiClinical((prev) => ({ ...prev, [scale]: val }));
+                        }}
+                        className="w-12 text-center py-1 border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-[10px] rounded font-bold"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-2 pt-2 border-t">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 py-2 border border-zinc-300 text-zinc-550 hover:bg-zinc-50 text-[9.5px] font-black uppercase rounded-lg"
+            >
+              Hủy bỏ
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              className="flex-1 py-2 bg-[#0071e3] text-white hover:bg-[#0077ed] text-[9.5px] font-black uppercase rounded-lg"
+            >
+              Lưu hồ sơ & Trả lời
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

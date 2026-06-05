@@ -652,6 +652,34 @@ export const dataApi = {
     }
   },
 
+  // Fetch companion history from MongoDB
+  async getCompanionHistory(email) {
+    try {
+      const response = await safeFetch(`${API_BASE_URL}/companion/history?email=${encodeURIComponent(email)}`, { headers: getAuthHeaders() });
+      if (!response.ok) throw new Error('Failed to fetch companion history');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching companion history:', error);
+      throw error;
+    }
+  },
+
+  // Save companion history to MongoDB
+  async saveCompanionHistory(payload) {
+    try {
+      const response = await safeFetch(`${API_BASE_URL}/companion/history`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error('Failed to save companion history');
+      return await response.json();
+    } catch (error) {
+      console.error('Error saving companion history:', error);
+      throw error;
+    }
+  },
+
   // Helper to support Axios-like GET request
   async get(url, options = {}) {
     try {

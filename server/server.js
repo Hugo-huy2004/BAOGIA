@@ -10,6 +10,7 @@ import packageRoutes from './routes/packageRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import fileToolsRoutes from './routes/fileToolsRoutes.js';
+import companionRoutes from './routes/companionRoutes.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
@@ -116,6 +117,7 @@ mongoose.connect(MONGODB_URI, {
 import customerRoutes from './routes/customerRoutes.js';
 import vcardRoutes from './routes/vcardRoutes.js';
 import payosRoutes from './routes/payosRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 // Routes
 app.use('/api/data', dataRoutes);
@@ -126,9 +128,11 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/files', fileToolsRoutes);
+app.use('/api/companion', companionRoutes);
 app.use('/api/customer-projects', customerRoutes);
 app.use('/api/vcard', vcardRoutes);
 app.use('/api/payos', payosRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -136,6 +140,7 @@ app.get('/api/health', (req, res) => {
 });
 
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
+import { initCompanionScheduler } from './utils/companionScheduler.js';
 
 // Start server
 app.listen(PORT, () => {
@@ -152,5 +157,8 @@ app.listen(PORT, () => {
       await runBirthdayAutomation().catch(console.error);
     }
   }, 60000);
+
+  // Initialize companion daily reminder push scheduler (07:30, 15:00, 20:30)
+  initCompanionScheduler();
 });
 // Nodemon watch trigger

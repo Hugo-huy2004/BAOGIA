@@ -251,6 +251,21 @@ function CompanionHistoryReportPanel({ historyLogs }) {
               } else if (log.test === "mmpi30") {
                 eventTitle = "Khảo sát lâm sàng Mini-MMPI";
                 eventDetails = `Độ tin cậy: ${log.isReliable ? "Hợp lệ" : "Nghi ngờ"} • Các thang đo: ${log.clinical.map(c => `${c.code}: ${c.score}T`).join(" • ")}`;
+              } else if (log.test === "phq9") {
+                eventTitle = "Đánh giá Trầm cảm PHQ-9";
+                eventDetails = `Tổng điểm: ${log.score}/27 • Mức độ: ${log.severity}`;
+              } else if (log.test === "gad7") {
+                eventTitle = "Đánh giá Lo âu GAD-7";
+                eventDetails = `Tổng điểm: ${log.score}/21 • Mức độ: ${log.severity}`;
+              } else if (log.test === "who5") {
+                eventTitle = "Chỉ số Hạnh phúc WHO-5";
+                eventDetails = `Điểm số: ${log.score}/25 • Trạng thái: ${log.status}`;
+              } else if (log.test === "bigfive") {
+                eventTitle = "Trắc nghiệm Nhân cách Big Five";
+                eventDetails = log.desc;
+              } else if (log.type === "therapy_activity") {
+                eventTitle = `Hoạt động trị liệu: ${log.name}`;
+                eventDetails = log.desc;
               } else if (log.type === "chat_anomaly") {
                 eventTitle = "Phát hiện bất ổn qua chat";
                 eventDetails = `Tin nhắn: "${log.text}"`;

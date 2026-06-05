@@ -269,7 +269,7 @@ export default function UploadAnalyzer() {
           Phân Tích Báo Cáo Sức Khỏe Tinh Thần
         </h4>
         <p className="text-xs text-zinc-550 dark:text-zinc-450 leading-relaxed">
-          Tải ảnh chụp hoặc file PDF kết quả đo DASS-42 / MMPI từ bác sĩ để hệ thống Bạn Học Đường lập tức phân tích và đồng hành.
+          Tải ảnh chụp hoặc file PDF kết quả đo DASS-42 / MMPI từ chuyên viên đồng hành để hệ thống Bạn Học Đường lập tức phân tích và đồng hành.
         </p>
       </div>
 

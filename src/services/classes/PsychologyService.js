@@ -20,6 +20,26 @@ class PsychologyService {
       "hoang tưởng", "theo dõi", "âm thanh lạ", "ảo giác", "xa lánh", "không muốn gặp ai", 
       "đau ngực không rõ", "tim đập nhanh vô cớ", "chống đối", "bứt rứt cực độ", "mất kiểm soát"
     ];
+
+    this.phq9Indicators = [
+      "trầm cảm", "buồn chán", "khóc", "tuyệt vọng", "chết", "buông xuôi", 
+      "không muốn sống", "trống rỗng", "tự trách", "kém cỏi", "buồn tủi"
+    ];
+
+    this.gad7Indicators = [
+      "lo âu", "bồn chồn", "lo lắng", "sợ hãi", "hoảng loạn", "hồi hộp", 
+      "lo nghĩ", "căng thẳng", "áp lực", "stress", "hoảng sợ"
+    ];
+
+    this.who5Indicators = [
+      "mệt mỏi", "kiệt sức", "mất ngủ", "u uất", "nhạt nhẽo", "chán nản", 
+      "không có hứng thú", "hạnh phúc", "vui vẻ", "sức sống"
+    ];
+
+    this.bigFiveIndicators = [
+      "tính cách", "nhân cách", "đặc điểm", "hướng nội", "hướng ngoại", 
+      "cởi mở", "tôi thế nào", "bản thân tớ"
+    ];
   }
 
   /**
@@ -103,167 +123,108 @@ class PsychologyService {
       return "Chào cậu thương mến! Tớ luôn ở đây để lắng nghe và san sẻ lo toan cùng cậu. Dạo gần đây cuộc sống hoặc học tập của cậu có điều gì làm cậu mệt mỏi hay bận lòng không? Kể tớ nghe nhé.";
     }
 
-    // 3. High-Empathy Emotional/Sentiment Mappings (Interprets and comforting tone immediately)
-    // 3.1. Extreme Distress
-    if (["khóc", "tuyệt vọng", "muốn chết", "sụp đổ", "đau khổ", "bế tắc", "không chịu nổi", "muốn biến mất", "suy sụp"].some(w => cleanMsg.includes(w))) {
-      return "Tớ nghe đây... Ôm cậu một cái thật chặt nhé. Khi mọi thứ dường như sụp đổ và bế tắc, cảm giác đó thực sự rất đáng sợ và kiệt quệ. Đừng giữ một mình trong lòng nha cậu, tớ luôn ở đây sẵn sàng làm chỗ dựa lắng nghe mọi tủi thân của cậu mà. Cậu đã vất vả nhiều rồi.";
+    // 3. Smart Category Scoring based on keyword density
+    const categories = [
+      {
+        id: "depression_severe",
+        keywords: ["muốn chết", "tự tử", "tự hại", "biến mất", "tuyệt vọng", "chết đi", "kết thúc cuộc sống", "rạch tay", "buông xuôi", "không muốn sống"],
+        reply: "Tớ ôm cậu thật chặt nhé... Nghe cậu nói thế tớ lo lắm. Khi nỗi đau quá lớn khiến cậu có suy nghĩ muốn giải thoát hay buông xuôi, xin cậu hãy nhớ rằng cậu không phải đối mặt với nó một mình. Hãy chia sẻ với tớ, hoặc kết nối ngay với chuyên viên đồng hành để tụi mình cùng vượt qua nhé. Cậu rất quan trọng."
+      },
+      {
+        id: "family_pressure",
+        keywords: ["bố", "mẹ", "ba", "má", "phụ huynh", "gia đình", "cha mẹ", "so sánh", "áp đặt", "kỳ vọng", "bố mẹ", "ba mẹ", "ở nhà"],
+        reply: "Tớ hiểu mà... Cảm giác luôn bị so sánh với 'con nhà người ta' hay gánh trên vai kỳ vọng quá lớn của bố mẹ thực sự rất mệt mỏi và tổn thương. Bố mẹ thương mình nhưng đôi khi cách thể hiện lại áp đặt và vô tình làm mình đau. Cậu có muốn tâm sự thêm về chuyện này không?"
+      },
+      {
+        id: "academic_stress",
+        keywords: ["học", "thi", "deadline", "đồ án", "môn học", "trường", "lớp", "giảng đường", "bài tập", "kiểm tra", "trượt môn", "điểm thấp", "học hành"],
+        reply: "Áp lực thi cử, bài tập chất đống hay deadline dồn dập thực sự rất ngột ngạt. Cậu đang cố gắng rất nhiều rồi, đừng tự trách bản thân nếu mọi thứ chưa hoàn hảo nhé. Có bài tập hay môn học nào đang làm cậu lo lắng nhất lúc này không?"
+      },
+      {
+        id: "work_stress",
+        keywords: ["làm thêm", "công việc", "sếp", "đồng nghiệp", "parttime", "kiếm tiền", "đi làm", "lương"],
+        reply: "Vừa đi học vừa xoay xở đi làm thêm quả thực rất vất vả và dễ kiệt sức. Áp lực từ sếp, đồng nghiệp hay nỗi lo cơm áo gạo tiền ở tuổi sinh viên không hề dễ dàng chút nào. Cậu nhớ giữ gìn sức khỏe nhé, có chuyện gì ở chỗ làm làm cậu bực dọc không?"
+      },
+      {
+        id: "relationship_stress",
+        keywords: ["chia tay", "cãi nhau", "giận", "người yêu", "crush", "bạn trai", "bạn gái", "phản bội", "đơn phương", "cắm sừng"],
+        reply: "Những rạn nứt trong tình cảm luôn khiến trái tim mình đau nhói và đầu óc rối bời. Cảm giác nhớ nhung, giận hờn hay hụt hẫng sau cãi vã thực sự rất khó chịu đựng. Cậu và người ấy đang gặp chuyện gì thế, kể tớ nghe cho nhẹ lòng nhé."
+      },
+      {
+        id: "friendship_stress",
+        keywords: ["bạn bè", "chơi xấu", "tẩy chay", "cô lập", "bị bỏ rơi", "xa lánh", "lạc lõng", "không ai chơi"],
+        reply: "Cảm giác bị bạn bè xa lánh, cô lập hoặc lạc lõng giữa đám đông thực sự rất đáng sợ và tổn thương. Ai cũng cần những người bạn thực sự thấu hiểu mình. Cậu đang gặp chuyện không vui với nhóm bạn ở lớp hay sao?"
+      },
+      {
+        id: "anxiety",
+        keywords: ["lo âu", "bồn chồn", "lo lắng", "sợ hãi", "hoảng loạn", "hồi hộp", "tim đập nhanh", "khó thở", "run", "lo nghĩ"],
+        reply: "Tớ nghe đây... Cảm giác bồn chồn lo âu, tim đập nhanh hay bứt rứt vô cớ thực sự rất ngột ngạt. Hãy cùng tớ hít thở sâu một nhịp nhé. Cậu có muốn làm thử bài đánh giá lo âu GAD-7 để tụi mình xem mức độ thế nào không?"
+      },
+      {
+        id: "sleep_issues",
+        keywords: ["mất ngủ", "không ngủ được", "khó ngủ", "trằn trọc", "thức đêm", "ác mộng", "ngủ"],
+        reply: "Mất ngủ trằn trọc cả đêm thực sự làm cơ thể và trí óc cậu kiệt quệ lắm. Khi giấc ngủ không trọn vẹn, tinh thần mình cũng dễ nhạy cảm hơn. Cậu có muốn thử bài tập thở 4-7-8 hoặc nghe nhạc thiền tĩnh tâm để dễ ngủ hơn không?"
+      },
+      {
+        id: "depression_general",
+        keywords: ["buồn", "chán", "nản", "mệt", "kiệt sức", "khóc", "trống rỗng", "bất lực", "suy sụp", "oải", "mệt mỏi", "trầm cảm"],
+        reply: "Thương cậu nhiều... Những lúc cạn kiệt năng lượng và kiệt sức như thế này, ngay cả việc thở thôi cũng thấy mệt mỏi đúng không cậu. Cậu đã vất vả gồng gánh nhiều rồi, giờ hãy cho phép bản thân được nghỉ ngơi một chút nhé. Tớ luôn ở bên cậu và sẵn sàng lắng nghe mọi chuyện."
+      }
+    ];
+
+    // Score categories
+    let bestCategory = null;
+    let highestScore = 0;
+
+    categories.forEach(cat => {
+      let score = 0;
+      cat.keywords.forEach(keyword => {
+        if (cleanMsg.includes(keyword)) {
+          score += 1;
+        }
+      });
+      if (score > highestScore) {
+        highestScore = score;
+        bestCategory = cat;
+      }
+    });
+
+    // If we have a clear match, return its reply
+    if (highestScore > 0 && bestCategory) {
+      return bestCategory.reply;
     }
 
-    // 3.2. Exhaustion/Burnout
-    if (["mệt", "kiệt sức", "oải", "quá tải", "đuối", "nản", "chán", "không muốn làm gì", "hết năng lượng", "mệt mỏi"].some(w => cleanMsg.includes(w))) {
-      return "Thương cậu nhiều... Những lúc cạn kiệt năng lượng và kiệt sức như thế này, ngay cả việc thở thôi cũng thấy mệt mỏi đúng không cậu. Cậu đã vất vả gồng gánh nhiều rồi, giờ hãy cho phép bản thân được nghỉ ngơi một chút nhé. Tớ luôn ở bên cậu và sẵn sàng lắng nghe mọi chuyện.";
-    }
-
-    // 3.3. Academic/Work Pressure
-    if (["áp lực", "stress", "căng thẳng", "thi cử", "deadline", "bài tập", "dồn dập", "trượt môn", "điểm thấp", "học hành"].some(w => cleanMsg.includes(w))) {
-      return "Áp lực học hành, thi cử dồn dập và deadline dí sát thực sự rất ngột ngạt và mệt mỏi cậu nhỉ. Cậu đang cố gắng hết sức mình rồi, đừng tự trách bản thân quá nhé. Có chuyện gì cụ thể đang làm cậu lo lắng nhất không, kể tớ nghe với.";
-    }
-
-    // 3.4. Interpersonal/Relationship Pain
-    if (["chia tay", "giận", "cãi nhau", "người yêu", "bạn bè", "bỏ rơi", "cô đơn", "xa lánh", "không ai hiểu", "đơn phương"].some(w => cleanMsg.includes(w))) {
-      return "Tổn thương từ những mối quan hệ thân thiết hoặc cảm giác cô độc không ai thấu hiểu thực sự rất nhức nhối và dễ làm mình suy sụp cậu ơi. Nếu cậu thấy lòng ngổn ngang quá, cứ chia sẻ với tớ nhé, tớ luôn ở đây lắng nghe và không bao giờ phán xét cậu đâu.";
-    }
-
-    // 3.5. Insomnia/Health Issues
-    if (["mất ngủ", "không ngủ được", "đau đầu", "đau ngực", "ốm", "bệnh", "sức khỏe"].some(w => cleanMsg.includes(w))) {
-      return "Cơ thể mỏi mệt mà giấc ngủ cũng không được trọn vẹn thì tinh thần dễ bị suy nhược lắm cậu ạ. Sức khỏe của cậu là quan trọng nhất lúc này. Cậu có muốn thử tập thở sâu 4-7-8 để điều hòa nhịp tim và thư giãn đầu óc một chút không?";
-    }
-
-    // 3.6. Self-blame/Low self-esteem
-    if (["vô dụng", "kém cỏi", "thất bại", "tệ hại", "lỗi tại tớ", "tự trách", "ngốc"].some(w => cleanMsg.includes(w))) {
-      return "Đừng nói về bản thân như thế mà cậu ơi... Ai cũng có những lúc yếu lòng và vấp ngã, điều đó không hề định nghĩa giá trị của cậu. Cậu đã nỗ lực rất nhiều trong khả năng của mình rồi, thương cậu nhiều lắm.";
-    }
-
+    // 4. Fallback to conversation history context if input is short/agreement/negation
     const lastBotMsg = history.length > 0 ? [...history].reverse().find(h => h.sender === "bot")?.text || "" : "";
     const lastBotMsgLower = lastBotMsg.toLowerCase();
 
-    // Identify agreements or negations
     const isAgreement = ["đúng", "ừ", "ừm", "um", "uh", "uhm", "vâng", "dạ", "chuẩn", "đúng vậy", "chính xác", "mệt chứ", "đúng rồi", "rồi", "có", "ok", "oke"].some(w => cleanMsg === w || cleanMsg.startsWith(w + " "));
     const isNegation = ["không", "chưa", "ko", "k", "chẳng", "đâu có", "không có", "đâu"].some(w => cleanMsg === w || cleanMsg.startsWith(w + " "));
 
-    // 4. Aspect Rejection Handlers
-    if (rejectedAspects && rejectedAspects.length > 0) {
-      const rej = rejectedAspects[0];
-      if (rej === "studying") {
-        return "Ồ, tớ hiểu rồi, hóa ra không liên quan đến học tập hay thi cử à. Vậy dạo này chuyện gia đình, công việc hay mối quan hệ bạn bè có gì đang làm cậu mệt mỏi không?";
-      }
-      if (rej === "family") {
-        return "Ồ, tớ hiểu rồi, không phải chuyện áp lực gia đình đúng không cậu. Thế khó khăn cậu gặp phải nằm ở học tập ở trường hay các mối quan hệ bạn bè vậy?";
-      }
-      if (rej === "work") {
-        return "Ồ, không liên quan đến công việc làm thêm đúng không cậu. Thế chuyện bài vở trường lớp hay có lo toan nào khác đang đè nặng lên cậu vậy?";
-      }
-      if (rej === "relationships") {
-        return "Tớ hiểu rồi, không liên quan đến chuyện tình cảm hay bạn bè đúng không cậu. Thế chuyện học tập, gia đình hay bản thân cậu có gì bất ổn thế?";
-      }
-      if (rej === "self") {
-        return "Ồ, không phải là do sức khỏe hay lo âu bản thân đúng không cậu. Thế lý do chính khiến cậu mệt mỏi dạo này là gì vậy, chia sẻ với tớ nhé.";
-      }
-    }
-
-    // 5. Short inputs context check
     if (cleanMsg.length < 8) {
       if (isAgreement) {
-        if (lastBotMsgLower.includes("quá tải lắm đúng không") || lastBotMsgLower.includes("gặp khó khăn với kỳ thi")) {
-          return "Ừm... Việc học hành thi cử áp lực dồn dập mệt mỏi thật cậu nhỉ. Cứ trút lòng ra nhé, chuyện bài vở dạo này cụ thể thế nào?";
-        }
-        if (lastBotMsgLower.includes("vừa đi học vừa làm thêm")) {
-          return "Tớ biết mà, vừa học vừa đi làm thêm cực kỳ mệt mỏi và dễ quá tải. Công việc của cậu cụ thể là gì, kể tớ nghe xem có khó khăn gì dạo gần đây không?";
-        }
-        if (lastBotMsgLower.includes("áp lực từ gia đình lúc nào cũng khiến")) {
+        if (lastBotMsgLower.includes("bố mẹ thương mình") || lastBotMsgLower.includes("so sánh")) {
           return "Tớ hiểu cảm giác đó, bất hòa với gia đình khó chịu và cô đơn lắm. Bố mẹ không chịu lắng nghe làm cậu buồn lòng nhiều đúng không?";
         }
-        if (lastBotMsgLower.includes("xung đột trong tình cảm hoặc bạn bè")) {
-          return "Ừm, những giận hờn hay tổn thương từ mối quan hệ luôn khiến mình suy sụp ghê gớm. Cậu và người ấy đang có chuyện gì xảy ra vậy?";
+        if (lastBotMsgLower.includes("bài tập") || lastBotMsgLower.includes("thi cử") || lastBotMsgLower.includes("deadline")) {
+          return "Ừm... Việc học hành thi cử áp lực dồn dập mệt mỏi thật cậu nhỉ. Cứ trút lòng ra nhé, chuyện bài vở dạo này cụ thể thế nào?";
         }
-        if (lastBotMsgLower.includes("nỗi buồn và sự kiệt sức rất lớn")) {
+        if (lastBotMsgLower.includes("kiệt sức") || lastBotMsgLower.includes("mệt mỏi")) {
           return "Tớ nghe đây... Cậu cứ từ từ chia sẻ nhé, có chuyện gì đã và đang đè nặng lên suy nghĩ của cậu nhất vậy?";
         }
-        if (lastBotMsgLower.includes("ảnh hưởng nhiều đến giấc ngủ hay sinh hoạt")) {
+        if (lastBotMsgLower.includes("ngủ")) {
           return "Thương cậu quá. Mất ngủ hay đảo lộn sinh hoạt sẽ càng làm tinh thần cậu mệt mỏi hơn đấy. Tình trạng này kéo dài lâu chưa cậu?";
         }
-        if (lastBotMsgLower.includes("sức khỏe thể chất của mình dạo này bị đi xuống")) {
-          return "Quá tải cả thể chất lẫn tinh thần thực sự nguy hiểm lắm cậu ơi. Cậu có thể sắp xếp giảm bớt việc hay dành một chút thời gian nghỉ ngơi không?";
+        if (lastBotMsgLower.includes("mối quan hệ") || lastBotMsgLower.includes("giận hờn")) {
+          return "Ừm, những giận hờn hay tổn thương từ mối quan hệ luôn khiến mình suy sụp ghê gớm. Cậu và người ấy đang có chuyện gì xảy ra vậy?";
         }
-        if (lastBotMsgLower.includes("thử nói ra nỗi lòng này với gia đình chưa")) {
-          return "Cậu đã từng nói ra rồi nhưng bố mẹ vẫn không hiểu đúng không... Cảm giác cố gắng kết nối nhưng chỉ nhận lại sự phớt lờ thực sự rất cô đơn và bất lực.";
-        }
-        if (lastBotMsgLower.includes("chỗ dựa hay đang phải chịu đựng")) {
-          return "Có người bên cạnh làm điểm tựa là tốt rồi cậu ạ. Họ có giúp cậu vơi đi phần nào áp lực này không, hay cậu vẫn thấy nặng trĩu lòng?";
-        }
-        if (lastBotMsgLower.includes("bị mất ngủ hay cảm thấy bứt rứt")) {
-          return "Tình trạng mất ngủ và bứt rứt kéo dài thực sự rất kiệt sức. Cậu có muốn thử một bài tập hít thở sâu 4-7-8 cùng tớ để điều hòa lại nhịp tim và thư giãn đầu óc một chút không?";
-        }
-        if (lastBotMsgLower.includes("thiết lập một lộ trình đồng hành")) {
-          return "Tuyệt vời quá! Hãy cùng tớ thiết lập hành trình chăm sóc tinh thần bằng cách kích hoạt chế độ đồng hành nhé. Tớ sẽ luôn ở đây nhắc nhở và lắng nghe cậu.";
-        }
-
-        if (matchedAspect === "studying") return "Ừm... Chuyện bài vở, học hành dạo này cụ thể thế nào làm cậu lo lắng vậy? Kể tớ nghe sâu hơn nhé.";
-        if (matchedAspect === "family") return "Tớ hiểu, mâu thuẫn hay áp lực gia đình rất khó đối mặt. Ở nhà có chuyện gì cụ thể xảy ra vậy cậu?";
-        if (matchedAspect === "relationships") return "Ừm, những tổn thương từ bạn bè hay tình cảm rất nhức nhối. Cậu đang vướng mắc chuyện gì với người đó vậy?";
-        return "Tớ nghe đây... Cậu có muốn kể rõ hơn chuyện gì đã làm cậu thấy buồn lòng không?";
       }
-
       if (isNegation) {
-        if (lastBotMsgLower.includes("quá tải lắm đúng không") || lastBotMsgLower.includes("gặp khó khăn với kỳ thi")) {
-          return "Ồ, hóa ra không phải do áp lực thi cử hay học tập à? Vậy dạo gần đây có chuyện gì khác về gia đình, bạn bè hay bản thân làm cậu phiền lòng không? Kể tớ nghe nhé.";
-        }
-        if (lastBotMsgLower.includes("vừa đi học vừa làm thêm")) {
-          return "Thế thì tốt quá, công việc làm thêm của cậu vẫn suôn sẻ đúng không. Vậy có điều gì khác trong cuộc sống đang làm cậu bận lòng vậy?";
-        }
-        if (lastBotMsgLower.includes("áp lực từ gia đình lúc nào cũng khiến")) {
-          return "Ồ, vậy gia đình không phải là lý do khiến cậu buồn lòng lúc này. Thế còn chuyện học hành, công việc hay các mối quan hệ bạn bè thì sao cậu?";
-        }
-        if (lastBotMsgLower.includes("xung đột trong tình cảm hoặc bạn bè")) {
-          return "À, vậy tình cảm và bạn bè của cậu vẫn tốt đẹp đúng không. Thế điều gì khác đang làm tâm trạng cậu bị trầm xuống vậy cậu?";
-        }
-        if (lastBotMsgLower.includes("ảnh hưởng nhiều đến giấc ngủ hay sinh hoạt")) {
-          return "Giấc ngủ và sinh hoạt hàng ngày vẫn ổn định là một tín hiệu rất đáng mừng rồi cậu ạ. Vậy cụ thể chuyện học hành dạo này đang gặp khó khăn gì nhất khiến cậu mệt mỏi?";
-        }
-        if (lastBotMsgLower.includes("sức khỏe thể chất của mình dạo này bị đi xuống")) {
-          return "Sức khỏe thể chất vẫn ổn định là mừng rồi cậu ạ. Thế còn tinh thần dạo này của cậu có cảm thấy quá tải vì lịch trình bận rộn không?";
-        }
-        if (lastBotMsgLower.includes("thử nói ra nỗi lòng này với gia đình chưa")) {
-          return "Chưa từng nói ra đúng không cậu... Tớ biết đối thoại với bố mẹ nhiều khi khó khăn cực kỳ vì khoảng cách thế hệ. Cậu có người bạn thân nào khác để chia sẻ bớt không?";
-        }
-        if (lastBotMsgLower.includes("chỗ dựa hay đang phải chịu đựng")) {
-          return "Phải chịu đựng một mình sao... Nghe thôi tớ đã thấy thương cậu rồi. Từ bây giờ cậu không còn cô đơn nữa đâu, tớ luôn ở đây sẵn sàng đồng hành cùng cậu.";
-        }
-        if (lastBotMsgLower.includes("bị mất ngủ hay cảm thấy bứt rứt")) {
-          return "Cơ thể vẫn ổn định không có dấu hiệu mất ngủ hay bứt rứt là rất tốt rồi cậu ơi. Vậy điều gì trong suy nghĩ đang làm cậu lấn cấn nhiều nhất thế?";
-        }
-        if (lastBotMsgLower.includes("thường làm gì để giải tỏa lòng mình")) {
-          return "Không làm gì hoặc chỉ im lặng chịu đựng thôi đúng không cậu... Giữ mọi cảm xúc tiêu cực trong lòng ngột ngạt lắm á. Cậu có muốn thử một bài tập hít thở sâu để giải tỏa bớt không?";
-        }
-        if (lastBotMsgLower.includes("thiết lập một lộ trình đồng hành")) {
-          return "Tớ hiểu rồi. Cậu cứ thong thả suy nghĩ nhé. Khi nào cần, tớ luôn sẵn sàng đồng hành và lắng nghe cậu.";
-        }
-
         return "Tớ hiểu rồi. Nếu cậu chưa sẵn sàng nói sâu hơn thì không sao cả nhé. Tụi mình cứ nói chuyện nhẹ nhàng thôi, hoặc cậu muốn tớ im lặng để cậu tĩnh tâm chút không?";
       }
     }
 
-    // Contextual replies based on previous bot questions (for longer inputs)
-    if (lastBotMsg) {
-      if (lastBotMsgLower.includes("ảnh hưởng nhiều đến giấc ngủ hay sinh hoạt")) {
-        if (isAgreement || cleanMsg.includes("mất ngủ") || cleanMsg.includes("mệt")) {
-          return "Thương cậu quá... Khi tinh thần bất ổn, cơ thể và giấc ngủ luôn phải chịu trận đầu tiên. Cậu có muốn tụi mình nói chuyện thêm một lúc nữa để lòng nhẹ bớt rồi đi nghỉ ngơi sớm không?";
-        }
-        if (isNegation) {
-          return "Cơ thể vẫn ổn định là một tín hiệu rất đáng mừng rồi cậu ạ. Vậy điều gì trong lòng đang làm cậu thấy lấn cấn và suy nghĩ nhiều nhất thế?";
-        }
-      }
-      if (lastBotMsgLower.includes("thử nói ra nỗi lòng này với gia đình chưa")) {
-        if (isAgreement || cleanMsg.includes("rồi") || cleanMsg.includes("đã từng")) {
-          return "Cậu đã từng thử nói ra rồi nhưng bố mẹ vẫn không hiểu hay lắng nghe đúng không... Cảm giác cố gắng kết nối nhưng chỉ nhận lại sự phớt lờ thực sự rất cô đơn và bất lực. Cậu có ai khác để làm chỗ dựa không?";
-        }
-        if (isNegation || cleanMsg.includes("chưa")) {
-          return "Chưa từng nói ra đúng không cậu... Tớ biết đối thoại với bố mẹ nhiều khi khó khăn cực kỳ vì khoảng cách thế hệ. Cậu có người bạn thân nào khác để chia sẻ bớt không?";
-        }
-      }
-    }
-
-    // 6. Conversational Phase based on depth
+    // 5. Depth/Aspect Fallbacks if no categories match
     if (depth <= 1) {
       switch (matchedAspect) {
         case "studying":
@@ -279,8 +240,8 @@ class PsychologyService {
         default:
           return "Tớ luôn sẵn sàng lắng nghe đây. Dạo gần đây cậu đang gặp chuyện gì làm cậu bận lòng nhất? Hãy cứ chia sẻ tự nhiên nhé.";
       }
-    } 
-    
+    }
+
     if (depth === 2) {
       switch (matchedAspect) {
         case "studying":
@@ -308,22 +269,22 @@ class PsychologyService {
 
     if (hasDassKeywords || hasMmpiKeywords) {
       if (hasMmpiKeywords) {
-        return "Tớ thấy những chia sẻ của cậu dạo gần đây có những biểu hiện nhạy cảm tâm lý khá sâu sắc. Để hiểu rõ hơn bản thân và nhận được những khuyến nghị chuẩn y khoa nhất, cậu nghĩ sao về việc thử làm một bài khảo sát nhân cách lâm sàng Mini-MMPI bên tab 'Trắc nghiệm' khi nào thấy sẵn sàng?";
+        return "Tớ thấy những chia sẻ của cậu dạo gần đây có những biểu hiện nhạy cảm tâm lý khá sâu sắc. Để hiểu rõ hơn bản thân và nhận được những khuyến nghị chuẩn y khoa nhất, cậu có thể cùng tớ làm bài trắc nghiệm Đặc điểm Nhân cách Big Five hoặc các đánh giá lâm sàng như PHQ-9, GAD-7 ngay tại đây nhé.";
       }
-      return "Nãy giờ trò chuyện, tớ nhận thấy cậu đang chịu đựng khá nhiều căng thẳng tích tụ. Tớ nghĩ một bài trắc nghiệm tâm lý lâm sàng DASS-21 bên tab 'Trắc nghiệm' sẽ giúp cậu có cái nhìn khoa học và nhận diện rõ hơn tình trạng lúc này đấy. Cậu thấy sao?";
+      return "Nãy giờ trò chuyện, tớ nhận thấy cậu đang chịu đựng khá nhiều căng thẳng tích tụ. Cậu nghĩ sao về việc cùng tớ thực hiện bài kiểm tra lo âu GAD-7 hoặc trầm cảm PHQ-9 để tớ đưa ra chỉ định chính xác nhất?";
     }
 
     if (matchedAspect === "self" || matchedAspect === "studying") {
-      return "Lòng cậu lúc này chắc hẳn vẫn còn nhiều ngổn ngang. Cậu nghĩ sao về việc cùng tớ làm một bài hít thở sâu 4-7-8 ở tab 'Hít Thở 4-7-8' để làm dịu nhịp tim và thư giãn đầu óc một chút nhé?";
+      return "Lòng cậu lúc này chắc hẳn vẫn còn nhiều ngổn ngang. Cậu có muốn cùng tớ bắt đầu các bài tập trị liệu ở thẻ 'Trị Liệu' bên cạnh, hoặc làm một bài đánh giá chỉ số Hạnh phúc WHO-5 không?";
     }
     
     // Rich adaptive fallbacks
     const adaptiveFallbacks = [
-      "Tớ vẫn ở đây bên cậu nè. Cậu cứ từ từ nói chuyện nhé, không có gì phải vội hay ngại đâu.",
-      "Ừm, tớ đang nghe đây. Bất cứ điều gì làm cậu thấy lấn cấn trong lòng, dù là nhỏ nhất, tớ cũng muốn được lắng nghe cùng cậu.",
-      "Tớ hiểu cảm giác ngổn ngang lúc này của cậu. Nếu thấy khó bắt đầu, cậu cứ kể chuyện nhỏ nhặt nhất dạo này cũng được nhé.",
-      "Cậu đã vất vả gồng gánh mọi lo lắng một mình rồi. Ở đây hoàn toàn bảo mật và an toàn, cậu cứ trút lòng ra cho nhẹ nhõm nha.",
-      "Tớ luôn sẵn sàng làm chỗ dựa tinh thần cho cậu. Dù chuyện gì xảy ra, cậu cũng không cô đơn đâu."
+      "Tớ vẫn ở đây lắng nghe cậu nè. Cậu cứ chia sẻ nhé, tớ ở đây để làm bạn với cậu mà.",
+      "Ừm, tớ đang nghe đây. Bất cứ điều gì làm cậu thấy lấn cấn hay mệt lòng dạo gần đây, cậu cứ kể cho tớ nghe nhé.",
+      "Tớ thấu cảm cảm giác ngổn ngang hiện tại của cậu. Nếu thấy khó chia sẻ, cậu cứ kể những chuyện nhỏ nhặt nhất ngày hôm nay thôi cũng được nha.",
+      "Cậu đã nỗ lực chịu đựng mọi áp lực một mình nhiều rồi. Ở đây hoàn toàn bảo mật, cậu cứ trút lòng ra cho nhẹ nhõm nha.",
+      "Tớ luôn ở bên làm chỗ dựa tinh thần cho cậu. Cậu không cô đơn đâu."
     ];
     return adaptiveFallbacks[history.length % adaptiveFallbacks.length];
   }
@@ -339,7 +300,7 @@ class PsychologyService {
     const userMsgs = history.filter(h => h.sender === "user" || h.role === "user");
     const depth = userMsgs.length;
 
-    const isTestRequest = ["test", "trắc nghiệm", "kiểm tra tâm lý", "khảo sát", "dass", "mmpi"].some(w => lowerMsg.includes(w));
+    const isTestRequest = ["test", "trắc nghiệm", "kiểm tra tâm lý", "khảo sát", "phq", "gad", "who", "big five", "bigfive", "nhân cách"].some(w => lowerMsg.includes(w));
     const isTestNegation = ["không", "ko", "k", "chưa", "đâu"].some(neg => {
       return lowerMsg.includes(`${neg} muốn`) || lowerMsg.includes(`${neg} làm`) || lowerMsg.includes(`${neg} test`) || lowerMsg.includes(`${neg} trắc nghiệm`);
     });
@@ -349,23 +310,35 @@ class PsychologyService {
     const aspectInfo = this.detectAspect(message, history);
     const reply = this.getReplyForDepth(message, history, aspectInfo, depth);
 
-    let suggestDass = false;
-    let suggestMmpi = false;
+    let suggestPhq9 = false;
+    let suggestGad7 = false;
+    let suggestWho5 = false;
+    let suggestBigFive = false;
     
     if (depth >= 3 || isExplicitRequest) {
-      suggestDass = this.dassIndicators.some(ind => lowerMsg.includes(ind));
-      suggestMmpi = this.mmpiIndicators.some(ind => lowerMsg.includes(ind));
+      suggestPhq9 = this.phq9Indicators.some(ind => lowerMsg.includes(ind));
+      suggestGad7 = this.gad7Indicators.some(ind => lowerMsg.includes(ind));
+      suggestWho5 = this.who5Indicators.some(ind => lowerMsg.includes(ind));
+      suggestBigFive = this.bigFiveIndicators.some(ind => lowerMsg.includes(ind));
       
       if (isExplicitRequest) {
-        suggestDass = true;
-        suggestMmpi = true;
+        if (lowerMsg.includes("trầm cảm") || lowerMsg.includes("phq")) suggestPhq9 = true;
+        else if (lowerMsg.includes("lo âu") || lowerMsg.includes("gad")) suggestGad7 = true;
+        else if (lowerMsg.includes("hạnh phúc") || lowerMsg.includes("who")) suggestWho5 = true;
+        else if (lowerMsg.includes("nhân cách") || lowerMsg.includes("big")) suggestBigFive = true;
+        else {
+          suggestPhq9 = true;
+          suggestGad7 = true;
+        }
       }
     }
 
     return {
       reply,
-      suggestDass,
-      suggestMmpi
+      suggestPhq9,
+      suggestGad7,
+      suggestWho5,
+      suggestBigFive
     };
   }
 
@@ -386,11 +359,98 @@ class PsychologyService {
       
       const dassTests = logs.filter(l => l.test === "dass42");
       const mmpiTests = logs.filter(l => l.test === "mmpi30");
+      const phq9Tests = logs.filter(l => l.test === "phq9");
+      const gad7Tests = logs.filter(l => l.test === "gad7");
+      const who5Tests = logs.filter(l => l.test === "who5");
 
       let adaptation = null;
 
-      // 1. Check DASS-21 progress
-      if (dassTests.length >= 2) {
+      // 1. Check PHQ-9 progress
+      if (!adaptation && phq9Tests.length >= 2) {
+        const latest = phq9Tests[phq9Tests.length - 1];
+        const previous = phq9Tests[phq9Tests.length - 2];
+        if (latest.score < previous.score) {
+          const decrease = previous.score - latest.score;
+          let reducedDays = decrease * 5;
+          
+          const startDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
+          let currentProgressDay = 1;
+          if (startDateStr) {
+            const start = new Date(startDateStr).getTime();
+            const now = new Date().getTime();
+            currentProgressDay = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
+          }
+          const newDuration = Math.max(currentProgressDay + 3, currentDuration - reducedDays);
+          if (newDuration < currentDuration) {
+            adaptation = {
+              type: "phq9",
+              improvement: `chỉ số trầm cảm PHQ-9 giảm từ ${previous.score} xuống ${latest.score} điểm (giảm ${decrease} điểm)`,
+              reducedDays: currentDuration - newDuration,
+              oldDuration: currentDuration,
+              newDuration: newDuration
+            };
+          }
+        }
+      }
+
+      // 2. Check GAD-7 progress
+      if (!adaptation && gad7Tests.length >= 2) {
+        const latest = gad7Tests[gad7Tests.length - 1];
+        const previous = gad7Tests[gad7Tests.length - 2];
+        if (latest.score < previous.score) {
+          const decrease = previous.score - latest.score;
+          let reducedDays = decrease * 5;
+          
+          const startDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
+          let currentProgressDay = 1;
+          if (startDateStr) {
+            const start = new Date(startDateStr).getTime();
+            const now = new Date().getTime();
+            currentProgressDay = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
+          }
+          const newDuration = Math.max(currentProgressDay + 3, currentDuration - reducedDays);
+          if (newDuration < currentDuration) {
+            adaptation = {
+              type: "gad7",
+              improvement: `chỉ số lo âu GAD-7 giảm từ ${previous.score} xuống ${latest.score} điểm (giảm ${decrease} điểm)`,
+              reducedDays: currentDuration - newDuration,
+              oldDuration: currentDuration,
+              newDuration: newDuration
+            };
+          }
+        }
+      }
+
+      // 3. Check WHO-5 progress
+      if (!adaptation && who5Tests.length >= 2) {
+        const latest = who5Tests[who5Tests.length - 1];
+        const previous = who5Tests[who5Tests.length - 2];
+        if (latest.score > previous.score) {
+          const increase = latest.score - previous.score;
+          let reducedDays = increase * 4;
+          
+          const startDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
+          let currentProgressDay = 1;
+          if (startDateStr) {
+            const start = new Date(startDateStr).getTime();
+            const now = new Date().getTime();
+            currentProgressDay = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
+          }
+          const newDuration = Math.max(currentProgressDay + 3, currentDuration - reducedDays);
+          if (newDuration < currentDuration) {
+            adaptation = {
+              type: "who5",
+              improvement: `chỉ số hạnh phúc WHO-5 tăng từ ${previous.score} lên ${latest.score} điểm (tăng ${increase} điểm)`,
+              reducedDays: currentDuration - newDuration,
+              oldDuration: currentDuration,
+              newDuration: newDuration
+            };
+          }
+        }
+      }
+
+      // 4. Check DASS-21 progress (DASS total score decrease)
+      if (!adaptation && dassTests.length >= 2) {
         const latest = dassTests[dassTests.length - 1];
         const previous = dassTests[dassTests.length - 2];
         
@@ -431,7 +491,7 @@ class PsychologyService {
         }
       }
 
-      // 2. Check MMPI-30 progress (Aligned pathology T-score >= 70)
+      // 5. Check MMPI-30 progress (Aligned pathology T-score >= 70)
       if (!adaptation && mmpiTests.length >= 2) {
         const latest = mmpiTests[mmpiTests.length - 1];
         const previous = mmpiTests[mmpiTests.length - 2];
