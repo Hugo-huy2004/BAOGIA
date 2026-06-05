@@ -27,6 +27,266 @@ const MemberManageTab = React.lazy(() => import("../../components/member/MemberM
 const MemberPartnerTab = React.lazy(() => import("../../components/member/MemberPartnerTab"));
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
 
+// Companion Journey History Report & Anomalies Panel (Vietnam Clinical Standards)
+function CompanionHistoryReportPanel({ historyLogs }) {
+  const formatDateTime = (isoString) => {
+    try {
+      const d = new Date(isoString);
+      const pad = (n) => n.toString().padStart(2, '0');
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    } catch (e) {
+      return "Không xác định";
+    }
+  };
+
+  const getMoodEmoji = (mood) => {
+    switch (mood) {
+      case 5: return "☀️ Rất tốt";
+      case 4: return "🌤️ Tốt";
+      case 3: return "☁️ Bình thường";
+      case 2: return "🌧️ Mỏi mệt";
+      case 1: return "⛈️ Kiệt sức";
+      default: return "☁️ Không xác định";
+    }
+  };
+
+  const { anomalies, recommendation } = React.useMemo(() => {
+    const anomaliesList = [];
+    const checkins = historyLogs.filter(l => l.type === "checkin");
+    const dassTests = historyLogs.filter(l => l.test === "dass42");
+    const mmpiTests = historyLogs.filter(l => l.test === "mmpi30");
+    const chatAnomalies = historyLogs.filter(l => l.type === "chat_anomaly");
+    const uploadAnomalies = historyLogs.filter(l => l.type === "upload_anomaly");
+
+    // 1. Mood abnormalities
+    const lowMoods = checkins.filter(c => c.mood <= 2);
+    if (lowMoods.length > 0) {
+      anomaliesList.push({
+        title: "Tâm trạng suy giảm",
+        desc: `Ghi nhận ${lowMoods.length} ngày cậu có tâm trạng khá trầm buồn hoặc mệt mỏi.`,
+        severity: "medium"
+      });
+    }
+
+    // 2. Wheel of life imbalance
+    if (checkins.length > 0) {
+      const lastCheckinWithWheel = [...checkins].reverse().find(c => c.wheelRatings);
+      if (lastCheckinWithWheel && lastCheckinWithWheel.wheelRatings) {
+        const categories = ["Bản thân", "Học tập", "Công việc", "Gia đình", "Mối quan hệ"];
+        const imbalanced = [];
+        lastCheckinWithWheel.wheelRatings.forEach((rating, idx) => {
+          if (rating <= 4) {
+            imbalanced.push(`${categories[idx]} (${rating}/10)`);
+          }
+        });
+        if (imbalanced.length > 0) {
+          anomaliesList.push({
+            title: "Bánh xe cuộc sống mất cân bằng",
+            desc: `Khía cạnh ${imbalanced.join(", ")} đang ghi nhận mức độ hài lòng thấp.`,
+            severity: "medium"
+          });
+        }
+      }
+    }
+
+    // 3. Late-Night Activity (Sleep disruption check)
+    const lateNightEvents = historyLogs.filter(l => {
+      if (!l.date) return false;
+      const d = new Date(l.date);
+      const hours = d.getHours();
+      return hours >= 23 || hours < 5;
+    });
+    if (lateNightEvents.length > 0) {
+      anomaliesList.push({
+        title: "Rối loạn giấc ngủ / Hoạt động muộn",
+        desc: `Ghi nhận ${lateNightEvents.length} lần cậu hoạt động muộn vào ban đêm (từ 23h đến 5h sáng), có thể ảnh hưởng xấu đến chu kỳ giấc ngủ.`,
+        severity: "medium"
+      });
+    }
+
+    // 4. MMPI validity checkers
+    const unreliableMmpis = mmpiTests.filter(m => m.isReliable === false);
+    if (unreliableMmpis.length > 0) {
+      anomaliesList.push({
+        title: "Kiểm định MMPI tin cậy thấp",
+        desc: `Có ${unreliableMmpis.length} kết quả trắc nghiệm MMPI nghi ngờ độ tin cậy của chỉ số L-F-K.`,
+        severity: "medium"
+      });
+    }
+
+    // 5. Upload errors
+    if (uploadAnomalies.length > 0) {
+      anomaliesList.push({
+        title: "Lỗi tải báo cáo sức khỏe",
+        desc: `Ghi nhận ${uploadAnomalies.length} lần tải lên tệp không đúng định dạng quy chuẩn.`,
+        severity: "medium"
+      });
+    }
+
+    // 6. DASS clinical levels
+    if (dassTests.length > 0) {
+      const latest = dassTests[dassTests.length - 1];
+      const elevated = [];
+      if (["severe", "extremely_severe"].includes(latest.severities?.D)) elevated.push(`Trầm cảm (${latest.severities.D === "severe" ? "Nặng" : "Cực đoan"})`);
+      if (["severe", "extremely_severe"].includes(latest.severities?.A)) elevated.push(`Lo âu (${latest.severities.A === "severe" ? "Nặng" : "Cực đoan"})`);
+      if (["severe", "extremely_severe"].includes(latest.severities?.S)) elevated.push(`Căng thẳng (${latest.severities.S === "severe" ? "Nặng" : "Cực đoan"})`);
+      
+      if (elevated.length > 0) {
+        anomaliesList.push({
+          title: "Chỉ số lâm sàng DASS vượt ngưỡng",
+          desc: `Bài kiểm tra DASS-21 ghi nhận tình trạng ${elevated.join(", ")}.`,
+          severity: "high"
+        });
+      }
+    }
+
+    // 7. MMPI clinical scales (Aligned pathology T-score >= 70)
+    if (mmpiTests.length > 0) {
+      const latest = mmpiTests[mmpiTests.length - 1];
+      const elevatedScales = latest.clinical ? latest.clinical.filter(c => c.score >= 70) : [];
+      if (elevatedScales.length > 0) {
+        const scaleNames = { Hs: "Nghi bệnh", D: "Trầm cảm", Hy: "Hysteria", Pd: "Sai lệch nhân cách", Mf: "Nam/Nữ tính", Pa: "Hoang tưởng", Pt: "Suy nhược tâm thần", Sc: "Tâm thần phân liệt", Ma: "Hưng cảm nhẹ", Si: "Hướng ngoại xã hội" };
+        const list = elevatedScales.map(s => `${scaleNames[s.code] || s.code} (${s.score} T-score)`);
+        anomaliesList.push({
+          title: "Xu hướng hành vi MMPI vượt ngưỡng",
+          desc: `Phát hiện bất thường lâm sàng tại các thang đo: ${list.join(", ")}.`,
+          severity: "high"
+        });
+      }
+    }
+
+    // 8. Chat anomalies
+    if (chatAnomalies.length > 0) {
+      const lastAnomaly = chatAnomalies[chatAnomalies.length - 1];
+      anomaliesList.push({
+        title: "Dấu hiệu bất ổn trong hội thoại",
+        desc: `Phát hiện các từ khóa áp lực/căng thẳng trong tin nhắn: "${lastAnomaly.text}" (Từ khóa: ${lastAnomaly.triggers ? lastAnomaly.triggers.join(", ") : "stress"}).`,
+        severity: "medium"
+      });
+    }
+
+    // Generate custom recommendations
+    let rec = "";
+    if (anomaliesList.some(a => a.severity === "high")) {
+      rec = "Khuyến nghị: Chỉ số sức khỏe tinh thần của cậu đang có dấu hiệu bất ổn lâm sàng nghiêm trọng. Cậu nên giảm bớt cường độ bài vở, thực hành thở sâu 4-7-8 mỗi đêm và trò chuyện thường xuyên hơn với Trợ lý Bạn Học Đường. Nếu cảm xúc này kéo dài liên tục trên 2 tuần, hãy liên hệ trực tiếp với chuyên viên tư vấn tâm lý hoặc phòng y tế trường học để được hỗ trợ kịp thời nhé.";
+    } else if (anomaliesList.length > 0) {
+      rec = "Khuyến nghị: Hệ thống phát hiện một vài căng thẳng nhẹ và sự mất cân bằng trong sinh hoạt/học tập của cậu. Cậu hãy dành thêm thời gian nghỉ ngơi, ngủ đủ giấc và tiếp tục chia sẻ nỗi lòng cùng Trợ lý mỗi khi mệt mỏi nhé.";
+    } else {
+      rec = "Khuyến nghị: Cảm xúc và chỉ số sinh hoạt của cậu dạo gần đây cực kỳ tốt và cân bằng ổn định. Hãy tiếp tục duy trì năng lượng tích cực này, hít thở điều hòa và trò chuyện cùng Trợ lý khi cần nhé!";
+    }
+
+    return { anomalies: anomaliesList, recommendation: rec };
+  }, [historyLogs]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 border-b border-zinc-200/50 dark:border-zinc-800/40 pb-2">
+        <span className="material-symbols-outlined text-indigo-500 text-sm">history</span>
+        <h4 className="text-[11px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
+          Lịch sử đồng hành & Đánh giá bất thường
+        </h4>
+      </div>
+
+      {/* Anomalies List */}
+      <div className="space-y-2 text-left">
+        <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pl-0.5">
+          Biểu hiện bất thường phát hiện
+        </span>
+        {anomalies.length > 0 ? (
+          <div className="space-y-2 max-h-36 overflow-y-auto scrollbar-none pr-1">
+            {anomalies.map((anom, idx) => (
+              <div
+                key={idx}
+                className={`p-2.5 rounded-2xl flex gap-2.5 items-start border ${
+                  anom.severity === "high"
+                    ? "bg-red-550/5 dark:bg-red-950/10 border-red-500/20 text-red-800 dark:text-red-300"
+                    : "bg-amber-500/5 dark:bg-amber-955/10 border-amber-500/20 text-amber-800 dark:text-amber-300"
+                }`}
+              >
+                <span className={`material-symbols-outlined text-sm shrink-0 mt-0.5 ${anom.severity === "high" ? "text-red-500" : "text-amber-500"}`}>
+                  warning
+                </span>
+                <div className="space-y-0.5">
+                  <h5 className="text-[10px] font-black uppercase tracking-wider leading-tight">{anom.title}</h5>
+                  <p className="text-[9.5px] opacity-90 leading-relaxed font-semibold">{anom.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-2.5 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl flex gap-2 items-center text-emerald-800 dark:text-emerald-350">
+            <span className="material-symbols-outlined text-emerald-500 text-sm shrink-0">check_circle</span>
+            <p className="text-[9.5px] font-black uppercase tracking-wider">Tinh thần cân bằng, chưa phát hiện bất thường.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Recommendation Box */}
+      <div className="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl flex gap-2.5 items-start text-left">
+        <span className="material-symbols-outlined text-indigo-500 text-sm shrink-0 mt-0.5">lightbulb</span>
+        <p className="text-[10px] text-zinc-650 dark:text-zinc-350 font-semibold leading-relaxed">
+          {recommendation}
+        </p>
+      </div>
+
+      {/* History Timeline */}
+      <div className="space-y-2 text-left">
+        <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pl-0.5">
+          Nhật ký sự kiện ({historyLogs.length})
+        </span>
+        <div className="max-h-44 overflow-y-auto space-y-2.5 pr-1 scrollbar-none border-l border-zinc-200 dark:border-zinc-800 ml-1.5 pl-3">
+          {historyLogs.length === 0 ? (
+            <p className="text-[10px] text-zinc-400 italic">Chưa ghi nhận sự kiện nào trong lịch sử.</p>
+          ) : (
+            [...historyLogs].reverse().map((log, idx) => {
+              let eventTitle = "";
+              let eventDetails = "";
+              
+              if (log.type === "checkin") {
+                eventTitle = `Check-in cảm xúc: ${getMoodEmoji(log.mood)}`;
+                eventDetails = log.note ? `Nỗi lòng: "${log.note}"` : "";
+              } else if (log.test === "dass42") {
+                eventTitle = "Trắc nghiệm DASS-21";
+                eventDetails = `Trầm cảm: ${log.scores.D} (${log.severities.D}) • Lo âu: ${log.scores.A} (${log.severities.A}) • Stress: ${log.scores.S} (${log.severities.S})`;
+              } else if (log.test === "mmpi30") {
+                eventTitle = "Khảo sát lâm sàng Mini-MMPI";
+                eventDetails = `Độ tin cậy: ${log.isReliable ? "Hợp lệ" : "Nghi ngờ"} • Các thang đo: ${log.clinical.map(c => `${c.code}: ${c.score}T`).join(" • ")}`;
+              } else if (log.type === "chat_anomaly") {
+                eventTitle = "Phát hiện bất ổn qua chat";
+                eventDetails = `Tin nhắn: "${log.text}"`;
+              } else if (log.type === "upload_anomaly") {
+                eventTitle = "Lỗi tải báo cáo lâm sàng";
+                eventDetails = log.desc;
+              } else if (log.type === "duration_change") {
+                eventTitle = "Thay đổi lộ trình đồng hành";
+                eventDetails = log.reason;
+              }
+
+              return (
+                <div key={idx} className="relative space-y-1 bg-zinc-50/50 dark:bg-zinc-950/20 p-2.5 rounded-2xl border border-zinc-200/40 dark:border-zinc-800/20 shadow-sm">
+                  <div className="flex justify-between items-center text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[10px]">schedule</span>
+                      {formatDateTime(log.date)}
+                    </span>
+                    {log.day && <span>Ngày {log.day}</span>}
+                  </div>
+                  <h5 className="text-[10px] font-black text-zinc-850 dark:text-zinc-250 leading-snug">{eventTitle}</h5>
+                  {eventDetails && (
+                    <p className="text-[9px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-semibold whitespace-pre-wrap">
+                      {eventDetails}
+                    </p>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MemberPortalPage() {
   const { t, i18n } = useTranslation();
 
@@ -75,6 +335,7 @@ export default function MemberPortalPage() {
   const [healingSubStep, setHealingSubStep] = useState("checkin"); // 'checkin', 'reminder', 'graduation'
   const [consecutiveLowMood, setConsecutiveLowMood] = useState(false);
   const [wheelRatings, setWheelRatings] = useState([5, 5, 5, 5, 5]);
+  const [historyLogs, setHistoryLogs] = useState([]);
 
   // Redirection states for MemberUtilitiesTab
   const [defaultUtility, setDefaultUtility] = useState(null);
@@ -311,6 +572,12 @@ export default function MemberPortalPage() {
   useEffect(() => {
     const mode = localStorage.getItem("banhocduong_healing_mode");
     if (mode === "active") {
+      try {
+        const raw = localStorage.getItem("banhocduong_history");
+        setHistoryLogs(raw ? JSON.parse(raw) : []);
+      } catch (e) {
+        console.error(e);
+      }
       const startDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
       const duration = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
       const lastCheckIn = localStorage.getItem("banhocduong_last_checkin_date") || "";
@@ -389,6 +656,7 @@ export default function MemberPortalPage() {
       logs.push(newLog);
       localStorage.setItem("banhocduong_history", JSON.stringify(logs));
       localStorage.setItem("banhocduong_last_checkin_date", new Date().toDateString());
+      setHistoryLogs(logs);
 
       // Check if consecutive low mood (<= 2) for last two checkins
       const checkins = logs.filter(item => item.type === "checkin");
@@ -459,9 +727,37 @@ export default function MemberPortalPage() {
     localStorage.removeItem("banhocduong_last_test_date");
     localStorage.removeItem("banhocduong_chat_distress_count");
     
+    setHealingState({
+      active: false,
+      day: 1,
+      duration: 30,
+      isExpired: false
+    });
+    setHistoryLogs([]);
     setShowHealingModal(false);
-    showToast("Hoàn thành hành trình chữa lành! Cảm ơn cậu đã tin tưởng Bạn Học Đường 💖", "success");
+    showToast("Chúc cậu luôn mạnh mẽ, kiên cường và hạnh phúc trên con đường phía trước! ❤️", "success");
   };
+
+  useEffect(() => {
+    const checkAdaptation = () => {
+      const alertRaw = localStorage.getItem("banhocduong_duration_adaptation_alert");
+      if (alertRaw) {
+        try {
+          const alertData = JSON.parse(alertRaw);
+          showToast(`Tiến triển tinh thần tuyệt vời! Lộ trình rút ngắn -${alertData.reducedDays} ngày.`, "success");
+          localStorage.removeItem("banhocduong_duration_adaptation_alert");
+          // Refresh local history logs
+          const raw = localStorage.getItem("banhocduong_history");
+          setHistoryLogs(raw ? JSON.parse(raw) : []);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+    checkAdaptation();
+    window.addEventListener("storage", checkAdaptation);
+    return () => window.removeEventListener("storage", checkAdaptation);
+  }, []);
 
   const handleGoToTest = () => {
     setShowHealingModal(false);
@@ -469,7 +765,7 @@ export default function MemberPortalPage() {
     setDefaultPsychologySubTab("tests");
     setDefaultPsychologyPresetTest("dass");
     setActiveTab("utilities");
-    showToast("Đã chuyển hướng cậu đến bài trắc nghiệm lâm sàng DASS-42.", "success");
+    showToast("Đã chuyển hướng cậu đến bài trắc nghiệm lâm sàng DASS-21.", "success");
   };
 
   const handleGoToBreath = () => {
@@ -925,7 +1221,9 @@ export default function MemberPortalPage() {
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
               transition={{ type: "spring", duration: 0.4 }}
-              className="bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/60 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 relative overflow-hidden"
+              className={`bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/60 rounded-3xl p-6 sm:p-8 w-full shadow-2xl space-y-6 relative overflow-hidden transition-all duration-300 ${
+                (healingSubStep === "checkin" || healingSubStep === "wheel") ? "max-w-md md:max-w-4xl" : "max-w-md"
+              }`}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[40px] pointer-events-none" />
               
@@ -958,188 +1256,204 @@ export default function MemberPortalPage() {
 
               {/* Step 2: Daily Check-in Form */}
               {healingSubStep === "checkin" && (
-                <div className="space-y-5">
-                  <div className="text-center space-y-1">
-                    <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 dark:text-indigo-400 uppercase">
-                      Ngày {healingState.day} của lộ trình
-                    </span>
-                    <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">
-                      Hôm nay cậu thế nào?
-                    </h3>
-                    <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
-                      Hãy chia sẻ ngắn cảm xúc của cậu cùng Bạn Học Đường nhé.
-                    </p>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+                  <div className="md:col-span-6 space-y-5 flex flex-col justify-between">
+                    <div className="space-y-5">
+                      <div className="text-center space-y-1">
+                        <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 dark:text-indigo-400 uppercase">
+                          Ngày {healingState.day} của lộ trình
+                        </span>
+                        <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">
+                          Hôm nay cậu thế nào?
+                        </h3>
+                        <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
+                          Hãy chia sẻ ngắn cảm xúc của cậu cùng Bạn Học Đường nhé.
+                        </p>
+                      </div>
+
+                      {/* Emojis list selection */}
+                      <div className="flex justify-between gap-2 py-2">
+                        {[
+                          { val: 1, char: "😢", label: "Rất tệ" },
+                          { val: 2, char: "😕", label: "Hơi buồn" },
+                          { val: 3, char: "😐", label: "Bình thường" },
+                          { val: 4, char: "🙂", label: "Khá tốt" },
+                          { val: 5, char: "😄", label: "Rất tuyệt" }
+                        ].map((item) => (
+                          <button
+                            key={item.val}
+                            type="button"
+                            onClick={() => setHealingMood(item.val)}
+                            className={`flex-1 py-3.5 rounded-2xl border text-center transition-all ${
+                              healingMood === item.val
+                                ? "bg-indigo-500/10 border-indigo-500 scale-[1.08] shadow-md shadow-indigo-500/5"
+                                : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:scale-[1.02]"
+                            }`}
+                          >
+                            <span className="text-2xl block">{item.char}</span>
+                            <span className="text-[7.5px] font-black uppercase tracking-wider block mt-1">{item.label}</span>
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10.5px] font-bold text-zinc-500 dark:text-zinc-450 pl-0.5">
+                          Ghi lại một chút suy nghĩ của cậu lúc này (nếu muốn):
+                        </label>
+                        <textarea
+                          placeholder="Đồ án khó, thi cử áp lực, hay hôm nay là một ngày tuyệt vời..."
+                          value={healingNote}
+                          onChange={(e) => setHealingNote(e.target.value)}
+                          className="w-full h-20 px-3 py-2.5 rounded-2xl border border-zinc-250 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/20 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-zinc-400 font-semibold"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleHealingSubmit}
+                      className="w-full py-3 mt-4 bg-gradient-to-r from-indigo-650 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
+                    >
+                      Tiếp tục
+                    </button>
                   </div>
 
-                  {/* Emojis list selection */}
-                  <div className="flex justify-between gap-2 py-2">
-                    {[
-                      { val: 1, char: "😢", label: "Rất tệ" },
-                      { val: 2, char: "😕", label: "Hơi buồn" },
-                      { val: 3, char: "😐", label: "Bình thường" },
-                      { val: 4, char: "🙂", label: "Khá tốt" },
-                      { val: 5, char: "😄", label: "Rất tuyệt" }
-                    ].map((item) => (
-                      <button
-                        key={item.val}
-                        type="button"
-                        onClick={() => setHealingMood(item.val)}
-                        className={`flex-1 py-3.5 rounded-2xl border text-center transition-all ${
-                          healingMood === item.val
-                            ? "bg-indigo-500/10 border-indigo-500 scale-[1.08] shadow-md shadow-indigo-500/5"
-                            : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:scale-[1.02]"
-                        }`}
-                      >
-                        <span className="text-2xl block">{item.char}</span>
-                        <span className="text-[7.5px] font-black uppercase tracking-wider block mt-1">{item.label}</span>
-                      </button>
-                    ))}
+                  <div className="hidden md:block md:col-span-6 border-l border-zinc-200/50 dark:border-zinc-800/40 pl-6 max-h-[420px] overflow-y-auto pr-1">
+                    <CompanionHistoryReportPanel historyLogs={historyLogs} />
                   </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10.5px] font-bold text-zinc-500 dark:text-zinc-450 pl-0.5">
-                      Ghi lại một chút suy nghĩ của cậu lúc này (nếu muốn):
-                    </label>
-                    <textarea
-                      placeholder="Đồ án khó, thi cử áp lực, hay hôm nay là một ngày tuyệt vời..."
-                      value={healingNote}
-                      onChange={(e) => setHealingNote(e.target.value)}
-                      className="w-full h-20 px-3 py-2.5 rounded-2xl border border-zinc-250 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/20 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-zinc-400 font-semibold"
-                    />
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleHealingSubmit}
-                    className="w-full py-3 bg-gradient-to-r from-indigo-650 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
-                  >
-                    Tiếp tục
-                  </button>
                 </div>
               )}
 
               {/* Step 2b: Wheel of Life assessment sub-step */}
               {healingSubStep === "wheel" && (
-                <div className="space-y-5 animate-scaleUp">
-                  <div className="text-center space-y-1">
-                    <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">
-                      Cập nhật Bánh xe Cuộc sống
-                    </span>
-                    <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">
-                      Định vị Cân Bằng Hôm Nay
-                    </h3>
-                    <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
-                      Nhìn nhận mức độ hài lòng (1-10) trong 5 khía cạnh cốt lõi của cậu.
-                    </p>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch animate-scaleUp">
+                  <div className="md:col-span-6 space-y-5 flex flex-col justify-between">
+                    <div className="space-y-5">
+                      <div className="text-center space-y-1">
+                        <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">
+                          Cập nhật Bánh xe Cuộc sống
+                        </span>
+                        <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">
+                          Định vị Cân Bằng Hôm Nay
+                        </h3>
+                        <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
+                          Nhìn nhận mức độ hài lòng (1-10) trong 5 khía cạnh cốt lõi của cậu.
+                        </p>
+                      </div>
 
-                  <div className="flex flex-col items-center gap-4">
-                    {/* Compact Radar SVG */}
-                    <div className="relative w-40 h-40 bg-white dark:bg-[#15141c] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-inner flex items-center justify-center">
-                      <svg className="w-full h-full" viewBox="0 0 300 300">
-                        {/* Concentric grid lines pentagons */}
-                        {[2, 4, 6, 8, 10].map((level) => {
-                          const r = level * 10;
-                          const pts = [90, 18, 306, 234, 162]
-                            .map((angle) => {
+                      <div className="flex flex-col items-center gap-4">
+                        {/* Compact Radar SVG */}
+                        <div className="relative w-40 h-40 bg-white dark:bg-[#15141c] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-inner flex items-center justify-center">
+                          <svg className="w-full h-full" viewBox="0 0 300 300">
+                            {/* Concentric grid lines pentagons */}
+                            {[2, 4, 6, 8, 10].map((level) => {
+                              const r = level * 10;
+                              const pts = [90, 18, 306, 234, 162]
+                                .map((angle) => {
+                                  const rad = (angle * Math.PI) / 180;
+                                  return `${150 + r * Math.cos(rad)},${150 - r * Math.sin(rad)}`;
+                                })
+                                .join(" ");
+                              return (
+                                <polygon
+                                  key={level}
+                                  points={pts}
+                                  fill="none"
+                                  className="stroke-zinc-200 dark:stroke-zinc-800"
+                                  strokeWidth="1"
+                                  strokeDasharray={level === 10 ? "0" : "3 3"}
+                                />
+                              );
+                            })}
+
+                            {/* Web spokes */}
+                            {[90, 18, 306, 234, 162].map((angle, idx) => {
                               const rad = (angle * Math.PI) / 180;
-                              return `${150 + r * Math.cos(rad)},${150 - r * Math.sin(rad)}`;
-                            })
-                            .join(" ");
-                          return (
+                              const x = 150 + 100 * Math.cos(rad);
+                              const y = 150 - 100 * Math.sin(rad);
+                              return (
+                                <line
+                                  key={idx}
+                                  x1={150}
+                                  y1={150}
+                                  x2={x}
+                                  y2={y}
+                                  className="stroke-zinc-200 dark:stroke-zinc-800"
+                                  strokeWidth="1"
+                                />
+                              );
+                            })}
+
+                            {/* Rating Polygon */}
                             <polygon
-                              key={level}
-                              points={pts}
-                              fill="none"
-                              className="stroke-zinc-200 dark:stroke-zinc-800"
-                              strokeWidth="1"
-                              strokeDasharray={level === 10 ? "0" : "3 3"}
+                              points={wheelRatings
+                                .map((v, i) => {
+                                  const rad = ([90, 18, 306, 234, 162][i] * Math.PI) / 180;
+                                  const r = v * 10;
+                                  return `${150 + r * Math.cos(rad)},${150 - r * Math.sin(rad)}`;
+                                })
+                                .join(" ")}
+                              fill="rgba(16, 185, 129, 0.12)"
+                              className="stroke-emerald-500 dark:stroke-emerald-400"
+                              strokeWidth="2.5"
                             />
-                          );
-                        })}
 
-                        {/* Web spokes */}
-                        {[90, 18, 306, 234, 162].map((angle, idx) => {
-                          const rad = (angle * Math.PI) / 180;
-                          const x = 150 + 100 * Math.cos(rad);
-                          const y = 150 - 100 * Math.sin(rad);
-                          return (
-                            <line
-                              key={idx}
-                              x1={150}
-                              y1={150}
-                              x2={x}
-                              y2={y}
-                              className="stroke-zinc-200 dark:stroke-zinc-800"
-                              strokeWidth="1"
-                            />
-                          );
-                        })}
-
-                        {/* Rating Polygon */}
-                        <polygon
-                          points={wheelRatings
-                            .map((v, i) => {
+                            {/* Axis Vertex Dots */}
+                            {wheelRatings.map((v, i) => {
                               const rad = ([90, 18, 306, 234, 162][i] * Math.PI) / 180;
                               const r = v * 10;
-                              return `${150 + r * Math.cos(rad)},${150 - r * Math.sin(rad)}`;
-                            })
-                            .join(" ")}
-                          fill="rgba(16, 185, 129, 0.12)"
-                          className="stroke-emerald-500 dark:stroke-emerald-400"
-                          strokeWidth="2.5"
-                        />
-
-                        {/* Axis Vertex Dots */}
-                        {wheelRatings.map((v, i) => {
-                          const rad = ([90, 18, 306, 234, 162][i] * Math.PI) / 180;
-                          const r = v * 10;
-                          return (
-                            <circle
-                              key={i}
-                              cx={150 + r * Math.cos(rad)}
-                              cy={150 - r * Math.sin(rad)}
-                              r="4"
-                              className="fill-emerald-500 dark:fill-emerald-450 stroke-white dark:stroke-[#15141c]"
-                              strokeWidth="1.5"
-                            />
-                          );
-                        })}
-                      </svg>
-                    </div>
-
-                    {/* Sliders list */}
-                    <div className="w-full space-y-2.5 max-h-48 overflow-y-auto pr-1">
-                      {["Bản thân", "Học tập", "Công việc", "Gia đình", "Mối quan hệ"].map((cat, idx) => (
-                        <div key={idx} className="space-y-0.5">
-                          <div className="flex justify-between text-[10px] font-bold text-zinc-650 dark:text-zinc-450 pl-0.5">
-                            <span>{cat}</span>
-                            <span className="font-mono text-emerald-500 font-black">{wheelRatings[idx]}/10</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="1"
-                            max="10"
-                            value={wheelRatings[idx]}
-                            onChange={(e) => {
-                              const copy = [...wheelRatings];
-                              copy[idx] = parseInt(e.target.value, 10);
-                              setWheelRatings(copy);
-                            }}
-                            className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                          />
+                              return (
+                                <circle
+                                  key={i}
+                                  cx={150 + r * Math.cos(rad)}
+                                  cy={150 - r * Math.sin(rad)}
+                                  r="4"
+                                  className="fill-emerald-500 dark:fill-emerald-450 stroke-white dark:stroke-[#15141c]"
+                                  strokeWidth="1.5"
+                                />
+                              );
+                            })}
+                          </svg>
                         </div>
-                      ))}
+
+                        {/* Sliders list */}
+                        <div className="w-full space-y-2.5 max-h-48 overflow-y-auto pr-1">
+                          {["Bản thân", "Học tập", "Công việc", "Gia đình", "Mối quan hệ"].map((cat, idx) => (
+                            <div key={idx} className="space-y-0.5">
+                              <div className="flex justify-between text-[10px] font-bold text-zinc-650 dark:text-zinc-450 pl-0.5">
+                                <span>{cat}</span>
+                                <span className="font-mono text-emerald-500 font-black">{wheelRatings[idx]}/10</span>
+                              </div>
+                              <input
+                                type="range"
+                                min="1"
+                                max="10"
+                                value={wheelRatings[idx]}
+                                onChange={(e) => {
+                                  const copy = [...wheelRatings];
+                                  copy[idx] = parseInt(e.target.value, 10);
+                                  setWheelRatings(copy);
+                                }}
+                                className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={handleHealingWheelSubmit}
+                      className="w-full py-3 mt-4 bg-gradient-to-r from-emerald-500 to-teal-650 hover:from-emerald-600 hover:to-teal-750 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
+                    >
+                      Gửi cảm xúc & Bắt đầu ngày mới
+                    </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={handleHealingWheelSubmit}
-                    className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-650 hover:from-emerald-600 hover:to-teal-750 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md active:scale-[0.98]"
-                  >
-                    Gửi cảm xúc & Bắt đầu ngày mới
-                  </button>
+                  <div className="hidden md:block md:col-span-6 border-l border-zinc-200/50 dark:border-zinc-800/40 pl-6 max-h-[420px] overflow-y-auto pr-1">
+                    <CompanionHistoryReportPanel historyLogs={historyLogs} />
+                  </div>
                 </div>
               )}
 

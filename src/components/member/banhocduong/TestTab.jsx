@@ -2,51 +2,30 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import psychologyService from "../../../services/classes/PsychologyService";
 
-// DASS-42 Vietnamese Question Bank (14 Depression, 14 Anxiety, 14 Stress)
+// DASS-21 Vietnamese Question Bank (7 Depression, 7 Anxiety, 7 Stress)
 // D: Depression, A: Anxiety, S: Stress
 const DASS42_QUESTIONS = [
-  { id: 1, type: "S", text: "Tôi cảm thấy khó khép mình vào nếp hoặc khó có thể thư giãn" },
+  { id: 1, type: "S", text: "Tôi cảm thấy khó mà thoải mái được" },
   { id: 2, type: "A", text: "Tôi bị khô miệng" },
-  { id: 3, type: "D", text: "Tôi dường như không có chút cảm xúc tích cực nào" },
-  { id: 4, type: "A", text: "Tôi gặp khó khăn trong việc thở (ví dụ: thở quá nhanh, hụt hơi...)" },
-  { id: 5, type: "D", text: "Tôi cảm thấy khó bắt đầu làm một việc gì đó" },
-  { id: 6, type: "S", text: "Tôi có xu hướng phản ứng thái quá với các tình huống" },
-  { id: 7, type: "A", text: "Tôi bị run rẩy (ví dụ: ở tay...)" },
-  { id: 8, type: "S", text: "Tôi cảm thấy mình đang dùng quá nhiều năng lượng thần kinh" },
-  { id: 9, type: "A", text: "Tôi lo lắng về những tình huống có thể khiến tôi hoảng loạn hay làm trò cười" },
-  { id: 10, type: "D", text: "Tôi cảm thấy mình chẳng có gì để mong đợi cả" },
-  { id: 11, type: "S", text: "Tôi thấy mình dễ bị kích động" },
-  { id: 12, type: "S", text: "Tôi cảm thấy khó thư giãn" },
-  { id: 13, type: "D", text: "Tôi cảm thấy buồn rầu, chán nản" },
-  { id: 14, type: "S", text: "Tôi không thể chịu đựng được bất cứ điều gì cản trở tôi làm việc" },
-  { id: 15, type: "A", text: "Tôi cảm thấy mình gần như bị hoảng loạn" },
-  { id: 16, type: "D", text: "Tôi không thể cảm thấy hào hứng với bất kỳ điều gì" },
-  { id: 17, type: "D", text: "Tôi cảm thấy mình không có nhiều giá trị với tư cách là một con người" },
-  { id: 18, type: "S", text: "Tôi cảm thấy mình khá dễ bị tổn thương/nhạy cảm" },
-  { id: 19, type: "A", text: "Tôi nghe thấy tiếng nhịp tim dù không hoạt động mạnh" },
-  { id: 20, type: "A", text: "Tôi cảm thấy sợ hãi vô cớ" },
-  { id: 21, type: "D", text: "Tôi cảm thấy cuộc sống này vô nghĩa" },
-  { id: 22, type: "S", text: "Tôi cảm thấy khó nhẫn nại trước những gián đoạn nhỏ" },
-  { id: 23, type: "A", text: "Tôi có cảm giác như mình sắp khuỵu xuống vì lo sợ" },
-  { id: 24, type: "D", text: "Tôi cảm thấy không có gì có thể làm tôi thích thú được nữa" },
-  { id: 25, type: "A", text: "Tôi cảm thấy sợ khi di chuyển bằng phương tiện công cộng hoặc không có người đi cùng" },
-  { id: 26, type: "D", text: "Tôi thấy nản lòng và buồn bã" },
-  { id: 27, type: "S", text: "Tôi cảm thấy mình rất dễ mất bình tĩnh" },
-  { id: 28, type: "A", text: "Tôi cảm thấy lo lắng rằng mình sẽ mất kiểm soát hành vi" },
-  { id: 29, type: "S", text: "Tôi cảm thấy cực kỳ bứt rứt trong người" },
-  { id: 30, type: "A", text: "Tôi sợ hãi rằng có chuyện gì đó tồi tệ sắp xảy ra" },
-  { id: 31, type: "D", text: "Tôi không thể cảm thấy vui vẻ vì bất cứ điều gì" },
-  { id: 32, type: "S", text: "Tôi thấy khó chịu trước những việc không theo ý mình" },
-  { id: 33, type: "S", text: "Tôi cảm thấy mình đang ở trạng thái căng thẳng thần kinh tột độ" },
-  { id: 34, type: "D", text: "Tôi cảm thấy khó khăn trong việc tìm lại động lực làm việc" },
-  { id: 35, type: "S", text: "Tôi không thể chịu đựng thêm bất kỳ áp lực nào nữa" },
-  { id: 36, type: "A", text: "Tôi cảm thấy sợ hãi trước những việc đơn giản hàng ngày" },
-  { id: 37, type: "D", text: "Tôi thấy cuộc đời mình hoàn toàn xám xịt và vô vị" },
-  { id: 38, type: "D", text: "Tôi cảm thấy tương lai của mình vô vọng" },
-  { id: 39, type: "S", text: "Tôi thấy mình rất dễ bị kích thích và mất kiên nhẫn" },
-  { id: 40, type: "A", text: "Tôi cảm thấy lo âu tột độ về các sự cố sức khỏe đột ngột" },
-  { id: 41, type: "A", text: "Tôi cảm thấy bồn chồn và run lẩy bẩy trong người" },
-  { id: 42, type: "D", text: "Tôi cảm thấy mình hoàn toàn thất bại và bất lực" }
+  { id: 3, type: "D", text: "Tôi dường như chẳng có chút cảm xúc tích cực nào" },
+  { id: 4, type: "A", text: "Tôi bị rối loạn nhịp thở (thở gấp, khó thở dù chẳng làm việc gì nặng)" },
+  { id: 5, type: "D", text: "Tôi thấy khó bắt tay vào công việc" },
+  { id: 6, type: "S", text: "Tôi có xu hướng phản ứng thái quá với mọi tình huống" },
+  { id: 7, type: "A", text: "Tôi bị ra mồ hôi (chẳng hạn như mồ hôi tay)" },
+  { id: 8, type: "S", text: "Tôi thấy mình đang dùng quá nhiều năng lượng thần kinh" },
+  { id: 9, type: "A", text: "Tôi lo lắng về những tình huống có thể làm tôi hoảng sợ hoặc biến tôi thành trò cười" },
+  { id: 10, type: "D", text: "Tôi thấy mình chẳng có gì để mong đợi cả" },
+  { id: 11, type: "S", text: "Tôi thấy bản thân dễ bị kích động" },
+  { id: 12, type: "S", text: "Tôi thấy khó thư giãn được" },
+  { id: 13, type: "D", text: "Tôi cảm thấy chán nản, thất vọng" },
+  { id: 14, type: "S", text: "Tôi không chấp nhận được việc có cái gì đó xen vào cản trở việc tôi đang làm" },
+  { id: 15, type: "A", text: "Tôi thấy mình gần như hoảng loạn" },
+  { id: 16, type: "D", text: "Tôi không thấy hăng hái với bất kỳ việc gì nữa" },
+  { id: 17, type: "D", text: "Tôi cảm thấy mình chẳng đáng làm người" },
+  { id: 18, type: "S", text: "Tôi thấy mình khá dễ phật ý, tự ái" },
+  { id: 19, type: "A", text: "Tôi nghe thấy rõ tiếng nhịp tim dù chẳng làm việc gì cả" },
+  { id: 20, type: "A", text: "Tôi hay sợ vô cớ" },
+  { id: 21, type: "D", text: "Tôi thấy cuộc sống vô nghĩa" }
 ];
 
 const DASS_OPTIONS = [
@@ -310,28 +289,28 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
     }
   }, [presetTest]);
 
-  // DASS-42 Clinical Interpretation (Exact standard scoring)
+  // DASS-21 Clinical Interpretation (Exact raw standard scoring aligned with clinical reports)
   const getDASS42Interpretation = (scale, score) => {
     if (scale === "D") {
-      if (score <= 9) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Tâm trạng cậu ở mức ổn định hoàn toàn. Cậu vẫn tìm thấy niềm vui trong các khía cạnh đời sống hàng ngày." };
-      if (score <= 13) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Có dấu hiệu buồn chán nhẹ. Cậu nên tăng cường đi dạo, trò chuyện và nghỉ ngơi hợp lý." };
-      if (score <= 20) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Trầm cảm mức độ vừa phải. Có biểu hiện cạn kiệt động lực và trống rỗng tâm lý kéo dài. Đề nghị cậu thử trò chuyện với chuyên gia học đường." };
-      if (score <= 27) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Trầm cảm mức độ nặng nề. Cậu thường xuyên cảm thấy bế tắc, cô độc sâu sắc. Hãy chia sẻ với người đáng tin cậy để nhận sự đồng hành." };
-      return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Nguy cơ trầm cảm vô cùng nghiêm trọng. Tránh chịu đựng một mình, hãy kết nối khẩn cấp với bác sĩ tâm lý để được chẩn đoán và can thiệp." };
+      if (score <= 4) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Tâm trạng cậu ở mức ổn định hoàn toàn. Cậu vẫn tìm thấy niềm vui trong cuộc sống." };
+      if (score <= 6) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Có dấu hiệu buồn chán nhẹ. Cậu nên tăng cường đi dạo, trò chuyện và nghỉ ngơi hợp lý." };
+      if (score <= 10) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Trầm cảm mức độ vừa phải. Có biểu hiện cạn kiệt động lực và trống rỗng tâm lý kéo dài." };
+      if (score <= 17) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Trầm cảm mức độ nặng nề. Cậu thường xuyên cảm thấy bế tắc, cô độc sâu sắc. Hãy chia sẻ với người thân thiết." };
+      return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Nguy cơ trầm cảm vô cùng nghiêm trọng. Hãy kết nối khẩn cấp với bác sĩ tâm lý để được chẩn đoán và can thiệp." };
     }
     if (scale === "A") {
-      if (score <= 7) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Hệ thống thần kinh lo âu bình thường, khả năng thích ứng cơ thể trước áp lực ở mức an toàn." };
-      if (score <= 9) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Cậu có đôi chút hồi hộp, bồn chồn lo sợ nhẹ trước kỳ thi hay deadline. Thực hành tập thở sâu 4-7-8 để điều hòa nhịp thở." };
-      if (score <= 14) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Lo âu ở mức vừa phải. Cậu dễ rơi vào bất an thần kinh, khó ngủ và thỉnh thoảng bị khô miệng, nhịp tim tăng nhanh đột ngột." };
-      if (score <= 19) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Lo âu ở mức độ nặng. Hệ thần kinh phản ứng báo động liên tục, gây khó chịu thể xác. Cần luyện tập thư giãn chuyên biệt." };
-      return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Lo âu hoảng loạn cực kỳ nghiêm trọng. Đề nghị chẩn đoán lâm sàng tại cơ sở y tế để tránh suy kiệt hệ thần kinh thực vật." };
+      if (score <= 3) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Hệ thống thần kinh lo âu bình thường, khả năng thích ứng cơ thể trước áp lực ở mức an toàn." };
+      if (score <= 5) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Cậu có đôi chút hồi hộp, bồn chồn lo sợ nhẹ trước kỳ thi hay deadline. Thực hành tập thở sâu 4-7-8." };
+      if (score <= 7) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Lo âu ở mức vừa phải. Cậu dễ rơi vào bất an thần kinh, khó ngủ và thỉnh thoảng bị khô miệng." };
+      if (score <= 9) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Lo âu ở mức độ nặng. Hệ thần kinh phản ứng báo động liên tục, gây khó chịu thể xác." };
+      return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Lo âu hoảng loạn cực kỳ nghiêm trọng. Đề nghị chẩn đoán lâm sàng tại cơ sở y tế." };
     }
     // Stress
-    if (score <= 14) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Căng thẳng ở mức kiểm soát được. Cậu đang điều tiết cân bằng thời gian học tập, làm việc và bản thân tốt." };
-    if (score <= 18) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Có căng thẳng nhẹ, dễ cáu gắt khi công việc chồng chéo. Nên sắp xếp thứ tự ưu tiên cho các deadline." };
-    if (score <= 25) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Căng thẳng ở mức trung bình. Cậu khó thư giãn, hay cảm thấy bứt rứt mệt mỏi trong người. Hãy dùng ngay tab xả ý nghĩ tiêu cực." };
-    if (score <= 33) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Căng thẳng thần kinh nặng nề, năng lượng thần kinh bị vắt kiệt. Khuyến nghị cậu ngắt kết nối học tập tạm thời để hồi phục." };
-    return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Cực kỳ căng thẳng và quá tải. Hệ miễn dịch và thần kinh báo động đỏ, cực dễ bùng phát kích thích tiêu cực. Tìm chuyên gia hỗ trợ ngay." };
+    if (score <= 7) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Căng thẳng ở mức kiểm soát được. Cậu đang điều tiết cân bằng thời gian tốt." };
+    if (score <= 9) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Có căng thẳng nhẹ, dễ cáu gắt khi công việc chồng chéo. Nên sắp xếp thứ tự ưu tiên." };
+    if (score <= 12) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Căng thẳng ở mức trung bình. Cậu khó thư giãn, hay cảm thấy bứt rứt mệt mỏi trong người." };
+    if (score <= 16) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Căng thẳng thần kinh nặng nề, năng lượng thần kinh bị vắt kiệt." };
+    return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Cực kỳ căng thẳng và quá tải. Hệ miễn dịch và thần kinh báo động đỏ, tìm chuyên gia hỗ trợ ngay." };
   };
 
   // Start Test
@@ -359,7 +338,8 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
 
   const handleDassNext = () => {
     if (isDassPageComplete()) {
-      if (dassPage < 5) { // 42 questions / 7 per page = 6 pages (0 to 5)
+      const maxDassPage = Math.ceil(DASS42_QUESTIONS.length / questionsPerPage) - 1;
+      if (dassPage < maxDassPage) {
         setDassPage(prev => prev + 1);
       } else {
         calculateDassResult();
@@ -475,9 +455,9 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
     if (tL >= 70) {
       isReliable = false;
       reason = "Chỉ số nói dối L vượt ngưỡng (T >= 70). Nghi ngờ cậu có xu hướng cố gắng tô vẽ một hình ảnh cá nhân quá hoàn hảo, thiếu tự nhiên.";
-    } else if (tF >= 74) {
+    } else if (tF >= 80) {
       isReliable = false;
-      reason = "Chỉ số dị biệt F vượt ngưỡng (T >= 74). Ghi nhận xu hướng trả lời phóng đại các triệu chứng hoặc làm bài một cách ngẫu nhiên/thiếu kiên nhẫn.";
+      reason = "Chỉ số dị biệt F vượt ngưỡng (T >= 80). Ghi nhận xu hướng trả lời phóng đại các triệu chứng hoặc làm bài một cách ngẫu nhiên/thiếu kiên nhẫn.";
     } else if (tK >= 70) {
       isReliable = false;
       reason = "Chỉ số phòng vệ K vượt ngưỡng (T >= 70). Cậu có cơ chế phòng vệ tâm lý rất mạnh, né tránh thừa nhận những khuyết điểm hoặc lo toan thật sự.";
@@ -521,9 +501,9 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
     savePsychHistory(newLog);
 
     return {
-      D: { score: dSum, max: 42, ...getDASS42Interpretation("D", dSum) },
-      A: { score: aSum, max: 42, ...getDASS42Interpretation("A", aSum) },
-      S: { score: sSum, max: 42, ...getDASS42Interpretation("S", sSum) }
+      D: { score: dSum, max: 21, ...getDASS42Interpretation("D", dSum) },
+      A: { score: aSum, max: 21, ...getDASS42Interpretation("A", aSum) },
+      S: { score: sSum, max: 21, ...getDASS42Interpretation("S", sSum) }
     };
   };
 
@@ -545,7 +525,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
 
     const report = Object.entries(scales).map(([scaleCode, count]) => {
       const tScore = 50 + count * 15; // 0 correct -> 50, 1 -> 65, 2 -> 80
-      const isElevated = tScore >= 65;
+      const isElevated = tScore >= 70;
       const info = CLINICAL_SCALES_INFO[scaleCode];
       
       return {

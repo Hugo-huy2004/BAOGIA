@@ -13,7 +13,7 @@ const MMPI_SCALES_INFO = {
   D: "Trầm cảm (D)",
   Hy: "Cơ thể hóa (Hy)",
   Pd: "Lệch lạc (Pd)",
-  Mf: "Giới tính (Mf)",
+  Mf: "Nam/Nữ tính (Mf)",
   Pa: "Hoang tưởng (Pa)",
   Pt: "Suy nhược (Pt)",
   Sc: "Phân liệt (Sc)",
@@ -29,19 +29,19 @@ export default function UploadAnalyzer() {
   const [testType, setTestType] = useState("dass"); // 'dass', 'mmpi'
 
   // Editable scores prefilled after scan
-  const [dassScores, setDassScores] = useState({ D: 14, A: 10, S: 16 });
+  const [dassScores, setDassScores] = useState({ D: 17, A: 11, S: 17 });
   
-  // Prefill MMPI clinical scores
+  // Prefill MMPI clinical scores matching clinic report exactly
   const [mmpiClinical, setMmpiClinical] = useState({
-    Hs: 50,
-    D: 70,
-    Hy: 50,
-    Pd: 50,
+    Hs: 68,
+    D: 72,
+    Hy: 85,
+    Pd: 77,
     Mf: 55,
-    Pa: 65,
-    Pt: 70,
-    Sc: 50,
-    Ma: 60,
+    Pa: 95,
+    Pt: 73,
+    Sc: 81,
+    Ma: 68,
     Si: 68
   });
 
@@ -158,32 +158,32 @@ export default function UploadAnalyzer() {
     return () => clearInterval(interval);
   }, [scanState]);
 
-  // Scoring Interpretations
+  // Scoring Interpretations (Aligned with DASS-21 raw clinical standards)
   const getDASSInterpretation = (scale, score) => {
     if (scale === "D") {
-      if (score <= 9) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", desc: "Tâm trạng ổn định, cậu đang tự điều tiết năng lượng tốt." };
-      if (score <= 13) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", desc: "Buồn chán nhẹ thoáng qua, hãy cân bằng thời gian nghỉ ngơi." };
-      if (score <= 20) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", desc: "Có dấu hiệu suy nhược động lực rõ rệt, nên chia sẻ gánh nặng." };
-      if (score <= 27) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", desc: "U uất sâu sắc kéo dài, cần chủ động kết nối với phòng tâm lý học đường." };
+      if (score <= 4) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", desc: "Tâm trạng ổn định, cậu đang tự điều tiết năng lượng tốt." };
+      if (score <= 6) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", desc: "Buồn chán nhẹ thoáng qua, hãy cân bằng thời gian nghỉ ngơi." };
+      if (score <= 10) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", desc: "Có dấu hiệu suy nhược động lực rõ rệt, nên chia sẻ gánh nặng." };
+      if (score <= 17) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", desc: "U uất sâu sắc kéo dài, cần chủ động kết nối với phòng tâm lý học đường." };
       return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", desc: "Nguy cơ trầm cảm nghiêm trọng, khuyến cáo liên hệ chuyên gia can thiệp." };
     }
     if (scale === "A") {
-      if (score <= 7) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", desc: "Phản ứng lo âu nằm trong tầm kiểm soát." };
-      if (score <= 9) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", desc: "Hồi hộp lo âu nhẹ trước áp lực. Hãy tập thở 4-7-8 điều hòa." };
-      if (score <= 14) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", desc: "Thường xuyên bất an, lo sợ quá mức khi chạy deadline." };
-      if (score <= 19) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", desc: "Lo âu dồn dập, cơ thể thường xuyên có triệu chứng mệt mỏi run rẩy." };
+      if (score <= 3) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", desc: "Phản ứng lo âu nằm trong tầm kiểm soát." };
+      if (score <= 5) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", desc: "Hồi hộp lo âu nhẹ trước áp lực. Hãy tập thở 4-7-8 điều hòa." };
+      if (score <= 7) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", desc: "Thường xuyên bất an, lo sợ quá mức khi chạy deadline." };
+      if (score <= 9) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", desc: "Lo âu dồn dập, cơ thể thường xuyên có triệu chứng mệt mỏi run rẩy." };
       return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", desc: "Hệ thống thần kinh lo âu quá tải trầm trọng, cần trị liệu tâm lý." };
     }
     // Stress
-    if (score <= 14) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", desc: "Thích ứng tốt với các áp lực công việc, thi cử." };
-    if (score <= 18) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", desc: "Căng thẳng nhẹ, dễ cáu gắt tức thời khi kiệt sức." };
-    if (score <= 25) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", desc: "Căng thẳng kéo dài gây mệt mỏi, khó ngủ sâu. Nên viết xả stress." };
-    if (score <= 33) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", desc: "Quá tải stress nghiêm trọng, cần buông bỏ bớt đầu việc học." };
+    if (score <= 7) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", desc: "Thích ứng tốt với các áp lực công việc, thi cử." };
+    if (score <= 9) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", desc: "Căng thẳng nhẹ, dễ cáu gắt tức thời khi kiệt sức." };
+    if (score <= 12) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", desc: "Căng thẳng kéo dài gây mệt mỏi, khó ngủ sâu. Nên viết xả stress." };
+    if (score <= 16) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", desc: "Quá tải stress nghiêm trọng, cần buông bỏ bớt đầu việc học." };
     return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", desc: "Stress tột độ thần kinh thực vật. Rất dễ bùng phát kiệt quệ." };
   };
 
   const handleDassChange = (scale, val) => {
-    const numericVal = Math.max(0, Math.min(42, parseInt(val, 10) || 0));
+    const numericVal = Math.max(0, Math.min(21, parseInt(val, 10) || 0));
     setDassScores((prev) => ({ ...prev, [scale]: numericVal }));
   };
 
@@ -246,7 +246,7 @@ export default function UploadAnalyzer() {
 
             {[
               { x: 70, y: lY, val: scores.L, color: scores.L >= 70 ? "fill-red-500" : "fill-emerald-400" },
-              { x: 160, y: fY, val: scores.F, color: scores.F >= 74 ? "fill-red-500" : "fill-emerald-400" },
+              { x: 160, y: fY, val: scores.F, color: scores.F >= 80 ? "fill-red-500" : "fill-emerald-400" },
               { x: 250, y: kY, val: scores.K, color: scores.K >= 70 ? "fill-red-500" : "fill-emerald-400" }
             ].map((dot, idx) => (
               <g key={idx}>
@@ -260,7 +260,7 @@ export default function UploadAnalyzer() {
     );
   };
 
-  const isReliable = mmpiValidity.L < 70 && mmpiValidity.F < 74 && mmpiValidity.K < 70;
+  const isReliable = mmpiValidity.L < 70 && mmpiValidity.F < 80 && mmpiValidity.K < 70;
 
   return (
     <div className="p-4 sm:p-6 space-y-6 animate-fadeIn">
@@ -536,7 +536,7 @@ export default function UploadAnalyzer() {
                     
                     <div className="space-y-3.5 max-h-[300px] overflow-y-auto scrollbar-none pr-1">
                       {Object.entries(mmpiClinical).map(([key, score]) => {
-                        const isElevated = score >= 65;
+                        const isElevated = score >= 70;
                         return (
                           <div key={key} className="space-y-1">
                             <div className="flex justify-between items-center text-[10px] font-bold">

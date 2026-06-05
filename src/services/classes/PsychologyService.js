@@ -87,31 +87,61 @@ class PsychologyService {
     const cleanMsg = message.toLowerCase().trim();
     const { matchedAspect, rejectedAspects } = aspectInfo;
 
-    // Check if the user is explicitly requesting a test
+    // 1. Explicit test requests
     const isTestRequest = ["test", "trắc nghiệm", "kiểm tra tâm lý", "khảo sát", "dass", "mmpi"].some(w => cleanMsg.includes(w));
     const isTestNegation = ["không", "ko", "k", "chưa", "đâu"].some(neg => {
       return cleanMsg.includes(`${neg} muốn`) || cleanMsg.includes(`${neg} làm`) || cleanMsg.includes(`${neg} test`) || cleanMsg.includes(`${neg} trắc nghiệm`);
     });
 
     if (isTestRequest && !isTestNegation) {
-      return "Tớ có sẵn hai bài kiểm tra chuẩn khoa học tâm lý học đường cho cậu đây: DASS-42 (đo chỉ số Trầm cảm, Lo âu, Căng thẳng) và MMPI-30 (phân tích đa chiều tính cách & hành vi lâm sàng). Cậu muốn làm bài trắc nghiệm nào dưới đây?";
+      return "Tớ có sẵn hai bài kiểm tra chuẩn khoa học tâm lý học đường cho cậu đây: DASS-21 (đo chỉ số Trầm cảm, Lo âu, Căng thẳng) và MMPI-30 (phân tích đa chiều tính cách & hành vi lâm sàng). Cậu muốn làm bài trắc nghiệm nào dưới đây?";
     }
 
-    // Extract last bot message and clean it
-    const lastBotMsg = history.length > 0 ? [...history].reverse().find(h => h.sender === "bot")?.text || "" : "";
-    const lastBotMsgLower = lastBotMsg.toLowerCase();
-
-    // Standard greetings handler
+    // 2. Standard greetings
     const greetings = ["chào", "hello", "hi", "bạn ơi", "trợ lý", "xin chào"];
     if (greetings.some(g => cleanMsg.startsWith(g)) && depth <= 1) {
       return "Chào cậu thương mến! Tớ luôn ở đây để lắng nghe và san sẻ lo toan cùng cậu. Dạo gần đây cuộc sống hoặc học tập của cậu có điều gì làm cậu mệt mỏi hay bận lòng không? Kể tớ nghe nhé.";
     }
 
+    // 3. High-Empathy Emotional/Sentiment Mappings (Interprets and comforting tone immediately)
+    // 3.1. Extreme Distress
+    if (["khóc", "tuyệt vọng", "muốn chết", "sụp đổ", "đau khổ", "bế tắc", "không chịu nổi", "muốn biến mất", "suy sụp"].some(w => cleanMsg.includes(w))) {
+      return "Tớ nghe đây... Ôm cậu một cái thật chặt nhé. Khi mọi thứ dường như sụp đổ và bế tắc, cảm giác đó thực sự rất đáng sợ và kiệt quệ. Đừng giữ một mình trong lòng nha cậu, tớ luôn ở đây sẵn sàng làm chỗ dựa lắng nghe mọi tủi thân của cậu mà. Cậu đã vất vả nhiều rồi.";
+    }
+
+    // 3.2. Exhaustion/Burnout
+    if (["mệt", "kiệt sức", "oải", "quá tải", "đuối", "nản", "chán", "không muốn làm gì", "hết năng lượng", "mệt mỏi"].some(w => cleanMsg.includes(w))) {
+      return "Thương cậu nhiều... Những lúc cạn kiệt năng lượng và kiệt sức như thế này, ngay cả việc thở thôi cũng thấy mệt mỏi đúng không cậu. Cậu đã vất vả gồng gánh nhiều rồi, giờ hãy cho phép bản thân được nghỉ ngơi một chút nhé. Tớ luôn ở bên cậu và sẵn sàng lắng nghe mọi chuyện.";
+    }
+
+    // 3.3. Academic/Work Pressure
+    if (["áp lực", "stress", "căng thẳng", "thi cử", "deadline", "bài tập", "dồn dập", "trượt môn", "điểm thấp", "học hành"].some(w => cleanMsg.includes(w))) {
+      return "Áp lực học hành, thi cử dồn dập và deadline dí sát thực sự rất ngột ngạt và mệt mỏi cậu nhỉ. Cậu đang cố gắng hết sức mình rồi, đừng tự trách bản thân quá nhé. Có chuyện gì cụ thể đang làm cậu lo lắng nhất không, kể tớ nghe với.";
+    }
+
+    // 3.4. Interpersonal/Relationship Pain
+    if (["chia tay", "giận", "cãi nhau", "người yêu", "bạn bè", "bỏ rơi", "cô đơn", "xa lánh", "không ai hiểu", "đơn phương"].some(w => cleanMsg.includes(w))) {
+      return "Tổn thương từ những mối quan hệ thân thiết hoặc cảm giác cô độc không ai thấu hiểu thực sự rất nhức nhối và dễ làm mình suy sụp cậu ơi. Nếu cậu thấy lòng ngổn ngang quá, cứ chia sẻ với tớ nhé, tớ luôn ở đây lắng nghe và không bao giờ phán xét cậu đâu.";
+    }
+
+    // 3.5. Insomnia/Health Issues
+    if (["mất ngủ", "không ngủ được", "đau đầu", "đau ngực", "ốm", "bệnh", "sức khỏe"].some(w => cleanMsg.includes(w))) {
+      return "Cơ thể mỏi mệt mà giấc ngủ cũng không được trọn vẹn thì tinh thần dễ bị suy nhược lắm cậu ạ. Sức khỏe của cậu là quan trọng nhất lúc này. Cậu có muốn thử tập thở sâu 4-7-8 để điều hòa nhịp tim và thư giãn đầu óc một chút không?";
+    }
+
+    // 3.6. Self-blame/Low self-esteem
+    if (["vô dụng", "kém cỏi", "thất bại", "tệ hại", "lỗi tại tớ", "tự trách", "ngốc"].some(w => cleanMsg.includes(w))) {
+      return "Đừng nói về bản thân như thế mà cậu ơi... Ai cũng có những lúc yếu lòng và vấp ngã, điều đó không hề định nghĩa giá trị của cậu. Cậu đã nỗ lực rất nhiều trong khả năng của mình rồi, thương cậu nhiều lắm.";
+    }
+
+    const lastBotMsg = history.length > 0 ? [...history].reverse().find(h => h.sender === "bot")?.text || "" : "";
+    const lastBotMsgLower = lastBotMsg.toLowerCase();
+
     // Identify agreements or negations
     const isAgreement = ["đúng", "ừ", "ừm", "um", "uh", "uhm", "vâng", "dạ", "chuẩn", "đúng vậy", "chính xác", "mệt chứ", "đúng rồi", "rồi", "có", "ok", "oke"].some(w => cleanMsg === w || cleanMsg.startsWith(w + " "));
     const isNegation = ["không", "chưa", "ko", "k", "chẳng", "đâu có", "không có", "đâu"].some(w => cleanMsg === w || cleanMsg.startsWith(w + " "));
 
-    // Handle explicit rejection of aspects first (like in "không phải chuyện học")
+    // 4. Aspect Rejection Handlers
     if (rejectedAspects && rejectedAspects.length > 0) {
       const rej = rejectedAspects[0];
       if (rej === "studying") {
@@ -131,10 +161,9 @@ class PsychologyService {
       }
     }
 
-    // Smart Short Input Handler (to avoid generic/robotic interruptions like in "um")
+    // 5. Short inputs context check
     if (cleanMsg.length < 8) {
       if (isAgreement) {
-        // Look at last bot message first for context
         if (lastBotMsgLower.includes("quá tải lắm đúng không") || lastBotMsgLower.includes("gặp khó khăn với kỳ thi")) {
           return "Ừm... Việc học hành thi cử áp lực dồn dập mệt mỏi thật cậu nhỉ. Cứ trút lòng ra nhé, chuyện bài vở dạo này cụ thể thế nào?";
         }
@@ -169,7 +198,6 @@ class PsychologyService {
           return "Tuyệt vời quá! Hãy cùng tớ thiết lập hành trình chăm sóc tinh thần bằng cách kích hoạt chế độ đồng hành nhé. Tớ sẽ luôn ở đây nhắc nhở và lắng nghe cậu.";
         }
 
-        // Fallbacks based on aspect
         if (matchedAspect === "studying") return "Ừm... Chuyện bài vở, học hành dạo này cụ thể thế nào làm cậu lo lắng vậy? Kể tớ nghe sâu hơn nhé.";
         if (matchedAspect === "family") return "Tớ hiểu, mâu thuẫn hay áp lực gia đình rất khó đối mặt. Ở nhà có chuyện gì cụ thể xảy ra vậy cậu?";
         if (matchedAspect === "relationships") return "Ừm, những tổn thương từ bạn bè hay tình cảm rất nhức nhối. Cậu đang vướng mắc chuyện gì với người đó vậy?";
@@ -177,7 +205,6 @@ class PsychologyService {
       }
 
       if (isNegation) {
-        // Look at last bot message first for context
         if (lastBotMsgLower.includes("quá tải lắm đúng không") || lastBotMsgLower.includes("gặp khó khăn với kỳ thi")) {
           return "Ồ, hóa ra không phải do áp lực thi cử hay học tập à? Vậy dạo gần đây có chuyện gì khác về gia đình, bạn bè hay bản thân làm cậu phiền lòng không? Kể tớ nghe nhé.";
         }
@@ -212,16 +239,8 @@ class PsychologyService {
           return "Tớ hiểu rồi. Cậu cứ thong thả suy nghĩ nhé. Khi nào cần, tớ luôn sẵn sàng đồng hành và lắng nghe cậu.";
         }
 
-        // Generic fallback for negation
         return "Tớ hiểu rồi. Nếu cậu chưa sẵn sàng nói sâu hơn thì không sao cả nhé. Tụi mình cứ nói chuyện nhẹ nhàng thôi, hoặc cậu muốn tớ im lặng để cậu tĩnh tâm chút không?";
       }
-      
-      const shortReplies = [
-        "Tớ vẫn đang ở đây lắng nghe cậu mà. Cậu cứ thong thả chia sẻ nhé.",
-        "Ừm, tớ nghe đây. Có chuyện gì làm cậu buồn lòng nhất lúc này không cậu?",
-        "Tớ hiểu. Cậu cứ tự nhiên nói nhé, ở đây hoàn toàn bảo mật và không phán xét đâu."
-      ];
-      return shortReplies[history.length % shortReplies.length];
     }
 
     // Contextual replies based on previous bot questions (for longer inputs)
@@ -244,7 +263,7 @@ class PsychologyService {
       }
     }
 
-    // Conversational Phase based on turn depth (Turn 1 & 2 only establish rapport)
+    // 6. Conversational Phase based on depth
     if (depth <= 1) {
       switch (matchedAspect) {
         case "studying":
@@ -283,7 +302,7 @@ class PsychologyService {
       return "Tớ hiểu cảm giác của cậu rồi. Đối mặt với những điều đó thực sự cần rất nhiều dũng khí. Những lúc cảm thấy quá tải hay buồn bã như thế này, cậu thường làm gì để giải tỏa lòng mình?";
     }
 
-    // Phase 4: Proposing tests/remedies only at Depth >= 4 (When empathy is fully established)
+    // Phase 4: Proposing tests/remedies only at Depth >= 4
     const hasDassKeywords = this.dassIndicators.some(ind => cleanMsg.includes(ind));
     const hasMmpiKeywords = this.mmpiIndicators.some(ind => cleanMsg.includes(ind));
 
@@ -298,45 +317,41 @@ class PsychologyService {
       return "Lòng cậu lúc này chắc hẳn vẫn còn nhiều ngổn ngang. Cậu nghĩ sao về việc cùng tớ làm một bài hít thở sâu 4-7-8 ở tab 'Hít Thở 4-7-8' để làm dịu nhịp tim và thư giãn đầu óc một chút nhé?";
     }
     
-    return "Tớ rất vui vì được làm bạn lắng nghe cậu trút bầu tâm sự hôm nay. Cậu có muốn tụi mình cùng nhau thiết lập một lộ trình đồng hành thích ứng để tớ có thể nhắc nhở và chăm sóc tinh thần cho cậu mỗi ngày không?";
+    // Rich adaptive fallbacks
+    const adaptiveFallbacks = [
+      "Tớ vẫn ở đây bên cậu nè. Cậu cứ từ từ nói chuyện nhé, không có gì phải vội hay ngại đâu.",
+      "Ừm, tớ đang nghe đây. Bất cứ điều gì làm cậu thấy lấn cấn trong lòng, dù là nhỏ nhất, tớ cũng muốn được lắng nghe cùng cậu.",
+      "Tớ hiểu cảm giác ngổn ngang lúc này của cậu. Nếu thấy khó bắt đầu, cậu cứ kể chuyện nhỏ nhặt nhất dạo này cũng được nhé.",
+      "Cậu đã vất vả gồng gánh mọi lo lắng một mình rồi. Ở đây hoàn toàn bảo mật và an toàn, cậu cứ trút lòng ra cho nhẹ nhõm nha.",
+      "Tớ luôn sẵn sàng làm chỗ dựa tinh thần cho cậu. Dù chuyện gì xảy ra, cậu cũng không cô đơn đâu."
+    ];
+    return adaptiveFallbacks[history.length % adaptiveFallbacks.length];
   }
 
   /**
    * Generates an empathetic reply client-side using keyword matching and conversational guides.
    * Runs 100% locally client-side to ensure zero API costs and infinite concurrency.
-   * @param {string} message - Current user message.
-   * @param {Array} history - Array of previous chat messages.
-   * @returns {Promise<Object>} - Format with { reply, suggestDass, suggestMmpi }.
    */
   async sendChatMessage(message, history = []) {
-    // Simulate a slight network delay (400ms) for a more natural typing effect
     await new Promise((resolve) => setTimeout(resolve, 400));
 
     const lowerMsg = message.toLowerCase().trim();
-    
-    // Filter user messages to calculate conversation depth
     const userMsgs = history.filter(h => h.sender === "user" || h.role === "user");
     const depth = userMsgs.length;
 
-    // Check if the user is explicitly requesting a test
     const isTestRequest = ["test", "trắc nghiệm", "kiểm tra tâm lý", "khảo sát", "dass", "mmpi"].some(w => lowerMsg.includes(w));
     const isTestNegation = ["không", "ko", "k", "chưa", "đâu"].some(neg => {
       return lowerMsg.includes(`${neg} muốn`) || lowerMsg.includes(`${neg} làm`) || lowerMsg.includes(`${neg} test`) || lowerMsg.includes(`${neg} trắc nghiệm`);
     });
 
-    // Check if the user is asking for assessment/scores directly
     const isExplicitRequest = lowerMsg.includes("đánh giá") || lowerMsg.includes("kết quả") || lowerMsg.includes("nhận xét") || lowerMsg.includes("điểm số") || lowerMsg.includes("tâm lý của tôi") || lowerMsg.includes("trắc nghiệm") || (isTestRequest && !isTestNegation);
 
-    // Match keywords and negation filters to detect active aspect
     const aspectInfo = this.detectAspect(message, history);
-
-    // Generate context-aware response based on depth
     const reply = this.getReplyForDepth(message, history, aspectInfo, depth);
 
     let suggestDass = false;
     let suggestMmpi = false;
     
-    // Only trigger DASS/MMPI inline recommendations at Depth >= 3 OR on explicit user request
     if (depth >= 3 || isExplicitRequest) {
       suggestDass = this.dassIndicators.some(ind => lowerMsg.includes(ind));
       suggestMmpi = this.mmpiIndicators.some(ind => lowerMsg.includes(ind));
@@ -374,7 +389,7 @@ class PsychologyService {
 
       let adaptation = null;
 
-      // 1. Check DASS-42 progress
+      // 1. Check DASS-21 progress
       if (dassTests.length >= 2) {
         const latest = dassTests[dassTests.length - 1];
         const previous = dassTests[dassTests.length - 2];
@@ -416,13 +431,13 @@ class PsychologyService {
         }
       }
 
-      // 2. Check MMPI-30 progress
+      // 2. Check MMPI-30 progress (Aligned pathology T-score >= 70)
       if (!adaptation && mmpiTests.length >= 2) {
         const latest = mmpiTests[mmpiTests.length - 1];
         const previous = mmpiTests[mmpiTests.length - 2];
 
-        const latestElevated = latest.clinical ? latest.clinical.filter(c => c.score >= 65).length : 0;
-        const prevElevated = previous.clinical ? previous.clinical.filter(c => c.score >= 65).length : 0;
+        const latestElevated = latest.clinical ? latest.clinical.filter(c => c.score >= 70).length : 0;
+        const prevElevated = previous.clinical ? previous.clinical.filter(c => c.score >= 70).length : 0;
 
         if (latestElevated < prevElevated) {
           const decrease = prevElevated - latestElevated;

@@ -39,6 +39,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
     const dassTests = historyLogs.filter(l => l.test === "dass42");
     const mmpiTests = historyLogs.filter(l => l.test === "mmpi30");
     const chatAnomalies = historyLogs.filter(l => l.type === "chat_anomaly");
+    const uploadAnomalies = historyLogs.filter(l => l.type === "upload_anomaly");
 
     // 1. Mood abnormalities
     const lowMoods = checkins.filter(c => c.mood <= 2);
@@ -71,7 +72,41 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
       }
     }
 
-    // 3. DASS clinical levels
+    // 3. Late-Night Activity (Sleep disruption check)
+    const lateNightEvents = historyLogs.filter(l => {
+      if (!l.date) return false;
+      const d = new Date(l.date);
+      const hours = d.getHours();
+      return hours >= 23 || hours < 5;
+    });
+    if (lateNightEvents.length > 0) {
+      anomaliesList.push({
+        title: "Rối loạn giấc ngủ / Hoạt động muộn",
+        desc: `Ghi nhận ${lateNightEvents.length} lần cậu hoạt động muộn vào ban đêm (từ 23h đến 5h sáng), có thể ảnh hưởng xấu đến chu kỳ giấc ngủ.`,
+        severity: "medium"
+      });
+    }
+
+    // 4. MMPI validity checkers
+    const unreliableMmpis = mmpiTests.filter(m => m.isReliable === false);
+    if (unreliableMmpis.length > 0) {
+      anomaliesList.push({
+        title: "Kiểm định MMPI tin cậy thấp",
+        desc: `Có ${unreliableMmpis.length} kết quả trắc nghiệm MMPI nghi ngờ độ tin cậy của chỉ số L-F-K.`,
+        severity: "medium"
+      });
+    }
+
+    // 5. Upload errors
+    if (uploadAnomalies.length > 0) {
+      anomaliesList.push({
+        title: "Lỗi tải báo cáo sức khỏe",
+        desc: `Ghi nhận ${uploadAnomalies.length} lần tải lên tệp không đúng định dạng quy chuẩn.`,
+        severity: "medium"
+      });
+    }
+
+    // 6. DASS clinical levels
     if (dassTests.length > 0) {
       const latest = dassTests[dassTests.length - 1];
       const elevated = [];
@@ -82,16 +117,16 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
       if (elevated.length > 0) {
         anomaliesList.push({
           title: "Chỉ số lâm sàng DASS vượt ngưỡng",
-          desc: `Bài kiểm tra DASS-42 ghi nhận tình trạng ${elevated.join(", ")}.`,
+          desc: `Bài kiểm tra DASS-21 ghi nhận tình trạng ${elevated.join(", ")}.`,
           severity: "high"
         });
       }
     }
 
-    // 4. MMPI clinical scales
+    // 7. MMPI clinical scales (Aligned pathology T-score >= 70)
     if (mmpiTests.length > 0) {
       const latest = mmpiTests[mmpiTests.length - 1];
-      const elevatedScales = latest.clinical ? latest.clinical.filter(c => c.score >= 65) : [];
+      const elevatedScales = latest.clinical ? latest.clinical.filter(c => c.score >= 70) : [];
       if (elevatedScales.length > 0) {
         const scaleNames = { Hs: "Nghi bệnh", D: "Trầm cảm", Hy: "Hysteria", Pd: "Sai lệch nhân cách", Mf: "Nam/Nữ tính", Pa: "Hoang tưởng", Pt: "Suy nhược tâm thần", Sc: "Tâm thần phân liệt", Ma: "Hưng cảm nhẹ", Si: "Hướng ngoại xã hội" };
         const list = elevatedScales.map(s => `${scaleNames[s.code] || s.code} (${s.score} T-score)`);
@@ -103,7 +138,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
       }
     }
 
-    // 5. Chat anomalies
+    // 8. Chat anomalies
     if (chatAnomalies.length > 0) {
       const lastAnomaly = chatAnomalies[chatAnomalies.length - 1];
       anomaliesList.push({
@@ -246,7 +281,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                     }
                   } else if (log.test === "dass42") {
                     iconColor = "text-[#0071e3] bg-[#0071e3]/10 border border-[#0071e3]/20";
-                    eventTitle = "Trắc nghiệm DASS-42 chuẩn lâm sàng";
+                    eventTitle = "Trắc nghiệm DASS-21 chuẩn lâm sàng";
                     eventDetails = `Depression: ${log.scores.D} (${log.severities.D}) • Anxiety: ${log.scores.A} (${log.severities.A}) • Stress: ${log.scores.S} (${log.severities.S})`;
                   } else if (log.test === "mmpi30") {
                     iconColor = "text-indigo-500 bg-indigo-500/10 border border-indigo-500/20";
@@ -255,13 +290,28 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
                   } else if (log.type === "chat_anomaly") {
                     iconColor = "text-amber-500 bg-amber-500/10 border border-amber-500/20";
                     eventTitle = "Phát hiện bất ổn tâm trạng qua cuộc chat";
-                    eventDetails = `Tin nhắn: "${log.text}"\nTừ khóa bất thường: ${log.triggers.join(", ")}`;
+                    eventDetails = `Tin nhắn: "${log.text}"\nTừ khóa bất thường: ${log.triggers ? log.triggers.join(", ") : "stress"}`;
+                  } else if (log.type === "upload_anomaly") {
+                    iconColor = "text-red-500 bg-red-500/10 border border-red-500/20";
+                    eventTitle = "Lỗi tải báo cáo lâm sàng";
+                    eventDetails = log.desc;
+                  } else if (log.type === "duration_change") {
+                    iconColor = "text-purple-500 bg-purple-500/10 border border-purple-500/20";
+                    eventTitle = "Thay đổi lộ trình đồng hành";
+                    eventDetails = log.reason;
                   }
 
                   return (
                     <div key={idx} className="relative flex gap-3 pl-4">
-                      {/* Timeline dot */}
-                      <div className="absolute -left-[9.5px] top-1.5 w-4.5 h-4.5 rounded-full bg-emerald-500 border-4 border-white dark:border-[#12111a]" />
+                      {/* Timeline dot styled dynamically */}
+                      <div className={`absolute -left-[9.5px] top-1.5 w-4.5 h-4.5 rounded-full border-4 border-white dark:border-[#12111a] ${
+                        log.type === "checkin" ? "bg-emerald-500" :
+                        log.test === "dass42" ? "bg-[#0071e3]" :
+                        log.test === "mmpi30" ? "bg-indigo-500" :
+                        log.type === "chat_anomaly" ? "bg-amber-500" :
+                        log.type === "upload_anomaly" ? "bg-red-500" :
+                        log.type === "duration_change" ? "bg-purple-500" : "bg-zinc-400"
+                      }`} />
                       
                       <div className="flex-1 space-y-1 bg-white/30 dark:bg-zinc-900/25 p-3 rounded-2xl border border-zinc-200/40 dark:border-zinc-800/20 shadow-sm">
                         <div className="flex justify-between items-center text-[8.5px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pl-0.5">
@@ -306,6 +356,35 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
   });
 
   const [historyLogs, setHistoryLogs] = useState([]);
+  const [adaptationAlert, setAdaptationAlert] = useState(null);
+
+  useEffect(() => {
+    const checkAdaptationAlert = () => {
+      const alertRaw = localStorage.getItem("banhocduong_duration_adaptation_alert");
+      if (alertRaw) {
+        try {
+          const alertData = JSON.parse(alertRaw);
+          setAdaptationAlert(alertData);
+          localStorage.removeItem("banhocduong_duration_adaptation_alert");
+          // Refresh duration from localStorage
+          const newDur = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
+          setHealingDuration(newDur);
+          loadHistory();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+    
+    checkAdaptationAlert();
+    window.addEventListener("storage", checkAdaptationAlert);
+    const interval = setInterval(checkAdaptationAlert, 1500);
+    
+    return () => {
+      window.removeEventListener("storage", checkAdaptationAlert);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Recommendation info state
   const [recommendation, setRecommendation] = useState({ days: 20, name: "Hành trình Vun đắp Bình yên", reason: "", hasData: false });
@@ -383,7 +462,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
       // Check MMPI clinical scales
       if (mmpiLogs.length > 0 && maxSeverity !== "extremely_severe") {
         const latest = mmpiLogs[mmpiLogs.length - 1];
-        const elevatedCount = latest.clinical.filter(c => c.score >= 65).length;
+        const elevatedCount = latest.clinical.filter(c => c.score >= 70).length;
         if (elevatedCount >= 5) {
           maxSeverity = "extremely_severe";
           reason = `Bản đồ MMPI ngày ${new Date(latest.date).toLocaleDateString()} phát hiện ${elevatedCount} thang đo nhân cách tăng cao cảnh báo lâm sàng.`;
@@ -554,6 +633,61 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Adaptation success popup */}
+      <AnimatePresence>
+        {adaptationAlert && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-gradient-to-br from-emerald-500/10 via-[#12111a] to-teal-500/15 backdrop-blur-2xl rounded-3xl border border-emerald-500/30 p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-5 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500" />
+              
+              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400">
+                <Sparkles className="w-8 h-8 animate-pulse" />
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="text-sm font-black text-emerald-400 uppercase tracking-widest">Tiến Triển Tinh Thần Tuyệt Vời</h4>
+                <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-bold">Lộ trình đồng hành thích ứng</p>
+              </div>
+
+              <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl space-y-2 text-left">
+                <p className="text-[10.5px] text-zinc-350 leading-relaxed font-medium">
+                  Hệ thống ghi nhận: <span className="text-emerald-400 font-bold">{adaptationAlert.improvement}</span>.
+                </p>
+                <p className="text-[10.5px] text-zinc-350 leading-relaxed font-medium">
+                  Thời gian đồng hành được rút ngắn: <span className="text-emerald-400 font-black">-{adaptationAlert.reducedDays} ngày</span>
+                </p>
+                <div className="flex justify-between items-center pt-2 border-t border-emerald-500/10 text-[10px] font-bold text-zinc-500">
+                  <span>Trước: {adaptationAlert.oldDuration} ngày</span>
+                  <span className="text-emerald-400 font-black">Mới: {adaptationAlert.newDuration} ngày</span>
+                </div>
+              </div>
+
+              <p className="text-[10.5px] text-zinc-400 italic">
+                "Cậu đang làm rất tốt, hãy tiếp tục chăm sóc bản thân nhé!"
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setAdaptationAlert(null)}
+                className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-emerald-500/10 active:scale-[0.98]"
+              >
+                Tuyệt vời, tiếp tục thôi!
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
