@@ -242,7 +242,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
       )}
 
       {scanState === "verified" && (
-        <div className="p-4 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-[#1a1924] rounded-3xl space-y-4 animate-scaleUp">
+        <div className="p-5 pt-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-[#1a1924] rounded-3xl space-y-5 animate-scaleUp max-h-[340px] md:max-h-[360px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800">
           <h5 className="text-[11px] font-black uppercase tracking-wider text-zinc-900 dark:text-white border-b pb-1">
             Xác thực thông tin trích xuất
           </h5>

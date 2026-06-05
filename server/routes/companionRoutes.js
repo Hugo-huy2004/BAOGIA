@@ -39,7 +39,8 @@ router.post('/history', async (req, res) => {
       lastCheckinDate,
       chatDistressCount,
       lastTestDate,
-      historyLogs
+      historyLogs,
+      chatMessages
     } = req.body;
 
     if (!email) {
@@ -58,6 +59,7 @@ router.post('/history', async (req, res) => {
     if (chatDistressCount !== undefined) historyDoc.chatDistressCount = chatDistressCount;
     if (lastTestDate !== undefined) historyDoc.lastTestDate = lastTestDate;
     if (historyLogs !== undefined) historyDoc.historyLogs = historyLogs;
+    if (chatMessages !== undefined) historyDoc.chatMessages = chatMessages;
 
     await historyDoc.save();
     res.json({ success: true, companionHistory: historyDoc });

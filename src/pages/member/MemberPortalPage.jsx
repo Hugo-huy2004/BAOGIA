@@ -5,6 +5,7 @@ import confetti from "canvas-confetti";
 import { getMemberSession, logoutAuth } from "../../services/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import memberService from "../../services/classes/MemberService";
+import dataApi from "../../services/dataApi";
 
 // Extracted Subcomponents
 import BirthdaySurprise from "../../components/member/BirthdaySurprise";
@@ -486,6 +487,14 @@ export default function MemberPortalPage() {
   }, [bio]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlTab = params.get("tab");
+    if (urlTab) {
+      setActiveTab(urlTab);
+    }
+  }, []);
+
+  useEffect(() => {
     const loadBio = async () => {
       if (isGuestMode) {
         const guestBio = memberService.getGuestBio(t);
@@ -571,6 +580,45 @@ export default function MemberPortalPage() {
             secretLinks: b.secretLinks || [],
             slug: b.slug || ""
           });
+
+          // Sync companion history from MongoDB
+          try {
+            const companionDb = await dataApi.getCompanionHistory(memberSession.email);
+            if (companionDb) {
+              setHistoryLogs(companionDb.historyLogs || []);
+              
+              if (companionDb.healingActive && companionDb.healingStartDate) {
+                const start = new Date(companionDb.healingStartDate).getTime();
+                const now = new Date().getTime();
+                const diffTime = Math.max(0, now - start);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                
+                setHealingState({
+                  active: companionDb.healingActive,
+                  day: diffDays,
+                  duration: companionDb.healingDuration,
+                  isExpired: diffDays > companionDb.healingDuration
+                });
+              } else {
+                setHealingState({
+                  active: companionDb.healingActive,
+                  day: 1,
+                  duration: companionDb.healingDuration,
+                  isExpired: false
+                });
+              }
+
+              localStorage.setItem("banhocduong_healing_mode", companionDb.healingActive ? "active" : "");
+              localStorage.setItem("banhocduong_healing_duration", companionDb.healingDuration.toString());
+              localStorage.setItem("banhocduong_healing_start_date", companionDb.healingStartDate || "");
+              localStorage.setItem("banhocduong_history", JSON.stringify(companionDb.historyLogs || []));
+              localStorage.setItem("banhocduong_last_checkin_date", companionDb.lastCheckinDate || "");
+              localStorage.setItem("banhocduong_last_test_date", companionDb.lastTestDate || "");
+              localStorage.setItem("banhocduong_chat_distress_count", (companionDb.chatDistressCount || 0).toString());
+            }
+          } catch (e) {
+            console.error("Failed to load companion history in loadBio", e);
+          }
         }
       } catch (error) {
         console.error(error);
@@ -655,7 +703,7 @@ export default function MemberPortalPage() {
     }
   }, [showHealingModal, healingSubStep]);
 
-  const finalizeHealingCheckIn = (mood, note, wheelData) => {
+  const finalizeHealingCheckIn = async (mood, note, wheelData) => {
     try {
       const rawLogs = localStorage.getItem("banhocduong_history");
       const logs = rawLogs ? JSON.parse(rawLogs) : [];
@@ -669,8 +717,26 @@ export default function MemberPortalPage() {
         wheelRatings: wheelData
       };
       logs.push(newLog);
+
+      const lastCheckinDate = new Date().toDateString();
+
+      // Save to database
+      if (memberSession?.email) {
+        const payload = {
+          email: memberSession.email,
+          healingActive: true,
+          healingDuration: healingState.duration,
+          healingStartDate: localStorage.getItem("banhocduong_healing_start_date") || new Date().toISOString(),
+          lastCheckinDate: lastCheckinDate,
+          lastTestDate: localStorage.getItem("banhocduong_last_test_date") || "",
+          chatDistressCount: Number(localStorage.getItem("banhocduong_chat_distress_count") || 0),
+          historyLogs: logs
+        };
+        await dataApi.saveCompanionHistory(payload).catch(console.error);
+      }
+
       localStorage.setItem("banhocduong_history", JSON.stringify(logs));
-      localStorage.setItem("banhocduong_last_checkin_date", new Date().toDateString());
+      localStorage.setItem("banhocduong_last_checkin_date", lastCheckinDate);
       setHistoryLogs(logs);
 
       // Check if consecutive low mood (<= 2) for last two checkins
@@ -732,7 +798,22 @@ export default function MemberPortalPage() {
     finalizeHealingCheckIn(healingMood, healingNote, wheelRatings);
   };
 
-  const handleGraduationConfirm = () => {
+  const handleGraduationConfirm = async () => {
+    // Save to database as inactive
+    if (memberSession?.email) {
+      const payload = {
+        email: memberSession.email,
+        healingActive: false,
+        healingDuration: 30,
+        healingStartDate: null,
+        lastCheckinDate: "",
+        lastTestDate: "",
+        chatDistressCount: 0,
+        historyLogs: []
+      };
+      await dataApi.saveCompanionHistory(payload).catch(console.error);
+    }
+
     // Purge all psychological data!
     localStorage.removeItem("banhocduong_healing_mode");
     localStorage.removeItem("banhocduong_healing_duration");

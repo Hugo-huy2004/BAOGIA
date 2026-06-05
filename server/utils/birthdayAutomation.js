@@ -1,4 +1,5 @@
 import Bio from '../models/Bio.js';
+import { sendPushNotification } from './pushNotifier.js';
 
 export const parseBirthday = (birthdayStr) => {
   if (!birthdayStr) return null;
@@ -56,6 +57,12 @@ export const runBirthdayAutomation = async () => {
             detail: `Háp..pi..Bết...đê... Hugo Studio chúc mừng bạn ${bio.displayName} đã thêm một tuổi mới.\nHugo Studio xin chúc bạn có một sinh nhật thật vui tươi, thành công và chuẩn bị gặt hái nhiều ngôi sao may mắn trong hành trình thanh xuân mới.`,
             timestamp: new Date()
           });
+          sendPushNotification(
+            bio.email,
+            'Chúc mừng sinh nhật! 🎂',
+            `Hugo Studio chúc mừng sinh nhật bạn ${bio.displayName}!`,
+            '/member/portal?tab=history'
+          ).catch(console.error);
           console.log(`[Birthday Automation] Birthday greeting queued for ${bio.displayName} (${bio.email})`);
         }
       }
@@ -91,6 +98,12 @@ export const runBirthdayAutomation = async () => {
               detail: `Hugo Studio gửi tặng bạn mã voucher sinh nhật: ${voucherCode} (thêm 14 ngày sử dụng và Card sinh nhật vào phần gói dịch vụ của bạn).\nHiệu lực mã: Từ 01/${month.toString().padStart(2, '0')}/${currentYear} đến ngày cuối của tháng.`,
               timestamp: new Date()
             });
+            sendPushNotification(
+              bio.email,
+              'Quà tặng sinh nhật từ Hugo Studio! 🎁',
+              `Bạn vừa nhận được mã quà tặng sinh nhật mới. Kích hoạt ngay nhé!`,
+              '/member/portal?tab=history'
+            ).catch(console.error);
             console.log(`[Birthday Automation] Birthday voucher code generated: ${voucherCode} for ${bio.displayName} (${bio.email})`);
           }
         }

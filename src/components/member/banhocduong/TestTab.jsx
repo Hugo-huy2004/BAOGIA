@@ -4,7 +4,7 @@ import psychologyService from "../../../services/classes/PsychologyService";
 
 // DASS-21 Vietnamese Question Bank (7 Depression, 7 Anxiety, 7 Stress)
 // D: Depression, A: Anxiety, S: Stress
-const DASS42_QUESTIONS = [
+const DASS21_QUESTIONS = [
   { id: 1, type: "S", text: "Tôi cảm thấy khó mà thoải mái được" },
   { id: 2, type: "A", text: "Tôi bị khô miệng" },
   { id: 3, type: "D", text: "Tôi dường như chẳng có chút cảm xúc tích cực nào" },
@@ -164,7 +164,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
   const adaptedDassQuestions = React.useMemo(() => {
     const age = getUserAge();
     const pronoun = getSubjectPronoun();
-    return DASS42_QUESTIONS.map(q => {
+    return DASS21_QUESTIONS.map(q => {
       let text = q.text;
       if (text.startsWith("Tôi ")) {
         text = text.replace(/^Tôi /, pronoun + " ");
@@ -289,27 +289,28 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
     }
   }, [presetTest]);
 
-  // DASS-21 Clinical Interpretation (Exact raw standard scoring aligned with clinical reports)
-  const getDASS42Interpretation = (scale, score) => {
+  // DASS-21 Clinical Interpretation (Exact standard scoring aligned with clinical reports)
+  const getDASS21Interpretation = (scale, score) => {
+    // Score passed is already multiplied by 2 (0-42 scale)
     if (scale === "D") {
-      if (score <= 4) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Tâm trạng cậu ở mức ổn định hoàn toàn. Cậu vẫn tìm thấy niềm vui trong cuộc sống." };
-      if (score <= 6) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Có dấu hiệu buồn chán nhẹ. Cậu nên tăng cường đi dạo, trò chuyện và nghỉ ngơi hợp lý." };
-      if (score <= 10) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Trầm cảm mức độ vừa phải. Có biểu hiện cạn kiệt động lực và trống rỗng tâm lý kéo dài." };
-      if (score <= 17) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Trầm cảm mức độ nặng nề. Cậu thường xuyên cảm thấy bế tắc, cô độc sâu sắc. Hãy chia sẻ với người thân thiết." };
+      if (score <= 9) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Tâm trạng cậu ở mức ổn định hoàn toàn. Cậu vẫn tìm thấy niềm vui trong cuộc sống." };
+      if (score <= 13) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Có dấu hiệu buồn chán nhẹ. Cậu nên tăng cường đi dạo, trò chuyện và nghỉ ngơi hợp lý." };
+      if (score <= 20) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Trầm cảm mức độ vừa phải. Có biểu hiện cạn kiệt động lực và trống rỗng tâm lý kéo dài." };
+      if (score <= 27) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Trầm cảm mức độ nặng nề. Cậu thường xuyên cảm thấy bế tắc, cô độc sâu sắc. Hãy chia sẻ với người thân thiết." };
       return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Nguy cơ trầm cảm vô cùng nghiêm trọng. Hãy kết nối khẩn cấp với chuyên viên đồng hành hoặc chuyên gia tâm lý để được chẩn đoán và can thiệp." };
     }
     if (scale === "A") {
-      if (score <= 3) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Hệ thống thần kinh lo âu bình thường, khả năng thích ứng cơ thể trước áp lực ở mức an toàn." };
-      if (score <= 5) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Cậu có đôi chút hồi hộp, bồn chồn lo sợ nhẹ trước kỳ thi hay deadline. Thực hành tập thở sâu 4-7-8." };
-      if (score <= 7) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Lo âu ở mức vừa phải. Cậu dễ rơi vào bất an thần kinh, khó ngủ và thỉnh thoảng bị khô miệng." };
-      if (score <= 9) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Lo âu ở mức độ nặng. Hệ thần kinh phản ứng báo động liên tục, gây khó chịu thể xác." };
+      if (score <= 7) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Hệ thống thần kinh lo âu bình thường, khả năng thích ứng cơ thể trước áp lực ở mức an toàn." };
+      if (score <= 9) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Cậu có đôi chút hồi hộp, bồn chồn lo sợ nhẹ trước kỳ thi hay deadline. Thực hành tập thở sâu 4-7-8." };
+      if (score <= 14) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Lo âu ở mức vừa phải. Cậu dễ rơi vào bất an thần kinh, khó ngủ và thỉnh thoảng bị khô miệng." };
+      if (score <= 19) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Lo âu ở mức độ nặng. Hệ thần kinh phản ứng báo động liên tục, gây khó chịu thể xác." };
       return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Lo âu hoảng loạn cực kỳ nghiêm trọng. Đề nghị chẩn đoán lâm sàng tại cơ sở y tế." };
     }
     // Stress
-    if (score <= 7) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Căng thẳng ở mức kiểm soát được. Cậu đang điều tiết cân bằng thời gian tốt." };
-    if (score <= 9) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Có căng thẳng nhẹ, dễ cáu gắt khi công việc chồng chéo. Nên sắp xếp thứ tự ưu tiên." };
-    if (score <= 12) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Căng thẳng ở mức trung bình. Cậu khó thư giãn, hay cảm thấy bứt rứt mệt mỏi trong người." };
-    if (score <= 16) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Căng thẳng thần kinh nặng nề, năng lượng thần kinh bị vắt kiệt." };
+    if (score <= 14) return { level: "Bình thường", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", desc: "Căng thẳng ở mức kiểm soát được. Cậu đang điều tiết cân bằng thời gian tốt." };
+    if (score <= 18) return { level: "Nhẹ", color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", desc: "Có căng thẳng nhẹ, dễ cáu gắt khi công việc chồng chéo. Nên sắp xếp thứ tự ưu tiên." };
+    if (score <= 25) return { level: "Vừa phải", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", desc: "Căng thẳng ở mức trung bình. Cậu khó thư giãn, hay cảm thấy bứt rứt mệt mỏi trong người." };
+    if (score <= 33) return { level: "Nặng", color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", desc: "Căng thẳng thần kinh nặng nề, năng lượng thần kinh bị vắt kiệt." };
     return { level: "Rất nặng", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", desc: "Cực kỳ căng thẳng và quá tải. Hệ miễn dịch và thần kinh báo động đỏ, tìm chuyên gia hỗ trợ ngay." };
   };
 
@@ -332,13 +333,13 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
   const isDassPageComplete = () => {
     const start = dassPage * questionsPerPage;
     const end = start + questionsPerPage;
-    const activeQuestions = DASS42_QUESTIONS.slice(start, end);
+    const activeQuestions = DASS21_QUESTIONS.slice(start, end);
     return activeQuestions.every(q => dassAnswers[q.id] !== undefined);
   };
 
   const handleDassNext = () => {
     if (isDassPageComplete()) {
-      const maxDassPage = Math.ceil(DASS42_QUESTIONS.length / questionsPerPage) - 1;
+      const maxDassPage = Math.ceil(DASS21_QUESTIONS.length / questionsPerPage) - 1;
       if (dassPage < maxDassPage) {
         setDassPage(prev => prev + 1);
       } else {
@@ -474,36 +475,40 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
     }
   };
 
-  // DASS-42 scoring result calculation
+  // DASS-21 scoring result calculation (Sum of subscales multiplied by 2 for standard clinical comparison)
   const calculateDassResult = () => {
     let dSum = 0;
     let aSum = 0;
     let sSum = 0;
 
-    DASS42_QUESTIONS.forEach(q => {
+    DASS21_QUESTIONS.forEach(q => {
       const val = dassAnswers[q.id] || 0;
       if (q.type === "D") dSum += val;
       if (q.type === "A") aSum += val;
       if (q.type === "S") sSum += val;
     });
 
-    // Save history to localStorage for companion tracking
+    const dFinal = dSum * 2;
+    const aFinal = aSum * 2;
+    const sFinal = sSum * 2;
+
+    // Save history to localStorage/DB for companion tracking
     const newLog = {
       date: new Date().toISOString(),
-      test: "dass42",
-      scores: { D: dSum, A: aSum, S: sSum },
+      test: "dass42", // Keep database key compatible
+      scores: { D: dFinal, A: aFinal, S: sFinal },
       severities: {
-        D: getDASS42Interpretation("D", dSum).level,
-        A: getDASS42Interpretation("A", aSum).level,
-        S: getDASS42Interpretation("S", sSum).level
+        D: getDASS21Interpretation("D", dFinal).level,
+        A: getDASS21Interpretation("A", aFinal).level,
+        S: getDASS21Interpretation("S", sFinal).level
       }
     };
     savePsychHistory(newLog);
 
     return {
-      D: { score: dSum, max: 21, ...getDASS42Interpretation("D", dSum) },
-      A: { score: aSum, max: 21, ...getDASS42Interpretation("A", aSum) },
-      S: { score: sSum, max: 21, ...getDASS42Interpretation("S", sSum) }
+      D: { score: dFinal, max: 42, ...getDASS21Interpretation("D", dFinal) },
+      A: { score: aFinal, max: 42, ...getDASS21Interpretation("A", aFinal) },
+      S: { score: sFinal, max: 42, ...getDASS21Interpretation("S", sFinal) }
     };
   };
 
@@ -742,7 +747,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                 Đang tiến hành đánh giá
               </span>
               <h3 className="text-xs font-black text-zinc-850 dark:text-zinc-200 uppercase tracking-wider mt-0.5">
-                {selectedTest === "dass" ? "Trắc nghiệm tâm lý lâm sàng DASS-42" : "Kiểm định nhân cách lâm sàng Mini-MMPI"}
+                {selectedTest === "dass" ? "Trắc nghiệm tâm lý lâm sàng DASS-21 (Chuẩn Bộ Y Tế)" : "Kiểm định nhân cách lâm sàng Mini-MMPI"}
               </h3>
             </div>
             {selectedTest === "dass" ? (
@@ -774,7 +779,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
             )}
           </div>
 
-          {/* DASS-42 Grid */}
+          {/* DASS-21 Grid */}
           {selectedTest === "dass" && (
             <motion.div
               key={`dass-page-${dassPage}`}
@@ -1019,7 +1024,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                         </div>
                         <div className="flex items-baseline gap-1 mt-2.5">
                           <span className="text-2xl font-mono font-black text-zinc-800 dark:text-zinc-100">{scale.raw.score}</span>
-                          <span className="text-[10px] font-mono text-zinc-400">/{scale.raw.max} (DASS-42 score)</span>
+                          <span className="text-[10px] font-mono text-zinc-400">/{scale.raw.max} (DASS-21 score)</span>
                         </div>
                       </div>
 

@@ -1,21 +1,5 @@
-import webpush from 'web-push';
 import CompanionHistory from '../models/CompanionHistory.js';
-import NotificationSubscription from '../models/NotificationSubscription.js';
-import { vapidKeys } from '../routes/notificationRoutes.js';
-
-// Setup VAPID details again just to ensure it's initialized
-const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@hugostudio.vn';
-if (vapidKeys && vapidKeys.publicKey && vapidKeys.privateKey) {
-  try {
-    webpush.setVapidDetails(
-      vapidSubject,
-      vapidKeys.publicKey,
-      vapidKeys.privateKey
-    );
-  } catch (err) {
-    console.error('[Companion Scheduler] Error setting VAPID details:', err);
-  }
-}
+import { sendPushNotification } from './pushNotifier.js';
 
 /**
  * Lấy thời gian hiện tại ở múi giờ Việt Nam (UTC+7)
@@ -76,13 +60,6 @@ export async function runCompanionReminders(timeStr) {
       body = 'Trước khi khép lại ngày hôm nay, hãy cùng tớ thực hiện hoạt động trị liệu để vỗ về tâm hồn nhé!';
     }
 
-    const payload = JSON.stringify({
-      title,
-      body,
-      icon: '/image/avt7.png',
-      url: '/member/portal?tab=banhocduong'
-    });
-
     let sentCount = 0;
 
     for (const companion of activeCompanions) {
@@ -96,25 +73,9 @@ export async function runCompanionReminders(timeStr) {
       });
 
       if (!hasCompletedToday) {
-        // Tìm tất cả subscription của email này
-        const subscriptions = await NotificationSubscription.find({ email });
-        if (subscriptions && subscriptions.length > 0) {
-          console.log(`[Companion Scheduler] Người dùng ${email} chưa hoàn thành bài tập hôm nay. Gửi nhắc nhở đến ${subscriptions.length} thiết bị.`);
-          
-          const sendPromises = subscriptions.map(sub => 
-            webpush.sendNotification(sub.subscription, payload)
-              .catch(err => {
-                console.error(`[Companion Scheduler] Gửi thông báo thất bại cho ${email} tại endpoint: ${sub.subscription.endpoint}`, err.message);
-                // Nếu quyền thông báo đã bị thu hồi hoặc endpoint không hợp lệ, xóa subscription
-                if (err.statusCode === 410 || err.statusCode === 404) {
-                  return NotificationSubscription.deleteOne({ _id: sub._id });
-                }
-              })
-          );
-          
-          await Promise.all(sendPromises);
-          sentCount++;
-        }
+        // Gửi thông báo nhắc nhở đẩy
+        await sendPushNotification(email, title, body, '/member/portal?tab=utilities');
+        sentCount++;
       }
     }
 

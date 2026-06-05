@@ -5,6 +5,7 @@ import { requireAdmin } from '../middleware/authMiddleware.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 import { encryptText, decryptText, hashPassword, comparePassword } from '../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation.js';
+import { sendPushNotification } from '../utils/pushNotifier.js';
 
 const router = express.Router();
 
@@ -32,6 +33,14 @@ const pushHistory = (bio, entry) => {
   bio.history.push({ ...entry, timestamp: new Date() });
   if (bio.history.length > 50) {
     bio.history = bio.history.slice(bio.history.length - 50);
+  }
+  if (bio.email) {
+    sendPushNotification(
+      bio.email,
+      entry.title || 'Thông báo mới',
+      entry.detail || 'Bạn có cập nhật mới trong tài khoản.',
+      '/member/portal?tab=history'
+    ).catch(err => console.error('[pushHistory Notification] Error:', err));
   }
 };
 

@@ -2,6 +2,7 @@ import express from 'express';
 import Package from '../models/Package.js';
 import Bio from '../models/Bio.js';
 import { parseBirthday } from '../utils/birthdayAutomation.js';
+import { sendPushNotification } from '../utils/pushNotifier.js';
 
 const router = express.Router();
 
@@ -10,6 +11,14 @@ const pushHistory = (bio, entry) => {
   bio.history.push({ ...entry, timestamp: new Date() });
   if (bio.history.length > 50) {
     bio.history = bio.history.slice(bio.history.length - 50);
+  }
+  if (bio.email) {
+    sendPushNotification(
+      bio.email,
+      entry.title || 'Thông báo mới',
+      entry.detail || 'Bạn có cập nhật mới trong tài khoản.',
+      '/member/portal?tab=history'
+    ).catch(err => console.error('[pushHistory Notification] Error:', err));
   }
 };
 

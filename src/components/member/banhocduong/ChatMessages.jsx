@@ -7,12 +7,40 @@ export default function ChatMessages({
   setCompletedMessageIds,
   onStartTest,
   onSelectDuration,
-  loading
+  loading,
+  onNavigateToTab,
+  messagesEndRef
 }) {
+  const formatMessageText = (txt) => {
+    if (!txt) return "";
+    const parts = txt.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return (
+          <strong key={idx} className="font-extrabold text-[#0071e3] dark:text-emerald-400">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
-    <div className="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-none pb-4">
-      {messages.map((msg) => {
+    <div id="chat-messages-container" className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 pb-4">
+      {messages.map((msg, index) => {
         const isBot = msg.sender === "bot";
+        
+        // Sequence rule: If there is any preceding bot message that hasn't completed typing yet,
+        // we do NOT render this message or any subsequent ones yet.
+        const isPrecedingBotTyping = messages.slice(0, index).some(
+          m => m.sender === "bot" && m.id !== "init" && !completedMessageIds.has(m.id)
+        );
+        
+        if (isPrecedingBotTyping) {
+          return null;
+        }
+
         return (
           <div
             key={msg.id}
@@ -51,11 +79,21 @@ export default function ChatMessages({
                     }}
                   />
                 ) : (
-                  <p className="whitespace-pre-wrap font-semibold">{msg.text}</p>
+                  <p className="whitespace-pre-wrap font-semibold">{formatMessageText(msg.text)}</p>
                 )}
                 <span className="block text-[7.5px] font-black uppercase tracking-wider mt-1.5 opacity-60">
                   {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
+                {msg.showTherapyButton && (
+                  <button
+                    type="button"
+                    onClick={() => onNavigateToTab && onNavigateToTab("therapy")}
+                    className="mt-3.5 w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[9px] uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-xs font-black">favorite</span>
+                    Mở Trị Liệu & Thực Hành ngay
+                  </button>
+                )}
               </div>
 
               {isBot && (msg.suggestPhq9 || msg.suggestGad7 || msg.suggestWho5 || msg.suggestBigFive) && (
@@ -164,6 +202,7 @@ export default function ChatMessages({
           </div>
         </div>
       )}
+      <div ref={messagesEndRef} />
     </div>
   );
 }

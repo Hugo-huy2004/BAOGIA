@@ -75,6 +75,23 @@ const CompanionHistorySchema = new mongoose.Schema(
         isUploaded: { type: Boolean }
       }],
       default: []
+    },
+    chatMessages: {
+      type: [{
+        id: { type: String },
+        sender: { type: String },
+        text: { type: String },
+        time: { type: Date, default: Date.now },
+        isCompanionSetup: { type: Boolean },
+        recommendedDays: { type: Number },
+        selectedChoice: { type: mongoose.Schema.Types.Mixed },
+        showTherapyButton: { type: Boolean },
+        suggestPhq9: { type: Boolean },
+        suggestGad7: { type: Boolean },
+        suggestWho5: { type: Boolean },
+        suggestBigFive: { type: Boolean }
+      }],
+      default: []
     }
   },
   { timestamps: true }

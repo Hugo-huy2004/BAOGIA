@@ -1,14 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Trash2, ShieldCheck, MessageSquare, AlertTriangle, ChevronDown, ChevronUp, Clock, Sparkles } from "lucide-react";
+import { Heart, Trash2, ShieldCheck, MessageSquare, AlertTriangle, ChevronDown, ChevronUp, Clock, Sparkles, Bell } from "lucide-react";
 import SubUtilityHeader from "../SubUtilityHeader";
 import ChatTab from "./ChatTab";
 import TherapyTab from "./TherapyTab";
 import dataApi from "../../../services/dataApi";
 import psychologyService from "../../../services/classes/PsychologyService";
+import { webPushHelper } from "../../../utils/webPushHelper";
 
-function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, historyLogs }) {
+function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, historyLogs, bio }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [notificationStatus, setNotificationStatus] = useState(
+    'Notification' in window ? Notification.permission : 'default'
+  );
+
+  const handleEnablePush = async () => {
+    try {
+      const permission = await webPushHelper.requestPermission();
+      setNotificationStatus(permission);
+      if (permission === 'granted' && bio && bio.email) {
+        await webPushHelper.registerAndSubscribe(bio.email);
+        alert('Đăng ký nhận thông báo nhắc nhở thành công! 🎉');
+      } else if (permission === 'denied') {
+        alert('Quyền thông báo đã bị từ chối. Cậu vui lòng bật lại quyền thông báo trong cài đặt trình duyệt của mình nhé.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Không thể đăng ký nhận thông báo đẩy lúc này.');
+    }
+  };
   const currentDay = getProgressDay();
   const progressPercent = Math.min(100, Math.round((currentDay / duration) * 100));
 
@@ -176,14 +196,26 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
             Ngày {currentDay}/{duration} • Bắt đầu: {startDate ? new Date(startDate).toLocaleDateString("vi-VN") : "Hôm nay"}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-500/20 hover:border-red-500 bg-red-500/5 hover:bg-red-500/15 text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider transition-all"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-          Dừng lộ trình
-        </button>
+        <div className="flex items-center gap-2">
+          {webPushHelper.isSupported() && notificationStatus !== 'granted' && (
+            <button
+              type="button"
+              onClick={handleEnablePush}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-500/20 hover:border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/15 text-[10px] font-black text-emerald-600 dark:text-emerald-450 uppercase tracking-wider transition-all"
+            >
+              <Bell className="w-3.5 h-3.5 animate-bounce text-emerald-500" />
+              Bật nhắc nhở đẩy
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-500/20 hover:border-red-500 bg-red-500/5 hover:bg-red-500/15 text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider transition-all"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Dừng lộ trình
+          </button>
+        </div>
       </div>
 
       {/* Progress Bar */}
@@ -199,6 +231,214 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
           />
         </div>
       </div>
+
+      {/* Historical Progress Comparative Analytics */}
+      {(() => {
+        const dassTests = historyLogs.filter(l => l.test === "dass42");
+        const mmpiTests = historyLogs.filter(l => l.test === "mmpi30");
+        const phq9Tests = historyLogs.filter(l => l.test === "phq9");
+        const gad7Tests = historyLogs.filter(l => l.test === "gad7");
+        const who5Tests = historyLogs.filter(l => l.test === "who5");
+
+        const hasAnyTests = dassTests.length > 0 || mmpiTests.length > 0 || phq9Tests.length > 0 || gad7Tests.length > 0 || who5Tests.length > 0;
+        if (!hasAnyTests) return null;
+
+        return (
+          <div className="border-t border-zinc-200/50 dark:border-zinc-800/40 pt-4 space-y-3">
+            <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-200">
+              <span className="material-symbols-outlined text-sm text-indigo-500 font-black">monitoring</span>
+              <h4 className="text-[11px] font-black uppercase tracking-wider">Phân tích Tiến trình Chỉ số (Trước đó vs Hiện tại)</h4>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* DASS-42 progress */}
+              {dassTests.length > 0 && (() => {
+                const initial = dassTests[0];
+                const current = dassTests[dassTests.length - 1];
+                const showCompare = dassTests.length > 1;
+
+                const getDiff = (key) => {
+                  const diff = current.scores[key] - initial.scores[key];
+                  if (diff === 0) return { text: "Không đổi", color: "text-zinc-500" };
+                  if (diff > 0) return { text: `+${diff} điểm (Tăng căng thẳng)`, color: "text-red-500 font-black" };
+                  return { text: `${diff} điểm (Giảm căng thẳng)`, color: "text-emerald-500 font-black" };
+                };
+
+                return (
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-500">
+                      <span>DASS-42 (Trầm cảm / Lo âu / Căng thẳng)</span>
+                      {showCompare && <span className="text-[8.5px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-full uppercase font-black">Có biến động</span>}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center border-b pb-2">
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Ban đầu</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initial.scores.D}/{initial.scores.A}/{initial.scores.S}</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Hiện tại</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{current.scores.D}/{current.scores.A}/{current.scores.S}</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Trạng thái</span>
+                        <span className="text-[9.5px] font-black text-emerald-500 uppercase">{current.severities.D}</span>
+                      </div>
+                    </div>
+                    {showCompare && (
+                      <div className="text-[9.5px] space-y-1 pt-1">
+                        <div className="flex justify-between">
+                          <span className="text-zinc-450">Biến thiên Trầm cảm:</span>
+                          <span className={getDiff("D").color}>{getDiff("D").text}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-zinc-450">Biến thiên Lo âu:</span>
+                          <span className={getDiff("A").color}>{getDiff("A").text}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-zinc-450">Biến thiên Căng thẳng:</span>
+                          <span className={getDiff("S").color}>{getDiff("S").text}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* MMPI-30 progress */}
+              {mmpiTests.length > 0 && (() => {
+                const initial = mmpiTests[0];
+                const current = mmpiTests[mmpiTests.length - 1];
+                const showCompare = mmpiTests.length > 1;
+
+                const getElevatedCount = (test) => test.clinical ? test.clinical.filter(c => c.score >= 70).length : 0;
+                const initElev = getElevatedCount(initial);
+                const currElev = getElevatedCount(current);
+                const elevDiff = currElev - initElev;
+
+                return (
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-500">
+                      <span>Mini-MMPI (10 Thang Lâm Sàng)</span>
+                      {showCompare && <span className="text-[8.5px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-full uppercase font-black">Có biến động</span>}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center border-b pb-2">
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Vượt ngưỡng đầu</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initElev}/10 thang</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Vượt ngưỡng cuối</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{currElev}/10 thang</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Tin cậy</span>
+                        <span className={`text-[9.5px] font-black uppercase ${current.isReliable ? "text-emerald-500" : "text-amber-500"}`}>
+                          {current.isReliable ? "Hợp lệ" : "Nghi ngờ"}
+                        </span>
+                      </div>
+                    </div>
+                    {showCompare && (
+                      <div className="flex justify-between text-[9.5px] pt-1">
+                        <span className="text-zinc-450">Xu hướng hành vi bất ổn:</span>
+                        <span className={elevDiff < 0 ? "text-emerald-500 font-black" : elevDiff > 0 ? "text-red-500 font-black" : "text-zinc-500"}>
+                          {elevDiff < 0 ? `Giảm ${Math.abs(elevDiff)} thang đo` : elevDiff > 0 ? `Tăng +${elevDiff} thang đo` : "Không biến thiên"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* PHQ-9 progress */}
+              {phq9Tests.length > 0 && (() => {
+                const initial = phq9Tests[0];
+                const current = phq9Tests[phq9Tests.length - 1];
+                const diff = current.score - initial.score;
+
+                return (
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500">PHQ-9 Trầm Cảm</div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Ban đầu</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initial.score}/27đ</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Hiện tại</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{current.score}/27đ</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Biến thiên</span>
+                        <span className={`text-[9.5px] font-black uppercase ${diff < 0 ? "text-emerald-500" : diff > 0 ? "text-red-500" : "text-zinc-500"}`}>
+                          {diff < 0 ? `${diff}đ (Giảm u uất)` : diff > 0 ? `+${diff}đ (Tăng u uất)` : "Ổn định"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* GAD-7 progress */}
+              {gad7Tests.length > 0 && (() => {
+                const initial = gad7Tests[0];
+                const current = gad7Tests[gad7Tests.length - 1];
+                const diff = current.score - initial.score;
+
+                return (
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500">GAD-7 Lo Âu</div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Ban đầu</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initial.score}/21đ</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Hiện tại</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{current.score}/21đ</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Biến thiên</span>
+                        <span className={`text-[9.5px] font-black uppercase ${diff < 0 ? "text-emerald-500" : diff > 0 ? "text-red-500" : "text-zinc-500"}`}>
+                          {diff < 0 ? `${diff}đ (Giảm lo âu)` : diff > 0 ? `+${diff}đ (Tăng lo âu)` : "Ổn định"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* WHO-5 progress */}
+              {who5Tests.length > 0 && (() => {
+                const initial = who5Tests[0];
+                const current = who5Tests[who5Tests.length - 1];
+                const diff = (current.score * 4) - (initial.score * 4);
+
+                return (
+                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl space-y-2 sm:col-span-2">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500">WHO-5 Chỉ Số Hạnh Phúc</div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Ban đầu</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initial.score * 4}%</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Hiện tại</span>
+                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{current.score * 4}%</span>
+                      </div>
+                      <div>
+                        <span className="text-[8.5px] text-zinc-450 block uppercase">Biến thiên</span>
+                        <span className={`text-[9.5px] font-black uppercase ${diff > 0 ? "text-emerald-500" : diff < 0 ? "text-red-500" : "text-zinc-500"}`}>
+                          {diff > 0 ? `+${diff}% (Tăng hạnh phúc)` : diff < 0 ? `${diff}% (Giảm hạnh phúc)` : "Ổn định"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Abnormality and clinical analysis report */}
       <div className="space-y-3 pt-1">
@@ -364,6 +604,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
   const [healingDuration, setHealingDuration] = useState(30);
   const [healingStartDate, setHealingStartDate] = useState("");
   const [historyLogs, setHistoryLogs] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [adaptationAlert, setAdaptationAlert] = useState(null);
 
   // Sync state from Database
@@ -376,11 +617,16 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
         setHealingDuration(db.healingDuration);
         setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
         setHistoryLogs(db.historyLogs || []);
+        setChatMessages(db.chatMessages || []);
 
         localStorage.setItem("banhocduong_healing_mode", db.healingActive ? "active" : "");
         localStorage.setItem("banhocduong_healing_duration", db.healingDuration.toString());
         localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
         localStorage.setItem("banhocduong_history", JSON.stringify(db.historyLogs || []));
+        localStorage.setItem("banhocduong_last_checkin_date", db.lastCheckinDate || "");
+        localStorage.setItem("banhocduong_last_test_date", db.lastTestDate || "");
+        localStorage.setItem("banhocduong_chat_distress_count", (db.chatDistressCount || 0).toString());
+        localStorage.setItem("banhocduong_chat_messages", JSON.stringify(db.chatMessages || []));
       }
     } catch (e) {
       console.error("Failed to sync companion history from DB", e);
@@ -395,12 +641,40 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
   const handleUpdateCompanionState = async (updates) => {
     if (!bio || !bio.email) return;
     try {
+      // 1. Sync updates to localStorage synchronously to prevent stale React state overrides on rapid sequential calls
+      if (updates.healingActive !== undefined) {
+        localStorage.setItem("banhocduong_healing_mode", updates.healingActive ? "active" : "");
+      }
+      if (updates.healingDuration !== undefined) {
+        localStorage.setItem("banhocduong_healing_duration", updates.healingDuration.toString());
+      }
+      if (updates.healingStartDate !== undefined) {
+        localStorage.setItem("banhocduong_healing_start_date", updates.healingStartDate || "");
+      }
+      if (updates.historyLogs !== undefined) {
+        localStorage.setItem("banhocduong_history", JSON.stringify(updates.historyLogs));
+      }
+      if (updates.chatMessages !== undefined) {
+        localStorage.setItem("banhocduong_chat_messages", JSON.stringify(updates.chatMessages));
+      }
+
+      // 2. Build payload using localStorage as the synchronous source of truth
+      const isHealingActive = localStorage.getItem("banhocduong_healing_mode") === "active";
+      const healingDur = Number(localStorage.getItem("banhocduong_healing_duration") || 30);
+      const healingStart = localStorage.getItem("banhocduong_healing_start_date") || "";
+      const logs = JSON.parse(localStorage.getItem("banhocduong_history") || "[]");
+      const msgs = JSON.parse(localStorage.getItem("banhocduong_chat_messages") || "[]");
+
       const payload = {
         email: bio.email,
-        healingActive: updates.healingActive !== undefined ? updates.healingActive : healingActive,
-        healingDuration: updates.healingDuration !== undefined ? updates.healingDuration : healingDuration,
-        healingStartDate: updates.healingStartDate !== undefined ? updates.healingStartDate : healingStartDate,
-        historyLogs: updates.historyLogs !== undefined ? updates.historyLogs : historyLogs
+        healingActive: isHealingActive,
+        healingDuration: healingDur,
+        healingStartDate: healingStart,
+        lastCheckinDate: updates.lastCheckinDate !== undefined ? updates.lastCheckinDate : (localStorage.getItem("banhocduong_last_checkin_date") || ""),
+        lastTestDate: updates.lastTestDate !== undefined ? updates.lastTestDate : (localStorage.getItem("banhocduong_last_test_date") || ""),
+        chatDistressCount: updates.chatDistressCount !== undefined ? updates.chatDistressCount : Number(localStorage.getItem("banhocduong_chat_distress_count") || 0),
+        historyLogs: logs,
+        chatMessages: msgs
       };
 
       const res = await dataApi.saveCompanionHistory(payload);
@@ -410,11 +684,16 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
         setHealingDuration(db.healingDuration);
         setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
         setHistoryLogs(db.historyLogs || []);
+        setChatMessages(db.chatMessages || []);
 
         localStorage.setItem("banhocduong_healing_mode", db.healingActive ? "active" : "");
         localStorage.setItem("banhocduong_healing_duration", db.healingDuration.toString());
         localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
         localStorage.setItem("banhocduong_history", JSON.stringify(db.historyLogs || []));
+        localStorage.setItem("banhocduong_last_checkin_date", db.lastCheckinDate || "");
+        localStorage.setItem("banhocduong_last_test_date", db.lastTestDate || "");
+        localStorage.setItem("banhocduong_chat_distress_count", (db.chatDistressCount || 0).toString());
+        localStorage.setItem("banhocduong_chat_messages", JSON.stringify(db.chatMessages || []));
       }
     } catch (e) {
       console.error("Failed to save companion state", e);
@@ -492,6 +771,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
           getProgressDay={getProgressDay}
           onCancel={handleCancelHealing}
           historyLogs={historyLogs}
+          bio={bio}
         />
       )}
 
@@ -538,6 +818,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 bio={bio}
                 historyLogs={historyLogs}
                 onUpdateCompanionState={handleUpdateCompanionState}
+                chatMessages={chatMessages}
               />
             )}
 
@@ -547,6 +828,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 bio={bio}
                 historyLogs={historyLogs}
                 onUpdateCompanionState={handleUpdateCompanionState}
+                healingActive={healingActive}
               />
             )}
           </motion.div>

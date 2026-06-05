@@ -135,16 +135,9 @@ const DIALOGUE_TREE = {
   ]
 };
 
-export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState }) {
+export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, chatMessages }) {
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
-  const [messages, setMessages] = useState([
-    {
-      id: "init",
-      sender: "bot",
-      text: "Chào em, tôi là Chuyên viên Đồng Hành của em. Tại đây, mọi chia sẻ của em luôn được lắng nghe trong không gian bảo mật và tuyệt đối không phán xét. Dạo gần đây, việc học tập, sức khỏe hay cuộc sống cá nhân của em thế nào? Em có điều gì bận tâm muốn chia sẻ, hoặc muốn cùng tôi thực hiện các bài đánh giá tâm lý chuẩn lâm sàng không?",
-      time: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showTestsMenu, setShowTestsMenu] = useState(false);
 
@@ -157,13 +150,82 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
   const [chatMode, setChatMode] = useState("normal");
   const [activeTest, setActiveTest] = useState(null);
 
+
+  const lastMessage = messages[messages.length - 1];
+  const isLastMessageCompleted = !lastMessage || lastMessage.sender === "user" || lastMessage.id === "init" || completedMessageIds.has(lastMessage.id);
+
   const messagesEndRef = useRef(null);
+  const lastSavedMessageIdRef = useRef("");
+
+  // Sync messages state when chatMessages prop updates from DB
+  useEffect(() => {
+    if (chatMessages && chatMessages.length > 0) {
+      setMessages(chatMessages);
+      lastSavedMessageIdRef.current = chatMessages[chatMessages.length - 1].id;
+      const ids = chatMessages.map(m => m.id);
+      setCompletedMessageIds(new Set(ids));
+    }
+  }, [chatMessages]);
+
+  // Load chat messages from local storage/cache on mount
+  useEffect(() => {
+    if (bio?.email) {
+      const localMsgs = localStorage.getItem("banhocduong_chat_messages");
+      if (localMsgs) {
+        try {
+          const parsed = JSON.parse(localMsgs);
+          if (parsed.length > 0) {
+            const mapped = parsed.map(m => ({ ...m, time: new Date(m.time) }));
+            setMessages(mapped);
+            lastSavedMessageIdRef.current = mapped[mapped.length - 1].id;
+            
+            // Mark all existing loaded messages as completed immediately
+            const ids = mapped.map(m => m.id);
+            setCompletedMessageIds(new Set(ids));
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to parse local chat messages", e);
+        }
+      }
+
+      // Fallback: If no history exists, set the initial bot greeting
+      const initMsg = {
+        id: "init",
+        sender: "bot",
+        text: "Chào em, tôi là Chuyên viên Đồng Hành của em. Tại đây, mọi chia sẻ của em luôn được lắng nghe trong không gian bảo mật và tuyệt đối không phán xét. Dạo gần đây, việc học tập, sức khỏe hay cuộc sống cá nhân của em thế nào? Em có điều gì bận tâm muốn chia sẻ, hoặc muốn cùng tôi thực hiện các bài đánh giá tâm lý chuẩn lâm sàng không?",
+        time: new Date()
+      };
+      setMessages([initMsg]);
+      setCompletedMessageIds(new Set(["init"]));
+      lastSavedMessageIdRef.current = "init";
+    }
+  }, [bio?.email]);
+
+  // Auto-save new chat messages to MongoDB and sync to localStorage synchronously to prevent tab unmount data loss
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem("banhocduong_chat_messages", JSON.stringify(messages));
+      
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg && lastMsg.id !== lastSavedMessageIdRef.current) {
+        lastSavedMessageIdRef.current = lastMsg.id;
+        const sliced = messages.slice(-30);
+        onUpdateCompanionState({ chatMessages: sliced });
+      }
+    }
+  }, [messages]);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    setTimeout(() => {
+      const scrollContainer = document.getElementById("chat-messages-container");
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }, 100);
   }, [messages, loading, chatMode]);
+
+
 
   // Stage 1 -> Stage 2
   const handleAspectSelect = (aspect) => {
@@ -215,20 +277,6 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
     }, 1000);
   };
 
-  const triggerDirectCompanionRecommendation = (recommendedDays) => {
-    const name = recommendedDays === 7 ? "Hành trình Nuôi dưỡng Bình yên (Peace)" : "Hành trình Chăm sóc Tinh thần (Mindfulness)";
-    const proposalMsg = {
-      id: `bot-proposal-${Date.now()}`,
-      sender: "bot",
-      text: `Tôi khuyên em nên kích hoạt ${name} với thời gian ${recommendedDays} ngày để đồng hành chăm sóc sức khỏe tinh thần hàng ngày. Em có muốn kích hoạt lộ trình này ngay bây giờ không?`,
-      time: new Date(),
-      isCompanionSetup: true,
-      recommendedDays: recommendedDays
-    };
-    setMessages((prev) => [...prev, proposalMsg]);
-    setDialogStage(5); // Stage 5: showing companion setup choice inside bubble
-  };
-
   // Stage 3 -> Stage 4 (Recommend test) or Stage 5 (Direct advice)
   const handleSeveritySelect = (sevOpt) => {
     const userMsg = {
@@ -252,15 +300,35 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
         setLoading(false);
         setDialogStage(4);
       } else {
+        const botMsgId = `bot-${Date.now()}`;
         const botMsg = {
-          id: `bot-${Date.now()}`,
+          id: botMsgId,
           sender: "bot",
           text: `${sevOpt.advice}\n\n💡 Lời khuyên vàng: ${sevOpt.quote}`,
           time: new Date()
         };
-        setMessages((prev) => [...prev, botMsg]);
+
+        const pkgNames = {
+          7: "Hành trình Nuôi dưỡng Bình yên (Peace)",
+          14: "Hành trình Chăm sóc Tinh thần (Mindfulness)",
+          30: "Hành trình Tái tạo Cân bằng (Balance)",
+          50: "Hành trình Phục hồi Thấu cảm (Compassionate)",
+          90: "Hành trình Đồng hành Chuyên sâu (Intensive)"
+        };
+        const name = pkgNames[sevOpt.recommendedDays] || "Hành trình Chăm sóc Tinh thần (Mindfulness)";
+
+        const proposalMsg = {
+          id: `bot-proposal-${Date.now() + 10}`,
+          sender: "bot",
+          text: `Để hỗ trợ tốt nhất cho tình trạng hiện tại của em, tôi khuyên em nên kích hoạt **${name}** với thời gian **${sevOpt.recommendedDays} ngày** để tôi đồng hành chăm sóc sức khỏe tinh thần hàng ngày. Em có muốn kích hoạt lộ trình này ngay bây giờ không?`,
+          time: new Date(Date.now() + 10),
+          isCompanionSetup: true,
+          recommendedDays: sevOpt.recommendedDays
+        };
+
+        setMessages((prev) => [...prev, botMsg, proposalMsg]);
         setLoading(false);
-        setTimeout(() => triggerDirectCompanionRecommendation(sevOpt.recommendedDays), 1000);
+        setDialogStage(5);
       }
     }, 1000);
   };
@@ -290,6 +358,17 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
         historyLogs: updatedLogs
       });
 
+      // Request push notification permission and register service worker subscription
+      if (webPushHelper.isSupported()) {
+        webPushHelper.requestPermission().then((permission) => {
+          if (permission === 'granted' && bio && bio.email) {
+            webPushHelper.registerAndSubscribe(bio.email).catch((err) => {
+              console.error('Failed to register web push subscription:', err);
+            });
+          }
+        });
+      }
+
       const userMsg = {
         id: `user-select-${Date.now()}`,
         sender: "user",
@@ -300,7 +379,8 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
         id: `bot-confirm-${Date.now()}`,
         sender: "bot",
         text: `Tôi đã thiết lập lộ trình đồng hành ${duration} ngày cho em. Kể từ ngày mai, em hãy duy trì việc check-in cảm xúc hằng ngày tại đây để nhận các bài tập tự chữa lành thích ứng nhé.`,
-        time: new Date()
+        time: new Date(),
+        showTherapyButton: true
       };
       setMessages((prev) => [...prev, userMsg, botMsg]);
     } else {
@@ -329,86 +409,67 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
     setActiveTest(test);
 
     const userMsg = {
-      id: `user-test-req-${Date.now()}`,
+      id: `user-test-${Date.now()}`,
       sender: "user",
-      text: `Em muốn bắt đầu làm bài đánh giá ${test.name}.`,
+      text: `Tôi muốn thực hiện bài test ${test.name}`,
       time: new Date()
     };
     setMessages((prev) => [...prev, userMsg]);
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 600);
   };
 
-  const triggerCompanionAdjustmentRecommendation = (testType, score) => {
-    let days = 14;
-    let name = "Hành trình Chăm sóc Tinh thần (Mindfulness)";
 
-    if (testType === "phq9") {
-      if (score >= 20) { days = 90; name = "Hành trình Đồng hành Chuyên sâu (Intensive)"; }
-      else if (score >= 15) { days = 50; name = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
-      else if (score >= 10) { days = 30; name = "Hành trình Tái tạo Cân bằng (Balance)"; }
-      else if (score >= 5) { days = 14; name = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
-      else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
-    } else if (testType === "gad7") {
-      if (score >= 15) { days = 50; name = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
-      else if (score >= 10) { days = 30; name = "Hành trình Tái tạo Cân bằng (Balance)"; }
-      else if (score >= 5) { days = 14; name = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
-      else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
-    } else if (testType === "who5") {
-      if (score <= 8) { days = 50; name = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
-      else if (score <= 12) { days = 30; name = "Hành trình Tái tạo Cân bằng (Balance)"; }
-      else if (score <= 17) { days = 14; name = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
-      else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
-    }
-
-    const proposalMsg = {
-      id: `bot-proposal-${Date.now()}`,
-      sender: "bot",
-      text: `Dựa trên kết quả đánh giá ${testType.toUpperCase()} vừa rồi, tôi khuyên em nên kích hoạt ${name} (${days} ngày). Em có muốn kích hoạt ngay bây giờ không?`,
-      time: new Date(),
-      isCompanionSetup: true,
-      recommendedDays: days
-    };
-    setMessages((prev) => [...prev, proposalMsg]);
-  };
 
   const handleTestComplete = (testId, score, answers) => {
-    const test = CLINICAL_TESTS[testId];
-    let eventLog = null;
     let reviewText = "";
-
+    let eventLog = null;
     if (testId === "phq9") {
-      const interpretation = test.getInterpretation(score);
-      reviewText = `Cảm ơn em đã hoàn thành. Kết quả đánh giá Trầm cảm PHQ-9 của em là ${score}/27 điểm (${interpretation.severity}).\n\n${interpretation.desc}`;
-      eventLog = {
+      const interpretation = CLINICAL_TESTS.phq9.getInterpretation(score);
+      reviewText = `Tôi đã hoàn thành phân tích. Kết quả đánh giá Trầm cảm PHQ-9 của em đạt ${score}/27 điểm (${interpretation.severity}).\n\n${interpretation.desc}`;
+      
+      const updatedLogs = [...historyLogs, {
         date: new Date().toISOString(),
-        type: "clinical_test",
         test: "phq9",
         score,
         severity: interpretation.severity
-      };
-      setTimeout(() => triggerCompanionAdjustmentRecommendation("phq9", score), 1000);
+      }];
+      onUpdateCompanionState({
+        lastTestDate: new Date().toDateString(),
+        historyLogs: updatedLogs
+      });
     } else if (testId === "gad7") {
-      const interpretation = test.getInterpretation(score);
+      const interpretation = CLINICAL_TESTS.gad7.getInterpretation(score);
       reviewText = `Tôi đã phân tích xong. Kết quả đánh giá Lo âu GAD-7 của em là ${score}/21 điểm (${interpretation.severity}).\n\n${interpretation.desc}`;
-      eventLog = {
+      
+      const updatedLogs = [...historyLogs, {
         date: new Date().toISOString(),
-        type: "clinical_test",
         test: "gad7",
         score,
         severity: interpretation.severity
-      };
-      setTimeout(() => triggerCompanionAdjustmentRecommendation("gad7", score), 1000);
+      }];
+      onUpdateCompanionState({
+        lastTestDate: new Date().toDateString(),
+        historyLogs: updatedLogs
+      });
     } else if (testId === "who5") {
-      const interpretation = test.getInterpretation(score);
+      const interpretation = CLINICAL_TESTS.who5.getInterpretation(score);
       reviewText = `Đã có kết quả phân tích. Chỉ số trạng thái hạnh phúc WHO-5 của em đạt ${score}/25 điểm (${interpretation.status}).\n\n${interpretation.desc}`;
-      eventLog = {
+      
+      const updatedLogs = [...historyLogs, {
         date: new Date().toISOString(),
         type: "clinical_test",
         test: "who5",
         score,
         status: interpretation.status,
         percent: score * 4
-      };
-      setTimeout(() => triggerCompanionAdjustmentRecommendation("who5", score), 1000);
+      }];
+      onUpdateCompanionState({
+        lastTestDate: new Date().toDateString(),
+        historyLogs: updatedLogs
+      });
     } else if (testId === "bigfive") {
       const interpretation = test.getInterpretation(answers);
       reviewText = `Biểu đồ năm nhân tố tính cách Big Five của em đã hoàn thành:\n${interpretation.desc}\n\nTôi đã cập nhật các bài tập tự chữa lành thích ứng ở phần Trị Liệu để em rèn luyện hằng ngày nhé.`;
@@ -435,33 +496,146 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
       });
     }
 
+    const botReviewMsgId = `bot-review-${Date.now()}`;
     const botReviewMsg = {
-      id: `bot-review-${Date.now()}`,
+      id: botReviewMsgId,
       sender: "bot",
       text: reviewText,
       time: new Date()
     };
 
-    setMessages((prev) => [...prev, botReviewMsg]);
+    let newMsgs = [botReviewMsg];
+
+    if (["phq9", "gad7", "who5"].includes(testId)) {
+      let days = 14;
+      let name = "Hành trình Chăm sóc Tinh thần (Mindfulness)";
+
+      if (testId === "phq9") {
+        if (score >= 20) { days = 90; name = "Hành trình Đồng hành Chuyên sâu (Intensive)"; }
+        else if (score >= 15) { days = 50; name = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
+        else if (score >= 10) { days = 30; name = "Hành trình Tái tạo Cân bằng (Balance)"; }
+        else if (score >= 5) { days = 14; name = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
+        else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
+      } else if (testId === "gad7") {
+        if (score >= 15) { days = 50; name = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
+        else if (score >= 10) { days = 30; name = "Hành trình Tái tạo Cân bằng (Balance)"; }
+        else if (score >= 5) { days = 14; name = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
+        else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
+      } else if (testId === "who5") {
+        if (score <= 8) { days = 50; name = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
+        else if (score <= 12) { days = 30; name = "Hành trình Tái tạo Cân bằng (Balance)"; }
+        else if (score <= 17) { days = 14; name = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
+        else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
+      }
+
+      const proposalMsg = {
+        id: `bot-proposal-${Date.now() + 10}`,
+        sender: "bot",
+        text: `Dựa trên kết quả đánh giá ${testId.toUpperCase()} vừa rồi, tôi khuyên em nên kích hoạt **${name}** với thời gian **${days} ngày** để tôi đồng hành chăm sóc sức khỏe tinh thần hàng ngày. Em có muốn kích hoạt lộ trình này ngay bây giờ không?`,
+        time: new Date(Date.now() + 10),
+        isCompanionSetup: true,
+        recommendedDays: days
+      };
+      newMsgs.push(proposalMsg);
+      setDialogStage(5);
+    } else {
+      setDialogStage(0);
+    }
+
+    setMessages((prev) => [...prev, ...newMsgs]);
     setChatMode("normal");
     setActiveTest(null);
-    setDialogStage(0); // transition to post-assessment companion loop
   };
 
   const handleScanComplete = (testType, resultLog) => {
     let responseMsgText = "";
     if (testType === "dass") {
-      responseMsgText = `Tôi đã ghi nhận kết quả Quét DASS-42 lâm sàng của em vào hồ sơ đồng hành:\n` +
-        `• Trầm cảm: ${resultLog.scores.D}/42 điểm (${resultLog.severities.D})\n` +
-        `• Lo âu: ${resultLog.scores.A}/42 điểm (${resultLog.severities.A})\n` +
-        `• Căng thẳng: ${resultLog.scores.S}/42 điểm (${resultLog.severities.S})\n\n` +
-        `Các liệu pháp trị liệu tương ứng ở thẻ Trị Liệu đã được cập nhật mở khóa.`;
+      const getDassInterpret = (scale, score) => {
+        if (scale === "D") {
+          if (score <= 9) return "Bình thường";
+          if (score <= 13) return "Nhẹ";
+          if (score <= 20) return "Vừa phải";
+          if (score <= 27) return "Nặng";
+          return "Rất nặng";
+        }
+        if (scale === "A") {
+          if (score <= 7) return "Bình thường";
+          if (score <= 9) return "Nhẹ";
+          if (score <= 14) return "Vừa phải";
+          if (score <= 19) return "Nặng";
+          return "Rất nặng";
+        }
+        if (score <= 14) return "Bình thường";
+        if (score <= 18) return "Nhẹ";
+        if (score <= 25) return "Vừa phải";
+        if (score <= 33) return "Nặng";
+        return "Rất nặng";
+      };
+
+      const dSev = getDassInterpret("D", resultLog.scores.D);
+      const aSev = getDassInterpret("A", resultLog.scores.A);
+      const sSev = getDassInterpret("S", resultLog.scores.S);
+
+      let solutions = [];
+      if (resultLog.scores.D >= 10) {
+        solutions.push(`Thực hành liệu pháp **Trị liệu Trầm cảm (CBT)** để xoa dịu u uất.`);
+      }
+      if (resultLog.scores.A >= 8) {
+        solutions.push(`Tập thở chánh niệm **Điều hòa nhịp thở 4-7-8** để cắt lo âu tức thì.`);
+      }
+      if (resultLog.scores.S >= 15) {
+        solutions.push(`Dành 10-15 phút **Ngồi Tĩnh Tâm** trước khi ngủ để thư giãn sóng não.`);
+      }
+      if (solutions.length === 0) {
+        solutions.push(`Các chỉ số tốt. Hãy rèn luyện thể chất và trải nghiệm **Đọc sách Trị liệu**.`);
+      }
+
+      responseMsgText = `Tôi đã phân tích kết quả DASS-42 lâm sàng trích xuất từ hồ sơ phòng khám của em:\n\n` +
+        `• **Trầm cảm (D):** ${resultLog.scores.D}/42 điểm (${dSev})\n` +
+        `• **Lo âu (A):** ${resultLog.scores.A}/42 điểm (${aSev})\n` +
+        `• **Căng thẳng (S):** ${resultLog.scores.S}/42 điểm (${sSev})\n\n` +
+        `💡 **Giải pháp & Lộ trình đề xuất:**\n• ${solutions.join("\n• ")}`;
     } else {
-      const elevatedCount = resultLog.clinical.filter(v => v.score >= 70).length;
-      responseMsgText = `Tôi đã ghi nhận kết quả Quét MMPI-30 nhân cách của em vào hồ sơ đồng hành:\n` +
-        `• Độ tin cậy kiểm chứng: ${resultLog.isReliable ? "Hợp lệ" : "Nghi ngờ"}\n` +
-        `• Chỉ số vượt ngưỡng cảnh báo: ${elevatedCount}/10 thang đo\n\n` +
-        `Hồ sơ đã được lưu trữ an toàn bảo mật.`;
+      const scaleNames = { 
+        Hs: "Nghi bệnh", D: "Trầm cảm", Hy: "Hysteria", Pd: "Sai lệch nhân cách", 
+        Mf: "Nam/Nữ tính", Pa: "Hoang tưởng", Pt: "Suy nhược", 
+        Sc: "Tâm thần phân liệt", Ma: "Hưng cảm nhẹ", Si: "Hướng ngoại xã hội" 
+      };
+
+      const validity = resultLog.validity;
+      const clinical = resultLog.clinical;
+      const elevated = clinical.filter(c => c.score >= 70);
+
+      let solutions = [];
+      if (elevated.length > 0) {
+        elevated.forEach(e => {
+          if (e.code === "Hs" || e.code === "Hy") {
+            solutions.push(`Thang **${scaleNames[e.code]}** cao: Áp lực chuyển hóa thể chất. Hãy tập **Thở 4-7-8** để làm dịu.`);
+          } else if (e.code === "D") {
+            solutions.push(`Thang **Trầm cảm (D)** cao: Hãy viết nhật ký tích cực trong thẻ **Trị liệu Trầm cảm (CBT)**.`);
+          } else if (e.code === "Pd") {
+            solutions.push(`Thang **Sai lệch (Pd)** cao: Hãy ghi lại nhật ký cảm xúc để kiềm chế xung động.`);
+          } else if (e.code === "Pt" || e.code === "Sc") {
+            solutions.push(`Thang **${scaleNames[e.code]}** cao: Thường lo âu ám ảnh. Hãy rèn luyện thẻ **Ngồi Tĩnh Tâm**.`);
+          } else if (e.code === "Si") {
+            solutions.push(`Thang **Hướng nội (Si)** cao: Thiếu năng lượng xã hội. Hãy tham khảo **Đọc sách Trị liệu** tĩnh lặng.`);
+          } else {
+            solutions.push(`Thang **${scaleNames[e.code]}** cao: Thực hành các bài tập chánh niệm để tái tạo cân bằng.`);
+          }
+        });
+      } else {
+        solutions.push(`Các chỉ số nhân cách thích ứng tốt. Đề xuất thực hành **Đọc sách Trị liệu**.`);
+      }
+
+      responseMsgText = `Tôi đã hoàn tất trích xuất và phân tích 13 chỉ số nhân cách Mini-MMPI từ bệnh án phòng khám:\n\n` +
+        `🔍 **Chỉ số kiểm định độ tin cậy (L-F-K):**\n` +
+        `• L (Lie/Nói dối): **${validity.L} T-score** (${validity.L >= 70 ? "Vượt ngưỡng" : "Bình thường"})\n` +
+        `• F (Infrequency/Dị biệt): **${validity.F} T-score** (${validity.F >= 80 ? "Cảnh báo" : "Bình thường"})\n` +
+        `• K (Correction/Phòng vệ): **${validity.K} T-score** (${validity.K >= 70 ? "Vượt ngưỡng" : "Bình thường"})\n` +
+        `• Đánh giá chung: **${resultLog.isReliable ? "Báo cáo hợp lệ" : "Báo cáo có độ tin cậy thấp"}**\n\n` +
+        `📊 **Kết quả 10 Thang đo Lâm sàng:**\n` +
+        clinical.map(c => `• ${scaleNames[c.code] || c.code}: **${c.score} T-score** ${c.score >= 70 ? "⚠️" : ""}`).join("\n") + `\n\n` +
+        `💡 **Giải pháp tự chữa lành thích ứng:**\n• ${solutions.join("\n• ")}`;
     }
 
     const updatedLogs = [...historyLogs, resultLog];
@@ -470,20 +644,47 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
       historyLogs: updatedLogs
     });
 
+    const botMsgId = `bot-scan-${Date.now()}`;
     const botMsg = {
-      id: `bot-scan-${Date.now()}`,
+      id: botMsgId,
       sender: "bot",
       text: responseMsgText,
       time: new Date()
     };
 
-    setMessages((prev) => [...prev, botMsg]);
+    // Calculate recommended days based on scan metrics
+    let recommendedDays = 7;
+    let pkgName = "Hành trình Nuôi dưỡng Bình yên (Peace)";
+    if (testType === "dass") {
+      const { D, A, S } = resultLog.scores;
+      if (D >= 28) { recommendedDays = 90; pkgName = "Hành trình Đồng hành Chuyên sâu (Intensive)"; }
+      else if (D >= 21 || A >= 20 || S >= 26) { recommendedDays = 50; pkgName = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
+      else if (D >= 14 || A >= 10 || S >= 19) { recommendedDays = 30; pkgName = "Hành trình Tái tạo Cân bằng (Balance)"; }
+      else if (D >= 10 || A >= 8 || S >= 15) { recommendedDays = 14; pkgName = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
+    } else {
+      const elevatedCount = resultLog.clinical.filter(c => c.score >= 70).length;
+      if (elevatedCount >= 5) { recommendedDays = 90; pkgName = "Hành trình Đồng hành Chuyên sâu (Intensive)"; }
+      else if (elevatedCount >= 3) { recommendedDays = 50; pkgName = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
+      else if (elevatedCount >= 1) { recommendedDays = 30; pkgName = "Hành trình Tái tạo Cân bằng (Balance)"; }
+      else if (!resultLog.isReliable) { recommendedDays = 14; pkgName = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
+    }
+
+    const proposalMsg = {
+      id: `bot-proposal-${Date.now() + 10}`,
+      sender: "bot",
+      text: `Dựa trên kết quả Quét hồ sơ lâm sàng của em, tôi khuyên em nên kích hoạt **${pkgName}** với thời gian **${recommendedDays} ngày** để tôi đồng hành chăm sóc sức khỏe tinh thần hàng ngày. Em có muốn kích hoạt lộ trình này ngay bây giờ không?`,
+      time: new Date(Date.now() + 10),
+      isCompanionSetup: true,
+      recommendedDays: recommendedDays
+    };
+
+    setMessages((prev) => [...prev, botMsg, proposalMsg]);
     setChatMode("normal");
-    setDialogStage(0); // transition to post-assessment companion loop
+    setDialogStage(5); // Show companion setup choice inside bubble
   };
 
   return (
-    <div className="flex flex-col h-[560px] justify-between relative bg-zinc-50/20 dark:bg-black/10 animate-fadeIn">
+    <div className="flex flex-col min-h-[580px] md:min-h-[600px] h-[580px] md:h-[600px] justify-between relative bg-zinc-50/20 dark:bg-black/10 animate-fadeIn">
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes float-mascot {
           0% { transform: translateY(0px) scale(1); }
@@ -558,7 +759,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
       {/* Main Comic Strip Layout */}
       <div className="flex-1 flex flex-col md:flex-row min-h-0 comic-dotted-bg">
         {/* Left Column: Mascot */}
-        <div className="hidden md:flex md:w-[35%] flex-col justify-end items-center relative select-none pb-2 border-r border-zinc-200/50 dark:border-zinc-800/20">
+        <div className="hidden md:flex md:w-[26%] flex-col justify-end items-center relative select-none pb-2 border-r border-zinc-200/50 dark:border-zinc-800/20">
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-100/50 via-transparent to-transparent dark:from-zinc-950/20 pointer-events-none" />
           <img
             src="/image/avt7.png"
@@ -584,6 +785,8 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
               onStartTest={handleStartTest}
               onSelectDuration={handleSelectDuration}
               loading={loading}
+              onNavigateToTab={onNavigateToTab}
+              messagesEndRef={messagesEndRef}
             />
           )}
 
@@ -606,7 +809,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
           )}
 
           {/* Action Options Menu (No text typing allowed) */}
-          {chatMode === "normal" && !loading && (
+          {chatMode === "normal" && !loading && isLastMessageCompleted && (
             <>
               {dialogStage === 1 && (
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-200/50 dark:border-zinc-800/10 shrink-0">

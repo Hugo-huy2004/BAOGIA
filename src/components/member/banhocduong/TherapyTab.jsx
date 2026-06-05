@@ -5,7 +5,7 @@ import ReadingTherapy from "./ReadingTherapy";
 import MeditationTherapy from "./MeditationTherapy";
 import DepressionCbtTherapy from "./DepressionCbtTherapy";
 
-export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState }) {
+export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, healingActive }) {
   // activePanel: null | 'reading' | 'meditation' | 'breath' | 'depression'
   const [activePanel, setActivePanel] = useState(null); 
 
@@ -20,9 +20,11 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
     log.test === "mmpi30"
   );
 
-  const isReadingUnlocked = hasClinicalResults;
+  const hasActiveJourneyOrResults = hasClinicalResults || healingActive;
+
+  const isReadingUnlocked = hasActiveJourneyOrResults;
   
-  const isBreathingUnlocked = historyLogs.some(log => {
+  const isBreathingUnlocked = healingActive || historyLogs.some(log => {
     if (log.test === "gad7" && log.score >= 5) return true;
     if (log.test === "dass42" && log.scores && log.scores.A >= 7) return true;
     if (log.test === "mmpi30" && log.clinical && log.clinical.some(c => (c.code === "Hs" || c.code === "Hy") && c.score >= 70)) return true;
@@ -30,14 +32,14 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
     return false;
   });
 
-  const isMeditationUnlocked = historyLogs.some(log => {
+  const isMeditationUnlocked = healingActive || historyLogs.some(log => {
     if (log.test === "who5" && log.score <= 12) return true;
     if (log.test === "dass42" && log.scores && log.scores.S >= 10) return true;
     if (log.test === "mmpi30" && log.clinical && log.clinical.some(c => (c.code === "Pt" || c.code === "Sc") && c.score >= 70)) return true;
     return false;
   });
 
-  const isDepressionUnlocked = historyLogs.some(log => {
+  const isDepressionUnlocked = healingActive || historyLogs.some(log => {
     if (log.test === "phq9" && log.score >= 5) return true;
     if (log.test === "dass42" && log.scores && log.scores.D >= 10) return true;
     if (log.test === "mmpi30" && log.clinical && log.clinical.some(c => c.code === "D" && c.score >= 70)) return true;
@@ -73,7 +75,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
             </p>
           </div>
  
-          {!hasClinicalResults ? (
+          {!hasActiveJourneyOrResults ? (
             <div className="max-w-md mx-auto text-center p-8 border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-3xl space-y-4 animate-scaleUp shadow-sm">
               <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mx-auto text-zinc-400">
                 <Lock className="w-5 h-5" />

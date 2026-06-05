@@ -20,11 +20,26 @@ export const CLINICAL_TESTS = {
       { value: 3, label: "Gần như mỗi ngày" }
     ],
     getInterpretation: (score) => {
-      if (score <= 4) return { severity: "Bình thường / Tối thiểu", desc: "Tâm trạng ổn định, hầu như không có biểu hiện trầm cảm." };
-      if (score <= 9) return { severity: "Trầm cảm Nhẹ", desc: "Có một vài biểu hiện trầm cảm nhẹ, cần chú ý nghỉ ngơi và chia sẻ cảm xúc." };
-      if (score <= 14) return { severity: "Trầm cảm Vừa", desc: "Mức độ trầm cảm trung bình, khuyên dùng liệu pháp trị liệu trầm cảm và thư giãn." };
-      if (score <= 19) return { severity: "Trầm cảm Trung bình Nặng", desc: "Biểu hiện trầm cảm khá rõ nét, nên thực hành trị liệu hằng ngày và nói chuyện với chuyên gia." };
-      return { severity: "Trầm cảm Nặng", desc: "Mức độ trầm cảm nghiêm trọng lâm sàng, cần liên hệ chuyên viên y tế hoặc tư vấn học đường ngay lập tức." };
+      if (score <= 4) return { 
+        severity: "Bình thường / Tối thiểu", 
+        desc: "Tâm trạng của em hiện tại khá **ổn định**, hầu như không có biểu hiện trầm cảm.\n\n💡 **Giải pháp & Lời khuyên:** Hãy tiếp tục duy trì lối sống tích cực, ăn uống điều độ và dành thời gian thư giãn. Em có thể tham gia bài tập **Đọc sách Trị liệu** trong thẻ Trị Liệu để duy trì năng lượng tích cực này nhé!" 
+      };
+      if (score <= 9) return { 
+        severity: "Trầm cảm Nhẹ", 
+        desc: "Em đang có một vài biểu hiện **trầm cảm nhẹ** (do áp lực học tập hoặc sinh hoạt tạm thời).\n\n💡 **Giải pháp & Lời khuyên:** Em cần chú ý cân bằng thời gian nghỉ ngơi, ngủ đủ giấc từ **7-8 tiếng** mỗi ngày và chia sẻ áp lực với bạn bè hoặc chuyên viên. Bài tập **Đọc sách Trị liệu** hoặc **Điều hòa nhịp thở 4-7-8** trong thẻ Trị Liệu đã được mở khóa để hỗ trợ em." 
+      };
+      if (score <= 14) return { 
+        severity: "Trầm cảm Vừa", 
+        desc: "Mức độ trầm cảm ghi nhận ở mức **trung bình**. Em thường xuyên cảm thấy mệt mỏi, cạn kiệt năng lượng hoặc mất hứng thú.\n\n💡 **Giải pháp & Lời khuyên:** Em nên thực hành liệu pháp **Trị liệu Trầm cảm (CBT)** bằng cách viết nhật ký tích cực trong thẻ Trị Liệu. Hãy cố gắng không tự cô lập bản thân, tập thể dục nhẹ nhàng 15 phút và trò chuyện cùng Chuyên viên Đồng Hành thường xuyên hơn." 
+      };
+      if (score <= 19) return { 
+        severity: "Trầm cảm Trung bình Nặng", 
+        desc: "Biểu hiện trầm cảm khá rõ nét và **nặng nề**, ảnh hưởng lớn đến học tập và sinh hoạt của em.\n\n💡 **Giải pháp & Lời khuyên:** Hãy cam kết thực hành bài tập **Trị liệu Trầm cảm (CBT)** và **Ngồi Tĩnh Tâm** đều đặn mỗi ngày. Đồng thời, tôi khuyên em nên chủ động trò chuyện sâu hơn với **Chuyên viên Đồng Hành** hoặc liên hệ phòng tư vấn học đường của trường để có điểm tựa nâng đỡ tinh thần nhé." 
+      };
+      return { 
+        severity: "Trầm cảm Nặng", 
+        desc: "Mức độ trầm cảm ghi nhận ở ngưỡng **nghiêm trọng lâm sàng**. Em có thể đang cảm thấy vô cùng bế tắc và bất an.\n\n⚠️ **QUAN TRỌNG:** Đây là dấu hiệu cảnh báo khẩn cấp. Hãy liên hệ ngay với **Chuyên viên Đồng Hành**, phụ huynh hoặc cơ sở y tế gần nhất để được hỗ trợ chuyên sâu kịp thời. Hãy nhớ rằng em không đơn độc và luôn có người sẵn sàng giúp đỡ em." 
+      };
     }
   },
   gad7: {
@@ -46,10 +61,22 @@ export const CLINICAL_TESTS = {
       { value: 3, label: "Gần như mỗi ngày" }
     ],
     getInterpretation: (score) => {
-      if (score <= 4) return { severity: "Bình thường / Tối thiểu", desc: "Mức độ lo âu tối thiểu, tinh thần kiểm soát tốt." };
-      if (score <= 9) return { severity: "Lo âu Nhẹ", desc: "Lo âu nhẹ, có thể do áp lực học tập tạm thời. Nên thực hành thở 4-7-8." };
-      if (score <= 14) return { severity: "Lo âu Vừa", desc: "Lo âu vừa phải, khuyên cậu nên tập thở sâu và thư giãn đều đặn." };
-      return { severity: "Lo âu Nặng", desc: "Lo âu nặng lâm sàng, ảnh hưởng xấu đến sinh hoạt, cần hỗ trợ y tế học đường sớm." };
+      if (score <= 4) return { 
+        severity: "Bình thường / Tối thiểu", 
+        desc: "Mức độ lo âu **tối thiểu**, tinh thần của em đang được kiểm soát rất tốt trước các áp lực bên ngoài." 
+      };
+      if (score <= 9) return { 
+        severity: "Lo âu Nhẹ", 
+        desc: "Em đang gặp tình trạng **lo âu nhẹ**, có thể xuất phát từ áp lực thi cử hoặc bài vở dồn dập.\n\n💡 **Giải pháp & Lời khuyên:** Hãy thực hành bài tập **Điều hòa nhịp thở 4-7-8** trong thẻ Trị Liệu để xoa dịu thần kinh tức thì. Em cũng nên chia nhỏ mục tiêu học tập để tránh bị choáng ngợp nhé." 
+      };
+      if (score <= 14) return { 
+        severity: "Lo âu Vừa", 
+        desc: "Lo âu ở mức **trung bình**. Em thường xuyên cảm thấy bồn chồn lo lắng, khó thả lỏng đầu óc hoặc dễ bị cáu gắt.\n\n💡 **Giải pháp & Lời khuyên:** Nên duy trì bài tập **Điều hòa nhịp thở 4-7-8** 2 lần mỗi ngày và tập **Ngồi Tĩnh Tâm** từ 10-15 phút trước khi ngủ để ổn định nhịp tim và thư giãn sóng não." 
+      };
+      return { 
+        severity: "Lo âu Nặng", 
+        desc: "Mức độ lo âu **nghiêm trọng lâm sàng**, gây ảnh hưởng xấu đến giấc ngủ và thể chất của em (tim đập nhanh, sợ hãi vô cớ).\n\n💡 **Giải pháp & Lời khuyên:** Hãy thực hiện ngay các bài tập **Điều hòa nhịp thở 4-7-8** để cắt cơn lo âu bộc phát. Cậu nên giảm bớt khối lượng học tập và thảo luận thêm với **Chuyên viên Đồng Hành** để tìm phương pháp tháo gỡ áp lực." 
+      };
     }
   },
   who5: {
@@ -72,8 +99,16 @@ export const CLINICAL_TESTS = {
     ],
     getInterpretation: (score) => {
       const percentage = score * 4;
-      if (percentage >= 50) return { status: "Hạnh phúc tốt", percent: percentage, desc: `Chỉ số sức khỏe tinh thần và cảm giác hạnh phúc của cậu rất tốt (${percentage}%).` };
-      return { status: "Hạnh phúc thấp (Cần lưu ý)", percent: percentage, desc: `Chỉ số hạnh phúc khá thấp (${percentage}%), khuyên cậu thực hành ngồi tĩnh tâm để phục hồi năng lượng.` };
+      if (percentage >= 50) return { 
+        status: "Hạnh phúc tốt", 
+        percent: percentage, 
+        desc: `Chỉ số sức khỏe tinh thần và cảm giác hạnh phúc của em ở mức **rất tốt** (${percentage}%).\n\n💡 **Giải pháp & Lời khuyên:** Hãy tiếp tục duy trì trạng thái tích cực này. Em có thể tham khảo chuyên mục **Đọc sách Trị liệu** để nuôi dưỡng tâm hồn thêm phong phú nhé!` 
+      };
+      return { 
+        status: "Hạnh phúc thấp (Cần lưu ý)", 
+        percent: percentage, 
+        desc: `Chỉ số cảm nhận hạnh phúc của em hiện tại khá **thấp** (${percentage}%).\n\n💡 **Giải pháp & Lời khuyên:** Đầu óc em có thể đang bị quá tải và thiếu năng lượng tích cực. Hãy thực hành ngay liệu pháp **Ngồi Tĩnh Tâm** hoặc nghe nhạc tần số cao trong thẻ Trị Liệu để tái tạo năng lượng sống.` 
+      };
     }
   },
   bigfive: {
@@ -111,7 +146,7 @@ export const CLINICAL_TESTS = {
         conscientiousness,
         neuroticism,
         openness,
-        desc: `Hướng ngoại: ${extraversion}/5 • Dễ chịu: ${agreeableness}/5 • Tận tụy: ${conscientiousness}/5 • Nhạy cảm: ${neuroticism}/5 • Cởi mở: ${openness}/5.`
+        desc: `Hướng ngoại: **${extraversion}/5** • Dễ chịu: **${agreeableness}/5** • Tận tụy: **${conscientiousness}/5** • Nhạy cảm: **${neuroticism}/5** • Cởi mở: **${openness}/5**.`
       };
     }
   }
