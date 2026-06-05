@@ -4,6 +4,7 @@ import { Heart, Trash2, ShieldCheck, MessageSquare, AlertTriangle, ChevronDown, 
 import SubUtilityHeader from "../SubUtilityHeader";
 import ChatTab from "./ChatTab";
 import TherapyTab from "./TherapyTab";
+import ProfileTab from "./ProfileTab";
 import dataApi from "../../../services/dataApi";
 import psychologyService from "../../../services/classes/PsychologyService";
 import { webPushHelper } from "../../../utils/webPushHelper";
@@ -641,21 +642,26 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
   const handleUpdateCompanionState = async (updates) => {
     if (!bio || !bio.email) return;
     try {
-      // 1. Sync updates to localStorage synchronously to prevent stale React state overrides on rapid sequential calls
+      // 1. Sync updates to localStorage and React state synchronously to prevent stale React state overrides on rapid sequential calls
       if (updates.healingActive !== undefined) {
         localStorage.setItem("banhocduong_healing_mode", updates.healingActive ? "active" : "");
+        setHealingActive(updates.healingActive);
       }
       if (updates.healingDuration !== undefined) {
         localStorage.setItem("banhocduong_healing_duration", updates.healingDuration.toString());
+        setHealingDuration(updates.healingDuration);
       }
       if (updates.healingStartDate !== undefined) {
         localStorage.setItem("banhocduong_healing_start_date", updates.healingStartDate || "");
+        setHealingStartDate(updates.healingStartDate ? new Date(updates.healingStartDate).toISOString() : "");
       }
       if (updates.historyLogs !== undefined) {
         localStorage.setItem("banhocduong_history", JSON.stringify(updates.historyLogs));
+        setHistoryLogs(updates.historyLogs);
       }
       if (updates.chatMessages !== undefined) {
         localStorage.setItem("banhocduong_chat_messages", JSON.stringify(updates.chatMessages));
+        setChatMessages(updates.chatMessages);
       }
 
       // 2. Build payload using localStorage as the synchronous source of truth
@@ -780,6 +786,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
         {[
           { id: "chat", label: "Tâm Sự", icon: MessageSquare },
           { id: "therapy", label: "Trị Liệu", icon: Heart },
+          { id: "profile", label: "Hồ Sơ", icon: ShieldCheck },
         ].map((tab) => {
           const isActive = activeSubTab === tab.id;
           const IconComponent = tab.icon;
@@ -829,6 +836,13 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 historyLogs={historyLogs}
                 onUpdateCompanionState={handleUpdateCompanionState}
                 healingActive={healingActive}
+              />
+            )}
+
+            {activeSubTab === "profile" && (
+              <ProfileTab
+                historyLogs={historyLogs}
+                bio={bio}
               />
             )}
           </motion.div>
