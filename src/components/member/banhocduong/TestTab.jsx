@@ -5,82 +5,82 @@ import psychologyService from "../../../services/classes/PsychologyService";
 // DASS-21 Vietnamese Question Bank (7 Depression, 7 Anxiety, 7 Stress)
 // D: Depression, A: Anxiety, S: Stress
 const DASS21_QUESTIONS = [
-  { id: 1, type: "S", text: "Tôi cảm thấy khó mà thoải mái được" },
-  { id: 2, type: "A", text: "Tôi bị khô miệng" },
-  { id: 3, type: "D", text: "Tôi dường như chẳng có chút cảm xúc tích cực nào" },
-  { id: 4, type: "A", text: "Tôi bị rối loạn nhịp thở (thở gấp, khó thở dù chẳng làm việc gì nặng)" },
-  { id: 5, type: "D", text: "Tôi thấy khó bắt tay vào công việc" },
-  { id: 6, type: "S", text: "Tôi có xu hướng phản ứng thái quá với mọi tình huống" },
-  { id: 7, type: "A", text: "Tôi bị ra mồ hôi (chẳng hạn như mồ hôi tay)" },
-  { id: 8, type: "S", text: "Tôi thấy mình đang dùng quá nhiều năng lượng thần kinh" },
-  { id: 9, type: "A", text: "Tôi lo lắng về những tình huống có thể làm tôi hoảng sợ hoặc biến tôi thành trò cười" },
-  { id: 10, type: "D", text: "Tôi thấy mình chẳng có gì để mong đợi cả" },
-  { id: 11, type: "S", text: "Tôi thấy bản thân dễ bị kích động" },
-  { id: 12, type: "S", text: "Tôi thấy khó thư giãn được" },
-  { id: 13, type: "D", text: "Tôi cảm thấy chán nản, thất vọng" },
-  { id: 14, type: "S", text: "Tôi không chấp nhận được việc có cái gì đó xen vào cản trở việc tôi đang làm" },
-  { id: 15, type: "A", text: "Tôi thấy mình gần như hoảng loạn" },
-  { id: 16, type: "D", text: "Tôi không thấy hăng hái với bất kỳ việc gì nữa" },
-  { id: 17, type: "D", text: "Tôi cảm thấy mình chẳng đáng làm người" },
-  { id: 18, type: "S", text: "Tôi thấy mình khá dễ phật ý, tự ái" },
-  { id: 19, type: "A", text: "Tôi nghe thấy rõ tiếng nhịp tim dù chẳng làm việc gì cả" },
-  { id: 20, type: "A", text: "Tôi hay sợ vô cớ" },
-  { id: 21, type: "D", text: "Tôi thấy cuộc sống vô nghĩa" }
+  { id: 1, type: "S", text: "Tớ cảm thấy khó mà thoải mái và thả lỏng đầu óc được" },
+  { id: 2, type: "A", text: "Cơ thể tớ có biểu hiện bị khô miệng khi lo âu xuất hiện" },
+  { id: 3, type: "D", text: "Tớ dường như chẳng cảm nhận được chút cảm xúc tích cực nào dạo này" },
+  { id: 4, type: "A", text: "Tớ bị rối loạn nhịp thở (thở gấp, hụt hơi dù không vận động nặng)" },
+  { id: 5, type: "D", text: "Tớ thấy vô cùng khó khăn để bắt tay vào làm một công việc hay học tập" },
+  { id: 6, type: "S", text: "Tớ có xu hướng phản ứng quá lên hoặc gồng mình trước mọi tình huống" },
+  { id: 7, type: "A", text: "Tớ hay bị đổ mồ hôi trộm (chẳng hạn như mồ hôi tay chân bộc phát vô cớ)" },
+  { id: 8, type: "S", text: "Tớ thấy mình đang tiêu tốn quá nhiều năng lượng thần kinh cho việc nghĩ ngợi" },
+  { id: 9, type: "A", text: "Tớ lo sợ những tình huống bất ngờ làm mình hoảng loạn hoặc biến mình thành trò cười" },
+  { id: 10, type: "D", text: "Tớ thấy tương lai mịt mờ, dường như chẳng có gì để mong đợi cả" },
+  { id: 11, type: "S", text: "Tớ nhận thấy bản thân dễ bị kích động, nổi nóng vô cớ dạo gần đây" },
+  { id: 12, type: "S", text: "Tớ thấy rất khó để thư giãn đầu óc hoàn toàn khi nằm nghỉ" },
+  { id: 13, type: "D", text: "Tớ cảm thấy chán nản, u sầu và thất vọng về bản thân mình" },
+  { id: 14, type: "S", text: "Tớ khó chịu và không chấp nhận được việc có điều gì cản trở thứ tớ đang làm" },
+  { id: 15, type: "A", text: "Tớ cảm giác như mình sắp sửa rơi vào trạng thái hoảng loạn cực độ" },
+  { id: 16, type: "D", text: "Tớ không thấy hào hứng hay muốn bắt đầu bất kỳ việc gì nữa dạo này" },
+  { id: 17, type: "D", text: "Tớ cảm thấy tự ti, nghĩ mình kém cỏi và vô giá trị trước mọi người" },
+  { id: 18, type: "S", text: "Tớ thấy mình khá nhạy cảm, dễ phật ý và dễ tự ái vì lời nói nhỏ" },
+  { id: 19, type: "A", text: "Tớ nghe thấy rõ tiếng nhịp tim đập thình thịch dù đang ngồi yên" },
+  { id: 20, type: "A", text: "Tớ hay có cảm giác hoảng sợ vô cớ dù không có mối đe dọa trực tiếp nào" },
+  { id: 21, type: "D", text: "Tớ cảm thấy cuộc sống dạo này trống rỗng và vô nghĩa" }
 ];
 
 const DASS_OPTIONS = [
-  { value: 0, label: "Không ảnh hưởng", desc: "Không áp dụng đối với tôi tí nào" },
-  { value: 1, label: "Đôi chút", desc: "Áp dụng đối với tôi ở mức độ nào đó" },
-  { value: 2, label: "Đáng kể", desc: "Áp dụng đối với tôi phần lớn thời gian" },
-  { value: 3, label: "Rất nhiều", desc: "Áp dụng đối với tôi hầu như lúc nào cũng vậy" }
+  { value: 0, label: "Không ảnh hưởng", desc: "Không áp dụng đối với tớ tí nào" },
+  { value: 1, label: "Đôi chút", desc: "Áp dụng đối với tớ ở mức độ nào đó" },
+  { value: 2, label: "Đáng kể", desc: "Áp dụng đối với tớ phần lớn thời gian" },
+  { value: 3, label: "Rất nhiều", desc: "Áp dụng đối với tớ hầu như lúc nào cũng vậy" }
 ];
 
 // MMPI-30 Vietnamese Question Bank (10 validity checks L-F-K & 20 clinical check items)
 const MMPI_QUESTIONS = [
-  { id: 1, type: "Hs", text: "Tôi thường xuyên cảm thấy đau nhức cơ thể hoặc mệt mỏi thể chất kéo dài mà không tìm ra nguyên nhân." },
-  { id: 2, type: "D", text: "Tôi cảm thấy phần lớn thời gian cuộc sống của mình trống rỗng, u uất và thiếu đi niềm vui thực sự." },
-  { id: 3, type: "L", text: "Tôi chưa từng giận dữ hay cáu gắt với bất kỳ ai trong suốt cuộc đời của mình." },
-  { id: 4, type: "Hy", text: "Đôi khi tôi cảm thấy tim đập nhanh dữ dội hoặc khó thở khi rơi vào trạng thái căng thẳng." },
-  { id: 5, type: "Pd", text: "Tôi cảm thấy các quy định, luật lệ của trường học hoặc xã hội quá bất công và tôi muốn phản kháng." },
-  { id: 6, type: "F", text: "Tôi tin chắc rằng có một tổ chức ngầm đang sử dụng thiết bị sóng não để theo dõi và điều khiển tôi." },
-  { id: 7, type: "Mf", text: "Tôi nhạy cảm với nghệ thuật, thi ca và vẻ đẹp nội tâm hơn rất nhiều so với bạn bè đồng trang lứa." },
-  { id: 8, type: "Pa", text: "Tôi thường có cảm giác người xung quanh đang bàn tán, dò xét hoặc cố tình gây khó dễ cho mình." },
-  { id: 9, type: "Pt", text: "Tôi bị dằn vặt triền miên bởi những lỗi lầm nhỏ nhặt trong quá khứ và không thể ngừng suy nghĩ về chúng." },
-  { id: 10, type: "K", text: "Gia đình tôi luôn luôn hạnh phúc tuyệt đối, chưa từng xảy ra mâu thuẫn hay cãi vã nào." },
-  { id: 11, type: "Hs", text: "Tôi dành rất nhiều thời gian lo lắng về các căn bệnh nguy hiểm có thể đang ủ bệnh trong người tôi." },
-  { id: 12, type: "D", text: "Tôi thấy mất hoàn toàn động lực phấn đấu, thường xuyên muốn buông xuôi mọi việc học tập và cuộc sống." },
-  { id: 13, type: "L", text: "Tôi luôn luôn nói thật trong mọi tình huống, ngay cả khi điều đó mang lại bất lợi lớn cho tôi." },
-  { id: 14, type: "Hy", text: "Tôi thường xuyên bị đau đầu dữ dội hoặc co thắt dạ dày đột ngột mỗi khi đối diện với kỳ thi cử." },
-  { id: 15, type: "Pd", text: "Tôi thường hành động theo cảm xúc bộc phát tức thời mà không quan tâm đến hậu quả có thể xảy ra." },
-  { id: 16, type: "F", text: "Tôi thường nghe thấy những giọng nói hoặc âm thanh lạ bên tai khi chỉ có một mình trong phòng." },
-  { id: 17, type: "Mf", text: "Tôi thích những công việc đòi hỏi sự tỉ mỉ, đồng cảm và chăm sóc tinh thần hơn là sự cạnh tranh gay gắt." },
-  { id: 18, type: "Pa", text: "Tôi tin chắc rằng có một số người luôn đố kỵ và tìm cách hủy hoại danh tiếng hoặc đồ án của tôi." },
-  { id: 19, type: "Pt", text: "Tôi có thói quen sắp xếp đồ vật, rửa tay hay kiểm tra đi kiểm tra lại để giảm bớt lo lắng." },
-  { id: 20, type: "K", text: "Tôi hoàn toàn tự tin rằng bản thân không có bất kỳ khuyết điểm hay tính xấu nào cần sửa đổi." },
-  { id: 21, type: "Sc", text: "Tôi thấy đầu óc mình đôi lúc hoạt động kỳ lạ, mất hoàn toàn kết nối với thực tại xung quanh." },
-  { id: 22, type: "Sc", text: "Tôi thích sống cô độc trong thế giới tưởng tượng của riêng mình hơn là tương tác với con người thật." },
-  { id: 23, type: "L", text: "Tôi chưa bao giờ đố kỵ hay thầm oán ghét bất kỳ người nào xung quanh mình." },
-  { id: 24, type: "Ma", text: "Có những đợt tôi thấy hưng phấn tột độ, suy nghĩ chạy dồn dập và có thể thức trắng đêm làm việc liên tục." },
-  { id: 25, type: "Ma", text: "Tôi thường nói rất nhanh, chuyển đổi từ chủ đề này sang chủ đề khác liên tục khi đang hào hứng." },
-  { id: 26, type: "F", text: "Tôi có cảm giác các bộ phận trên cơ thể mình biến dạng hoặc không thực sự thuộc về tôi." },
-  { id: 27, type: "Si", text: "Tôi cảm thấy cực kỳ cạn kiệt năng lượng khi phải giao tiếp xã hội và cần ở một mình để phục hồi." },
-  { id: 28, type: "Si", text: "Tôi luôn tìm cách chủ động tránh né các buổi tiệc tùng, sự kiện tụ tập đông người tại trường học." },
-  { id: 29, type: "K", text: "Tôi chưa từng cảm thấy bồn chồn lo lắng hay sợ hãi về tương lai của mình dù chỉ một giây." },
-  { id: 30, type: "F", text: "Tôi tin mình có khả năng ngoại cảm đặc biệt có thể đọc được suy nghĩ của người đối diện." }
+  { id: 1, type: "Hs", text: "Cơ thể tớ thường đau nhức triền miên hoặc mệt mỏi rã rời mà khám không ra bệnh." },
+  { id: 2, type: "D", text: "Hầu như cả ngày tớ thấy lòng u sầu, trống rỗng và thiếu đi niềm vui thực tại." },
+  { id: 3, type: "L", text: "Tớ chưa từng nổi giận hay nói lời nặng nề với bất kỳ ai trong suốt cuộc đời." },
+  { id: 4, type: "Hy", text: "Lồng ngực tớ nghẹn lại, tim đập dồn dập khi rơi vào trạng thái căng thẳng tột độ." },
+  { id: 5, type: "Pd", text: "Tớ cảm thấy các khuôn khổ pháp lý hoặc nội quy trường học gò bó và muốn chống đối." },
+  { id: 6, type: "F", text: "Tớ nghi ngờ có một thiết bị vô hình đang truyền sóng não để điều khiển hành vi của tớ." },
+  { id: 7, type: "Mf", text: "Tớ nhạy cảm với vẻ đẹp nghệ thuật, thơ ca và cảm xúc nội tâm hơn các bạn khác." },
+  { id: 8, type: "Pa", text: "Tớ có cảm giác mọi người xung quanh luôn bàn tán sau lưng và dò xét tớ." },
+  { id: 9, type: "Pt", text: "Tớ bị dằn vặt triền miên bởi những lỗi lầm cũ và không thể ngừng suy nghĩ về chúng." },
+  { id: 10, type: "K", text: "Gia đình tớ luôn hòa thuận tuyệt đối, chưa từng xảy ra bất kỳ bất đồng hay cãi vã nào." },
+  { id: 11, type: "Hs", text: "Tớ tốn rất nhiều thời gian lo sợ mình đang mang trong người một căn bệnh nan y nguy hiểm." },
+  { id: 12, type: "D", text: "Tớ mất hoàn toàn động lực phấn đấu, thường muốn buông xuôi việc học lẫn cuộc sống." },
+  { id: 13, type: "L", text: "Tớ luôn nói thật 100% trong mọi tình huống, dù cho điều đó có mang lại hậu quả xấu cho tớ." },
+  { id: 14, type: "Hy", text: "Tớ thường bị đau nửa đầu dữ dội hoặc co thắt dạ dày đột ngột khi bước vào mùa thi cử." },
+  { id: 15, type: "Pd", text: "Tớ thường hành động bộc phát theo cảm xúc nhất thời mà không nghĩ tới hậu quả." },
+  { id: 16, type: "F", text: "Tớ đôi khi nghe thấy những tiếng nói kỳ lạ vang vọng bên tai khi ở phòng một mình." },
+  { id: 17, type: "Mf", text: "Tớ thích những công việc thiên về chăm sóc tinh thần, lắng nghe chia sẻ hơn là ganh đua." },
+  { id: 18, type: "Pa", text: "Tớ tin chắc có người đang đố kỵ và âm thầm tìm cách phá hoại bài thi hay đồ án của tớ." },
+  { id: 19, type: "Pt", text: "Tớ có xu hướng kiểm tra đi kiểm tra lại đồ đạc, hoặc làm sạch tay liên tục để bớt lo lắng." },
+  { id: 20, type: "K", text: "Tớ hoàn toàn tự tin rằng mình không có bất kỳ khuyết điểm hay tính xấu nào cần sửa." },
+  { id: 21, type: "Sc", text: "Có những lúc đầu óc tớ trống rỗng hoàn toàn, cảm giác như đang tách rời khỏi thế giới thực." },
+  { id: 22, type: "Sc", text: "Tớ thích chìm đắm trong thế giới tưởng tượng của riêng mình hơn là nói chuyện với mọi người." },
+  { id: 23, type: "L", text: "Tớ chưa bao giờ có lòng đố kỵ hay thầm ghét bỏ bất kỳ một ai trên đời." },
+  { id: 24, type: "Ma", text: "Có những giai đoạn tớ thấy hưng phấn tột độ, đầu óc chạy dồn dập và thức trắng đêm học tập." },
+  { id: 25, type: "Ma", text: "Tớ thường nói rất nhanh, chuyển từ chủ đề này sang chủ đề khác liên tục khi hào hứng." },
+  { id: 26, type: "F", text: "Tớ có cảm giác các bộ phận trên cơ thể mình biến đổi kích thước bất thường." },
+  { id: 27, type: "Si", text: "Tớ thấy cực kỳ cạn kiệt năng lượng sau khi giao tiếp xã hội và cần ở một mình để phục hồi." },
+  { id: 28, type: "Si", text: "Tớ luôn tìm cách né tránh các buổi tụ tập đông người hay sự kiện lớn ở trường học." },
+  { id: 29, type: "K", text: "Tớ chưa từng cảm thấy bồn chồn lo âu hay sợ hãi về tương lai của mình dù chỉ một chút." },
+  { id: 30, type: "F", text: "Tớ tin mình có năng lực ngoại cảm đặc biệt có thể đọc được suy nghĩ của người khác." }
 ];
 
 // Additional Validity Verification questions (10 questions for Test Bổ Sung)
 const MMPI_SUPPLEMENTARY_QUESTIONS = [
-  { id: 101, type: "L_VAL", text: "Đôi khi tôi nói dối một chút để tránh rắc rối không đáng có." }, // Normal response = ĐÚNG (Disproves extreme Lie)
-  { id: 102, type: "L_LIE", text: "Tôi luôn luôn kiềm chế được cảm xúc của mình và chưa từng tức giận với bất kỳ ai." }, // Lie response = ĐÚNG
-  { id: 103, type: "L_VAL", text: "Tôi thỉnh thoảng có những suy nghĩ ích kỷ mà tôi cảm thấy hổ thẹn nếu người khác biết." }, // Normal response = ĐÚNG
-  { id: 104, type: "F_INF", text: "Tôi tin rằng đồ ăn hoặc nước uống của tôi thường xuyên bị người khác lén bỏ thuốc độc." }, // F response = ĐÚNG
-  { id: 105, type: "F_INF", text: "Tôi thỉnh thoảng cảm thấy tâm trí mình hoàn toàn trống rỗng và bị điều khiển bởi người ngoài hành tinh." }, // F response = ĐÚNG
-  { id: 106, type: "L_LIE", text: "Tôi chưa bao giờ vi phạm bất kỳ một quy định hay nội quy nhỏ nhặt nào tại nhà trường hay ngoài đường." }, // Lie response = ĐÚNG
-  { id: 107, type: "F_INF", text: "Đôi khi tôi có ảo giác nhìn thấy mọi thứ xung quanh biến đổi thành các hình thù quái dị." }, // F response = ĐÚNG
-  { id: 108, type: "K_VAL", text: "Tôi có những lo toan và cảm giác tự ti nhất định về tương lai nghề nghiệp của bản thân." }, // Normal K validation = ĐÚNG (Disproves defensive)
-  { id: 109, type: "K_VAL", text: "Tôi thỉnh thoảng lo lắng và mất ngủ trước những buổi thuyết trình đồ án lớn." }, // Normal K validation = ĐÚNG
-  { id: 110, type: "L_LIE", text: "Tôi luôn yêu mến và tha thứ cho tất cả mọi người tôi từng gặp mà không có một chút thành kiến nào." } // Lie response = ĐÚNG
+  { id: 101, type: "L_VAL", text: "Thỉnh thoảng tớ có nói dối một chút để tránh phiền phức không đáng có." },
+  { id: 102, type: "L_LIE", text: "Tớ luôn kiểm soát tốt cảm xúc của mình và chưa từng cáu gắt với ai." },
+  { id: 103, type: "L_VAL", text: "Đôi khi tớ có những suy nghĩ ích kỷ mà tớ sẽ xấu hổ nếu người khác biết được." },
+  { id: 104, type: "F_INF", text: "Tớ tin rằng đồ ăn hoặc nước uống của tớ thường xuyên bị người khác lén bỏ độc." },
+  { id: 105, type: "F_INF", text: "Tớ thỉnh thoảng thấy tâm trí mình trống rỗng và bị điều khiển bởi thế lực vô hình." },
+  { id: 106, type: "L_LIE", text: "Tớ chưa bao giờ vi phạm bất kỳ một quy định hay nội quy nhỏ nhặt nào ở trường học." },
+  { id: 107, type: "F_INF", text: "Đôi khi tớ có ảo giác nhìn thấy mọi thứ xung quanh biến dạng thành các hình thù lạ." },
+  { id: 108, type: "K_VAL", text: "Tớ có những lo lắng và đôi chút tự ti về con đường học tập, sự nghiệp sau này." },
+  { id: 109, type: "K_VAL", text: "Tớ thỉnh thoảng lo lắng đến mức mất ngủ trước các buổi thuyết trình đồ án lớn." },
+  { id: 110, type: "L_LIE", text: "Tớ luôn yêu mến và bao dung cho tất cả mọi người tớ từng gặp trên đời này." }
 ];
 
 const CLINICAL_SCALES_INFO = {

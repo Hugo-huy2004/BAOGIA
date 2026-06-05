@@ -3,15 +3,15 @@ export const CLINICAL_TESTS = {
     id: "phq9",
     name: "Đánh giá Trầm cảm PHQ-9",
     questions: [
-      "Ít hứng thú hoặc niềm vui trong việc thực hiện các hoạt động thường ngày.",
-      "Cảm thấy xuống tinh thần, trầm cảm hoặc tuyệt vọng.",
-      "Gặp khó khăn về giấc ngủ (khó ngủ, ngủ chập chọn hoặc ngủ quá nhiều).",
-      "Cảm thấy mệt mỏi, uể oải hoặc thiếu năng lượng hoạt động.",
-      "Ăn uống không ngon miệng hoặc ăn quá nhiều một cách mất kiểm soát.",
-      "Cảm thấy tồi tệ về bản thân - tự trách mình là người thất bại hoặc làm gia đình thất vọng.",
-      "Khó tập trung vào các công việc như học tập, đọc sách hay xem tivi.",
-      "Nói hoặc di chuyển chậm chạp đến mức người khác nhận thấy; hoặc ngược lại, bồn chồn đến mức đứng ngồi không yên.",
-      "Có suy nghĩ muốn tự làm tổn thương bản thân hoặc thà chết đi cho nhẹ lòng."
+      "Mức độ hứng thú và niềm vui của cậu đối với các hoạt động học tập, giải trí dạo gần đây bị suy giảm rõ rệt.",
+      "Tần suất cậu thấy tâm trạng mình chùng xuống, cảm giác u sầu, tẻ nhạt hoặc trống rỗng tuyệt vọng.",
+      "Giấc ngủ bị xáo trộn thất thường (cậu khó vào giấc, hay giật mình thức giấc giữa đêm, hoặc ngủ mê mệt li bì).",
+      "Cơ thể cậu phản hồi với trạng thái uể oải, cạn kiệt sinh lực ngay cả khi không làm việc nặng.",
+      "Khẩu vị thay đổi rõ rệt (cậu chán ăn, ăn không ngon miệng hoặc ngược lại ăn quá nhiều một cách mất kiểm soát).",
+      "Cậu có xu hướng tự trách móc bản thân, tự phán xét mình thất bại hoặc làm gia đình thất vọng.",
+      "Khả năng tập trung suy nghĩ dạo này thế nào (ví dụ lúc ôn bài học tập, đọc tài liệu hoặc nghe giảng)?",
+      "Phản ứng vận động chậm chạp bất thường khiến người xung quanh nhận thấy; hoặc ngược lại cậu bồn chồn đứng ngồi không yên.",
+      "Trong đầu xuất hiện những ý nghĩ muốn buông xuôi mọi thứ hoặc tự làm tổn thương mình để giải tỏa."
     ],
     options: [
       { value: 0, label: "Không bao giờ" },
@@ -22,23 +22,23 @@ export const CLINICAL_TESTS = {
     getInterpretation: (score) => {
       if (score <= 4) return { 
         severity: "Bình thường / Tối thiểu", 
-        desc: "Tâm trạng của em hiện tại khá **ổn định**, hầu như không có biểu hiện trầm cảm.\n\n💡 **Giải pháp & Lời khuyên:** Hãy tiếp tục duy trì lối sống tích cực, ăn uống điều độ và dành thời gian thư giãn. Em có thể tham gia bài tập **Đọc sách Trị liệu** trong thẻ Trị Liệu để duy trì năng lượng tích cực này nhé!" 
+        desc: "Tâm trạng của cậu hiện tại khá **ổn định**, hầu như không có biểu hiện trầm cảm.\n\n💡 **Giải pháp & Lời khuyên:** Hãy tiếp tục duy trì lối sống tích cực, ăn uống điều độ và dành thời gian thư giãn. Cậu có thể tham gia bài tập **Đọc sách Trị liệu** trong thẻ Trị Liệu để duy trì năng lượng tích cực này nhé!" 
       };
       if (score <= 9) return { 
         severity: "Trầm cảm Nhẹ", 
-        desc: "Em đang có một vài biểu hiện **trầm cảm nhẹ** (do áp lực học tập hoặc sinh hoạt tạm thời).\n\n💡 **Giải pháp & Lời khuyên:** Em cần chú ý cân bằng thời gian nghỉ ngơi, ngủ đủ giấc từ **7-8 tiếng** mỗi ngày và chia sẻ áp lực với bạn bè hoặc chuyên viên. Bài tập **Đọc sách Trị liệu** hoặc **Điều hòa nhịp thở 4-7-8** trong thẻ Trị Liệu đã được mở khóa để hỗ trợ em." 
+        desc: "Cậu đang có một vài biểu hiện **trầm cảm nhẹ** (do áp lực học tập hoặc sinh hoạt tạm thời).\n\n💡 **Giải pháp & Lời khuyên:** Cậu cần chú ý cân bằng thời gian nghỉ ngơi, ngủ đủ giấc từ **7-8 tiếng** mỗi ngày và chia sẻ áp lực với bạn bè hoặc chuyên viên. Bài tập **Đọc sách Trị liệu** hoặc **Điều hòa nhịp thở 4-7-8** trong thẻ Trị Liệu đã được mở khóa để hỗ trợ cậu nhé." 
       };
       if (score <= 14) return { 
         severity: "Trầm cảm Vừa", 
-        desc: "Mức độ trầm cảm ghi nhận ở mức **trung bình**. Em thường xuyên cảm thấy mệt mỏi, cạn kiệt năng lượng hoặc mất hứng thú.\n\n💡 **Giải pháp & Lời khuyên:** Em nên thực hành liệu pháp **Trị liệu Trầm cảm (CBT)** bằng cách viết nhật ký tích cực trong thẻ Trị Liệu. Hãy cố gắng không tự cô lập bản thân, tập thể dục nhẹ nhàng 15 phút và trò chuyện cùng Chuyên viên Đồng Hành thường xuyên hơn." 
+        desc: "Mức độ trầm cảm ghi nhận ở mức **trung bình**. Cậu thường xuyên cảm thấy mệt mỏi, cạn kiệt năng lượng hoặc mất hứng thú.\n\n💡 **Giải pháp & Lời khuyên:** Cậu nên thực hành liệu pháp **Trị liệu Trầm cảm (CBT)** bằng cách viết nhật ký tích cực trong thẻ Trị Liệu. Hãy cố gắng không tự cô lập bản thân, tập thể dục nhẹ nhàng 15 phút và trò chuyện cùng Chuyên viên Đồng Hành thường xuyên hơn." 
       };
       if (score <= 19) return { 
         severity: "Trầm cảm Trung bình Nặng", 
-        desc: "Biểu hiện trầm cảm khá rõ nét và **nặng nề**, ảnh hưởng lớn đến học tập và sinh hoạt của em.\n\n💡 **Giải pháp & Lời khuyên:** Hãy cam kết thực hành bài tập **Trị liệu Trầm cảm (CBT)** và **Ngồi Tĩnh Tâm** đều đặn mỗi ngày. Đồng thời, tôi khuyên em nên chủ động trò chuyện sâu hơn với **Chuyên viên Đồng Hành** hoặc liên hệ phòng tư vấn học đường của trường để có điểm tựa nâng đỡ tinh thần nhé." 
+        desc: "Biểu hiện trầm cảm khá rõ nét và **nặng nề**, ảnh hưởng lớn đến học tập và sinh hoạt của cậu.\n\n💡 **Giải pháp & Lời khuyên:** Hãy cam kết thực hành bài tập **Trị liệu Trầm cảm (CBT)** và **Ngồi Tĩnh Tâm** đều đặn mỗi ngày. Đồng thời, tớ khuyên cậu nên chủ động trò chuyện sâu hơn với **Chuyên viên Đồng Hành** hoặc liên hệ phòng tư vấn học đường để có điểm tựa nâng đỡ tinh thần nhé." 
       };
       return { 
         severity: "Trầm cảm Nặng", 
-        desc: "Mức độ trầm cảm ghi nhận ở ngưỡng **nghiêm trọng lâm sàng**. Em có thể đang cảm thấy vô cùng bế tắc và bất an.\n\n⚠️ **QUAN TRỌNG:** Đây là dấu hiệu cảnh báo khẩn cấp. Hãy liên hệ ngay với **Chuyên viên Đồng Hành**, phụ huynh hoặc cơ sở y tế gần nhất để được hỗ trợ chuyên sâu kịp thời. Hãy nhớ rằng em không đơn độc và luôn có người sẵn sàng giúp đỡ em." 
+        desc: "Mức độ trầm cảm ghi nhận ở ngưỡng **nghiêm trọng lâm sàng**. Cậu có thể đang cảm thấy vô cùng bế tắc và bất an.\n\n⚠️ **QUAN TRỌNG:** Đây là dấu hiệu cảnh báo khẩn cấp. Hãy liên hệ ngay với **Chuyên viên Đồng Hành**, người thân hoặc cơ sở y tế gần nhất để được hỗ trợ chuyên sâu kịp thời. Hãy nhớ rằng cậu không đơn độc và luôn có tớ sẵn sàng hỗ trợ cậu." 
       };
     }
   },
@@ -46,13 +46,13 @@ export const CLINICAL_TESTS = {
     id: "gad7",
     name: "Đánh giá Lo âu GAD-7",
     questions: [
-      "Cảm thấy bồn chồn, lo lắng hoặc căng thẳng thần kinh cực độ.",
-      "Không thể kiểm soát hoặc ngăn chặn sự lo lắng quá mức.",
-      "Lo lắng quá nhiều về nhiều vấn đề khác nhau trong cuộc sống/học tập.",
-      "Khó khăn trong việc thả lỏng và thư giãn đầu óc.",
-      "Cực kỳ bồn chồn lo âu đến mức khó có thể ngồi yên một chỗ.",
-      "Dễ bị cáu gắt, nổi nóng hoặc phật ý vì những chuyện nhỏ.",
-      "Cảm thấy sợ hãi vô cớ như thể có điều gì tồi tệ sắp sửa xảy ra."
+      "Tần suất cậu cảm thấy bồn chồn, lo âu dồn dập đến mức căng thẳng thần kinh cực độ dạo gần đây.",
+      "Tình trạng cậu thấy bất lực, không thể tự kiểm soát hoặc ngăn chặn sự lo lắng quá mức bộc phát.",
+      "Cậu nhận thấy mình lo nghĩ quá nhiều về nhiều vấn đề khác nhau cùng lúc (học tập, sức khỏe, tương lai).",
+      "Đầu óc cậu gặp khó khăn trong việc tìm kiếm cảm giác thư thái, khó thả lỏng và tĩnh tâm.",
+      "Sự bồn chồn lo âu diễn ra ở mức độ khiến cậu cảm thấy khó có thể ngồi yên một chỗ.",
+      "Cậu nhận thấy bản thân dễ bị kích động, nổi nóng hoặc dễ cáu gắt vô cớ vì những chuyện nhỏ.",
+      "Cảm giác sợ hãi mơ hồ như thể có điều gì tồi tệ, không hay sắp sửa xảy ra với mình."
     ],
     options: [
       { value: 0, label: "Không bao giờ" },
@@ -63,19 +63,19 @@ export const CLINICAL_TESTS = {
     getInterpretation: (score) => {
       if (score <= 4) return { 
         severity: "Bình thường / Tối thiểu", 
-        desc: "Mức độ lo âu **tối thiểu**, tinh thần của em đang được kiểm soát rất tốt trước các áp lực bên ngoài." 
+        desc: "Mức độ lo âu **tối thiểu**, tinh thần của cậu đang được kiểm soát rất tốt trước các áp lực bên ngoài." 
       };
       if (score <= 9) return { 
         severity: "Lo âu Nhẹ", 
-        desc: "Em đang gặp tình trạng **lo âu nhẹ**, có thể xuất phát từ áp lực thi cử hoặc bài vở dồn dập.\n\n💡 **Giải pháp & Lời khuyên:** Hãy thực hành bài tập **Điều hòa nhịp thở 4-7-8** trong thẻ Trị Liệu để xoa dịu thần kinh tức thì. Em cũng nên chia nhỏ mục tiêu học tập để tránh bị choáng ngợp nhé." 
+        desc: "Cậu đang gặp tình trạng **lo âu nhẹ**, có thể xuất phát từ áp lực thi cử hoặc bài vở dồn dập.\n\n💡 **Giải pháp & Lời khuyên:** Hãy thực hành bài tập **Điều hòa nhịp thở 4-7-8** trong thẻ Trị Liệu để xoa dịu thần kinh tức thì. Cậu cũng nên chia nhỏ mục tiêu học tập để tránh bị choáng ngợp nhé." 
       };
       if (score <= 14) return { 
         severity: "Lo âu Vừa", 
-        desc: "Lo âu ở mức **trung bình**. Em thường xuyên cảm thấy bồn chồn lo lắng, khó thả lỏng đầu óc hoặc dễ bị cáu gắt.\n\n💡 **Giải pháp & Lời khuyên:** Nên duy trì bài tập **Điều hòa nhịp thở 4-7-8** 2 lần mỗi ngày và tập **Ngồi Tĩnh Tâm** từ 10-15 phút trước khi ngủ để ổn định nhịp tim và thư giãn sóng não." 
+        desc: "Lo âu ở mức **trung bình**. Cậu thường xuyên cảm thấy bồn chồn lo lắng, khó thả lỏng đầu óc hoặc dễ bị cáu gắt.\n\n💡 **Giải pháp & Lời khuyên:** Nên duy trì bài tập **Điều hòa nhịp thở 4-7-8** 2 lần mỗi ngày và tập **Ngồi Tĩnh Tâm** từ 10-15 phút trước khi ngủ để ổn định nhịp tim và thư giãn sóng não." 
       };
       return { 
         severity: "Lo âu Nặng", 
-        desc: "Mức độ lo âu **nghiêm trọng lâm sàng**, gây ảnh hưởng xấu đến giấc ngủ và thể chất của em (tim đập nhanh, sợ hãi vô cớ).\n\n💡 **Giải pháp & Lời khuyên:** Hãy thực hiện ngay các bài tập **Điều hòa nhịp thở 4-7-8** để cắt cơn lo âu bộc phát. Cậu nên giảm bớt khối lượng học tập và thảo luận thêm với **Chuyên viên Đồng Hành** để tìm phương pháp tháo gỡ áp lực." 
+        desc: "Mức độ lo âu **nghiêm trọng lâm sàng**, gây ảnh hưởng xấu đến giấc ngủ và thể chất của cậu (tim đập nhanh, sợ hãi vô cớ).\n\n💡 **Giải pháp & Lời khuyên:** Hãy thực hiện ngay các bài tập **Điều hòa nhịp thở 4-7-8** để cắt cơn lo âu bộc phát. Cậu nên giảm bớt khối lượng học tập và thảo luận thêm với **Chuyên viên Đồng Hành** để tìm phương pháp tháo gỡ áp lực." 
       };
     }
   },
@@ -83,11 +83,11 @@ export const CLINICAL_TESTS = {
     id: "who5",
     name: "Chỉ số Hạnh phúc WHO-5",
     questions: [
-      "Tôi cảm thấy vui vẻ và tinh thần sảng khoái.",
-      "Tôi cảm thấy bình tĩnh, nhẹ nhàng và thư thái.",
-      "Tôi cảm thấy năng động, tràn đầy sinh lực và sức sống.",
-      "Tôi thức dậy và cảm thấy tỉnh táo, sảng khoái đầu óc.",
-      "Cuộc sống hàng ngày của tôi chứa đầy những điều thú vị và ý nghĩa."
+      "Dạo này tớ thấy tinh thần mình vui vẻ, sảng khoái và tràn đầy năng lượng tích cực.",
+      "Tớ cảm thấy lòng mình bình yên, nhẹ nhàng và thư thái trước mọi áp lực xung quanh.",
+      "Cơ thể tớ năng động, tràn đầy sinh lực và sức sống dồi dào mỗi ngày.",
+      "Mỗi sáng thức dậy, tớ thấy đầu óc tỉnh táo, sảng khoái sẵn sàng cho ngày mới.",
+      "Tớ cảm nhận cuộc sống hàng ngày chứa đựng nhiều điều thú vị và ý nghĩa."
     ],
     options: [
       { value: 5, label: "Mọi lúc" },
@@ -102,12 +102,12 @@ export const CLINICAL_TESTS = {
       if (percentage >= 50) return { 
         status: "Hạnh phúc tốt", 
         percent: percentage, 
-        desc: `Chỉ số sức khỏe tinh thần và cảm giác hạnh phúc của em ở mức **rất tốt** (${percentage}%).\n\n💡 **Giải pháp & Lời khuyên:** Hãy tiếp tục duy trì trạng thái tích cực này. Em có thể tham khảo chuyên mục **Đọc sách Trị liệu** để nuôi dưỡng tâm hồn thêm phong phú nhé!` 
+        desc: `Chỉ số sức khỏe tinh thần và cảm giác hạnh phúc của cậu ở mức **rất tốt** (${percentage}%).\n\n💡 **Giải pháp & Lời khuyên:** Hãy tiếp tục duy trì trạng thái tích cực này. Cậu có thể tham khảo chuyên mục **Đọc sách Trị liệu** để nuôi dưỡng tâm hồn thêm phong phú nhé!` 
       };
       return { 
         status: "Hạnh phúc thấp (Cần lưu ý)", 
         percent: percentage, 
-        desc: `Chỉ số cảm nhận hạnh phúc của em hiện tại khá **thấp** (${percentage}%).\n\n💡 **Giải pháp & Lời khuyên:** Đầu óc em có thể đang bị quá tải và thiếu năng lượng tích cực. Hãy thực hành ngay liệu pháp **Ngồi Tĩnh Tâm** hoặc nghe nhạc tần số cao trong thẻ Trị Liệu để tái tạo năng lượng sống.` 
+        desc: `Chỉ số cảm nhận hạnh phúc của cậu hiện tại khá **thấp** (${percentage}%).\n\n💡 **Giải pháp & Lời khuyên:** Đầu óc cậu có thể đang bị quá tải và thiếu năng lượng tích cực. Hãy thực hành ngay liệu pháp **Ngồi Tĩnh Tâm** hoặc nghe nhạc tần số cao trong thẻ Trị Liệu để tái tạo năng lượng sống.` 
       };
     }
   },
@@ -115,16 +115,16 @@ export const CLINICAL_TESTS = {
     id: "bigfive",
     name: "Trắc nghiệm Nhân cách Big Five",
     questions: [
-      "Tôi thấy mình là người hướng ngoại, năng động, thích giao thiệp rộng.",
-      "Tôi thấy mình là người hay hoài nghi, dễ gây tranh cãi với người khác.",
-      "Tôi thấy mình là người chu đáo, đáng tin cậy, tự giác và kỷ luật.",
-      "Tôi thấy mình là người dễ lo âu, nhạy cảm và dễ bị kích động cảm xúc.",
-      "Tôi thấy mình là người cởi mở với trải nghiệm mới, giàu trí tưởng tượng.",
-      "Tôi thấy mình là người kín đáo, trầm lặng và ít nói.",
-      "Tôi thấy mình là người biết cảm thông, ấm áp và có lòng trắc ẩn.",
-      "Tôi thấy mình là người hay cẩu thả, bừa bộn và thiếu ngăn nắp.",
-      "Tôi thấy mình là người bình tĩnh, ổn định cảm xúc, ít khi lo lắng vô cớ.",
-      "Tôi thấy mình là người thực tế, khuôn mẫu, không thích nghệ thuật bay bổng."
+      "Tớ thấy mình là người hướng ngoại, thích kết bạn và chủ động giao thiệp rộng.",
+      "Tớ hay hoài nghi người khác, đôi khi dễ xảy ra tranh cãi để bảo vệ quan điểm.",
+      "Tớ là người chu đáo, tự giác, luôn giữ kỷ luật và đáng tin cậy trong mọi việc.",
+      "Tớ dễ bị lo lắng, nhạy cảm trước ý kiến người khác và dễ dao động cảm xúc.",
+      "Tớ thích khám phá những điều mới lạ, giàu trí tưởng tượng và cởi mở.",
+      "Tớ thích không gian yên tĩnh, trầm lặng và ít khi chủ động bắt chuyện trước.",
+      "Tớ là người giàu lòng trắc ẩn, dễ cảm thông và luôn muốn nâng đỡ người khác.",
+      "Tớ hay làm việc theo cảm hứng nhất thời, đôi lúc bừa bộn hoặc thiếu ngăn nắp.",
+      "Tớ giữ được sự bình tĩnh cao trước áp lực, ít khi lo lắng hoảng sợ vô cớ.",
+      "Tớ là người thực tế, ưa chuộng sự ổn định hơn là những thứ nghệ thuật bay bổng."
     ],
     options: [
       { value: 1, label: "Rất không đồng ý" },
