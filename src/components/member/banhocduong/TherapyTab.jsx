@@ -5,7 +5,7 @@ import ReadingTherapy from "./ReadingTherapy";
 import MeditationTherapy from "./MeditationTherapy";
 import DepressionCbtTherapy from "./DepressionCbtTherapy";
 
-export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, healingActive }) {
+export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, healingActive, showToast }) {
   // activePanel: null | 'reading' | 'meditation' | 'breath' | 'depression'
   const [activePanel, setActivePanel] = useState(null); 
 
@@ -267,6 +267,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
         <ReadingTherapy
           onBack={() => setActivePanel(null)}
           onCompleteActivity={handleCompleteActivity}
+          showToast={showToast}
         />
       )}
 
@@ -275,6 +276,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
         <MeditationTherapy
           onBack={() => setActivePanel(null)}
           onCompleteActivity={handleCompleteActivity}
+          showToast={showToast}
         />
       )}
 
@@ -290,6 +292,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
         <DepressionCbtTherapy
           onBack={() => setActivePanel(null)}
           onCompleteActivity={handleCompleteActivity}
+          showToast={showToast}
         />
       )}
     </div>

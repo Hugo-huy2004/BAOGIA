@@ -135,7 +135,7 @@ const DIALOGUE_TREE = {
   ]
 };
 
-export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, chatMessages, presetTest, setPresetTest }) {
+export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, chatMessages, presetTest, setPresetTest, showToast, healingActive }) {
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -199,18 +199,22 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
         }
       }
 
-      // Fallback: If no history exists, set the initial bot greeting
+      // Fallback: If no history exists, set the initial bot greeting based on companion status
+      const greetingText = healingActive
+        ? "Chào em! Chào mừng em trở lại với không gian đồng hành hàng ngày. Hôm nay em thấy sức khỏe tinh thần thế nào? Cậu có muốn cùng tôi check-in tâm trạng, thực hiện bài trắc nghiệm định kỳ để đánh giá lại tiến độ, hay muốn trò chuyện và tìm các bài tập hỗ trợ xoa dịu cảm xúc?"
+        : "Chào em, tôi là Chuyên viên Đồng Hành của em. Tại đây, mọi chia sẻ của em luôn được lắng nghe trong không gian bảo mật và tuyệt đối không phán xét. Dạo gần đây, việc học tập, sức khỏe hay cuộc sống cá nhân của em thế nào? Em có điều gì bận tâm muốn chia sẻ, hoặc muốn cùng tôi thực hiện các bài đánh giá tâm lý chuẩn lâm sàng không?";
+
       const initMsg = {
         id: "init",
         sender: "bot",
-        text: "Chào em, tôi là Chuyên viên Đồng Hành của em. Tại đây, mọi chia sẻ của em luôn được lắng nghe trong không gian bảo mật và tuyệt đối không phán xét. Dạo gần đây, việc học tập, sức khỏe hay cuộc sống cá nhân của em thế nào? Em có điều gì bận tâm muốn chia sẻ, hoặc muốn cùng tôi thực hiện các bài đánh giá tâm lý chuẩn lâm sàng không?",
+        text: greetingText,
         time: new Date()
       };
       setMessages([initMsg]);
       setCompletedMessageIds(new Set(["init"]));
       lastSavedMessageIdRef.current = "init";
     }
-  }, [bio?.email]);
+  }, [bio?.email, healingActive]);
 
   // Auto-save new chat messages to MongoDB and sync to localStorage synchronously to prevent tab unmount data loss
   useEffect(() => {
@@ -537,16 +541,46 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
         else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
       }
 
-      const proposalMsg = {
-        id: `bot-proposal-${Date.now() + 10}`,
-        sender: "bot",
-        text: `Dựa trên kết quả đánh giá ${testId.toUpperCase()} vừa rồi, tôi khuyên em nên kích hoạt **${name}** với thời gian **${days} ngày** để tôi đồng hành chăm sóc sức khỏe tinh thần hàng ngày. Em có muốn kích hoạt lộ trình này ngay bây giờ không?`,
-        time: new Date(Date.now() + 10),
-        isCompanionSetup: true,
-        recommendedDays: days
-      };
-      newMsgs.push(proposalMsg);
-      setDialogStage(5);
+      // Check if this test score is worse than the previous test result of the same type
+      const pastTests = historyLogs.filter(log => (log.test === testId || (testId === "who5" && log.type === "clinical_test" && log.test === "who5")));
+      let isWorse = false;
+      if (pastTests.length > 0) {
+        const lastPast = pastTests[pastTests.length - 1];
+        const lastScore = lastPast.score;
+        if (testId === "who5") {
+          // For WHO-5, lower score is worse
+          if (score < lastScore) isWorse = true;
+        } else {
+          // For PHQ-9 and GAD-7, higher score is worse
+          if (score > lastScore) isWorse = true;
+        }
+      }
+
+      if (healingActive && isWorse) {
+        // Recommend increasing duration & identify issues
+        const extendedDays = days + 14;
+        const worseningMsg = {
+          id: `bot-worsening-${Date.now() + 5}`,
+          sender: "bot",
+          text: `⚠️ **Nhắc nhở y học**: Tôi nhận thấy chỉ số đánh giá lần này có xu hướng tăng nặng hơn so với lần trước. Đừng lo lắng nhé, điều này thường phản ánh áp lực tạm thời (như mùa thi cử dồn dập, thiếu ngủ kéo dài, hoặc mâu thuẫn gia đình chưa giải quyết).\n\n💡 **Khuyến nghị điều chỉnh**: Chúng ta nên kéo dài lộ trình thêm **+14 ngày** (Tổng cộng **${extendedDays} ngày**) để cậu có thêm thời gian thực hành các bài tập trị liệu chánh niệm. Cậu có đồng ý tăng thời gian đồng hành này để tôi tiếp tục hỗ trợ không?`,
+          time: new Date(Date.now() + 5),
+          isCompanionSetup: true,
+          recommendedDays: extendedDays
+        };
+        newMsgs.push(worseningMsg);
+        setDialogStage(5);
+      } else {
+        const proposalMsg = {
+          id: `bot-proposal-${Date.now() + 10}`,
+          sender: "bot",
+          text: `Dựa trên kết quả đánh giá ${testId.toUpperCase()} vừa rồi, tôi khuyên em nên kích hoạt **${name}** với thời gian **${days} ngày** để tôi đồng hành chăm sóc sức khỏe tinh thần hàng ngày. Em có muốn kích hoạt lộ trình này ngay bây giờ không?`,
+          time: new Date(Date.now() + 10),
+          isCompanionSetup: true,
+          recommendedDays: days
+        };
+        newMsgs.push(proposalMsg);
+        setDialogStage(5);
+      }
     } else {
       setDialogStage(0);
     }
@@ -723,6 +757,32 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
             <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">Trị liệu & Chăm sóc Thích ứng</p>
           </div>
         </div>
+
+        {healingActive && (
+          <button
+            type="button"
+            onClick={() => {
+              const lastTestDateStr = localStorage.getItem("banhocduong_last_test_date");
+              if (lastTestDateStr) {
+                const lastTestTime = new Date(lastTestDateStr).getTime();
+                const nowTime = new Date().getTime();
+                const hoursDiff = (nowTime - lastTestTime) / (1000 * 60 * 60);
+                if (hoursDiff < 32) {
+                  const remainingHours = Math.ceil(32 - hoursDiff);
+                  if (showToast) {
+                    showToast(`Cậu vừa làm bài test chưa lâu. Vui lòng đợi thêm ${remainingHours} giờ để tiếp tục đánh giá chính xác nhé.`, "warning");
+                  }
+                  return;
+                }
+              }
+              setShowTestsMenu(true);
+            }}
+            className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-500 to-indigo-650 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-wider shadow-md transition-all active:scale-[0.98] flex items-center gap-1"
+          >
+            <span className="material-symbols-outlined text-[10px] font-bold">refresh</span>
+            Chủ động test lại
+          </button>
+        )}
       </div>
 
       {/* Clinical Test Selection Menu Popup */}

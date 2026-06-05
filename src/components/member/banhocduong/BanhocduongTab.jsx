@@ -21,13 +21,19 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
       setNotificationStatus(permission);
       if (permission === 'granted' && bio && bio.email) {
         await webPushHelper.registerAndSubscribe(bio.email);
-        alert('Đăng ký nhận thông báo nhắc nhở thành công! 🎉');
+        if (showToast) {
+          showToast('Đăng ký nhận thông báo nhắc nhở thành công! 🎉', 'success');
+        }
       } else if (permission === 'denied') {
-        alert('Quyền thông báo đã bị từ chối. Cậu vui lòng bật lại quyền thông báo trong cài đặt trình duyệt của mình nhé.');
+        if (showToast) {
+          showToast('Quyền thông báo đã bị từ chối. Cậu vui lòng bật lại quyền thông báo trong cài đặt trình duyệt của mình nhé.', 'warning');
+        }
       }
     } catch (err) {
       console.error(err);
-      alert('Không thể đăng ký nhận thông báo đẩy lúc này.');
+      if (showToast) {
+        showToast('Không thể đăng ký nhận thông báo đẩy lúc này.', 'error');
+      }
     }
   };
   const currentDay = getProgressDay();
@@ -596,9 +602,10 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
   );
 }
 
-export default function BanhocduongTab({ onBack, defaultSubTab = "chat", defaultPresetTest = null, bio }) {
+export default function BanhocduongTab({ onBack, defaultSubTab = "chat", defaultPresetTest = null, bio, showToast }) {
   const [activeSubTab, setActiveSubTab] = useState(defaultSubTab === "tests" || defaultSubTab === "breath" || defaultSubTab === "upload" ? "chat" : defaultSubTab); // 'chat', 'therapy'
   const [presetTest, setPresetTest] = useState(defaultPresetTest);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   // States synchronized from DB
   const [healingActive, setHealingActive] = useState(false);
@@ -748,14 +755,20 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
     return diffDays;
   };
 
-  const handleCancelHealing = async () => {
-    if (window.confirm("Cậu có chắc chắn muốn dừng chế độ chăm sóc tinh thần? Toàn bộ nhật ký cảm xúc check-in và lịch sử trắc nghiệm lưu trữ sẽ bị xóa sạch vĩnh viễn bảo mật.")) {
-      await handleUpdateCompanionState({
-        healingActive: false,
-        healingDuration: 30,
-        healingStartDate: null,
-        historyLogs: []
-      });
+  const handleCancelHealing = () => {
+    setShowCancelModal(true);
+  };
+
+  const confirmCancelHealing = async () => {
+    setShowCancelModal(false);
+    await handleUpdateCompanionState({
+      healingActive: false,
+      healingDuration: 30,
+      healingStartDate: null,
+      historyLogs: []
+    });
+    if (showToast) {
+      showToast('Đã dừng chế độ chăm sóc tinh thần và xóa sạch lịch sử.', 'success');
     }
   };
 
@@ -828,6 +841,8 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 chatMessages={chatMessages}
                 presetTest={presetTest}
                 setPresetTest={setPresetTest}
+                showToast={showToast}
+                healingActive={healingActive}
               />
             )}
 
@@ -838,6 +853,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 historyLogs={historyLogs}
                 onUpdateCompanionState={handleUpdateCompanionState}
                 healingActive={healingActive}
+                showToast={showToast}
               />
             )}
 
@@ -846,6 +862,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 historyLogs={historyLogs}
                 bio={bio}
                 onNavigateToTab={handleNavigateToTab}
+                showToast={showToast}
               />
             )}
           </motion.div>
@@ -902,6 +919,59 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
               >
                 Tuyệt vời, tiếp tục thôi!
               </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Modal to stop companion healing mode */}
+      <AnimatePresence>
+        {showCancelModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-gradient-to-br from-red-500/10 via-[#12111a] to-zinc-900/40 backdrop-blur-2xl rounded-3xl border border-red-500/30 p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-5 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-red-500 via-orange-400 to-red-500" />
+              
+              <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto text-red-500">
+                <AlertTriangle className="w-8 h-8 animate-bounce" />
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="text-sm font-black text-red-500 uppercase tracking-widest">Xác Nhận Dừng Đồng Hành</h4>
+                <p className="text-[11px] text-zinc-400 uppercase tracking-wider font-bold">Thao tác này không thể hoàn tác</p>
+              </div>
+
+              <div className="p-4 bg-red-500/5 border border-red-500/10 rounded-2xl text-left">
+                <p className="text-[10.5px] text-zinc-300 leading-relaxed font-semibold">
+                  Cậu có chắc chắn muốn dừng chế độ chăm sóc tinh thần? Toàn bộ nhật ký cảm xúc check-in và lịch sử trắc nghiệm lưu trữ sẽ bị xóa sạch vĩnh viễn bảo mật.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCancelModal(false)}
+                  className="flex-1 py-2.5 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 text-xs font-black uppercase tracking-wider rounded-xl transition-all"
+                >
+                  Quay lại
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmCancelHealing}
+                  className="flex-1 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-650 hover:to-orange-650 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-red-500/10 active:scale-[0.98]"
+                >
+                  Xác nhận xóa
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

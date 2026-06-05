@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Play, Pause, Square } from "lucide-react";
 
-export default function MeditationTherapy({ onBack, onCompleteActivity }) {
+export default function MeditationTherapy({ onBack, onCompleteActivity, showToast }) {
   const [timerDuration, setTimerDuration] = useState(600); 
   const [timerSecondsLeft, setTimerSecondsLeft] = useState(600);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -24,7 +24,9 @@ export default function MeditationTherapy({ onBack, onCompleteActivity }) {
               "Ngồi tĩnh tâm",
               `Hoàn thành liệu pháp thời lượng ${Math.round(timerDuration / 60)} phút.`
             );
-            alert("Chúc mừng cậu đã hoàn tất thời gian trị liệu! Cậu hãy nghỉ ngơi một chút nhé.");
+            if (showToast) {
+              showToast("Chúc mừng cậu đã hoàn tất thời gian trị liệu! Cậu hãy nghỉ ngơi một chút nhé.", "success");
+            }
             return 0;
           }
           return prev - 1;

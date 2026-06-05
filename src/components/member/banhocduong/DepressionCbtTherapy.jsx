@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function DepressionCbtTherapy({ onBack, onCompleteActivity }) {
+export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showToast }) {
   const [journalText, setJournalText] = useState("");
   const [journalStatus, setJournalStatus] = useState("");
   const [cbtChecklist, setCbtChecklist] = useState([
@@ -32,7 +32,9 @@ export default function DepressionCbtTherapy({ onBack, onCompleteActivity }) {
       onCompleteActivity("Tự yêu thương bản thân", "Hoàn thành toàn bộ checklist tự nạp năng lượng tinh thần.");
       setTimeout(() => {
         setCbtChecklist(updated.map(item => ({ ...item, checked: false })));
-        alert("Tuyệt vời! Cậu vừa hoàn thành checklist tự chăm sóc cơ thể để đẩy lùi trầm uất. Chúc cậu luôn bình an!");
+        if (showToast) {
+          showToast("Tuyệt vời! Cậu vừa hoàn thành checklist tự chăm sóc cơ thể để đẩy lùi trầm uất. Chúc cậu luôn bình an!", "success");
+        }
       }, 800);
     }
   };
