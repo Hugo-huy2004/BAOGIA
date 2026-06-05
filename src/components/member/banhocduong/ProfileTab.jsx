@@ -1,7 +1,7 @@
 import React from "react";
 import { ShieldCheck, TrendingDown, TrendingUp, AlertTriangle, Clock, Calendar, CheckCircle, ArrowRight, Play, RefreshCw, MessageSquare } from "lucide-react";
 
-export default function ProfileTab({ historyLogs, bio, onNavigateToTab }) {
+export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToast }) {
   const dassTests = historyLogs.filter(l => l.test === "dass42");
   const mmpiTests = historyLogs.filter(l => l.test === "mmpi30");
   const phq9Tests = historyLogs.filter(l => l.test === "phq9");
@@ -347,7 +347,22 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab }) {
           </div>
           <button
             type="button"
-            onClick={() => onNavigateToTab && onNavigateToTab("chat", getCycleAndNextDueDate.latestTestId || "dass42")}
+            onClick={() => {
+              const lastTestDateStr = localStorage.getItem("banhocduong_last_test_date");
+              if (lastTestDateStr) {
+                const lastTestTime = new Date(lastTestDateStr).getTime();
+                const nowTime = new Date().getTime();
+                const hoursDiff = (nowTime - lastTestTime) / (1000 * 60 * 60);
+                if (hoursDiff < 32) {
+                  const remainingHours = Math.ceil(32 - hoursDiff);
+                  if (showToast) {
+                    showToast(`Cậu vừa làm bài test chưa lâu. Vui lòng đợi thêm ${remainingHours} giờ để tiếp tục đánh giá chính xác nhé.`, "warning");
+                  }
+                  return;
+                }
+              }
+              onNavigateToTab && onNavigateToTab("chat", getCycleAndNextDueDate.latestTestId || "dass42");
+            }}
             className="px-4.5 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-black text-[9px] uppercase tracking-wider shrink-0 shadow-sm flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
           >
             <Play className="w-3 h-3 fill-white" />
@@ -419,7 +434,22 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab }) {
                   </div>
                   <button
                     type="button"
-                    onClick={() => onNavigateToTab && onNavigateToTab("chat", test.id)}
+                    onClick={() => {
+                      const lastTestDateStr = localStorage.getItem("banhocduong_last_test_date");
+                      if (lastTestDateStr) {
+                        const lastTestTime = new Date(lastTestDateStr).getTime();
+                        const nowTime = new Date().getTime();
+                        const hoursDiff = (nowTime - lastTestTime) / (1000 * 60 * 60);
+                        if (hoursDiff < 32) {
+                          const remainingHours = Math.ceil(32 - hoursDiff);
+                          if (showToast) {
+                            showToast(`Cậu vừa làm bài test chưa lâu. Vui lòng đợi thêm ${remainingHours} giờ để tiếp tục đánh giá chính xác nhé.`, "warning");
+                          }
+                          return;
+                        }
+                      }
+                      onNavigateToTab && onNavigateToTab("chat", test.id);
+                    }}
                     className={`px-3 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-wider transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer shrink-0 ${
                       hasTested 
                         ? "bg-zinc-100 hover:bg-zinc-250 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-350/30"
