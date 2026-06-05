@@ -547,6 +547,7 @@ export default function MemberPortalPage() {
           }
 
           setFormData({
+            email: b.email || "",
             displayName: b.displayName || memberSession.displayName || "",
             headline: b.headline || "",
             bio: b.bio || "",
@@ -1987,7 +1988,7 @@ export default function MemberPortalPage() {
                 {/* Tab 4.5: Member Utilities Dashboard */}
                 {activeTab === "utilities" && (
                   <MemberUtilitiesTab 
-                    bio={formData} 
+                    bio={bio} 
                     publicLink={publicLink} 
                     showToast={showToast} 
                     setFormData={setFormData} 

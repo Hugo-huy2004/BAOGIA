@@ -210,8 +210,7 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
       const lastMsg = messages[messages.length - 1];
       if (lastMsg && lastMsg.id !== lastSavedMessageIdRef.current) {
         lastSavedMessageIdRef.current = lastMsg.id;
-        const sliced = messages.slice(-30);
-        onUpdateCompanionState({ chatMessages: sliced });
+        onUpdateCompanionState({ chatMessages: messages });
       }
     }
   }, [messages]);
