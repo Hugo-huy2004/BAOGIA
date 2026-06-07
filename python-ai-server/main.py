@@ -1,6 +1,9 @@
 import os
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
+# pyrefly: ignore [missing-import]
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from services.gemini_service import GeminiService
@@ -34,10 +37,29 @@ class TestAnalysisRequest(BaseModel):
     validity: Optional[Dict[str, Any]] = None
     clinical: Optional[List[Dict[str, Any]]] = None
     lang: Optional[str] = "vi"
+    bio: Optional[Dict[str, Any]] = None
+
+class ProactivePushRequest(BaseModel):
+    logs: List[Dict[str, Any]]
+    bio: Optional[Dict[str, Any]] = None
 
 @app.get("/")
 def read_root():
     return {"status": "ok", "service": "Hugo Studio AI Server is running"}
+
+@app.post("/api/ai/proactive-push")
+async def proactive_push(request: ProactivePushRequest):
+    """
+    Endpoint phân tích lịch sử để quyết định gửi Push Notification chủ động.
+    """
+    try:
+        decision = await ai_service.generate_proactive_push(
+            logs=request.logs,
+            bio=request.bio
+        )
+        return decision
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/ai/chat")
 async def chat(request: ChatRequest):
@@ -54,6 +76,36 @@ async def chat(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/ai/chat/audio")
+async def chat_audio(
+    file: UploadFile = File(...),
+    history: str = Form("[]"),
+    bio: str = Form("{}"),
+    isCallMode: bool = Form(False)
+):
+    """
+    Endpoint xử lý trò chuyện bằng âm thanh (Native Audio).
+    """
+    import json
+    try:
+        audio_bytes = await file.read()
+        mime_type = file.content_type or "audio/webm"
+        
+        parsed_history = json.loads(history)
+        parsed_bio = json.loads(bio)
+        
+        response_data = await ai_service.generate_audio_response(
+            audio_bytes=audio_bytes,
+            mime_type=mime_type,
+            history=parsed_history,
+            bio=parsed_bio,
+            is_call_mode=isCallMode
+        )
+        
+        return response_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/ai/analyze-test")
 async def analyze_test(request: TestAnalysisRequest):
     """
@@ -65,7 +117,8 @@ async def analyze_test(request: TestAnalysisRequest):
             scores=request.scores,
             validity=request.validity,
             clinical=request.clinical,
-            lang_detected=request.lang
+            lang_detected=request.lang,
+            bio=request.bio
         )
         return {"analysis": analysis}
     except Exception as e:
@@ -100,6 +153,7 @@ async def analyze_report(
         raise HTTPException(status_code=500, detail=f"Lỗi xử lý file bệnh án: {str(e)}")
 
 if __name__ == "__main__":
+    # pyrefly: ignore [missing-import]
     import uvicorn
     # Mặc định lắng nghe ở cổng 8000
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

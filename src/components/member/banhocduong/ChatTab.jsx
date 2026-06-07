@@ -1,16 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Mic } from "lucide-react";
+import { Mic, MicOff, Volume2, PhoneCall } from "lucide-react";
 import confetti from "canvas-confetti";
 import { CLINICAL_TESTS } from "./clinicalTests";
 import ChatMessages from "./ChatMessages";
 import ClinicalTestPanel from "./ClinicalTestPanel";
 import ClinicScanner from "./ClinicScanner";
+import AICallModal from "./AICallModal";
 import { webPushHelper } from "../../../utils/webPushHelper";
 
 import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogues";
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
 
-export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, chatMessages, presetTest, setPresetTest, showToast, healingActive }) {
+export default function ChatTab({ 
+  onNavigateToTab, 
+  bio, 
+  historyLogs, 
+  onUpdateCompanionState, 
+  chatMessages, 
+  presetTest, 
+  setPresetTest, 
+  showToast, 
+  healingActive,
+  onProfileUpdate 
+}) {
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -38,6 +50,10 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
   const [chatMode, setChatMode] = useState("normal");
   const [activeTest, setActiveTest] = useState(null);
   const [isListening, setIsListening] = useState(false);
+  const [isRecordingAudio, setIsRecordingAudio] = useState(false);
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const audioChunks = useRef([]);
 
 
   const lastMessage = messages[messages.length - 1];
@@ -136,6 +152,65 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
 
 
 
+  const startAudioRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunks.current = [];
+      recorder.ondataavailable = e => {
+        if (e.data.size > 0) audioChunks.current.push(e.data);
+      };
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+        setIsRecordingAudio(false);
+        setLoading(true);
+        
+        const userMsg = {
+          id: `user-audio-${Date.now()}`,
+          sender: "user",
+          text: "🎤 [Tin nhắn thoại Audio]",
+          time: new Date()
+        };
+        setMessages(prev => [...prev, userMsg]);
+        setDialogStage(0);
+        
+        try {
+          const response = await botManager.chatAudio(audioBlob);
+          const textReply = response.text || "Tớ đã nhận được tin nhắn thoại của cậu.";
+          const botMsg = {
+            id: `bot-audio-${Date.now()}`,
+            sender: "bot",
+            text: textReply,
+            time: new Date(),
+          };
+          setMessages(prev => [...prev, botMsg]);
+          
+          if (response.audio_base64) {
+            const audio = new Audio("data:audio/webm;base64," + response.audio_base64);
+            audio.play().catch(e => console.error("Lỗi phát audio:", e));
+          }
+        } catch(e) {
+          console.error(e);
+        } finally {
+          setLoading(false);
+        }
+      };
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecordingAudio(true);
+    } catch (err) {
+      console.error(err);
+      if (showToast) showToast("Không thể truy cập Microphone", "error");
+    }
+  };
+
+  const stopAudioRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
+  };
+
   const startListening = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       showToast && showToast("Trình duyệt không hỗ trợ nhận diện giọng nói.", "error");
@@ -176,6 +251,10 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
             suggestWho5: botResponse.suggestWho5,
             suggestBigFive: botResponse.suggestBigFive
           };
+          if (botResponse.bioUpdate && onProfileUpdate) {
+            onProfileUpdate(botResponse.bioUpdate);
+            if (showToast) showToast("Đã tự động lưu thông tin mới vào hồ sơ y khoa.", "success");
+          }
         }
 
         const botMsg = {
@@ -1385,8 +1464,11 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
 
               {dialogStage === 0 && (
                 <div className="flex items-center gap-2 pt-2 border-t border-zinc-200/50 dark:border-zinc-800/10 shrink-0 w-full">
-                  <button type="button" className={`p-2 rounded-full border shrink-0 transition-all ${isListening ? 'bg-rose-500/10 border-rose-500 text-rose-500 animate-pulse' : 'border-zinc-200 dark:border-zinc-800 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`} onClick={startListening}>
+                  <button type="button" className={`p-2 rounded-full border shrink-0 transition-all ${isListening ? 'bg-rose-500/10 border-rose-500 text-rose-500 animate-pulse' : 'border-zinc-200 dark:border-zinc-800 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`} onClick={startListening} title="Thu âm chuyển thành Text">
                     <Mic className="w-4 h-4" />
+                  </button>
+                  <button type="button" className={`p-2 rounded-full border shrink-0 transition-all ${isRecordingAudio ? 'bg-purple-500/10 border-purple-500 text-purple-500 animate-pulse' : 'border-zinc-200 dark:border-zinc-800 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`} onPointerDown={startAudioRecording} onPointerUp={stopAudioRecording} onPointerCancel={stopAudioRecording} title="Giữ để Gọi điện với AI (Native Audio)">
+                    {isRecordingAudio ? <MicOff className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                   </button>
                   <div className="flex-1 flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
                     <button
@@ -1407,6 +1489,14 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
                     >
                       <span className="material-symbols-outlined text-[11px] text-blue-500">chat</span>
                       <span>Tâm sự tiếp</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsCallModalOpen(true)}
+                      className="py-2 px-3.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-[9px] font-bold text-blue-500 hover:bg-blue-500/20 shadow-sm shrink-0 flex items-center gap-1 transition-all"
+                    >
+                      <PhoneCall className="w-3 h-3" />
+                      <span>Gọi trực tiếp</span>
                     </button>
                     <button
                       type="button"
@@ -1431,6 +1521,12 @@ export default function ChatTab({ onNavigateToTab, bio, historyLogs, onUpdateCom
           )}
         </div>
       </div>
+      
+      <AICallModal 
+        isOpen={isCallModalOpen} 
+        onClose={() => setIsCallModalOpen(false)} 
+        botManager={botManager} 
+      />
     </div>
   );
 }

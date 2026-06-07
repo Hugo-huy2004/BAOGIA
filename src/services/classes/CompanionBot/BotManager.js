@@ -28,4 +28,12 @@ export default class BotManager {
     const bot = this._route();
     return await bot.chat(message);
   }
+
+  async chatAudio(audioBlob, isCallMode = false) {
+    const bot = this._route();
+    if (typeof bot.chatAudio === 'function') {
+      return await bot.chatAudio(audioBlob, isCallMode);
+    }
+    return { text: "Xin lỗi, tính năng gọi điện AI hiện đang bảo trì.", audio_base64: null };
+  }
 }

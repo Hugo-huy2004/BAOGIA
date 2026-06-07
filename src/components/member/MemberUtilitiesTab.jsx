@@ -99,6 +99,8 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           defaultPresetTest={defaultPsychologyPresetTest}
           bio={bio}
           showToast={showToast}
+          setFormData={setFormData}
+          handleSave={handleSave}
         />
       )}
     </div>

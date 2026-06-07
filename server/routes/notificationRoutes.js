@@ -95,5 +95,17 @@ router.post('/send-test', async (req, res) => {
   }
 });
 
+import { triggerProactivePushNow } from '../services/proactivePushService.js';
+
+// API 4 (Dùng thử): Kích hoạt thủ công Cron Job AI Proactive Push để test
+router.post('/test-proactive', async (req, res) => {
+  try {
+    triggerProactivePushNow(); // Run async without blocking
+    res.json({ success: true, message: 'Đã kích hoạt trình kích hoạt AI Proactive Push thủ công thành công. Tiến trình sẽ chạy ngầm và gửi thông báo nếu AI quyết định cần thiết.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
 export { vapidKeys };

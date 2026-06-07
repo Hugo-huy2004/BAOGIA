@@ -69,6 +69,34 @@ export default class AIBot extends BaseBot {
     return `${baseText} (AI hiểu cậu mà, ${name}!)`;
   }
 
+  async chatAudio(audioBlob, isCallMode = false) {
+    try {
+      const mappedHistory = (this.historyLogs || []).slice(-8).map(log => ({
+        role: log.sender === "bot" ? "model" : "user",
+        content: log.text || log.desc || ""
+      })).filter(item => item.content !== "");
+
+      const formData = new FormData();
+      formData.append("file", audioBlob, "voice.webm");
+      formData.append("history", JSON.stringify(mappedHistory));
+      formData.append("bio", JSON.stringify(this.bio || {}));
+      formData.append("isCallMode", isCallMode);
+
+      const response = await fetch(`${API_URL}/api/ai/chat/audio`, {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (err) {
+      console.warn("Lỗi gọi Python AI Backend (chatAudio):", err);
+    }
+    return null;
+  }
+
   async chat(message) {
     try {
       // Tạo lịch sử tin nhắn cơ bản từ các logs trước đó nếu có
@@ -89,7 +117,21 @@ export default class AIBot extends BaseBot {
 
       if (response.ok) {
         const data = await response.json();
-        const replyText = data.reply || "";
+        let replyText = data.reply || "";
+        
+        // Trích xuất thẻ cập nhật hồ sơ [UPDATE_PROFILE: {...}]
+        let bioUpdate = null;
+        const updateRegex = /\[UPDATE_PROFILE:\s*({.*?})\]/i;
+        const match = replyText.match(updateRegex);
+        if (match && match[1]) {
+          try {
+            bioUpdate = JSON.parse(match[1]);
+          } catch (e) {
+            console.error("Lỗi parse JSON UPDATE_PROFILE:", e);
+          }
+          // Xóa thẻ khỏi câu trả lời hiển thị cho user
+          replyText = replyText.replace(updateRegex, "").trim();
+        }
         
         // Phân tích câu trả lời của AI để hiển thị nút Test tương ứng
         const suggestPhq9 = replyText.includes("PHQ-9") || replyText.includes("Trầm cảm");
@@ -102,7 +144,8 @@ export default class AIBot extends BaseBot {
           suggestPhq9,
           suggestGad7,
           suggestWho5,
-          suggestBigFive
+          suggestBigFive,
+          bioUpdate
         };
       }
     } catch (err) {
@@ -131,7 +174,8 @@ export default class AIBot extends BaseBot {
           scores,
           validity,
           clinical,
-          lang
+          lang,
+          bio: this.bio
         })
       });
 

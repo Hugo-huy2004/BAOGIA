@@ -6,9 +6,11 @@ import SubUtilityHeader from "../SubUtilityHeader";
 import ChatTab from "./ChatTab";
 import TherapyTab from "./TherapyTab";
 import ProfileTab from "./ProfileTab";
+import EvaluationTab from "./EvaluationTab";
 import dataApi from "../../../services/dataApi";
 import psychologyService from "../../../services/classes/PsychologyService";
 import { webPushHelper } from "../../../utils/webPushHelper";
+import { useTranslation } from "react-i18next";
 
 function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, historyLogs, bio }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -281,371 +283,14 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
         </div>
       </div>
 
-      {/* Historical Progress Comparative Analytics */}
-      {(() => {
-        const dassTests = historyLogs.filter(l => l.test === "dass42");
-        const mmpiTests = historyLogs.filter(l => l.test === "mmpi30");
-        const phq9Tests = historyLogs.filter(l => l.test === "phq9");
-        const gad7Tests = historyLogs.filter(l => l.test === "gad7");
-        const who5Tests = historyLogs.filter(l => l.test === "who5");
-
-        const hasAnyTests = dassTests.length > 0 || mmpiTests.length > 0 || phq9Tests.length > 0 || gad7Tests.length > 0 || who5Tests.length > 0;
-        if (!hasAnyTests) return null;
-
-        return (
-          <div className="border-t border-zinc-200/50 dark:border-zinc-800/40 pt-4 space-y-3">
-            <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-200">
-              <span className="material-symbols-outlined text-sm text-indigo-500 font-black">monitoring</span>
-              <h4 className="text-[11px] font-black uppercase tracking-wider">Phân tích Tiến trình Chỉ số (Trước đó vs Hiện tại)</h4>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {/* DASS-42 progress */}
-              {dassTests.length > 0 && (() => {
-                const initial = dassTests[0];
-                const current = dassTests[dassTests.length - 1];
-                const showCompare = dassTests.length > 1;
-
-                const getDiff = (key) => {
-                  const diff = current.scores[key] - initial.scores[key];
-                  if (diff === 0) return { text: "Không đổi", color: "text-zinc-500" };
-                  if (diff > 0) return { text: `+${diff} điểm (Tăng căng thẳng)`, color: "text-red-500 font-black" };
-                  return { text: `${diff} điểm (Giảm căng thẳng)`, color: "text-emerald-500 font-black" };
-                };
-
-                return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2">
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-500">
-                      <span>DASS-42 (Trầm cảm / Lo âu / Căng thẳng)</span>
-                      {showCompare && <span className="text-[8.5px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-full uppercase font-black">Có biến động</span>}
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-center border-b pb-2">
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Ban đầu</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initial.scores.D}/{initial.scores.A}/{initial.scores.S}</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Hiện tại</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{current.scores.D}/{current.scores.A}/{current.scores.S}</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Trạng thái</span>
-                        <span className="text-[9.5px] font-black text-emerald-500 uppercase">{current.severities.D}</span>
-                      </div>
-                    </div>
-                    {showCompare && (
-                      <div className="text-[9.5px] space-y-1 pt-1">
-                        <div className="flex justify-between">
-                          <span className="text-zinc-450">Biến thiên Trầm cảm:</span>
-                          <span className={getDiff("D").color}>{getDiff("D").text}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-zinc-450">Biến thiên Lo âu:</span>
-                          <span className={getDiff("A").color}>{getDiff("A").text}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-zinc-450">Biến thiên Căng thẳng:</span>
-                          <span className={getDiff("S").color}>{getDiff("S").text}</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-
-              {/* MMPI-30 progress */}
-              {mmpiTests.length > 0 && (() => {
-                const initial = mmpiTests[0];
-                const current = mmpiTests[mmpiTests.length - 1];
-                const showCompare = mmpiTests.length > 1;
-
-                const getElevatedCount = (test) => test.clinical ? test.clinical.filter(c => c.score >= 70).length : 0;
-                const initElev = getElevatedCount(initial);
-                const currElev = getElevatedCount(current);
-                const elevDiff = currElev - initElev;
-
-                return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2">
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-500">
-                      <span>Mini-MMPI (10 Thang Lâm Sàng)</span>
-                      {showCompare && <span className="text-[8.5px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-full uppercase font-black">Có biến động</span>}
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-center border-b pb-2">
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Vượt ngưỡng đầu</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initElev}/10 thang</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Vượt ngưỡng cuối</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{currElev}/10 thang</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Tin cậy</span>
-                        <span className={`text-[9.5px] font-black uppercase ${current.isReliable ? "text-emerald-500" : "text-amber-500"}`}>
-                          {current.isReliable ? "Hợp lệ" : "Nghi ngờ"}
-                        </span>
-                      </div>
-                    </div>
-                    {showCompare && (
-                      <div className="flex justify-between text-[9.5px] pt-1">
-                        <span className="text-zinc-450">Xu hướng hành vi bất ổn:</span>
-                        <span className={elevDiff < 0 ? "text-emerald-500 font-black" : elevDiff > 0 ? "text-red-500 font-black" : "text-zinc-500"}>
-                          {elevDiff < 0 ? `Giảm ${Math.abs(elevDiff)} thang đo` : elevDiff > 0 ? `Tăng +${elevDiff} thang đo` : "Không biến thiên"}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-
-              {/* PHQ-9 progress */}
-              {phq9Tests.length > 0 && (() => {
-                const initial = phq9Tests[0];
-                const current = phq9Tests[phq9Tests.length - 1];
-                const diff = current.score - initial.score;
-
-                return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2">
-                    <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500">PHQ-9 Trầm Cảm</div>
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Ban đầu</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initial.score}/27đ</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Hiện tại</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{current.score}/27đ</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Biến thiên</span>
-                        <span className={`text-[9.5px] font-black uppercase ${diff < 0 ? "text-emerald-500" : diff > 0 ? "text-red-500" : "text-zinc-500"}`}>
-                          {diff < 0 ? `${diff}đ (Giảm u uất)` : diff > 0 ? `+${diff}đ (Tăng u uất)` : "Ổn định"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* GAD-7 progress */}
-              {gad7Tests.length > 0 && (() => {
-                const initial = gad7Tests[0];
-                const current = gad7Tests[gad7Tests.length - 1];
-                const diff = current.score - initial.score;
-
-                return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2">
-                    <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500">GAD-7 Lo Âu</div>
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Ban đầu</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initial.score}/21đ</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Hiện tại</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{current.score}/21đ</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Biến thiên</span>
-                        <span className={`text-[9.5px] font-black uppercase ${diff < 0 ? "text-emerald-500" : diff > 0 ? "text-red-500" : "text-zinc-500"}`}>
-                          {diff < 0 ? `${diff}đ (Giảm lo âu)` : diff > 0 ? `+${diff}đ (Tăng lo âu)` : "Ổn định"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* WHO-5 progress */}
-              {who5Tests.length > 0 && (() => {
-                const initial = who5Tests[0];
-                const current = who5Tests[who5Tests.length - 1];
-                const diff = (current.score * 4) - (initial.score * 4);
-
-                return (
-                  <div className="p-3 bg-white/50 dark:bg-zinc-900/35 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg space-y-2 sm:col-span-2">
-                    <div className="text-[10px] font-black uppercase tracking-wider text-indigo-500">WHO-5 Chỉ Số Hạnh Phúc</div>
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Ban đầu</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{initial.score * 4}%</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Hiện tại</span>
-                        <span className="text-[10px] font-black text-zinc-850 dark:text-zinc-250">{current.score * 4}%</span>
-                      </div>
-                      <div>
-                        <span className="text-[8.5px] text-zinc-450 block uppercase">Biến thiên</span>
-                        <span className={`text-[9.5px] font-black uppercase ${diff > 0 ? "text-emerald-500" : diff < 0 ? "text-red-500" : "text-zinc-500"}`}>
-                          {diff > 0 ? `+${diff}% (Tăng hạnh phúc)` : diff < 0 ? `${diff}% (Giảm hạnh phúc)` : "Ổn định"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Abnormality and clinical analysis report */}
-      <div className="space-y-3 pt-1">
-        <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-200">
-          <ShieldCheck className="w-4 h-4 text-emerald-500" />
-          <h4 className="text-[11px] font-black uppercase tracking-wider">Báo cáo đánh giá & Khuyến nghị</h4>
-        </div>
-
-        {/* List of anomalies */}
-        {anomalies.length > 0 ? (
-          <div className="space-y-2">
-            {anomalies.map((anom, idx) => (
-              <div
-                key={idx}
-                className={`p-3 rounded-lg flex gap-3 items-start border ${
-                  anom.severity === "high"
-                    ? "bg-red-500/5 dark:bg-red-950/10 border-red-500/20 text-red-800 dark:text-red-300"
-                    : "bg-amber-500/5 dark:bg-amber-950/10 border-amber-500/20 text-amber-800 dark:text-amber-300"
-                }`}
-              >
-                <AlertTriangle className={`w-4 h-4 shrink-0 mt-0.5 ${anom.severity === "high" ? "text-red-500" : "text-amber-500"}`} />
-                <div className="space-y-0.5">
-                  <h5 className="text-[10.5px] font-black uppercase tracking-wider leading-tight">{anom.title}</h5>
-                  <p className="text-[10px] opacity-90 leading-relaxed font-semibold">{anom.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-lg flex gap-3 items-center text-emerald-800 dark:text-emerald-350">
-            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-            <p className="text-[10px] font-black uppercase tracking-wider">Chưa phát hiện biểu hiện bất thường nào. Tinh thần của cậu đang được bảo vệ rất tốt!</p>
-          </div>
-        )}
-
-        {/* Recommendation box */}
-        <div className="p-3.5 bg-white/40 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/40 rounded-lg flex gap-3 items-start">
-          <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5 animate-pulse" />
-          <p className="text-[10.5px] text-zinc-650 dark:text-zinc-350 font-semibold leading-relaxed">
-            {recommendation}
-          </p>
-        </div>
       </div>
-
-      {/* History Timeline Panel */}
-      <div className="border-t border-zinc-250/50 dark:border-zinc-800/40 pt-3">
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between text-zinc-550 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors py-1"
-        >
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-emerald-500" />
-            <span className="text-[10.5px] font-black uppercase tracking-wider">Lịch sử đồng hành chi tiết ({historyLogs.length} sự kiện)</span>
-          </div>
-          {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
-
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="overflow-hidden mt-3 animate-scaleUp"
-            >
-              <div className="max-h-60 overflow-y-auto space-y-3.5 pr-1 scrollbar-none pb-2 pl-1.5 border-l border-emerald-500/20 dark:border-emerald-500/10 ml-2">
-                {[...historyLogs].reverse().map((log, idx) => {
-                  let eventTitle = "";
-                  let eventDetails = "";
-                  
-                  if (log.type === "checkin") {
-                    eventTitle = `Đánh giá cảm xúc: ${getMoodEmoji(log.mood)}`;
-                    eventDetails = log.note ? `Nỗi lòng: "${log.note}"` : "";
-                    if (log.wheelRatings) {
-                      const cats = ["Bản thân", "Học tập", "Công việc", "Gia đình", "Mối quan hệ"];
-                      const ratingsStr = log.wheelRatings.map((v, i) => `${cats[i]}: ${v}/10`).join(" • ");
-                      eventDetails += (eventDetails ? "\n" : "") + `Bánh xe cuộc sống: ${ratingsStr}`;
-                    }
-                  } else if (log.test === "dass42") {
-                    eventTitle = "Trắc nghiệm DASS-42 chuẩn lâm sàng";
-                    if (log.scores && log.severities) {
-                      eventDetails = `Depression: ${log.scores.D}/42 (${log.severities.D}) • Anxiety: ${log.scores.A}/42 (${log.severities.A}) • Stress: ${log.scores.S}/42 (${log.severities.S})`;
-                    }
-                  } else if (log.test === "mmpi30") {
-                    eventTitle = "Khảo sát lâm sàng Mini-MMPI";
-                    eventDetails = `Độ tin cậy: ${log.isReliable ? "Hợp lệ" : "Nghi ngờ"}` + (log.clinical ? ` • Các thang đo: ${log.clinical.map(c => `${c.code}: ${c.score}T`).join(" • ")}` : "");
-                  } else if (log.test === "phq9") {
-                    eventTitle = "Đánh giá Trầm cảm PHQ-9";
-                    eventDetails = `Tổng điểm: ${log.score}/27 • Mức độ: ${log.severity}`;
-                  } else if (log.test === "gad7") {
-                    eventTitle = "Đánh giá Lo âu GAD-7";
-                    eventDetails = `Tổng điểm: ${log.score}/21 • Mức độ: ${log.severity}`;
-                  } else if (log.test === "who5") {
-                    eventTitle = "Chỉ số Hạnh phúc WHO-5";
-                    eventDetails = `Điểm số: ${log.score}/25 • Trạng thái: ${log.status}`;
-                  } else if (log.test === "bigfive") {
-                    eventTitle = "Trắc nghiệm Nhân cách Big Five";
-                    eventDetails = log.desc;
-                  } else if (log.type === "therapy_activity") {
-                    eventTitle = `Hoạt động trị liệu: ${log.name}`;
-                    eventDetails = log.desc;
-                  } else if (log.type === "chat_anomaly") {
-                    eventTitle = "Phát hiện bất ổn tâm trạng qua cuộc chat";
-                    eventDetails = `Tin nhắn: "${log.text}"\nTừ khóa bất thường: ${log.triggers ? log.triggers.join(", ") : "stress"}`;
-                  } else if (log.type === "upload_anomaly") {
-                    eventTitle = "Lỗi tải báo cáo lâm sàng";
-                    eventDetails = log.desc;
-                  } else if (log.type === "duration_change") {
-                    eventTitle = "Thay đổi lộ trình đồng hành";
-                    eventDetails = log.reason;
-                  }
-
-                  return (
-                    <div key={idx} className="relative flex gap-3 pl-4">
-                      {/* Timeline dot */}
-                      <div className={`absolute -left-[9.5px] top-1.5 w-4.5 h-4.5 rounded-full border-4 border-white dark:border-[#12111a] ${
-                        log.type === "checkin" ? "bg-emerald-500" :
-                        (log.test === "dass42" || log.test === "phq9") ? "bg-[#0071e3]" :
-                        log.test === "gad7" ? "bg-cyan-500" :
-                        log.test === "who5" ? "bg-teal-500" :
-                        (log.test === "mmpi30" || log.test === "bigfive") ? "bg-indigo-500" :
-                        log.type === "therapy_activity" ? "bg-emerald-500" :
-                        log.type === "chat_anomaly" ? "bg-amber-500" :
-                        log.type === "upload_anomaly" ? "bg-red-500" :
-                        log.type === "duration_change" ? "bg-purple-500" : "bg-zinc-400"
-                      }`} />
-                      
-                      <div className="flex-1 space-y-1 bg-white/30 dark:bg-zinc-900/25 p-3 rounded-lg border border-zinc-200/40 dark:border-zinc-800/20 shadow-sm">
-                        <div className="flex justify-between items-center text-[8.5px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pl-0.5">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-emerald-500/60" />
-                            {formatDateTime(log.date)}
-                          </span>
-                          {log.day && <span>Ngày {log.day}</span>}
-                        </div>
-                        <h5 className="text-[10.5px] font-black text-zinc-850 dark:text-zinc-150 leading-snug">{eventTitle}</h5>
-                        {eventDetails && (
-                          <p className="text-[9.5px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-semibold whitespace-pre-wrap mt-0.5">
-                            {eventDetails}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+  
   );
 }
 
-export default function BanhocduongTab({ onBack, defaultSubTab = "chat", defaultPresetTest = null, bio, showToast }) {
-  const [activeSubTab, setActiveSubTab] = useState(defaultSubTab === "tests" || defaultSubTab === "breath" || defaultSubTab === "upload" ? "chat" : defaultSubTab); // 'chat', 'therapy'
+export default function BanhocduongTab({ onBack, defaultSubTab = "chat", defaultPresetTest = null, bio, showToast, setFormData, handleSave }) {
+  const { t } = useTranslation();
+  const [activeSubTab, setActiveSubTab] = useState(defaultSubTab); // "chat", "therapy", "profile", "evaluation"
   const [presetTest, setPresetTest] = useState(defaultPresetTest);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
@@ -934,6 +579,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
         {[
           { id: "chat", label: "Tâm Sự", icon: MessageSquare, color: "text-[#0071e3]" },
           { id: "therapy", label: "Trị Liệu", icon: Heart, color: "text-rose-500" },
+          { id: "evaluation", label: "Đánh Giá", icon: AlertTriangle, color: "text-amber-500" },
           { id: "profile", label: "Hồ Sơ", icon: ShieldCheck, color: "text-emerald-500" },
         ].map((tab) => {
           const isActive = activeSubTab === tab.id;
@@ -980,6 +626,16 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 setPresetTest={setPresetTest}
                 showToast={showToast}
                 healingActive={healingActive}
+                onProfileUpdate={(newFields) => {
+                  if (setFormData && handleSave) {
+                    setFormData(prev => {
+                      const updated = { ...prev, ...newFields };
+                      // delay handleSave until state updates (simple async call)
+                      setTimeout(() => handleSave({ preventDefault: () => {} }, updated), 0);
+                      return updated;
+                    });
+                  }
+                }}
               />
             )}
 
@@ -990,6 +646,15 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 historyLogs={historyLogs}
                 onUpdateCompanionState={handleUpdateCompanionState}
                 healingActive={healingActive}
+                showToast={showToast}
+              />
+            )}
+
+            {activeSubTab === "evaluation" && (
+              <EvaluationTab
+                onNavigateToTab={handleNavigateToTab}
+                bio={bio}
+                historyLogs={historyLogs}
                 showToast={showToast}
               />
             )}
