@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 import { Heart, Trash2, ShieldCheck, MessageSquare, AlertTriangle, ChevronDown, ChevronUp, Clock, Sparkles, Bell } from "lucide-react";
 import SubUtilityHeader from "../SubUtilityHeader";
 import ChatTab from "./ChatTab";
@@ -222,7 +223,7 @@ function CompanionDashboard({ duration, startDate, getProgressDay, onCancel, his
   }, [historyLogs]);
 
   return (
-    <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-zinc-500/5 dark:from-emerald-950/15 dark:via-zinc-900/40 dark:to-zinc-950/20 backdrop-blur-xl rounded-xl border border-emerald-500/20 dark:border-emerald-500/10 shadow-lg p-5 space-y-4 animate-scaleUp">
+    <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-rose-500/5 dark:from-emerald-950/15 dark:via-zinc-900/40 dark:to-zinc-950/20 backdrop-blur-xl rounded-3xl border border-emerald-500/10 dark:border-emerald-500/10 shadow-2xl p-6 space-y-5 animate-scaleUp">
       {/* Journey details */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-zinc-250/50 dark:border-zinc-800/40 pb-3">
         <div className="space-y-1">
@@ -662,20 +663,66 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
     try {
       const db = await dataApi.getCompanionHistory(bio.email);
       if (db) {
-        setHealingActive(db.healingActive);
-        setHealingDuration(db.healingDuration);
-        setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
-        setHistoryLogs(db.historyLogs || []);
-        setChatMessages(db.chatMessages || []);
+        let isReset = false;
+        
+        // Month end check logic:
+        // "Tất cả lịch sử... lưu 100% cho đến hết tháng. Khi qua tháng mới, nếu ngày đồng hành vẫn còn thì sẽ vẫn giữ... nếu đã hoàn tất thì reset"
+        if (db.healingStartDate && db.healingActive) {
+          const start = new Date(db.healingStartDate);
+          const now = new Date();
+          const elapsedDays = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          
+          const isNewMonth = now.getMonth() !== start.getMonth() || now.getFullYear() !== start.getFullYear();
+          const isCompleted = elapsedDays > db.healingDuration;
+          
+          if (isNewMonth && isCompleted) {
+             isReset = true;
+          }
+        }
+        
+        if (isReset) {
+          setHealingActive(false);
+          setHealingDuration(30);
+          setHealingStartDate("");
+          setHistoryLogs([]);
+          setChatMessages([]);
+          
+          localStorage.removeItem("banhocduong_healing_mode");
+          localStorage.removeItem("banhocduong_healing_duration");
+          localStorage.removeItem("banhocduong_healing_start_date");
+          localStorage.removeItem("banhocduong_history");
+          localStorage.removeItem("banhocduong_last_checkin_date");
+          localStorage.removeItem("banhocduong_last_test_date");
+          localStorage.removeItem("banhocduong_chat_distress_count");
+          localStorage.removeItem("banhocduong_chat_messages");
+          
+          await dataApi.saveCompanionHistory({
+            email: bio.email,
+            healingActive: false,
+            healingDuration: 30,
+            healingStartDate: "",
+            historyLogs: [],
+            chatMessages: [],
+            lastCheckinDate: "",
+            lastTestDate: "",
+            chatDistressCount: 0
+          });
+        } else {
+          setHealingActive(db.healingActive);
+          setHealingDuration(db.healingDuration);
+          setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
+          setHistoryLogs(db.historyLogs || []);
+          setChatMessages(db.chatMessages || []);
 
-        localStorage.setItem("banhocduong_healing_mode", db.healingActive ? "active" : "");
-        localStorage.setItem("banhocduong_healing_duration", db.healingDuration.toString());
-        localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
-        localStorage.setItem("banhocduong_history", JSON.stringify(db.historyLogs || []));
-        localStorage.setItem("banhocduong_last_checkin_date", db.lastCheckinDate || "");
-        localStorage.setItem("banhocduong_last_test_date", db.lastTestDate || "");
-        localStorage.setItem("banhocduong_chat_distress_count", (db.chatDistressCount || 0).toString());
-        localStorage.setItem("banhocduong_chat_messages", JSON.stringify(db.chatMessages || []));
+          localStorage.setItem("banhocduong_healing_mode", db.healingActive ? "active" : "");
+          localStorage.setItem("banhocduong_healing_duration", db.healingDuration.toString());
+          localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
+          localStorage.setItem("banhocduong_history", JSON.stringify(db.historyLogs || []));
+          localStorage.setItem("banhocduong_last_checkin_date", db.lastCheckinDate || "");
+          localStorage.setItem("banhocduong_last_test_date", db.lastTestDate || "");
+          localStorage.setItem("banhocduong_chat_distress_count", (db.chatDistressCount || 0).toString());
+          localStorage.setItem("banhocduong_chat_messages", JSON.stringify(db.chatMessages || []));
+        }
       }
     } catch (e) {
       console.error("Failed to sync companion history from DB", e);
@@ -766,6 +813,12 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
           const alertData = JSON.parse(alertRaw);
           setAdaptationAlert(alertData);
           localStorage.removeItem("banhocduong_duration_adaptation_alert");
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#34d399', '#f472b6', '#38bdf8', '#fbbf24']
+          });
           syncWithDb();
         } catch (e) {
           console.error(e);
@@ -879,32 +932,34 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
       {/* Subtabs headers */}
       <div className="flex items-center justify-start md:justify-center gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none p-[4px] rounded-lg bg-zinc-150/60 dark:bg-zinc-900/65 border border-zinc-250/30 dark:border-zinc-800/50 max-w-3xl mx-auto w-full">
         {[
-          { id: "chat", label: "Tâm Sự", icon: MessageSquare },
-          { id: "therapy", label: "Trị Liệu", icon: Heart },
-          { id: "profile", label: "Hồ Sơ", icon: ShieldCheck },
+          { id: "chat", label: "Tâm Sự", icon: MessageSquare, color: "text-[#0071e3]" },
+          { id: "therapy", label: "Trị Liệu", icon: Heart, color: "text-rose-500" },
+          { id: "profile", label: "Hồ Sơ", icon: ShieldCheck, color: "text-emerald-500" },
         ].map((tab) => {
           const isActive = activeSubTab === tab.id;
           const IconComponent = tab.icon;
           return (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               key={tab.id}
               type="button"
               onClick={() => handleSubTabChange(tab.id)}
-              className={`flex items-center justify-center gap-2 px-4 py-2.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-md transition-all duration-300 shrink-0 ${
+              className={`flex items-center justify-center gap-2 px-5 py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-2xl transition-all duration-300 shrink-0 ${
                 isActive
-                  ? "bg-white dark:bg-zinc-800 text-[#0071e3] dark:text-emerald-450 shadow-md scale-[1.02]"
+                  ? `bg-white dark:bg-zinc-800 ${tab.color} shadow-lg`
                   : "text-zinc-550 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-white/30 dark:hover:bg-white/5"
               }`}
             >
-              <IconComponent className={`w-3.5 h-3.5 transition-transform duration-300 ${isActive ? "scale-110" : ""}`} />
+              <IconComponent className={`w-4 h-4 transition-transform duration-300 ${isActive ? "scale-110" : ""}`} />
               <span>{tab.label}</span>
-            </button>
+            </motion.button>
           );
         })}
       </div>
 
       {/* Main tab wrapper */}
-      <div className="bg-white/70 dark:bg-[#12111a]/70 backdrop-blur-2xl rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-xl overflow-hidden min-h-[500px] flex flex-col justify-between transition-all">
+      <div className="bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl rounded-3xl border border-zinc-200/40 dark:border-zinc-800/60 shadow-2xl overflow-hidden min-h-[500px] flex flex-col justify-between transition-all">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeSubTab}

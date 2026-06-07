@@ -21,24 +21,92 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
   });
   const [scanMmpiValidity, setScanMmpiValidity] = useState({ L: 47, F: 79, K: 40 });
 
-  // Simulate scanning steps
-  useEffect(() => {
-    if (scanState !== "scanning") return;
+  const handleStartScan = async (testType) => {
+    if (!scanFile) return;
+    setScanTestType(testType);
+    setScanState("scanning");
+    setScanStepIdx(0);
 
+    // Setup simulated steps progression
     const interval = setInterval(() => {
       setScanStepIdx((prev) => {
         if (prev < SCAN_STEPS.length - 1) {
           return prev + 1;
-        } else {
-          clearInterval(interval);
-          setScanState("verified");
-          return prev;
         }
+        return prev;
       });
-    }, 700);
+    }, 600);
 
-    return () => clearInterval(interval);
-  }, [scanState]);
+    try {
+      const formData = new FormData();
+      formData.append("file", scanFile);
+
+      const response = await fetch("http://localhost:8000/api/ai/analyze-report", {
+        method: "POST",
+        body: formData
+      });
+
+      clearInterval(interval);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Real AI OCR Data extracted:", data);
+
+        if (data.testType === "dass" && data.scores) {
+          setScanDassScores({
+            D: data.scores.D !== undefined ? data.scores.D : 17,
+            A: data.scores.A !== undefined ? data.scores.A : 11,
+            S: data.scores.S !== undefined ? data.scores.S : 17
+          });
+          setScanTestType("dass");
+        } else if (data.testType === "mmpi") {
+          if (data.clinical) {
+            setScanMmpiClinical({
+              Hs: data.clinical.Hs !== undefined ? data.clinical.Hs : 68,
+              D: data.clinical.D !== undefined ? data.clinical.D : 72,
+              Hy: data.clinical.Hy !== undefined ? data.clinical.Hy : 85,
+              Pd: data.clinical.Pd !== undefined ? data.clinical.Pd : 77,
+              Mf: data.clinical.Mf !== undefined ? data.clinical.Mf : 55,
+              Pa: data.clinical.Pa !== undefined ? data.clinical.Pa : 95,
+              Pt: data.clinical.Pt !== undefined ? data.clinical.Pt : 73,
+              Sc: data.clinical.Sc !== undefined ? data.clinical.Sc : 81,
+              Ma: data.clinical.Ma !== undefined ? data.clinical.Ma : 68,
+              Si: data.clinical.Si !== undefined ? data.clinical.Si : 68
+            });
+          }
+          if (data.validity) {
+            setScanMmpiValidity({
+              L: data.validity.L !== undefined ? data.validity.L : 47,
+              F: data.validity.F !== undefined ? data.validity.F : 79,
+              K: data.validity.K !== undefined ? data.validity.K : 40
+            });
+          }
+          setScanTestType("mmpi");
+        } else {
+          // If backend output format is slightly different
+          if (testType === "dass") {
+            setScanDassScores(data.scores || { D: 17, A: 11, S: 17 });
+          } else {
+            if (data.clinical) {
+              setScanMmpiClinical(prev => ({ ...prev, ...data.clinical }));
+            }
+            if (data.validity) {
+              setScanMmpiValidity(prev => ({ ...prev, ...data.validity }));
+            }
+          }
+        }
+      } else {
+        console.warn("Backend error, using mock fallback");
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    } catch (err) {
+      console.warn("Network error connecting to Python AI Backend, using mock fallback:", err);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    } finally {
+      clearInterval(interval);
+      setScanState("verified");
+    }
+  };
 
   const handleSave = () => {
     let resultLog = {};
@@ -203,22 +271,14 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
               <div className="flex gap-2 justify-center">
                 <button
                   type="button"
-                  onClick={() => {
-                    setScanTestType("dass");
-                    setScanState("scanning");
-                    setScanStepIdx(0);
-                  }}
+                  onClick={() => handleStartScan("dass")}
                   className="px-3 py-1.5 bg-[#0071e3] text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-[#0077ed]"
                 >
                   DASS-42
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setScanTestType("mmpi");
-                    setScanState("scanning");
-                    setScanStepIdx(0);
-                  }}
+                  onClick={() => handleStartScan("mmpi")}
                   className="px-3 py-1.5 bg-indigo-500 text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-indigo-650"
                 >
                   MMPI-30

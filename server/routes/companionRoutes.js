@@ -11,7 +11,7 @@ router.get('/history', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    const historyDoc = await CompanionHistory.findOneAndUpdate(
+    let historyDoc = await CompanionHistory.findOneAndUpdate(
       { email },
       {
         $setOnInsert: {
@@ -28,6 +28,36 @@ router.get('/history', async (req, res) => {
         setDefaultsOnInsert: true
       }
     );
+
+    if (historyDoc.blockedUntil && new Date(historyDoc.blockedUntil) > new Date()) {
+      return res.status(403).json({ error: 'Tài khoản của bạn đã bị tạm khóa do phát hiện nghi vấn xâm nhập. Vui lòng thử lại sau.', blockedUntil: historyDoc.blockedUntil });
+    }
+
+    if (historyDoc.healingStartDate) {
+      const startMonth = new Date(historyDoc.healingStartDate).getMonth();
+      const currentMonth = new Date().getMonth();
+      const startYear = new Date(historyDoc.healingStartDate).getFullYear();
+      const currentYear = new Date().getFullYear();
+      
+      const isNewMonth = (currentYear > startYear) || (currentYear === startYear && currentMonth > startMonth);
+      
+      if (isNewMonth) {
+        const start = new Date(historyDoc.healingStartDate).getTime();
+        const now = new Date().getTime();
+        const progressDays = Math.max(1, Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1);
+        
+        if (!historyDoc.healingActive || progressDays > historyDoc.healingDuration) {
+          historyDoc.healingActive = false;
+          historyDoc.healingDuration = 30;
+          historyDoc.historyLogs = [];
+          historyDoc.chatMessages = [];
+          historyDoc.healingStartDate = null;
+          historyDoc.lastCheckinDate = '';
+          historyDoc.lastTestDate = '';
+          await historyDoc.save();
+        }
+      }
+    }
 
     res.json(historyDoc);
   } catch (error) {
@@ -152,6 +182,29 @@ router.post('/history', async (req, res) => {
     import('fs').then(fs => {
       fs.writeFileSync('/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/error_log.txt', error.stack || error.message);
     }).catch(console.error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST: Block user IP/Session for 15 minutes due to anomaly detection
+router.post('/history/block', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    
+    // Block for 15 minutes
+    const blockedUntil = new Date(Date.now() + 15 * 60 * 1000);
+    
+    await CompanionHistory.findOneAndUpdate(
+      { email },
+      { $set: { blockedUntil } },
+      { upsert: true }
+    );
+    
+    res.json({ success: true, blockedUntil });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

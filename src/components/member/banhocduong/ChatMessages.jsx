@@ -1,5 +1,8 @@
 import React from "react";
 import TypewriterText from "./TypewriterText";
+import { motion } from "framer-motion";
+
+import { Volume2, VolumeX } from "lucide-react";
 
 export default function ChatMessages({
   messages,
@@ -11,6 +14,26 @@ export default function ChatMessages({
   onNavigateToTab,
   messagesEndRef
 }) {
+  const [playingId, setPlayingId] = React.useState(null);
+
+  const handlePlayVoice = (id, text) => {
+    if (playingId === id) {
+      window.speechSynthesis.cancel();
+      setPlayingId(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    setPlayingId(id);
+    const utterance = new SpeechSynthesisUtterance(text.replace(/\*\*/g, ''));
+    utterance.lang = 'vi-VN';
+    utterance.onend = () => setPlayingId(null);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  React.useEffect(() => {
+    return () => window.speechSynthesis.cancel();
+  }, []);
+
   const formatMessageText = (txt) => {
     if (!txt) return "";
     const parts = txt.split(/(\*\*[^*]+\*\*)/g);
@@ -42,7 +65,10 @@ export default function ChatMessages({
         }
 
         return (
-          <div
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
             key={msg.id}
             className={`flex items-start gap-3 w-full max-w-[90%] ${
               isBot ? "mr-auto" : "ml-auto flex-row-reverse"
@@ -56,10 +82,10 @@ export default function ChatMessages({
             
             <div className="space-y-2 flex-1">
               <div
-                className={`relative p-3.5 rounded-lg border-2 text-xs leading-relaxed ${
+                className={`relative p-3.5 rounded-2xl text-xs leading-relaxed ${
                   isBot
-                    ? "bg-white dark:bg-[#1a1924] border-zinc-950 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-tl-none shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]"
-                    : "bg-[#0071e3] border-[#0051bb] text-white rounded-tr-none shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)]"
+                    ? "bg-white dark:bg-[#1a1924] border border-emerald-100 dark:border-emerald-900/50 text-zinc-800 dark:text-zinc-200 rounded-tl-sm shadow-soft"
+                    : "bg-gradient-to-r from-[#0071e3] to-[#0051bb] text-white rounded-tr-sm shadow-md"
                 }`}
               >
                 {isBot && (
@@ -79,9 +105,20 @@ export default function ChatMessages({
                     }}
                   />
                 ) : (
-                  <p className="whitespace-pre-wrap font-semibold">{formatMessageText(msg.text)}</p>
+                  <div>
+                    <p className="whitespace-pre-wrap font-semibold">{formatMessageText(msg.text)}</p>
+                    {isBot && (
+                      <button 
+                        onClick={() => handlePlayVoice(msg.id, msg.text)}
+                        className="mt-2 text-indigo-500 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 p-1.5 rounded-full transition-colors flex items-center justify-center float-right"
+                        title="Nghe giọng nói AI"
+                      >
+                        {playingId === msg.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
+                  </div>
                 )}
-                <span className="block text-[7.5px] font-black uppercase tracking-wider mt-1.5 opacity-60">
+                <span className="block text-[7.5px] font-black uppercase tracking-wider mt-1.5 opacity-60 clear-both">
                   {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
                 {msg.showTherapyButton && (
@@ -189,18 +226,26 @@ export default function ChatMessages({
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         );
       })}
 
       {loading && (
-        <div className="flex gap-2.5 max-w-[85%] mr-auto animate-pulse">
-          <div className="p-3.5 bg-white dark:bg-[#1a1924] border-2 border-zinc-950 dark:border-zinc-850 rounded-lg rounded-tl-none shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center gap-1">
-            <span className="w-1 h-1 bg-zinc-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-1 h-1 bg-zinc-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-1 h-1 bg-zinc-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex gap-2.5 max-w-[85%] mr-auto"
+        >
+          <div className="p-3 bg-white dark:bg-[#1a1924] border border-emerald-500/30 dark:border-emerald-500/20 rounded-2xl rounded-tl-sm shadow-soft flex items-center gap-2.5">
+            <div className="relative flex items-center justify-center w-5 h-5">
+              <span className="absolute inset-0 rounded-full border-[2px] border-emerald-500/20"></span>
+              <span className="absolute inset-0 rounded-full border-[2px] border-emerald-500 border-t-transparent animate-spin"></span>
+            </div>
+            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest animate-pulse">
+              Hugo Studio đang đưa ra giải pháp
+            </span>
           </div>
-        </div>
+        </motion.div>
       )}
       <div ref={messagesEndRef} />
     </div>

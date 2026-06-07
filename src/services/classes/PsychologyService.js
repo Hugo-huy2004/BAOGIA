@@ -168,7 +168,12 @@ class PsychologyService {
       {
         id: "depression_general",
         keywords: ["buồn", "chán", "nản", "mệt", "kiệt sức", "khóc", "trống rỗng", "bất lực", "suy sụp", "oải", "mệt mỏi", "trầm cảm"],
-        reply: "Thương cậu nhiều... Những lúc cạn kiệt năng lượng và kiệt sức như thế này, ngay cả việc thở thôi cũng thấy mệt mỏi đúng không cậu. Cậu đã vất vả gồng gánh nhiều rồi, giờ hãy cho phép bản thân được nghỉ ngơi một chút nhé. Tớ luôn ở bên cậu và sẵn sàng lắng nghe mọi chuyện."
+        reply: "Thương cậu nhiều... Những lúc cạn kiệt năng lượng và kiệt sức như thế này, ngay cả việc thở thôi cũng thấy mệt mỏi đúng không cậu. Cậu đã vất Hình vả gồng gánh nhiều rồi, giờ hãy cho phép bản thân được nghỉ ngơi một chút nhé. Tớ luôn ở bên cậu và sẵn sàng lắng nghe mọi chuyện."
+      },
+      {
+        id: "cognitive_distortion",
+        keywords: ["luôn luôn", "không bao giờ", "tất cả", "chẳng ai", "vô dụng", "kẻ thất bại", "tồi tệ nhất"],
+        reply: "Tớ nhận thấy dường như cậu đang có những suy nghĩ mang tính 'khái quát hóa quá mức' - một dạng bẫy tâm lý phổ biến. Những từ như 'không bao giờ' hay 'vô dụng' thường làm phóng đại tổn thương và khiến mình đau lòng hơn. Thử chậm lại một chút cùng tớ, hít thở sâu, và tìm thử một điều nhỏ nhoi chứng minh điều ngược lại xem sao cậu nhé?"
       }
     ];
 
@@ -281,8 +286,8 @@ class PsychologyService {
     // Rich adaptive fallbacks
     const adaptiveFallbacks = [
       "Tớ vẫn ở đây lắng nghe cậu nè. Cậu cứ chia sẻ nhé, tớ ở đây để làm bạn với cậu mà.",
-      "Ừm, tớ đang nghe đây. Bất cứ điều gì làm cậu thấy lấn cấn hay mệt lòng dạo gần đây, cậu cứ kể cho tớ nghe nhé.",
-      "Tớ thấu cảm cảm giác ngổn ngang hiện tại của cậu. Nếu thấy khó chia sẻ, cậu cứ kể những chuyện nhỏ nhặt nhất ngày hôm nay thôi cũng được nha.",
+      "Ừm, tớ đang nghe đây. Theo góc nhìn tâm lý học, việc nói ra được những băn khoăn là bước đầu tiên của tự chữa lành rồi đó. Cậu cứ kể cho tớ nghe nhé.",
+      "Tớ thấu cảm cảm giác ngổn ngang hiện tại của cậu. Đừng cố ép bản thân phải ổn ngay lập tức. Cậu cứ cho phép mình buồn một chút cũng không sao nha.",
       "Cậu đã nỗ lực chịu đựng mọi áp lực một mình nhiều rồi. Ở đây hoàn toàn bảo mật, cậu cứ trút lòng ra cho nhẹ nhõm nha.",
       "Tớ luôn ở bên làm chỗ dựa tinh thần cho cậu. Cậu không cô đơn đâu."
     ];
@@ -390,6 +395,18 @@ class PsychologyService {
               newDuration: newDuration
             };
           }
+        } else if (latest.score > previous.score) {
+          const increase = latest.score - previous.score;
+          let addedDays = Math.min(increase * 2, 7);
+          const newDuration = currentDuration + addedDays;
+          adaptation = {
+            type: "phq9",
+            worsen: true,
+            improvement: `chỉ số trầm cảm PHQ-9 tăng từ ${previous.score} lên ${latest.score} điểm`,
+            addedDays: addedDays,
+            oldDuration: currentDuration,
+            newDuration: newDuration
+          };
         }
       }
 
@@ -418,6 +435,18 @@ class PsychologyService {
               newDuration: newDuration
             };
           }
+        } else if (latest.score > previous.score) {
+          const increase = latest.score - previous.score;
+          let addedDays = Math.min(increase * 2, 7);
+          const newDuration = currentDuration + addedDays;
+          adaptation = {
+            type: "gad7",
+            worsen: true,
+            improvement: `chỉ số lo âu GAD-7 tăng từ ${previous.score} lên ${latest.score} điểm`,
+            addedDays: addedDays,
+            oldDuration: currentDuration,
+            newDuration: newDuration
+          };
         }
       }
 
@@ -446,6 +475,18 @@ class PsychologyService {
               newDuration: newDuration
             };
           }
+        } else if (latest.score < previous.score) {
+          const decrease = previous.score - latest.score;
+          let addedDays = Math.min(decrease * 2, 7);
+          const newDuration = currentDuration + addedDays;
+          adaptation = {
+            type: "who5",
+            worsen: true,
+            improvement: `chỉ số hạnh phúc WHO-5 giảm từ ${previous.score} xuống ${latest.score} điểm`,
+            addedDays: addedDays,
+            oldDuration: currentDuration,
+            newDuration: newDuration
+          };
         }
       }
 
@@ -488,6 +529,20 @@ class PsychologyService {
               };
             }
           }
+        } else if (latestSum > prevSum) {
+          const increase = latestSum - prevSum;
+          if (increase >= 5) {
+            let addedDays = Math.min(Math.floor(increase / 2), 7);
+            const newDuration = currentDuration + addedDays;
+            adaptation = {
+              type: "dass",
+              worsen: true,
+              improvement: `chỉ số DASS tăng từ ${prevSum} lên ${latestSum} điểm`,
+              addedDays: addedDays,
+              oldDuration: currentDuration,
+              newDuration: newDuration
+            };
+          }
         }
       }
 
@@ -523,6 +578,18 @@ class PsychologyService {
               newDuration: newDuration
             };
           }
+        } else if (latestElevated > prevElevated) {
+          const increase = latestElevated - prevElevated;
+          let addedDays = Math.min(increase * 3, 7);
+          const newDuration = currentDuration + addedDays;
+          adaptation = {
+            type: "mmpi",
+            worsen: true,
+            improvement: `số thang đo MMPI vượt ngưỡng cảnh báo tăng từ ${prevElevated} lên ${latestElevated} thang đo`,
+            addedDays: addedDays,
+            oldDuration: currentDuration,
+            newDuration: newDuration
+          };
         }
       }
 
@@ -534,7 +601,9 @@ class PsychologyService {
           type: "duration_change",
           oldDuration: adaptation.oldDuration,
           newDuration: adaptation.newDuration,
-          reason: `Rút ngắn lộ trình từ ${adaptation.oldDuration} ngày xuống ${adaptation.newDuration} ngày do tiến triển tinh thần cải thiện rõ rệt: ${adaptation.improvement}.`
+          reason: adaptation.worsen
+            ? `Tăng lộ trình từ ${adaptation.oldDuration} ngày lên ${adaptation.newDuration} ngày do tiến triển tinh thần có dấu hiệu chững lại: ${adaptation.improvement}.`
+            : `Rút ngắn lộ trình từ ${adaptation.oldDuration} ngày xuống ${adaptation.newDuration} ngày do tiến triển tinh thần cải thiện rõ rệt: ${adaptation.improvement}.`
         });
         localStorage.setItem("banhocduong_history", JSON.stringify(logs));
         return adaptation;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function BreathingTherapy({ onBack, onCompleteActivity, showToast }) {
   const [breathState, setBreathState] = useState("idle"); // 'idle', 'inhale', 'hold', 'exhale'
@@ -80,6 +81,20 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
     return `${m}:${s}`;
   };
 
+  const ringVariants = {
+    idle: { scale: 1, borderColor: "rgba(161, 161, 170, 0.2)", backgroundColor: "transparent" },
+    inhale: { scale: 1.4, borderColor: "rgba(16, 185, 129, 0.2)", backgroundColor: "rgba(16, 185, 129, 0.05)", transition: { duration: 4, ease: "easeInOut" } },
+    hold: { scale: 1.4, borderColor: "rgba(245, 158, 11, 0.3)", backgroundColor: "rgba(245, 158, 11, 0.05)", transition: { duration: 7, ease: "linear" } },
+    exhale: { scale: 1, borderColor: "rgba(99, 102, 241, 0.1)", backgroundColor: "transparent", transition: { duration: 8, ease: "easeInOut" } }
+  };
+
+  const coreVariants = {
+    idle: { scale: 1, backgroundColor: "#27272a" },
+    inhale: { scale: 1.3, backgroundColor: "#10b981", transition: { duration: 4, ease: "easeInOut" } },
+    hold: { scale: 1.3, backgroundColor: "#f59e0b", transition: { duration: 7, ease: "linear" } },
+    exhale: { scale: 1, backgroundColor: "#6366f1", transition: { duration: 8, ease: "easeInOut" } }
+  };
+
   return (
     <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp">
       <div className="flex items-center justify-between border-b pb-2 border-zinc-200/50">
@@ -92,7 +107,9 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
       <div className="py-4 space-y-4 flex flex-col items-center">
         {/* Timer Presets */}
         <div className="flex justify-center gap-2 mb-2">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             type="button"
             onClick={() => selectDuration(300)}
             className={`px-3 py-1.5 rounded-md border text-[9px] font-black uppercase tracking-wider transition-colors ${
@@ -102,8 +119,10 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
             }`}
           >
             5 phút
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             type="button"
             onClick={() => selectDuration(600)}
             className={`px-3 py-1.5 rounded-md border text-[9px] font-black uppercase tracking-wider transition-colors ${
@@ -113,7 +132,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
             }`}
           >
             10 phút
-          </button>
+          </motion.button>
         </div>
 
         {breathState !== "idle" && (
@@ -124,19 +143,19 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
 
         {/* Breathing Ring visual guide */}
         <div className="relative flex items-center justify-center select-none w-44 h-44 my-4">
-          <div className={`absolute w-36 h-36 rounded-full border-2 transition-all duration-[3000ms] ${
-            breathState === "inhale" ? "border-emerald-500/20 scale-[1.35] bg-emerald-500/5" :
-            breathState === "hold" ? "border-amber-500/20 scale-[1.35] bg-amber-500/5 animate-pulse" :
-            breathState === "exhale" ? "border-indigo-500/10 scale-100 bg-transparent" :
-            "border-zinc-200 dark:border-zinc-800 scale-100 bg-transparent"
-          }`} />
+          <motion.div 
+            variants={ringVariants}
+            initial="idle"
+            animate={breathState}
+            className="absolute w-36 h-36 rounded-full border-2" 
+          />
 
-          <div className={`w-24 h-24 rounded-full flex flex-col items-center justify-center text-white transition-all shadow-lg relative z-10 ${
-            breathState === "inhale" ? "bg-emerald-500 duration-[4000ms] scale-[1.25]" :
-            breathState === "hold" ? "bg-amber-500 duration-[7000ms] scale-[1.25]" :
-            breathState === "exhale" ? "bg-indigo-500 duration-[8000ms] scale-100" :
-            "bg-zinc-800 dark:bg-zinc-900 scale-100"
-          }`}>
+          <motion.div 
+            variants={coreVariants}
+            initial="idle"
+            animate={breathState}
+            className="w-24 h-24 rounded-full flex flex-col items-center justify-center text-white shadow-lg relative z-10"
+          >
             <span className="text-[8px] uppercase tracking-widest font-black opacity-80">
               {breathState === "inhale" ? "Hít vào" :
                breathState === "hold" ? "Giữ hơi" :
@@ -145,32 +164,36 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
             {breathState !== "idle" && (
               <span className="text-2xl font-mono font-black mt-0.5">{breathTimer}s</span>
             )}
-          </div>
+          </motion.div>
         </div>
 
         <div className="pt-2">
           {breathState === "idle" ? (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={() => {
                 setTimerSecondsLeft(targetDuration);
                 setBreathState("inhale");
               }}
-              className="px-6 py-2.5 rounded-md border-2 border-zinc-950 dark:border-zinc-800 bg-[#0071e3] text-white text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] transition-all active:translate-x-0.5 active:translate-y-0.5"
+              className="px-6 py-2.5 rounded-md border-2 border-zinc-950 dark:border-zinc-800 bg-[#0071e3] text-white text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] transition-all"
             >
               Bắt đầu tập thở
-            </button>
+            </motion.button>
           ) : (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={() => {
                 setBreathState("idle");
                 setTimerSecondsLeft(targetDuration);
               }}
-              className="px-6 py-2.5 rounded-md border-2 border-red-500 text-red-500 bg-white dark:bg-zinc-900 text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(239,68,68,0.2)] transition-all active:scale-95"
+              className="px-6 py-2.5 rounded-md border-2 border-red-500 text-red-500 bg-white dark:bg-zinc-900 text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(239,68,68,0.2)] transition-all"
             >
               Dừng tập thở
-            </button>
+            </motion.button>
           )}
         </div>
         <p className="text-[10px] text-zinc-400 italic max-w-xs mx-auto leading-relaxed font-semibold">

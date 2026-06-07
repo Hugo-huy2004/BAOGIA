@@ -11,10 +11,11 @@ export default function TypewriterText({ text, id, onComplete }) {
     }
 
     let index = 0;
+    const words = (text || "").split(" ");
     setDisplayedText("");
     const intervalId = setInterval(() => {
       index++;
-      const next = text.substring(0, index);
+      const next = words.slice(0, index).join(" ");
       setDisplayedText(next);
 
       // Auto-scroll the parent container down to keep up with typing
@@ -25,7 +26,7 @@ export default function TypewriterText({ text, id, onComplete }) {
         }
       }, 0);
 
-      if (index >= text.length) {
+      if (index >= words.length) {
         clearInterval(intervalId);
         completedRef.current = true;
         if (onComplete) {
@@ -34,7 +35,7 @@ export default function TypewriterText({ text, id, onComplete }) {
           }, 0);
         }
       }
-    }, 15);
+    }, 45); // Slower interval for words instead of characters
 
     return () => clearInterval(intervalId);
   }, [text, id]);

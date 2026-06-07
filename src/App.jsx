@@ -9,6 +9,7 @@ import MaintenancePage from "./components/MaintenancePage";
 import GlobalAdBanner from "./components/GlobalAdBanner";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
 import HBot from "./components/HBot";
+import { CursorEffect as Cursor } from "hwagfu-cursor";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -89,6 +90,7 @@ function AppContent() {
       
       {/* Dynamic Content Router */}
       <main className="flex-grow">
+        <Cursor />
         <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
           <Routes>
             <Route path="/" element={<Navigate to="/introduction" replace />} />

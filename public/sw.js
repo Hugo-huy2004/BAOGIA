@@ -7,7 +7,7 @@
 self.addEventListener('push', function (event) {
   try {
     let payload = {
-      title: 'Bạn Học Đường',
+      title: 'Bạn Học Đường - HUGO STUDIO',
       body: 'Bạn có thông báo mới từ Chuyên viên Đồng Hành.',
       icon: '/image/avt7.png', // Logo không nền của mascot
       url: '/member/portal?tab=banhocduong'

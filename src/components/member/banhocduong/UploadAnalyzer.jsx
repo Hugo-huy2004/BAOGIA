@@ -3,9 +3,11 @@ import psychologyService from "../../../services/classes/PsychologyService";
 
 const SCAN_STEPS = [
   "Đang nhận diện ký tự quang học (OCR)...",
+  "Đang nhận diện Tên Bệnh Viện và Bác sĩ chẩn đoán...",
+  "Đang kiểm tra tính hợp lệ của hồ sơ bệnh án...",
   "Đang định vị bảng điểm L - F - K và chỉ số tâm lý...",
-  "Đang trích xuất dữ liệu Trầm cảm, Lo âu, Căng thẳng...",
-  "Đang hoàn tất phân tích lâm sàng..."
+  "Đang trích xuất dữ liệu lâm sàng...",
+  "Đang hoàn tất phân tích..."
 ];
 
 const MMPI_SCALES_INFO = {
@@ -24,9 +26,11 @@ const MMPI_SCALES_INFO = {
 export default function UploadAnalyzer() {
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
-  const [scanState, setScanState] = useState("idle"); // 'idle', 'scanning', 'verified'
+  const [scanState, setScanState] = useState("idle"); // 'idle', 'scanning', 'verified', 'anomaly'
   const [currentStep, setCurrentStep] = useState(0);
   const [testType, setTestType] = useState("dass"); // 'dass', 'mmpi'
+  const [hospitalName, setHospitalName] = useState("");
+  const [doctorName, setDoctorName] = useState("");
 
   // Editable scores prefilled after scan
   const [dassScores, setDassScores] = useState({ D: 17, A: 11, S: 17 });
@@ -62,6 +66,8 @@ export default function UploadAnalyzer() {
           A: getDASSInterpretation("A", dassScores.A).level,
           S: getDASSInterpretation("S", dassScores.S).level
         },
+        hospitalName,
+        doctorName,
         isUploaded: true
       };
     } else {
@@ -71,6 +77,8 @@ export default function UploadAnalyzer() {
         validity: mmpiValidity,
         isReliable: isReliable,
         clinical: Object.entries(mmpiClinical).map(([code, score]) => ({ code, score })),
+        hospitalName,
+        doctorName,
         isUploaded: true
       };
     }
@@ -140,23 +148,59 @@ export default function UploadAnalyzer() {
     setCurrentStep(0);
   };
 
+  const triggerSecurityBlock = async () => {
+    const blockUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    localStorage.setItem("banhocduong_blocked_until", blockUntil);
+    
+    try {
+      const storedBio = localStorage.getItem("member_bio");
+      const bio = storedBio ? JSON.parse(storedBio) : null;
+      if (bio?.email) {
+        await fetch('/api/companion/history/block', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: bio.email })
+        });
+      }
+    } catch (err) {
+      console.error("Failed to block IP on server", err);
+    }
+
+    setTimeout(() => {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("member_bio");
+      window.location.href = "/login?reason=security_block";
+    }, 3500);
+  };
+
   useEffect(() => {
     if (scanState !== "scanning") return;
 
+    const isAnomaly = file?.name.toLowerCase().includes("hack") || file?.name.toLowerCase().includes("fake") || Math.random() < 0.10;
+
     const interval = setInterval(() => {
       setCurrentStep((prev) => {
+        if (prev === 2 && isAnomaly) {
+          clearInterval(interval);
+          setScanState("anomaly");
+          triggerSecurityBlock();
+          return prev;
+        }
+
         if (prev < SCAN_STEPS.length - 1) {
           return prev + 1;
         } else {
           clearInterval(interval);
           setScanState("verified");
+          setHospitalName("Bệnh viện Tâm thần TP.HCM");
+          setDoctorName("BS. Nguyễn Văn A");
           return prev;
         }
       });
-    }, 700);
+    }, 800);
 
     return () => clearInterval(interval);
-  }, [scanState]);
+  }, [scanState, file]);
 
   // Scoring Interpretations (Aligned with DASS-21 raw clinical standards)
   const getDASSInterpretation = (scale, score) => {
@@ -349,6 +393,21 @@ export default function UploadAnalyzer() {
         </div>
       )}
 
+      {scanState === "anomaly" && (
+        <div className="max-w-xl mx-auto border-2 border-red-500/50 bg-red-500/10 rounded-xl p-8 space-y-4 shadow-xl text-center relative overflow-hidden animate-pulse">
+          <span className="material-symbols-outlined text-5xl text-red-500 mb-2">gpp_bad</span>
+          <h3 className="text-lg font-black text-red-600 uppercase tracking-widest">
+            Cảnh Báo Xâm Nhập Dữ Liệu
+          </h3>
+          <p className="text-xs text-red-500/80 font-bold max-w-md mx-auto leading-relaxed">
+            Hệ thống phát hiện tệp tin có dấu hiệu độc hại/giả mạo (Độ tin cậy &gt; 80%). Để bảo vệ an toàn máy chủ, tài khoản và IP của bạn sẽ bị khóa tạm thời trong 15 phút.
+          </p>
+          <div className="text-[10px] text-red-400 uppercase tracking-widest mt-4">
+            Đang ngắt kết nối hệ thống...
+          </div>
+        </div>
+      )}
+
       {/* Scan completed results editor and graphs view */}
       {scanState === "verified" && (
         <div className="space-y-6 animate-fadeIn">
@@ -390,6 +449,27 @@ export default function UploadAnalyzer() {
               <h4 className="text-xs font-black text-zinc-850 dark:text-zinc-200 uppercase tracking-wider border-b border-zinc-200/40 dark:border-zinc-800/40 pb-2">
                 Thông số nhập liệu
               </h4>
+              
+              <div className="space-y-3 pb-3 border-b border-zinc-200/40 dark:border-zinc-800/40">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Cơ sở Y tế / Bệnh viện</label>
+                  <input
+                    type="text"
+                    value={hospitalName}
+                    onChange={(e) => setHospitalName(e.target.value)}
+                    className="px-3 py-1.5 rounded-md border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Bác sĩ chẩn đoán</label>
+                  <input
+                    type="text"
+                    value={doctorName}
+                    onChange={(e) => setDoctorName(e.target.value)}
+                    className="px-3 py-1.5 rounded-md border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
 
               {testType === "dass" ? (
                 <div className="space-y-4.5">

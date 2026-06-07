@@ -8,6 +8,10 @@ const CompanionHistorySchema = new mongoose.Schema(
       unique: true,
       index: true
     },
+    blockedUntil: {
+      type: Date,
+      default: null
+    },
     healingActive: {
       type: Boolean,
       default: false
@@ -72,6 +76,8 @@ const CompanionHistorySchema = new mongoose.Schema(
         day: { type: Number },
         note: { type: String },
         wheelRatings: [Number],
+        hospitalName: { type: String },
+        doctorName: { type: String },
         isUploaded: { type: Boolean }
       }],
       default: []

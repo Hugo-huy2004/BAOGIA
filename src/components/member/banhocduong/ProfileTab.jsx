@@ -1,4 +1,6 @@
 import React from "react";
+import RadarChart from "./charts/RadarChart";
+import LineChart from "./charts/LineChart";
 import { ShieldCheck, TrendingDown, TrendingUp, AlertTriangle, Clock, Calendar, CheckCircle, ArrowRight, Play, RefreshCw, MessageSquare } from "lucide-react";
 
 export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToast }) {
@@ -419,6 +421,17 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
                   <h5 className="text-[10.5px] font-black text-zinc-850 dark:text-zinc-100 uppercase tracking-wide leading-tight">{test.fullName}</h5>
                   <p className="text-[9.5px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-semibold">{test.desc}</p>
                 </div>
+                
+                {/* Data Visualization Charts */}
+                {hasTested && test.id === "dass42" && (
+                  <RadarChart scores={latestLog.scores} maxScore={42} />
+                )}
+                {hasTested && test.id === "phq9" && (
+                  <LineChart data={test.logs.map(t => ({ value: t.score }))} maxScore={27} color="#3b82f6" />
+                )}
+                {hasTested && test.id === "gad7" && (
+                  <LineChart data={test.logs.map(t => ({ value: t.score }))} maxScore={21} color="#ec4899" />
+                )}
 
                 <div className="pt-2.5 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2 text-[9px] font-bold">
                   <div>

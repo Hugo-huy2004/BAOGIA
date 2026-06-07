@@ -1,4 +1,35 @@
+import { DASS21_QUESTION_POOL, MMPI_QUESTION_POOL, MMPI_SUPPLEMENTARY_QUESTION_POOL } from "./constants/testQuestions";
+
 export const CLINICAL_TESTS = {
+  mmpi30: {
+    id: "mmpi30",
+    name: "Đánh giá Đa nhân cách (MMPI-30)",
+    questionPool: [...MMPI_QUESTION_POOL, ...MMPI_SUPPLEMENTARY_QUESTION_POOL].map(variants => variants.map(v => v.text)),
+    questions: [...MMPI_QUESTION_POOL, ...MMPI_SUPPLEMENTARY_QUESTION_POOL].map(v => v[0].text),
+    options: [
+      { value: 1, label: "Đúng" },
+      { value: 0, label: "Sai" }
+    ],
+    getInterpretation: () => {
+       return { severity: "Đang phân tích...", desc: "Kết quả chi tiết được cung cấp qua Chat." };
+    }
+  },
+  dass42: {
+    id: "dass42",
+    name: "Stress, Lo âu, Trầm cảm (DASS-42)",
+    questionPool: DASS21_QUESTION_POOL.map(variants => variants.map(v => v.text)),
+    questions: DASS21_QUESTION_POOL.map(v => v[0].text),
+    options: [
+      { value: 0, label: "Không đúng" },
+      { value: 1, label: "Thỉnh thoảng" },
+      { value: 2, label: "Khá nhiều" },
+      { value: 3, label: "Rất nhiều" }
+    ],
+    getInterpretation: (score) => {
+       // ChatTab calls this if needed, but we will patch ChatTab to calculate D,A,S separately
+       return { severity: "Đang phân tích...", desc: "Kết quả chi tiết được cung cấp qua Chat." };
+    }
+  },
   phq9: {
     id: "phq9",
     name: "Đánh giá Trầm cảm PHQ-9",
