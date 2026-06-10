@@ -1,6 +1,7 @@
 import os
 # pyrefly: ignore [missing-import]
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
+from fastapi.responses import StreamingResponse
 # pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
 # pyrefly: ignore [missing-import]
@@ -13,6 +14,11 @@ app = FastAPI(
     description="Python backend specialized for AI analysis, OCR, and companion chat",
     version="1.0.0"
 )
+
+from collections import defaultdict
+from datetime import datetime
+ai_chat_rate_limit = defaultdict(int)
+
 
 # Cấu hình CORS để frontend React gọi trực tiếp
 app.add_middleware(
@@ -62,11 +68,18 @@ async def proactive_push(request: ProactivePushRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/ai/chat")
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, req: Request):
     """
     Endpoint xử lý trò chuyện đồng cảm và thông minh của AI.
     """
     try:
+        ip = req.client.host if req.client else "unknown"
+        today = datetime.now().strftime("%Y-%m-%d")
+        limit_key = f"{ip}_{today}"
+        if ai_chat_rate_limit[limit_key] >= 3:
+            return {"reply": "Bạn đã sử dụng hết 3 token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!"}
+        ai_chat_rate_limit[limit_key] += 1
+
         reply = await ai_service.generate_chat_response(
             message=request.message,
             history=request.history,
@@ -76,8 +89,36 @@ async def chat(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/ai/chat/stream")
+async def chat_stream(request: ChatRequest, req: Request):
+    """
+    Endpoint xử lý trò chuyện đồng cảm của AI với định dạng Stream.
+    """
+    try:
+        ip = req.client.host if req.client else "unknown"
+        today = datetime.now().strftime("%Y-%m-%d")
+        limit_key = f"{ip}_{today}"
+        if ai_chat_rate_limit[limit_key] >= 3:
+            import json
+            # Trả về stream lỗi
+            async def error_stream():
+                yield f"data: {json.dumps({'error': 'Bạn đã sử dụng hết 3 token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!'}, ensure_ascii=False)}\n\n"
+            return StreamingResponse(error_stream(), media_type="text/event-stream")
+        ai_chat_rate_limit[limit_key] += 1
+
+        generator = ai_service.generate_chat_response_stream(
+            message=request.message,
+            history=request.history,
+            bio=request.bio
+        )
+        return StreamingResponse(generator, media_type="text/event-stream")
+    except Exception as e:
+        print("Lỗi tại /api/ai/chat/stream:", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/ai/chat/audio")
 async def chat_audio(
+    req: Request,
     file: UploadFile = File(...),
     history: str = Form("[]"),
     bio: str = Form("{}"),
@@ -88,6 +129,13 @@ async def chat_audio(
     """
     import json
     try:
+        ip = req.client.host if req.client else "unknown"
+        today = datetime.now().strftime("%Y-%m-%d")
+        limit_key = f"{ip}_{today}"
+        if ai_chat_rate_limit[limit_key] >= 3:
+            return {"text": "Bạn đã sử dụng hết 3 token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!", "audio_base64": None}
+        ai_chat_rate_limit[limit_key] += 1
+
         audio_bytes = await file.read()
         mime_type = file.content_type or "audio/webm"
         

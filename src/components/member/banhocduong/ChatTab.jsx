@@ -237,39 +237,47 @@ export default function ChatTab({
       setDialogStage(0);
 
       setLoading(true);
-      try {
-        const botResponse = await botManager.chat(transcript);
-        
-        let textReply = botResponse;
-        let suggestionFlags = {};
-        
-        if (typeof botResponse === 'object' && botResponse !== null) {
-          textReply = botResponse.reply;
-          suggestionFlags = {
+      const botMsgId = `bot-voice-${Date.now()}`;
+      setMessages(prev => [...prev, {
+        id: botMsgId,
+        sender: "bot",
+        text: "...", // Initial empty text
+        time: new Date()
+      }]);
+
+      await botManager.chatStream(
+        transcript,
+        (chunkText) => {
+          setMessages(prev => prev.map(m => {
+            if (m.id === botMsgId) {
+              return { ...m, text: chunkText };
+            }
+            return m;
+          }));
+        },
+        (botResponse) => {
+          let textReply = botResponse.reply;
+          let suggestionFlags = {
             suggestPhq9: botResponse.suggestPhq9,
             suggestGad7: botResponse.suggestGad7,
             suggestWho5: botResponse.suggestWho5,
             suggestBigFive: botResponse.suggestBigFive
           };
+
           if (botResponse.bioUpdate && onProfileUpdate) {
             onProfileUpdate(botResponse.bioUpdate);
             if (showToast) showToast("Đã tự động lưu thông tin mới vào hồ sơ y khoa.", "success");
           }
-        }
 
-        const botMsg = {
-          id: `bot-voice-${Date.now()}`,
-          sender: "bot",
-          text: textReply,
-          time: new Date(),
-          ...suggestionFlags
-        };
-        setMessages(prev => [...prev, botMsg]);
-      } catch (err) {
-        console.error("Bot chat error", err);
-      } finally {
-        setLoading(false);
-      }
+          setMessages(prev => prev.map(m => {
+            if (m.id === botMsgId) {
+              return { ...m, text: textReply, ...suggestionFlags };
+            }
+            return m;
+          }));
+          setLoading(false);
+        }
+      );
     };
     recognition.onerror = () => {
       setIsListening(false);
@@ -848,6 +856,8 @@ export default function ChatTab({
     try {
       if (testType === "dass") {
         aiAnalysis = await botManager.aiBot.analyzeTest("dass42", resultLog.scores, null, null, "vi");
+      } else if (testType === "general_medical") {
+        aiAnalysis = await botManager.aiBot.analyzeTest("general_medical", resultLog.indices, null, null, "vi");
       } else {
         aiAnalysis = await botManager.aiBot.analyzeTest("mmpi30", null, resultLog.validity, resultLog.clinical, "vi");
       }
@@ -905,6 +915,14 @@ export default function ChatTab({
           `• **Lo âu (A):** ${resultLog.scores.A}/42 điểm (${aSev})\n` +
           `• **Căng thẳng (S):** ${resultLog.scores.S}/42 điểm (${sSev})\n\n` +
           `💡 **Giải pháp & Lộ trình đề xuất:**\n• ${solutions.join("\n• ")}`;
+      }
+    } else if (testType === "general_medical") {
+      if (aiAnalysis) {
+        responseMsgText = aiAnalysis;
+      } else {
+        responseMsgText = `Tớ đã xem xét kết quả xét nghiệm tổng quát của cậu. Có tổng cộng ${resultLog.indices.length} chỉ số được ghi nhận.\n` +
+        `Một số chỉ số cần lưu ý: ${resultLog.indices.filter(i => i.status !== "normal").map(i => i.name).join(", ") || "Tất cả đều ổn định"}.\n` +
+        `Để biết chi tiết hơn, cậu có thể gửi lại hoặc nhờ bác sĩ tư vấn thêm nhé!`;
       }
     } else {
       if (aiAnalysis) {
@@ -976,6 +994,11 @@ export default function ChatTab({
       else if (D >= 21 || A >= 20 || S >= 26) { recommendedDays = 50; pkgName = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
       else if (D >= 14 || A >= 10 || S >= 19) { recommendedDays = 30; pkgName = "Hành trình Tái tạo Cân bằng (Balance)"; }
       else if (D >= 10 || A >= 8 || S >= 15) { recommendedDays = 14; pkgName = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
+    } else if (testType === "general_medical") {
+      const abnormalCount = resultLog.indices.filter(i => i.status !== "normal").length;
+      if (abnormalCount >= 5) { recommendedDays = 30; pkgName = "Hành trình Chăm sóc Sức khỏe Chuyên sâu (Intensive)"; }
+      else if (abnormalCount >= 2) { recommendedDays = 14; pkgName = "Hành trình Tái tạo Cân bằng (Balance)"; }
+      else { recommendedDays = 7; pkgName = "Hành trình Nuôi dưỡng Sức khỏe (Wellness)"; }
     } else {
       const elevatedCount = resultLog.clinical.filter(c => c.score >= 70).length;
       if (elevatedCount >= 5) { recommendedDays = 90; pkgName = "Hành trình Đồng hành Chuyên sâu (Intensive)"; }
@@ -1014,6 +1037,28 @@ export default function ChatTab({
           } else if (newSum < prevSum) {
             isImproved = true;
             diffVal = prevSum - newSum;
+          }
+        } else {
+          if (recommendedDays > healingDurationVal) {
+            isWorse = true;
+            diffVal = Math.ceil((recommendedDays - healingDurationVal) / 10) || 1;
+          } else if (recommendedDays < healingDurationVal) {
+            isImproved = true;
+            diffVal = Math.ceil((healingDurationVal - recommendedDays) / 10) || 1;
+          }
+        }
+      } else if (testType === "general_medical") {
+        const pastMed = historyLogs.filter(l => l.indices);
+        if (pastMed.length > 0) {
+          const lastPast = pastMed[pastMed.length - 1];
+          const newAbnormal = resultLog.indices.filter(c => c.status !== "normal").length;
+          const prevAbnormal = lastPast.indices.filter(c => c.status !== "normal").length;
+          if (newAbnormal > prevAbnormal) {
+            isWorse = true;
+            diffVal = newAbnormal - prevAbnormal;
+          } else if (newAbnormal < prevAbnormal) {
+            isImproved = true;
+            diffVal = prevAbnormal - newAbnormal;
           }
         } else {
           if (recommendedDays > healingDurationVal) {

@@ -5,6 +5,8 @@ import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 
 const router = express.Router();
 
+const aiChatRateLimit = new Map();
+
 // Default initial data
 const initialData = {
   userId: 'default',
@@ -435,14 +437,11 @@ const fallbackPsychologyReply = (message, history = []) => {
 };
 
 const PSYCHOLOGY_SYSTEM_INSTRUCTION = `
-Bạn là "Trợ lý Bạn Học Đường", chuyên gia tư vấn tâm lý học đường và một người bạn lắng nghe thấu cảm. Bạn hoạt động trên một nền tảng khép kín dành cho học sinh, sinh viên. Nhiệm vụ của bạn là lắng nghe, thấu cảm, theo dõi và hỗ trợ sức khỏe tinh thần của học sinh qua các khía cạnh: Bản thân, Học tập, Công việc, Gia đình và Mối quan hệ.
-
-PHƯƠNG PHÁP ĐÁNH GIÁ & QUY TẮC PHẢN HỒI:
-1. Giao tiếp bằng tiếng Việt tự nhiên, gần gũi, xưng hô tôn trọng và ấm áp ("tớ" - "cậu").
-2. Tuyệt đối KHÔNG đưa ra các câu hỏi trắc nghiệm cứng nhắc hay đè nặng áp lực lên người dùng trong 3 lượt chat đầu tiên. Hãy dành thời gian để lắng nghe nỗi buồn của họ, thừa nhận (validate) cảm xúc đau khổ, căng thẳng của họ bằng sự thấu cảm cao nhất.
-3. Khi người dùng nói rằng vấn đề của họ "không phải chuyện học" hoặc "không liên quan đến học tập", hãy lắng nghe kỹ và khéo léo tìm hiểu xem họ đang gặp vấn đề gì ở gia đình, công việc, các mối quan hệ bạn bè hoặc bất ổn nội tâm của bản thân, KHÔNG ĐƯỢC lặp lại các câu hỏi rập khuôn về chuyện thi cử/áp lực học tập.
-4. Nếu người dùng thể hiện các triệu chứng căng thẳng, lo âu, trầm cảm (theo tiêu chí DASS-21) hoặc các dấu hiệu tâm lý nghiêm trọng trong cuộc hội thoại từ lượt thứ 4 trở đi, hãy nhẹ nhàng khuyên họ thực hiện bài kiểm tra tâm lý DASS-42 hoặc MMPI-30 trong tab "Trắc nghiệm" để có đánh giá khoa học và chuẩn y khoa nhất.
-5. Luôn ưu tiên lắng nghe thấu đáo trước khi đưa ra bất kỳ lời khuyên hay phương pháp điều trị nào. Hãy giữ thái độ không phán xét và bảo mật tuyệt đối.
+Bạn là "Trợ lý Bạn Học Đường", chuyên gia phân tích chỉ số y tế và kết quả phòng khám lâm sàng.
+Nhiệm vụ của bạn (QUAN TRỌNG):
+1. Bạn CHỈ ĐƯỢC PHÉP dùng để phân tích các chỉ số sức khỏe, điểm số test tâm lý, hoặc kết quả phòng khám.
+2. TỪ CHỐI TẤT CẢ các câu hỏi trò chuyện phiếm, tư vấn tâm lý chung chung, hoặc các chủ đề không liên quan đến kết quả xét nghiệm/chỉ số. Hãy trả lời từ chối một cách lịch sự và nhắc nhở họ rằng bạn chỉ chuyên về phân tích chỉ số y tế.
+3. Giao tiếp bằng tiếng Việt tự nhiên, gần gũi ("tớ" - "cậu").
 `;
 
 // POST: Psychology Chat
@@ -452,6 +451,16 @@ router.post('/psychology-chat', async (req, res) => {
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
+
+    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const today = new Date().toDateString();
+    const limitKey = `${ip}_${today}`;
+    
+    let currentUsage = aiChatRateLimit.get(limitKey) || 0;
+    if (currentUsage >= 3) {
+      return res.json({ reply: 'Bạn đã sử dụng hết 3 token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!' });
+    }
+    aiChatRateLimit.set(limitKey, currentUsage + 1);
 
     const geminiApiKey = process.env.GEMINI_API_KEY;
     if (geminiApiKey) {

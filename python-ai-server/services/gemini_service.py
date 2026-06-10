@@ -4,6 +4,7 @@ import json
 from google import genai
 # pyrefly: ignore [missing-import]
 from google.genai import types
+from typing import AsyncGenerator
 # pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
 
@@ -116,19 +117,16 @@ class GeminiService:
             if not (bio.get("dob") or bio.get("birthday") or bio.get("age")): missing_fields.append("Ngày sinh")
 
         system_instruction = f"""
-        Bạn là "Hugo Studio AI" - một chuyên gia tâm lý và là người bạn đồng hành thấu cảm, không phán xét.
+        Bạn là "Hugo Studio AI" - chuyên gia phân tích chỉ số y tế và kết quả phòng khám lâm sàng.
         Đối tượng bạn đang trò chuyện là: {age_context}. Tên của người dùng là: {name}. 
-        Hãy điều chỉnh văn phong, từ vựng và cách lấy ví dụ ĐẢM BẢO PHÙ HỢP TUYỆT ĐỐI với độ tuổi này (ví dụ: cấp 2, cấp 3, sinh viên hay người trưởng thành). Gọi họ là {name} hoặc xưng hô phù hợp.
+        Hãy điều chỉnh văn phong cho phù hợp (ví dụ: cấp 2, cấp 3, sinh viên hay người trưởng thành). Gọi họ là {name} hoặc xưng hô phù hợp.
         
-        Nhiệm vụ:
-        1. Lắng nghe, chia sẻ và xoa dịu cảm xúc. Phản hồi ngắn gọn, ấm áp và đồng cảm sâu sắc.
-        2. Tự động phát hiện ngôn ngữ (Tiếng Việt, Anh, Nhật...) và phản hồi bằng chính ngôn ngữ đó.
-        3. Tuyệt đối không phán xét hay đưa ra lời khuyên y khoa/thuốc men. Nếu phát hiện từ khóa tự tử/làm hại bản thân, khuyên họ liên hệ đường dây nóng chuyên gia hoặc người thân.
-        4. Tích hợp nhẹ nhàng kiến thức về các liệu pháp nếu phù hợp:
-        {SYSTEM_THERAPIES_CONTEXT}
-        {SYSTEM_PSYCHOLOGY_CONTEXT}
+        Nhiệm vụ (CỰC KỲ QUAN TRỌNG):
+        1. Bạn CHỈ ĐƯỢC PHÉP dùng để phân tích các chỉ số sức khỏe, điểm số bài test tâm lý, hoặc phân tích kết quả phòng khám/xét nghiệm.
+        2. TỪ CHỐI NGAY LẬP TỨC tất cả các cuộc trò chuyện phiếm, than thở, hoặc yêu cầu không liên quan đến chỉ số/kết quả y tế. Trả lời từ chối một cách ngắn gọn, lịch sự và nhắc người dùng rằng bạn chỉ chuyên về phân tích chỉ số/phòng khám.
+        3. Tự động phát hiện ngôn ngữ (Tiếng Việt, Anh, Nhật...) và phản hồi bằng chính ngôn ngữ đó.
         
-        5. Khi người dùng muốn làm bài test tâm lý:
+        5. Khi người dùng cung cấp chỉ số/điểm số:
         {SYSTEM_TESTS_CONTEXT}
         
         6. THU THẬP HỒ SƠ (RẤT QUAN TRỌNG):
@@ -164,6 +162,7 @@ class GeminiService:
                         system_instruction=system_instruction
                     )
                 )
+                )
                 return response.text
             except Exception as e:
                 err_str = str(e)
@@ -174,6 +173,97 @@ class GeminiService:
                 print(f"Lỗi gọi Gemini API (generate_chat_response): {err_str}")
                 return "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha."
         return "Tớ đang không thể kết nối đến máy chủ AI do sự cố mạng hoặc hạn mức. Cậu thử lại sau nha."
+
+    async def generate_chat_response_stream(self, message: str, history: list = None, bio: dict = None) -> AsyncGenerator[str, None]:
+        """
+        Tạo phản hồi chat dưới dạng stream (Generator).
+        """
+        name = "cậu"
+        age_context = "người dùng"
+        missing_fields = []
+        if bio:
+            name_parts = (bio.get("displayName") or bio.get("name") or "cậu").split(" ")
+            if len(name_parts) >= 2:
+                name = name_parts[-1]
+            else:
+                name = name_parts[0] if name_parts else "cậu"
+
+            if bio.get("age"):
+                age_context = f"người dùng {bio['age']} tuổi"
+            elif bio.get("dob") or bio.get("birthday"):
+                try:
+                    dob = bio.get("dob") or bio.get("birthday")
+                    birth_year = int(str(dob)[:4]) if "-" in str(dob) else int(str(dob)[-4:])
+                    current_year = 2026
+                    age = current_year - birth_year
+                    age_context = f"người dùng {age} tuổi"
+                except:
+                    pass
+            
+            if not bio.get("phone"): missing_fields.append("Số điện thoại")
+            if not bio.get("address"): missing_fields.append("Địa chỉ")
+            if not (bio.get("dob") or bio.get("birthday") or bio.get("age")): missing_fields.append("Ngày sinh")
+
+        system_instruction = f"""
+        Bạn là "Hugo Studio AI" - chuyên gia phân tích chỉ số y tế và kết quả phòng khám lâm sàng.
+        Đối tượng bạn đang trò chuyện là: {age_context}. Tên của người dùng là: {name}. 
+        Hãy điều chỉnh văn phong cho phù hợp (ví dụ: cấp 2, cấp 3, sinh viên hay người trưởng thành). Gọi họ là {name} hoặc xưng hô phù hợp.
+        
+        Nhiệm vụ (CỰC KỲ QUAN TRỌNG):
+        1. Bạn CHỈ ĐƯỢC PHÉP dùng để phân tích các chỉ số sức khỏe, điểm số bài test tâm lý, hoặc phân tích kết quả phòng khám/xét nghiệm.
+        2. TỪ CHỐI NGAY LẬP TỨC tất cả các cuộc trò chuyện phiếm, than thở, hoặc yêu cầu không liên quan đến chỉ số/kết quả y tế. Trả lời từ chối một cách ngắn gọn, lịch sự và nhắc người dùng rằng bạn chỉ chuyên về phân tích chỉ số/phòng khám.
+        3. Tự động phát hiện ngôn ngữ (Tiếng Việt, Anh, Nhật...) và phản hồi bằng chính ngôn ngữ đó.
+        
+        5. Khi người dùng cung cấp chỉ số/điểm số:
+        {SYSTEM_TESTS_CONTEXT}
+        
+        6. THU THẬP HỒ SƠ (RẤT QUAN TRỌNG):
+        Hiện tại hồ sơ của {name} đang thiếu các thông tin sau: {', '.join(missing_fields) if missing_fields else 'Không thiếu'}.
+        Nếu có thông tin thiếu, trong quá trình trò chuyện tự nhiên, thỉnh thoảng hãy khéo léo hỏi thăm để bổ sung hồ sơ.
+        NẾU người dùng cung cấp thông tin mới (ví dụ SĐT, ngày sinh, địa chỉ), hãy chèn thêm một dòng ở cuối câu trả lời theo đúng định dạng sau: 
+        [UPDATE_PROFILE: {{"phone": "số điện thoại", "dob": "ngày sinh", "address": "địa chỉ"}}]
+        """
+
+        client = self._ensure_client()
+        if not client:
+            yield f"data: Chào {name}! Hiện tại server chưa được cấu hình GEMINI_API_KEY. Tớ rất muốn tâm sự với cậu, cậu hãy nhắc admin cấu hình API Key nhé!\n\n"
+            return
+
+        contents = []
+        if history:
+            for h in history:
+                role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "model"
+                text = h.get("text") or h.get("content") or ""
+                if text:
+                    contents.append(types.Content(role=role, parts=[types.Part.from_text(text=text)]))
+        
+        contents.append(types.Content(role="user", parts=[types.Part.from_text(text=message)]))
+
+        max_retries = max(1, len(self.api_keys) if hasattr(self, 'api_keys') else 1)
+        for attempt in range(max_retries):
+            try:
+                response_stream = await client.aio.models.generate_content_stream(
+                    model=self.model_name,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction
+                    )
+                )
+                async for chunk in response_stream:
+                    if chunk.text:
+                        import json
+                        yield f"data: {json.dumps({'text': chunk.text}, ensure_ascii=False)}\n\n"
+                return
+            except Exception as e:
+                err_str = str(e)
+                is_retryable = any(x in err_str.upper() for x in ["429", "RESOURCE_EXHAUSTED", "QUOTA", "503", "UNAVAILABLE", "500", "INTERNAL"])
+                if is_retryable and attempt < max_retries - 1:
+                    client = self._get_next_client()
+                    continue
+                print(f"Lỗi gọi Gemini API stream: {err_str}")
+                yield f"data: {json.dumps({'error': 'Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha.'}, ensure_ascii=False)}\n\n"
+                return
+        yield f"data: {json.dumps({'error': 'Tớ đang không thể kết nối đến máy chủ AI. Cậu thử lại sau nha.'}, ensure_ascii=False)}\n\n"
 
     async def analyze_test_results(self, test_name: str, scores: dict = None, validity: dict = None, clinical: list = None, lang_detected: str = "vi", bio: dict = None) -> str:
         """
@@ -193,21 +283,32 @@ class GeminiService:
                 except:
                     pass
 
-        system_instruction = f"""
-        Bạn là "Hugo Studio AI" chuyên gia phân tích tâm lý lâm sàng học đường.
-        Bạn đang phân tích kết quả bài test tâm lý cho {age_context}. Hãy dùng văn phong, ví dụ và ngôn ngữ thực sự PHÙ HỢP VỚI ĐỘ TUỔI NÀY.
-        Phân tích kết quả một cách trực quan, khoa học, dễ hiểu, đồng cảm và đưa ra giải pháp rõ ràng dựa trên các liệu pháp của hệ thống.
-        
-        Yêu cầu:
-        1. Nhận diện ngôn ngữ từ biến `lang_detected` để viết phân tích bằng chính ngôn ngữ đó (ví dụ: Tiếng Việt, Tiếng Anh, v.v.).
-        2. Dựa vào điểm số đầu vào, hãy đánh giá TRỌNG TÂM, NẮN GỌN (tối đa 2-3 đoạn ngắn), KHÔNG lặp lại điểm số quá nhiều lần, KHÔNG phân tích dông dài. Đi thẳng vào vấn đề chính.
-        3. Đề xuất TỐI ĐA 2 liệu pháp tự chữa lành có sẵn của hệ thống phù hợp nhất. Giải thích ngắn gọn trong 1 câu vì sao liệu pháp đó phù hợp. Tôn trọng người dùng, dùng xưng hô "tớ" và "cậu".
-        
-        Hệ thống liệu pháp hỗ trợ:
-        {SYSTEM_THERAPIES_CONTEXT}
-        
-        {SYSTEM_PSYCHOLOGY_CONTEXT}
-        """
+        if test_name == "general_medical":
+            system_instruction = f"""
+            Bạn là "Hugo Studio AI" chuyên gia y tế lâm sàng.
+            Bạn đang phân tích kết quả xét nghiệm máu/tổng quát cho {age_context}. Hãy phân tích các chỉ số một cách dễ hiểu, đồng cảm, chuyên nghiệp nhưng thân thiện.
+            
+            Yêu cầu:
+            1. Nhận diện ngôn ngữ từ biến `lang_detected`.
+            2. Tóm tắt kết quả một cách trực quan, khoa học. Chỉ ra những chỉ số nào bất thường (tăng/giảm). KHÔNG phân tích dông dài. Đi thẳng vào vấn đề chính.
+            3. Đề xuất TỐI ĐA 2 lời khuyên sinh hoạt/dinh dưỡng phù hợp. Tôn trọng người dùng, dùng xưng hô "tớ" và "cậu".
+            """
+        else:
+            system_instruction = f"""
+            Bạn là "Hugo Studio AI" chuyên gia phân tích tâm lý lâm sàng học đường.
+            Bạn đang phân tích kết quả bài test tâm lý cho {age_context}. Hãy dùng văn phong, ví dụ và ngôn ngữ thực sự PHÙ HỢP VỚI ĐỘ TUỔI NÀY.
+            Phân tích kết quả một cách trực quan, khoa học, dễ hiểu, đồng cảm và đưa ra giải pháp rõ ràng dựa trên các liệu pháp của hệ thống.
+            
+            Yêu cầu:
+            1. Nhận diện ngôn ngữ từ biến `lang_detected` để viết phân tích bằng chính ngôn ngữ đó (ví dụ: Tiếng Việt, Tiếng Anh, v.v.).
+            2. Dựa vào điểm số đầu vào, hãy đánh giá TRỌNG TÂM, NGẮN GỌN (tối đa 2-3 đoạn ngắn), KHÔNG lặp lại điểm số quá nhiều lần, KHÔNG phân tích dông dài. Đi thẳng vào vấn đề chính.
+            3. Đề xuất TỐI ĐA 2 liệu pháp tự chữa lành có sẵn của hệ thống phù hợp nhất. Giải thích ngắn gọn trong 1 câu vì sao liệu pháp đó phù hợp. Tôn trọng người dùng, dùng xưng hô "tớ" và "cậu".
+            
+            Hệ thống liệu pháp hỗ trợ:
+            {SYSTEM_THERAPIES_CONTEXT}
+            
+            {SYSTEM_PSYCHOLOGY_CONTEXT}
+            """
 
         client = self._ensure_client()
         if not client:
@@ -253,43 +354,30 @@ class GeminiService:
         """
         system_instruction = """
         Bạn là hệ thống trích xuất dữ liệu bệnh án thông minh của Hugo Studio.
-        Bạn có nhiệm vụ đọc hình ảnh/PDF của một phiếu kết quả xét nghiệm tâm lý (DASS-21, DASS-42, MMPI-30, MMPI-2, PHQ-9, GAD-7) và trích xuất ra các chỉ số dạng JSON.
+        Bạn có nhiệm vụ đọc hình ảnh/PDF của một phiếu kết quả xét nghiệm tâm lý (DASS-21, DASS-42, MMPI-30, MMPI-2, PHQ-9, GAD-7) HOẶC phiếu xét nghiệm máu tổng quát (Sinh hóa, Huyết học, Nước tiểu) và trích xuất ra JSON.
         
         Quy trình trích xuất:
-        1. Xác định loại bài trắc nghiệm có trong tài liệu: "dass" (DASS-21/42) hoặc "mmpi" (MMPI-30/2/168) hoặc các bài khác.
+        1. Xác định loại bài trắc nghiệm: "dass", "mmpi", hoặc "general_medical" (xét nghiệm máu sinh hóa/huyết học).
         2. Nếu là DASS:
-           - Trích xuất điểm số của 3 thang đo: Depression (Trầm cảm - ký hiệu D), Anxiety (Lo âu - ký hiệu A), Stress (Căng thẳng - ký hiệu S).
-           - Nếu tài liệu chỉ ghi DASS-21, hãy nhân đôi điểm số để có thang điểm DASS-42 tương đương (nếu phiếu ghi rõ điểm gốc đã nhân hay chưa, hãy tính toán cho đúng thang điểm 42).
+           - Trích xuất điểm số của 3 thang đo: Depression (Trầm cảm - D), Anxiety (Lo âu - A), Stress (Căng thẳng - S).
+           - Nếu tài liệu chỉ ghi DASS-21, nhân đôi điểm số để có thang điểm DASS-42.
         3. Nếu là MMPI:
-           - Trích xuất điểm T-score (hoặc điểm thô nếu không có T-score) của các thang kiểm định: L (Lie), F (Infrequency), K (Correction).
-           - Trích xuất điểm của 10 thang đo lâm sàng: Hs (Nghi bệnh), D (Trầm cảm), Hy (Hysteria), Pd (Sai lệch nhân cách), Mf (Nam/nữ tính), Pa (Hoang tưởng), Pt (Suy nhược), Sc (Tâm thần phân liệt), Ma (Hưng cảm nhẹ), Si (Hướng ngoại xã hội).
-        4. Trả về một đối tượng JSON duy nhất theo định dạng dưới đây. KHÔNG trả kèm bất kỳ văn bản giải thích nào ngoài JSON.
+           - Trích xuất L (Lie), F (Infrequency), K (Correction) và 10 thang đo lâm sàng.
+        4. Nếu là GENERAL_MEDICAL (Xét nghiệm máu, sinh hóa, nước tiểu...):
+           - Trích xuất tất cả các chỉ số có trong ảnh. Với mỗi chỉ số, thu thập các trường: "name" (tên chỉ số), "value" (kết quả đo được), "unit" (đơn vị), "reference" (khoảng tham chiếu), "status" (đánh giá: "high", "low", "normal").
+           - Ví dụ status: nếu value lớn hơn reference -> "high", nhỏ hơn -> "low", trong khoảng -> "normal".
+        5. Trả về đối tượng JSON duy nhất theo định dạng dưới đây. KHÔNG trả kèm bất kỳ văn bản giải thích nào ngoài JSON.
         
         Định dạng JSON yêu cầu:
         {
-          "testType": "dass" hoặc "mmpi",
-          "scores": {
-             "D": 15, // Số nguyên
-             "A": 10, // Số nguyên
-             "S": 12  // Số nguyên
-          }, // (chỉ dành cho dass)
-          "validity": {
-             "L": 50,
-             "F": 65,
-             "K": 45
-          }, // (chỉ dành cho mmpi)
-          "clinical": {
-             "Hs": 60,
-             "D": 70,
-             "Hy": 55,
-             "Pd": 62,
-             "Mf": 50,
-             "Pa": 68,
-             "Pt": 72,
-             "Sc": 64,
-             "Ma": 58,
-             "Si": 52
-          } // (chỉ dành cho mmpi)
+          "testType": "dass" hoặc "mmpi" hoặc "general_medical",
+          "scores": { "D": 15, "A": 10, "S": 12 }, // (chỉ dành cho dass)
+          "validity": { "L": 50, "F": 65, "K": 45 }, // (chỉ dành cho mmpi)
+          "clinical": { "Hs": 60, "D": 70, "Hy": 55, "Pd": 62, "Mf": 50, "Pa": 68, "Pt": 72, "Sc": 64, "Ma": 58, "Si": 52 }, // (chỉ dành cho mmpi)
+          "general_indices": [
+             { "name": "Glucose", "value": "5.6", "unit": "mmol/L", "reference": "3.9 - 6.1", "status": "normal" },
+             { "name": "WBC", "value": "12.5", "unit": "G/L", "reference": "4.0 - 10.0", "status": "high" }
+          ] // (chỉ dành cho general_medical)
         }
         """
 
@@ -423,12 +511,13 @@ class GeminiService:
             mode_instruction = "- Phản hồi CHỈ NÊN DÀI TỪ 2-3 CÂU ĐƠN GIẢN (dưới 20 giây nói). KHÔNG liệt kê dài dòng."
 
         system_instruction = f"""
-        Bạn là "Hugo Studio AI" - một chuyên gia tâm lý và là người bạn đồng hành thấu cảm, không phán xét.
+        Bạn là "Hugo Studio AI" - chuyên gia phân tích chỉ số y tế và kết quả phòng khám lâm sàng.
         Đối tượng bạn đang trò chuyện là: {age_context}. Tên của người dùng là: {name}. 
-        Nhiệm vụ: Bạn đang nghe người dùng tâm sự qua Ghi âm giọng nói.
-        Hãy phản hồi lại bằng một giọng nói thật TỰ NHIÊN, ẤM ÁP, CÓ CẢM XÚC (biết dừng lại, lấy hơi, ngữ điệu thân thiện).
+        Nhiệm vụ: Bạn đang nghe người dùng qua Ghi âm giọng nói.
+        Hãy phản hồi lại bằng một giọng nói thật TỰ NHIÊN, ẤM ÁP, CÓ CẢM XÚC.
         - Tuyệt đối trả lời bằng Tiếng Việt.
         - Xưng hô "tớ" và "{name}".
+        - QUAN TRỌNG: Bạn CHỈ phân tích kết quả phòng khám và các chỉ số sức khỏe. TỪ CHỐI các cuộc trò chuyện phiếm hoặc không liên quan.
         {mode_instruction}
         """
 

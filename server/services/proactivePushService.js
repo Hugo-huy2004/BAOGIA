@@ -8,7 +8,7 @@ import Bio from '../models/Bio.js';
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
 
 async function runProactivePushJob() {
-  console.log('⏰ Bắt đầu chạy cron job: AI Proactive Push Notifications...');
+  console.log('Bắt đầu chạy cron job: AI Proactive Push Notifications...');
 
   try {
     // 1. Lấy tất cả user có đăng ký nhận thông báo
@@ -87,7 +87,7 @@ async function runProactivePushJob() {
       }
     }
     
-    console.log('✅ Hoàn tất chạy cron job proactive push.');
+    console.log('Hoàn tất chạy cron job proactive push.');
   } catch (error) {
     console.error('Lỗi nghiêm trọng trong cron job:', error);
   }
@@ -100,7 +100,7 @@ export function initProactivePushService() {
   }, {
     timezone: "Asia/Ho_Chi_Minh"
   });
-  console.log('🌟 Đã thiết lập Cron Job: AI Proactive Push (21:00 hàng ngày)');
+  console.log('Đã thiết lập Cron Job: AI Proactive Push (21:00 hàng ngày)');
 }
 
 // Hàm này có thể được gọi thông qua 1 API ẩn để test ngay lập tức

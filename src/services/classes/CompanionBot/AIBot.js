@@ -161,6 +161,109 @@ export default class AIBot extends BaseBot {
     };
   }
 
+  async chatStream(message, onChunk, onDone) {
+    try {
+      const mappedHistory = (this.historyLogs || []).slice(-8).map(log => ({
+        role: log.sender === "bot" ? "model" : "user",
+        content: log.text || log.desc || ""
+      })).filter(item => item.content !== "");
+
+      const response = await fetch(`${API_URL}/api/ai/chat/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: message,
+          history: mappedHistory,
+          bio: this.bio
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Mạng bị lỗi");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let fullReply = "";
+      let buffer = "";
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\\n');
+          buffer = lines.pop(); // Giữ lại phần chưa hoàn chỉnh
+          
+          for (let line of lines) {
+            line = line.trim();
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.substring(6);
+              try {
+                const parsed = JSON.parse(jsonStr);
+                if (parsed.text) {
+                  fullReply += parsed.text;
+                  if (onChunk) onChunk(fullReply);
+                } else if (parsed.error) {
+                  fullReply += parsed.error;
+                  if (onChunk) onChunk(fullReply);
+                }
+              } catch (e) {
+                // Ignore incomplete JSON chunks or parse errors
+              }
+            }
+          }
+        }
+      }
+
+      // Xử lý nốt buffer nếu còn
+      if (buffer.trim().startsWith("data: ")) {
+        const jsonStr = buffer.substring(6).trim();
+        try {
+          const parsed = JSON.parse(jsonStr);
+          if (parsed.text) { fullReply += parsed.text; if (onChunk) onChunk(fullReply); }
+          else if (parsed.error) { fullReply += parsed.error; if (onChunk) onChunk(fullReply); }
+        } catch (e) {}
+      }
+
+      let replyText = fullReply;
+      let bioUpdate = null;
+      const updateRegex = /\\[UPDATE_PROFILE:\\s*({.*?})\\]/i;
+      const match = replyText.match(updateRegex);
+      if (match && match[1]) {
+        try {
+          bioUpdate = JSON.parse(match[1]);
+        } catch (e) {}
+        replyText = replyText.replace(updateRegex, "").trim();
+      }
+
+      const suggestPhq9 = replyText.includes("PHQ-9") || replyText.includes("Trầm cảm");
+      const suggestGad7 = replyText.includes("GAD-7") || replyText.includes("Lo âu");
+      const suggestWho5 = replyText.includes("WHO-5") || replyText.includes("Hạnh phúc");
+      const suggestBigFive = replyText.includes("Big Five") || replyText.includes("MMPI") || replyText.includes("Nhân cách");
+
+      if (onDone) {
+        onDone({
+          reply: replyText,
+          suggestPhq9,
+          suggestGad7,
+          suggestWho5,
+          suggestBigFive,
+          bioUpdate
+        });
+      }
+    } catch (err) {
+      console.warn("Lỗi gọi Python AI Backend (chatStream), sử dụng dự phòng:", err);
+      if (onDone) {
+        onDone({
+          reply: "Tớ đang gặp lỗi kết nối với trung tâm AI. Cậu hãy thử lại sau nhé!",
+          suggestPhq9: false, suggestGad7: false, suggestWho5: false, suggestBigFive: false, bioUpdate: null
+        });
+      }
+    }
+  }
+
   /**
    * Gọi API phân tích kết quả bài kiểm tra trắc nghiệm tâm lý từ Python AI server.
    */

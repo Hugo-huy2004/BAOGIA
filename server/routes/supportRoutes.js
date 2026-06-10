@@ -3,6 +3,8 @@ import SupportTicket from '../models/SupportTicket.js';
 
 const router = express.Router();
 
+const consultantRateLimit = new Map();
+
 const SYSTEM_INSTRUCTION = `
 Bạn là H-Bot Studio, trợ lý ảo AI thông minh và tận tâm của Hugo Studio (hugowishpax.studio).
 Hugo Studio là một nền tảng tiên tiến kết hợp giữa xây dựng trang liên kết cá nhân (Bio Link) chuyên nghiệp (đặc biệt tối ưu cho người mẫu, nhiếp ảnh gia, nghệ sĩ, KOL) và hệ thống đặt lịch hẹn (Booking) trực tuyến.
@@ -73,6 +75,16 @@ router.post('/chat', async (req, res) => {
   if (!message) {
     return res.status(400).json({ error: 'Message is required' });
   }
+
+  const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+  const today = new Date().toDateString();
+  const limitKey = `${ip}_${today}`;
+  
+  let currentUsage = consultantRateLimit.get(limitKey) || 0;
+  if (currentUsage >= 5) {
+    return res.json({ reply: 'Bạn đã đạt giới hạn 5 câu hỏi tư vấn viên trong ngày hôm nay để tránh hệ thống bị lag. Vui lòng quay lại vào ngày mai nhé!' });
+  }
+  consultantRateLimit.set(limitKey, currentUsage + 1);
 
   const useLocalAi = process.env.USE_LOCAL_AI === 'true';
   const localAiUrl = process.env.LOCAL_AI_URL || 'http://localhost:11434/api/chat';

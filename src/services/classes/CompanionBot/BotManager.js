@@ -29,6 +29,16 @@ export default class BotManager {
     return await bot.chat(message);
   }
 
+  async chatStream(message, onChunk, onDone) {
+    const bot = this._route();
+    if (typeof bot.chatStream === 'function') {
+      return await bot.chatStream(message, onChunk, onDone);
+    }
+    // Fallback
+    const res = await bot.chat(message);
+    if (onDone) onDone(res);
+  }
+
   async chatAudio(audioBlob, isCallMode = false) {
     const bot = this._route();
     if (typeof bot.chatAudio === 'function') {

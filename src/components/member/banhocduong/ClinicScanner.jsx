@@ -12,7 +12,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
   const [scanFilePreview, setScanFilePreview] = useState(null);
   const [scanState, setScanState] = useState("idle"); // 'idle' | 'scanning' | 'verified'
   const [scanStepIdx, setScanStepIdx] = useState(0);
-  const [scanTestType, setScanTestType] = useState("dass"); // 'dass' | 'mmpi'
+  const [scanTestType, setScanTestType] = useState("dass"); // 'dass' | 'mmpi' | 'general_medical'
 
   // Editable scores
   const [scanDassScores, setScanDassScores] = useState({ D: 17, A: 11, S: 17 });
@@ -20,6 +20,8 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
     Hs: 68, D: 72, Hy: 85, Pd: 77, Mf: 55, Pa: 95, Pt: 73, Sc: 81, Ma: 68, Si: 68
   });
   const [scanMmpiValidity, setScanMmpiValidity] = useState({ L: 47, F: 79, K: 40 });
+  
+  const [scanGeneralIndices, setScanGeneralIndices] = useState([]);
 
   const handleStartScan = async (testType) => {
     if (!scanFile) return;
@@ -82,10 +84,15 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
             });
           }
           setScanTestType("mmpi");
+        } else if (data.testType === "general_medical" && data.general_indices) {
+          setScanGeneralIndices(data.general_indices);
+          setScanTestType("general_medical");
         } else {
           // If backend output format is slightly different
           if (testType === "dass") {
             setScanDassScores(data.scores || { D: 17, A: 11, S: 17 });
+          } else if (testType === "general_medical") {
+            setScanGeneralIndices(data.general_indices || []);
           } else {
             if (data.clinical) {
               setScanMmpiClinical(prev => ({ ...prev, ...data.clinical }));
@@ -142,6 +149,13 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
         test: "dass42",
         scores: { D: scanDassScores.D, A: scanDassScores.A, S: scanDassScores.S },
         severities: { D: dLvl, A: aLvl, S: sLvl },
+        isUploaded: true
+      };
+    } else if (scanTestType === "general_medical") {
+      resultLog = {
+        date: new Date().toISOString(),
+        test: "general_medical",
+        indices: scanGeneralIndices,
         isUploaded: true
       };
     } else {
@@ -268,7 +282,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
               {scanFilePreview && (
                 <img src={scanFilePreview} className="w-16 h-16 object-cover rounded mx-auto border" alt="Preview" />
               )}
-              <div className="flex gap-2 justify-center">
+              <div className="flex gap-2 justify-center flex-wrap">
                 <button
                   type="button"
                   onClick={() => handleStartScan("dass")}
@@ -282,6 +296,13 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                   className="px-3 py-1.5 bg-indigo-500 text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-indigo-650"
                 >
                   MMPI-30
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStartScan("general_medical")}
+                  className="px-3 py-1.5 bg-emerald-550 text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-emerald-600"
+                >
+                  XÉT NGHIỆM TỔNG QUÁT
                 </button>
               </div>
             </div>
@@ -329,6 +350,37 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                     />
                   </div>
                 ))}
+              </div>
+              </div>
+            </div>
+          ) : scanTestType === "general_medical" ? (
+            <div className="space-y-3">
+              <p className="text-[10px] text-zinc-550 font-semibold leading-relaxed">
+                Tớ đã trích xuất được {scanGeneralIndices.length} chỉ số từ xét nghiệm của cậu. Hãy xác nhận lại:
+              </p>
+              <div className="overflow-x-auto rounded border border-zinc-200 dark:border-zinc-800">
+                <table className="w-full text-left text-[9.5px]">
+                  <thead className="bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="px-2 py-1.5">Chỉ số</th>
+                      <th className="px-2 py-1.5 text-center">Kết quả</th>
+                      <th className="px-2 py-1.5 text-center">Bình thường</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scanGeneralIndices.map((idxItem, idx) => (
+                      <tr key={idx} className="border-t border-zinc-200 dark:border-zinc-800">
+                        <td className="px-2 py-1.5 font-bold text-zinc-800 dark:text-zinc-200">{idxItem.name}</td>
+                        <td className="px-2 py-1.5 text-center">
+                          <span className={`px-1.5 py-0.5 rounded ${idxItem.status === "high" ? "bg-red-100 text-red-600" : idxItem.status === "low" ? "bg-amber-100 text-amber-600" : "bg-emerald-100 text-emerald-600"} font-black`}>
+                            {idxItem.value} {idxItem.unit}
+                          </span>
+                        </td>
+                        <td className="px-2 py-1.5 text-center text-zinc-500 font-mono">{idxItem.reference}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           ) : (
