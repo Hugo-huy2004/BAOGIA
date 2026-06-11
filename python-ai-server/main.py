@@ -36,6 +36,7 @@ class ChatRequest(BaseModel):
     message: str
     history: Optional[List[Dict[str, Any]]] = None
     bio: Optional[Dict[str, Any]] = None
+    userId: Optional[str] = "unknown"
 
 class TestAnalysisRequest(BaseModel):
     testName: str
@@ -73,9 +74,9 @@ async def chat(request: ChatRequest, req: Request):
     Endpoint xử lý trò chuyện đồng cảm và thông minh của AI.
     """
     try:
-        ip = req.client.host if req.client else "unknown"
+        client_identifier = request.userId if request.userId and request.userId != "unknown" else (req.client.host if req.client else "unknown")
         today = datetime.now().strftime("%Y-%m-%d")
-        limit_key = f"{ip}_{today}"
+        limit_key = f"{client_identifier}_{today}"
         if ai_chat_rate_limit[limit_key] >= 3:
             return {"reply": "Bạn đã sử dụng hết 3 token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!"}
         ai_chat_rate_limit[limit_key] += 1
@@ -95,15 +96,17 @@ async def chat_stream(request: ChatRequest, req: Request):
     Endpoint xử lý trò chuyện đồng cảm của AI với định dạng Stream.
     """
     try:
-        ip = req.client.host if req.client else "unknown"
+        client_identifier = request.userId if request.userId and request.userId != "unknown" else (req.client.host if req.client else "unknown")
         today = datetime.now().strftime("%Y-%m-%d")
-        limit_key = f"{ip}_{today}"
+        limit_key = f"{client_identifier}_{today}"
         if ai_chat_rate_limit[limit_key] >= 3:
             import json
-            # Trả về stream lỗi
+            import asyncio
             async def error_stream():
                 yield f"data: {json.dumps({'error': 'Bạn đã sử dụng hết 3 token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!'}, ensure_ascii=False)}\n\n"
+                await asyncio.sleep(0.1)
             return StreamingResponse(error_stream(), media_type="text/event-stream")
+        
         ai_chat_rate_limit[limit_key] += 1
 
         generator = ai_service.generate_chat_response_stream(
@@ -122,18 +125,24 @@ async def chat_audio(
     file: UploadFile = File(...),
     history: str = Form("[]"),
     bio: str = Form("{}"),
-    isCallMode: bool = Form(False)
+    isCallMode: bool = Form(False),
+    userId: str = Form("unknown")
 ):
     """
     Endpoint xử lý trò chuyện bằng âm thanh (Native Audio).
     """
     import json
     try:
-        ip = req.client.host if req.client else "unknown"
+        client_identifier = userId if userId != "unknown" else (req.client.host if req.client else "unknown")
         today = datetime.now().strftime("%Y-%m-%d")
-        limit_key = f"{ip}_{today}"
-        if ai_chat_rate_limit[limit_key] >= 3:
-            return {"text": "Bạn đã sử dụng hết 3 token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!", "audio_base64": None}
+        limit_key = f"call_{client_identifier}_{today}" if isCallMode else f"{client_identifier}_{today}"
+        
+        # Call mode = 5 tokens, Chat audio = 3 tokens
+        max_tokens = 5 if isCallMode else 3
+        
+        if ai_chat_rate_limit[limit_key] >= max_tokens:
+            return {"text": f"Bạn đã sử dụng hết token trong ngày hôm nay. Vui lòng quay lại vào ngày mai nhé!", "audio_base64": None}
+        
         ai_chat_rate_limit[limit_key] += 1
 
         audio_bytes = await file.read()

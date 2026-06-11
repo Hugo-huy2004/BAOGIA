@@ -50,7 +50,7 @@ export default function ChatMessages({
   };
 
   return (
-    <div id="chat-messages-container" className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 pb-4">
+    <div id="chat-messages-container" className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 pb-24">
       {messages.map((msg, index) => {
         const isBot = msg.sender === "bot";
         
@@ -82,15 +82,12 @@ export default function ChatMessages({
             
             <div className="space-y-2 flex-1">
               <div
-                className={`relative p-3.5 rounded-2xl text-xs leading-relaxed ${
+                className={`relative p-4 text-[13px] leading-relaxed backdrop-blur-md transition-all duration-300 hover:shadow-xl ${
                   isBot
-                    ? "bg-white dark:bg-[#1a1924] border border-emerald-100 dark:border-emerald-900/50 text-zinc-800 dark:text-zinc-200 rounded-tl-sm shadow-soft"
-                    : "bg-gradient-to-r from-[#0071e3] to-[#0051bb] text-white rounded-tr-sm shadow-md"
+                    ? "bg-white/90 dark:bg-[#1a1924]/90 border border-zinc-200/50 dark:border-zinc-800/50 text-zinc-800 dark:text-zinc-200 rounded-3xl rounded-tl-xl shadow-lg"
+                    : "bg-gradient-to-br from-[#0071e3] to-[#0051bb] text-white rounded-3xl rounded-tr-xl shadow-lg shadow-blue-500/20"
                 }`}
               >
-                {isBot && (
-                  <div className="absolute left-[-8px] top-[1px] w-0 h-0 border-t-[8px] border-t-zinc-950 dark:border-t-zinc-800 border-l-[8px] border-l-transparent after:content-[''] after:absolute after:left-[2px] after:top-[-6px] after:w-0 after:h-0 after:border-t-[6px] after:border-t-white dark:after:border-t-[#1a1924] after:border-l-[6px] after:border-l-transparent" />
-                )}
                 
                 {isBot && !completedMessageIds.has(msg.id) && msg.id !== "init" ? (
                   <TypewriterText
@@ -106,28 +103,28 @@ export default function ChatMessages({
                   />
                 ) : (
                   <div>
-                    <p className="whitespace-pre-wrap font-semibold">{formatMessageText(msg.text)}</p>
+                    <p className="whitespace-pre-wrap font-medium">{formatMessageText(msg.text)}</p>
                     {isBot && (
                       <button 
                         onClick={() => handlePlayVoice(msg.id, msg.text)}
-                        className="mt-2 text-indigo-500 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 p-1.5 rounded-full transition-colors flex items-center justify-center float-right"
+                        className="mt-3 text-indigo-500 hover:text-white bg-indigo-50 hover:bg-indigo-500 dark:bg-indigo-900/20 dark:hover:bg-indigo-500 p-2 rounded-full transition-colors flex items-center justify-center float-right shadow-sm"
                         title="Nghe giọng nói AI"
                       >
-                        {playingId === msg.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                        {playingId === msg.id ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                       </button>
                     )}
                   </div>
                 )}
-                <span className="block text-[7.5px] font-black uppercase tracking-wider mt-1.5 opacity-60 clear-both">
+                <span className={`block text-[8.5px] font-black uppercase tracking-wider mt-2 opacity-60 clear-both ${isBot ? 'text-zinc-400' : 'text-blue-100'}`}>
                   {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
                 {msg.showTherapyButton && (
                   <button
                     type="button"
                     onClick={() => onNavigateToTab && onNavigateToTab("therapy")}
-                    className="mt-3.5 w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[9px] uppercase tracking-wider rounded-md transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                    className="mt-3.5 w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-xs font-black">favorite</span>
+                    <span className="material-symbols-outlined text-sm font-black">favorite</span>
                     Mở Trị Liệu & Thực Hành ngay
                   </button>
                 )}

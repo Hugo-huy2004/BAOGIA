@@ -62,201 +62,170 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
     <div className="p-6 space-y-6 flex flex-col justify-between animate-fadeIn">
       {/* 1. Normal State: List of activities with Lock/Unlock */}
       {!activePanel && (
-        <div className="space-y-6">
-          <div className="text-center space-y-1.5 max-w-md mx-auto">
-            <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">
+        <div className="space-y-6 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 pb-20">
+          <div className="text-center space-y-2 max-w-md mx-auto">
+            <span className="px-3 py-1 rounded-full text-[9px] font-black tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">
               Phương Pháp Lâm Sàng
             </span>
-            <h4 className="text-sm font-black text-zinc-900 dark:text-zinc-150 uppercase tracking-wider">
-              Thẻ Trị Liệu Tâm Lý
+            <h4 className="text-[14px] font-black text-zinc-900 dark:text-zinc-150 uppercase tracking-wider">
+              Hệ Sinh Thái Trị Liệu
             </h4>
-            <p className="text-[10.5px] text-zinc-500 dark:text-zinc-455 leading-relaxed font-bold">
-              Dựa trên kết quả đánh giá lâm sàng hoặc quét hồ sơ bệnh án của phòng khám, hệ thống sẽ tự động mở khóa các bài tập trị liệu phù hợp nhất với tình trạng của em.
+            <p className="text-[10px] text-zinc-500 dark:text-zinc-455 leading-relaxed font-bold">
+              Các bài tập tự chăm sóc được cá nhân hóa dựa trên dữ liệu đánh giá và tâm lý học hành vi.
             </p>
           </div>
  
           {!hasActiveJourneyOrResults ? (
-            <div className="max-w-md mx-auto text-center p-8 border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-xl space-y-4 animate-scaleUp shadow-sm">
-              <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mx-auto text-zinc-400">
-                <Lock className="w-5 h-5" />
+            <div className="max-w-md mx-auto text-center p-8 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-[#1a1924]/40 backdrop-blur-xl rounded-3xl space-y-4 animate-scaleUp shadow-xl">
+              <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mx-auto text-zinc-400 shadow-inner">
+                <Lock className="w-7 h-7" />
               </div>
-              <h4 className="text-xs font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">Trò chuyện cùng Chuyên viên Đồng Hành</h4>
+              <h4 className="text-xs font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">Chưa mở khóa trị liệu</h4>
               <p className="text-[10.5px] text-zinc-550 dark:text-zinc-450 leading-relaxed font-bold">
-                Em cần trò chuyện cùng Chuyên viên Đồng Hành trước để tôi lắng nghe chia sẻ, từ đó định hướng bài kiểm tra phù hợp và mở khóa các liệu pháp tự chăm sóc đúng với tình trạng của em nhé.
+                Cần có dữ liệu đầu vào. Hãy trò chuyện hoặc làm bài đánh giá để AI phân tích và đề xuất phương pháp phù hợp nhất.
               </p>
               <button
                 type="button"
                 onClick={() => onNavigateToTab && onNavigateToTab("chat")}
-                className="px-5 py-2.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-[#0071e3] text-white text-[9.5px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] hover:bg-[#0077ed] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all"
               >
-                Trò chuyện cùng Chuyên viên ngay
+                Trò chuyện cùng AI ngay
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Activity 1: Đọc sách */}
-              <div className={`p-5 rounded-lg border-2 transition-all flex flex-col justify-between ${
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-[160px]">
+              {/* Activity 1: Đọc sách (Span 1x1) */}
+              <div className={`p-5 rounded-3xl border flex flex-col justify-between transition-all hover:scale-[1.02] shadow-sm hover:shadow-xl ${
                 isReadingUnlocked 
-                  ? "bg-white dark:bg-zinc-900/50 border-zinc-950 dark:border-zinc-800 shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]" 
-                  : "bg-zinc-100 dark:bg-zinc-955/20 border-zinc-200 dark:border-zinc-900 opacity-60"
+                  ? "bg-gradient-to-br from-indigo-500/10 to-blue-500/5 border-indigo-500/20 dark:border-indigo-500/30" 
+                  : "bg-zinc-100/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 opacity-70 grayscale"
               }`}>
                 <div className="space-y-2 text-left">
                   <div className="flex justify-between items-center">
-                    <span className="p-2 rounded-md bg-indigo-500/10 text-indigo-500 shrink-0">
+                    <span className="p-2.5 rounded-xl bg-indigo-500 text-white shadow-lg shadow-indigo-500/30">
                       <BookOpen className="w-5 h-5" />
                     </span>
                     {isReadingUnlocked ? (
-                      <span className="text-[8px] font-black uppercase text-emerald-500 tracking-wider flex items-center gap-1">
-                        <Unlock className="w-2.5 h-2.5" /> Đã mở khóa
+                      <span className="text-[9px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider flex items-center gap-1 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md">
+                        <Unlock className="w-3 h-3" /> Sẵn sàng
                       </span>
                     ) : (
-                      <span className="text-[8px] font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1">
-                        <Lock className="w-2.5 h-2.5" /> Bị khóa
+                      <span className="text-[9px] font-black uppercase text-zinc-500 tracking-wider flex items-center gap-1 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md">
+                        <Lock className="w-3 h-3" /> Đã khóa
                       </span>
                     )}
                   </div>
-                  <h5 className="text-xs font-black text-zinc-850 dark:text-zinc-100 uppercase tracking-wide">Đọc sách Trị liệu</h5>
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
-                    Dành 30-60 phút tĩnh lặng đọc sách hỗ trợ bởi sóng nhạc trị liệu đặc biệt giúp giảm căng thẳng và mở mang tâm trí.
+                  <h5 className="text-[11px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-wide mt-2">Đọc Sách</h5>
+                  <p className="text-[9.5px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-bold line-clamp-2">
+                    Nhạc sóng não và không gian tĩnh lặng.
                   </p>
                 </div>
-                <div className="pt-4">
-                  {isReadingUnlocked ? (
-                    <button
-                      type="button"
-                      onClick={() => setActivePanel("reading")}
-                      className="w-full py-2 bg-indigo-500 hover:bg-indigo-650 text-white text-[10px] font-black uppercase tracking-wider rounded-md transition-all shadow-sm active:scale-95"
-                    >
-                      Bắt đầu ngay
-                    </button>
-                  ) : (
-                    <div className="text-[9px] text-zinc-400 italic text-center font-bold">Cần làm 1 bài test bất kỳ để kích hoạt</div>
-                  )}
-                </div>
+                {isReadingUnlocked && (
+                  <button onClick={() => setActivePanel("reading")} className="mt-auto w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all active:scale-95">Mở</button>
+                )}
               </div>
 
-              {/* Activity 2: Ngồi tĩnh tâm */}
-              <div className={`p-5 rounded-lg border-2 transition-all flex flex-col justify-between ${
+              {/* Activity 2: Ngồi tĩnh tâm (Span 2x1 trên Desktop) */}
+              <div className={`col-span-1 md:col-span-2 p-5 rounded-3xl border flex flex-col justify-between transition-all hover:scale-[1.02] shadow-sm hover:shadow-xl ${
                 isMeditationUnlocked 
-                  ? "bg-white dark:bg-zinc-900/50 border-zinc-950 dark:border-zinc-800 shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]" 
-                  : "bg-zinc-100 dark:bg-zinc-955/20 border-zinc-200 dark:border-zinc-900 opacity-60"
+                  ? "bg-gradient-to-br from-teal-500/10 to-emerald-500/5 border-teal-500/20 dark:border-teal-500/30" 
+                  : "bg-zinc-100/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 opacity-70 grayscale"
               }`}>
-                <div className="space-y-2 text-left">
-                  <div className="flex justify-between items-center">
-                    <span className="p-2 rounded-md bg-teal-500/10 text-teal-500 shrink-0">
+                <div className="flex flex-col md:flex-row gap-4 justify-between h-full">
+                  <div className="space-y-3 flex-1 text-left">
+                    <span className="inline-block p-2.5 rounded-xl bg-teal-500 text-white shadow-lg shadow-teal-500/30">
                       <Activity className="w-5 h-5" />
                     </span>
+                    <div>
+                      <h5 className="text-[12px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">Ngồi Tĩnh Tâm</h5>
+                      <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-bold mt-1">
+                        Thư giãn sâu từ 10-20 phút giải tỏa stress và căng thẳng quá mức. Hiệu quả với WHO-5 thấp.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col justify-between items-end shrink-0 w-32">
                     {isMeditationUnlocked ? (
-                      <span className="text-[8px] font-black uppercase text-emerald-500 tracking-wider flex items-center gap-1">
-                        <Unlock className="w-2.5 h-2.5" /> Đã mở khóa
+                      <span className="text-[9px] font-black uppercase text-teal-600 dark:text-teal-400 tracking-wider flex items-center gap-1 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md">
+                        <Unlock className="w-3 h-3" /> Mở khóa
                       </span>
                     ) : (
-                      <span className="text-[8px] font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1">
-                        <Lock className="w-2.5 h-2.5" /> Bị khóa
+                      <span className="text-[9px] font-black uppercase text-zinc-500 tracking-wider flex items-center gap-1 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md">
+                        <Lock className="w-3 h-3" /> Đã khóa
                       </span>
                     )}
+                    {isMeditationUnlocked && (
+                      <button onClick={() => setActivePanel("meditation")} className="w-full py-2.5 bg-teal-500 hover:bg-teal-600 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all active:scale-95 shadow-md">Thực hành</button>
+                    )}
                   </div>
-                  <h5 className="text-xs font-black text-zinc-855 dark:text-zinc-100 uppercase tracking-wide">Ngồi Tĩnh Tâm</h5>
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
-                    Thư giãn sâu từ 10-20 phút giải tỏa stress và căng thẳng quá mức. Đề xuất cho kết quả WHO-5 thấp hoặc DASS stress cao.
-                  </p>
-                </div>
-                <div className="pt-4">
-                  {isMeditationUnlocked ? (
-                    <button
-                      type="button"
-                      onClick={() => setActivePanel("meditation")}
-                      className="w-full py-2 bg-teal-500 hover:bg-teal-650 text-white text-[10px] font-black uppercase tracking-wider rounded-md transition-all shadow-sm active:scale-95"
-                    >
-                      Bắt đầu ngay
-                    </button>
-                  ) : (
-                    <div className="text-[9px] text-zinc-400 italic text-center font-bold">Yêu cầu test WHO-5 hoặc DASS Stress cao</div>
-                  )}
                 </div>
               </div>
 
-              {/* Activity 3: Hít thở 4-7-8 */}
-              <div className={`p-5 rounded-lg border-2 transition-all flex flex-col justify-between ${
-                isBreathingUnlocked 
-                  ? "bg-white dark:bg-zinc-900/50 border-zinc-950 dark:border-zinc-800 shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]" 
-                  : "bg-zinc-100 dark:bg-zinc-955/20 border-zinc-200 dark:border-zinc-900 opacity-60"
-              }`}>
-                <div className="space-y-2 text-left">
-                  <div className="flex justify-between items-center">
-                    <span className="p-2 rounded-md bg-amber-500/10 text-amber-500 shrink-0">
-                      <Activity className="w-5 h-5 animate-pulse" />
-                    </span>
-                    {isBreathingUnlocked ? (
-                      <span className="text-[8px] font-black uppercase text-emerald-500 tracking-wider flex items-center gap-1">
-                        <Unlock className="w-2.5 h-2.5" /> Đã mở khóa
-                      </span>
-                    ) : (
-                      <span className="text-[8px] font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1">
-                        <Lock className="w-2.5 h-2.5" /> Bị khóa
-                      </span>
-                    )}
-                  </div>
-                  <h5 className="text-xs font-black text-zinc-855 dark:text-zinc-100 uppercase tracking-wide">Điều hòa nhịp thở 4-7-8</h5>
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
-                    Ức chế và làm dịu ngay lo âu, nhịp tim nhanh hoặc các cơn bồn chồn bộc phát tức thời. Đề xuất khi GAD-7 &ge; 5 hoặc DASS Lo âu cao.
-                  </p>
-                </div>
-                <div className="pt-4">
-                  {isBreathingUnlocked ? (
-                    <button
-                      type="button"
-                      onClick={() => setActivePanel("breath")}
-                      className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 text-[10px] font-black uppercase tracking-wider rounded-md transition-all shadow-sm active:scale-95"
-                    >
-                      Bắt đầu ngay
-                    </button>
-                  ) : (
-                    <div className="text-[9px] text-zinc-400 italic text-center font-bold">Yêu cầu test GAD-7 hoặc DASS Lo âu cao</div>
-                  )}
-                </div>
-              </div>
-
-              {/* Activity 4: Depression CBT */}
-              <div className={`p-5 rounded-lg border-2 transition-all flex flex-col justify-between ${
+              {/* Activity 4: Depression CBT (Span 2x1) */}
+              <div className={`col-span-1 md:col-span-2 p-5 rounded-3xl border flex flex-col justify-between transition-all hover:scale-[1.02] shadow-sm hover:shadow-xl ${
                 isDepressionUnlocked 
-                  ? "bg-white dark:bg-zinc-900/50 border-zinc-950 dark:border-zinc-800 shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)]" 
-                  : "bg-zinc-100 dark:bg-zinc-955/20 border-zinc-200 dark:border-zinc-900 opacity-60"
+                  ? "bg-gradient-to-br from-red-500/10 to-rose-500/5 border-red-500/20 dark:border-red-500/30" 
+                  : "bg-zinc-100/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 opacity-70 grayscale"
               }`}>
-                <div className="space-y-2 text-left">
-                  <div className="flex justify-between items-center">
-                    <span className="p-2 rounded-md bg-red-500/10 text-red-500 shrink-0">
+                <div className="flex flex-col md:flex-row gap-4 justify-between h-full">
+                  <div className="space-y-3 flex-1 text-left">
+                    <span className="inline-block p-2.5 rounded-xl bg-red-500 text-white shadow-lg shadow-red-500/30">
                       <Heart className="w-5 h-5 animate-pulse" />
                     </span>
+                    <div>
+                      <h5 className="text-[12px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">Nhật Ký Trầm Cảm (CBT)</h5>
+                      <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-bold mt-1">
+                        Sử dụng liệu pháp nhận thức hành vi để đẩy lùi triệu chứng trầm cảm.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col justify-between items-end shrink-0 w-32">
                     {isDepressionUnlocked ? (
-                      <span className="text-[8px] font-black uppercase text-emerald-500 tracking-wider flex items-center gap-1">
-                        <Unlock className="w-2.5 h-2.5" /> Đã mở khóa
+                      <span className="text-[9px] font-black uppercase text-red-600 dark:text-red-400 tracking-wider flex items-center gap-1 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md">
+                        <Unlock className="w-3 h-3" /> Đã mở khóa
                       </span>
                     ) : (
-                      <span className="text-[8px] font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1">
-                        <Lock className="w-2.5 h-2.5" /> Bị khóa
+                      <span className="text-[9px] font-black uppercase text-zinc-500 tracking-wider flex items-center gap-1 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md">
+                        <Lock className="w-3 h-3" /> Đã khóa
+                      </span>
+                    )}
+                    {isDepressionUnlocked && (
+                      <button onClick={() => setActivePanel("depression")} className="w-full py-2.5 bg-red-500 hover:bg-red-600 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all active:scale-95 shadow-md">Thực hành</button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Activity 3: Hít thở 4-7-8 (Span 1x1) */}
+              <div className={`p-5 rounded-3xl border flex flex-col justify-between transition-all hover:scale-[1.02] shadow-sm hover:shadow-xl ${
+                isBreathingUnlocked 
+                  ? "bg-gradient-to-br from-amber-500/10 to-orange-500/5 border-amber-500/20 dark:border-amber-500/30" 
+                  : "bg-zinc-100/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 opacity-70 grayscale"
+              }`}>
+                <div className="space-y-2 text-left">
+                  <div className="flex justify-between items-center">
+                    <span className="p-2.5 rounded-xl bg-amber-500 text-white shadow-lg shadow-amber-500/30">
+                      <Activity className="w-5 h-5" />
+                    </span>
+                    {isBreathingUnlocked ? (
+                      <span className="text-[9px] font-black uppercase text-amber-600 dark:text-amber-400 tracking-wider flex items-center gap-1 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md">
+                        <Unlock className="w-3 h-3" /> Sẵn sàng
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-black uppercase text-zinc-500 tracking-wider flex items-center gap-1 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md">
+                        <Lock className="w-3 h-3" /> Đã khóa
                       </span>
                     )}
                   </div>
-                  <h5 className="text-xs font-black text-zinc-855 dark:text-zinc-100 uppercase tracking-wide">Trị liệu Trầm Cảm (CBT)</h5>
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
-                    Sử dụng nhật ký tích cực và kích hoạt hành động để đẩy lùi triệu chứng trầm cảm. Đề xuất khi PHQ-9 &ge; 5 hoặc DASS Trầm cảm cao.
+                  <h5 className="text-[11px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-wide mt-2">Hít thở 4-7-8</h5>
+                  <p className="text-[9.5px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-bold line-clamp-2">
+                    Làm dịu lo âu, nhịp tim nhanh.
                   </p>
                 </div>
-                <div className="pt-4">
-                  {isDepressionUnlocked ? (
-                    <button
-                      type="button"
-                      onClick={() => setActivePanel("depression")}
-                      className="w-full py-2 bg-red-500 hover:bg-red-650 text-white text-[10px] font-black uppercase tracking-wider rounded-md transition-all shadow-sm active:scale-95"
-                    >
-                      Bắt đầu ngay
-                    </button>
-                  ) : (
-                    <div className="text-[9px] text-zinc-400 italic text-center font-bold">Yêu cầu test PHQ-9 hoặc DASS Trầm cảm cao</div>
-                  )}
-                </div>
+                {isBreathingUnlocked && (
+                  <button onClick={() => setActivePanel("breath")} className="mt-auto w-full py-2 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all active:scale-95">Mở</button>
+                )}
               </div>
+
             </div>
           )}
         </div>

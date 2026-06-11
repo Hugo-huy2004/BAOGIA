@@ -15,7 +15,8 @@ export default class AIBot extends BaseBot {
         body: JSON.stringify({
           message: "Hãy đưa ra một câu chào thân mật bằng tiếng Việt dành cho người dùng quay trở lại không gian đồng hành chữa lành sức khỏe tinh thần.",
           history: [],
-          bio: this.bio
+          bio: this.bio,
+          userId: this.bio?.email || this.bio?.id || "unknown"
         })
       });
 
@@ -53,7 +54,8 @@ export default class AIBot extends BaseBot {
         body: JSON.stringify({
           message: `Viết lại câu phản hồi sau đây một cách đồng cảm, ấm áp, sâu sắc và tự nhiên hơn, xưng hô 'tớ' và 'cậu': "${baseText}"`,
           history: [],
-          bio: this.bio
+          bio: this.bio,
+          userId: this.bio?.email || this.bio?.id || "unknown"
         })
       });
 
@@ -69,6 +71,13 @@ export default class AIBot extends BaseBot {
     return `${baseText} (AI hiểu cậu mà, ${name}!)`;
   }
 
+  async streamResponse(selectedItem, type, onChunk, onDone) {
+    const responses = selectedItem[type];
+    let baseText = Array.isArray(responses) ? responses[0] : (responses || "");
+    const prompt = `Viết lại câu phản hồi sau đây một cách đồng cảm, ấm áp, sâu sắc và tự nhiên hơn, xưng hô 'tớ' và 'cậu': "${baseText}"`;
+    return this.chatStream(prompt, onChunk, onDone);
+  }
+
   async chatAudio(audioBlob, isCallMode = false) {
     try {
       const mappedHistory = (this.historyLogs || []).slice(-8).map(log => ({
@@ -81,6 +90,7 @@ export default class AIBot extends BaseBot {
       formData.append("history", JSON.stringify(mappedHistory));
       formData.append("bio", JSON.stringify(this.bio || {}));
       formData.append("isCallMode", isCallMode);
+      formData.append("userId", this.bio?.email || this.bio?.id || "unknown");
 
       const response = await fetch(`${API_URL}/api/ai/chat/audio`, {
         method: "POST",
@@ -111,7 +121,8 @@ export default class AIBot extends BaseBot {
         body: JSON.stringify({
           message: message,
           history: mappedHistory,
-          bio: this.bio
+          bio: this.bio,
+          userId: this.bio?.email || this.bio?.id || "unknown"
         })
       });
 
@@ -174,7 +185,8 @@ export default class AIBot extends BaseBot {
         body: JSON.stringify({
           message: message,
           history: mappedHistory,
-          bio: this.bio
+          bio: this.bio,
+          userId: this.bio?.email || this.bio?.id || "unknown"
         })
       });
 
@@ -193,7 +205,7 @@ export default class AIBot extends BaseBot {
         done = readerDone;
         if (value) {
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\\n');
+          const lines = buffer.split('\n');
           buffer = lines.pop(); // Giữ lại phần chưa hoàn chỉnh
           
           for (let line of lines) {

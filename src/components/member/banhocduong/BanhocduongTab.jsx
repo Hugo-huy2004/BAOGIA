@@ -553,7 +553,19 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-0 space-y-6 animate-fadeIn pb-12">
+    <div className="max-w-5xl mx-auto px-2 sm:px-0 space-y-6 animate-fadeIn pb-12">
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+      `}} />
+
       {/* Sub Utility Header */}
       <SubUtilityHeader
         title="Bạn Học Đường"
@@ -574,101 +586,115 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
         />
       )}
 
-      {/* Subtabs headers */}
-      <div className="flex items-center justify-start md:justify-center gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none p-[4px] rounded-lg bg-zinc-150/60 dark:bg-zinc-900/65 border border-zinc-250/30 dark:border-zinc-800/50 max-w-3xl mx-auto w-full">
-        {[
-          { id: "chat", label: "Tâm Sự", icon: MessageSquare, color: "text-[#0071e3]" },
-          { id: "therapy", label: "Trị Liệu", icon: Heart, color: "text-rose-500" },
-          { id: "evaluation", label: "Đánh Giá", icon: AlertTriangle, color: "text-amber-500" },
-          { id: "profile", label: "Hồ Sơ", icon: ShieldCheck, color: "text-emerald-500" },
-        ].map((tab) => {
-          const isActive = activeSubTab === tab.id;
-          const IconComponent = tab.icon;
-          return (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              key={tab.id}
-              type="button"
-              onClick={() => handleSubTabChange(tab.id)}
-              className={`flex items-center justify-center gap-2 px-5 py-3 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-2xl transition-all duration-300 shrink-0 ${
-                isActive
-                  ? `bg-white dark:bg-zinc-800 ${tab.color} shadow-lg`
-                  : "text-zinc-550 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-white/30 dark:hover:bg-white/5"
-              }`}
-            >
-              <IconComponent className={`w-4 h-4 transition-transform duration-300 ${isActive ? "scale-110" : ""}`} />
-              <span>{tab.label}</span>
-            </motion.button>
-          );
-        })}
-      </div>
+      {/* Workspace Layout */}
+      <div className="flex flex-col md:flex-row gap-4 w-full h-[650px]">
+        {/* Sidebar Navigation */}
+        <div className="md:w-20 lg:w-48 flex-shrink-0 flex md:flex-col items-center lg:items-stretch gap-2 overflow-x-auto md:overflow-y-auto scrollbar-none p-2 rounded-3xl bg-white/40 dark:bg-[#12111a]/60 backdrop-blur-3xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-xl z-10">
+          {[
+            { id: "chat", label: "Tâm Sự", icon: MessageSquare, color: "text-[#0071e3]" },
+            { id: "therapy", label: "Trị Liệu", icon: Heart, color: "text-rose-500" },
+            { id: "evaluation", label: "Đánh Giá", icon: AlertTriangle, color: "text-amber-500" },
+            { id: "profile", label: "Hồ Sơ", icon: ShieldCheck, color: "text-emerald-500" },
+          ].map((tab) => {
+            const isActive = activeSubTab === tab.id;
+            const IconComponent = tab.icon;
+            return (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                key={tab.id}
+                type="button"
+                onClick={() => handleSubTabChange(tab.id)}
+                className={`relative flex items-center justify-center lg:justify-start gap-3 p-3.5 rounded-2xl transition-all duration-300 ${
+                  isActive
+                    ? `bg-white dark:bg-zinc-800/80 shadow-md ${tab.color}`
+                    : "text-zinc-500 hover:bg-white/50 dark:hover:bg-zinc-800/40"
+                }`}
+              >
+                <IconComponent className={`w-5 h-5 transition-transform duration-300 ${isActive ? "scale-110" : ""}`} />
+                <span className={`text-[11px] font-black uppercase tracking-wider hidden lg:block`}>{tab.label}</span>
+                {isActive && (
+                  <motion.div layoutId="activeTabIndicator" className="absolute left-0 w-1 h-6 bg-current rounded-r-full hidden lg:block" />
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
 
-      {/* Main tab wrapper */}
-      <div className="bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl rounded-3xl border border-zinc-200/40 dark:border-zinc-800/60 shadow-2xl overflow-hidden min-h-[500px] flex flex-col justify-between transition-all">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeSubTab}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="flex-1 flex flex-col justify-between"
-          >
-            {activeSubTab === "chat" && (
-              <ChatTab
-                onNavigateToTab={handleNavigateToTab}
-                bio={bio}
-                historyLogs={historyLogs}
-                onUpdateCompanionState={handleUpdateCompanionState}
-                chatMessages={chatMessages}
-                presetTest={presetTest}
-                setPresetTest={setPresetTest}
-                showToast={showToast}
-                healingActive={healingActive}
-                onProfileUpdate={(newFields) => {
-                  if (setFormData && handleSave) {
-                    setFormData(prev => {
-                      const updated = { ...prev, ...newFields };
-                      // delay handleSave until state updates (simple async call)
-                      setTimeout(() => handleSave({ preventDefault: () => {} }, updated), 0);
-                      return updated;
-                    });
-                  }
-                }}
-              />
-            )}
+        {/* Main Content Area */}
+        <div className="flex-1 bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl rounded-3xl border border-zinc-200/40 dark:border-zinc-800/60 shadow-2xl overflow-hidden flex flex-col relative z-10">
+          {/* Animated Gradient Background */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30 dark:opacity-20 z-0">
+             <div className="absolute top-0 -left-1/4 w-2/3 h-2/3 bg-blue-400/40 dark:bg-blue-600/40 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-blob" />
+             <div className="absolute top-0 -right-1/4 w-2/3 h-2/3 bg-purple-400/40 dark:bg-purple-600/40 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000" />
+             <div className="absolute -bottom-1/4 left-1/4 w-2/3 h-2/3 bg-emerald-400/40 dark:bg-emerald-600/40 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000" />
+          </div>
 
-            {activeSubTab === "therapy" && (
-              <TherapyTab
-                onNavigateToTab={handleNavigateToTab}
-                bio={bio}
-                historyLogs={historyLogs}
-                onUpdateCompanionState={handleUpdateCompanionState}
-                healingActive={healingActive}
-                showToast={showToast}
-              />
-            )}
+          <div className="relative z-10 flex-1 flex flex-col h-full">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSubTab}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="flex-1 flex flex-col justify-between h-full overflow-hidden"
+              >
+                {activeSubTab === "chat" && (
+                  <ChatTab
+                    onNavigateToTab={handleNavigateToTab}
+                    bio={bio}
+                    historyLogs={historyLogs}
+                    onUpdateCompanionState={handleUpdateCompanionState}
+                    chatMessages={chatMessages}
+                    presetTest={presetTest}
+                    setPresetTest={setPresetTest}
+                    showToast={showToast}
+                    healingActive={healingActive}
+                    onProfileUpdate={(newFields) => {
+                      if (setFormData && handleSave) {
+                        setFormData(prev => {
+                          const updated = { ...prev, ...newFields };
+                          setTimeout(() => handleSave({ preventDefault: () => {} }, updated), 0);
+                          return updated;
+                        });
+                      }
+                    }}
+                  />
+                )}
 
-            {activeSubTab === "evaluation" && (
-              <EvaluationTab
-                onNavigateToTab={handleNavigateToTab}
-                bio={bio}
-                historyLogs={historyLogs}
-                showToast={showToast}
-              />
-            )}
+                {activeSubTab === "therapy" && (
+                  <TherapyTab
+                    onNavigateToTab={handleNavigateToTab}
+                    bio={bio}
+                    historyLogs={historyLogs}
+                    onUpdateCompanionState={handleUpdateCompanionState}
+                    healingActive={healingActive}
+                    showToast={showToast}
+                  />
+                )}
 
-            {activeSubTab === "profile" && (
-              <ProfileTab
-                historyLogs={historyLogs}
-                bio={bio}
-                onNavigateToTab={handleNavigateToTab}
-                showToast={showToast}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
+                {activeSubTab === "evaluation" && (
+                  <EvaluationTab
+                    onNavigateToTab={handleNavigateToTab}
+                    bio={bio}
+                    historyLogs={historyLogs}
+                    showToast={showToast}
+                  />
+                )}
+
+                {activeSubTab === "profile" && (
+                  <ProfileTab
+                    historyLogs={historyLogs}
+                    bio={bio}
+                    onNavigateToTab={handleNavigateToTab}
+                    showToast={showToast}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
 
       {/* Adaptation success popup */}

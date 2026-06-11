@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, PhoneOff, Loader2 } from "lucide-react";
 
-export default function AICallModal({ isOpen, onClose, botManager }) {
+export default function AICallModal({ isOpen, onClose, botManager, remainingCallTokens, setRemainingCallTokens }) {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [aiSpeaking, setAiSpeaking] = useState(false);
@@ -126,6 +126,14 @@ export default function AICallModal({ isOpen, onClose, botManager }) {
   };
 
   const initiateCall = async () => {
+    if (remainingCallTokens !== undefined && remainingCallTokens <= 0) {
+      setCallState("error");
+      setIsProcessing(false);
+      setTranscript("Bạn đã hết lượt gọi hôm nay.");
+      speakAndClose("Bạn đã hết lượt trò chuyện hôm nay, vui lòng quay lại vào ngày mai nhé.");
+      return;
+    }
+
     setCallState("dialing");
     setTranscript("Đang kết nối đến chuyên gia AI...");
     setIsListening(false);
@@ -137,29 +145,13 @@ export default function AICallModal({ isOpen, onClose, botManager }) {
     playRing();
     ringIntervalRef.current = setInterval(playRing, 2000);
 
-    // Gửi tín hiệu kiểm tra (ping) tới backend để xem có bị lỗi hoặc quá tải không
-    try {
-        const pingResponse = await botManager.chat("Alo, cậu nghe rõ tớ không?");
-        const replyText = pingResponse?.reply || "";
-
+    // Không gửi ping qua botManager.chat vì nó sẽ làm mất 1 token Chat (3/day) của user
+    setTimeout(() => {
         if (ringIntervalRef.current) clearInterval(ringIntervalRef.current);
-        
-        if (replyText.includes("quá tải") || replyText.includes("hạn mức") || replyText.includes("lịch bận")) {
-            setCallState("error");
-            setIsProcessing(false);
-            setTranscript("Chuyên gia AI đang bận...");
-            speakAndClose("Chào bạn! Chuyên viên AI đang có lịch bận, vui lòng gọi lại tớ sau vài phút.");
-        } else {
-            setCallState("connected");
-            setIsProcessing(false);
-            speakAndStartListening(replyText || "Chào cậu, tớ lắng nghe đây!");
-        }
-    } catch (err) {
-        if (ringIntervalRef.current) clearInterval(ringIntervalRef.current);
-        setCallState("error");
+        setCallState("connected");
         setIsProcessing(false);
-        speakAndClose("Chào bạn! Chuyên viên AI đang có lịch bận, vui lòng gọi lại tớ sau vài phút.");
-    }
+        speakAndStartListening("Chào cậu, tớ lắng nghe đây!");
+    }, 1500);
   };
 
   const speakAndClose = (text) => {
@@ -269,6 +261,14 @@ export default function AICallModal({ isOpen, onClose, botManager }) {
   };
 
   const processAudio = async (audioBlob) => {
+    if (remainingCallTokens !== undefined && remainingCallTokens <= 0) {
+      setIsListening(false);
+      setIsProcessing(false);
+      setTranscript("Bạn đã hết lượt gọi hôm nay.");
+      speakAndClose("Bạn đã hết lượt trò chuyện hôm nay, vui lòng quay lại vào ngày mai nhé.");
+      return;
+    }
+
     setIsListening(false);
     setIsProcessing(true);
     setTranscript("Đang phân tích...");
@@ -278,6 +278,9 @@ export default function AICallModal({ isOpen, onClose, botManager }) {
     setIsProcessing(false);
 
     if (response && response.audio_base64) {
+      if (setRemainingCallTokens && remainingCallTokens !== undefined) {
+        setRemainingCallTokens(remainingCallTokens - 1);
+      }
       playAIAudio(response.audio_base64, response.text);
     } else if (response && response.is_error) {
       // Backend error (e.g. 429 quota exhausted)
@@ -347,37 +350,58 @@ export default function AICallModal({ isOpen, onClose, botManager }) {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 50 }}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-zinc-950 text-white p-6"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-between bg-[#0a0a0e]/95 backdrop-blur-3xl text-white p-6 overflow-hidden"
         >
+          {/* Animated Background Gradients */}
+          <div className="absolute inset-0 pointer-events-none opacity-40">
+            <motion.div 
+              animate={{ 
+                scale: aiSpeaking ? [1, 1.2, 1] : isListening ? [1, 1.5, 1] : 1,
+                opacity: aiSpeaking ? 0.6 : isListening ? 0.3 : 0.1
+              }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 blur-[120px] rounded-full mix-blend-screen transition-colors duration-700 ${
+                aiSpeaking ? 'bg-blue-500' : isListening ? 'bg-purple-500' : 'bg-zinc-700'
+              }`}
+            />
+          </div>
+
           {/* Header */}
-          <div className="w-full flex justify-between items-center pt-8 px-4">
+          <div className="w-full flex justify-between items-center pt-8 px-4 relative z-10">
             <div className="flex flex-col">
               <span className="text-zinc-400 text-sm">{callState === "dialing" ? "Đang đổ chuông..." : callState === "error" ? "Cuộc gọi bị hủy" : "Đang trong cuộc gọi"}</span>
               <span className="font-semibold text-lg flex items-center gap-2">
-                {callState === "connected" && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>}
-                {callState === "dialing" && <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>}
-                {callState === "error" && <span className="w-2 h-2 rounded-full bg-red-500"></span>}
+                {callState === "connected" && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>}
+                {callState === "dialing" && <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse shadow-[0_0_8px_rgba(234,179,8,0.6)]"></span>}
+                {callState === "error" && <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>}
                 Chuyên gia AI
               </span>
             </div>
           </div>
 
           {/* Center Visualizer */}
-          <div className="flex-1 flex flex-col items-center justify-center w-full">
-            <div className="relative w-48 h-48 flex items-center justify-center">
+          <div className="flex-1 flex flex-col items-center justify-center w-full relative z-10">
+            <div className="relative w-56 h-56 flex items-center justify-center">
               {/* Vòng sáng bên ngoài */}
               <motion.div 
                 animate={{ scale: getVisualizerScale() }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className={`absolute inset-0 rounded-full blur-xl opacity-50 ${aiSpeaking ? 'bg-blue-500' : isListening ? 'bg-purple-500' : 'bg-zinc-800'}`}
+                className={`absolute inset-0 rounded-full blur-2xl opacity-60 mix-blend-screen transition-colors duration-500 ${aiSpeaking ? 'bg-blue-500' : isListening ? 'bg-purple-500' : 'bg-zinc-800'}`}
+              ></motion.div>
+              
+              {/* Sóng âm thanh mỏng bên ngoài */}
+              <motion.div 
+                animate={{ scale: getVisualizerScale() * 1.15 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                className={`absolute inset-2 rounded-full border border-white/20 transition-colors duration-500 ${aiSpeaking ? 'border-blue-400/50' : isListening ? 'border-purple-400/50' : 'border-zinc-700/50'}`}
               ></motion.div>
               
               {/* Hình đại diện (vòng tròn chính) */}
-              <div className={`relative w-32 h-32 rounded-full flex items-center justify-center z-10 border-4 shadow-2xl transition-all duration-300 overflow-hidden ${aiSpeaking ? 'border-blue-400 bg-blue-900' : isListening ? 'border-purple-400 bg-purple-900' : 'border-zinc-700 bg-zinc-800'}`}>
+              <div className={`relative w-36 h-36 rounded-full flex items-center justify-center z-10 border-4 shadow-2xl transition-all duration-300 overflow-hidden ${aiSpeaking ? 'border-blue-400 bg-blue-900 shadow-blue-500/50' : isListening ? 'border-purple-400 bg-purple-900 shadow-purple-500/50' : 'border-zinc-700 bg-zinc-800 shadow-zinc-900/50'}`}>
                 {isProcessing ? (
                   <Loader2 className="w-12 h-12 animate-spin text-zinc-300" />
                 ) : (
-                  <img src="/image/avt7.png" alt="AI Avatar" className="w-full h-full object-cover" />
+                  <img src="/image/avt7.png" alt="AI Avatar" className="w-full h-full object-cover scale-110" />
                 )}
               </div>
             </div>

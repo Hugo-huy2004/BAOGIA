@@ -55,6 +55,27 @@ export default function ChatTab({
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const audioChunks = useRef([]);
 
+  const [remainingChatTokens, setRemainingChatTokens] = useState(3);
+  const [remainingCallTokens, setRemainingCallTokens] = useState(5);
+
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const storedChatTokens = localStorage.getItem(`ai_chat_tokens_${today}`);
+    if (storedChatTokens !== null) {
+      setRemainingChatTokens(parseInt(storedChatTokens));
+    } else {
+      setRemainingChatTokens(3);
+      localStorage.setItem(`ai_chat_tokens_${today}`, 3);
+    }
+
+    const storedCallTokens = localStorage.getItem(`consultant_tokens_${today}`);
+    if (storedCallTokens !== null) {
+      setRemainingCallTokens(parseInt(storedCallTokens));
+    } else {
+      setRemainingCallTokens(5);
+      localStorage.setItem(`consultant_tokens_${today}`, 5);
+    }
+  }, []);
 
   const lastMessage = messages[messages.length - 1];
   const isLastMessageCompleted = !lastMessage || lastMessage.sender === "user" || lastMessage.id === "init" || completedMessageIds.has(lastMessage.id);
@@ -153,6 +174,13 @@ export default function ChatTab({
 
 
   const startAudioRecording = async () => {
+    const today = new Date().toISOString().split("T")[0];
+    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
+    if (currentTokens <= 0) {
+      showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
@@ -164,6 +192,10 @@ export default function ChatTab({
         const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
         setIsRecordingAudio(false);
         setLoading(true);
+
+        const newTokens = currentTokens - 1;
+        setRemainingChatTokens(newTokens);
+        localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
         
         const userMsg = {
           id: `user-audio-${Date.now()}`,
@@ -212,6 +244,13 @@ export default function ChatTab({
   };
 
   const startListening = () => {
+    const today = new Date().toISOString().split("T")[0];
+    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
+    if (currentTokens <= 0) {
+      showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
+      return;
+    }
+
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       showToast && showToast("Trình duyệt không hỗ trợ nhận diện giọng nói.", "error");
       return;
@@ -227,6 +266,10 @@ export default function ChatTab({
       const transcript = event.results[0][0].transcript;
       setIsListening(false);
       
+      const newTokens = currentTokens - 1;
+      setRemainingChatTokens(newTokens);
+      localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+
       const userMsg = {
         id: `user-voice-${Date.now()}`,
         sender: "user",
@@ -248,6 +291,7 @@ export default function ChatTab({
       await botManager.chatStream(
         transcript,
         (chunkText) => {
+          setLoading(false);
           setMessages(prev => prev.map(m => {
             if (m.id === botMsgId) {
               return { ...m, text: chunkText };
@@ -290,62 +334,83 @@ export default function ChatTab({
 
   // Stage 1 -> Stage 2
   const handleAspectSelect = async (aspect) => {
-    const userMsg = {
-      id: `user-${Date.now()}`,
-      sender: "user",
-      text: aspect.text,
-      time: new Date()
-    };
-    setMessages((prev) => [...prev, userMsg]);
-    setLoading(true);
-    setSelectedAspect(aspect);
+    const today = new Date().toISOString().split("T")[0];
+    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
+    if (currentTokens <= 0) {
+      showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
+      return;
+    }
+    const newTokens = currentTokens - 1;
+    setRemainingChatTokens(newTokens);
+    localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
 
-    const botText = await botManager.getResponse(aspect, "reply");
-    
-    const botMsg = {
-      id: `bot-${Date.now()}`,
-      sender: "bot",
-      text: botText,
-      time: new Date()
-    };
-    setMessages((prev) => [...prev, botMsg]);
-    setLoading(false);
-    setDialogStage(2);
+    const userMsg = { id: `user-${Date.now()}`, sender: "user", text: aspect.text, time: new Date() };
+    setMessages((prev) => [...prev, userMsg]);
+    setSelectedAspect(aspect);
+    setLoading(true);
+
+    const botMsgId = `bot-${Date.now()}`;
+    setMessages((prev) => [...prev, { id: botMsgId, sender: "bot", text: "...", time: new Date() }]);
+
+    await botManager.streamResponse(aspect, "reply", 
+      (chunkText) => {
+        setLoading(false);
+        setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: chunkText } : m));
+      },
+      (res) => {
+        setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: res.reply } : m));
+        setLoading(false);
+        setDialogStage(2);
+      }
+    );
   };
 
   // Stage 2 -> Stage 3 (Severity check-in follow-up)
   const handleSubAspectSelect = async (subOpt) => {
-    const userMsg = {
-      id: `user-${Date.now()}`,
-      sender: "user",
-      text: subOpt.text,
-      time: new Date()
-    };
+    const today = new Date().toISOString().split("T")[0];
+    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
+    if (currentTokens <= 0) {
+      showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
+      return;
+    }
+    const newTokens = currentTokens - 1;
+    setRemainingChatTokens(newTokens);
+    localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+
+    const userMsg = { id: `user-${Date.now()}`, sender: "user", text: subOpt.text, time: new Date() };
     setMessages((prev) => [...prev, userMsg]);
-    setLoading(true);
     setSelectedSubOption(subOpt);
+    setLoading(true);
 
-    const botText = await botManager.getResponse(subOpt, "followUp");
+    const botMsgId = `bot-${Date.now()}`;
+    setMessages((prev) => [...prev, { id: botMsgId, sender: "bot", text: "...", time: new Date() }]);
 
-    const botMsg = {
-      id: `bot-${Date.now()}`,
-      sender: "bot",
-      text: botText,
-      time: new Date()
-    };
-    setMessages((prev) => [...prev, botMsg]);
-    setLoading(false);
-    setDialogStage(3);
+    await botManager.streamResponse(subOpt, "followUp", 
+      (chunkText) => {
+        setLoading(false);
+        setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: chunkText } : m));
+      },
+      (res) => {
+        setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: res.reply } : m));
+        setLoading(false);
+        setDialogStage(3);
+      }
+    );
   };
 
-  // Stage 3 -> Stage 4 (Recommend test) or Stage 5 (Direct advice)
+  // Stage 3 -> Stage 4 (Recommend test)  // Stage 3 -> Conclusion or Tests
   const handleSeveritySelect = async (sevOpt) => {
-    const userMsg = {
-      id: `user-${Date.now()}`,
-      sender: "user",
-      text: sevOpt.text,
-      time: new Date()
-    };
+    const today = new Date().toISOString().split("T")[0];
+    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
+    if (currentTokens <= 0) {
+      showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
+      return;
+    }
+    const newTokens = currentTokens - 1;
+    setRemainingChatTokens(newTokens);
+    localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+
+    const userMsg = { id: `user-${Date.now()}`, sender: "user", text: sevOpt.text, time: new Date() };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
 
@@ -361,42 +426,46 @@ export default function ChatTab({
       setLoading(false);
       setDialogStage(4);
     } else {
-      const botText = await botManager.getResponse(sevOpt, "advice");
       const botMsgId = `bot-${Date.now()}`;
-      const botMsg = {
-        id: botMsgId,
-        sender: "bot",
-        text: `${botText}\n\n💡 Lời khuyên vàng: ${sevOpt.quote}`,
-        time: new Date()
-      };
+      setMessages((prev) => [...prev, { id: botMsgId, sender: "bot", text: "...", time: new Date() }]);
 
-        if (healingActive) {
-          setMessages((prev) => [...prev, botMsg]);
+      await botManager.streamResponse(sevOpt, "advice", 
+        (chunkText) => {
           setLoading(false);
-          setDialogStage(0);
-        } else {
-          const pkgNames = {
-            7: "Hành trình Nuôi dưỡng Bình yên (Peace)",
-            14: "Hành trình Chăm sóc Tinh thần (Mindfulness)",
-            30: "Hành trình Tái tạo Cân bằng (Balance)",
-            50: "Hành trình Phục hồi Thấu cảm (Compassionate)",
-            90: "Hành trình Đồng hành Chuyên sâu (Intensive)"
-          };
-          const name = pkgNames[sevOpt.recommendedDays] || "Hành trình Chăm sóc Tinh thần (Mindfulness)";
+          setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: chunkText } : m));
+        },
+        (res) => {
+          const finalReply = `${res.reply}\n\n💡 Lời khuyên vàng: ${sevOpt.quote}`;
+          setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: finalReply } : m));
 
-          const proposalMsg = {
-            id: `bot-proposal-${Date.now() + 10}`,
-            sender: "bot",
-            text: `Để hỗ trợ tốt nhất cho tình trạng hiện tại của cậu, tớ khuyên cậu nên kích hoạt **${name}** với thời gian **${sevOpt.recommendedDays} ngày** để tớ đồng hành chăm sóc sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
-            time: new Date(Date.now() + 10),
-            isCompanionSetup: true,
-            recommendedDays: sevOpt.recommendedDays
-          };
+          if (healingActive) {
+            setLoading(false);
+            setDialogStage(0);
+          } else {
+            const pkgNames = {
+              7: "Hành trình Nuôi dưỡng Bình yên (Peace)",
+              14: "Hành trình Chăm sóc Tinh thần (Mindfulness)",
+              30: "Hành trình Tái tạo Cân bằng (Balance)",
+              50: "Hành trình Phục hồi Thấu cảm (Compassionate)",
+              90: "Hành trình Đồng hành Chuyên sâu (Intensive)"
+            };
+            const name = pkgNames[sevOpt.recommendedDays] || "Hành trình Chăm sóc Tinh thần (Mindfulness)";
 
-          setMessages((prev) => [...prev, botMsg, proposalMsg]);
-          setLoading(false);
-          setDialogStage(5);
+            const proposalMsg = {
+              id: `bot-proposal-${Date.now() + 10}`,
+              sender: "bot",
+              text: `Để hỗ trợ tốt nhất cho tình trạng hiện tại của cậu, tớ khuyên cậu nên kích hoạt **${name}** với thời gian **${sevOpt.recommendedDays} ngày** để tớ đồng hành chăm sóc sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
+              time: new Date(Date.now() + 10),
+              isCompanionSetup: true,
+              recommendedDays: sevOpt.recommendedDays
+            };
+
+            setMessages((prev) => [...prev, proposalMsg]);
+            setLoading(false);
+            setDialogStage(5);
+          }
         }
+      );
     }
   };
 
@@ -1233,8 +1302,21 @@ export default function ChatTab({
           </div>
         </div>
 
-        {healingActive && (
-          <button
+        <div className="flex items-center gap-2">
+          {/* Tokens display */}
+          <div className="flex items-center gap-2 mr-2">
+             <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-1 rounded-full border border-amber-500/20" title="Token Chat AI (Tối đa 3/ngày)">
+               <span className="material-symbols-outlined text-[12px] text-amber-500">toll</span>
+               <span className="text-[10px] font-black text-amber-600">{remainingChatTokens}/3</span>
+             </div>
+             <div className="flex items-center gap-1 bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20" title="Token Gọi tư vấn (Tối đa 5/ngày)">
+               <span className="material-symbols-outlined text-[12px] text-blue-500">support_agent</span>
+               <span className="text-[10px] font-black text-blue-600">{remainingCallTokens}/5</span>
+             </div>
+          </div>
+
+          {healingActive && (
+            <button
             type="button"
             onClick={() => {
               const lastTestDateStr = localStorage.getItem("banhocduong_last_test_date");
@@ -1258,6 +1340,7 @@ export default function ChatTab({
             Chủ động test lại
           </button>
         )}
+        </div>
       </div>
 
       {/* Clinical Test Selection Menu Popup */}
@@ -1508,14 +1591,17 @@ export default function ChatTab({
               )}
 
               {dialogStage === 0 && (
-                <div className="flex items-center gap-2 pt-2 border-t border-zinc-200/50 dark:border-zinc-800/10 shrink-0 w-full">
-                  <button type="button" className={`p-2 rounded-full border shrink-0 transition-all ${isListening ? 'bg-rose-500/10 border-rose-500 text-rose-500 animate-pulse' : 'border-zinc-200 dark:border-zinc-800 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`} onClick={startListening} title="Thu âm chuyển thành Text">
-                    <Mic className="w-4 h-4" />
-                  </button>
-                  <button type="button" className={`p-2 rounded-full border shrink-0 transition-all ${isRecordingAudio ? 'bg-purple-500/10 border-purple-500 text-purple-500 animate-pulse' : 'border-zinc-200 dark:border-zinc-800 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`} onPointerDown={startAudioRecording} onPointerUp={stopAudioRecording} onPointerCancel={stopAudioRecording} title="Giữ để Gọi điện với AI (Native Audio)">
-                    {isRecordingAudio ? <MicOff className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                  </button>
-                  <div className="flex-1 flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[95%] max-w-2xl px-3 py-2.5 rounded-2xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-white/50 dark:border-zinc-800/50 shadow-2xl flex items-center gap-3 shrink-0 z-20">
+                  <div className="flex gap-2 bg-zinc-100/50 dark:bg-zinc-800/50 p-1 rounded-full">
+                    <button type="button" className={`p-2.5 rounded-full shrink-0 transition-all ${isListening ? 'bg-rose-500/20 text-rose-600 animate-pulse shadow-inner' : 'bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 shadow-sm'}`} onClick={startListening} title="Thu âm chuyển thành Text">
+                      <Mic className="w-4 h-4" />
+                    </button>
+                    <button type="button" className={`p-2.5 rounded-full shrink-0 transition-all ${isRecordingAudio ? 'bg-purple-500/20 text-purple-600 animate-pulse shadow-inner' : 'bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 shadow-sm'}`} onPointerDown={startAudioRecording} onPointerUp={stopAudioRecording} onPointerCancel={stopAudioRecording} title="Giữ để Gọi điện với AI (Native Audio)">
+                      {isRecordingAudio ? <MicOff className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className="w-[1px] h-8 bg-zinc-300/50 dark:bg-zinc-700/50 shrink-0" />
+                  <div className="flex-1 flex gap-2 overflow-x-auto pb-1 scrollbar-none items-center justify-between sm:justify-start">
                     <button
                       type="button"
                       onClick={() => {
@@ -1530,34 +1616,34 @@ export default function ChatTab({
                         };
                         setMessages(prev => [...prev, botMsg]);
                       }}
-                      className="py-2 px-3.5 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#1a1924] text-[9px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-sm shrink-0 flex items-center gap-1 transition-all"
+                      className="px-4 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/25 flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
                     >
-                      <span className="material-symbols-outlined text-[11px] text-blue-500">chat</span>
-                      <span>Tâm sự tiếp</span>
+                      <span className="material-symbols-outlined text-[14px]">chat</span>
+                      <span className="text-[10px] font-black uppercase tracking-wide">Tâm sự</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsCallModalOpen(true)}
-                      className="py-2 px-3.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-[9px] font-bold text-blue-500 hover:bg-blue-500/20 shadow-sm shrink-0 flex items-center gap-1 transition-all"
+                      className="px-4 py-2.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-white shadow-lg shadow-purple-500/25 flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
                     >
-                      <PhoneCall className="w-3 h-3" />
-                      <span>Gọi trực tiếp</span>
+                      <PhoneCall className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-black uppercase tracking-wide">Gọi AI</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowTestsMenu(true)}
-                      className="py-2 px-3.5 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#1a1924] text-[9px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-sm shrink-0 flex items-center gap-1 transition-all"
+                      className="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 shadow-sm flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
                     >
-                      <span className="material-symbols-outlined text-[11px] text-emerald-500">assignment</span>
-                      <span>Làm bài Test</span>
+                      <span className="material-symbols-outlined text-[14px] text-amber-500">assignment</span>
+                      <span className="text-[10px] font-black uppercase tracking-wide">Bài Test</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setChatMode("scan")}
-                      className="py-2 px-3.5 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#1a1924] text-[9px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-sm shrink-0 flex items-center gap-1 transition-all"
+                      className="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 shadow-sm flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
                     >
-                      <span className="material-symbols-outlined text-[11px] text-indigo-500">cloud_upload</span>
-                      <span>Quét hồ sơ bệnh án</span>
+                      <span className="material-symbols-outlined text-[14px] text-emerald-500">cloud_upload</span>
+                      <span className="text-[10px] font-black uppercase tracking-wide">Quét HS</span>
                     </button>
                   </div>
                 </div>
@@ -1566,11 +1652,16 @@ export default function ChatTab({
           )}
         </div>
       </div>
-      
       <AICallModal 
         isOpen={isCallModalOpen} 
         onClose={() => setIsCallModalOpen(false)} 
         botManager={botManager} 
+        remainingCallTokens={remainingCallTokens}
+        setRemainingCallTokens={(newTokens) => {
+           const today = new Date().toISOString().split("T")[0];
+           setRemainingCallTokens(newTokens);
+           localStorage.setItem(`consultant_tokens_${today}`, newTokens);
+        }}
       />
     </div>
   );

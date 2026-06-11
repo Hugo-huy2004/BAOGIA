@@ -24,6 +24,15 @@ export default class BotManager {
     return await bot.getResponse(selectedItem, type);
   }
 
+  async streamResponse(selectedItem, type, onChunk, onDone) {
+    const bot = this._route();
+    if (typeof bot.streamResponse === 'function') {
+      return await bot.streamResponse(selectedItem, type, onChunk, onDone);
+    }
+    const res = await bot.getResponse(selectedItem, type);
+    if (onDone) onDone({ reply: res });
+  }
+
   async chat(message) {
     const bot = this._route();
     return await bot.chat(message);

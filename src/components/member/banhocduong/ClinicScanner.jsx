@@ -351,7 +351,6 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                   </div>
                 ))}
               </div>
-              </div>
             </div>
           ) : scanTestType === "general_medical" ? (
             <div className="space-y-3">
