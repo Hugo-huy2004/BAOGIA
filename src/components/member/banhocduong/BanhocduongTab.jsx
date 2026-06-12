@@ -7,6 +7,7 @@ import ChatTab from "./ChatTab";
 import TherapyTab from "./TherapyTab";
 import ProfileTab from "./ProfileTab";
 import EvaluationTab from "./EvaluationTab";
+import SleepTracker from "./SleepTracker";
 import dataApi from "../../../services/dataApi";
 import psychologyService from "../../../services/classes/PsychologyService";
 import { webPushHelper } from "../../../utils/webPushHelper";
@@ -593,6 +594,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
           {[
             { id: "chat", label: "Tâm Sự", icon: MessageSquare, color: "text-[#0071e3]" },
             { id: "therapy", label: "Trị Liệu", icon: Heart, color: "text-rose-500" },
+            { id: "sleep", label: "Giấc Ngủ", icon: Clock, color: "text-indigo-500" },
             { id: "evaluation", label: "Đánh Giá", icon: AlertTriangle, color: "text-amber-500" },
             { id: "profile", label: "Hồ Sơ", icon: ShieldCheck, color: "text-emerald-500" },
           ].map((tab) => {
@@ -672,6 +674,12 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                     healingActive={healingActive}
                     showToast={showToast}
                   />
+                )}
+
+                {activeSubTab === "sleep" && (
+                  <div className="flex-1 overflow-y-auto p-4">
+                    <SleepTracker bio={bio} />
+                  </div>
                 )}
 
                 {activeSubTab === "evaluation" && (

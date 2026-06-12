@@ -33,6 +33,9 @@ const BookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+BookingSchema.index({ email: 1, createdAt: -1 });
+BookingSchema.index({ status: 1 });
+
 const Booking = mongoose.model('Booking', BookingSchema);
 
 export default Booking;

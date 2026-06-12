@@ -1,7 +1,11 @@
 import express from 'express';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import CompanionHistory from '../models/CompanionHistory.js';
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // GET: Fetch or initialize companion history for a specific email
 router.get('/history', async (req, res) => {
@@ -38,14 +42,14 @@ router.get('/history', async (req, res) => {
       const currentMonth = new Date().getMonth();
       const startYear = new Date(historyDoc.healingStartDate).getFullYear();
       const currentYear = new Date().getFullYear();
-      
+
       const isNewMonth = (currentYear > startYear) || (currentYear === startYear && currentMonth > startMonth);
-      
+
       if (isNewMonth) {
         const start = new Date(historyDoc.healingStartDate).getTime();
         const now = new Date().getTime();
         const progressDays = Math.max(1, Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1);
-        
+
         if (!historyDoc.healingActive || progressDays > historyDoc.healingDuration) {
           historyDoc.healingActive = false;
           historyDoc.healingDuration = 30;
@@ -62,7 +66,7 @@ router.get('/history', async (req, res) => {
     res.json(historyDoc);
   } catch (error) {
     import('fs').then(fs => {
-      fs.writeFileSync('/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/error_log.txt', error.stack || error.message);
+      fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
     }).catch(console.error);
     res.status(500).json({ error: error.message });
   }
@@ -104,7 +108,7 @@ router.post('/history', async (req, res) => {
     if (historyLogs !== undefined) $set.historyLogs = historyLogs;
     if (chatMessages !== undefined) $set.chatMessages = chatMessages;
 
-    const historyDoc = await CompanionHistory.findOneAndUpdate(
+    let historyDoc = await CompanionHistory.findOneAndUpdate(
       { email },
       {
         $setOnInsert: { email },
@@ -117,6 +121,97 @@ router.post('/history', async (req, res) => {
         setDefaultsOnInsert: true
       }
     );
+
+    // --- Streak tracking for checkin logs ---
+    if (historyLogs && Array.isArray(historyLogs)) {
+      const latestLog = historyLogs[historyLogs.length - 1];
+      if (latestLog && latestLog.type === 'checkin') {
+        const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+        const streaks = historyDoc.streaks || {};
+        const lastStreakDate = streaks.lastStreakDate || null;
+        let currentStreak = streaks.currentCheckinStreak || 0;
+        let longestStreak = streaks.longestCheckinStreak || 0;
+        let totalSessions = streaks.totalSessions || 0;
+
+        if (lastStreakDate !== today) {
+          // Only update streak if this is a new day's checkin
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          if (lastStreakDate === yesterday) {
+            currentStreak += 1;
+          } else if (!lastStreakDate) {
+            currentStreak = 1;
+          } else {
+            // Streak broken (gap > 1 day)
+            currentStreak = 1;
+          }
+
+          if (currentStreak > longestStreak) {
+            longestStreak = currentStreak;
+          }
+
+          totalSessions += 1;
+
+          await CompanionHistory.findOneAndUpdate(
+            { email },
+            {
+              $set: {
+                'streaks.currentCheckinStreak': currentStreak,
+                'streaks.longestCheckinStreak': longestStreak,
+                'streaks.lastStreakDate': today,
+                'streaks.totalSessions': totalSessions
+              }
+            }
+          );
+          // Refresh historyDoc after streak update
+          historyDoc = await CompanionHistory.findOne({ email });
+        }
+      }
+    }
+
+    // --- Crisis detection based on chatDistressCount ---
+    if (chatDistressCount !== undefined) {
+      const distressVal = Number(chatDistressCount);
+      let severity = null;
+
+      if (distressVal >= 5) {
+        severity = 'high';
+      } else if (distressVal >= 3) {
+        severity = 'medium';
+      }
+
+      if (severity) {
+        // Find most recent log reason as trigger
+        const latestLog = historyDoc.historyLogs && historyDoc.historyLogs.length > 0
+          ? historyDoc.historyLogs[historyDoc.historyLogs.length - 1]
+          : null;
+        const trigger = latestLog
+          ? (latestLog.reason || latestLog.desc || latestLog.note || `chatDistressCount=${distressVal}`)
+          : `chatDistressCount=${distressVal}`;
+
+        // Only add a new crisis flag if the last unresolved flag is not already this severity
+        const existingFlags = historyDoc.crisisFlags || [];
+        const lastUnresolved = existingFlags.filter(f => !f.resolved).pop();
+        const shouldAdd = !lastUnresolved || lastUnresolved.severity !== severity;
+
+        if (shouldAdd) {
+          await CompanionHistory.findOneAndUpdate(
+            { email },
+            {
+              $push: {
+                crisisFlags: {
+                  detectedAt: new Date(),
+                  severity,
+                  trigger,
+                  resolved: false
+                }
+              }
+            }
+          );
+          // Refresh
+          historyDoc = await CompanionHistory.findOne({ email });
+        }
+      }
+    }
 
     // Sync new companion logs to user Bio history if Bio exists
     try {
@@ -180,7 +275,7 @@ router.post('/history', async (req, res) => {
     res.json({ success: true, companionHistory: historyDoc });
   } catch (error) {
     import('fs').then(fs => {
-      fs.writeFileSync('/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/error_log.txt', error.stack || error.message);
+      fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
     }).catch(console.error);
     res.status(500).json({ error: error.message });
   }
@@ -193,18 +288,83 @@ router.post('/history/block', async (req, res) => {
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
     }
-    
+
     // Block for 15 minutes
     const blockedUntil = new Date(Date.now() + 15 * 60 * 1000);
-    
+
     await CompanionHistory.findOneAndUpdate(
       { email },
       { $set: { blockedUntil } },
       { upsert: true }
     );
-    
+
     res.json({ success: true, blockedUntil });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST: Generate and save weekly wellness report
+router.post('/report/weekly', async (req, res) => {
+  try {
+    const { email, bio } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const historyDoc = await CompanionHistory.findOne({ email });
+    if (!historyDoc) {
+      return res.status(404).json({ error: 'Companion history not found for this email' });
+    }
+
+    // Call Python AI server to generate the weekly report
+    const AI_SERVER = process.env.AI_SERVER_URL || 'http://localhost:8000';
+    const payload = {
+      email,
+      bio: {
+        ...(bio || {}),
+        historyLogs: historyDoc.historyLogs || [],
+        chatMessages: historyDoc.chatMessages || []
+      }
+    };
+
+    let report;
+    try {
+      const fetch = (await import('node-fetch')).default;
+      const aiResponse = await fetch(`${AI_SERVER}/api/ai/report/weekly`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!aiResponse.ok) {
+        throw new Error(`AI server responded with ${aiResponse.status}`);
+      }
+      report = await aiResponse.json();
+    } catch (fetchErr) {
+      console.error('Failed to call AI weekly report endpoint:', fetchErr);
+      return res.status(502).json({ error: 'Could not reach AI server', detail: fetchErr.message });
+    }
+
+    // Save the report summary to lastWeeklyReport
+    await CompanionHistory.findOneAndUpdate(
+      { email },
+      {
+        $set: {
+          lastWeeklyReport: {
+            generatedAt: new Date(),
+            summary: report.summary || '',
+            moodTrend: report.moodTrend || 'unknown',
+            wellnessScore: report.wellnessScore || null
+          }
+        }
+      }
+    );
+
+    res.json({ success: true, report });
+  } catch (error) {
+    import('fs').then(fs => {
+      fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
+    }).catch(console.error);
     res.status(500).json({ error: error.message });
   }
 });

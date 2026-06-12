@@ -1,7 +1,69 @@
 /**
- * Service Worker - Web Push Notification System
- * Hỗ trợ hiển thị thông báo đẩy dưới nền ngay cả khi tắt tab trình duyệt.
+ * Service Worker
+ * Handles: Web Push Notifications + PeriodicBackgroundSync (sleep monitor)
  */
+
+// ── PeriodicBackgroundSync — sleep monitor heartbeat ──────────────────────
+// Runs in background every 30 min (when PWA is installed + permission granted).
+// Reads sleep state written by useSleepAutoDetect hook via CacheStorage.
+
+const SLEEP_CACHE = "hugo-sleep-state-v1";
+const API_ORIGIN  = self.registration.scope.replace(/\/$/, "");
+
+self.addEventListener("periodicsync", (event) => {
+  if (event.tag !== "sleep-monitor") return;
+  event.waitUntil(handleSleepSync());
+});
+
+async function handleSleepSync() {
+  try {
+    const cache   = await caches.open(SLEEP_CACHE);
+    const cached  = await cache.match("sleep-user-state");
+    if (!cached) return;
+
+    const data    = await cached.json();
+    const { email, state, sleepStart, savedAt } = data;
+    if (!email) return;
+
+    const ageMs   = Date.now() - (savedAt || 0);
+    const hour    = new Date().getHours();
+
+    // If stored state is "sleeping" and it's now morning (4–12h), trigger wake detection
+    if (state === "sleeping" && sleepStart && hour >= 4 && hour <= 12 && ageMs > 3 * 3_600_000) {
+      const now      = new Date();
+      const wakeTime = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+
+      await fetch(`${API_ORIGIN}/api/sleep/passive`, {
+        method:  "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({
+          email,
+          event:      "wake_onset",
+          wakeTime,
+          bedtime:    sleepStart.time,
+          date:       sleepStart.date,
+          confidence: 70,
+          signals:    ["sw_periodic_sync"],
+        }),
+      });
+
+      // Update cache to reflect "awake" state
+      await cache.put("sleep-user-state", new Response(
+        JSON.stringify({ email, state: "awake", sleepStart: null, savedAt: Date.now() }),
+        { headers: { "Content-Type": "application/json" } }
+      ));
+    }
+
+    // If monitoring and it's evening, send a heartbeat so server knows user is active
+    if (state === "monitoring" && hour >= 20) {
+      await fetch(`${API_ORIGIN}/api/sleep/passive`, {
+        method:  "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ email, event: "hidden" }),
+      }).catch(() => {});
+    }
+  } catch (_) {}
+}
 
 // Lắng nghe sự kiện nhận thông báo đẩy từ Server (Google Chrome Push Service)
 self.addEventListener('push', function (event) {

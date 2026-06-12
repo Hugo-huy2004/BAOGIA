@@ -54,4 +54,6 @@ const CustomerProjectSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+CustomerProjectSchema.index({ 'customerProfile.email': 1, createdAt: -1 });
+
 export default mongoose.model('CustomerProject', CustomerProjectSchema);

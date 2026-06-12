@@ -743,9 +743,9 @@ export default function IntroductionPage() {
         </section>
 
         {/* SLIDE 5: Free Bio with Edu Mail (Overlapping Student Cards) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full max-w-7xl mx-auto items-center">
-            <div className="lg:col-span-7 space-y-6 relative z-10">
+        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center">
+            <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6 relative z-10">
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
                 {t("intro.slide5.badge")}
               </span>
@@ -779,13 +779,13 @@ export default function IntroductionPage() {
               </div>
             </div>
             
-            {/* Overlapping Stacks of Student Cards - hidden on mobile/tablet */}
-            <div className="hidden lg:flex lg:col-span-5 justify-end relative">
+            {/* Overlapping Stacks of Student Cards - hidden on mobile, visible md+ */}
+            <div className="hidden md:flex md:col-span-5 justify-end relative">
               {/* Back Card */}
-              <div className="absolute top-4 left-4 w-[360px] sm:w-[400px] h-[240px] sm:h-[260px] rounded-[2.5rem] bg-gradient-to-tr from-[#6366f1]/20 to-transparent border border-[#6366f1]/20 p-8 shadow-lg transform rotate-[-4deg] pointer-events-none" />
+              <div className="absolute top-4 left-4 w-full max-w-[360px] h-[240px] rounded-[2.5rem] bg-gradient-to-tr from-[#6366f1]/20 to-transparent border border-[#6366f1]/20 p-8 shadow-lg transform rotate-[-4deg] pointer-events-none" />
 
               {/* Front ID Card */}
-              <div className="w-[360px] sm:w-[400px] rounded-[2.5rem] bg-gradient-to-b from-white/95 to-white/40 dark:from-slate-900/95 dark:to-slate-900/40 backdrop-blur-2xl border border-white/30 dark:border-white/10 p-8 shadow-2xl relative z-10 transform rotate-[2deg] hover:rotate-0 transition-transform duration-500 group overflow-hidden">
+              <div className="w-full max-w-[360px] rounded-[2.5rem] bg-gradient-to-b from-white/95 to-white/40 dark:from-slate-900/95 dark:to-slate-900/40 backdrop-blur-2xl border border-white/30 dark:border-white/10 p-6 lg:p-8 shadow-2xl relative z-10 transform rotate-[2deg] hover:rotate-0 transition-transform duration-500 group overflow-hidden">
                 {/* Holographic light reflect pattern */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
@@ -830,11 +830,11 @@ export default function IntroductionPage() {
         </section>
 
         {/* SLIDE 5: Web Development Services (Giới thiệu dịch vụ làm web của tôi, visual browser) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full max-w-7xl mx-auto items-center">
-            
-            {/* Left: Interactive Browser Mockup of Service Prices - hidden on mobile/tablet */}
-            <div className="hidden lg:flex lg:col-span-5 justify-center relative">
+        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center">
+
+            {/* Left: Interactive Browser Mockup of Service Prices - hidden on mobile, visible md+ */}
+            <div className="hidden md:flex md:col-span-5 justify-center relative">
               {/* Backglow sphere */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#0ea5e9]/10 blur-3xl" />
 
@@ -879,11 +879,11 @@ export default function IntroductionPage() {
             </div>
 
             {/* Right Column details */}
-            <div className="lg:col-span-7 space-y-6 relative z-10">
+            <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6 relative z-10">
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#0ea5e9]/10 text-[#0ea5e9] border border-[#0ea5e9]/25">
                 {t("intro.slide6.badge")}
               </span>
-              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
                 {t("intro.slide6.title1")} <br />
                 {t("intro.slide6.title2")}
               </h2>
@@ -999,10 +999,10 @@ export default function IntroductionPage() {
         </section>
 
         {/* SLIDE 7: Philosophy & Experience (Overlapping Typography quotes) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
+        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
             {/* Left: philosophy quotes overlapping watermarks */}
-            <div className="lg:col-span-7 space-y-6 relative">
+            <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6 relative">
               
               {/* Massive overlapping quote watermarks */}
               <span className="absolute -top-12 -left-10 text-[8rem] sm:text-[10rem] font-serif text-[#6366f1]/10 pointer-events-none select-none">“</span>
@@ -1015,11 +1015,11 @@ export default function IntroductionPage() {
                 {t("intro.slide8.title2")}
               </h2>
               
-              <blockquote className="text-2xl sm:text-3xl lg:text-4xl italic font-semibold text-[#6366f1] dark:text-[#a5b4fc] border-l-4 border-[#6366f1] pl-6 py-1 relative z-10 leading-snug">
+              <blockquote className="text-lg sm:text-2xl lg:text-4xl italic font-semibold text-[#6366f1] dark:text-[#a5b4fc] border-l-4 border-[#6366f1] pl-4 sm:pl-6 py-1 relative z-10 leading-snug">
                 {t("intro.slide8.quote")}
               </blockquote>
 
-              <div className="grid grid-cols-2 gap-6 pt-2 text-xs sm:text-sm relative z-10">
+              <div className="grid grid-cols-2 gap-3 sm:gap-6 pt-1 sm:pt-2 text-xs sm:text-sm relative z-10">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
                     <span className="material-symbols-outlined text-sm text-[#6366f1]">magic_button</span>
@@ -1041,12 +1041,12 @@ export default function IntroductionPage() {
               </div>
             </div>
 
-            {/* Right: Asymmetric Principle Card - hidden on mobile/tablet */}
-            <div className="hidden lg:flex lg:col-span-5 justify-end relative">
+            {/* Right: Asymmetric Principle Card - hidden on mobile, visible md+ */}
+            <div className="hidden md:flex md:col-span-5 justify-end relative">
               {/* Background accent ring */}
               <div className="absolute -top-6 -left-6 w-32 h-32 rounded-full border border-slate-200/50 dark:border-white/5 pointer-events-none" />
 
-              <div className="w-[420px] h-[360px] rounded-[2.5rem] bg-white dark:bg-[#12111a] border border-slate-200 dark:border-white/10 p-8 shadow-2xl flex flex-col justify-between relative overflow-hidden transform rotate-[1.5deg]">
+              <div className="w-full max-w-[420px] rounded-[2.5rem] bg-white dark:bg-[#12111a] border border-slate-200 dark:border-white/10 p-6 lg:p-8 shadow-2xl flex flex-col justify-between relative overflow-hidden transform rotate-[1.5deg]">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-[#fbbf24]/10 rounded-full blur-xl" />
                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">{t("intro.slide8.principles")}</span>
                 <div className="space-y-4 text-xs sm:text-sm">
@@ -1072,12 +1072,12 @@ export default function IntroductionPage() {
         </section>
 
         {/* SLIDE 8: Social Links (Liên kết của tôi, overlapping icons) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
-          <div className="w-full max-w-7xl mx-auto space-y-8 md:space-y-12 relative z-10">
+        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
+          <div className="w-full max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-10 lg:space-y-12 relative z-10">
             {/* Profile Header with Avatar */}
-            <div className="text-center space-y-4 max-w-2xl mx-auto">
-              <div className="flex justify-center mb-4">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#6366f1]/30 shadow-lg">
+            <div className="text-center space-y-2 sm:space-y-3 md:space-y-4 max-w-2xl mx-auto">
+              <div className="flex justify-center mb-2 md:mb-4">
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#6366f1]/30 shadow-lg">
                   <img loading="lazy" 
                     src={optimizeCloudinaryUrl(data.profile.avatarUrl, 300)} 
                     alt={data.profile.fullName}
@@ -1096,10 +1096,10 @@ export default function IntroductionPage() {
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
                 {t("intro.slide9.badge")}
               </span>
-              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white">
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white">
                 {t("intro.slide9.title")}
               </h2>
-              <p className="text-xs sm:text-sm lg:text-base text-slate-500 dark:text-slate-400">
+              <p className="text-[11px] sm:text-xs lg:text-base text-slate-500 dark:text-slate-400 hidden sm:block">
                 {t("intro.slide9.desc")}
               </p>
             </div>
@@ -1113,57 +1113,57 @@ export default function IntroductionPage() {
                 href={`https://zalo.me/${data.profile.zaloNumber}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="clay-card rounded-2xl md:rounded-[2rem] p-6 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-2 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
+                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
               >
-                <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/20 text-[#6366f1] dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-blue-100 dark:bg-blue-900/20 text-[#6366f1] dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-2xl md:text-3xl">sms</span>
                 </div>
                 <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.zalo")}</span>
               </a>
 
               {/* Email */}
-              <a 
+              <a
                 href={`mailto:${data.profile.emailAddress}`}
-                className="clay-card rounded-2xl md:rounded-[2rem] p-6 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-2 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
+                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
               >
-                <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-red-100 dark:bg-red-900/20 text-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-2xl md:text-3xl">mail</span>
+                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-red-100 dark:bg-red-900/20 text-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-xl md:text-3xl">mail</span>
                 </div>
-                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.email")}</span>
+                <span className="font-display text-xs md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.email")}</span>
               </a>
 
               {/* Facebook */}
-              <a 
-                href="https://facebook.com/hugowishpax.le" 
-                target="_blank" 
+              <a
+                href="https://facebook.com/hugowishpax.le"
+                target="_blank"
                 rel="noopener noreferrer"
-                className="clay-card rounded-2xl md:rounded-[2rem] p-6 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-2 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
+                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
               >
-                <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-2xl md:text-3xl">group</span>
+                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-xl md:text-3xl">group</span>
                 </div>
-                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.fb")}</span>
+                <span className="font-display text-xs md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.fb")}</span>
               </a>
 
               {/* TikTok */}
-              <a 
+              <a
                 href="https://www.tiktok.com/@pethugowishpaxle?_r=1&_t=ZS-96UW9Neg8UW"
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
-                className="clay-card rounded-2xl md:rounded-[2rem] p-6 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-2 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
+                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
               >
-                <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-black/10 dark:bg-white/10 text-slate-800 dark:text-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-2xl md:text-3xl">play_circle</span>
+                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-black/10 dark:bg-white/10 text-slate-800 dark:text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-xl md:text-3xl">play_circle</span>
                 </div>
-                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.tiktok")}</span>
+                <span className="font-display text-xs md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.tiktok")}</span>
               </a>
             </div>
           </div>
         </section>
 
         {/* SLIDE 9: Register & Start Journey (đăng ký và bắt đầu hành trình) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
-          <div className="w-full max-w-4xl mx-auto text-center space-y-8 relative z-10">
+        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
+          <div className="w-full max-w-4xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8 relative z-10">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
               {t("intro.slide10.badge")}
             </span>

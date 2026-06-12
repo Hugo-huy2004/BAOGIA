@@ -1739,11 +1739,12 @@ export default function MemberPortalPage() {
                   >{t("memberPortal.tabs.package")}</button>
                   <button
                     type="button"
-                    onClick={() => setActiveTab("partner")}
-                    className={`w-1/5 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 ${
-                      activeTab === "partner" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
-                    }`}
-                  >{t("memberPortal.tabs.partner")}</button>
+                    onClick={() => window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer")}
+                    className={`w-1/5 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 flex items-center justify-center gap-0.5`}
+                  >
+                    {t("memberPortal.tabs.partner")}
+                    <span className="material-symbols-outlined text-[8px] opacity-60">open_in_new</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab("utilities")}
@@ -2095,7 +2096,7 @@ export default function MemberPortalPage() {
 
       {/* Fixed Bottom Navigation Bar for Mobile */}
       {!isGuestMode && bio?.status !== 'pending' && (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-xl border-t border-zinc-200/50 dark:border-zinc-800/60 pb-[calc(env(safe-area-inset-bottom,0px)+10px)] pt-2.5 px-2 flex justify-around shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-white/70 dark:bg-[#12111a]/70 backdrop-blur-2xl backdrop-saturate-200 border-t border-white/25 dark:border-white/5 shadow-[0_-1px_0_rgba(255,255,255,0.08),0_-8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_-1px_0_rgba(255,255,255,0.03),0_-8px_32px_rgba(0,0,0,0.4)] pb-[calc(env(safe-area-inset-bottom,0px)+10px)] pt-2.5 px-2 flex justify-around">
           {[
             { id: "account", label: t("memberPortal.tabs.bio"), icon: "person" },
             { id: "manage", label: t("memberPortal.tabs.package"), icon: "card_membership" },
@@ -2108,7 +2109,13 @@ export default function MemberPortalPage() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  if (tab.id === "partner") {
+                    window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer");
+                  } else {
+                    setActiveTab(tab.id);
+                  }
+                }}
                 className={`flex flex-col items-center justify-center gap-1.5 py-1 px-2.5 relative transition-colors duration-200 flex-1 min-w-0 ${
                   isActive
                     ? "text-[#0071e3] dark:text-[#0a84ff]"

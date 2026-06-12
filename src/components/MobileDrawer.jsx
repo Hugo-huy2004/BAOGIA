@@ -52,7 +52,7 @@ export default function MobileDrawer() {
 
       {/* Drawer Menu */}
       <div
-        className={`fixed top-0 left-0 h-screen w-64 bg-surface-container-low dark:bg-[#1a1623] border-r border-outline-variant/30 dark:border-slate-700 z-40 transform transition-transform duration-300 md:hidden overflow-y-auto ${
+        className={`fixed top-0 left-0 h-screen w-64 bg-white/85 dark:bg-[#12111a]/90 backdrop-blur-2xl backdrop-saturate-200 border-r border-white/25 dark:border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.4)] z-40 transform transition-transform duration-300 md:hidden overflow-y-auto ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

@@ -7,9 +7,13 @@ import Footer from "./components/Footer";
 import VacationNotificationBanner from "./components/VacationNotificationBanner";
 import MaintenancePage from "./components/MaintenancePage";
 import GlobalAdBanner from "./components/GlobalAdBanner";
+import OfflineBanner from "./components/ui/OfflineBanner";
+import PWAInstallBanner from "./components/ui/PWAInstallBanner";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
 import HBot from "./components/HBot";
 import { CursorEffect as Cursor } from "hwagfu-cursor";
+import { useUIStore } from "./stores/uiStore";
+import { TooltipProvider } from "./components/ui/Tooltip";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -90,7 +94,12 @@ function AppContent() {
       
       {/* Dynamic Content Router */}
       <main className="flex-grow">
-        <Cursor />
+        <Cursor 
+          ringColor="#3b82f6"
+          ringBackground="rgba(59, 130, 246, 0.2)"
+          ringHoverBackground="rgba(59, 130, 246, 0.4)"
+          dotColor="#3b82f6"
+         />
         <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
           <Routes>
             <Route path="/" element={<Navigate to="/introduction" replace />} />
@@ -130,12 +139,25 @@ function AppContent() {
 }
 
 export default function App() {
+  const { theme } = useUIStore();
+
   useEffect(() => {
-    // Auto-detect system theme preference on app load
-    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      document.documentElement.classList.add("dark");
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else if (theme === "light") {
+      root.classList.remove("dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      // system
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      prefersDark ? root.classList.add("dark") : root.classList.remove("dark");
+    }
+  }, [theme]);
+
+  // Keep in sync when theme not yet set from store (initial load)
+  useEffect(() => {
+    if (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.classList.add("dark");
     }
   }, []);
 
@@ -143,7 +165,11 @@ export default function App() {
     <ErrorBoundary>
       <DataProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <AppContent />
+          <TooltipProvider>
+            <OfflineBanner />
+            <AppContent />
+            <PWAInstallBanner />
+          </TooltipProvider>
         </BrowserRouter>
       </DataProvider>
     </ErrorBoundary>

@@ -246,10 +246,10 @@ const HBot = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end">
+    <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-[999] flex flex-col items-end">
       {/* Floating Chat Box */}
       {isOpen && (
-        <div className="mb-4 w-[360px] max-w-[calc(100vw-32px)] h-[500px] max-h-[calc(100vh-120px)] bg-[#f5f5f7]/95 dark:bg-[#1c1c1e]/95 backdrop-blur-lg rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-2xl overflow-hidden flex flex-col animate-fadeIn select-none">
+        <div className="mb-3 w-[320px] sm:w-[360px] max-w-[calc(100vw-24px)] h-[380px] sm:h-[460px] md:h-[500px] max-h-[55vh] sm:max-h-[60vh] md:max-h-[calc(100vh-120px)] bg-[#f5f5f7]/95 dark:bg-[#1c1c1e]/95 backdrop-blur-lg rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-2xl overflow-hidden flex flex-col animate-fadeIn select-none">
           {/* Header */}
           <div className="p-4 bg-white/85 dark:bg-[#2c2c2e]/85 text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800/80 shadow-sm backdrop-blur-md">
             <div className="flex items-center gap-3">
@@ -355,7 +355,7 @@ const HBot = () => {
       {!isOpen && (
         <button
           onClick={handleOpenChat}
-          className="group relative w-16 h-16 transition-all duration-300 hover:-translate-y-0.5 select-none hover:scale-105 active:scale-95"
+          className="group relative w-12 h-12 md:w-16 md:h-16 transition-all duration-300 hover:-translate-y-0.5 select-none hover:scale-105 active:scale-95"
           style={{ minWidth: 0, minHeight: 0 }}
         >
           {/* Full transparent sticker rendering with no rounding or borders */}

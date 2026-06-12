@@ -98,10 +98,59 @@ const CompanionHistorySchema = new mongoose.Schema(
         suggestBigFive: { type: Boolean }
       }],
       default: []
-    }
+    },
+
+    // IoT Integration
+    iotDevices: [{ deviceId: String, deviceName: String, lastSync: Date }],
+    iotVitalsSnapshot: {
+      wellnessScore: { type: Number, default: null },
+      lastAnalyzed: { type: Date, default: null },
+      heartRateTrend: { type: String },
+      sleepQuality: { type: String },
+      activityLevel: { type: String }
+    },
+
+    // Enhanced personalization
+    personalityProfile: {
+      bigFiveTraits: {
+        extraversion: Number,
+        agreeableness: Number,
+        conscientiousness: Number,
+        neuroticism: Number,
+        openness: Number
+      },
+      lastProfileDate: Date,
+      dominantTrait: String
+    },
+
+    // Weekly report
+    lastWeeklyReport: {
+      generatedAt: Date,
+      summary: String,
+      moodTrend: String,
+      wellnessScore: Number
+    },
+
+    // Streak tracking
+    streaks: {
+      currentCheckinStreak: { type: Number, default: 0 },
+      longestCheckinStreak: { type: Number, default: 0 },
+      lastStreakDate: String,
+      totalSessions: { type: Number, default: 0 }
+    },
+
+    // Crisis detection
+    crisisFlags: [{
+      detectedAt: Date,
+      severity: { type: String, enum: ['low', 'medium', 'high'] },
+      trigger: String,
+      resolved: { type: Boolean, default: false }
+    }]
   },
   { timestamps: true, versionKey: false }
 );
+
+CompanionHistorySchema.index({ updatedAt: -1 });
 
 const CompanionHistory = mongoose.model('CompanionHistory', CompanionHistorySchema);
 export default CompanionHistory;

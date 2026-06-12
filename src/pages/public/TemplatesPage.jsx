@@ -34,7 +34,8 @@ const TOTAL_SLIDES = 6;
 const Starfield = ({ normalizedX, normalizedY }) => {
   const [stars, setStars] = useState([]);
   useEffect(() => {
-    setStars(Array.from({ length: 150 }).map(() => ({
+    const count = window.innerWidth < 768 ? 40 : 80;
+    setStars(Array.from({ length: count }).map(() => ({
       x: Math.random() * 100, y: Math.random() * 100, size: Math.random() * 2.5 + 0.5, delay: Math.random() * 5, duration: Math.random() * 3 + 2,
     })));
   }, []);
@@ -179,9 +180,9 @@ export default function TemplatesPage() {
   }, [currentSlide]);
 
   const slideVariants = {
-    enter: (dir) => ({ y: dir > 0 ? "100%" : "-100%", opacity: 0, scale: 0.8, rotateX: dir > 0 ? 10 : -10, filter: "blur(20px)" }),
-    center: { zIndex: 1, y: 0, opacity: 1, scale: 1, rotateX: 0, filter: "blur(0px)", transition: { y: { type: "spring", stiffness: 200, damping: 25 }, opacity: { duration: 0.6 }, scale: { duration: 0.7, ease: "easeOut" }, filter: { duration: 0.5 } } },
-    exit: (dir) => ({ zIndex: 0, y: dir < 0 ? "100%" : "-100%", opacity: 0, scale: 0.8, rotateX: dir < 0 ? 10 : -10, filter: "blur(20px)", transition: { y: { type: "spring", stiffness: 200, damping: 25 }, opacity: { duration: 0.6 }, scale: { duration: 0.7, ease: "easeIn" }, filter: { duration: 0.5 } } })
+    enter: (dir) => ({ y: dir > 0 ? "100%" : "-100%", opacity: 0, scale: 0.92 }),
+    center: { zIndex: 1, y: 0, opacity: 1, scale: 1, transition: { y: { type: "spring", stiffness: 220, damping: 28 }, opacity: { duration: 0.4 }, scale: { duration: 0.5, ease: "easeOut" } } },
+    exit: (dir) => ({ zIndex: 0, y: dir < 0 ? "100%" : "-100%", opacity: 0, scale: 0.92, transition: { y: { type: "spring", stiffness: 220, damping: 28 }, opacity: { duration: 0.4 }, scale: { duration: 0.5, ease: "easeIn" } } })
   };
 
   // ----------------------------------------------------
@@ -419,10 +420,10 @@ export default function TemplatesPage() {
         ))}
       </div>
 
-      {/* Main Slider Area with Parallax 3D */}
-      <motion.div 
+      {/* Main Slider Area with Parallax 3D (desktop only) */}
+      <motion.div
         className="relative w-full h-full flex items-center justify-center transform-gpu"
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        style={{ rotateX: window.innerWidth >= 768 ? rotateX : 0, rotateY: window.innerWidth >= 768 ? rotateY : 0, transformStyle: "preserve-3d" }}
       >
         <AnimatePresence custom={direction} mode="wait">
           <motion.div

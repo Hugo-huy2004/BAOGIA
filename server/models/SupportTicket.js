@@ -27,6 +27,9 @@ const SupportTicketSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+SupportTicketSchema.index({ email: 1, createdAt: -1 });
+SupportTicketSchema.index({ status: 1 });
+
 const SupportTicket = mongoose.model('SupportTicket', SupportTicketSchema);
 
 export default SupportTicket;

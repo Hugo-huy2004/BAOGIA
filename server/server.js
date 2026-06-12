@@ -1,4 +1,6 @@
 import express from 'express';
+import http from 'http';
+import { WebSocketServer } from 'ws';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
@@ -11,6 +13,7 @@ import supportRoutes from './routes/supportRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import fileToolsRoutes from './routes/fileToolsRoutes.js';
 import companionRoutes from './routes/companionRoutes.js';
+import iotRoutes from './routes/iotRoutes.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
@@ -118,6 +121,7 @@ import customerRoutes from './routes/customerRoutes.js';
 import vcardRoutes from './routes/vcardRoutes.js';
 import payosRoutes from './routes/payosRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import sleepRoutes from './routes/sleepRoutes.js';
 
 // Routes
 app.use('/api/data', dataRoutes);
@@ -133,6 +137,8 @@ app.use('/api/customer-projects', customerRoutes);
 app.use('/api/vcard', vcardRoutes);
 app.use('/api/payos', payosRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/iot', iotRoutes);
+app.use('/api/sleep', sleepRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -142,11 +148,70 @@ app.get('/api/health', (req, res) => {
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
 import { initCompanionScheduler } from './utils/companionScheduler.js';
 import { initProactivePushService } from './services/proactivePushService.js';
+import { initSmartNotificationService } from './services/smartNotificationService.js';
+
+// Create HTTP server so WebSocket can share the same port
+const server = http.createServer(app);
+
+// WebSocket server for real-time IoT data (path: /ws)
+const wss = new WebSocketServer({ server, path: '/ws' });
+
+// global.wsClients maps email -> Set of connected WebSocket clients
+global.wsClients = {};
+
+wss.on('connection', (ws, req) => {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const token = url.searchParams.get('token'); // email-based auth token
+
+  if (!token) {
+    ws.close(4001, 'Authentication required');
+    return;
+  }
+
+  // token is the user's email (simple email-based auth)
+  const email = token;
+
+  if (!global.wsClients[email]) {
+    global.wsClients[email] = new Set();
+  }
+  global.wsClients[email].add(ws);
+
+  ws.on('message', (data) => {
+    // Devices can also push vitals via WebSocket
+    try {
+      const msg = JSON.parse(data.toString());
+      if (msg.type === 'vitals' && msg.data) {
+        // Broadcast to all other clients with same email
+        for (const client of global.wsClients[email]) {
+          if (client !== ws && client.readyState === 1 /* OPEN */) {
+            client.send(JSON.stringify(msg));
+          }
+        }
+      }
+    } catch (_) {
+      // Ignore malformed messages
+    }
+  });
+
+  ws.on('close', () => {
+    if (global.wsClients[email]) {
+      global.wsClients[email].delete(ws);
+      if (global.wsClients[email].size === 0) {
+        delete global.wsClients[email];
+      }
+    }
+  });
+
+  ws.on('error', (err) => {
+    console.error('[WebSocket] Error:', err.message);
+  });
+});
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  
+  console.log(`WebSocket server listening on ws://localhost:${PORT}/ws`);
+
   // Initialize birthday automation check
   let lastCheckedDay = null;
   setInterval(async () => {
@@ -164,5 +229,8 @@ app.listen(PORT, () => {
 
   // Initialize AI Proactive Push Notifications scheduler
   initProactivePushService();
+
+  // Initialize Duolingo-style smart push (sleep, wellness, streak)
+  initSmartNotificationService();
 });
 // Nodemon watch trigger

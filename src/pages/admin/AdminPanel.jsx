@@ -15,12 +15,12 @@ const fetchWithAuth = async (url, options = {}) => {
   }
   return response;
 };
-import HugoLogo from "../../components/HugoLogo";
+import AdminSidebar from "../../components/admin/AdminSidebar";
+import AdminDashboard from "../../components/admin/AdminDashboard";
+import AdminAICenter from "../../components/admin/AdminAICenter";
 import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
-import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 import AdminPaymentsTab from "../../components/admin/AdminPaymentsTab";
-// Hugo Studio Brand Logo component to match styling exactly
 
 export default function AdminPanel() {
   const { t, i18n } = useTranslation();
@@ -31,7 +31,7 @@ export default function AdminPanel() {
   };
 
   const { data, updateAdvertisement, updateSystemSettings } = useData();
-  const [activeTab, setActiveTab] = useState("users");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [users, setUsers] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [partners, setPartners] = useState([]);
@@ -782,154 +782,84 @@ export default function AdminPanel() {
   const displayedBookings = bookingSubTab === "pending" ? pendingBookings : contactedBookings;
 
   return (
-    <div className="min-h-[calc(100vh-56px)] bg-slate-50 dark:bg-[#0b0910] text-slate-850 dark:text-slate-100 flex flex-col md:flex-row pb-20 md:pb-0 overflow-x-hidden">
+    <div className="min-h-[calc(100vh-56px)] bg-background text-foreground flex flex-col md:flex-row pb-20 md:pb-0 overflow-x-hidden">
 
       
-      {/* SUCCESS/WARNING TOAST */}
+      {/* TOAST NOTIFICATION */}
       {toastMsg && (
-        <div className={`fixed top-16 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 z-50 flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl bg-white dark:bg-[#161420] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] max-w-md border-2 transition-all ${
-          toastType === "success" 
-            ? "border-emerald-500 dark:border-emerald-600" 
-            : "border-red-500 dark:border-rose-500"
+        <div className={`fixed top-16 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-card border shadow-[0_24px_60px_hsl(var(--shadow)/0.25)] max-w-sm animate-toast-in ${
+          toastType === "success" ? "border-success/40" : "border-destructive/40"
         }`}>
-          <span className="material-symbols-outlined shrink-0 text-lg sm:text-xl text-slate-800 dark:text-slate-200">
+          <span className={`material-symbols-outlined shrink-0 text-xl ${toastType === "success" ? "text-success" : "text-destructive"}`}>
             {toastType === "success" ? "check_circle" : "error"}
           </span>
-          <span className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100">{toastMsg}</span>
+          <span className="text-sm font-semibold text-foreground leading-tight">{toastMsg}</span>
         </div>
       )}
 
-      {/* DESKTOP SIDEBAR - STICKY UNDER NAVBAR */}
-      <aside className="hidden md:flex flex-col w-64 shrink-0 border-r border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#12111a] sticky top-14 h-[calc(100vh-56px)] z-20 justify-between p-6">
-        <div className="space-y-6">
-          <div>
-            <span className="text-[9px] bg-primary/10 text-primary dark:bg-[#1a1727] dark:text-[#a5b4fc] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest border border-primary/20 inline-block">
-              Admin Workspace
-            </span>
-            <h1 className="font-display text-lg font-black text-slate-800 dark:text-white mt-2">
-              <HugoLogo className="text-xl font-black tracking-tight" />
-            </h1>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">{t("admin.texts.txt_121")}</p>
-          </div>
-
-          <nav className="space-y-1">
-            {[
-              { id: "users", label: t("admin.texts.txt_189"), icon: "group", count: users.length },
-              { id: "bookings", label: t("admin.texts.txt_190"), icon: "calendar_month", count: pendingBookings.length },
-              { id: "partners", label: t("admin.texts.txt_191"), icon: "handshake", count: partners.length },
-              { id: "packages", label: t("admin.texts.txt_192"), icon: "featured_play_list", count: packageTemplates.length },
-              { id: "projects", label: t("admin.texts.txt_193"), icon: "assignment", count: projectsUnreadCount },
-              { id: "payments", label: "Chuyển Khoản", icon: "payments" },
-              { id: "support", label: t("admin.texts.txt_194"), icon: "support_agent", count: pendingTicketsCount },
-              { id: "settings", label: t("admin.texts.txt_195"), icon: "settings" }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  if (tab.id === 'projects') {
-                    window.location.href = '/admin/projects';
-                  } else {
-                    setActiveTab(tab.id);
-                  }
-                }}
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-xs transition-all ${
-                  (activeTab === tab.id && tab.id !== 'projects')
-                    ? "bg-primary/10 text-primary dark:bg-[#201830] dark:text-[#a5b4fc]"
-                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/40"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-base">{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </div>
-                {tab.count !== undefined && tab.count > 0 && (
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
-                    tab.id === "bookings" || tab.id === "support"
-                      ? "bg-rose-500 text-white animate-pulse"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
-                  }`}>
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        <button 
-          onClick={handleLogout}
-          className="flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl border border-slate-200 dark:border-slate-750 transition-colors"
-        >
-          <span className="material-symbols-outlined text-sm">logout</span>
-          <span>{t("admin.texts.txt_122")}</span>
-        </button>
-      </aside>
-
-      {/* MOBILE BOTTOM NAVIGATION BAR */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 nav-bottom-safe bg-white/95 dark:bg-[#12111a]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-40 flex items-center justify-around px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
-        {[
-          { id: "users", label: t("admin.texts.txt_196"), icon: "group", count: users.length },
-          { id: "bookings", label: t("admin.texts.txt_197"), icon: "calendar_month", count: pendingBookings.length },
-          { id: "partners", label: t("admin.texts.txt_198"), icon: "handshake" },
-          { id: "packages", label: t("admin.texts.txt_199"), icon: "featured_play_list" },
-          { id: "payments", label: "PayOS", icon: "payments" },
-          { id: "support", label: t("admin.texts.txt_200"), icon: "support_agent", count: pendingTicketsCount },
-          { id: "settings", label: t("admin.texts.txt_201"), icon: "settings" }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex flex-col items-center justify-center flex-1 h-full relative transition-all ${
-              activeTab === tab.id
-                ? "text-primary dark:text-[#a5b4fc]"
-                : "text-slate-400 hover:text-slate-655 dark:text-slate-500 dark:hover:text-slate-350"
-            }`}
-          >
-            <div className="relative">
-              <span className="material-symbols-outlined text-lg">{tab.icon}</span>
-              {tab.count !== undefined && tab.count > 0 && (
-                <span className={`absolute -top-1.5 -right-2 px-1 rounded-full text-[7.5px] font-black leading-none ${
-                  tab.id === "bookings" || tab.id === "support"
-                    ? "bg-rose-500 text-white animate-pulse"
-                    : "bg-slate-500 text-white"
-                }`}>
-                  {tab.count}
-                </span>
-              )}
-            </div>
-            <span className="text-[9px] font-bold mt-1 tracking-wide">{tab.label}</span>
-            {activeTab === tab.id && (
-              <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary dark:bg-[#a5b4fc]" />
-            )}
-          </button>
-        ))}
-      </nav>
+      {/* SIDEBAR + MOBILE NAV — uses unified AdminSidebar component */}
+      <AdminSidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        handleLogout={handleLogout}
+        counts={{
+          users: users.length,
+          bookings: pendingBookings.length,
+          partners: partners.length,
+          packages: packageTemplates.length,
+          support: pendingTicketsCount,
+          projects: projectsUnreadCount,
+        }}
+      />
 
       {/* MAIN WORKSPACE CONTENT */}
-      <section className="flex-grow p-4 sm:p-6 md:p-8 space-y-6 overflow-y-auto content-bottom-safe md:pb-8">
+      <section className="flex-grow p-4 sm:p-6 md:p-8 space-y-6 overflow-y-auto content-bottom-safe md:pb-8 max-w-[1600px] mx-auto w-full">
         
         {/* Workspace Title Header */}
-        <div className="border-b border-slate-200 dark:border-slate-800/80 pb-3 flex justify-between items-center">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">
-              {activeTab === "users" && t("admin.texts.txt_202")}
-              {activeTab === "bookings" && t("admin.texts.txt_203")}
-              {activeTab === "partners" && t("admin.texts.txt_204")}
-              { activeTab === "packages" && t("admin.texts.txt_205") }
-              { activeTab === "payments" && "Quản lý Chuyển Khoản" }
-              { activeTab === "support" && t("admin.texts.txt_206") }
-              { activeTab === "settings" && t("admin.texts.txt_207") }
-            </h2>
-            <p className="text-xs text-slate-450 mt-1 hidden sm:block">
-              {activeTab === "users" && t("admin.texts.txt_208")}
-              {activeTab === "bookings" && t("admin.texts.txt_209")}
-              {activeTab === "partners" && t("admin.texts.txt_210")}
-              {activeTab === "packages" && t("admin.texts.txt_211")}
-              {activeTab === "support" && t("admin.texts.txt_212")}
-              {activeTab === "settings" && t("admin.texts.txt_213")}
-            </p>
+        {activeTab !== "dashboard" && activeTab !== "ai" && (
+          <div className="border-b border-border pb-3 flex justify-between items-center">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
+                {activeTab === "users" && t("admin.texts.txt_202")}
+                {activeTab === "bookings" && t("admin.texts.txt_203")}
+                {activeTab === "partners" && t("admin.texts.txt_204")}
+                {activeTab === "packages" && t("admin.texts.txt_205")}
+                {activeTab === "payments" && "Quản lý Chuyển Khoản"}
+                {activeTab === "support" && t("admin.texts.txt_206")}
+                {activeTab === "settings" && t("admin.texts.txt_207")}
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
+                {activeTab === "users" && t("admin.texts.txt_208")}
+                {activeTab === "bookings" && t("admin.texts.txt_209")}
+                {activeTab === "partners" && t("admin.texts.txt_210")}
+                {activeTab === "packages" && t("admin.texts.txt_211")}
+                {activeTab === "support" && t("admin.texts.txt_212")}
+                {activeTab === "settings" && t("admin.texts.txt_213")}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* TAB: DASHBOARD */}
+        {activeTab === "dashboard" && (
+          <AdminDashboard
+            stats={userStats}
+            bookings={bookings}
+            partners={partners}
+            packageTemplates={packageTemplates}
+            tickets={pendingTicketsCount}
+            loading={loading}
+          />
+        )}
+
+        {/* TAB: AI CENTER */}
+        {activeTab === "ai" && (
+          <AdminAICenter
+            stats={userStats}
+            users={users}
+            showNotification={showNotification}
+          />
+        )}
 
         {/* TAB 1: USERS */}
         {activeTab === "users" && (
