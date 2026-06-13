@@ -243,11 +243,13 @@ export default function ServicesPage() {
         </div>
         
         <div className="flex justify-center items-center py-2 gap-0 sm:gap-1 md:gap-2">
-          <img 
-            src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png" 
-            alt="Jason Dev Partner Logo" 
-            className="w-40 sm:w-56 md:w-64 h-auto object-contain transition-all duration-500 opacity-40 filter grayscale hover:opacity-70 dark:opacity-100 dark:brightness-0 dark:invert dark:drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] hover:dark:drop-shadow-[0_0_25px_rgba(255,255,255,1)] relative z-0 -ml-1 sm:-ml-2"
-          />
+          <a href="https://hwagfu.dev" target="_blank" rel="noopener noreferrer" title="hwagfu.dev">
+            <img
+              src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png"
+              alt="Jason Dev Partner Logo"
+              className="w-40 sm:w-56 md:w-64 h-auto object-contain transition-all duration-500 opacity-40 filter grayscale hover:opacity-70 dark:opacity-100 dark:brightness-0 dark:invert dark:drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] hover:dark:drop-shadow-[0_0_25px_rgba(255,255,255,1)] relative z-0 -ml-1 sm:-ml-2 cursor-pointer hover:scale-105"
+            />
+          </a>
         </div>
       </section>
 

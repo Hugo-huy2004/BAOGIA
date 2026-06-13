@@ -45,6 +45,19 @@ const safeFetch = async (url, options = {}) => {
   }
 };
 
+const clearSessionAndRedirect = () => {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('price-doc-member-session');
+  localStorage.removeItem('price-doc-admin-session');
+  sessionStorage.removeItem('price-doc-member-session');
+  sessionStorage.removeItem('price-doc-admin-session');
+  window.location.href = '/login';
+};
+
+const checkAuth = (status) => {
+  if (status === 401 || status === 403) clearSessionAndRedirect();
+};
+
 const companionHistoryRequests = new Map();
 
 const createHttpError = async (response, fallbackMessage) => {
@@ -69,15 +82,7 @@ export const dataApi = {
       const endpoint = isAdminAuthenticated() ? `${API_BASE_URL}/data/admin` : `${API_BASE_URL}/data`;
       const response = await safeFetch(endpoint, { headers: getAuthHeaders() });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch data');
       return await response.json();
     } catch (error) {
@@ -95,15 +100,7 @@ export const dataApi = {
         body: JSON.stringify(data)
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to update data');
       return await response.json();
     } catch (error) {
@@ -121,15 +118,7 @@ export const dataApi = {
         body: JSON.stringify({ field, value })
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to update field');
       return await response.json();
     } catch (error) {
@@ -146,15 +135,7 @@ export const dataApi = {
         headers: getAuthHeaders()
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to reset data');
       return await response.json();
     } catch (error) {
@@ -168,15 +149,7 @@ export const dataApi = {
     try {
       const response = await safeFetch(`${API_BASE_URL}/bios/me?email=${encodeURIComponent(email)}&displayName=${encodeURIComponent(displayName)}&avatarUrl=${encodeURIComponent(avatarUrl)}`, { headers: getAuthHeaders() });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || 'Failed to fetch bio');
@@ -193,15 +166,7 @@ export const dataApi = {
     try {
       const response = await safeFetch(`${API_BASE_URL}/bios/slug/${encodeURIComponent(slug)}`, { headers: getAuthHeaders() });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || 'Bio not found', { credentials: 'include', credentials: 'include' });
@@ -242,15 +207,7 @@ export const dataApi = {
         body: JSON.stringify(payload)
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || 'Failed to create bio');
@@ -270,15 +227,7 @@ export const dataApi = {
         headers: getAuthHeaders(),
         body: JSON.stringify({ email, ...verificationData })
       });
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Failed to submit verification request');
@@ -298,15 +247,7 @@ export const dataApi = {
         headers: getAuthHeaders(),
         body: JSON.stringify({ email })
       });
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Failed to dismiss notification');
@@ -347,15 +288,7 @@ export const dataApi = {
         body: JSON.stringify(payload)
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || 'Failed to update bio');
@@ -374,15 +307,7 @@ export const dataApi = {
         method: 'DELETE'
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || 'Failed to delete bio');
@@ -400,15 +325,7 @@ export const dataApi = {
       const params = new URLSearchParams({ token: accessToken || '' });
       const response = await fetch(`${API_BASE_URL}/partners/${encodeURIComponent(partnerId)}/access?${params.toString()}`);
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || 'Partner access denied', { credentials: 'include', credentials: 'include' });
@@ -426,15 +343,7 @@ export const dataApi = {
       const query = new URLSearchParams(params).toString();
       const response = await fetch(`${API_BASE_URL}/bio?${query}`, { credentials: 'include', credentials: 'include', headers: getAuthHeaders() });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch bios');
       return await response.json();
     } catch (error) {
@@ -448,15 +357,7 @@ export const dataApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/partners`);
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch partners', { credentials: 'include', credentials: 'include' });
       return await response.json();
     } catch (error) {
@@ -470,15 +371,7 @@ export const dataApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/packages`);
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch packages', { credentials: 'include', credentials: 'include' });
       return await response.json();
     } catch (error) {
@@ -496,15 +389,7 @@ export const dataApi = {
         body: JSON.stringify(pkg)
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to create package');
       return await response.json();
     } catch (error) {
@@ -522,15 +407,7 @@ export const dataApi = {
         body: JSON.stringify(pkg)
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to update package');
       return await response.json();
     } catch (error) {
@@ -546,15 +423,7 @@ export const dataApi = {
         method: 'DELETE'
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to delete package');
       return await response.json();
     } catch (error) {
@@ -568,15 +437,7 @@ export const dataApi = {
     try {
       const response = await fetch(`${API_BASE_URL}/packages/user?email=${encodeURIComponent(email)}`);
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch user packages', { credentials: 'include', credentials: 'include' });
       return await response.json();
     } catch (error) {
@@ -594,15 +455,7 @@ export const dataApi = {
         body: JSON.stringify({ email, packageId })
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || 'Failed to assign package');
@@ -623,15 +476,7 @@ export const dataApi = {
         body: JSON.stringify({ email, packageInstanceId })
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || 'Failed to remove package');
@@ -652,15 +497,7 @@ export const dataApi = {
         body: JSON.stringify({ base64Str, oldUrl })
       });
       
-      if (response.status === 401 || response.status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('price-doc-member-session');
-          localStorage.removeItem('price-doc-admin-session');
-          sessionStorage.removeItem('price-doc-member-session');
-          sessionStorage.removeItem('price-doc-admin-session');
-          window.location.href = '/login';
-        }
-      }
+      checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to upload image');
       return await response.json();
     } catch (error) {
@@ -716,6 +553,54 @@ export const dataApi = {
       console.error('Error saving companion history:', error);
       throw error;
     }
+  },
+
+  // --- In-App Inbox Notifications ---
+  async getInbox(email, limit = 20) {
+    const response = await safeFetch(`${API_BASE_URL}/inbox?email=${encodeURIComponent(email)}&limit=${limit}`, {
+      headers: getAuthHeaders()
+    });
+    checkAuth(response.status);
+    if (!response.ok) throw new Error('Failed to fetch inbox');
+    return response.json();
+  },
+
+  async createNotification(email, type, category, title, message = '', actionUrl = '') {
+    const response = await safeFetch(`${API_BASE_URL}/inbox`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ email, type, category, title, message, actionUrl })
+    });
+    checkAuth(response.status);
+    if (!response.ok) throw new Error('Failed to create notification');
+    return response.json();
+  },
+
+  async markNotificationRead(id) {
+    const response = await safeFetch(`${API_BASE_URL}/inbox/${id}/read`, {
+      method: 'PATCH',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to mark as read');
+    return response.json();
+  },
+
+  async markAllNotificationsRead(email) {
+    const response = await safeFetch(`${API_BASE_URL}/inbox/read-all?email=${encodeURIComponent(email)}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to mark all as read');
+    return response.json();
+  },
+
+  async deleteNotification(id) {
+    const response = await safeFetch(`${API_BASE_URL}/inbox/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to delete notification');
+    return response.json();
   },
 
   // Helper to support Axios-like GET request

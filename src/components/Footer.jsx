@@ -169,11 +169,19 @@ export default function Footer() {
             {/* Partner Logo */}
             <div>
               <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550 mb-2">{t("footer.partner", "Đối tác")}</div>
-              <img 
-                src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png" 
-                alt="Partner Logo" 
-                className="h-7 md:h-10 w-auto object-contain transition-transform hover:scale-105 duration-300"
-              />
+              <a
+                href="https://hwagfu.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="hwagfu.dev"
+                className="inline-block"
+              >
+                <img
+                  src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png"
+                  alt="Partner Logo"
+                  className="h-7 md:h-10 w-auto object-contain transition-transform hover:scale-110 active:scale-95 duration-300 cursor-pointer"
+                />
+              </a>
             </div>
           </div>
         </div>

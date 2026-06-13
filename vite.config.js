@@ -81,10 +81,18 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          framer: ['framer-motion'],
-          ui: ['lucide-react', 'react-quill'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('framer-motion')) return 'framer';
+            if (id.includes('react-quill') || id.includes('/quill/')) return 'quill';
+            if (id.includes('lucide-react')) return 'icons';
+            if (id.includes('@radix-ui')) return 'radix';
+            if (id.includes('i18next') || id.includes('react-i18next')) return 'i18n';
+            if (id.includes('zustand') || id.includes('swr')) return 'state';
+            if (id.includes('react-dom') || id.includes('react-router-dom') || id.includes('/react/')) return 'vendor';
+          }
+          if (id.includes('src/components/demos/')) return 'demos';
+          if (id.includes('src/components/member/banhocduong/')) return 'banhocduong';
         }
       }
     }

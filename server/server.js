@@ -122,6 +122,7 @@ import vcardRoutes from './routes/vcardRoutes.js';
 import payosRoutes from './routes/payosRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import sleepRoutes from './routes/sleepRoutes.js';
+import inboxRoutes from './routes/inboxRoutes.js';
 
 // Routes
 app.use('/api/data', dataRoutes);
@@ -139,6 +140,7 @@ app.use('/api/payos', payosRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/iot', iotRoutes);
 app.use('/api/sleep', sleepRoutes);
+app.use('/api/inbox', inboxRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

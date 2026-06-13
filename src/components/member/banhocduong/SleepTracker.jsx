@@ -82,7 +82,8 @@ export default function SleepTracker({ bio }) {
 
   const [analysis, setAnalysis]     = useState(null);
   const [analyzing, setAnalyzing]   = useState(false);
-  const [showForm, setShowForm]     = useState(false);
+  // Desktop: show manual form by default; mobile: show auto-detect first
+  const [showForm, setShowForm]     = useState(() => window.innerWidth >= 768);
   const [showHistory, setShowHistory] = useState(false);
   const [deleting, setDeleting]     = useState(null);
   const [toast, setToast]           = useState(null);
@@ -228,7 +229,7 @@ export default function SleepTracker({ bio }) {
   // ── JSX ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-4 animate-fadeIn">
+    <div className="flex flex-col md:flex-col-reverse gap-4 animate-fadeIn">
 
       {/* Toast */}
       <AnimatePresence>
@@ -245,10 +246,11 @@ export default function SleepTracker({ bio }) {
         )}
       </AnimatePresence>
 
-      {/* ── Live detection status card ────────────────────────────────────── */}
+      {/* ── Live detection status card — prominent on mobile, secondary on desktop ── */}
       <div className={`bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-sky-500/5
         dark:from-indigo-950/30 dark:via-purple-950/20 dark:to-sky-950/10
-        border ${detectStateMeta.ring || "border-indigo-500/10"} rounded-2xl p-4 space-y-3`}
+        border ${detectStateMeta.ring || "border-indigo-500/10"} rounded-2xl p-4 space-y-3
+        md:order-last`}
       >
         {/* Header row */}
         <div className="flex items-center justify-between gap-3 flex-wrap">

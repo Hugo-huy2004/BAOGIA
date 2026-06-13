@@ -6,8 +6,12 @@ import { getMemberSession, logoutAuth } from "../../services/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import memberService from "../../services/classes/MemberService";
 import dataApi from "../../services/dataApi";
+import { useNotifications } from "../../hooks/useNotifications";
+import { useHealingJourney } from "../../hooks/useHealingJourney";
+import HealingModal from "../../components/member/portal/HealingModal";
+import NotificationBell from "../../components/member/portal/NotificationBell";
 
-// Extracted Subcomponents
+// Sub-components
 import BirthdaySurprise from "../../components/member/BirthdaySurprise";
 import CropModal from "../../components/member/CropModal";
 import RejectedVerification from "../../components/member/RejectedVerification";
@@ -20,2121 +24,756 @@ import LinksSubTab from "../../components/member/LinksSubTab";
 import CareerSubTab from "../../components/member/CareerSubTab";
 import BodySubTab from "../../components/member/BodySubTab";
 
-// Lazy-loaded Main Tabs
-const MemberProjectsTab = React.lazy(() => import("../../components/member/MemberProjectsTab"));
-const MemberServicesTab = React.lazy(() => import("../../components/member/MemberServicesTab"));
-const MemberHistoryTab = React.lazy(() => import("../../components/member/MemberHistoryTab"));
-const MemberManageTab = React.lazy(() => import("../../components/member/MemberManageTab"));
-const MemberPartnerTab = React.lazy(() => import("../../components/member/MemberPartnerTab"));
+// Lazy-loaded main tabs
+const MemberProjectsTab  = React.lazy(() => import("../../components/member/MemberProjectsTab"));
+const MemberServicesTab  = React.lazy(() => import("../../components/member/MemberServicesTab"));
+const MemberHistoryTab   = React.lazy(() => import("../../components/member/MemberHistoryTab"));
+const MemberManageTab    = React.lazy(() => import("../../components/member/MemberManageTab"));
+const MemberPartnerTab   = React.lazy(() => import("../../components/member/MemberPartnerTab"));
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
 
-// Companion Journey History Report & Anomalies Panel (Vietnam Clinical Standards)
-function CompanionHistoryReportPanel({ historyLogs }) {
-  const formatDateTime = (isoString) => {
-    try {
-      const d = new Date(isoString);
-      const pad = (n) => n.toString().padStart(2, '0');
-      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    } catch (e) {
-      return "Không xác định";
-    }
+function StatusBadge({ status }) {
+  const cfg = {
+    active:   { label: 'Đã xác minh', color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20', icon: 'verified' },
+    pending:  { label: 'Đang chờ',    color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',   icon: 'pending' },
+    rejected: { label: 'Bị từ chối',  color: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',           icon: 'cancel' },
   };
-
-  const getMoodEmoji = (mood) => {
-    switch (mood) {
-      case 5: return "☀️ Rất tốt";
-      case 4: return "🌤️ Tốt";
-      case 3: return "☁️ Bình thường";
-      case 2: return "🌧️ Mỏi mệt";
-      case 1: return "⛈️ Kiệt sức";
-      default: return "☁️ Không xác định";
-    }
-  };
-
-  const { anomalies, recommendation } = React.useMemo(() => {
-    const anomaliesList = [];
-    const checkins = historyLogs.filter(l => l.type === "checkin");
-    const dassTests = historyLogs.filter(l => l.test === "dass42");
-    const mmpiTests = historyLogs.filter(l => l.test === "mmpi30");
-    const chatAnomalies = historyLogs.filter(l => l.type === "chat_anomaly");
-    const uploadAnomalies = historyLogs.filter(l => l.type === "upload_anomaly");
-
-    // 1. Mood abnormalities
-    const lowMoods = checkins.filter(c => c.mood <= 2);
-    if (lowMoods.length > 0) {
-      anomaliesList.push({
-        title: "Tâm trạng suy giảm",
-        desc: `Ghi nhận ${lowMoods.length} ngày cậu có tâm trạng khá trầm buồn hoặc mệt mỏi.`,
-        severity: "medium"
-      });
-    }
-
-    // 2. Wheel of life imbalance
-    if (checkins.length > 0) {
-      const lastCheckinWithWheel = [...checkins].reverse().find(c => c.wheelRatings);
-      if (lastCheckinWithWheel && lastCheckinWithWheel.wheelRatings) {
-        const categories = ["Bản thân", "Học tập", "Công việc", "Gia đình", "Mối quan hệ"];
-        const imbalanced = [];
-        lastCheckinWithWheel.wheelRatings.forEach((rating, idx) => {
-          if (rating <= 4) {
-            imbalanced.push(`${categories[idx]} (${rating}/10)`);
-          }
-        });
-        if (imbalanced.length > 0) {
-          anomaliesList.push({
-            title: "Bánh xe cuộc sống mất cân bằng",
-            desc: `Khía cạnh ${imbalanced.join(", ")} đang ghi nhận mức độ hài lòng thấp.`,
-            severity: "medium"
-          });
-        }
-      }
-    }
-
-    // 3. Late-Night Activity (Sleep disruption check)
-    const lateNightEvents = historyLogs.filter(l => {
-      if (!l.date) return false;
-      const d = new Date(l.date);
-      const hours = d.getHours();
-      return hours >= 23 || hours < 5;
-    });
-    if (lateNightEvents.length > 0) {
-      anomaliesList.push({
-        title: "Rối loạn giấc ngủ / Hoạt động muộn",
-        desc: `Ghi nhận ${lateNightEvents.length} lần cậu hoạt động muộn vào ban đêm (từ 23h đến 5h sáng), có thể ảnh hưởng xấu đến chu kỳ giấc ngủ.`,
-        severity: "medium"
-      });
-    }
-
-    // 4. MMPI validity checkers
-    const unreliableMmpis = mmpiTests.filter(m => m.isReliable === false);
-    if (unreliableMmpis.length > 0) {
-      anomaliesList.push({
-        title: "Kiểm định MMPI tin cậy thấp",
-        desc: `Có ${unreliableMmpis.length} kết quả trắc nghiệm MMPI nghi ngờ độ tin cậy của chỉ số L-F-K.`,
-        severity: "medium"
-      });
-    }
-
-    // 5. Upload errors
-    if (uploadAnomalies.length > 0) {
-      anomaliesList.push({
-        title: "Lỗi tải báo cáo sức khỏe",
-        desc: `Ghi nhận ${uploadAnomalies.length} lần tải lên tệp không đúng định dạng quy chuẩn.`,
-        severity: "medium"
-      });
-    }
-
-    // 6. DASS clinical levels
-    if (dassTests.length > 0) {
-      const latest = dassTests[dassTests.length - 1];
-      const elevated = [];
-      if (["severe", "extremely_severe"].includes(latest.severities?.D)) elevated.push(`Trầm cảm (${latest.severities.D === "severe" ? "Nặng" : "Cực đoan"})`);
-      if (["severe", "extremely_severe"].includes(latest.severities?.A)) elevated.push(`Lo âu (${latest.severities.A === "severe" ? "Nặng" : "Cực đoan"})`);
-      if (["severe", "extremely_severe"].includes(latest.severities?.S)) elevated.push(`Căng thẳng (${latest.severities.S === "severe" ? "Nặng" : "Cực đoan"})`);
-      
-      if (elevated.length > 0) {
-        anomaliesList.push({
-          title: "Chỉ số lâm sàng DASS vượt ngưỡng",
-          desc: `Bài kiểm tra DASS-21 ghi nhận tình trạng ${elevated.join(", ")}.`,
-          severity: "high"
-        });
-      }
-    }
-
-    // 7. MMPI clinical scales (Aligned pathology T-score >= 70)
-    if (mmpiTests.length > 0) {
-      const latest = mmpiTests[mmpiTests.length - 1];
-      const elevatedScales = latest.clinical ? latest.clinical.filter(c => c.score >= 70) : [];
-      if (elevatedScales.length > 0) {
-        const scaleNames = { Hs: "Nghi bệnh", D: "Trầm cảm", Hy: "Hysteria", Pd: "Sai lệch nhân cách", Mf: "Nam/Nữ tính", Pa: "Hoang tưởng", Pt: "Suy nhược tâm thần", Sc: "Tâm thần phân liệt", Ma: "Hưng cảm nhẹ", Si: "Hướng ngoại xã hội" };
-        const list = elevatedScales.map(s => `${scaleNames[s.code] || s.code} (${s.score} T-score)`);
-        anomaliesList.push({
-          title: "Xu hướng hành vi MMPI vượt ngưỡng",
-          desc: `Phát hiện bất thường lâm sàng tại các thang đo: ${list.join(", ")}.`,
-          severity: "high"
-        });
-      }
-    }
-
-    // 8. Chat anomalies
-    if (chatAnomalies.length > 0) {
-      const lastAnomaly = chatAnomalies[chatAnomalies.length - 1];
-      anomaliesList.push({
-        title: "Dấu hiệu bất ổn trong hội thoại",
-        desc: `Phát hiện các từ khóa áp lực/căng thẳng trong tin nhắn: "${lastAnomaly.text}" (Từ khóa: ${lastAnomaly.triggers ? lastAnomaly.triggers.join(", ") : "stress"}).`,
-        severity: "medium"
-      });
-    }
-
-    // Generate custom recommendations
-    let rec = "";
-    if (anomaliesList.some(a => a.severity === "high")) {
-      rec = "Khuyến nghị: Chỉ số sức khỏe tinh thần của cậu đang có dấu hiệu bất ổn lâm sàng nghiêm trọng. Cậu nên giảm bớt cường độ bài vở, thực hành thở sâu 4-7-8 mỗi đêm và trò chuyện thường xuyên hơn với Trợ lý Bạn Học Đường. Nếu cảm xúc này kéo dài liên tục trên 2 tuần, hãy liên hệ trực tiếp với chuyên viên tư vấn tâm lý hoặc phòng y tế trường học để được hỗ trợ kịp thời nhé.";
-    } else if (anomaliesList.length > 0) {
-      rec = "Khuyến nghị: Hệ thống phát hiện một vài căng thẳng nhẹ và sự mất cân bằng trong sinh hoạt/học tập của cậu. Cậu hãy dành thêm thời gian nghỉ ngơi, ngủ đủ giấc và tiếp tục chia sẻ nỗi lòng cùng Trợ lý mỗi khi mệt mỏi nhé.";
-    } else {
-      rec = "Khuyến nghị: Cảm xúc và chỉ số sinh hoạt của cậu dạo gần đây cực kỳ tốt và cân bằng ổn định. Hãy tiếp tục duy trì năng lượng tích cực này, hít thở điều hòa và trò chuyện cùng Trợ lý khi cần nhé!";
-    }
-
-    return { anomalies: anomaliesList, recommendation: rec };
-  }, [historyLogs]);
-
+  const c = cfg[status] || cfg.pending;
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 border-b border-zinc-200/50 dark:border-zinc-800/40 pb-2">
-        <span className="material-symbols-outlined text-indigo-500 text-sm">history</span>
-        <h4 className="text-[11px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
-          Lịch sử đồng hành & Đánh giá bất thường
-        </h4>
-      </div>
-
-      {/* Anomalies List */}
-      <div className="space-y-2 text-left">
-        <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pl-0.5">
-          Biểu hiện bất thường phát hiện
-        </span>
-        {anomalies.length > 0 ? (
-          <div className="space-y-2 max-h-36 overflow-y-auto scrollbar-none pr-1">
-            {anomalies.map((anom, idx) => (
-              <div
-                key={idx}
-                className={`p-2.5 rounded-lg flex gap-2.5 items-start border ${
-                  anom.severity === "high"
-                    ? "bg-red-550/5 dark:bg-red-950/10 border-red-500/20 text-red-800 dark:text-red-300"
-                    : "bg-amber-500/5 dark:bg-amber-955/10 border-amber-500/20 text-amber-800 dark:text-amber-300"
-                }`}
-              >
-                <span className={`material-symbols-outlined text-sm shrink-0 mt-0.5 ${anom.severity === "high" ? "text-red-500" : "text-amber-500"}`}>
-                  warning
-                </span>
-                <div className="space-y-0.5">
-                  <h5 className="text-[10px] font-black uppercase tracking-wider leading-tight">{anom.title}</h5>
-                  <p className="text-[9.5px] opacity-90 leading-relaxed font-semibold">{anom.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-2.5 bg-emerald-500/5 border border-emerald-500/20 rounded-lg flex gap-2 items-center text-emerald-800 dark:text-emerald-350">
-            <span className="material-symbols-outlined text-emerald-500 text-sm shrink-0">check_circle</span>
-            <p className="text-[9.5px] font-black uppercase tracking-wider">Tinh thần cân bằng, chưa phát hiện bất thường.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Recommendation Box */}
-      <div className="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-lg flex gap-2.5 items-start text-left">
-        <span className="material-symbols-outlined text-indigo-500 text-sm shrink-0 mt-0.5">lightbulb</span>
-        <p className="text-[10px] text-zinc-650 dark:text-zinc-350 font-semibold leading-relaxed">
-          {recommendation}
-        </p>
-      </div>
-
-      {/* History Timeline */}
-      <div className="space-y-2 text-left">
-        <span className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider pl-0.5">
-          Nhật ký sự kiện ({historyLogs.length})
-        </span>
-        <div className="max-h-44 overflow-y-auto space-y-2.5 pr-1 scrollbar-none border-l border-zinc-200 dark:border-zinc-800 ml-1.5 pl-3">
-          {historyLogs.length === 0 ? (
-            <p className="text-[10px] text-zinc-400 italic">Chưa ghi nhận sự kiện nào trong lịch sử.</p>
-          ) : (
-            [...historyLogs].reverse().map((log, idx) => {
-              let eventTitle = "";
-              let eventDetails = "";
-              
-              if (log.type === "checkin") {
-                eventTitle = `Check-in cảm xúc: ${getMoodEmoji(log.mood)}`;
-                eventDetails = log.note ? `Nỗi lòng: "${log.note}"` : "";
-              } else if (log.test === "dass42") {
-                eventTitle = "Trắc nghiệm DASS-21";
-                eventDetails = `Trầm cảm: ${log.scores.D} (${log.severities.D}) • Lo âu: ${log.scores.A} (${log.severities.A}) • Stress: ${log.scores.S} (${log.severities.S})`;
-              } else if (log.test === "mmpi30") {
-                eventTitle = "Khảo sát lâm sàng Mini-MMPI";
-                eventDetails = `Độ tin cậy: ${log.isReliable ? "Hợp lệ" : "Nghi ngờ"} • Các thang đo: ${log.clinical.map(c => `${c.code}: ${c.score}T`).join(" • ")}`;
-              } else if (log.test === "phq9") {
-                eventTitle = "Đánh giá Trầm cảm PHQ-9";
-                eventDetails = `Tổng điểm: ${log.score}/27 • Mức độ: ${log.severity}`;
-              } else if (log.test === "gad7") {
-                eventTitle = "Đánh giá Lo âu GAD-7";
-                eventDetails = `Tổng điểm: ${log.score}/21 • Mức độ: ${log.severity}`;
-              } else if (log.test === "who5") {
-                eventTitle = "Chỉ số Hạnh phúc WHO-5";
-                eventDetails = `Điểm số: ${log.score}/25 • Trạng thái: ${log.status}`;
-              } else if (log.test === "bigfive") {
-                eventTitle = "Trắc nghiệm Nhân cách Big Five";
-                eventDetails = log.desc;
-              } else if (log.type === "therapy_activity") {
-                eventTitle = `Hoạt động trị liệu: ${log.name}`;
-                eventDetails = log.desc;
-              } else if (log.type === "chat_anomaly") {
-                eventTitle = "Phát hiện bất ổn qua chat";
-                eventDetails = `Tin nhắn: "${log.text}"`;
-              } else if (log.type === "upload_anomaly") {
-                eventTitle = "Lỗi tải báo cáo lâm sàng";
-                eventDetails = log.desc;
-              } else if (log.type === "duration_change") {
-                eventTitle = "Thay đổi lộ trình đồng hành";
-                eventDetails = log.reason;
-              }
-
-              return (
-                <div key={idx} className="relative space-y-1 bg-zinc-50/50 dark:bg-zinc-950/20 p-2.5 rounded-lg border border-zinc-200/40 dark:border-zinc-800/20 shadow-sm">
-                  <div className="flex justify-between items-center text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                    <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[10px]">schedule</span>
-                      {formatDateTime(log.date)}
-                    </span>
-                    {log.day && <span>Ngày {log.day}</span>}
-                  </div>
-                  <h5 className="text-[10px] font-black text-zinc-850 dark:text-zinc-250 leading-snug">{eventTitle}</h5>
-                  {eventDetails && (
-                    <p className="text-[9px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-semibold whitespace-pre-wrap">
-                      {eventDetails}
-                    </p>
-                  )}
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
-    </div>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${c.color}`}>
+      <span className="material-symbols-outlined text-[10px]">{c.icon}</span>{c.label}
+    </span>
   );
 }
 
 export default function MemberPortalPage() {
-  const { t, i18n } = useTranslation();
-
+  const { t } = useTranslation();
   const memberSession = getMemberSession();
-  const [bio, setBio] = useState(null);
+
+  // ── Core state ──────────────────────────────────────────────────────────────
+  const [bio, setBio]         = useState(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState({ message: "", type: "" });
+  const [saving, setSaving]   = useState(false);
   const [showBirthdaySurprise, setShowBirthdaySurprise] = useState(false);
   const [verificationForm, setVerificationForm] = useState({
-    fullName: memberSession?.displayName || "",
-    birthday: "",
-    schoolLevel: "",
-    schoolName: "",
-    phoneZalo: "",
-    acceptTerms: false,
-    acceptContact: false
+    fullName: memberSession?.displayName || "", birthday: "", schoolLevel: "",
+    schoolName: "", phoneZalo: "", acceptTerms: false, acceptContact: false,
   });
   const [verifying, setVerifying] = useState(false);
-
-  // Custom confirmation modal state
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
-  const triggerConfirm = (message, onConfirm) => {
-    setConfirmModal({ isOpen: true, message, onConfirm });
-  };
+  const triggerConfirm = (message, onConfirm) => setConfirmModal({ isOpen: true, message, onConfirm });
 
-  const handleLogout = () => {
-    logoutAuth();
-    window.location.href = "/login";
-  };
-
-  const [activeTab, setActiveTab] = useState("account");
+  // ── Tab state ────────────────────────────────────────────────────────────────
+  const [activeTab, setActiveTab]         = useState("account");
   const [accountSubTab, setAccountSubTab] = useState("profile");
-  const [previewMode, setPreviewMode] = useState("mobile");
-  const [mobileView, setMobileView] = useState("edit"); // 'edit', 'preview' for mobile layout toggling
+  const [mobileSubSection, setMobileSubSection] = useState(null); // mobile section detail
+  const [previewMode, setPreviewMode]     = useState("mobile");
+  const [mobileView, setMobileView]       = useState("edit");
 
-  // --- Chế độ Chăm sóc Sức khỏe Tinh thần (Healing Journey) ---
-  const [showHealingModal, setShowHealingModal] = useState(false);
-  const [healingState, setHealingState] = useState({
-    active: false,
-    day: 1,
-    duration: 30,
-    isExpired: false
-  });
-  const [healingMood, setHealingMood] = useState(3);
-  const [healingNote, setHealingNote] = useState("");
-  const [healingSubStep, setHealingSubStep] = useState("checkin"); // 'checkin', 'reminder', 'graduation'
-  const [consecutiveLowMood, setConsecutiveLowMood] = useState(false);
-  const [wheelRatings, setWheelRatings] = useState([5, 5, 5, 5, 5]);
-  const [historyLogs, setHistoryLogs] = useState([]);
-
-  // Redirection states for MemberUtilitiesTab
+  // ── Utilities redirect state ─────────────────────────────────────────────────
   const [defaultUtility, setDefaultUtility] = useState(null);
   const [defaultPsychologySubTab, setDefaultPsychologySubTab] = useState("chat");
   const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
 
-  // Read History Tracking
-  const [readHistoryTimestamp, setReadHistoryTimestamp] = useState(() => {
-    return localStorage.getItem("read_history_timestamp") || null;
-  });
-
+  // ── History unread badge ─────────────────────────────────────────────────────
+  const [readHistoryTimestamp, setReadHistoryTimestamp] = useState(
+    () => localStorage.getItem("read_history_timestamp") || null
+  );
   useEffect(() => {
     if (activeTab === "history" && bio?.history?.length > 0) {
-      const latestTs = bio.history[bio.history.length - 1].timestamp;
-      setReadHistoryTimestamp(latestTs);
-      localStorage.setItem("read_history_timestamp", latestTs);
+      const ts = bio.history[bio.history.length - 1].timestamp;
+      setReadHistoryTimestamp(ts); localStorage.setItem("read_history_timestamp", ts);
     }
   }, [activeTab, bio?.history]);
-
   const unreadHistoryCount = useMemo(() => {
     if (!bio?.history?.length) return 0;
     if (!readHistoryTimestamp) return bio.history.length;
-    
-    const readDate = new Date(readHistoryTimestamp).getTime();
-    return bio.history.filter(entry => new Date(entry.timestamp).getTime() > readDate).length;
+    const ref = new Date(readHistoryTimestamp).getTime();
+    return bio.history.filter(e => new Date(e.timestamp).getTime() > ref).length;
   }, [bio?.history, readHistoryTimestamp]);
 
-  // Partners state & loading
+  // ── Partners ──────────────────────────────────────────────────────────────────
   const [partners, setPartners] = useState([]);
   const [selectedPartner, setSelectedPartner] = useState(null);
-  const [partnerSearch, setPartnerSearch] = useState("");
-  const [partnerPage, setPartnerPage] = useState(1);
-
-  const isEmbedded = useMemo(() => {
-    return window.self !== window.top || new URLSearchParams(window.location.search).get("embed") === "true";
+  const [partnerSearch, setPartnerSearch]     = useState("");
+  const [partnerPage, setPartnerPage]         = useState(1);
+  useEffect(() => {
+    memberService.getPartners().then(list => { setPartners(list); if (list.length) setSelectedPartner(list[0]); }).catch(console.error);
   }, []);
+  const PARTNERS_PER_PAGE  = 12;
+  const filteredPartners   = partners.filter(p => p.name.toLowerCase().includes(partnerSearch.toLowerCase()));
+  const paginatedPartners  = filteredPartners.slice((partnerPage-1)*PARTNERS_PER_PAGE, partnerPage*PARTNERS_PER_PAGE);
 
-  const isGuestMode = useMemo(() => {
-    return isEmbedded && !memberSession?.email;
-  }, [isEmbedded, memberSession]);
+  // ── Form state ────────────────────────────────────────────────────────────────
+  const emptyTheme = { bgColor:"#ffffff", textColor:"#0f172a", accentColor:"#6366f1", pattern:"none", preset:"default", btnRadius:16, btnBorderWidth:0, btnShadow:4, template:"default" };
+  const [formData, setFormData] = useState({
+    displayName: memberSession?.displayName || "", headline:"", bio:"", birthday:"", phone:"",
+    hobbies:"", height:"", weight:"", measurements:"", address:"", education:"", skills:"",
+    jobTitle:"", contactEmail:"", avatarUrl:"", links:[], theme: emptyTheme, tabs:[], projects:[], services:[],
+  });
+  const [newLinkLabel, setNewLinkLabel] = useState("");
+  const [newLinkUrl, setNewLinkUrl]     = useState("");
+  const [cropModal, setCropModal]       = useState({ isOpen:false, imageSrc:null, zoom:1, aspect:1, offset:{x:0,y:0} });
+  const [isDragging, setIsDragging]     = useState(false);
+  const [startPos, setStartPos]         = useState({ x:0, y:0 });
+  const [isDragOver, setIsDragOver]     = useState(false);
 
+  const avatarInputRef  = useRef(null);
+  const bioTextareaRef  = useRef(null);
   const previewIframeRef = useRef(null);
 
-  useEffect(() => {
-    const fetchPartners = async () => {
-      try {
-        const list = await memberService.getPartners();
-        setPartners(list);
-        if (list.length > 0) {
-          setSelectedPartner(list[0]);
-        }
-      } catch (err) {
-        console.error("Failed to load partners in member portal:", err);
-      }
-    };
-    fetchPartners();
-  }, []);
+  // ── Smart notification system ─────────────────────────────────────────────────
+  const { notifications, unreadCount: unreadNotifCount, toast, setToast,
+    showToast, sendNotification, markRead, markAllRead, dismiss, refresh: refreshInbox,
+  } = useNotifications(memberSession?.email || null);
 
-  const filteredPartners = partners.filter(p =>
-    p.name.toLowerCase().includes(partnerSearch.toLowerCase())
-  );
+  // ── Healing journey hook ──────────────────────────────────────────────────────
+  const isEmbedded = useMemo(() => window.self !== window.top || new URLSearchParams(window.location.search).get("embed") === "true", []);
+  const isGuestMode = useMemo(() => isEmbedded && !memberSession?.email, [isEmbedded, memberSession]);
+  const publicLink  = useMemo(() => bio?.slug ? `${window.location.origin}/bio/${bio.slug}` : "", [bio]);
 
-  const PARTNERS_PER_PAGE = 12;
-  const totalPartnerPages = Math.ceil(filteredPartners.length / PARTNERS_PER_PAGE);
-  const paginatedPartners = filteredPartners.slice(
-    (partnerPage - 1) * PARTNERS_PER_PAGE,
-    partnerPage * PARTNERS_PER_PAGE
-  );
-
-  // Form State
-  const [formData, setFormData] = useState({
-    displayName: memberSession?.displayName || "",
-    headline: "",
-    bio: "",
-    birthday: "",
-    phone: "",
-    hobbies: "",
-    height: "",
-    weight: "",
-    measurements: "",
-    address: "",
-    education: "",
-    skills: "",
-    jobTitle: "",
-    contactEmail: "",
-    avatarUrl: "",
-    links: [],
-    theme: {
-      bgColor: "#ffffff",
-      textColor: "#0f172a",
-      accentColor: "#6366f1",
-      pattern: "none",
-      preset: "default",
-      btnRadius: 16,
-      btnBorderWidth: 0,
-      btnShadow: 4,
-      template: "default"
+  const healing = useHealingJourney({
+    email: memberSession?.email || null,
+    onNavigate: (tab, utility, subTab, presetTest) => {
+      setDefaultUtility(utility); setDefaultPsychologySubTab(subTab);
+      setDefaultPsychologyPresetTest(presetTest); setActiveTab(tab);
     },
-    tabs: [],
-    projects: [],
-    services: []
+    showToast, sendNotification,
   });
 
-  const [newLinkLabel, setNewLinkLabel] = useState("");
-  const [newLinkUrl, setNewLinkUrl] = useState("");
+  useEffect(() => { healing.syncFromStorage(); }, [activeTab]); // eslint-disable-line
 
-  const [cropModal, setCropModal] = useState({
-    isOpen: false,
-    imageSrc: null,
-    zoom: 1,
-    aspect: 1,
-    offset: { x: 0, y: 0 }
-  });
-  const [isDragging, setIsDragging] = useState(false);
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-  const [isDragOver, setIsDragOver] = useState(false);
+  // ── Mobile account section definitions ───────────────────────────────────────
+  const ACCOUNT_SECTIONS = useMemo(() => [
+    { id:'profile',  label:'Cá nhân',    sub:'Ảnh đại diện, tên & giới thiệu',   icon:'person',          grad:'from-[#0071e3] to-[#5856d6]'  },
+    { id:'design',   label:'Giao diện',  sub:'Màu sắc, nền & template bio',       icon:'palette',         grad:'from-[#af52de] to-[#5856d6]'  },
+    { id:'links',    label:'Liên kết',   sub:`${formData.links?.length||0} link xã hội`, icon:'link',    grad:'from-[#ff9500] to-[#ff3b30]'  },
+    { id:'projects', label:'Dự án',      sub:`${formData.projects?.length||0} dự án nổi bật`, icon:'folder_special', grad:'from-[#30b0c7] to-[#0071e3]' },
+    { id:'services', label:'Dịch vụ',    sub:`${formData.services?.length||0} dịch vụ`,  icon:'storefront', grad:'from-[#34c759] to-[#30b0c7]' },
+    { id:'career',   label:'Học vấn',    sub:'Kỹ năng & kinh nghiệm',             icon:'school',          grad:'from-[#ffd60a] to-[#ff9500]'  },
+    { id:'body',     label:'Thể trạng',  sub:'Chiều cao, cân nặng & số đo',       icon:'monitor_heart',   grad:'from-[#ff453a] to-[#af52de]'  },
+  ], [formData.links?.length, formData.projects?.length, formData.services?.length]);
 
-  const showToast = (message, type = "success") => {
-    setToast({ message, type });
+  // ── Render account sub-tab form (shared desktop + mobile) ────────────────────
+  const renderAccountForm = (tabId) => {
+    switch(tabId) {
+      case 'profile':  return <ProfileSubTab formData={formData} handleFieldChange={handleFieldChange} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} t={t} />;
+      case 'design':   return <DesignSubTab formData={formData} setFormData={setFormData} t={t} />;
+      case 'links':    return <LinksSubTab formData={formData} newLinkLabel={newLinkLabel} setNewLinkLabel={setNewLinkLabel} newLinkUrl={newLinkUrl} setNewLinkUrl={setNewLinkUrl} handleLinkInputKeyDown={handleLinkInputKeyDown} addSocialLink={addSocialLink} removeSocialLink={removeSocialLink} handleFieldChange={handleFieldChange} bioTextareaRef={bioTextareaRef} t={t} />;
+      case 'projects': return <MemberProjectsTab formData={formData} setFormData={setFormData} handleSave={handleSave} showToast={showToast} isGuestMode={isGuestMode} bio={bio} />;
+      case 'services': return <MemberServicesTab formData={formData} setFormData={setFormData} handleSave={handleSave} showToast={showToast} isGuestMode={isGuestMode} bio={bio} />;
+      case 'career':   return <CareerSubTab formData={formData} handleFieldChange={handleFieldChange} t={t} />;
+      case 'body':     return <BodySubTab formData={formData} handleFieldChange={handleFieldChange} t={t} />;
+      default: return null;
+    }
   };
 
-  useEffect(() => {
-    if (!toast.message) return;
-    const timer = setTimeout(() => {
-      setToast({ message: "", type: "" });
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [toast.message]);
-
-  const publicLink = useMemo(() => {
-    if (!bio?.slug) return "";
-    return `${window.location.origin}/bio/${bio.slug}`;
-  }, [bio]);
-
+  // ── Bio loading ───────────────────────────────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlTab = params.get("tab");
-    if (urlTab) {
-      setActiveTab(urlTab);
-    }
+    if (urlTab) setActiveTab(urlTab);
   }, []);
 
   useEffect(() => {
-    const loadBio = async () => {
+    const load = async () => {
       if (isGuestMode) {
-        const guestBio = memberService.getGuestBio(t);
-        if (guestBio) {
-          setBio(guestBio);
-          setFormData(guestBio);
-        }
-        setLoading(false);
-        return;
+        const g = memberService.getGuestBio(t);
+        if (g) { setBio(g); setFormData(g); }
+        setLoading(false); return;
       }
-
-      if (!memberSession?.email) {
-        setLoading(false);
-        return;
-      }
-
+      if (!memberSession?.email) { setLoading(false); return; }
       try {
-        const response = await memberService.getMemberBio(memberSession.email, memberSession.displayName, memberSession.avatarUrl);
-        if (response?.bio) {
-          const b = response.bio;
+        const res = await memberService.getMemberBio(memberSession.email, memberSession.displayName, memberSession.avatarUrl);
+        if (res?.bio) {
+          const b = res.bio;
           setBio(b);
-
-          // Alert user on successful student verification approval upon login
           if (b.status === 'active' && b.verificationRequest?.notifiedStatus === 'approved') {
-            showToast("Bạn đã xác minh thành công mail giáo dục! 🎉", "success");
+            sendNotification({ category: 'verification', type: 'success', title: 'Xác minh tài khoản thành công! 🎉', message: 'Email giáo dục của bạn đã được xác nhận. Chào mừng đến với Hugo Studio!' });
             memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
             b.verificationRequest.notifiedStatus = 'done';
           }
-          
-          // Check if today is user's birthday and show surprise
           if (b.birthday) {
             const parts = b.birthday.trim().split(/[-/]/);
-            if (parts.length >= 2) {
-              let day = parseInt(parts[0], 10);
-              let month = parseInt(parts[1], 10);
-              if (parts[0].length === 4) { // YYYY-MM-DD format
-                day = parseInt(parts[2], 10);
-                month = parseInt(parts[1], 10);
-              }
-              
-              const now = new Date();
-              if (day === now.getDate() && month === (now.getMonth() + 1)) {
-                const todayStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-                if (localStorage.getItem("bday_effect_shown") !== todayStr) {
-                  setShowBirthdaySurprise(true);
-                  localStorage.setItem("bday_effect_shown", todayStr);
-                }
-              }
+            let day = parseInt(parts[0], 10), month = parseInt(parts[1], 10);
+            if (parts[0].length === 4) { day = parseInt(parts[2], 10); month = parseInt(parts[1], 10); }
+            const now = new Date();
+            if (day === now.getDate() && month === now.getMonth()+1) {
+              const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+              if (localStorage.getItem("bday_effect_shown") !== todayStr) { setShowBirthdaySurprise(true); localStorage.setItem("bday_effect_shown", todayStr); }
             }
           }
-
           setFormData({
-            email: b.email || "",
-            displayName: b.displayName || memberSession.displayName || "",
-            headline: b.headline || "",
-            bio: b.bio || "",
-            birthday: b.birthday || "",
-            phone: b.phone || "",
-            hobbies: b.hobbies || "",
-            height: b.height || "",
-            weight: b.weight || "",
-            measurements: b.measurements || "",
-            address: b.address || "",
-            education: b.education || "",
-            skills: b.skills || "",
-            jobTitle: b.jobTitle || "",
-            contactEmail: b.contactEmail || "",
-            avatarUrl: b.avatarUrl || "",
-            links: b.links || [],
-            theme: {
-              bgColor: b.theme?.bgColor || "#ffffff",
-              textColor: b.theme?.textColor || "#0f172a",
-              accentColor: b.theme?.accentColor || "#6366f1",
-              pattern: b.theme?.pattern || "none",
-              preset: b.theme?.preset || "default",
-              btnRadius: typeof b.theme?.btnRadius === "number" ? b.theme.btnRadius : 16,
-              btnBorderWidth: typeof b.theme?.btnBorderWidth === "number" ? b.theme.btnBorderWidth : 0,
-              btnShadow: typeof b.theme?.btnShadow === "number" ? b.theme.btnShadow : 4,
-              template: b.theme?.template || "default"
-            },
-            tabs: b.tabs || [],
-            projects: b.projects || [],
-            services: b.services || [],
-            secretLinks: b.secretLinks || [],
-            slug: b.slug || ""
+            email: b.email||"", displayName: b.displayName||memberSession.displayName||"", headline: b.headline||"",
+            bio: b.bio||"", birthday: b.birthday||"", phone: b.phone||"", hobbies: b.hobbies||"",
+            height: b.height||"", weight: b.weight||"", measurements: b.measurements||"",
+            address: b.address||"", education: b.education||"", skills: b.skills||"",
+            jobTitle: b.jobTitle||"", contactEmail: b.contactEmail||"", avatarUrl: b.avatarUrl||"",
+            links: b.links||[], theme: { ...emptyTheme, ...b.theme }, tabs: b.tabs||[],
+            projects: b.projects||[], services: b.services||[], secretLinks: b.secretLinks||[], slug: b.slug||"",
           });
-
-          // Sync companion history from MongoDB
           try {
-            const companionDb = await dataApi.getCompanionHistory(memberSession.email);
-            if (companionDb) {
-              setHistoryLogs(companionDb.historyLogs || []);
-              
-              if (companionDb.healingActive && companionDb.healingStartDate) {
-                const start = new Date(companionDb.healingStartDate).getTime();
-                const now = new Date().getTime();
-                const diffTime = Math.max(0, now - start);
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                
-                setHealingState({
-                  active: companionDb.healingActive,
-                  day: diffDays,
-                  duration: companionDb.healingDuration,
-                  isExpired: diffDays > companionDb.healingDuration
-                });
-              } else {
-                setHealingState({
-                  active: companionDb.healingActive,
-                  day: 1,
-                  duration: companionDb.healingDuration,
-                  isExpired: false
-                });
+            const comp = await dataApi.getCompanionHistory(memberSession.email);
+            if (comp) {
+              healing.setHistoryLogs(comp.historyLogs || []);
+              if (comp.healingActive && comp.healingStartDate) {
+                const diffDays = Math.floor((Date.now() - new Date(comp.healingStartDate).getTime()) / 86_400_000) + 1;
+                healing.setState({ active: comp.healingActive, day: diffDays, duration: comp.healingDuration, isExpired: diffDays > comp.healingDuration });
               }
-
-              localStorage.setItem("banhocduong_healing_mode", companionDb.healingActive ? "active" : "");
-              localStorage.setItem("banhocduong_healing_duration", companionDb.healingDuration.toString());
-              localStorage.setItem("banhocduong_healing_start_date", companionDb.healingStartDate || "");
-              localStorage.setItem("banhocduong_history", JSON.stringify(companionDb.historyLogs || []));
-              localStorage.setItem("banhocduong_last_checkin_date", companionDb.lastCheckinDate || "");
-              localStorage.setItem("banhocduong_last_test_date", companionDb.lastTestDate || "");
-              localStorage.setItem("banhocduong_chat_distress_count", (companionDb.chatDistressCount || 0).toString());
+              ['mode','duration','start_date','last_checkin_date','last_test_date','chat_distress_count'].forEach(k => {
+                const val = { mode: comp.healingActive?'active':'', duration: comp.healingDuration, start_date: comp.healingStartDate||'', last_checkin_date: comp.lastCheckinDate||'', last_test_date: comp.lastTestDate||'', chat_distress_count: comp.chatDistressCount||0 }[k];
+                localStorage.setItem(`banhocduong_${k}`, String(val));
+              });
+              localStorage.setItem("banhocduong_history", JSON.stringify(comp.historyLogs||[]));
             }
-          } catch (e) {
-            console.error("Failed to load companion history in loadBio", e);
-          }
+          } catch (_) {}
         }
-      } catch (error) {
-        console.error(error);
-        showToast(t("memberPortal.toast.loadError"), "error");
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) { showToast(t("memberPortal.toast.loadError"), "error"); }
+      finally { setLoading(false); }
     };
+    load();
+  }, [memberSession?.email, isGuestMode]); // eslint-disable-line
 
-    loadBio();
-  }, [memberSession?.email, isGuestMode]);
-
-  // --- Check-in Blocker logic for Mental Health Care Mode ---
-  useEffect(() => {
-    const mode = localStorage.getItem("banhocduong_healing_mode");
-    if (mode === "active") {
-      try {
-        const raw = localStorage.getItem("banhocduong_history");
-        setHistoryLogs(raw ? JSON.parse(raw) : []);
-      } catch (e) {
-        console.error(e);
-      }
-      const startDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
-      const duration = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
-      const lastCheckIn = localStorage.getItem("banhocduong_last_checkin_date") || "";
-
-      if (startDateStr) {
-        const start = new Date(startDateStr).getTime();
-        const now = new Date().getTime();
-        const diffTime = Math.max(0, now - start);
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-        if (diffDays > duration) {
-          // Journey completed!
-          setHealingState({
-            active: true,
-            day: diffDays,
-            duration,
-            isExpired: true
-          });
-          setHealingSubStep("graduation");
-          setShowHealingModal(true);
-        } else {
-          // Check if checked in today
-          const todayStr = new Date().toDateString();
-          if (lastCheckIn !== todayStr) {
-            setHealingState({
-              active: true,
-              day: diffDays,
-              duration,
-              isExpired: false
-            });
-            setHealingSubStep("checkin");
-            setShowHealingModal(true);
-          }
-        }
-      }
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
-    if (showHealingModal && healingSubStep === "graduation") {
-      confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.6 }
-      });
-      
-      const end = Date.now() + (3 * 1000);
-      const interval = setInterval(() => {
-        if (Date.now() > end) {
-          return clearInterval(interval);
-        }
-        confetti({
-          startVelocity: 30,
-          spread: 360,
-          ticks: 60,
-          origin: { x: Math.random(), y: Math.random() - 0.2 }
-        });
-      }, 500);
-      return () => clearInterval(interval);
-    }
-  }, [showHealingModal, healingSubStep]);
-
-  const finalizeHealingCheckIn = async (mood, note, wheelData) => {
-    try {
-      const rawLogs = localStorage.getItem("banhocduong_history");
-      const logs = rawLogs ? JSON.parse(rawLogs) : [];
-      
-      const newLog = {
-        date: new Date().toISOString(),
-        type: "checkin",
-        day: healingState.day,
-        mood: mood,
-        note: note,
-        wheelRatings: wheelData
-      };
-      logs.push(newLog);
-
-      const lastCheckinDate = new Date().toDateString();
-
-      // Save to database
-      if (memberSession?.email) {
-        const payload = {
-          email: memberSession.email,
-          healingActive: true,
-          healingDuration: healingState.duration,
-          healingStartDate: localStorage.getItem("banhocduong_healing_start_date") || new Date().toISOString(),
-          lastCheckinDate: lastCheckinDate,
-          lastTestDate: localStorage.getItem("banhocduong_last_test_date") || "",
-          chatDistressCount: Number(localStorage.getItem("banhocduong_chat_distress_count") || 0),
-          historyLogs: logs
-        };
-        await dataApi.saveCompanionHistory(payload).catch(console.error);
-      }
-
-      localStorage.setItem("banhocduong_history", JSON.stringify(logs));
-      localStorage.setItem("banhocduong_last_checkin_date", lastCheckinDate);
-      setHistoryLogs(logs);
-
-      // Check if consecutive low mood (<= 2) for last two checkins
-      const checkins = logs.filter(item => item.type === "checkin");
-      let consecutiveLow = false;
-      if (checkins.length >= 2) {
-        const last = checkins[checkins.length - 1];
-        const prev = checkins[checkins.length - 2];
-        if (last.mood <= 2 && prev.mood <= 2) {
-          consecutiveLow = true;
-        }
-      }
-      setConsecutiveLowMood(consecutiveLow);
-
-      // Check if a clinical test is recommended:
-      const lastTestDate = localStorage.getItem("banhocduong_last_test_date") || "";
-      let needsTest = false;
-      if (mood <= 2) {
-        needsTest = true;
-      } else if (lastTestDate) {
-        const lastT = new Date(lastTestDate).getTime();
-        const now = new Date().getTime();
-        const diffDays = Math.floor((now - lastT) / (1000 * 60 * 60 * 24));
-        const interval = mood >= 4 ? 6 : 3;
-        if (diffDays >= interval) {
-          needsTest = true;
-        }
-      } else {
-        needsTest = true; // First check-in requires a baseline test
-      }
-
-      if (needsTest) {
-        setHealingSubStep("reminder");
-      } else {
-        setShowHealingModal(false);
-        if (mood >= 4) {
-          showToast("Thật tuyệt khi biết hôm nay cậu có tâm trạng tốt! Hãy tiếp tục duy trì năng lượng tích cực này nhé! ☀️", "success");
-        } else {
-          showToast("Đã ghi nhận cảm xúc của cậu hôm nay! Chúc cậu một ngày tốt lành 🌟", "success");
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      setShowHealingModal(false);
-    }
-  };
-
-  const handleHealingSubmit = () => {
-    const isWheelDay = healingState.day === 1 || healingState.day % 3 === 0;
-    if (isWheelDay) {
-      // Direct to Wheel of life evaluation sub-step first
-      setHealingSubStep("wheel");
-    } else {
-      finalizeHealingCheckIn(healingMood, healingNote, null);
-    }
-  };
-
-  const handleHealingWheelSubmit = () => {
-    finalizeHealingCheckIn(healingMood, healingNote, wheelRatings);
-  };
-
-  const handleGraduationConfirm = async () => {
-    // Save to database as inactive
-    if (memberSession?.email) {
-      const payload = {
-        email: memberSession.email,
-        healingActive: false,
-        healingDuration: 30,
-        healingStartDate: null,
-        lastCheckinDate: "",
-        lastTestDate: "",
-        chatDistressCount: 0,
-        historyLogs: historyLogs // Keep existing history logs!
-      };
-      await dataApi.saveCompanionHistory(payload).catch(console.error);
-    }
-
-    // Purge active journey state but preserve history logs!
-    localStorage.removeItem("banhocduong_healing_mode");
-    localStorage.removeItem("banhocduong_healing_duration");
-    localStorage.removeItem("banhocduong_healing_start_date");
-    localStorage.removeItem("banhocduong_last_checkin_date");
-    localStorage.removeItem("banhocduong_last_test_date");
-    localStorage.removeItem("banhocduong_chat_distress_count");
-    
-    setHealingState({
-      active: false,
-      day: 1,
-      duration: 30,
-      isExpired: false
-    });
-    setShowHealingModal(false);
-    showToast("Chúc cậu luôn mạnh mẽ, kiên cường và hạnh phúc trên con đường phía trước! ❤️", "success");
-  };
-
-  useEffect(() => {
-    const checkAdaptation = () => {
-      const alertRaw = localStorage.getItem("banhocduong_duration_adaptation_alert");
-      if (alertRaw) {
-        try {
-          const alertData = JSON.parse(alertRaw);
-          showToast(`Tiến triển tinh thần tuyệt vời! Lộ trình rút ngắn -${alertData.reducedDays} ngày.`, "success");
-          localStorage.removeItem("banhocduong_duration_adaptation_alert");
-          // Refresh local history logs
-          const raw = localStorage.getItem("banhocduong_history");
-          setHistoryLogs(raw ? JSON.parse(raw) : []);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    };
-    checkAdaptation();
-    window.addEventListener("storage", checkAdaptation);
-    return () => window.removeEventListener("storage", checkAdaptation);
-  }, []);
-
-  const handleGoToTest = () => {
-    setShowHealingModal(false);
-    setDefaultUtility("psychology");
-    setDefaultPsychologySubTab("tests");
-    setDefaultPsychologyPresetTest("dass");
-    setActiveTab("utilities");
-    showToast("Đã chuyển hướng cậu đến bài trắc nghiệm lâm sàng DASS-21.", "success");
-  };
-
-  const handleGoToBreath = () => {
-    setShowHealingModal(false);
-    setDefaultUtility("psychology");
-    setDefaultPsychologySubTab("breath");
-    setDefaultPsychologyPresetTest(null);
-    setActiveTab("utilities");
-    showToast("Đã chuyển hướng cậu đến bài tập Hít thở 4-7-8.", "success");
-  };
-
-  const handleGoToChat = () => {
-    setShowHealingModal(false);
-    setDefaultUtility("psychology");
-    setDefaultPsychologySubTab("chat");
-    setDefaultPsychologyPresetTest(null);
-    setActiveTab("utilities");
-    showToast("Đã chuyển hướng cậu đến Trợ lý Bạn Học Đường.", "success");
-  };
-
-  const handleVerificationSubmit = async (e) => {
-    e.preventDefault();
-    if (!verificationForm.acceptTerms || !verificationForm.acceptContact) {
-      showToast("Vui lòng đồng ý với các điều khoản để gửi yêu cầu xác minh.", "error");
-      return;
-    }
-    if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.phoneZalo) {
-      showToast("Vui lòng điền đầy đủ các thông tin yêu cầu.", "error");
-      return;
-    }
-    
-    setVerifying(true);
-    try {
-      const response = await memberService.submitVerification(memberSession.email, {
-        fullName: verificationForm.fullName,
-        birthday: verificationForm.birthday,
-        schoolLevel: verificationForm.schoolLevel,
-        schoolName: verificationForm.schoolName,
-        phoneZalo: verificationForm.phoneZalo
-      });
-      if (response.success) {
-        showToast("Gửi yêu cầu xác minh thành công! 🚀", "success");
-        setBio(response.bio);
-      }
-    } catch (err) {
-      console.error(err);
-      showToast(err.message || "Không thể gửi yêu cầu xác minh.", "error");
-    } finally {
-      setVerifying(false);
-    }
-  };
-
+  // Verification polling
   useEffect(() => {
     if (!bio || bio.status !== 'pending' || !bio.verificationRequest?.submitted || isGuestMode || !memberSession?.email) return;
-
-    // Check status every 5 seconds
     const interval = setInterval(async () => {
       try {
-        const response = await memberService.getMemberBio(memberSession.email, memberSession.displayName, memberSession.avatarUrl);
-        if (response?.bio) {
-          const b = response.bio;
+        const res = await memberService.getMemberBio(memberSession.email, memberSession.displayName, memberSession.avatarUrl);
+        if (res?.bio) {
+          const b = res.bio;
           if (b.status === 'active' || b.status === 'rejected') {
             setBio(b);
             if (b.status === 'active') {
-              setFormData(prev => ({
-                ...prev,
-                ...b,
-                theme: {
-                  ...prev.theme,
-                  ...b.theme
-                }
-              }));
-              showToast("Bạn đã xác minh thành công mail giáo dục! 🎉", "success");
+              setFormData(prev => ({ ...prev, ...b, theme: { ...prev.theme, ...b.theme } }));
+              sendNotification({ category: 'verification', type: 'success', title: 'Xác minh tài khoản thành công! 🎉', message: 'Email giáo dục của bạn đã được xác nhận.' });
               memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
+            } else {
+              sendNotification({ category: 'verification', type: 'error', title: 'Yêu cầu xác minh bị từ chối', message: 'Vui lòng kiểm tra lại thông tin và gửi lại yêu cầu.' });
             }
           }
         }
-      } catch (err) {
-        console.error("Error polling bio status:", err);
-      }
+      } catch (_) {}
     }, 5000);
-
     return () => clearInterval(interval);
-  }, [bio?.status, bio?.verificationRequest?.submitted, isGuestMode, memberSession]);
+  }, [bio?.status, bio?.verificationRequest?.submitted, isGuestMode, memberSession]); // eslint-disable-line
 
+  // Preview iframe sync
   useEffect(() => {
-    const postToIframe = () => {
-      if (previewIframeRef.current && previewIframeRef.current.contentWindow) {
-        previewIframeRef.current.contentWindow.postMessage({
-          type: "UPDATE_PREVIEW",
-          payload: formData
-        }, "*");
-      }
-    };
-
-    // Post immediately when formData changes
-    postToIframe();
-
-    // Listen for iframe readiness to post initial data
-    const handleMessage = (e) => {
-      if (e.data && e.data.type === "PREVIEW_READY") {
-        postToIframe();
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    const post = () => previewIframeRef.current?.contentWindow?.postMessage({ type:"UPDATE_PREVIEW", payload: formData }, "*");
+    post();
+    const handler = (e) => { if (e.data?.type === "PREVIEW_READY") post(); };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
   }, [formData]);
 
-  const avatarInputRef = useRef(null);
-  const bioTextareaRef = useRef(null);
-
+  // Bio textarea auto-height
   useEffect(() => {
-    if (bioTextareaRef.current) {
-      bioTextareaRef.current.style.height = "auto";
-      bioTextareaRef.current.style.height = `${bioTextareaRef.current.scrollHeight}px`;
-    }
-  }, [formData.bio, activeTab, accountSubTab]);
+    if (bioTextareaRef.current) { bioTextareaRef.current.style.height = "auto"; bioTextareaRef.current.style.height = `${bioTextareaRef.current.scrollHeight}px`; }
+  }, [formData.bio, activeTab, accountSubTab, mobileSubSection]);
+
+  // ── Handlers ──────────────────────────────────────────────────────────────────
+  const handleLogout = () => { logoutAuth(); window.location.href = "/login"; };
+
+  const handleVerificationSubmit = async (e) => {
+    e.preventDefault();
+    if (!verificationForm.acceptTerms || !verificationForm.acceptContact) { showToast("Vui lòng đồng ý với điều khoản.", "error"); return; }
+    if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.phoneZalo) { showToast("Vui lòng điền đầy đủ thông tin.", "error"); return; }
+    setVerifying(true);
+    try {
+      const res = await memberService.submitVerification(memberSession.email, { fullName: verificationForm.fullName, birthday: verificationForm.birthday, schoolLevel: verificationForm.schoolLevel, schoolName: verificationForm.schoolName, phoneZalo: verificationForm.phoneZalo });
+      if (res.success) { showToast("Gửi yêu cầu xác minh thành công! 🚀", "success"); setBio(res.bio); }
+    } catch (err) { showToast(err.message || "Không thể gửi yêu cầu.", "error"); }
+    finally { setVerifying(false); }
+  };
 
   const processFile = (file) => {
     if (!file) return;
-
-    if (file.size > 20 * 1024 * 1024) {
-      showToast(t("memberPortal.toast.largeImage"), "warning");
-      return;
-    }
-
+    if (file.size > 20*1024*1024) { showToast(t("memberPortal.toast.largeImage"), "warning"); return; }
     const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        const aspect = img.width / img.height;
-        setCropModal({
-          isOpen: true,
-          imageSrc: event.target.result,
-          zoom: 1,
-          aspect: aspect,
-          offset: { x: 0, y: 0 }
-        });
-      };
+    reader.onload = (ev) => {
+      const img = new Image(); img.src = ev.target.result;
+      img.onload = () => setCropModal({ isOpen:true, imageSrc:ev.target.result, zoom:1, aspect: img.width/img.height, offset:{x:0,y:0} });
     };
     reader.readAsDataURL(file);
   };
-
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    processFile(file);
-    e.target.value = ""; // Reset file input
-  };
-
-  const handleDragStart = (e) => {
-    if (e.cancelable) {
-      e.preventDefault();
-    }
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-    setIsDragging(true);
-    setStartPos({
-      x: clientX - cropModal.offset.x,
-      y: clientY - cropModal.offset.y
-    });
-  };
-
-  const handleDragMove = (e) => {
-    if (!isDragging) return;
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-    setCropModal((prev) => ({
-      ...prev,
-      offset: {
-        x: clientX - startPos.x,
-        y: clientY - startPos.y
-      }
-    }));
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
-
+  const handleAvatarChange = (e) => { processFile(e.target.files[0]); e.target.value = ""; };
+  const handleDragStart = (e) => { if (e.cancelable) e.preventDefault(); setIsDragging(true); setStartPos({ x:(e.touches?e.touches[0].clientX:e.clientX)-cropModal.offset.x, y:(e.touches?e.touches[0].clientY:e.clientY)-cropModal.offset.y }); };
+  const handleDragMove = (e) => { if (!isDragging) return; setCropModal(p => ({ ...p, offset:{ x:(e.touches?e.touches[0].clientX:e.clientX)-startPos.x, y:(e.touches?e.touches[0].clientY:e.clientY)-startPos.y } })); };
+  const handleDragEnd  = () => setIsDragging(false);
   const handleCropSave = () => {
-    const imgElement = new Image();
-    imgElement.src = cropModal.imageSrc;
-    imgElement.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 1024;
-      canvas.height = 1024;
-      const ctx = canvas.getContext("2d");
-
-      const baseWidth = 192;
-      const baseHeight = baseWidth / cropModal.aspect;
-
-      const zoomedWidth = baseWidth * cropModal.zoom;
-      const zoomedHeight = baseHeight * cropModal.zoom;
-
-      const tlX = (96 - zoomedWidth / 2) + cropModal.offset.x;
-      const tlY = (96 - zoomedHeight / 2) + cropModal.offset.y;
-
-      const scaleCanvas = 1024 / 192;
-      const canvasX = tlX * scaleCanvas;
-      const canvasY = tlY * scaleCanvas;
-      const canvasW = zoomedWidth * scaleCanvas;
-      const canvasH = zoomedHeight * scaleCanvas;
-
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, 1024, 1024);
-      ctx.drawImage(imgElement, canvasX, canvasY, canvasW, canvasH);
-
-      // Dùng định dạng WebP để ảnh cực kỳ sắc nét nhưng dung lượng siêu nhẹ (giảm gánh nặng cho DB)
-      const compressedBase64 = canvas.toDataURL("image/webp", 0.9);
-      setFormData((prev) => ({ ...prev, avatarUrl: compressedBase64 }));
-      setCropModal({ isOpen: false, imageSrc: null, zoom: 1, aspect: 1, offset: { x: 0, y: 0 } });
+    const img = new Image(); img.src = cropModal.imageSrc;
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = c.height = 1024;
+      const ctx = c.getContext("2d");
+      const bw = 192, bh = bw/cropModal.aspect, zw = bw*cropModal.zoom, zh = bh*cropModal.zoom, sc = 1024/192;
+      ctx.fillStyle = "#fff"; ctx.fillRect(0,0,1024,1024);
+      ctx.drawImage(img, ((96-zw/2)+cropModal.offset.x)*sc, ((96-zh/2)+cropModal.offset.y)*sc, zw*sc, zh*sc);
+      setFormData(p => ({ ...p, avatarUrl: c.toDataURL("image/webp", 0.9) }));
+      setCropModal({ isOpen:false, imageSrc:null, zoom:1, aspect:1, offset:{x:0,y:0} });
       showToast(t("memberPortal.toast.cropSuccess"), "success");
     };
   };
-
-  const handleRemoveAvatar = () => {
-    setFormData((prev) => ({ ...prev, avatarUrl: "" }));
-    showToast(t("memberPortal.toast.avatarRemovedTemp"), "success");
-  };
+  const handleRemoveAvatar = () => { setFormData(p => ({ ...p, avatarUrl:"" })); showToast(t("memberPortal.toast.avatarRemovedTemp"), "success"); };
 
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
-    if (name === "bio") {
-      const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
-      if (wordCount > 110) {
-        showToast(t("memberPortal.toast.descLimit"), "warning");
-        return;
-      }
-    }
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "bio" && value.trim().split(/\s+/).filter(Boolean).length > 110) { showToast(t("memberPortal.toast.descLimit"), "warning"); return; }
+    setFormData(p => ({ ...p, [name]: value }));
   };
 
-  // Social Links Handlers (Manual Save)
   const addSocialLink = async () => {
-    if (formData.links.length >= 5) {
-      showToast(t("memberPortal.toast.linkLimit"), "warning");
-      return;
-    }
-    if (!newLinkLabel.trim() || !newLinkUrl.trim()) {
-      showToast(t("memberPortal.toast.linkEmpty"), "warning");
-      return;
-    }
-
-    const updatedLinks = [...formData.links, { label: newLinkLabel.trim(), url: newLinkUrl.trim() }];
-    const newData = { ...formData, links: updatedLinks };
+    if (formData.links.length >= 5) { showToast(t("memberPortal.toast.linkLimit"), "warning"); return; }
+    if (!newLinkLabel.trim() || !newLinkUrl.trim()) { showToast(t("memberPortal.toast.linkEmpty"), "warning"); return; }
+    const newData = { ...formData, links: [...formData.links, { label:newLinkLabel.trim(), url:newLinkUrl.trim() }] };
+    setFormData(newData); setNewLinkLabel(""); setNewLinkUrl("");
+    isGuestMode ? (setBio(newData), memberService.saveGuestBio(newData), showToast(t("memberPortal.toast.partnerLinkAdded"), "success")) : handleSave(null, newData);
+  };
+  const removeSocialLink = (idx) => {
+    const newData = { ...formData, links: formData.links.filter((_,i)=>i!==idx) };
     setFormData(newData);
-    setNewLinkLabel("");
-    setNewLinkUrl("");
-
-    if (isGuestMode) {
-      setBio(newData);
-      memberService.saveGuestBio(newData);
-      showToast(t("memberPortal.toast.partnerLinkAdded"), "success");
-    } else {
-      handleSave(null, newData);
-    }
+    isGuestMode ? (setBio(newData), memberService.saveGuestBio(newData), showToast(t("memberPortal.toast.partnerLinkDeleted"), "success")) : handleSave(null, newData);
   };
+  const handleLinkInputKeyDown = (e) => { if (e.key === "Enter") { e.preventDefault(); addSocialLink(); } };
 
-  const removeSocialLink = async (indexToKill) => {
-    const updatedLinks = formData.links.filter((_, idx) => idx !== indexToKill);
-    const newData = { ...formData, links: updatedLinks };
-    setFormData(newData);
-
-    if (isGuestMode) {
-      setBio(newData);
-      memberService.saveGuestBio(newData);
-      showToast(t("memberPortal.toast.partnerLinkDeleted"), "success");
-    } else {
-      handleSave(null, newData);
-    }
-  };
-
-  // Keyboard Enter Interceptors to prevent default form submits
-  const handleLinkInputKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addSocialLink();
-    }
-  };
-
-  // Save / Activate flow
-  const handleSave = async (e, overrideData = null) => {
+  const handleSave = async (e, override = null) => {
     if (e) e.preventDefault();
-    const dataToSave = overrideData || formData;
-
-    // Validate bio word count
-    if (dataToSave.bio) {
-      const wordCount = dataToSave.bio.trim().split(/\s+/).filter(Boolean).length;
-      if (wordCount > 110) {
-        showToast(t("memberPortal.toast.descLimitExceeded"), "error");
-        return;
-      }
-    }
-
+    const data = override || formData;
+    if (data.bio && data.bio.trim().split(/\s+/).filter(Boolean).length > 110) { showToast(t("memberPortal.toast.descLimitExceeded"), "error"); return; }
     setSaving(true);
     try {
-      if (isGuestMode) {
-        setBio(dataToSave);
-        memberService.saveGuestBio(dataToSave);
-        showToast(t("memberPortal.toast.partnerSaveSuccess"), "success");
-      } else if (bio?._id) {
-        const response = await memberService.updateMemberBio(bio._id, dataToSave);
-        setBio(response.bio);
-        showToast(t("memberPortal.toast.saveSuccess"), "success");
-      } else {
-        const response = await memberService.createMemberBio({
-          ...dataToSave,
-          email: memberSession.email
-        });
-        setBio(response.bio);
-        showToast(t("memberPortal.toast.activateSuccess"), "success");
-      }
-    } catch (error) {
-      console.error(error);
-      showToast(error.message || t("memberPortal.toast.saveError"), "error");
-    } finally {
-      setSaving(false);
-    }
+      if (isGuestMode) { setBio(data); memberService.saveGuestBio(data); showToast(t("memberPortal.toast.partnerSaveSuccess"), "success"); }
+      else if (bio?._id) { const r = await memberService.updateMemberBio(bio._id, data); setBio(r.bio); showToast(t("memberPortal.toast.saveSuccess"), "success"); }
+      else { const r = await memberService.createMemberBio({ ...data, email: memberSession.email }); setBio(r.bio); showToast(t("memberPortal.toast.activateSuccess"), "success"); }
+    } catch (err) { showToast(err.message || t("memberPortal.toast.saveError"), "error"); }
+    finally { setSaving(false); }
   };
+
+  const emptyFormReset = (guest=false) => ({
+    displayName: guest ? "HUGO STUDIO PARTNER GUEST" : (memberSession?.displayName||""),
+    headline:"", bio:"", birthday:"", phone:"", hobbies:"", height:"", weight:"", measurements:"", address:"",
+    education:"", skills:"", jobTitle:"", contactEmail:"", avatarUrl:"", links:[],
+    theme: guest ? { ...emptyTheme, bgColor:"#0f172a", textColor:"#f8fafc" } : emptyTheme, tabs:[],
+  });
 
   const handleDeleteBio = () => {
     if (isGuestMode) {
-      triggerConfirm(t("memberPortal.confirm.deletePartner"), () => {
-        memberService.deleteGuestBio();
-        setBio(null);
-        setFormData({
-          displayName: "HUGO STUDIO PARTNER GUEST",
-          headline: "",
-          bio: "",
-          birthday: "",
-          phone: "",
-          hobbies: "",
-          height: "",
-          weight: "",
-          measurements: "",
-          address: "",
-          education: "",
-          skills: "",
-          jobTitle: "",
-          contactEmail: "",
-          avatarUrl: "",
-          links: [],
-          theme: {
-            bgColor: "#0f172a",
-            textColor: "#f8fafc",
-            accentColor: "#6366f1",
-            pattern: "none",
-            preset: "default",
-            btnRadius: 16,
-            btnBorderWidth: 0,
-            btnShadow: 4,
-            template: "default"
-          },
-          tabs: []
-        });
-        showToast(t("memberPortal.toast.deleteLocalSuccess"), "success");
-      });
+      triggerConfirm(t("memberPortal.confirm.deletePartner"), () => { memberService.deleteGuestBio(); setBio(null); setFormData(emptyFormReset(true)); showToast(t("memberPortal.toast.deleteLocalSuccess"), "success"); });
       return;
     }
-
     if (!bio?._id) return;
     triggerConfirm(t("memberPortal.confirm.deletePersonal"), async () => {
       setSaving(true);
-      try {
-        await memberService.deleteMemberBio(bio._id);
-        setBio(null);
-        setFormData({
-          displayName: memberSession?.displayName || "",
-          headline: "",
-          bio: "",
-          birthday: "",
-          phone: "",
-          hobbies: "",
-          height: "",
-          weight: "",
-          measurements: "",
-          address: "",
-          links: [],
-          theme: {
-            bgColor: "#ffffff",
-            textColor: "#0f172a",
-            accentColor: "#6366f1",
-            pattern: "none",
-            preset: "default",
-            btnRadius: 16,
-            btnBorderWidth: 0,
-            btnShadow: 4,
-            template: "default"
-          },
-          tabs: []
-        });
-        showToast(t("memberPortal.toast.deletePersonalSuccess"), "success");
-        setActiveTab("account");
-      } catch (error) {
-        console.error(error);
-        showToast(t("memberPortal.toast.deletePersonalError"), "error");
-      } finally {
-        setSaving(false);
-      }
+      try { await memberService.deleteMemberBio(bio._id); setBio(null); setFormData(emptyFormReset(false)); showToast(t("memberPortal.toast.deletePersonalSuccess"), "success"); setActiveTab("account"); }
+      catch (_) { showToast(t("memberPortal.toast.deletePersonalError"), "error"); }
+      finally { setSaving(false); }
     });
   };
 
-  const handleCopyLink = async () => {
-    if (!publicLink) return;
-    await navigator.clipboard.writeText(publicLink);
-    showToast(t("memberPortal.toast.copySuccess"), "success");
-  };
-
-  const handleRedeemCode = async (giftCode) => {
-    if (!giftCode) return;
+  const handleCopyLink = async () => { if (!publicLink) return; await navigator.clipboard.writeText(publicLink); showToast(t("memberPortal.toast.copySuccess"), "success"); };
+  const handleRedeemCode = async (code) => {
+    if (!code) return; setSaving(true);
     try {
-      setSaving(true);
-      const res = await memberService.redeemGiftCode(memberSession.email, giftCode);
-      if (res.bio) {
-        setBio(res.bio);
-        showToast(res.message || t("memberPortal.toast.giftSuccess"), "success");
-      }
-    } catch (err) {
-      showToast(err.message || t("memberPortal.toast.giftError"), "error");
-    } finally {
-      setSaving(false);
-    }
+      const r = await memberService.redeemGiftCode(memberSession.email, code);
+      if (r.bio) { setBio(r.bio); sendNotification({ category:'package', type:'success', title:'Gói dịch vụ đã được kích hoạt!', message: r.message || t("memberPortal.toast.giftSuccess") }); }
+    } catch (err) { showToast(err.message || t("memberPortal.toast.giftError"), "error"); }
+    finally { setSaving(false); }
   };
 
+  // ── Tab definitions ───────────────────────────────────────────────────────────
+  const TABS = [
+    { id:"account",   label: t("memberPortal.tabs.bio"),       icon:"person",          partner: false },
+    { id:"manage",    label: t("memberPortal.tabs.package"),    icon:"card_membership", partner: false },
+    { id:"partner",   label: t("memberPortal.tabs.partner"),    icon:"handshake",       partner: true  },
+    { id:"utilities", label: t("memberPortal.tabs.utilities"),  icon:"apps",            partner: false },
+    { id:"history",   label: t("memberPortal.tabs.history"),    icon:"history",         partner: false },
+  ];
+  const onTabClick = (tab) => {
+    if (tab.partner) { window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer"); return; }
+    setActiveTab(tab.id); setMobileSubSection(null);
+  };
+
+  // ── Loading screen ────────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center bg-[#f5f5f7] dark:bg-[#000000]">
         <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-3 border-[#0071e3] border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-8 h-8 border-2 border-[#0071e3] border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-[10px] text-zinc-450 font-bold uppercase tracking-widest">{t("memberPortal.loadingConfig")}</p>
         </div>
       </div>
     );
   }
 
+  // ── Active section info (mobile) ──────────────────────────────────────────────
+  const activeSectionInfo = ACCOUNT_SECTIONS.find(s => s.id === mobileSubSection);
+
+  // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] font-body selection:bg-[#0071e3]/20 transition-colors duration-300">
-      
+
+      <HealingModal
+        showModal={healing.showModal} subStep={healing.subStep} state={healing.state}
+        mood={healing.mood} setMood={healing.setMood} note={healing.note} setNote={healing.setNote}
+        consecutiveLow={healing.consecutiveLow} wheelRatings={healing.wheelRatings} setWheelRatings={healing.setWheelRatings}
+        historyLogs={healing.historyLogs} onSubmit={healing.handleSubmit} onWheelSubmit={healing.handleWheelSubmit}
+        onGraduation={healing.handleGraduation} onGoToTest={healing.goToTest} onGoToBreath={healing.goToBreath}
+        onGoToChat={healing.goToChat}
+        onDismiss={() => { healing.setShowModal(false); showToast("Chúc cậu luôn kiên cường và bình an nhé! ❤️", "success"); }}
+        showToast={showToast}
+      />
+
+      {/* Toast */}
       <AnimatePresence>
-        {showHealingModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl"
+        {toast.message && (
+          <motion.div key="toast"
+            initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }}
+            transition={{ type:"spring", stiffness:400, damping:28 }}
+            className="fixed top-5 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl shadow-2xl border border-zinc-200/60 dark:border-zinc-800/80 w-[calc(100vw-32px)] max-w-md"
           >
-            <motion.div
-              initial={{ scale: 0.95, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              transition={{ type: "spring", duration: 0.4 }}
-              className={`bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/60 rounded-xl p-6 sm:p-8 w-full shadow-2xl space-y-6 relative overflow-hidden transition-all duration-300 ${
-                (healingSubStep === "checkin" || healingSubStep === "wheel") ? "max-w-md md:max-w-4xl" : "max-w-md"
-              }`}
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[40px] pointer-events-none" />
-              
-              {/* Step 1: Graduation completed journey message */}
-              {healingSubStep === "graduation" && (
-                <div className="space-y-6 text-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 flex items-center justify-center mx-auto text-white shadow-lg animate-bounce-short">
-                    <span className="material-symbols-outlined text-2xl">workspace_premium</span>
-                  </div>
-                  <div className="space-y-2">
-                    <span className="text-[8.5px] font-black tracking-widest text-indigo-500 dark:text-indigo-400 uppercase">
-                      Hành trình hoàn tất
-                    </span>
-                    <h3 className="text-base font-black text-zinc-900 dark:text-white uppercase tracking-wider">
-                      Chúc mừng cậu đã hoàn thành!
-                    </h3>
-                    <p className="text-xs text-zinc-650 dark:text-zinc-350 leading-relaxed font-semibold">
-                      Hành trình chữa lành của bạn đã hết rồi. Tớ hy vọng bạn đã vượt qua tất cả, bạn thực sự rất mạnh mẽ và xứng đáng được hạnh phúc... Nếu muốn kích hoạt lại, cậu sẽ cần thực hiện bài đánh giá mới vì toàn bộ dữ liệu trước đó đã được xóa sạch bảo mật.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleGraduationConfirm}
-                    className="w-full py-3 bg-gradient-to-r from-pink-500 to-indigo-650 hover:from-pink-650 hover:to-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-md active:scale-[0.98]"
-                  >
-                    Hoàn thành và Xóa dữ liệu bảo mật
-                  </button>
-                </div>
-              )}
-
-              {/* Step 2: Daily Check-in Form */}
-              {healingSubStep === "checkin" && (
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
-                  <div className="md:col-span-6 space-y-5 flex flex-col justify-between">
-                    <div className="space-y-5">
-                      <div className="text-center space-y-1">
-                        <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 dark:text-indigo-400 uppercase">
-                          Ngày {healingState.day} của lộ trình
-                        </span>
-                        <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">
-                          Hôm nay cậu thế nào?
-                        </h3>
-                        <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
-                          Hãy chia sẻ ngắn cảm xúc của cậu cùng Bạn Học Đường nhé.
-                        </p>
-                      </div>
-
-                      {/* Emojis list selection */}
-                      <div className="flex justify-between gap-2 py-2">
-                        {[
-                          { val: 1, char: "😢", label: "Rất tệ" },
-                          { val: 2, char: "😕", label: "Hơi buồn" },
-                          { val: 3, char: "😐", label: "Bình thường" },
-                          { val: 4, char: "🙂", label: "Khá tốt" },
-                          { val: 5, char: "😄", label: "Rất tuyệt" }
-                        ].map((item) => (
-                          <button
-                            key={item.val}
-                            type="button"
-                            onClick={() => setHealingMood(item.val)}
-                            className={`flex-1 py-3.5 rounded-lg border text-center transition-all ${
-                              healingMood === item.val
-                                ? "bg-indigo-500/10 border-indigo-500 scale-[1.08] shadow-md shadow-indigo-500/5"
-                                : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:scale-[1.02]"
-                            }`}
-                          >
-                            <span className="text-2xl block">{item.char}</span>
-                            <span className="text-[7.5px] font-black uppercase tracking-wider block mt-1">{item.label}</span>
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[10.5px] font-bold text-zinc-500 dark:text-zinc-450 pl-0.5">
-                          Ghi lại một chút suy nghĩ của cậu lúc này (nếu muốn):
-                        </label>
-                        <textarea
-                          placeholder="Đồ án khó, thi cử áp lực, hay hôm nay là một ngày tuyệt vời..."
-                          value={healingNote}
-                          onChange={(e) => setHealingNote(e.target.value)}
-                          className="w-full h-20 px-3 py-2.5 rounded-lg border border-zinc-250 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/20 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-zinc-400 font-semibold"
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleHealingSubmit}
-                      className="w-full py-3 mt-4 bg-gradient-to-r from-indigo-650 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-md active:scale-[0.98]"
-                    >
-                      Tiếp tục
-                    </button>
-                  </div>
-
-                  <div className="hidden md:block md:col-span-6 border-l border-zinc-200/50 dark:border-zinc-800/40 pl-6 max-h-[420px] overflow-y-auto pr-1">
-                    <CompanionHistoryReportPanel historyLogs={historyLogs} />
-                  </div>
-                </div>
-              )}
-
-              {/* Step 2b: Wheel of Life assessment sub-step */}
-              {healingSubStep === "wheel" && (
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch animate-scaleUp">
-                  <div className="md:col-span-6 space-y-5 flex flex-col justify-between">
-                    <div className="space-y-5">
-                      <div className="text-center space-y-1">
-                        <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">
-                          Cập nhật Bánh xe Cuộc sống
-                        </span>
-                        <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">
-                          Định vị Cân Bằng Hôm Nay
-                        </h3>
-                        <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
-                          Nhìn nhận mức độ hài lòng (1-10) trong 5 khía cạnh cốt lõi của cậu.
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col items-center gap-4">
-                        {/* Compact Radar SVG */}
-                        <div className="relative w-40 h-40 bg-white dark:bg-[#15141c] rounded-lg border border-zinc-200/50 dark:border-zinc-800/40 shadow-inner flex items-center justify-center">
-                          <svg className="w-full h-full" viewBox="0 0 300 300">
-                            {/* Concentric grid lines pentagons */}
-                            {[2, 4, 6, 8, 10].map((level) => {
-                              const r = level * 10;
-                              const pts = [90, 18, 306, 234, 162]
-                                .map((angle) => {
-                                  const rad = (angle * Math.PI) / 180;
-                                  return `${150 + r * Math.cos(rad)},${150 - r * Math.sin(rad)}`;
-                                })
-                                .join(" ");
-                              return (
-                                <polygon
-                                  key={level}
-                                  points={pts}
-                                  fill="none"
-                                  className="stroke-zinc-200 dark:stroke-zinc-800"
-                                  strokeWidth="1"
-                                  strokeDasharray={level === 10 ? "0" : "3 3"}
-                                />
-                              );
-                            })}
-
-                            {/* Web spokes */}
-                            {[90, 18, 306, 234, 162].map((angle, idx) => {
-                              const rad = (angle * Math.PI) / 180;
-                              const x = 150 + 100 * Math.cos(rad);
-                              const y = 150 - 100 * Math.sin(rad);
-                              return (
-                                <line
-                                  key={idx}
-                                  x1={150}
-                                  y1={150}
-                                  x2={x}
-                                  y2={y}
-                                  className="stroke-zinc-200 dark:stroke-zinc-800"
-                                  strokeWidth="1"
-                                />
-                              );
-                            })}
-
-                            {/* Rating Polygon */}
-                            <polygon
-                              points={wheelRatings
-                                .map((v, i) => {
-                                  const rad = ([90, 18, 306, 234, 162][i] * Math.PI) / 180;
-                                  const r = v * 10;
-                                  return `${150 + r * Math.cos(rad)},${150 - r * Math.sin(rad)}`;
-                                })
-                                .join(" ")}
-                              fill="rgba(16, 185, 129, 0.12)"
-                              className="stroke-emerald-500 dark:stroke-emerald-400"
-                              strokeWidth="2.5"
-                            />
-
-                            {/* Axis Vertex Dots */}
-                            {wheelRatings.map((v, i) => {
-                              const rad = ([90, 18, 306, 234, 162][i] * Math.PI) / 180;
-                              const r = v * 10;
-                              return (
-                                <circle
-                                  key={i}
-                                  cx={150 + r * Math.cos(rad)}
-                                  cy={150 - r * Math.sin(rad)}
-                                  r="4"
-                                  className="fill-emerald-500 dark:fill-emerald-450 stroke-white dark:stroke-[#15141c]"
-                                  strokeWidth="1.5"
-                                />
-                              );
-                            })}
-                          </svg>
-                        </div>
-
-                        {/* Sliders list */}
-                        <div className="w-full space-y-2.5 max-h-48 overflow-y-auto pr-1">
-                          {["Bản thân", "Học tập", "Công việc", "Gia đình", "Mối quan hệ"].map((cat, idx) => (
-                            <div key={idx} className="space-y-0.5">
-                              <div className="flex justify-between text-[10px] font-bold text-zinc-650 dark:text-zinc-450 pl-0.5">
-                                <span>{cat}</span>
-                                <span className="font-mono text-emerald-500 font-black">{wheelRatings[idx]}/10</span>
-                              </div>
-                              <input
-                                type="range"
-                                min="1"
-                                max="10"
-                                value={wheelRatings[idx]}
-                                onChange={(e) => {
-                                  const copy = [...wheelRatings];
-                                  copy[idx] = parseInt(e.target.value, 10);
-                                  setWheelRatings(copy);
-                                }}
-                                className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded appearance-none cursor-pointer accent-emerald-500"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleHealingWheelSubmit}
-                      className="w-full py-3 mt-4 bg-gradient-to-r from-emerald-500 to-teal-650 hover:from-emerald-600 hover:to-teal-750 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-md active:scale-[0.98]"
-                    >
-                      Gửi cảm xúc & Bắt đầu ngày mới
-                    </button>
-                  </div>
-
-                  <div className="hidden md:block md:col-span-6 border-l border-zinc-200/50 dark:border-zinc-800/40 pl-6 max-h-[420px] overflow-y-auto pr-1">
-                    <CompanionHistoryReportPanel historyLogs={historyLogs} />
-                  </div>
-                </div>
-              )}
-
-              {/* Step 3: periodic test reminder prompt */}
-              {healingSubStep === "reminder" && (
-                <div className="space-y-5 text-center">
-                  <div className="w-14 h-14 rounded-lg bg-indigo-550/10 border border-indigo-550/20 text-indigo-500 flex items-center justify-center mx-auto shadow-sm">
-                    <span className="material-symbols-outlined text-2xl animate-pulse">quiz</span>
-                  </div>
-                  <div className="space-y-2">
-                    <span className="text-[8.5px] font-black tracking-widest text-indigo-500 dark:text-indigo-400 uppercase">
-                      {consecutiveLowMood ? "Hỗ trợ phục hồi khẩn cấp" : "Đề xuất kiểm tra định kỳ"}
-                    </span>
-                    <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider">
-                      {consecutiveLowMood ? "Hãy yêu thương bản thân hơn nhé" : "Đã đến lúc làm bài trắc nghiệm lâm sàng"}
-                    </h3>
-                    <p className="text-xs text-zinc-650 dark:text-zinc-350 leading-relaxed font-semibold max-w-sm mx-auto">
-                      {consecutiveLowMood 
-                        ? "Bạn Học Đường nhận thấy tâm trạng cậu đang khá trầm xuống liên tục trong 2 ngày qua. Hãy thực hành một số bài tập điều hòa nhịp thở hoặc trò chuyện tâm sự cùng tớ để lòng dịu lại nha." 
-                        : "Bạn Học Đường nhận thấy tâm trạng cậu có chút mỏi mệt hoặc đã đến chu kỳ đánh giá định kỳ (3 ngày). Cậu hãy làm một bài test DASS-42 nhỏ để tớ đối chiếu chẩn đoán chính xác nhất nhé."
-                      }
-                    </p>
-                  </div>
-                  
-                  {consecutiveLowMood ? (
-                    <div className="flex flex-col gap-2 pt-2">
-                      <button
-                        type="button"
-                        onClick={handleGoToBreath}
-                        className="w-full py-2.5 rounded-md bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors flex items-center justify-center gap-1.5"
-                      >
-                        <span className="material-symbols-outlined text-sm">air</span>
-                        Luyện Hít Thở 4-7-8 (2 phút)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleGoToChat}
-                        className="w-full py-2.5 rounded-md bg-gradient-to-r from-indigo-550 to-indigo-650 hover:from-indigo-650 hover:to-indigo-750 text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors flex items-center justify-center gap-1.5"
-                      >
-                        <span className="material-symbols-outlined text-sm">forum</span>
-                        Tâm sự giải tỏa cùng Trợ lý (3 phút)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleGoToTest}
-                        className="w-full py-2 rounded-md border border-zinc-250 dark:border-zinc-800 text-[9.5px] font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
-                      >
-                        Làm test lâm sàng DASS-42
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowHealingModal(false);
-                          showToast("Chúc cậu luôn kiên cường và bình an nhé! ❤️", "success");
-                        }}
-                        className="py-2 text-[9px] font-bold text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 uppercase tracking-wider"
-                      >
-                        Bỏ qua
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowHealingModal(false);
-                          showToast("Cậu đã chọn làm khảo sát sau. Hãy chú ý giữ gìn sức khỏe nhé! 🌟", "success");
-                        }}
-                        className="py-2.5 rounded-md border border-zinc-250 dark:border-zinc-800 text-[10px] font-black uppercase tracking-wider text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
-                      >
-                        Để sau
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleGoToTest}
-                        className="py-2.5 rounded-md bg-[#0071e3] hover:bg-[#0077ed] text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors"
-                      >
-                        Làm test ngay
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </motion.div>
+            <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-[#34c759]":toast.type==="warning"?"text-[#ff9500]":"text-[#ff3b30]"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
+              {toast.type==="success"?"check_circle":toast.type==="warning"?"warning":"error"}
+            </span>
+            <p className="flex-1 text-[11px] sm:text-xs font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] leading-relaxed">{toast.message}</p>
+            <button type="button" onClick={()=>setToast({message:"",type:""})} className="text-zinc-400 hover:text-zinc-600 shrink-0 transition-colors">
+              <span className="material-symbols-outlined text-base">close</span>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Toast Alert */}
-      {toast.message && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-lg bg-white/90 dark:bg-[#1c1c1e]/90 backdrop-blur-xl shadow-2xl border border-zinc-200/50 dark:border-zinc-800/80 w-[calc(100vw-32px)] max-w-md animate-toast-in">
-          <span className={`material-symbols-outlined shrink-0 text-xl ${
-            toast.type === "success" ? "text-[#34c759]" : toast.type === "warning" ? "text-[#ff9500]" : "text-[#ff3b30]"
-          }`}>
-            {toast.type === "success" ? "check_circle" : toast.type === "warning" ? "warning" : "error"}
-          </span>
-          <div className="flex-1 text-[11px] sm:text-xs font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] leading-relaxed">
-            {toast.message}
-          </div>
-          <button
-            type="button"
-            onClick={() => setToast({ message: "", type: "" })}
-            className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white shrink-0 transition-colors"
-          >
-            <span className="material-symbols-outlined text-base">close</span>
-          </button>
-        </div>
-      )}
+      {/* Background decorators */}
+      <div className="absolute top-0 left-1/4 w-[40%] h-[400px] bg-gradient-to-br from-[#0071e3]/8 to-[#5856d6]/8 rounded-full filter blur-[120px] pointer-events-none opacity-60 dark:opacity-20" />
+      <div className="absolute top-1/3 right-1/4 w-[35%] h-[350px] bg-gradient-to-br from-[#30b0c7]/8 to-[#34c759]/5 rounded-full filter blur-[100px] pointer-events-none opacity-40 dark:opacity-10" />
 
-      {/* Decorative blurred spots (Apple Product Landing Style) */}
-      <div className="absolute top-0 left-1/4 w-[40%] h-[400px] bg-gradient-to-br from-[#0071e3]/10 to-[#5856d6]/10 rounded-full filter blur-[120px] pointer-events-none opacity-40 dark:opacity-20" />
-      <div className="absolute top-1/3 right-1/4 w-[35%] h-[350px] bg-gradient-to-br from-[#30b0c7]/10 to-[#34c759]/5 rounded-full filter blur-[100px] pointer-events-none opacity-30 dark:opacity-10" />
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 md:pt-8 pb-28 md:pb-12 space-y-5 sm:space-y-6 relative z-10">
 
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 pt-6 sm:pt-8 md:pt-12 pb-24 md:pb-12 space-y-6 sm:space-y-8 relative z-10">
-
-        {/* Dynamic iOS Segmented Navigation Header */}
-        <section className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 md:gap-6 pb-3 sm:pb-4 border-b border-zinc-200/50 dark:border-zinc-800/30">
-          <div className="flex justify-between items-start w-full md:w-auto">
-            <div className="space-y-1 text-left">
-              <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#0071e3] dark:text-[#0a84ff] block">
-                {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
-              </span>
-              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-black dark:text-white line-clamp-2">
-                {isGuestMode ? t("memberPortal.designYourBio") : `${t("memberPortal.greeting")}, ${memberSession?.displayName || t("memberPortal.student")}`}
-              </h1>
-              <div className="text-[9px] sm:text-xs text-zinc-500 dark:text-zinc-400 flex flex-col sm:flex-row sm:items-center justify-start gap-1 mt-1 sm:mt-0.5">
-                {isGuestMode ? (
-                  <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-[8px] sm:text-[9px] bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 px-2 py-0.5 rounded-full">
-                    <span className="material-symbols-outlined text-[10px] animate-pulse">local_activity</span>{t("memberPortal.bio.localSave")}
-                  </span>
+        {/* ── Portal Header ─────────────────────────────────────────────────── */}
+        <header className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-200 border border-white/30 dark:border-zinc-800/40 rounded-2xl px-4 sm:px-5 py-3.5 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            {/* Left */}
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Back button on mobile sub-section */}
+              {mobileSubSection && (
+                <button type="button" onClick={() => setMobileSubSection(null)}
+                  className="md:hidden w-8 h-8 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 active:scale-90 transition-transform">
+                  <span className="material-symbols-outlined text-sm text-zinc-600 dark:text-zinc-300">arrow_back_ios_new</span>
+                </button>
+              )}
+              <div className={`relative shrink-0 ${mobileSubSection ? 'hidden md:block' : ''}`}>
+                {formData.avatarUrl ? (
+                  <img src={formData.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-white dark:ring-zinc-800 shadow-sm" />
                 ) : (
-                  <p className="flex flex-col sm:flex-row sm:items-center gap-1">
-                    <span className="hidden sm:inline">{t("memberPortal.academicProfile")}:</span>
-                    <strong className="text-zinc-700 dark:text-zinc-200 break-all text-[9px] sm:text-xs">{memberSession?.email}</strong>
-                  </p>
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0071e3] to-[#5856d6] flex items-center justify-center text-white font-black text-sm shadow-sm">
+                    {(formData.displayName||"?")[0]?.toUpperCase()}
+                  </div>
                 )}
+                {bio?.status === 'active' && (
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white dark:border-zinc-900" />
+                )}
+              </div>
+              <div className="min-w-0">
+                {mobileSubSection ? (
+                  <div className="md:hidden">
+                    <p className="text-xs font-black text-zinc-800 dark:text-white truncate">{activeSectionInfo?.label}</p>
+                    <p className="text-[9px] text-zinc-400 truncate">{activeSectionInfo?.sub}</p>
+                  </div>
+                ) : null}
+                <div className={mobileSubSection ? 'hidden md:block' : ''}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-[#0071e3] dark:text-[#0a84ff]">
+                      {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
+                    </span>
+                    {bio?.status && !isGuestMode && <StatusBadge status={bio.status} />}
+                  </div>
+                  <h1 className="text-sm sm:text-base font-bold tracking-tight text-black dark:text-white truncate">
+                    {isGuestMode ? t("memberPortal.designYourBio") : `${t("memberPortal.greeting")}, ${memberSession?.displayName || t("memberPortal.student")}`}
+                  </h1>
+                  <p className="text-[9px] sm:text-[10px] text-zinc-400 truncate hidden sm:block">{memberSession?.email}</p>
+                </div>
               </div>
             </div>
 
-            {/* Elegant Mobile logout button next to the title on small screens */}
-            {!isGuestMode && (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="md:hidden w-8 h-8 rounded-full border border-red-200/50 dark:border-red-950/40 bg-red-500/5 flex items-center justify-center text-red-500 hover:text-red-650 active:bg-red-500/10 active:scale-95 transition-all shadow-sm shrink-0"
-                title={t("memberPortal.logout")}
-              >
+            {/* Right */}
+            <div className="flex items-center gap-3 shrink-0">
+              {!isGuestMode && (
+                <NotificationBell notifications={notifications} unreadCount={unreadNotifCount}
+                  onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} onOpen={refreshInbox} />
+              )}
+              <button type="button" onClick={handleLogout}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-red-200/60 dark:border-red-900/30 bg-red-500/5 hover:bg-red-500/10 text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
                 <span className="material-symbols-outlined text-sm">logout</span>
+                <span className="hidden sm:inline">{t("memberPortal.logout")}</span>
               </button>
-            )}
+            </div>
           </div>
 
-          {!isGuestMode && (
-            <div className="hidden md:flex items-center gap-3 w-full md:w-auto shrink-0">
-              {/* iOS Style Segmented Control */}
-              {bio?.status !== 'pending' && (
-                <div className="relative bg-[#767680]/12 dark:bg-[#767680]/24 p-[3px] rounded-full flex w-full md:w-auto md:min-w-[560px] border border-zinc-200/20 dark:border-zinc-800/20 shadow-[inset_0_1px_1px_rgba(0,0,0,0.05)] shrink-0">
-                  <div
-                    className="absolute top-[3px] bottom-[3px] bg-white dark:bg-[#636366] rounded-full shadow-sm transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
-                    style={{
-                      left: activeTab === "account"
-                        ? "3px"
-                        : activeTab === "manage"
-                          ? "calc(20% + 1px)"
-                          : activeTab === "partner"
-                            ? "calc(40% + 1px)"
-                            : activeTab === "utilities"
-                              ? "calc(60% + 1px)"
-                              : "calc(80% + 1px)",
-                      width: "calc(20% - 4px)"
-                    }}
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("account")}
-                    className={`w-1/5 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 ${
-                      activeTab === "account" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
-                    }`}
-                  >{t("memberPortal.tabs.bio")}</button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("manage")}
-                    className={`w-1/5 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 ${
-                      activeTab === "manage" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
-                    }`}
-                  >{t("memberPortal.tabs.package")}</button>
-                  <button
-                    type="button"
-                    onClick={() => window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer")}
-                    className={`w-1/5 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 flex items-center justify-center gap-0.5`}
-                  >
-                    {t("memberPortal.tabs.partner")}
-                    <span className="material-symbols-outlined text-[8px] opacity-60">open_in_new</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("utilities")}
-                    className={`w-1/5 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 ${
-                      activeTab === "utilities" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
-                    }`}
-                  >{t("memberPortal.tabs.utilities")}</button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("history")}
-                    className={`w-1/5 py-1.5 text-[9px] sm:text-[11px] font-semibold rounded-full relative z-10 transition-colors duration-200 flex items-center justify-center gap-1.5 ${
-                      activeTab === "history" ? "text-black dark:text-white font-bold" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800"
-                    }`}
-                  >
-                    <span>{t("memberPortal.tabs.history")}</span>
-                    {unreadHistoryCount > 0 && (
-                      <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-sm animate-bounce-short">
+          {/* Desktop tab navigation */}
+          {!isGuestMode && bio?.status !== 'pending' && (
+            <div className="hidden md:flex items-center gap-1 mt-3 pt-3 border-t border-zinc-200/50 dark:border-zinc-800/30">
+              {TABS.map(tab => {
+                const isActive = !tab.partner && activeTab === tab.id;
+                return (
+                  <button key={tab.id} type="button" onClick={() => onTabClick(tab)}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all duration-200 relative ${
+                      isActive ? 'bg-black/8 dark:bg-white/10 text-black dark:text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40'
+                    }`}>
+                    <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
+                    <span>{tab.label}</span>
+                    {tab.partner && <span className="material-symbols-outlined text-[9px] opacity-50">open_in_new</span>}
+                    {tab.id === 'history' && unreadHistoryCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm">
                         {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
                       </span>
                     )}
                   </button>
-                </div>
-              )}
-
-              {/* Desktop Logout Button */}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="hidden md:flex px-4 py-2 rounded-full border border-red-200 dark:border-red-900/30 bg-red-500/5 hover:bg-red-500/10 text-red-500 hover:text-red-650 dark:hover:text-red-400 items-center justify-center gap-1.5 text-[9px] sm:text-[11px] font-bold uppercase tracking-wider transition-all duration-200 shadow-sm shrink-0"
-              >
-                <span className="material-symbols-outlined text-xs sm:text-sm">logout</span>
-                <span>{t("memberPortal.logout")}</span>
-              </button>
+                );
+              })}
             </div>
           )}
-        </section>
+        </header>
 
+        {/* ── Tab Content ─────────────────────────────────────────────────────── */}
         <ErrorBoundary>
           <React.Suspense fallback={
             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-zinc-200 border-t-zinc-800 dark:border-zinc-800 dark:border-t-white"></div>
-              <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">Đang tải dữ liệu...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-zinc-200 border-t-zinc-800 dark:border-zinc-800 dark:border-t-white" />
+              <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">Đang tải...</p>
             </div>
           }>
             {bio?.status === 'rejected' ? (
               <RejectedVerification handleLogout={handleLogout} />
             ) : bio?.status === 'pending' && !bio?.verificationRequest?.submitted ? (
-              <VerificationForm 
-                verificationForm={verificationForm} 
-                setVerificationForm={setVerificationForm} 
-                handleVerificationSubmit={handleVerificationSubmit} 
-                handleLogout={handleLogout} 
-                verifying={verifying} 
-              />
+              <VerificationForm verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleLogout={handleLogout} verifying={verifying} />
             ) : bio?.status === 'pending' && bio?.verificationRequest?.submitted ? (
-              <PendingVerification 
-                fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} 
-                handleLogout={handleLogout} 
-              />
+              <PendingVerification fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} handleLogout={handleLogout} />
             ) : (
               <>
-                {/* Tab 1: Account / Profile Details */}
+                {/* ── Account Tab ───────────────────────────────────────────── */}
                 {activeTab === "account" && (
                   <div className="space-y-4">
-                    {/* Mobile Edit/Preview Toggle Switch */}
-                    <div className="block lg:hidden w-full px-1">
-                      <div className="relative bg-[#767680]/12 dark:bg-[#767680]/24 p-[3px] rounded-lg flex border border-zinc-200/10 dark:border-zinc-800/20 shadow-inner">
-                        <div
-                          className="absolute top-[3px] bottom-[3px] bg-white dark:bg-[#636366] rounded-md shadow-sm transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
-                          style={{
-                            left: mobileView === "edit" ? "3px" : "calc(50% + 1px)",
-                            width: "calc(50% - 4px)"
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setMobileView("edit")}
-                          className={`w-1/2 py-2 text-xs font-black uppercase tracking-wider rounded-md relative z-10 transition-colors ${
-                            mobileView === "edit" ? "text-black dark:text-white" : "text-zinc-500"
-                          }`}
-                        >
-                          Chỉnh sửa
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMobileView("preview")}
-                          className={`w-1/2 py-2 text-xs font-black uppercase tracking-wider rounded-md relative z-10 transition-colors ${
-                            mobileView === "preview" ? "text-black dark:text-white" : "text-zinc-500"
-                          }`}
-                        >
-                          Xem trước
-                        </button>
+
+                    {/* ── DESKTOP layout (md+): sidebar + form + preview ──── */}
+                    <div className="hidden md:block animate-fadeIn">
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        {/* Form column */}
+                        <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+                          {/* Vertical sub-tab sidebar */}
+                          <div className="md:col-span-3 flex flex-col gap-1.5 sticky top-20 z-20">
+                            {[
+                              { id:"profile",  label:t("memberPortal.sidebar.personal"), icon:"person" },
+                              { id:"design",   label:t("memberPortal.sidebar.theme"),    icon:"palette" },
+                              { id:"links",    label:t("memberPortal.sidebar.links"),    icon:"link" },
+                              { id:"projects", label:t("memberPortal.sidebar.projects"), icon:"folder_special" },
+                              { id:"services", label:t("memberPortal.sidebar.services"), icon:"storefront" },
+                              { id:"career",   label:t("memberPortal.sidebar.career"),   icon:"school" },
+                              { id:"body",     label:t("memberPortal.sidebar.physical"), icon:"straighten" },
+                            ].map(tab => {
+                              const active = accountSubTab === tab.id;
+                              return (
+                                <button key={tab.id} type="button" onClick={() => setAccountSubTab(tab.id)}
+                                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider transition-all duration-200 border ${
+                                    active ? "bg-[#0071e3] border-[#0071e3] text-white shadow-md shadow-[#0071e3]/10 translate-x-1" : "bg-white dark:bg-[#1c1c1e] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border-zinc-200 dark:border-zinc-800/60"
+                                  }`}>
+                                  <span className="material-symbols-outlined text-base shrink-0" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
+                                  <span className="truncate">{tab.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                          {/* Form pane */}
+                          <div className="md:col-span-9 space-y-4">
+                            <form onSubmit={e => { e.preventDefault(); handleSave(); }} className="space-y-5">
+                              {renderAccountForm(accountSubTab)}
+                              <div className="pt-2">
+                                <button type="submit" disabled={saving}
+                                  className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 transition-colors rounded-xl py-3 px-4 flex items-center justify-center gap-2 font-bold shadow-sm">
+                                  {saving ? <><div className="w-3.5 h-3.5 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" /><span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updating")}</span></>
+                                         : <><span className="material-symbols-outlined text-sm">save</span><span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updateInfo")}</span></>}
+                                </button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                        {/* Preview column (lg+) */}
+                        <div className="hidden lg:flex lg:col-span-5 lg:sticky lg:top-6 justify-center">
+                          <PreviewSimulator previewMode={previewMode} setPreviewMode={setPreviewMode} previewIframeRef={previewIframeRef} slug={bio?.slug} t={t} />
+                        </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-start animate-fadeIn">
-                      {/* Left Content Area: iOS Form fields with Sub-tabs navigation */}
-                      <div className={`lg:col-span-7 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start ${
-                        mobileView === "preview" ? "hidden lg:grid" : "grid"
-                      }`}>
-                        
-                        {/* Local Sub-tabs Navigation Menu */}
-                        <div className="md:col-span-3 flex md:flex-col overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 gap-1.5 sticky top-20 z-20 scrollbar-none p-1 md:p-0">
-                          {[
-                            { id: "profile", label: t("memberPortal.sidebar.personal"), icon: "person" },
-                            { id: "design", label: t("memberPortal.sidebar.theme"), icon: "palette" },
-                            { id: "links", label: t("memberPortal.sidebar.links"), icon: "link" },
-                            { id: "projects", label: t("memberPortal.sidebar.projects"), icon: "folder_special" },
-                            { id: "services", label: t("memberPortal.sidebar.services"), icon: "storefront" },
-                            { id: "career", label: t("memberPortal.sidebar.career"), icon: "school" },
-                            { id: "body", label: t("memberPortal.sidebar.physical"), icon: "straighten" }
-                          ].map((tab) => {
-                            const isActive = accountSubTab === tab.id;
-                            return (
-                              <button
-                                key={tab.id}
-                                type="button"
-                                onClick={() => setAccountSubTab(tab.id)}
-                                className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-left text-[10px] font-black uppercase tracking-wider transition-all duration-200 shrink-0 border ${
-                                  isActive
-                                    ? "bg-[#0071e3] border-[#0071e3] text-white shadow-md shadow-[#0071e3]/10 transform md:translate-x-1"
-                                    : "bg-white dark:bg-[#1c1c1e] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border-zinc-200 dark:border-zinc-800/60"
-                                }`}
-                              >
-                                <span className="material-symbols-outlined text-base shrink-0">{tab.icon}</span>
-                                <span className="truncate">{tab.label}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {/* Active Form Fields Pane */}
-                        <div className="md:col-span-9 space-y-4">
-                          <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-5">
-                            
-                            {/* profile Sub-Tab */}
-                            {accountSubTab === "profile" && (
-                              <ProfileSubTab 
-                                formData={formData}
-                                handleFieldChange={handleFieldChange}
-                                saving={saving}
-                                isDragOver={isDragOver}
-                                setIsDragOver={setIsDragOver}
-                                processFile={processFile}
-                                avatarInputRef={avatarInputRef}
-                                handleAvatarChange={handleAvatarChange}
-                                handleRemoveAvatar={handleRemoveAvatar}
-                                memberSession={memberSession}
-                                t={t}
-                              />
-                            )}
-
-                            {/* design Sub-Tab */}
-                            {accountSubTab === "design" && (
-                              <DesignSubTab 
-                                formData={formData}
-                                setFormData={setFormData}
-                                t={t}
-                              />
-                            )}
-
-                            {/* links Sub-Tab */}
-                            {accountSubTab === "links" && (
-                              <LinksSubTab 
-                                formData={formData}
-                                newLinkLabel={newLinkLabel}
-                                setNewLinkLabel={setNewLinkLabel}
-                                newLinkUrl={newLinkUrl}
-                                setNewLinkUrl={setNewLinkUrl}
-                                handleLinkInputKeyDown={handleLinkInputKeyDown}
-                                addSocialLink={addSocialLink}
-                                removeSocialLink={removeSocialLink}
-                                handleFieldChange={handleFieldChange}
-                                bioTextareaRef={bioTextareaRef}
-                                t={t}
-                              />
-                            )}
-
-                            {/* SUB-TAB: PROJECTS */}
-                            {accountSubTab === "projects" && (
-                              <MemberProjectsTab
-                                formData={formData}
-                                setFormData={setFormData}
-                                handleSave={handleSave}
-                                showToast={showToast}
-                                isGuestMode={isGuestMode}
-                                bio={bio}
-                              />
-                            )}
-
-                            {/* SUB-TAB: SERVICES */}
-                            {accountSubTab === "services" && (
-                              <MemberServicesTab
-                                formData={formData}
-                                setFormData={setFormData}
-                                handleSave={handleSave}
-                                showToast={showToast}
-                                isGuestMode={isGuestMode}
-                                bio={bio}
-                              />
-                            )}
-
-                            {/* career Sub-Tab */}
-                            {accountSubTab === "career" && (
-                              <CareerSubTab 
-                                formData={formData}
-                                handleFieldChange={handleFieldChange}
-                                t={t}
-                              />
-                            )}
-
-                            {/* body Sub-Tab */}
-                            {accountSubTab === "body" && (
-                              <BodySubTab 
-                                formData={formData}
-                                handleFieldChange={handleFieldChange}
-                                t={t}
-                              />
-                            )}
-
-                            {/* Submit save button */}
-                            <div className="pt-2">
-                              <button
-                                type="submit"
-                                disabled={saving}
-                                className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 transition-colors rounded-lg py-3 px-4 flex items-center justify-center gap-2 font-bold shadow-sm"
-                              >
-                                {saving ? (
-                                  <>
-                                    <div className="w-3.5 h-3.5 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" />
-                                    <span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updating")}</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <span className="material-symbols-outlined text-sm">save</span>
-                                    <span className="text-[10px] uppercase tracking-wider">{t("memberPortal.updateInfo")}</span>
-                                  </>
-                                )}
-                              </button>
+                    {/* ── MOBILE layout (<md): app-like cards ────────────── */}
+                    <div className="md:hidden">
+                      {mobileSubSection ? (
+                        /* ── Sub-section detail view ── */
+                        <motion.div key={mobileSubSection} initial={{ x: 24, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ type:'spring', stiffness:380, damping:30 }} className="space-y-4">
+                          {/* Section header bar */}
+                          <div className={`flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r ${activeSectionInfo?.grad} text-white shadow-lg`}>
+                            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings:"'FILL' 1" }}>{activeSectionInfo?.icon}</span>
                             </div>
-
-                          </form>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-extrabold text-sm leading-tight">{activeSectionInfo?.label}</p>
+                              <p className="text-white/70 text-[10px] truncate">{activeSectionInfo?.sub}</p>
+                            </div>
+                          </div>
+                          {/* Form content */}
+                          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-4">
+                            {renderAccountForm(mobileSubSection)}
+                          </div>
+                          {/* Save button */}
+                          <button type="button" onClick={() => handleSave()} disabled={saving}
+                            className="w-full bg-black dark:bg-white text-white dark:text-black py-4 rounded-2xl font-extrabold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all disabled:opacity-50">
+                            {saving
+                              ? <><div className="w-4 h-4 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" /><span className="text-xs uppercase tracking-wider">Đang lưu...</span></>
+                              : <><span className="material-symbols-outlined text-base" style={{ fontVariationSettings:"'FILL' 1" }}>save</span><span className="text-xs uppercase tracking-wider">Lưu thay đổi</span></>
+                            }
+                          </button>
+                        </motion.div>
+                      ) : mobileView === "preview" ? (
+                        /* ── Preview mode ── */
+                        <div className="flex justify-center">
+                          <PreviewSimulator previewMode={previewMode} setPreviewMode={setPreviewMode} previewIframeRef={previewIframeRef} slug={bio?.slug} t={t} />
                         </div>
+                      ) : (
+                        /* ── Section overview ── */
+                        <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+                          {/* Profile hero card */}
+                          <div className="relative bg-gradient-to-br from-[#0071e3] via-[#5856d6] to-[#af52de] rounded-2xl p-5 overflow-hidden shadow-lg">
+                            <div className="absolute -top-6 -right-6 w-28 h-28 bg-white/8 rounded-full" />
+                            <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-white/5 rounded-full" />
+                            <div className="relative flex items-center gap-4">
+                              {formData.avatarUrl ? (
+                                <img src={formData.avatarUrl} alt="avatar" className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white/30 shadow-lg shrink-0" />
+                              ) : (
+                                <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-white font-black text-2xl shadow-lg shrink-0">
+                                  {(formData.displayName||'?')[0]?.toUpperCase()}
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="font-extrabold text-base text-white leading-tight truncate">{formData.displayName || 'Chưa đặt tên'}</p>
+                                <p className="text-white/70 text-xs mt-0.5 line-clamp-1">{formData.headline || 'Chưa có tiêu đề'}</p>
+                                {publicLink ? (
+                                  <a href={publicLink} target="_blank" rel="noopener noreferrer"
+                                    className="mt-2 inline-flex items-center gap-1 text-white/85 text-[10px] font-bold bg-white/15 px-2.5 py-1 rounded-full">
+                                    Xem bio <span className="material-symbols-outlined text-[11px]">open_in_new</span>
+                                  </a>
+                                ) : (
+                                  <span className="mt-2 inline-flex items-center gap-1 text-white/50 text-[10px] font-semibold">
+                                    <span className="material-symbols-outlined text-[11px]">link_off</span>Chưa kích hoạt
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
 
-                      </div>
+                          {/* Edit/preview toggle */}
+                          <div className="relative bg-[#767680]/12 dark:bg-[#767680]/24 p-[3px] rounded-xl flex border border-zinc-200/10 dark:border-zinc-800/20 shadow-inner">
+                            <div className="absolute top-[3px] bottom-[3px] bg-white dark:bg-[#636366] rounded-lg shadow-sm transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                              style={{ left: mobileView==="edit"?"3px":"calc(50% + 1px)", width:"calc(50% - 4px)" }} />
+                            {["edit","preview"].map(v => (
+                              <button key={v} type="button" onClick={() => setMobileView(v)}
+                                className={`w-1/2 py-2 text-xs font-black uppercase tracking-wider rounded-lg relative z-10 transition-colors ${mobileView===v?"text-black dark:text-white":"text-zinc-500"}`}>
+                                {v === "edit" ? "Chỉnh sửa" : "Xem trước"}
+                              </button>
+                            ))}
+                          </div>
 
-                      {/* Right Sticky Preview Area - Account Tab */}
-                      <div className={`lg:col-span-5 lg:sticky lg:top-6 w-full flex justify-center ${
-                        mobileView === "edit" ? "hidden lg:flex" : "flex"
-                      }`}>
-                        <PreviewSimulator 
-                          previewMode={previewMode}
-                          setPreviewMode={setPreviewMode}
-                          previewIframeRef={previewIframeRef}
-                          slug={bio?.slug}
-                          t={t}
-                        />
-                      </div>
-
+                          {/* Section cards — 2-column grid */}
+                          <div className="grid grid-cols-2 gap-3">
+                            {ACCOUNT_SECTIONS.map((sec, idx) => {
+                              const isLastOdd = ACCOUNT_SECTIONS.length % 2 !== 0 && idx === ACCOUNT_SECTIONS.length - 1;
+                              return (
+                                <button
+                                  key={sec.id}
+                                  type="button"
+                                  onClick={() => { setAccountSubTab(sec.id); setMobileSubSection(sec.id); }}
+                                  className={`bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl p-4 text-left active:scale-[0.96] transition-all duration-150 shadow-sm hover:shadow-md ${isLastOdd ? 'col-span-2' : ''}`}
+                                >
+                                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${sec.grad} flex items-center justify-center mb-3 shadow-sm`}>
+                                    <span className="material-symbols-outlined text-white text-[22px]" style={{ fontVariationSettings:"'FILL' 1" }}>{sec.icon}</span>
+                                  </div>
+                                  <p className="text-xs font-extrabold text-zinc-800 dark:text-zinc-200 leading-tight">{sec.label}</p>
+                                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5 line-clamp-1">{sec.sub}</p>
+                                  <span className="material-symbols-outlined text-zinc-300 dark:text-zinc-600 text-base mt-2 block">chevron_right</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
                     </div>
                   </div>
                 )}
 
-                {/* Tab 3: Package Subscription & Link Management */}
-                {activeTab === "manage" && (
-                  <MemberManageTab
-                    bio={bio}
-                    publicLink={publicLink}
-                    handleCopyLink={handleCopyLink}
-                    handleDeleteBio={handleDeleteBio}
-                    saving={saving}
-                    handleRedeemCode={handleRedeemCode}
-                  />
-                )}
-
-                {/* Tab 4: Partner Iframe Services inside Member Portal */}
-                {activeTab === "partner" && <MemberPartnerTab />}
-
-                {/* Tab 4.5: Member Utilities Dashboard */}
-                {activeTab === "utilities" && (
-                  <MemberUtilitiesTab 
-                    bio={bio} 
-                    publicLink={publicLink} 
-                    showToast={showToast} 
-                    setFormData={setFormData} 
-                    handleSave={handleSave} 
-                    defaultUtility={defaultUtility}
-                    defaultPsychologySubTab={defaultPsychologySubTab}
-                    defaultPsychologyPresetTest={defaultPsychologyPresetTest}
-                  />
-                )}
-
-                {/* Tab 5: Lịch Sử & Thông Báo */}
-                {activeTab === "history" && <MemberHistoryTab bio={bio} showToast={showToast} />}
+                {activeTab === "manage"    && <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} handleRedeemCode={handleRedeemCode} />}
+                {activeTab === "partner"   && <MemberPartnerTab />}
+                {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} defaultUtility={defaultUtility} defaultPsychologySubTab={defaultPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} />}
+                {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} />}
               </>
             )}
           </React.Suspense>
         </ErrorBoundary>
 
-        {/* Cropper Modal */}
-        <CropModal 
-          cropModal={cropModal}
-          setCropModal={setCropModal}
-          handleDragStart={handleDragStart}
-          handleDragMove={handleDragMove}
-          handleDragEnd={handleDragEnd}
-          handleCropSave={handleCropSave}
-          t={t}
-        />
+        <CropModal cropModal={cropModal} setCropModal={setCropModal} handleDragStart={handleDragStart} handleDragMove={handleDragMove} handleDragEnd={handleDragEnd} handleCropSave={handleCropSave} t={t} />
 
-        {/* CUSTOM CONFIRM MODAL */}
         {confirmModal.isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
               <div className="flex items-center gap-2 text-rose-500">
-                <span className="material-symbols-outlined text-2xl">warning</span>
+                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings:"'FILL' 1" }}>warning</span>
                 <h3 className="font-extrabold text-sm uppercase tracking-wider text-zinc-900 dark:text-white">{t("memberPortal.confirm.title")}</h3>
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                {confirmModal.message}
-              </p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{confirmModal.message}</p>
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: null })}
-                  className="py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
-                >{t("memberPortal.confirm.cancel")}</button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (confirmModal.onConfirm) confirmModal.onConfirm();
-                    setConfirmModal({ isOpen: false, message: "", onConfirm: null });
-                  }}
-                  className="py-2.5 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold shadow-md transition-colors"
-                >{t("memberPortal.confirm.confirm")}</button>
+                <button type="button" onClick={() => setConfirmModal({ isOpen:false, message:"", onConfirm:null })}
+                  className="py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors">
+                  {t("memberPortal.confirm.cancel")}
+                </button>
+                <button type="button" onClick={() => { confirmModal.onConfirm?.(); setConfirmModal({ isOpen:false, message:"", onConfirm:null }); }}
+                  className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold shadow-md transition-colors">
+                  {t("memberPortal.confirm.confirm")}
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {showBirthdaySurprise && (
-          <BirthdaySurprise 
-            displayName={formData.displayName} 
-            onClose={() => setShowBirthdaySurprise(false)} 
-          />
-        )}
-
+        {showBirthdaySurprise && <BirthdaySurprise displayName={formData.displayName} onClose={() => setShowBirthdaySurprise(false)} />}
       </div>
 
-      {/* Fixed Bottom Navigation Bar for Mobile */}
+      {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
       {!isGuestMode && bio?.status !== 'pending' && (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-white/70 dark:bg-[#12111a]/70 backdrop-blur-2xl backdrop-saturate-200 border-t border-white/25 dark:border-white/5 shadow-[0_-1px_0_rgba(255,255,255,0.08),0_-8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_-1px_0_rgba(255,255,255,0.03),0_-8px_32px_rgba(0,0,0,0.4)] pb-[calc(env(safe-area-inset-bottom,0px)+10px)] pt-2.5 px-2 flex justify-around">
-          {[
-            { id: "account", label: t("memberPortal.tabs.bio"), icon: "person" },
-            { id: "manage", label: t("memberPortal.tabs.package"), icon: "card_membership" },
-            { id: "partner", label: t("memberPortal.tabs.partner"), icon: "handshake" },
-            { id: "utilities", label: t("memberPortal.tabs.utilities"), icon: "apps" },
-            { id: "history", label: t("memberPortal.tabs.history"), icon: "history" }
-          ].map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  if (tab.id === "partner") {
-                    window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer");
-                  } else {
-                    setActiveTab(tab.id);
-                  }
-                }}
-                className={`flex flex-col items-center justify-center gap-1.5 py-1 px-2.5 relative transition-colors duration-200 flex-1 min-w-0 ${
-                  isActive
-                    ? "text-[#0071e3] dark:text-[#0a84ff]"
-                    : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-650 dark:hover:text-zinc-350"
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg leading-none">{tab.icon}</span>
-                <span className="text-[8.5px] font-black tracking-wider uppercase truncate max-w-full">
-                  {tab.label}
-                </span>
-                
-                {tab.id === "history" && unreadHistoryCount > 0 && (
-                  <span className="absolute top-0.5 right-[20%] bg-red-500 text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm animate-bounce-short animate-pulse">
-                    {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
+        <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-white/85 dark:bg-[#111]/85 backdrop-blur-2xl backdrop-saturate-200 border-t border-zinc-200/40 dark:border-zinc-800/30 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)', paddingTop: '10px' }}>
+          <div className="flex justify-around px-2">
+            {TABS.map(tab => {
+              const isActive = !tab.partner && activeTab === tab.id;
+              return (
+                <button key={tab.id} type="button" onClick={() => onTabClick(tab)}
+                  className="flex flex-col items-center justify-center gap-0.5 flex-1 relative py-1 px-1 transition-colors duration-200">
+                  {/* Active pill indicator */}
+                  {isActive && (
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#0071e3] dark:bg-[#0a84ff] rounded-full" />
+                  )}
+                  <span
+                    className={`material-symbols-outlined transition-all duration-200 ${isActive ? 'text-[#0071e3] dark:text-[#0a84ff] text-2xl' : 'text-zinc-400 dark:text-zinc-500 text-[22px]'}`}
+                    style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 500" : "'FILL' 0, 'wght' 400" }}
+                  >
+                    {tab.icon}
                   </span>
-                )}
-              </button>
-            );
-          })}
+                  <span className={`text-[9px] font-bold tracking-wide truncate max-w-full transition-colors duration-200 ${isActive ? 'text-[#0071e3] dark:text-[#0a84ff]' : 'text-zinc-400 dark:text-zinc-500'}`}>
+                    {tab.label}
+                  </span>
+                  {tab.id === "history" && unreadHistoryCount > 0 && (
+                    <span className="absolute top-0.5 right-[18%] bg-red-500 text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm">
+                      {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

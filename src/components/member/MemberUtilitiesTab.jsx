@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import MemberNfcTab from "./MemberNfcTab";
-import MemberUtilitiesDashboard from "./MemberUtilitiesDashboard";
-import MemberVCardTab from "./MemberVCardTab";
-import MemberSignatureTab from "./MemberSignatureTab";
-import MemberSecretLinkTab from "./MemberSecretLinkTab";
-import MemberFileToolsTab from "./MemberFileToolsTab";
-import BanhocduongTab from "./banhocduong/BanhocduongTab";
 import SubUtilityHeader from "./SubUtilityHeader";
+
+const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
+const MemberNfcTab = lazy(() => import("./MemberNfcTab"));
+const MemberVCardTab = lazy(() => import("./MemberVCardTab"));
+const MemberSignatureTab = lazy(() => import("./MemberSignatureTab"));
+const MemberSecretLinkTab = lazy(() => import("./MemberSecretLinkTab"));
+const MemberFileToolsTab = lazy(() => import("./MemberFileToolsTab"));
+const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, defaultUtility, defaultPsychologySubTab, defaultPsychologyPresetTest }) {
   const { t } = useTranslation();
@@ -31,8 +32,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
     return "/api";
   };
 
+  const fallback = <div className="flex items-center justify-center py-12 text-slate-400 text-sm">Đang tải...</div>;
+
   return (
     <div className="space-y-6 animate-fadeIn">
+      <Suspense fallback={fallback}>
       {/* Utility Selector Dashboard */}
       {selectedUtility === null && (
         <MemberUtilitiesDashboard setSelectedUtility={setSelectedUtility} />
@@ -103,6 +107,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           handleSave={handleSave}
         />
       )}
+      </Suspense>
     </div>
   );
 }

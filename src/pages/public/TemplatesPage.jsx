@@ -1,14 +1,15 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, lazy, Suspense } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
-import PhotographyDemo from "../../components/demos/PhotographyDemo";
-import CoffeeDemo from "../../components/demos/CoffeeDemo";
-import JewelryDemo from "../../components/demos/JewelryDemo";
-import PortfolioDemo from "../../components/demos/PortfolioDemo";
-import ECommerceDemo from "../../components/demos/ECommerceDemo";
-import DashboardDemo from "../../components/demos/DashboardDemo";
 import HugoLogo from "../../components/HugoLogo";
+
+const PhotographyDemo = lazy(() => import("../../components/demos/PhotographyDemo"));
+const CoffeeDemo = lazy(() => import("../../components/demos/CoffeeDemo"));
+const JewelryDemo = lazy(() => import("../../components/demos/JewelryDemo"));
+const PortfolioDemo = lazy(() => import("../../components/demos/PortfolioDemo"));
+const ECommerceDemo = lazy(() => import("../../components/demos/ECommerceDemo"));
+const DashboardDemo = lazy(() => import("../../components/demos/DashboardDemo"));
 
 const coreValues = [
   { id: 1, title: "Tận Tâm", desc: "Tỉ mỉ từng tinh vân mã nguồn", img: "/image/avt5.png", color: "from-blue-500/30 to-cyan-500/30", neon: "shadow-[0_0_30px_rgba(6,182,212,0.5)]" },
@@ -285,15 +286,21 @@ export default function TemplatesPage() {
 
   const [activeTemplateId, setActiveTemplateId] = useState("photography");
   const renderActivePreview = () => {
+    let Demo = null;
     switch (activeTemplateId) {
-      case "photography": return <PhotographyDemo isMobile={true} />;
-      case "cafe": return <CoffeeDemo isMobile={true} />;
-      case "jewelry": return <JewelryDemo isMobile={true} />;
-      case "portfolio": return <PortfolioDemo isMobile={true} />;
-      case "ecommerce": return <ECommerceDemo isMobile={true} />;
-      case "dashboard": return <DashboardDemo isMobile={true} />;
+      case "photography": Demo = PhotographyDemo; break;
+      case "cafe": Demo = CoffeeDemo; break;
+      case "jewelry": Demo = JewelryDemo; break;
+      case "portfolio": Demo = PortfolioDemo; break;
+      case "ecommerce": Demo = ECommerceDemo; break;
+      case "dashboard": Demo = DashboardDemo; break;
       default: return null;
     }
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center h-full text-white/40 text-sm">Loading...</div>}>
+        <Demo isMobile={true} />
+      </Suspense>
+    );
   };
 
   const Slide4_Demos = () => (
