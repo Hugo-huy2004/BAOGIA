@@ -35,6 +35,7 @@ const AdminProjectsPage = lazy(() => import("./pages/admin/AdminProjectsPage"));
 const AdminProjectDetailPage = lazy(() => import("./pages/admin/AdminProjectDetailPage"));
 const SecretLinkUnlock = lazy(() => import("./pages/member/SecretLinkUnlock"));
 const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
+const MemberIdeTab = lazy(() => import("./components/member/MemberIdeTab"));
 
 function AppContent() {
   const location = useLocation();
@@ -48,8 +49,8 @@ function AppContent() {
     !isPreviewRoute &&
     location.pathname !== "/introduction" && 
     location.pathname !== "/" &&
-    location.pathname !== "/member" &&
-    location.pathname !== "/admin";
+    !location.pathname.startsWith("/member") &&
+    !location.pathname.startsWith("/admin");
 
   const isMaintenanceMode = data?.systemSettings?.maintenanceMode === true;
   const isVacationMode = data?.systemSettings?.vacationMode === true;
@@ -58,12 +59,13 @@ function AppContent() {
   const isCustomerPortalRoute = location.pathname.startsWith("/customer-portal");
   const isSecretLinkRoute = location.pathname.startsWith("/s/");
   const isPayRoute = location.pathname.startsWith("/pay/");
+  const isIdeRoute = location.pathname === "/member/ide";
 
-  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute) {
+  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute) {
     return <MaintenancePage />;
   }
 
-  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute) {
+  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute) {
     return (
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
         <Routes>
@@ -73,6 +75,11 @@ function AppContent() {
           <Route path="/preview" element={<LivePreviewPage />} />
           <Route path="/customer-portal" element={<CustomerPortalPage />} />
           <Route path="/pay/:id" element={<PaymentGatewayPage />} />
+          <Route path="/member/ide" element={
+            (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
+              ? <MemberIdeTab onBack={() => window.close()} />
+              : <Navigate to="/login" replace />
+          } />
         </Routes>
       </Suspense>
     );
@@ -110,7 +117,13 @@ function AppContent() {
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/booking" element={<BookingContactPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/member" element={
+            <Route path="/member" element={<Navigate to="/member/account" replace />} />
+            <Route path="/member/:tab" element={
+              (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
+                ? <MemberPortalPage />
+                : <Navigate to="/login" replace />
+            } />
+            <Route path="/member/:tab/:subTab" element={
               (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
                 ? <MemberPortalPage />
                 : <Navigate to="/login" replace />

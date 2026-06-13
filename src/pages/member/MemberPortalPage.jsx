@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { getMemberSession, logoutAuth } from "../../services/authSession";
@@ -63,10 +64,14 @@ export default function MemberPortalPage() {
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
   const triggerConfirm = (message, onConfirm) => setConfirmModal({ isOpen: true, message, onConfirm });
 
-  // ── Tab state ────────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab]         = useState("account");
-  const [accountSubTab, setAccountSubTab] = useState("profile");
-  const [mobileSubSection, setMobileSubSection] = useState(null); // mobile section detail
+  // ── Tab state derived from URL ──────────────────────────────────────────────
+  const { tab, subTab } = useParams();
+  const navigate = useNavigate();
+
+  const activeTab = tab || "account";
+  const accountSubTab = subTab || "profile";
+  const mobileSubSection = subTab || null;
+
   const [previewMode, setPreviewMode]     = useState("mobile");
   const [mobileView, setMobileView]       = useState("edit");
 
@@ -136,7 +141,7 @@ export default function MemberPortalPage() {
     email: memberSession?.email || null,
     onNavigate: (tab, utility, subTab, presetTest) => {
       setDefaultUtility(utility); setDefaultPsychologySubTab(subTab);
-      setDefaultPsychologyPresetTest(presetTest); setActiveTab(tab);
+      setDefaultPsychologyPresetTest(presetTest); navigate(`/member/${tab}`);
     },
     showToast, sendNotification,
   });
@@ -172,8 +177,8 @@ export default function MemberPortalPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlTab = params.get("tab");
-    if (urlTab) setActiveTab(urlTab);
-  }, []);
+    if (urlTab) navigate(`/member/${urlTab}`, { replace: true });
+  }, [navigate]);
 
   useEffect(() => {
     const load = async () => {
@@ -364,7 +369,7 @@ export default function MemberPortalPage() {
     if (!bio?._id) return;
     triggerConfirm(t("memberPortal.confirm.deletePersonal"), async () => {
       setSaving(true);
-      try { await memberService.deleteMemberBio(bio._id); setBio(null); setFormData(emptyFormReset(false)); showToast(t("memberPortal.toast.deletePersonalSuccess"), "success"); setActiveTab("account"); }
+      try { await memberService.deleteMemberBio(bio._id); setBio(null); setFormData(emptyFormReset(false)); showToast(t("memberPortal.toast.deletePersonalSuccess"), "success"); navigate("/member/account"); }
       catch (_) { showToast(t("memberPortal.toast.deletePersonalError"), "error"); }
       finally { setSaving(false); }
     });
@@ -390,7 +395,7 @@ export default function MemberPortalPage() {
   ];
   const onTabClick = (tab) => {
     if (tab.partner) { window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer"); return; }
-    setActiveTab(tab.id); setMobileSubSection(null);
+    navigate(`/member/${tab.id}`);
   };
 
   // ── Loading screen ────────────────────────────────────────────────────────────
@@ -453,9 +458,8 @@ export default function MemberPortalPage() {
           <div className="flex items-center justify-between gap-3">
             {/* Left */}
             <div className="flex items-center gap-3 min-w-0">
-              {/* Back button on mobile sub-section */}
               {mobileSubSection && (
-                <button type="button" onClick={() => setMobileSubSection(null)}
+                <button type="button" onClick={() => navigate("/member/account")}
                   className="md:hidden w-8 h-8 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 active:scale-90 transition-transform">
                   <span className="material-symbols-outlined text-sm text-zinc-600 dark:text-zinc-300">arrow_back_ios_new</span>
                 </button>
@@ -496,10 +500,6 @@ export default function MemberPortalPage() {
 
             {/* Right */}
             <div className="flex items-center gap-3 shrink-0">
-              {!isGuestMode && (
-                <NotificationBell notifications={notifications} unreadCount={unreadNotifCount}
-                  onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} onOpen={refreshInbox} />
-              )}
               <button type="button" onClick={handleLogout}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-red-200/60 dark:border-red-900/30 bg-red-500/5 hover:bg-red-500/10 text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
                 <span className="material-symbols-outlined text-sm">logout</span>
@@ -571,7 +571,7 @@ export default function MemberPortalPage() {
                             ].map(tab => {
                               const active = accountSubTab === tab.id;
                               return (
-                                <button key={tab.id} type="button" onClick={() => setAccountSubTab(tab.id)}
+                                <button key={tab.id} type="button" onClick={() => navigate(`/member/account/${tab.id}`)}
                                   className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider transition-all duration-200 border ${
                                     active ? "bg-[#0071e3] border-[#0071e3] text-white shadow-md shadow-[#0071e3]/10 translate-x-1" : "bg-white dark:bg-[#1c1c1e] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border-zinc-200 dark:border-zinc-800/60"
                                   }`}>
@@ -687,7 +687,7 @@ export default function MemberPortalPage() {
                                 <button
                                   key={sec.id}
                                   type="button"
-                                  onClick={() => { setAccountSubTab(sec.id); setMobileSubSection(sec.id); }}
+                                  onClick={() => navigate(`/member/account/${sec.id}`)}
                                   className={`bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl p-4 text-left active:scale-[0.96] transition-all duration-150 shadow-sm hover:shadow-md ${isLastOdd ? 'col-span-2' : ''}`}
                                 >
                                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${sec.grad} flex items-center justify-center mb-3 shadow-sm`}>

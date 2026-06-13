@@ -46,6 +46,13 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       title: "Bạn Học Đường",
       desc: "Góc lắng nghe chia sẻ, thực hiện trắc nghiệm tâm lý DASS-21 & Mini-MMPI trực quan cùng nhiều công cụ giảm tải áp lực.",
       btnText: "Mở Tiện Ích"
+    },
+    {
+      id: "ide",
+      icon: "code",
+      title: "Web-based IDE (Học Tập)",
+      desc: "Trình soạn thảo code đa năng (C, C++, C#, Python, Web, PHP) với gợi ý code, bài học cơ bản và hướng dẫn lưu file local.",
+      btnText: "Mở Trình Code"
     }
   ];
 
@@ -74,7 +81,13 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
         {utilities.map((util) => (
           <div 
             key={util.id}
-            onClick={() => setSelectedUtility(util.id)}
+            onClick={() => {
+              if (util.id === "ide") {
+                window.open("/member/ide", "_blank");
+              } else {
+                setSelectedUtility(util.id);
+              }
+            }}
             className="group cursor-pointer bg-white dark:bg-[#12111a] rounded-xl p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-zinc-800 dark:hover:border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-[210px]"
           >
             <div className="space-y-4">

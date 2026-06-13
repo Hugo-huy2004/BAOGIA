@@ -108,7 +108,7 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
           type: 'warning',
           title: 'Cảnh báo sức khỏe tâm thần',
           message: 'Bạn Học Đường phát hiện tâm trạng của bạn đang trầm xuống liên tục. Hãy thực hành bài tập hít thở hoặc trò chuyện với trợ lý nhé.',
-          actionUrl: '/member/portal?tab=utilities',
+          actionUrl: '/member/utilities',
         });
       }
 
