@@ -12,6 +12,7 @@ export default function AdminBottomNav({
       {[
         { id: "users", label: t("adminPanel.bottomNav.users"), icon: "group", count: counts.users },
         { id: "bookings", label: t("adminPanel.bottomNav.bookings"), icon: "calendar_month", count: counts.bookings },
+        { id: "payments", label: t("admin.payments.tab_title", "Thanh toán"), icon: "payments" },
         { id: "partners", label: t("adminPanel.bottomNav.partners"), icon: "handshake" },
         { id: "packages", label: t("adminPanel.bottomNav.packages"), icon: "featured_play_list" },
         { id: "support", label: t("adminPanel.bottomNav.support"), icon: "support_agent", count: counts.support },

@@ -1,6 +1,7 @@
 import { withTranslation } from "react-i18next";
 import React, { Component } from 'react';
 import HugoLogo from "../HugoLogo";
+import { toast } from "react-hot-toast";
 
 class MemberHistoryTab extends Component {
   constructor(props) {
@@ -133,11 +134,14 @@ class MemberHistoryTab extends Component {
                               type="button"
                               onClick={() => {
                                 navigator.clipboard.writeText(bio.birthdayVoucherCode);
-                                if (this.props.showToast) {
-                                  this.props.showToast(`Đã sao chép mã quà tặng! Hãy dán mã tại tab "Gói dịch vụ" để nhận quà.`, "success");
-                                } else {
-                                  alert(`Đã sao chép mã voucher: ${bio.birthdayVoucherCode}`);
-                                }
+                                toast.success(`Đã sao chép mã quà tặng! Hãy dán mã tại tab "Gói dịch vụ" để nhận quà.`, {
+                                  style: {
+                                    background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+                                    color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+                                    borderRadius: '12px',
+                                    border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+                                  }
+                                });
                               }}
                               className="px-3 py-1.5 rounded text-[9px] font-bold uppercase bg-rose-600 hover:bg-rose-700 text-white transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
                             >

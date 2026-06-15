@@ -19,6 +19,7 @@ const MOBILE_TABS = (t, counts) => [
   { id: "dashboard", label: "Home",   icon: "dashboard" },
   { id: "users",     label: "Users",  icon: "group",           count: counts.users },
   { id: "bookings",  label: "Lịch",   icon: "calendar_month",  count: counts.bookings, urgent: true },
+  { id: "payments",  label: "Thanh toán", icon: "payments" },
   { id: "ai",        label: "AI",     icon: "auto_awesome" },
   { id: "support",   label: "Ticket", icon: "support_agent",   count: counts.support, urgent: true },
   { id: "settings",  label: "Cài đặt", icon: "settings" },

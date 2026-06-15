@@ -150,13 +150,13 @@ export default function MemberPortalPage() {
 
   // ── Mobile account section definitions ───────────────────────────────────────
   const ACCOUNT_SECTIONS = useMemo(() => [
-    { id:'profile',  label:'Cá nhân',    sub:'Ảnh đại diện, tên & giới thiệu',   icon:'person',          grad:'from-[#0071e3] to-[#5856d6]'  },
-    { id:'design',   label:'Giao diện',  sub:'Màu sắc, nền & template bio',       icon:'palette',         grad:'from-[#af52de] to-[#5856d6]'  },
-    { id:'links',    label:'Liên kết',   sub:`${formData.links?.length||0} link xã hội`, icon:'link',    grad:'from-[#ff9500] to-[#ff3b30]'  },
-    { id:'projects', label:'Dự án',      sub:`${formData.projects?.length||0} dự án nổi bật`, icon:'folder_special', grad:'from-[#30b0c7] to-[#0071e3]' },
-    { id:'services', label:'Dịch vụ',    sub:`${formData.services?.length||0} dịch vụ`,  icon:'storefront', grad:'from-[#34c759] to-[#30b0c7]' },
-    { id:'career',   label:'Học vấn',    sub:'Kỹ năng & kinh nghiệm',             icon:'school',          grad:'from-[#ffd60a] to-[#ff9500]'  },
-    { id:'body',     label:'Thể trạng',  sub:'Chiều cao, cân nặng & số đo',       icon:'monitor_heart',   grad:'from-[#ff453a] to-[#af52de]'  },
+    { id:'profile',  label:'Cá nhân',    sub:'Ảnh đại diện, tên & giới thiệu',   icon:'person',          grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+    { id:'design',   label:'Giao diện',  sub:'Màu sắc, nền & template bio',       icon:'palette',         grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+    { id:'links',    label:'Liên kết',   sub:`${formData.links?.length||0} link xã hội`, icon:'link',    grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+    { id:'projects', label:'Dự án',      sub:`${formData.projects?.length||0} dự án nổi bật`, icon:'folder_special', grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900' },
+    { id:'services', label:'Dịch vụ',    sub:`${formData.services?.length||0} dịch vụ`,  icon:'storefront', grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900' },
+    { id:'career',   label:'Học vấn',    sub:'Kỹ năng & kinh nghiệm',             icon:'school',          grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+    { id:'body',     label:'Thể trạng',  sub:'Chiều cao, cân nặng & số đo',       icon:'monitor_heart',   grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
   ], [formData.links?.length, formData.projects?.length, formData.services?.length]);
 
   // ── Render account sub-tab form (shared desktop + mobile) ────────────────────
@@ -386,15 +386,50 @@ export default function MemberPortalPage() {
   };
 
   // ── Tab definitions ───────────────────────────────────────────────────────────
-  const TABS = [
-    { id:"account",   label: t("memberPortal.tabs.bio"),       icon:"person",          partner: false },
-    { id:"manage",    label: t("memberPortal.tabs.package"),    icon:"card_membership", partner: false },
-    { id:"partner",   label: t("memberPortal.tabs.partner"),    icon:"handshake",       partner: true  },
-    { id:"utilities", label: t("memberPortal.tabs.utilities"),  icon:"apps",            partner: false },
-    { id:"history",   label: t("memberPortal.tabs.history"),    icon:"history",         partner: false },
-  ];
+  const desktopTabs = useMemo(() => {
+    return [
+      { id: "account",   label: t("memberPortal.tabs.bio"),       icon: "person",          partner: false },
+      ...(!isGuestMode ? [
+        { id: "manage",    label: t("memberPortal.tabs.package"),    icon: "card_membership", partner: false },
+        { id: "partner",   label: t("memberPortal.tabs.partner"),    icon: "handshake",       partner: true  }
+      ] : []),
+      { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps",            partner: false },
+      { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history",         partner: false },
+    ];
+  }, [isGuestMode, t]);
+
+  const mobileTabs = useMemo(() => {
+    if (isGuestMode) {
+      return [
+        { id: "account",   label: t("memberPortal.tabs.bio"),       icon: "person" },
+        { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
+        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" },
+        { id: "login",     label: t("navbar.login", "Đăng Nhập"),    icon: "login" }
+      ];
+    } else {
+      return [
+        { id: "account",   label: t("memberPortal.tabs.bio"),       icon: "person" },
+        { id: "manage",    label: t("memberPortal.tabs.package"),    icon: "card_membership" },
+        { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
+        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" },
+        { id: "logout",    label: t("memberPortal.logout", "Đăng Xuất"), icon: "logout" }
+      ];
+    }
+  }, [isGuestMode, t]);
+
   const onTabClick = (tab) => {
-    if (tab.partner) { window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer"); return; }
+    if (tab.id === "login") {
+      window.location.href = "/login";
+      return;
+    }
+    if (tab.id === "logout") {
+      handleLogout();
+      return;
+    }
+    if (tab.partner) {
+      window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer");
+      return;
+    }
     navigate(`/member/${tab.id}`);
   };
 
@@ -500,18 +535,26 @@ export default function MemberPortalPage() {
 
             {/* Right */}
             <div className="flex items-center gap-3 shrink-0">
-              <button type="button" onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-red-200/60 dark:border-red-900/30 bg-red-500/5 hover:bg-red-500/10 text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
-                <span className="material-symbols-outlined text-sm">logout</span>
-                <span className="hidden sm:inline">{t("memberPortal.logout")}</span>
-              </button>
+              {isGuestMode ? (
+                <button type="button" onClick={() => window.location.href = "/login"}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-indigo-200/60 dark:border-indigo-900/30 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
+                  <span className="material-symbols-outlined text-sm">login</span>
+                  <span className="hidden sm:inline">{t("navbar.login", "Đăng Nhập")}</span>
+                </button>
+              ) : (
+                <button type="button" onClick={handleLogout}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-red-200/60 dark:border-red-900/30 bg-red-500/5 hover:bg-red-500/10 text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
+                  <span className="material-symbols-outlined text-sm">logout</span>
+                  <span className="hidden sm:inline">{t("memberPortal.logout")}</span>
+                </button>
+              )}
             </div>
           </div>
 
           {/* Desktop tab navigation */}
-          {!isGuestMode && bio?.status !== 'pending' && (
+          {bio?.status !== 'pending' && (
             <div className="hidden md:flex items-center gap-1 mt-3 pt-3 border-t border-zinc-200/50 dark:border-zinc-800/30">
-              {TABS.map(tab => {
+              {desktopTabs.map(tab => {
                 const isActive = !tab.partner && activeTab === tab.id;
                 return (
                   <button key={tab.id} type="button" onClick={() => onTabClick(tab)}
@@ -690,8 +733,8 @@ export default function MemberPortalPage() {
                                   onClick={() => navigate(`/member/account/${sec.id}`)}
                                   className={`bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl p-4 text-left active:scale-[0.96] transition-all duration-150 shadow-sm hover:shadow-md ${isLastOdd ? 'col-span-2' : ''}`}
                                 >
-                                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${sec.grad} flex items-center justify-center mb-3 shadow-sm`}>
-                                    <span className="material-symbols-outlined text-white text-[22px]" style={{ fontVariationSettings:"'FILL' 1" }}>{sec.icon}</span>
+                                  <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center mb-3 shadow-sm text-zinc-700 dark:text-zinc-300">
+                                    <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings:"'FILL' 1" }}>{sec.icon}</span>
                                   </div>
                                   <p className="text-xs font-extrabold text-zinc-800 dark:text-zinc-200 leading-tight">{sec.label}</p>
                                   <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5 line-clamp-1">{sec.sub}</p>
@@ -743,12 +786,12 @@ export default function MemberPortalPage() {
       </div>
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
-      {!isGuestMode && bio?.status !== 'pending' && (
+      {bio?.status !== 'pending' && (
         <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-white/85 dark:bg-[#111]/85 backdrop-blur-2xl backdrop-saturate-200 border-t border-zinc-200/40 dark:border-zinc-800/30 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)', paddingTop: '10px' }}>
           <div className="flex justify-around px-2">
-            {TABS.map(tab => {
-              const isActive = !tab.partner && activeTab === tab.id;
+            {mobileTabs.map(tab => {
+              const isActive = activeTab === tab.id;
               return (
                 <button key={tab.id} type="button" onClick={() => onTabClick(tab)}
                   className="flex flex-col items-center justify-center gap-0.5 flex-1 relative py-1 px-1 transition-colors duration-200">

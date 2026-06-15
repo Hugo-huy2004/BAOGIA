@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAdminSession } from '../../services/authSession';
+import { toast } from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -112,11 +113,109 @@ export default function AdminPaymentsTab() {
     const url = `${window.location.origin}/pay/${linkId}`;
     navigator.clipboard.writeText(url);
     setCopiedLinkId(linkId);
-    setSuccess(t('admin.payments.copied') || 'Đã copy link!');
+    toast.success(t('admin.payments.copied') || 'Đã copy link!', {
+      style: {
+        background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+        color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+        borderRadius: '12px',
+        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+      }
+    });
     setTimeout(() => {
-      setSuccess('');
       setCopiedLinkId('');
     }, 2000);
+  };
+
+  const handleDeleteLink = async (customLinkId) => {
+    const loadId = toast.loading('Đang xử lý hủy giao dịch...');
+    try {
+      const response = await fetch(`${API_BASE_URL}/payos/cancel/${customLinkId}`, {
+        method: 'POST',
+        headers: getHeaders(),
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        toast.success('Hủy và xóa giao dịch thành công!', {
+          id: loadId,
+          style: {
+            background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+            color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+            borderRadius: '12px',
+            border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+          }
+        });
+        fetchLinks();
+      } else {
+        toast.error(data.error || 'Lỗi khi hủy giao dịch', {
+          id: loadId,
+          style: {
+            background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+            color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+            borderRadius: '12px',
+            border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Delete Link Error:', err);
+      toast.error('Lỗi kết nối khi hủy giao dịch: ' + (err.message || ''), {
+        id: loadId,
+        style: {
+          background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+          color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+          borderRadius: '12px',
+          border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+        }
+      });
+    }
+  };
+
+  const confirmDeleteLink = (customLinkId) => {
+    toast((t) => (
+      <div className="flex flex-col gap-3 p-1">
+        <div className="flex items-start gap-2.5">
+          <span className="material-symbols-outlined text-rose-555 dark:text-rose-400 text-lg mt-0.5 animate-pulse">warning</span>
+          <div>
+            <h4 className="text-xs font-black text-slate-800 dark:text-zinc-100 uppercase tracking-wider">Xác Nhận Hủy</h4>
+            <p className="text-[10.5px] font-semibold text-slate-500 dark:text-zinc-450 mt-0.5 leading-relaxed whitespace-normal">
+              Bạn có chắc chắn muốn hủy và xóa hoàn toàn link thanh toán này khỏi hệ thống không? Khách hàng sẽ không thể thanh toán được nữa.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 border-t border-slate-100 dark:border-zinc-800/80 pt-2.5">
+          <button 
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
+          >
+            Bỏ qua
+          </button>
+          <button 
+            onClick={() => {
+              toast.dismiss(t.id);
+              handleDeleteLink(customLinkId);
+            }}
+            className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all"
+          >
+            Xác nhận Hủy
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 10000,
+      position: 'top-center',
+      style: {
+        background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+        color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+        borderRadius: '16px',
+        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+        boxShadow: '0 20px 40px -15px rgba(0,0,0,0.15)',
+        maxWidth: '350px',
+        padding: '12px'
+      }
+    });
   };
 
   const suggestions = [
@@ -302,7 +401,7 @@ export default function AdminPaymentsTab() {
                   <td className="p-4 text-slate-400 text-[10px]">
                     {link?.createdAt ? new Date(link.createdAt).toLocaleString('vi-VN') : ''}
                   </td>
-                  <td className="p-4 text-center">
+                  <td className="p-4 text-center flex items-center justify-center gap-1">
                     <button
                       onClick={() => copyToClipboard(link.customLinkId)}
                       className="inline-flex items-center justify-center p-2 text-slate-400 hover:text-primary dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 rounded-lg transition-all"
@@ -310,6 +409,15 @@ export default function AdminPaymentsTab() {
                     >
                       <span className="material-symbols-outlined text-base">
                         {copiedLinkId === link.customLinkId ? 'check' : 'content_copy'}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => confirmDeleteLink(link.customLinkId)}
+                      className="inline-flex items-center justify-center p-2 text-slate-400 hover:text-rose-550 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 rounded-lg transition-all"
+                      title="Hủy & Xóa giao dịch khỏi hệ thống"
+                    >
+                      <span className="material-symbols-outlined text-base">
+                        delete
                       </span>
                     </button>
                   </td>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import psychologyService from "../../../services/classes/PsychologyService";
+import { toast } from "react-hot-toast";
 
 const SCAN_STEPS = [
   "Đang nhận diện ký tự quang học (OCR)...",
@@ -102,7 +103,14 @@ export default function UploadAnalyzer() {
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (e) {
       console.error(e);
-      alert("Có lỗi xảy ra khi lưu báo cáo.");
+      toast.error("Có lỗi xảy ra khi lưu báo cáo.", {
+        style: {
+          background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+          color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+          borderRadius: '12px',
+          border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+        }
+      });
     }
   };
 
@@ -124,7 +132,14 @@ export default function UploadAnalyzer() {
       } catch (err) {
         console.error(err);
       }
-      alert("Định dạng tệp không hợp lệ! Vui lòng tải lên tệp ảnh hoặc PDF.");
+      toast.error("Định dạng tệp không hợp lệ! Vui lòng tải lên tệp ảnh hoặc PDF.", {
+        style: {
+          background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+          color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+          borderRadius: '12px',
+          border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+        }
+      });
       setFile(null);
       setFilePreview(null);
       return;

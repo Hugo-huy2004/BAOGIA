@@ -58,7 +58,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
     },
     {
       id: "chess",
-      icon: "strategy",
+      icon: "chess",
       title: "HugoChess",
       desc: "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống ELO & xếp hạng.",
       btnText: "Vào Sảnh Cờ"
@@ -86,7 +86,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       </div>
 
       {/* Dashboard Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3.5 md:gap-6">
         {utilities.map((util) => (
           <div 
             key={util.id}
@@ -99,21 +99,21 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
                 setSelectedUtility(util.id);
               }
             }}
-            className="group cursor-pointer bg-white dark:bg-[#12111a] rounded-xl p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-zinc-800 dark:hover:border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-[210px]"
+            className="group cursor-pointer bg-white dark:bg-[#12111a] rounded-2xl p-4 md:p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-zinc-800 dark:hover:border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-[155px] md:h-[210px]"
           >
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-colors group-hover:bg-zinc-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black">
-                <span className="material-symbols-outlined text-2xl">{util.icon}</span>
+            <div className="space-y-2 md:space-y-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-colors group-hover:bg-zinc-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black">
+                <span className="material-symbols-outlined text-xl md:text-2xl">{util.icon}</span>
               </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-black text-zinc-800 dark:text-zinc-100">{util.title}</h3>
-                <p className="text-[10.5px] text-zinc-450 dark:text-zinc-450 leading-relaxed">
+              <div className="space-y-0.5 md:space-y-1">
+                <h3 className="text-xs md:text-sm font-black text-zinc-800 dark:text-zinc-100 line-clamp-1 md:line-clamp-none">{util.title}</h3>
+                <p className="text-[9.5px] md:text-[10.5px] text-zinc-450 dark:text-zinc-400 leading-snug md:leading-relaxed line-clamp-2 md:line-clamp-none">
                   {util.desc}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 text-[9px] font-black text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-white uppercase tracking-widest pt-2">
-              {util.btnText} <span className="material-symbols-outlined text-[10px] transform group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+            <div className="flex items-center gap-1.5 text-[8.5px] md:text-[9px] font-black text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-white uppercase tracking-widest pt-1 md:pt-2">
+              <span className="truncate">{util.btnText}</span> <span className="material-symbols-outlined text-[9px] md:text-[10px] transform group-hover:translate-x-1 transition-transform shrink-0">arrow_forward_ios</span>
             </div>
           </div>
         ))}

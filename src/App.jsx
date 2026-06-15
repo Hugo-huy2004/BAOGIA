@@ -14,6 +14,7 @@ import HBot from "./components/HBot";
 import { CursorEffect as Cursor } from "@hwagfu/cursor";
 import { useUIStore } from "./stores/uiStore";
 import { TooltipProvider } from "./components/ui/Tooltip";
+import { Toaster } from "react-hot-toast";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -186,6 +187,7 @@ export default function App() {
             <OfflineBanner />
             <AppContent />
             <PWAInstallBanner />
+            <Toaster position="top-center" reverseOrder={false} />
           </TooltipProvider>
         </BrowserRouter>
       </DataProvider>

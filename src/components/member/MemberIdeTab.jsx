@@ -544,33 +544,85 @@ export default function MemberIdeTab({ onBack }) {
   };
 
   // Delete workspace file / folder
-  const handleDeleteEntry = async (targetPath, type) => {
-    const confirmDelete = window.confirm(`Bạn có chắc chắn muốn xóa ${type === "folder" ? "thư mục" : "file"} "${targetPath}"?`);
-    if (!confirmDelete) return;
-
-    if (dirHandle) {
-      await localDeleteEntry(targetPath, type);
-    } else {
-      if (type === "file") {
-        setWorkspaceFiles(prev => prev.filter(f => f.path !== targetPath));
-        setOpenTabs(prev => prev.filter(t => t !== targetPath));
-        if (activeTabPath === targetPath) {
-          setActiveTabPath(prev => {
-            const nextTabs = openTabs.filter(t => t !== targetPath);
-            return nextTabs.length > 0 ? nextTabs[0] : null;
-          });
-        }
-        toast.success(`Đã xóa file ảo: ${targetPath}`);
-      } else {
-        setFolders(prev => prev.filter(d => d !== targetPath && !d.startsWith(`${targetPath}/`)));
-        setWorkspaceFiles(prev => prev.filter(f => !f.path.startsWith(`${targetPath}/`)));
-        setOpenTabs(prev => prev.filter(t => !t.startsWith(`${targetPath}/`)));
-        if (activeTabPath && activeTabPath.startsWith(`${targetPath}/`)) {
-          setActiveTabPath(null);
-        }
-        toast.success(`Đã xóa thư mục ảo: ${targetPath}`);
+  const handleDeleteEntry = (targetPath, type) => {
+    toast((t) => (
+      <div className="flex flex-col gap-3 p-1">
+        <div className="flex items-start gap-2.5">
+          <span className="material-symbols-outlined text-rose-555 dark:text-rose-400 text-lg mt-0.5 animate-pulse">warning</span>
+          <div>
+            <h4 className="text-xs font-black text-slate-800 dark:text-zinc-100 uppercase tracking-wider">Xác Nhận Xóa</h4>
+            <p className="text-[10.5px] font-semibold text-slate-500 dark:text-zinc-450 mt-0.5 leading-relaxed whitespace-normal">
+              Bạn có chắc chắn muốn xóa {type === "folder" ? "thư mục" : "file"} <span className="font-mono font-bold text-rose-600 dark:text-rose-400">"{targetPath.split('/').pop()}"</span> không? Hành động này không thể hoàn tác.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 border-t border-slate-100 dark:border-zinc-800/80 pt-2.5">
+          <button 
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
+          >
+            Bỏ qua
+          </button>
+          <button 
+            onClick={async () => {
+              toast.dismiss(t.id);
+              if (dirHandle) {
+                await localDeleteEntry(targetPath, type);
+              } else {
+                if (type === "file") {
+                  setWorkspaceFiles(prev => prev.filter(f => f.path !== targetPath));
+                  setOpenTabs(prev => prev.filter(t => t !== targetPath));
+                  if (activeTabPath === targetPath) {
+                    setActiveTabPath(prev => {
+                      const nextTabs = openTabs.filter(t => t !== targetPath);
+                      return nextTabs.length > 0 ? nextTabs[0] : null;
+                    });
+                  }
+                  toast.success(`Đã xóa file ảo: ${targetPath}`, {
+                    style: {
+                      background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+                      color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+                      borderRadius: '12px',
+                      border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+                    }
+                  });
+                } else {
+                  setFolders(prev => prev.filter(d => d !== targetPath && !d.startsWith(`${targetPath}/`)));
+                  setWorkspaceFiles(prev => prev.filter(f => !f.path.startsWith(`${targetPath}/`)));
+                  setOpenTabs(prev => prev.filter(t => !t.startsWith(`${targetPath}/`)));
+                  if (activeTabPath && activeTabPath.startsWith(`${targetPath}/`)) {
+                    setActiveTabPath(null);
+                  }
+                  toast.success(`Đã xóa thư mục ảo: ${targetPath}`, {
+                    style: {
+                      background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+                      color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+                      borderRadius: '12px',
+                      border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+                    }
+                  });
+                }
+              }
+            }}
+            className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all"
+          >
+            Xác nhận
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 10000,
+      position: 'top-center',
+      style: {
+        background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+        color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+        borderRadius: '16px',
+        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+        boxShadow: '0 20px 40px -15px rgba(0,0,0,0.15)',
+        maxWidth: '350px',
+        padding: '12px'
       }
-    }
+    });
   };
 
   // Inline action key down handler (Enter, Escape)

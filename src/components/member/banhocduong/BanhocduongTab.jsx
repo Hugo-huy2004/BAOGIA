@@ -12,10 +12,10 @@ import { useTranslation } from "react-i18next";
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
-  { id: 'chat',       label: 'Tâm Sự',    icon: 'psychology_alt', grad: 'from-[#0071e3] to-[#5856d6]',  light: 'bg-[#0071e3]/10 text-[#0071e3]',   dot: 'bg-[#0071e3]'   },
-  { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#ff453a] to-[#af52de]',  light: 'bg-rose-500/10 text-rose-500',     dot: 'bg-rose-500'     },
-  { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#5856d6] to-[#30b0c7]',  light: 'bg-indigo-500/10 text-indigo-500', dot: 'bg-indigo-500'   },
-  { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#ff9500] to-[#ff6b00]',  light: 'bg-amber-500/10 text-amber-500',   dot: 'bg-amber-500'    },
+  { id: 'chat',       label: 'Tâm Sự',    icon: 'psychology_alt', grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-[#0071e3]/10 text-[#0071e3] dark:text-[#0a84ff]',   dot: 'bg-[#0071e3] dark:bg-[#0a84ff]'   },
+  { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-[#0071e3]/10 text-[#0071e3] dark:text-[#0a84ff]',   dot: 'bg-[#0071e3] dark:bg-[#0a84ff]'   },
+  { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-[#0071e3]/10 text-[#0071e3] dark:text-[#0a84ff]',   dot: 'bg-[#0071e3] dark:bg-[#0a84ff]'   },
+  { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-[#0071e3]/10 text-[#0071e3] dark:text-[#0a84ff]',   dot: 'bg-[#0071e3] dark:bg-[#0a84ff]'   },
 ];
 
 // ── Helper: count qualified therapy activities ─────────────────────────────────
@@ -120,17 +120,64 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
       setNotifStatus(perm);
       if (perm === 'granted' && bio?.email) {
         await webPushHelper.registerAndSubscribe(bio.email);
-        showToast?.('Đã bật nhắc nhở! 🎉', 'success');
+        showToast?.('Đã bật nhắc nhở!', 'success');
       }
     } catch (_) {}
   };
 
   const handleClearChat = () => {
-    if (!window.confirm('Xóa toàn bộ lịch sử trò chuyện không?')) return;
-    localStorage.removeItem('banhocduong_chat_messages');
-    onClearMessages?.();
-    showToast?.('Đã xóa lịch sử.', 'success');
-    onClose();
+    toast((t) => (
+      <div className="flex flex-col gap-3 p-1">
+        <div className="flex items-start gap-2.5">
+          <span className="material-symbols-outlined text-rose-555 dark:text-rose-400 text-lg mt-0.5 animate-pulse">warning</span>
+          <div>
+            <h4 className="text-xs font-black text-slate-800 dark:text-zinc-100 uppercase tracking-wider">Xác Nhận Xóa</h4>
+            <p className="text-[10.5px] font-semibold text-slate-500 dark:text-zinc-450 mt-0.5 leading-relaxed whitespace-normal">
+              Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 border-t border-slate-100 dark:border-zinc-800/80 pt-2.5">
+          <button 
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
+          >
+            Bỏ qua
+          </button>
+          <button 
+            onClick={() => {
+              toast.dismiss(t.id);
+              localStorage.removeItem('banhocduong_chat_messages');
+              onClearMessages?.();
+              toast.success('Đã xóa lịch sử trò chuyện.', {
+                style: {
+                  background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+                  color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+                  borderRadius: '12px',
+                  border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+                }
+              });
+              onClose();
+            }}
+            className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all"
+          >
+            Xác nhận Xóa
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 10000,
+      position: 'top-center',
+      style: {
+        background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+        color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+        borderRadius: '16px',
+        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+        boxShadow: '0 20px 40px -15px rgba(0,0,0,0.15)',
+        maxWidth: '350px',
+        padding: '12px'
+      }
+    });
   };
 
   return (

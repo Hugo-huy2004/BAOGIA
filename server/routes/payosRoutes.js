@@ -134,6 +134,45 @@ router.get('/info/:customLinkId', async (req, res) => {
   }
 });
 
+// [Admin] Cancel/Delete payment link
+router.post('/cancel/:customLinkId', requireAdmin, async (req, res) => {
+  try {
+    const link = await PaymentLink.findOne({ customLinkId: req.params.customLinkId });
+    if (!link) {
+      return res.status(404).json({ error: 'Không tìm thấy link thanh toán.' });
+    }
+
+    // Call PayOS cancel API only if it is currently PENDING
+    if (link.status === 'PENDING') {
+      try {
+        // First verify status with PayOS to be sure it wasn't already paid
+        const paymentInfo = await payos.paymentRequests.get(String(link.orderCode));
+        if (paymentInfo.status === 'PAID') {
+          link.status = 'PAID';
+          await link.save();
+          return res.status(400).json({ error: 'Giao dịch đã được thanh toán thành công, không thể hủy.' });
+        }
+
+        await payos.paymentRequests.cancel(link.orderCode, 'Admin hủy giao dịch');
+      } catch (payosError) {
+        console.error('Error calling PayOS cancel:', payosError);
+        // If payment not found or already cancelled, we can continue.
+      }
+    }
+
+    // Delete the payment link from MongoDB
+    await PaymentLink.deleteOne({ customLinkId: req.params.customLinkId });
+
+    res.json({
+      success: true,
+      message: 'Hủy và xóa giao dịch thành công.'
+    });
+  } catch (error) {
+    console.error('Error cancelling payment link:', error);
+    res.status(500).json({ error: 'Lỗi server' });
+  }
+});
+
 // [Webhook] Receive status updates from PayOS
 router.post('/webhook', async (req, res) => {
   try {
