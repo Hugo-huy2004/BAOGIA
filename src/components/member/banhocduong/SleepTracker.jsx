@@ -9,6 +9,7 @@ import dataApi from "../../../services/dataApi";
 import { useSleepAutoDetect } from "../../../hooks/useSleepAutoDetect";
 
 const AI_BASE = import.meta.env.VITE_AI_URL ?? "";
+const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 
 // ── Static data ────────────────────────────────────────────────────────────
 
@@ -187,7 +188,7 @@ export default function SleepTracker({ bio }) {
     try {
       const res = await fetch(`${AI_BASE}/api/sleep/analyze`, {
         method:  "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Internal-Key": INTERNAL_KEY },
         body:    JSON.stringify({ sleepLogs: logs.slice(0, 14), bio: bio || {} }),
       });
       const data = await res.json();

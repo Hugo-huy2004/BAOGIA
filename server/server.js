@@ -123,6 +123,7 @@ import payosRoutes from './routes/payosRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import sleepRoutes from './routes/sleepRoutes.js';
 import inboxRoutes from './routes/inboxRoutes.js';
+import chessRoutes from './routes/chessRoutes.js';
 
 // Routes
 app.use('/api/data', dataRoutes);
@@ -141,6 +142,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/iot', iotRoutes);
 app.use('/api/sleep', sleepRoutes);
 app.use('/api/inbox', inboxRoutes);
+app.use('/api/chess', chessRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -151,12 +153,16 @@ import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
 import { initCompanionScheduler } from './utils/companionScheduler.js';
 import { initProactivePushService } from './services/proactivePushService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
+import { initChessWS } from './services/chessWS.js';
 
 // Create HTTP server so WebSocket can share the same port
 const server = http.createServer(app);
 
 // WebSocket server for real-time IoT data (path: /ws)
 const wss = new WebSocketServer({ server, path: '/ws' });
+
+// Chess WebSocket server (path: /ws/chess)
+initChessWS(server);
 
 // global.wsClients maps email -> Set of connected WebSocket clients
 global.wsClients = {};

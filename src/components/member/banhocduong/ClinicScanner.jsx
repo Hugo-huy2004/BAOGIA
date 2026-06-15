@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 
+const AI_URL = import.meta.env.VITE_AI_URL || "";
+const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY || "";
+
 const SCAN_STEPS = [
   "Đang nhận diện ký tự quang học (OCR)...",
   "Đang định vị bảng điểm L - F - K và chỉ số tâm lý...",
@@ -43,8 +46,9 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
       const formData = new FormData();
       formData.append("file", scanFile);
 
-      const response = await fetch("http://localhost:8000/api/ai/analyze-report", {
+      const response = await fetch(`${AI_URL}/api/ai/analyze-report`, {
         method: "POST",
+        headers: { "X-Internal-Key": INTERNAL_KEY },
         body: formData
       });
 

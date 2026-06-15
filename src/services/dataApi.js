@@ -617,6 +617,39 @@ export const dataApi = {
       console.error('GET request failed:', error);
       throw error;
     }
+  },
+
+  async post(url, body = {}, options = {}) {
+    try {
+      const targetUrl = url.startsWith('http') ? url : `${API_BASE_URL.replace(/\/api$/, '')}${url}`;
+      const response = await safeFetch(targetUrl, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(body),
+        ...options
+      });
+      const data = await response.json();
+      return { data };
+    } catch (error) {
+      console.error('POST request failed:', error);
+      throw error;
+    }
+  },
+
+  async delete(url, options = {}) {
+    try {
+      const targetUrl = url.startsWith('http') ? url : `${API_BASE_URL.replace(/\/api$/, '')}${url}`;
+      const response = await safeFetch(targetUrl, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+        ...options
+      });
+      const data = await response.json();
+      return { data };
+    } catch (error) {
+      console.error('DELETE request failed:', error);
+      throw error;
+    }
   }
 };
 

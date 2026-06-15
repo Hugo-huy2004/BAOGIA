@@ -1,0 +1,68 @@
+/* Indigo board theme for chessground */
+cg-board {
+  background-color: #dde4ff;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4PSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgOCA4IiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPgo8ZyBpZD0iYSI+CiAgPGcgaWQ9ImIiPgogICAgPGcgaWQ9ImMiPgogICAgICA8ZyBpZD0iZCI+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjEiIGhlaWdodD0iMSIgaWQ9ImUiIGZpbGw9IiNkZGU0ZmYiLz4KICAgICAgICA8dXNlIHg9IjEiIHk9IjEiIGhyZWY9IiNlIiB4OmhyZWY9IiNlIi8+CiAgICAgICAgPHJlY3QgeT0iMSIgd2lkdGg9IjEiIGhlaWdodD0iMSIgaWQ9ImYiIGZpbGw9IiM0MzM4Y2EiLz4KICAgICAgICA8dXNlIHg9IjEiIHk9Ii0xIiBocmVmPSIjZiIgeDpocmVmPSIjZiIvPgogICAgICA8L2c+CiAgICAgIDx1c2UgeD0iMiIgaHJlZj0iI2QiIHg6aHJlZj0iI2QiLz4KICAgIDwvZz4KICAgIDx1c2UgeD0iNCIgaHJlZj0iI2MiIHg6aHJlZj0iI2MiLz4KICA8L2c+CiAgPHVzZSB5PSIyIiBocmVmPSIjYiIgeDpocmVmPSIjYiIvPgo8L2c+Cjx1c2UgeT0iNCIgaHJlZj0iI2EiIHg6aHJlZj0iI2EiLz4KPC9zdmc+');
+}
+
+cg-board square.move-dest {
+  background: radial-gradient(rgba(255, 255, 255, 0.55) 22%, rgba(255, 255, 255, 0.8) 0, rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0) 0);
+}
+cg-board square.oc.move-dest {
+  background: radial-gradient(transparent 0%, transparent 80%, rgba(255, 255, 255, 0.5) 80%);
+}
+cg-board square.move-dest:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+cg-board square.last-move {
+  background-color: rgba(255, 220, 0, 0.38);
+}
+cg-board square.selected {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+cg-board square.check {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 0, 0, 1) 0%,
+    rgba(231, 0, 0, 1) 25%,
+    rgba(169, 0, 0, 0) 89%,
+    rgba(158, 0, 0, 0) 100%
+  );
+}
+cg-board square.current-premove {
+  background-color: rgba(79, 70, 229, 0.5);
+}
+cg-board square.premove-dest {
+  background: radial-gradient(rgba(79, 70, 229, 0.5) 22%, rgba(79, 70, 229, 0.8) 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
+}
+
+/* Coordinate label colors: light on dark squares, dark on light squares */
+.orientation-white .ranks :nth-child(odd),
+.orientation-white .files :nth-child(even),
+.orientation-black .ranks :nth-child(even),
+.orientation-black .files :nth-child(odd),
+coords.squares:nth-of-type(odd) :nth-child(even),
+coords.squares:nth-of-type(even) :nth-child(odd) {
+  color: rgba(67, 56, 202, 0.8);
+}
+.orientation-white .ranks :nth-child(even),
+.orientation-white .files :nth-child(odd),
+.orientation-black .ranks :nth-child(odd),
+.orientation-black .files :nth-child(even),
+coords.squares:nth-of-type(odd) :nth-child(odd),
+coords.squares:nth-of-type(even) :nth-child(even) {
+  color: rgba(221, 228, 255, 0.85);
+}
+
+/* Maestro piece set from lichess CDN */
+.cg-wrap piece.king.white    { background-image: url('https://lichess1.org/assets/piece/maestro/wK.svg'); }
+.cg-wrap piece.queen.white   { background-image: url('https://lichess1.org/assets/piece/maestro/wQ.svg'); }
+.cg-wrap piece.rook.white    { background-image: url('https://lichess1.org/assets/piece/maestro/wR.svg'); }
+.cg-wrap piece.bishop.white  { background-image: url('https://lichess1.org/assets/piece/maestro/wB.svg'); }
+.cg-wrap piece.knight.white  { background-image: url('https://lichess1.org/assets/piece/maestro/wN.svg'); }
+.cg-wrap piece.pawn.white    { background-image: url('https://lichess1.org/assets/piece/maestro/wP.svg'); }
+.cg-wrap piece.king.black    { background-image: url('https://lichess1.org/assets/piece/maestro/bK.svg'); }
+.cg-wrap piece.queen.black   { background-image: url('https://lichess1.org/assets/piece/maestro/bQ.svg'); }
+.cg-wrap piece.rook.black    { background-image: url('https://lichess1.org/assets/piece/maestro/bR.svg'); }
+.cg-wrap piece.bishop.black  { background-image: url('https://lichess1.org/assets/piece/maestro/bB.svg'); }
+.cg-wrap piece.knight.black  { background-image: url('https://lichess1.org/assets/piece/maestro/bN.svg'); }
+.cg-wrap piece.pawn.black    { background-image: url('https://lichess1.org/assets/piece/maestro/bP.svg'); }

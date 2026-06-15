@@ -1,8 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const utilities = [
     {
@@ -53,6 +55,13 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       title: "Web-based IDE (Học Tập)",
       desc: "Trình soạn thảo code đa năng (C, C++, C#, Python, Web, PHP) với gợi ý code, bài học cơ bản và hướng dẫn lưu file local.",
       btnText: "Mở Trình Code"
+    },
+    {
+      id: "chess",
+      icon: "strategy",
+      title: "HugoChess",
+      desc: "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống ELO & xếp hạng.",
+      btnText: "Vào Sảnh Cờ"
     }
   ];
 
@@ -84,6 +93,8 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
             onClick={() => {
               if (util.id === "ide") {
                 window.open("/member/ide", "_blank");
+              } else if (util.id === "chess") {
+                navigate("/chess");
               } else {
                 setSelectedUtility(util.id);
               }

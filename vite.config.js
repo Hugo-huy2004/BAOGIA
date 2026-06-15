@@ -63,9 +63,20 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
       },
+      // Sleep AI analysis → Python server (must be before generic /api rule)
+      '/api/sleep/analyze': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
       // IoT WebSocket → Python server
       '/ws/iot': {
         target: 'ws://127.0.0.1:8000',
+        ws: true,
+        changeOrigin: true,
+      },
+      // Chess WebSocket → Node.js backend
+      '/ws/chess': {
+        target: 'ws://127.0.0.1:8081',
         ws: true,
         changeOrigin: true,
       },

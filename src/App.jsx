@@ -11,7 +11,7 @@ import OfflineBanner from "./components/ui/OfflineBanner";
 import PWAInstallBanner from "./components/ui/PWAInstallBanner";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
 import HBot from "./components/HBot";
-import { CursorEffect as Cursor } from "hwagfu-cursor";
+import { CursorEffect as Cursor } from "@hwagfu/cursor";
 import { useUIStore } from "./stores/uiStore";
 import { TooltipProvider } from "./components/ui/Tooltip";
 
@@ -36,6 +36,7 @@ const AdminProjectDetailPage = lazy(() => import("./pages/admin/AdminProjectDeta
 const SecretLinkUnlock = lazy(() => import("./pages/member/SecretLinkUnlock"));
 const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
 const MemberIdeTab = lazy(() => import("./components/member/MemberIdeTab"));
+const ChessPage = lazy(() => import("./pages/public/ChessPage"));
 
 function AppContent() {
   const location = useLocation();
@@ -60,12 +61,13 @@ function AppContent() {
   const isSecretLinkRoute = location.pathname.startsWith("/s/");
   const isPayRoute = location.pathname.startsWith("/pay/");
   const isIdeRoute = location.pathname === "/member/ide";
+  const isChessRoute = location.pathname.startsWith("/chess");
 
-  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute) {
+  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute) {
     return <MaintenancePage />;
   }
 
-  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute) {
+  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute) {
     return (
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
         <Routes>
@@ -80,6 +82,8 @@ function AppContent() {
               ? <MemberIdeTab onBack={() => window.close()} />
               : <Navigate to="/login" replace />
           } />
+          <Route path="/chess" element={<ChessPage />} />
+          <Route path="/chess/:roomId" element={<ChessPage />} />
         </Routes>
       </Suspense>
     );
