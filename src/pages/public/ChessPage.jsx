@@ -49,7 +49,7 @@ export default function ChessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0b0a0f]">
+    <div className="min-h-screen bg-background">
       {screen === "lobby" && (
         <ChessLobby onStartGame={handleStartGame} onJoinRoom={handleJoinRoom} userInfo={userInfo} />
       )}

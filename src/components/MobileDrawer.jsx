@@ -45,14 +45,14 @@ export default function MobileDrawer() {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/30 dark:bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/30 dark:bg-black/50 z-[200] md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Drawer Menu */}
       <div
-        className={`fixed top-0 left-0 h-screen w-64 bg-white/85 dark:bg-[#12111a]/90 backdrop-blur-2xl backdrop-saturate-200 border-r border-white/25 dark:border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.4)] z-40 transform transition-transform duration-300 md:hidden overflow-y-auto ${
+        className={`fixed top-0 left-0 h-screen w-64 bg-white/85 dark:bg-[#12111a]/90 backdrop-blur-2xl backdrop-saturate-200 border-r border-white/25 dark:border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.4)] z-[210] transform transition-transform duration-300 md:hidden overflow-y-auto flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -106,7 +106,7 @@ export default function MobileDrawer() {
         </div>
 
         {/* Auth Link & Lang Switcher */}
-        <div className="absolute bottom-4 left-0 right-0 px-4 py-4 border-t border-outline-variant/30 dark:border-slate-700 flex flex-col gap-1">
+        <div className="mt-auto px-4 py-4 border-t border-outline-variant/30 dark:border-slate-700 flex flex-col gap-1" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}>
           <button
             onClick={toggleLanguage}
             className="flex items-center gap-2 px-4 py-3 rounded-lg text-on-surface dark:text-slate-200 hover:bg-surface-container dark:hover:bg-slate-700 font-medium text-sm transition-colors text-left w-full"

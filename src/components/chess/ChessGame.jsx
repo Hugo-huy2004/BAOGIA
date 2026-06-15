@@ -515,10 +515,10 @@ export default function ChessGame({ config, roomId: propRoomId, onBack, userInfo
   const boardDisabled = status !== "active" || !myTurn;
 
   return (
-    <div className="min-h-screen bg-[#f0ede6] dark:bg-[#0b0a0f] text-zinc-900 dark:text-zinc-100">
+    <div className="min-h-screen bg-background text-foreground">
 
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#111019]/95 backdrop-blur border-b border-zinc-200 dark:border-zinc-800">
+      <header className="sticky top-0 z-20 bg-background/90 backdrop-blur-xl border-b border-border">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
           <button onClick={onBack} className="p-2 -ml-1 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-zinc-500">
             <ArrowLeft className="w-5 h-5" />
@@ -632,8 +632,8 @@ export default function ChessGame({ config, roomId: propRoomId, onBack, userInfo
         )}
 
         {moves.length > 0 && (
-          <div className="bg-white dark:bg-[#111019] rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <p className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-100 dark:border-zinc-800">
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <p className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-border">
               Lịch sử nước đi
             </p>
             <MoveList moves={moves} />
