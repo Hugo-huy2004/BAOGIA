@@ -8,13 +8,13 @@ import { toast } from "react-hot-toast";
 
 const BANKS = [
   { name: 'Vietcombank', code: 'vcb', bin: '970436', logo: 'https://cdn.vietqr.io/img/VCB.png' },
-  { name: 'MBBank', code: 'mb', bin: '970422', logo: 'https://cdn.vietqr.io/img/MB.png' },
+  { name: 'MBBank', code: 'mbbank', bin: '970422', logo: 'https://cdn.vietqr.io/img/MB.png' },
   { name: 'Techcombank', code: 'tcb', bin: '970407', logo: 'https://cdn.vietqr.io/img/TCB.png' },
-  { name: 'VietinBank', code: 'icb', bin: '970415', logo: 'https://cdn.vietqr.io/img/ICB.png' },
+  { name: 'VietinBank', code: 'vietinbank', bin: '970415', logo: 'https://cdn.vietqr.io/img/ICB.png' },
   { name: 'BIDV', code: 'bidv', bin: '970418', logo: 'https://cdn.vietqr.io/img/BIDV.png' },
   { name: 'ACB', code: 'acb', bin: '970416', logo: 'https://cdn.vietqr.io/img/ACB.png' },
-  { name: 'VPBank', code: 'vpb', bin: '970432', logo: 'https://cdn.vietqr.io/img/VPB.png' },
-  { name: 'TPBank', code: 'tpb', bin: '970423', logo: 'https://cdn.vietqr.io/img/TPB.png' }
+  { name: 'VPBank', code: 'vpbank', bin: '970432', logo: 'https://cdn.vietqr.io/img/VPB.png' },
+  { name: 'TPBank', code: 'tpbank', bin: '970423', logo: 'https://cdn.vietqr.io/img/TPB.png' }
 ];
 
 const getMerchantBankName = (bin) => {
@@ -336,7 +336,7 @@ export default function PaymentGatewayPage() {
     }
   ];
 
-  const RECOMMENDED_BANKS = ['vcb', 'mb', 'tcb'];
+  const RECOMMENDED_BANKS = ['vcb', 'mbbank', 'tcb'];
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0b0a0f] text-slate-800 dark:text-zinc-200 flex flex-col font-sans relative overflow-x-hidden pb-12 transition-colors duration-300">

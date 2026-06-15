@@ -196,4 +196,37 @@ router.post('/webhook', async (req, res) => {
   }
 });
 
+// Background loop to poll PayOS API for PENDING links (created in the last 24 hours)
+const autoVerifyPendingPayments = async () => {
+  try {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const pendingLinks = await PaymentLink.find({ 
+      status: 'PENDING',
+      createdAt: { $gte: oneDayAgo }
+    });
+    
+    for (const link of pendingLinks) {
+      try {
+        const paymentInfo = await payos.paymentRequests.get(String(link.orderCode));
+        if (paymentInfo.status === 'PAID') {
+          link.status = 'PAID';
+          await link.save();
+          console.log(`[Auto-Verify] Link ${link.customLinkId} (Order ${link.orderCode}) updated to PAID`);
+        } else if (paymentInfo.status === 'CANCELLED') {
+          link.status = 'CANCELLED';
+          await link.save();
+          console.log(`[Auto-Verify] Link ${link.customLinkId} (Order ${link.orderCode}) updated to CANCELLED`);
+        }
+      } catch (payosErr) {
+        console.error(`[Auto-Verify] Error checking order ${link.orderCode}:`, payosErr.message);
+      }
+    }
+  } catch (err) {
+    console.error('[Auto-Verify] Background job error:', err);
+  }
+};
+
+// Start background task (polling every 10 seconds)
+setInterval(autoVerifyPendingPayments, 10000);
+
 export default router;
