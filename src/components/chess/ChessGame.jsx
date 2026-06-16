@@ -708,7 +708,8 @@ export default function ChessGame({
       }
       res.ratingChange = change;
       if (change !== 0 && userInfo?.email) {
-        fetch("/api/chess/rating/update", {
+        const apiBase = import.meta.env.VITE_API_URL || '/api';
+        fetch(`${apiBase}/chess/rating/update`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

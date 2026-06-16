@@ -39,8 +39,10 @@ export default function ChessPage() {
             avatarUrl: s.avatarUrl || ""
           });
 
+          const apiBase = import.meta.env.VITE_API_URL || '/api';
+
           // Initialize/persist user in the database (defaults to 1500 ELO if not existing)
-          fetch("/api/chess/rating/init", {
+          fetch(`${apiBase}/chess/rating/init`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -49,7 +51,7 @@ export default function ChessPage() {
               avatarUrl: s.avatarUrl || ""
             })
           })
-            .then(() => fetch(`/api/chess/stats?email=${encodeURIComponent(s.email)}`))
+            .then(() => fetch(`${apiBase}/chess/stats?email=${encodeURIComponent(s.email)}`))
             .then(r => r.ok ? r.json() : null)
             .then(d => {
               if (d?.stats) {

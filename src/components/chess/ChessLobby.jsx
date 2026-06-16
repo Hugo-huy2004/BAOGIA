@@ -176,7 +176,8 @@ function Leaderboard({ active }) {
   const fetchLb = useCallback(async (manual = false) => {
     if (manual) setSpinning(true);
     try {
-      const r = await fetch("/api/chess/leaderboard?limit=30");
+      const apiBase = import.meta.env.VITE_API_URL || '/api';
+      const r = await fetch(`${apiBase}/chess/leaderboard?limit=30`);
       if (!r.ok) return;
       const d = await r.json();
       setLb(d.leaderboard || []);
