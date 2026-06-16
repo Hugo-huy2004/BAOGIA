@@ -39,6 +39,7 @@ function playerInfo(client) {
     displayName: client.displayName,
     rating: client.rating,
     guestId: client.guestId,
+    avatarUrl: client.avatarUrl || '',
   };
 }
 
@@ -61,12 +62,14 @@ async function saveGame(room) {
         displayName: room.white.displayName,
         rating: room.white.rating,
         guestId: room.white.guestId,
+        avatarUrl: room.white.avatarUrl || '',
       } : null,
       black: room.black ? {
         email: room.black.email || null,
         displayName: room.black.displayName,
         rating: room.black.rating,
         guestId: room.black.guestId,
+        avatarUrl: room.black.avatarUrl || '',
       } : null,
       result: room.result || '*',
       reason: room.reason || null,
@@ -192,6 +195,9 @@ function startGame(room) {
     timeControl: room.timeControl,
     white: playerInfo(room.white),
     black: playerInfo(room.black),
+    boardTheme: room.boardTheme || 'blue',
+    whitePieceTheme: room.whitePieceTheme || 'maestro',
+    blackPieceTheme: room.blackPieceTheme || 'maestro',
   };
   if (room.white) send(room.white.ws, { ...base, color: 'white' });
   if (room.black) send(room.black.ws, { ...base, color: 'black' });
@@ -301,8 +307,9 @@ function handleAuth(ws, msg) {
   if (!client) return;
   client.email = msg.email || null;
   client.displayName = msg.displayName || 'Guest';
-  client.rating = Number(msg.rating) || 1200;
+  client.rating = Number(msg.rating) || 1500;
   client.guestId = msg.guestId || client.guestId;
+  client.avatarUrl = msg.avatarUrl || '';
 }
 
 function handleCreateRoom(ws, msg) {
@@ -329,6 +336,15 @@ function handleCreateRoom(ws, msg) {
       black: color === 'black' ? client : null,
       timeControl,
     });
+
+    room.boardTheme = msg.boardTheme || 'blue';
+    if (color === 'white') {
+      room.whitePieceTheme = msg.myPieceTheme || 'maestro';
+      room.blackPieceTheme = msg.oppPieceTheme || 'maestro';
+    } else {
+      room.blackPieceTheme = msg.myPieceTheme || 'maestro';
+      room.whitePieceTheme = msg.oppPieceTheme || 'maestro';
+    }
 
     client.roomId = room.id;
     client.color = color;
@@ -365,6 +381,9 @@ function handleJoinRoom(ws, msg) {
     timeControl: room.timeControl,
     white: playerInfo(room.white),
     black: playerInfo(room.black),
+    boardTheme: room.boardTheme || 'blue',
+    whitePieceTheme: room.whitePieceTheme || 'maestro',
+    blackPieceTheme: room.blackPieceTheme || 'maestro',
   };
   send(ws, joinPayload);
 
@@ -501,6 +520,65 @@ function handleAbort(ws) {
   setTimeout(() => rooms.delete(room.id), 5000);
 }
 
+function handleRematch(ws, msg) {
+  const client = clientMap.get(ws);
+  if (!client) return;
+  const roomId = msg.roomId || client.roomId;
+  if (!roomId) return;
+
+  const room = rooms.get(roomId);
+  if (!room) {
+    return send(ws, { type: 'error', message: 'Không tìm thấy phòng chơi' });
+  }
+
+  let color = null;
+  if (room.white && room.white.ws === ws) color = 'white';
+  else if (room.black && room.black.ws === ws) color = 'black';
+  if (!color) return;
+
+  room.rematchRequests = room.rematchRequests || new Set();
+  room.rematchRequests.add(color);
+
+  // Notify the opponent
+  const opponent = color === 'white' ? room.black : room.white;
+  if (opponent && opponent.ws) {
+    send(opponent.ws, { type: 'rematch_offer', offeredBy: color });
+  }
+
+  // If both players have requested rematch
+  if (room.rematchRequests.has('white') && room.rematchRequests.has('black')) {
+    // Swap colors
+    const oldWhite = room.white;
+    const oldBlack = room.black;
+
+    room.white = oldBlack;
+    room.black = oldWhite;
+
+    room.white.color = 'white';
+    room.white.roomId = room.id;
+    room.black.color = 'black';
+    room.black.roomId = room.id;
+
+    // Reset chess instance and state
+    room.chess = new Chess();
+    room.fen = room.chess.fen();
+    room.moves = [];
+    room.turn = 'w';
+    room.status = 'active';
+    room.result = null;
+    room.reason = null;
+    room.drawOfferedBy = null;
+    room.rematchRequests = new Set();
+
+    const tcMs = room.timeControl * 1000;
+    room.whiteTime = tcMs;
+    room.blackTime = tcMs;
+
+    // Restart game
+    startGame(room);
+  }
+}
+
 function handleDisconnect(ws) {
   const client = clientMap.get(ws);
   if (!client) return;
@@ -537,8 +615,8 @@ function handleDisconnect(ws) {
 
 // ─── Public init ─────────────────────────────────────────────────────────────
 
-export function initChessWS(server) {
-  const wss = new WebSocketServer({ server, path: '/ws/chess' });
+export function initChessWS(options) {
+  const wss = new WebSocketServer(options);
 
   wss.on('connection', (ws) => {
     const client = {
@@ -546,10 +624,11 @@ export function initChessWS(server) {
       guestId: randomUUID(),
       email: null,
       displayName: 'Guest',
-      rating: 1200,
+      rating: 1500,
       roomId: null,
       color: null,
       timeControl: null,
+      avatarUrl: '',
     };
     clientMap.set(ws, client);
 
@@ -571,6 +650,7 @@ export function initChessWS(server) {
         case 'draw_accept':  handleDrawAccept(ws);       break;
         case 'draw_decline': handleDrawDecline(ws);      break;
         case 'abort':        handleAbort(ws);            break;
+        case 'rematch':      handleRematch(ws, msg);     break;
         case 'ping':         send(ws, { type: 'pong' }); break;
         default:             send(ws, { type: 'error', message: `Unknown message type: ${msg.type}` });
       }

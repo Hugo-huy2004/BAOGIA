@@ -1,42 +1,171 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import {
   ArrowLeft, Bot, Users, Link2, Clock, Trophy,
   Crown, ChevronRight, Swords, Hash, Shield,
-  Timer, RefreshCw, Circle,
+  Timer, RefreshCw, Circle, Smile, Flame, Shuffle,
+  Volume2, VolumeX, Eye, EyeOff, Zap, Settings,
+  Check, ChevronDown,
 } from "lucide-react";
+
+// ── Sound packs player in Lobby ────────────────────────────────────────────────
+let _ctx = null;
+function beep(hz, dur, vol = 0.1, shape = "sine", delay = 0) {
+  try {
+    if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_ctx.state === "suspended") _ctx.resume();
+    const o = _ctx.createOscillator(), g = _ctx.createGain();
+    o.type = shape; o.connect(g); g.connect(_ctx.destination);
+    const t = _ctx.currentTime + delay;
+    o.frequency.setValueAtTime(hz, t);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t); o.stop(t + dur + 0.05);
+  } catch (_) {}
+}
+function playFx(type, pack) {
+  if (pack === "mute") return;
+  if (pack === "synth") {
+    if (type === "move")    { beep(440, 0.08, 0.08, "square"); }
+    if (type === "capture") { beep(587, 0.06, 0.1, "sawtooth"); beep(880, 0.12, 0.08, "sawtooth", 0.05); }
+    if (type === "check")   { beep(987, 0.15, 0.1, "sine"); beep(1318, 0.2, 0.08, "sine", 0.05); }
+  } else if (pack === "modern") {
+    if (type === "move")    { beep(600, 0.03, 0.12, "sine"); }
+    if (type === "capture") { beep(800, 0.04, 0.15, "triangle"); beep(400, 0.04, 0.12, "triangle", 0.02); }
+    if (type === "check")   { beep(900, 0.1, 0.1, "square"); }
+  } else { // classic
+    if (type === "move")    { beep(520, 0.07); beep(380, 0.06, 0.08, "sine", 0.05); }
+    if (type === "capture") { beep(200, 0.14, 0.18, "sawtooth"); beep(120, 0.1, 0.1, "sawtooth", 0.1); }
+    if (type === "check")   { beep(880, 0.18, 0.09, "square"); }
+  }
+}
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const TIME_CONTROLS = [
-  { label: "1'",  value: 60,   tag: "Bullet" },
-  { label: "3'",  value: 180,  tag: "Blitz" },
-  { label: "5'",  value: 300,  tag: "Blitz" },
-  { label: "10'", value: 600,  tag: "Rapid" },
-  { label: "15'", value: 900,  tag: "Rapid" },
-  { label: "30'", value: 1800, tag: "Classical" },
+  { label: "1'",  value: 60,   tag: "Bullet",    icon: Zap },
+  { label: "3'",  value: 180,  tag: "Blitz",     icon: Flame },
+  { label: "5'",  value: 300,  tag: "Blitz",     icon: Flame },
+  { label: "10'", value: 600,  tag: "Rapid",     icon: Timer },
+  { label: "15'", value: 900,  tag: "Rapid",     icon: Timer },
+  { label: "30'", value: 1800, tag: "Classical",  icon: Shield },
 ];
 
 const MODES = [
-  { id: "bot",    Icon: Bot,   title: "Đấu với Bot",      desc: "Luyện tập cùng Stockfish AI" },
-  { id: "random", Icon: Users, title: "Đấu ngẫu nhiên",  desc: "Ghép đối thủ tự động theo ELO" },
-  { id: "friend", Icon: Link2, title: "Tạo phòng riêng", desc: "Chia sẻ link mời bạn bè" },
+  { id: "bot",    Icon: Bot,   title: "Đấu với Bot",       desc: "Luyện tập cùng Stockfish AI" },
+  { id: "random", Icon: Users, title: "Đấu ngẫu nhiên",   desc: "Ghép đối thủ tự động theo JOY" },
+  { id: "friend", Icon: Link2, title: "Tạo phòng riêng",  desc: "Tạo phòng riêng & chia sẻ link mời" },
+  { id: "join",   Icon: Hash,  title: "Vào phòng bằng mã", desc: "Nhập mã phòng từ bạn bè để tham gia" },
 ];
 
 const COLOR_OPTS = [
   { v: "white",  sym: "♔", label: "Trắng",      sub: "Đi trước" },
-  { v: "random", sym: "⚡", label: "Ngẫu nhiên", sub: "May mắn" },
+  { v: "random", sym: "shuffle", label: "Ngẫu nhiên", sub: "May mắn" },
   { v: "black",  sym: "♚", label: "Đen",        sub: "Đi sau" },
 ];
 
 function tier(r) {
-  if (r >= 2000) return { label: "Master",   cls: "bg-muted text-foreground border-border" };
-  if (r >= 1600) return { label: "Expert",   cls: "bg-muted text-foreground border-border" };
-  if (r >= 1400) return { label: "Advanced", cls: "bg-muted text-foreground border-border" };
-  if (r >= 1200) return { label: "Inter",    cls: "bg-muted text-foreground border-border" };
+  if (r >= 2200) return { label: "Master",   cls: "bg-foreground text-background border-foreground" };
+  if (r >= 1800) return { label: "Expert",   cls: "bg-foreground/75 text-background border-foreground/75" };
+  if (r >= 1600) return { label: "Advanced", cls: "bg-foreground/50 text-background border-foreground/50" };
+  if (r >= 1500) return { label: "Inter",    cls: "bg-muted text-foreground border-border" };
   return               { label: "Beginner",  cls: "bg-muted text-muted-foreground border-border" };
 }
 
-// ── Leaderboard with real-time polling ────────────────────────────────────────
+const BOARD_THEMES = [
+  { id: "blue",  label: "Classic Blue",      previewLight: "#dde4ff", previewDark: "#4338ca" },
+  { id: "green", label: "Green Tournament",  previewLight: "#eeeed2", previewDark: "#769656" },
+  { id: "wood",  label: "Warm Wood",         previewLight: "#f0d9b5", previewDark: "#b58863" },
+  { id: "dark",  label: "Charcoal Dark",     previewLight: "#e2e4e6", previewDark: "#3b3f43" },
+  { id: "pink",  label: "Cute Pink",         previewLight: "#ffe5ec", previewDark: "#ff85a1" },
+  { id: "neon",  label: "Cyber Neon",        previewLight: "#93c5fd", previewDark: "#381a5a" },
+];
+
+const PIECE_THEMES = [
+  { id: "maestro",    label: "Maestro",    desc: "Cổ điển & thanh lịch" },
+  { id: "cburnett",   label: "CBurnett",   desc: "Hiện đại, phổ biến nhất" },
+  { id: "merida",     label: "Merida",     desc: "Phong cách nghệ thuật" },
+  { id: "california", label: "California", desc: "Thời trang & hiện đại" },
+];
+
+const BOT_MODES = [
+  { id: 1, label: "Mới chơi",  desc: "+10 JOY mỗi thắng",  Icon: Smile, detail: "Dành cho người mới" },
+  { id: 2, label: "Basic",     desc: "+15 JOY mỗi thắng",  Icon: Bot,   detail: "Thử thách nhẹ nhàng" },
+  { id: 3, label: "Phẫn nộ",  desc: "+20 JOY mỗi thắng",  Icon: Flame, detail: "Bot đủ mạnh" },
+  { id: 4, label: "Trùm cuối", desc: "+40 JOY mỗi thắng",  Icon: Crown, detail: "Thử thách tối đa" },
+];
+
+const APP_THEMES = [
+  { id: "midnight",   label: "Obsidian Tối" },
+  { id: "cyber",      label: "Cyberpunk Neon" },
+  { id: "forest",     label: "Xanh lục bảo" },
+  { id: "paper",      label: "Giấy ấm (Sáng)" },
+  { id: "rose",       label: "Pastel Hồng (Sáng)" },
+  { id: "minimalist", label: "Tối giản (Sáng)" },
+];
+
+const HIGHLIGHT_THEMES = [
+  { id: "yellow", label: "Vàng Neon" },
+  { id: "green",  label: "Xanh Laser" },
+  { id: "blue",   label: "Xanh Dương" },
+  { id: "purple", label: "Tím Điện" },
+  { id: "red",    label: "Đỏ Thẫm" },
+  { id: "none",   label: "Không bóng" },
+];
+
+const SOUND_PACKS = [
+  { id: "classic",    label: "Gỗ cổ điển" },
+  { id: "modern",     label: "Modern Click" },
+  { id: "synth",      label: "Sci-Fi Synth" },
+  { id: "mute",       label: "Tắt âm" },
+];
+
+const BORDER_STYLES = [
+  { id: "none", label: "Không viền" },
+  { id: "thin", label: "Viền mảnh" },
+  { id: "glow", label: "Viền phát sáng" },
+];
+
+const SHADOW_STYLES = [
+  { id: "none", label: "Không bóng" },
+  { id: "soft", label: "Bóng nhẹ" },
+  { id: "3d",   label: "Nổi khối 3D" },
+];
+
+// ── Piece Preview ─────────────────────────────────────────────────────────────
+const PREVIEW_PIECES = [
+  { type: "K", label: "Vua" },
+  { type: "Q", label: "Hậu" },
+  { type: "R", label: "Xe" },
+  { type: "B", label: "Tượng" },
+  { type: "N", label: "Mã" },
+  { type: "P", label: "Tốt" },
+];
+
+function PiecePreview({ theme, colorLetter, size = 36 }) {
+  const base = `https://lichess1.org/assets/piece/${theme}/`;
+  return (
+    <div className="flex items-center gap-1.5">
+      {PREVIEW_PIECES.map(p => (
+        <div
+          key={p.type}
+          title={p.label}
+          style={{
+            width: size,
+            height: size,
+            backgroundImage: `url('${base}${colorLetter}${p.type}.svg')`,
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            flexShrink: 0,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── Leaderboard ───────────────────────────────────────────────────────────────
 function Leaderboard({ active }) {
   const [lb, setLb]           = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +185,6 @@ function Leaderboard({ active }) {
     finally { setLoading(false); if (manual) setTimeout(() => setSpinning(false), 600); }
   }, []);
 
-  // Poll every 8 s while tab is active
   useEffect(() => {
     if (!active) { clearInterval(intervalRef.current); return; }
     fetchLb();
@@ -64,7 +192,6 @@ function Leaderboard({ active }) {
     return () => clearInterval(intervalRef.current);
   }, [active, fetchLb]);
 
-  // Refresh on tab visibility restore
   useEffect(() => {
     if (!active) return;
     const onVisible = () => { if (!document.hidden) fetchLb(); };
@@ -88,7 +215,6 @@ function Leaderboard({ active }) {
 
   return (
     <div className="space-y-3">
-      {/* Live bar */}
       <div className="flex items-center justify-between px-0.5">
         <div className="flex items-center gap-1.5">
           <span className="relative flex h-2 w-2">
@@ -96,53 +222,40 @@ function Leaderboard({ active }) {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-foreground/60" />
           </span>
           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Live</span>
-          {lastAt && (
-            <span className="text-[10px] text-muted-foreground/60">· cập nhật {fmtTime(lastAt)}</span>
-          )}
+          {lastAt && <span className="text-[10px] text-muted-foreground/60">· cập nhật {fmtTime(lastAt)}</span>}
         </div>
-        <button
-          onClick={() => fetchLb(true)}
-          disabled={spinning}
-          className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-          title="Làm mới"
-        >
+        <button onClick={() => fetchLb(true)} disabled={spinning}
+          className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Làm mới">
           <RefreshCw className={`w-3.5 h-3.5 ${spinning ? "animate-spin" : ""}`} />
         </button>
       </div>
 
       {lb.length === 0 ? (
-        <div className="py-12 text-center text-muted-foreground text-sm bg-card border border-border rounded-2xl">
-          Chưa có người chơi nào
-        </div>
+        <div className="py-12 text-center text-muted-foreground text-sm bg-card border border-border rounded-2xl">Chưa có người chơi nào</div>
       ) : (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
           {lb.map((p, i) => {
             const t = tier(p.rating);
             return (
-              <div
-                key={p.email || i}
-                className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/40 transition-colors"
-              >
-                {/* Rank */}
+              <div key={p.email || i} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/40 transition-colors">
                 <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                  {i === 0
-                    ? <Crown className="w-3.5 h-3.5 text-foreground" />
-                    : <span className="text-[11px] font-black text-muted-foreground">{i + 1}</span>
-                  }
+                  {i === 0 ? <Crown className="w-3.5 h-3.5 text-foreground" /> : <span className="text-[11px] font-black text-muted-foreground">{i + 1}</span>}
                 </div>
-                {/* Info */}
+                {/* Avatar */}
+                <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center shrink-0 overflow-hidden text-[11px] font-bold select-none">
+                  {p.avatar ? (
+                    <img src={p.avatar} alt={p.displayName} className="w-full h-full object-cover" />
+                  ) : (
+                    (p.displayName ? p.displayName[0].toUpperCase() : "A")
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm text-foreground truncate">{p.displayName || "Ẩn danh"}</p>
-                  <p className="text-[11px] text-muted-foreground font-mono leading-tight">
-                    {p.gamesPlayed}V · {p.wins}T {p.losses}B {p.draws}H
-                  </p>
+                  <p className="text-[11px] text-muted-foreground font-mono leading-tight">{p.gamesPlayed}V · {p.wins}T {p.losses}B {p.draws}H</p>
                 </div>
-                {/* Rating + tier */}
                 <div className="text-right shrink-0 space-y-0.5">
                   <p className="font-black text-base leading-none text-foreground font-mono">{p.rating}</p>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${t.cls}`}>
-                    {t.label}
-                  </span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${t.cls}`}>{t.label}</span>
                 </div>
               </div>
             );
@@ -154,15 +267,91 @@ function Leaderboard({ active }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function ChessLobby({ onStartGame, onJoinRoom, userInfo }) {
+export default function ChessLobby({
+  onStartGame, onJoinRoom, userInfo,
+  boardTheme, setBoardTheme,
+  myPieceTheme, setMyPieceTheme,
+  oppPieceTheme, setOppPieceTheme,
+  appTheme, setAppTheme,
+  highlightTheme, setHighlightTheme,
+  soundPack, setSoundPack,
+  boardBorder, setBoardBorder,
+  boardShadow, setBoardShadow
+}) {
   const navigate = useNavigate();
-  const [step,   setStep]   = useState("home");   // home | config
-  const [mode,   setMode]   = useState(null);
-  const [tc,     setTc]     = useState(300);
-  const [botLv,  setBotLv]  = useState(3);
-  const [color,  setColor]  = useState("random");
-  const [code,   setCode]   = useState("");
-  const [tab,    setTab]    = useState("play");
+  const [step,  setStep]  = useState("home");
+  const [mode,  setMode]  = useState(null);
+  const [tc,    setTc]    = useState(300);
+  const [botLv, setBotLv] = useState(2);
+  const [color, setColor] = useState("random");
+  const [code,  setCode]  = useState("");
+  const [tab,   setTab]   = useState("play");
+
+  // Appearance local state
+  const [localBoardTheme,    setLocalBoardTheme]    = useState(boardTheme);
+  const [localMyPiece,       setLocalMyPiece]       = useState(myPieceTheme);
+  const [localOppPiece,      setLocalOppPiece]      = useState(oppPieceTheme);
+  const [localAppTheme,      setLocalAppTheme]      = useState(appTheme);
+  const [localHighlight,     setLocalHighlight]     = useState(highlightTheme);
+  const [localSoundPack,     setLocalSoundPack]     = useState(soundPack);
+  const [localBorder,        setLocalBorder]        = useState(boardBorder);
+  const [localShadow,        setLocalShadow]        = useState(boardShadow);
+  const [previewMyPiece,     setPreviewMyPiece]     = useState(null);
+  const [previewOppPiece,    setPreviewOppPiece]    = useState(null);
+
+  // Extra settings
+  const [showCoords,   setShowCoords]   = useState(() => localStorage.getItem("chess_show_coords") !== "false");
+  const [soundEnabled, setSoundEnabled] = useState(() => localStorage.getItem("chess_sound") !== "false");
+  const [autoQueen,    setAutoQueen]    = useState(() => localStorage.getItem("chess_auto_queen") !== "false");
+  const [settingsSaved, setSettingsSaved] = useState(false);
+
+  useEffect(() => {
+    setLocalBoardTheme(boardTheme);
+    setLocalMyPiece(myPieceTheme);
+    setLocalOppPiece(oppPieceTheme);
+    setLocalAppTheme(appTheme);
+    setLocalHighlight(highlightTheme);
+    setLocalSoundPack(soundPack);
+    setLocalBorder(boardBorder);
+    setLocalShadow(boardShadow);
+  }, [boardTheme, myPieceTheme, oppPieceTheme, appTheme, highlightTheme, soundPack, boardBorder, boardShadow]);
+
+  // Real-time styling synchronization to parent
+  useEffect(() => { setAppTheme(localAppTheme); }, [localAppTheme, setAppTheme]);
+  useEffect(() => { setBoardTheme(localBoardTheme); }, [localBoardTheme, setBoardTheme]);
+  useEffect(() => { setMyPieceTheme(localMyPiece); }, [localMyPiece, setMyPieceTheme]);
+  useEffect(() => { setOppPieceTheme(localOppPiece); }, [localOppPiece, setOppPieceTheme]);
+  useEffect(() => { setHighlightTheme(localHighlight); }, [localHighlight, setHighlightTheme]);
+  useEffect(() => { setSoundPack(localSoundPack); }, [localSoundPack, setSoundPack]);
+  useEffect(() => { setBoardBorder(localBorder); }, [localBorder, setBoardBorder]);
+  useEffect(() => { setBoardShadow(localShadow); }, [localShadow, setBoardShadow]);
+
+  function handleSaveAppearance() {
+    localStorage.setItem("chess_board_theme",    localBoardTheme);
+    localStorage.setItem("chess_my_piece_theme", localMyPiece);
+    localStorage.setItem("chess_opp_piece_theme", localOppPiece);
+    localStorage.setItem("chess_app_theme",      localAppTheme);
+    localStorage.setItem("chess_highlight_theme", localHighlight);
+    localStorage.setItem("chess_sound_pack",     localSoundPack);
+    localStorage.setItem("chess_board_border",   localBorder);
+    localStorage.setItem("chess_board_shadow",   localShadow);
+    localStorage.setItem("chess_show_coords",    String(showCoords));
+    localStorage.setItem("chess_sound",          String(soundEnabled));
+    localStorage.setItem("chess_auto_queen",     String(autoQueen));
+
+    setBoardTheme(localBoardTheme);
+    setMyPieceTheme(localMyPiece);
+    setOppPieceTheme(localOppPiece);
+    setAppTheme(localAppTheme);
+    setHighlightTheme(localHighlight);
+    setSoundPack(localSoundPack);
+    setBoardBorder(localBorder);
+    setBoardShadow(localShadow);
+
+    setSettingsSaved(true);
+    setTimeout(() => setSettingsSaved(false), 2000);
+    toast.success("Đã lưu cài đặt!");
+  }
 
   const selectedTc   = TIME_CONTROLS.find(t => t.value === tc);
   const selectedMode = MODES.find(m => m.id === mode);
@@ -170,44 +359,49 @@ export default function ChessLobby({ onStartGame, onJoinRoom, userInfo }) {
   function selectMode(m) { setMode(m); setStep("config"); }
   function goBack()       { setStep("home"); setMode(null); }
 
+  const activePieceTheme = (which) => which === "my" ? localMyPiece : localOppPiece;
+  const setActivePieceTheme = (which, val) => which === "my" ? setLocalMyPiece(val) : setLocalOppPiece(val);
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-foreground transition-all duration-300">
 
       {/* ── Nav ── */}
       <header className="sticky top-0 z-20 h-14 flex items-center border-b border-border bg-background/90 backdrop-blur-xl px-4">
-        <div className="max-w-2xl mx-auto w-full flex items-center gap-3">
-          <button
-            onClick={step !== "home" ? goBack : () => navigate(-1)}
-            className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+        <div className="max-w-6xl mx-auto w-full flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {step !== "home" && (
+              <button
+                onClick={goBack}
+                className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            )}
 
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-foreground flex items-center justify-center shrink-0">
-              <Swords className="w-4 h-4 text-background" />
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-foreground flex items-center justify-center shrink-0">
+                <Swords className="w-4 h-4 text-background" />
+              </div>
+              <span className="font-display font-black text-base tracking-tight truncate text-foreground">
+                HugoChess
+                {step === "config" && selectedMode && (
+                  <span className="font-normal text-muted-foreground"> / {selectedMode.title}</span>
+                )}
+              </span>
             </div>
-            <span className="font-display font-black text-base tracking-tight truncate">
-              HugoChess
-              {step === "config" && selectedMode && (
-                <span className="font-normal text-muted-foreground"> / {selectedMode.title}</span>
-              )}
-            </span>
           </div>
 
-          {/* Tab switcher — only on home */}
           {step === "home" && (
             <div className="flex gap-0.5 p-1 bg-muted rounded-xl shrink-0">
-              {[{ id: "play", label: "Chơi" }, { id: "rank", label: "BXH" }].map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => setTab(t.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    tab === t.id
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
+              {[
+                { id: "play",      label: "Chơi" },
+                { id: "rank",      label: "BXH" },
+                { id: "customize", label: "Cài đặt" },
+              ].map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    tab === t.id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  } ${t.id === "play" ? "md:hidden" : ""}`}>
                   {t.label}
                 </button>
               ))}
@@ -216,218 +410,649 @@ export default function ChessLobby({ onStartGame, onJoinRoom, userInfo }) {
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 pb-12">
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
 
-        {/* ══ HOME — PLAY ════════════════════════════════════════════════════════ */}
-        {step === "home" && tab === "play" && (
-          <div className="pt-5 space-y-5 animate-fade-in">
-
-            {/* Hero */}
-            <div className="relative rounded-3xl overflow-hidden border border-border bg-card p-6">
-              {/* Chess piece watermark */}
-              <span className="pointer-events-none select-none absolute -right-3 -top-3 text-[120px] leading-none text-foreground/[0.04]">♛</span>
-              <span className="pointer-events-none select-none absolute -left-4 -bottom-6 text-[100px] leading-none text-foreground/[0.03]">♞</span>
-
-              <div className="relative space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Cờ vua trực tuyến</p>
-                <h1 className="font-display font-black text-3xl text-foreground leading-tight">
-                  Sẵn sàng<br />thách đấu?
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Chơi với AI hoặc ghép cặp với người thật theo ELO
-                </p>
-              </div>
-
-              {/* User mini-card inline */}
-              {userInfo && (
-                <div className="mt-4 pt-4 border-t border-border flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center text-base shrink-0 select-none">
-                    ♟
+          {/* Left Column: Play Lobby / Configuration Setup */}
+          <div className={`md:col-span-7 space-y-6 ${step === "home" && tab !== "play" ? "hidden md:block" : "block"}`}>
+            {step === "home" && (
+              <div className="space-y-6">
+                {/* Hero Box */}
+                <div className="relative rounded-3xl overflow-hidden border border-border bg-card p-6 shadow-sm">
+                  <span className="pointer-events-none select-none absolute -right-3 -top-3 text-[120px] leading-none text-foreground/[0.04]">♛</span>
+                  <span className="pointer-events-none select-none absolute -left-4 -bottom-6 text-[100px] leading-none text-foreground/[0.03]">♞</span>
+                  <div className="relative space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Cờ vua trực tuyến</p>
+                    <h1 className="font-display font-black text-3xl text-foreground leading-tight">Sẵn sàng<br />thách đấu?</h1>
+                    <p className="text-sm text-muted-foreground">Chơi với AI hoặc ghép cặp với người thật theo JOY</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{userInfo.displayName}</p>
-                    <p className="text-xs text-muted-foreground font-mono">{userInfo.rating || 1200} ELO</p>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-muted text-muted-foreground border border-border">
-                    {tier(userInfo.rating || 1200).label}
-                  </span>
+                  {userInfo && (
+                    <div className="mt-4 pt-4 border-t border-border flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-muted border border-border flex items-center justify-center text-base shrink-0 select-none overflow-hidden font-bold">
+                        {userInfo.avatarUrl ? (
+                          <img src={userInfo.avatarUrl} alt={userInfo.displayName} className="w-full h-full object-cover" />
+                        ) : (
+                          (userInfo.displayName ? userInfo.displayName[0].toUpperCase() : "P")
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{userInfo.displayName}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{userInfo.rating || 1500} JOY</p>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${tier(userInfo.rating || 1500).cls}`}>
+                        {tier(userInfo.rating || 1500).label}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Mode cards */}
-            <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-0.5">Chế độ chơi</p>
-              {MODES.map(({ id, Icon, title, desc }) => (
-                <button
-                  key={id}
-                  onClick={() => selectMode(id)}
-                  className="w-full flex items-center gap-4 p-4 rounded-2xl bg-card border border-border hover:border-foreground/20 transition-all text-left group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0 transition-transform group-hover:scale-105">
-                    <Icon className="w-4.5 h-4.5 text-foreground" strokeWidth={1.75} />
+                {/* Quick time buttons */}
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-0.5">Chơi nhanh</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "1 phút", tc: 60, mode: "random", text: "Bullet", icon: Zap },
+                      { label: "5 phút", tc: 300, mode: "random", text: "Blitz", icon: Flame },
+                      { label: "vs Bot",  tc: 300, mode: "bot", text: "Stockfish", icon: Bot },
+                    ].map(q => {
+                      const QIcon = q.icon;
+                      return (
+                        <button key={q.label} onClick={() => onStartGame({ mode: q.mode, timeControl: q.tc, botLevel: 2, color: "random", boardTheme, myPieceTheme, oppPieceTheme })}
+                          className="flex flex-col items-center gap-1.5 py-4 rounded-2xl bg-card border border-border hover:border-foreground/20 active:scale-95 transition-all">
+                          <QIcon className="w-6 h-6 text-foreground" strokeWidth={1.75} />
+                          <span className="text-xs font-bold text-foreground mt-1">{q.label}</span>
+                          <span className="text-[9px] text-muted-foreground font-semibold leading-none">{q.text}</span>
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-foreground">{title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-border group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
-                </button>
-              ))}
-            </div>
+                </div>
 
-            {/* Join by code */}
-            <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                <Hash className="w-3 h-3" strokeWidth={2.5} /> Nhập mã phòng
-              </p>
-              <div className="flex gap-2">
-                <input
-                  value={code}
-                  onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6))}
-                  placeholder="ABCD12"
-                  className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-mono tracking-widest placeholder:text-muted-foreground/40 focus:outline-none focus:border-foreground/40 focus:ring-2 focus:ring-foreground/10 transition-all text-foreground"
-                />
-                <button
-                  onClick={() => code.length === 6 && onJoinRoom(code)}
-                  disabled={code.length !== 6}
-                  className="px-5 py-2.5 rounded-xl bg-foreground hover:bg-foreground/90 disabled:opacity-30 disabled:cursor-not-allowed text-background text-sm font-bold transition-all"
-                >
-                  Vào
-                </button>
+                {/* Mode cards */}
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-0.5">Chế độ chơi</p>
+                  {MODES.map(({ id, Icon, title, desc }) => (
+                    <button key={id} onClick={() => selectMode(id)}
+                      className="w-full flex items-center gap-4 p-4 rounded-2xl bg-card border border-border hover:border-foreground/20 transition-all text-left group">
+                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0 transition-transform group-hover:scale-105">
+                        <Icon className="w-4.5 h-4.5 text-foreground" strokeWidth={1.75} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-foreground">{title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-border group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Join by code */}
+                <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                    <Hash className="w-3 h-3" strokeWidth={2.5} /> Nhập mã phòng
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      value={code}
+                      onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6))}
+                      onKeyDown={e => { if (e.key === "Enter" && code.length === 6) onJoinRoom(code); }}
+                      placeholder="ABCD12"
+                      className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-mono tracking-widest placeholder:text-muted-foreground/40 focus:outline-none focus:border-foreground/40 focus:ring-2 focus:ring-foreground/10 transition-all text-foreground"
+                    />
+                    <button onClick={() => code.length === 6 && onJoinRoom(code)} disabled={code.length !== 6}
+                      className="px-5 py-2.5 rounded-xl bg-foreground hover:bg-foreground/90 disabled:opacity-30 disabled:cursor-not-allowed text-background text-sm font-bold transition-all">
+                      Vào
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+
+            {step === "config" && mode && (
+              <div className="space-y-4">
+                {mode === "join" ? (
+                  <section className="bg-card border border-border rounded-3xl p-6 space-y-5 text-center shadow-md animate-fadeIn">
+                    <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto text-muted-foreground border border-border">
+                      <Hash className="w-6 h-6" strokeWidth={2} />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-display font-black text-base uppercase tracking-wider">Vào phòng bằng mã</h3>
+                      <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">Nhập mã phòng 6 ký tự viết hoa được chia sẻ từ bạn bè.</p>
+                    </div>
+                    <div className="max-w-xs mx-auto flex flex-col gap-3 pt-2">
+                      <input value={code} onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6))}
+                        onKeyDown={e => { if (e.key==="Enter" && code.length===6) onJoinRoom(code); }}
+                        placeholder="MÃ PHÒNG (VD: ABCDEF)"
+                        className="w-full bg-background border border-border rounded-xl px-4 py-3 text-center text-lg font-mono font-black tracking-[0.25em] placeholder:text-muted-foreground/30 focus:outline-none focus:border-foreground/40 focus:ring-2 focus:ring-foreground/10 transition-all text-foreground" />
+                      <button onClick={() => code.length===6 && onJoinRoom(code)} disabled={code.length!==6}
+                        className="w-full py-3 bg-foreground hover:bg-foreground/90 disabled:opacity-40 disabled:cursor-not-allowed text-background rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-[0.98]">
+                        Vào phòng đấu
+                      </button>
+                    </div>
+                  </section>
+                ) : (
+                  <div className="space-y-4 animate-fadeIn">
+                    {/* Time control */}
+                    <section className="bg-card border border-border rounded-2xl p-4 space-y-3">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                        <Clock className="w-3 h-3" strokeWidth={2.5} /> Thời gian mỗi bên
+                      </p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {TIME_CONTROLS.map(t => {
+                          const TIcon = t.icon;
+                          return (
+                            <button key={t.value} onClick={() => setTc(t.value)}
+                              className={`flex flex-col items-center py-3.5 rounded-xl border-2 transition-all active:scale-95 ${
+                                tc === t.value
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-border bg-background text-foreground hover:border-foreground/30"
+                              }`}>
+                              <TIcon className="w-4 h-4 mb-1" strokeWidth={2.5} />
+                              <span className="font-display font-black text-lg leading-tight">{t.label}</span>
+                              <span className={`text-[9px] font-bold mt-0.5 ${tc===t.value ? "text-background/70" : "text-muted-foreground"}`}>{t.tag}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    {/* Bot level */}
+                    {mode === "bot" && (
+                      <section className="bg-card border border-border rounded-2xl p-4 space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                          <Shield className="w-3 h-3" strokeWidth={2.5} /> Chế độ Bot
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {BOT_MODES.map(b => {
+                            const BIcon = b.Icon;
+                            return (
+                              <button key={b.id} type="button" onClick={() => setBotLv(b.id)}
+                                className={`flex flex-col items-start p-3.5 rounded-xl border-2 transition-all active:scale-95 ${
+                                  botLv === b.id
+                                    ? "border-foreground bg-foreground text-background"
+                                    : "border-border bg-background text-foreground hover:border-foreground/30"
+                                }`}>
+                                <BIcon className={`w-5 h-5 mb-2 shrink-0 ${botLv===b.id ? "text-background" : "text-muted-foreground"}`} strokeWidth={2.5} />
+                                <span className="text-xs font-black leading-tight">{b.label}</span>
+                                <span className={`text-[9px] font-semibold mt-0.5 leading-tight ${botLv===b.id ? "text-background/70" : "text-muted-foreground"}`}>{b.detail}</span>
+                                <span className={`text-[9px] font-bold mt-1 ${botLv===b.id ? "text-background/60" : "text-muted-foreground"}`}>{b.desc}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    )}
+
+                    {/* Color pick */}
+                    {(mode === "bot" || mode === "friend") && (
+                      <section className="bg-card border border-border rounded-2xl p-4 space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Màu quân</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {COLOR_OPTS.map(c => (
+                            <button key={c.v} onClick={() => setColor(c.v)}
+                              className={`py-4 px-2 rounded-xl border-2 text-center transition-all active:scale-95 ${
+                                color===c.v
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-border bg-background text-foreground hover:border-foreground/30"
+                              }`}>
+                              <div className={`flex justify-center items-center h-8 mb-1 leading-none ${color===c.v ? "opacity-100" : "opacity-60"}`}>
+                                {c.sym === "shuffle" ? <Shuffle className="w-5 h-5 text-current" strokeWidth={2.5} /> : <span className="text-2xl">{c.sym}</span>}
+                              </div>
+                              <div className={`text-[10px] font-bold ${color===c.v ? "text-background" : "text-foreground"}`}>{c.label}</div>
+                              <div className={`text-[9px] mt-0.5 ${color===c.v ? "text-background/70" : "text-muted-foreground"}`}>{c.sub}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </section>
+                    )}
+
+                    {/* Summary */}
+                    <div className="bg-muted/50 border border-border rounded-xl px-4 py-3 flex flex-wrap gap-2 items-center">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mr-1">Cài đặt:</span>
+                      <span className="flex items-center gap-1 bg-background border border-border px-2 py-1 rounded-full text-xs font-semibold text-foreground">
+                        <Timer className="w-3.5 h-3.5 text-muted-foreground" /> {selectedTc?.label} · {selectedTc?.tag}
+                      </span>
+                      {mode === "bot" && (
+                        <span className="flex items-center gap-1 bg-background border border-border px-2 py-1 rounded-full text-xs font-semibold text-foreground">
+                          <Bot className="w-3.5 h-3.5 text-muted-foreground" /> {BOT_MODES.find(b=>b.id===botLv)?.label || "Bot"}
+                        </span>
+                      )}
+                      {(mode === "bot" || mode === "friend") && (
+                        <span className="flex items-center gap-1 bg-background border border-border px-2 py-1 rounded-full text-xs font-semibold text-foreground">
+                          {color === "white" ? "♔ Trắng" : color === "black" ? "♚ Đen" : <><Shuffle className="w-3.5 h-3.5 text-muted-foreground" /> Ngẫu nhiên</>}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* CTA button */}
+                    <div className="pt-2">
+                      <button
+                        onClick={() => onStartGame({ mode, timeControl: tc, botLevel: botLv, color, boardTheme, myPieceTheme, oppPieceTheme })}
+                        className="w-full py-4 rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-display font-black text-base transition-all active:scale-[0.98] shadow-xl"
+                      >
+                        {mode === "bot" ? "Bắt đầu đấu" : mode === "random" ? "Tìm đối thủ" : "Tạo phòng"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* ══ HOME — LEADERBOARD ══════════════════════════════════════════════════ */}
-        {step === "home" && tab === "rank" && (
-          <div className="pt-5 animate-fade-in">
-            <div className="flex items-center gap-2 mb-4 px-0.5">
-              <Trophy className="w-4 h-4 text-foreground" strokeWidth={1.75} />
-              <span className="font-display font-black text-base text-foreground">Bảng xếp hạng</span>
-            </div>
-            <Leaderboard active={tab === "rank"} />
-          </div>
-        )}
-
-        {/* ══ CONFIG ═════════════════════════════════════════════════════════════ */}
-        {step === "config" && mode && (
-          <div className="pt-5 space-y-4 animate-fade-in">
-
-            {/* Time control */}
-            <section className="bg-card border border-border rounded-2xl p-4 space-y-3">
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                <Clock className="w-3 h-3" strokeWidth={2.5} /> Thời gian mỗi bên
-              </p>
-              <div className="grid grid-cols-3 gap-2">
-                {TIME_CONTROLS.map(t => (
-                  <button
-                    key={t.value}
-                    onClick={() => setTc(t.value)}
-                    className={`flex flex-col items-center py-3 rounded-xl border-2 transition-all ${
-                      tc === t.value
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border bg-background text-foreground hover:border-foreground/30"
-                    }`}
-                  >
-                    <span className="font-display font-black text-lg leading-tight">{t.label}</span>
-                    <span className={`text-[9px] font-bold mt-0.5 ${tc === t.value ? "text-background/70" : "text-muted-foreground"}`}>
-                      {t.tag}
-                    </span>
+          {/* Right Column: Tabbed Leaderboard and Advanced Personalization settings */}
+          <div className={`md:col-span-5 space-y-6 ${step === "home" && tab === "play" ? "hidden md:block" : step === "config" ? "hidden md:block" : "block"}`}>
+            <div className="bg-card border border-border rounded-3xl p-5 shadow-sm space-y-4">
+              
+              {/* Tabs selector */}
+              <div className="flex p-1 bg-muted rounded-xl">
+                {[
+                  { id: "rank",      label: "Bảng xếp hạng", icon: Trophy },
+                  { id: "customize", label: "Cá nhân hóa",   icon: Settings },
+                ].map(t => (
+                  <button key={t.id} onClick={() => setTab(t.id)}
+                    className={`flex-grow py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      (tab === t.id) || (tab === "play" && t.id === "rank")
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}>
+                    <t.icon className="w-3.5 h-3.5" />
+                    {t.label}
                   </button>
                 ))}
               </div>
-            </section>
 
-            {/* Bot level */}
-            {mode === "bot" && (
-              <section className="bg-card border border-border rounded-2xl p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                    <Shield className="w-3 h-3" strokeWidth={2.5} /> Độ khó
-                  </p>
-                  <span className="text-xs font-black text-foreground font-mono">Lv {botLv} / 8</span>
+              {/* Leaderboard content */}
+              {(tab === "rank" || tab === "play") && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3 px-0.5">
+                    <Trophy className="w-4 h-4 text-foreground animate-pulse" />
+                    <span className="font-display font-black text-sm text-foreground uppercase tracking-wider">Top Kỳ Thủ</span>
+                  </div>
+                  <Leaderboard active={tab === "rank" || tab === "play"} />
                 </div>
-                <div className="grid grid-cols-8 gap-1.5">
-                  {[1,2,3,4,5,6,7,8].map(lv => (
-                    <button
-                      key={lv}
-                      onClick={() => setBotLv(lv)}
-                      className={`aspect-square rounded-xl border-2 text-sm font-black transition-all ${
-                        botLv === lv
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                      }`}
-                    >
-                      {lv}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex justify-between text-[10px] text-muted-foreground">
-                  <span>Dễ nhất</span><span>Khó nhất</span>
-                </div>
-              </section>
-            )}
-
-            {/* Color pick */}
-            {(mode === "bot" || mode === "friend") && (
-              <section className="bg-card border border-border rounded-2xl p-4 space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Màu quân</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {COLOR_OPTS.map(c => (
-                    <button
-                      key={c.v}
-                      onClick={() => setColor(c.v)}
-                      className={`py-4 px-2 rounded-xl border-2 text-center transition-all ${
-                        color === c.v
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border bg-background text-foreground hover:border-foreground/30"
-                      }`}
-                    >
-                      <div className={`text-2xl mb-1 leading-none ${color === c.v ? "opacity-100" : "opacity-60"}`}>
-                        {c.sym}
-                      </div>
-                      <div className={`text-[10px] font-bold ${color === c.v ? "text-background" : "text-foreground"}`}>
-                        {c.label}
-                      </div>
-                      <div className={`text-[9px] mt-0.5 ${color === c.v ? "text-background/70" : "text-muted-foreground"}`}>
-                        {c.sub}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* Summary */}
-            <div className="bg-muted/50 border border-border rounded-xl px-4 py-3 flex flex-wrap gap-2 items-center">
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mr-1">Cài đặt:</span>
-              <span className="flex items-center gap-1 bg-background border border-border px-2 py-1 rounded-full text-xs font-semibold text-foreground">
-                <Timer className="w-3 h-3 text-muted-foreground" /> {selectedTc?.label} · {selectedTc?.tag}
-              </span>
-              {mode === "bot" && (
-                <span className="flex items-center gap-1 bg-background border border-border px-2 py-1 rounded-full text-xs font-semibold text-foreground">
-                  <Bot className="w-3 h-3 text-muted-foreground" /> Stockfish Lv{botLv}
-                </span>
               )}
-              {(mode === "bot" || mode === "friend") && (
-                <span className="bg-background border border-border px-2 py-1 rounded-full text-xs font-semibold text-foreground">
-                  {color === "white" ? "♔ Trắng" : color === "black" ? "♚ Đen" : "⚡ Ngẫu nhiên"}
-                </span>
+
+              {/* Personalization settings */}
+              {tab === "customize" && (
+                <div className="space-y-5 animate-fadeIn">
+                  
+                  {/* Interactive Demo Board */}
+                  <LobbyDemoBoard
+                    boardTheme={localBoardTheme}
+                    pieceTheme={localMyPiece}
+                    oppPieceTheme={localOppPiece}
+                    highlightTheme={localHighlight}
+                    boardBorder={localBorder}
+                    boardShadow={localShadow}
+                    soundPack={localSoundPack}
+                    showCoords={showCoords}
+                  />
+
+                  {/* App theme selection */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block px-0.5">Chủ đề giao diện</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {APP_THEMES.map(theme => (
+                        <button key={theme.id} onClick={() => setLocalAppTheme(theme.id)}
+                          className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                            localAppTheme === theme.id
+                              ? "bg-foreground text-background border-foreground"
+                              : "bg-background border-border text-foreground hover:border-foreground/45"
+                          }`}>
+                          {theme.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Board color selection */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block px-0.5">Màu sắc bàn cờ</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {BOARD_THEMES.map(b => (
+                        <button key={b.id} type="button" onClick={() => setLocalBoardTheme(b.id)}
+                          className={`flex flex-col items-center p-2 rounded-xl border transition-all ${
+                            localBoardTheme === b.id
+                              ? "border-foreground bg-foreground/5 shadow-sm"
+                              : "border-border bg-background hover:border-foreground/30"
+                          }`}>
+                          <div className="w-8 h-8 rounded-full overflow-hidden border border-border flex transform rotate-45 mb-1.5 shrink-0">
+                            <div className="w-1/2 h-full" style={{ backgroundColor: b.previewLight }} />
+                            <div className="w-1/2 h-full" style={{ backgroundColor: b.previewDark }} />
+                          </div>
+                          <span className="text-[9px] font-bold text-center leading-tight truncate w-full text-foreground">{b.label.split(" ")[0]}</span>
+                          {localBoardTheme === b.id && <Check className="w-3 h-3 text-foreground mt-0.5" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Highlight theme selection */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block px-0.5">Chỉ hướng nước đi (Highlight)</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {HIGHLIGHT_THEMES.map(hl => (
+                        <button key={hl.id} onClick={() => setLocalHighlight(hl.id)}
+                          className={`py-1.5 px-2 rounded-xl border text-[10px] font-bold transition-all ${
+                            localHighlight === hl.id
+                              ? "bg-foreground text-background border-foreground"
+                              : "bg-background border-border text-foreground hover:border-foreground/45"
+                          }`}>
+                          {hl.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Sound Pack selection */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block px-0.5">Bộ âm thanh nước đi</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {SOUND_PACKS.map(sp => (
+                        <button key={sp.id} onClick={() => setLocalSoundPack(sp.id)}
+                          className={`py-1.5 px-2 rounded-xl border text-[10px] font-bold transition-all ${
+                            localSoundPack === sp.id
+                              ? "bg-foreground text-background border-foreground"
+                              : "bg-background border-border text-foreground hover:border-foreground/45"
+                          }`}>
+                          {sp.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Piece selections */}
+                  <div className="space-y-4 pt-3 border-t border-border">
+                    <PieceThemeSelector
+                      label="Quân cờ của bạn (Trắng)"
+                      colorLetter="w"
+                      value={localMyPiece}
+                      preview={previewMyPiece}
+                      onHover={setPreviewMyPiece}
+                      onLeave={() => setPreviewMyPiece(null)}
+                      onChange={setLocalMyPiece}
+                    />
+                    <PieceThemeSelector
+                      label="Quân cờ đối đối thủ (Đen)"
+                      colorLetter="b"
+                      value={localOppPiece}
+                      preview={previewOppPiece}
+                      onHover={setPreviewOppPiece}
+                      onLeave={() => setPreviewOppPiece(null)}
+                      onChange={setLocalOppPiece}
+                    />
+                  </div>
+
+                  {/* Visual decorations */}
+                  <div className="space-y-2 pt-3 border-t border-border">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block px-0.5">Viền & Bóng bàn cờ</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <span className="text-[9px] text-muted-foreground font-bold">Kiểu viền</span>
+                        <select value={localBorder} onChange={e => setLocalBorder(e.target.value)}
+                          className="w-full bg-background border border-border rounded-xl px-2 py-1.5 text-xs text-foreground focus:outline-none">
+                          {BORDER_STYLES.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[9px] text-muted-foreground font-bold">Kiểu bóng</span>
+                        <select value={localShadow} onChange={e => setLocalShadow(e.target.value)}
+                          className="w-full bg-background border border-border rounded-xl px-2 py-1.5 text-xs text-foreground focus:outline-none">
+                          {SHADOW_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Toggle options */}
+                  <div className="space-y-1 pt-3 border-t border-border">
+                    <ToggleSetting
+                      label="Âm thanh di chuyển"
+                      desc="Bật âm báo khi nước đi được thực hiện"
+                      icon={soundEnabled ? Volume2 : VolumeX}
+                      value={soundEnabled}
+                      onChange={setSoundEnabled}
+                    />
+                    <ToggleSetting
+                      label="Tọa độ bàn cờ"
+                      desc="Hiển thị ký hiệu tọa độ a-h, 1-8"
+                      icon={showCoords ? Eye : EyeOff}
+                      value={showCoords}
+                      onChange={setShowCoords}
+                    />
+                    <ToggleSetting
+                      label="Tự động phong Hậu"
+                      desc="Tự động đổi tốt thành Hậu ở hàng cuối"
+                      icon={Zap}
+                      value={autoQueen}
+                      onChange={setAutoQueen}
+                    />
+                  </div>
+
+                  {/* Save button */}
+                  <button onClick={handleSaveAppearance}
+                    className={`w-full py-3.5 rounded-2xl font-display font-black text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-4 ${
+                      settingsSaved
+                        ? "bg-muted text-foreground border border-border"
+                        : "bg-foreground hover:bg-foreground/90 text-background shadow-md"
+                    }`}>
+                    {settingsSaved ? <><Check className="w-5 h-5" /> Đã lưu!</> : "Lưu cài đặt"}
+                  </button>
+                </div>
               )}
             </div>
-
-            {/* CTA */}
-            <button
-              onClick={() => onStartGame({ mode, timeControl: tc, botLevel: botLv, color })}
-              className="w-full py-4 rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-display font-black text-base transition-all active:scale-[0.98]"
-            >
-              {mode === "bot" ? "Bắt đầu đấu" : mode === "random" ? "Tìm đối thủ" : "Tạo phòng"}
-            </button>
           </div>
-        )}
+
+        </div>
       </div>
     </div>
   );
 }
+
+// ── Interactive Lobby Demo Board ───────────────────────────────────────────────
+function LobbyDemoBoard({ boardTheme, pieceTheme, oppPieceTheme, highlightTheme, boardBorder, boardShadow, soundPack, showCoords }) {
+  const [knightPos, setKnightPos] = useState("g1");
+  const [pawnPos, setPawnPos] = useState("e5");
+  const [selectedSq, setSelectedSq] = useState(null);
+  const [lastMv, setLastMv] = useState(null);
+
+  const playDemoSound = (type) => {
+    playFx(type, soundPack);
+  };
+
+  const handleSquareClick = (sq) => {
+    if (sq === knightPos) {
+      setSelectedSq(sq);
+    } else if (knightPos === "g1" && selectedSq === "g1" && sq === "f3") {
+      setKnightPos("f3");
+      setSelectedSq(null);
+      setLastMv({ from: "g1", to: "f3" });
+      playDemoSound("move");
+    } else if (knightPos === "f3" && selectedSq === "f3" && sq === "e5") {
+      setKnightPos("e5");
+      setPawnPos(null); // Captured!
+      setSelectedSq(null);
+      setLastMv({ from: "f3", to: "e5" });
+      playDemoSound("capture");
+    } else {
+      setSelectedSq(null);
+    }
+  };
+
+  const resetDemo = () => {
+    setKnightPos("g1");
+    setPawnPos("e5");
+    setSelectedSq(null);
+    setLastMv(null);
+  };
+
+  const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"];
+  const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+
+  const getPiece = (file, rank) => {
+    const sq = file + rank;
+    if (knightPos === sq) return { type: "N", color: "w", theme: pieceTheme };
+    if (pawnPos === sq) return { type: "P", color: "b", theme: oppPieceTheme };
+    return null;
+  };
+
+  return (
+    <div className="space-y-2 pb-2">
+      <div className="flex justify-between items-center px-0.5">
+        <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block font-bold">Thử nghiệm (Demo)</label>
+        <button type="button" onClick={resetDemo} className="text-[9px] font-bold text-muted-foreground hover:text-foreground">
+          Đặt lại
+        </button>
+      </div>
+
+      <div className={`mx-auto w-44 aspect-square select-none relative rounded-xl overflow-hidden border-glow-${boardBorder} shadow-style-${boardShadow} board-${boardTheme}`}>
+        <cg-board className="w-full h-full grid grid-cols-8 grid-rows-8 relative">
+          {ranks.map(rank => (
+            files.map(file => {
+              const sq = file + rank;
+              const piece = getPiece(file, rank);
+              const isLastMove = lastMv && (lastMv.from === sq || lastMv.to === sq);
+              const isSelected = selectedSq === sq;
+              const isPossibleDest = (selectedSq === "g1" && sq === "f3" && knightPos === "g1") || 
+                                     (selectedSq === "f3" && sq === "e5" && knightPos === "f3");
+
+              return (
+                <div
+                  key={sq}
+                  onClick={() => handleSquareClick(sq)}
+                  className="relative flex items-center justify-center cursor-pointer transition-all duration-150"
+                  style={{
+                    backgroundColor: isSelected 
+                      ? "rgba(255,255,255,0.35)" 
+                      : isLastMove 
+                        ? (highlightTheme === "yellow" ? "rgba(250, 204, 21, 0.35)" : 
+                           highlightTheme === "green" ? "rgba(34, 197, 94, 0.35)" :
+                           highlightTheme === "blue" ? "rgba(59, 130, 246, 0.35)" :
+                           highlightTheme === "purple" ? "rgba(168, 85, 247, 0.35)" :
+                           highlightTheme === "red" ? "rgba(239, 68, 68, 0.35)" : "transparent")
+                        : "transparent"
+                  }}
+                >
+                  {/* Coordinates */}
+                  {showCoords && (
+                    <>
+                      {file === "a" && <span className="absolute left-0.5 top-0.5 text-[5px] text-muted-foreground opacity-60 font-mono leading-none">{rank}</span>}
+                      {rank === "1" && <span className="absolute right-0.5 bottom-0.5 text-[5px] text-muted-foreground opacity-60 font-mono leading-none">{file}</span>}
+                    </>
+                  )}
+
+                  {/* Piece */}
+                  {piece && (
+                    <div
+                      style={{
+                        width: "80%",
+                        height: "80%",
+                        backgroundImage: `url('https://lichess1.org/assets/piece/${piece.theme}/${piece.color}${piece.type}.svg')`,
+                        backgroundSize: "contain",
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
+                      }}
+                      className="transition-transform duration-200 transform scale-100 hover:scale-110 z-10"
+                    />
+                  )}
+
+                  {/* Move destination hint dot */}
+                  {isPossibleDest && (
+                    <div className="w-2.5 h-2.5 rounded-full bg-foreground/25 absolute" />
+                  )}
+                </div>
+              );
+            })
+          ))}
+        </cg-board>
+      </div>
+    </div>
+  );
+}
+
+// ── Piece Theme Selector with Live Preview ─────────────────────────────────────
+function PieceThemeSelector({ label, colorLetter, value, preview, onHover, onLeave, onChange }) {
+  const activeTheme = preview || value;
+
+  return (
+    <div className="space-y-2">
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground leading-none">{label}</p>
+      </div>
+
+      {/* Live preview frame */}
+      <div className="rounded-2xl border border-border bg-muted/20 p-3 flex flex-col items-center gap-2">
+        {/* Full set of 6 pieces */}
+        <PiecePreview theme={activeTheme} colorLetter={colorLetter} size={30} />
+        {/* Mini board preview */}
+        <div className="flex gap-0.5">
+          {[{p:"K",bg:"rgba(0,0,0,0.1)"},{p:"Q",bg:"rgba(255,255,255,0.05)"},{p:"R",bg:"rgba(0,0,0,0.1)"},{p:"B",bg:"rgba(255,255,255,0.05)"},{p:"N",bg:"rgba(0,0,0,0.1)"},{p:"P",bg:"rgba(255,255,255,0.05)"}].map(({p,bg}) => (
+            <div key={p} className="w-6.5 h-6.5 flex items-center justify-center rounded-sm" style={{ backgroundColor: bg }}>
+              <div style={{
+                width: 22, height: 22,
+                backgroundImage: `url('https://lichess1.org/assets/piece/${activeTheme}/${colorLetter}${p}.svg')`,
+                backgroundSize: "contain",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+              }} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Theme selector buttons */}
+      <div className="grid grid-cols-2 gap-2">
+        {PIECE_THEMES.map(t => (
+          <button key={t.id} type="button"
+            onClick={() => onChange(t.id)}
+            onMouseEnter={() => onHover(t.id)}
+            onMouseLeave={onLeave}
+            onTouchStart={() => onHover(t.id)}
+            onTouchEnd={onLeave}
+            className={`flex items-center gap-2 p-2 rounded-xl border text-left transition-all active:scale-95 ${
+              value === t.id
+                ? "border-foreground bg-foreground/5 shadow-sm"
+                : "border-border bg-background hover:border-foreground/25"
+            }`}>
+            {/* Mini piece icon */}
+            <div style={{
+              width: 24, height: 24, flexShrink: 0,
+              backgroundImage: `url('https://lichess1.org/assets/piece/${t.id}/${colorLetter}K.svg')`,
+              backgroundSize: "contain",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+            }} />
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-black leading-tight truncate">{t.label}</p>
+            </div>
+            {value === t.id && <Check className="w-3 h-3 text-foreground shrink-0" />}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Toggle Setting Row ─────────────────────────────────────────────────────────
+function ToggleSetting({ label, desc, icon: Icon, value, onChange }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(v => !v)}
+      className="w-full flex items-center gap-3 py-2 text-left hover:bg-muted/40 rounded-xl px-1.5 transition-colors"
+    >
+      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-muted text-muted-foreground">
+        <Icon className="w-3.5 h-3.5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-foreground leading-tight">{label}</p>
+        <p className="text-[9px] text-muted-foreground leading-tight mt-0.5">{desc}</p>
+      </div>
+      {/* Toggle switch */}
+      <div className={`w-9 h-5 rounded-full transition-all shrink-0 relative ${value ? "bg-foreground" : "bg-muted border border-border"}`}>
+        <div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full shadow-sm transition-all ${value ? "left-5 bg-background" : "left-0.5 bg-foreground/40"}`} />
+      </div>
+    </button>
+  );
+}
+

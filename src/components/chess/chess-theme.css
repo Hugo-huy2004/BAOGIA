@@ -1,48 +1,254 @@
-/* Indigo board theme for chessground */
+/* ─── Decoupled App Themes ─────────────────────────────────────────────────── */
+.chess-container {
+  position: relative;
+  transition: all 0.3s ease;
+  overflow-x: hidden;
+  min-height: 100dvh;
+}
+
+/* App Theme: Midnight Obsidian (Dark Mode) */
+.chess-container.app-theme-midnight {
+  background-color: #090a0f !important;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.12) 0px, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+  background-attachment: fixed;
+  color: #f3f4f6 !important;
+  --background: 240 33% 5%;
+  --foreground: 220 14% 96%;
+  --card: 233 17% 9%;
+  --card-foreground: 220 14% 96%;
+  --muted: 233 17% 12%;
+  --muted-foreground: 220 9% 65%;
+  --border: 233 17% 14%;
+  --ring: 239 84% 72%;
+}
+.app-theme-midnight header { background-color: rgba(9, 10, 15, 0.9) !important; border-color: rgba(255, 255, 255, 0.05) !important; }
+.app-theme-midnight .bg-card { background-color: #12131a !important; border-color: rgba(255, 255, 255, 0.05) !important; }
+.app-theme-midnight .bg-muted { background-color: rgba(255, 255, 255, 0.04) !important; }
+.app-theme-midnight .text-foreground { color: #f3f4f6 !important; }
+.app-theme-midnight .text-muted-foreground { color: #9ca3af !important; }
+.app-theme-midnight .border-border { border-color: rgba(255, 255, 255, 0.06) !important; }
+.app-theme-midnight input,
+.app-theme-midnight select { background-color: #12131a !important; border-color: rgba(255, 255, 255, 0.1) !important; color: #f3f4f6 !important; }
+.app-theme-midnight input:focus,
+.app-theme-midnight select:focus { border-color: rgba(255, 255, 255, 0.3) !important; }
+
+/* App Theme: Cyberpunk Neon (Dark Mode) */
+.chess-container.app-theme-cyber {
+  background-color: #0b0514 !important;
+  background-image:
+    radial-gradient(at 50% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 60%),
+    radial-gradient(at 100% 50%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+    linear-gradient(rgba(236, 72, 153, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.04) 1px, transparent 1px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.12) 0px, rgba(0, 0, 0, 0.12) 2px, transparent 2px, transparent 4px);
+  background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px, 100% 4px;
+  background-attachment: fixed;
+  color: #fdf8ff !important;
+  --background: 270 60% 5%;
+  --foreground: 280 100% 98%;
+  --card: 268 50% 8%;
+  --card-foreground: 280 100% 98%;
+  --muted: 268 50% 12%;
+  --muted-foreground: 280 40% 75%;
+  --border: 268 50% 18%;
+  --ring: 262 83% 72%;
+}
+.app-theme-cyber header { background-color: rgba(11, 5, 20, 0.9) !important; border-color: rgba(236, 72, 153, 0.15) !important; }
+.app-theme-cyber .bg-card { background-color: #120a1f !important; border-color: rgba(236, 72, 153, 0.15) !important; box-shadow: 0 0 10px rgba(236, 72, 153, 0.05); }
+.app-theme-cyber .bg-muted { background-color: rgba(236, 72, 153, 0.08) !important; }
+.app-theme-cyber .text-foreground { color: #fdf8ff !important; }
+.app-theme-cyber .text-muted-foreground { color: #d8b4fe !important; }
+.app-theme-cyber .border-border { border-color: rgba(236, 72, 153, 0.15) !important; }
+.app-theme-cyber input,
+.app-theme-cyber select { background-color: #120a1f !important; border-color: rgba(236, 72, 153, 0.25) !important; color: #fdf8ff !important; }
+.app-theme-cyber input:focus,
+.app-theme-cyber select:focus { border-color: #ec4899 !important; box-shadow: 0 0 5px rgba(236, 72, 153, 0.4); }
+
+/* App Theme: Forest Green (Dark Mode) */
+.chess-container.app-theme-forest {
+  background-color: #040905 !important;
+  background-image:
+    radial-gradient(at 10% 20%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(5, 150, 105, 0.12) 0px, transparent 50%),
+    radial-gradient(rgba(16, 185, 129, 0.08) 1.5px, transparent 1.5px);
+  background-size: 100% 100%, 100% 100%, 24px 24px;
+  background-attachment: fixed;
+  color: #f2faf3 !important;
+  --background: 132 50% 4%;
+  --foreground: 128 40% 96%;
+  --card: 133 38% 9%;
+  --card-foreground: 128 40% 96%;
+  --muted: 133 38% 12%;
+  --muted-foreground: 128 20% 70%;
+  --border: 133 38% 18%;
+  --ring: 142 70% 45%;
+}
+.app-theme-forest header { background-color: rgba(4, 9, 5, 0.9) !important; border-color: rgba(16, 185, 129, 0.1) !important; }
+.app-theme-forest .bg-card { background-color: #0b140d !important; border-color: rgba(16, 185, 129, 0.1) !important; }
+.app-theme-forest .bg-muted { background-color: rgba(16, 185, 129, 0.05) !important; }
+.app-theme-forest .text-foreground { color: #f2faf3 !important; }
+.app-theme-forest .text-muted-foreground { color: #a7f3d0 !important; }
+.app-theme-forest .border-border { border-color: rgba(16, 185, 129, 0.1) !important; }
+.app-theme-forest input,
+.app-theme-forest select { background-color: #0b140d !important; border-color: rgba(16, 185, 129, 0.15) !important; color: #f2faf3 !important; }
+.app-theme-forest input:focus,
+.app-theme-forest select:focus { border-color: #10b981 !important; }
+
+/* App Theme: Warm Paper (Light Mode) */
+.chess-container.app-theme-paper {
+  background-color: #faf7f2 !important;
+  background-image:
+    linear-gradient(rgba(120, 113, 108, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(220, 38, 38, 0.03) 1px, transparent 1px);
+  background-size: 100% 24px, 100% 100%;
+  background-position: 0 0, 60px 0;
+  background-attachment: fixed;
+  color: #1c1b18 !important;
+  --background: 38 42% 96%;
+  --foreground: 45 6% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 45 6% 10%;
+  --muted: 38 24% 93%;
+  --muted-foreground: 38 8% 45%;
+  --border: 38 20% 90%;
+  --ring: 239 84% 67%;
+}
+.app-theme-paper header { background-color: rgba(250, 247, 242, 0.9) !important; border-color: rgba(0, 0, 0, 0.06) !important; }
+.app-theme-paper .bg-card { background-color: #ffffff !important; border-color: rgba(0, 0, 0, 0.06) !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+.app-theme-paper .bg-muted { background-color: #f2ede4 !important; }
+.app-theme-paper .text-foreground { color: #1c1b18 !important; }
+.app-theme-paper .text-muted-foreground { color: #78716c !important; }
+.app-theme-paper .border-border { border-color: rgba(0, 0, 0, 0.06) !important; }
+.app-theme-paper input,
+.app-theme-paper select { background-color: #ffffff !important; border-color: rgba(0, 0, 0, 0.1) !important; color: #1c1b18 !important; }
+.app-theme-paper input:focus,
+.app-theme-paper select:focus { border-color: #78716c !important; }
+
+/* App Theme: Pastel Rose (Light Mode) */
+.chess-container.app-theme-rose {
+  background-color: #fdf9f9 !important;
+  background-image:
+    radial-gradient(at 0% 100%, rgba(244, 63, 94, 0.06) 0px, transparent 40%),
+    radial-gradient(rgba(244, 63, 94, 0.04) 2.5px, transparent 2.5px),
+    radial-gradient(rgba(244, 63, 94, 0.04) 2.5px, transparent 2.5px);
+  background-size: 100% 100%, 36px 36px, 36px 36px;
+  background-position: 0 0, 0 0, 18px 18px;
+  background-attachment: fixed;
+  color: #271a1d !important;
+  --background: 0 50% 99%;
+  --foreground: 347 20% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 347 20% 13%;
+  --muted: 347 30% 96%;
+  --muted-foreground: 347 15% 45%;
+  --border: 347 30% 94%;
+  --ring: 347 80% 60%;
+}
+.app-theme-rose header { background-color: rgba(253, 249, 249, 0.9) !important; border-color: rgba(244, 63, 94, 0.08) !important; }
+.app-theme-rose .bg-card { background-color: #ffffff !important; border-color: rgba(244, 63, 94, 0.08) !important; }
+.app-theme-rose .bg-muted { background-color: #f5ebeb !important; }
+.app-theme-rose .text-foreground { color: #271a1d !important; }
+.app-theme-rose .text-muted-foreground { color: #9f1239 !important; }
+.app-theme-rose .border-border { border-color: rgba(244, 63, 94, 0.08) !important; }
+.app-theme-rose input,
+.app-theme-rose select { background-color: #ffffff !important; border-color: rgba(244, 63, 94, 0.15) !important; color: #271a1d !important; }
+.app-theme-rose input:focus,
+.app-theme-rose select:focus { border-color: #f43f5e !important; }
+
+/* App Theme: Minimalist (Light Mode) */
+.chess-container.app-theme-minimalist {
+  background-color: #fbfbfb !important;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.015) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
+  color: #111111 !important;
+  --background: 0 0% 98%;
+  --foreground: 0 0% 7%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 7%;
+  --muted: 0 0% 95%;
+  --muted-foreground: 0 0% 45%;
+  --border: 0 0% 90%;
+  --ring: 0 0% 20%;
+}
+.app-theme-minimalist header { background-color: rgba(251, 251, 251, 0.9) !important; border-color: #e5e5e5 !important; }
+.app-theme-minimalist .bg-card { background-color: #ffffff !important; border-color: #e5e5e5 !important; }
+.app-theme-minimalist .bg-muted { background-color: #f3f3f3 !important; }
+.app-theme-minimalist .text-foreground { color: #111111 !important; }
+.app-theme-minimalist .text-muted-foreground { color: #666666 !important; }
+.app-theme-minimalist .border-border { border-color: #e5e5e5 !important; }
+.app-theme-minimalist input,
+.app-theme-minimalist select { background-color: #ffffff !important; border-color: #cccccc !important; color: #111111 !important; }
+.app-theme-minimalist input:focus,
+.app-theme-minimalist select:focus { border-color: #111111 !important; }
+
+/* ─── Board Themes ────────────────────────────────────────────────────────── */
+.board-blue cg-board {
+  background-color: #dde4ff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'%3E%3Crect width='2' height='2' fill='%23dde4ff'/%3E%3Crect width='1' height='1' fill='%234338ca'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%234338ca'/%3E%3C/svg%3E");
+  background-size: 25% 25%;
+}
+.board-blue { --coord-dark: rgba(67,56,202,0.8); --coord-light: rgba(221,228,255,0.85); }
+
+.board-green cg-board {
+  background-color: #eeeed2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'%3E%3Crect width='2' height='2' fill='%23eeeed2'/%3E%3Crect width='1' height='1' fill='%23769656'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23769656'/%3E%3C/svg%3E");
+  background-size: 25% 25%;
+}
+.board-green { --coord-dark: rgba(118,150,86,0.8); --coord-light: rgba(238,238,210,0.85); }
+
+.board-wood cg-board {
+  background-color: #f0d9b5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'%3E%3Crect width='2' height='2' fill='%23f0d9b5'/%3E%3Crect width='1' height='1' fill='%23b58863'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23b58863'/%3E%3C/svg%3E");
+  background-size: 25% 25%;
+}
+.board-wood { --coord-dark: rgba(181,136,99,0.8); --coord-light: rgba(240,217,181,0.85); }
+
+.board-dark cg-board {
+  background-color: #e2e4e6;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'%3E%3Crect width='2' height='2' fill='%23e2e4e6'/%3E%3Crect width='1' height='1' fill='%233b3f43'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%233b3f43'/%3E%3C/svg%3E");
+  background-size: 25% 25%;
+}
+.board-dark { --coord-dark: rgba(59,63,67,0.8); --coord-light: rgba(226,228,230,0.85); }
+
+.board-pink cg-board {
+  background-color: #ffe5ec;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'%3E%3Crect width='2' height='2' fill='%23ffe5ec'/%3E%3Crect width='1' height='1' fill='%23ff85a1'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23ff85a1'/%3E%3C/svg%3E");
+  background-size: 25% 25%;
+}
+.board-pink { --coord-dark: rgba(255,133,161,0.8); --coord-light: rgba(255,229,236,0.85); }
+
 cg-board {
   background-color: #dde4ff;
-  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4PSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgOCA4IiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPgo8ZyBpZD0iYSI+CiAgPGcgaWQ9ImIiPgogICAgPGcgaWQ9ImMiPgogICAgICA8ZyBpZD0iZCI+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjEiIGhlaWdodD0iMSIgaWQ9ImUiIGZpbGw9IiNkZGU0ZmYiLz4KICAgICAgICA8dXNlIHg9IjEiIHk9IjEiIGhyZWY9IiNlIiB4OmhyZWY9IiNlIi8+CiAgICAgICAgPHJlY3QgeT0iMSIgd2lkdGg9IjEiIGhlaWdodD0iMSIgaWQ9ImYiIGZpbGw9IiM0MzM4Y2EiLz4KICAgICAgICA8dXNlIHg9IjEiIHk9Ii0xIiBocmVmPSIjZiIgeDpocmVmPSIjZiIvPgogICAgICA8L2c+CiAgICAgIDx1c2UgeD0iMiIgaHJlZj0iI2QiIHg6aHJlZj0iI2QiLz4KICAgIDwvZz4KICAgIDx1c2UgeD0iNCIgaHJlZj0iI2MiIHg6aHJlZj0iI2MiLz4KICA8L2c+CiAgPHVzZSB5PSIyIiBocmVmPSIjYiIgeDpocmVmPSIjYiIvPgo8L2c+Cjx1c2UgeT0iNCIgaHJlZj0iI2EiIHg6aHJlZj0iI2EiLz4KPC9zdmc+');
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'%3E%3Crect width='2' height='2' fill='%23dde4ff'/%3E%3Crect width='1' height='1' fill='%234338ca'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%234338ca'/%3E%3C/svg%3E");
+  background-size: 25% 25%;
 }
 
-cg-board square.move-dest {
-  background: radial-gradient(rgba(255, 255, 255, 0.55) 22%, rgba(255, 255, 255, 0.8) 0, rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0) 0);
-}
-cg-board square.oc.move-dest {
-  background: radial-gradient(transparent 0%, transparent 80%, rgba(255, 255, 255, 0.5) 80%);
-}
-cg-board square.move-dest:hover {
-  background: rgba(255, 255, 255, 0.35);
-}
-cg-board square.last-move {
-  background-color: rgba(255, 220, 0, 0.38);
-}
-cg-board square.selected {
-  background-color: rgba(255, 255, 255, 0.35);
-}
-cg-board square.check {
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 0, 0, 1) 0%,
-    rgba(231, 0, 0, 1) 25%,
-    rgba(169, 0, 0, 0) 89%,
-    rgba(158, 0, 0, 0) 100%
-  );
-}
-cg-board square.current-premove {
-  background-color: rgba(79, 70, 229, 0.5);
-}
-cg-board square.premove-dest {
-  background: radial-gradient(rgba(79, 70, 229, 0.5) 22%, rgba(79, 70, 229, 0.8) 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
-}
+/* ─── Board Square Interactions ───────────────────────────────────────────── */
+cg-board square.move-dest        { background: radial-gradient(rgba(0,0,0,0.35) 22%, rgba(0,0,0,0) 0); }
+cg-board square.oc.move-dest     { background: radial-gradient(transparent 0%, transparent 78%, rgba(0,0,0,0.35) 78%); }
+cg-board square.move-dest:hover  { background: rgba(0,0,0,0.18); }
+cg-board square.last-move        { background-color: rgba(255,215,0,0.36); }
+cg-board square.selected         { background-color: rgba(255,255,255,0.32); }
+cg-board square.check            { background: radial-gradient(ellipse at center, rgba(255,0,0,1) 0%, rgba(200,0,0,1) 25%, rgba(160,0,0,0) 89%, transparent 100%); }
+cg-board square.current-premove  { background-color: rgba(99,102,241,0.45); }
+cg-board square.premove-dest     { background: radial-gradient(rgba(99,102,241,0.5) 22%, rgba(99,102,241,0.7) 0, rgba(0,0,0,0.25) 0, rgba(0,0,0,0) 0); }
 
-/* Coordinate label colors: light on dark squares, dark on light squares */
+/* ─── Coordinates ─────────────────────────────────────────────────────────── */
 .orientation-white .ranks :nth-child(odd),
 .orientation-white .files :nth-child(even),
 .orientation-black .ranks :nth-child(even),
 .orientation-black .files :nth-child(odd),
 coords.squares:nth-of-type(odd) :nth-child(even),
 coords.squares:nth-of-type(even) :nth-child(odd) {
-  color: rgba(67, 56, 202, 0.8);
+  color: var(--coord-dark, rgba(67,56,202,0.8));
 }
 .orientation-white .ranks :nth-child(even),
 .orientation-white .files :nth-child(odd),
@@ -50,19 +256,237 @@ coords.squares:nth-of-type(even) :nth-child(odd) {
 .orientation-black .files :nth-child(even),
 coords.squares:nth-of-type(odd) :nth-child(odd),
 coords.squares:nth-of-type(even) :nth-child(even) {
-  color: rgba(221, 228, 255, 0.85);
+  color: var(--coord-light, rgba(221,228,255,0.85));
 }
 
-/* Maestro piece set from lichess CDN */
-.cg-wrap piece.king.white    { background-image: url('https://lichess1.org/assets/piece/maestro/wK.svg'); }
-.cg-wrap piece.queen.white   { background-image: url('https://lichess1.org/assets/piece/maestro/wQ.svg'); }
-.cg-wrap piece.rook.white    { background-image: url('https://lichess1.org/assets/piece/maestro/wR.svg'); }
-.cg-wrap piece.bishop.white  { background-image: url('https://lichess1.org/assets/piece/maestro/wB.svg'); }
-.cg-wrap piece.knight.white  { background-image: url('https://lichess1.org/assets/piece/maestro/wN.svg'); }
-.cg-wrap piece.pawn.white    { background-image: url('https://lichess1.org/assets/piece/maestro/wP.svg'); }
-.cg-wrap piece.king.black    { background-image: url('https://lichess1.org/assets/piece/maestro/bK.svg'); }
-.cg-wrap piece.queen.black   { background-image: url('https://lichess1.org/assets/piece/maestro/bQ.svg'); }
-.cg-wrap piece.rook.black    { background-image: url('https://lichess1.org/assets/piece/maestro/bR.svg'); }
-.cg-wrap piece.bishop.black  { background-image: url('https://lichess1.org/assets/piece/maestro/bB.svg'); }
-.cg-wrap piece.knight.black  { background-image: url('https://lichess1.org/assets/piece/maestro/bN.svg'); }
-.cg-wrap piece.pawn.black    { background-image: url('https://lichess1.org/assets/piece/maestro/bP.svg'); }
+/* ─── Piece Themes ────────────────────────────────────────────────────────── */
+.piece-white-maestro    piece.king.white   { background-image: url('https://lichess1.org/assets/piece/maestro/wK.svg'); }
+.piece-white-maestro    piece.queen.white  { background-image: url('https://lichess1.org/assets/piece/maestro/wQ.svg'); }
+.piece-white-maestro    piece.rook.white   { background-image: url('https://lichess1.org/assets/piece/maestro/wR.svg'); }
+.piece-white-maestro    piece.bishop.white { background-image: url('https://lichess1.org/assets/piece/maestro/wB.svg'); }
+.piece-white-maestro    piece.knight.white { background-image: url('https://lichess1.org/assets/piece/maestro/wN.svg'); }
+.piece-white-maestro    piece.pawn.white   { background-image: url('https://lichess1.org/assets/piece/maestro/wP.svg'); }
+.piece-black-maestro    piece.king.black   { background-image: url('https://lichess1.org/assets/piece/maestro/bK.svg'); }
+.piece-black-maestro    piece.queen.black  { background-image: url('https://lichess1.org/assets/piece/maestro/bQ.svg'); }
+.piece-black-maestro    piece.rook.black   { background-image: url('https://lichess1.org/assets/piece/maestro/bR.svg'); }
+.piece-black-maestro    piece.bishop.black { background-image: url('https://lichess1.org/assets/piece/maestro/bB.svg'); }
+.piece-black-maestro    piece.knight.black { background-image: url('https://lichess1.org/assets/piece/maestro/bN.svg'); }
+.piece-black-maestro    piece.pawn.black   { background-image: url('https://lichess1.org/assets/piece/maestro/bP.svg'); }
+
+.piece-white-cburnett   piece.king.white   { background-image: url('https://lichess1.org/assets/piece/cburnett/wK.svg'); }
+.piece-white-cburnett   piece.queen.white  { background-image: url('https://lichess1.org/assets/piece/cburnett/wQ.svg'); }
+.piece-white-cburnett   piece.rook.white   { background-image: url('https://lichess1.org/assets/piece/cburnett/wR.svg'); }
+.piece-white-cburnett   piece.bishop.white { background-image: url('https://lichess1.org/assets/piece/cburnett/wB.svg'); }
+.piece-white-cburnett   piece.knight.white { background-image: url('https://lichess1.org/assets/piece/cburnett/wN.svg'); }
+.piece-white-cburnett   piece.pawn.white   { background-image: url('https://lichess1.org/assets/piece/cburnett/wP.svg'); }
+.piece-black-cburnett   piece.king.black   { background-image: url('https://lichess1.org/assets/piece/cburnett/bK.svg'); }
+.piece-black-cburnett   piece.queen.black  { background-image: url('https://lichess1.org/assets/piece/cburnett/bQ.svg'); }
+.piece-black-cburnett   piece.rook.black   { background-image: url('https://lichess1.org/assets/piece/cburnett/bR.svg'); }
+.piece-black-cburnett   piece.bishop.black { background-image: url('https://lichess1.org/assets/piece/cburnett/bB.svg'); }
+.piece-black-cburnett   piece.knight.black { background-image: url('https://lichess1.org/assets/piece/cburnett/bN.svg'); }
+.piece-black-cburnett   piece.pawn.black   { background-image: url('https://lichess1.org/assets/piece/cburnett/bP.svg'); }
+
+.piece-white-merida     piece.king.white   { background-image: url('https://lichess1.org/assets/piece/merida/wK.svg'); }
+.piece-white-merida     piece.queen.white  { background-image: url('https://lichess1.org/assets/piece/merida/wQ.svg'); }
+.piece-white-merida     piece.rook.white   { background-image: url('https://lichess1.org/assets/piece/merida/wR.svg'); }
+.piece-white-merida     piece.bishop.white { background-image: url('https://lichess1.org/assets/piece/merida/wB.svg'); }
+.piece-white-merida     piece.knight.white { background-image: url('https://lichess1.org/assets/piece/merida/wN.svg'); }
+.piece-white-merida     piece.pawn.white   { background-image: url('https://lichess1.org/assets/piece/merida/wP.svg'); }
+.piece-black-merida     piece.king.black   { background-image: url('https://lichess1.org/assets/piece/merida/bK.svg'); }
+.piece-black-merida     piece.queen.black  { background-image: url('https://lichess1.org/assets/piece/merida/bQ.svg'); }
+.piece-black-merida     piece.rook.black   { background-image: url('https://lichess1.org/assets/piece/merida/bR.svg'); }
+.piece-black-merida     piece.bishop.black { background-image: url('https://lichess1.org/assets/piece/merida/bB.svg'); }
+.piece-black-merida     piece.knight.black { background-image: url('https://lichess1.org/assets/piece/merida/bN.svg'); }
+.piece-black-merida     piece.pawn.black   { background-image: url('https://lichess1.org/assets/piece/merida/bP.svg'); }
+
+.piece-white-california piece.king.white   { background-image: url('https://lichess1.org/assets/piece/california/wK.svg'); }
+.piece-white-california piece.queen.white  { background-image: url('https://lichess1.org/assets/piece/california/wQ.svg'); }
+.piece-white-california piece.rook.white   { background-image: url('https://lichess1.org/assets/piece/california/wR.svg'); }
+.piece-white-california piece.bishop.white { background-image: url('https://lichess1.org/assets/piece/california/wB.svg'); }
+.piece-white-california piece.knight.white { background-image: url('https://lichess1.org/assets/piece/california/wN.svg'); }
+.piece-white-california piece.pawn.white   { background-image: url('https://lichess1.org/assets/piece/california/wP.svg'); }
+.piece-black-california piece.king.black   { background-image: url('https://lichess1.org/assets/piece/california/bK.svg'); }
+.piece-black-california piece.queen.black  { background-image: url('https://lichess1.org/assets/piece/california/bQ.svg'); }
+.piece-black-california piece.rook.black   { background-image: url('https://lichess1.org/assets/piece/california/bR.svg'); }
+.piece-black-california piece.bishop.black { background-image: url('https://lichess1.org/assets/piece/california/bB.svg'); }
+.piece-black-california piece.knight.black { background-image: url('https://lichess1.org/assets/piece/california/bN.svg'); }
+.piece-black-california piece.pawn.black   { background-image: url('https://lichess1.org/assets/piece/california/bP.svg'); }
+
+/* ─── AI Eval Bar (desktop) ───────────────────────────────────────────────── */
+.chess-board-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.ai-eval-bar {
+  position: relative;
+  width: 16px;
+  background-color: #1a1a1a;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column-reverse;
+  border: 1px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+.ai-eval-fill {
+  background-color: #e5e7eb;
+  width: 100%;
+  transition: height 0.45s ease-out;
+}
+.ai-eval-midline {
+  position: absolute;
+  top: 50%;
+  left: 0; right: 0;
+  height: 1.5px;
+  background-color: rgba(255,255,255,0.25);
+  z-index: 10;
+}
+.ai-eval-text {
+  position: absolute;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 7px;
+  font-weight: 900;
+  z-index: 20;
+  pointer-events: none;
+  font-family: monospace;
+  letter-spacing: -0.02em;
+}
+.ai-eval-text.pos-top    { top: 5px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+.ai-eval-text.pos-bottom { bottom: 5px; color: #111; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+
+/* ─── Board container ────────────────────────────────────────────────────── */
+.chess-board-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+/* ─── Check pulse ─────────────────────────────────────────────────────────── */
+.board-in-check {
+  outline: 2px solid rgba(239,68,68,0.8);
+  outline-offset: -2px;
+  animation: check-pulse 1.1s ease-in-out infinite alternate;
+}
+@keyframes check-pulse {
+  from { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+  to   { box-shadow: 0 0 20px 4px rgba(239,68,68,0.25); }
+}
+
+/* ─── Mobile board square ─────────────────────────────────────────────────── */
+/* width = min(screen-width minus padding, available height minus chrome) */
+.chess-board-mobile-sq {
+  width: min(calc(100vw - 24px), calc(100dvh - 252px));
+  aspect-ratio: 1;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* ─── Horizontal move scroll ──────────────────────────────────────────────── */
+.h-moves-scroll {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  gap: 2px;
+  padding: 0 10px;
+  height: 100%;
+}
+.h-moves-scroll::-webkit-scrollbar { display: none; }
+
+/* ─── Timer active (high-contrast, monochrome) ────────────────────────────── */
+.timer-active {
+  background-color: var(--foreground, #18181b);
+  color: var(--background, #fff);
+  border-color: var(--foreground, #18181b) !important;
+}
+
+/* ─── Timer danger ────────────────────────────────────────────────────────── */
+.timer-danger {
+  background-color: #dc2626 !important;
+  color: #fff !important;
+  border-color: #dc2626 !important;
+  animation: timer-danger-blink 0.75s ease-in-out infinite alternate;
+}
+@keyframes timer-danger-blink {
+  from { opacity: 0.88; }
+  to   { opacity: 1; }
+}
+
+/* ─── Turn dot ────────────────────────────────────────────────────────────── */
+.turn-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+  animation: turn-blink 1.2s ease-in-out infinite;
+}
+@keyframes turn-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ─── Cyberglow Neon Board Theme ─────────────────────────────────────────── */
+.board-neon cg-board {
+  background-color: #150b24;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'%3E%3Crect width='2' height='2' fill='%23150b24'/%3E%3Crect width='1' height='1' fill='%23381a5a'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23381a5a'/%3E%3C/svg%3E");
+  background-size: 25% 25%;
+}
+.board-neon {
+  --coord-dark: rgba(236,72,153,0.8);
+  --coord-light: rgba(147,197,253,0.8);
+}
+
+/* ─── Board Outline Glow customization ──────────────────────────────────── */
+.border-glow-none {
+  border: none !important;
+  box-shadow: none !important;
+}
+.border-glow-thin {
+  border: 1px solid rgba(128, 128, 128, 0.25) !important;
+  box-shadow: none !important;
+}
+.border-glow-glow {
+  border: 1.5px solid rgba(128, 128, 128, 0.3) !important;
+  box-shadow: 0 0 15px rgba(128, 128, 128, 0.15) !important;
+}
+.app-theme-cyber .border-glow-glow {
+  border: 1.5px solid rgba(236, 72, 153, 0.5) !important;
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), 0 0 4px rgba(236, 72, 153, 0.2) !important;
+}
+.app-theme-forest .border-glow-glow {
+  border: 1.5px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.25), 0 0 4px rgba(16, 185, 129, 0.15) !important;
+}
+.app-theme-midnight .border-glow-glow {
+  border: 1.5px solid rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.25), 0 0 4px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* ─── Board Shadow customization ────────────────────────────────────────── */
+.shadow-style-none {
+  box-shadow: none !important;
+}
+.shadow-style-soft {
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1) !important;
+}
+.shadow-style-3d {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 1px 3px rgba(255,255,255,0.05) inset, 5px 5px 0px rgba(0,0,0,0.15) !important;
+}
+.app-theme-paper .shadow-style-3d, .app-theme-rose .shadow-style-3d, .app-theme-minimalist .shadow-style-3d {
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08), 5px 5px 0px rgba(0,0,0,0.05) !important;
+}
+
+/* ─── Custom Highlights Themes ──────────────────────────────────────────── */
+.highlight-yellow cg-board square.last-move { background-color: rgba(250, 204, 21, 0.35) !important; }
+.highlight-green  cg-board square.last-move { background-color: rgba(34, 197, 94, 0.35) !important; }
+.highlight-blue   cg-board square.last-move { background-color: rgba(59, 130, 246, 0.35) !important; }
+.highlight-purple cg-board square.last-move { background-color: rgba(168, 85, 247, 0.35) !important; }
+.highlight-red    cg-board square.last-move { background-color: rgba(239, 68, 68, 0.35) !important; }
+.highlight-none   cg-board square.last-move { background-color: transparent !important; }
+

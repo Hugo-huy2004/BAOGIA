@@ -54,7 +54,7 @@ router.get('/stats', async (req, res) => {
 
     const player = await ChessRating.findOne({ email }).lean();
     if (!player) {
-      return res.json({ success: true, stats: { email, rating: 1200, wins: 0, losses: 0, draws: 0, gamesPlayed: 0, rank: null } });
+      return res.json({ success: true, stats: { email, rating: 1500, wins: 0, losses: 0, draws: 0, gamesPlayed: 0, rank: null } });
     }
 
     const rank = (await ChessRating.countDocuments({ rating: { $gt: player.rating } })) + 1;
@@ -65,21 +65,60 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// POST /api/chess/rating/init — body: { email, displayName }
+// POST /api/chess/rating/init — body: { email, displayName, avatar, avatarUrl }
 router.post('/rating/init', async (req, res) => {
   try {
-    const { email, displayName } = req.body;
+    const { email, displayName, avatar, avatarUrl } = req.body;
     if (!email || !displayName) {
       return res.status(400).json({ error: 'email and displayName are required' });
     }
+    const finalAvatar = avatarUrl || avatar || null;
 
     const player = await ChessRating.findOneAndUpdate(
       { email },
-      { $setOnInsert: { email, displayName, rating: 1200, wins: 0, losses: 0, draws: 0, gamesPlayed: 0 } },
+      { 
+        $setOnInsert: { email, displayName, rating: 1500, wins: 0, losses: 0, draws: 0, gamesPlayed: 0 },
+        $set: { avatar: finalAvatar }
+      },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     ).lean();
 
     res.json({ success: true, player });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/chess/rating/update — body: { email, ratingChange, win, loss, draw, avatar, avatarUrl }
+router.post('/rating/update', async (req, res) => {
+  try {
+    const { email, ratingChange, win, loss, draw, avatar, avatarUrl } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'email is required' });
+    }
+
+    const increment = {
+      gamesPlayed: 1,
+      wins: win ? 1 : 0,
+      losses: loss ? 1 : 0,
+      draws: draw ? 1 : 0,
+    };
+
+    const updateFields = { lastPlayedAt: new Date(), updatedAt: new Date() };
+    const finalAvatar = avatarUrl || avatar;
+    if (finalAvatar) {
+      updateFields.avatar = finalAvatar;
+    }
+
+    const player = await ChessRating.findOneAndUpdate(
+      { email },
+      {
+        $inc: { rating: Number(ratingChange) || 0, ...increment },
+        $set: updateFields
+      },
+      { upsert: true, new: true }
+    );
+    res.json({ success: true, rating: player.rating });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

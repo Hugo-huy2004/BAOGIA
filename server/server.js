@@ -159,10 +159,27 @@ import { initChessWS } from './services/chessWS.js';
 const server = http.createServer(app);
 
 // WebSocket server for real-time IoT data (path: /ws)
-const wss = new WebSocketServer({ server, path: '/ws' });
+const wss = new WebSocketServer({ noServer: true });
 
 // Chess WebSocket server (path: /ws/chess)
-initChessWS(server);
+const chessWss = initChessWS({ noServer: true });
+
+// Manual WebSocket upgrade dispatcher
+server.on('upgrade', (request, socket, head) => {
+  const { pathname } = new URL(request.url, `http://${request.headers.host}`);
+
+  if (pathname === '/ws') {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit('connection', ws, request);
+    });
+  } else if (pathname === '/ws/chess') {
+    chessWss.handleUpgrade(request, socket, head, (ws) => {
+      chessWss.emit('connection', ws, request);
+    });
+  } else {
+    socket.destroy();
+  }
+});
 
 // global.wsClients maps email -> Set of connected WebSocket clients
 global.wsClients = {};

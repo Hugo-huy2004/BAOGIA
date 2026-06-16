@@ -60,7 +60,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       id: "chess",
       icon: "chess",
       title: "HugoChess",
-      desc: "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống ELO & xếp hạng.",
+      desc: "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống JOY & xếp hạng.",
       btnText: "Vào Sảnh Cờ"
     }
   ];
@@ -106,7 +106,21 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
                 <span className="material-symbols-outlined text-xl md:text-2xl">{util.icon}</span>
               </div>
               <div className="space-y-0.5 md:space-y-1">
-                <h3 className="text-xs md:text-sm font-black text-zinc-800 dark:text-zinc-100 line-clamp-1 md:line-clamp-none">{util.title}</h3>
+                <h3 className="text-xs md:text-sm font-black text-zinc-800 dark:text-zinc-100 line-clamp-1 md:line-clamp-none">
+                  {util.title === "HugoChess" ? (
+                    <>
+                      <span className="inline-flex">
+                        <span style={{ color: "#EF4444" }}>H</span>
+                        <span style={{ color: "#F97316" }}>u</span>
+                        <span style={{ color: "#EAB308" }}>g</span>
+                        <span style={{ color: "#22C55E" }}>o</span>
+                      </span>
+                      <span>Chess</span>
+                    </>
+                  ) : (
+                    util.title
+                  )}
+                </h3>
                 <p className="text-[9.5px] md:text-[10.5px] text-zinc-450 dark:text-zinc-400 leading-snug md:leading-relaxed line-clamp-2 md:line-clamp-none">
                   {util.desc}
                 </p>

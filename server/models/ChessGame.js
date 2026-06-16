@@ -5,6 +5,7 @@ const PlayerInfoSchema = new mongoose.Schema({
   displayName: { type: String },
   rating: { type: Number },
   guestId: { type: String, default: null },
+  avatarUrl: { type: String, default: "" },
 }, { _id: false });
 
 const ChessGameSchema = new mongoose.Schema({
