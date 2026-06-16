@@ -89,6 +89,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3.5 md:gap-6">
         {utilities.map((util) => (
           <div 
+            id={`utility-card-${util.id}`}
             key={util.id}
             onClick={() => {
               if (util.id === "ide") {

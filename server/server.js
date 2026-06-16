@@ -27,7 +27,11 @@ const PORT = process.env.PORT || 8081;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
 
 // Middleware
-const allowedOrigins = process.env.CLIENT_URLS.split(",");
+const allowedOrigins = [
+  ...((process.env.CLIENT_URLS || "").split(",")),
+  "https://www.hugowishpax.studio",
+  "https://hugowishpax.studio"
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {

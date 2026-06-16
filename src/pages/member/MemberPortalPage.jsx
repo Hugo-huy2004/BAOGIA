@@ -10,6 +10,8 @@ import dataApi from "../../services/dataApi";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useHealingJourney } from "../../hooks/useHealingJourney";
 import HealingModal from "../../components/member/portal/HealingModal";
+import { useTourStore } from "../../stores/tourStore";
+import TourSystem from "../../components/TourSystem";
 import NotificationBell from "../../components/member/portal/NotificationBell";
 
 // Sub-components
@@ -147,6 +149,22 @@ export default function MemberPortalPage() {
   });
 
   useEffect(() => { healing.syncFromStorage(); }, [activeTab]); // eslint-disable-line
+
+  const registerPortalActions = useTourStore(state => state.registerPortalActions);
+  useEffect(() => {
+    registerPortalActions({
+      switchTab: (tabId) => {
+        navigate(`/member/${tabId}`);
+      },
+      switchSubTab: (subTabId) => {
+        if (subTabId) {
+          navigate(`/member/account/${subTabId}`);
+        } else {
+          navigate(`/member/account`);
+        }
+      }
+    });
+  }, [navigate, registerPortalActions]);
 
   // ── Mobile account section definitions ───────────────────────────────────────
   const ACCOUNT_SECTIONS = useMemo(() => [
@@ -557,7 +575,7 @@ export default function MemberPortalPage() {
               {desktopTabs.map(tab => {
                 const isActive = !tab.partner && activeTab === tab.id;
                 return (
-                  <button key={tab.id} type="button" onClick={() => onTabClick(tab)}
+                  <button id={`portal-tab-${tab.id}`} key={tab.id} type="button" onClick={() => onTabClick(tab)}
                     className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all duration-200 relative ${
                       isActive ? 'bg-black/8 dark:bg-white/10 text-black dark:text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40'
                     }`}>
@@ -614,7 +632,7 @@ export default function MemberPortalPage() {
                             ].map(tab => {
                               const active = accountSubTab === tab.id;
                               return (
-                                <button key={tab.id} type="button" onClick={() => navigate(`/member/account/${tab.id}`)}
+                                <button id={`account-sec-${tab.id}`} key={tab.id} type="button" onClick={() => navigate(`/member/account/${tab.id}`)}
                                   className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider transition-all duration-200 border ${
                                     active ? "bg-[#0071e3] border-[#0071e3] text-white shadow-md shadow-[#0071e3]/10 translate-x-1" : "bg-white dark:bg-[#1c1c1e] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border-zinc-200 dark:border-zinc-800/60"
                                   }`}>
@@ -728,6 +746,7 @@ export default function MemberPortalPage() {
                               const isLastOdd = ACCOUNT_SECTIONS.length % 2 !== 0 && idx === ACCOUNT_SECTIONS.length - 1;
                               return (
                                 <button
+                                  id={`account-sec-${sec.id}-mobile`}
                                   key={sec.id}
                                   type="button"
                                   onClick={() => navigate(`/member/account/${sec.id}`)}
@@ -783,6 +802,7 @@ export default function MemberPortalPage() {
         )}
 
         {showBirthdaySurprise && <BirthdaySurprise displayName={formData.displayName} onClose={() => setShowBirthdaySurprise(false)} />}
+        <TourSystem />
       </div>
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
@@ -793,7 +813,7 @@ export default function MemberPortalPage() {
             {mobileTabs.map(tab => {
               const isActive = activeTab === tab.id;
               return (
-                <button key={tab.id} type="button" onClick={() => onTabClick(tab)}
+                <button id={`portal-tab-${tab.id}-mobile`} key={tab.id} type="button" onClick={() => onTabClick(tab)}
                   className="flex flex-col items-center justify-center gap-0.5 flex-1 relative py-1 px-1 transition-colors duration-200">
                   {/* Active pill indicator */}
                   {isActive && (

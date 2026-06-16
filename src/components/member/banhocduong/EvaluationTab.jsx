@@ -295,10 +295,14 @@ export default function EvaluationTab({ historyLogs, bio, onNavigateToTab, showT
 
           {/* Avatar + name */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-md">
-              <span className="text-white font-black text-sm">
-                {(bio?.displayName || bio?.name || "?").charAt(0).toUpperCase()}
-              </span>
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-md overflow-hidden">
+              {bio?.avatarUrl ? (
+                <img src={bio.avatarUrl} alt={bio.displayName || bio.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-black text-sm">
+                  {(bio?.displayName || bio?.name || "?").charAt(0).toUpperCase()}
+                </span>
+              )}
             </div>
             <div>
               <p className="text-sm font-black text-zinc-900 dark:text-white leading-tight">{bio?.displayName || bio?.name || "Chưa cập nhật"}</p>

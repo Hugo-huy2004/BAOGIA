@@ -56,8 +56,8 @@ export default function ChatTab({
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const audioChunks = useRef([]);
 
-  const [remainingChatTokens, setRemainingChatTokens] = useState(15);
-  const [remainingCallTokens, setRemainingCallTokens] = useState(10);
+  const [remainingChatTokens, setRemainingChatTokens] = useState(3);
+  const [remainingCallTokens, setRemainingCallTokens] = useState(5);
   const [inputText, setInputText] = useState("");
 
   useEffect(() => {
@@ -66,16 +66,16 @@ export default function ChatTab({
     if (storedChatTokens !== null) {
       setRemainingChatTokens(parseInt(storedChatTokens));
     } else {
-      setRemainingChatTokens(15);
-      localStorage.setItem(`ai_chat_tokens_${today}`, 15);
+      setRemainingChatTokens(3);
+      localStorage.setItem(`ai_chat_tokens_${today}`, 3);
     }
 
     const storedCallTokens = localStorage.getItem(`consultant_tokens_${today}`);
     if (storedCallTokens !== null) {
       setRemainingCallTokens(parseInt(storedCallTokens));
     } else {
-      setRemainingCallTokens(10);
-      localStorage.setItem(`consultant_tokens_${today}`, 10);
+      setRemainingCallTokens(5);
+      localStorage.setItem(`consultant_tokens_${today}`, 5);
     }
   }, []);
 
@@ -197,7 +197,7 @@ export default function ChatTab({
 
   const startAudioRecording = async () => {
     const today = new Date().toISOString().split("T")[0];
-    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 15);
+    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
     if (currentTokens <= 0) {
       showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
       return;
@@ -266,7 +266,7 @@ export default function ChatTab({
 
   const startListening = () => {
     const today = new Date().toISOString().split("T")[0];
-    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 15);
+    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
     if (currentTokens <= 0) {
       showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
       return;
@@ -1240,7 +1240,7 @@ export default function ChatTab({
     const text = inputText.trim();
     if (!text || loading) return;
     const today = new Date().toISOString().split("T")[0];
-    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 15);
+    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
     if (currentTokens <= 0) {
       showToast?.("Hết token chat hôm nay. Quay lại vào ngày mai nhé!", "warning");
       return;
@@ -1295,9 +1295,9 @@ export default function ChatTab({
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border ${remainingChatTokens <= 3 ? 'bg-red-500/10 border-red-400/20 text-red-500' : 'bg-amber-500/10 border-amber-400/20 text-amber-600 dark:text-amber-400'}`} title={`Token còn lại: ${remainingChatTokens}/15 hôm nay`}>
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border ${remainingChatTokens <= 1 ? 'bg-red-500/10 border-red-400/20 text-red-500' : 'bg-amber-500/10 border-amber-400/20 text-amber-600 dark:text-amber-400'}`} title={`Token còn lại: ${remainingChatTokens}/3 hôm nay`}>
             <span className="material-symbols-outlined text-[11px]">toll</span>
-            <span className="text-[10px] font-black">{remainingChatTokens}/15</span>
+            <span className="text-[10px] font-black">{remainingChatTokens}/3</span>
           </div>
           {healingActive && (
             <button type="button" onClick={() => {

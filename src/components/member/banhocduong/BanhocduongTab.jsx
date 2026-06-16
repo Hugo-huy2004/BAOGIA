@@ -108,7 +108,7 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
 // ── Settings Panel (bottom sheet mobile / modal desktop) ───────────────────────
 function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
   const today    = new Date().toISOString().split("T")[0];
-  const CHAT_MAX = 15, CALL_MAX = 10;
+  const CHAT_MAX = 3, CALL_MAX = 5;
   const chatLeft = Math.max(0, parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) ?? CHAT_MAX, 10));
   const callLeft = Math.max(0, parseInt(localStorage.getItem(`consultant_tokens_${today}`) ?? CALL_MAX, 10));
   const [notifStatus, setNotifStatus] = useState(() => typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');

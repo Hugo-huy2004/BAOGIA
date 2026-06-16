@@ -369,14 +369,12 @@ export default function ChessLobby({
       <header className="sticky top-0 z-20 h-14 flex items-center border-b border-border bg-background/90 backdrop-blur-xl px-4">
         <div className="max-w-6xl mx-auto w-full flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {step !== "home" && (
-              <button
-                onClick={goBack}
-                className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-            )}
+            <button
+              onClick={step !== "home" ? goBack : () => navigate("/member/utilities")}
+              className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
 
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-xl bg-foreground flex items-center justify-center shrink-0">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTourStore } from '../stores/tourStore';
 
 const QUESTION_TREE = {
   main: {
@@ -81,11 +82,14 @@ const QUESTION_TREE = {
     ]
   },
   utilities_features: {
-    text: "Hệ thống cung cấp 3 tiện ích cực đỉnh cho cậu nha:\n1. Trình tạo mã QR đa năng (QR Wi-Fi, Link, Text)\n2. Danh bạ thông minh vCard offline\n3. Chữ ký Email thương hiệu xịn xò\nCậu muốn Culi hướng dẫn cái nào nè?",
+    text: "Hệ thống cung cấp các tiện ích tuyệt vời cho cậu nha:\n1. Trình tạo mã QR đa năng (Wifi, URL, Văn bản)\n2. Danh bạ thông minh vCard\n3. Chữ ký Email thương hiệu chuyên nghiệp\n4. Trợ lý Bạn Học Đường (Chữa lành)\n5. Web IDE (Học lập trình)\n6. HugoChess (Đấu cờ vua online)\nCậu muốn Culi hướng dẫn cái nào nè?",
     options: [
       { label: "Trình tạo mã QR", next: "qr_generator" },
       { label: "Danh bạ vCard", next: "vcard_info" },
       { label: "Chữ ký Email", next: "email_signature" },
+      { label: "Bạn Học Đường", next: "psychology" },
+      { label: "Web IDE (Code)", next: "ide" },
+      { label: "HugoChess (Cờ)", next: "chess" },
       { label: "Quay lại mục trước", next: "portal_features" }
     ]
   },
@@ -105,6 +109,27 @@ const QUESTION_TREE = {
   },
   email_signature: {
     text: "Tab Chữ ký Email giúp cậu tạo chữ ký xịn xò. Cậu có thể chọn Font, màu sắc, tích hợp icon mạng xã hội tự động, rồi tải file HTML về hoặc Copy chèn thẳng vào Gmail/Outlook nha.",
+    options: [
+      { label: "Quay lại", next: "utilities_features" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+    ]
+  },
+  psychology: {
+    text: "Trợ lý Bạn Học Đường (ở Tab Utilities) là góc lắng nghe chia sẻ cảm xúc, thực hiện test tâm lý định kỳ (DASS-42, MMPI), và cung cấp bài tập hít thở trị liệu giúp cậu xả stress sau giờ học.",
+    options: [
+      { label: "Quay lại", next: "utilities_features" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+    ]
+  },
+  ide: {
+    text: "Web-based IDE (ở Tab Utilities) là trình soạn thảo lập trình trực quan (C, C++, C#, Python, Web, PHP) chạy ngay trên trình duyệt, đi kèm các bài học lập trình cơ bản và hỗ trợ tải code về máy.",
+    options: [
+      { label: "Quay lại", next: "utilities_features" },
+      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
+    ]
+  },
+  chess: {
+    text: "HugoChess (ở Tab Utilities) là không gian sảnh cờ vua mini giúp cậu thi đấu Stockfish AI, ghép đôi ngẫu nhiên hoặc tạo phòng đấu giao hữu cùng bạn bè để tích điểm xếp hạng JOY.",
     options: [
       { label: "Quay lại", next: "utilities_features" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
@@ -163,12 +188,31 @@ const PREFILL_MESSAGES = {
   qr_generator: "Hỗ trợ sử dụng Trình tạo mã QR đa năng.",
   vcard_info: "Hỗ trợ thiết lập và sử dụng tính năng Danh bạ thông minh (vCard).",
   email_signature: "Hỗ trợ thiết kế và nhúng Chữ ký Email thương hiệu.",
+  psychology: "Hỗ trợ sử dụng chuyên mục Bạn Học Đường.",
+  ide: "Hỗ trợ sử dụng Web-based IDE lập trình.",
+  chess: "Hỗ trợ tham gia sảnh cờ vua HugoChess.",
   how_to_cooperate: "Đề xuất hợp tác quảng cáo, nhúng Iframe hoặc dự án phát triển với Hugo Studio.",
   main: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ để được giải quyết vấn đề."
 };
 
+const TOUR_MAP = {
+  bio_link: 'bio_editor',
+  theme: 'bio_editor',
+  measurements: 'bio_editor',
+  booking: 'booking',
+  view_booking: 'booking',
+  utilities_features: 'utilities',
+  qr_generator: 'utilities',
+  vcard_info: 'utilities',
+  email_signature: 'utilities',
+  psychology: 'utilities',
+  ide: 'utilities',
+  chess: 'utilities'
+};
+
 const HBot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [customInput, setCustomInput] = useState("");
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -184,6 +228,27 @@ const HBot = () => {
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const startTour = useTourStore(state => state.startTour);
+  const registerOnTourEnd = useTourStore(state => state.registerOnTourEnd);
+
+  // Hook up callback from Tour completion/dismissal
+  useEffect(() => {
+    registerOnTourEnd((tourName, completed) => {
+      setIsOpen(true);
+      const text = completed 
+        ? "Culi chúc mừng cậu đã hoàn thành bài hướng dẫn trực quan! 🎉 Cậu có muốn Culi hướng dẫn thêm gì nữa không nè?"
+        : "Tiếc quá cậu chưa xem hết hướng dẫn á. Khi nào cần cậu cứ bấm nút chạy hướng dẫn trực tiếp để xem lại nhé! Cậu cần Culi giúp gì khác không?";
+      
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        sender: 'bot',
+        text,
+        time: new Date()
+      }]);
+      setCurrentStep('main');
+    });
+  }, [registerOnTourEnd]);
 
   // Only show H-Bot in MemberPortal
   const isMemberPage = location.pathname.startsWith('/member');
@@ -241,9 +306,134 @@ const HBot = () => {
     }, 600); // 600ms transition for a natural feel
   };
 
+  // Smart natural language query processing (local matching + Gemini fallback)
+  const handleCustomQuery = async () => {
+    const query = customInput.trim();
+    if (!query || isLoading) return;
+    setCustomInput("");
+
+    // 1. Add User message
+    const userMsg = {
+      id: Date.now(),
+      sender: 'user',
+      text: query,
+      time: new Date()
+    };
+    setMessages(prev => [...prev, userMsg]);
+    setIsLoading(true);
+
+    // 2. Fuzzy/Keyword matching
+    const q = query.toLowerCase();
+    let matchStep = null;
+
+    if (q.includes("theme") || q.includes("giao diện") || q.includes("màu nền") || q.includes("đổi màu") || q.includes("theme mới")) {
+      matchStep = "theme";
+    } else if (q.includes("chiều cao") || q.includes("cân nặng") || q.includes("số đo") || q.includes("ngực eo") || q.includes("mông")) {
+      matchStep = "measurements";
+    } else if (q.includes("bio") || q.includes("trang cá nhân") || q.includes("liên kết") || q.includes("tạo bio")) {
+      matchStep = "bio_link";
+    } else if (q.includes("đặt lịch") || q.includes("lịch hẹn") || q.includes("lịch chụp") || q.includes("booking")) {
+      matchStep = "booking";
+    } else if (q.includes("xem lịch") || q.includes("quản lý lịch")) {
+      matchStep = "view_booking";
+    } else if (q.includes("mã qr") || q.includes("wifi") || q.includes("qr code") || q.includes("tạo qr")) {
+      matchStep = "qr_generator";
+    } else if (q.includes("danh bạ") || q.includes("vcard") || q.includes("offline")) {
+      matchStep = "vcard_info";
+    } else if (q.includes("chữ ký") || q.includes("signature") || q.includes("chữ ký email")) {
+      matchStep = "email_signature";
+    } else if (q.includes("bạn học đường") || q.includes("tâm lý") || q.includes("chữa lành") || q.includes("stress") || q.includes("hít thở")) {
+      matchStep = "psychology";
+    } else if (q.includes("ide") || q.includes("lập trình") || q.includes("code") || q.includes("viết code")) {
+      matchStep = "ide";
+    } else if (q.includes("cờ vua") || q.includes("chess") || q.includes("đấu cờ") || q.includes("vào sảnh cờ")) {
+      matchStep = "chess";
+    } else if (q.includes("gói") || q.includes("nâng cấp") || q.includes("plus") || q.includes("vip") || q.includes("free")) {
+      matchStep = "packages";
+    }
+
+    if (matchStep) {
+      setTimeout(() => {
+        const node = QUESTION_TREE[matchStep];
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          sender: 'bot',
+          text: node.text,
+          time: new Date()
+        }]);
+        setCurrentStep(matchStep);
+        setIsLoading(false);
+      }, 500);
+      return;
+    }
+
+    // 3. Fallback: FastAPI Gemini Server Query
+    try {
+      const getAiUrl = () => {
+        if (import.meta.env.VITE_AI_URL) return import.meta.env.VITE_AI_URL;
+        const apiUrl = import.meta.env.VITE_API_URL || "";
+        if (apiUrl.startsWith("http")) {
+          try {
+            const url = new URL(apiUrl);
+            if (url.hostname.startsWith("api.")) {
+              url.hostname = url.hostname.replace("api.", "ai.");
+              return `${url.protocol}//${url.hostname}`;
+            }
+          } catch (e) {}
+        }
+        if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+          if (window.location.hostname.includes("hugowishpax.studio")) {
+            return `${window.location.protocol}//ai.hugowishpax.studio`;
+          }
+        }
+        return "http://localhost:8000";
+      };
+
+      const AI_URL = getAiUrl();
+      const internalKey = import.meta.env.VITE_INTERNAL_API_KEY || "";
+      const res = await fetch(`${AI_URL}/api/ai/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Internal-Key": internalKey
+        },
+        body: JSON.stringify({
+          message: `Người dùng hỏi về hệ thống: "${query}". Hãy trả lời ngắn gọn (tối đa 3-4 câu), hướng dẫn chi tiết, thân mật, xưng hô Culi và bạn/cậu. Chỉ đề xuất các tính năng có sẵn: Bio Editor, Giao diện Theme, Measurements, Lịch hẹn (Booking), Tiện ích (QR, vCard, Chữ ký Email), Bạn Học Đường, Web IDE, HugoChess.`,
+          history: [],
+          bio: null
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.reply || "Culi chưa hiểu rõ ý cậu lắm. Cậu có thể chọn các mục hướng dẫn có sẵn bên dưới hoặc gõ chi tiết hơn nha!";
+        setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'bot', text, time: new Date() }]);
+      } else {
+        throw new Error("API responded with non-200");
+      }
+    } catch (err) {
+      console.warn("HBot fallback failed, utilizing local helper message:", err);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'bot',
+        text: "Culi chưa rõ câu hỏi của cậu lắm á. Cậu thử hỏi rõ hơn về các tính năng như: Thiết kế Bio Link, Giao diện Theme, Quản lý lịch hẹn, Chữ ký Email, Bạn Học Đường, hay Cờ vua nha!",
+        time: new Date()
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleStartTour = (tourId) => {
+    setIsOpen(false); // Minimize chatbox
+    startTour(tourId);
+  };
+
   const handleOpenChat = () => {
     setIsOpen(true);
   };
+
+  const lastBotMsg = [...messages].reverse().find(m => m.sender === 'bot');
 
   return (
     <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-[999] flex flex-col items-end">
@@ -298,6 +488,18 @@ const HBot = () => {
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.text}</p>
+                  
+                  {/* Dynamic Onboarding Tour Button */}
+                  {msg.sender === 'bot' && msg.id === lastBotMsg?.id && TOUR_MAP[currentStep] && (
+                    <button
+                      type="button"
+                      onClick={() => handleStartTour(TOUR_MAP[currentStep])}
+                      className="mt-2.5 w-full py-2 px-3 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1 shadow-md cursor-pointer pointer-events-auto"
+                    >
+                      <span className="material-symbols-outlined text-xs">play_circle</span>
+                      👉 Hướng dẫn trực tiếp tính năng
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -346,6 +548,26 @@ const HBot = () => {
               ) : (
                 <span className="text-slate-450">Culi đang xử lý...</span>
               )}
+            </div>
+          )}
+
+          {/* Smart NLP Input field */}
+          {!isLoading && currentStep !== 'redirect_support' && (
+            <div className="p-2.5 border-t border-slate-200/40 dark:border-slate-800/60 bg-white dark:bg-[#1c1c1e] flex gap-2 shrink-0">
+              <input
+                value={customInput}
+                onChange={e => setCustomInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") handleCustomQuery(); }}
+                placeholder="Hỏi Culi về hệ thống..."
+                className="flex-1 bg-slate-100 dark:bg-zinc-900 border border-slate-250 dark:border-zinc-800 rounded-xl px-3 py-2 text-xs focus:outline-none text-[#1d1d1f] dark:text-[#f5f5f7]"
+              />
+              <button
+                onClick={handleCustomQuery}
+                disabled={!customInput.trim()}
+                className="px-3 bg-[#007aff] hover:bg-[#0071ed] disabled:opacity-40 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center shrink-0"
+              >
+                Gửi
+              </button>
             </div>
           )}
         </div>

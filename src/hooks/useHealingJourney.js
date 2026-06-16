@@ -170,8 +170,8 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
 
   const goToTest = useCallback(() => {
     setShowModal(false);
-    onNavigate('utilities', 'psychology', 'tests', 'dass');
-    showToast('Đã chuyển hướng đến bài trắc nghiệm lâm sàng DASS-21.', 'success');
+    onNavigate('utilities', 'psychology', 'chat', 'dass42');
+    showToast('Đã chuyển hướng đến bài trắc nghiệm lâm sàng DASS-42.', 'success');
   }, [onNavigate, showToast]);
 
   const goToBreath = useCallback(() => {

@@ -1,5 +1,25 @@
+const getAiUrl = () => {
+  if (import.meta.env.VITE_AI_URL) return import.meta.env.VITE_AI_URL;
+  const apiUrl = import.meta.env.VITE_API_URL || "";
+  if (apiUrl.startsWith("http")) {
+    try {
+      const url = new URL(apiUrl);
+      if (url.hostname.startsWith("api.")) {
+        url.hostname = url.hostname.replace("api.", "ai.");
+        return `${url.protocol}//${url.hostname}`;
+      }
+    } catch (e) {}
+  }
+  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+    if (window.location.hostname.includes("hugowishpax.studio")) {
+      return `${window.location.protocol}//ai.hugowishpax.studio`;
+    }
+  }
+  return "http://localhost:8000";
+};
+
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-const AI_URL = import.meta.env.VITE_AI_URL || 'http://localhost:8000'
+const AI_URL = getAiUrl()
 
 const getInternalKey = () => import.meta.env.VITE_INTERNAL_API_KEY || ''
 
