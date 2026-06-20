@@ -24,7 +24,7 @@ export default function AdminBottomNav({
           className={`flex flex-col items-center justify-center flex-1 h-full relative transition-all ${
             activeTab === tab.id
               ? "text-primary dark:text-[#a5b4fc]"
-              : "text-slate-400 hover:text-slate-655 dark:text-slate-500 dark:hover:text-slate-350"
+              : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
           }`}
         >
           <div className="relative py-2 mt-1">

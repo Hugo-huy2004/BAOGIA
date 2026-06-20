@@ -68,8 +68,8 @@ export default function ServicesPage() {
                 </div>
               </div>
 
-              <div className="border-t border-slate-150 dark:border-white/5 pt-6 text-left">
-                <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-350">
+              <div className="border-t border-slate-200 dark:border-white/5 pt-6 text-left">
+                <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier1.f1_bold")}</strong> {t("servicesPage.tier1.f1_text")}<code>.edu</code>.</span>
@@ -125,8 +125,8 @@ export default function ServicesPage() {
                 </div>
               </div>
 
-              <div className="border-t border-slate-150 dark:border-white/5 pt-6 text-left">
-                <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-350">
+              <div className="border-t border-slate-200 dark:border-white/5 pt-6 text-left">
+                <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier2.f1_bold")}</strong> {t("servicesPage.tier2.f1_text")}</span>
@@ -188,8 +188,8 @@ export default function ServicesPage() {
                 </div>
               </div>
 
-              <div className="border-t border-slate-150 dark:border-white/5 pt-6 text-left">
-                <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-350">
+              <div className="border-t border-slate-200 dark:border-white/5 pt-6 text-left">
+                <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier3.f1_bold")}</strong> {t("servicesPage.tier3.f1_text")}</span>

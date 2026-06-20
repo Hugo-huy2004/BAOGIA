@@ -246,8 +246,14 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
   // 2. User activity → resets sleep score + arms inactivity timer
   useEffect(() => {
     if (!enabled || !email) return;
+    let lastActive = 0;
     const onActive = () => {
-      R.current.lastActivityAt = Date.now();
+      const now = Date.now();
+      R.current.lastActivityAt = now;
+      
+      if (now - lastActive < 10000) return; // Throttle state updates & timers to 10s
+      lastActive = now;
+
       // Any activity resets sleep accumulation (user is clearly awake)
       if (R.current.state === "monitoring") {
         R.current.sleepScore   = 0;
@@ -318,23 +324,28 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
   useEffect(() => {
     if (!enabled || !email || !("DeviceMotionEvent" in window)) return;
     let buf = [];
-    let tid = null;
+    let lastProcessed = 0;
     const onMotion = (e) => {
+      const now = Date.now();
+      if (now - lastProcessed < 1000) return; // Throttle to 1Hz
+      lastProcessed = now;
       const a = e.acceleration;
       if (!a) return;
       buf.push(Math.hypot(a.x || 0, a.y || 0, a.z || 0));
       if (buf.length > 30) buf.shift();
-      clearTimeout(tid);
-      tid = setTimeout(() => {
-        if (!buf.length) return;
-        const avg = buf.reduce((s, v) => s + v, 0) / buf.length;
-        if (avg < 0.05 && inBed())  fire("device_still");
-        if (avg > 1.5  && inWake()) fire("device_moving");
-      }, 10 * 60_000);
     };
+    const intervalTid = setInterval(() => {
+      if (!buf.length) return;
+      const avg = buf.reduce((s, v) => s + v, 0) / buf.length;
+      if (avg < 0.05 && inBed())  fire("device_still");
+      if (avg > 1.5  && inWake()) fire("device_moving");
+    }, 10 * 60_000);
     window.addEventListener("devicemotion", onMotion);
     setCaps(c => ({ ...c, deviceMotion: true }));
-    return () => { window.removeEventListener("devicemotion", onMotion); clearTimeout(tid); };
+    return () => {
+      window.removeEventListener("devicemotion", onMotion);
+      clearInterval(intervalTid);
+    };
   }, [enabled, email, fire]);
 
   // 7. Hourly background ticker

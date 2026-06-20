@@ -152,12 +152,12 @@ export default function AdminProjectsTab({ showNotification }) {
           </h3>
           <form onSubmit={handleCreateProject} className="space-y-4">
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_72")}</label>
-              <input type="text" required value={newProject.fullName} onChange={e => setNewProject({...newProject, fullName: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_72")}</label>
+              <input type="text" required value={newProject.fullName} onChange={e => setNewProject({...newProject, fullName: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
             </div>
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_73")}</label>
-              <select value={newProject.servicePackage} onChange={e => setNewProject({...newProject, servicePackage: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold">
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_73")}</label>
+              <select value={newProject.servicePackage} onChange={e => setNewProject({...newProject, servicePackage: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold">
                 <option value="Signature Portfolio">Signature Portfolio</option>
                 <option value="Premium Web">Premium Web</option>
                 <option value="Signature Web">Signature Web</option>
@@ -165,16 +165,16 @@ export default function AdminProjectsTab({ showNotification }) {
               </select>
             </div>
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_74")}</label>
-              <input type="text" value={newProject.phone} onChange={e => setNewProject({...newProject, phone: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_74")}</label>
+              <input type="text" value={newProject.phone} onChange={e => setNewProject({...newProject, phone: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
             </div>
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_75")}</label>
-              <input type="text" value={newProject.handlerName} onChange={e => setNewProject({...newProject, handlerName: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_75")}</label>
+              <input type="text" value={newProject.handlerName} onChange={e => setNewProject({...newProject, handlerName: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
             </div>
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_76")}</label>
-              <input type="text" value={newProject.handlerPhone} onChange={e => setNewProject({...newProject, handlerPhone: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_76")}</label>
+              <input type="text" value={newProject.handlerPhone} onChange={e => setNewProject({...newProject, handlerPhone: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
             </div>
             <button type="submit" className="w-full flex items-center justify-center gap-1.5 py-3 rounded-md bg-primary hover:bg-indigo-650 text-white font-bold text-xs shadow-sm transition-all">
               <span className="material-symbols-outlined text-sm">add</span> Tạo Dự Án
@@ -193,7 +193,7 @@ export default function AdminProjectsTab({ showNotification }) {
               <div key={p._id} onClick={() => handleOpenDetail(p)} className="cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 p-4 rounded-md border border-slate-200 dark:border-white/5 transition-colors relative group">
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="font-bold text-sm text-slate-850 dark:text-white flex items-center gap-2">
+                    <div className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
                       {p.fullName}
                       {p.unreadCount > 0 && (
                         <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">

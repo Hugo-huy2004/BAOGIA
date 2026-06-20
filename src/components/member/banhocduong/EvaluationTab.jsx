@@ -8,7 +8,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import RadarChart from "./charts/RadarChart";
 import LineChart from "./charts/LineChart";
 
-export default function EvaluationTab({ historyLogs, bio, onNavigateToTab, showToast }) {
+export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavigateToTab, showToast }) {
+  const historyLogs = Array.isArray(rawHistoryLogs) ? rawHistoryLogs : [];
   const [timelineExpanded, setTimelineExpanded] = useState(false);
 
   const formatDateTime = (isoString) => {
@@ -494,16 +495,16 @@ export default function EvaluationTab({ historyLogs, bio, onNavigateToTab, showT
                   {dassComp && (
                     <tr className="hover:bg-zinc-50/50 dark:hover:bg-zinc-900/10">
                       <td className="py-3 font-black text-zinc-800 dark:text-zinc-200">DASS-42: Trầm Cảm</td>
-                      <td className="py-3 text-zinc-500">{dassComp.initial.scores.D} điểm</td>
-                      <td className="py-3 text-zinc-800 dark:text-zinc-100">{dassComp.current.scores.D} điểm</td>
-                      <td className={`py-3 ${dassComp.current.scores.D - dassComp.initial.scores.D < 0 ? "text-emerald-500" : dassComp.current.scores.D - dassComp.initial.scores.D > 0 ? "text-red-500" : "text-zinc-500"}`}>
-                        {dassComp.current.scores.D - dassComp.initial.scores.D < 0
-                          ? `${dassComp.current.scores.D - dassComp.initial.scores.D}đ`
-                          : dassComp.current.scores.D - dassComp.initial.scores.D > 0
-                          ? `+${dassComp.current.scores.D - dassComp.initial.scores.D}đ`
+                      <td className="py-3 text-zinc-500">{dassComp.initial.scores?.D ?? 0} điểm</td>
+                      <td className="py-3 text-zinc-800 dark:text-zinc-100">{dassComp.current.scores?.D ?? 0} điểm</td>
+                      <td className={`py-3 ${(dassComp.current.scores?.D ?? 0) - (dassComp.initial.scores?.D ?? 0) < 0 ? "text-emerald-500" : (dassComp.current.scores?.D ?? 0) - (dassComp.initial.scores?.D ?? 0) > 0 ? "text-red-500" : "text-zinc-500"}`}>
+                        {(dassComp.current.scores?.D ?? 0) - (dassComp.initial.scores?.D ?? 0) < 0
+                          ? `${(dassComp.current.scores?.D ?? 0) - (dassComp.initial.scores?.D ?? 0)}đ`
+                          : (dassComp.current.scores?.D ?? 0) - (dassComp.initial.scores?.D ?? 0) > 0
+                          ? `+${(dassComp.current.scores?.D ?? 0) - (dassComp.initial.scores?.D ?? 0)}đ`
                           : "0đ"}
                       </td>
-                      <td className="py-3">{progressBadge(dassComp.current.scores.D - dassComp.initial.scores.D)}</td>
+                      <td className="py-3">{progressBadge((dassComp.current.scores?.D ?? 0) - (dassComp.initial.scores?.D ?? 0))}</td>
                     </tr>
                   )}
                   {mmpiComp && (
@@ -585,7 +586,7 @@ export default function EvaluationTab({ historyLogs, bio, onNavigateToTab, showT
                 title = `Thực hiện test ${log.test.toUpperCase()}`;
                 color = "bg-blue-500 border-blue-200";
                 if (log.test === "dass42") {
-                  desc = `Kết quả: Trầm cảm ${log.scores.D}/42, Lo âu ${log.scores.A}/42, Căng thẳng ${log.scores.S}/42. Đánh giá: ${log.severities.D}`;
+                  desc = `Kết quả: Trầm cảm ${log.scores?.D ?? 0}/42, Lo âu ${log.scores?.A ?? 0}/42, Căng thẳng ${log.scores?.S ?? 0}/42. Đánh giá: ${log.severities?.D ?? "Không rõ"}`;
                 } else if (log.test === "mmpi30") {
                   const elev = log.clinical ? log.clinical.filter(c => c.score >= 70).length : 0;
                   desc = `Kiểm tra Mini-MMPI: ${elev}/10 thang đo vượt ngưỡng thích ứng lâm sàng.`;
@@ -601,7 +602,7 @@ export default function EvaluationTab({ historyLogs, bio, onNavigateToTab, showT
               return (
                 <div key={idx} className="relative pl-8">
                   <div className={`absolute left-[-9px] top-1.5 w-4 h-4 rounded-full border-[3px] ${color} z-10 shadow-sm`} />
-                  <div className="space-y-1.5 p-3 rounded-xl border border-zinc-150/70 dark:border-zinc-800/40 bg-zinc-50/50 dark:bg-black/20 hover:border-indigo-500/30 transition-all shadow-sm">
+                  <div className="space-y-1.5 p-3 rounded-xl border border-zinc-200/70 dark:border-zinc-800/40 bg-zinc-50/50 dark:bg-black/20 hover:border-indigo-500/30 transition-all shadow-sm">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                       <span className="text-[10px] font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">{title}</span>
                       <div className="flex items-center gap-1.5 text-[9px] text-zinc-400 font-bold bg-white dark:bg-zinc-900 px-2 py-1 rounded-md shadow-sm border border-zinc-200/50 dark:border-zinc-800/50 w-fit">
@@ -629,13 +630,16 @@ export default function EvaluationTab({ historyLogs, bio, onNavigateToTab, showT
             <div className="border border-zinc-200/50 dark:border-zinc-800/50 rounded-xl p-3 bg-white/50 dark:bg-black/20 flex flex-col">
               <h5 className="text-[9px] font-black text-zinc-500 uppercase tracking-wider text-center mb-2">Chỉ số Bánh Xe Cuộc Sống</h5>
               <div className="flex-1 min-h-[160px]">
-                <RadarChart historyLogs={historyLogs} />
+                <RadarChart scores={latestDass?.scores} />
               </div>
             </div>
             <div className="border border-zinc-200/50 dark:border-zinc-800/50 rounded-xl p-3 bg-white/50 dark:bg-black/20 flex flex-col">
               <h5 className="text-[9px] font-black text-zinc-500 uppercase tracking-wider text-center mb-2">Biến thiên Cảm xúc</h5>
               <div className="flex-1 min-h-[160px]">
-                <LineChart historyLogs={historyLogs} />
+                <LineChart 
+                  data={historyLogs.filter(l => l.type === "checkin").map(c => ({ value: c.mood }))} 
+                  maxScore={5} 
+                />
               </div>
             </div>
           </div>

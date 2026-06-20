@@ -264,14 +264,14 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
           <button
             type="button"
             onClick={toggleTimer}
-            className="w-12 h-12 rounded-full border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-center text-zinc-800 dark:text-zinc-150 shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] active:scale-95 transition-all"
+            className="w-12 h-12 rounded-full border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] active:scale-95 transition-all"
           >
             {isTimerRunning ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 pl-0.5" />}
           </button>
           <button
             type="button"
             onClick={resetTimer}
-            className="w-12 h-12 rounded-full border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-center text-zinc-800 dark:text-zinc-150 shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] active:scale-95 transition-all"
+            className="w-12 h-12 rounded-full border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] active:scale-95 transition-all"
           >
             <Square className="w-4 h-4" />
           </button>

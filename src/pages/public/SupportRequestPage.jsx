@@ -165,7 +165,7 @@ const SupportRequestPage = () => {
               
               <button
                 onClick={() => navigate('/member')}
-                className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-750 dark:text-slate-300 font-semibold text-xs rounded-2xl flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95"
+                className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-2xl flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95"
                 style={{ minHeight: 0, minWidth: 0 }}
               >
                 <span className="material-symbols-outlined text-sm">person</span>
@@ -180,7 +180,7 @@ const SupportRequestPage = () => {
               <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 Yêu Cầu Hỗ Trợ 1:1
               </h1>
-              <p className="text-xs text-slate-450 dark:text-slate-400 leading-relaxed">
+              <p className="text-xs text-slate-400 dark:text-slate-400 leading-relaxed">
                 Điền đầy đủ thông tin bên dưới để kết nối nhanh với nhân viên hỗ trợ thông qua Zalo chat. Chúng tôi sẽ giải quyết vấn đề của bạn ngay lập tức.
               </p>
             </div>
@@ -196,7 +196,7 @@ const SupportRequestPage = () => {
               {/* Full Name */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-400 tracking-wide flex items-center gap-1">
-                  <span className="material-symbols-outlined text-base text-slate-450">badge</span>
+                  <span className="material-symbols-outlined text-base text-slate-400">badge</span>
                   Họ và tên
                 </label>
                 <input
@@ -213,7 +213,7 @@ const SupportRequestPage = () => {
                 {/* Email */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-400 tracking-wide flex items-center gap-1">
-                    <span className="material-symbols-outlined text-base text-slate-450">mail</span>
+                    <span className="material-symbols-outlined text-base text-slate-400">mail</span>
                     Email liên hệ
                   </label>
                   <input
@@ -229,7 +229,7 @@ const SupportRequestPage = () => {
                 {/* Phone Number (Zalo) */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-400 tracking-wide flex items-center gap-1">
-                    <span className="material-symbols-outlined text-base text-slate-450">call</span>
+                    <span className="material-symbols-outlined text-base text-slate-400">call</span>
                     Số Zalo liên hệ
                   </label>
                   <input
@@ -246,7 +246,7 @@ const SupportRequestPage = () => {
               {/* Description */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-400 tracking-wide flex items-center gap-1">
-                  <span className="material-symbols-outlined text-base text-slate-450">description</span>
+                  <span className="material-symbols-outlined text-base text-slate-400">description</span>
                   Mô tả vấn đề bạn gặp phải
                 </label>
                 <textarea
@@ -264,7 +264,7 @@ const SupportRequestPage = () => {
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-300 font-semibold text-xs rounded-2xl border border-slate-200/40 dark:border-slate-800/40 transition-colors"
+                  className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs rounded-2xl border border-slate-200/40 dark:border-slate-800/40 transition-colors"
                   style={{ minHeight: 0, minWidth: 0 }}
                 >
                   Quay lại

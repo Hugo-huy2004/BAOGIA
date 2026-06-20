@@ -384,7 +384,7 @@ export default function UploadAnalyzer() {
           <div className="absolute left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[#0071e3] to-transparent animate-laser-scan shadow-[0_0_10px_2px_rgba(0,113,227,0.7)]" />
 
           {filePreview ? (
-            <div className="w-full h-44 rounded-lg overflow-hidden border border-zinc-250 dark:border-zinc-800 bg-zinc-150 relative">
+            <div className="w-full h-44 rounded-lg overflow-hidden border border-zinc-250 dark:border-zinc-800 bg-zinc-200 relative">
               <img src={filePreview} alt="Preview" className="w-full h-full object-cover opacity-45 blur-[0.5px]" />
             </div>
           ) : (

@@ -44,7 +44,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 p-6 shadow-sm">
-        <h3 className="font-black text-sm uppercase tracking-wider text-slate-850 dark:text-white mb-4 flex items-center gap-2">
+        <h3 className="font-black text-sm uppercase tracking-wider text-slate-800 dark:text-white mb-4 flex items-center gap-2">
           <span className="material-symbols-outlined text-emerald-500 text-lg">storefront</span>{t("memberTabs.services.title")}</h3>
         
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">{t("memberTabs.services.desc")}</p>
@@ -55,40 +55,40 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">{t("memberTabs.services.nameLabel")}</label>
+              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">{t("memberTabs.services.nameLabel")}</label>
               <input
                 type="text"
                 value={newService.name}
                 onChange={(e) => setNewService(prev => ({ ...prev, name: e.target.value }))}
                 placeholder={t("memberTabs.services.namePlaceholder")}
-                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-750 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-850 dark:text-white"
+                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-800 dark:text-white"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">{t("memberTabs.services.priceLabel")}</label>
+              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">{t("memberTabs.services.priceLabel")}</label>
               <input
                 type="text"
                 value={newService.price}
                 onChange={(e) => setNewService(prev => ({ ...prev, price: e.target.value }))}
                 placeholder={t("memberTabs.services.pricePlaceholder")}
-                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-750 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-850 dark:text-white"
+                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-800 dark:text-white"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">{t("memberTabs.services.descLabel")}</label>
+            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">{t("memberTabs.services.descLabel")}</label>
             <input
               type="text"
               value={newService.description}
               onChange={(e) => setNewService(prev => ({ ...prev, description: e.target.value }))}
               placeholder={t("memberTabs.services.descPlaceholder")}
-              className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-750 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-850 dark:text-white"
+              className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-800 dark:text-white"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-wider ml-1">{t("memberTabs.services.iconLabel")}</label>
+            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">{t("memberTabs.services.iconLabel")}</label>
             <div className="flex flex-wrap gap-2">
               {COMMON_ICONS.map(icon => (
                 <button
@@ -135,7 +135,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
-                      <h5 className="font-bold text-slate-850 dark:text-white text-xs truncate">{srv.name}</h5>
+                      <h5 className="font-bold text-slate-800 dark:text-white text-xs truncate">{srv.name}</h5>
                       <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold text-[10px] whitespace-nowrap ml-2 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md">{srv.price}</span>
                     </div>
                     <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{srv.description}</p>

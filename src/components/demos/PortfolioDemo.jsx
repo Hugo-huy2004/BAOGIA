@@ -111,7 +111,7 @@ export default function PortfolioDemo({ isMobile = false }) {
   };
 
   const textPrimary = dark ? "text-white" : "text-slate-900";
-  const textSecondary = dark ? "text-slate-400" : "text-slate-655";
+  const textSecondary = dark ? "text-slate-400" : "text-slate-600";
   const bgCard = dark ? "bg-[#111726]/40 border-white/5" : "bg-white border-slate-200 shadow-sm";
   const borderSubtle = dark ? "border-white/5" : "border-slate-100";
 
@@ -138,7 +138,7 @@ export default function PortfolioDemo({ isMobile = false }) {
             <button
               onClick={() => setDark(!dark)}
               className={`p-2 rounded-lg flex items-center justify-center transition-all border ${
-                dark ? "bg-white/5 text-yellow-400 border border-white/5" : "bg-slate-100 text-slate-600 border border-slate-350"
+                dark ? "bg-white/5 text-yellow-400 border border-white/5" : "bg-slate-100 text-slate-600 border border-slate-300"
               }`}
               title={dark ? "Chế độ Sáng" : "Chế độ Tối"}
             >
@@ -189,7 +189,7 @@ export default function PortfolioDemo({ isMobile = false }) {
                   <button
                     onClick={() => triggerToast("Bắt đầu tải xuống CV PDF...")}
                     className={`w-full py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border ${
-                      dark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-slate-50 border-slate-250 text-slate-700 hover:bg-slate-100"
+                      dark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100"
                     }`}
                   >
                     Tải Xuống CV
@@ -255,7 +255,7 @@ export default function PortfolioDemo({ isMobile = false }) {
                     <span className="text-[8px] font-mono text-slate-400">Dự án ({projectSlide + 1}/5)</span>
                   </div>
                   <h3 className="font-serif text-sm font-black uppercase mt-2">{projects[projectSlide].title}</h3>
-                  <p className={`text-xs font-light leading-relaxed mt-1 ${dark ? "text-slate-300" : "text-slate-655"}`}>{projects[projectSlide].desc}</p>
+                  <p className={`text-xs font-light leading-relaxed mt-1 ${dark ? "text-slate-300" : "text-slate-600"}`}>{projects[projectSlide].desc}</p>
                   <p className="text-[9px] font-mono text-indigo-500 font-bold mt-2">{projects[projectSlide].tech}</p>
                 </div>
 
@@ -411,7 +411,7 @@ export default function PortfolioDemo({ isMobile = false }) {
       {/* Custom Bottom Tab Bar for Mobile */}
       {isMobile && (
         <div className={`border-t px-6 pt-3 pb-5 flex justify-around items-center shrink-0 z-30 select-none ${
-          dark ? "bg-[#0B0F19]/95 border-white/10" : "bg-[#F8FAFC]/95 border-slate-250"
+          dark ? "bg-[#0B0F19]/95 border-white/10" : "bg-[#F8FAFC]/95 border-slate-300"
         }`}>
           <button 
             onClick={() => setActiveMobileTab("bio")} 

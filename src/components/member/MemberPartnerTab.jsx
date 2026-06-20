@@ -112,7 +112,7 @@ class MemberPartnerTab extends Component {
 
               {/* Selector Pills */}
               {paginatedPartners.length > 0 ? (
-                <div className="flex flex-wrap gap-2 pb-2 border-b border-zinc-150 dark:border-zinc-800">
+                <div className="flex flex-wrap gap-2 pb-2 border-b border-zinc-200 dark:border-zinc-800">
                   {paginatedPartners.map((p) => {
                     let domain = "google.com";
                     try {
@@ -148,7 +148,7 @@ class MemberPartnerTab extends Component {
                   })}
                 </div>
               ) : (
-                <div className="py-8 text-center text-zinc-400 text-xs italic border-b border-zinc-150 dark:border-zinc-800">
+                <div className="py-8 text-center text-zinc-400 text-xs italic border-b border-zinc-200 dark:border-zinc-800">
                   Không tìm thấy đối tác nào phù hợp.
                 </div>
               )}

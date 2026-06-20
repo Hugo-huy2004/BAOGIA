@@ -25,7 +25,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative mt-16 md:mt-20 border-t border-slate-200/60 bg-white/40 dark:border-slate-800/50 dark:bg-slate-950/40 backdrop-blur-xl py-8 md:py-16 text-slate-650 dark:text-slate-400">
+    <footer className="relative mt-16 md:mt-20 border-t border-slate-200/60 bg-white/40 dark:border-slate-800/50 dark:bg-slate-950/40 backdrop-blur-xl py-8 md:py-16 text-slate-600 dark:text-slate-400">
       {/* Background soft glow accents */}
       <div className="absolute top-0 left-1/4 -translate-y-1/2 w-72 h-72 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
       <div className="absolute top-0 right-1/4 -translate-y-1/2 w-72 h-72 rounded-full bg-cyan-500/5 blur-3xl pointer-events-none" />
@@ -77,7 +77,7 @@ export default function Footer() {
 
           {/* Column 2: Services */}
           <div className="text-left">
-            <div className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550">
+            <div className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
               {t("footer.services", "Dịch vụ")}
             </div>
             <ul className="space-y-2 text-xs font-medium">
@@ -106,7 +106,7 @@ export default function Footer() {
 
           {/* Column 3: Navigation */}
           <div className="text-left">
-            <div className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550">
+            <div className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
               {t("footer.links", "Đường dẫn")}
             </div>
             <ul className="space-y-2 text-xs font-medium">
@@ -127,7 +127,7 @@ export default function Footer() {
 
           {/* Column 4: Socials — hidden on small mobile, shown md+ OR as last item */}
           <div className="col-span-2 lg:col-span-1 text-left space-y-3">
-            <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550">
+            <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
               {t("footer.connect", "Kết nối")}
             </div>
             <div className="flex flex-wrap gap-2">
@@ -168,7 +168,7 @@ export default function Footer() {
             </div>
             {/* Partner Logo */}
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-550 mb-2">{t("footer.partner", "Đối tác")}</div>
+              <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-2">{t("footer.partner", "Đối tác")}</div>
               <a
                 href="https://hwagfu.dev"
                 target="_blank"
@@ -208,14 +208,14 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <Link 
               to="/privacy-policy" 
-              className="hover:text-slate-700 dark:hover:text-slate-350 hover:underline underline-offset-4 transition-colors font-medium"
+              className="hover:text-slate-700 dark:hover:text-slate-300 hover:underline underline-offset-4 transition-colors font-medium"
             >
               {t("footer.privacyPolicy", "Chính sách bảo mật")}
             </Link>
             <span className="text-slate-300 dark:text-slate-800 text-[10px] select-none">•</span>
             <Link 
               to="/user-guide" 
-              className="hover:text-slate-700 dark:hover:text-slate-350 hover:underline underline-offset-4 transition-colors font-medium"
+              className="hover:text-slate-700 dark:hover:text-slate-300 hover:underline underline-offset-4 transition-colors font-medium"
             >
               Hướng dẫn sử dụng
             </Link>

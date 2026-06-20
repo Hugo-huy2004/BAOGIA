@@ -88,7 +88,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
           className={`pb-3 font-bold text-xs relative transition-all flex items-center gap-2 ${
             bookingSubTab === "pending"
               ? "text-primary dark:text-[#a5b4fc]"
-              : "text-slate-450 hover:text-slate-800 dark:text-slate-550 dark:hover:text-slate-350"
+              : "text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-300"
           }`}
         >
           <span>{t("admin.texts.txt_4")}</span>
@@ -107,12 +107,12 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
           className={`pb-3 font-bold text-xs relative transition-all flex items-center gap-2 ${
             bookingSubTab === "contacted"
               ? "text-primary dark:text-[#a5b4fc]"
-              : "text-slate-450 hover:text-slate-800 dark:text-slate-550 dark:hover:text-slate-350"
+              : "text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-300"
           }`}
         >
           <span>{t("admin.texts.txt_5")}</span>
           {contactedBookings.length > 0 && (
-            <span className="bg-slate-200 dark:bg-slate-800 text-slate-655 dark:text-slate-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
+            <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
               {contactedBookings.length}
             </span>
           )}
@@ -136,7 +136,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                   <th className="px-6 py-4 text-center">{t("admin.texts.txt_10")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-150 dark:divide-slate-800/60 font-medium">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 font-medium">
                 {displayedBookings.map((booking) => {
                   const deleteDays = getAutoDeleteDays(booking);
                   return (
@@ -147,7 +147,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                           className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border shadow-sm ${
                             booking.contacted
                               ? "bg-emerald-50 border-emerald-255 text-emerald-600 dark:bg-[#102a1e] dark:border-[#104a30] dark:text-emerald-455"
-                              : "bg-white border-slate-200 text-slate-400 hover:border-primary hover:text-primary dark:bg-slate-850 dark:border-slate-800"
+                              : "bg-white border-slate-200 text-slate-400 hover:border-primary hover:text-primary dark:bg-slate-800 dark:border-slate-800"
                           }`}
                           title={booking.contacted ? t("admin.texts.txt_19") : t("admin.texts.txt_20")}
                         >
@@ -158,13 +158,13 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                       </td>
                       <td className="px-6 py-4">
                         <div className="space-y-1">
-                          <div className="font-bold text-slate-850 dark:text-white text-xs">{booking.fullName}</div>
-                          <div className="text-[10px] text-slate-405 font-mono select-all">{booking.phone}</div>
-                          <div className="text-[10px] text-slate-405 font-mono select-all">{booking.email}</div>
+                          <div className="font-bold text-slate-800 dark:text-white text-xs">{booking.fullName}</div>
+                          <div className="text-[10px] text-slate-400 font-mono select-all">{booking.phone}</div>
+                          <div className="text-[10px] text-slate-400 font-mono select-all">{booking.email}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4 max-w-xs">
-                        <p className="text-slate-600 dark:text-slate-350 text-xs line-clamp-3 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-300 text-xs line-clamp-3 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
                           {booking.message || t("admin.texts.txt_21")}
                         </p>
                       </td>
@@ -200,14 +200,14 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
           </div>
 
           {/* Compressed Mobile List View */}
-          <div className="md:hidden divide-y divide-slate-150 dark:divide-slate-800/60 px-4">
+          <div className="md:hidden divide-y divide-slate-200 dark:divide-slate-800/60 px-4">
             {displayedBookings.map((booking) => {
               const deleteDays = getAutoDeleteDays(booking);
               return (
                 <div key={booking._id} className="py-4 space-y-2.5 first:pt-2 last:pb-2">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <h4 className="font-bold text-slate-850 dark:text-white text-xs truncate leading-tight">{booking.fullName}</h4>
+                      <h4 className="font-bold text-slate-800 dark:text-white text-xs truncate leading-tight">{booking.fullName}</h4>
                       <p className="text-[10px] text-slate-400 mt-0.5 leading-none">
                         {new Date(booking.createdAt).toLocaleDateString('vi-VN')} • {new Date(booking.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                       </p>
@@ -219,7 +219,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                         className={`px-2 py-0.5 rounded-md text-[8.5px] font-extrabold uppercase border flex items-center gap-1 transition-all ${
                           booking.contacted
                             ? "bg-emerald-50 border-emerald-250 text-emerald-600 dark:bg-[#102a1e] dark:border-[#104a30] dark:text-emerald-455"
-                            : "bg-white border-slate-200 text-slate-500 dark:bg-slate-850 dark:border-slate-800"
+                            : "bg-white border-slate-200 text-slate-500 dark:bg-slate-800 dark:border-slate-800"
                         }`}
                       >
                         <span className="material-symbols-outlined text-[10px] font-bold">
@@ -237,7 +237,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-350">
+                  <div className="flex flex-wrap gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300">
                     <a href={`tel:${booking.phone}`} className="flex items-center gap-1 bg-slate-100/80 dark:bg-[#1a1626]/80 px-2.5 py-1 rounded-lg border border-slate-200/40 dark:border-slate-800/80 font-mono">
                       <span className="material-symbols-outlined text-[9px] font-bold">call</span>
                       <span>{booking.phone}</span>
@@ -248,7 +248,7 @@ export default function AdminBookingsTab({ showNotification, triggerConfirm }) {
                     </a>
                   </div>
 
-                  <p className="text-xs text-slate-655 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed italic">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed italic">
                     "{booking.message || t("admin.texts.txt_25")}"
                   </p>
 

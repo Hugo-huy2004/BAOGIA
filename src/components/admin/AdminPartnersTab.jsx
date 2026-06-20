@@ -147,7 +147,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
         
         <form onSubmit={handleAddPartner} className="space-y-4">
           <div className="space-y-1">
-            <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_89")}</label>
+            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_89")}</label>
             <input
               type="text"
               required
@@ -159,7 +159,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
           </div>
 
           <div className="space-y-1">
-            <label className="block text-[9px] font-bold text-slate-455 uppercase tracking-wider">{t("admin.texts.txt_90")}</label>
+            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_90")}</label>
             <textarea
               rows="5"
               required
@@ -174,7 +174,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
             <button
               type="submit"
               value="save"
-              className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-colors border border-slate-200 dark:border-slate-750 active:scale-98"
+              className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-colors border border-slate-200 dark:border-slate-700 active:scale-98"
             >
               Liên Kết
             </button>
@@ -199,7 +199,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
           {/* Header with Search */}
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <span className="material-symbols-outlined text-slate-550 dark:text-slate-455 text-base">handshake</span>
+              <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">handshake</span>
               Danh Sách Đối Tác ({partners.length})
             </h3>
             
@@ -210,7 +210,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
                 placeholder={t("admin.texts.txt_106")}
                 value={partnerSearch}
                 onChange={(e) => { setPartnerSearch(e.target.value); setPartnerPage(1); }}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#1c1626] text-[11px] py-1.5 pl-8 pr-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#1c1626] text-[11px] py-1.5 pl-8 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               />
               <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">search</span>
             </div>
@@ -218,7 +218,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
 
           {/* Items List */}
           {paginatedPartners.length > 0 ? (
-            <div className="divide-y divide-slate-150 dark:divide-slate-800/60 flex-grow">
+            <div className="divide-y divide-slate-200 dark:divide-slate-800/60 flex-grow">
               {paginatedPartners.map((partner) => {
                 const iconUrl = getFaviconUrl(partner.iframeUrl);
                 return (
@@ -259,7 +259,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
                       </button>
                       <button
                         onClick={() => setPreviewPartner(partner)}
-                        className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[10px] px-3.5 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-750 transition-colors shadow-sm active:scale-95"
+                        className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[10px] px-3.5 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-700 transition-colors shadow-sm active:scale-95"
                       >
                         Xem Thử
                       </button>
@@ -281,7 +281,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
                 <p className="italic">{t("admin.texts.txt_92")}</p>
               ) : (
                 <div className="space-y-2 max-w-sm">
-                  <p className="font-bold text-slate-500 dark:text-slate-350 not-italic">{t("admin.texts.txt_93")}</p>
+                  <p className="font-bold text-slate-500 dark:text-slate-300 not-italic">{t("admin.texts.txt_93")}</p>
                   <p className="text-[11px] leading-relaxed">
                     Nhập thông tin ở khung bên trái rồi bấm <strong>{t("admin.texts.txt_94")}</strong> để lấy mã nhúng ngay.
                   </p>
@@ -292,20 +292,20 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
 
           {/* Pagination bar */}
           {totalPartnerPages > 1 && (
-            <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/10 border-t border-slate-150 dark:border-slate-800/60 flex items-center justify-between text-xs font-bold text-slate-500 shrink-0">
+            <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/10 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between text-xs font-bold text-slate-500 shrink-0">
               <span>Trang {partnerPage} / {totalPartnerPages}</span>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPartnerPage(p => Math.max(p - 1, 1))}
                   disabled={partnerPage === 1}
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-750 dark:text-slate-350 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
                 >
                   Trước
                 </button>
                 <button
                   onClick={() => setPartnerPage(p => Math.min(p + 1, totalPartnerPages))}
                   disabled={partnerPage === totalPartnerPages}
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-750 dark:text-slate-350 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
                 >
                   Sau
                 </button>
@@ -319,21 +319,21 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
           <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4 animate-fadeIn">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                <span className="material-symbols-outlined text-slate-550 dark:text-slate-400 text-sm">visibility</span>
+                <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-sm">visibility</span>
                 Xem trước đối tác: {previewPartner.name}
               </h4>
               <button 
                 onClick={() => setPreviewPartner(null)}
-                className="text-slate-400 hover:text-slate-650 dark:hover:text-white"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white"
               >
                 <span className="material-symbols-outlined text-sm">close</span>
               </button>
             </div>
 
             {/* Modern Browser Mock Frame */}
-            <div className="w-full bg-[#f1f5f9] dark:bg-[#1c1a27] rounded-xl overflow-hidden border border-slate-250 dark:border-slate-800 flex flex-col shadow-inner">
+            <div className="w-full bg-[#f1f5f9] dark:bg-[#1c1a27] rounded-xl overflow-hidden border border-slate-300 dark:border-slate-800 flex flex-col shadow-inner">
               {/* Browser top-bar */}
-              <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-200/60 dark:bg-slate-900/60 border-b border-slate-250 dark:border-slate-800 select-none">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-200/60 dark:bg-slate-900/60 border-b border-slate-300 dark:border-slate-800 select-none">
                 <div className="flex gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
@@ -436,7 +436,7 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
               </div>
               <button 
                 onClick={() => setExportPartner(null)}
-                className="text-slate-400 hover:text-slate-655 dark:hover:text-white"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white"
               >
                 <span className="material-symbols-outlined text-sm">close</span>
               </button>
@@ -450,24 +450,24 @@ export default function AdminPartnersTab({ showNotification, triggerConfirm }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-indigo-50/70 dark:bg-indigo-950/20 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
                   <span className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-305 uppercase tracking-wider">{t("adminTabs.partners.iframeReady")}</span>
-                  <p className="mt-1 text-[10px] font-mono text-slate-650 dark:text-slate-305 break-all">
+                  <p className="mt-1 text-[10px] font-mono text-slate-600 dark:text-slate-305 break-all">
                     {getPartnerBioEditorUrl(exportPartner)}
                   </p>
                 </div>
                 <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
                   <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">{t("adminTabs.partners.iframeAuto")}</span>
-                  <p className="mt-1 text-[10px] text-slate-650 dark:text-slate-305 leading-relaxed">
+                  <p className="mt-1 text-[10px] text-slate-600 dark:text-slate-305 leading-relaxed">
                     {t("adminTabs.partners.iframeAutoDesc")}
                   </p>
                 </div>
               </div>
 
               <div className="bg-slate-50 dark:bg-[#1f1929] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2">
-                <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.partners.iframeCode")}</span>
+                <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.partners.iframeCode")}</span>
                 <textarea
                   readOnly
                   rows={4}
-                  className="w-full bg-slate-100 dark:bg-black/40 border border-slate-250 dark:border-slate-800 rounded-xl p-3 text-[10px] font-mono text-indigo-600 dark:text-[#a5b4fc] focus:outline-none resize-none"
+                  className="w-full bg-slate-100 dark:bg-black/40 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-[10px] font-mono text-indigo-600 dark:text-[#a5b4fc] focus:outline-none resize-none"
                   value={getPartnerBioIframeCode(exportPartner)}
                 />
               </div>

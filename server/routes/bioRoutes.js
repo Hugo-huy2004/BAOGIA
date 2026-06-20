@@ -106,6 +106,42 @@ const processSecretLinks = async (newLinks, existingLinks = []) => {
   return result;
 };
 
+// POST: Bulk approve all pending bios
+router.post('/bulk-approve-pending', requireAdmin, async (req, res) => {
+  try {
+    const pendingBios = await Bio.find({ status: 'pending' });
+    let count = 0;
+
+    for (const bio of pendingBios) {
+      if (bio.verificationRequest && bio.verificationRequest.submitted) {
+        bio.displayName = bio.verificationRequest.fullName || bio.displayName;
+        bio.birthday = bio.verificationRequest.birthday || bio.birthday;
+        bio.phone = bio.verificationRequest.phoneZalo || bio.phone;
+        if (bio.verificationRequest.schoolName) {
+          bio.education = `${bio.verificationRequest.schoolLevel || ''} - ${bio.verificationRequest.schoolName}`.trim().replace(/^- /, '');
+        }
+        bio.verificationRequest.notifiedStatus = 'approved';
+      }
+
+      bio.status = 'active';
+      pushHistory(bio, {
+        type: 'profile_updated',
+        icon: 'verified',
+        title: 'Tài khoản đã được duyệt tự động! 🎉',
+        detail: 'Quản trị viên đã duyệt hàng loạt tài khoản của bạn lên trạng thái hoạt động.'
+      });
+
+      await bio.save();
+      clearCache(`bio_slug_${bio.slug}`);
+      count++;
+    }
+
+    res.json({ success: true, count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET: Fetch all bios (for Admin Panel) with search, filter, pagination, and stats
 router.get('/', requireAdmin, async (req, res) => {
   try {

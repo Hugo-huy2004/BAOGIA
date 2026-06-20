@@ -293,7 +293,7 @@ export default function AdminPaymentsTab() {
                       key={idx}
                       type="button"
                       onClick={() => applySuggestion(item.prefix)}
-                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-700/60 text-[8px] sm:text-[9px] font-bold text-slate-500 dark:text-slate-400 rounded-lg border border-slate-200/40 dark:border-slate-750/30 transition-colors uppercase tracking-tight"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-700/60 text-[8px] sm:text-[9px] font-bold text-slate-500 dark:text-slate-400 rounded-lg border border-slate-200/40 dark:border-slate-700/30 transition-colors uppercase tracking-tight"
                     >
                       + {item.label}
                     </button>
@@ -387,7 +387,7 @@ export default function AdminPaymentsTab() {
                         {link?.status}
                       </span>
                     ) : link?.status === 'CANCELLED' ? (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border bg-red-50 text-red-700 border-red-200 dark:bg-rose-500/10 dark:text-rose-455 dark:border-rose-500/20">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border bg-red-50 text-red-700 border-red-200 dark:bg-rose-500/10 dark:text-rose-500 dark:border-rose-500/20">
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-550 mr-1.5"></span>
                         {link?.status}
                       </span>

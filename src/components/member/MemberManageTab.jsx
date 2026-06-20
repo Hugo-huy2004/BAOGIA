@@ -89,7 +89,7 @@ class PackageCard extends Component {
                 <span className="material-symbols-outlined text-xs">workspace_premium</span>
                 {isBasePackage ? t("memberPortal.package.base") : t("memberPortal.package.promo")}
               </div>
-              <h3 className="text-xl sm:text-2xl font-black tracking-tight uppercase bg-gradient-to-r from-white via-zinc-150 to-zinc-400 bg-clip-text text-transparent">{name}</h3>
+              <h3 className="text-xl sm:text-2xl font-black tracking-tight uppercase bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">{name}</h3>
             </div>
 
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-white">
@@ -103,7 +103,7 @@ class PackageCard extends Component {
               <div className="text-xs sm:text-sm font-semibold flex items-center gap-4 sm:gap-6">
                 <div>
                   <span className="text-[8px] sm:text-[9px] block text-white/50 font-bold uppercase tracking-wider mb-0.5">Ngày bắt đầu</span>
-                  <span className="text-xs sm:text-sm font-mono text-zinc-150">{startLabel}</span>
+                  <span className="text-xs sm:text-sm font-mono text-zinc-200">{startLabel}</span>
                 </div>
                 {expiresLabel && (
                   <>
@@ -150,7 +150,7 @@ class PackageCard extends Component {
             {formattedBenefits.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 {formattedBenefits.map((benefit, i) => (
-                  <div key={i} className="flex gap-2.5 items-start p-3.5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-150 dark:border-zinc-800/60 transition-all hover:scale-[1.01]">
+                  <div key={i} className="flex gap-2.5 items-start p-3.5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200 dark:border-zinc-800/60 transition-all hover:scale-[1.01]">
                     <span className="material-symbols-outlined text-[13px] mt-0.5 shrink-0" style={{ color }}>check_circle</span>
                     <p className="text-[10px] sm:text-[11px] font-medium text-zinc-750 dark:text-zinc-300 leading-relaxed">{benefit}</p>
                   </div>

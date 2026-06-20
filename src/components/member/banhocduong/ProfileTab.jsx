@@ -3,7 +3,8 @@ import RadarChart from "./charts/RadarChart";
 import LineChart from "./charts/LineChart";
 import { ShieldCheck, User, Phone, Mail, MapPin, Calendar as CalendarIcon, Activity, AlertTriangle, TrendingUp, Sparkles } from "lucide-react";
 
-export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToast }) {
+export default function ProfileTab({ historyLogs: rawHistoryLogs, bio, onNavigateToTab, showToast }) {
+  const historyLogs = Array.isArray(rawHistoryLogs) ? rawHistoryLogs : [];
   const dassTests = historyLogs.filter(l => l.test === "dass42");
   const mmpiTests = historyLogs.filter(l => l.test === "mmpi30");
   const phq9Tests = historyLogs.filter(l => l.test === "phq9");
@@ -11,6 +12,7 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
   const who5Tests = historyLogs.filter(l => l.test === "who5");
 
   const totalTestsCount = dassTests.length + mmpiTests.length + phq9Tests.length + gad7Tests.length + who5Tests.length;
+  const latestDass = dassTests.length > 0 ? dassTests[dassTests.length - 1] : null;
 
   const getMedicalEvaluation = useMemo(() => {
     const anomaliesList = [];
@@ -202,13 +204,16 @@ export default function ProfileTab({ historyLogs, bio, onNavigateToTab, showToas
               <div className="border border-zinc-200/50 dark:border-zinc-800/50 rounded-xl p-3 bg-white/50 dark:bg-black/20 flex flex-col">
                 <h5 className="text-[9px] font-black text-zinc-500 uppercase tracking-wider text-center mb-2">Chỉ số Bánh Xe Cuộc Sống</h5>
                 <div className="flex-1 min-h-[160px]">
-                  <RadarChart historyLogs={historyLogs} />
+                  <RadarChart scores={latestDass?.scores} />
                 </div>
               </div>
               <div className="border border-zinc-200/50 dark:border-zinc-800/50 rounded-xl p-3 bg-white/50 dark:bg-black/20 flex flex-col">
                 <h5 className="text-[9px] font-black text-zinc-500 uppercase tracking-wider text-center mb-2">Biến thiên Cảm xúc</h5>
                 <div className="flex-1 min-h-[160px]">
-                  <LineChart historyLogs={historyLogs} />
+                  <LineChart 
+                    data={historyLogs.filter(l => l.type === "checkin").map(c => ({ value: c.mood }))} 
+                    maxScore={5} 
+                  />
                 </div>
               </div>
             </div>

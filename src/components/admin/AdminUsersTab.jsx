@@ -36,63 +36,63 @@ const AdminUsersTab = ({
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Card 1: Total */}
-        <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-[#a5b4fc] flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-xl">group</span>
+        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-[#a5b4fc] flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-lg sm:text-xl">group</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_26")}</div>
-            <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.total.toLocaleString()}</div>
+            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_26")}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{userStats.total.toLocaleString()}</div>
           </div>
         </div>
         {/* Card 2: Active */}
-        <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-xl">person_play</span>
+        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-lg sm:text-xl">person_play</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_27")}</div>
-            <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.active.toLocaleString()}</div>
+            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_27")}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{userStats.active.toLocaleString()}</div>
           </div>
         </div>
         {/* Card 3: Pending */}
-        <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-xl">hourglass_empty</span>
+        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-lg sm:text-xl">hourglass_empty</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Chờ duyệt</div>
-            <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{(userStats.pending || 0).toLocaleString()}</div>
+            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">Chờ duyệt</div>
+            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{(userStats.pending || 0).toLocaleString()}</div>
           </div>
         </div>
         {/* Card 4: Rejected */}
-        <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-455 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-xl">cancel</span>
+        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-lg sm:text-xl">cancel</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Từ chối</div>
-            <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{(userStats.rejected || 0).toLocaleString()}</div>
+            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">Từ chối</div>
+            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{(userStats.rejected || 0).toLocaleString()}</div>
           </div>
         </div>
         {/* Card 5: Locked */}
-        <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-xl">block</span>
+        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-lg sm:text-xl">block</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_28")}</div>
-            <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.locked.toLocaleString()}</div>
+            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_28")}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{userStats.locked.toLocaleString()}</div>
           </div>
         </div>
         {/* Card 6: Lifetime */}
-        <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-xl bg-amber-550 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-xl">workspace_premium</span>
+        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-450 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-lg sm:text-xl">workspace_premium</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_29")}</div>
-            <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{userStats.lifetime.toLocaleString()}</div>
+            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_29")}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{userStats.lifetime.toLocaleString()}</div>
           </div>
         </div>
       </div>
@@ -108,12 +108,12 @@ const AdminUsersTab = ({
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder={t("admin.texts.txt_55")}
-              className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder-slate-400 text-slate-850 dark:text-white outline-none"
+              className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder-slate-400 text-slate-800 dark:text-white outline-none"
             />
             {searchInput && (
               <button
                 onClick={() => setSearchInput("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 dark:hover:text-white flex items-center justify-center w-5 h-5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-850"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center w-5 h-5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800"
               >
                 <span className="material-symbols-outlined text-sm">close</span>
               </button>
@@ -126,7 +126,7 @@ const AdminUsersTab = ({
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">{t("admin.texts.txt_30")}</option>
               <option value="active">{t("admin.texts.txt_31")}</option>
@@ -138,7 +138,7 @@ const AdminUsersTab = ({
             <select
               value={expirationFilter}
               onChange={(e) => { setExpirationFilter(e.target.value); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">{t("admin.texts.txt_33")}</option>
               <option value="active">{t("admin.texts.txt_34")}</option>
@@ -150,7 +150,7 @@ const AdminUsersTab = ({
             <select
               value={userSortBy}
               onChange={(e) => { setUserSortBy(e.target.value); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="createdAt">{t("admin.texts.txt_37")}</option>
               <option value="expiresAt">{t("admin.texts.txt_38")}</option>
@@ -160,7 +160,7 @@ const AdminUsersTab = ({
             {/* Sort Order Toggle */}
             <button
               onClick={() => setUserSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 flex items-center gap-1 hover:bg-slate-105 dark:hover:bg-slate-900 transition-colors"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1 hover:bg-slate-105 dark:hover:bg-slate-900 transition-colors"
             >
               <span className="material-symbols-outlined text-sm font-bold">
                 {userSortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}
@@ -172,7 +172,7 @@ const AdminUsersTab = ({
             <select
               value={userLimit}
               onChange={(e) => { setUserLimit(parseInt(e.target.value)); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-650 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value={10}>{t("admin.texts.txt_40")}</option>
               <option value={20}>{t("admin.texts.txt_41")}</option>
@@ -187,7 +187,7 @@ const AdminUsersTab = ({
       <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex justify-between items-center">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-slate-550 dark:text-slate-455 text-base">group</span>
+            <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">group</span>
             {t("admin.texts.txt_229")} ({totalMatchedUsers})
           </h3>
         </div>
@@ -206,14 +206,14 @@ const AdminUsersTab = ({
                     <th className="px-6 py-4 text-center">{t("admin.texts.txt_47")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-150 dark:divide-slate-800/60 font-medium">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 font-medium">
                   {users.map((user) => {
                     const bioUrl = `${window.location.origin}/bio/${user.slug}`;
                     return (
                       <tr key={user._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-750 flex items-center justify-center shrink-0 shadow-inner">
+                            <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-inner">
                               {user.avatarUrl ? (
                                 <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
                               ) : (
@@ -221,7 +221,7 @@ const AdminUsersTab = ({
                               )}
                             </div>
                             <div className="min-w-0">
-                              <div className="font-bold text-slate-850 dark:text-white text-xs truncate">{user.displayName}</div>
+                              <div className="font-bold text-slate-800 dark:text-white text-xs truncate">{user.displayName}</div>
                               <div className="text-[10px] text-slate-400 truncate">{user.email}</div>
                             </div>
                           </div>
@@ -233,7 +233,7 @@ const AdminUsersTab = ({
                             </a>
                             <button
                               onClick={() => handleCopyText(bioUrl, user._id)}
-                              className="text-slate-400 hover:text-slate-650 dark:hover:text-white shrink-0 flex items-center justify-center w-6 h-6 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              className="text-slate-400 hover:text-slate-600 dark:hover:text-white shrink-0 flex items-center justify-center w-6 h-6 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                               title={t("admin.texts.txt_58")}
                             >
                               <span className={`material-symbols-outlined text-xs ${copiedUserId === user._id ? "text-emerald-500 font-bold" : ""}`}>
@@ -247,7 +247,7 @@ const AdminUsersTab = ({
                         </td>
                         <td className="px-6 py-4">
                           {user.status === 'locked' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-500 border border-rose-100 dark:border-rose-900/30">
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                               {t("admin.texts.txt_48")}
                             </span>
@@ -257,7 +257,7 @@ const AdminUsersTab = ({
                               Chờ duyệt
                             </span>
                           ) : user.status === 'rejected' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-455 border border-rose-100 dark:border-rose-900/30">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-500 border border-rose-100 dark:border-rose-900/30">
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                               Từ chối
                             </span>
@@ -304,7 +304,7 @@ const AdminUsersTab = ({
                             )}
                             <button
                               onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
-                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-slate-200 hover:bg-slate-350 dark:bg-slate-880 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-all shadow-sm active:scale-95"
+                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-all shadow-sm active:scale-95"
                             >
                               {t("admin.texts.txt_231")}
                             </button>
@@ -318,7 +318,7 @@ const AdminUsersTab = ({
             </div>
 
             {/* Compressed Mobile List View */}
-            <div className="md:hidden divide-y divide-slate-150 dark:divide-slate-800/60 px-4">
+            <div className="md:hidden divide-y divide-slate-200 dark:divide-slate-800/60 px-4">
               {users.map((user) => {
                 const bioUrl = `${window.location.origin}/bio/${user.slug}`;
                 const isLocked = user.status === 'locked';
@@ -328,7 +328,7 @@ const AdminUsersTab = ({
                     {/* Top info row */}
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-750 flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
                           {user.avatarUrl ? (
                             <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
                           ) : (
@@ -336,17 +336,17 @@ const AdminUsersTab = ({
                           )}
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-bold text-slate-850 dark:text-white text-xs truncate leading-tight">{user.displayName}</h4>
+                          <h4 className="font-bold text-slate-800 dark:text-white text-xs truncate leading-tight">{user.displayName}</h4>
                           <p className="text-[10px] text-slate-400 truncate leading-none mt-0.5">{user.email}</p>
                         </div>
                       </div>
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] font-extrabold border shrink-0 ${
                         user.status === 'locked'
-                          ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-455 dark:border-rose-900/30"
+                          ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-500 dark:border-rose-900/30"
                           : user.status === 'pending'
                           ? "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30"
                           : user.status === 'rejected'
-                          ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-455 dark:border-rose-900/30"
+                          ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-500 dark:border-rose-900/30"
                           : "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30"
                       }`}>
                         {user.status === 'locked' ? t("admin.texts.txt_61") : user.status === 'pending' ? 'Chờ duyệt' : user.status === 'rejected' ? 'Từ chối' : t("admin.texts.txt_62")}
@@ -360,7 +360,7 @@ const AdminUsersTab = ({
                       </a>
                       <button
                         onClick={() => handleCopyText(bioUrl, user._id)}
-                        className="text-slate-400 hover:text-slate-650 dark:hover:text-white shrink-0 ml-2"
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-white shrink-0 ml-2"
                         title={t("admin.texts.txt_63")}
                       >
                         <span className={`material-symbols-outlined text-xs ${copiedUserId === user._id ? "text-emerald-500 font-bold" : ""}`}>
@@ -371,7 +371,7 @@ const AdminUsersTab = ({
 
                     {/* Metadata & Mini Actions Row */}
                     <div className="flex items-center justify-between text-xs gap-4 pt-1">
-                      <div className="text-[10px] font-medium text-slate-450 dark:text-slate-400">
+                      <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
                         {user.expiresAt ? (
                           <span>{t("admin.texts.txt_50")} <strong className="text-slate-700 dark:text-slate-200">{new Date(user.expiresAt).toLocaleDateString('vi-VN')}</strong> ({expDays <= 0 ? t("admin.texts.txt_64") : `${t("admin.texts.txt_235")} ${expDays} ${t("admin.texts.txt_236")}`})</span>
                         ) : (
@@ -405,14 +405,14 @@ const AdminUsersTab = ({
                         ) : (
                           <button
                             onClick={() => handleToggleBioStatus(user._id, 'active', 'locked')}
-                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-white border-rose-250 text-rose-600 hover:bg-rose-50 dark:bg-slate-850 dark:border-rose-900/45 dark:text-rose-455 transition-all"
+                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-white border-rose-300 text-rose-600 hover:bg-rose-50 dark:bg-slate-800 dark:border-rose-900/45 dark:text-rose-500 transition-all"
                           >
                             Khóa
                           </button>
                         )}
                         <button
                           onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
-                          className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-605 hover:bg-slate-200 dark:bg-slate-850 dark:border-slate-800 dark:text-slate-350 transition-all"
+                          className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:border-slate-800 dark:text-slate-300 transition-all"
                         >
                           {t("admin.texts.txt_231")}
                         </button>
@@ -425,7 +425,7 @@ const AdminUsersTab = ({
 
             {/* Smart Pagination Controls */}
             <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/30 dark:bg-[#181622]/20 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
-              <div className="text-slate-550 dark:text-slate-400 font-medium">
+              <div className="text-slate-500 dark:text-slate-400 font-medium">
                 {t("admin.texts.txt_232")} <strong className="text-slate-700 dark:text-white">{totalMatchedUsers > 0 ? (userPage - 1) * userLimit + 1 : 0}</strong> {t("admin.texts.txt_52")} <strong className="text-slate-700 dark:text-white">{Math.min(userPage * userLimit, totalMatchedUsers)}</strong> {t("admin.texts.txt_53")} <strong className="text-slate-700 dark:text-white">{totalMatchedUsers}</strong> {t("admin.texts.txt_233")}
               </div>
 
@@ -434,7 +434,7 @@ const AdminUsersTab = ({
                   <button
                     disabled={userPage === 1}
                     onClick={() => setUserPage(1)}
-                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
+                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-600 dark:text-slate-300"
                     title={t("admin.texts.txt_67")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">first_page</span>
@@ -442,7 +442,7 @@ const AdminUsersTab = ({
                   <button
                     disabled={userPage === 1}
                     onClick={() => setUserPage(prev => Math.max(1, prev - 1))}
-                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
+                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-600 dark:text-slate-300"
                     title={t("admin.texts.txt_68")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">chevron_left</span>
@@ -459,7 +459,7 @@ const AdminUsersTab = ({
                           className={`w-8 h-8 rounded-lg border font-bold transition-all ${
                             userPage === p
                               ? "bg-indigo-600 border-indigo-600 text-white shadow-sm"
-                              : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-650 dark:text-slate-350"
+                              : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300"
                           }`}
                         >
                           {p}
@@ -476,7 +476,7 @@ const AdminUsersTab = ({
                   <button
                     disabled={userPage === totalPages}
                     onClick={() => setUserPage(prev => Math.min(totalPages, prev + 1))}
-                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
+                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-600 dark:text-slate-300"
                     title={t("admin.texts.txt_234")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">chevron_right</span>
@@ -484,7 +484,7 @@ const AdminUsersTab = ({
                   <button
                     disabled={userPage === totalPages}
                     onClick={() => setUserPage(totalPages)}
-                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-650 dark:text-slate-350"
+                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-600 dark:text-slate-300"
                     title={t("admin.texts.txt_69")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">last_page</span>
@@ -497,7 +497,7 @@ const AdminUsersTab = ({
           <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
             <span className="material-symbols-outlined text-3xl opacity-40">group</span>
             <p className="font-bold text-xs uppercase tracking-wider text-slate-400">{t("admin.texts.txt_54")}</p>
-            <p className="text-[10px] text-slate-450 dark:text-slate-400 mt-1 max-w-[280px]">
+            <p className="text-[10px] text-slate-400 dark:text-slate-400 mt-1 max-w-[280px]">
               {searchQuery ? t("admin.texts.txt_70") : t("admin.texts.txt_71")}
             </p>
           </div>
@@ -516,7 +516,7 @@ const AdminUsersTab = ({
               </div>
               <button
                 onClick={() => setSelectedVerificationUser(null)}
-                className="text-slate-405 hover:text-slate-650 dark:hover:text-white flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors"
               >
                 <span className="material-symbols-outlined text-lg">close</span>
               </button>
@@ -525,7 +525,7 @@ const AdminUsersTab = ({
             <div className="space-y-4 text-xs">
               <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
                 <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Email Google</span>
-                <span className="col-span-2 font-mono text-slate-700 dark:text-slate-205 font-bold truncate">{selectedVerificationUser.email}</span>
+                <span className="col-span-2 font-mono text-slate-700 dark:text-slate-200 font-bold truncate">{selectedVerificationUser.email}</span>
               </div>
               <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
                 <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Họ và tên</span>
@@ -554,7 +554,7 @@ const AdminUsersTab = ({
                     selectedVerificationUser.status === 'pending'
                       ? 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30'
                       : selectedVerificationUser.status === 'rejected'
-                      ? 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-455 dark:border-rose-900/30'
+                      ? 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-500 dark:border-rose-900/30'
                       : 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30'
                   }`}>
                     {selectedVerificationUser.status === 'pending' ? 'Chờ duyệt' : selectedVerificationUser.status === 'rejected' ? 'Từ chối' : 'Đã duyệt'}

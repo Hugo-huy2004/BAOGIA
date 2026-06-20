@@ -94,7 +94,7 @@ export default function BookingContactPage() {
           }`}>
             {toast.type === "success" ? "check_circle" : "error"}
           </span>
-          <div className="flex-1 text-xs sm:text-sm font-semibold text-slate-850 dark:text-slate-100 leading-snug">
+          <div className="flex-1 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug">
             {toast.message}
           </div>
           <button 
@@ -136,7 +136,7 @@ export default function BookingContactPage() {
                 <span className={`material-symbols-outlined ${f.color} text-lg mt-0.5`}>{f.icon}</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">{t(`bookingPage.features.${idx}.title`)}</h4>
-                  <p className="text-[11px] text-slate-450 dark:text-slate-400 mt-0.5">{t(`bookingPage.features.${idx}.desc`)}</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">{t(`bookingPage.features.${idx}.desc`)}</p>
                 </div>
               </div>
             ))}
@@ -161,7 +161,7 @@ export default function BookingContactPage() {
                     onChange={handleChange}
                     required
                     placeholder={t("bookingPage.form.namePlaceholder")}
-                    className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none text-xs sm:text-sm font-semibold"
+                    className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-semibold"
                   />
                 </div>
 
@@ -175,7 +175,7 @@ export default function BookingContactPage() {
                     onChange={handleChange}
                     required
                     placeholder={t("bookingPage.form.emailPlaceholder")}
-                    className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none text-xs sm:text-sm font-semibold"
+                    className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-semibold"
                   />
                 </div>
 
@@ -189,7 +189,7 @@ export default function BookingContactPage() {
                     onChange={handleChange}
                     required
                     placeholder={t("bookingPage.form.phonePlaceholder")}
-                    className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none text-xs sm:text-sm font-semibold"
+                    className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-semibold"
                   />
                 </div>
 
@@ -202,7 +202,7 @@ export default function BookingContactPage() {
                     onChange={handleChange}
                     placeholder={t("bookingPage.form.messagePlaceholder")}
                     rows="4"
-                    className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed"
+                    className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed"
                   />
                 </div>
 
@@ -215,7 +215,7 @@ export default function BookingContactPage() {
               >{t("bookingPage.form.submitBtn")}</button>
 
               {/* Apple-style Educational Disclaimer Card */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 text-[10px] text-slate-450 dark:text-slate-400 flex gap-2.5 text-left leading-relaxed">
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 text-[10px] text-slate-400 dark:text-slate-400 flex gap-2.5 text-left leading-relaxed">
                 <span className="material-symbols-outlined text-[#0ea5e9] shrink-0 text-base mt-0.5">info</span>
                 <span>{t("bookingPage.form.disclaimer")}</span>
               </div>

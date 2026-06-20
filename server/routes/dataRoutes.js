@@ -2,6 +2,21 @@ import express from 'express';
 import Data from '../models/Data.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
+import webpush from 'web-push';
+import NotificationSubscription from '../models/NotificationSubscription.js';
+import Bio from '../models/Bio.js';
+import { vapidKeys } from './notificationRoutes.js';
+
+if (vapidKeys.publicKey && vapidKeys.privateKey) {
+  const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@hugostudio.vn';
+  try {
+    webpush.setVapidDetails(
+      vapidSubject,
+      vapidKeys.publicKey,
+      vapidKeys.privateKey
+    );
+  } catch (_) {}
+}
 
 const router = express.Router();
 
@@ -115,6 +130,9 @@ const initialData = {
     maintenanceMode: false,
     enableHBot: true,
     vacationMode: false,
+    alertCrisis: true,
+    autoApproveNew: false,
+    autoLockInactive: false,
     globalSeo: {
       title: "Hugo Studio - Professional Bio & Booking Platform",
       description: "Nền tảng quản lý bio, booking và portfolio chuyên nghiệp cho influencer, freelancer và entrepreneur.",
@@ -517,6 +535,52 @@ router.post('/psychology-chat', async (req, res) => {
     res.json({ reply: fallbackReply });
   } catch (error) {
     console.error('Error in psychology-chat handler:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/broadcast-notification', requireAdmin, async (req, res) => {
+  try {
+    const { message, all, status } = req.body;
+    if (!message) {
+      return res.status(400).json({ error: 'Nội dung tin nhắn là bắt buộc.' });
+    }
+
+    let subscriptions = [];
+    if (all) {
+      subscriptions = await NotificationSubscription.find({});
+    } else if (status) {
+      const bios = await Bio.find({ status });
+      const emails = bios.map(b => b.email);
+      subscriptions = await NotificationSubscription.find({ email: { $in: emails } });
+    } else {
+      return res.status(400).json({ error: 'Đối tượng nhận thông báo không hợp lệ.' });
+    }
+
+    if (subscriptions.length === 0) {
+      return res.json({ success: true, count: 0, message: 'Không tìm thấy thiết bị đăng ký nhận thông báo nào.' });
+    }
+
+    const payload = JSON.stringify({
+      title: 'Thông báo từ Ban Giám Hiệu / Admin',
+      body: message,
+      icon: '/image/avt7.png',
+      url: '/member/portal?tab=banhocduong'
+    });
+
+    const sendPromises = subscriptions.map(sub => 
+      webpush.sendNotification(sub.subscription, payload)
+        .catch(err => {
+          console.error(`Gửi thông báo thất bại cho endpoint: ${sub.subscription.endpoint}`, err);
+          if (err.statusCode === 410 || err.statusCode === 404) {
+            return NotificationSubscription.deleteOne({ _id: sub._id });
+          }
+        })
+    );
+
+    await Promise.all(sendPromises);
+    res.json({ success: true, count: subscriptions.length, message: `Đã phát thông báo hàng loạt tới ${subscriptions.length} thiết bị.` });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

@@ -133,7 +133,7 @@ export default React.memo(function FlatTheme({ bio, isPreview = false }) {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 0.6, y: 0 }}
             transition={{ repeat: Infinity, repeatType: "mirror", duration: 1 }}
-            className="pt-2 text-slate-850 dark:text-white"
+            className="pt-2 text-slate-800 dark:text-white"
           >
             <span className="material-symbols-outlined text-lg">keyboard_double_arrow_down</span>
           </motion.div>

@@ -33,20 +33,20 @@ export default function AdminPackagesTab({
           
           <form onSubmit={handleCreatePackage} className="space-y-4">
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_109")}</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_109")}</label>
               <input
                 type="text"
                 required
                 placeholder={t("admin.texts.txt_115")}
                 value={newPkg.name}
                 onChange={(e) => setNewPkg(p => ({ ...p, name: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_110")}</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_110")}</label>
                 <input
                   type="number"
                   required
@@ -54,11 +54,11 @@ export default function AdminPackagesTab({
                   placeholder={t("admin.texts.txt_116")}
                   value={newPkg.duration}
                   onChange={(e) => setNewPkg(p => ({ ...p, duration: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                 />
               </div>
               <div className="space-y-1">
-                <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("admin.texts.txt_111")}</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_111")}</label>
                 <select
                   value={newPkg.durationUnit}
                   onChange={(e) => setNewPkg(p => ({ ...p, durationUnit: e.target.value }))}
@@ -72,13 +72,13 @@ export default function AdminPackagesTab({
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createBenefits")}</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.createBenefits")}</label>
               <textarea
                 rows="4"
                 placeholder="Quyền lợi 1&#10;Quyền lợi 2&#10;Quyền lợi 3"
                 value={newPkg.benefits}
                 onChange={(e) => setNewPkg(p => ({ ...p, benefits: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               />
             </div>
 
@@ -101,24 +101,24 @@ export default function AdminPackagesTab({
 
           <form onSubmit={handleAssignPackageToUser} className="space-y-4">
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantEmail")}</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.grantEmail")}</label>
               <input
                 type="text"
                 required
                 placeholder={t("adminTabs.packages.grantEmailPlaceholder")}
                 value={assignForm.email}
                 onChange={(e) => setAssignForm(p => ({ ...p, email: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantSelect")}</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.grantSelect")}</label>
               <select
                 required
                 value={assignForm.packageId}
                 onChange={(e) => setAssignForm(p => ({ ...p, packageId: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               >
                 <option value="">{t("adminTabs.packages.grantSelectOption")}</option>
                 {packageTemplates.map(pkg => (
@@ -130,14 +130,14 @@ export default function AdminPackagesTab({
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantCustomDays")}</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.grantCustomDays")}</label>
               <input
                 type="number"
                 min="1"
                 placeholder={t("adminTabs.packages.grantCustomDaysPlaceholder")}
                 value={assignForm.customDuration || ""}
                 onChange={(e) => setAssignForm(p => ({ ...p, customDuration: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               />
             </div>
 
@@ -173,7 +173,7 @@ export default function AdminPackagesTab({
               value={memberPkgSearchEmail}
               onChange={(e) => setMemberPkgSearchEmail(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSearchUserPackages(); }}
-              className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+              className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
             />
             <button
               onClick={() => handleSearchUserPackages()}
@@ -185,14 +185,14 @@ export default function AdminPackagesTab({
           </div>
 
           {searchedMemberBio && (
-            <div className="border border-zinc-150 dark:border-zinc-800/85 rounded-xl p-4 space-y-4 bg-zinc-50/50 dark:bg-[#181622]/40 animate-fadeIn">
+            <div className="border border-zinc-200 dark:border-zinc-800/85 rounded-xl p-4 space-y-4 bg-zinc-50/50 dark:bg-[#181622]/40 animate-fadeIn">
               <div className="flex justify-between items-start gap-4">
                 <div>
                   <h4 className="font-bold text-xs text-slate-855 dark:text-white">{searchedMemberBio.displayName}</h4>
                   <p className="text-[10px] text-zinc-400 mt-0.5">{searchedMemberBio.email}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-[8px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.expiry")}</div>
+                  <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.expiry")}</div>
                   <div className="text-[10px] font-mono font-bold text-rose-500 mt-0.5">{formatExpiration(searchedMemberBio.expiresAt)}</div>
                 </div>
               </div>
@@ -205,7 +205,7 @@ export default function AdminPackagesTab({
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
                     <div>
-                      <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{searchedMemberBio.serviceLabel || t("adminTabs.packages.defaultPackage")} {t("adminTabs.packages.originalPackage")}</span>
+                      <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">{searchedMemberBio.serviceLabel || t("adminTabs.packages.defaultPackage")} {t("adminTabs.packages.originalPackage")}</span>
                       <span className="text-[9px] text-zinc-400 block mt-0.5">{t("adminTabs.packages.packageDefaultNote")}</span>
                     </div>
                   </div>
@@ -219,13 +219,13 @@ export default function AdminPackagesTab({
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: pkg.color || "#10b981" }} />
                         <div>
-                          <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{pkg.name}</span>
+                          <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">{pkg.name}</span>
                           <span className="text-[9px] text-zinc-400 block mt-0.5">Cấp ngày: {new Date(pkg.addedAt).toLocaleDateString('vi-VN')} (+{pkg.duration} {pkg.durationUnit === "days" ? t("adminTabs.packages.days") : pkg.durationUnit === "years" ? t("adminTabs.packages.years") : t("adminTabs.packages.months")})</span>
                         </div>
                       </div>
                       <button
                         onClick={() => handleRemoveUserPackage(pkg._id)}
-                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-455 font-bold text-[9px] uppercase tracking-wide transition-colors active:scale-95"
+                        className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-500 font-bold text-[9px] uppercase tracking-wide transition-colors active:scale-95"
                       >
                           <span className="material-symbols-outlined text-[10px]">cancel</span>
                           {t("adminTabs.packages.cancelPackage")}
@@ -243,7 +243,7 @@ export default function AdminPackagesTab({
         {/* Package templates list */}
         <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-slate-550 dark:text-slate-450 text-base">list_alt</span>
+            <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">list_alt</span>
             Mẫu Gói Dịch Vụ Đã Tạo ({packageTemplates.length})
           </h3>
 
@@ -257,7 +257,7 @@ export default function AdminPackagesTab({
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex items-center gap-2">
                       <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: pkg.color || "#6366f1" }} />
-                      <h4 className="font-bold text-xs text-slate-850 dark:text-white uppercase tracking-wide">{pkg.name}</h4>
+                      <h4 className="font-bold text-xs text-slate-800 dark:text-white uppercase tracking-wide">{pkg.name}</h4>
                     </div>
                     <button
                       onClick={() => handleDeletePackageTemplate(pkg._id)}

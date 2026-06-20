@@ -28,8 +28,8 @@ export default function CustomerServiceTab({ project }) {
       {/* Handler Info */}
       <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xs font-bold text-slate-450 uppercase tracking-wider mb-1">Dự án đang thực hiện</h2>
-          <div className="text-lg font-black text-slate-850 dark:text-white font-display">{project.servicePackage}</div>
+          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Dự án đang thực hiện</h2>
+          <div className="text-lg font-black text-slate-800 dark:text-white font-display">{project.servicePackage}</div>
         </div>
         
         <div className="flex items-center gap-4 bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/5">
@@ -37,8 +37,8 @@ export default function CustomerServiceTab({ project }) {
             <span className="material-symbols-outlined text-2xl">support_agent</span>
           </div>
           <div>
-            <div className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Người xử lý / Quản lý dự án</div>
-            <div className="font-bold text-slate-850 dark:text-white mt-0.5">{project.handlerName || 'Đang cập nhật'}</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Người xử lý / Quản lý dự án</div>
+            <div className="font-bold text-slate-800 dark:text-white mt-0.5">{project.handlerName || 'Đang cập nhật'}</div>
             {project.handlerPhone && (
               <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px]">call</span>
@@ -51,7 +51,7 @@ export default function CustomerServiceTab({ project }) {
 
       {/* Progress Bar */}
       <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 md:p-8 border border-slate-200 dark:border-slate-800/80 shadow-sm relative overflow-hidden">
-        <h3 className="font-bold text-slate-850 dark:text-white mb-8 flex items-center gap-2">
+        <h3 className="font-bold text-slate-800 dark:text-white mb-8 flex items-center gap-2">
           <span className="material-symbols-outlined text-indigo-500">route</span>
           Tiến Trình Dự Án
         </h3>
@@ -93,7 +93,7 @@ export default function CustomerServiceTab({ project }) {
 
         {/* Notes Timeline */}
         <div className="mt-12 space-y-4">
-          <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider border-b border-slate-100 dark:border-white/5 pb-2">Lịch sử cập nhật</h4>
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-white/5 pb-2">Lịch sử cập nhật</h4>
           <div className="space-y-4 pl-2">
             {[...project.progressNotes].reverse().map((note, idx) => (
               <div key={idx} className="relative pl-6 border-l-2 border-slate-200 dark:border-slate-800 pb-2 last:pb-0">

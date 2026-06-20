@@ -83,7 +83,7 @@ export default function PrivacyPolicyPage() {
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-white uppercase leading-snug">
               Chính Sách Bảo Mật & Điều Khoản Sử Dụng Toàn Diện
             </h1>
-            <p className="text-xs text-slate-550 dark:text-slate-455 font-bold tracking-wider">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold tracking-wider">
               VĂN BẢN QUY ĐỊNH PHÁP LÝ CHÍNH THỨC CỦA HỆ THỐNG HUGO STUDIO
             </p>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 italic">
@@ -110,7 +110,7 @@ export default function PrivacyPolicyPage() {
                     I. Hệ thống pháp luật áp dụng của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam:
                   </h4>
                   
-                  <div className="space-y-3 text-xs text-slate-655 dark:text-slate-400">
+                  <div className="space-y-3 text-xs text-slate-600 dark:text-slate-400">
                     <p>
                       <strong>1. Thừa nhận tính pháp lý của Giao dịch dân sự tự nguyện và Hợp đồng điện tử:</strong>
                       <br />
@@ -157,7 +157,7 @@ export default function PrivacyPolicyPage() {
                   <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                     II. Các Hiến chương và Đạo luật Quốc tế được Viện dẫn Đối chiếu:
                   </h4>
-                  <div className="space-y-3 text-xs text-slate-655 dark:text-slate-400">
+                  <div className="space-y-3 text-xs text-slate-600 dark:text-slate-400">
                     <p>
                       <strong>1. GDPR (General Data Protection Regulation - Quy định Bảo vệ Dữ liệu chung châu Âu):</strong>
                       <br />
@@ -186,7 +186,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
                 
-                <p className="text-slate-500 dark:text-slate-450 italic text-[11px] border-l-4 border-amber-500 pl-4">
+                <p className="text-slate-500 dark:text-slate-400 italic text-[11px] border-l-4 border-amber-500 pl-4">
                   * Khuyến cáo pháp lý đặc biệt: Việc người sử dụng tiếp tục các thao tác điều hướng trên website, thực hiện điền biểu mẫu, tạo lập Bio Link, Bento Portfolio biểu thị rằng người sử dụng đã dành thời gian đọc kỹ, thấu hiểu toàn bộ nội dung và tự nguyện cam kết tuân thủ không điều kiện các thỏa thuận được lập ra tại đây. Nếu không đồng ý với bất kỳ điều khoản nào, xin vui lòng ngừng truy cập website ngay lập tức.
                 </p>
               </div>
@@ -203,7 +203,7 @@ export default function PrivacyPolicyPage() {
                   Để tránh mọi hiểu lầm, tranh chấp phát sinh từ việc giải nghĩa từ ngữ, các thuật ngữ viết hoa hoặc được định nghĩa cụ thể trong văn bản này sẽ được giải thích và quy chiếu pháp lý thống nhất như sau:
                 </p>
                 
-                <div className="space-y-3.5 pl-4 border-l-2 border-slate-350 dark:border-slate-800 text-xs">
+                <div className="space-y-3.5 pl-4 border-l-2 border-slate-300 dark:border-slate-800 text-xs">
                   <p>
                     <strong>1. Chủ thể dữ liệu (Data Subject):</strong> Là cá nhân được dữ liệu cá nhân phản ánh trực tiếp. Ở đây bao gồm hai đối tượng cốt lõi: <em>Thành viên</em> (người sở hữu tài khoản thiết kế hồ sơ hoàn toàn miễn phí) và <em>Khách hàng</em> (cá nhân truy cập Bio Link công cộng của Thành viên nhằm mục đích xem thông tin, đặt lịch hẹn làm việc).
                   </p>
@@ -307,7 +307,7 @@ export default function PrivacyPolicyPage() {
                     <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
                       3.3 Hệ Thống Ghi Nhận Đặt Lịch Hẹn (Booking Engine):
                     </h5>
-                    <p className="text-xs text-slate-605 dark:text-slate-400 text-justify">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 text-justify">
                       - Phân hệ Booking cho phép Khách hàng gửi yêu cầu làm việc trực tiếp tới Thành viên. Khi Khách hàng hoàn tất biểu mẫu Booking, dữ liệu sẽ được chuyển giao vào cơ sở dữ liệu và hiển thị trên trang quản lý lịch hẹn của Thành viên nhận lịch.
                       <br />
                       - <strong>Tuyên bố miễn trừ trách nhiệm dân sự:</strong> Hugo Studio chỉ đóng vai trò cung cấp giải pháp lưu trữ kỹ thuật trung gian truyền tải thông tin lịch hẹn. Mọi cam kết hợp tác, giao kết hợp đồng, trao đổi tài chính, chất lượng dịch vụ hoặc tranh chấp kinh tế phát sinh sau đó giữa Thành viên và Khách hàng hoàn toàn thuộc về thỏa thuận dân sự cá nhân giữa hai bên. Cá nhân Admin của Hugo Studio tuyệt đối không can thiệp, không chịu trách nhiệm hòa giải và miễn trừ mọi nghĩa vụ bồi thường thiệt hại liên quan.
@@ -318,7 +318,7 @@ export default function PrivacyPolicyPage() {
                     <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
                       3.4 Giao Diện Tích Hợp Iframe Đối Tác (Partner Sandbox Integration):
                     </h5>
-                    <p className="text-xs text-slate-605 dark:text-slate-400 text-justify">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 text-justify">
                       - Đối với các nền tảng đối tác nhúng Hugo Studio thông qua thẻ `iframe`, chúng tôi áp dụng các chính sách bảo mật hộp cát (Sandbox Attributes) nghiêm ngặt nhằm cách ly phiên làm việc. Đối tác tích hợp chịu trách nhiệm thiết lập các chính sách CORS hợp lệ và không được phép can thiệp vào cookie bảo mật hoặc token đăng nhập của Thành viên đang lưu trên trình duyệt của Hugo Studio.
                     </p>
                   </div>
@@ -327,7 +327,7 @@ export default function PrivacyPolicyPage() {
                     <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
                       3.5 Trợ Lý Ảo Bot Culi (Support Assistant System):
                     </h5>
-                    <p className="text-xs text-slate-605 dark:text-slate-400 text-justify">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 text-justify">
                       - Trợ lý ảo Bot Culi là hệ thống tương tác tự động được tích hợp trên các biểu mẫu liên hệ nhằm hướng dẫn người dùng điền thông tin hỗ trợ kỹ thuật đúng quy trình. Lịch sử trò chuyện và thông tin yêu cầu gửi qua Bot Culi sẽ được ghi nhận thành các phiếu ghi hỗ trợ (Support Tickets) nhằm phục vụ công tác khắc phục sự cố kỹ thuật của Admin.
                     </p>
                   </div>
@@ -633,28 +633,28 @@ export default function PrivacyPolicyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
                     <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">1. Quyền được biết & Quyền đồng ý:</h6>
-                    <p className="text-justify text-slate-555 dark:text-slate-400">
+                    <p className="text-justify text-slate-500 dark:text-slate-400">
                       Người dùng có quyền được biết rõ ràng, chi tiết mục đích, phạm vi thu thập, phương thức xử lý dữ liệu cá nhân của mình thông qua văn bản này. Mọi hành vi xử lý dữ liệu chỉ được thực hiện khi có sự đồng ý tự nguyện của người dùng bằng cách chủ động tích chọn hộp kiểm đồng ý khi đăng ký tài khoản.
                     </p>
                   </div>
 
                   <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
                     <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">2. Quyền truy cập, chỉnh sửa & Đính chính dữ liệu:</h6>
-                    <p className="text-justify text-slate-555 dark:text-slate-400">
+                    <p className="text-justify text-slate-500 dark:text-slate-400">
                       Thành viên có quyền đăng nhập vào giao diện quản trị Dashboard cá nhân vào bất kỳ thời điểm nào để xem lại dữ liệu đang lưu trữ trên máy chủ, tự đính chính thông tin bị sai sót (như thay đổi họ tên hiển thị, cập nhật lại số điện thoại Zalo, chỉnh sửa các liên kết mạng xã hội hoặc cập nhật lại số đo cơ thể).
                     </p>
                   </div>
 
                   <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
                     <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">3. Quyền rút lại sự đồng ý & Quyền yêu cầu xóa:</h6>
-                    <p className="text-justify text-slate-555 dark:text-slate-400">
+                    <p className="text-justify text-slate-500 dark:text-slate-400">
                       Người dùng có quyền rút lại sự đồng ý cho phép xử lý dữ liệu bất cứ lúc nào bằng cách gửi yêu cầu hủy tài khoản trực tuyến hoặc liên hệ qua kênh hỗ trợ của Admin. Sau khi nhận được yêu cầu, hệ thống cam kết sẽ thực hiện quy trình xóa bỏ dữ liệu vĩnh viễn (Hard Delete) theo đúng thời hạn 30 ngày quy định tại Chương VI.
                     </p>
                   </div>
 
                   <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
                     <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">4. Quyền khiếu nại, tố cáo & Khởi kiện:</h6>
-                    <p className="text-justify text-slate-555 dark:text-slate-400">
+                    <p className="text-justify text-slate-500 dark:text-slate-400">
                       Người dùng có quyền khiếu nại trực tiếp đến Admin nếu phát hiện dữ liệu của mình bị xử lý sai mục đích cam kết. Ngoài ra, người dùng có quyền gửi đơn tố cáo đến các cơ quan quản lý chuyên trách về bảo vệ dữ liệu cá nhân hoặc khởi kiện ra Tòa án nhân dân để đòi bồi thường thiệt hại thực tế phát sinh.
                     </p>
                   </div>

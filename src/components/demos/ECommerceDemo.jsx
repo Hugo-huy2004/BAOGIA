@@ -426,21 +426,21 @@ export default function ECommerceDemo({ isMobile = false }) {
         <div className="bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 pt-3 pb-5 flex justify-around items-center shrink-0 z-30 select-none">
           <button 
             onClick={() => { setActivePage("shop"); setCheckoutSuccess(false); }} 
-            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "shop" ? "text-indigo-600 font-bold" : "text-slate-400 hover:text-slate-650"}`}
+            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "shop" ? "text-indigo-600 font-bold" : "text-slate-400 hover:text-slate-600"}`}
           >
             <span className="material-symbols-outlined text-xl">storefront</span>
             <span className="text-[9px] font-extrabold uppercase tracking-wider">Cửa hàng</span>
           </button>
           <button 
             onClick={() => { setActivePage("details"); setCheckoutSuccess(false); }} 
-            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "details" ? "text-indigo-600 font-bold" : "text-slate-400 hover:text-slate-650"}`}
+            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "details" ? "text-indigo-600 font-bold" : "text-slate-400 hover:text-slate-600"}`}
           >
             <span className="material-symbols-outlined text-xl">table_chart</span>
             <span className="text-[9px] font-extrabold uppercase tracking-wider">Thông số</span>
           </button>
           <button 
             onClick={() => { setActivePage("cart"); setCheckoutSuccess(false); }} 
-            className={`flex flex-col items-center gap-1 transition-colors relative ${activePage === "cart" ? "text-indigo-600 font-bold" : "text-slate-400 hover:text-slate-650"}`}
+            className={`flex flex-col items-center gap-1 transition-colors relative ${activePage === "cart" ? "text-indigo-600 font-bold" : "text-slate-400 hover:text-slate-600"}`}
           >
             <span className="material-symbols-outlined text-xl">shopping_cart</span>
             <span className="text-[9px] font-extrabold uppercase tracking-wider">Giỏ hàng</span>
@@ -459,7 +459,7 @@ export default function ECommerceDemo({ isMobile = false }) {
           <div className={`bg-white text-slate-800 rounded-2xl max-w-lg w-full shadow-2xl relative animate-scaleIn text-left ${isMobile ? "p-4 space-y-4" : "p-6 md:p-8 space-y-6"}`}>
             <button 
               onClick={() => setSelectedProduct(null)} 
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-650 flex items-center justify-center"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 flex items-center justify-center"
             >
               <span className="material-symbols-outlined text-lg">close</span>
             </button>
@@ -507,7 +507,7 @@ export default function ECommerceDemo({ isMobile = false }) {
                           key={s}
                           onClick={() => setModalSize(s)}
                           className={`px-2 py-0.5 rounded text-[9px] font-bold border transition-colors ${
-                            modalSize === s ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-700 border-slate-200 hover:border-slate-350"
+                            modalSize === s ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
                           }`}
                         >
                           {s}

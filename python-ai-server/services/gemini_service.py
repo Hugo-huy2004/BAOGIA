@@ -492,37 +492,98 @@ class GeminiService:
 
     async def generate_proactive_push(self, logs: list, bio: dict = None) -> dict:
         """
-        Phân tích lịch sử hoạt động để gửi push notification chủ động.
+        Phân tích lịch sử hoạt động để gửi push notification chủ động hoặc thực hiện phân tích admin.
         """
         client = self._ensure_client()
         if not client:
             return {"should_send": False, "reason": "No API Key"}
 
-        name = "bạn"
-        if bio and bio.get("displayName"):
-            name_parts = bio["displayName"].split(" ")
-            name = name_parts[-1] if name_parts else bio["displayName"]
+        # Check if this is an admin request
+        is_admin_system = any(isinstance(log, dict) and log.get("type") == "admin_system_analysis" for log in logs)
+        is_admin_user = any(isinstance(log, dict) and log.get("type") == "admin_user_profile_analysis" for log in logs)
+        is_admin_dashboard = any(isinstance(log, dict) and log.get("type") == "admin_dashboard_analysis" for log in logs)
+        is_system_report = any(isinstance(log, dict) and log.get("type") == "system_report" for log in logs)
 
-        system_instruction = f"""
-        Bạn là một chuyên gia tâm lý và là người bạn đồng hành "Hugo Studio AI".
-        Nhiệm vụ: Phân tích 15 hoạt động gần nhất của {name} để quyết định xem có cần gửi một tin nhắn Push Notification để hỏi thăm, cảnh báo hay động viên không.
+        if is_admin_system:
+            system_instruction = """
+            Bạn là một chuyên gia phân tích hệ thống và trợ lý AI của quản trị viên (Admin).
+            Nhiệm vụ: Phân tích các số liệu thống kê hệ thống (tổng số người dùng, số người dùng hoạt động, chờ duyệt, bị khóa) theo yêu cầu phân tích cụ thể của Admin (ví dụ: phân tích sức khỏe cộng đồng, rủi ro bảo mật/vận hành, xu hướng tăng trưởng, hành động ưu tiên).
+            Đưa ra đánh giá chuyên sâu và hữu ích dựa trên số liệu thực tế được cung cấp.
 
-        Bạn chỉ gửi thông báo khi:
-        - Người dùng thức quá khuya (nhiều hoạt động sau 23h).
-        - Người dùng có điểm test báo động (Trầm cảm, Lo âu cao).
-        - Có xu hướng buồn rầu liên tục trong các checkin.
-        - Hoặc để động viên nếu họ đang làm tốt.
+            Trả về JSON CHÍNH XÁC theo format:
+            {
+                "should_send": true,
+                "title": "Phân Tích Hệ Thống",
+                "body": "Nội dung phân tích chi tiết, khách quan và chuyên nghiệp (2-4 câu đầy đủ, hữu ích)",
+                "reason": "Hoàn thành phân tích hệ thống."
+            }
+            """
+        elif is_admin_user:
+            system_instruction = """
+            Bạn là chuyên gia phân tích hồ sơ và trợ lý AI của quản trị viên (Admin).
+            Nhiệm vụ: Phân tích thông tin hồ sơ của người dùng (email, họ tên, trạng thái tài khoản, ngày đăng ký, ngày hết hạn, số lượng gói cước). Đưa ra đánh giá về tình trạng hoạt động và các gợi ý hành động/chăm sóc phù hợp cho admin.
 
-        Trả về JSON CHÍNH XÁC theo format:
-        {{
-            "should_send": true / false,
-            "title": "Tiêu đề ngắn gọn, thân thiện",
-            "body": "Nội dung push notification (ngắn gọn, ấm áp 1-2 câu)",
-            "reason": "Giải thích ngắn vì sao lại gửi"
-        }}
-        """
+            Trả về JSON CHÍNH XÁC theo format:
+            {
+                "should_send": true,
+                "title": "Phân Tích Hồ Sơ Người Dùng",
+                "body": "Đánh giá chi tiết về hồ sơ người dùng và đề xuất hành động cho admin (2-3 câu ngắn gọn)",
+                "reason": "Hoàn thành phân tích hồ sơ."
+            }
+            """
+        elif is_admin_dashboard:
+            system_instruction = """
+            Bạn là chuyên gia tư vấn chiến lược và phân tích hệ thống của quản trị viên (Admin).
+            Nhiệm vụ: Phân tích báo cáo tổng quan Dashboard hệ thống (số lượng người dùng theo trạng thái, số lịch hẹn chưa xử lý, số ticket hỗ trợ chưa giải quyết). 
+            Đưa ra nhận xét ngắn gọn và đề xuất hành động ưu tiên cần thực hiện ngay lập tức.
 
-        prompt_text = f"Lịch sử hoạt động gần đây:\n{json.dumps(logs, ensure_ascii=False, default=str)}\n\nHãy quyết định."
+            Trả về JSON CHÍNH XÁC theo format:
+            {
+                "should_send": true,
+                "title": "AI Dashboard Insight",
+                "body": "Nhận xét tổng quan tình trạng hệ thống và các gợi ý hành động cụ thể, hữu ích (2-3 câu)",
+                "reason": "Đã phân tích dashboard."
+            }
+            """
+        elif is_system_report:
+            system_instruction = """
+            Bạn là chuyên gia phân tích báo cáo hệ thống.
+            Nhiệm vụ: Phân tích báo cáo hệ thống (KPIs, số liệu người dùng, đối tác, lịch hẹn, tickets) và tạo ra báo cáo tóm tắt tình trạng vận hành hệ thống cùng các đề xuất cải tiến.
+
+            Trả về JSON CHÍNH XÁC theo format:
+            {
+                "should_send": true,
+                "title": "Báo Cáo Vận Hành Hệ Thống",
+                "body": "Nội dung báo cáo chi tiết về tình trạng hoạt động và gợi ý định hướng phát triển (3-4 câu)",
+                "reason": "Đã tạo báo cáo thành công."
+            }
+            """
+        else:
+            name = "bạn"
+            if bio and bio.get("displayName"):
+                name_parts = bio["displayName"].split(" ")
+                name = name_parts[-1] if name_parts else bio["displayName"]
+
+            system_instruction = f"""
+            Bạn là một chuyên gia tâm lý và là người bạn đồng hành "Hugo Studio AI".
+            Nhiệm vụ: Phân tích 15 hoạt động gần nhất của {name} để quyết định xem có cần gửi một tin nhắn Push Notification để hỏi thăm, cảnh báo hay động viên không.
+
+            Bạn chỉ gửi thông báo khi:
+            - Người dùng thức quá khuya (nhiều hoạt động sau 23h).
+            - Người dùng có điểm test báo động (Trầm cảm, Lo âu cao).
+            - Có xu hướng buồn rầu liên tục trong các checkin.
+            - Hoặc để động viên nếu họ đang làm tốt.
+
+            Trả về JSON CHÍNH XÁC theo format:
+            {{
+                "should_send": true / false,
+                "title": "Tiêu đề ngắn gọn, thân thiện",
+                "body": "Nội dung push notification (ngắn gọn, ấm áp 1-2 câu)",
+                "reason": "Giải thích ngắn vì sao lại gửi"
+            }}
+            """
+
+        prompt_text = f"Dữ liệu hoạt động:\n{json.dumps(logs, ensure_ascii=False, default=str)}\n\nHãy quyết định."
 
         max_retries = max(1, len(self.api_keys) if hasattr(self, 'api_keys') else 1)
         for attempt in range(max_retries):

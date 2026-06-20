@@ -68,24 +68,24 @@ export function StatCard({ icon, label, value, trend, color = "primary", loading
 
   if (loading) {
     return (
-      <div className={cn("rounded-2xl border border-border bg-card p-5 space-y-3", className)}>
-        <div className="skeleton h-10 w-10 rounded-xl" />
-        <div className="skeleton h-7 w-16 rounded-lg" />
-        <div className="skeleton h-3 w-24 rounded" />
+      <div className={cn("rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-2 sm:space-y-3", className)}>
+        <div className="skeleton h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl" />
+        <div className="skeleton h-6 w-12 sm:h-7 sm:w-16 rounded-md sm:rounded-lg" />
+        <div className="skeleton h-3 w-20 sm:w-24 rounded" />
       </div>
     );
   }
 
   return (
-    <Card className={cn("p-5 group", className)} hover>
-      <div className={cn("inline-flex items-center justify-center w-10 h-10 rounded-xl mb-3", colors[color])}>
-        <span className="material-symbols-outlined text-xl">{icon}</span>
+    <Card className={cn("p-3.5 sm:p-5 group", className)} hover>
+      <div className={cn("inline-flex items-center justify-center w-8 h-8 rounded-lg sm:w-10 sm:h-10 sm:rounded-xl mb-2 sm:mb-3", colors[color])}>
+        <span className="material-symbols-outlined text-lg sm:text-xl">{icon}</span>
       </div>
-      <div className="text-2xl font-black text-foreground">{value}</div>
-      <div className="text-xs text-muted-foreground font-medium mt-1">{label}</div>
+      <div className="text-xl sm:text-2xl font-black text-foreground leading-tight">{value}</div>
+      <div className="text-[10px] sm:text-xs text-muted-foreground font-semibold mt-1 truncate tracking-tight">{label}</div>
       {trend && (
-        <div className={cn("flex items-center gap-1 text-[10px] font-bold mt-2", trend > 0 ? "text-success" : "text-destructive")}>
-          <span className="material-symbols-outlined text-[12px]">{trend > 0 ? "trending_up" : "trending_down"}</span>
+        <div className={cn("flex items-center gap-1 text-[9px] sm:text-[10px] font-bold mt-1.5 sm:mt-2", trend > 0 ? "text-success" : "text-destructive")}>
+          <span className="material-symbols-outlined text-[10px] sm:text-[12px]">{trend > 0 ? "trending_up" : "trending_down"}</span>
           {Math.abs(trend)}%
         </div>
       )}

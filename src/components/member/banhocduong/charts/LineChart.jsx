@@ -18,7 +18,7 @@ export default function LineChart({ data = [], maxScore = 27, color = "#10b981",
     return { x, y };
   };
 
-  const points = data.map((d, i) => getPoint(d.value, i));
+  const points = data.map((d, i) => getPoint(d?.value ?? 0, i));
   const pathD = points.map((p, i) => (i === 0 ? `M ${p.x},${p.y}` : `L ${p.x},${p.y}`)).join(" ");
 
   // Create area path for gradient
@@ -90,7 +90,7 @@ export default function LineChart({ data = [], maxScore = 27, color = "#10b981",
               textAnchor="middle"
               className="text-[9px] font-black fill-zinc-600 dark:fill-zinc-300 font-mono"
             >
-              {data[i].value}
+              {data[i]?.value ?? 0}
             </motion.text>
             {/* Show date label below the axis */}
             <motion.text

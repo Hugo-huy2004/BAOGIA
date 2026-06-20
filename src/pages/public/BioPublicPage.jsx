@@ -53,7 +53,7 @@ export default function BioPublicPage() {
     return (
       <main className="min-h-[100dvh] flex items-center justify-center bg-[#0b0910] px-4">
         <div className="w-full max-w-md bg-white/5 border border-white/10 p-8 rounded-3xl text-center space-y-4 shadow-xl">
-          <span className={`material-symbols-outlined text-4xl ${bio?.status === 'pending' ? 'text-amber-550 dark:text-amber-500' : 'text-red-550 dark:text-red-500'}`}>
+          <span className={`material-symbols-outlined text-4xl ${bio?.status === 'pending' ? 'text-amber-500 dark:text-amber-500' : 'text-red-550 dark:text-red-500'}`}>
             {bio?.status === 'pending' ? 'hourglass_empty' : 'lock'}
           </span>
           <h1 className="font-display text-2xl font-extrabold text-white">

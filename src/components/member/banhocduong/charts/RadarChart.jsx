@@ -1,7 +1,12 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-export default function RadarChart({ scores = { D: 0, A: 0, S: 0 }, maxScore = 42 }) {
+export default function RadarChart({ scores, maxScore = 42 }) {
+  const safeScores = scores || { D: 0, A: 0, S: 0 };
+  const scoreD = safeScores.D ?? 0;
+  const scoreA = safeScores.A ?? 0;
+  const scoreS = safeScores.S ?? 0;
+
   const size = 160;
   const center = size / 2;
   const radius = center - 20;
@@ -19,9 +24,9 @@ export default function RadarChart({ scores = { D: 0, A: 0, S: 0 }, maxScore = 4
     };
   };
 
-  const ptD = getPoint(scores.D, angleD);
-  const ptA = getPoint(scores.A, angleA);
-  const ptS = getPoint(scores.S, angleS);
+  const ptD = getPoint(scoreD, angleD);
+  const ptA = getPoint(scoreA, angleA);
+  const ptS = getPoint(scoreS, angleS);
 
   const maxPtD = getPoint(maxScore, angleD);
   const maxPtA = getPoint(maxScore, angleA);
@@ -78,9 +83,9 @@ export default function RadarChart({ scores = { D: 0, A: 0, S: 0 }, maxScore = 4
       </svg>
       
       {/* Labels */}
-      <span className="absolute -top-4 text-[10px] font-black text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">TRẦM CẢM ({scores.D})</span>
-      <span className="absolute -bottom-2 -right-4 text-[10px] font-black text-pink-500 bg-pink-50 dark:bg-pink-900/30 px-1.5 py-0.5 rounded">LO ÂU ({scores.A})</span>
-      <span className="absolute -bottom-2 -left-6 text-[10px] font-black text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30 px-1.5 py-0.5 rounded">CĂNG THẲNG ({scores.S})</span>
+      <span className="absolute -top-4 text-[10px] font-black text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">TRẦM CẢM ({scoreD})</span>
+      <span className="absolute -bottom-2 -right-4 text-[10px] font-black text-pink-500 bg-pink-50 dark:bg-pink-900/30 px-1.5 py-0.5 rounded">LO ÂU ({scoreA})</span>
+      <span className="absolute -bottom-2 -left-6 text-[10px] font-black text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30 px-1.5 py-0.5 rounded">CĂNG THẲNG ({scoreS})</span>
     </div>
   );
 }

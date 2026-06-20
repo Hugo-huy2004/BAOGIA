@@ -926,12 +926,12 @@ export default function ChatTab({
           return "Rất nặng";
         };
 
-        const dSev = getDassInterpret("D", resultLog.scores.D);
-        const aSev = getDassInterpret("A", resultLog.scores.A);
-        const sSev = getDassInterpret("S", resultLog.scores.S);
+        const dSev = getDassInterpret("D", resultLog.scores?.D ?? 0);
+        const aSev = getDassInterpret("A", resultLog.scores?.A ?? 0);
+        const sSev = getDassInterpret("S", resultLog.scores?.S ?? 0);
 
         let solutions = [];
-        if (resultLog.scores.D >= 10) {
+        if ((resultLog.scores?.D ?? 0) >= 10) {
           solutions.push(`Thực hành liệu pháp **Trị liệu Trầm cảm (CBT)** để xoa dịu u uất.`);
         }
         if (resultLog.scores.A >= 8) {
@@ -945,9 +945,9 @@ export default function ChatTab({
         }
 
         responseMsgText = `Tớ đã phân tích kết quả DASS-42 lâm sàng trích xuất từ hồ sơ phòng khám của cậu:\n\n` +
-          `• **Trầm cảm (D):** ${resultLog.scores.D}/42 điểm (${dSev})\n` +
-          `• **Lo âu (A):** ${resultLog.scores.A}/42 điểm (${aSev})\n` +
-          `• **Căng thẳng (S):** ${resultLog.scores.S}/42 điểm (${sSev})\n\n` +
+          `• **Trầm cảm (D):** ${resultLog.scores?.D ?? 0}/42 điểm (${dSev})\n` +
+          `• **Lo âu (A):** ${resultLog.scores?.A ?? 0}/42 điểm (${aSev})\n` +
+          `• **Căng thẳng (S):** ${resultLog.scores?.S ?? 0}/42 điểm (${sSev})\n\n` +
           `💡 **Giải pháp & Lộ trình đề xuất:**\n• ${solutions.join("\n• ")}`;
       }
     } else if (testType === "general_medical") {
@@ -1060,11 +1060,11 @@ export default function ChatTab({
       let isImproved = false;
       let diffVal = 0;
       if (testType === "dass") {
-        const pastDass = historyLogs.filter(l => l.scores && l.scores.D !== undefined);
+        const pastDass = historyLogs.filter(l => l.scores);
         if (pastDass.length > 0) {
           const lastPast = pastDass[pastDass.length - 1];
-          const newSum = resultLog.scores.D + resultLog.scores.A + resultLog.scores.S;
-          const prevSum = lastPast.scores.D + lastPast.scores.A + lastPast.scores.S;
+          const newSum = (resultLog.scores?.D ?? 0) + (resultLog.scores?.A ?? 0) + (resultLog.scores?.S ?? 0);
+          const prevSum = (lastPast.scores?.D ?? 0) + (lastPast.scores?.A ?? 0) + (lastPast.scores?.S ?? 0);
           if (newSum > prevSum) {
             isWorse = true;
             diffVal = newSum - prevSum;

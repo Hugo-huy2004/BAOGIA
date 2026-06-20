@@ -234,12 +234,18 @@ async function endGame(room, result, reason) {
     sendBoth(room, basePayload);
   }
 
-  // Cleanup client state
-  if (room.white) { room.white.roomId = null; room.white.color = null; }
-  if (room.black) { room.black.roomId = null; room.black.color = null; }
-
-  // Remove room after short delay to allow reconnect messages
-  setTimeout(() => rooms.delete(room.id), 30000);
+  // Keep client roomId and color intact during the game-over screen so they can request rematch/reconnect.
+  // We will schedule room deletion after 5 minutes (grace period).
+  if (room._deleteTimeout) {
+    clearTimeout(room._deleteTimeout);
+  }
+  room._deleteTimeout = setTimeout(() => {
+    if (room.status !== 'active') {
+      if (room.white) { room.white.roomId = null; room.white.color = null; }
+      if (room.black) { room.black.roomId = null; room.black.color = null; }
+      rooms.delete(room.id);
+    }
+  }, 300000); // 5 minutes grace period
 }
 
 // ─── Matchmaking ─────────────────────────────────────────────────────────────
@@ -361,34 +367,119 @@ function handleJoinRoom(ws, msg) {
   if (!room) {
     return send(ws, { type: 'error', message: 'Room not found' });
   }
-  if (room.status !== 'waiting') {
-    return send(ws, { type: 'error', message: 'Room is not open for joining' });
+
+  // Clear waiting room cleanup timeout if it exists
+  if (room._waitingCleanupTimeout) {
+    clearTimeout(room._waitingCleanupTimeout);
+    delete room._waitingCleanupTimeout;
   }
 
-  // Assign the empty color slot
-  const color = !room.white ? 'white' : 'black';
-  if (color === 'white') room.white = client;
-  else room.black = client;
+  if (room.status === 'active') {
+    // Check if this client is rejoining an active game
+    const isWhite = (client.email && room.white && room.white.email === client.email) ||
+                    (client.guestId && room.white && room.white.guestId === client.guestId);
+    const isBlack = (client.email && room.black && room.black.email === client.email) ||
+                    (client.guestId && room.black && room.black.guestId === client.guestId);
 
-  client.roomId = room.id;
-  client.color = color;
+    if (isWhite || isBlack) {
+      const color = isWhite ? 'white' : 'black';
+      if (color === 'white') {
+        room.white = client;
+      } else {
+        room.black = client;
+      }
+      client.roomId = room.id;
+      client.color = color;
 
-  const joinPayload = {
-    type: 'joined',
-    roomId: room.id,
-    color,
-    fen: room.fen,
-    timeControl: room.timeControl,
-    white: playerInfo(room.white),
-    black: playerInfo(room.black),
-    boardTheme: room.boardTheme || 'blue',
-    whitePieceTheme: room.whitePieceTheme || 'maestro',
-    blackPieceTheme: room.blackPieceTheme || 'maestro',
-  };
-  send(ws, joinPayload);
+      if (room._disconnectTimeout) {
+        clearTimeout(room._disconnectTimeout);
+        delete room._disconnectTimeout;
+      }
 
-  if (room.white && room.black) {
-    startGame(room);
+      // Notify opponent that player has reconnected
+      const opponent = color === 'white' ? room.black : room.white;
+      if (opponent && opponent.ws) {
+        send(opponent.ws, { type: 'opponent_reconnected' });
+      }
+
+      // Send current state to reconnected client
+      return send(ws, {
+        type: 'reconnected',
+        roomId: room.id,
+        color,
+        fen: room.fen,
+        turn: room.turn,
+        moves: room.moves,
+        whiteTime: room.whiteTime,
+        blackTime: room.blackTime,
+        white: playerInfo(room.white),
+        black: playerInfo(room.black),
+        boardTheme: room.boardTheme || 'blue',
+        whitePieceTheme: room.whitePieceTheme || 'maestro',
+        blackPieceTheme: room.blackPieceTheme || 'maestro',
+      });
+    } else {
+      return send(ws, { type: 'error', message: 'Room is not open for joining' });
+    }
+  }
+
+  if (room.status === 'waiting') {
+    const clientMatches = (c) => c && (
+      (client.email && c.email === client.email) ||
+      (client.guestId && c.guestId === client.guestId)
+    );
+
+    let color;
+    if (clientMatches(room.white)) {
+      color = 'white';
+      room.white = client;
+    } else if (clientMatches(room.black)) {
+      color = 'black';
+      room.black = client;
+    } else {
+      // Find which slot is empty/disconnected
+      const whiteActive = room.white && room.white.ws && room.white.ws.readyState === 1;
+      const blackActive = room.black && room.black.ws && room.black.ws.readyState === 1;
+
+      if (!room.white || !whiteActive) {
+        color = 'white';
+        room.white = client;
+      } else if (!room.black || !blackActive) {
+        color = 'black';
+        room.black = client;
+      } else {
+        return send(ws, { type: 'error', message: 'Room is full' });
+      }
+    }
+
+    client.roomId = room.id;
+    client.color = color;
+
+    const opponent = color === 'white' ? room.black : room.white;
+    const oppActive = opponent && opponent.ws && opponent.ws.readyState === 1;
+
+    if (!oppActive) {
+      // Opponent is not active yet, this is still a waiting creator re-joining
+      send(ws, { type: 'room_created', roomId: room.id, color });
+    } else {
+      const joinPayload = {
+        type: 'joined',
+        roomId: room.id,
+        color,
+        fen: room.fen,
+        timeControl: room.timeControl,
+        white: playerInfo(room.white),
+        black: playerInfo(room.black),
+        boardTheme: room.boardTheme || 'blue',
+        whitePieceTheme: room.whitePieceTheme || 'maestro',
+        blackPieceTheme: room.blackPieceTheme || 'maestro',
+      };
+      send(ws, joinPayload);
+
+      if (room.white && room.black) {
+        startGame(room);
+      }
+    }
   }
 }
 
@@ -574,6 +665,11 @@ function handleRematch(ws, msg) {
     room.whiteTime = tcMs;
     room.blackTime = tcMs;
 
+    if (room._deleteTimeout) {
+      clearTimeout(room._deleteTimeout);
+      delete room._deleteTimeout;
+    }
+
     // Restart game
     startGame(room);
   }
@@ -603,10 +699,20 @@ function handleDisconnect(ws) {
         }
       }, 30000);
     } else if (room && room.status === 'waiting') {
-      // Remove from waiting room
-      if (room.white === client) room.white = null;
-      if (room.black === client) room.black = null;
-      if (!room.white && !room.black) rooms.delete(room.id);
+      // Give a 15-second grace period before deleting an empty waiting room
+      const isWhiteConnected = room.white && room.white.ws && room.white.ws.readyState === 1;
+      const isBlackConnected = room.black && room.black.ws && room.black.ws.readyState === 1;
+
+      if (!isWhiteConnected && !isBlackConnected) {
+        if (room._waitingCleanupTimeout) clearTimeout(room._waitingCleanupTimeout);
+        room._waitingCleanupTimeout = setTimeout(() => {
+          const isWConn = room.white && room.white.ws && room.white.ws.readyState === 1;
+          const isBConn = room.black && room.black.ws && room.black.ws.readyState === 1;
+          if (room.status === 'waiting' && !isWConn && !isBConn) {
+            rooms.delete(room.id);
+          }
+        }, 15000);
+      }
     }
   }
 

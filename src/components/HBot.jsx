@@ -450,7 +450,7 @@ const HBot = () => {
               </div>
               <div>
                 <h4 className="font-bold text-sm leading-tight text-[#1d1d1f] dark:text-white">Culi</h4>
-                <p className="text-[10px] text-slate-550 dark:text-slate-400 flex items-center gap-1 font-medium">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium">
                   Trợ lý nhỏ đáng yêu
                 </p>
               </div>
@@ -458,7 +458,7 @@ const HBot = () => {
             
             <button
               onClick={() => setIsOpen(false)}
-              className="w-7 h-7 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-650 dark:text-slate-350 transition-colors"
+              className="w-7 h-7 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
               style={{ minWidth: 0, minHeight: 0 }}
             >
               <span className="material-symbols-outlined text-sm font-bold">close</span>
@@ -531,7 +531,7 @@ const HBot = () => {
                   style={{ minWidth: 0, minHeight: 0 }}
                 >
                   <span>{opt.label}</span>
-                  <span className="material-symbols-outlined text-slate-450 dark:text-slate-550 group-hover:text-[#007aff] text-xs transition-colors">chevron_right</span>
+                  <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 group-hover:text-[#007aff] text-xs transition-colors">chevron_right</span>
                 </button>
               ))}
             </div>
@@ -546,7 +546,7 @@ const HBot = () => {
                   Đang chuyển hướng sang Zalo Support...
                 </span>
               ) : (
-                <span className="text-slate-450">Culi đang xử lý...</span>
+                <span className="text-slate-400">Culi đang xử lý...</span>
               )}
             </div>
           )}
@@ -559,7 +559,7 @@ const HBot = () => {
                 onChange={e => setCustomInput(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") handleCustomQuery(); }}
                 placeholder="Hỏi Culi về hệ thống..."
-                className="flex-1 bg-slate-100 dark:bg-zinc-900 border border-slate-250 dark:border-zinc-800 rounded-xl px-3 py-2 text-xs focus:outline-none text-[#1d1d1f] dark:text-[#f5f5f7]"
+                className="flex-1 bg-slate-100 dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 rounded-xl px-3 py-2 text-xs focus:outline-none text-[#1d1d1f] dark:text-[#f5f5f7]"
               />
               <button
                 onClick={handleCustomQuery}

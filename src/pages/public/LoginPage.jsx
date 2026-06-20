@@ -219,7 +219,7 @@ export default function LoginPage() {
           }`}>
             {toast.type === "success" ? "check_circle" : toast.type === "warning" ? "warning" : "error"}
           </span>
-          <div className="flex-1 text-xs sm:text-sm font-semibold text-slate-850 dark:text-slate-100 leading-snug">
+          <div className="flex-1 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug">
             {toast.message}
           </div>
           <button 
@@ -244,7 +244,7 @@ export default function LoginPage() {
             <span style={{ color: "#F97316" }}>u</span>
             <span style={{ color: "#EAB308" }}>g</span>
             <span style={{ color: "#22C55E" }}>o</span>
-            <span className="text-slate-300 dark:text-slate-650 mx-1.5 font-light"></span>
+            <span className="text-slate-300 dark:text-slate-600 mx-1.5 font-light"></span>
             <span style={{ color: "#3B82F6" }}>S</span>
             <span style={{ color: "#6366F1" }}>t</span>
             <span style={{ color: "#A855F7" }}>u</span>
@@ -256,7 +256,7 @@ export default function LoginPage() {
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white transition-all">
             {activeMode === "customer" ? t("loginPage.header.titleCustomer") : activeMode === "member" ? t("loginPage.header.titleMember") : t("loginPage.header.titleAdmin")}
           </h1>
-          <p className="text-xs text-slate-450 dark:text-slate-400 font-medium">
+          <p className="text-xs text-slate-400 dark:text-slate-400 font-medium">
             {activeMode === "customer" ? t("loginPage.header.descCustomer") : activeMode === "member" ? t("loginPage.header.descMember") : t("loginPage.header.descAdmin")}
           </p>
         </div>
@@ -307,7 +307,7 @@ export default function LoginPage() {
             <form key="form-customer" onSubmit={handleCustomerLogin} className="space-y-6">
               <div className="text-center space-y-1">
                 <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">{t("loginPage.customerForm.title")}</h2>
-                <p className="text-[11px] text-slate-450 dark:text-slate-400 leading-relaxed">{t("loginPage.customerForm.desc")}</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed">{t("loginPage.customerForm.desc")}</p>
               </div>
 
               <div className="space-y-4 pt-2">
@@ -319,7 +319,7 @@ export default function LoginPage() {
                     value={customerCode}
                     onChange={(e) => setCustomerCode(e.target.value.toUpperCase())}
                     placeholder={t("loginPage.customerForm.codePlaceholder")}
-                    className="w-full px-4 py-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-lg uppercase font-mono tracking-[0.5em] font-bold text-center"
+                    className="w-full px-4 py-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-lg uppercase font-mono tracking-[0.5em] font-bold text-center"
                   />
                 </div>
                 <button
@@ -342,7 +342,7 @@ export default function LoginPage() {
             <form key="form-member" onSubmit={handleMemberLogin} className="space-y-6">
               <div className="text-center space-y-1">
                 <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">{t("loginPage.memberForm.title")}</h2>
-                <p className="text-[11px] text-slate-450 dark:text-slate-400 leading-relaxed">{t("loginPage.memberForm.desc")}</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed">{t("loginPage.memberForm.desc")}</p>
               </div>
 
               <div className="py-2 flex justify-center">
@@ -370,7 +370,7 @@ export default function LoginPage() {
             <form key="form-admin" onSubmit={handleAdminLogin} className="space-y-5">
               <div className="text-center space-y-1">
                 <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">{t("loginPage.adminForm.title")}</h2>
-                <p className="text-[11px] text-slate-450 dark:text-slate-400">{t("loginPage.adminForm.desc")}</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-400">{t("loginPage.adminForm.desc")}</p>
               </div>
 
               <div className="space-y-1.5">
@@ -380,7 +380,7 @@ export default function LoginPage() {
                   value={adminForm.username}
                   onChange={(e) => setAdminForm((prev) => ({ ...prev, username: e.target.value }))}
                   placeholder={t("loginPage.adminForm.userPlaceholder")}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
                 />
               </div>
 
@@ -391,7 +391,7 @@ export default function LoginPage() {
                   value={adminForm.password}
                   onChange={(e) => setAdminForm((prev) => ({ ...prev, password: e.target.value }))}
                   placeholder={t("loginPage.adminForm.passPlaceholder")}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
                 />
               </div>
 

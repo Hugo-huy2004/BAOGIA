@@ -858,6 +858,8 @@ export default function AdminPanel() {
             stats={userStats}
             users={users}
             showNotification={showNotification}
+            systemSettings={data?.systemSettings}
+            updateSystemSettings={updateSystemSettings}
           />
         )}
 
@@ -904,7 +906,7 @@ export default function AdminPanel() {
                 className={`pb-3 font-bold text-xs relative transition-all flex items-center gap-2 ${
                   bookingSubTab === "pending"
                     ? "text-primary dark:text-[#a5b4fc]"
-                    : "text-slate-450 hover:text-slate-800 dark:text-slate-550 dark:hover:text-slate-350"
+                    : "text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-300"
                 }`}
               >
                 <span>{t("admin.texts.txt_123")}</span>
@@ -923,12 +925,12 @@ export default function AdminPanel() {
                 className={`pb-3 font-bold text-xs relative transition-all flex items-center gap-2 ${
                   bookingSubTab === "contacted"
                     ? "text-primary dark:text-[#a5b4fc]"
-                    : "text-slate-450 hover:text-slate-800 dark:text-slate-550 dark:hover:text-slate-350"
+                    : "text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-300"
                 }`}
               >
                 <span>{t("admin.texts.txt_124")}</span>
                 {contactedBookings.length > 0 && (
-                  <span className="bg-slate-200 dark:bg-slate-800 text-slate-655 dark:text-slate-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
+                  <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
                     {contactedBookings.length}
                   </span>
                 )}
@@ -952,7 +954,7 @@ export default function AdminPanel() {
                         <th className="px-6 py-4 text-center">{t("admin.texts.txt_129")}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-150 dark:divide-slate-800/60 font-medium">
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 font-medium">
                       {displayedBookings.map((booking) => {
                         const deleteDays = getAutoDeleteDays(booking);
                         return (
@@ -963,7 +965,7 @@ export default function AdminPanel() {
                                 className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border shadow-sm ${
                                   booking.contacted
                                     ? "bg-emerald-50 border-emerald-255 text-emerald-600 dark:bg-[#102a1e] dark:border-[#104a30] dark:text-emerald-455"
-                                    : "bg-white border-slate-200 text-slate-400 hover:border-primary hover:text-primary dark:bg-slate-850 dark:border-slate-800"
+                                    : "bg-white border-slate-200 text-slate-400 hover:border-primary hover:text-primary dark:bg-slate-800 dark:border-slate-800"
                                 }`}
                                 title={booking.contacted ? t("admin.texts.txt_214") : t("admin.texts.txt_215")}
                               >
@@ -974,13 +976,13 @@ export default function AdminPanel() {
                             </td>
                             <td className="px-6 py-4">
                               <div className="space-y-1">
-                                <div className="font-bold text-slate-850 dark:text-white text-xs">{booking.fullName}</div>
-                                <div className="text-[10px] text-slate-405 font-mono select-all">{booking.phone}</div>
-                                <div className="text-[10px] text-slate-405 font-mono select-all">{booking.email}</div>
+                                <div className="font-bold text-slate-800 dark:text-white text-xs">{booking.fullName}</div>
+                                <div className="text-[10px] text-slate-400 font-mono select-all">{booking.phone}</div>
+                                <div className="text-[10px] text-slate-400 font-mono select-all">{booking.email}</div>
                               </div>
                             </td>
                             <td className="px-6 py-4 max-w-xs">
-                              <p className="text-slate-600 dark:text-slate-350 text-xs line-clamp-3 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
+                              <p className="text-slate-600 dark:text-slate-300 text-xs line-clamp-3 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
                                 {booking.message || t("admin.texts.txt_216")}
                               </p>
                             </td>
@@ -1016,7 +1018,7 @@ export default function AdminPanel() {
                 </div>
 
                 {/* Compressed Mobile List View */}
-                <div className="md:hidden divide-y divide-slate-150 dark:divide-slate-800/60 px-4">
+                <div className="md:hidden divide-y divide-slate-200 dark:divide-slate-800/60 px-4">
                   {displayedBookings.map((booking) => {
                     const deleteDays = getAutoDeleteDays(booking);
                     return (
@@ -1024,7 +1026,7 @@ export default function AdminPanel() {
                         {/* Top Row: Name, Date, Toggle Contacted status */}
                         <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0">
-                            <h4 className="font-bold text-slate-850 dark:text-white text-xs truncate leading-tight">{booking.fullName}</h4>
+                            <h4 className="font-bold text-slate-800 dark:text-white text-xs truncate leading-tight">{booking.fullName}</h4>
                             <p className="text-[10px] text-slate-400 mt-0.5 leading-none">
                               {new Date(booking.createdAt).toLocaleDateString('vi-VN')} • {new Date(booking.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                             </p>
@@ -1036,7 +1038,7 @@ export default function AdminPanel() {
                               className={`px-2 py-0.5 rounded-md text-[8.5px] font-extrabold uppercase border flex items-center gap-1 transition-all ${
                                 booking.contacted
                                   ? "bg-emerald-50 border-emerald-250 text-emerald-600 dark:bg-[#102a1e] dark:border-[#104a30] dark:text-emerald-455"
-                                  : "bg-white border-slate-200 text-slate-500 dark:bg-slate-850 dark:border-slate-800"
+                                  : "bg-white border-slate-200 text-slate-500 dark:bg-slate-800 dark:border-slate-800"
                               }`}
                             >
                               <span className="material-symbols-outlined text-[10px] font-bold">
@@ -1055,7 +1057,7 @@ export default function AdminPanel() {
                         </div>
 
                         {/* Contact details row */}
-                        <div className="flex flex-wrap gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-350">
+                        <div className="flex flex-wrap gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300">
                           <a href={`tel:${booking.phone}`} className="flex items-center gap-1 bg-slate-100/80 dark:bg-[#1a1626]/80 px-2.5 py-1 rounded-lg border border-slate-200/40 dark:border-slate-800/80 font-mono">
                             <span className="material-symbols-outlined text-[9px] font-bold">call</span>
                             <span>{booking.phone}</span>
@@ -1067,7 +1069,7 @@ export default function AdminPanel() {
                         </div>
 
                         {/* Message content */}
-                        <p className="text-xs text-slate-655 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed italic">
+                        <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed italic">
                           "{booking.message || t('adminTabs.bookings.empty')}"
                         </p>
 
@@ -1104,7 +1106,7 @@ export default function AdminPanel() {
               
               <form onSubmit={handleAddPartner} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.partners.partnerName")}</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.partners.partnerName")}</label>
                   <input
                     type="text"
                     required
@@ -1116,7 +1118,7 @@ export default function AdminPanel() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[9px] font-bold text-slate-455 uppercase tracking-wider">{t("adminTabs.partners.website")}</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.partners.website")}</label>
                   <textarea
                     rows="5"
                     required
@@ -1131,7 +1133,7 @@ export default function AdminPanel() {
                   <button
                     type="submit"
                     value="save"
-                    className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-colors border border-slate-200 dark:border-slate-750 active:scale-98"
+                    className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-colors border border-slate-200 dark:border-slate-700 active:scale-98"
                   >
                     Liên Kết
                   </button>
@@ -1156,7 +1158,7 @@ export default function AdminPanel() {
                 {/* Header with Search */}
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-slate-550 dark:text-slate-455 text-base">handshake</span>
+                    <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">handshake</span>
                     Danh Sách Đối Tác ({partners.length})
                   </h3>
                   
@@ -1167,7 +1169,7 @@ export default function AdminPanel() {
                       placeholder={t("adminTabs.partners.search")}
                       value={partnerSearch}
                       onChange={(e) => { setPartnerSearch(e.target.value); setPartnerPage(1); }}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#1c1626] text-[11px] py-1.5 pl-8 pr-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#1c1626] text-[11px] py-1.5 pl-8 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                     />
                     <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">search</span>
                   </div>
@@ -1175,7 +1177,7 @@ export default function AdminPanel() {
 
                 {/* Items List */}
                 {paginatedPartners.length > 0 ? (
-                  <div className="divide-y divide-slate-150 dark:divide-slate-800/60 flex-grow">
+                  <div className="divide-y divide-slate-200 dark:divide-slate-800/60 flex-grow">
                     {paginatedPartners.map((partner) => {
                       const iconUrl = getFaviconUrl(partner.iframeUrl);
                       return (
@@ -1218,7 +1220,7 @@ export default function AdminPanel() {
                             </button>
                             <button
                               onClick={() => setPreviewPartner(partner)}
-                              className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[10px] px-3.5 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-750 transition-colors shadow-sm active:scale-95"
+                              className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[10px] px-3.5 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-700 transition-colors shadow-sm active:scale-95"
                             >
                               Xem Thử
                             </button>
@@ -1240,7 +1242,7 @@ export default function AdminPanel() {
                       <p className="italic">{t("adminTabs.partners.empty")}</p>
                     ) : (
                       <div className="space-y-2 max-w-sm">
-                        <p className="font-bold text-slate-500 dark:text-slate-350 not-italic">{t("adminTabs.partners.empty")}</p>
+                        <p className="font-bold text-slate-500 dark:text-slate-300 not-italic">{t("adminTabs.partners.empty")}</p>
                         <p className="text-[11px] leading-relaxed">
                           {t("adminTabs.partners.createInstruction")}
                         </p>
@@ -1251,20 +1253,20 @@ export default function AdminPanel() {
 
                 {/* Pagination bar */}
                 {totalPartnerPages > 1 && (
-                  <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/10 border-t border-slate-150 dark:border-slate-800/60 flex items-center justify-between text-xs font-bold text-slate-500 shrink-0">
+                  <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/10 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between text-xs font-bold text-slate-500 shrink-0">
                     <span>Trang {partnerPage} / {totalPartnerPages}</span>
                     <div className="flex gap-2">
                       <button
                         onClick={() => setPartnerPage(p => Math.max(p - 1, 1))}
                         disabled={partnerPage === 1}
-                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-750 dark:text-slate-350 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
                       >
                         Trước
                       </button>
                       <button
                         onClick={() => setPartnerPage(p => Math.min(p + 1, totalPartnerPages))}
                         disabled={partnerPage === totalPartnerPages}
-                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-750 dark:text-slate-350 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
                       >
                         Sau
                       </button>
@@ -1278,21 +1280,21 @@ export default function AdminPanel() {
                 <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4 animate-fadeIn">
                   <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                     <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-slate-550 dark:text-slate-400 text-sm">visibility</span>
+                      <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-sm">visibility</span>
                       {t("adminTabs.partners.previewPrefix")} {previewPartner.name}
                     </h4>
                     <button 
                       onClick={() => setPreviewPartner(null)}
-                      className="text-slate-400 hover:text-slate-650 dark:hover:text-white"
+                      className="text-slate-400 hover:text-slate-600 dark:hover:text-white"
                     >
                       <span className="material-symbols-outlined text-sm">close</span>
                     </button>
                   </div>
 
                   {/* Modern Browser Mock Frame */}
-                  <div className="w-full bg-[#f1f5f9] dark:bg-[#1c1a27] rounded-xl overflow-hidden border border-slate-250 dark:border-slate-800 flex flex-col shadow-inner">
+                  <div className="w-full bg-[#f1f5f9] dark:bg-[#1c1a27] rounded-xl overflow-hidden border border-slate-300 dark:border-slate-800 flex flex-col shadow-inner">
                     {/* Browser top-bar */}
-                    <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-200/60 dark:bg-slate-900/60 border-b border-slate-250 dark:border-slate-800 select-none">
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-200/60 dark:bg-slate-900/60 border-b border-slate-300 dark:border-slate-800 select-none">
                       <div className="flex gap-1.5">
                         <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
                         <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
@@ -1344,20 +1346,20 @@ export default function AdminPanel() {
                 
                 <form onSubmit={handleCreatePackage} className="space-y-4">
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createName")}</label>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.createName")}</label>
                     <input
                       type="text"
                       required
                       placeholder={t("adminTabs.packages.createNamePlaceholder")}
                       value={newPkg.name}
                       onChange={(e) => setNewPkg(p => ({ ...p, name: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createDurationValue")}</label>
+                      <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.createDurationValue")}</label>
                       <input
                         type="number"
                         required
@@ -1365,11 +1367,11 @@ export default function AdminPanel() {
                         placeholder={t("adminTabs.packages.createDurationPlaceholder")}
                         value={newPkg.duration}
                         onChange={(e) => setNewPkg(p => ({ ...p, duration: e.target.value }))}
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createDurationType")}</label>
+                      <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.createDurationType")}</label>
                       <select
                         value={newPkg.durationUnit}
                         onChange={(e) => setNewPkg(p => ({ ...p, durationUnit: e.target.value }))}
@@ -1383,13 +1385,13 @@ export default function AdminPanel() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.createBenefits")}</label>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.createBenefits")}</label>
                     <textarea
                       rows="4"
                       placeholder="Quyền lợi 1&#10;Quyền lợi 2&#10;Quyền lợi 3"
                       value={newPkg.benefits}
                       onChange={(e) => setNewPkg(p => ({ ...p, benefits: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                     />
                   </div>
 
@@ -1412,24 +1414,24 @@ export default function AdminPanel() {
 
                 <form onSubmit={handleAssignPackageToUser} className="space-y-4">
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantEmail")}</label>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.grantEmail")}</label>
                     <input
                       type="text"
                       required
                       placeholder={t("adminTabs.packages.grantEmailPlaceholder")}
                       value={assignForm.email}
                       onChange={(e) => setAssignForm(p => ({ ...p, email: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantSelect")}</label>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.grantSelect")}</label>
                     <select
                       required
                       value={assignForm.packageId}
                       onChange={(e) => setAssignForm(p => ({ ...p, packageId: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                     >
                       <option value="">{t("adminTabs.packages.grantSelectOption")}</option>
                       {packageTemplates.map(pkg => (
@@ -1441,14 +1443,14 @@ export default function AdminPanel() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.grantCustomDays")}</label>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.grantCustomDays")}</label>
                     <input
                       type="number"
                       min="1"
                       placeholder={t("adminTabs.packages.grantCustomDaysPlaceholder")}
                       value={assignForm.customDuration || ""}
                       onChange={(e) => setAssignForm(p => ({ ...p, customDuration: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                     />
                   </div>
 
@@ -1484,7 +1486,7 @@ export default function AdminPanel() {
                     value={memberPkgSearchEmail}
                     onChange={(e) => setMemberPkgSearchEmail(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleSearchUserPackages(); }}
-                    className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                    className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                   />
                   <button
                     onClick={() => handleSearchUserPackages()}
@@ -1496,14 +1498,14 @@ export default function AdminPanel() {
                 </div>
 
                 {searchedMemberBio && (
-                  <div className="border border-zinc-150 dark:border-zinc-800/85 rounded-xl p-4 space-y-4 bg-zinc-50/50 dark:bg-[#181622]/40 animate-fadeIn">
+                  <div className="border border-zinc-200 dark:border-zinc-800/85 rounded-xl p-4 space-y-4 bg-zinc-50/50 dark:bg-[#181622]/40 animate-fadeIn">
                     <div className="flex justify-between items-start gap-4">
                       <div>
                         <h4 className="font-bold text-xs text-slate-855 dark:text-white">{searchedMemberBio.displayName}</h4>
                         <p className="text-[10px] text-zinc-400 mt-0.5">{searchedMemberBio.email}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-[8px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.packages.expiry")}</div>
+                        <div className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.expiry")}</div>
                         <div className="text-[10px] font-mono font-bold text-rose-500 mt-0.5">{formatExpiration(searchedMemberBio.expiresAt)}</div>
                       </div>
                     </div>
@@ -1516,7 +1518,7 @@ export default function AdminPanel() {
                         <div className="flex items-center gap-2">
                           <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
                           <div>
-                            <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{searchedMemberBio.serviceLabel || t("adminTabs.packages.defaultPackage")} {t("adminTabs.packages.originalPackage")}</span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">{searchedMemberBio.serviceLabel || t("adminTabs.packages.defaultPackage")} {t("adminTabs.packages.originalPackage")}</span>
                             <span className="text-[9px] text-zinc-400 block mt-0.5">{t("adminTabs.packages.packageDefaultNote")}</span>
                           </div>
                         </div>
@@ -1530,13 +1532,13 @@ export default function AdminPanel() {
                             <div className="flex items-center gap-2">
                               <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: pkg.color || "#10b981" }} />
                               <div>
-                                <span className="text-xs font-bold text-slate-850 dark:text-zinc-200">{pkg.name}</span>
+                                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">{pkg.name}</span>
                                 <span className="text-[9px] text-zinc-400 block mt-0.5">{t("adminTabs.packages.grantedOn")} {new Date(pkg.addedAt).toLocaleDateString("vi-VN")} (+{pkg.duration} {pkg.durationUnit === "days" ? t("adminTabs.packages.days") : pkg.durationUnit === "years" ? t("adminTabs.packages.years") : t("adminTabs.packages.months")})</span>
                               </div>
                             </div>
                             <button
                               onClick={() => handleRemoveUserPackage(pkg._id)}
-                              className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-455 font-bold text-[9px] uppercase tracking-wide transition-colors active:scale-95"
+                              className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-500 font-bold text-[9px] uppercase tracking-wide transition-colors active:scale-95"
                             >
                                   <span className="material-symbols-outlined text-[10px]">cancel</span>
                                   {t("adminTabs.packages.cancelPackage")}
@@ -1554,7 +1556,7 @@ export default function AdminPanel() {
               {/* Package templates list */}
               <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-slate-550 dark:text-slate-450 text-base">list_alt</span>
+                  <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">list_alt</span>
                     {t("adminTabs.packages.templates")} ({packageTemplates.length})
                   </h3>
 
@@ -1568,7 +1570,7 @@ export default function AdminPanel() {
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex items-center gap-2">
                             <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: pkg.color || "#6366f1" }} />
-                            <h4 className="font-bold text-xs text-slate-850 dark:text-white uppercase tracking-wide">{pkg.name}</h4>
+                            <h4 className="font-bold text-xs text-slate-800 dark:text-white uppercase tracking-wide">{pkg.name}</h4>
                           </div>
                           <button
                             onClick={() => handleDeletePackageTemplate(pkg._id)}
@@ -1662,7 +1664,7 @@ export default function AdminPanel() {
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     {t("adminSupport.totalReq")}
                   </div>
-                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{supportTickets.length || 0}</div>
+                  <div className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">{supportTickets.length || 0}</div>
                 </div>
               </div>
 
@@ -1674,7 +1676,7 @@ export default function AdminPanel() {
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     {t("adminSupport.pending")}
                   </div>
-                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{pendingTicketsCount}</div>
+                  <div className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">{pendingTicketsCount}</div>
                 </div>
               </div>
 
@@ -1686,7 +1688,7 @@ export default function AdminPanel() {
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     {t("adminSupport.resolved")}
                   </div>
-                  <div className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">
+                  <div className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">
                     {Math.max(0, (supportTickets.length || 0) - pendingTicketsCount)}
                   </div>
                 </div>
@@ -1770,18 +1772,18 @@ export default function AdminPanel() {
 
                               <div className="space-y-1">
                                 <div className="flex gap-2 items-center text-xs">
-                                  <span className="font-bold text-slate-450 dark:text-zinc-550 shrink-0">Email:</span>
+                                  <span className="font-bold text-slate-400 dark:text-zinc-550 shrink-0">Email:</span>
                                   <span className="font-semibold text-slate-700 dark:text-zinc-300 break-all select-all">{ticket.email}</span>
                                 </div>
                                 <div className="flex gap-2 items-center text-xs">
-                                  <span className="font-bold text-slate-450 dark:text-zinc-550 shrink-0">{t("adminSupport.zaloPhone")}</span>
+                                  <span className="font-bold text-slate-400 dark:text-zinc-550 shrink-0">{t("adminSupport.zaloPhone")}</span>
                                   <span className="font-semibold text-slate-700 dark:text-zinc-300 select-all">{ticket.phone}</span>
                                 </div>
                               </div>
 
                               <div className="pt-2">
                                 <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">{t("adminSupport.inquiry")}</span>
-                                <p className="mt-1 text-xs text-slate-650 dark:text-slate-300 leading-relaxed font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-3.5 rounded-xl whitespace-pre-wrap select-text">
+                                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-3.5 rounded-xl whitespace-pre-wrap select-text">
                                   {ticket.issue}
                                 </p>
                               </div>
@@ -1799,9 +1801,8 @@ export default function AdminPanel() {
                               style={{ minHeight: 0, minWidth: 0 }}
                             >
                               <span className="material-symbols-outlined text-sm">chat</span>
-                                <span className="material-symbols-outlined text-sm">chat</span>
-                                {t("adminSupport.chatZalo")}
-                              </a>
+                              {t("adminSupport.chatZalo")}
+                            </a>
 
                             {/* Resolve Ticket Button */}
                             {ticket.status === 'pending' && (
@@ -1810,7 +1811,6 @@ export default function AdminPanel() {
                                 className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-600/10 flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95 transition-all"
                                 style={{ minHeight: 0, minWidth: 0 }}
                               >
-                                <span className="material-symbols-outlined text-sm">check_circle</span>
                                 <span className="material-symbols-outlined text-sm">check_circle</span>
                                 {t("adminSupport.markResolved")}
                               </button>
@@ -1831,14 +1831,14 @@ export default function AdminPanel() {
                         <button
                           disabled={supportPage === 1}
                           onClick={() => setSupportPage(prev => Math.max(1, prev - 1))}
-                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-350 hover:bg-slate-200 dark:hover:bg-slate-850 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                         >
                           Trước
                         </button>
                         <button
                           disabled={supportPage === supportTotalPages}
                           onClick={() => setSupportPage(prev => Math.min(supportTotalPages, prev + 1))}
-                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-350 hover:bg-slate-200 dark:hover:bg-slate-850 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                         >
                           Sau
                         </button>
@@ -1851,7 +1851,7 @@ export default function AdminPanel() {
                   <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center mx-auto text-slate-400">
                     <span className="material-symbols-outlined text-2xl">support_agent</span>
                   </div>
-                  <p className="text-xs text-slate-450 italic font-medium">{t("adminSupport.notFound")}</p>
+                  <p className="text-xs text-slate-400 italic font-medium">{t("adminSupport.notFound")}</p>
                 </div>
               )}
             </div>
@@ -1877,14 +1877,14 @@ export default function AdminPanel() {
             </div>
 
             <div className="space-y-1.5 pt-2">
-              <label className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminPanel.modals.delPassLabel")}</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminPanel.modals.delPassLabel")}</label>
               <input
                 type="password"
                 placeholder={t("adminPanel.modals.delPassPlaceholder")}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleExecuteDelete(); }}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-850 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-rose-500 font-mono"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-rose-500 font-mono"
                 autoFocus
               />
               {confirmError && (
@@ -1985,7 +1985,7 @@ export default function AdminPanel() {
               </div>
               <button 
                 onClick={() => setExportPartner(null)}
-                className="text-slate-400 hover:text-slate-655 dark:hover:text-white"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white"
               >
                 <span className="material-symbols-outlined text-sm">close</span>
               </button>
@@ -1999,24 +1999,24 @@ export default function AdminPanel() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-indigo-50/70 dark:bg-indigo-950/20 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
                   <span className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-305 uppercase tracking-wider">{t("adminPanel.modals.exportIframeReady")}</span>
-                  <p className="mt-1 text-[10px] font-mono text-slate-650 dark:text-slate-305 break-all">
+                  <p className="mt-1 text-[10px] font-mono text-slate-600 dark:text-slate-305 break-all">
                     {getPartnerBioEditorUrl(exportPartner)}
                   </p>
                 </div>
                 <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
                   <span className="block text-[9px] font-bold text-emerald-700 dark:text-emerald-305 uppercase tracking-wider">{t("adminPanel.modals.exportIframeAuto")}</span>
-                  <p className="mt-1 text-[10px] text-slate-650 dark:text-slate-305 leading-relaxed">
+                  <p className="mt-1 text-[10px] text-slate-600 dark:text-slate-305 leading-relaxed">
                     {t("adminPanel.modals.exportIframeAutoDesc")}
                   </p>
                 </div>
               </div>
 
               <div className="bg-slate-50 dark:bg-[#1f1929] p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2">
-                <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminPanel.modals.exportIframeCode")}</span>
+                <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminPanel.modals.exportIframeCode")}</span>
                 <textarea
                   readOnly
                   rows={4}
-                  className="w-full bg-slate-100 dark:bg-black/40 border border-slate-250 dark:border-slate-800 rounded-xl p-3 text-[10px] font-mono text-indigo-600 dark:text-[#a5b4fc] focus:outline-none resize-none"
+                  className="w-full bg-slate-100 dark:bg-black/40 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-[10px] font-mono text-indigo-600 dark:text-[#a5b4fc] focus:outline-none resize-none"
                   value={getPartnerBioIframeCode(exportPartner)}
                 />
               </div>
@@ -2066,7 +2066,7 @@ export default function AdminPanel() {
               <span className="material-symbols-outlined text-2xl">warning</span>
               <h3 className="font-extrabold text-sm uppercase tracking-wider text-slate-800 dark:text-white">{t("adminPanel.core.modalConfirmTitle")}</h3>
             </div>
-            <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               {confirmModal.message}
             </p>
             <div className="flex gap-3 pt-2">

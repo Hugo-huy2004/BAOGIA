@@ -114,7 +114,7 @@ export default function DashboardDemo({ isMobile = false }) {
       <header className={`sticky top-0 z-30 backdrop-blur-md px-6 flex justify-between items-center select-none border-b transition-colors ${bgHeader} ${isMobile ? "pt-12 pb-3" : "py-4"}`}>
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-indigo-500 text-xl font-bold">admin_panel_settings</span>
-          <span className={`font-black text-xs font-mono tracking-widest ${lightTheme ? "text-slate-655" : "text-[#94A3B8]"} ${isMobile ? "text-[10px]" : "text-xs"}`}>
+          <span className={`font-black text-xs font-mono tracking-widest ${lightTheme ? "text-slate-600" : "text-[#94A3B8]"} ${isMobile ? "text-[10px]" : "text-xs"}`}>
             {isMobile ? "ADMIN" : "ADMIN PORTAL v2.5"}
           </span>
           {!isMobile && (
@@ -216,7 +216,7 @@ export default function DashboardDemo({ isMobile = false }) {
                         ? "bg-indigo-600 text-white border-indigo-600 shadow-sm" 
                         : "bg-indigo-600/20 text-indigo-400 border-indigo-500/30")
                     : (lightTheme 
-                        ? "bg-white text-slate-655 border-slate-200 hover:bg-slate-100" 
+                        ? "bg-white text-slate-600 border-slate-200 hover:bg-slate-100" 
                         : "bg-white/5 text-slate-400 border-white/5 hover:border-white/10 hover:text-white")
                 }`}
               >
@@ -485,7 +485,7 @@ export default function DashboardDemo({ isMobile = false }) {
             
             {/* Header controls inside box */}
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-5">
-              <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${lightTheme ? "text-slate-650" : "text-slate-350"}`}>
+              <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${lightTheme ? "text-slate-600" : "text-slate-300"}`}>
                 <span className="material-symbols-outlined text-sm text-indigo-500">list_alt</span> Danh Sách Giao Dịch Thực Tế
               </span>
               
@@ -550,7 +550,7 @@ export default function DashboardDemo({ isMobile = false }) {
               <div className="overflow-x-auto select-text">
                 <table className="w-full text-xs text-left border-collapse min-w-[550px]">
                   <thead>
-                    <tr className="border-b border-slate-500/10 text-slate-450 uppercase font-bold text-[9px]">
+                    <tr className="border-b border-slate-500/10 text-slate-400 uppercase font-bold text-[9px]">
                       <th className="py-2.5 pl-2">Khách hàng</th>
                       <th className="py-2.5">Sản phẩm / Mẫu web</th>
                       <th className="py-2.5">Thời gian</th>
@@ -607,7 +607,7 @@ export default function DashboardDemo({ isMobile = false }) {
             
             {/* Toggles Settings Card */}
             <div className={`p-5 border rounded-2xl transition-all ${borderCard} ${bgCard}`}>
-              <h4 className={`font-bold border-b pb-2 mb-4 ${lightTheme ? "text-slate-800 border-slate-100" : "text-slate-350 border-white/5"}`}>
+              <h4 className={`font-bold border-b pb-2 mb-4 ${lightTheme ? "text-slate-800 border-slate-100" : "text-slate-300 border-white/5"}`}>
                 Cài Đặt Sự Kiện & Phản Hồi
               </h4>
 
@@ -642,7 +642,7 @@ export default function DashboardDemo({ isMobile = false }) {
 
             {/* Virtual Node Engine Specs */}
             <div className={`p-5 border rounded-2xl transition-all ${borderCard} ${bgCard}`}>
-              <h4 className={`font-bold border-b pb-2 mb-4 ${lightTheme ? "text-slate-800 border-slate-100" : "text-slate-350 border-white/5"}`}>
+              <h4 className={`font-bold border-b pb-2 mb-4 ${lightTheme ? "text-slate-800 border-slate-100" : "text-slate-300 border-white/5"}`}>
                 Thông Số Kỹ Thuật Node Engine
               </h4>
               
@@ -693,7 +693,7 @@ export default function DashboardDemo({ isMobile = false }) {
             className={`flex flex-col items-center gap-1 transition-colors ${
               activePage === "overview" 
                 ? "text-indigo-500 font-bold" 
-                : "text-slate-400 hover:text-slate-350"
+                : "text-slate-400 hover:text-slate-300"
             }`}
           >
             <span className="material-symbols-outlined text-xl">space_dashboard</span>
@@ -704,7 +704,7 @@ export default function DashboardDemo({ isMobile = false }) {
             className={`flex flex-col items-center gap-1 transition-colors ${
               activePage === "transactions" 
                 ? "text-indigo-500 font-bold" 
-                : "text-slate-400 hover:text-slate-350"
+                : "text-slate-400 hover:text-slate-300"
             }`}
           >
             <span className="material-symbols-outlined text-xl">receipt_long</span>
@@ -715,7 +715,7 @@ export default function DashboardDemo({ isMobile = false }) {
             className={`flex flex-col items-center gap-1 transition-colors ${
               activePage === "settings" 
                 ? "text-indigo-500 font-bold" 
-                : "text-slate-400 hover:text-slate-350"
+                : "text-slate-400 hover:text-slate-300"
             }`}
           >
             <span className="material-symbols-outlined text-xl">settings</span>

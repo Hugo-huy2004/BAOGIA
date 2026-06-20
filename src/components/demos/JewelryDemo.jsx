@@ -357,7 +357,7 @@ export default function JewelryDemo({ isMobile = false }) {
                 </div>
               </div>
               
-              <div className="mt-3 text-left w-full text-[11px] font-mono space-y-1 text-slate-650 border-t border-slate-200/50 pt-3">
+              <div className="mt-3 text-left w-full text-[11px] font-mono space-y-1 text-slate-600 border-t border-slate-200/50 pt-3">
                 <p>Ngân hàng: <span className="font-bold text-slate-800">Vietcombank</span></p>
                 <p>Số tài khoản: <span className="font-bold text-slate-800">101 234 5678</span></p>
                 <p>Chủ TK: <span className="font-bold text-slate-800">LÊ HUGO WISHPAX</span></p>

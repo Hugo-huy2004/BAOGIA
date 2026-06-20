@@ -18,7 +18,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           {/* Maintenance Mode */}
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.maintenance")}</span>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.maintenance")}</span>
               <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.maintenanceDesc")}</p>
             </div>
             <button
@@ -35,7 +35,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           {/* Vacation Mode */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.vacation")}</span>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.vacation")}</span>
               <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.vacationDesc")}</p>
             </div>
             <button
@@ -60,7 +60,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           {/* HBot */}
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.aiBot")}</span>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.aiBot")}</span>
               <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.aiBotDesc")}</p>
             </div>
             <button
@@ -77,7 +77,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           {/* Allow Registration */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.allowReg")}</span>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.allowReg")}</span>
               <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.allowRegDesc")}</p>
             </div>
             <button
@@ -94,7 +94,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           {/* Allow Booking */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
             <div>
-              <span className="font-semibold text-sm text-slate-850 dark:text-slate-350">{t("adminTabs.settings.allowBooking")}</span>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.allowBooking")}</span>
               <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.allowBookingDesc")}</p>
             </div>
             <button
@@ -116,7 +116,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           <span className="material-symbols-outlined text-blue-500 text-lg">search</span>
           {t("admin.texts.txt_1")}
         </h3>
-        <p className="text-[10px] text-slate-450 mb-4">{t("adminTabs.settings.seoDesc")}</p>
+        <p className="text-[10px] text-slate-400 mb-4">{t("adminTabs.settings.seoDesc")}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -157,7 +157,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start border-t border-slate-100 dark:border-slate-800/60 pt-6">
           <div className="md:col-span-5 space-y-4">
-            <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.settings.adImage")}</span>
+            <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.settings.adImage")}</span>
             
             {data?.advertisement?.imageUrl ? (
               <div className="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800/80 p-2">
@@ -184,9 +184,9 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
 
           <div className="md:col-span-7 space-y-5">
             <div className="space-y-1">
-              <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">{t("adminTabs.settings.adStatus")}</span>
+              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.settings.adStatus")}</span>
               <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800/80">
-                <span className="font-semibold text-xs text-slate-855 dark:text-slate-350">{t("adminTabs.settings.adShow")}</span>
+                <span className="font-semibold text-xs text-slate-855 dark:text-slate-300">{t("adminTabs.settings.adShow")}</span>
                 <button
                   type="button"
                   disabled={!data?.advertisement?.imageUrl}
@@ -201,7 +201,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
             </div>
 
             <div className="space-y-1">
-              <span className="block text-[9px] font-bold text-slate-450 uppercase tracking-wider">Link URL:</span>
+              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Link URL:</span>
               <div className="flex gap-2">
                 <input
                   type="url"

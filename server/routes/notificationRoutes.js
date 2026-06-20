@@ -1,6 +1,8 @@
 import express from 'express';
 import webpush from 'web-push';
 import NotificationSubscription from '../models/NotificationSubscription.js';
+import { requireAdmin } from '../middleware/authMiddleware.js';
+import { triggerSmartPushNow } from '../services/smartNotificationService.js';
 
 const router = express.Router();
 
@@ -102,6 +104,17 @@ router.post('/test-proactive', async (req, res) => {
   try {
     triggerProactivePushNow(); // Run async without blocking
     res.json({ success: true, message: 'Đã kích hoạt trình kích hoạt AI Proactive Push thủ công thành công. Tiến trình sẽ chạy ngầm và gửi thông báo nếu AI quyết định cần thiết.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST: Trigger smart notification push manual nudge (wellness, sleep, etc.)
+router.post('/trigger-smart-push', requireAdmin, async (req, res) => {
+  try {
+    const { contextHint = 'wellness_nudge' } = req.body;
+    await triggerSmartPushNow(contextHint);
+    res.json({ success: true, message: `Đã gửi nudge "${contextHint}" thành công cho tất cả thành viên active.` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

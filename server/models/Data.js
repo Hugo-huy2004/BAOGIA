@@ -105,6 +105,9 @@ const DataSchema = new mongoose.Schema(
       allowRegistration: { type: Boolean, default: true },
       allowBooking: { type: Boolean, default: true },
       primaryColor: { type: String, default: '#3B82F6' },
+      alertCrisis: { type: Boolean, default: true },
+      autoApproveNew: { type: Boolean, default: false },
+      autoLockInactive: { type: Boolean, default: false },
       globalSeo: {
         title: { type: String, default: 'Hugo Studio - Professional Bio & Booking Platform' },
         description: { type: String, default: 'Nền tảng quản lý bio, booking và portfolio chuyên nghiệp cho influencer, freelancer và entrepreneur.' },

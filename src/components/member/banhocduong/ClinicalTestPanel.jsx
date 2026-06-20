@@ -54,7 +54,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
           </button>
         </div>
         
-        <h4 className="text-xs font-black text-zinc-800 dark:text-zinc-150 uppercase tracking-wider">
+        <h4 className="text-xs font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">
           {activeTest.name}
         </h4>
         

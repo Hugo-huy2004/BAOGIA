@@ -3,6 +3,7 @@ import { Chess } from "chess.js";
 import { Chessground } from "chessground";
 import "chessground/assets/chessground.base.css";
 import "./chess-theme.css";
+import toast from "react-hot-toast";
 import {
   ArrowLeft, Flag, Handshake, Volume2, VolumeX,
   Copy, Check, Wifi, WifiOff, Lightbulb, ChevronDown,
@@ -563,6 +564,8 @@ export default function ChessGame({
   const [sidebarTab, setSidebarTab] = useState("game");
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [autoQueen, setAutoQueen] = useState(() => localStorage.getItem("chess_auto_queen") !== "false");
+  const [noOpponentWaiting, setNoOpponentWaiting] = useState(false);
+  const [exitCountdown, setExitCountdown] = useState(5);
 
   const changeAppTheme = (t) => { setAppTheme(t); localStorage.setItem("chess_app_theme", t); };
   const changeBoardTheme = (t) => { setBoardTheme(t); localStorage.setItem("chess_board_theme", t); };
@@ -824,12 +827,25 @@ export default function ChessGame({
   }, [status, roomId, mode]);
 
   useEffect(() => {
+    if (!noOpponentWaiting) return;
+    const interval = setInterval(() => {
+      setExitCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          onBack();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [noOpponentWaiting, onBack]);
+
+  useEffect(() => {
     if (mode === "bot") return;
     const wsUrl = import.meta.env.VITE_WS_URL
       ? import.meta.env.VITE_WS_URL.replace(/\/ws$/, "") + "/ws/chess"
-      : import.meta.env.DEV
-        ? "ws://127.0.0.1:8081/ws/chess"
-        : `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/ws/chess`;
+      : `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/ws/chess`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
     setWsStatus("connecting");
@@ -860,8 +876,15 @@ export default function ChessGame({
         case "rematch_offer":
           setRematchOffered(true);
           break;
+        case "queue_position":
+          if (msg.position === 1) {
+            setNoOpponentWaiting(true);
+            setExitCountdown(5);
+          }
+          break;
         case "game_start":
         case "joined": {
+          setNoOpponentWaiting(false);
           const myClr = msg.color || colorRef.current || "white";
           colorRef.current = myClr; setPlayerColor(myClr);
           setOpponent(myClr === "white" ? msg.black : msg.white);
@@ -898,6 +921,38 @@ export default function ChessGame({
         case "draw_declined":         setDrawOffer(false); break;
         case "opponent_disconnected": setWsStatus("disconnected"); break;
         case "opponent_reconnected":  setWsStatus("connected");    break;
+        case "error":
+          toast.error(msg.message || "Đã xảy ra lỗi kết nối");
+          setTimeout(() => onBack(), 1500);
+          break;
+        case "reconnected": {
+          setNoOpponentWaiting(false);
+          const myClr = msg.color || colorRef.current || "white";
+          colorRef.current = myClr; setPlayerColor(myClr);
+          setOpponent(myClr === "white" ? msg.black : msg.white);
+          if (msg.boardTheme) { setBoardTheme(msg.boardTheme); }
+          
+          const c = new Chess(msg.fen);
+          setChess(c);
+          setMoves(msg.moves || []);
+          setTurn(msg.turn);
+          setLastMove(null);
+          
+          clk.current = { turn: msg.turn, wMs: msg.whiteTime, bMs: msg.blackTime, last: Date.now() };
+          setWhiteMs(msg.whiteTime);
+          setBlackMs(msg.blackTime);
+          
+          statusRef.current = "active";
+          setStatus("active");
+          
+          setResult(null);
+          setHintMove(null);
+          setRematchOffered(false);
+          setRematchRequested(false);
+          
+          startClock(msg.turn);
+          break;
+        }
         default: break;
       }
     };
@@ -1064,7 +1119,9 @@ export default function ChessGame({
             ) : (
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <div className="w-12 h-12 rounded-2xl bg-muted border border-border flex items-center justify-center mx-auto text-2xl">👑</div>
+                  <div className="w-12 h-12 rounded-2xl bg-muted border border-border flex items-center justify-center mx-auto text-muted-foreground">
+                    <Crown className="w-6 h-6" />
+                  </div>
                   <h3 className="font-black text-xl">Phòng đấu riêng</h3>
                   <p className="text-xs text-muted-foreground">Chia sẻ mã phòng hoặc đường dẫn mời chơi.</p>
                 </div>
@@ -1154,10 +1211,22 @@ export default function ChessGame({
         {/* Board area — flex-1 */}
         <div className="flex-1 min-h-0 flex items-center justify-center px-3 py-1 relative">
           {status === "waiting" && mode !== "friend" && (
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm">
-              <div className="w-10 h-10 border-2 border-foreground border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="font-bold text-sm">Đang tìm đối thủ...</p>
-              <p className="text-xs text-muted-foreground mt-1">Ghép cặp theo JOY</p>
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm p-4 text-center">
+              {noOpponentWaiting ? (
+                <>
+                  <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-3">
+                    <WifiOff className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <p className="font-bold text-sm text-foreground">Hiện tại không có ai đang chờ...</p>
+                  <p className="text-xs text-muted-foreground mt-1">Tự động quay lại sảnh sau {exitCountdown} giây...</p>
+                </>
+              ) : (
+                <>
+                  <div className="w-10 h-10 border-2 border-foreground border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  <p className="font-bold text-sm">Đang tìm đối thủ...</p>
+                  <p className="text-xs text-muted-foreground mt-1">Ghép cặp theo JOY</p>
+                </>
+              )}
             </div>
           )}
 
@@ -1262,13 +1331,25 @@ export default function ChessGame({
                 {status === "waiting" && (
                   <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-background/95 backdrop-blur-md rounded-xl p-6">
                     {mode !== "friend" ? (
-                      <div className="text-center space-y-4 py-8">
-                        <div className="w-10 h-10 border-2 border-foreground border-t-transparent rounded-full animate-spin mx-auto" />
-                        <div className="space-y-1">
-                          <p className="font-bold text-sm">Đang tìm đối thủ...</p>
-                          <p className="text-xs text-muted-foreground">Ghép cặp tự động dựa trên JOY</p>
+                      noOpponentWaiting ? (
+                        <div className="text-center space-y-4 py-8">
+                          <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto">
+                            <WifiOff className="w-6 h-6 animate-pulse" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="font-bold text-sm text-foreground">Hiện tại không có ai đang chờ...</p>
+                            <p className="text-xs text-muted-foreground">Tự động quay lại sảnh sau {exitCountdown} giây...</p>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="text-center space-y-4 py-8">
+                          <div className="w-10 h-10 border-2 border-foreground border-t-transparent rounded-full animate-spin mx-auto" />
+                          <div className="space-y-1">
+                            <p className="font-bold text-sm">Đang tìm đối thủ...</p>
+                            <p className="text-xs text-muted-foreground">Ghép cặp tự động dựa trên JOY</p>
+                          </div>
+                        </div>
+                      )
                     ) : (
                       <div className="text-center w-full max-w-sm space-y-5 py-4">
                         {!roomId ? (
@@ -2013,8 +2094,14 @@ export default function ChessGame({
             }`} />
 
             <div className="p-8 text-center space-y-5">
-              <div className="text-6xl select-none" style={{ lineHeight: 1 }}>
-                {!result.winner ? "🤝" : result.winner === playerColor ? "🏆" : "😔"}
+              <div className="flex justify-center items-center select-none text-muted-foreground">
+                {!result.winner ? (
+                  <Handshake className="w-16 h-16" strokeWidth={1.5} />
+                ) : result.winner === playerColor ? (
+                  <Trophy className="w-16 h-16 text-foreground" strokeWidth={1.5} />
+                ) : (
+                  <Frown className="w-16 h-16" strokeWidth={1.5} />
+                )}
               </div>
               <div className="space-y-1">
                 <h2 className="font-black text-2xl">

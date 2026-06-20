@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import HugoLogo from "../HugoLogo";
 import { Badge } from "../ui/Badge";
+import { motion, AnimatePresence } from "framer-motion";
 
 const TABS = (t, counts) => [
   { id: "dashboard", label: "Dashboard",               icon: "dashboard",          color: "text-primary" },
@@ -15,20 +16,37 @@ const TABS = (t, counts) => [
   { id: "settings",  label: t("adminPanel.sidebar.settings"), icon: "settings" },
 ];
 
-const MOBILE_TABS = (t, counts) => [
-  { id: "dashboard", label: "Home",   icon: "dashboard" },
-  { id: "users",     label: "Users",  icon: "group",           count: counts.users },
-  { id: "bookings",  label: "Lịch",   icon: "calendar_month",  count: counts.bookings, urgent: true },
-  { id: "payments",  label: "Thanh toán", icon: "payments" },
-  { id: "ai",        label: "AI",     icon: "auto_awesome" },
-  { id: "support",   label: "Ticket", icon: "support_agent",   count: counts.support, urgent: true },
-  { id: "settings",  label: "Cài đặt", icon: "settings" },
-];
-
 export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLogout }) {
   const { t } = useTranslation();
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const tabs       = TABS(t, counts);
-  const mobileTabs = MOBILE_TABS(t, counts);
+
+  const primaryMobileTabs = [
+    { id: "dashboard", label: "Home", icon: "dashboard" },
+    { id: "users", label: "Users", icon: "group", count: counts.users },
+    { id: "bookings", label: "Lịch", icon: "calendar_month", count: counts.bookings, urgent: true },
+    { id: "payments", label: "Thanh toán", icon: "payments" },
+  ];
+
+  const utilityMobileTabs = [
+    { id: "ai", label: "AI Center", icon: "auto_awesome", color: "text-accent", badge: "NEW" },
+    { id: "partners", label: t("adminPanel.sidebar.partners", "Đối tác"), icon: "handshake", count: counts.partners },
+    { id: "packages", label: t("adminPanel.sidebar.packages", "Gói cước"), icon: "featured_play_list", count: counts.packages },
+    { id: "support", label: t("adminPanel.sidebar.support", "Ticket"), icon: "support_agent", count: counts.support, urgent: true },
+    { id: "settings", label: t("adminPanel.sidebar.settings", "Cài đặt"), icon: "settings" },
+    { id: "projects", label: "Dự án", icon: "assignment", count: counts.projects },
+  ];
+
+  const utilityIds = ["ai", "partners", "packages", "support", "settings", "projects"];
+  const isUtilityActive = utilityIds.includes(activeTab);
+
+  const utilityCount =
+    (counts.partners || 0) +
+    (counts.packages || 0) +
+    (counts.support || 0) +
+    (counts.projects || 0);
+
+  const hasUrgentUtility = (counts.support > 0);
 
   return (
     <>
@@ -134,12 +152,15 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
 
       {/* ── MOBILE BOTTOM NAV ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 nav-bottom-safe bg-card/95 backdrop-blur-xl border-t border-border z-40 flex items-center justify-around px-1 shadow-[0_-8px_32px_hsl(var(--shadow)/0.08)]">
-        {mobileTabs.map(tab => {
+        {primaryMobileTabs.map(tab => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setShowMoreMenu(false);
+              }}
               className={`flex flex-col items-center justify-center flex-1 h-full py-2 relative transition-all ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
@@ -163,7 +184,133 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
             </button>
           );
         })}
+
+        {/* 5th Tab: Utilities ("Tiện ích") */}
+        <button
+          onClick={() => setShowMoreMenu(prev => !prev)}
+          className={`flex flex-col items-center justify-center flex-1 h-full py-2 relative transition-all ${
+            isUtilityActive || showMoreMenu ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <div className="relative">
+            <span className={`material-symbols-outlined text-[22px] transition-all ${(isUtilityActive || showMoreMenu) ? "scale-110" : ""}`}>
+              grid_view
+            </span>
+            {utilityCount > 0 && (
+              <span className={`absolute -top-1.5 -right-2 min-w-[14px] h-[14px] px-0.5 rounded-full text-[7px] font-black leading-none flex items-center justify-center ${
+                hasUrgentUtility ? "bg-destructive text-white animate-pulse" : "bg-muted-foreground text-background"
+              }`}>
+                {utilityCount}
+              </span>
+            )}
+          </div>
+          <span className={`text-[9px] font-bold mt-0.5 transition-all ${(isUtilityActive || showMoreMenu) ? "font-black" : ""}`}>
+            Tiện ích
+          </span>
+          {(isUtilityActive || showMoreMenu) && <span className="absolute bottom-1.5 w-4 h-0.5 rounded-full bg-primary" />}
+        </button>
       </nav>
+
+      {/* ── MOBILE UTILITIES SHEET (SLIDE-UP DRAWER) ── */}
+      <AnimatePresence>
+        {showMoreMenu && (
+          <>
+            {/* Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMoreMenu(false)}
+              className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-[9990]"
+            />
+
+            {/* Bottom Slide-up Sheet */}
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 250 }}
+              className="md:hidden fixed bottom-0 left-0 right-0 bg-card/98 border-t border-border rounded-t-[2rem] z-[9999] px-6 pb-8 pt-4 shadow-[0_-12px_40px_rgba(0,0,0,0.2)] max-h-[80vh] overflow-y-auto"
+            >
+              {/* Drag Handle Indicator */}
+              <div className="w-12 h-1.5 bg-muted-foreground/20 rounded-full mx-auto mb-5" />
+
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-sm font-black tracking-tight text-foreground flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-lg">grid_view</span>
+                  Tiện ích hệ thống
+                </h3>
+                <button
+                  onClick={() => setShowMoreMenu(false)}
+                  className="w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">close</span>
+                </button>
+              </div>
+
+              {/* Grid Layout */}
+              <div className="grid grid-cols-3 gap-4">
+                {utilityMobileTabs.map(tab => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        if (tab.id === "projects") {
+                          window.location.href = "/admin/projects";
+                        } else {
+                          setActiveTab(tab.id);
+                        }
+                        setShowMoreMenu(false);
+                      }}
+                      className={`flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl transition-all duration-200 border ${
+                        isActive
+                          ? "bg-primary/10 border-primary/20 text-primary font-black shadow-[0_4px_12px_rgba(var(--primary-rgb),0.08)]"
+                          : "bg-muted/30 border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                      }`}
+                    >
+                      <div className="relative">
+                        <span className={`material-symbols-outlined text-2xl transition-transform ${isActive ? "scale-110" : ""}`}>
+                          {tab.icon}
+                        </span>
+                        {tab.badge && (
+                          <span className="absolute -top-1 -right-3 text-[7px] font-black px-1 py-0.2 rounded-full bg-accent/15 text-accent border border-accent/20 scale-90">
+                            {tab.badge}
+                          </span>
+                        )}
+                        {tab.count !== undefined && tab.count > 0 && (
+                          <span className={`absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full text-[8px] font-black leading-none flex items-center justify-center ${
+                            tab.urgent ? "bg-destructive text-white animate-pulse" : "bg-muted-foreground text-background"
+                          }`}>
+                            {tab.count}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-bold text-center leading-tight whitespace-normal line-clamp-2 w-full">
+                        {tab.label}
+                      </span>
+                    </button>
+                  );
+                })}
+
+                {/* Logout Button */}
+                <button
+                  onClick={() => {
+                    setShowMoreMenu(false);
+                    handleLogout();
+                  }}
+                  className="flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl bg-destructive/5 hover:bg-destructive/10 border border-transparent hover:border-destructive/20 text-destructive/80 hover:text-destructive transition-all duration-200"
+                >
+                  <span className="material-symbols-outlined text-2xl">logout</span>
+                  <span className="text-[10px] font-bold text-center leading-tight">
+                    Đăng xuất
+                  </span>
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

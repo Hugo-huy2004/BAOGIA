@@ -618,7 +618,7 @@ export default function PartnerBioPage() {
                     {bioData.links.length > 0 && (
                       <div className="space-y-2">
                         {bioData.links.map((link, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-black/25 border border-zinc-150 dark:border-zinc-800/80">
+                          <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-black/25 border border-zinc-200 dark:border-zinc-800/80">
                             <div className="min-w-0">
                               <span className="font-bold text-xs block text-slate-800 dark:text-zinc-100 truncate">{link.label}</span>
                               <span className="text-[9px] text-zinc-400 dark:text-zinc-500 font-mono truncate block max-w-md">{link.url}</span>

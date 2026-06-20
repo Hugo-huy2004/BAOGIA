@@ -829,7 +829,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                   Câu hỏi {mmpiPageIndex + 1} trên 30
                 </span>
                 
-                <h3 className="text-sm sm:text-base font-bold text-zinc-800 dark:text-zinc-150 leading-relaxed max-w-md mx-auto">
+                <h3 className="text-sm sm:text-base font-bold text-zinc-800 dark:text-zinc-200 leading-relaxed max-w-md mx-auto">
                   "{adaptedMmpiQuestions[mmpiPageIndex].text}"
                 </h3>
 
@@ -898,7 +898,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
               Xác thực bổ sung {suppPageIndex + 1} trên 10
             </span>
             
-            <h3 className="text-sm sm:text-base font-bold text-zinc-800 dark:text-zinc-150 leading-relaxed max-w-md mx-auto">
+            <h3 className="text-sm sm:text-base font-bold text-zinc-800 dark:text-zinc-200 leading-relaxed max-w-md mx-auto">
               "{adaptedSupplementaryQuestions[suppPageIndex].text}"
             </h3>
 
@@ -1151,7 +1151,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-lg font-black text-zinc-850 dark:text-zinc-150 uppercase tracking-wide">
+            <h3 className="text-lg font-black text-zinc-850 dark:text-zinc-200 uppercase tracking-wide">
               Đã Hoàn Thành Khảo Sát!
             </h3>
             <p className="text-xs text-zinc-550 dark:text-zinc-400 leading-relaxed max-w-sm font-semibold">

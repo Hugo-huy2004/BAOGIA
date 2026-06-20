@@ -705,7 +705,7 @@ export default function IntroductionPage() {
                     </div>
                     <div>
                       <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#ec4899] transition-colors">{t("intro.slide4.highSchool")}</h4>
-                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.highSchoolDesc")}</p>
+                      <p className="text-[10px] lg:text-[11px] text-slate-400 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.highSchoolDesc")}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between pt-2.5 lg:pt-4 mt-2.5 lg:mt-4 border-t border-slate-200/50 dark:border-white/5 text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-wider">
@@ -727,7 +727,7 @@ export default function IntroductionPage() {
                     </div>
                     <div>
                       <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#d946ef] transition-colors">{t("intro.slide4.uniTitle")}</h4>
-                      <p className="text-[10px] lg:text-[11px] text-slate-450 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.uniDesc")}</p>
+                      <p className="text-[10px] lg:text-[11px] text-slate-400 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.uniDesc")}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between pt-2.5 lg:pt-4 mt-2.5 lg:mt-4 border-t border-slate-200/50 dark:border-white/5 text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-wider">
@@ -753,12 +753,12 @@ export default function IntroductionPage() {
                 {t("intro.slide5.title1")} <br />
                 {t("intro.slide5.title2")}
               </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-350 leading-relaxed">
+              <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                 <Trans i18nKey="intro.slide5.desc">
                   Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố <strong className="text-[#6366f1] dark:text-[#a5b4fc]">.edu</strong> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh hoàn toàn miễn phí.
                 </Trans>
               </p>
-              <div className="space-y-2.5 text-xs sm:text-sm text-slate-650 dark:text-slate-350">
+              <div className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-sm text-emerald-500">verified_user</span>
                   <span>{t("intro.slide5.check1")}</span>
@@ -813,7 +813,7 @@ export default function IntroductionPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idValidityTitle")}</span>
-                    <span className="font-bold text-slate-600 dark:text-slate-350">{t("intro.slide5.idValidityDesc")}</span>
+                    <span className="font-bold text-slate-600 dark:text-slate-300">{t("intro.slide5.idValidityDesc")}</span>
                   </div>
                 </div>
 
@@ -850,7 +850,7 @@ export default function IntroductionPage() {
                   <div className="text-[10px] bg-slate-200 dark:bg-white/5 text-slate-500 px-4 py-0.5 rounded-md font-mono select-none">
                     hugo.dev/services
                   </div>
-                  <span className="material-symbols-outlined text-xs text-slate-455">refresh</span>
+                  <span className="material-symbols-outlined text-xs text-slate-400">refresh</span>
                 </div>
 
                 {/* Browser Content */}

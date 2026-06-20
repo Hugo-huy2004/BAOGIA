@@ -81,7 +81,7 @@ export default function UserGuidePage() {
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-white uppercase leading-snug">
               Cẩm Nang Hướng Dẫn Sử Dụng Toàn Diện Hugo Studio
             </h1>
-            <p className="text-xs text-slate-550 dark:text-slate-455 font-bold tracking-wider">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold tracking-wider">
               TÀI LIỆU HƯỚNG DẪN KỸ THUẬT VÀ QUY TRÌNH DÀNH CHO THÀNH VIÊN VÀ KHÁCH HÀNG
             </p>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 italic">
@@ -110,7 +110,7 @@ export default function UserGuidePage() {
                   <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider text-indigo-500">
                     Triết lý thiết kế và Các tính năng cốt lõi của nền tảng:
                   </h4>
-                  <ul className="list-disc pl-5 text-xs text-slate-550 dark:text-slate-400 space-y-2.5">
+                  <ul className="list-disc pl-5 text-xs text-slate-500 dark:text-slate-400 space-y-2.5">
                     <li>
                       <strong>Cấu trúc Bento Grid thông minh:</strong> Cho phép chia nhỏ trang web thành các khối hình học (pills, squares, rectangles) xếp khít nhau như hộp cơm Bento Nhật Bản. Cơ chế này giúp tối ưu không gian hiển thị thông tin và tương thích tự động 100% với màn hình điện thoại di động lẫn máy tính.
                     </li>
@@ -143,7 +143,7 @@ export default function UserGuidePage() {
                 </p>
 
                 <div className="space-y-4 text-xs">
-                  <div className="pl-4 border-l-2 border-slate-350 dark:border-slate-800 space-y-2">
+                  <div className="pl-4 border-l-2 border-slate-300 dark:border-slate-800 space-y-2">
                     <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
                       Quy trình đăng ký tài khoản tiêu chuẩn:
                     </h5>
@@ -160,7 +160,7 @@ export default function UserGuidePage() {
                     <h5 className="font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider text-[11px]">
                       Quy trình tham gia chương trình tài trợ sinh viên (Premium Student):
                     </h5>
-                    <p className="text-slate-605 dark:text-slate-400 text-justify">
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
                       Hugo Studio thấu hiểu học sinh - sinh viên là những đối tượng có nhu cầu rất lớn về một trang giới thiệu bản thân chuyên nghiệp nhưng lại hạn chế về ngân sách. Vì vậy, chúng tôi triển khai chương trình tài trợ đặc biệt **Premium Student tài trợ 100% chi phí**:
                       <br />
                       - <strong>Điều kiện tham gia:</strong> Người dùng có địa chỉ email giáo dục hợp lệ cấp bởi các trường học, đại học, viện đào tạo tại Việt Nam hoặc quốc tế (địa chỉ email có đuôi định dạng dạng `.edu` hoặc `.edu.vn`).
@@ -297,7 +297,7 @@ export default function UserGuidePage() {
                   </div>
                 </div>
 
-                <p className="text-slate-500 dark:text-slate-450 italic text-[11px] border-l-4 border-amber-500 pl-4">
+                <p className="text-slate-500 dark:text-slate-400 italic text-[11px] border-l-4 border-amber-500 pl-4">
                   * Khuyến cáo an toàn giao dịch: Hugo Studio chỉ đóng vai trò cung cấp giải pháp kỹ thuật lưu trữ và thông tin trung gian truyền tải Booking. Mọi thỏa thuận tài chính, ký kết hợp đồng dịch vụ, thanh toán tiền cát-xê công việc giữa hai bên phải được thực hiện tự do bên ngoài hệ thống. Chúng tôi miễn trừ mọi trách nhiệm giải quyết tranh chấp kinh tế phát sinh liên quan đến hoạt động Booking này.
                 </p>
               </div>
@@ -336,7 +336,7 @@ export default function UserGuidePage() {
                     <h5 className="font-bold text-slate-800 dark:text-white text-xs">
                       2. Quy trình xác thực thanh toán tự động:
                     </h5>
-                    <p className="text-slate-605 dark:text-slate-400 leading-relaxed">
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                       - Sau khi khách hàng hoàn tất giao dịch chuyển khoản thành công trên ứng dụng Mobile Banking của mình, cổng thanh toán đối tác PayOS sẽ gửi một phản hồi (Webhook/Callback API) trực tiếp tới máy chủ Hugo Studio trong vòng 3 giây để cập nhật tức thì trạng thái giao dịch từ "PENDING" (Đang chờ) thành "PAID" (Đã thanh toán).
                       <br />
                       - Giao diện hóa đơn điện tử ảo (Sponsorship Receipt) trên trang web sẽ tự động chuyển sang màu xanh xác nhận giao dịch thành công. Khách hàng không cần phải gửi ảnh chụp màn hình chuyển khoản qua tin nhắn cho Admin để xác thực thủ công.

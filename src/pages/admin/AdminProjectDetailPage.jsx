@@ -394,12 +394,12 @@ export default function AdminProjectDetailPage() {
           {/* Status Updater */}
           <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm">
             <form onSubmit={handleOpenStatusModal} className="bg-slate-50 dark:bg-black/20 p-5 rounded-md border border-slate-200 dark:border-white/5 space-y-4">
-              <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider">{t("adminProjectDetail.updateProcessTitle")}</h4>
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("adminProjectDetail.updateProcessTitle")}</h4>
               
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("adminProjectDetail.newStatusLabel")}</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("adminProjectDetail.newStatusLabel")}</label>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <select value={statusUpdate} onChange={e => setStatusUpdate(e.target.value)} className="w-full sm:flex-1 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-sm p-3 text-slate-850 dark:text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                  <select value={statusUpdate} onChange={e => setStatusUpdate(e.target.value)} className="w-full sm:flex-1 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-sm p-3 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
                     <option value="Đang liên hệ">{t("adminProjectDetail.statusOptions.contacting")}</option>
                     <option value="Đang lên thiết kế">{t("adminProjectDetail.statusOptions.designing")}</option>
                     <option value="Đang thực hiện">{t("adminProjectDetail.statusOptions.implementing")}</option>
@@ -416,7 +416,7 @@ export default function AdminProjectDetailPage() {
 
         {/* History Notes */}
         <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
-          <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider border-b border-slate-100 dark:border-white/5 pb-2">{t("adminProjectDetail.historyTitle")}</h4>
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-white/5 pb-2">{t("adminProjectDetail.historyTitle")}</h4>
           <div className="space-y-4 pl-2 max-h-[300px] overflow-y-auto">
             {project.progressNotes && project.progressNotes.length > 0 ? (
               [...project.progressNotes].reverse().map((note, idx) => (
@@ -468,7 +468,7 @@ export default function AdminProjectDetailPage() {
           </div>
 
           <form onSubmit={handleSendMessage} className="mt-4 flex gap-2 shrink-0">
-            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={project.status === 'Hoàn tất' ? t("adminProjectDetail.msgPlaceholderCompleted") : t("adminProjectDetail.msgPlaceholderNormal")} className="flex-1 px-4 py-3 rounded-md border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#1f1929] text-slate-850 dark:text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={project.status === 'Hoàn tất' ? t("adminProjectDetail.msgPlaceholderCompleted") : t("adminProjectDetail.msgPlaceholderNormal")} className="flex-1 px-4 py-3 rounded-md border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#1f1929] text-slate-800 dark:text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
             <button type="submit" disabled={!newMessage.trim()} className="px-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-bold rounded-md transition-all">{t("adminProjectDetail.sendBtn")}</button>
           </form>
           </div>
@@ -536,7 +536,7 @@ export default function AdminProjectDetailPage() {
                       
                       {/* Configuration Panel for Automation */}
                       <div className="bg-slate-50 dark:bg-[#1a1523] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-3 mb-3">
-                        <div className="text-[10px] font-black text-slate-450 uppercase tracking-wider">Cấu Hình Thông Tin Mẫu Bảo Hành & Tổng Kết</div>
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Cấu Hình Thông Tin Mẫu Bảo Hành & Tổng Kết</div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div className="space-y-1">
                             <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Triển khai từ ngày</label>
@@ -544,7 +544,7 @@ export default function AdminProjectDetailPage() {
                               type="date" 
                               value={startDateStr} 
                               onChange={e => setStartDateStr(e.target.value)} 
-                              className="w-full rounded-lg border border-slate-250 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                             />
                           </div>
                           <div className="space-y-1">
@@ -553,7 +553,7 @@ export default function AdminProjectDetailPage() {
                               type="date" 
                               value={endDateStr} 
                               onChange={e => setEndDateStr(e.target.value)} 
-                              className="w-full rounded-lg border border-slate-250 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                             />
                           </div>
                         </div>
@@ -565,7 +565,7 @@ export default function AdminProjectDetailPage() {
                               min="1"
                               value={warrantyDays} 
                               onChange={e => setWarrantyDays(Number(e.target.value))} 
-                              className="w-full rounded-lg border border-slate-250 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                             />
                           </div>
                           <div className="space-y-1">
@@ -574,7 +574,7 @@ export default function AdminProjectDetailPage() {
                               type="text" 
                               value={developerName} 
                               onChange={e => setDeveloperName(e.target.value)} 
-                              className="w-full rounded-lg border border-slate-250 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                               placeholder="Tên lập trình viên"
                             />
                           </div>

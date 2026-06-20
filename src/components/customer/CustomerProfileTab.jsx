@@ -47,7 +47,7 @@ export default function CustomerProfileTab({ project, setProject }) {
   return (
     <div className="bg-white dark:bg-[#12111a] rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800/80 shadow-sm max-w-2xl mx-auto">
       <div className="mb-6 space-y-1">
-        <h2 className="text-lg font-bold text-slate-850 dark:text-white">{t("customerPortal.profile.title")}</h2>
+        <h2 className="text-lg font-bold text-slate-800 dark:text-white">{t("customerPortal.profile.title")}</h2>
         <p className="text-xs text-slate-500">{t("customerPortal.profile.subtitle")}</p>
         {isCompleted && (
           <div className="mt-2 text-[11px] text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg font-medium">
@@ -59,63 +59,63 @@ export default function CustomerProfileTab({ project, setProject }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.fullName")}</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.fullName")}</label>
             <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
               disabled={isCompleted}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.phone")}</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.phone")}</label>
             <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               disabled={isCompleted}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.email")}</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.email")}</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               disabled={isCompleted}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.birthday")}</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.birthday")}</label>
             <input
               type="date"
               name="birthday"
               value={formData.birthday}
               onChange={handleChange}
               disabled={isCompleted}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
             />
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-[10px] font-bold text-slate-450 uppercase tracking-wider">{t("customerPortal.profile.address")}</label>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.address")}</label>
           <input
             type="text"
             name="address"
             value={formData.address}
             onChange={handleChange}
             disabled={isCompleted}
-            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-850 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
           />
         </div>
 

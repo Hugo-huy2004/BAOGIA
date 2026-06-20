@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
@@ -58,17 +58,42 @@ function InsightCard({ title, icon, content, color = "primary", loading, badge }
   );
 }
 
-export default function AdminAICenter({ stats, users, showNotification }) {
+export default function AdminAICenter({ stats, users, showNotification, systemSettings, updateSystemSettings }) {
   const [analyses, setAnalyses] = useState({});
   const [loading,  setLoading]  = useState({});
   const [broadcastMsg, setBroadcastMsg] = useState("");
   const [broadcastTarget, setBroadcastTarget] = useState("all");
   const [broadcastLoading, setBroadcastLoading] = useState(false);
-  const [autoActions, setAutoActions] = useState({ autoApproveNew: false, autoLockInactive: false, alertCrisis: true });
+  const [autoActions, setAutoActions] = useState({
+    autoApproveNew: systemSettings?.autoApproveNew ?? false,
+    autoLockInactive: systemSettings?.autoLockInactive ?? false,
+    alertCrisis: systemSettings?.alertCrisis ?? true
+  });
   const [actionLog, setActionLog] = useState([]);
   const [userQuery, setUserQuery] = useState("");
   const [userAnalysis, setUserAnalysis] = useState("");
   const [userAnalysisLoading, setUserAnalysisLoading] = useState(false);
+
+  useEffect(() => {
+    if (systemSettings) {
+      setAutoActions({
+        autoApproveNew: systemSettings.autoApproveNew ?? false,
+        autoLockInactive: systemSettings.autoLockInactive ?? false,
+        alertCrisis: systemSettings.alertCrisis ?? true
+      });
+    }
+  }, [systemSettings]);
+
+  const handleToggle = async (key, val) => {
+    setAutoActions(p => ({ ...p, [key]: val }));
+    if (updateSystemSettings) {
+      try {
+        await updateSystemSettings({ [key]: val });
+      } catch (err) {
+        showNotification(`Lỗi cập nhật cài đặt: ${err.message}`, "error");
+      }
+    }
+  };
 
   const ANALYSIS_PROMPTS = {
     user_health: "Phân tích sức khỏe tổng thể của cộng đồng người dùng. Chú ý tỉ lệ locked/pending so với active. Đưa ra nhận xét về tình trạng người dùng và gợi ý cải thiện.",
@@ -160,12 +185,18 @@ export default function AdminAICenter({ stats, users, showNotification }) {
         const res = await apiFetch("/bios/bulk-approve-pending", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({}) });
         result = `Đã duyệt ${res?.count || 0} tài khoản pending`;
       } else if (actionType === "send_wellness_nudge") {
-        result = "Đã gửi nudge sức khỏe tâm lý cho tất cả thành viên active";
+        const res = await apiFetch("/notifications/trigger-smart-push", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ contextHint: "wellness_nudge" })
+        });
+        result = res?.message || "Đã gửi nudge sức khỏe tâm lý cho tất cả thành viên active";
       } else if (actionType === "generate_system_report") {
         const data = await callAI("/api/ai/proactive-push", {
           logs: [{ type: "system_report", stats, timestamp: new Date().toISOString() }]
         });
-        result = data?.message || "Báo cáo đã tạo";
+        result = data?.body || data?.message || "Báo cáo đã tạo";
       }
       showNotification(result || "Hoàn thành!", "success");
       setActionLog(p => [{ text: result, time: new Date().toLocaleTimeString("vi-VN"), icon: "auto_fix_high" }, ...p.slice(0, 9)]);
@@ -361,19 +392,19 @@ export default function AdminAICenter({ stats, users, showNotification }) {
           <CardContent className="space-y-4">
             <Switch
               checked={autoActions.alertCrisis}
-              onCheckedChange={v => setAutoActions(p => ({ ...p, alertCrisis: v }))}
+              onCheckedChange={v => handleToggle("alertCrisis", v)}
               label="Cảnh báo khủng hoảng tâm lý"
               description="Tự động nhận alert khi AI phát hiện nguy cơ cao"
             />
             <Switch
               checked={autoActions.autoApproveNew}
-              onCheckedChange={v => setAutoActions(p => ({ ...p, autoApproveNew: v }))}
+              onCheckedChange={v => handleToggle("autoApproveNew", v)}
               label="Tự động duyệt tài khoản edu mới"
               description="AI xác minh email edu và tự duyệt"
             />
             <Switch
               checked={autoActions.autoLockInactive}
-              onCheckedChange={v => setAutoActions(p => ({ ...p, autoLockInactive: v }))}
+              onCheckedChange={v => handleToggle("autoLockInactive", v)}
               label="Khóa tài khoản không hoạt động 90 ngày"
               description="Tự động sau 90 ngày không đăng nhập"
             />

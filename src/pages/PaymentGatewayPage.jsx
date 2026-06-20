@@ -454,7 +454,7 @@ export default function PaymentGatewayPage() {
               <h2 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-650 dark:from-emerald-400 dark:via-cyan-400 dark:to-indigo-400 bg-clip-text text-transparent filter drop-shadow-[0_2px_15px_rgba(52,211,153,0.1)]">
                 {paymentInfo.amount.toLocaleString('vi-VN')} <span className="text-lg text-emerald-600 dark:text-emerald-500/80 font-black">VNĐ</span>
               </h2>
-              <p className="text-slate-655 dark:text-zinc-400 text-xs mt-2 italic max-w-md mx-auto truncate" title={paymentInfo.reason}>
+              <p className="text-slate-600 dark:text-zinc-400 text-xs mt-2 italic max-w-md mx-auto truncate" title={paymentInfo.reason}>
                 "{paymentInfo.reason}"
               </p>
             </div>
@@ -477,7 +477,7 @@ export default function PaymentGatewayPage() {
                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black">1</span>
                         <span className="text-[11px] font-bold text-slate-800 dark:text-zinc-200">Tải mã QR để quét</span>
                       </div>
-                      <p className="text-[10px] text-slate-550 dark:text-zinc-400 pl-7 leading-relaxed">
+                      <p className="text-[10px] text-slate-500 dark:text-zinc-400 pl-7 leading-relaxed">
                         Tải ảnh QR vào thư viện ảnh để dễ dàng mở quét từ ảnh trong ứng dụng ngân hàng.
                       </p>
                       <div className="pl-7">
@@ -497,7 +497,7 @@ export default function PaymentGatewayPage() {
                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black">2</span>
                         <span className="text-[11px] font-bold text-slate-800 dark:text-zinc-200">Mở ứng dụng ngân hàng</span>
                       </div>
-                      <p className="text-[10px] text-slate-550 dark:text-zinc-400 pl-7 leading-relaxed">
+                      <p className="text-[10px] text-slate-500 dark:text-zinc-400 pl-7 leading-relaxed">
                         Chọn logo ngân hàng dưới đây để tự động mở ứng dụng và điền đầy đủ thông tin thanh toán. Hoặc chọn **"Quét mã QR từ thư viện ảnh"** trong ứng dụng ngân hàng bất kỳ.
                       </p>
                       
@@ -551,7 +551,7 @@ export default function PaymentGatewayPage() {
               {activeTab === 'banking' && (
                 <div className="space-y-5 animate-fadeIn">
                   <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider">Mở Ứng Dụng Ngân Hàng</h3>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Mở Ứng Dụng Ngân Hàng</h3>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
                       Chọn logo ngân hàng bạn dùng dưới đây. App Banking sẽ tự động mở lên và điền sẵn mọi thông tin.
                     </p>
@@ -578,7 +578,7 @@ export default function PaymentGatewayPage() {
                               className="w-full h-full object-contain filter brightness-95 group-hover:brightness-100 group-hover:scale-105 transition-all"
                             />
                           </div>
-                          <span className="text-[10px] font-bold text-slate-555 dark:text-zinc-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full uppercase tracking-tight">
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full uppercase tracking-tight">
                             {bank.name}
                           </span>
                         </button>
@@ -601,7 +601,7 @@ export default function PaymentGatewayPage() {
               {activeTab === 'vietqr' && (
                 <div className="space-y-6 animate-fadeIn">
                   <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider">Quét Mã VietQR Chuyển Khoản</h3>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Quét Mã VietQR Chuyển Khoản</h3>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
                       Mở ứng dụng ngân hàng bất kỳ, quét mã QR này và kiểm tra thông tin trước khi chuyển.
                     </p>
@@ -628,7 +628,7 @@ export default function PaymentGatewayPage() {
                             <span className="material-symbols-outlined text-[13px]">download</span>
                             Tải ảnh QR
                           </button>
-                          <span className="text-slate-350 dark:text-zinc-700 text-xs">|</span>
+                          <span className="text-slate-300 dark:text-zinc-700 text-xs">|</span>
                           <button
                             onClick={handleOpenQRNewTab}
                             className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
@@ -654,7 +654,7 @@ export default function PaymentGatewayPage() {
                       >
                         <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider block">Số tài khoản nhận</span>
                         <div className="flex items-center justify-between">
-                          <span className="font-mono font-black text-sm text-slate-850 dark:text-zinc-150">{paymentInfo.accountNumber}</span>
+                          <span className="font-mono font-black text-sm text-slate-800 dark:text-zinc-200">{paymentInfo.accountNumber}</span>
                           <span className="material-symbols-outlined text-sm text-emerald-600 dark:text-emerald-400">
                             {copiedField === 'accountNumber' ? 'check_circle' : 'content_copy'}
                           </span>
@@ -671,7 +671,7 @@ export default function PaymentGatewayPage() {
                       >
                         <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider block">Nội dung chuyển khoản</span>
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-850 dark:text-zinc-155 text-sm">{paymentInfo.reason}</span>
+                          <span className="font-bold text-slate-800 dark:text-zinc-200 text-sm">{paymentInfo.reason}</span>
                           <span className="material-symbols-outlined text-sm text-emerald-600 dark:text-emerald-400">
                             {copiedField === 'reason' ? 'check_circle' : 'content_copy'}
                           </span>
@@ -702,7 +702,7 @@ export default function PaymentGatewayPage() {
               {activeTab === 'momo' && (
                 <div className="space-y-5 animate-fadeIn">
                   <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider">Thanh Toán Bằng Ví MoMo</h3>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Thanh Toán Bằng Ví MoMo</h3>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
                       Sử dụng tính năng quét mã VietQR có sẵn trên MoMo để chuyển khoản ngân hàng nhanh.
                     </p>
@@ -741,7 +741,7 @@ export default function PaymentGatewayPage() {
               {activeTab === 'applepay' && (
                 <div className="space-y-6 animate-fadeIn">
                   <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-slate-850 dark:text-white uppercase tracking-wider">
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
                       {isApplePaySupported ? "Thẻ Quốc Tế / Apple Pay" : "Thẻ Quốc Tế / ATM Nội Địa"}
                     </h3>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
@@ -837,7 +837,7 @@ export default function PaymentGatewayPage() {
                   <button
                     onClick={handleCancelPayment}
                     disabled={cancelling}
-                    className="w-full sm:w-auto px-8 py-3 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-250 dark:border-rose-500/30 rounded-xl text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
+                    className="w-full sm:w-auto px-8 py-3 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-300 dark:border-rose-500/30 rounded-xl text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
                   >
                     {cancelling ? (
                       <div className="w-4.5 h-4.5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
@@ -864,7 +864,7 @@ export default function PaymentGatewayPage() {
             <span className="material-symbols-outlined text-xl text-indigo-650 dark:text-primary animate-bounce-gentle">auto_awesome</span>
           </div>
           <div className="text-center sm:text-left relative z-10 flex-1">
-            <h4 className="text-slate-850 dark:text-white font-bold text-xs mb-0.5">Thiết kế Profile Chuyên Nghiệp</h4>
+            <h4 className="text-slate-800 dark:text-white font-bold text-xs mb-0.5">Thiết kế Profile Chuyên Nghiệp</h4>
             <p className="text-slate-500 dark:text-zinc-400 text-[10px] leading-relaxed mb-2">Nâng tầm thương hiệu cá nhân của bạn với danh thiếp điện tử Bento từ Hugo Studio.</p>
             <a 
               href="https://www.hugowishpax.studio" 
