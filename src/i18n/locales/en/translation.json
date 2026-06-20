@@ -9,7 +9,9 @@
     "pricing": "Pricing",
     "benefits": "Student Benefits",
     "portal": "Access Client Portal",
-    "loginAdmin": "Admin Login"
+    "loginAdmin": "Admin Login",
+    "hello": "Hello",
+    "mainMenu": "Main Menu"
   },
   "footer": {
     "tagline": "Crafting sweet and professional digital experiences. Specializing in Bio Links and performance-optimized website designs.",
@@ -409,12 +411,14 @@
   },
   "loginPage": {
     "toast": {
-      "noGoogle": "Could not authenticate with Google.",
-      "noEdu": "Registration denied: The automatic registration portal only accepts educational emails (.edu / .edu.vn). Please log in with Google using your student email.",
-      "useGoogleBtn": "Please use the Google button below to log in.",
-      "adminError": "Incorrect admin username or password.",
-      "codeLength": "Project code must be 6 characters.",
-      "invalidLink": "Invalid access link or incorrect project code."
+      "eduRedirect": "Your account will be pending review because this is not a .edu email. Redirecting...",
+      "loginError": "Login error",
+      "loginPortalError": "Portal login error",
+      "invalidLink": "Link is invalid or has expired",
+      "noGoogle": "Could not retrieve Google profile info",
+      "useGoogleBtn": "Please click the 'Continue with Google' button below",
+      "adminError": "Incorrect admin username or password",
+      "codeLength": "Login code must be exactly 6 characters"
     },
     "header": {
       "titleCustomer": "Project Management",
@@ -510,7 +514,13 @@
       "packages": "Service Packages",
       "support": "1:1 Support",
       "settings": "System Settings",
-      "logout": "Logout"
+      "logout": "Logout",
+      "projects": "Projects",
+      "fullAccess": "Full system access",
+      "logoutAccount": "Log out of admin account",
+      "utilities": "Utilities",
+      "systemUtilities": "System Utilities",
+      "utilitiesDesc": "Quick access shortcuts and admin settings"
     },
     "bottomNav": {
       "users": "Users",
@@ -813,8 +823,8 @@
     "academicProfile": "Academic Profile",
     "tabs": {
       "bio": "Bio Profile",
-      "package": "Service Package",
-      "partner": "Partner",
+      "package": "Services Package",
+      "partner": "Partners",
       "utilities": "Utilities",
       "history": "Notifications"
     },
@@ -843,8 +853,28 @@
       "changeAvatar": "CHANGE AVATAR",
       "placeholderName": "Your full name...",
       "placeholderBirthday": "Example: 20/10/2004...",
-      "placeholderPhone": "Contact phone number...",
-      "placeholderEmail": "Cooperation/work email..."
+      "placeholderEmail": "Cooperation/work email...",
+      "viewBio": "View Bio",
+      "noName": "Unnamed",
+      "noHeadline": "No headline yet",
+      "inactive": "Inactive",
+      "linksCount": "{{count}} LINKS",
+      "projectsCount": "{{count}} PROJECTS",
+      "themeLabel": "{{template}} THEME",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "loading": "Loading...",
+      "projectsCount_other": "{{count}} Projects",
+      "servicesCount_other": "{{count}} Services"
+    },
+    "bento": {
+      "profileSub": "Avatar, name & introduction",
+      "designSub": "Colors, background & bio template",
+      "linksSub": "{{count}} social links",
+      "projectsSub": "{{count}} featured projects",
+      "servicesSub": "{{count}} services",
+      "careerSub": "Skills & experience",
+      "bodySub": "Height, weight & measurements"
     },
     "preview": {
       "livePreview": "LIVE PREVIEW"
@@ -943,28 +973,19 @@
       "fb": "Personal Facebook"
     },
     "toast": {
-      "loadError": "Unable to load Bio info.",
-      "largeImage": "Image size too large (max 20MB).",
-      "cropSuccess": "Avatar cropped successfully!",
-      "avatarRemovedTemp": "Temporary avatar removed.",
-      "descLimit": "Description limit is under 110 characters.",
-      "linkLimit": "Only a maximum of 5 links allowed.",
-      "linkEmpty": "Please enter a label name and link path.",
-      "partnerLinkAdded": "Temporary partner link added!",
-      "linkAdded": "Temporary link added (click Save Info to update).",
-      "partnerLinkDeleted": "Temporary partner link removed!",
-      "linkDeleted": "Temporary link removed (click Save Info to update).",
-      "descLimitExceeded": "Self description must not exceed 110 characters.",
-      "partnerSaveSuccess": "Partner Bio settings saved successfully!",
-      "saveSuccess": "Bio settings saved successfully!",
-      "activateSuccess": "Bio Link activated successfully!",
-      "saveError": "System error while saving info.",
-      "deleteLocalSuccess": "Local design data wiped clean.",
-      "deletePersonalSuccess": "Your Personal Bio Link has been removed.",
-      "deletePersonalError": "Failed to remove Bio.",
-      "copySuccess": "Link copied to clipboard.",
-      "giftSuccess": "You received the gift package successfully!",
-      "giftError": "Error redeeming gift code."
+      "verifySuccessTitle": "Account verified successfully! 🎉",
+      "verifySuccessMsg": "Your educational email has been confirmed. Welcome to Hugo Studio!",
+      "verifyPendingTitle": "Verification Pending",
+      "verifyPendingMsg": "Your request has been submitted and is pending administrator review.",
+      "verifyRejectedTitle": "Verification Request Rejected",
+      "verifyRejectedMsg": "Please check your information and resubmit your request.",
+      "acceptTermsWarning": "Please agree to the terms.",
+      "fillAllWarning": "Please fill in all information.",
+      "submitSuccess": "Verification request submitted successfully! 🚀",
+      "submitError": "Unable to submit request.",
+      "packageActivated": "Service package activated!",
+      "giftSuccess": "Gift code redeemed successfully!",
+      "healingSuccess": "Wish you always remain resilient and peaceful! ❤️"
     },
     "utilitiesPage": {
       "title": "DIGITAL UTILITIES ECOSYSTEM",
@@ -1119,6 +1140,40 @@
         "customHostLabel": "Custom API Host (Optional - for self-hosting)",
         "customHostPlaceholder": "e.g., https://my-github-stats.vercel.app"
       }
+    },
+    "status": {
+      "active": "Verified",
+      "pending": "Pending",
+      "rejected": "Rejected"
+    },
+    "packages": {
+      "signature": {
+        "name": "Signature Portfolio",
+        "benefit1": "12-Month Duration: Use bio link completely free for 1 year from activation.",
+        "benefit2": "Unique Portfolio Design: Express professional identity through clean Portfolio layout.",
+        "benefit3": "Optimal UX/UI Layout: Engage partners and customers with easy-to-read designs.",
+        "benefit4": "Ultra-Fast Speed: Instant load times optimized via clean code and modern media optimization."
+      },
+      "ultimate": {
+        "name": "Ultimate Web App",
+        "benefit1": "12-Month Duration: Use bio link completely free for 1 year from activation.",
+        "benefit2": "Superior Web App Experience: Transform your Bio Link into a premium, smooth web app.",
+        "benefit3": "Optimal UX/UI Layout: Engage partners and customers with easy-to-read designs.",
+        "benefit4": "Ultra-Fast Speed: Instant load times optimized via clean code and modern media optimization."
+      },
+      "student": {
+        "name": "Student Bio",
+        "benefit1": "12-Month Duration: Use bio link completely free for 1 year from activation.",
+        "benefit2": "3 Unique Themes: Choose from elegant Classic, bold Brutalism, or colorful Flat layouts.",
+        "benefit3": "Ultra-Fast Speed: Instant load times optimized via clean code and modern media optimization.",
+        "benefit4": "Unlimited Connections: Share up to 5 main social links to reach customers effectively."
+      },
+      "free": {
+        "name": "Free Bio",
+        "benefit1": "12-Month Duration: Use bio link completely free for 1 year from activation.",
+        "benefit2": "Classic Profile Layout: Traditional, clean, and distraction-free Bio Link layout.",
+        "benefit3": "No Spam Ads: Zero advertisements for clean, reader-friendly, and optimal interface."
+      }
     }
   },
   "memberTabs": {
@@ -1179,7 +1234,15 @@
       "removeBioTitle": "REMOVE BIO SERVICE",
       "removeBioDesc": "This action will completely remove your Bio data and cannot be recovered.",
       "removeBtn": "Delete Data",
-      "benefitsTitle": "Service Package Benefits"
+      "benefitsTitle": "Service Package Benefits",
+      "redeemBtn": "Claim Package",
+      "publicLinkTitle": "RELEASED BIO LINK",
+      "publicLinkDesc": "Officially distributed through Hugo Studio servers.",
+      "viewLiveBtn": "View Live Page",
+      "copied": "Copied",
+      "copyLink": "Copy Link",
+      "notActivatedDesc": "You have not activated your Bio design yet. Please complete setup in the Personal tab to activate.",
+      "lifetime": "Lifetime"
     },
     "history": {
       "labels": {
@@ -1189,7 +1252,9 @@
         "package_removed": "Package Removed",
         "profile_updated": "Profile Updated",
         "link_added": "Link Added",
-        "link_removed": "Link Removed"
+        "link_removed": "Link Removed",
+        "birthday": "Birthday",
+        "gift": "Gift"
       },
       "time": {
         "just_now": "Just now",
@@ -1197,13 +1262,29 @@
         "hours_ago": "hours ago",
         "days_ago": "days ago"
       },
+      "days": {
+        "today": "Today",
+        "yesterday": "Yesterday"
+      },
+      "filter": {
+        "all": "All",
+        "account": "Account",
+        "package": "Packages",
+        "gift": "Gifts"
+      },
       "title": "Notifications from Hugo Studio",
       "events_recorded": "new notifications",
       "no_events": "No notifications yet",
       "newest_first": "Newest first",
       "empty_title": "No notifications yet",
       "empty_desc": "Important announcements and special birthday vouchers for you will be displayed here.",
-      "footer_note": "Notifications store a maximum of 50 recent items to optimize performance."
+      "footer_note": "Notifications store a maximum of 50 recent items to optimize performance.",
+      "birthday_voucher_title": "Birthday Gift Voucher Code",
+      "claimed": "Redeemed",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copy_success_msg": "Gift code copied! Please redeem it in the \"Service Package\" tab to receive your gift.",
+      "notification_count": "{{count}} notifications"
     }
   },
   "admin": {
@@ -1465,6 +1546,572 @@
       "empty": "No transactions created yet.",
       "success_create": "Payment link created successfully!",
       "error_server": "Server connection error"
+    }
+  },
+  "companion": {
+    "tab": {
+      "title": "PSY-Studies",
+      "settings": "Settings",
+      "chat": "Chat",
+      "therapy": "Therapy",
+      "sleep": "Sleep",
+      "evaluation": "Evaluation",
+      "loading": "Loading...",
+      "activeRoadmap": "Active Roadmap",
+      "reducedDays": "-{{count}} days 🎉",
+      "roadmapProgress": "Day {{current}}/{{total}} · Started {{date}}",
+      "enablePush": "Enable Reminder",
+      "cancelRoadmap": "Stop Roadmap",
+      "progress": "Progress",
+      "dailyReminder": "Daily Reminder",
+      "checkinSchedule": "Mood Check-in + Roadmap",
+      "enableNow": "Enable Now",
+      "activeStatus": {
+        "granted": "✓ Enabled",
+        "denied": "Blocked",
+        "unsupported": "Unsupported"
+      },
+      "dangerZone": "Danger Zone",
+      "deleteChatToday": "Delete chat history for today",
+      "settingsHeader": "PSY-Studies Settings",
+      "aiLimitToday": "AI Limit Today",
+      "limitChat": "Conversations",
+      "limitCall": "Consultation calls",
+      "tokenRefreshNote": "Tokens automatically refresh at 00:00 every day",
+      "confirmDeleteTitle": "Confirm Deletion",
+      "confirmDeleteDesc": "Are you sure you want to delete the entire chat history?",
+      "skip": "Skip",
+      "confirmDeleteBtn": "Confirm Delete",
+      "deleteChatSuccess": "Chat history deleted.",
+      "adaptiveAlert": {
+        "title": "Excellent progress! 🎉",
+        "subtitle": "Adaptive Companion Roadmap",
+        "recorded": "Recorded:",
+        "reduced": "Shortened: -{{count}} days",
+        "before": "Before: {{count}} days",
+        "newDuration": "New: {{count}} days",
+        "encouragement": "\"You are doing great — keep it up!\"",
+        "btn": "Awesome, let's continue!"
+      },
+      "stopRoadmap": {
+        "title": "Stop roadmap?",
+        "subtitle": "This action cannot be undone",
+        "desc": "Check-in data, questionnaire history, and emotion logs will be permanently deleted. Are you sure?",
+        "confirm": "Confirm Stop",
+        "cancel": "Cancel",
+        "progressRequirement": "Need to complete at least 60% of the journey to stop (current: {{percent}}%). Please persist a bit more! 💪",
+        "stoppedSuccess": "Roadmap stopped. History remains fully saved! 🌸"
+      },
+      "dailyReminderEnabled": "Daily reminder enabled! 🎉",
+      "pushDenied": "Notification permission denied. Re-enable in browser settings.",
+      "pushError": "Cannot register notifications at this time.",
+      "reminderEnabledToast": "Reminder enabled!"
+    },
+    "profile": {
+      "title": "Personal Information",
+      "fullName": "Full name",
+      "notSet": "Not updated",
+      "empty": "Empty",
+      "phone": "Phone",
+      "birthday": "Birthday",
+      "missingInfo": "* Some information is missing. Chat with AI to update more.",
+      "statsTitle": "Overview Statistics",
+      "statsTests": "Tests",
+      "statsCheckins": "Check-ins",
+      "statsAnomalies": "Anomalies",
+      "statsDepression": "Depression Test",
+      "clinicalAlerts": "Clinical Alerts",
+      "deepAnalysis": "Deep Analysis",
+      "wheelTitle": "Life Wheel Index",
+      "emotionTitle": "Emotion Variance",
+      "noChartData": "Not enough chart data. Please take more tests.",
+      "lowMoodTitle": "Persistent Low Mood",
+      "lowMoodDesc": "Recorded {{count}} check-ins with fatigue or exhaustion continuously.",
+      "phq9AlertTitle": "PHQ-9 Depression Warning",
+      "phq9AlertDesc": "PHQ-9 test reached {{score}}/27 points (Severe/Very severe).",
+      "dassAlertTitle": "DASS Clinical Threshold Exceeded",
+      "dassAlertDesc": "DASS-42 test recorded status of {{elevated}}.",
+      "dassDepression": "Depression",
+      "dassAnxiety": "Anxiety",
+      "dassStress": "Stress",
+      "severe": "Severe",
+      "extremelySevere": "Extremely Severe",
+      "mmpiAlertTitle": "MMPI Scale Exceeded",
+      "mmpiAlertDesc": "Clinical anomaly detected on scales: {{list}}.",
+      "chatAlertTitle": "Conversational Instability Signs",
+      "chatAlertDesc": "Detected stressful keywords: \"{{text}}\".",
+      "recHigh": "Warning: Your mental health indicators show signs of serious clinical instability. Please contact a psychologist or medical clinic immediately.",
+      "recMedium": "Note: System detected minor stress. Please rest, sleep well, and continue chatting with Companion Specialist.",
+      "recNormal": "Good news: Your emotions and lifestyle indicators are extremely stable. Keep up this positive energy!"
+    },
+    "evaluation": {
+      "notSet": "Unknown",
+      "lateNightTitle": "Frequent Late Night Activity",
+      "lateNightDesc": "Detected {{count}} activities after 11 PM, risking sleep cycle disruption.",
+      "mmpiLowReliabilityTitle": "Low MMPI Reliability",
+      "mmpiLowReliabilityDesc": "There are {{count}} MMPI test results with suspected reliability of the L-F-K index.",
+      "uploadErrorTitle": "Health Report Upload Error",
+      "uploadErrorDesc": "Recorded {{count}} file uploads of non-standard formats.",
+      "chatAlertDesc": "Detected pressure/stress keywords in messages: \"{{text}}\" (Keywords: {{triggers}}).",
+      "recHigh": "Your mental health indicators show signs of serious clinical instability. I recommend you reduce school/work load, practice 4-7-8 deep breathing nightly, and chat with me more often. If this persists for over 2 weeks, contact a professional psychologist or medical clinic immediately.",
+      "recMedium": "I noticed some light stress and imbalance in your daily routines. Please rest, get enough sleep, and share your feelings with me whenever you are tired.",
+      "recNormal": "Your emotions and lifestyle indicators have been extremely good and balanced recently. Please maintain this positive energy, breathe evenly, and chat with me when needed!",
+      "severities": {
+        "normal": "Normal",
+        "mild": "Mild",
+        "moderate": "Moderate",
+        "severe": "Severe",
+        "extremely_severe": "Extremely Severe"
+      },
+      "orgFallback": "School / Organization",
+      "activeDays": "Active Days",
+      "tableTitle": "Mental Health Metrics Table",
+      "tableColRecent": "Latest",
+      "tableColScore": "Score",
+      "tableColNormal": "Normal range",
+      "tableColAlert": "Warning",
+      "tableColStatus": "Status",
+      "noData": "No test data available yet.",
+      "detailReport": "Detailed Report",
+      "anomaliesCount": "Attention ({{count}})",
+      "stableTitle": "Stable / Completed",
+      "aiAdvice": "Companion AI Advice",
+      "scaleNames": {
+        "Hs": "Hypochondriasis",
+        "D": "Depression",
+        "Hy": "Hysteria",
+        "Pd": "Psychopathic Deviate",
+        "Mf": "Masculinity/Femininity",
+        "Pa": "Paranoia",
+        "Pt": "Psychasthenia",
+        "Sc": "Schizophrenia",
+        "Ma": "Hypomania",
+        "Si": "Social Introversion"
+      }
+    }
+  },
+  "utilities": {
+    "dashboard": {
+      "title": "Member Utilities",
+      "desc": "Explore smart tools to optimize your workflow and personalize your Bio page.",
+      "nfc": {
+        "title": "Personal NFC Card",
+        "desc": "Configure tap settings to quickly share your Bio Link or contact info.",
+        "btnText": "Set Up Now"
+      },
+      "vcard": {
+        "title": "vCard Contacts",
+        "desc": "Create smart vCard QR codes to quickly scan and save contacts directly.",
+        "btnText": "Set Up Now"
+      },
+      "signature": {
+        "title": "Email Signature",
+        "desc": "Design professional business-standard email signatures.",
+        "btnText": "Set Up Now"
+      },
+      "secretLink": {
+        "title": "Secret Links",
+        "desc": "Create password-protected redirect links dedicated to VIP partners.",
+        "btnText": "Set Up Now"
+      },
+      "fileTools": {
+        "title": "File Utilities",
+        "desc": "Online converter and compressor to optimize your image assets.",
+        "btnText": "Open Tool"
+      },
+      "psychology": {
+        "title": "PSY-Studies",
+        "desc": "AI study companion to consult mental health, track sleep, and heal emotions.",
+        "btnText": "Open Utility"
+      },
+      "ide": {
+        "title": "Web-based IDE (Learning)",
+        "desc": "Versatile code editor (C, C++, C#, Python, Web, PHP) with code suggestions, basic lessons, and local file saving guides.",
+        "btnText": "Open Code IDE"
+      },
+      "chess": {
+        "desc": "Mini chess community — play against Bots, random matchmaking, or create private rooms to share and play with friends. JOY & rating system.",
+        "btnText": "Enter Lobby"
+      }
+    },
+    "nfc": {
+      "cardTitle": "Hugo SmartCard NFC",
+      "tagline": "Tap to Connect · 1-Touch Sharing Technology",
+      "instructionsTitle": "CARD CONFIGURATION GUIDE",
+      "step1": "Enable NFC connection on your mobile phone.",
+      "step2": "Place the back of your phone close to the Hugo NFC card to scan.",
+      "step3": "Browser automatically opens link and configures the card.",
+      "actionUrlLabel": "ACTION URL",
+      "actionUrlDesc": "The link will be activated as soon as your NFC card is tapped.",
+      "placeholderUrl": "Redirect link when card is tapped...",
+      "statusLabel": "CONNECTION STATUS",
+      "statusConnected": "Linked to your Bio",
+      "statusNotConnected": "Not linked yet",
+      "btnSave": "Update NFC",
+      "toastSuccess": "NFC connection updated successfully! 🚀",
+      "toastError": "NFC configuration error: {{message}}"
+    },
+    "vcard": {
+      "title": "Smart vCard Contacts",
+      "desc": "Enter your info to create a vCard contact file. Other users can scan the QR code to save your contact information into their phone directory instantly.",
+      "formTitle": "CONTACT INFORMATION SETTINGS",
+      "fields": {
+        "firstName": "FIRST NAME",
+        "lastName": "LAST NAME",
+        "org": "COMPANY / ORGANIZATION",
+        "title": "TITLE / ROLE",
+        "phone": "PHONE NUMBER",
+        "email": "EMAIL ADDRESS",
+        "url": "WEBSITE / PORTAL URL",
+        "address": "ADDRESS"
+      },
+      "placeholders": {
+        "firstName": "Ex: Huy...",
+        "lastName": "Ex: Le...",
+        "org": "Ex: Hugo Studio...",
+        "title": "Ex: Creative Developer...",
+        "phone": "Ex: 0901234567...",
+        "email": "Ex: contact@domain.com...",
+        "url": "Ex: https://hugowishpax.studio...",
+        "address": "Ex: District 1, HCMC..."
+      },
+      "downloadBtn": "Download vCard (.vcf)",
+      "copiedToast": "vCard content copied! 📋",
+      "qrCodeTitle": "VCARD QR CODE FOR OFFLINE SCAN",
+      "qrCodeDesc": "Use phone camera to scan this code to quickly save contacts without internet.",
+      "autoMechanism": "Automatic Mechanism",
+      "autoMechanismDesc": "Due to iOS/Android security, a website cannot automatically save contact cards directly onto a user's phone without explicit confirmation. This QR code wraps a standard VCF payload, prompting a 'Save Contact' popup once scanned.",
+      "downloadVcfDesc": "Download standard VCF file to current device.",
+      "shareBtn": "Share via App",
+      "copyBtn": "Copy Link Online",
+      "shareDesc": "Send contact card via AirDrop, Zalo, SMS...",
+      "copyDesc": "Copy permanent direct vCard download link.",
+      "permalinkLabel": "Permanent Link",
+      "toastCopySuccess": "Copied contact download link!"
+    },
+    "signature": {
+      "title": "Branded Email Signature",
+      "desc": "Automatically design customized professional signatures matching Hugo Studio. Copy and paste directly into Gmail, Outlook, or Apple Mail signature settings.",
+      "formTitle": "CUSTOMIZE SIGNATURE",
+      "designLayout": "Design Layout",
+      "templates": {
+        "luxury": "Luxury Gold",
+        "modern": "Modern Accent",
+        "business": "Corporate Pro",
+        "minimal": "Minimalist"
+      },
+      "colors": {
+        "gold": "Luxury Gold",
+        "green": "Emerald Green",
+        "blue": "Royal Blue",
+        "violet": "Deep Violet",
+        "red": "Crimson Red",
+        "black": "Obsidian Black",
+        "cyan": "Cyan"
+      },
+      "fields": {
+        "font": "FONT FAMILY",
+        "layout": "LAYOUT STYLE",
+        "color": "BRAND COLOR",
+        "avatarUrl": "AVATAR URL",
+        "showAvatar": "Show Avatar Image",
+        "includeQr": "Integrate QR Code",
+        "disclaimer": "Footer message"
+      },
+      "fonts": {
+        "arial": "Arial (Default)",
+        "georgia": "Georgia (Luxury)",
+        "tahoma": "Tahoma (Neat)",
+        "verdana": "Verdana (Spacious)",
+        "times": "Times New Roman (Classic)"
+      },
+      "disclaimers": {
+        "none": "Do not attach",
+        "green": "Eco Friendly (Green eco)",
+        "confidential": "Confidentiality notice"
+      },
+      "previewTitle": "Live Preview",
+      "emailSubject": "Business Cooperation Invitation",
+      "emailDear": "Dear Partner,",
+      "emailBody": "I have attached my contact details below.",
+      "emailRegards": "Regards,",
+      "fallbackName": "Member Name",
+      "fallbackTitle": "Member",
+      "copyBtn": "Copy Signature (Rich Text)",
+      "downloadHtmlBtn": "Download File (.HTML)",
+      "copiedText": "Signature copied! Paste (Ctrl+V/Cmd+V) directly into Gmail/Outlook. ✉️",
+      "copiedError": "Copy error.",
+      "downloadSuccess": "HTML file downloaded successfully! 🎉"
+    },
+    "secretLink": {
+      "title": "Lock Secure Links",
+      "desc": "Create password-protected links. Only those with the correct password can access your secret contents or resources.",
+      "infoTitle": "About this feature",
+      "infoDesc": "You can create a special link requiring users to enter a password to redirect to the destination (Google Drive, private photoshoot, internal docs). Max 5 links.",
+      "formTitle": "CREATE NEW SECURE LINK",
+      "fields": {
+        "title": "Label Name (Internal)",
+        "url": "Target URL",
+        "password": "Password"
+      },
+      "placeholders": {
+        "title": "Ex: Backstage Photo Album",
+        "url": "Ex: https://drive.google.com/...",
+        "password": "Enter password to unlock"
+      },
+      "btnCreate": "Create New",
+      "btnUpdate": "Update",
+      "btnCancel": "Cancel",
+      "btnAdd": "Add New Link",
+      "btnCopy": "Copy Link",
+      "listTitle": "ACTIVE SECURE LINKS LIST",
+      "emptyList": "You have not created any Secure Links yet.",
+      "visitsCount": "{{count}} views",
+      "destinationLabel": "Target: {{url}}",
+      "btnEdit": "Edit",
+      "btnDelete": "Delete",
+      "copiedToast": "Share Link copied! 📋",
+      "toastLimit": "You can only create up to 5 secure links!",
+      "toastValidation": "Please enter Target URL and Password!"
+    },
+    "fileTools": {
+      "title": "File Tools",
+      "desc": "Extract and optimize file size super fast, with absolute privacy.",
+      "tabExtract": "Extract ZIP",
+      "tabCompress": "Reduce Size",
+      "extract": {
+        "label": "Select ZIP File (Max 50MB)",
+        "btnUpload": "Upload & Read content",
+        "processing": "Processing...",
+        "resultTitle": "Files inside ZIP:",
+        "btnDownloadTooltip": "Download this file",
+        "toastSelectZip": "Please select a ZIP file",
+        "toastZipFormat": "Only ZIP format is supported",
+        "toastSizeLimit": "File size exceeds 50MB",
+        "toastReadSuccess": "ZIP file uploaded and read successfully",
+        "toastReadError": "Error occurred while reading ZIP file"
+      },
+      "compress": {
+        "label": "Select Image / Video (Max 50MB)",
+        "levelSection": "Compression Level",
+        "levels": {
+          "light": "Light (Keep details)",
+          "medium": "Medium",
+          "strong": "Strong (Lightest)"
+        },
+        "btnSubmit": "Compress & Download",
+        "privacyNote": "All uploaded files are processed and automatically deleted from the server, with no storage to protect your privacy.",
+        "toastSelectFile": "Please select an Image or Video file first.",
+        "toastSuccess": "Compression and download successful!",
+        "toastError": "Compression error. Ensure format is supported (jpg, png, webp, mp4)."
+      }
+    },
+    "qrCode": {
+      "title": "Create Smart QR Code",
+      "desc": "Set up data for others to scan and perform settings immediately.",
+      "selectType": "1. Select data type",
+      "configureContent": "2. Configure content",
+      "profileUrlLabel": "MAIN PROFILE URL",
+      "profileUrlDesc": "Scanning will instantly open your Bio page.",
+      "iceContactLabel": "IN CASE OF EMERGENCY (ICE) CONTACT",
+      "vcardDesc": "Scanning will trigger the Add to Contacts popup.",
+      "wifiLabel": "SHARE STUDY GROUP WIFI",
+      "wifiSsidLabel": "SSID (Network Name)",
+      "wifiPasswordLabel": "Password",
+      "wifiDesc": "Scanning will automatically connect your phone to this WiFi network.",
+      "customTextLabel": "GROUP LINK / DOCUMENTS",
+      "customTextDesc": "Scanning will copy or display this content.",
+      "downloadBtn": "Download QR Code",
+      "downloadSuccess": "QR Code downloaded successfully!",
+      "downloadError": "Error downloading QR Code."
+    },
+    "ide": {
+      "backDashboard": "Back to Dashboard",
+      "desktopRequiredTitle": "Desktop screen required",
+      "desktopRequiredDesc": "Web-based IDE (Dev) requires a desktop screen (Desktop/Laptop/Horizontal Tablet) to have enough workspace and utilize File System API disk synchronization features.",
+      "openLocalFolder": "Open Local Folder",
+      "saveDirectDisk": "Save Direct (Disk)",
+      "downloadToMachine": "Download File (Local)",
+      "syncDiskTooltip": "Synchronize directly with your computer directory using the File System API",
+      "manageFiles": "File Manager",
+      "tutorialsAndSamples": "Tutorials & Code Samples",
+      "projectDirectory": "Project Directory",
+      "folderPrefix": "📂 Folder:",
+      "confirmDeleteTitle": "Confirm Deletion",
+      "confirmDeleteDesc": "Are you sure you want to delete {{type}} \"{{name}}\"? This action cannot be undone.",
+      "folder": "folder",
+      "file": "file",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "savedAll": "All saved",
+      "saving": "Saving...",
+      "savedToDisk": "Saved to disk",
+      "autoSaveError": "Auto-save error",
+      "savingVirtual": "Saving (virtual)...",
+      "savedLocalStorage": "Saved (localStorage)",
+      "fileCreated": "File created: {{path}}",
+      "fileCreateError": "Failed to create file: {{error}}",
+      "folderCreated": "Folder created: {{path}}",
+      "folderCreateError": "Failed to create folder: {{error}}",
+      "deleted": "Deleted: {{path}}",
+      "deleteError": "Failed to delete: {{error}}",
+      "renameFolderNotSupported": "The browser does not support folder renaming.",
+      "renameSuccess": "Renamed to: {{path}}",
+      "renameError": "Failed to rename: {{error}}",
+      "fsNotSupported": "Browser doesn't support File System Access API. Using virtual save mode instead.",
+      "loadedFilesSuccess": "Loaded {{count}} files from local directory!",
+      "noSupportedFiles": "No supported code files found in this directory.",
+      "securityError": "Security Error: Please choose a subdirectory (e.g., create a 'Project' folder on the Desktop). Browser does not allow selecting the Desktop root directly.",
+      "openFolderError": "Failed to open folder: {{error}}",
+      "fileSaveSuccess": "Successfully saved \"{{name}}\" to computer!",
+      "fileSaveError": "Save error: {{error}}",
+      "fileDownloaded": "Downloaded file \"{{name}}\"!",
+      "virtualFileDeleted": "Virtual file deleted: {{path}}",
+      "virtualFolderDeleted": "Virtual folder deleted: {{path}}",
+      "fileExists": "File already exists!",
+      "virtualFileCreated": "Virtual file created: {{path}}",
+      "folderExists": "Folder already exists!",
+      "virtualFolderCreated": "Virtual folder created: {{path}}",
+      "virtualFolderRenamed": "Virtual folder renamed to: {{path}}",
+      "virtualFileRenamed": "Virtual file renamed to: {{path}}",
+      "tutorialOpened": "Opened {{lang}} lesson",
+      "tutorialLoaded": "Loaded {{lang}} lesson & code sample",
+      "htmlGuide": "Web file format (HTML/CSS/JS). Click the **Live Preview** button in the top right to visualize the layout directly in your browser!",
+      "pythonGuide": "For Python, open a Terminal on your computer in the folder containing the downloaded file and type to execute:",
+      "cGuide": "For C, install the GCC compiler. Compile and execute using the Terminal command:",
+      "cppGuide": "For C++, compile using the g++ compiler:",
+      "csharpGuide": "For C#, install the .NET SDK. Create a new Console project and run:",
+      "phpGuide": "For PHP, you can run a built-in local PHP server to quickly test without Apache:",
+      "phpUrlGuide": "Visit http://localhost:8000 on your computer to view the output.",
+      "executionTitle": "Execution & Run Guidelines",
+      "stopPreview": "Stop Preview",
+      "livePreview": "Live Preview",
+      "noOpenFile": "No active file open. Open a file from the File Explorer or load a lesson.",
+      "backToEditor": "Back to Editor",
+      "webPreviewTitle": "🌐 Web Frame Live Preview",
+      "syncFolderInfo": "Direct synchronization. Any changes are automatically saved to your physical files when typing stops for 1 second.",
+      "tutorialsIntro": "Choose a language to load interactive code samples:",
+      "loadSample": "Load Sample",
+      "tutorialsTitle": "Tutorials & Learning"
+    }
+  },
+  "adminDashboard": {
+    "kpi": {
+      "totalUsers": "Total Members",
+      "active": "Active",
+      "pending": "Pending",
+      "locked": "Locked",
+      "newBookings": "New Bookings",
+      "partners": "Partners",
+      "packages": "Packages",
+      "openTickets": "Open Tickets"
+    },
+    "recentUsers": {
+      "title": "Newest Members",
+      "viewAll": "View all →",
+      "empty": "No members yet"
+    },
+    "distribution": {
+      "title": "User Distribution",
+      "empty": "No data yet",
+      "activeLabel": "Active",
+      "pendingLabel": "Pending",
+      "lockedLabel": "Locked",
+      "rejectedLabel": "Rejected"
+    },
+    "health": {
+      "title": "System Health"
+    },
+    "statusInfo": {
+      "active": "Active",
+      "pending": "Pending",
+      "locked": "Locked",
+      "rejected": "Rejected"
+    },
+    "aiInsight": {
+      "title": "AI Admin Insight",
+      "analyzing": "Analyzing system...",
+      "placeholder": "Click \"Analyze\" to have AI assess system status and provide management suggestions.",
+      "defaultMessage": "System is operating normally.",
+      "connectionError": "Unable to connect to AI Server:",
+      "analyzeBtn": "Analyze"
+    },
+    "activity": {
+      "title": "Recent Activity"
+    },
+    "time": {
+      "just_now": "Just now",
+      "minutes_ago": "minutes ago",
+      "hours_ago": "hours ago",
+      "days_ago": "days ago"
+    }
+  },
+  "adminAICenter": {
+    "header": {
+      "title": "AI Admin Center",
+      "subtitle": "AI intelligence center — analysis, automation, smart management"
+    },
+    "cards": {
+      "userHealth": "User Health Analysis",
+      "riskDetection": "System Risk Detection",
+      "growthTrend": "Growth Trend",
+      "recommendation": "Priority Action Suggestions",
+      "lockedBadge": "{{count}} locked"
+    },
+    "insightCard": {
+      "loading": "AI is evaluating the system...",
+      "scoreLabel": "Evaluation Score",
+      "coreFindings": "Evaluation & Stats",
+      "suggestedActions": "Suggested Actions",
+      "empty": "No data yet. Click analyze to start."
+    },
+    "buttons": {
+      "userHealth": "User Health",
+      "risk": "Risk Detection",
+      "growth": "Growth Analysis",
+      "recommendations": "Admin Suggestions"
+    },
+    "userDeepDive": {
+      "title": "User Profile Analysis",
+      "placeholder": "Enter user email...",
+      "analyzeBtn": "AI Analyze",
+      "noInfo": "No analysis information available.",
+      "error": "Analysis error:"
+    },
+    "broadcast": {
+      "title": "Send Broadcast Notification",
+      "targetAll": "All",
+      "targetActive": "Active",
+      "targetPending": "Pending",
+      "placeholder": "Notification content... (Markdown supported)",
+      "sendBtn": "Send Now",
+      "success": "Broadcast notification sent successfully!",
+      "error": "Error sending notification:"
+    },
+    "automation": {
+      "actionsTitle": "Automation Actions",
+      "approvePending": "Approve all Pending accounts",
+      "sendWellnessNudge": "Send wellness nudge",
+      "generateReport": "Generate AI system report",
+      "settingsTitle": "Automation Settings",
+      "alertCrisisLabel": "Psychological crisis alert",
+      "alertCrisisDesc": "Automatically receive alerts when AI detects high risk",
+      "autoApproveLabel": "Auto-approve new edu accounts",
+      "autoApproveDesc": "AI verifies edu email and auto-approves",
+      "autoLockLabel": "Lock accounts inactive for 90 days",
+      "autoLockDesc": "Automatic after 90 days without login",
+      "settingsError": "Error updating settings:"
+    },
+    "actionLog": {
+      "title": "AI Action Log",
+      "approvedCount": "Approved {{count}} pending accounts",
+      "wellnessNudgeSent": "Wellness nudge sent to all active members",
+      "reportGenerated": "Report generated",
+      "done": "Done!",
+      "error": "Error:"
+    },
+    "userMeta": {
+      "noName": "No name set"
     }
   }
 }

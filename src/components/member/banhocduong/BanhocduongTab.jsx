@@ -35,6 +35,7 @@ function countQualifiedActivities(logs = []) {
 
 // ── Journey Progress Card ──────────────────────────────────────────────────────
 function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLogs, bio, showToast }) {
+  const { t, i18n } = useTranslation();
   const [notifStatus, setNotifStatus] = useState(() =>
     typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
   );
@@ -43,7 +44,7 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
   const shortenedDays   = Math.floor(qualifiedCount * 0.6);
   const effectiveDur    = Math.max(1, duration - shortenedDays);
   const progressPercent = Math.min(100, Math.round((currentDay / duration) * 100) + qualifiedCount * 2);
-  const startStr        = startDate ? new Date(startDate).toLocaleDateString("vi-VN") : "Hôm nay";
+  const startStr        = startDate ? new Date(startDate).toLocaleDateString(i18n.language.startsWith('en') ? "en-US" : "vi-VN") : t("companion.tab.today", "Hôm nay");
 
   const handleEnablePush = async () => {
     if (!webPushHelper.isSupported()) return;
@@ -52,11 +53,11 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
       setNotifStatus(perm);
       if (perm === 'granted' && bio?.email) {
         await webPushHelper.registerAndSubscribe(bio.email);
-        showToast?.('Đã bật nhắc nhở hàng ngày! 🎉', 'success');
+        showToast?.(t('companion.tab.dailyReminderEnabled', 'Đã bật nhắc nhở hàng ngày! 🎉'), 'success');
       } else if (perm === 'denied') {
-        showToast?.('Quyền thông báo bị từ chối. Bật lại trong cài đặt trình duyệt.', 'warning');
+        showToast?.(t('companion.tab.pushDenied', 'Quyền thông báo bị từ chối. Bật lại trong cài đặt trình duyệt.'), 'warning');
       }
-    } catch (_) { showToast?.('Không thể đăng ký thông báo lúc này.', 'error'); }
+    } catch (_) { showToast?.(t('companion.tab.pushError', 'Không thể đăng ký thông báo lúc này.'), 'error'); }
   };
 
   return (
@@ -66,24 +67,26 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Lộ trình đang hoạt động</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">{t("companion.tab.activeRoadmap", "Lộ trình đang hoạt động")}</p>
               {shortenedDays > 0 && (
                 <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
-                  -{shortenedDays} ngày 🎉
+                  {t("companion.tab.reducedDays", { count: shortenedDays }, `-${shortenedDays} ngày 🎉`)}
                 </span>
               )}
             </div>
-            <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Ngày {currentDay}/{effectiveDur} · Bắt đầu {startStr}</p>
+            <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
+              {t("companion.tab.roadmapProgress", { current: currentDay, total: effectiveDur, date: startStr }, `Ngày ${currentDay}/${effectiveDur} · Bắt đầu ${startStr}`)}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {webPushHelper.isSupported() && notifStatus !== 'granted' && (
-            <button type="button" onClick={handleEnablePush} title="Bật nhắc nhở"
+            <button type="button" onClick={handleEnablePush} title={t("companion.tab.enablePush", "Bật nhắc nhở")}
               className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 active:scale-90 transition-transform">
               <span className="material-symbols-outlined text-[15px]">notifications</span>
             </button>
           )}
-          <button type="button" onClick={onCancel} title="Dừng lộ trình"
+          <button type="button" onClick={onCancel} title={t("companion.tab.cancelRoadmap", "Dừng lộ trình")}
             className="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 active:scale-90 transition-transform">
             <span className="material-symbols-outlined text-[15px]">stop_circle</span>
           </button>
@@ -91,7 +94,7 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
       </div>
       <div className="space-y-1">
         <div className="flex justify-between text-[9px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-          <span>Tiến trình</span><span className="text-emerald-600 dark:text-emerald-400">{progressPercent}%</span>
+          <span>{t("companion.tab.progress", "Tiến trình")}</span><span className="text-emerald-600 dark:text-emerald-400">{progressPercent}%</span>
         </div>
         <div className="h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
           <motion.div
@@ -107,6 +110,7 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
 
 // ── Settings Panel (bottom sheet mobile / modal desktop) ───────────────────────
 function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
+  const { t } = useTranslation();
   const today    = new Date().toISOString().split("T")[0];
   const CHAT_MAX = 3, CALL_MAX = 5;
   const chatLeft = Math.max(0, parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) ?? CHAT_MAX, 10));
@@ -120,36 +124,36 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
       setNotifStatus(perm);
       if (perm === 'granted' && bio?.email) {
         await webPushHelper.registerAndSubscribe(bio.email);
-        showToast?.('Đã bật nhắc nhở!', 'success');
+        showToast?.(t('companion.tab.reminderEnabledToast', 'Đã bật nhắc nhở!'), 'success');
       }
     } catch (_) {}
   };
 
   const handleClearChat = () => {
-    toast((t) => (
+    toast((tToast) => (
       <div className="flex flex-col gap-3 p-1">
         <div className="flex items-start gap-2.5">
           <span className="material-symbols-outlined text-rose-555 dark:text-rose-400 text-lg mt-0.5 animate-pulse">warning</span>
           <div>
-            <h4 className="text-xs font-black text-slate-800 dark:text-zinc-100 uppercase tracking-wider">Xác Nhận Xóa</h4>
+            <h4 className="text-xs font-black text-slate-800 dark:text-zinc-100 uppercase tracking-wider">{t("companion.tab.confirmDeleteTitle", "Xác Nhận Xóa")}</h4>
             <p className="text-[10.5px] font-semibold text-slate-500 dark:text-zinc-450 mt-0.5 leading-relaxed whitespace-normal">
-              Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?
+              {t("companion.tab.confirmDeleteDesc", "Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?")}
             </p>
           </div>
         </div>
         <div className="flex justify-end gap-2 border-t border-slate-100 dark:border-zinc-800/80 pt-2.5">
           <button 
-            onClick={() => toast.dismiss(t.id)}
+            onClick={() => toast.dismiss(tToast.id)}
             className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
           >
-            Bỏ qua
+            {t("companion.tab.skip", "Bỏ qua")}
           </button>
           <button 
             onClick={() => {
-              toast.dismiss(t.id);
+              toast.dismiss(tToast.id);
               localStorage.removeItem('banhocduong_chat_messages');
               onClearMessages?.();
-              toast.success('Đã xóa lịch sử trò chuyện.', {
+              toast.success(t('companion.tab.deleteChatSuccess', 'Đã xóa lịch sử trò chuyện.'), {
                 style: {
                   background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
                   color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
@@ -161,7 +165,7 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
             }}
             className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all"
           >
-            Xác nhận Xóa
+            {t("companion.tab.confirmDeleteBtn", "Xác nhận Xóa")}
           </button>
         </div>
       </div>
@@ -204,7 +208,7 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
               <div className="w-9 h-9 rounded-xl bg-zinc-800 dark:bg-zinc-200 flex items-center justify-center">
                 <span className="material-symbols-outlined text-white dark:text-zinc-900 text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>settings</span>
               </div>
-              <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white">Cài đặt Bạn Học Đường</h3>
+              <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.settingsHeader", "Cài đặt Bạn Học Đường")}</h3>
             </div>
             <button type="button" onClick={onClose}
               className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center active:scale-90 transition-transform">
@@ -214,10 +218,10 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
 
           {/* Token usage */}
           <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl p-4 space-y-3">
-            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Giới hạn AI hôm nay</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">{t("companion.tab.aiLimitToday", "Giới hạn AI hôm nay")}</p>
             {[
-              { label: 'Cuộc trò chuyện', left: chatLeft, max: CHAT_MAX, color: 'bg-[#0071e3]', low: chatLeft < 4 },
-              { label: 'Cuộc gọi tư vấn', left: callLeft, max: CALL_MAX,  color: 'bg-rose-500',   low: callLeft < 3 },
+              { label: t('companion.tab.limitChat', 'Cuộc trò chuyện'), left: chatLeft, max: CHAT_MAX, color: 'bg-[#0071e3]', low: chatLeft < 4 },
+              { label: t('companion.tab.limitCall', 'Cuộc gọi tư vấn'), left: callLeft, max: CALL_MAX,  color: 'bg-rose-500',   low: callLeft < 3 },
             ].map(item => (
               <div key={item.label} className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-bold">
@@ -229,7 +233,7 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
                 </div>
               </div>
             ))}
-            <p className="text-[9px] text-zinc-400 font-semibold">Token tự động làm mới lúc 00:00 mỗi ngày</p>
+            <p className="text-[9px] text-zinc-400 font-semibold">{t("companion.tab.tokenRefreshNote", "Token tự động làm mới lúc 00:00 mỗi ngày")}</p>
           </div>
 
           {/* Notifications */}
@@ -239,8 +243,8 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
                 <span className="material-symbols-outlined text-amber-500 text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>notifications_active</span>
               </div>
               <div>
-                <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200">Nhắc nhở hằng ngày</p>
-                <p className="text-[9px] text-zinc-400">Check-in cảm xúc + lộ trình</p>
+                <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200">{t("companion.tab.dailyReminder", "Nhắc nhở hằng ngày")}</p>
+                <p className="text-[9px] text-zinc-400">{t("companion.tab.checkinSchedule", "Check-in cảm xúc + lộ trình")}</p>
               </div>
             </div>
             <button type="button" onClick={handlePush}
@@ -252,17 +256,17 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
               }`}
               disabled={notifStatus === 'denied' || notifStatus === 'unsupported'}
             >
-              {notifStatus === 'granted' ? '✓ Đã bật' : notifStatus === 'denied' ? 'Bị chặn' : notifStatus === 'unsupported' ? 'Không hỗ trợ' : 'Bật ngay'}
+              {notifStatus === 'granted' ? t('companion.tab.activeStatus.granted', '✓ Đã bật') : notifStatus === 'denied' ? t('companion.tab.activeStatus.denied', 'Bị chặn') : notifStatus === 'unsupported' ? t('companion.tab.activeStatus.unsupported', 'Không hỗ trợ') : t('companion.tab.enableNow', 'Bật ngay')}
             </button>
           </div>
 
           {/* Danger zone */}
           <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-            <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Vùng nguy hiểm</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">{t("companion.tab.dangerZone", "Vùng nguy hiểm")}</p>
             <button type="button" onClick={handleClearChat}
               className="w-full flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-200/50 dark:border-red-900/20 hover:bg-red-500/10 transition-colors text-red-500 text-xs font-bold active:scale-[0.98]">
               <span className="material-symbols-outlined text-base" style={{ fontVariationSettings:"'FILL' 1" }}>delete_sweep</span>
-              Xóa lịch sử trò chuyện hôm nay
+              {t("companion.tab.deleteChatToday", "Xóa lịch sử trò chuyện hôm nay")}
             </button>
           </div>
         </div>
@@ -394,7 +398,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
     const currentDay = getProgressDay();
     const progressPercent = Math.min(100, Math.round((currentDay / healingDuration) * 100) + qualifiedCount * 2);
     if (progressPercent < 60) {
-      showToast?.(`Cần hoàn tất tối thiểu 60% chặng đường để dừng (hiện tại: ${progressPercent}%). Hãy kiên trì thêm nhé! 💪`, 'warning');
+      showToast?.(t('companion.tab.stopRoadmap.progressRequirement', { percent: progressPercent }, `Cần hoàn tất tối thiểu 60% chặng đường để dừng (hiện tại: ${progressPercent}%). Hãy kiên trì thêm nhé! 💪`), 'warning');
       return;
     }
     setShowCancelModal(true);
@@ -403,7 +407,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
   const confirmCancelHealing = async () => {
     setShowCancelModal(false);
     await handleUpdateCompanionState({ healingActive: false, healingDuration: 30, healingStartDate: null, historyLogs });
-    showToast?.('Đã dừng lộ trình. Lịch sử vẫn được lưu đầy đủ! 🌸', 'success');
+    showToast?.(t('companion.tab.stopRoadmap.stoppedSuccess', 'Đã dừng lộ trình. Lịch sử vẫn được lưu đầy đủ! 🌸'), 'success');
   };
 
   const activeTab = SUB_TABS.find(t => t.id === activeSubTab);
@@ -414,7 +418,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <div className="relative z-20 flex items-center justify-between gap-3">
         <SubUtilityHeader
-          title="Bạn Học Đường"
+          title={t("companion.tab.title", "Bạn Học Đường")}
           icon="psychology"
           colorClass="text-emerald-500"
           onBack={onBack}
@@ -423,7 +427,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
           type="button"
           onClick={() => setShowSettings(true)}
           className="flex-shrink-0 w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/50 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 transition-all"
-          title="Cài đặt"
+          title={t("companion.tab.settings", "Cài đặt")}
         >
           <span className="material-symbols-outlined text-[17px]">settings</span>
         </button>
@@ -458,7 +462,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
               }`}
             >
               <span className="material-symbols-outlined text-[17px]" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
-              <span className="text-[11px] font-extrabold whitespace-nowrap">{tab.label}</span>
+              <span className="text-[11px] font-extrabold whitespace-nowrap">{t(`companion.tab.${tab.id}`, tab.label)}</span>
             </button>
           );
         })}
@@ -485,7 +489,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
               >
                 {active && <span className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 ${tab.dot} rounded-r-full`} />}
                 <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
-                <span className="text-[11px] font-extrabold uppercase tracking-wide hidden lg:block">{tab.label}</span>
+                <span className="text-[11px] font-extrabold uppercase tracking-wide hidden lg:block">{t(`companion.tab.${tab.id}`, tab.label)}</span>
               </motion.button>
             );
           })}
@@ -575,25 +579,25 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>auto_awesome</span>
               </div>
               <div>
-                <h4 className="text-sm font-extrabold text-zinc-900 dark:text-white">Tiến triển xuất sắc! 🎉</h4>
-                <p className="text-[11px] text-zinc-500 mt-1">Lộ trình đồng hành thích ứng</p>
+                <h4 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.adaptiveAlert.title", "Tiến triển xuất sắc! 🎉")}</h4>
+                <p className="text-[11px] text-zinc-500 mt-1">{t("companion.tab.adaptiveAlert.subtitle", "Lộ trình đồng hành thích ứng")}</p>
               </div>
               <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-4 text-left space-y-2">
                 <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Ghi nhận: <span className="text-emerald-600 dark:text-emerald-400 font-bold">{adaptationAlert.improvement}</span>
+                  {t("companion.tab.adaptiveAlert.recorded", "Ghi nhận:")} <span className="text-emerald-600 dark:text-emerald-400 font-bold">{adaptationAlert.improvement}</span>
                 </p>
                 <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Rút ngắn: <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">-{adaptationAlert.reducedDays} ngày</span>
+                  {t("companion.tab.adaptiveAlert.reduced", { count: adaptationAlert.reducedDays }, `Rút ngắn: -${adaptationAlert.reducedDays} ngày`)}
                 </p>
                 <div className="flex justify-between text-[10px] font-bold text-zinc-500 pt-2 border-t border-emerald-200 dark:border-emerald-800">
-                  <span>Trước: {adaptationAlert.oldDuration} ngày</span>
-                  <span className="text-emerald-600 dark:text-emerald-400">Mới: {adaptationAlert.newDuration} ngày</span>
+                  <span>{t("companion.tab.adaptiveAlert.before", { count: adaptationAlert.oldDuration }, `Trước: ${adaptationAlert.oldDuration} ngày`)}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">{t("companion.tab.adaptiveAlert.newDuration", { count: adaptationAlert.newDuration }, `Mới: ${adaptationAlert.newDuration} ngày`)}</span>
                 </div>
               </div>
-              <p className="text-[10px] text-zinc-500 italic">"Cậu đang làm rất tốt — tiếp tục nhé!"</p>
+              <p className="text-[10px] text-zinc-500 italic">{t("companion.tab.adaptiveAlert.encouragement", "\"Cậu đang làm rất tốt — tiếp tục nhé!\"")}</p>
               <button type="button" onClick={() => setAdaptationAlert(null)}
                 className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-extrabold uppercase tracking-wider rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all">
-                Tuyệt vời, tiếp tục thôi!
+                {t("companion.tab.adaptiveAlert.btn", "Tuyệt vời, tiếp tục thôi!")}
               </button>
             </motion.div>
           </motion.div>
@@ -616,20 +620,20 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                 <span className="material-symbols-outlined text-red-500 text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>warning</span>
               </div>
               <div>
-                <h4 className="text-sm font-extrabold text-zinc-900 dark:text-white">Dừng lộ trình?</h4>
-                <p className="text-[11px] text-zinc-500 mt-1">Thao tác này không thể hoàn tác</p>
+                <h4 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.stopRoadmap.title", "Dừng lộ trình?")}</h4>
+                <p className="text-[11px] text-zinc-500 mt-1">{t("companion.tab.stopRoadmap.subtitle", "Thao tác này không thể hoàn tác")}</p>
               </div>
               <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed text-left bg-red-50 dark:bg-red-900/10 rounded-xl p-3 border border-red-200/50 dark:border-red-900/20">
-                Dữ liệu check-in, lịch sử trắc nghiệm và nhật ký cảm xúc sẽ bị xóa vĩnh viễn. Cậu có chắc chắn không?
+                {t("companion.tab.stopRoadmap.desc", "Dữ liệu check-in, lịch sử trắc nghiệm và nhật ký cảm xúc sẽ bị xóa vĩnh viễn. Cậu có chắc chắn không?")}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button type="button" onClick={() => setShowCancelModal(false)}
                   className="py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                  Quay lại
+                  {t("companion.tab.stopRoadmap.cancel", "Quay lại")}
                 </button>
                 <button type="button" onClick={confirmCancelHealing}
                   className="py-3 rounded-2xl bg-red-500 hover:bg-red-600 text-white text-xs font-extrabold shadow-md shadow-red-500/20 active:scale-[0.98] transition-all">
-                  Xác nhận dừng
+                  {t("companion.tab.stopRoadmap.confirm", "Xác nhận dừng")}
                 </button>
               </div>
             </motion.div>

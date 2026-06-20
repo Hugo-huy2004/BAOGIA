@@ -9,14 +9,16 @@
     "pricing": "Báo Giá",
     "benefits": "Đặc Quyền Sinh Viên",
     "portal": "Truy Cập Cổng Khách Hàng",
-    "loginAdmin": "Đăng Nhập Quản Trị"
+    "loginAdmin": "Đăng Nhập Quản Trị",
+    "hello": "Xin Chào",
+    "mainMenu": "Menu Chính"
   },
   "footer": {
     "tagline": "Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.",
     "services": "Dịch vụ",
-    "landingPage": "Landing Page",
+    "landingPage": "Trang Đích",
     "portfolio": "Portfolio Cá Nhân",
-    "bioLink": "Bio Link (edu)",
+    "bioLink": "Liên Kết Bio (giáo dục)",
     "customUIUX": "UI/UX Theo Yêu Cầu",
     "links": "Đường dẫn",
     "home": "Trang Chủ",
@@ -29,7 +31,7 @@
   },
   "intro": {
     "nav": {
-      "welcome": "Welcome",
+      "welcome": "Chào mừng",
       "webDev": "Ngành Lập Trình",
       "personalInfo": "Hồ Sơ Cá Nhân",
       "teammateInfo": "Thông Tin Đồng Đội",
@@ -41,24 +43,24 @@
       "start": "Bắt Đầu"
     },
     "slide1": {
-      "badge": "✦ Creative Developer Portal",
+      "badge": "✦ Cổng Nhà Phát Triển Sáng Tạo",
       "title1": "Kiến tạo vũ trụ số",
       "title2": "bằng cả trái tim.",
       "desc": "Chào mừng bạn đến với không gian sáng tạo của <1>{{name}}</1>. Nơi tôi kết hợp tính nghệ thuật tinh tế và sức mạnh kỹ thuật để tạo ra những sản phẩm số đẳng cấp.",
       "explore": "Khám Phá Portal",
       "book": "Đặt Lịch Hẹn",
-      "available": "Available for Projects",
+      "available": "Sẵn Sàng Nhận Dự Án",
       "scrollDown": "Cuộn Xuống"
     },
     "slide2": {
-      "badge": "✦ Web Development",
+      "badge": "✦ Phát Triển Web",
       "title1": "Lập Trình Web",
       "title2": "Nơi Ý Tưởng Trở Thành Không Gian Tương Tác",
       "desc": "Ngành lập trình Web là hành trình biến các ý tưởng sáng tạo thành các trang web sống động. Không chỉ là viết code thuần túy, lập trình web đòi hỏi tư duy thẩm mỹ cao kết hợp cùng giải pháp kỹ thuật tối ưu để mang lại trải nghiệm hoàn hảo cho người dùng.",
       "viewProfile": "Xem Hồ Sơ Cá Nhân"
     },
     "slide3": {
-      "badge": "✦ Personal Information",
+      "badge": "✦ Thông Tin Cá Nhân",
       "title1": "Lý lịch &",
       "title2": "Quá trình học tập",
       "eduTitle": "Học vấn / Bằng cấp",
@@ -68,8 +70,8 @@
       "uniDesc": "Greenwich University"
     },
     "slide4": {
-      "idTitle": "GREENWICH CO-DEVELOPER",
-      "badge": "✦ Co-Developer Partner",
+      "idTitle": "GREENWICH - ĐỒNG PHÁT TRIỂN",
+      "badge": "✦ Đối Tác Đồng Phát Triển",
       "title1": "Đồng hành cùng kiến tạo",
       "title2": "những trải nghiệm số mang dấu ấn riêng.",
       "desc": "Jason Phan là người bạn đồng hành cùng tôi trên con đường học tập và phát triển dự án. Chúng tôi kết hợp tư duy hệ thống và niềm đam mê công nghệ để biến những ý tưởng phức tạp thành những ứng dụng mượt mà, tối ưu.",
@@ -81,7 +83,7 @@
       "uniTag": "Đại học liên kết"
     },
     "slide5": {
-      "badge": "✦ Student Benefits",
+      "badge": "✦ Quyền Lợi Sinh Viên",
       "title1": "Trang Bio Link Miễn Phí",
       "title2": "Cho Sinh Viên Dùng Email .edu",
       "desc": "Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố <1>.edu</1> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh hoàn toàn miễn phí.",
@@ -89,36 +91,36 @@
       "check2": "Hỗ trợ tạo link đẹp theo tên riêng biệt (Ví dụ: bio/ten-cua-ban).",
       "check3": "Thời hạn sử dụng Bio Link trong vòng 12 tháng.",
       "createBtn": "Bắt Đầu Tạo Bio .edu",
-      "idTitle": "STUDENT IDENTIFICATION",
+      "idTitle": "THẺ SINH VIÊN",
       "idName": "HUGO PORTAL SYSTEM",
-      "idEmailTitle": "REQUIRED EMAIL",
-      "idBenefitTitle": "BENEFIT",
-      "idBenefitDesc": "1x FREE Bio Page",
-      "idValidityTitle": "VALIDITY",
-      "idValidityDesc": "12 Months",
-      "idAuth": "AUTHENTICATED"
+      "idEmailTitle": "EMAIL YÊU CẦU",
+      "idBenefitTitle": "QUYỀN LỢI",
+      "idBenefitDesc": "1x Trang Bio MIỄN PHÍ",
+      "idValidityTitle": "HIỆU LỰC",
+      "idValidityDesc": "12 Tháng",
+      "idAuth": "ĐÃ XÁC THỰC"
     },
     "slide6": {
-      "badge": "✦ Professional Web Services",
+      "badge": "✦ Dịch Vụ Web Chuyên Nghiệp",
       "title1": "Thiết Kế Web Chuyên Nghiệp",
       "title2": "Tối Ưu Trải Nghiệm Số",
       "desc": "Tôi phát triển các ứng dụng web với triết lý mã nguồn tinh gọn, tải trang nhanh chóng, áp dụng tối ưu các hiệu ứng chuyển động mượt mà và chuẩn SEO để giúp thương hiệu của bạn tiếp cận người dùng tốt nhất.",
       "pricingBtn": "Xem Bảng Giá & Chi Tiết",
       "bookBtn": "Đặt Lịch Thiết Kế",
-      "serviceOption": "SERVICE OPTIONS",
+      "serviceOption": "TÙY CHỌN DỊCH VỤ",
       "item1Title": "Signature Portfolio",
       "item1Desc": "Thiết kế độc bản, trang riêng lẻ",
       "item2Title": "Ultimate Web App",
       "item2Desc": "Admin Dashboard, Quản lý sản phẩm"
     },
     "slide7": {
-      "badge": "✦ Personal Hobby",
+      "badge": "✦ Sở Thích Cá Nhân",
       "title1": "Góc chữa lành:",
       "title2": "Cây Dương Xỉ.",
       "desc": "Sau những giờ phút gõ code căng thẳng, niềm đam mê lớn nhất của tôi là nhìn ngắm và chăm sóc những chậu cây dương xỉ. Sức sống mãnh liệt và vẻ đẹp nguyên thủy của chúng mang lại một sự bình yên vô tận."
     },
     "slide8": {
-      "badge": "✦ Design Philosophy",
+      "badge": "✦ Triết Lý Thiết Kế",
       "title1": "Cách tôi kiến tạo",
       "title2": "Trải nghiệm người dùng",
       "quote": "\"Kiến tạo trải nghiệm bằng cả trái tim. Mỗi dòng code đều phải có linh hồn, mang lại sự ngạc nhiên và ngọt ngào.\"",
@@ -126,13 +128,13 @@
       "wowDesc": "Tôi tin rằng giao diện kỹ thuật số không được vô cảm. Mọi nút bấm, thẻ thông tin hay hiệu ứng cuộn trang đều phải được phủ lên một lớp chuyển động tinh tế để kích thích sự hào hứng.",
       "sweetTitle": "Sự Ngọt Ngào & Chỉn Chu",
       "sweetDesc": "Sự mượt mà và đồng bộ trong bảng màu, khoảng cách thiết kế và độ phản hồi tức thời của cơ sở dữ liệu tạo nên một tổng thể trọn vẹn và an tâm nhất cho người trải nghiệm.",
-      "principles": "CREATIVE PRINCIPLES",
+      "principles": "NGUYÊN TẮC SÁNG TẠO",
       "p1": "Đặt trái tim làm trung tâm trải nghiệm.",
       "p2": "Tối giản thư viện ngoài để đạt hiệu năng tối đa.",
       "p3": "Đồng bộ ngôn ngữ thiết kế từ đầu đến cuối."
     },
     "slide9": {
-      "badge": "✦ Keep In Touch",
+      "badge": "✦ Giữ Liên Lạc",
       "title": "Liên Kết Kết Nối Với Hugo",
       "desc": "Nhấn vào các biểu tượng bên dưới để chuyển tiếp kết nối trực tiếp đến các trang mạng xã hội và kênh thông tin liên hệ chính thức của tôi.",
       "zalo": "Zalo Chat",
@@ -141,7 +143,7 @@
       "tiktok": "TikTok"
     },
     "slide10": {
-      "badge": "✦ Start Now",
+      "badge": "✦ Bắt Đầu Ngay",
       "title1": "Đăng ký & Bắt đầu",
       "title2": "Hành trình số của bạn.",
       "desc": "Tạo lập các trang liên kết sinh viên cực đẹp hoàn toàn miễn phí hoặc kết nối cùng tôi để thiết kế nên những trang web Bespoke chuyên nghiệp ngay hôm nay.",
@@ -303,13 +305,13 @@
   },
   "templatesPage": {
     "hero": {
-      "badge": "Galaxy of Art",
+      "badge": "Thiên Hà Nghệ Thuật",
       "title1": "Vũ Trụ",
       "title2": "Nghệ Thuật Số",
       "desc": "Lướt qua những dải ngân hà tĩnh lặng. Mỗi trang web là một tinh tú độc bản."
     },
     "core": {
-      "badge": "The Core",
+      "badge": "Cốt Lõi",
       "title1": "Hạt Nhân",
       "title2": "Thương Hiệu",
       "desc": "Tâm điểm của vũ trụ Hugo Studio là logo hội tụ 6 dải màu đa sắc, một tuyên ngôn mạnh mẽ về sự sáng tạo không giới hạn và khát vọng tiên phong:",
@@ -327,13 +329,13 @@
       "purpleText": " Tầm nhìn xa trông rộng, sự huyền bí và khả năng tạo ra những đột phá mang tính nghệ thuật."
     },
     "typography": {
-      "badge": "The Language",
+      "badge": "Ngôn Ngữ",
       "title": "Lựa chọn font chữ",
       "displayDesc": "Mang dáng vẻ hiện đại, dứt khoát như những chòm sao rõ nét trên bầu trời đêm. Dùng cho tiêu đề lớn.",
       "bodyDesc": "Tối giản, tinh tế và mượt mà. Dẫn dắt ánh nhìn qua từng đoạn văn bản như quỹ đạo của các hành tinh."
     },
     "souls": {
-      "badge": "The Souls",
+      "badge": "Linh Hồn",
       "title": "Linh Hồn Vũ Trụ",
       "desc": "Những phi hành gia đáng yêu mang trong mình 6 giá trị cốt lõi của Hugo Studio.",
       "values": [
@@ -364,7 +366,7 @@
       ]
     },
     "demos": {
-      "badge": "The Constellations",
+      "badge": "Chòm Sao",
       "title1": "Bảng Điều Khiển",
       "title2": "Thực Tế",
       "desc": "Lướt qua các chòm sao mẫu thiết kế tương tác thực tế.",
@@ -402,19 +404,21 @@
       ]
     },
     "archive": {
-      "badge": "The Archive",
+      "badge": "Lưu Trữ",
       "title": "Kho Lưu Trữ Dự Án",
       "desc": "Truy cập trực tiếp vào cơ sở dữ liệu các dự án thực tế đã được triển khai, nguyên bản và không giới hạn."
     }
   },
   "loginPage": {
     "toast": {
-      "noGoogle": "Không thể xác thực với Google.",
-      "noEdu": "Đăng ký bị từ chối: Cổng đăng ký tự động chỉ chấp nhận email trường học có chứa đuôi giáo dục (.edu / .edu.vn). Vui lòng đăng nhập Google bằng email sinh viên của bạn.",
-      "useGoogleBtn": "Hãy dùng nút Google bên dưới để đăng nhập.",
-      "adminError": "Sai tên đăng nhập hoặc mật khẩu quản trị.",
-      "codeLength": "Mã dự án phải gồm 6 ký tự.",
-      "invalidLink": "Link truy cập không hợp lệ hoặc mã dự án sai."
+      "eduRedirect": "Tài khoản của bạn sẽ ở trạng thái chờ duyệt vì đây không phải email .edu. Đang chuyển hướng...",
+      "loginError": "Lỗi đăng nhập",
+      "loginPortalError": "Lỗi đăng nhập portal",
+      "invalidLink": "Đường dẫn không hợp lệ hoặc hết hạn",
+      "noGoogle": "Không thể nhận thông tin Google",
+      "useGoogleBtn": "Vui lòng nhấn nút Đăng nhập bằng Google bên dưới",
+      "adminError": "Tên đăng nhập hoặc mật khẩu không chính xác",
+      "codeLength": "Mã đăng nhập phải đúng 6 ký tự"
     },
     "header": {
       "titleCustomer": "Quản trị dự án",
@@ -425,7 +429,7 @@
       "descAdmin": "Truy cập hệ thống bảng điều khiển của nhà phát triển"
     },
     "tabs": {
-      "customer": "Membership",
+      "customer": "Hội Viên",
       "member": "Sinh Viên (.edu)",
       "admin": "Quản Trị"
     },
@@ -510,7 +514,13 @@
       "packages": "Gói Dịch Vụ",
       "support": "Hỗ Trợ 1:1",
       "settings": "Cài Đặt Hệ Thống",
-      "logout": "Đăng Xuất"
+      "logout": "Đăng Xuất",
+      "projects": "Dự Án",
+      "fullAccess": "Toàn quyền hệ thống",
+      "logoutAccount": "Đăng xuất tài khoản quản trị",
+      "utilities": "Tiện ích",
+      "systemUtilities": "Tiện ích hệ thống",
+      "utilitiesDesc": "Phím tắt truy cập nhanh và các thiết lập quản trị viên"
     },
     "bottomNav": {
       "users": "Quản Lý",
@@ -562,7 +572,7 @@
     "page": {
       "title": "Quản Lý Dự Án",
       "subtitle": "Chế độ xem toàn màn hình (Full-screen view)",
-      "workspace": "Admin Workspace"
+      "workspace": "Không Gian Quản Trị"
     },
     "tab": {
       "addBtn": "Thêm khách hàng",
@@ -654,8 +664,8 @@
       "title": "Tất Cả Thành Viên",
       "search": "Tìm kiếm theo tên, email...",
       "roleAll": "Tất cả vai trò",
-      "roleAdmin": "Admin",
-      "roleMember": "Member",
+      "roleAdmin": "Quản Trị Viên",
+      "roleMember": "Thành Viên",
       "providerAll": "Tất cả đăng nhập",
       "providerGoogle": "Google",
       "empty": "Chưa có thành viên nào",
@@ -815,7 +825,7 @@
       "bio": "Hồ sơ Bio",
       "package": "Gói dịch vụ",
       "partner": "Đối tác",
-      "utilities": "Tiện ích",
+      "utilities": "Tiện Ích",
       "history": "Thông báo"
     },
     "logout": "ĐĂNG XUẤT",
@@ -843,8 +853,28 @@
       "changeAvatar": "THAY ẢNH",
       "placeholderName": "Họ tên của bạn...",
       "placeholderBirthday": "Ví dụ: 20/10/2004...",
-      "placeholderPhone": "Số điện thoại dùng liên hệ...",
-      "placeholderEmail": "Email hợp tác/công việc..."
+      "placeholderEmail": "Email hợp tác/công việc...",
+      "viewBio": "Xem Bio",
+      "noName": "Chưa đặt tên",
+      "noHeadline": "Chưa có tiêu đề",
+      "inactive": "Chưa kích hoạt",
+      "linksCount": "{{count}} LIÊN KẾT",
+      "projectsCount": "{{count}} DỰ ÁN",
+      "themeLabel": "GIAO DIỆN {{template}}",
+      "saveChanges": "Lưu thay đổi",
+      "saving": "Đang lưu...",
+      "loading": "Đang tải...",
+      "projectsCount_other": "{{count}} Dự án",
+      "servicesCount_other": "{{count}} Dịch vụ"
+    },
+    "bento": {
+      "profileSub": "Ảnh đại diện, tên & giới thiệu",
+      "designSub": "Màu sắc, nền & template bio",
+      "linksSub": "{{count}} liên kết xã hội",
+      "projectsSub": "{{count}} dự án nổi bật",
+      "servicesSub": "{{count}} dịch vụ",
+      "careerSub": "Kỹ năng & kinh nghiệm",
+      "bodySub": "Chiều cao, cân nặng & số đo"
     },
     "preview": {
       "livePreview": "XEM TRƯỚC LIVE"
@@ -943,28 +973,19 @@
       "fb": "Facebook cá nhân"
     },
     "toast": {
-      "loadError": "Không thể tải thông tin Bio.",
-      "largeImage": "Kích thước ảnh quá lớn (tối đa 20MB).",
-      "cropSuccess": "Cắt ảnh đại diện thành công!",
-      "avatarRemovedTemp": "Đã gỡ bỏ ảnh đại diện tạm thời.",
-      "descLimit": "Giới hạn mô tả bản thân dưới 110 chữ.",
-      "linkLimit": "Chỉ cho phép thêm tối đa 5 liên kết.",
-      "linkEmpty": "Vui lòng nhập tên nhãn và đường dẫn liên kết.",
-      "partnerLinkAdded": "Đã thêm liên kết đối tác tạm thời!",
-      "linkAdded": "Đã thêm liên kết tạm thời (nhấp Lưu Thông Tin để cập nhật).",
-      "partnerLinkDeleted": "Đã xóa liên kết đối tác tạm thời!",
-      "linkDeleted": "Đã xóa liên kết tạm thời (nhấp Lưu Thông Tin để cập nhật).",
-      "descLimitExceeded": "Mô tả bản thân không được vượt quá 110 chữ.",
-      "partnerSaveSuccess": "Lưu cài đặt Bio Đối tác thành công! 🌐",
-      "saveSuccess": "Lưu cài đặt Bio thành công!",
-      "activateSuccess": "Kích hoạt Bio Link thành công!",
-      "saveError": "Lỗi hệ thống khi lưu thông tin.",
-      "deleteLocalSuccess": "Đã xóa sạch dữ liệu thiết kế cục bộ.",
-      "deletePersonalSuccess": "Đã gỡ bỏ Bio Link cá nhân của bạn.",
-      "deletePersonalError": "Không gỡ bỏ được Bio.",
-      "copySuccess": "Đã sao chép liên kết vào bộ nhớ tạm.",
-      "giftSuccess": "Bạn đã nhận được gói quà tặng thành công!",
-      "giftError": "Lỗi khi đổi mã quà tặng."
+      "verifySuccessTitle": "Xác minh tài khoản thành công! 🎉",
+      "verifySuccessMsg": "Email giáo dục của bạn đã được xác nhận. Chào mừng đến với Hugo Studio!",
+      "verifyPendingTitle": "Xác minh đang chờ duyệt",
+      "verifyPendingMsg": "Yêu cầu của bạn đã được gửi và đang chờ quản trị viên duyệt.",
+      "verifyRejectedTitle": "Yêu cầu xác minh bị từ chối",
+      "verifyRejectedMsg": "Vui lòng kiểm tra lại thông tin và gửi lại yêu cầu.",
+      "acceptTermsWarning": "Vui lòng đồng ý với điều khoản.",
+      "fillAllWarning": "Vui lòng điền đầy đủ thông tin.",
+      "submitSuccess": "Gửi yêu cầu xác minh thành công! 🚀",
+      "submitError": "Không thể gửi yêu cầu.",
+      "packageActivated": "Gói dịch vụ đã được kích hoạt!",
+      "giftSuccess": "Nhận quà tặng thành công!",
+      "healingSuccess": "Chúc cậu luôn kiên cường và bình an nhé! ❤️"
     },
     "utilitiesPage": {
       "title": "HỆ SINH THÁI TIỆN ÍCH SỐ",
@@ -1119,6 +1140,40 @@
         "customHostLabel": "Máy chủ API tùy chỉnh (Tùy chọn - nếu tự host)",
         "customHostPlaceholder": "Ví dụ: https://my-github-stats.vercel.app"
       }
+    },
+    "status": {
+      "active": "Đã xác minh",
+      "pending": "Đang chờ",
+      "rejected": "Bị từ chối"
+    },
+    "packages": {
+      "signature": {
+        "name": "Signature Portfolio",
+        "benefit1": "Thời Hạn 12 Tháng: Sử dụng bio link hoàn toàn miễn phí trong vòng 1 năm kể từ thời điểm kích hoạt.",
+        "benefit2": "Thiết Kế Độc Bản Portfolio: Thể hiện cá tính chuyên nghiệp thông qua thiết kế Portfolio tinh tế.",
+        "benefit3": "Bố Cục Tối Ưu UX/UI: Giúp các đối tác và khách hàng dễ dàng tương tác và nắm bắt thông tin.",
+        "benefit4": "Tốc Độ Siêu Tốc: Trang bio tải tức thì nhờ kiến trúc tối giản và công nghệ tối ưu hóa tài nguyên hình ảnh."
+      },
+      "ultimate": {
+        "name": "Ultimate Web App",
+        "benefit1": "Thời Hạn 12 Tháng: Sử dụng bio link hoàn toàn miễn phí trong vòng 1 năm kể từ thời điểm kích hoạt.",
+        "benefit2": "Trải Nghiệm Web App Đỉnh Cao: Biến Bio Link thành một ứng dụng web thực thụ mượt mà.",
+        "benefit3": "Bố Cục Tối Ưu UX/UI: Giúp các đối tác và khách hàng dễ dàng tương tác và nắm bắt thông tin.",
+        "benefit4": "Tốc Độ Siêu Tốc: Trang bio tải tức thì nhờ kiến trúc tối giản và công nghệ tối ưu hóa tài nguyên hình ảnh."
+      },
+      "student": {
+        "name": "Student Bio",
+        "benefit1": "Thời Hạn 12 Tháng: Sử dụng bio link hoàn toàn miễn phí trong vòng 1 năm kể từ thời điểm kích hoạt.",
+        "benefit2": "3 Giao Diện Độc Bản: Lựa chọn các mẫu giao diện Classic thanh lịch, Brutalism cá tính hoặc Flat Design đa sắc màu.",
+        "benefit3": "Tốc Độ Siêu Tốc: Trang bio tải tức thì nhờ kiến trúc tối giản và công nghệ tối ưu hóa tài nguyên hình ảnh.",
+        "benefit4": "Không Giới Hạn Kết Nối: Chia sẻ tối đa 5 liên kết mạng xã hội chính của bạn giúp tiếp cận khách hàng tối ưu nhất."
+      },
+      "free": {
+        "name": "Free Bio",
+        "benefit1": "Thời Hạn 12 Tháng: Sử dụng bio link hoàn toàn miễn phí trong vòng 1 năm kể từ thời điểm kích hoạt.",
+        "benefit2": "Classic Profile Layout: Bố cục Bio Link truyền thống, đơn giản, sạch sẽ và dễ đọc.",
+        "benefit3": "Không Quảng Cáo Rác: Cam kết giao diện sạch sẽ, thân thiện và tối ưu nhất cho người xem."
+      }
     }
   },
   "memberTabs": {
@@ -1179,7 +1234,15 @@
       "removeBioTitle": "GỠ BỎ DỊCH VỤ BIO",
       "removeBioDesc": "Thao tác này sẽ gỡ bỏ hoàn toàn dữ liệu Bio của bạn và không thể phục hồi.",
       "removeBtn": "Xóa Dữ Liệu",
-      "benefitsTitle": "Quyền lợi gói dịch vụ"
+      "benefitsTitle": "Quyền lợi gói dịch vụ",
+      "redeemBtn": "Nhận Gói",
+      "publicLinkTitle": "ĐƯỜNG DẪN BIO PHÁT HÀNH",
+      "publicLinkDesc": "Được phân phối chính thức qua máy chủ của Hugo Studio.",
+      "viewLiveBtn": "Xem Trang Live",
+      "copied": "Đã Sao Chép",
+      "copyLink": "Sao Chép Link",
+      "notActivatedDesc": "Bạn chưa kích hoạt thiết kế Bio. Hãy hoàn thành thiết lập ở tab Cá Nhân để kích hoạt.",
+      "lifetime": "Lifetime (Vĩnh viễn)"
     },
     "history": {
       "labels": {
@@ -1189,7 +1252,9 @@
         "package_removed": "Gỡ gói",
         "profile_updated": "Cập nhật",
         "link_added": "Thêm link",
-        "link_removed": "Xóa link"
+        "link_removed": "Xóa link",
+        "birthday": "Sinh Nhật",
+        "gift": "Quà Tặng"
       },
       "time": {
         "just_now": "Vừa xong",
@@ -1197,13 +1262,29 @@
         "hours_ago": "giờ trước",
         "days_ago": "ngày trước"
       },
+      "days": {
+        "today": "Hôm nay",
+        "yesterday": "Hôm qua"
+      },
+      "filter": {
+        "all": "Tất cả",
+        "account": "Tài khoản",
+        "package": "Gói cước",
+        "gift": "Quà tặng"
+      },
       "title": "Thông báo từ Hugo Studio",
       "events_recorded": "thông báo mới nhận",
       "no_events": "Chưa có thông báo nào",
       "newest_first": "Mới nhất trước",
       "empty_title": "Chưa có thông báo nào",
       "empty_desc": "Các thông báo quan trọng và ưu đãi sinh nhật dành riêng cho bạn sẽ hiển thị tại đây.",
-      "footer_note": "Thông báo chỉ lưu tối đa 50 sự kiện gần nhất để tối ưu hiệu suất."
+      "footer_note": "Thông báo chỉ lưu tối đa 50 sự kiện gần nhất để tối ưu hiệu suất.",
+      "birthday_voucher_title": "Mã Quà Tặng Sinh Nhật",
+      "claimed": "Đã nhận",
+      "copy": "Sao chép",
+      "copied": "Đã chép",
+      "copy_success_msg": "Đã sao chép mã quà tặng! Hãy dán mã tại tab \"Gói dịch vụ\" để nhận quà.",
+      "notification_count": "{{count}} thông báo"
     }
   },
   "admin": {
@@ -1465,6 +1546,572 @@
       "empty": "Chưa có giao dịch nào.",
       "success_create": "Tạo link thành công!",
       "error_server": "Lỗi kết nối server"
+    }
+  },
+  "companion": {
+    "tab": {
+      "title": "Bạn Học Đường",
+      "settings": "Cài đặt",
+      "chat": "Tâm Sự",
+      "therapy": "Trị Liệu",
+      "sleep": "Giấc Ngủ",
+      "evaluation": "Đánh Giá",
+      "loading": "Đang tải...",
+      "activeRoadmap": "Lộ trình đang hoạt động",
+      "reducedDays": "-{{count}} ngày 🎉",
+      "roadmapProgress": "Ngày {{current}}/{{total}} · Bắt đầu {{date}}",
+      "enablePush": "Bật nhắc nhở",
+      "cancelRoadmap": "Dừng lộ trình",
+      "progress": "Tiến trình",
+      "dailyReminder": "Nhắc nhở hằng ngày",
+      "checkinSchedule": "Check-in cảm xúc + lộ trình",
+      "enableNow": "Bật ngay",
+      "activeStatus": {
+        "granted": "✓ Đã bật",
+        "denied": "Bị chặn",
+        "unsupported": "Không hỗ trợ"
+      },
+      "dangerZone": "Vùng nguy hiểm",
+      "deleteChatToday": "Xóa lịch sử trò chuyện hôm nay",
+      "settingsHeader": "Cài đặt Bạn Học Đường",
+      "aiLimitToday": "Giới hạn AI hôm nay",
+      "limitChat": "Cuộc trò chuyện",
+      "limitCall": "Cuộc gọi tư vấn",
+      "tokenRefreshNote": "Token tự động làm mới lúc 00:00 mỗi ngày",
+      "confirmDeleteTitle": "Xác Nhận Xóa",
+      "confirmDeleteDesc": "Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?",
+      "skip": "Bỏ qua",
+      "confirmDeleteBtn": "Xác nhận Xóa",
+      "deleteChatSuccess": "Đã xóa lịch sử trò chuyện.",
+      "adaptiveAlert": {
+        "title": "Tiến triển xuất sắc! 🎉",
+        "subtitle": "Lộ trình đồng hành thích ứng",
+        "recorded": "Ghi nhận:",
+        "reduced": "Rút ngắn: -{{count}} ngày",
+        "before": "Trước: {{count}} ngày",
+        "newDuration": "Mới: {{count}} ngày",
+        "encouragement": "\"Cậu đang làm rất tốt — tiếp tục nhé!\"",
+        "btn": "Tuyệt vời, tiếp tục thôi!"
+      },
+      "stopRoadmap": {
+        "title": "Dừng lộ trình?",
+        "subtitle": "Thao tác này không thể hoàn tác",
+        "desc": "Dữ liệu check-in, lịch sử trắc nghiệm và nhật ký cảm xúc sẽ bị xóa vĩnh viễn. Cậu có chắc chắn không?",
+        "confirm": "Xác nhận dừng",
+        "cancel": "Hủy bỏ",
+        "progressRequirement": "Cần hoàn tất tối thiểu 60% chặng đường để dừng (hiện tại: {{percent}}%). Hãy kiên trì thêm nhé! 💪",
+        "stoppedSuccess": "Đã dừng lộ trình. Lịch sử vẫn được lưu đầy đủ! 🌸"
+      },
+      "dailyReminderEnabled": "Đã bật nhắc nhở hàng ngày! 🎉",
+      "pushDenied": "Quyền thông báo bị từ chối. Bật lại trong cài đặt trình duyệt.",
+      "pushError": "Không thể đăng ký thông báo lúc này.",
+      "reminderEnabledToast": "Đã bật nhắc nhở!"
+    },
+    "profile": {
+      "title": "Thông Tin Cá Nhân",
+      "fullName": "Họ và tên",
+      "notSet": "Chưa cập nhật",
+      "empty": "Trống",
+      "phone": "SĐT",
+      "birthday": "Sinh nhật",
+      "missingInfo": "* Một số thông tin còn thiếu. Hãy trò chuyện với AI để cập nhật thêm.",
+      "statsTitle": "Thống Kê Tổng Quan",
+      "statsTests": "Bài test",
+      "statsCheckins": "Check-in",
+      "statsAnomalies": "Bất thường",
+      "statsDepression": "Test Trầm Cảm",
+      "clinicalAlerts": "Cảnh Báo Lâm Sàng",
+      "deepAnalysis": "Phân Tích Chuyên Sâu",
+      "wheelTitle": "Chỉ số Bánh Xe Cuộc Sống",
+      "emotionTitle": "Biến thiên Cảm xúc",
+      "noChartData": "Chưa đủ dữ liệu biểu đồ. Hãy làm thêm bài test.",
+      "lowMoodTitle": "Tâm trạng suy giảm kéo dài",
+      "lowMoodDesc": "Ghi nhận {{count}} lần check-in có trạng thái Mệt mỏi hoặc Kiệt sức liên tục.",
+      "phq9AlertTitle": "Chỉ số Trầm cảm PHQ-9 cảnh báo",
+      "phq9AlertDesc": "Bài test PHQ-9 đạt {{score}}/27 điểm (Mức độ Nặng/Rất nặng).",
+      "dassAlertTitle": "Chỉ số lâm sàng DASS vượt ngưỡng",
+      "dassAlertDesc": "Bài kiểm tra DASS-42 ghi nhận tình trạng {{elevated}}.",
+      "dassDepression": "Trầm cảm",
+      "dassAnxiety": "Lo âu",
+      "dassStress": "Căng thẳng",
+      "severe": "Nặng",
+      "extremelySevere": "Cực đoan",
+      "mmpiAlertTitle": "Xu hướng hành vi MMPI vượt ngưỡng",
+      "mmpiAlertDesc": "Phát hiện bất thường lâm sàng tại các thang đo: {{list}}.",
+      "chatAlertTitle": "Dấu hiệu bất ổn trong hội thoại",
+      "chatAlertDesc": "Phát hiện từ khóa căng thẳng: \"{{text}}\".",
+      "recHigh": "Cảnh báo: Chỉ số sức khỏe tinh thần của cậu đang có dấu hiệu bất ổn lâm sàng nghiêm trọng. Hãy liên hệ chuyên viên tâm lý hoặc phòng y tế ngay lập tức.",
+      "recMedium": "Lưu ý: Hệ thống phát hiện một số căng thẳng nhẹ. Hãy dành thời gian nghỉ ngơi, ngủ đủ giấc và tiếp tục trò chuyện cùng Chuyên viên Đồng Hành.",
+      "recNormal": "Tin vui: Cảm xúc và chỉ số sinh hoạt của cậu cực kỳ ổn định. Hãy duy trì năng lượng tích cực này nhé!"
+    },
+    "evaluation": {
+      "notSet": "Không xác định",
+      "lateNightTitle": "Hoạt động khuya thường xuyên",
+      "lateNightDesc": "Phát hiện {{count}} lần hoạt động sau 23h đêm, có nguy cơ rối loạn chu kỳ ngủ.",
+      "mmpiLowReliabilityTitle": "Kiểm định MMPI tin cậy thấp",
+      "mmpiLowReliabilityDesc": "Có {{count}} kết quả trắc nghiệm MMPI nghi ngờ độ tin cậy của chỉ số L-F-K.",
+      "uploadErrorTitle": "Lỗi tải báo cáo sức khỏe",
+      "uploadErrorDesc": "Ghi nhận {{count}} lần tải lên tệp không đúng định dạng quy chuẩn.",
+      "chatAlertDesc": "Phát hiện các từ khóa áp lực/căng thẳng trong tin nhắn: \"{{text}}\" (Từ khóa: {{triggers}}).",
+      "recHigh": "Chỉ số sức khỏe tinh thần của cậu đang có dấu hiệu bất ổn lâm sàng nghiêm trọng. Tớ khuyến nghị cậu nên giảm bớt cường độ bài vở/công việc, thực hành thở sâu 4-7-8 mỗi đêm và trò chuyện thường xuyên hơn với tớ. Nếu cảm xúc này kéo dài liên tục trên 2 tuần, hãy liên hệ trực tiếp với chuyên viên tư vấn tâm lý hoặc phòng y tế để được hỗ trợ kịp thời nhé.",
+      "recMedium": "Tớ nhận thấy một vài căng thẳng nhẹ và sự mất cân bằng trong sinh hoạt của cậu. Cậu hãy dành thêm thời gian nghỉ ngơi, ngủ đủ giấc và tiếp tục chia sẻ nỗi lòng cùng tớ mỗi khi mệt mỏi nhé.",
+      "recNormal": "Cảm xúc và chỉ số sinh hoạt của cậu dạo gần đây cực kỳ tốt và cân bằng ổn định. Hãy tiếp tục duy trì năng lượng tích cực này, hít thở điều hòa và trò chuyện cùng tớ khi cần nhé!",
+      "severities": {
+        "normal": "Bình thường",
+        "mild": "Nhẹ",
+        "moderate": "Vừa",
+        "severe": "Nặng",
+        "extremely_severe": "Cực đoan"
+      },
+      "orgFallback": "Trường / Tổ chức",
+      "activeDays": "Ngày sử dụng",
+      "tableTitle": "Bảng Chỉ Số Sức Khỏe Tâm Thần",
+      "tableColRecent": "Lần gần nhất",
+      "tableColScore": "Điểm",
+      "tableColNormal": "Ngưỡng bình thường",
+      "tableColAlert": "Cảnh báo",
+      "tableColStatus": "Tình trạng",
+      "noData": "Chưa có dữ liệu bài test.",
+      "detailReport": "Báo cáo chi tiết",
+      "anomaliesCount": "Chú ý ({{count}})",
+      "stableTitle": "Hoàn thành ổn định",
+      "aiAdvice": "Lời khuyên của AI Đồng Hành",
+      "scaleNames": {
+        "Hs": "Nghi bệnh",
+        "D": "Trầm cảm",
+        "Hy": "Hysteria",
+        "Pd": "Sai lệch nhân cách",
+        "Mf": "Nam/Nữ tính",
+        "Pa": "Hoang tưởng",
+        "Pt": "Suy nhược tâm thần",
+        "Sc": "Tâm thần phân liệt",
+        "Ma": "Hưng cảm nhẹ",
+        "Si": "Hướng ngoại xã hội"
+      }
+    }
+  },
+  "utilities": {
+    "dashboard": {
+      "title": "Tiện Ích Thành Viên",
+      "desc": "Khám phá các công cụ thông minh giúp tối ưu hóa công việc và cá nhân hóa trang Bio của bạn.",
+      "nfc": {
+        "title": "Thẻ NFC Cá Nhân",
+        "desc": "Cấu hình chạm thẻ để chia sẻ nhanh Bio Link hoặc thông tin liên hệ.",
+        "btnText": "Thiết Lập Ngay"
+      },
+      "vcard": {
+        "title": "Danh Bạ vCard",
+        "desc": "Tạo QR code danh bạ thông minh quét nhanh lưu trực tiếp vào máy.",
+        "btnText": "Thiết Lập Ngay"
+      },
+      "signature": {
+        "title": "Chữ Ký Email",
+        "desc": "Thiết kế chữ ký email chuyên nghiệp chuẩn doanh nghiệp.",
+        "btnText": "Thiết Lập Ngay"
+      },
+      "secretLink": {
+        "title": "Liên Kết Bí Mật",
+        "desc": "Tạo link bảo mật bằng mật khẩu dành riêng cho đối tác vip.",
+        "btnText": "Thiết Lập Ngay"
+      },
+      "fileTools": {
+        "title": "Xử Lý File",
+        "desc": "Trình chuyển đổi định dạng và nén dung lượng hình ảnh trực tuyến.",
+        "btnText": "Mở Công Cụ"
+      },
+      "psychology": {
+        "title": "Bạn Học Đường",
+        "desc": "AI hỗ trợ tư vấn tâm lý học tập, theo dõi giấc ngủ và trị liệu cảm xúc.",
+        "btnText": "Mở Tiện Ích"
+      },
+      "ide": {
+        "title": "Web-based IDE (Học Tập)",
+        "desc": "Trình soạn thảo code đa năng (C, C++, C#, Python, Web, PHP) với gợi ý code, bài học cơ bản và hướng dẫn lưu file local.",
+        "btnText": "Mở Trình Code"
+      },
+      "chess": {
+        "desc": "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống JOY & xếp hạng.",
+        "btnText": "Vào Sảnh Cờ"
+      }
+    },
+    "nfc": {
+      "cardTitle": "Thẻ NFC Hugo SmartCard",
+      "tagline": "Chạm là kết nối · Công nghệ chia sẻ 1 chạm",
+      "instructionsTitle": "HƯỚNG DẪN CẤU HÌNH THẺ",
+      "step1": "Bật kết nối NFC trên điện thoại di động của bạn.",
+      "step2": "Đặt mặt sau điện thoại sát vào thẻ NFC Hugo để quét.",
+      "step3": "Trình duyệt tự động mở link và nhận diện cấu hình thẻ.",
+      "actionUrlLabel": "ĐƯỜNG DẪN HOẠT ĐỘNG (ACTION URL)",
+      "actionUrlDesc": "Đường dẫn sẽ được kích hoạt ngay khi chạm thẻ NFC của bạn.",
+      "placeholderUrl": "Đường dẫn chuyển tiếp khi chạm thẻ...",
+      "statusLabel": "TRẠNG THÁI LIÊN KẾT",
+      "statusConnected": "Đã liên kết với Bio của bạn",
+      "statusNotConnected": "Chưa được liên kết",
+      "btnSave": "Cập Nhật NFC",
+      "toastSuccess": "Cập nhật liên kết NFC thành công! 🚀",
+      "toastError": "Lỗi cấu hình NFC: {{message}}"
+    },
+    "vcard": {
+      "title": "Danh Bạ vCard Thông Minh",
+      "desc": "Nhập thông tin của bạn để tạo file danh bạ vCard. Người dùng khác chỉ cần quét mã QR là có thể lưu thông tin liên hệ của bạn vào danh bạ điện thoại ngay lập tức.",
+      "formTitle": "THIẾT LẬP THÔNG TIN DANH BẠ",
+      "fields": {
+        "firstName": "TÊN",
+        "lastName": "HỌ",
+        "org": "CÔNG TY / TỔ CHỨC",
+        "title": "CHỨC DANH / VAI TRÒ",
+        "phone": "SỐ ĐIỆN THOẠI",
+        "email": "EMAIL LIÊN HỆ",
+        "url": "TRANG WEB / URL PORTAL",
+        "address": "ĐỊA CHỈ"
+      },
+      "placeholders": {
+        "firstName": "Vd: Huy...",
+        "lastName": "Vd: Lê...",
+        "org": "Vd: Hugo Studio...",
+        "title": "Vd: Creative Developer...",
+        "phone": "Vd: 0901234567...",
+        "email": "Vd: contact@domain.com...",
+        "url": "Vd: https://hugowishpax.studio...",
+        "address": "Vd: Quận 1, TP. HCM..."
+      },
+      "downloadBtn": "Tải vCard (.vcf)",
+      "copiedToast": "Đã sao chép nội dung vCard! 📋",
+      "qrCodeTitle": "MÃ QR VCARD QUÉT OFFLINE",
+      "qrCodeDesc": "Dùng camera điện thoại quét mã này để lưu nhanh danh bạ mà không cần internet.",
+      "autoMechanism": "Cơ chế Tự Động",
+      "autoMechanismDesc": "Vì lý do bảo mật của iOS/Android, một trang web không thể ngầm tự động thêm số điện thoại vào danh bạ của người dùng nếu không có thao tác xác nhận. Mã QR này chứa gói lệnh VCF, khi camera nhận dạng được, nó sẽ tự động bật popup Lưu Danh Bạ để người dùng bấm Lưu là xong.",
+      "downloadVcfDesc": "Tải file nén chuẩn VCF về thiết bị hiện tại.",
+      "shareBtn": "Chia sẻ qua App",
+      "copyBtn": "Copy Link Trực Tuyến",
+      "shareDesc": "Gửi ngay danh bạ qua AirDrop, Zalo, SMS...",
+      "copyDesc": "Sao chép link tải danh bạ trực tuyến.",
+      "permalinkLabel": "Link Cố định",
+      "toastCopySuccess": "Đã sao chép liên kết tải danh bạ!"
+    },
+    "signature": {
+      "title": "Chữ Ký Email Thương Hiệu",
+      "desc": "Tự động thiết kế chữ ký email cá nhân hóa chuyên nghiệp chuẩn Hugo Studio. Sao chép và dán trực tiếp vào phần cài đặt chữ ký của Gmail, Outlook hoặc Apple Mail.",
+      "formTitle": "TÙY CHỈNH CHỮ KÝ",
+      "designLayout": "Thiết kế Giao diện",
+      "templates": {
+        "luxury": "Luxury Gold",
+        "modern": "Modern Accent",
+        "business": "Corporate Pro",
+        "minimal": "Minimalist"
+      },
+      "colors": {
+        "gold": "Vàng Sang Trọng",
+        "green": "Xanh Lục Bảo",
+        "blue": "Xanh Hoàng Gia",
+        "violet": "Tím Đậm",
+        "red": "Đỏ Thẫm",
+        "black": "Đen Huyền Bí",
+        "cyan": "Xanh Lam"
+      },
+      "fields": {
+        "font": "PHÔNG CHỮ (FONT FAMILY)",
+        "layout": "BỐ CỤC CHỮ KÝ (LAYOUT STYLE)",
+        "color": "MÀU CHỦ ĐẠO (BRAND COLOR)",
+        "avatarUrl": "URL ẢNH ĐẠI DIỆN (AVATAR)",
+        "showAvatar": "Hiển thị ảnh đại diện",
+        "includeQr": "Tích hợp QR Code",
+        "disclaimer": "Lời nhắn chân trang"
+      },
+      "fonts": {
+        "arial": "Arial (Mặc định)",
+        "georgia": "Georgia (Sang trọng)",
+        "tahoma": "Tahoma (Gọn gàng)",
+        "verdana": "Verdana (Rộng rãi)",
+        "times": "Times New Roman (Cổ điển)"
+      },
+      "disclaimers": {
+        "none": "Không đính kèm",
+        "green": "Bảo vệ môi trường (Green eco)",
+        "confidential": "Bảo mật thông tin (Confidentiality)"
+      },
+      "previewTitle": "Xem trước hiển thị",
+      "emailSubject": "Thư mời hợp tác kinh doanh",
+      "emailDear": "Kính gửi đối tác,",
+      "emailBody": "Tôi xin đính kèm thông tin liên hệ của mình ở bên dưới.",
+      "emailRegards": "Trân trọng,",
+      "fallbackName": "Tên thành viên",
+      "fallbackTitle": "Thành viên",
+      "copyBtn": "Copy Chữ Ký (Rich Text)",
+      "downloadHtmlBtn": "Tải File (.HTML)",
+      "copiedText": "Đã copy chữ ký! Hãy dán (Ctrl+V/Cmd+V) vào Gmail/Outlook nhen. ✉️",
+      "copiedError": "Lỗi sao chép.",
+      "downloadSuccess": "Tải file HTML thành công! 🎉"
+    },
+    "secretLink": {
+      "title": "Khóa Link Bảo Mật",
+      "desc": "Tạo các liên kết được bảo vệ bằng mật khẩu. Chỉ những ai có mật khẩu chính xác mới có thể truy cập nội dung hoặc tài nguyên bí mật của bạn.",
+      "infoTitle": "Về tính năng này",
+      "infoDesc": "Bạn có thể tạo một đường dẫn đặc biệt yêu cầu khách hàng nhập đúng mật khẩu mới được chuyển hướng tới trang đích (Google Drive, bộ ảnh riêng tư, tài liệu nội bộ). Giới hạn tối đa 5 link.",
+      "formTitle": "TẠO MỚI LIÊN KẾT BẢO MẬT",
+      "fields": {
+        "title": "Tên Nhãn (Hiển thị cho bạn)",
+        "url": "Link Đích (Target URL)",
+        "password": "Mật Khẩu"
+      },
+      "placeholders": {
+        "title": "VD: Kho ảnh hậu trường",
+        "url": "VD: https://drive.google.com/...",
+        "password": "Nhập mật khẩu để mở khóa"
+      },
+      "btnCreate": "Tạo Mới",
+      "btnUpdate": "Cập Nhật",
+      "btnCancel": "Hủy Bỏ",
+      "btnAdd": "Thêm Link Mới",
+      "btnCopy": "Sao Chép Link",
+      "listTitle": "DANH SÁCH LINK BẢO MẬT ĐANG HOẠT ĐỘNG",
+      "emptyList": "Bạn chưa tạo Link Bảo Mật nào.",
+      "visitsCount": "{{count}} lượt xem",
+      "destinationLabel": "Đích: {{url}}",
+      "btnEdit": "Sửa",
+      "btnDelete": "Xóa",
+      "copiedToast": "Đã sao chép Link Chia Sẻ! 📋",
+      "toastLimit": "Bạn chỉ được tạo tối đa 5 link bảo mật!",
+      "toastValidation": "Vui lòng nhập Link Đích và Mật Khẩu!"
+    },
+    "fileTools": {
+      "title": "Công Cụ Xử Lý File",
+      "desc": "Giải nén và tối ưu dung lượng siêu tốc, an toàn tuyệt đối.",
+      "tabExtract": "Giải Nén ZIP",
+      "tabCompress": "Giảm Dung Lượng",
+      "extract": {
+        "label": "Chọn File ZIP (Tối đa 50MB)",
+        "btnUpload": "Tải lên & Đọc nội dung",
+        "processing": "Đang xử lý...",
+        "resultTitle": "Danh sách File trong ZIP:",
+        "btnDownloadTooltip": "Tải về file này",
+        "toastSelectZip": "Vui lòng chọn file ZIP",
+        "toastZipFormat": "Chỉ hỗ trợ file .zip",
+        "toastSizeLimit": "Dung lượng vượt quá 50MB",
+        "toastReadSuccess": "Tải lên và đọc file ZIP thành công",
+        "toastReadError": "Có lỗi xảy ra khi xử lý file ZIP"
+      },
+      "compress": {
+        "label": "Chọn Hình Ảnh / Video (Tối đa 50MB)",
+        "levelSection": "Mức độ nén",
+        "levels": {
+          "light": "Nhẹ (Giữ nét)",
+          "medium": "Vừa phải",
+          "strong": "Mạnh (Nhẹ nhất)"
+        },
+        "btnSubmit": "Nén & Tải Về",
+        "privacyNote": "Mọi file tải lên đều được xử lý và tự động xóa khỏi hệ thống, không lưu trữ để bảo vệ quyền riêng tư của bạn.",
+        "toastSelectFile": "Vui lòng chọn file Ảnh/Video",
+        "toastSuccess": "Nén và tải về thành công!",
+        "toastError": "Lỗi khi nén file. Hãy đảm bảo định dạng được hỗ trợ (jpg, png, webp, mp4)."
+      }
+    },
+    "qrCode": {
+      "title": "Tạo Mã QR Thông Minh",
+      "desc": "Thiết lập dữ liệu để người khác quét và thực hiện cài đặt ngay lập tức.",
+      "selectType": "1. Chọn loại dữ liệu",
+      "configureContent": "2. Cấu hình nội dung",
+      "profileUrlLabel": "URL HỒ SƠ CHÍNH",
+      "profileUrlDesc": "Quét mã sẽ mở ngay trang Bio của bạn.",
+      "iceContactLabel": "LIÊN HỆ KHẨN CẤP (ICE)",
+      "vcardDesc": "Quét mã sẽ mở màn hình tự động Thêm vào Danh bạ.",
+      "wifiLabel": "CHIA SẺ WIFI HỌC NHÓM",
+      "wifiSsidLabel": "SSID (Tên Mạng)",
+      "wifiPasswordLabel": "Mật Khẩu",
+      "wifiDesc": "Quét mã điện thoại sẽ tự động kết nối mạng WiFi này.",
+      "customTextLabel": "LINK NHÓM / TÀI LIỆU",
+      "customTextDesc": "Quét mã sẽ sao chép hoặc hiển thị nội dung này.",
+      "downloadBtn": "Tải Mã QR Về Máy",
+      "downloadSuccess": "Tải mã QR thành công!",
+      "downloadError": "Lỗi khi tải mã QR."
+    },
+    "ide": {
+      "backDashboard": "Quay Lại Dashboard",
+      "desktopRequiredTitle": "Yêu cầu thiết bị màn hình lớn",
+      "desktopRequiredDesc": "Tiện ích Web-based IDE (Dev) yêu cầu mở trên máy tính (Desktop/Laptop/Tablet ngang) để có đủ không gian soạn thảo code và sử dụng quyền đồng bộ dữ liệu file cục bộ từ trình duyệt.",
+      "openLocalFolder": "Mở Thư Mục Cục Bộ",
+      "saveDirectDisk": "Lưu Trực Tiếp (Disk)",
+      "downloadToMachine": "Tải Về Máy (Local)",
+      "syncDiskTooltip": "Đồng bộ trực tiếp với thư mục trên máy tính của bạn thông qua File System API",
+      "manageFiles": "Quản lý File",
+      "tutorialsAndSamples": "Khóa học & Code mẫu",
+      "projectDirectory": "Thư mục dự án",
+      "folderPrefix": "📂 Thư mục:",
+      "confirmDeleteTitle": "Xác Nhận Xóa",
+      "confirmDeleteDesc": "Bạn có chắc chắn muốn xóa {{type}} \"{{name}}\" không? Hành động này không thể hoàn tác.",
+      "folder": "thư mục",
+      "file": "tệp",
+      "cancel": "Bỏ qua",
+      "confirm": "Xác nhận",
+      "savedAll": "Đã lưu tất cả",
+      "saving": "Đang lưu...",
+      "savedToDisk": "Đã lưu vào đĩa",
+      "autoSaveError": "Lỗi tự động lưu",
+      "savingVirtual": "Đang lưu (ảo)...",
+      "savedLocalStorage": "Đã lưu (localStorage)",
+      "fileCreated": "Đã tạo file: {{path}}",
+      "fileCreateError": "Lỗi khi tạo file: {{error}}",
+      "folderCreated": "Đã tạo thư mục: {{path}}",
+      "folderCreateError": "Lỗi khi tạo thư mục: {{error}}",
+      "deleted": "Đã xóa: {{path}}",
+      "deleteError": "Lỗi khi xóa: {{error}}",
+      "renameFolderNotSupported": "Trình duyệt không hỗ trợ đổi tên thư mục.",
+      "renameSuccess": "Đã đổi tên thành: {{path}}",
+      "renameError": "Lỗi khi đổi tên: {{error}}",
+      "fsNotSupported": "Trình duyệt không hỗ trợ File System Access API. Dùng chế độ lưu ảo thay thế.",
+      "loadedFilesSuccess": "Đã tải {{count}} file từ thư mục cục bộ!",
+      "noSupportedFiles": "Không tìm thấy file code được hỗ trợ trong thư mục này.",
+      "securityError": "Lỗi bảo mật: Vui lòng chọn một thư mục con (ví dụ: tạo thư mục 'Dự án' trên Desktop). Trình duyệt không cho phép chọn trực tiếp Desktop gốc.",
+      "openFolderError": "Lỗi khi mở thư mục: {{error}}",
+      "fileSaveSuccess": "Đã lưu \"{{name}}\" thành công vào máy tính!",
+      "fileSaveError": "Lỗi lưu file: {{error}}",
+      "fileDownloaded": "Đã tải xuống file \"{{name}}\"!",
+      "virtualFileDeleted": "Đã xóa file ảo: {{path}}",
+      "virtualFolderDeleted": "Đã xóa thư mục ảo: {{path}}",
+      "fileExists": "File đã tồn tại!",
+      "virtualFileCreated": "Đã tạo file ảo: {{path}}",
+      "folderExists": "Thư mục đã tồn tại!",
+      "virtualFolderCreated": "Đã tạo thư mục ảo: {{path}}",
+      "virtualFolderRenamed": "Đã đổi tên thư mục ảo thành: {{path}}",
+      "virtualFileRenamed": "Đã đổi tên file ảo thành: {{path}}",
+      "tutorialOpened": "Đã mở bài học {{lang}}",
+      "tutorialLoaded": "Đã nạp bài học & code mẫu {{lang}}",
+      "htmlGuide": "File dạng Web (HTML/CSS/JS). Bạn bấm vào nút **Xem Live Preview** phía trên bên phải để trực quan hóa giao diện ngay lập trình duyệt!",
+      "pythonGuide": "Đối với Python, bạn mở Terminal trên máy tính (local) của bạn tại thư mục chứa file đã tải về và gõ lệnh chạy:",
+      "cGuide": "Đối với ngôn ngữ C, hãy cài đặt compiler GCC. Biên dịch và thực thi bằng lệnh Terminal:",
+      "cppGuide": "Đối với C++, biên dịch bằng trình biên dịch g++:",
+      "csharpGuide": "Đối với C#, hãy cài đặt .NET SDK trên máy. Tạo project Console mới và chạy:",
+      "phpGuide": "Đối với PHP, bạn có thể chạy server PHP tích hợp cục bộ để test nhanh mà không cần Apache:",
+      "phpUrlGuide": "Truy cập http://localhost:8000 trên máy tính của bạn để xem kết quả.",
+      "executionTitle": "Bảng Hướng dẫn Chạy & Thực thi",
+      "stopPreview": "Dừng Xem",
+      "livePreview": "Xem Live Preview",
+      "noOpenFile": "Không có file nào đang mở. Hãy mở một file từ File Explorer hoặc nạp bài học.",
+      "backToEditor": "Trở lại Editor",
+      "webPreviewTitle": "🌐 Xem Trước Trực Tiếp Khung Web",
+      "syncFolderInfo": "Đồng bộ trực tiếp. Mọi chỉnh sửa được tự động lưu trực tiếp xuống file vật lý khi bạn dừng gõ 1 giây.",
+      "tutorialsIntro": "Chọn ngôn ngữ để nạp code mẫu học tập trực quan:",
+      "loadSample": "Nạp mẫu",
+      "tutorialsTitle": "Tài liệu & Học tập"
+    }
+  },
+  "adminDashboard": {
+    "kpi": {
+      "totalUsers": "Tổng thành viên",
+      "active": "Đang hoạt động",
+      "pending": "Chờ duyệt",
+      "locked": "Bị khóa",
+      "newBookings": "Lịch hẹn mới",
+      "partners": "Đối tác",
+      "packages": "Gói dịch vụ",
+      "openTickets": "Ticket mở"
+    },
+    "recentUsers": {
+      "title": "Thành viên mới nhất",
+      "viewAll": "Xem tất cả →",
+      "empty": "Chưa có thành viên"
+    },
+    "distribution": {
+      "title": "Phân bổ người dùng",
+      "empty": "Chưa có dữ liệu",
+      "activeLabel": "Hoạt động",
+      "pendingLabel": "Chờ duyệt",
+      "lockedLabel": "Bị khóa",
+      "rejectedLabel": "Từ chối"
+    },
+    "health": {
+      "title": "Sức khoẻ hệ thống"
+    },
+    "statusInfo": {
+      "active": "Đang hoạt động",
+      "pending": "Chờ duyệt",
+      "locked": "Đã khóa",
+      "rejected": "Từ chối"
+    },
+    "aiInsight": {
+      "title": "AI Admin Insight",
+      "analyzing": "Đang phân tích hệ thống...",
+      "placeholder": "Nhấn \"Phân tích\" để AI đánh giá trạng thái hệ thống và đưa ra gợi ý quản lý.",
+      "defaultMessage": "Hệ thống đang hoạt động bình thường.",
+      "connectionError": "Không thể kết nối AI Server:",
+      "analyzeBtn": "Phân tích"
+    },
+    "activity": {
+      "title": "Hoạt động gần đây"
+    },
+    "time": {
+      "just_now": "Vừa xong",
+      "minutes_ago": "phút trước",
+      "hours_ago": "giờ trước",
+      "days_ago": "ngày trước"
+    }
+  },
+  "adminAICenter": {
+    "header": {
+      "title": "AI Admin Center",
+      "subtitle": "Trung tâm trí tuệ nhân tạo — phân tích, tự động hóa, quản lý thông minh"
+    },
+    "cards": {
+      "userHealth": "Phân tích Sức khỏe Người dùng",
+      "riskDetection": "Phát hiện Rủi ro Hệ thống",
+      "growthTrend": "Xu hướng Tăng trưởng",
+      "recommendation": "Gợi ý Hành động Ưu tiên",
+      "lockedBadge": "{{count}} bị khóa"
+    },
+    "insightCard": {
+      "loading": "AI Đang đánh giá hệ thống...",
+      "scoreLabel": "Chỉ số đánh giá",
+      "coreFindings": "Đánh giá & Thống kê",
+      "suggestedActions": "Hành động đề xuất",
+      "empty": "Chưa có dữ liệu. Nhấn phân tích để bắt đầu."
+    },
+    "buttons": {
+      "userHealth": "Sức khỏe Users",
+      "risk": "Phát hiện Rủi ro",
+      "growth": "Phân tích Tăng trưởng",
+      "recommendations": "Gợi ý Admin"
+    },
+    "userDeepDive": {
+      "title": "Phân tích Hồ sơ Người dùng",
+      "placeholder": "Nhập email người dùng...",
+      "analyzeBtn": "AI Phân tích",
+      "noInfo": "Không có thông tin phân tích.",
+      "error": "Lỗi phân tích:"
+    },
+    "broadcast": {
+      "title": "Gửi Thông báo Hàng loạt",
+      "targetAll": "Tất cả",
+      "targetActive": "Đang hoạt động",
+      "targetPending": "Chờ duyệt",
+      "placeholder": "Nội dung thông báo... (hỗ trợ Markdown)",
+      "sendBtn": "Gửi Ngay",
+      "success": "Đã gửi thông báo hàng loạt thành công!",
+      "error": "Lỗi gửi thông báo:"
+    },
+    "automation": {
+      "actionsTitle": "Hành động Tự động hoá",
+      "approvePending": "Duyệt tất cả tài khoản Pending",
+      "sendWellnessNudge": "Gửi nudge sức khỏe tâm lý",
+      "generateReport": "Tạo báo cáo hệ thống AI",
+      "settingsTitle": "Cài đặt Tự động hóa",
+      "alertCrisisLabel": "Cảnh báo khủng hoảng tâm lý",
+      "alertCrisisDesc": "Tự động nhận alert khi AI phát hiện nguy cơ cao",
+      "autoApproveLabel": "Tự động duyệt tài khoản edu mới",
+      "autoApproveDesc": "AI xác minh email edu và tự duyệt",
+      "autoLockLabel": "Khóa tài khoản không hoạt động 90 ngày",
+      "autoLockDesc": "Tự động sau 90 ngày không đăng nhập",
+      "settingsError": "Lỗi cập nhật cài đặt:"
+    },
+    "actionLog": {
+      "title": "Nhật ký Hành động AI",
+      "approvedCount": "Đã duyệt {{count}} tài khoản pending",
+      "wellnessNudgeSent": "Đã gửi nudge sức khỏe tâm lý cho tất cả thành viên active",
+      "reportGenerated": "Báo cáo đã tạo",
+      "done": "Hoàn thành!",
+      "error": "Lỗi:"
+    },
+    "userMeta": {
+      "noName": "Chưa đặt tên"
     }
   }
 }

@@ -80,7 +80,7 @@ export default function MobileDrawer() {
             <span className="text-[#06b6d4] dark:text-[#22d3ee]">o</span>
           </h2>
           <p className="text-xs text-on-surface-variant dark:text-slate-400 mt-1">
-            Xin Chào
+            {t("navbar.hello", "Xin Chào")}
           </p>
         </div>
 

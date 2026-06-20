@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { StatCard, Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
 import { Badge, StatusDot } from "../ui/Badge";
@@ -85,6 +85,8 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
       .catch(() => {});
   }, []);
 
+  const autoTriggeredRef = useRef(false);
+
   const fetchInsight = useCallback(async () => {
     setInsightLoading(true);
     try {
@@ -92,13 +94,29 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
         logs: [
           {
             type: "admin_dashboard_analysis",
-            context: "Đây là báo cáo tổng quan hệ thống cho Admin. Hãy đưa ra nhận xét và gợi ý hành động ưu tiên.",
+            context: "Đây là báo cáo tổng quan hệ thống cho Admin. Hãy đưa ra nhận xét và gợi ý hành động ưu tiên dựa trên các số liệu chi tiết về người dùng, lịch hẹn, đối tác và gói dịch vụ.",
             totalUsers,
             activeUsers: stats.active || 0,
             pendingUsers: stats.pending || 0,
             lockedUsers: stats.locked || 0,
             pendingBookings,
             pendingTickets,
+            dashboardMetadata: {
+              totalBookingsCount: bookings.length,
+              pendingBookingsCount: pendingBookings,
+              recentBookingsList: bookings.slice(0, 5).map(b => ({
+                fullName: b.fullName,
+                email: b.email,
+                message: b.message ? b.message.slice(0, 50) : "",
+                contacted: b.contacted,
+                createdAt: b.createdAt
+              })),
+              partnersCount: partners.length,
+              partnersList: partners.slice(0, 10).map(p => p.name),
+              packageTemplatesCount: packageTemplates.length,
+              packageTemplatesList: packageTemplates.map(pkg => pkg.name),
+              pendingTicketsCount: pendingTickets
+            },
             timestamp: new Date().toISOString(),
           }
         ]
@@ -106,29 +124,38 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
       // Response format: { should_send, title, body, reason }
       const insight = [data?.title, data?.body].filter(Boolean).join(" — ")
         || data?.reason
-        || "Hệ thống đang hoạt động bình thường.";
+        || t("adminDashboard.aiInsight.defaultMessage");
       setAiInsight(insight);
     } catch (e) {
-      setAiInsight(`Không thể kết nối AI Server: ${e.message}`);
+      setAiInsight(`${t("adminDashboard.aiInsight.connectionError")} ${e.message}`);
     } finally {
       setInsightLoading(false);
     }
-  }, [totalUsers, pendingBookings, pendingTickets, stats]);
+  }, [totalUsers, pendingBookings, pendingTickets, stats, bookings, partners, packageTemplates]);
+
+  useEffect(() => {
+    if (totalUsers > 0 && Array.isArray(bookings) && Array.isArray(partners) && Array.isArray(packageTemplates)) {
+      if (!autoTriggeredRef.current) {
+        autoTriggeredRef.current = true;
+        fetchInsight();
+      }
+    }
+  }, [totalUsers, bookings, partners, packageTemplates, fetchInsight]);
 
   function fmtTime(d) {
     if (!d) return "";
     const diff = Date.now() - new Date(d).getTime();
-    if (diff < 60000) return "vừa xong";
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} phút trước`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} giờ trước`;
-    return `${Math.floor(diff / 86400000)} ngày trước`;
+    if (diff < 60000) return t("adminDashboard.time.just_now");
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} ${t("adminDashboard.time.minutes_ago")}`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)} ${t("adminDashboard.time.hours_ago")}`;
+    return `${Math.floor(diff / 86400000)} ${t("adminDashboard.time.days_ago")}`;
   }
 
   const statusInfo = {
-    active:   { label: "Đang hoạt động", color: "success" },
-    pending:  { label: "Chờ duyệt",      color: "warning" },
-    locked:   { label: "Đã khóa",         color: "destructive" },
-    rejected: { label: "Từ chối",          color: "muted" },
+    active:   { label: t("adminDashboard.statusInfo.active"),   color: "success" },
+    pending:  { label: t("adminDashboard.statusInfo.pending"),  color: "warning" },
+    locked:   { label: t("adminDashboard.statusInfo.locked"),   color: "destructive" },
+    rejected: { label: t("adminDashboard.statusInfo.rejected"), color: "muted" },
   };
 
   if (loading) {
@@ -150,17 +177,17 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
 
       {/* ── KPI Row ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard icon="group" label="Tổng thành viên" value={totalUsers} color="primary" />
-        <StatCard icon="check_circle" label="Đang hoạt động" value={stats.active || 0} color="success" />
-        <StatCard icon="pending" label="Chờ duyệt" value={stats.pending || 0} color="warning" />
-        <StatCard icon="lock" label="Bị khóa" value={stats.locked || 0} color="destructive" />
+        <StatCard icon="group" label={t("adminDashboard.kpi.totalUsers")} value={totalUsers} color="primary" />
+        <StatCard icon="check_circle" label={t("adminDashboard.kpi.active")} value={stats.active || 0} color="success" />
+        <StatCard icon="pending" label={t("adminDashboard.kpi.pending")} value={stats.pending || 0} color="warning" />
+        <StatCard icon="lock" label={t("adminDashboard.kpi.locked")} value={stats.locked || 0} color="destructive" />
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard icon="calendar_month" label="Lịch hẹn mới" value={pendingBookings} color="info" />
-        <StatCard icon="handshake"      label="Đối tác"        value={partners.length} color="accent" />
-        <StatCard icon="featured_play_list" label="Gói dịch vụ" value={packageTemplates.length} color="secondary" />
-        <StatCard icon="support_agent"  label="Ticket mở"     value={pendingTickets} color="warning" />
+        <StatCard icon="calendar_month" label={t("adminDashboard.kpi.newBookings")} value={pendingBookings} color="info" />
+        <StatCard icon="handshake"      label={t("adminDashboard.kpi.partners")}    value={partners.length} color="accent" />
+        <StatCard icon="featured_play_list" label={t("adminDashboard.kpi.packages")} value={packageTemplates.length} color="secondary" />
+        <StatCard icon="support_agent"  label={t("adminDashboard.kpi.openTickets")} value={pendingTickets} color="warning" />
       </div>
 
       {/* ── Main 3-col grid ── */}
@@ -171,16 +198,16 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
           <CardHeader className="flex-row items-center justify-between pb-2">
             <CardTitle className="flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-base">person_add</span>
-              Thành viên mới nhất
+              {t("adminDashboard.recentUsers.title")}
             </CardTitle>
             <a href="#" onClick={e => { e.preventDefault(); document.querySelector('[data-tab="users"]')?.click(); }}
               className="text-[10px] font-bold text-primary hover:underline">
-              Xem tất cả →
+              {t("adminDashboard.recentUsers.viewAll")}
             </a>
           </CardHeader>
           <CardContent className="p-0">
             {recentUsers.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">Chưa có thành viên</div>
+              <div className="p-8 text-center text-muted-foreground text-xs">{t("adminDashboard.recentUsers.empty")}</div>
             ) : (
               <div className="divide-y divide-border/50">
                 {recentUsers.slice(0, 6).map(u => (
@@ -217,15 +244,15 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-base">donut_large</span>
-                Phân bổ người dùng
+                {t("adminDashboard.distribution.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 pt-0">
               {totalUsers > 0 ? [
-                { label: "Hoạt động", value: stats.active || 0, color: "success" },
-                { label: "Chờ duyệt", value: stats.pending || 0, color: "warning" },
-                { label: "Bị khóa",   value: stats.locked || 0, color: "destructive" },
-                { label: "Từ chối",   value: stats.rejected || 0, color: "info" },
+                { label: t("adminDashboard.distribution.activeLabel"),   value: stats.active || 0, color: "success" },
+                { label: t("adminDashboard.distribution.pendingLabel"),  value: stats.pending || 0, color: "warning" },
+                { label: t("adminDashboard.distribution.lockedLabel"),   value: stats.locked || 0, color: "destructive" },
+                { label: t("adminDashboard.distribution.rejectedLabel"), value: stats.rejected || 0, color: "info" },
               ].map(item => (
                 <Progress
                   key={item.label}
@@ -235,7 +262,7 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
                   color={item.color}
                   showValue
                 />
-              )) : <p className="text-xs text-muted-foreground text-center py-4">Chưa có dữ liệu</p>}
+              )) : <p className="text-xs text-muted-foreground text-center py-4">{t("adminDashboard.distribution.empty")}</p>}
             </CardContent>
           </Card>
 
@@ -244,7 +271,7 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-success text-base">monitor_heart</span>
-                Sức khoẻ hệ thống
+                {t("adminDashboard.health.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 pt-0">
@@ -268,17 +295,17 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
               <span className="material-symbols-outlined text-primary">auto_awesome</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-primary mb-1">AI Admin Insight</p>
+              <p className="text-xs font-bold text-primary mb-1">{t("adminDashboard.aiInsight.title")}</p>
               {insightLoading ? (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Spinner size="sm" />
-                  <span>Đang phân tích hệ thống...</span>
+                  <span>{t("adminDashboard.aiInsight.analyzing")}</span>
                 </div>
               ) : aiInsight ? (
                 <p className="text-sm text-foreground leading-relaxed">{aiInsight}</p>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Nhấn "Phân tích" để AI đánh giá trạng thái hệ thống và đưa ra gợi ý quản lý.
+                  {t("adminDashboard.aiInsight.placeholder")}
                 </p>
               )}
             </div>
@@ -288,7 +315,7 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
               className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-colors disabled:opacity-50"
             >
               <span className="material-symbols-outlined text-sm">{insightLoading ? "hourglass_empty" : "psychology"}</span>
-              Phân tích
+              {t("adminDashboard.aiInsight.analyzeBtn")}
             </button>
           </div>
         </CardContent>
@@ -300,7 +327,7 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-base">schedule</span>
-              Hoạt động gần đây
+              {t("adminDashboard.activity.title")}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">

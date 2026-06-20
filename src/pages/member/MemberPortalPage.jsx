@@ -36,10 +36,11 @@ const MemberPartnerTab   = React.lazy(() => import("../../components/member/Memb
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
 
 function StatusBadge({ status }) {
+  const { t } = useTranslation();
   const cfg = {
-    active:   { label: 'Đã xác minh', color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20', icon: 'verified' },
-    pending:  { label: 'Đang chờ',    color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',   icon: 'pending' },
-    rejected: { label: 'Bị từ chối',  color: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',           icon: 'cancel' },
+    active:   { label: t("memberPortal.status.active") || 'Đã xác minh', color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20', icon: 'verified' },
+    pending:  { label: t("memberPortal.status.pending") || 'Đang chờ',    color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',   icon: 'pending' },
+    rejected: { label: t("memberPortal.status.rejected") || 'Bị từ chối',  color: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',           icon: 'cancel' },
   };
   const c = cfg[status] || cfg.pending;
   return (
@@ -75,7 +76,6 @@ export default function MemberPortalPage() {
   const mobileSubSection = subTab || null;
 
   const [previewMode, setPreviewMode]     = useState("mobile");
-  const [mobileView, setMobileView]       = useState("edit");
 
   // ── Utilities redirect state ─────────────────────────────────────────────────
   const [defaultUtility, setDefaultUtility] = useState(null);
@@ -168,14 +168,14 @@ export default function MemberPortalPage() {
 
   // ── Mobile account section definitions ───────────────────────────────────────
   const ACCOUNT_SECTIONS = useMemo(() => [
-    { id:'profile',  label:'Cá nhân',    sub:'Ảnh đại diện, tên & giới thiệu',   icon:'person',          grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
-    { id:'design',   label:'Giao diện',  sub:'Màu sắc, nền & template bio',       icon:'palette',         grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
-    { id:'links',    label:'Liên kết',   sub:`${formData.links?.length||0} link xã hội`, icon:'link',    grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
-    { id:'projects', label:'Dự án',      sub:`${formData.projects?.length||0} dự án nổi bật`, icon:'folder_special', grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900' },
-    { id:'services', label:'Dịch vụ',    sub:`${formData.services?.length||0} dịch vụ`,  icon:'storefront', grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900' },
-    { id:'career',   label:'Học vấn',    sub:'Kỹ năng & kinh nghiệm',             icon:'school',          grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
-    { id:'body',     label:'Thể trạng',  sub:'Chiều cao, cân nặng & số đo',       icon:'monitor_heart',   grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
-  ], [formData.links?.length, formData.projects?.length, formData.services?.length]);
+    { id:'profile',  label:t("memberPortal.sidebar.personal"),  sub:t("memberPortal.bento.profileSub"),  icon:'person',          grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+    { id:'design',   label:t("memberPortal.sidebar.theme"),     sub:t("memberPortal.bento.designSub"),   icon:'palette',         grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+    { id:'links',    label:t("memberPortal.sidebar.links"),     sub:t("memberPortal.bento.linksSub", { count: formData.links?.length || 0 }), icon:'link',    grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+    { id:'projects', label:t("memberPortal.sidebar.projects"),  sub:t("memberPortal.bento.projectsSub", { count: formData.projects?.length || 0 }), icon:'folder_special', grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900' },
+    { id:'services', label:t("memberPortal.sidebar.services"),  sub:t("memberPortal.bento.servicesSub", { count: formData.services?.length || 0 }),  icon:'storefront', grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900' },
+    { id:'career',   label:t("memberPortal.sidebar.career"),    sub:t("memberPortal.bento.careerSub"),   icon:'school',          grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+    { id:'body',     label:t("memberPortal.sidebar.physical"),  sub:t("memberPortal.bento.bodySub"),     icon:'monitor_heart',   grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+  ], [formData.links?.length, formData.projects?.length, formData.services?.length, t]);
 
   // ── Render account sub-tab form (shared desktop + mobile) ────────────────────
   const renderAccountForm = (tabId) => {
@@ -212,7 +212,7 @@ export default function MemberPortalPage() {
           const b = res.bio;
           setBio(b);
           if (b.status === 'active' && b.verificationRequest?.notifiedStatus === 'approved') {
-            sendNotification({ category: 'verification', type: 'success', title: 'Xác minh tài khoản thành công! 🎉', message: 'Email giáo dục của bạn đã được xác nhận. Chào mừng đến với Hugo Studio!' });
+            sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
             memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
             b.verificationRequest.notifiedStatus = 'done';
           }
@@ -269,10 +269,10 @@ export default function MemberPortalPage() {
             setBio(b);
             if (b.status === 'active') {
               setFormData(prev => ({ ...prev, ...b, theme: { ...prev.theme, ...b.theme } }));
-              sendNotification({ category: 'verification', type: 'success', title: 'Xác minh tài khoản thành công! 🎉', message: 'Email giáo dục của bạn đã được xác nhận.' });
+              sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
               memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
             } else {
-              sendNotification({ category: 'verification', type: 'error', title: 'Yêu cầu xác minh bị từ chối', message: 'Vui lòng kiểm tra lại thông tin và gửi lại yêu cầu.' });
+              sendNotification({ category: 'verification', type: 'error', title: t("memberPortal.toast.verifyRejectedTitle"), message: t("memberPortal.toast.verifyRejectedMsg") });
             }
           }
         }
@@ -300,13 +300,13 @@ export default function MemberPortalPage() {
 
   const handleVerificationSubmit = async (e) => {
     e.preventDefault();
-    if (!verificationForm.acceptTerms || !verificationForm.acceptContact) { showToast("Vui lòng đồng ý với điều khoản.", "error"); return; }
-    if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.phoneZalo) { showToast("Vui lòng điền đầy đủ thông tin.", "error"); return; }
+    if (!verificationForm.acceptTerms || !verificationForm.acceptContact) { showToast(t("memberPortal.toast.acceptTermsWarning"), "error"); return; }
+    if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.phoneZalo) { showToast(t("memberPortal.toast.fillAllWarning"), "error"); return; }
     setVerifying(true);
     try {
       const res = await memberService.submitVerification(memberSession.email, { fullName: verificationForm.fullName, birthday: verificationForm.birthday, schoolLevel: verificationForm.schoolLevel, schoolName: verificationForm.schoolName, phoneZalo: verificationForm.phoneZalo });
-      if (res.success) { showToast("Gửi yêu cầu xác minh thành công! 🚀", "success"); setBio(res.bio); }
-    } catch (err) { showToast(err.message || "Không thể gửi yêu cầu.", "error"); }
+      if (res.success) { showToast(t("memberPortal.toast.submitSuccess"), "success"); setBio(res.bio); }
+    } catch (err) { showToast(err.message || t("memberPortal.toast.submitError"), "error"); }
     finally { setVerifying(false); }
   };
 
@@ -477,7 +477,7 @@ export default function MemberPortalPage() {
         historyLogs={healing.historyLogs} onSubmit={healing.handleSubmit} onWheelSubmit={healing.handleWheelSubmit}
         onGraduation={healing.handleGraduation} onGoToTest={healing.goToTest} onGoToBreath={healing.goToBreath}
         onGoToChat={healing.goToChat}
-        onDismiss={() => { healing.setShowModal(false); showToast("Chúc cậu luôn kiên cường và bình an nhé! ❤️", "success"); }}
+        onDismiss={() => { healing.setShowModal(false); showToast(t("memberPortal.toast.healingSuccess"), "success"); }}
         showToast={showToast}
       />
 
@@ -517,7 +517,7 @@ export default function MemberPortalPage() {
                   <span className="material-symbols-outlined text-sm text-zinc-600 dark:text-zinc-300">arrow_back_ios_new</span>
                 </button>
               )}
-              <div className={`relative shrink-0 ${mobileSubSection ? 'hidden md:block' : ''}`}>
+              <div className={`relative shrink-0 ${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''}`}>
                 {formData.avatarUrl ? (
                   <img src={formData.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-white dark:ring-zinc-800 shadow-sm" />
                 ) : (
@@ -536,7 +536,13 @@ export default function MemberPortalPage() {
                     <p className="text-[9px] text-zinc-400 truncate">{activeSectionInfo?.sub}</p>
                   </div>
                 ) : null}
-                <div className={mobileSubSection ? 'hidden md:block' : ''}>
+                {activeTab === 'account' && !mobileSubSection && (
+                  <div className="md:hidden flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[#0071e3] dark:text-[#0a84ff] text-base" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
+                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-800 dark:text-zinc-200">{t("memberPortal.tabs.bio").toUpperCase()}</span>
+                  </div>
+                )}
+                <div className={`${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''}`}>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[8px] font-black uppercase tracking-[0.2em] text-[#0071e3] dark:text-[#0a84ff]">
                       {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
@@ -552,7 +558,7 @@ export default function MemberPortalPage() {
             </div>
 
             {/* Right */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className={`flex items-center gap-3 shrink-0 ${activeTab === 'account' && !mobileSubSection ? 'hidden md:flex' : ''}`}>
               {isGuestMode ? (
                 <button type="button" onClick={() => window.location.href = "/login"}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-indigo-200/60 dark:border-indigo-900/30 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
@@ -599,7 +605,7 @@ export default function MemberPortalPage() {
           <React.Suspense fallback={
             <div className="flex flex-col items-center justify-center py-20 space-y-4">
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-zinc-200 border-t-zinc-800 dark:border-zinc-800 dark:border-t-white" />
-              <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">Đang tải...</p>
+              <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">{t("memberPortal.bio.loading")}</p>
             </div>
           }>
             {bio?.status === 'rejected' ? (
@@ -669,95 +675,181 @@ export default function MemberPortalPage() {
                         /* ── Sub-section detail view ── */
                         <motion.div key={mobileSubSection} initial={{ x: 24, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ type:'spring', stiffness:380, damping:30 }} className="space-y-4">
                           {/* Section header bar */}
-                          <div className={`flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r ${activeSectionInfo?.grad} text-white shadow-lg`}>
+                          <div className={`flex items-center gap-3.5 p-4 rounded-2xl bg-gradient-to-r ${activeSectionInfo?.grad} text-white shadow-lg`}>
                             <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
                               <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings:"'FILL' 1" }}>{activeSectionInfo?.icon}</span>
                             </div>
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 text-left">
                               <p className="font-extrabold text-sm leading-tight">{activeSectionInfo?.label}</p>
                               <p className="text-white/70 text-[10px] truncate">{activeSectionInfo?.sub}</p>
                             </div>
                           </div>
                           {/* Form content */}
-                          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-4">
+                          <div className="bg-white dark:bg-[#12111a] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/80 p-5 shadow-sm">
                             {renderAccountForm(mobileSubSection)}
                           </div>
                           {/* Save button */}
                           <button type="button" onClick={() => handleSave()} disabled={saving}
-                            className="w-full bg-black dark:bg-white text-white dark:text-black py-4 rounded-2xl font-extrabold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all disabled:opacity-50">
+                            className="w-full bg-black dark:bg-white text-white dark:text-black py-4 rounded-2xl font-extrabold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 text-xs uppercase tracking-wider">
                             {saving
-                              ? <><div className="w-4 h-4 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" /><span className="text-xs uppercase tracking-wider">Đang lưu...</span></>
-                              : <><span className="material-symbols-outlined text-base" style={{ fontVariationSettings:"'FILL' 1" }}>save</span><span className="text-xs uppercase tracking-wider">Lưu thay đổi</span></>
+                              ? <><div className="w-4 h-4 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" /><span>{t("memberPortal.bio.saving")}</span></>
+                              : <><span className="material-symbols-outlined text-base" style={{ fontVariationSettings:"'FILL' 1" }}>save</span><span>{t("memberPortal.bio.saveChanges")}</span></>
                             }
                           </button>
                         </motion.div>
-                      ) : mobileView === "preview" ? (
-                        /* ── Preview mode ── */
-                        <div className="flex justify-center">
-                          <PreviewSimulator previewMode={previewMode} setPreviewMode={setPreviewMode} previewIframeRef={previewIframeRef} slug={bio?.slug} t={t} />
-                        </div>
                       ) : (
                         /* ── Section overview ── */
-                        <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+                        <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
                           {/* Profile hero card */}
-                          <div className="relative bg-gradient-to-br from-[#0071e3] via-[#5856d6] to-[#af52de] rounded-2xl p-5 overflow-hidden shadow-lg">
-                            <div className="absolute -top-6 -right-6 w-28 h-28 bg-white/8 rounded-full" />
-                            <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-white/5 rounded-full" />
-                            <div className="relative flex items-center gap-4">
+                          <div className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-zinc-50 dark:from-[#13121f] dark:via-[#1e1c2a] dark:to-[#13121f] border border-zinc-200/50 dark:border-[#2e2b3d]/60 shadow-xl">
+                            {/* Mesh background glows for dark mode */}
+                            <div className="absolute -top-16 -right-16 w-36 h-36 bg-gradient-to-br from-[#0071e3]/10 to-transparent rounded-full filter blur-2xl pointer-events-none opacity-0 dark:opacity-100" />
+                            <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-gradient-to-br from-[#af52de]/10 to-transparent rounded-full filter blur-2xl pointer-events-none opacity-0 dark:opacity-100" />
+                            
+                            <div className="relative flex items-start gap-4 text-left">
+                              {/* Avatar */}
                               {formData.avatarUrl ? (
-                                <img src={formData.avatarUrl} alt="avatar" className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white/30 shadow-lg shrink-0" />
+                                <img src={formData.avatarUrl} alt="avatar" className="w-16 h-16 rounded-2xl object-cover ring-2 ring-zinc-200 dark:ring-zinc-800 shadow-md shrink-0" />
                               ) : (
-                                <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-white font-black text-2xl shadow-lg shrink-0">
+                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0071e3] to-[#5856d6] flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
                                   {(formData.displayName||'?')[0]?.toUpperCase()}
                                 </div>
                               )}
+                              
                               <div className="flex-1 min-w-0">
-                                <p className="font-extrabold text-base text-white leading-tight truncate">{formData.displayName || 'Chưa đặt tên'}</p>
-                                <p className="text-white/70 text-xs mt-0.5 line-clamp-1">{formData.headline || 'Chưa có tiêu đề'}</p>
-                                {publicLink ? (
-                                  <a href={publicLink} target="_blank" rel="noopener noreferrer"
-                                    className="mt-2 inline-flex items-center gap-1 text-white/85 text-[10px] font-bold bg-white/15 px-2.5 py-1 rounded-full">
-                                    Xem bio <span className="material-symbols-outlined text-[11px]">open_in_new</span>
-                                  </a>
-                                ) : (
-                                  <span className="mt-2 inline-flex items-center gap-1 text-white/50 text-[10px] font-semibold">
-                                    <span className="material-symbols-outlined text-[11px]">link_off</span>Chưa kích hoạt
-                                  </span>
-                                )}
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  {bio?.status && !isGuestMode && <StatusBadge status={bio.status} />}
+                                </div>
+                                <h2 className="font-black text-base text-zinc-900 dark:text-white leading-tight mt-1 truncate">
+                                  {formData.displayName || t("memberPortal.bio.noName")}
+                                </h2>
+                                <p className="text-zinc-500 dark:text-zinc-400 text-[10.5px] mt-0.5 line-clamp-1">
+                                  {formData.headline || t("memberPortal.bio.noHeadline")}
+                                </p>
+                                
+                                <div className="mt-2.5">
+                                  {publicLink ? (
+                                    <a href={publicLink} target="_blank" rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-zinc-700 dark:text-white bg-zinc-100 hover:bg-zinc-200 dark:bg-white/5 dark:hover:bg-white/10 border border-zinc-200 dark:border-white/10 px-3.5 py-1.5 rounded-full active:scale-95 transition-all text-[9.5px] font-black uppercase tracking-wider shadow-sm">
+                                      {t("memberPortal.bio.viewBio")} <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+                                    </a>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-zinc-450 dark:text-zinc-500 text-[9px] font-semibold">
+                                      <span className="material-symbols-outlined text-[10px]">link_off</span>{t("memberPortal.bio.inactive")}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Edit/preview toggle */}
-                          <div className="relative bg-[#767680]/12 dark:bg-[#767680]/24 p-[3px] rounded-xl flex border border-zinc-200/10 dark:border-zinc-800/20 shadow-inner">
-                            <div className="absolute top-[3px] bottom-[3px] bg-white dark:bg-[#636366] rounded-lg shadow-sm transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
-                              style={{ left: mobileView==="edit"?"3px":"calc(50% + 1px)", width:"calc(50% - 4px)" }} />
-                            {["edit","preview"].map(v => (
-                              <button key={v} type="button" onClick={() => setMobileView(v)}
-                                className={`w-1/2 py-2 text-xs font-black uppercase tracking-wider rounded-lg relative z-10 transition-colors ${mobileView===v?"text-black dark:text-white":"text-zinc-500"}`}>
-                                {v === "edit" ? "Chỉnh sửa" : "Xem trước"}
-                              </button>
-                            ))}
+                            {/* ID-Card bottom stats row */}
+                            <div className="mt-5 pt-3.5 border-t border-zinc-200/80 dark:border-zinc-800/60 flex items-center justify-between text-[9px] font-bold text-zinc-400 dark:text-zinc-500 font-mono tracking-wider">
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[10px] text-blue-500">link</span>
+                                {t("memberPortal.bio.linksCount", { count: formData.links?.length || 0 }).toUpperCase()}
+                              </span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[10px] text-amber-500">folder_special</span>
+                                {t("memberPortal.bio.projectsCount", { count: formData.projects?.length || 0 }).toUpperCase()}
+                              </span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[10px] text-purple-500">palette</span>
+                                {t("memberPortal.bio.themeLabel", { template: (formData.theme?.template || "Classic").toUpperCase() }).toUpperCase()}
+                              </span>
+                            </div>
                           </div>
+ 
+                          {/* Section cards — Bento Grid layout */}
+                          <div className="grid grid-cols-2 gap-3 text-left">
+                            {ACCOUNT_SECTIONS.map((sec) => {
+                              const isProfile = sec.id === 'profile';
+                              
+                              let badgeText = null;
+                              let badgeColor = "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700/50";
+                              if (sec.id === 'links' && formData.links?.length > 0) {
+                                badgeText = `${formData.links.length} Link`;
+                                badgeColor = "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
+                              } else if (sec.id === 'projects' && formData.projects?.length > 0) {
+                                badgeText = `${formData.projects.length} Dự án`;
+                                badgeColor = "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
+                              } else if (sec.id === 'services' && formData.services?.length > 0) {
+                                badgeText = `${formData.services.length} Dịch vụ`;
+                                badgeColor = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
+                              } else if (sec.id === 'design') {
+                                badgeText = (formData.theme?.template || "Classic").toUpperCase();
+                                badgeColor = "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20";
+                              }
 
-                          {/* Section cards — 2-column grid */}
-                          <div className="grid grid-cols-2 gap-3">
-                            {ACCOUNT_SECTIONS.map((sec, idx) => {
-                              const isLastOdd = ACCOUNT_SECTIONS.length % 2 !== 0 && idx === ACCOUNT_SECTIONS.length - 1;
+                              const iconGradients = {
+                                profile: "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
+                                design: "bg-gradient-to-br from-pink-500 to-rose-500 text-white",
+                                links: "bg-gradient-to-br from-indigo-500 to-purple-600 text-white",
+                                projects: "bg-gradient-to-br from-amber-500 to-orange-600 text-white",
+                                services: "bg-gradient-to-br from-emerald-500 to-teal-600 text-white",
+                                career: "bg-gradient-to-br from-red-500 to-pink-600 text-white",
+                                body: "bg-gradient-to-br from-cyan-500 to-blue-600 text-white",
+                              };
+
+                              if (isProfile) {
+                                return (
+                                  <button
+                                    id={`account-sec-${sec.id}-mobile`}
+                                    key={sec.id}
+                                    type="button"
+                                    onClick={() => navigate(`/member/account/${sec.id}`)}
+                                    className="col-span-2 bg-white dark:bg-[#1a1924]/60 border border-zinc-200/50 dark:border-zinc-800/80 rounded-2xl p-4 text-left active:scale-[0.97] transition-all duration-155 shadow-sm hover:shadow-md flex items-center justify-between gap-4 min-h-[90px]"
+                                  >
+                                    <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                                      <div className={`w-12 h-12 rounded-2xl ${iconGradients[sec.id]} flex items-center justify-center shadow-md shrink-0`}>
+                                        <span className="material-symbols-outlined text-[22px]">{sec.icon}</span>
+                                      </div>
+                                      <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                          <p className="text-sm font-black text-zinc-900 dark:text-white leading-tight">
+                                            {sec.label}
+                                          </p>
+                                          {badgeText && (
+                                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border ${badgeColor}`}>
+                                              {badgeText}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-1 leading-snug">{sec.sub}</p>
+                                      </div>
+                                    </div>
+                                    <span className="material-symbols-outlined text-zinc-400 dark:text-zinc-600 text-sm shrink-0">arrow_forward_ios</span>
+                                  </button>
+                                );
+                              }
+
                               return (
                                 <button
                                   id={`account-sec-${sec.id}-mobile`}
                                   key={sec.id}
                                   type="button"
                                   onClick={() => navigate(`/member/account/${sec.id}`)}
-                                  className={`bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800/80 rounded-2xl p-4 text-left active:scale-[0.96] transition-all duration-150 shadow-sm hover:shadow-md ${isLastOdd ? 'col-span-2' : ''}`}
+                                  className="bg-white dark:bg-[#1a1924]/60 border border-zinc-200/50 dark:border-zinc-800/80 rounded-2xl p-4 text-left active:scale-[0.96] transition-all duration-155 shadow-sm hover:shadow-md flex flex-col justify-between min-h-[125px]"
                                 >
-                                  <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center mb-3 shadow-sm text-zinc-700 dark:text-zinc-300">
-                                    <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings:"'FILL' 1" }}>{sec.icon}</span>
+                                  <div className="flex items-start justify-between w-full">
+                                    <div className={`w-10 h-10 rounded-xl ${iconGradients[sec.id] || "bg-zinc-50 text-zinc-700"} flex items-center justify-center shadow-md`}>
+                                      <span className="material-symbols-outlined text-[19px]">{sec.icon}</span>
+                                    </div>
+                                    {badgeText && (
+                                      <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border ${badgeColor}`}>
+                                        {badgeText}
+                                      </span>
+                                    )}
                                   </div>
-                                  <p className="text-xs font-extrabold text-zinc-800 dark:text-zinc-200 leading-tight">{sec.label}</p>
-                                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5 line-clamp-1">{sec.sub}</p>
-                                  <span className="material-symbols-outlined text-zinc-300 dark:text-zinc-600 text-base mt-2 block">chevron_right</span>
+                                  
+                                  <div className="mt-4">
+                                    <p className="text-xs font-black text-zinc-900 dark:text-white leading-tight flex items-center justify-between">
+                                      <span>{sec.label}</span>
+                                      <span className="material-symbols-outlined text-zinc-400 dark:text-zinc-600 text-[10px]">arrow_forward_ios</span>
+                                    </p>
+                                    <p className="text-[9.5px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2 leading-tight">{sec.sub}</p>
+                                  </div>
                                 </button>
                               );
                             })}

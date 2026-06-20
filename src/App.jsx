@@ -157,26 +157,24 @@ function AppContent() {
 }
 
 export default function App() {
-  const { theme } = useUIStore();
-
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else if (theme === "light") {
-      root.classList.remove("dark");
-    } else {
-      // system
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      prefersDark ? root.classList.add("dark") : root.classList.remove("dark");
-    }
-  }, [theme]);
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    
+    const handleChange = (e) => {
+      if (e.matches) {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+    };
 
-  // Keep in sync when theme not yet set from store (initial load)
-  useEffect(() => {
-    if (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      document.documentElement.classList.add("dark");
-    }
+    // Initial sync on mount
+    handleChange(mediaQuery);
+
+    // Listen to changes dynamically
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   return (

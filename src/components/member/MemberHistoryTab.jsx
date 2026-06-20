@@ -1,170 +1,248 @@
 import { withTranslation } from "react-i18next";
-import React, { Component } from 'react';
+import React, { useState, useMemo } from 'react';
 import HugoLogo from "../HugoLogo";
 import { toast } from "react-hot-toast";
 
-class MemberHistoryTab extends Component {
-  constructor(props) {
-    super(props);
+const getHistoryTypeConfig = (t) => ({
+  welcome:         { color: '#34c759', bg: 'bg-emerald-500/10 dark:bg-emerald-500/10', border: 'border-emerald-400/20', label: t("memberTabs.history.labels.welcome"), cat: 'account', icon: 'waving_hand' },
+  bio_link:        { color: '#0071e3', bg: 'bg-blue-500/10 dark:bg-blue-500/10',     border: 'border-blue-400/20',    label: 'Bio Link', cat: 'account', icon: 'link' },
+  package_received:{ color: '#6366f1', bg: 'bg-indigo-500/10 dark:bg-indigo-500/10', border: 'border-indigo-400/20',  label: t("memberTabs.history.labels.package_received"), cat: 'package', icon: 'card_membership' },
+  package_removed: { color: '#ff3b30', bg: 'bg-red-500/10 dark:bg-red-500/10',       border: 'border-red-400/20',     label: t("memberTabs.history.labels.package_removed"), cat: 'package', icon: 'unsubscribe' },
+  profile_updated: { color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/20',   label: t("memberTabs.history.labels.profile_updated"), cat: 'account', icon: 'manage_accounts' },
+  link_added:      { color: '#30b0c7', bg: 'bg-cyan-500/10 dark:bg-cyan-500/10',     border: 'border-cyan-400/20',    label: t("memberTabs.history.labels.link_added"), cat: 'account', icon: 'add_link' },
+  link_removed:    { color: '#8e8e93', bg: 'bg-zinc-500/10 dark:bg-zinc-500/10',     border: 'border-zinc-400/20',    label: t("memberTabs.history.labels.link_removed"), cat: 'account', icon: 'link_off' },
+  birthday_wish:   { color: '#ff2d55', bg: 'bg-rose-500/10 dark:bg-rose-500/10',     border: 'border-rose-400/20',    label: t("memberTabs.history.labels.birthday"), cat: 'gift', icon: 'cake' },
+  birthday_voucher:{ color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/20',   label: t("memberTabs.history.labels.gift"), cat: 'gift', icon: 'featured_play_list' },
+});
+
+const formatTime = (ts, t) => {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return t("memberTabs.history.time.just_now");
+  if (diff < 3600) return `${Math.floor(diff / 60)} ${t("memberTabs.history.time.minutes_ago")}`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} ${t("memberTabs.history.time.hours_ago")}`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)} ${t("memberTabs.history.time.days_ago")}`;
+  return d.toLocaleDateString(t("memberTabs.history.localeCode", "vi-VN"), { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+};
+
+const getRelativeDateHeader = (dateString, t) => {
+  const d = new Date(dateString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (d.toDateString() === today.toDateString()) {
+    return t("memberTabs.history.days.today");
+  } else if (d.toDateString() === yesterday.toDateString()) {
+    return t("memberTabs.history.days.yesterday");
+  } else {
+    return d.toLocaleDateString(t("memberTabs.history.localeCode", "vi-VN"), { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
   }
+};
 
-  getHistoryTypeConfig(t) {
-    return {
-      welcome:         { color: '#34c759', bg: 'bg-emerald-500/10 dark:bg-emerald-500/10', border: 'border-emerald-400/30', label: t("memberTabs.history.labels.welcome") },
-      bio_link:        { color: '#0071e3', bg: 'bg-blue-500/10 dark:bg-blue-500/10',     border: 'border-blue-400/30',    label: 'Bio Link' },
-      package_received:{ color: '#6366f1', bg: 'bg-indigo-500/10 dark:bg-indigo-500/10', border: 'border-indigo-400/30',  label: t("memberTabs.history.labels.package_received") },
-      package_removed: { color: '#ff3b30', bg: 'bg-red-500/10 dark:bg-red-500/10',       border: 'border-red-400/30',     label: t("memberTabs.history.labels.package_removed") },
-      profile_updated: { color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/30',   label: t("memberTabs.history.labels.profile_updated") },
-      link_added:      { color: '#30b0c7', bg: 'bg-cyan-500/10 dark:bg-cyan-500/10',     border: 'border-cyan-400/30',    label: t("memberTabs.history.labels.link_added") },
-      link_removed:    { color: '#8e8e93', bg: 'bg-zinc-500/10 dark:bg-zinc-500/10',     border: 'border-zinc-400/30',    label: t("memberTabs.history.labels.link_removed") },
-      birthday_wish:   { color: '#ff2d55', bg: 'bg-rose-500/10 dark:bg-rose-500/10',     border: 'border-rose-400/30',    label: 'Sinh Nhật' },
-      birthday_voucher:{ color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/30',   label: 'Quà Tặng' },
-    };
-  }
+function MemberHistoryTab({ bio, t }) {
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [claimedCodes, setClaimedCodes] = useState({});
 
-  formatTime(ts, t) {
-    if (!ts) return '';
-    const d = new Date(ts);
-    const now = new Date();
-    const diff = (now - d) / 1000;
-    if (diff < 60) return t("memberTabs.history.time.just_now");
-    if (diff < 3600) return `${Math.floor(diff / 60)} ${t("memberTabs.history.time.minutes_ago")}`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} ${t("memberTabs.history.time.hours_ago")}`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)} ${t("memberTabs.history.time.days_ago")}`;
-    return d.toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-  }
+  const typeConfig = getHistoryTypeConfig(t);
+  const rawEntries = [...(bio?.history || [])].reverse();
 
-  render() {
-    const { t } = this.props;
-    const { bio } = this.props;
-    const entries = [...(bio?.history || [])].reverse();
+  const filteredEntries = useMemo(() => {
+    return rawEntries.filter(entry => {
+      if (activeFilter === "all") return true;
+      const cfg = typeConfig[entry.type] || typeConfig['profile_updated'];
+      return cfg.cat === activeFilter;
+    });
+  }, [rawEntries, activeFilter]);
 
-    return (
-      <div className="max-w-2xl mx-auto space-y-4 px-3 sm:px-0 animate-fadeIn">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <h2 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-              <span className="material-symbols-outlined text-base text-[#0071e3]">notifications</span>{t("memberTabs.history.title")}</h2>
-            <p className="text-[10px] text-zinc-400">
-              {entries.length > 0 ? `${entries.length} ${t("memberTabs.history.events_recorded")}` : t("memberTabs.history.no_events")}
-            </p>
-          </div>
-          {entries.length > 0 && (
-            <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full border border-zinc-200/50 dark:border-zinc-800">{t("memberTabs.history.newest_first")}</span>
-          )}
+  const groupedEntries = useMemo(() => {
+    const groups = {};
+    filteredEntries.forEach(entry => {
+      if (!entry.timestamp) return;
+      const dateKey = new Date(entry.timestamp).toDateString();
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(entry);
+    });
+    return Object.entries(groups).map(([dateString, items]) => ({
+      dateString,
+      dateHeader: getRelativeDateHeader(dateString, t),
+      items
+    }));
+  }, [filteredEntries, t]);
+
+  const onCopyVoucher = (code) => {
+    navigator.clipboard.writeText(code);
+    setClaimedCodes(prev => ({ ...prev, [code]: true }));
+    setTimeout(() => {
+      setClaimedCodes(prev => ({ ...prev, [code]: false }));
+    }, 2000);
+    toast.success(t("memberTabs.history.copy_success_msg"), {
+      style: {
+        background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
+        color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+        borderRadius: '12px',
+        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+      }
+    });
+  };
+ 
+  return (
+    <div className="max-w-xl mx-auto space-y-5 px-3 sm:px-0 animate-fadeIn text-left">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="space-y-0.5">
+          <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
+            <span className="material-symbols-outlined text-base text-[#0071e3]">notifications</span>{t("memberTabs.history.title")}</h2>
+          <p className="text-[10px] text-zinc-450">
+            {filteredEntries.length > 0 
+              ? t("memberTabs.history.notification_count", { count: filteredEntries.length }) 
+              : t("memberTabs.history.no_events")}
+          </p>
         </div>
+      </div>
+ 
+      {/* Category Filter Pills */}
+      <div className="flex gap-1.5 overflow-x-auto scrollbar-none py-1">
+        {[
+          { id: "all",     label: t("memberTabs.history.filter.all"), icon: "inbox" },
+          { id: "account", label: t("memberTabs.history.filter.account"), icon: "manage_accounts" },
+          { id: "package", label: t("memberTabs.history.filter.package"), icon: "card_membership" },
+          { id: "gift",    label: t("memberTabs.history.filter.gift"), icon: "redeem" }
+        ].map(filter => {
+          const active = activeFilter === filter.id;
+          return (
+            <button
+              key={filter.id}
+              onClick={() => setActiveFilter(filter.id)}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all duration-200 shrink-0 ${
+                active 
+                  ? "bg-[#0071e3] border-[#0071e3] text-white shadow-sm" 
+                  : "bg-white dark:bg-[#1a1924]/60 border-zinc-200/60 dark:border-zinc-800/80 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-250"
+              }`}
+            >
+              <span className="material-symbols-outlined text-xs">{filter.icon}</span>
+              <span>{filter.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Empty State */}
-        {entries.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-center space-y-3">
-            <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
-              <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-700">notifications</span>
-            </div>
-            <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{t("memberTabs.history.empty_title")}</p>
-            <p className="text-xs text-zinc-400 max-w-xs">{t("memberTabs.history.empty_desc")}</p>
+      {/* Empty State */}
+      {filteredEntries.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 bg-white/40 dark:bg-[#1a1924]/40 border border-zinc-150 dark:border-zinc-850 rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-300 dark:text-zinc-700">
+            <span className="material-symbols-outlined text-2xl">notifications_off</span>
           </div>
-        )}
+          <div>
+            <p className="text-xs font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">{t("memberTabs.history.empty_title")}</p>
+            <p className="text-[10px] text-zinc-450 dark:text-zinc-400 mt-1 max-w-xs">{t("memberTabs.history.empty_desc")}</p>
+          </div>
+        </div>
+      )}
 
-        {/* Timeline */}
-        {entries.length > 0 && (
-          <div className="relative">
-            {/* Vertical line */}
-            <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-zinc-200 via-zinc-200 to-transparent dark:from-zinc-800 dark:via-zinc-800" />
+      {/* Grouped Day Lists */}
+      {groupedEntries.length > 0 && (
+        <div className="space-y-6">
+          {groupedEntries.map((group) => (
+            <div key={group.dateString} className="space-y-3">
+              {/* Day Header */}
+              <h3 className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-2">
+                {group.dateHeader}
+              </h3>
 
-            <div className="space-y-3">
-              {entries.map((entry, idx) => {
-                const cfg = this.getHistoryTypeConfig(t)[entry.type] || this.getHistoryTypeConfig(t)['profile_updated'];
-                return (
-                  <div key={idx} className="flex gap-4 group">
-                    {/* Timeline dot */}
-                    <div className="shrink-0 relative z-10">
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 shadow-sm transition-transform duration-200 group-hover:scale-110 ${cfg.bg} ${cfg.border}`}
-                      >
-                        <span className="material-symbols-outlined text-base" style={{ color: cfg.color }}>{entry.icon || 'notifications'}</span>
+              {/* Day Notification Items */}
+              <div className="space-y-2">
+                {group.items.map((entry, idx) => {
+                  const cfg = typeConfig[entry.type] || typeConfig['profile_updated'];
+                  return (
+                    <div
+                      key={idx}
+                      className="group flex gap-3.5 p-4 bg-white/60 dark:bg-[#1a1924]/60 backdrop-blur-xl rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm transition-all duration-300 hover:scale-[1.005] hover:shadow-md"
+                    >
+                      {/* Left icon wrapper */}
+                      <div className="shrink-0">
+                        <div
+                          className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm transition-transform duration-300 group-hover:scale-105 ${cfg.bg} ${cfg.border}`}
+                        >
+                          <span className="material-symbols-outlined text-[15px]" style={{ color: cfg.color }}>{entry.icon || cfg.icon}</span>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Card */}
-                    <div className={`flex-1 mb-1 rounded-lg border p-4 shadow-sm transition-all duration-200 group-hover:shadow-md bg-white dark:bg-[#1c1c1e] ${cfg.border}`}>
-                      <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <div className="flex items-center gap-1.5 flex-wrap">
+                      {/* Content column */}
+                      <div className="flex-1 min-w-0 space-y-1.5 text-left">
+                        <div className="flex items-center justify-between gap-4 flex-wrap">
                           <span
                             className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${cfg.bg} border ${cfg.border}`}
                             style={{ color: cfg.color }}
                           >
-                            {cfg.label || entry.type}
+                            {cfg.label}
                           </span>
+                          <span className="text-[9px] text-zinc-400 font-bold">{formatTime(entry.timestamp, t)}</span>
                         </div>
-                        <span className="text-[9px] text-zinc-400 font-medium whitespace-nowrap">{this.formatTime(entry.timestamp, t)}</span>
-                      </div>
 
-                      {entry.type === 'birthday_wish' && (
-                        <div className="mt-3 mb-2 pb-2 border-b border-rose-100 dark:border-rose-900/30 flex items-center gap-2">
-                          <HugoLogo className="text-[14px] font-black" />
-                          <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">Official Wish</span>
-                        </div>
-                      )}
-
-                      {entry.type === 'birthday_voucher' && (
-                        <div className="mt-3 mb-2 pb-2 border-b border-amber-100 dark:border-amber-900/30 flex items-center gap-2">
-                          <HugoLogo className="text-[14px] font-black" />
-                          <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Official Gift</span>
-                        </div>
-                      )}
-
-                      <p className="text-xs font-bold text-zinc-800 dark:text-white mt-2 leading-snug">{entry.title}</p>
-                      {entry.detail && (
-                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed whitespace-pre-wrap">{entry.detail}</p>
-                      )}
-                      
-                      {entry.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
-                        <div className="mt-3 p-3 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100 dark:border-rose-900/20 rounded-md flex items-center justify-between gap-3">
-                          <div>
-                            <p className="text-[9px] font-bold text-rose-550 uppercase tracking-wider">Mã Quà Tặng Sinh Nhật</p>
-                            <p className="text-sm font-black font-mono tracking-wider text-rose-700 dark:text-rose-350">{bio.birthdayVoucherCode}</p>
+                        {entry.type === 'birthday_wish' && (
+                          <div className="flex items-center gap-1.5 py-1 border-b border-rose-100 dark:border-rose-900/20 w-fit">
+                            <HugoLogo className="text-[12px] font-black" />
+                            <span className="text-[8px] font-black text-rose-500 uppercase tracking-widest">Official Wish</span>
                           </div>
-                          {bio.birthdayVoucherClaimed ? (
-                            <span className="px-3 py-1.5 rounded text-[9px] font-bold uppercase bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1 shrink-0">
-                              <span className="material-symbols-outlined text-xs font-bold">check_circle</span>Đã nhận quà
-                            </span>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                navigator.clipboard.writeText(bio.birthdayVoucherCode);
-                                toast.success(`Đã sao chép mã quà tặng! Hãy dán mã tại tab "Gói dịch vụ" để nhận quà.`, {
-                                  style: {
-                                    background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
-                                    color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
-                                    borderRadius: '12px',
-                                    border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-                                  }
-                                });
-                              }}
-                              className="px-3 py-1.5 rounded text-[9px] font-bold uppercase bg-rose-600 hover:bg-rose-700 text-white transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
-                            >
-                              <span className="material-symbols-outlined text-xs">content_copy</span>Sao chép
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+                        )}
 
-        {/* Footer note */}
-        {entries.length >= 50 && (
-          <p className="text-center text-[9px] text-zinc-400 italic pt-2">{t("memberTabs.history.footer_note")}</p>
-        )}
-      </div>
-    );
-  }
+                        {entry.type === 'birthday_voucher' && (
+                          <div className="flex items-center gap-1.5 py-1 border-b border-amber-100 dark:border-amber-900/20 w-fit">
+                            <HugoLogo className="text-[12px] font-black" />
+                            <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Official Gift</span>
+                          </div>
+                        )}
+
+                        <p className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 leading-snug">{entry.title}</p>
+                        {entry.detail && (
+                          <p className="text-[10px] text-zinc-550 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap">{entry.detail}</p>
+                        )}
+                        
+                        {entry.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
+                          <div className="mt-2.5 p-3 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100/40 dark:border-rose-900/20 rounded-xl flex items-center justify-between gap-3 shadow-inner">
+                            <div className="text-left">
+                              <p className="text-[8px] font-black text-rose-500 uppercase tracking-wider">{t("memberTabs.history.birthday_voucher_title")}</p>
+                              <p className="text-xs font-black font-mono tracking-widest text-rose-700 dark:text-rose-350 mt-0.5">{bio.birthdayVoucherCode}</p>
+                            </div>
+                            {bio.birthdayVoucherClaimed ? (
+                              <span className="px-2.5 py-1 rounded-lg text-[8.5px] font-black uppercase bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1 shrink-0">
+                                <span className="material-symbols-outlined text-xs font-bold">check_circle</span>{t("memberTabs.history.claimed")}
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => onCopyVoucher(bio.birthdayVoucherCode)}
+                                className="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase bg-rose-600 hover:bg-rose-700 text-white transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
+                              >
+                                <span className="material-symbols-outlined text-[10px]">
+                                  {claimedCodes[bio.birthdayVoucherCode] ? "check" : "content_copy"}
+                                </span>
+                                <span>{claimedCodes[bio.birthdayVoucherCode] ? t("memberTabs.history.copied") : t("memberTabs.history.copy")}</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Footer Note */}
+      {rawEntries.length >= 50 && (
+        <p className="text-center text-[9px] text-zinc-400 italic pt-3">{t("memberTabs.history.footer_note")}</p>
+      )}
+    </div>
+  );
 }
 
 export default withTranslation()(MemberHistoryTab);

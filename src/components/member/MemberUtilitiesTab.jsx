@@ -32,7 +32,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
     return "/api";
   };
 
-  const fallback = <div className="flex items-center justify-center py-12 text-slate-400 text-sm">Đang tải...</div>;
+  const fallback = <div className="flex items-center justify-center py-12 text-slate-400 text-sm">{t("companion.tab.loading", "Đang tải...")}</div>;
 
   return (
     <div className="space-y-6 animate-fadeIn">

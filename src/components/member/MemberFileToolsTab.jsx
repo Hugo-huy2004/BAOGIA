@@ -21,9 +21,9 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
 
   // === EXTRACT HANDLERS ===
   const handleZipUpload = async () => {
-    if (!zipFile) return showToast("Vui lòng chọn file ZIP", "error");
-    if (!zipFile.name.toLowerCase().endsWith('.zip')) return showToast("Chỉ hỗ trợ file .zip", "error");
-    if (zipFile.size > 50 * 1024 * 1024) return showToast("Dung lượng vượt quá 50MB", "error");
+    if (!zipFile) return showToast(t("utilities.fileTools.extract.toastSelectZip"), "error");
+    if (!zipFile.name.toLowerCase().endsWith('.zip')) return showToast(t("utilities.fileTools.extract.toastZipFormat"), "error");
+    if (zipFile.size > 50 * 1024 * 1024) return showToast(t("utilities.fileTools.extract.toastSizeLimit"), "error");
 
     setExtracting(true);
     try {
@@ -37,14 +37,14 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
       const data = await res.json();
       
       if (!res.ok) {
-        throw new Error(data.error || "Lỗi xử lý file ZIP");
+        throw new Error(data.error || t("utilities.fileTools.extract.toastReadError"));
       }
 
       setZipResult(data);
-      showToast("Tải lên và đọc file ZIP thành công", "success");
+      showToast(t("utilities.fileTools.extract.toastReadSuccess"), "success");
     } catch (err) {
       console.error(err);
-      showToast(err.message || "Có lỗi xảy ra khi xử lý file ZIP", "error");
+      showToast(err.message || t("utilities.fileTools.extract.toastReadError"), "error");
     } finally {
       setExtracting(false);
     }
@@ -65,8 +65,8 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
 
   // === COMPRESS HANDLERS ===
   const handleCompress = async () => {
-    if (!compressFile) return showToast("Vui lòng chọn file Ảnh/Video", "error");
-    if (compressFile.size > 50 * 1024 * 1024) return showToast("Dung lượng vượt quá 50MB", "error");
+    if (!compressFile) return showToast(t("utilities.fileTools.compress.toastSelectFile"), "error");
+    if (compressFile.size > 50 * 1024 * 1024) return showToast(t("utilities.fileTools.extract.toastSizeLimit"), "error");
 
     setCompressing(true);
     try {
@@ -81,7 +81,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "Lỗi nén file");
+        throw new Error(errData.error || t("utilities.fileTools.compress.toastError"));
       }
 
       const blob = await res.blob();
@@ -98,10 +98,10 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
       link.click();
       document.body.removeChild(link);
 
-      showToast("Nén và tải về thành công!", "success");
+      showToast(t("utilities.fileTools.compress.toastSuccess"), "success");
     } catch (err) {
       console.error(err);
-      showToast(err.message || "Lỗi khi nén file. Hãy đảm bảo định dạng được hỗ trợ (jpg, png, webp, mp4).", "error");
+      showToast(err.message || t("utilities.fileTools.compress.toastError"), "error");
     } finally {
       setCompressing(false);
     }
@@ -110,8 +110,8 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
   return (
     <div className="space-y-6">
       <SubUtilityHeader 
-        title="Công Cụ Xử Lý File" 
-        description="Giải nén và tối ưu dung lượng siêu tốc, an toàn tuyệt đối."
+        title={t("utilities.fileTools.title")} 
+        description={t("utilities.fileTools.desc")}
         onBack={onBack}
         icon="folder_zip"
       />
@@ -126,7 +126,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
             : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
           }`}
         >
-          Giải Nén ZIP
+          {t("utilities.fileTools.tabExtract")}
         </button>
         <button
           onClick={() => setActiveSubTab("compress")}
@@ -136,7 +136,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
             : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
           }`}
         >
-          Giảm Dung Lượng
+          {t("utilities.fileTools.tabCompress")}
         </button>
       </div>
 
@@ -152,7 +152,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
           >
             <div className="p-5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                Chọn File ZIP (Tối đa 50MB)
+                {t("utilities.fileTools.extract.label")}
               </label>
               <input
                 type="file"
@@ -168,7 +168,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                 disabled={!zipFile || extracting}
                 className="mt-4 w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md font-medium transition-colors"
               >
-                {extracting ? "Đang xử lý..." : "Tải lên & Đọc nội dung"}
+                {extracting ? t("utilities.fileTools.extract.processing") : t("utilities.fileTools.extract.btnUpload")}
               </button>
             </div>
 
@@ -176,7 +176,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
             {zipResult && zipResult.entries && (
               <div className="p-5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
                 <h4 className="text-sm font-medium text-zinc-900 dark:text-white mb-3">
-                  Danh sách File trong ZIP:
+                  {t("utilities.fileTools.extract.resultTitle")}
                 </h4>
                 <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                   {zipResult.entries.filter(e => !e.isDirectory && !e.name.includes('__MACOSX')).map((entry, idx) => (
@@ -195,7 +195,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                       <button
                         onClick={() => handleDownloadZipEntry(entry.name)}
                         className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded transition-colors flex-shrink-0"
-                        title="Tải về file này"
+                        title={t("utilities.fileTools.extract.btnDownloadTooltip")}
                       >
                         <span className="material-symbols-outlined text-lg">download</span>
                       </button>
@@ -219,7 +219,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
             <div className="p-5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-5">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                  Chọn Hình Ảnh / Video (Tối đa 50MB)
+                  {t("utilities.fileTools.compress.label")}
                 </label>
                 <input
                   type="file"
@@ -231,13 +231,13 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
 
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
-                  Mức độ nén
+                  {t("utilities.fileTools.compress.levelSection")}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { id: "light", name: "Nhẹ (Giữ nét)" },
-                    { id: "medium", name: "Vừa phải" },
-                    { id: "strong", name: "Mạnh (Nhẹ nhất)" }
+                    { id: "light", name: t("utilities.fileTools.compress.levels.light") },
+                    { id: "medium", name: t("utilities.fileTools.compress.levels.medium") },
+                    { id: "strong", name: t("utilities.fileTools.compress.levels.strong") }
                   ].map((level) => (
                     <button
                       key={level.id}
@@ -260,11 +260,11 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                 className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {compressing && <span className="material-symbols-outlined animate-spin">refresh</span>}
-                {compressing ? "Đang xử lý..." : "Nén & Tải Về"}
+                {compressing ? t("utilities.fileTools.extract.processing") : t("utilities.fileTools.compress.btnSubmit")}
               </button>
               
               <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
-                Mọi file tải lên đều được xử lý và tự động xóa khỏi hệ thống, không lưu trữ để bảo vệ quyền riêng tư của bạn.
+                {t("utilities.fileTools.compress.privacyNote")}
               </p>
             </div>
           </motion.div>

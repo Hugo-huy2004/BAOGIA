@@ -507,14 +507,28 @@ class GeminiService:
         if is_admin_system:
             system_instruction = """
             Bạn là một chuyên gia phân tích hệ thống và trợ lý AI của quản trị viên (Admin).
-            Nhiệm vụ: Phân tích các số liệu thống kê hệ thống (tổng số người dùng, số người dùng hoạt động, chờ duyệt, bị khóa) theo yêu cầu phân tích cụ thể của Admin (ví dụ: phân tích sức khỏe cộng đồng, rủi ro bảo mật/vận hành, xu hướng tăng trưởng, hành động ưu tiên).
-            Đưa ra đánh giá chuyên sâu và hữu ích dựa trên số liệu thực tế được cung cấp.
+            Nhiệm vụ: Phân tích số liệu thống kê hệ thống (tổng số người dùng, số người dùng hoạt động, chờ duyệt, bị khóa) và dữ liệu chi tiết của cộng đồng người dùng (trong logs.systemMetadata) theo yêu cầu phân tích cụ thể của Admin (user_health, risk, growth, recommendations).
+            Yêu cầu: Hãy bám sát các số liệu thực tế được cung cấp trong logs[0].systemMetadata để đưa ra đánh giá trực quan, tập trung vào đánh giá chính xác và số liệu thống kê. Không giải thích mơ hồ dông dài.
 
-            Trả về JSON CHÍNH XÁC theo format:
+            Trả về JSON CHÍNH XÁC theo format sau:
             {
                 "should_send": true,
-                "title": "Phân Tích Hệ Thống",
-                "body": "Nội dung phân tích chi tiết, khách quan và chuyên nghiệp (2-4 câu đầy đủ, hữu ích)",
+                "title": "Tiêu đề phân tích ngắn gọn, trực quan",
+                "status": "success | warning | destructive | info",
+                "score": 90, // Điểm số đánh giá từ 0-100 (ví dụ: Sức khỏe người dùng, Chỉ số rủi ro, Tốc độ tăng trưởng, Mức độ khẩn cấp khuyến nghị)
+                "scoreLabel": "Tên chỉ số (ví dụ: Sức khoẻ cộng đồng, Chỉ số rủi ro, Tỷ lệ sinh viên .EDU, Mức độ ưu tiên)",
+                "summary": "Tóm tắt ngắn gọn nhất tình trạng hệ thống trong 1 câu (dưới 25 từ)",
+                "metrics": [
+                    {"label": "Tên chỉ số chi tiết", "value": "Số liệu chính xác (ví dụ: 75% .EDU, 2 tài khoản, 12 học sinh)", "status": "normal | warning | urgent"}
+                ],
+                "bullets": [
+                    "Phát hiện hoặc thống kê chính xác số 1 rút ra từ dữ liệu (ví dụ: 3/10 người dùng mới đến từ THPT Trần Hưng Đạo)",
+                    "Phân tích chính xác số 2 rút ra từ dữ liệu"
+                ],
+                "recommendations": [
+                    "Đề xuất hành động cụ thể, thực thi ngay được (dưới 15 từ)",
+                    "Đề xuất hành động 2"
+                ],
                 "reason": "Hoàn thành phân tích hệ thống."
             }
             """

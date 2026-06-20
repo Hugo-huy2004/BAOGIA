@@ -46,19 +46,10 @@ export default function Navbar() {
   const location = useLocation();
   const { data } = useData();
   const { t, i18n } = useTranslation();
-  const { theme, setTheme } = useUIStore();
   const allowBooking = data?.systemSettings?.allowBooking !== false;
 
   const isLoggedIn = isMemberAuthenticated() || isAdminAuthenticated();
   const accountPath = isAdminAuthenticated() ? "/admin" : (isMemberAuthenticated() ? "/member" : "/login");
-
-  const isDark = document.documentElement.classList.contains("dark");
-
-  const toggleTheme = () => {
-    const next = isDark ? "light" : "dark";
-    setTheme(next);
-    playPop();
-  };
 
   const toggleLanguage = () => {
     const newLang = i18n.language.startsWith("vi") ? "en" : "vi";
@@ -129,16 +120,6 @@ export default function Navbar() {
             {i18n.language.startsWith("en") ? "EN" : "VI"}
           </button>
 
-          {/* Dark mode toggle */}
-          <button
-            onClick={toggleTheme}
-            className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
-            aria-label="Toggle theme"
-          >
-            <span className="material-symbols-outlined text-[16px]">
-              {isDark ? "light_mode" : "dark_mode"}
-            </span>
-          </button>
 
           {/* CTA */}
           <Link

@@ -29,14 +29,34 @@ export default defineConfig({
               expiration: { maxEntries: 50, maxAgeSeconds: 300 },
             },
           },
+          // Cache Google Fonts stylesheets (Plus Jakarta Sans, Quicksand)
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+            },
+          },
+          // Cache Google Fonts web font files (woff2) and Material Symbols font files
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
+          },
         ],
       },
       manifest: {
         name: 'Hugo Studio Portal',
         short_name: 'Hugo Studio',
         description: 'Nền tảng Biolink & Sức khỏe Tâm lý dành cho học sinh sinh viên',
-        theme_color: '#6366f1',
-        background_color: '#ffffff',
+        theme_color: '#0b0a0f',
+        background_color: '#0b0a0f',
         display: 'standalone',
         orientation: 'portrait-primary',
         scope: '/',
@@ -44,6 +64,22 @@ export default defineConfig({
         icons: [
           { src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'favicon/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+        ],
+        shortcuts: [
+          {
+            name: 'Bạn Học Đường',
+            short_name: 'Đồng Hành',
+            description: 'Đồng hành chăm sóc sức khỏe tinh thần',
+            url: '/banhocduong',
+            icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'Hồ Sơ Bio',
+            short_name: 'Bio',
+            description: 'Quản lý thiết kế Bio cá nhân',
+            url: '/?tab=account',
+            icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
+          }
         ],
         categories: ['health', 'education', 'productivity'],
         lang: 'vi',

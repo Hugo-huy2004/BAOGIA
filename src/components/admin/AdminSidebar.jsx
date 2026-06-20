@@ -118,7 +118,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
             >
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">assignment</span>
-                <span>Dự án</span>
+                <span>{t("adminPanel.sidebar.projects")}</span>
               </div>
               {counts.projects > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-muted text-muted-foreground">
@@ -136,7 +136,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] font-black text-foreground truncate">Hugo Admin</p>
-                <p className="text-[9px] text-muted-foreground truncate">Toàn quyền hệ thống</p>
+                <p className="text-[9px] text-muted-foreground truncate">{t("adminPanel.sidebar.fullAccess")}</p>
               </div>
             </div>
             <button
@@ -205,7 +205,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
             )}
           </div>
           <span className={`text-[9px] font-bold mt-0.5 transition-all ${(isUtilityActive || showMoreMenu) ? "font-black" : ""}`}>
-            Tiện ích
+            {t("adminPanel.sidebar.utilities")}
           </span>
           {(isUtilityActive || showMoreMenu) && <span className="absolute bottom-1.5 w-4 h-0.5 rounded-full bg-primary" />}
         </button>
@@ -230,26 +230,31 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 250 }}
-              className="md:hidden fixed bottom-0 left-0 right-0 bg-card/98 border-t border-border rounded-t-[2rem] z-[9999] px-6 pb-8 pt-4 shadow-[0_-12px_40px_rgba(0,0,0,0.2)] max-h-[80vh] overflow-y-auto"
+              className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border rounded-t-[2.5rem] z-[9999] px-6 pb-8 pt-4 shadow-[0_-12px_40px_rgba(0,0,0,0.25)] max-h-[85vh] overflow-y-auto"
             >
               {/* Drag Handle Indicator */}
-              <div className="w-12 h-1.5 bg-muted-foreground/20 rounded-full mx-auto mb-5" />
+              <div className="w-12 h-1.5 bg-muted-foreground/15 rounded-full mx-auto mb-5" />
 
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-black tracking-tight text-foreground flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-lg">grid_view</span>
-                  Tiện ích hệ thống
-                </h3>
-                <button
-                  onClick={() => setShowMoreMenu(false)}
-                  className="w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <span className="material-symbols-outlined text-sm">close</span>
-                </button>
+              <div className="flex flex-col mb-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black tracking-tight text-foreground flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-lg">grid_view</span>
+                    {t("adminPanel.sidebar.systemUtilities")}
+                  </h3>
+                  <button
+                    onClick={() => setShowMoreMenu(false)}
+                    className="w-7 h-7 rounded-full bg-muted/60 dark:bg-muted/20 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+                <p className="text-[10px] text-muted-foreground font-semibold mt-1">
+                  {t("adminPanel.sidebar.utilitiesDesc")}
+                </p>
               </div>
 
-              {/* Grid Layout */}
-              <div className="grid grid-cols-3 gap-4">
+              {/* Grid Layout (Perfect 3x2 grid of 6 utility tabs) */}
+              <div className="grid grid-cols-3 gap-3.5">
                 {utilityMobileTabs.map(tab => {
                   const isActive = activeTab === tab.id;
                   return (
@@ -263,18 +268,18 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
                         }
                         setShowMoreMenu(false);
                       }}
-                      className={`flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl transition-all duration-200 border ${
+                      className={`flex flex-col items-center justify-center gap-2 p-4 rounded-2xl transition-all duration-200 border relative ${
                         isActive
-                          ? "bg-primary/10 border-primary/20 text-primary font-black shadow-[0_4px_12px_rgba(var(--primary-rgb),0.08)]"
-                          : "bg-muted/30 border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                          ? "bg-primary/10 border-primary/20 text-primary font-black shadow-[0_4px_16px_rgba(var(--primary-rgb),0.06)] active:scale-95"
+                          : "bg-muted/40 dark:bg-muted/10 border-border/30 text-muted-foreground hover:text-foreground hover:bg-muted/60 dark:hover:bg-muted/20 active:scale-95"
                       }`}
                     >
                       <div className="relative">
-                        <span className={`material-symbols-outlined text-2xl transition-transform ${isActive ? "scale-110" : ""}`}>
+                        <span className={`material-symbols-outlined text-2.5xl transition-transform ${isActive ? "scale-110" : ""}`}>
                           {tab.icon}
                         </span>
                         {tab.badge && (
-                          <span className="absolute -top-1 -right-3 text-[7px] font-black px-1 py-0.2 rounded-full bg-accent/15 text-accent border border-accent/20 scale-90">
+                          <span className="absolute -top-1 -right-3 text-[7px] font-black px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20 scale-90 uppercase tracking-wider">
                             {tab.badge}
                           </span>
                         )}
@@ -286,25 +291,25 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
                           </span>
                         )}
                       </div>
-                      <span className="text-[10px] font-bold text-center leading-tight whitespace-normal line-clamp-2 w-full">
+                      <span className="text-[10px] font-bold text-center leading-tight whitespace-normal line-clamp-2 w-full mt-0.5">
                         {tab.label}
                       </span>
                     </button>
                   );
                 })}
+              </div>
 
-                {/* Logout Button */}
+              {/* Logout Row separated from the perfect grid */}
+              <div className="mt-6 pt-4 border-t border-border/60">
                 <button
                   onClick={() => {
                     setShowMoreMenu(false);
                     handleLogout();
                   }}
-                  className="flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl bg-destructive/5 hover:bg-destructive/10 border border-transparent hover:border-destructive/20 text-destructive/80 hover:text-destructive transition-all duration-200"
+                  className="w-full flex items-center justify-center gap-2 p-3.5 rounded-xl bg-destructive/5 hover:bg-destructive/10 active:scale-[0.99] border border-destructive/10 text-destructive hover:bg-destructive transition-all duration-200 font-bold text-xs"
                 >
-                  <span className="material-symbols-outlined text-2xl">logout</span>
-                  <span className="text-[10px] font-bold text-center leading-tight">
-                    Đăng xuất
-                  </span>
+                  <span className="material-symbols-outlined text-base">logout</span>
+                  <span>{t("adminPanel.sidebar.logoutAccount")}</span>
                 </button>
               </div>
             </motion.div>

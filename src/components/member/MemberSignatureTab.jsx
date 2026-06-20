@@ -32,7 +32,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
           })
         ]);
         
-        if (showToast) showToast(t("memberPortal.utilitiesPage.signature.toastCopySuccess") || "Đã sao chép chữ ký!", "success");
+        if (showToast) showToast(t("utilities.signature.copiedText"), "success");
       } else {
         const range = document.createRange();
         range.selectNode(signatureEl);
@@ -41,10 +41,10 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
         selection.addRange(range);
         document.execCommand("copy");
         selection.removeAllRanges();
-        if (showToast) showToast(t("memberPortal.utilitiesPage.signature.toastCopyFallback") || "Đã sao chép!", "success");
+        if (showToast) showToast(t("utilities.signature.copiedText"), "success");
       }
     } catch (err) {
-      if (showToast) showToast(t("memberPortal.utilitiesPage.signature.toastCopyError") || "Lỗi sao chép.", "warning");
+      if (showToast) showToast(t("utilities.signature.copiedError"), "warning");
     }
   };
 
@@ -61,7 +61,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    if (showToast) showToast("Tải file HTML thành công!", "success");
+    if (showToast) showToast(t("utilities.signature.downloadSuccess"), "success");
   };
 
   // Helper to extract social links
@@ -118,7 +118,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
   return (
     <div className="bg-white dark:bg-[#12111a] rounded-[2rem] p-6 lg:p-8 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-8">
       <SubUtilityHeader 
-        title={t("memberPortal.utilitiesPage.signature.title") || "Chữ ký Email Thương hiệu"} 
+        title={t("utilities.signature.title")} 
         icon="signature" 
         colorClass="text-zinc-800 dark:text-zinc-200" 
         onBack={onBack}
@@ -133,16 +133,16 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
             <div>
               <h4 className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider flex items-center gap-1.5 mb-4">
                 <span className="material-symbols-outlined text-sm">palette</span>
-                Thiết kế Giao diện
+                {t("utilities.signature.designLayout")}
               </h4>
               
               {/* Template Selection */}
               <div className="grid grid-cols-2 gap-2 mb-4">
                 {[
-                  { id: "luxury", name: "Luxury Gold", icon: "workspace_premium" },
-                  { id: "modern", name: "Modern Accent", icon: "badge" },
-                  { id: "business", name: "Corporate Pro", icon: "domain" },
-                  { id: "minimal", name: "Minimalist", icon: "horizontal_rule" }
+                  { id: "luxury", name: t("utilities.signature.templates.luxury"), icon: "workspace_premium" },
+                  { id: "modern", name: t("utilities.signature.templates.modern"), icon: "badge" },
+                  { id: "business", name: t("utilities.signature.templates.business"), icon: "domain" },
+                  { id: "minimal", name: t("utilities.signature.templates.minimal"), icon: "horizontal_rule" }
                 ].map((tpl) => (
                   <button 
                     key={tpl.id}
@@ -158,17 +158,17 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
                   </button>
                 ))}
               </div>
-
+ 
               {/* Accent Color Selection */}
               <div className="flex gap-2.5 flex-wrap">
                 {[
-                  { hex: "#d97706", name: "Luxury Gold" },
-                  { hex: "#10b981", name: "Emerald Green" },
-                  { hex: "#2563eb", name: "Royal Blue" },
-                  { hex: "#7c3aed", name: "Deep Violet" },
-                  { hex: "#ef4444", name: "Crimson Red" },
-                  { hex: "#18181b", name: "Obsidian Black" },
-                  { hex: "#0891b2", name: "Cyan" }
+                  { hex: "#d97706", name: t("utilities.signature.colors.gold") },
+                  { hex: "#10b981", name: t("utilities.signature.colors.green") },
+                  { hex: "#2563eb", name: t("utilities.signature.colors.blue") },
+                  { hex: "#7c3aed", name: t("utilities.signature.colors.violet") },
+                  { hex: "#ef4444", name: t("utilities.signature.colors.red") },
+                  { hex: "#18181b", name: t("utilities.signature.colors.black") },
+                  { hex: "#0891b2", name: t("utilities.signature.colors.cyan") }
                 ].map((color) => (
                   <button
                     key={color.hex}
@@ -191,27 +191,27 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
             <div>
                <h4 className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider flex items-center gap-1.5 mb-3">
                 <span className="material-symbols-outlined text-sm">font_download</span>
-                Phông chữ
+                {t("utilities.signature.fields.font")}
               </h4>
               <select 
                 value={fontFamily}
                 onChange={(e) => setFontFamily(e.target.value)}
                 className="w-full p-3.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-xs font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
               >
-                <option value="Arial, sans-serif">Arial (Mặc định)</option>
-                <option value="Georgia, serif">Georgia (Sang trọng)</option>
-                <option value="Tahoma, sans-serif">Tahoma (Gọn gàng)</option>
-                <option value="Verdana, sans-serif">Verdana (Rộng rãi)</option>
-                <option value="'Times New Roman', Times, serif">Times New Roman (Cổ điển)</option>
+                <option value="Arial, sans-serif">{t("utilities.signature.fonts.arial")}</option>
+                <option value="Georgia, serif">{t("utilities.signature.fonts.georgia")}</option>
+                <option value="Tahoma, sans-serif">{t("utilities.signature.fonts.tahoma")}</option>
+                <option value="Verdana, sans-serif">{t("utilities.signature.fonts.verdana")}</option>
+                <option value="'Times New Roman', Times, serif">{t("utilities.signature.fonts.times")}</option>
               </select>
             </div>
-
+ 
             {/* Smart Toggles */}
             <div className="space-y-4 pt-6 border-t border-zinc-100 dark:border-zinc-800/80">
               <div className="flex items-center justify-between p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
                 <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
                    <span className="material-symbols-outlined text-[16px] text-zinc-400">account_circle</span>
-                   {t("memberPortal.utilitiesPage.signature.showAvatar") || "Hiển thị ảnh đại diện"}
+                   {t("utilities.signature.fields.showAvatar")}
                 </span>
                 <button 
                   onClick={() => setShowAvatar(!showAvatar)}
@@ -224,11 +224,11 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
                   } ${showAvatar ? "bg-white dark:bg-black" : "bg-white"}`} />
                 </button>
               </div>
-
+ 
               <div className="flex items-center justify-between p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
                 <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
                    <span className="material-symbols-outlined text-[16px] text-zinc-400">qr_code_2</span>
-                   {t("memberPortal.utilitiesPage.signature.includeQr") || "Tích hợp QR Code"}
+                   {t("utilities.signature.fields.includeQr")}
                 </span>
                 <button 
                   onClick={() => setIncludeQrCode(!includeQrCode)}
@@ -242,20 +242,20 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
                 </button>
               </div>
             </div>
-
+ 
             {/* Disclaimer */}
             <div className="pt-2">
               <label className="block text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider mb-2">
-                {t("memberPortal.utilitiesPage.signature.disclaimerLabel") || "Lời nhắn chân trang"}
+                {t("utilities.signature.fields.disclaimer")}
               </label>
               <select 
                 value={signatureDisclaimer}
                 onChange={(e) => setSignatureDisclaimer(e.target.value)}
                 className="w-full p-3.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-[11px] font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
               >
-                <option value="none">Không đính kèm</option>
-                <option value="green">Bảo vệ môi trường (Green eco)</option>
-                <option value="confidential">Bảo mật thông tin (Confidentiality)</option>
+                <option value="none">{t("utilities.signature.disclaimers.none")}</option>
+                <option value="green">{t("utilities.signature.disclaimers.green")}</option>
+                <option value="confidential">{t("utilities.signature.disclaimers.confidential")}</option>
               </select>
             </div>
           </div>
@@ -265,7 +265,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
         <div className="lg:col-span-7 flex flex-col h-full space-y-6">
           <h4 className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm">visibility</span>
-            {t("memberPortal.utilitiesPage.signature.previewTitle") || "Xem trước hiển thị"}
+            {t("utilities.signature.previewTitle")}
           </h4>
           
           <div className="flex-1 bg-zinc-50 dark:bg-[#0f0e15] rounded-[24px] border border-zinc-200/80 dark:border-zinc-800/80 shadow-inner overflow-hidden flex flex-col">
@@ -283,16 +283,16 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
               </div>
               <div className="flex items-center gap-2 pb-1">
                 <span className="font-semibold w-8 text-zinc-400">Subj:</span>
-                <span className="text-zinc-800 dark:text-zinc-200 font-bold">Thư mời hợp tác kinh doanh</span>
+                <span className="text-zinc-800 dark:text-zinc-200 font-bold">{t("utilities.signature.emailSubject")}</span>
               </div>
             </div>
 
             {/* Email Body */}
             <div className="p-8 bg-white overflow-x-auto flex-1 flex flex-col text-black">
               <div className="text-[13px] text-zinc-400 mb-12 font-medium">
-                Kính gửi đối tác,<br/><br/>
-                Tôi xin đính kèm thông tin liên hệ của mình ở bên dưới.<br/><br/>
-                Trân trọng,
+                {t("utilities.signature.emailDear")}<br/><br/>
+                {t("utilities.signature.emailBody")}<br/><br/>
+                {t("utilities.signature.emailRegards")}
               </div>
               
               {/* === THE SIGNATURE ITSELF === */}
@@ -317,8 +317,8 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
                                 </td>
                               )}
                               <td style={{ verticalAlign: 'middle' }}>
-                                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', letterSpacing: '0.5px' }}>{bio?.displayName || "Tên thành viên"}</div>
-                                <div style={{ fontSize: '11px', color: signatureColor, fontWeight: 'bold', textTransform: 'uppercase', marginTop: '4px', letterSpacing: '1px' }}>{bio?.jobTitle || "Thành viên"}</div>
+                                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', letterSpacing: '0.5px' }}>{bio?.displayName || t("utilities.signature.fallbackName")}</div>
+                                <div style={{ fontSize: '11px', color: signatureColor, fontWeight: 'bold', textTransform: 'uppercase', marginTop: '4px', letterSpacing: '1px' }}>{bio?.jobTitle || t("utilities.signature.fallbackTitle")}</div>
                                 
                                 <div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280', lineHeight: '1.5' }}>
                                   {bio?.phone && <span><span style={{ color: signatureColor, fontWeight: 'bold' }}>T:</span> {bio.phone} &bull; </span>}
@@ -362,8 +362,8 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
                         </td>
                       )}
                       <td style={{ verticalAlign: 'middle', paddingLeft: showAvatar ? '20px' : '0px' }}>
-                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>{bio?.displayName || "Tên thành viên"}</div>
-                        <div style={{ fontSize: '11px', color: signatureColor, fontWeight: 'bold', textTransform: 'uppercase', marginTop: '4px', letterSpacing: '0.5px' }}>{bio?.jobTitle || "Thành viên"}</div>
+                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>{bio?.displayName || t("utilities.signature.fallbackName")}</div>
+                        <div style={{ fontSize: '11px', color: signatureColor, fontWeight: 'bold', textTransform: 'uppercase', marginTop: '4px', letterSpacing: '0.5px' }}>{bio?.jobTitle || t("utilities.signature.fallbackTitle")}</div>
                         
                         <table cellPadding="0" cellSpacing="0" style={{ marginTop: '10px', fontSize: '12px', color: '#4b5563', borderCollapse: 'collapse', lineHeight: '1.5' }}>
                           <tbody>
@@ -405,8 +405,8 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
                   <tbody>
                     <tr>
                       <td style={{ paddingLeft: '16px' }}>
-                        <div style={{ fontSize: '17px', fontWeight: '900', color: '#111827', textTransform: 'uppercase', letterSpacing: '1px' }}>{bio?.displayName}</div>
-                        <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px', fontWeight: 'bold' }}>{bio?.jobTitle || "Thành viên"}</div>
+                        <div style={{ fontSize: '17px', fontWeight: '900', color: '#111827', textTransform: 'uppercase', letterSpacing: '1px' }}>{bio?.displayName || t("utilities.signature.fallbackName")}</div>
+                        <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px', fontWeight: 'bold' }}>{bio?.jobTitle || t("utilities.signature.fallbackTitle")}</div>
                         
                         <div style={{ width: '60px', height: '2px', backgroundColor: signatureColor, margin: '12px 0' }} />
                         
@@ -449,7 +449,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
               {signatureTemplate === "minimal" && (
                 <div style={{ borderTop: `1px solid #e5e7eb`, paddingTop: '12px' }}>
                   <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
-                    {bio?.displayName} <span style={{ color: signatureColor, fontWeight: 'bold', fontSize: '12px' }}>| {bio?.jobTitle || "Thành viên"}</span>
+                    {bio?.displayName || t("utilities.signature.fallbackName")} <span style={{ color: signatureColor, fontWeight: 'bold', fontSize: '12px' }}>| {bio?.jobTitle || t("utilities.signature.fallbackTitle")}</span>
                   </div>
                   <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px', lineHeight: '1.6' }}>
                     {bio?.phone && <span><strong>M:</strong> {bio.phone} &bull; </span>}
@@ -494,14 +494,14 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
               className="py-4 rounded-md bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-black text-[11px] uppercase tracking-widest shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
             >
               <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">content_copy</span> 
-              Copy Chữ Ký (Rich Text)
+              {t("utilities.signature.copyBtn")}
             </button>
             <button
               onClick={downloadSignatureHTML}
               className="py-4 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 font-black text-[11px] uppercase tracking-widest shadow-sm transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
             >
               <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">html</span> 
-              Tải File (.HTML)
+              {t("utilities.signature.downloadHtmlBtn")}
             </button>
           </div>
 

@@ -10,58 +10,58 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
     {
       id: "nfc",
       icon: "sensors",
-      title: t("memberPortal.utilitiesPage.nfc.title"),
-      desc: t("memberPortal.utilitiesPage.nfc.desc"),
-      btnText: t("intro.slide5.createBtn")
+      title: t("utilities.dashboard.nfc.title", "Thẻ NFC Cá Nhân"),
+      desc: t("utilities.dashboard.nfc.desc", "Cấu hình chạm thẻ để chia sẻ nhanh Bio Link hoặc thông tin liên hệ."),
+      btnText: t("utilities.dashboard.nfc.btnText", "Thiết Lập Ngay")
     },
     {
       id: "vcard",
       icon: "contact_phone",
-      title: t("memberPortal.utilitiesPage.vcard.title"),
-      desc: t("memberPortal.utilitiesPage.vcard.desc"),
-      btnText: t("intro.slide1.explore")
+      title: t("utilities.dashboard.vcard.title", "Danh Bạ vCard"),
+      desc: t("utilities.dashboard.vcard.desc", "Tạo QR code danh bạ thông minh quét nhanh lưu trực tiếp vào máy."),
+      btnText: t("utilities.dashboard.vcard.btnText", "Thiết Lập Ngay")
     },
     {
       id: "signature",
       icon: "signature",
-      title: t("memberPortal.utilitiesPage.signature.title"),
-      desc: t("memberPortal.utilitiesPage.signature.desc"),
-      btnText: t("intro.slide5.createBtn")
+      title: t("utilities.dashboard.signature.title", "Chữ Ký Email"),
+      desc: t("utilities.dashboard.signature.desc", "Thiết kế chữ ký email chuyên nghiệp chuẩn doanh nghiệp."),
+      btnText: t("utilities.dashboard.signature.btnText", "Thiết Lập Ngay")
     },
     {
       id: "secret_link",
       icon: "lock",
-      title: "Khóa Link Bảo Mật",
-      desc: "Tạo link chia sẻ ẩn danh yêu cầu mật khẩu để xem.",
-      btnText: "Thiết Lập Ngay"
+      title: t("utilities.dashboard.secretLink.title", "Liên Kết Bí Mật"),
+      desc: t("utilities.dashboard.secretLink.desc", "Tạo link bảo mật bằng mật khẩu dành riêng cho đối tác vip."),
+      btnText: t("utilities.dashboard.secretLink.btnText", "Thiết Lập Ngay")
     },
     {
       id: "file_tools",
       icon: "folder_zip",
-      title: "Công Cụ Xử Lý File",
-      desc: "Giải nén file ZIP và tối ưu dung lượng (Nén Ảnh/Video).",
-      btnText: "Mở Công Cụ"
+      title: t("utilities.dashboard.fileTools.title", "Xử Lý File"),
+      desc: t("utilities.dashboard.fileTools.desc", "Trình chuyển đổi định dạng và nén dung lượng hình ảnh trực tuyến."),
+      btnText: t("utilities.dashboard.fileTools.btnText", "Mở Công Cụ")
     },
     {
       id: "psychology",
       icon: "psychology",
-      title: "Bạn Học Đường",
-      desc: "Góc lắng nghe chia sẻ, thực hiện trắc nghiệm tâm lý DASS-21 & Mini-MMPI trực quan cùng nhiều công cụ giảm tải áp lực.",
-      btnText: "Mở Tiện Ích"
+      title: t("companion.tab.title", "Bạn Học Đường"),
+      desc: t("utilities.dashboard.psychology.desc", "AI hỗ trợ tư vấn tâm lý học tập, theo dõi giấc ngủ và trị liệu cảm xúc."),
+      btnText: t("utilities.dashboard.psychology.btnText", "Mở Tiện Ích")
     },
     {
       id: "ide",
       icon: "code",
-      title: "Web-based IDE (Học Tập)",
-      desc: "Trình soạn thảo code đa năng (C, C++, C#, Python, Web, PHP) với gợi ý code, bài học cơ bản và hướng dẫn lưu file local.",
-      btnText: "Mở Trình Code"
+      title: t("utilities.dashboard.ide.title", "Web-based IDE (Học Tập)"),
+      desc: t("utilities.dashboard.ide.desc", "Trình soạn thảo code đa năng (C, C++, C#, Python, Web, PHP) với gợi ý code, bài học cơ bản và hướng dẫn lưu file local."),
+      btnText: t("utilities.dashboard.ide.btnText", "Mở Trình Code")
     },
     {
       id: "chess",
       icon: "chess",
       title: "HugoChess",
-      desc: "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống JOY & xếp hạng.",
-      btnText: "Vào Sảnh Cờ"
+      desc: t("utilities.dashboard.chess.desc", "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống JOY & xếp hạng."),
+      btnText: t("utilities.dashboard.chess.btnText", "Vào Sảnh Cờ")
     }
   ];
 

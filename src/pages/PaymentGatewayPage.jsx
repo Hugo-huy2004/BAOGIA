@@ -57,12 +57,7 @@ export default function PaymentGatewayPage() {
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  const { theme, setTheme } = useUIStore();
-  const isDark = document.documentElement.classList.contains("dark");
 
-  const toggleTheme = () => {
-    setTheme(isDark ? "light" : "dark");
-  };
 
   // Check if there's a status in URL after PayOS redirect
   const searchParams = new URLSearchParams(location.search);
@@ -354,16 +349,7 @@ export default function PaymentGatewayPage() {
           </span>
         </div>
         
-        {/* Dark mode toggle */}
-        <button
-          onClick={toggleTheme}
-          className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-zinc-400 transition-colors border border-slate-200/50 dark:border-white/5 shadow-sm"
-          aria-label="Toggle theme"
-        >
-          <span className="material-symbols-outlined text-[18px]">
-            {isDark ? "light_mode" : "dark_mode"}
-          </span>
-        </button>
+        <div className="w-8" /> {/* Spacer to balance centering */}
       </header>
 
       {/* Main Payment Section */}

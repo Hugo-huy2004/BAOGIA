@@ -86,7 +86,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
   return (
     <div className="max-w-4xl mx-auto space-y-6 bg-white dark:bg-[#12111a] rounded-[2rem] p-6 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
       <SubUtilityHeader
-        title="Mã QR Danh bạ (vCard)"
+        title={t("utilities.vcard.title", "Danh Bạ vCard Thông Minh")}
         icon="contact_phone"
         colorClass="text-rose-500"
         onBack={onBack}
@@ -95,7 +95,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
       {/* Header Info */}
       <div className="text-center space-y-2 pt-2">
         <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed">
-          Quét mã này để điện thoại tự động kích hoạt màn hình <strong>Thêm vào Danh bạ</strong> mà không cần mạng. Gửi link trực tuyến để chia sẻ qua tin nhắn.
+          {t("utilities.vcard.desc", "Nhập thông tin của bạn để tạo file danh bạ vCard. Người dùng khác chỉ cần quét mã QR là có thể lưu thông tin liên hệ của bạn vào danh bạ điện thoại ngay lập tức.")}
         </p>
       </div>
 
@@ -125,7 +125,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
             className="mt-10 px-8 py-3.5 rounded-lg text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-500/25 transition-all active:scale-[0.98] flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:brightness-110"
           >
             <span className="material-symbols-outlined text-lg">download</span>
-            Tải Mã QR Này
+            {t("utilities.vcard.qrCodeTitle", "MÃ QR VCARD QUÉT OFFLINE")}
           </button>
         </div>
 
@@ -133,8 +133,10 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
         <div className="bg-white dark:bg-[#12111a] rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 p-6 shadow-sm flex flex-col justify-center space-y-6 min-h-[380px]">
           
           <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800/80 rounded-lg space-y-2">
-             <h4 className="text-xs font-black text-rose-500 uppercase flex items-center gap-1.5"><span className="material-symbols-outlined text-[16px]">info</span> Cơ chế Tự Động</h4>
-             <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">Vì lý do bảo mật của iOS/Android, một trang web <strong>không thể ngầm tự động thêm số điện thoại</strong> vào danh bạ của người dùng nếu không có thao tác xác nhận. Mã QR này chứa gói lệnh VCF, khi camera nhận dạng được, nó sẽ <strong>tự động bật popup Lưu Danh Bạ</strong> để người dùng bấm Lưu là xong.</p>
+             <h4 className="text-xs font-black text-rose-500 uppercase flex items-center gap-1.5"><span className="material-symbols-outlined text-[16px]">info</span> {t("utilities.vcard.autoMechanism", "Cơ chế Tự Động")}</h4>
+             <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">
+               {t("utilities.vcard.autoMechanismDesc", "Vì lý do bảo mật của iOS/Android, một trang web không thể ngầm tự động thêm số điện thoại vào danh bạ của người dùng nếu không có thao tác xác nhận. Mã QR này chứa gói lệnh VCF, khi camera nhận dạng được, nó sẽ tự động bật popup Lưu Danh Bạ để người dùng bấm Lưu là xong.")}
+             </p>
           </div>
 
           <div className="space-y-4">
@@ -147,8 +149,8 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
                 <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">cloud_download</span>
               </div>
               <div className="flex-1 text-left">
-                <h4 className="text-[11px] font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider mb-0.5">Tải file Danh bạ (.VCF)</h4>
-                <p className="text-[10px] text-zinc-500 font-medium">Tải file nén chuẩn VCF về thiết bị hiện tại.</p>
+                <h4 className="text-[11px] font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider mb-0.5">{t("utilities.vcard.downloadBtn", "Tải vCard (.vcf)")}</h4>
+                <p className="text-[10px] text-zinc-500 font-medium">{t("utilities.vcard.downloadVcfDesc", "Tải file nén chuẩn VCF về thiết bị hiện tại.")}</p>
               </div>
             </a>
 
@@ -160,14 +162,18 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
                 <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">{navigator.share ? "ios_share" : "content_copy"}</span>
               </div>
               <div className="flex-1">
-                <h4 className="text-[11px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5">{navigator.share ? "Chia sẻ qua App" : "Copy Link Trực Tuyến"}</h4>
-                <p className="text-[10px] text-rose-600/70 dark:text-rose-400/70 font-medium">{navigator.share ? "Gửi ngay danh bạ qua AirDrop, Zalo, SMS..." : "Sao chép link tải danh bạ trực tuyến."}</p>
+                <h4 className="text-[11px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5">
+                  {navigator.share ? t("utilities.vcard.shareBtn", "Chia sẻ qua App") : t("utilities.vcard.copyBtn", "Copy Link Trực Tuyến")}
+                </h4>
+                <p className="text-[10px] text-rose-600/70 dark:text-rose-400/70 font-medium">
+                  {navigator.share ? t("utilities.vcard.shareDesc", "Gửi ngay danh bạ qua AirDrop, Zalo, SMS...") : t("utilities.vcard.copyDesc", "Sao chép link tải danh bạ trực tuyến.")}
+                </p>
               </div>
             </button>
           </div>
           
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Link Cố định</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">{t("utilities.vcard.permalinkLabel", "Link Cố định")}</label>
             <div className="flex items-center gap-2 p-1.5 bg-zinc-50 dark:bg-[#1a1926]/40 border border-zinc-200/80 dark:border-zinc-800/80 rounded-md shadow-inner">
               <div className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400 truncate flex-1 px-3 py-1 font-bold">
                 {vcardDownloadUrl}
@@ -177,7 +183,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
                 className="px-4 py-2 rounded text-[9.5px] font-black uppercase bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center gap-1.5 shadow-sm shrink-0"
               >
                 <span className="material-symbols-outlined text-[14px]">content_copy</span>
-                Copy
+                {t("utilities.secretLink.btnCopy", "Copy")}
               </button>
             </div>
           </div>
