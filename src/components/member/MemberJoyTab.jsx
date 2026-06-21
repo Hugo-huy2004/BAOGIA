@@ -26,6 +26,8 @@ export default function MemberJoyTab({ bio, showToast }) {
   const [orders, setOrders] = useState([]);
   const [giftCode, setGiftCode] = useState("");
   const [redeeming, setRedeeming] = useState(false);
+  const [referrerCodeInput, setReferrerCodeInput] = useState("");
+  const [applyingReferral, setApplyingReferral] = useState(false);
 
   const email = bio?.email;
 
@@ -77,6 +79,28 @@ export default function MemberJoyTab({ bio, showToast }) {
     }
   }
 
+  async function handleApplyReferral() {
+    if (!referrerCodeInput.trim() || !email || applyingReferral) return;
+    setApplyingReferral(true);
+    try {
+      const r = await fetch(`${apiBase}/referral/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, referrerCode: referrerCodeInput.trim() }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || t("memberPortal.joy.applyReferral.error"));
+      fetchBalance(email);
+      showToast?.(t("memberPortal.joy.applyReferral.success", { days: data.bioExtendedDays }), "success");
+      setReferrerCodeInput("");
+    } catch (err) {
+      showToast?.(err.message, "error");
+    } finally {
+      setApplyingReferral(false);
+    }
+  }
+
   function copyReferralLink() {
     const link = `${window.location.origin}/login?ref=${referralCode}`;
     navigator.clipboard.writeText(link);
@@ -123,6 +147,30 @@ export default function MemberJoyTab({ bio, showToast }) {
       {section === "wallet" && (
         <div className="space-y-4">
           <CheckinCard email={email} showToast={showToast} />
+          {!bio?.referralApplied && (
+            <div className="bg-white dark:bg-[#181622] rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 space-y-3">
+              <h4 className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                {t("memberPortal.joy.applyReferral.title")}
+              </h4>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={referrerCodeInput}
+                  onChange={e => setReferrerCodeInput(e.target.value.toUpperCase())}
+                  placeholder={t("memberPortal.joy.applyReferral.placeholder")}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#0c0b11] text-sm font-mono tracking-widest text-zinc-900 dark:text-white"
+                />
+                <button
+                  onClick={handleApplyReferral}
+                  disabled={applyingReferral}
+                  className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider disabled:opacity-50"
+                >
+                  {applyingReferral ? "..." : t("memberPortal.joy.applyReferral.button")}
+                </button>
+              </div>
+              <p className="text-[10px] text-zinc-400">{t("memberPortal.joy.applyReferral.hint")}</p>
+            </div>
+          )}
           <div className="bg-white dark:bg-[#181622] rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 space-y-3">
             <h4 className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
               {t("memberPortal.joy.redeem.title")}

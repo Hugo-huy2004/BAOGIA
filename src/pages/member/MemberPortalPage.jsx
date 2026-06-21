@@ -926,6 +926,7 @@ export default function MemberPortalPage() {
             email={memberSession.email}
             onDone={(result) => {
               setShowOnboarding(false);
+              
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
               fetchJoyBalance(memberSession.email);
             }}

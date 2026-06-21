@@ -1257,6 +1257,14 @@
         "success": "Redeemed successfully! +{{amount}} JOY",
         "error": "This code could not be redeemed."
       },
+      "applyReferral": {
+        "title": "Enter a referral code",
+        "placeholder": "e.g. HG123456",
+        "button": "Apply",
+        "hint": "If someone referred you, enter their code here so you both get JOY. Each account can only do this once.",
+        "success": "Referral applied! +10 JOY and +{{days}} days of Bio Link.",
+        "error": "This code could not be applied."
+      },
       "earnInfo": "Earn JOY by: referring friends, attending therapy sessions, winning chess games, or redeeming an admin gift code.",
       "history": {
         "transactions": "JOY transaction history",

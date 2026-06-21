@@ -1257,6 +1257,14 @@
         "success": "Đổi mã thành công! +{{amount}} JOY",
         "error": "Không thể đổi mã này."
       },
+      "applyReferral": {
+        "title": "Nhập mã giới thiệu",
+        "placeholder": "VD: HG123456",
+        "button": "Áp dụng",
+        "hint": "Nếu có người giới thiệu bạn, nhập mã của họ ở đây để cả hai cùng nhận JOY. Mỗi tài khoản chỉ áp dụng được 1 lần.",
+        "success": "Áp dụng mã thành công! +10 JOY và +{{days}} ngày Bio Link.",
+        "error": "Không thể áp dụng mã này."
+      },
       "earnInfo": "Kiếm JOY bằng cách: giới thiệu bạn bè, tham gia trị liệu tâm lý, chơi cờ vua, hoặc nhập mã quà tặng từ Admin.",
       "history": {
         "transactions": "Lịch sử giao dịch JOY",
