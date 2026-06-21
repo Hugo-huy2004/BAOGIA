@@ -2,7 +2,9 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import CompanionHistory from '../models/CompanionHistory.js';
+import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
+import { requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -11,6 +13,55 @@ const __dirname = dirname(__filename);
 // JOY cap: 60 JOY/day = 3600 awarded-seconds/day (10 JOY per 600s interval)
 const COMPANION_JOY_CAP_SECONDS = 3600;
 const HEARTBEAT_INTERVAL_SECONDS = 30;
+
+// Therapy sub-features that require a one-time 150 JOY unlock per account.
+// Breathing (4-7-8) and the gratitude journal stay free — not listed here.
+const UNLOCKABLE_FEATURES = {
+  reading: { cost: 150, label: 'Đọc Truyện AI Trị Liệu' },
+  meditation: { cost: 150, label: 'Thiền Dẫn AI Cá Nhân Hoá' },
+  depression: { cost: 150, label: 'CBT Worksheet Cá Nhân Hoá' },
+  unlimited_calls: { cost: 150, label: 'Gọi Thoại Không Giới Hạn' },
+  action_plan: { cost: 150, label: 'Lộ Trình Hoạt Động Cá Nhân Hoá' },
+  deep_report: { cost: 150, label: 'Báo Cáo Tâm Lý Chuyên Sâu' }
+};
+
+// POST: Unlock a therapy sub-feature for 150 JOY (one-time, permanent per account)
+router.post('/unlock-feature', async (req, res) => {
+  try {
+    const { email, feature } = req.body;
+    if (!email || !feature) return res.status(400).json({ error: 'email and feature are required' });
+
+    const def = UNLOCKABLE_FEATURES[feature];
+    if (!def) return res.status(400).json({ error: 'Tính năng không hợp lệ.' });
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    if (bio.unlockedCompanionFeatures?.includes(feature)) {
+      return res.json({ success: true, alreadyUnlocked: true, balance: bio.joyBalance, unlockedFeatures: bio.unlockedCompanionFeatures });
+    }
+
+    if (bio.joyBalance < def.cost) {
+      return res.status(400).json({ error: 'Số dư JOY không đủ.' });
+    }
+
+    const { balance } = await awardJoy(
+      email,
+      -def.cost,
+      'companion_unlock',
+      `Mở khoá tính năng: ${def.label}`,
+      { bioDoc: bio, skipSave: true }
+    );
+
+    bio.unlockedCompanionFeatures = [...(bio.unlockedCompanionFeatures || []), feature];
+    await bio.save();
+
+    res.json({ success: true, balance, unlockedFeatures: bio.unlockedCompanionFeatures });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
 // POST: Active-session heartbeat — awards +10 JOY per confirmed 10 minutes
 // of active companion usage, capped at 60 JOY/day.
@@ -330,6 +381,56 @@ router.post('/history', async (req, res) => {
     import('fs').then(fs => {
       fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
     }).catch(console.error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST: Mark a crisis flag as resolved once the member confirms they've sought help
+router.post('/crisis/resolve', async (req, res) => {
+  try {
+    const { email, flagId } = req.body;
+    if (!email || !flagId) return res.status(400).json({ error: 'email and flagId are required' });
+
+    const doc = await CompanionHistory.findOneAndUpdate(
+      { email, 'crisisFlags._id': flagId },
+      { $set: { 'crisisFlags.$.resolved': true } },
+      { new: true }
+    );
+    if (!doc) return res.status(404).json({ error: 'Không tìm thấy cảnh báo này.' });
+
+    res.json({ success: true, crisisFlags: doc.crisisFlags });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET: Admin — list all unresolved high-severity crisis flags across all members
+router.get('/admin/crisis-alerts', requireAdmin, async (req, res) => {
+  try {
+    const docs = await CompanionHistory.find({
+      crisisFlags: { $elemMatch: { severity: 'high', resolved: false } }
+    }).select('email crisisFlags').lean();
+
+    const emails = docs.map(d => d.email);
+    const bios = await Bio.find({ email: { $in: emails } }).select('email displayName').lean();
+    const nameByEmail = Object.fromEntries(bios.map(b => [b.email, b.displayName]));
+
+    const alerts = [];
+    docs.forEach(doc => {
+      doc.crisisFlags
+        .filter(f => f.severity === 'high' && !f.resolved)
+        .forEach(f => alerts.push({
+          email: doc.email,
+          displayName: nameByEmail[doc.email] || doc.email,
+          flagId: f._id,
+          detectedAt: f.detectedAt,
+          trigger: f.trigger
+        }));
+    });
+
+    alerts.sort((a, b) => new Date(b.detectedAt) - new Date(a.detectedAt));
+    res.json(alerts);
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

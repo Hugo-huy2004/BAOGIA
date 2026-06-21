@@ -1,11 +1,49 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Play, Pause, Square } from "lucide-react";
 
+const GUIDED_PHRASES = [
+  "Hãy nhắm mắt lại, thẳng lưng và để cơ thể thả lỏng hoàn toàn.",
+  "Hít vào chậm qua mũi, cảm nhận bụng phồng lên, rồi thở ra nhẹ nhàng qua miệng.",
+  "Nếu có suy nghĩ nào xuất hiện, hãy để nó trôi qua như mây trên trời, không cần nắm giữ.",
+  "Cảm nhận trọng lượng cơ thể trên ghế, từng vùng cơ đang dần thả lỏng.",
+  "Tập trung vào hơi thở hiện tại — không phải hơi thở vừa qua, không phải hơi thở sắp tới.",
+  "Cậu đang làm rất tốt. Cứ tiếp tục ở lại với giây phút này.",
+];
+
 export default function MeditationTherapy({ onBack, onCompleteActivity, showToast }) {
-  const [timerDuration, setTimerDuration] = useState(1800); 
+  const [timerDuration, setTimerDuration] = useState(1800);
   const [timerSecondsLeft, setTimerSecondsLeft] = useState(1800);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const timerIntervalRef = useRef(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const voiceIntervalRef = useRef(null);
+  const phraseIndexRef = useRef(0);
+
+  const speakPhrase = (text) => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "vi-VN";
+    utter.rate = 0.85;
+    window.speechSynthesis.speak(utter);
+  };
+
+  const startGuidedVoice = () => {
+    if (!voiceEnabled) return;
+    phraseIndexRef.current = 0;
+    speakPhrase(GUIDED_PHRASES[0]);
+    voiceIntervalRef.current = setInterval(() => {
+      phraseIndexRef.current = (phraseIndexRef.current + 1) % GUIDED_PHRASES.length;
+      speakPhrase(GUIDED_PHRASES[phraseIndexRef.current]);
+    }, 90000);
+  };
+
+  const stopGuidedVoice = () => {
+    if (voiceIntervalRef.current) clearInterval(voiceIntervalRef.current);
+    window.speechSynthesis?.cancel();
+  };
+
+  useEffect(() => () => stopGuidedVoice(), []);
 
   const [selectedMusicChannel, setSelectedMusicChannel] = useState(2); 
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
@@ -19,6 +57,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
           if (prev <= 1) {
             setIsTimerRunning(false);
             stopMusic();
+            stopGuidedVoice();
             clearInterval(timerIntervalRef.current);
             onCompleteActivity(
               "Ngồi tĩnh tâm",
@@ -169,21 +208,25 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
     setTimerSecondsLeft(dur);
     setIsTimerRunning(true);
     startMusic(selectedMusicChannel);
+    startGuidedVoice();
   };
 
   const toggleTimer = () => {
     if (isTimerRunning) {
       setIsTimerRunning(false);
       stopMusic();
+      stopGuidedVoice();
     } else {
       setIsTimerRunning(true);
       startMusic(selectedMusicChannel);
+      startGuidedVoice();
     }
   };
 
   const resetTimer = () => {
     setIsTimerRunning(false);
     stopMusic();
+    stopGuidedVoice();
     setTimerSecondsLeft(timerDuration);
   };
 
@@ -200,6 +243,21 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
           Quay lại thẻ
         </button>
         <span className="text-[9.5px] font-black uppercase text-teal-500">Tĩnh Tâm</span>
+        <button
+          type="button"
+          onClick={() => {
+            setVoiceEnabled(v => {
+              const next = !v;
+              if (!next) stopGuidedVoice();
+              else if (isTimerRunning) startGuidedVoice();
+              return next;
+            });
+          }}
+          title={voiceEnabled ? "Tắt giọng dẫn" : "Bật giọng dẫn"}
+          className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md transition-colors ${voiceEnabled ? "text-teal-600 bg-teal-500/10" : "text-zinc-400 bg-zinc-100 dark:bg-zinc-800"}`}
+        >
+          <span className="material-symbols-outlined text-[13px]">{voiceEnabled ? "volume_up" : "volume_off"}</span>
+        </button>
       </div>
 
       <div className="py-6 space-y-4">

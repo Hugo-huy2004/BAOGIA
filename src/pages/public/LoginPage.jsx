@@ -4,6 +4,7 @@ import { loginAdmin, loginMember } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
+import { isEduEmail } from "../../utils/eduEmail";
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -55,7 +56,7 @@ export default function LoginPage() {
     const profile = JSON.parse(payloadJson);
 
     const email = profile.email || "";
-    if (!email.toLowerCase().includes(".edu")) {
+    if (!isEduEmail(email)) {
       showToast(
         t("loginPage.toast.eduRedirect"),
         "warning"

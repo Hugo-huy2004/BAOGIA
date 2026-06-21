@@ -1283,7 +1283,16 @@
         "daysUnit": "ngày HSD",
         "chatTokens": "lượt chat",
         "callTokens": "lượt gọi",
-        "lowStock": "Còn {{count}}"
+        "lowStock": "Còn {{count}}",
+        "confirmTitle": "Xác nhận mua hàng",
+        "confirmSubtitle": "Vui lòng kiểm tra lại thông tin trước khi xác nhận",
+        "confirmProduct": "Sản phẩm",
+        "confirmPerk": "Quyền lợi",
+        "confirmPrice": "Giá",
+        "confirmBalanceAfter": "Số dư sau khi mua",
+        "confirmCancel": "Huỷ",
+        "confirmButton": "Xác nhận mua",
+        "confirmProcessing": "Đang xử lý..."
       }
     },
     "checkin": {
@@ -1703,6 +1712,7 @@
       "limitChat": "Cuộc trò chuyện",
       "limitCall": "Cuộc gọi tư vấn",
       "tokenRefreshNote": "Token tự động làm mới lúc 00:00 mỗi ngày",
+      "bonusLabel": "thưởng",
       "confirmDeleteTitle": "Xác Nhận Xóa",
       "confirmDeleteDesc": "Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?",
       "skip": "Bỏ qua",
@@ -1731,6 +1741,13 @@
       "pushDenied": "Quyền thông báo bị từ chối. Bật lại trong cài đặt trình duyệt.",
       "pushError": "Không thể đăng ký thông báo lúc này.",
       "reminderEnabledToast": "Đã bật nhắc nhở!"
+    },
+    "crisis": {
+      "title": "Bạn không một mình",
+      "desc": "Hệ thống nhận thấy cậu đang trải qua giai đoạn khó khăn. Nếu đang gặp nguy hiểm tức thời, hãy gọi 115 (Cấp cứu) hoặc đến cơ sở y tế gần nhất ngay. Hãy liên hệ người thân, bạn bè đáng tin cậy để được ở bên cạnh.",
+      "hotlineLabel": "Tổng đài tư vấn tâm lý",
+      "talkNow": "Tớ cần nói chuyện ngay",
+      "imSafe": "Tớ đã an toàn / đã liên hệ trợ giúp"
     },
     "profile": {
       "title": "Thông Tin Cá Nhân",
@@ -2121,6 +2138,9 @@
     }
   },
   "adminDashboard": {
+    "crisisAlerts": {
+      "title": "Cảnh báo khủng hoảng tâm lý"
+    },
     "kpi": {
       "totalUsers": "Tổng thành viên",
       "active": "Đang hoạt động",

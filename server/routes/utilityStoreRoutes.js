@@ -121,7 +121,16 @@ router.post('/purchase', async (req, res) => {
       actionUrl: '/member'
     });
 
-    res.json({ success: true, order, newBalance: balance });
+    res.json({
+      success: true,
+      order,
+      newBalance: balance,
+      bio: {
+        bonusChatTokens: bio.bonusChatTokens,
+        bonusCallTokens: bio.bonusCallTokens,
+        expiresAt: bio.expiresAt
+      }
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

@@ -1283,7 +1283,16 @@
         "daysUnit": "days validity",
         "chatTokens": "chat credits",
         "callTokens": "call credits",
-        "lowStock": "{{count}} left"
+        "lowStock": "{{count}} left",
+        "confirmTitle": "Confirm purchase",
+        "confirmSubtitle": "Please double-check the details before confirming",
+        "confirmProduct": "Product",
+        "confirmPerk": "Perk",
+        "confirmPrice": "Price",
+        "confirmBalanceAfter": "Balance after purchase",
+        "confirmCancel": "Cancel",
+        "confirmButton": "Confirm purchase",
+        "confirmProcessing": "Processing..."
       }
     },
     "checkin": {
@@ -1703,6 +1712,7 @@
       "limitChat": "Conversations",
       "limitCall": "Consultation calls",
       "tokenRefreshNote": "Tokens automatically refresh at 00:00 every day",
+      "bonusLabel": "bonus",
       "confirmDeleteTitle": "Confirm Deletion",
       "confirmDeleteDesc": "Are you sure you want to delete the entire chat history?",
       "skip": "Skip",
@@ -1731,6 +1741,13 @@
       "pushDenied": "Notification permission denied. Re-enable in browser settings.",
       "pushError": "Cannot register notifications at this time.",
       "reminderEnabledToast": "Reminder enabled!"
+    },
+    "crisis": {
+      "title": "You're not alone",
+      "desc": "Our system noticed you may be going through a hard time. If you're in immediate danger, call 115 (Emergency) or go to the nearest medical facility now. Reach out to a trusted family member or friend to be with you.",
+      "hotlineLabel": "Mental health hotline",
+      "talkNow": "I need to talk now",
+      "imSafe": "I'm safe / I've reached out for help"
     },
     "profile": {
       "title": "Personal Information",
@@ -2121,6 +2138,9 @@
     }
   },
   "adminDashboard": {
+    "crisisAlerts": {
+      "title": "Psychological crisis alerts"
+    },
     "kpi": {
       "totalUsers": "Total Members",
       "active": "Active",

@@ -1,10 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const BREATH_CUES = { inhale: "Hít vào", hold: "Giữ hơi", exhale: "Thở ra" };
+
 export default function BreathingTherapy({ onBack, onCompleteActivity, showToast }) {
   const [breathState, setBreathState] = useState("idle"); // 'idle', 'inhale', 'hold', 'exhale'
   const [breathTimer, setBreathTimer] = useState(4);
   const breathTimerRef = useRef(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+
+  // Guided voice narration — speaks the phase cue every time it changes.
+  useEffect(() => {
+    if (!voiceEnabled || breathState === "idle") return;
+    const text = BREATH_CUES[breathState];
+    if (!text || typeof window === "undefined" || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "vi-VN";
+    utter.rate = 0.85;
+    window.speechSynthesis.speak(utter);
+  }, [breathState, voiceEnabled]);
+
+  useEffect(() => () => { if (typeof window !== "undefined") window.speechSynthesis?.cancel(); }, []);
 
   const [timerSecondsLeft, setTimerSecondsLeft] = useState(600);
   const [targetDuration, setTargetDuration] = useState(600);
@@ -102,6 +119,14 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
           Quay lại thẻ
         </button>
         <span className="text-[9.5px] font-black uppercase text-amber-500">Hít thở 4-7-8</span>
+        <button
+          type="button"
+          onClick={() => { setVoiceEnabled(v => !v); window.speechSynthesis?.cancel(); }}
+          title={voiceEnabled ? "Tắt giọng dẫn" : "Bật giọng dẫn"}
+          className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md transition-colors ${voiceEnabled ? "text-amber-600 bg-amber-500/10" : "text-zinc-400 bg-zinc-100 dark:bg-zinc-800"}`}
+        >
+          <span className="material-symbols-outlined text-[13px]">{voiceEnabled ? "volume_up" : "volume_off"}</span>
+        </button>
       </div>
 
       <div className="py-4 space-y-4 flex flex-col items-center">

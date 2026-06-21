@@ -133,6 +133,11 @@ function AppContent() {
                 ? <MemberPortalPage />
                 : <Navigate to="/login" replace />
             } />
+            <Route path="/member/:tab/:subTab/:psychTab" element={
+              (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
+                ? <MemberPortalPage />
+                : <Navigate to="/login" replace />
+            } />
             <Route path="/bio/:slug" element={<BioPublicPage />} />
             <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
             <Route path="/partner/bio-editor" element={<PartnerBioPage />} />

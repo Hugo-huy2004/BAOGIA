@@ -15,6 +15,7 @@ import TourSystem from "../../components/TourSystem";
 import NotificationBell from "../../components/member/portal/NotificationBell";
 import { useJoyStore } from "../../stores/joyStore";
 import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
+import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 
@@ -77,7 +78,7 @@ export default function MemberPortalPage() {
   const triggerConfirm = (message, onConfirm) => setConfirmModal({ isOpen: true, message, onConfirm });
 
   // ── Tab state derived from URL ──────────────────────────────────────────────
-  const { tab, subTab } = useParams();
+  const { tab, subTab, psychTab } = useParams();
   const navigate = useNavigate();
 
   const activeTab = tab || "account";
@@ -86,10 +87,19 @@ export default function MemberPortalPage() {
 
   const [previewMode, setPreviewMode]     = useState("mobile");
 
-  // ── Utilities redirect state ─────────────────────────────────────────────────
-  const [defaultUtility, setDefaultUtility] = useState(null);
-  const [defaultPsychologySubTab, setDefaultPsychologySubTab] = useState("chat");
+  // ── Utilities navigation — synced to the URL so a page refresh keeps the
+  // member on the exact same utility/sub-tab instead of bouncing them back to
+  // the utilities dashboard (e.g. /member/utilities/psychology/therapy). ──────
+  const utilitySelection = activeTab === "utilities" ? (subTab || null) : null;
+  const psychologySubTabFromUrl = activeTab === "utilities" && subTab === "psychology" ? (psychTab || "chat") : "chat";
   const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
+
+  const handleSelectUtility = (utilityId) => {
+    navigate(utilityId ? `/member/utilities/${utilityId}` : "/member/utilities");
+  };
+  const handleSelectPsychologySubTab = (subTabId) => {
+    navigate(`/member/utilities/psychology/${subTabId}`);
+  };
 
   // ── History unread badge ─────────────────────────────────────────────────────
   const [readHistoryTimestamp, setReadHistoryTimestamp] = useState(
@@ -143,6 +153,27 @@ export default function MemberPortalPage() {
     showToast, sendNotification, markRead, markAllRead, dismiss, refresh: refreshInbox,
   } = useNotifications(memberSession?.email || null);
 
+  // ── Passive sleep auto-detection ─────────────────────────────────────────────
+  // Mounted here (portal-wide) instead of inside SleepTracker so the 8-signal
+  // detection (IdleDetector, DeviceMotion, etc.) keeps listening for as long as
+  // the member has ANY portal page open — not just while they're sitting in the
+  // Bạn Học Đường > Sleep sub-tab, which nobody does while actually asleep.
+  const [pendingSleepCycle, setPendingSleepCycle] = useState(null);
+  const handleSleepAutoDetect = React.useCallback((cycle) => {
+    setPendingSleepCycle(cycle);
+    showToast("Hệ thống tự động ghi nhận giấc ngủ đêm qua!", "success");
+  }, [showToast]);
+  const sleepDetect = useSleepAutoDetect({
+    email: memberSession?.email,
+    onAutoDetect: handleSleepAutoDetect,
+    enabled: !!memberSession?.email,
+  });
+  const sleepAutoDetect = useMemo(() => ({
+    ...sleepDetect,
+    pendingCycle: pendingSleepCycle,
+    clearPendingCycle: () => setPendingSleepCycle(null),
+  }), [sleepDetect, pendingSleepCycle]);
+
   // ── Healing journey hook ──────────────────────────────────────────────────────
   const isEmbedded = useMemo(() => window.self !== window.top || new URLSearchParams(window.location.search).get("embed") === "true", []);
   const isGuestMode = useMemo(() => isEmbedded && !memberSession?.email, [isEmbedded, memberSession]);
@@ -151,8 +182,11 @@ export default function MemberPortalPage() {
   const healing = useHealingJourney({
     email: memberSession?.email || null,
     onNavigate: (tab, utility, subTab, presetTest) => {
-      setDefaultUtility(utility); setDefaultPsychologySubTab(subTab);
-      setDefaultPsychologyPresetTest(presetTest); navigate(`/member/${tab}`);
+      setDefaultPsychologyPresetTest(presetTest);
+      const path = utility
+        ? (subTab ? `/member/${tab}/${utility}/${subTab}` : `/member/${tab}/${utility}`)
+        : `/member/${tab}`;
+      navigate(path);
     },
     showToast, sendNotification,
   });
@@ -887,9 +921,9 @@ export default function MemberPortalPage() {
                 )}
 
                 {activeTab === "manage"    && <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} handleRedeemCode={handleRedeemCode} />}
-                {activeTab === "joy"       && <MemberJoyTab bio={bio} showToast={showToast} />}
+                {activeTab === "joy"       && <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />}
                 {activeTab === "partner"   && <MemberPartnerTab />}
-                {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} defaultUtility={defaultUtility} defaultPsychologySubTab={defaultPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} />}
+                {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} />}
                 {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} />}
               </>
             )}

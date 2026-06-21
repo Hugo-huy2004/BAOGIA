@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { loginMember } from "../../services/authSession";
+import { isEduEmail } from "../../utils/eduEmail";
 
 export default function StudentBenefitsPage() {
   useHeadMeta({
@@ -44,7 +45,7 @@ export default function StudentBenefitsPage() {
     const profile = JSON.parse(payloadJson);
 
     const email = profile.email || "";
-    if (!email.toLowerCase().includes(".edu")) {
+    if (!isEduEmail(email)) {
       showToast(
         "Tài khoản của bạn sẽ ở trạng thái chờ duyệt vì đây không phải email .edu. Đang chuyển hướng...",
         "warning",

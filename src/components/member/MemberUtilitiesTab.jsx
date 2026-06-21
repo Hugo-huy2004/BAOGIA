@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
+import React, { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import SubUtilityHeader from "./SubUtilityHeader";
 
@@ -10,15 +10,8 @@ const MemberSecretLinkTab = lazy(() => import("./MemberSecretLinkTab"));
 const MemberFileToolsTab = lazy(() => import("./MemberFileToolsTab"));
 const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, defaultUtility, defaultPsychologySubTab, defaultPsychologyPresetTest }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect }) {
   const { t } = useTranslation();
-  const [selectedUtility, setSelectedUtility] = useState(defaultUtility || null); // null, 'nfc', 'vcard', 'signature'
-
-  useEffect(() => {
-    if (defaultUtility) {
-      setSelectedUtility(defaultUtility);
-    }
-  }, [defaultUtility]);
 
   // Dynamic API host determination for local dev and hosting domains
   const getApiUrl = () => {
@@ -39,17 +32,17 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       <Suspense fallback={fallback}>
       {/* Utility Selector Dashboard */}
       {selectedUtility === null && (
-        <MemberUtilitiesDashboard setSelectedUtility={setSelectedUtility} />
+        <MemberUtilitiesDashboard setSelectedUtility={onSelectUtility} />
       )}
 
       {/* NFC Card Tool */}
       {selectedUtility === "nfc" && (
         <div>
-          <SubUtilityHeader 
-            title={t("memberPortal.utilitiesPage.nfc.title")} 
-            icon="sensors" 
-            colorClass="text-indigo-500" 
-            onBack={() => setSelectedUtility(null)}
+          <SubUtilityHeader
+            title={t("memberPortal.utilitiesPage.nfc.title")}
+            icon="sensors"
+            colorClass="text-indigo-500"
+            onBack={() => onSelectUtility(null)}
           />
           <MemberNfcTab bio={bio} publicLink={publicLink} showToast={showToast} />
         </div>
@@ -57,31 +50,31 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* Smart vCard Tool */}
       {selectedUtility === "vcard" && (
-        <MemberVCardTab 
-          bio={bio} 
-          showToast={showToast} 
-          onBack={() => setSelectedUtility(null)} 
-          getApiUrl={getApiUrl} 
+        <MemberVCardTab
+          bio={bio}
+          showToast={showToast}
+          onBack={() => onSelectUtility(null)}
+          getApiUrl={getApiUrl}
         />
       )}
 
       {/* Email Signature Tool */}
       {selectedUtility === "signature" && (
-        <MemberSignatureTab 
-          bio={bio} 
-          publicLink={publicLink} 
-          showToast={showToast} 
-          onBack={() => setSelectedUtility(null)} 
+        <MemberSignatureTab
+          bio={bio}
+          publicLink={publicLink}
+          showToast={showToast}
+          onBack={() => onSelectUtility(null)}
         />
       )}
 
       {/* Secret Link Tool */}
       {selectedUtility === "secret_link" && (
-        <MemberSecretLinkTab 
-          bio={bio} 
-          publicLink={publicLink} 
-          showToast={showToast} 
-          onBack={() => setSelectedUtility(null)} 
+        <MemberSecretLinkTab
+          bio={bio}
+          publicLink={publicLink}
+          showToast={showToast}
+          onBack={() => onSelectUtility(null)}
           setFormData={setFormData}
           handleSave={handleSave}
         />
@@ -89,22 +82,24 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* File Tools */}
       {selectedUtility === "file_tools" && (
-        <MemberFileToolsTab 
-          onBack={() => setSelectedUtility(null)} 
-          showToast={showToast} 
+        <MemberFileToolsTab
+          onBack={() => onSelectUtility(null)}
+          showToast={showToast}
         />
       )}
 
       {/* Psychology Advisor Tool - Bạn Học Đường */}
       {selectedUtility === "psychology" && (
-        <BanhocduongTab 
-          onBack={() => setSelectedUtility(null)} 
-          defaultSubTab={defaultPsychologySubTab}
+        <BanhocduongTab
+          onBack={() => onSelectUtility(null)}
+          activeSubTab={psychologySubTab}
+          onSubTabChange={onSelectPsychologySubTab}
           defaultPresetTest={defaultPsychologyPresetTest}
           bio={bio}
           showToast={showToast}
           setFormData={setFormData}
           handleSave={handleSave}
+          sleepAutoDetect={sleepAutoDetect}
         />
       )}
       </Suspense>

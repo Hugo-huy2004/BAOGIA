@@ -12,7 +12,8 @@ const TITLES = {
   checkin: 'Điểm danh nhận JOY',
   gift_code: 'Đổi mã quà tặng',
   store_purchase: 'Mua hàng',
-  admin_adjustment: 'Điều chỉnh JOY'
+  admin_adjustment: 'Điều chỉnh JOY',
+  companion_unlock: 'Mở khoá tính năng trị liệu'
 };
 
 /**

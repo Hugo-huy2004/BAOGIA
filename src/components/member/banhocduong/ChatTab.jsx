@@ -12,6 +12,116 @@ import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogue
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
 import { getRandomResponse, needsAI } from "./constants/randomResponses";
 
+const MOOD_META = {
+  5: { emoji: "😄", label: "Rất tốt" },
+  4: { emoji: "🙂", label: "Tốt" },
+  3: { emoji: "😐", label: "Bình thường" },
+  2: { emoji: "😔", label: "Mỏi mệt" },
+  1: { emoji: "😣", label: "Kiệt sức" },
+};
+
+/** Lightweight client-side wellness snapshot computed from historyLogs — no extra
+ * network calls, reuses the same log shapes EvaluationTab/TherapyTab already read. */
+function useWellnessInsight(historyLogs) {
+  return React.useMemo(() => {
+    const checkins = historyLogs
+      .filter(l => l.type === "checkin" && l.mood)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const latestMood = checkins.length ? checkins[checkins.length - 1].mood : null;
+
+    // Streak: consecutive days with a checkin, counting back from today
+    let streak = 0;
+    const days = new Set(checkins.map(c => new Date(c.date).toDateString()));
+    let d = new Date();
+    while (days.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+
+    // Mood trend: avg of last 3 checkins vs the 3 before that
+    let trend = "stable";
+    if (checkins.length >= 4) {
+      const avg = arr => arr.reduce((a, b) => a + b, 0) / (arr.length || 1);
+      const recent = avg(checkins.slice(-3).map(c => c.mood));
+      const prior = avg(checkins.slice(-6, -3).map(c => c.mood));
+      if (recent - prior >= 0.5) trend = "up";
+      else if (prior - recent >= 0.5) trend = "down";
+    }
+
+    // Most recent clinical test result, if any
+    const clinicalLogs = historyLogs.filter(l => l.test || l.type === "clinical_test").sort((a, b) => new Date(a.date) - new Date(b.date));
+    const latestClinical = clinicalLogs[clinicalLogs.length - 1] || null;
+
+    // ── Smart suggestion: picks ONE concrete therapy method right now, based on
+    // today's actual signals, instead of leaving the user to dig through 9 cards.
+    let suggestion = null;
+    if (latestMood !== null && latestMood <= 2) {
+      suggestion = { methodId: "breath", label: "Hít Thở 4-7-8", reason: "Tâm trạng đang mệt mỏi — hít thở để làm dịu ngay", icon: "air" };
+    } else if (trend === "down") {
+      suggestion = { methodId: "writing", label: "Viết Tự Do", reason: "Cảm xúc gần đây đang đi xuống — viết tự do giúp giải tỏa", icon: "edit_note" };
+    } else if (streak === 0) {
+      suggestion = { methodId: "gratitude", label: "Nhật Ký Biết Ơn", reason: "Cậu chưa check-in hôm nay — bắt đầu nhẹ nhàng với nhật ký biết ơn", icon: "favorite" };
+    } else {
+      suggestion = { methodId: "exercise", label: "Vận Động Nhẹ", reason: "Tâm trạng đang ổn — duy trì năng lượng với vận động nhẹ", icon: "directions_run" };
+    }
+
+    return { latestMood, streak, trend, latestClinical, suggestion };
+  }, [historyLogs]);
+}
+
+function WellnessInsightStrip({ historyLogs, onNavigateToTab }) {
+  const { latestMood, streak, trend, latestClinical, suggestion } = useWellnessInsight(historyLogs);
+  const moodMeta = latestMood ? MOOD_META[latestMood] : null;
+
+  const trendMeta = {
+    up: { icon: "trending_up", label: "Cải thiện", cls: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10" },
+    down: { icon: "trending_down", label: "Cần chú ý", cls: "text-rose-600 dark:text-rose-400 bg-rose-500/10" },
+    stable: { icon: "trending_flat", label: "Ổn định", cls: "text-zinc-500 dark:text-zinc-400 bg-zinc-500/10" },
+  }[trend];
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none px-4 -mt-0.5">
+        <span className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/70 text-[10px] font-bold text-zinc-600 dark:text-zinc-300 whitespace-nowrap">
+          {moodMeta ? <>{moodMeta.emoji} {moodMeta.label}</> : <>— Chưa check-in</>}
+        </span>
+        <span className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-orange-500/10 text-[10px] font-bold text-orange-600 dark:text-orange-400 whitespace-nowrap">
+          <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+          {streak} ngày
+        </span>
+        <span className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${trendMeta.cls}`}>
+          <span className="material-symbols-outlined text-[12px]">{trendMeta.icon}</span>
+          {trendMeta.label}
+        </span>
+        {latestClinical && (
+          <button
+            type="button"
+            onClick={() => onNavigateToTab?.("evaluation")}
+            className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-indigo-500/10 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined text-[12px]">monitoring</span>
+            {(latestClinical.test || "test").toUpperCase()} · Xem đánh giá
+          </button>
+        )}
+      </div>
+      {suggestion && (
+        <button
+          type="button"
+          onClick={() => onNavigateToTab?.("therapy", suggestion.methodId)}
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 mx-0 rounded-none bg-gradient-to-r from-violet-500/10 to-indigo-500/5 border-y border-violet-500/15 text-left active:scale-[0.99] transition-all"
+        >
+          <span className="shrink-0 w-7 h-7 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+            <span className="material-symbols-outlined text-[15px]">{suggestion.icon}</span>
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[10px] font-black text-violet-700 dark:text-violet-400">Gợi ý hôm nay: {suggestion.label}</span>
+            <span className="block text-[9.5px] text-zinc-500 dark:text-zinc-400 truncate">{suggestion.reason}</span>
+          </span>
+          <span className="material-symbols-outlined text-[16px] text-violet-400 shrink-0">chevron_right</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function ChatTab({ 
   onNavigateToTab, 
   bio, 
@@ -59,6 +169,7 @@ export default function ChatTab({
   const [remainingChatTokens, setRemainingChatTokens] = useState(3);
   const [remainingCallTokens, setRemainingCallTokens] = useState(5);
   const [inputText, setInputText] = useState("");
+  const hasUnlimitedCalls = bio?.unlockedCompanionFeatures?.includes("unlimited_calls");
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
@@ -1295,9 +1406,12 @@ export default function ChatTab({
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border ${remainingChatTokens <= 1 ? 'bg-red-500/10 border-red-400/20 text-red-500' : 'bg-amber-500/10 border-amber-400/20 text-amber-600 dark:text-amber-400'}`} title={`Token còn lại: ${remainingChatTokens}/3 hôm nay`}>
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border ${remainingChatTokens <= 1 ? 'bg-red-500/10 border-red-400/20 text-red-500' : 'bg-amber-500/10 border-amber-400/20 text-amber-600 dark:text-amber-400'}`} title={`Token còn lại: ${remainingChatTokens}/3 hôm nay${bio?.bonusChatTokens > 0 ? ` + ${bio.bonusChatTokens} token thưởng` : ''}`}>
             <span className="material-symbols-outlined text-[11px]">toll</span>
             <span className="text-[10px] font-black">{remainingChatTokens}/3</span>
+            {bio?.bonusChatTokens > 0 && (
+              <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-400">+{bio.bonusChatTokens}</span>
+            )}
           </div>
           {healingActive && (
             <button type="button" onClick={() => {
@@ -1314,6 +1428,11 @@ export default function ChatTab({
             </button>
           )}
         </div>
+      </div>
+
+      {/* ── Smart wellness insight strip ──────────────────────────────────────── */}
+      <div className="shrink-0 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50">
+        <WellnessInsightStrip historyLogs={historyLogs} onNavigateToTab={onNavigateToTab} />
       </div>
 
       {/* ── Tests bottom sheet ──────────────────────────────────────────────────── */}
@@ -1534,9 +1653,12 @@ export default function ChatTab({
               </button>
             ) : (
               <button type="button" onClick={() => setIsCallModalOpen(true)}
-                title="Gọi tư vấn AI"
-                className="w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/25 active:scale-90 transition-all">
+                title={hasUnlimitedCalls ? "Gọi tư vấn AI (Không giới hạn)" : "Gọi tư vấn AI"}
+                className="relative w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/25 active:scale-90 transition-all">
                 <PhoneCall className="w-[18px] h-[18px]" />
+                {hasUnlimitedCalls && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-[8px] font-black text-zinc-900 flex items-center justify-center">∞</span>
+                )}
               </button>
             )}
           </div>
@@ -1555,8 +1677,9 @@ export default function ChatTab({
         isOpen={isCallModalOpen}
         onClose={() => setIsCallModalOpen(false)}
         botManager={botManager}
-        remainingCallTokens={remainingCallTokens}
+        remainingCallTokens={hasUnlimitedCalls ? Infinity : remainingCallTokens}
         setRemainingCallTokens={(n) => {
+          if (hasUnlimitedCalls) return;
           const today = new Date().toISOString().split("T")[0];
           setRemainingCallTokens(n);
           localStorage.setItem(`consultant_tokens_${today}`, n);

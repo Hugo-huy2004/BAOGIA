@@ -240,6 +240,12 @@ const BioSchema = new mongoose.Schema(
     presenceIndex: {
       type: Number,
       default: null
+    },
+    // Bạn Học Đường therapy features unlocked with a one-time 150 JOY spend
+    // each (e.g. 'reading', 'meditation', 'depression') — see companionRoutes.js.
+    unlockedCompanionFeatures: {
+      type: [String],
+      default: []
     }
   },
   { timestamps: true }

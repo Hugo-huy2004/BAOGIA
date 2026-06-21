@@ -13,7 +13,7 @@ const SECTIONS = [
   { id: "history", icon: "receipt_long" },
 ];
 
-export default function MemberJoyTab({ bio, showToast }) {
+export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
   const { t } = useTranslation();
   const [section, setSection] = useState("wallet");
   const balance = useJoyStore(s => s.balance);
@@ -126,6 +126,22 @@ export default function MemberJoyTab({ bio, showToast }) {
         <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
           {t("memberPortal.joy.referral.countLabel", { count: referralCount })}
         </p>
+        {(bio?.bonusChatTokens > 0 || bio?.bonusCallTokens > 0) && (
+          <div className="flex items-center gap-3 mt-1 text-[10px] font-bold">
+            {bio.bonusChatTokens > 0 && (
+              <span className="flex items-center gap-1 bg-white/70 dark:bg-black/20 rounded-full px-2.5 py-1 text-indigo-600 dark:text-indigo-400">
+                <span className="material-symbols-outlined text-[13px]">chat</span>
+                +{bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens")}
+              </span>
+            )}
+            {bio.bonusCallTokens > 0 && (
+              <span className="flex items-center gap-1 bg-white/70 dark:bg-black/20 rounded-full px-2.5 py-1 text-rose-600 dark:text-rose-400">
+                <span className="material-symbols-outlined text-[13px]">call</span>
+                +{bio.bonusCallTokens} {t("memberPortal.joy.store.callTokens")}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Section switcher */}
@@ -203,6 +219,7 @@ export default function MemberJoyTab({ bio, showToast }) {
           bio={bio}
           balance={balance}
           onPurchased={(newBalance) => setBalance(newBalance)}
+          onBioUpdate={onBioUpdate}
           showToast={showToast}
         />
       )}

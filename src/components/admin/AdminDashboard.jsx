@@ -36,6 +36,32 @@ async function aiPost(path, body) {
   return r.json();
 }
 
+function CrisisAlertsCard({ alerts }) {
+  const { t } = useTranslation();
+  if (!alerts.length) return null;
+  return (
+    <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-5 space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="material-symbols-outlined text-destructive text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
+        <h3 className="text-sm font-extrabold text-destructive">{t("adminDashboard.crisisAlerts.title", "Cảnh báo khủng hoảng tâm lý")} ({alerts.length})</h3>
+      </div>
+      <div className="space-y-2">
+        {alerts.map(a => (
+          <div key={a.flagId} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-card border border-destructive/20">
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-foreground truncate">{a.displayName}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{a.trigger || "—"} · {new Date(a.detectedAt).toLocaleString("vi-VN")}</p>
+            </div>
+            <a href={`mailto:${a.email}`} className="shrink-0 text-[10px] font-bold text-primary hover:underline whitespace-nowrap">
+              {a.email}
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ActivityItem({ icon, color, text, sub, time }) {
   const colors = {
     success: "bg-success/10 text-success",
@@ -78,6 +104,18 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
   const [aiInsight, setAiInsight] = useState(null);
   const [insightLoading, setInsightLoading] = useState(false);
   const [systemStats, setSystemStats] = useState({ dbSize: 42, apiLoad: 28, cacheHit: 91, uptime: 99.9 });
+  const [crisisAlerts, setCrisisAlerts] = useState([]);
+
+  useEffect(() => {
+    const fetchAlerts = () => {
+      apiFetch(`${VITE_API}/companion/admin/crisis-alerts`)
+        .then(data => setCrisisAlerts(Array.isArray(data) ? data : []))
+        .catch(() => {});
+    };
+    fetchAlerts();
+    const interval = setInterval(fetchAlerts, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const pendingBookings = bookings.filter(b => !b.contacted).length;
   const pendingTickets  = tickets;
@@ -178,6 +216,8 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
 
   return (
     <div className="space-y-6 animate-fade-in">
+
+      <CrisisAlertsCard alerts={crisisAlerts} />
 
       {/* ── KPI Row ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

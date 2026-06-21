@@ -1026,3 +1026,262 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
                 "achievements": [],
                 "nextSteps": []
             }
+
+    # ── Premium therapy features (150 JOY unlocks) ──────────────────────────
+    # Each of these is intentionally a different MECHANIC, not a re-skin of the
+    # free tier: real AI-generated content personalised to the user's actual
+    # mood/history, instead of static scripted text.
+
+    async def generate_therapeutic_story(self, mood: str = None, context: str = "", bio: dict = None) -> dict:
+        """"Đọc Truyện AI Trị Liệu" — sinh một truyện ngắn trị liệu cá nhân hoá theo mood thực."""
+        name, age_context, _ = self._extract_name_and_age(bio)
+        client = self._ensure_client()
+        if not client:
+            return {
+                "title": "Khu Vườn Yên Tĩnh",
+                "story": f"Chào {name}, hôm nay tớ chưa thể kể chuyện vì chưa có API Key. Hãy nhắc admin cấu hình nhé!"
+            }
+
+        system_instruction = f"""
+Bạn là người kể chuyện trị liệu (Bibliotherapy Narrator) của Hugo Studio AI.
+Nhiệm vụ: Viết MỘT truyện ngắn trị liệu (300-450 từ) dành riêng cho {name} ({age_context}), dựa trên tâm trạng hiện tại: "{mood or 'chưa rõ'}".
+Ngữ cảnh thêm: {context or 'không có'}.
+
+YÊU CẦU:
+- Câu chuyện phải mang tính ẩn dụ/ngụ ngôn nhẹ nhàng (không giảng đạo lý trực tiếp), giúp người đọc cảm thấy được thấu hiểu và dịu lại.
+- Nhịp văn chậm, êm, nhiều hình ảnh giác quan (ánh sáng, âm thanh, hơi thở) — phù hợp để ĐỌC TO/NGHE qua giọng đọc TTS.
+- Kết thúc bằng một hình ảnh/cảm giác bình yên, KHÔNG dạy đời.
+- Văn phong tiếng Việt tự nhiên, không công thức.
+
+Trả về JSON CHÍNH XÁC:
+{{
+  "title": "Tên truyện ngắn (dưới 8 từ)",
+  "story": "Toàn bộ nội dung truyện"
+}}
+"""
+        prompt = "Hãy viết truyện ngắn trị liệu theo đúng yêu cầu."
+        max_retries = max(1, len(self.api_keys))
+        for attempt in range(max_retries):
+            try:
+                response = await client.aio.models.generate_content(
+                    model=self.model_name,
+                    contents=[prompt],
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                        temperature=0.9
+                    )
+                )
+                return json.loads(response.text)
+            except Exception as e:
+                err_str = str(e)
+                if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
+                    client = self._get_next_client()
+                    continue
+                return {"title": "Lỗi", "story": f"Tớ chưa thể kể chuyện lúc này: {err_str}"}
+        return {"title": "Lỗi", "story": "Tất cả API Key đã bị quá tải."}
+
+    async def generate_meditation_script(self, mood: str = None, context: str = "", bio: dict = None) -> dict:
+        """"Thiền Dẫn AI Cá Nhân Hoá" — sinh 6-8 câu giọng dẫn thiền theo mood/dữ liệu lâm sàng thực."""
+        name, age_context, _ = self._extract_name_and_age(bio)
+        client = self._ensure_client()
+        if not client:
+            return {"phrases": [
+                "Hãy nhắm mắt lại, thẳng lưng và để cơ thể thả lỏng hoàn toàn.",
+                "Hít vào chậm qua mũi, cảm nhận bụng phồng lên, rồi thở ra nhẹ nhàng qua miệng."
+            ]}
+
+        system_instruction = f"""
+Bạn là hướng dẫn viên thiền chánh niệm (Mindfulness Guide) của Hugo Studio AI.
+Nhiệm vụ: Soạn 6-8 câu giọng dẫn thiền (guided meditation script) CÁ NHÂN HOÁ cho {name} ({age_context}), dựa trên tâm trạng hiện tại: "{mood or 'chưa rõ'}" và ngữ cảnh: {context or 'không có'}.
+
+YÊU CẦU:
+- Mỗi câu là MỘT chỉ dẫn ngắn (dưới 25 từ), nhịp chậm, phù hợp để đọc to qua giọng nói TTS với khoảng nghỉ giữa các câu.
+- Thứ tự hợp lý: ổn định cơ thể → hơi thở → buông bỏ suy nghĩ → quan sát cảm xúc hiện tại → câu kết khích lệ.
+- Nếu mood cho thấy lo âu/căng thẳng cao, ưu tiên các câu làm dịu hệ thần kinh (grounding).
+- Nếu mood cho thấy trầm/mệt mỏi, ưu tiên các câu nhẹ nhàng khơi dậy năng lượng tích cực, không ép buộc.
+
+Trả về JSON CHÍNH XÁC:
+{{ "phrases": ["câu 1", "câu 2", "..."] }}
+"""
+        prompt = "Hãy soạn script thiền theo đúng yêu cầu."
+        max_retries = max(1, len(self.api_keys))
+        for attempt in range(max_retries):
+            try:
+                response = await client.aio.models.generate_content(
+                    model=self.model_name,
+                    contents=[prompt],
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                        temperature=0.7
+                    )
+                )
+                return json.loads(response.text)
+            except Exception as e:
+                err_str = str(e)
+                if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
+                    client = self._get_next_client()
+                    continue
+                return {"phrases": [], "error": err_str}
+        return {"phrases": [], "error": "Tất cả API Key đã bị quá tải."}
+
+    async def generate_cbt_worksheet(self, history_logs: list, chat_messages: list, bio: dict = None) -> dict:
+        """"CBT Worksheet Cá Nhân Hoá" — sinh bảng ghi nhận suy nghĩ CBT thật từ lịch sử chat/checkin."""
+        name, age_context, _ = self._extract_name_and_age(bio)
+        client = self._ensure_client()
+        if not client:
+            return {"error": "No API Key"}
+
+        recent_chats = (chat_messages or [])[-30:]
+        recent_logs = (history_logs or [])[-20:]
+
+        system_instruction = f"""
+Bạn là chuyên gia trị liệu Nhận thức - Hành vi (CBT Therapist) của Hugo Studio AI.
+Nhiệm vụ: Đọc lịch sử trò chuyện/checkin THẬT của {name} ({age_context}) và soạn MỘT "Bảng Ghi Nhận Suy Nghĩ" (Thought Record) CBT cụ thể, lấy đúng tình huống/suy nghĩ mà người dùng đã thực sự chia sẻ — KHÔNG bịa ra tình huống chung.
+
+Nếu dữ liệu quá ít để xác định một tình huống cụ thể, hãy chọn tâm trạng/checkin gần nhất làm tình huống nền.
+
+Trả về JSON CHÍNH XÁC:
+{{
+  "situation": "Tình huống cụ thể lấy từ dữ liệu thật (1-2 câu)",
+  "automatic_thought": "Suy nghĩ tự động tiêu cực mà người dùng có vẻ đang mang (trích hoặc diễn giải từ lời họ nói)",
+  "emotion": "Cảm xúc đi kèm và mức độ (ví dụ: Lo âu 70%)",
+  "distortion": "Tên biến dạng nhận thức phù hợp nhất (ví dụ: Thảm hoạ hoá, Tư duy trắng đen, Đọc tâm trí người khác)",
+  "evidence_for": "Bằng chứng (nếu có) ủng hộ suy nghĩ đó",
+  "evidence_against": "Bằng chứng phản biện lại suy nghĩ đó",
+  "balanced_thought": "Suy nghĩ cân bằng hơn, thực tế hơn để thay thế",
+  "action_step": "Một hành động nhỏ, cụ thể có thể làm ngay hôm nay"
+}}
+"""
+        prompt = (
+            f"Lịch sử checkin/hoạt động gần đây:\n{json.dumps(recent_logs, ensure_ascii=False, default=str)}\n\n"
+            f"Tin nhắn chat gần đây:\n{json.dumps(recent_chats, ensure_ascii=False, default=str)}\n\n"
+            "Hãy soạn Bảng Ghi Nhận Suy Nghĩ CBT theo đúng yêu cầu."
+        )
+        max_retries = max(1, len(self.api_keys))
+        for attempt in range(max_retries):
+            try:
+                response = await client.aio.models.generate_content(
+                    model=self.model_name,
+                    contents=[prompt],
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                        temperature=0.6
+                    )
+                )
+                return json.loads(response.text)
+            except Exception as e:
+                err_str = str(e)
+                if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
+                    client = self._get_next_client()
+                    continue
+                return {"error": err_str}
+        return {"error": "Tất cả API Key đã bị quá tải."}
+
+    async def generate_action_plan(self, history_logs: list, bio: dict = None) -> dict:
+        """"Lộ Trình Hoạt Động Cá Nhân Hoá" — gộp viết/vận động/kết nối thành 1 kế hoạch 7 ngày."""
+        name, age_context, _ = self._extract_name_and_age(bio)
+        client = self._ensure_client()
+        if not client:
+            return {"error": "No API Key"}
+
+        recent_logs = (history_logs or [])[-25:]
+
+        system_instruction = f"""
+Bạn là chuyên gia tâm lý học đường thiết kế lộ trình hoạt động (Behavioral Activation Coach) của Hugo Studio AI.
+Nhiệm vụ: Dựa trên dữ liệu thật của {name} ({age_context}), thiết kế MỘT lộ trình hoạt động cá nhân hoá cho 7 ngày tới, kết hợp 3 trụ cột: Viết (giải tỏa cảm xúc), Vận động nhẹ, Kết nối xã hội.
+
+YÊU CẦU:
+- Mỗi ngày CHỈ 1 hoạt động cụ thể, nhỏ, khả thi (không yêu cầu quá nhiều).
+- Luân phiên hợp lý giữa 3 trụ cột tuỳ theo trạng thái của người dùng (ví dụ: nếu có dấu hiệu thu mình/ít kết nối, tăng tỷ trọng "Kết nối xã hội").
+- Văn phong khích lệ, không áp lực.
+
+Trả về JSON CHÍNH XÁC:
+{{
+  "week_theme": "Chủ đề ngắn cho cả tuần (dưới 10 từ)",
+  "days": [
+    {{ "day": 1, "pillar": "writing|movement|social", "title": "Tên hoạt động ngắn", "action": "Hướng dẫn cụ thể (1-2 câu)" }}
+  ]
+}}
+(days phải có đủ 7 phần tử, day từ 1 đến 7)
+"""
+        prompt = (
+            f"Lịch sử hoạt động gần đây:\n{json.dumps(recent_logs, ensure_ascii=False, default=str)}\n\n"
+            "Hãy thiết kế lộ trình 7 ngày theo đúng yêu cầu."
+        )
+        max_retries = max(1, len(self.api_keys))
+        for attempt in range(max_retries):
+            try:
+                response = await client.aio.models.generate_content(
+                    model=self.model_name,
+                    contents=[prompt],
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                        temperature=0.75
+                    )
+                )
+                return json.loads(response.text)
+            except Exception as e:
+                err_str = str(e)
+                if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
+                    client = self._get_next_client()
+                    continue
+                return {"error": err_str}
+        return {"error": "Tất cả API Key đã bị quá tải."}
+
+    async def generate_deep_report(self, history_logs: list, chat_messages: list, bio: dict = None) -> dict:
+        """"Báo Cáo Tâm Lý Chuyên Sâu" — báo cáo dạng chia sẻ được cho chuyên viên thật (không chỉ tóm tắt tuần)."""
+        name, age_context, _ = self._extract_name_and_age(bio)
+        client = self._ensure_client()
+        if not client:
+            return {"error": "No API Key"}
+
+        system_instruction = f"""
+Bạn là chuyên gia tâm lý lâm sàng soạn HỒ SƠ TỔNG HỢP (Clinical Summary Report) cho {name} ({age_context}), với mục đích người dùng có thể IN RA hoặc CHIA SẺ cho một chuyên viên/bác sĩ tâm lý THẬT để được hỗ trợ tiếp.
+
+YÊU CẦU:
+- Văn phong khách quan, chuyên môn, súc tích — đây là tài liệu tham khảo y tế, không phải lời động viên.
+- Dựa HOÀN TOÀN trên dữ liệu thật được cung cấp, không suy diễn quá mức.
+- Phải nêu rõ: đây là công cụ hỗ trợ tự theo dõi, KHÔNG phải chẩn đoán y khoa chính thức.
+
+Trả về JSON CHÍNH XÁC:
+{{
+  "report_date": "ngày tạo báo cáo (DD/MM/YYYY)",
+  "overview": "Tổng quan tình trạng tâm lý trong giai đoạn theo dõi (3-4 câu, khách quan)",
+  "mood_trend_summary": "Diễn giải xu hướng tâm trạng theo thời gian",
+  "clinical_test_summary": "Tổng hợp kết quả các bài test lâm sàng đã làm (nếu có), kèm thang điểm",
+  "risk_indicators": ["Chỉ số rủi ro 1 nếu có", "..."],
+  "strengths_and_progress": ["Điểm tích cực/tiến bộ quan sát được 1", "..."],
+  "recommendations_for_specialist": ["Gợi ý hướng theo dõi/can thiệp tiếp theo dành cho chuyên viên 1", "..."],
+  "disclaimer": "Câu khẳng định đây là công cụ tự theo dõi, không thay thế chẩn đoán y khoa chính thức."
+}}
+"""
+        prompt = (
+            f"Toàn bộ lịch sử hoạt động/checkin/test:\n{json.dumps(history_logs or [], ensure_ascii=False, default=str)}\n\n"
+            f"Trích đoạn hội thoại gần đây (tối đa 30 tin gần nhất):\n{json.dumps((chat_messages or [])[-30:], ensure_ascii=False, default=str)}\n\n"
+            f"Ngày hiện tại: {datetime.now().strftime('%d/%m/%Y')}\n\n"
+            "Hãy soạn báo cáo tổng hợp theo đúng yêu cầu."
+        )
+        max_retries = max(1, len(self.api_keys))
+        for attempt in range(max_retries):
+            try:
+                response = await client.aio.models.generate_content(
+                    model=self.model_name,
+                    contents=[prompt],
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                        temperature=0.4
+                    )
+                )
+                return json.loads(response.text)
+            except Exception as e:
+                err_str = str(e)
+                if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
+                    client = self._get_next_client()
+                    continue
+                return {"error": err_str}
+        return {"error": "Tất cả API Key đã bị quá tải."}

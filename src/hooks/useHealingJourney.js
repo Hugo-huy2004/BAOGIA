@@ -176,7 +176,7 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
 
   const goToBreath = useCallback(() => {
     setShowModal(false);
-    onNavigate('utilities', 'psychology', 'breath', null);
+    onNavigate('utilities', 'psychology', 'therapy', 'breath');
     showToast('Đã chuyển hướng đến bài tập Hít thở 4-7-8.', 'success');
   }, [onNavigate, showToast]);
 

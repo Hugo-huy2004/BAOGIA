@@ -3,12 +3,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock, Unlock, BookOpen, Wind, Brain, Heart, ArrowLeft,
   Pencil, Dumbbell, Users, Flame, CheckCircle2, Circle,
-  Timer, ChevronRight, Sparkles, TrendingUp
+  Timer, ChevronRight, Sparkles, TrendingUp, PhoneCall, FileText, CalendarCheck, Printer
 } from "lucide-react";
 import BreathingTherapy from "./BreathingTherapy";
 import ReadingTherapy from "./ReadingTherapy";
 import MeditationTherapy from "./MeditationTherapy";
 import DepressionCbtTherapy from "./DepressionCbtTherapy";
+import JoyCoinBadge from "../../shared/JoyCoinBadge";
+import { useJoyStore } from "../../../stores/joyStore";
+import { getAiUrl } from "../../../services/api";
+
+const apiBase = import.meta.env.VITE_API_URL || "/api";
+const AI_BASE = getAiUrl();
+const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
+const UNLOCK_COST = 150;
 
 // ─── Inline mini-panels ──────────────────────────────────────────────────────
 
@@ -156,173 +164,185 @@ function MuscleRelaxPanel({ onBack, onComplete }) {
   );
 }
 
-function ExpressiveWritingPanel({ onBack, onComplete }) {
-  const [text, setText] = useState("");
-  const [timeLeft, setTimeLeft] = useState(600);
-  const [started, setStarted] = useState(false);
-  const [done, setDone] = useState(false);
-  const timerRef = useRef(null);
+// ─── Lộ Trình Hoạt Động Cá Nhân Hoá (paid, merges writing+exercise+social) ──
+function ActionPlanPanel({ bio, historyLogs, onBack, onComplete }) {
+  const [plan, setPlan] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [completedDays, setCompletedDays] = useState(new Set());
 
-  const start = () => {
-    setStarted(true);
-    timerRef.current = setInterval(() => {
-      setTimeLeft(t => {
-        if (t <= 1) { clearInterval(timerRef.current); return 0; }
-        return t - 1;
-      });
-    }, 1000);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const r = await fetch(`${AI_BASE}/api/ai/therapy/action-plan`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Internal-Key": INTERNAL_KEY },
+          body: JSON.stringify({ historyLogs, bio }),
+        });
+        const data = await r.json();
+        if (cancelled) return;
+        if (data.error || !data.days) throw new Error(data.error || "Không thể tạo lộ trình lúc này.");
+        setPlan(data);
+      } catch (e) {
+        if (!cancelled) setError(e.message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const pillarIcon = { writing: Pencil, movement: Dumbbell, social: Users };
+  const pillarColor = { writing: "text-pink-500 bg-pink-500/10", movement: "text-emerald-500 bg-emerald-500/10", social: "text-blue-500 bg-blue-500/10" };
+
+  const toggleDay = (day) => {
+    const next = new Set(completedDays);
+    if (next.has(day)) next.delete(day); else next.add(day);
+    setCompletedDays(next);
   };
 
-  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
-
-  const handleSubmit = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setDone(true);
-    setTimeout(() => onComplete(), 1400);
-  };
-
-  const mins = String(Math.floor(timeLeft / 60)).padStart(2, "0");
-  const secs = String(timeLeft % 60).padStart(2, "0");
-
-  if (done) {
+  if (loading) {
+    return <div className="py-10 text-center text-[11px] text-zinc-400 font-bold">Đang tạo lộ trình cá nhân hoá cho cậu...</div>;
+  }
+  if (error || !plan) {
     return (
-      <div className="flex flex-col items-center gap-3 py-8">
-        <CheckCircle2 className="w-10 h-10 text-rose-500" />
-        <p className="text-[12px] font-black text-zinc-900 dark:text-zinc-100">Bài viết đã lưu!</p>
-        <p className="text-[10px] text-zinc-500 font-bold text-center">Bày tỏ cảm xúc qua chữ viết giúp giải phóng tâm lý rất hiệu quả.</p>
+      <div className="py-6 text-center space-y-2">
+        <p className="text-[11px] text-rose-500 font-bold">{error || "Có lỗi xảy ra."}</p>
+        <button onClick={onBack} className="text-[10px] text-zinc-400 underline">Quay lại</button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold leading-relaxed max-w-xs">
-          Viết tự do về bất cứ điều gì đang trong tâm trí bạn. Không cần đúng ngữ pháp — chỉ cần viết thật.
-        </p>
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-[12px] ${started && timeLeft <= 60 ? "bg-red-500/10 text-red-500" : "bg-rose-500/10 text-rose-500"}`}>
-          <Timer className="w-4 h-4" /> {mins}:{secs}
-        </div>
-      </div>
-      <textarea
-        value={text}
-        onChange={e => { if (!started) start(); setText(e.target.value); }}
-        placeholder="Bắt đầu viết… (bộ đếm sẽ tự chạy khi bạn gõ)"
-        rows={8}
-        className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-xl px-4 py-3 text-[11px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 outline-none focus:ring-2 ring-rose-400/50 resize-none font-medium leading-relaxed transition-all"
-      />
-      <button
-        onClick={handleSubmit}
-        disabled={!text.trim()}
-        className="w-full py-3 rounded-xl bg-rose-500 hover:bg-rose-600 disabled:opacity-40 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
-      >
-        Hoàn thành & lưu
-      </button>
-    </div>
-  );
-}
-
-const EXERCISES = [
-  { name: "Đi bộ 10 phút",   desc: "Ra ngoài, hít thở không khí",        duration: "10 phút" },
-  { name: "10 nhảy bật",     desc: "Jumping jacks để tăng nhịp tim",      duration: "2 phút"  },
-  { name: "Kéo giãn 5 phút", desc: "Cổ, vai, lưng, chân",                 duration: "5 phút"  },
-  { name: "10 cái squat",    desc: "Vận động cơ đùi nhẹ nhàng",           duration: "3 phút"  },
-  { name: "Yoga mèo-bò",     desc: "Giải phóng căng thẳng cột sống",      duration: "5 phút"  },
-];
-
-function LightExercisePanel({ onBack, onComplete }) {
-  const [completed, setCompleted] = useState(new Set());
-
-  const toggle = (i) => {
-    const next = new Set(completed);
-    if (next.has(i)) next.delete(i); else next.add(i);
-    setCompleted(next);
-    if (next.size === EXERCISES.length) {
-      setTimeout(() => onComplete(), 900);
-    }
-  };
-
-  return (
     <div className="space-y-3">
-      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold">Hoàn thành ít nhất 1 bài. Gõ vào ô để đánh dấu xong!</p>
-      {EXERCISES.map((ex, i) => {
-        const done = completed.has(i);
+      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold leading-relaxed">{plan.week_theme}</p>
+      {(plan.days || []).map((d) => {
+        const Icon = pillarIcon[d.pillar] || Sparkles;
+        const done = completedDays.has(d.day);
         return (
           <button
-            key={i}
-            onClick={() => toggle(i)}
-            className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all active:scale-[0.98] ${done ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:border-emerald-400/40"}`}
+            key={d.day}
+            onClick={() => toggleDay(d.day)}
+            className={`w-full flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all active:scale-[0.98] ${done ? "bg-pink-500/10 border-pink-500/30" : "bg-white/50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700"}`}
           >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${done ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "bg-zinc-100 dark:bg-zinc-700/60 text-zinc-500"}`}>
-                <Dumbbell className="w-4 h-4" />
-              </div>
-            <div className="flex-1">
-              <p className={`text-[11px] font-black ${done ? "text-emerald-600 dark:text-emerald-400 line-through" : "text-zinc-900 dark:text-zinc-100"}`}>{ex.name}</p>
-              <p className="text-[9.5px] text-zinc-500 font-bold">{ex.desc}</p>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${pillarColor[d.pillar] || "text-zinc-500 bg-zinc-200/60"}`}>
+              <Icon className="w-4 h-4" />
             </div>
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              <span className="text-[9px] font-black text-zinc-400 bg-zinc-100 dark:bg-zinc-700 px-2 py-0.5 rounded-md">{ex.duration}</span>
-              {done ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Circle className="w-4 h-4 text-zinc-300 dark:text-zinc-600" />}
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Ngày {d.day}</p>
+              <p className={`text-[11px] font-black ${done ? "text-pink-600 dark:text-pink-400 line-through" : "text-zinc-900 dark:text-zinc-100"}`}>{d.title}</p>
+              <p className="text-[9.5px] text-zinc-500 font-bold leading-snug">{d.action}</p>
             </div>
+            {done ? <CheckCircle2 className="w-4 h-4 text-pink-500 shrink-0" /> : <Circle className="w-4 h-4 text-zinc-300 dark:text-zinc-600 shrink-0" />}
           </button>
         );
       })}
-      {completed.size > 0 && completed.size < EXERCISES.length && (
+      {completedDays.size > 0 && (
         <button
           onClick={() => onComplete()}
-          className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
+          className="w-full py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
         >
-          Xong {completed.size} bài — lưu lại
+          Lưu tiến độ ({completedDays.size}/7 ngày)
         </button>
       )}
     </div>
   );
 }
 
-const SOCIAL_TASKS = [
-  { label: "Nhắn tin cho một người bạn" },
-  { label: "Video call gia đình" },
-  { label: "Tham gia một buổi sinh hoạt nhóm" },
-  { label: "Nói lời cảm ơn với ai đó hôm nay" },
-  { label: "Gọi điện cho người thân" },
-];
+// ─── Gọi Thoại Không Giới Hạn (paid, passive perk — no "activity" to log) ──
+function UnlimitedCallsPanel({ onNavigateToTab }) {
+  return (
+    <div className="space-y-4 text-center py-2">
+      <div className="w-14 h-14 rounded-2xl bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto">
+        <PhoneCall className="w-6 h-6" />
+      </div>
+      <div>
+        <p className="text-[12px] font-black text-zinc-900 dark:text-zinc-100">Đã mở khoá Gọi Thoại Không Giới Hạn!</p>
+        <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 font-bold mt-1 leading-relaxed">Giới hạn 5 cuộc gọi/ngày đã được gỡ bỏ vĩnh viễn cho tài khoản này. Cậu có thể gọi tư vấn AI bao nhiêu lần tuỳ thích trong tab Tâm Sự.</p>
+      </div>
+      <button
+        onClick={() => onNavigateToTab?.("chat")}
+        className="w-full py-3 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
+      >
+        Đến Tâm Sự để gọi ngay
+      </button>
+    </div>
+  );
+}
 
-function SocialConnectionPanel({ onBack, onComplete }) {
-  const [checked, setChecked] = useState(new Set());
+// ─── Báo Cáo Tâm Lý Chuyên Sâu (paid, generates a printable clinical-style report) ──
+function DeepReportPanel({ bio, historyLogs, chatMessages }) {
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const toggle = (i) => {
-    const next = new Set(checked);
-    if (next.has(i)) next.delete(i); else next.add(i);
-    setChecked(next);
-  };
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const r = await fetch(`${AI_BASE}/api/ai/therapy/deep-report`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Internal-Key": INTERNAL_KEY },
+          body: JSON.stringify({ historyLogs, chatMessages, bio }),
+        });
+        const data = await r.json();
+        if (cancelled) return;
+        if (data.error) throw new Error(data.error);
+        setReport(data);
+      } catch (e) {
+        if (!cancelled) setError(e.message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleDone = () => { if (checked.size > 0) onComplete(); };
+  if (loading) return <div className="py-10 text-center text-[11px] text-zinc-400 font-bold">Đang tổng hợp báo cáo...</div>;
+  if (error || !report) {
+    return <p className="text-[11px] text-rose-500 font-bold text-center py-6">{error || "Có lỗi xảy ra."}</p>;
+  }
+
+  const Section = ({ title, children }) => (
+    <div className="space-y-1">
+      <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">{title}</p>
+      <div className="text-[11px] text-zinc-800 dark:text-zinc-200 font-medium leading-relaxed">{children}</div>
+    </div>
+  );
 
   return (
-    <div className="space-y-3">
-      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold">Kết nối xã hội là "thuốc" chống trầm cảm tự nhiên. Hãy thực hiện ít nhất 1 điều hôm nay.</p>
-      {SOCIAL_TASKS.map((t, i) => {
-        const done = checked.has(i);
-        return (
-          <button
-            key={i}
-            onClick={() => toggle(i)}
-            className={`w-full flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all active:scale-[0.98] ${done ? "bg-blue-500/10 border-blue-500/30" : "bg-white/50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:border-blue-400/40"}`}
-          >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${done ? "bg-blue-500/20 text-blue-600 dark:text-blue-400" : "bg-zinc-100 dark:bg-zinc-700/60 text-zinc-500"}`}>
-                <Users className="w-4 h-4" />
-              </div>
-            <p className={`flex-1 text-[11px] font-bold ${done ? "text-blue-600 dark:text-blue-400 line-through" : "text-zinc-800 dark:text-zinc-200"}`}>{t.label}</p>
-            {done ? <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0" /> : <Circle className="w-4 h-4 text-zinc-300 dark:text-zinc-600 shrink-0" />}
-          </button>
-        );
-      })}
+    <div className="space-y-4">
+      <div id="deep-report-print" className="space-y-4 bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-700">
+        <Section title={`Báo cáo ngày ${report.report_date || ""}`}>{report.overview}</Section>
+        <Section title="Xu hướng tâm trạng">{report.mood_trend_summary}</Section>
+        <Section title="Tổng hợp test lâm sàng">{report.clinical_test_summary}</Section>
+        {report.risk_indicators?.length > 0 && (
+          <Section title="Chỉ số rủi ro">
+            <ul className="list-disc pl-4 space-y-0.5">{report.risk_indicators.map((r, i) => <li key={i}>{r}</li>)}</ul>
+          </Section>
+        )}
+        {report.strengths_and_progress?.length > 0 && (
+          <Section title="Điểm tích cực / tiến bộ">
+            <ul className="list-disc pl-4 space-y-0.5">{report.strengths_and_progress.map((r, i) => <li key={i}>{r}</li>)}</ul>
+          </Section>
+        )}
+        {report.recommendations_for_specialist?.length > 0 && (
+          <Section title="Gợi ý cho chuyên viên">
+            <ul className="list-disc pl-4 space-y-0.5">{report.recommendations_for_specialist.map((r, i) => <li key={i}>{r}</li>)}</ul>
+          </Section>
+        )}
+        <p className="text-[9px] text-zinc-400 italic pt-2 border-t border-zinc-200 dark:border-zinc-700">{report.disclaimer}</p>
+      </div>
       <button
-        onClick={handleDone}
-        disabled={checked.size === 0}
-        className="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 disabled:opacity-40 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
+        onClick={() => window.print()}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
       >
-        Xác nhận đã kết nối ({checked.size})
+        <Printer className="w-4 h-4" /> In / Lưu PDF để gửi chuyên viên
       </button>
     </div>
   );
@@ -331,55 +351,66 @@ function SocialConnectionPanel({ onBack, onComplete }) {
 // ─── Card definitions ─────────────────────────────────────────────────────────
 
 const ALL_METHODS = [
-  { id:"reading",    Icon: BookOpen,  name:"Đọc Sách",         desc:"Nhạc sóng não & không gian tĩnh lặng",          category:"Đọc",       duration:"15–30 ph", gradient:"from-indigo-500/10 to-indigo-500/5",  border:"border-indigo-500/20 dark:border-indigo-400/15",  badge:"bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",  iconBg:"bg-indigo-500/15 text-indigo-600 dark:text-indigo-400", btn:"bg-indigo-500 hover:bg-indigo-600",  lockKey:"reading"    },
-  { id:"meditation", Icon: Flame,     name:"Ngồi Tĩnh Tâm",    desc:"Giảm stress, thư giãn sâu toàn thân",           category:"Thiền",     duration:"10–20 ph", gradient:"from-teal-500/10 to-teal-500/5",      border:"border-teal-500/20 dark:border-teal-400/15",      badge:"bg-teal-500/10 text-teal-600 dark:text-teal-400",        iconBg:"bg-teal-500/15 text-teal-600 dark:text-teal-400",       btn:"bg-teal-500 hover:bg-teal-600",    lockKey:"meditation" },
-  { id:"breath",     Icon: Wind,      name:"Hít Thở 4-7-8",    desc:"Làm dịu lo âu, nhịp tim nhanh tức thì",         category:"Thở",       duration:"5 ph",     gradient:"from-amber-500/10 to-amber-500/5",    border:"border-amber-500/20 dark:border-amber-400/15",    badge:"bg-amber-500/10 text-amber-600 dark:text-amber-400",     iconBg:"bg-amber-500/15 text-amber-600 dark:text-amber-400",    btn:"bg-amber-500 hover:bg-amber-600",  lockKey:"breathing"  },
-  { id:"depression", Icon: Brain,     name:"Nhật Ký CBT",      desc:"Liệu pháp nhận thức hành vi chống trầm cảm",    category:"Nhận thức", duration:"20 ph",    gradient:"from-rose-500/10 to-rose-500/5",      border:"border-rose-500/20 dark:border-rose-400/15",      badge:"bg-rose-500/10 text-rose-600 dark:text-rose-400",        iconBg:"bg-rose-500/15 text-rose-600 dark:text-rose-400",       btn:"bg-rose-500 hover:bg-rose-600",    lockKey:"depression" },
-  { id:"gratitude",  Icon: Heart,     name:"Nhật Ký Biết Ơn",  desc:"Liệt kê 3 điều trân trọng hôm nay",             category:"Cảm xúc",   duration:"5 ph",     gradient:"from-purple-500/10 to-purple-500/5",  border:"border-purple-500/20 dark:border-purple-400/15",  badge:"bg-purple-500/10 text-purple-600 dark:text-purple-400",  iconBg:"bg-purple-500/15 text-purple-600 dark:text-purple-400", btn:"bg-purple-500 hover:bg-purple-600", lockKey:"basic"     },
-  { id:"muscle",     Icon: Sparkles,  name:"Thư Giãn Cơ",      desc:"PMR: căng rồi thả lỏng 7 nhóm cơ",             category:"Thở",       duration:"7 ph",     gradient:"from-cyan-500/10 to-cyan-500/5",      border:"border-cyan-500/20 dark:border-cyan-400/15",      badge:"bg-cyan-500/10 text-cyan-600 dark:text-cyan-400",        iconBg:"bg-cyan-500/15 text-cyan-600 dark:text-cyan-400",       btn:"bg-cyan-500 hover:bg-cyan-600",    lockKey:"breathing"  },
-  { id:"writing",    Icon: Pencil,    name:"Viết Tự Do",        desc:"10 phút xả cảm xúc không kiểm duyệt",          category:"Cảm xúc",   duration:"10 ph",    gradient:"from-pink-500/10 to-pink-500/5",      border:"border-pink-500/20 dark:border-pink-400/15",      badge:"bg-pink-500/10 text-pink-600 dark:text-pink-400",        iconBg:"bg-pink-500/15 text-pink-600 dark:text-pink-400",       btn:"bg-pink-500 hover:bg-pink-600",    lockKey:"basic"      },
-  { id:"exercise",   Icon: Dumbbell,  name:"Vận Động Nhẹ",     desc:"5 bài tập đơn giản tăng endorphin",             category:"Vận động",  duration:"15 ph",    gradient:"from-emerald-500/10 to-emerald-500/5",border:"border-emerald-500/20 dark:border-emerald-400/15",badge:"bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",iconBg:"bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",btn:"bg-emerald-500 hover:bg-emerald-600",lockKey:"basic"  },
-  { id:"social",     Icon: Users,     name:"Kết Nối Xã Hội",   desc:"Chủ động liên lạc, chia sẻ với người thân",    category:"Kết nối",   duration:"10 ph",    gradient:"from-blue-500/10 to-blue-500/5",      border:"border-blue-500/20 dark:border-blue-400/15",      badge:"bg-blue-500/10 text-blue-600 dark:text-blue-400",        iconBg:"bg-blue-500/15 text-blue-600 dark:text-blue-400",       btn:"bg-blue-500 hover:bg-blue-600",    lockKey:"basic"      },
+  { id:"breath",     Icon: Wind,      name:"Hít Thở 4-7-8",    desc:"Làm dịu lo âu, nhịp tim nhanh tức thì (kèm Thư Giãn Cơ)", category:"Thở",   duration:"5 ph",     gradient:"from-amber-500/10 to-amber-500/5",    border:"border-amber-500/20 dark:border-amber-400/15",    badge:"bg-amber-500/10 text-amber-600 dark:text-amber-400",     iconBg:"bg-amber-500/15 text-amber-600 dark:text-amber-400",    btn:"bg-amber-500 hover:bg-amber-600",  lockKey:"breathing"  },
+  { id:"gratitude",  Icon: Heart,     name:"Nhật Ký Biết Ơn",  desc:"Liệt kê 3 điều trân trọng hôm nay",             category:"Cảm xúc",   duration:"5 ph",     gradient:"from-purple-500/10 to-purple-500/5",  border:"border-purple-500/20 dark:border-purple-400/15",  badge:"bg-purple-500/10 text-purple-600 dark:text-purple-400",  iconBg:"bg-purple-500/15 text-purple-600 dark:text-purple-400", btn:"bg-purple-500 hover:bg-purple-600", lockKey:"gratitude" },
+  { id:"reading",    Icon: BookOpen,  name:"Đọc Truyện AI Trị Liệu", desc:"AI viết & kể truyện ngắn riêng theo tâm trạng thật của bạn", category:"AI · Đọc", duration:"10 ph", gradient:"from-indigo-500/10 to-indigo-500/5",  border:"border-indigo-500/20 dark:border-indigo-400/15",  badge:"bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",  iconBg:"bg-indigo-500/15 text-indigo-600 dark:text-indigo-400", btn:"bg-indigo-500 hover:bg-indigo-600",  lockKey:"reading",    joyLockable:true  },
+  { id:"meditation", Icon: Flame,     name:"Thiền Dẫn AI Cá Nhân Hoá", desc:"Giọng dẫn thiền do AI soạn riêng theo mood hiện tại",  category:"AI · Thiền", duration:"10–20 ph", gradient:"from-teal-500/10 to-teal-500/5",      border:"border-teal-500/20 dark:border-teal-400/15",      badge:"bg-teal-500/10 text-teal-600 dark:text-teal-400",        iconBg:"bg-teal-500/15 text-teal-600 dark:text-teal-400",       btn:"bg-teal-500 hover:bg-teal-600",    lockKey:"meditation", joyLockable:true  },
+  { id:"depression", Icon: Brain,     name:"CBT Worksheet Cá Nhân Hoá", desc:"AI phân tích lịch sử chat thật, soạn bảng ghi suy nghĩ riêng cho bạn", category:"AI · Nhận thức", duration:"15 ph", gradient:"from-rose-500/10 to-rose-500/5",      border:"border-rose-500/20 dark:border-rose-400/15",      badge:"bg-rose-500/10 text-rose-600 dark:text-rose-400",        iconBg:"bg-rose-500/15 text-rose-600 dark:text-rose-400",       btn:"bg-rose-500 hover:bg-rose-600",    lockKey:"depression", joyLockable:true  },
+  { id:"action_plan",   Icon: CalendarCheck, name:"Lộ Trình 7 Ngày Cá Nhân Hoá", desc:"AI gộp viết · vận động · kết nối thành 1 kế hoạch riêng cho tuần này", category:"AI · Lộ trình", duration:"Cả tuần", gradient:"from-pink-500/10 to-pink-500/5", border:"border-pink-500/20 dark:border-pink-400/15", badge:"bg-pink-500/10 text-pink-600 dark:text-pink-400", iconBg:"bg-pink-500/15 text-pink-600 dark:text-pink-400", btn:"bg-pink-500 hover:bg-pink-600", lockKey:"action_plan", joyLockable:true },
+  { id:"unlimited_calls", Icon: PhoneCall, name:"Gọi Thoại Không Giới Hạn", desc:"Gỡ bỏ vĩnh viễn giới hạn 5 cuộc gọi tư vấn AI/ngày", category:"Đặc quyền", duration:"Vĩnh viễn", gradient:"from-violet-500/10 to-violet-500/5", border:"border-violet-500/20 dark:border-violet-400/15", badge:"bg-violet-500/10 text-violet-600 dark:text-violet-400", iconBg:"bg-violet-500/15 text-violet-600 dark:text-violet-400", btn:"bg-violet-500 hover:bg-violet-600", lockKey:"unlimited_calls", joyLockable:true },
+  { id:"deep_report", Icon: FileText, name:"Báo Cáo Tâm Lý Chuyên Sâu", desc:"Hồ sơ tổng hợp AI soạn để chia sẻ với chuyên viên thật, in/lưu PDF", category:"AI · Báo cáo", duration:"5 ph", gradient:"from-cyan-500/10 to-cyan-500/5", border:"border-cyan-500/20 dark:border-cyan-400/15", badge:"bg-cyan-500/10 text-cyan-600 dark:text-cyan-400", iconBg:"bg-cyan-500/15 text-cyan-600 dark:text-cyan-400", btn:"bg-cyan-500 hover:bg-cyan-600", lockKey:"deep_report", joyLockable:true },
 ];
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, healingActive, showToast }) {
-  const [activePanel, setActivePanel] = useState(null);
+export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, healingActive, showToast, onBioUpdate, initialMethod }) {
+  const [activePanel, setActivePanel] = useState(initialMethod || null);
+  const [unlockedFeatures, setUnlockedFeatures] = useState(bio?.unlockedCompanionFeatures || []);
+  const [unlockingId, setUnlockingId] = useState(null);
+  const joyBalance = useJoyStore(s => s.balance);
+  const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
 
-  // ── Lock checks ──
-  const hasClinicalResults = historyLogs.some(log =>
-    log.type === "clinical_test" ||
-    log.test === "phq9" || log.test === "gad7" || log.test === "who5" ||
-    log.test === "bigfive" || log.test === "dass42" || log.test === "mmpi30"
-  );
-  const hasActiveJourneyOrResults = hasClinicalResults || healingActive;
+  useEffect(() => {
+    if (bio?.unlockedCompanionFeatures) setUnlockedFeatures(bio.unlockedCompanionFeatures);
+  }, [bio?.unlockedCompanionFeatures]);
 
   const unlocked = {
-    reading: hasActiveJourneyOrResults,
-    meditation: healingActive || historyLogs.some(log => {
-      if (log.test === "who5" && log.score <= 12) return true;
-      if (log.test === "dass42" && log.scores?.S >= 10) return true;
-      if (log.test === "mmpi30" && log.clinical?.some(c => (c.code === "Pt" || c.code === "Sc") && c.score >= 70)) return true;
-      return false;
-    }),
-    breathing: healingActive || historyLogs.some(log => {
-      if (log.test === "gad7" && log.score >= 5) return true;
-      if (log.test === "dass42" && log.scores?.A >= 7) return true;
-      if (log.test === "mmpi30" && log.clinical?.some(c => (c.code === "Hs" || c.code === "Hy") && c.score >= 70)) return true;
-      if (log.type === "chat_anomaly" && log.text && (log.text.includes("sợ") || log.text.includes("lo"))) return true;
-      return false;
-    }),
-    depression: healingActive || historyLogs.some(log => {
-      if (log.test === "phq9" && log.score >= 5) return true;
-      if (log.test === "dass42" && log.scores?.D >= 10) return true;
-      if (log.test === "mmpi30" && log.clinical?.some(c => c.code === "D" && c.score >= 70)) return true;
-      return false;
-    }),
-    basic: hasActiveJourneyOrResults,
+    reading: unlockedFeatures.includes("reading"),
+    meditation: unlockedFeatures.includes("meditation"),
+    depression: unlockedFeatures.includes("depression"),
+    breathing: true,   // Hít Thở 4-7-8 (+ Thư Giãn Cơ) — always free
+    gratitude: true,   // Viết Nhật Ký — always free
+    basic: true,       // Viết Tự Do / Vận Động Nhẹ / Kết Nối Xã Hội — always free, no clinical data required
   };
 
   const isUnlocked = (method) => unlocked[method.lockKey] ?? false;
+
+  const handleUnlockFeature = async (method) => {
+    if (!bio?.email || unlockingId) return;
+    if (joyBalance < UNLOCK_COST) {
+      showToast?.(`Bạn cần ${UNLOCK_COST} JOY để mở khoá tính năng này. Số dư hiện tại: ${joyBalance} JOY.`, "warning");
+      return;
+    }
+    setUnlockingId(method.id);
+    try {
+      const r = await fetch(`${apiBase}/companion/unlock-feature`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: bio.email, feature: method.lockKey }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Không thể mở khoá tính năng này.");
+      setUnlockedFeatures(data.unlockedFeatures || []);
+      onBioUpdate?.({ unlockedCompanionFeatures: data.unlockedFeatures || [] });
+      fetchJoyBalance(bio.email);
+      showToast?.(`Đã mở khoá "${method.name}"! 🎉`, "success");
+    } catch (err) {
+      showToast?.(err.message, "error");
+    } finally {
+      setUnlockingId(null);
+    }
+  };
 
   // ── Stats ──
   const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
@@ -450,31 +481,15 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
         </div>
       )}
 
-      {/* Locked state — no data at all */}
-      {!showInline && !hasActiveJourneyOrResults && (
-        <div className="max-w-md mx-auto text-center p-8 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-[#1a1924]/40 backdrop-blur-xl rounded-3xl space-y-4 shadow-xl">
-          <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mx-auto text-zinc-400 shadow-inner">
-            <Lock className="w-7 h-7" />
-          </div>
-          <h4 className="text-xs font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">Chưa mở khóa trị liệu</h4>
-          <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-relaxed font-bold">
-            Cần có dữ liệu đầu vào. Hãy trò chuyện hoặc làm bài đánh giá để AI phân tích và đề xuất phương pháp phù hợp nhất.
-          </p>
-          <button
-            type="button"
-            onClick={() => onNavigateToTab && onNavigateToTab("chat")}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all"
-          >
-            Trò chuyện cùng AI ngay
-          </button>
-        </div>
-      )}
-
-      {/* Card grid */}
-      {!showInline && hasActiveJourneyOrResults && (
+      {/* Card grid — always visible: Hít Thở 4-7-8 + Nhật Ký Biết Ơn are free for
+          everyone, the JOY-lockable methods show an unlock button inline, and the
+          "basic" clinical-gated methods keep their original earn-via-engagement lock. */}
+      {!showInline && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {ALL_METHODS.map((method) => {
             const ok = isUnlocked(method);
+            const showJoyUnlock = method.joyLockable && !ok;
+            const isUnlockingThis = unlockingId === method.id;
             return (
               <motion.div
                 key={method.id}
@@ -483,17 +498,23 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
                 className={`relative flex flex-col gap-2 p-4 rounded-2xl border transition-all cursor-default ${
                   ok
                     ? `bg-gradient-to-br ${method.gradient} ${method.border} shadow-sm hover:shadow-lg`
-                    : "bg-zinc-100/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 opacity-60 grayscale"
+                    : showJoyUnlock
+                      ? `bg-gradient-to-br ${method.gradient} ${method.border} opacity-90`
+                      : "bg-zinc-100/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 opacity-60 grayscale"
                 }`}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between">
-                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${ok ? method.iconBg : "bg-zinc-200/60 dark:bg-zinc-700/40 text-zinc-400"}`}>
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${ok || showJoyUnlock ? method.iconBg : "bg-zinc-200/60 dark:bg-zinc-700/40 text-zinc-400"}`}>
                     <method.Icon className="w-5 h-5" />
                   </div>
                   {ok ? (
                     <span className={`flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${method.badge}`}>
                       <Unlock className="w-2.5 h-2.5" /> Mở
+                    </span>
+                  ) : showJoyUnlock ? (
+                    <span className="flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                      <Lock className="w-2.5 h-2.5" /> JOY
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-zinc-200/80 dark:bg-zinc-700/60 text-zinc-500">
@@ -525,6 +546,22 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
                     </button>
                   )}
                 </div>
+
+                {/* JOY unlock CTA */}
+                {showJoyUnlock && (
+                  <button
+                    onClick={() => handleUnlockFeature(method)}
+                    disabled={isUnlockingThis}
+                    className="mt-1 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[9.5px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                  >
+                    {isUnlockingThis ? "Đang xử lý..." : (
+                      <>
+                        <JoyCoinBadge amount={UNLOCK_COST} size="sm" className="[&_span]:text-white" />
+                        <span>Mở khoá</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </motion.div>
             );
           })}

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Moon, Sun, Clock, Sparkles, TrendingUp, AlertTriangle, CheckCircle,
@@ -6,7 +6,6 @@ import {
   Smartphone, Eye, Activity, ShieldCheck, Edit3, X,
 } from "lucide-react";
 import dataApi from "../../../services/dataApi";
-import { useSleepAutoDetect } from "../../../hooks/useSleepAutoDetect";
 
 const AI_BASE = import.meta.env.VITE_AI_URL ?? "";
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
@@ -73,7 +72,7 @@ function todayStr() { return new Date().toISOString().slice(0, 10); }
 
 // ── Component ──────────────────────────────────────────────────────────────
 
-export default function SleepTracker({ bio }) {
+export default function SleepTracker({ bio, sleepAutoDetect }) {
   const email = bio?.email;
 
   const [logs, setLogs]           = useState([]);
@@ -90,7 +89,11 @@ export default function SleepTracker({ bio }) {
   const [toast, setToast]           = useState(null);
 
   // Pending auto-detect confirmation (shown when a complete cycle is detected)
-  const [pendingCycle, setPendingCycle] = useState(null); // {date, bedtime, wakeTime}
+  const [pendingCycle, setPendingCycleRaw] = useState(null); // {date, bedtime, wakeTime}
+  const setPendingCycle = useCallback((val) => {
+    setPendingCycleRaw(val);
+    if (val === null) sleepAutoDetect?.clearPendingCycle?.();
+  }, [sleepAutoDetect]);
 
   const [form, setForm] = useState({
     date:       todayStr(),
@@ -105,16 +108,18 @@ export default function SleepTracker({ bio }) {
   // Prevent double-fetch
   const fetchRef = useRef(false);
 
-  // ── Auto-detection hook ──────────────────────────────────────────────────
+  // ── Auto-detection (hook is mounted portal-wide in MemberPortalPage so it
+  // keeps listening even when this tab isn't open — see `sleepAutoDetect` prop) ──
 
-  const handleAutoDetect = useCallback(({ date, bedtime, wakeTime }) => {
-    setPendingCycle({ date, bedtime, wakeTime });
-    fetchLogs();
-    showToastMsg("Hệ thống tự động ghi nhận giấc ngủ đêm qua!", "success");
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { state: detectState, sleepStart, confidence, recentSignals, caps,
+    pendingCycle: autoPendingCycle, clearPendingCycle } = sleepAutoDetect || {};
 
-  const { state: detectState, sleepStart, confidence, recentSignals, caps } =
-    useSleepAutoDetect({ email, onAutoDetect: handleAutoDetect, enabled: !!email });
+  useEffect(() => {
+    if (autoPendingCycle) {
+      setPendingCycle(autoPendingCycle);
+      fetchLogs();
+    }
+  }, [autoPendingCycle]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Fetch ─────────────────────────────────────────────────────────────
 

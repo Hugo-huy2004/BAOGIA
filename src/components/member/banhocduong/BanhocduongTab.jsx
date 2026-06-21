@@ -35,6 +35,49 @@ function countQualifiedActivities(logs = []) {
 }
 
 // ── Journey Progress Card ──────────────────────────────────────────────────────
+// ── Crisis Escalation Banner ────────────────────────────────────────────────────
+// Shown when the system detects a high-severity crisis flag (chatDistressCount
+// spike). Defaults to universally-safe guidance (115 emergency line, trusted
+// contacts) — only shows a dedicated psychological hotline if one is actually
+// configured via VITE_CRISIS_HOTLINE, since guessing a wrong specialized number
+// would be worse than not showing one at all.
+function CrisisBanner({ flag, onResolve, onTalkNow }) {
+  const { t } = useTranslation();
+  const hotline = import.meta.env.VITE_CRISIS_HOTLINE || "";
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl border border-rose-300/60 dark:border-rose-800/40 bg-rose-50 dark:bg-rose-950/20 p-4 space-y-3"
+    >
+      <div className="flex items-start gap-2.5">
+        <span className="material-symbols-outlined text-rose-500 text-xl mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
+        <div className="min-w-0">
+          <p className="text-xs font-black text-rose-700 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
+          <p className="text-[11px] text-rose-600/90 dark:text-rose-400/80 leading-relaxed mt-0.5">
+            {t("companion.crisis.desc", "Hệ thống nhận thấy cậu đang trải qua giai đoạn khó khăn. Nếu đang gặp nguy hiểm tức thời, hãy gọi 115 (Cấp cứu) hoặc đến cơ sở y tế gần nhất ngay. Hãy liên hệ người thân, bạn bè đáng tin cậy để được ở bên cạnh.")}
+          </p>
+          {hotline && (
+            <a href={`tel:${hotline}`} className="inline-flex items-center gap-1 mt-2 text-[11px] font-bold text-rose-700 dark:text-rose-400 underline">
+              <span className="material-symbols-outlined text-[14px]">call</span>
+              {t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}: {hotline}
+            </a>
+          )}
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <button type="button" onClick={onTalkNow}
+          className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition-all active:scale-[0.98]">
+          {t("companion.crisis.talkNow", "Tớ cần nói chuyện ngay")}
+        </button>
+        <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
+          className="flex-1 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[11px] font-bold transition-all active:scale-[0.98]">
+          {t("companion.crisis.imSafe", "Tớ đã an toàn / đã liên hệ trợ giúp")}
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLogs, bio, showToast }) {
   const { t, i18n } = useTranslation();
   const [notifStatus, setNotifStatus] = useState(() =>
@@ -234,6 +277,22 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
                 </div>
               </div>
             ))}
+            {(bio?.bonusChatTokens > 0 || bio?.bonusCallTokens > 0) && (
+              <div className="flex items-center gap-3 pt-1 border-t border-zinc-200/60 dark:border-zinc-700/40">
+                {bio.bonusChatTokens > 0 && (
+                  <span className="flex items-center gap-1 text-[10px] font-black text-indigo-600 dark:text-indigo-400">
+                    <span className="material-symbols-outlined text-[13px]">add_circle</span>
+                    {bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens", "lượt chat")} {t("companion.tab.bonusLabel", "thưởng")}
+                  </span>
+                )}
+                {bio.bonusCallTokens > 0 && (
+                  <span className="flex items-center gap-1 text-[10px] font-black text-indigo-600 dark:text-indigo-400">
+                    <span className="material-symbols-outlined text-[13px]">add_circle</span>
+                    {bio.bonusCallTokens} {t("memberPortal.joy.store.callTokens", "lượt gọi")} {t("companion.tab.bonusLabel", "thưởng")}
+                  </span>
+                )}
+              </div>
+            )}
             <p className="text-[9px] text-zinc-400 font-semibold">{t("companion.tab.tokenRefreshNote", "Token tự động làm mới lúc 00:00 mỗi ngày")}</p>
           </div>
 
@@ -277,10 +336,12 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
 }
 
 // ── Main BanhocduongTab ────────────────────────────────────────────────────────
-export default function BanhocduongTab({ onBack, defaultSubTab = "chat", defaultPresetTest = null, bio, showToast, setFormData, handleSave }) {
+export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp, onSubTabChange, defaultPresetTest = null, bio, showToast, setFormData, handleSave, sleepAutoDetect }) {
   const { t } = useTranslation();
   useCompanionSessionTimer({ email: bio?.email, enabled: !!bio?.email });
-  const [activeSubTab, setActiveSubTab]     = useState(defaultSubTab);
+  const [internalSubTab, setInternalSubTab] = useState(activeSubTabProp || "chat");
+  const activeSubTab = activeSubTabProp || internalSubTab;
+  const setActiveSubTab = onSubTabChange || setInternalSubTab;
   const [presetTest, setPresetTest]         = useState(defaultPresetTest);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showSettings, setShowSettings]     = useState(false);
@@ -293,6 +354,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
   const [historyLogs, setHistoryLogs]             = useState([]);
   const [chatMessages, setChatMessages]           = useState([]);
   const [adaptationAlert, setAdaptationAlert]     = useState(null);
+  const [crisisFlags, setCrisisFlags]             = useState([]);
 
   // ── Sync from DB ──────────────────────────────────────────────────────────────
   const syncWithDb = useCallback(async () => {
@@ -322,6 +384,7 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
         setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
         setHistoryLogs(db.historyLogs || []);
         setChatMessages(db.chatMessages || []);
+        setCrisisFlags(db.crisisFlags || []);
         localStorage.setItem("banhocduong_healing_mode",       db.healingActive ? "active" : "");
         localStorage.setItem("banhocduong_healing_duration",   db.healingDuration.toString());
         localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
@@ -412,6 +475,22 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
     showToast?.(t('companion.tab.stopRoadmap.stoppedSuccess', 'Đã dừng lộ trình. Lịch sử vẫn được lưu đầy đủ! 🌸'), 'success');
   };
 
+  const activeHighCrisisFlag = crisisFlags.find(f => f.severity === 'high' && !f.resolved);
+
+  const handleResolveCrisis = async (flagId) => {
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || "/api";
+      const r = await fetch(`${apiBase}/companion/crisis/resolve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: bio.email, flagId }),
+      });
+      const data = await r.json();
+      if (r.ok) setCrisisFlags(data.crisisFlags || []);
+    } catch (e) { console.error("BHD crisis resolve:", e); }
+  };
+
   const activeTab = SUB_TABS.find(t => t.id === activeSubTab);
 
   return (
@@ -434,6 +513,15 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
           <span className="material-symbols-outlined text-[17px]">settings</span>
         </button>
       </div>
+
+      {/* ── Crisis escalation banner ──────────────────────────────────────────── */}
+      {activeHighCrisisFlag && (
+        <CrisisBanner
+          flag={activeHighCrisisFlag}
+          onResolve={handleResolveCrisis}
+          onTalkNow={() => setActiveSubTab("chat")}
+        />
+      )}
 
       {/* ── Journey progress card ─────────────────────────────────────────────── */}
       {healingActive && (
@@ -539,10 +627,10 @@ export default function BanhocduongTab({ onBack, defaultSubTab = "chat", default
                   />
                 )}
                 {activeSubTab === "therapy" && (
-                  <TherapyTab onNavigateToTab={handleNavigateToTab} bio={bio} historyLogs={historyLogs} onUpdateCompanionState={handleUpdateCompanionState} healingActive={healingActive} showToast={showToast} />
+                  <TherapyTab onNavigateToTab={handleNavigateToTab} bio={bio} historyLogs={historyLogs} onUpdateCompanionState={handleUpdateCompanionState} healingActive={healingActive} showToast={showToast} initialMethod={presetTest} />
                 )}
                 {activeSubTab === "sleep" && (
-                  <div className="flex-1 overflow-y-auto p-4"><SleepTracker bio={bio} /></div>
+                  <div className="flex-1 overflow-y-auto p-4"><SleepTracker bio={bio} sleepAutoDetect={sleepAutoDetect} /></div>
                 )}
                 {activeSubTab === "evaluation" && (
                   <EvaluationTab onNavigateToTab={handleNavigateToTab} bio={bio} historyLogs={historyLogs} showToast={showToast} />

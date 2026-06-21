@@ -7,6 +7,7 @@ import { encryptText, decryptText, hashPassword, comparePassword } from '../util
 import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation.js';
 import { sendPushNotification } from '../utils/pushNotifier.js';
 import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
+import { isEduEmail } from '../utils/eduEmail.js';
 
 const router = express.Router();
 
@@ -286,7 +287,7 @@ router.get('/me', async (req, res) => {
 
     // Auto-create a placeholder Bio document if it doesn't exist and we have the Google displayName
     if (!bioDoc && displayName) {
-      const isEdu = email.toLowerCase().includes('.edu');
+      const isEdu = isEduEmail(email);
       const baseSlug = normalizeSlug(displayName);
       const newSlug = await createUniqueSlug(baseSlug);
       

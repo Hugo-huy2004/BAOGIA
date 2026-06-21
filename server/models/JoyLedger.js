@@ -25,7 +25,8 @@ const JoyLedgerSchema = new mongoose.Schema({
       'gift_code',
       'store_purchase',
       'admin_adjustment',
-      'checkin'
+      'checkin',
+      'companion_unlock'
     ],
     required: true
   },

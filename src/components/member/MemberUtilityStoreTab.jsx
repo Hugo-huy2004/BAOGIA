@@ -4,11 +4,12 @@ import JoyCoinBadge from "../shared/JoyCoinBadge";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
-export default function MemberUtilityStoreTab({ bio, balance, onPurchased, showToast }) {
+export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBioUpdate, showToast }) {
   const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [buyingId, setBuyingId] = useState(null);
+  const [confirmProduct, setConfirmProduct] = useState(null);
 
   useEffect(() => {
     fetch(`${apiBase}/utility-store/products`)
@@ -32,7 +33,9 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, showT
       if (!r.ok) throw new Error(data.error || t("memberPortal.joy.store.purchaseError"));
       showToast?.(t("memberPortal.joy.store.purchaseSuccess", { code: data.order.purchaseCode }), "success");
       onPurchased?.(data.newBalance);
+      if (data.bio) onBioUpdate?.(data.bio);
       setProducts(prev => prev.map(p => p._id === product._id && p.stock !== -1 ? { ...p, stock: p.stock - 1 } : p));
+      setConfirmProduct(null);
     } catch (err) {
       showToast?.(err.message, "error");
     } finally {
@@ -122,7 +125,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, showT
               <div className="mt-auto flex flex-col gap-2 pt-1">
                 <JoyCoinBadge amount={product.priceJoy} size="sm" />
                 <button
-                  onClick={() => handleBuy(product)}
+                  onClick={() => setConfirmProduct(product)}
                   disabled={disabled}
                   className="w-full py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
@@ -139,6 +142,63 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, showT
           </div>
         );
       })}
+
+      {/* Purchase confirmation modal — gives the user a deliberate second step
+          before any JOY is spent, instead of a single-click buy. */}
+      {confirmProduct && (
+        <div
+          className="fixed inset-0 z-[250] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={e => { if (e.target === e.currentTarget && buyingId !== confirmProduct._id) setConfirmProduct(null); }}
+        >
+          <div className="bg-white dark:bg-[#15141c] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-5">
+            <div className="text-center space-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto">
+                <span className="material-symbols-outlined text-2xl">{confirmProduct.icon || "redeem"}</span>
+              </div>
+              <h3 className="font-black text-base text-zinc-900 dark:text-white">{t("memberPortal.joy.store.confirmTitle")}</h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{t("memberPortal.joy.store.confirmSubtitle")}</p>
+            </div>
+
+            <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl p-4 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmProduct")}</span>
+                <span className="text-xs font-bold text-zinc-800 dark:text-white text-right">{confirmProduct.name}</span>
+              </div>
+              {perkLabel(confirmProduct) && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmPerk")}</span>
+                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{perkLabel(confirmProduct)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmPrice")}</span>
+                <JoyCoinBadge amount={confirmProduct.priceJoy} size="sm" />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmBalanceAfter")}</span>
+                <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">{(balance - confirmProduct.priceJoy).toLocaleString("vi-VN")} JOY</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmProduct(null)}
+                disabled={buyingId === confirmProduct._id}
+                className="flex-1 py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {t("memberPortal.joy.store.confirmCancel")}
+              </button>
+              <button
+                onClick={() => handleBuy(confirmProduct)}
+                disabled={buyingId === confirmProduct._id}
+                className="flex-1 py-3 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {buyingId === confirmProduct._id ? t("memberPortal.joy.store.confirmProcessing") : t("memberPortal.joy.store.confirmButton")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
