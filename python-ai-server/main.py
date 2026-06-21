@@ -62,6 +62,10 @@ class ChatRequest(BaseModel):
     bio: Optional[Dict[str, Any]] = None
     userId: Optional[str] = "unknown"
 
+class IntentClassifyRequest(BaseModel):
+    message: str
+
+
 class TestAnalysisRequest(BaseModel):
     testName: str
     scores: Optional[Dict[str, Any]] = None
@@ -177,9 +181,19 @@ async def proactive_push(request: ProactivePushRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/api/ai/intent/classify")
+async def classify_intent(request: IntentClassifyRequest):
+    try:
+        result = await ai_service.classify_intent(request.message)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/ai/chat")
 async def chat(request: ChatRequest, req: Request):
     MAX_CHAT_TOKENS = 3
+
     try:
         client_identifier = _client_id(request.userId, req)
         is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS)

@@ -209,6 +209,20 @@ export default class AIBot extends BaseBot {
     }
   }
 
+  async classifyIntent(message) {
+    try {
+      const res = await fetchWithRetry(`${API_URL}/api/ai/intent/classify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      if (res?.ok) {
+        return await res.json();
+      }
+    } catch (_) {}
+    return { intent: "fallback" };
+  }
+
   async analyzeTest(testName, scores, validity = null, clinical = null, lang = "vi") {
     try {
       const res = await fetchWithRetry(`${API_URL}/api/ai/analyze-test`, {

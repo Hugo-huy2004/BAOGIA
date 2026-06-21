@@ -34,11 +34,24 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
   const getBestViVoice = () => {
     const viVoices = voices.filter(v => v.lang.startsWith("vi") || v.lang.includes("vi-VN"));
     if (viVoices.length === 0) return null;
-    return (
-      viVoices.find(v => v.name.includes("Siri") || v.name.includes("Premium") || v.name.includes("Natural")) ||
-      viVoices.find(v => v.name.includes("Google")) ||
-      viVoices[0]
+    
+    // Prioritize voices containing "nam" (male) or "male" or "Voice 2" (typically male Siri)
+    const maleVoice = viVoices.find(v => 
+      v.name.toLowerCase().includes("nam") || 
+      v.name.toLowerCase().includes("male") ||
+      v.name.includes("Voice 2")
     );
+    if (maleVoice) return maleVoice;
+
+    // Fallback to premium voices
+    const premiumVoice = viVoices.find(v => v.name.includes("Siri") || v.name.includes("Premium") || v.name.includes("Natural"));
+    if (premiumVoice) return premiumVoice;
+
+    // Fallback to Google translator
+    const googleVoice = viVoices.find(v => v.name.includes("Google"));
+    if (googleVoice) return googleVoice;
+
+    return viVoices[0];
   };
 
   const speakText = (text) => {
@@ -46,8 +59,8 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = "vi-VN";
-    utter.rate = 0.75; // Calm, relaxed speech rate
-    utter.pitch = 1.0;
+    utter.rate = 0.8; // Calm, relaxed speech rate
+    utter.pitch = 0.9; // Deeper, warmer, more natural male pitch
     utter.voice = getBestViVoice();
     window.speechSynthesis.speak(utter);
   };

@@ -38,10 +38,10 @@ function SoundscapePanel({ onBack, onComplete }) {
   });
 
   const audiosRef = useRef({
-    rain: new Audio("https://raw.githubusercontent.com/YoyoZhang24/RelaX50/master/audio/rain.mp3"),
-    ocean: new Audio("https://raw.githubusercontent.com/YoyoZhang24/RelaX50/master/audio/sea.mp3"),
-    campfire: new Audio("https://raw.githubusercontent.com/karthiknvd/noctune/main/sounds/campfire.mp3"),
-    whiteNoise: new Audio("https://raw.githubusercontent.com/YoyoZhang24/RelaX50/master/audio/ambient.mp3")
+    rain: new Audio("/audio/rain.mp3"),
+    ocean: new Audio("/audio/sea.mp3"),
+    campfire: new Audio("/audio/campfire.mp3"),
+    whiteNoise: new Audio("/audio/ambient.mp3")
   });
 
   useEffect(() => {
@@ -609,12 +609,13 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, chatMess
                 key={method.id}
                 whileHover={ok ? { scale: 1.02 } : {}}
                 whileTap={ok ? { scale: 0.98 } : {}}
-                className={`relative flex flex-col gap-2 p-4 rounded-2xl border transition-all cursor-default ${
+                onClick={() => ok && openPanel(method.id)}
+                className={`relative flex flex-col gap-2 p-4 rounded-2xl border transition-all ${
                   ok
-                    ? `bg-gradient-to-br ${method.gradient} ${method.border} shadow-sm hover:shadow-lg`
+                    ? `bg-gradient-to-br ${method.gradient} ${method.border} shadow-sm hover:shadow-lg cursor-pointer`
                     : showJoyUnlock
-                      ? `bg-gradient-to-br ${method.gradient} ${method.border} opacity-90`
-                      : "bg-zinc-100/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 opacity-60 grayscale"
+                      ? `bg-gradient-to-br ${method.gradient} ${method.border} opacity-90 cursor-default`
+                      : "bg-zinc-100/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 opacity-60 grayscale cursor-default"
                 }`}
               >
                 {/* Header */}
@@ -664,7 +665,10 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, chatMess
                 {/* JOY unlock CTA */}
                 {showJoyUnlock && (
                   <button
-                    onClick={() => handleUnlockFeature(method)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUnlockFeature(method);
+                    }}
                     disabled={isUnlockingThis}
                     className="mt-1 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[9.5px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all disabled:opacity-50"
                   >

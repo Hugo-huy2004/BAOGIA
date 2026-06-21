@@ -13,6 +13,7 @@ class RateLimitService:
 
     def _try_connect_mongo(self):
         try:
+            # pyrefly: ignore [missing-import]
             from pymongo import MongoClient
             mongo_uri = os.getenv("MONGODB_URI", "")
             if mongo_uri:
@@ -37,6 +38,7 @@ class RateLimitService:
 
         if self.db is not None:
             try:
+                # pyrefly: ignore [missing-import]
                 from pymongo.collection import ReturnDocument
                 result = self.db.ai_rate_limits.find_one_and_update(
                     {"_id": key},

@@ -11,6 +11,7 @@ import { webPushHelper } from "../../../utils/webPushHelper";
 import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogues";
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
 import { getRandomResponse, needsAI } from "./constants/randomResponses";
+import { findMatchingIntent, INTENT_DATABASE } from "./constants/intentClassifier";
 
 const MOOD_META = {
   5: { emoji: "😄", label: "Rất tốt" },
@@ -360,7 +361,8 @@ export default function ChatTab({
   const startAudioRecording = async () => {
     const today = new Date().toISOString().split("T")[0];
     const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
-    if (currentTokens <= 0) {
+    const bonusTokens = bio?.bonusChatTokens || 0;
+    if (currentTokens + bonusTokens <= 0) {
       showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
       return;
     }
@@ -390,9 +392,16 @@ export default function ChatTab({
         try {
           const response = await botManager.chatAudio(audioBlob);
           const textReply = response.text || "Tớ đã nhận được tin nhắn thoại của cậu.";
-          const newTokens = currentTokens - 1;
-          setRemainingChatTokens(newTokens);
-          localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+          
+          if (currentTokens > 0) {
+            const newTokens = currentTokens - 1;
+            setRemainingChatTokens(newTokens);
+            localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+          } else {
+            if (bio && bio.bonusChatTokens > 0 && onProfileUpdate) {
+              onProfileUpdate({ ...bio, bonusChatTokens: bio.bonusChatTokens - 1 });
+            }
+          }
 
           const lowercaseText = textReply.toLowerCase();
           let exerciseFlags = {};
@@ -441,7 +450,8 @@ export default function ChatTab({
   const startListening = () => {
     const today = new Date().toISOString().split("T")[0];
     const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
-    if (currentTokens <= 0) {
+    const bonusTokens = bio?.bonusChatTokens || 0;
+    if (currentTokens + bonusTokens <= 0) {
       showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
       return;
     }
@@ -473,24 +483,28 @@ export default function ChatTab({
 
       setLoading(true);
       const botMsgId = `bot-voice-${Date.now()}`;
-      setMessages(prev => [...prev, {
-        id: botMsgId,
-        sender: "bot",
-        text: "...", // Initial empty text
-        time: new Date(),
-        timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined
-      }]);
 
       await botManager.chatStream(
         transcript,
         (chunkText) => {
           setLoading(false);
-          setMessages(prev => prev.map(m => {
-            if (m.id === botMsgId) {
-              return { ...m, text: chunkText };
+          setMessages(prev => {
+            if (!prev.some(m => m.id === botMsgId)) {
+              return [...prev, {
+                id: botMsgId,
+                sender: "bot",
+                text: chunkText,
+                time: new Date(),
+                timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined
+              }];
             }
-            return m;
-          }));
+            return prev.map(m => {
+              if (m.id === botMsgId) {
+                return { ...m, text: chunkText };
+              }
+              return m;
+            });
+          });
         },
         (botResponse) => {
           let textReply = botResponse.reply;
@@ -506,9 +520,16 @@ export default function ChatTab({
             if (showToast) showToast("Đã tự động lưu thông tin mới vào hồ sơ y khoa.", "success");
           }
 
-          const newTokens = currentTokens - 1;
-          setRemainingChatTokens(newTokens);
-          localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+          if (currentTokens > 0) {
+            const newTokens = currentTokens - 1;
+            setRemainingChatTokens(newTokens);
+            localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+          } else {
+            if (bio && bio.bonusChatTokens > 0 && onProfileUpdate) {
+              onProfileUpdate({ ...bio, bonusChatTokens: bio.bonusChatTokens - 1 });
+            }
+          }
+
 
           const lowercaseText = transcript.toLowerCase();
           let exerciseFlags = {};
@@ -518,15 +539,29 @@ export default function ChatTab({
             exerciseFlags.showInlineCbt = true;
           }
 
-          setMessages(prev => prev.map(m => {
-            if (m.id === botMsgId) {
-              return { ...m, text: textReply, ...suggestionFlags, ...exerciseFlags };
+          setMessages(prev => {
+            if (!prev.some(m => m.id === botMsgId)) {
+              return [...prev, {
+                id: botMsgId,
+                sender: "bot",
+                text: textReply,
+                time: new Date(),
+                timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined,
+                ...suggestionFlags,
+                ...exerciseFlags
+              }];
             }
-            return m;
-          }));
+            return prev.map(m => {
+              if (m.id === botMsgId) {
+                return { ...m, text: textReply, ...suggestionFlags, ...exerciseFlags };
+              }
+              return m;
+            });
+          });
           setLoading(false);
         }
       );
+
     };
     recognition.onerror = () => {
       setIsListening(false);
@@ -1329,7 +1364,7 @@ export default function ChatTab({
           proposalMsg = {
             id: `bot-extend-${Date.now() + 10}`,
             sender: "bot",
-            text: `📊 **Tái đánh giá Tinh thần**: Cậu đã đi qua **${progressDays} ngày** của lộ trình, nhưng kết quả quét hồ sơ lâm sàng lần này ghi nhận cậu vẫn còn gặp một số áp lực lâm sàng. \n\nĐể tiếp tục nâng đỡ và hỗ trợ tinh thần cậu tốt nhất mà **không làm mất đi ${progressDays} ngày cậu đã kiên trì qua**, tớ đề xuất mở rộng thêm **+${extendDays} ngày** hỗ trợ (Tổng lộ trình nâng lên **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + extendDays} ngày**). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
+            text: `**Tái đánh giá Tinh thần**: Cậu đã đi qua **${progressDays} ngày** của lộ trình, nhưng kết quả quét hồ sơ lâm sàng lần này ghi nhận cậu vẫn còn gặp một số áp lực lâm sàng. \n\nĐể tiếp tục nâng đỡ và hỗ trợ tinh thần cậu tốt nhất mà **không làm mất đi ${progressDays} ngày cậu đã kiên trì qua**, tớ đề xuất mở rộng thêm **+${extendDays} ngày** hỗ trợ (Tổng lộ trình nâng lên **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + extendDays} ngày**). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
             time: new Date(Date.now() + 10),
             isCompanionSetup: true,
             recommendedDays: finalRecommendedDuration
@@ -1419,49 +1454,152 @@ export default function ChatTab({
     setDialogStage(targetDialogStage);
   };
 
-  // Free-text send: bypasses dialog tree, calls AI directly
+  // Free-text send: bypasses dialog tree, checks local intents, else calls LLM AI fallback
   const handleSendFreeText = async () => {
     const text = inputText.trim();
     if (!text || loading) return;
-    const today = new Date().toISOString().split("T")[0];
-    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
-    if (currentTokens <= 0) {
-      showToast?.("Hết token chat hôm nay. Quay lại vào ngày mai nhé!", "warning");
+
+    // 1. Fast check: check local intents with Sørensen-Dice similarity (>= 80%) first.
+    const matched = findMatchingIntent(text, bio, historyLogs);
+    if (matched) {
+      setInputText("");
+      const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
+      setMessages(prev => [...prev, userMsg]);
+      setLoading(true);
+      
+      // Save auto-collected emotional check-in status if returned by the intent
+      if (matched.companionUpdate?.newLog && onUpdateCompanionState) {
+        onUpdateCompanionState({ historyLogs: [...historyLogs, matched.companionUpdate.newLog] });
+      }
+
+      // Natural typing delay simulation (600ms) for local matched intent responses
+      const botMsgId = `bot-text-${Date.now()}`;
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          id: botMsgId,
+          sender: "bot",
+          text: matched.reply,
+          suggestPhq9: matched.suggestPhq9,
+          suggestGad7: matched.suggestGad7,
+          time: new Date()
+        }]);
+        setLoading(false);
+      }, 600);
       return;
     }
+
+    // 2. Call AI intent classifier first to check if we can handle it with local intents
     setInputText("");
-    setDialogStage(0);
     const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
+
+    try {
+      const res = await botManager.classifyIntent(text);
+      if (res && res.intent && res.intent !== "fallback") {
+        const intentObj = INTENT_DATABASE.find(i => i.id === res.intent);
+        if (intentObj) {
+          const replyText = intentObj.generateResponse(bio, historyLogs);
+          let companionUpdate = null;
+          if (intentObj.id === "sadness") {
+            companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 2, note: "AI intent: Sadness" } };
+          } else if (intentObj.id === "anxiety") {
+            companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 2, note: "AI intent: Anxiety" } };
+          } else if (intentObj.id === "academic_stress") {
+            companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 2, note: "AI intent: Academic Stress" } };
+          } else if (intentObj.id === "positive") {
+            companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 4, note: "AI intent: Positive" } };
+          } else if (intentObj.id === "crisis") {
+            companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 1, note: "AI intent: Crisis" } };
+          }
+
+          if (companionUpdate?.newLog && onUpdateCompanionState) {
+            onUpdateCompanionState({ historyLogs: [...historyLogs, companionUpdate.newLog] });
+          }
+
+          const botMsgId = `bot-text-${Date.now()}`;
+          setTimeout(() => {
+            setMessages(prev => [...prev, {
+              id: botMsgId,
+              sender: "bot",
+              text: replyText,
+              suggestPhq9: intentObj.suggestPhq9 || false,
+              suggestGad7: intentObj.suggestGad7 || false,
+              time: new Date()
+            }]);
+            setLoading(false);
+          }, 600);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("AI intent classification failed, falling back to full LLM:", err);
+    }
+
+    // 3. Fallback: Call the streaming conversational LLM AI server. Check token limit first:
+    const today = new Date().toISOString().split("T")[0];
+    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
+    const bonusTokens = bio?.bonusChatTokens || 0;
+    if (currentTokens + bonusTokens <= 0) {
+      showToast?.("Hết token chat hôm nay. Quay lại vào ngày mai nhé!", "warning");
+      setLoading(false);
+      return;
+    }
+
+    setDialogStage(0);
     const botMsgId = `bot-text-${Date.now()}`;
-    setMessages(prev => [...prev, { id: botMsgId, sender: "bot", text: "...", time: new Date() }]);
     await botManager.chatStream(
       text,
       (chunkText) => {
         setLoading(false);
-        setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, text: chunkText } : m));
+        setMessages(prev => {
+          if (!prev.some(m => m.id === botMsgId)) {
+            return [...prev, { id: botMsgId, sender: "bot", text: chunkText, time: new Date() }];
+          }
+          return prev.map(m => m.id === botMsgId ? { ...m, text: chunkText } : m);
+        });
       },
       (botResponse) => {
-        const newTokens = currentTokens - 1;
-        setRemainingChatTokens(newTokens);
-        localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+        if (currentTokens > 0) {
+          const newTokens = currentTokens - 1;
+          setRemainingChatTokens(newTokens);
+          localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+        } else {
+          if (bio && bio.bonusChatTokens > 0 && onProfileUpdate) {
+            onProfileUpdate({ ...bio, bonusChatTokens: bio.bonusChatTokens - 1 });
+          }
+        }
         if (botResponse.bioUpdate && onProfileUpdate) {
           onProfileUpdate(botResponse.bioUpdate);
           showToast?.("Đã lưu thông tin mới vào hồ sơ!", "success");
         }
-        setMessages(prev => prev.map(m => m.id === botMsgId ? {
-          ...m,
-          text: botResponse.reply,
-          suggestPhq9: botResponse.suggestPhq9,
-          suggestGad7: botResponse.suggestGad7,
-          suggestWho5: botResponse.suggestWho5,
-          suggestBigFive: botResponse.suggestBigFive,
-        } : m));
+        setMessages(prev => {
+          if (!prev.some(m => m.id === botMsgId)) {
+            return [...prev, {
+              id: botMsgId,
+              sender: "bot",
+              text: botResponse.reply,
+              suggestPhq9: botResponse.suggestPhq9,
+              suggestGad7: botResponse.suggestGad7,
+              suggestWho5: botResponse.suggestWho5,
+              suggestBigFive: botResponse.suggestBigFive,
+              time: new Date()
+            }];
+          }
+          return prev.map(m => m.id === botMsgId ? {
+            ...m,
+            text: botResponse.reply,
+            suggestPhq9: botResponse.suggestPhq9,
+            suggestGad7: botResponse.suggestGad7,
+            suggestWho5: botResponse.suggestWho5,
+            suggestBigFive: botResponse.suggestBigFive,
+          } : m);
+        });
         setLoading(false);
       }
     );
   };
+
 
   return (
     <div ref={chatWrapperRef} className="flex flex-col min-h-0 bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
@@ -1694,7 +1832,7 @@ export default function ChatTab({
 
             {/* Auto-grow textarea */}
             <div className={`flex-1 rounded-2xl border flex items-end px-4 py-2.5 min-h-[44px] max-h-28 transition-colors ${
-              remainingChatTokens <= 0
+              (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0
                 ? 'bg-zinc-100/80 dark:bg-zinc-800/40 border-zinc-200/50 dark:border-zinc-700/30 opacity-60'
                 : 'bg-zinc-100 dark:bg-zinc-800/80 border-zinc-200/70 dark:border-zinc-700/60 focus-within:border-[#0071e3]/50 dark:focus-within:border-[#0071e3]/40 focus-within:bg-white dark:focus-within:bg-zinc-800'
             }`}>
@@ -1709,8 +1847,8 @@ export default function ChatTab({
                 onKeyDown={e => {
                   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendFreeText(); }
                 }}
-                placeholder={remainingChatTokens <= 0 ? "Hết token hôm nay..." : "Nhắn tin cho Chuyên viên AI..."}
-                disabled={remainingChatTokens <= 0 || loading}
+                placeholder={(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 ? "Hết token hôm nay..." : "Nhắn tin cho Chuyên viên AI..."}
+                disabled={(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 || loading}
                 rows={1}
                 className="w-full bg-transparent text-[13px] text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none resize-none leading-snug"
                 style={{ height: '22px' }}
@@ -1720,10 +1858,11 @@ export default function ChatTab({
             {/* Send (typed) OR Call (empty) */}
             {inputText.trim() ? (
               <button type="button" onClick={handleSendFreeText}
-                disabled={loading || remainingChatTokens <= 0}
+                disabled={loading || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0}
                 className="w-11 h-11 shrink-0 rounded-2xl bg-[#0071e3] flex items-center justify-center text-white shadow-md shadow-[#0071e3]/25 active:scale-90 transition-all disabled:opacity-40">
                 <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings:"'FILL' 1" }}>send</span>
               </button>
+
             ) : (
               <button type="button" onClick={() => setIsCallModalOpen(true)}
                 title={hasUnlimitedCalls ? "Gọi tư vấn AI (Không giới hạn)" : "Gọi tư vấn AI"}

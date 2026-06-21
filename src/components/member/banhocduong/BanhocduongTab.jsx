@@ -97,7 +97,7 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
       setNotifStatus(perm);
       if (perm === 'granted' && bio?.email) {
         await webPushHelper.registerAndSubscribe(bio.email);
-        showToast?.(t('companion.tab.dailyReminderEnabled', 'Đã bật nhắc nhở hàng ngày! 🎉'), 'success');
+        showToast?.(t('companion.tab.dailyReminderEnabled', 'Đã bật nhắc nhở hàng ngày!'), 'success');
       } else if (perm === 'denied') {
         showToast?.(t('companion.tab.pushDenied', 'Quyền thông báo bị từ chối. Bật lại trong cài đặt trình duyệt.'), 'warning');
       }
@@ -114,7 +114,7 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">{t("companion.tab.activeRoadmap", "Lộ trình đang hoạt động")}</p>
               {shortenedDays > 0 && (
                 <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
-                  {t("companion.tab.reducedDays", { count: shortenedDays }, `-${shortenedDays} ngày 🎉`)}
+                  {t("companion.tab.reducedDays", { count: shortenedDays }, `-${shortenedDays} ngày`)}
                 </span>
               )}
             </div>
@@ -463,7 +463,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
     const currentDay = getProgressDay();
     const progressPercent = Math.min(100, Math.round((currentDay / healingDuration) * 100) + qualifiedCount * 2);
     if (progressPercent < 60) {
-      showToast?.(t('companion.tab.stopRoadmap.progressRequirement', { percent: progressPercent }, `Cần hoàn tất tối thiểu 60% chặng đường để dừng (hiện tại: ${progressPercent}%). Hãy kiên trì thêm nhé! 💪`), 'warning');
+      showToast?.(t('companion.tab.stopRoadmap.progressRequirement', { percent: progressPercent }, `Cần hoàn tất tối thiểu 60% chặng đường để dừng (hiện tại: ${progressPercent}%). Hãy kiên trì thêm nhé!`), 'warning');
       return;
     }
     setShowCancelModal(true);
@@ -472,7 +472,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
   const confirmCancelHealing = async () => {
     setShowCancelModal(false);
     await handleUpdateCompanionState({ healingActive: false, healingDuration: 30, healingStartDate: null, historyLogs });
-    showToast?.(t('companion.tab.stopRoadmap.stoppedSuccess', 'Đã dừng lộ trình. Lịch sử vẫn được lưu đầy đủ! 🌸'), 'success');
+    showToast?.(t('companion.tab.stopRoadmap.stoppedSuccess', 'Đã dừng lộ trình. Lịch sử vẫn được lưu đầy đủ!'), 'success');
   };
 
   const activeHighCrisisFlag = crisisFlags.find(f => f.severity === 'high' && !f.resolved);
@@ -687,7 +687,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                 <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>auto_awesome</span>
               </div>
               <div>
-                <h4 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.adaptiveAlert.title", "Tiến triển xuất sắc! 🎉")}</h4>
+                <h4 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.adaptiveAlert.title", "Tiến triển xuất sắc!")}</h4>
                 <p className="text-[11px] text-zinc-500 mt-1">{t("companion.tab.adaptiveAlert.subtitle", "Lộ trình đồng hành thích ứng")}</p>
               </div>
               <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-4 text-left space-y-2">

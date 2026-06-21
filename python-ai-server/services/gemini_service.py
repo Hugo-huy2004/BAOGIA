@@ -1,6 +1,9 @@
 import os
 import json
+# pyrefly: ignore [missing-import]
+import httpx
 from datetime import datetime
+
 # pyrefly: ignore [missing-import]
 from google import genai
 # pyrefly: ignore [missing-import]
@@ -274,8 +277,45 @@ class GeminiService:
                     client = self._get_next_client()
                     continue
                 print(f"Lỗi gọi Gemini API (generate_chat_response): {err_str}")
+                
+                # OpenRouter fallback
+                openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
+                if openrouter_key:
+                    print("🔄 Gemini failed. Falling back to OpenRouter...")
+                    messages = [{"role": "system", "content": system_instruction}]
+                    if history:
+                        for h in history:
+                            role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
+                            text = h.get("text") or h.get("content") or ""
+                            if text:
+                                messages.append({"role": role, "content": text})
+                    messages.append({"role": "user", "content": message})
+                    
+                    openrouter_reply = await self._call_openrouter(messages)
+                    if openrouter_reply:
+                        return openrouter_reply
+
                 return "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha."
+        
+        # OpenRouter fallback if loop finished without success
+        openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
+        if openrouter_key:
+            print("🔄 Gemini keys loop ended. Falling back to OpenRouter...")
+            messages = [{"role": "system", "content": system_instruction}]
+            if history:
+                for h in history:
+                    role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
+                    text = h.get("text") or h.get("content") or ""
+                    if text:
+                        messages.append({"role": role, "content": text})
+            messages.append({"role": "user", "content": message})
+            
+            openrouter_reply = await self._call_openrouter(messages)
+            if openrouter_reply:
+                return openrouter_reply
+
         return "Tớ đang không thể kết nối đến máy chủ AI do sự cố mạng hoặc hạn mức. Cậu thử lại sau nha."
+
 
     async def generate_chat_response_stream(self, message: str, history: list = None, bio: dict = None) -> AsyncGenerator[str, None]:
         """
@@ -320,13 +360,50 @@ class GeminiService:
                     client = self._get_next_client()
                     continue
                 print(f"Lỗi gọi Gemini API stream: {err_str}")
+                
+                # OpenRouter fallback
+                openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
+                if openrouter_key:
+                    print("🔄 Gemini stream failed. Falling back to OpenRouter stream...")
+                    messages = [{"role": "system", "content": system_instruction}]
+                    if history:
+                        for h in history:
+                            role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
+                            text = h.get("text") or h.get("content") or ""
+                            if text:
+                                messages.append({"role": role, "content": text})
+                    messages.append({"role": "user", "content": message})
+                    
+                    async for chunk in self._call_openrouter_stream(messages):
+                        yield chunk
+                    return
+
                 yield f"data: {json.dumps({'error': 'Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha.'}, ensure_ascii=False)}\n\n"
                 import asyncio
                 await asyncio.sleep(0.1)
                 return
+        
+        # OpenRouter fallback if loop finished without success
+        openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
+        if openrouter_key:
+            print("🔄 Gemini stream keys loop ended. Falling back to OpenRouter stream...")
+            messages = [{"role": "system", "content": system_instruction}]
+            if history:
+                for h in history:
+                    role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
+                    text = h.get("text") or h.get("content") or ""
+                    if text:
+                        messages.append({"role": role, "content": text})
+            messages.append({"role": "user", "content": message})
+            
+            async for chunk in self._call_openrouter_stream(messages):
+                yield chunk
+            return
+
         yield f"data: {json.dumps({'error': 'Tớ đang không thể kết nối đến máy chủ AI. Cậu thử lại sau nha.'}, ensure_ascii=False)}\n\n"
         import asyncio
         await asyncio.sleep(0.1)
+
 
     async def analyze_test_results(self, test_name: str, scores: dict = None, validity: dict = None, clinical: list = None, lang_detected: str = "vi", bio: dict = None) -> str:
         """
@@ -1285,3 +1362,157 @@ Trả về JSON CHÍNH XÁC:
                     continue
                 return {"error": err_str}
         return {"error": "Tất cả API Key đã bị quá tải."}
+
+    async def classify_intent(self, message: str) -> dict:
+        """
+        Classify user message into one of the local intent IDs or "fallback".
+        """
+        system_instruction = """
+        Bạn là hệ thống phân loại ý định (Intent Classifier) của Bạn Học Đường.
+        Nhiệm vụ: Phân tích tin nhắn tiếng Việt của học sinh/sinh viên và phân loại vào một trong các nhãn intent sau:
+        - greeting: Chào hỏi bot, chào chuyên viên, hello, hi, bắt đầu trò chuyện.
+        - goodbye: Tạm biệt, đi ngủ, đi học, đi làm, dừng trò chuyện.
+        - identity: Hỏi bot là ai, tên gì, do ai tạo ra, có phải AI không, chức vụ là gì.
+        - features: Hỏi bot có tính năng gì, giúp gì được cho người dùng, sử dụng app thế nào, các liệu pháp là gì.
+        - academic_stress: Áp lực học tập, thi cử, điểm số, kiệt sức vì học hành, sợ thi rớt, học không vào, bài tập quá tải.
+        - sleep: Mất ngủ, khó ngủ, thức khuya, muốn ngủ ngon, hỏi mẹo ngủ ngon.
+        - anxiety: Lo lắng, bất an, bồn chồn, sợ hãi, hoảng loạn, hồi hộp, tim đập nhanh.
+        - sadness: Buồn bã, chán nản, cô đơn, chán ghét mọi thứ, tâm trạng tồi tệ, khóc.
+        - crisis: Ý định tự tử, muốn chết, tự làm hại bản thân, không muốn sống nữa. (RẤT QUAN TRỌNG)
+        - clinical_tests: Yêu cầu làm bài test trầm cảm, lo âu, trắc nghiệm tâm lý, bài test PHQ-9, bài test GAD-7.
+        - gratitude: Cảm ơn bot, khen ngợi bot dễ thương, hữu ích, cảm kích.
+        - positive: Khoe chuyện vui, tâm trạng tốt, cảm thấy ổn, khỏe khoắn, hạnh phúc.
+
+        Nếu tin nhắn KHÔNG thuộc bất cứ nhãn nào ở trên, hoặc chứa câu hỏi/câu chuyện dài, phức tạp cần tư vấn chi tiết từ LLM, bắt buộc phải trả về:
+        - fallback
+
+        Trả về kết quả ở định dạng JSON chính xác:
+        {
+          "intent": "nhãn đã chọn"
+        }
+        """
+
+        client = self._ensure_client()
+        if client:
+            max_retries = max(1, len(self.api_keys) if hasattr(self, 'api_keys') else 1)
+            for attempt in range(max_retries):
+                try:
+                    response = await client.aio.models.generate_content(
+                        model=self.model_name,
+                        contents=[f"Tin nhắn người dùng: '{message}'"],
+                        config=types.GenerateContentConfig(
+                            system_instruction=system_instruction,
+                            response_mime_type="application/json",
+                            temperature=0.1
+                        )
+                    )
+                    return json.loads(response.text)
+                except Exception as e:
+                    err_str = str(e)
+                    if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
+                        client = self._get_next_client()
+                        continue
+                    print(f"Lỗi phân loại intent: {err_str}")
+
+        # OpenRouter fallback
+        openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
+        if openrouter_key:
+            print("🔄 Gemini classification failed. Falling back to OpenRouter...")
+            messages = [
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": f"Tin nhắn người dùng: '{message}'"}
+            ]
+            openrouter_reply = await self._call_openrouter(
+                messages=messages,
+                temperature=0.1,
+                response_format={"type": "json_object"}
+            )
+            if openrouter_reply:
+                try:
+                    return json.loads(openrouter_reply)
+                except Exception as e:
+                    print(f"Lỗi parse json OpenRouter classification: {e}")
+
+        return {"intent": "fallback"}
+
+    async def _call_openrouter(self, messages: list, temperature: float = 0.7, response_format: dict = None) -> str:
+        api_key = os.getenv("OPENROUTER_API_KEY", "")
+        if not api_key:
+            return ""
+        
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://hugostudio.vn",
+            "X-Title": "Ban Hoc Duong AI"
+        }
+        payload = {
+            "model": "google/gemma-4-31b-it:free",
+            "messages": messages,
+            "temperature": temperature
+        }
+        if response_format:
+            payload["response_format"] = response_format
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                res = await client.post(url, headers=headers, json=payload)
+                if res.status_code == 200:
+                    data = res.json()
+                    return data["choices"][0]["message"]["content"]
+                else:
+                    print(f"OpenRouter error {res.status_code}: {res.text}")
+        except Exception as e:
+            print(f"OpenRouter exception: {e}")
+        return ""
+
+    async def _call_openrouter_stream(self, messages: list, temperature: float = 0.7) -> AsyncGenerator[str, None]:
+        api_key = os.getenv("OPENROUTER_API_KEY", "")
+        if not api_key:
+            yield f"data: {json.dumps({'error': 'Không có API Key OpenRouter.'}, ensure_ascii=False)}\n\n"
+            return
+        
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://hugostudio.vn",
+            "X-Title": "Ban Hoc Duong AI"
+        }
+        payload = {
+            "model": "google/gemma-4-31b-it:free",
+            "messages": messages,
+            "temperature": temperature,
+            "stream": True
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                async with client.stream("POST", url, headers=headers, json=payload) as response:
+                    if response.status_code != 200:
+                        err_text = await response.aread()
+                        print(f"OpenRouter stream error: {err_text}")
+                        yield f"data: {json.dumps({'error': 'Lỗi kết nối OpenRouter.'}, ensure_ascii=False)}\n\n"
+                        return
+
+                    async for line in response.aiter_lines():
+                        line = line.strip()
+                        if not line:
+                            continue
+                        if line.startswith("data: "):
+                            data_str = line[6:]
+                            if data_str == "[DONE]":
+                                break
+                            try:
+                                data = json.loads(data_str)
+                                chunk_text = data["choices"][0]["delta"].get("content", "")
+                                if chunk_text:
+                                    yield f"data: {json.dumps({'text': chunk_text}, ensure_ascii=False)}\n\n"
+                            except Exception:
+                                pass
+        except Exception as e:
+            print(f"OpenRouter stream exception: {e}")
+            yield f"data: {json.dumps({'error': 'Lỗi đường truyền OpenRouter.'}, ensure_ascii=False)}\n\n"
+
+

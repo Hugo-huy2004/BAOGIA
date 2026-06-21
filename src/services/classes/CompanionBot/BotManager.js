@@ -48,9 +48,18 @@ export default class BotManager {
     if (onDone) onDone(res);
   }
 
+  async classifyIntent(message) {
+    const bot = this._route();
+    if (typeof bot.classifyIntent === 'function') {
+      return await bot.classifyIntent(message);
+    }
+    return { intent: "fallback" };
+  }
+
   async chatAudio(audioBlob, isCallMode = false) {
     const bot = this._route();
     if (typeof bot.chatAudio === 'function') {
+
       return await bot.chatAudio(audioBlob, isCallMode);
     }
     return { text: "Xin lỗi, tính năng gọi điện AI hiện đang bảo trì.", audio_base64: null };
