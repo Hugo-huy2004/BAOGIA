@@ -131,6 +131,12 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import sleepRoutes from './routes/sleepRoutes.js';
 import inboxRoutes from './routes/inboxRoutes.js';
 import chessRoutes from './routes/chessRoutes.js';
+import joyRoutes from './routes/joyRoutes.js';
+import referralRoutes from './routes/referralRoutes.js';
+import utilityStoreRoutes from './routes/utilityStoreRoutes.js';
+import joyGiftCardRoutes from './routes/joyGiftCardRoutes.js';
+import checkinRoutes from './routes/checkinRoutes.js';
+import presenceRoutes from './routes/presenceRoutes.js';
 
 // Routes
 app.use('/api/data', dataRoutes);
@@ -150,6 +156,13 @@ app.use('/api/iot', iotRoutes);
 app.use('/api/sleep', sleepRoutes);
 app.use('/api/inbox', inboxRoutes);
 app.use('/api/chess', chessRoutes);
+app.use('/api/joy', joyRoutes);
+app.use('/api/referral', referralRoutes);
+app.use('/api/utility-store', utilityStoreRoutes);
+app.use('/api/joy-gift-cards', joyGiftCardRoutes);
+app.use('/api/checkin', checkinRoutes);
+app.use('/api/presence', presenceRoutes);
+
 
 // Health check
 app.get('/api/health', (req, res) => {

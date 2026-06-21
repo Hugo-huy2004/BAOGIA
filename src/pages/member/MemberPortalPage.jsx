@@ -13,6 +13,10 @@ import HealingModal from "../../components/member/portal/HealingModal";
 import { useTourStore } from "../../stores/tourStore";
 import TourSystem from "../../components/TourSystem";
 import NotificationBell from "../../components/member/portal/NotificationBell";
+import { useJoyStore } from "../../stores/joyStore";
+import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
+import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
+import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 
 // Sub-components
 import BirthdaySurprise from "../../components/member/BirthdaySurprise";
@@ -34,6 +38,7 @@ const MemberHistoryTab   = React.lazy(() => import("../../components/member/Memb
 const MemberManageTab    = React.lazy(() => import("../../components/member/MemberManageTab"));
 const MemberPartnerTab   = React.lazy(() => import("../../components/member/MemberPartnerTab"));
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
+const MemberJoyTab       = React.lazy(() => import("../../components/member/MemberJoyTab"));
 
 function StatusBadge({ status }) {
   const { t } = useTranslation();
@@ -59,6 +64,10 @@ export default function MemberPortalPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [showBirthdaySurprise, setShowBirthdaySurprise] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
+  const joyBalance = useJoyStore(s => s.balance);
+  usePresenceHeartbeat(memberSession?.email);
   const [verificationForm, setVerificationForm] = useState({
     fullName: memberSession?.displayName || "", birthday: "", schoolLevel: "",
     schoolName: "", phoneZalo: "", acceptTerms: false, acceptContact: false,
@@ -211,6 +220,11 @@ export default function MemberPortalPage() {
         if (res?.bio) {
           const b = res.bio;
           setBio(b);
+          // Defer balance/referral-code fetch until onboarding (phone capture) is done —
+          // GET /api/joy/balance eagerly calls ensureReferralCode, and we want phone
+          // saved first so the generated code is phone-derived, not random.
+          if (b.onboardingCompleted) fetchJoyBalance(memberSession.email);
+          else setShowOnboarding(true);
           if (b.status === 'active' && b.verificationRequest?.notifiedStatus === 'approved') {
             sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
             memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
@@ -409,6 +423,7 @@ export default function MemberPortalPage() {
       { id: "account",   label: t("memberPortal.tabs.bio"),       icon: "person",          partner: false },
       ...(!isGuestMode ? [
         { id: "manage",    label: t("memberPortal.tabs.package"),    icon: "card_membership", partner: false },
+        { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "paid",            partner: false },
         { id: "partner",   label: t("memberPortal.tabs.partner"),    icon: "handshake",       partner: true  }
       ] : []),
       { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps",            partner: false },
@@ -428,9 +443,9 @@ export default function MemberPortalPage() {
       return [
         { id: "account",   label: t("memberPortal.tabs.bio"),       icon: "person" },
         { id: "manage",    label: t("memberPortal.tabs.package"),    icon: "card_membership" },
+        { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "paid" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
-        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" },
-        { id: "logout",    label: t("memberPortal.logout", "Đăng Xuất"), icon: "logout" }
+        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" }
       ];
     }
   }, [isGuestMode, t]);
@@ -438,10 +453,6 @@ export default function MemberPortalPage() {
   const onTabClick = (tab) => {
     if (tab.id === "login") {
       window.location.href = "/login";
-      return;
-    }
-    if (tab.id === "logout") {
-      handleLogout();
       return;
     }
     if (tab.partner) {
@@ -487,7 +498,8 @@ export default function MemberPortalPage() {
           <motion.div key="toast"
             initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }}
             transition={{ type:"spring", stiffness:400, damping:28 }}
-            className="fixed top-5 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl shadow-2xl border border-zinc-200/60 dark:border-zinc-800/80 w-[calc(100vw-32px)] max-w-md"
+            className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl shadow-2xl border border-zinc-200/60 dark:border-zinc-800/80 max-w-md mx-auto"
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}
           >
             <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-[#34c759]":toast.type==="warning"?"text-[#ff9500]":"text-[#ff3b30]"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
               {toast.type==="success"?"check_circle":toast.type==="warning"?"warning":"error"}
@@ -566,13 +578,21 @@ export default function MemberPortalPage() {
                   <span className="hidden sm:inline">{t("navbar.login", "Đăng Nhập")}</span>
                 </button>
               ) : (
-                <button type="button" onClick={handleLogout}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-red-200/60 dark:border-red-900/30 bg-red-500/5 hover:bg-red-500/10 text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
-                  <span className="material-symbols-outlined text-sm">logout</span>
-                  <span className="hidden sm:inline">{t("memberPortal.logout")}</span>
+                <button type="button" onClick={() => onTabClick({ id: "joy" })}
+                  className="hidden sm:flex items-center px-2.5 py-1.5 rounded-full border border-amber-200/60 dark:border-amber-900/30 bg-amber-500/5 hover:bg-amber-500/10 transition-all duration-200">
+                  <JoyCoinBadge amount={joyBalance} size="sm" />
                 </button>
               )}
             </div>
+            {/* Logout — no longer a dedicated mobile tab-bar slot; on mobile it only
+                shows on the Hồ Sơ Bio (account) tab, always visible on desktop. */}
+            {!isGuestMode && (
+              <button type="button" onClick={handleLogout}
+                className={`${activeTab === 'account' && !mobileSubSection ? 'flex' : 'hidden'} md:flex items-center gap-1.5 px-3 py-2 rounded-full border border-red-200/60 dark:border-red-900/30 bg-red-500/5 hover:bg-red-500/10 text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200 shrink-0`}>
+                <span className="material-symbols-outlined text-sm">logout</span>
+                <span className="hidden sm:inline">{t("memberPortal.logout")}</span>
+              </button>
+            )}
           </div>
 
           {/* Desktop tab navigation */}
@@ -719,6 +739,12 @@ export default function MemberPortalPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex flex-wrap items-center gap-1.5">
                                   {bio?.status && !isGuestMode && <StatusBadge status={bio.status} />}
+                                  {!isGuestMode && (
+                                    <button type="button" onClick={() => onTabClick({ id: "joy" })}
+                                      className="inline-flex items-center px-2 py-1 rounded-full border border-amber-200/60 dark:border-amber-900/30 bg-amber-500/5 active:scale-95 transition-all">
+                                      <JoyCoinBadge amount={joyBalance} size="sm" />
+                                    </button>
+                                  )}
                                 </div>
                                 <h2 className="font-black text-base text-zinc-900 dark:text-white leading-tight mt-1 truncate">
                                   {formData.displayName || t("memberPortal.bio.noName")}
@@ -861,6 +887,7 @@ export default function MemberPortalPage() {
                 )}
 
                 {activeTab === "manage"    && <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} handleRedeemCode={handleRedeemCode} />}
+                {activeTab === "joy"       && <MemberJoyTab bio={bio} showToast={showToast} />}
                 {activeTab === "partner"   && <MemberPartnerTab />}
                 {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} defaultUtility={defaultUtility} defaultPsychologySubTab={defaultPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} />}
                 {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} />}
@@ -894,6 +921,16 @@ export default function MemberPortalPage() {
         )}
 
         {showBirthdaySurprise && <BirthdaySurprise displayName={formData.displayName} onClose={() => setShowBirthdaySurprise(false)} />}
+        {showOnboarding && !isGuestMode && memberSession?.email && (
+          <OnboardingProfileModal
+            email={memberSession.email}
+            onDone={(result) => {
+              setShowOnboarding(false);
+              if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
+              fetchJoyBalance(memberSession.email);
+            }}
+          />
+        )}
         <TourSystem />
       </div>
 

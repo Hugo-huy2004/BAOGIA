@@ -35,7 +35,7 @@ const getBrutalPatternStyle = (pattern, bgColor) => {
   return {};
 };
 
-export default React.memo(function BrutalismTheme({ bio, isPreview = false }) {
+export default React.memo(function BrutalismTheme({ bio, isPreview = false, isOnline = false }) {
   const themeObj = bio.theme || {};
   const bgColor = themeObj.bgColor || "#000000";
   const accentColor = themeObj.accentColor || "#ffffff";
@@ -137,6 +137,12 @@ export default React.memo(function BrutalismTheme({ bio, isPreview = false }) {
                 {bio.headline}
               </div>
             )}
+            <div className="flex items-center gap-1.5 mt-3">
+              <span className={`w-2 h-2 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'} border border-black`} />
+              <span className="text-[9px] font-mono font-bold uppercase tracking-wider">
+                {isOnline ? 'Online' : 'Offline'}
+              </span>
+            </div>
           </motion.div>
 
           {/* Scroll Down Indicator */}

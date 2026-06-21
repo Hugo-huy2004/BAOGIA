@@ -520,7 +520,9 @@
       "logoutAccount": "Đăng xuất tài khoản quản trị",
       "utilities": "Tiện ích",
       "systemUtilities": "Tiện ích hệ thống",
-      "utilitiesDesc": "Phím tắt truy cập nhanh và các thiết lập quản trị viên"
+      "utilitiesDesc": "Phím tắt truy cập nhanh và các thiết lập quản trị viên",
+      "joyGiftCards": "Thẻ Quà JOY",
+      "utilityStore": "Cửa Hàng Tiện Ích"
     },
     "bottomNav": {
       "users": "Quản Lý",
@@ -794,6 +796,56 @@
       "expiry": "Hạn dùng Bio:",
       "createNamePlaceholder": "Ví dụ: Gói tặng 3 tháng, Gói Bio VIP...",
       "createDurationPlaceholder": "Ví dụ: 3"
+    },
+    "joyGiftCards": {
+      "headerDesc": "Tạo và quản lý mã quà tặng JOY cho thành viên.",
+      "createTitle": "Tạo mã quà tặng JOY",
+      "amountLabel": "Số JOY mỗi mã",
+      "countLabel": "Số lượng mã",
+      "noteLabel": "Ghi chú (nội bộ)",
+      "createBtn": "Tạo mã",
+      "createSuccess": "Đã tạo {{count}} mã quà tặng!",
+      "deleteSuccess": "Đã xoá mã quà tặng.",
+      "justCreated": "Mã vừa tạo",
+      "listTitle": "Danh sách mã quà tặng",
+      "loading": "Đang tải...",
+      "empty": "Chưa có mã quà tặng nào.",
+      "redeemedBy": "đã đổi bởi"
+    },
+    "utilityStore": {
+      "headerDesc": "Quản lý sản phẩm và đơn hàng của Cửa Hàng Tiện Ích.",
+      "createTitle": "Tạo sản phẩm mới",
+      "editTitle": "Chỉnh sửa sản phẩm",
+      "nameLabel": "Tên sản phẩm",
+      "descLabel": "Mô tả",
+      "priceLabel": "Giá (JOY)",
+      "stockLabel": "Số lượng kho (-1 = không giới hạn)",
+      "iconLabel": "Icon",
+      "saveBtn": "Lưu thay đổi",
+      "createBtn": "Tạo sản phẩm",
+      "cancelBtn": "Huỷ",
+      "saveSuccess": "Đã lưu sản phẩm.",
+      "deleteSuccess": "Đã xoá sản phẩm.",
+      "listTitle": "Danh sách sản phẩm",
+      "loading": "Đang tải...",
+      "empty": "Chưa có sản phẩm nào.",
+      "active": "Đang bán",
+      "inactive": "Đã ẩn",
+      "unlimited": "Không giới hạn",
+      "editBtn": "Sửa",
+      "disableBtn": "Ẩn",
+      "enableBtn": "Hiện",
+      "ordersTitle": "Đơn hàng gần đây",
+      "noOrders": "Chưa có đơn hàng nào.",
+      "productTypeLabel": "Loại sản phẩm",
+      "typeGeneral": "Chung (đổi mã/quà tặng)",
+      "typeSystemValidity": "HSD Hệ Thống",
+      "typePsyStudy": "Psy-Study (token AI)",
+      "extendDaysLabel": "Số ngày tăng hạn sử dụng",
+      "tokenTypeLabel": "Loại token",
+      "tokenTypeChat": "Token Chat",
+      "tokenTypeCall": "Token Gọi thoại",
+      "tokenAmountLabel": "Số lượng token bán thêm"
     }
   },
   "adminSupport": {
@@ -826,7 +878,8 @@
       "package": "Gói dịch vụ",
       "partner": "Đối tác",
       "utilities": "Tiện Ích",
-      "history": "Thông báo"
+      "history": "Thông báo",
+      "joy": "Dịch Vụ"
     },
     "logout": "ĐĂNG XUẤT",
     "sidebar": {
@@ -1174,6 +1227,66 @@
         "benefit2": "Classic Profile Layout: Bố cục Bio Link truyền thống, đơn giản, sạch sẽ và dễ đọc.",
         "benefit3": "Không Quảng Cáo Rác: Cam kết giao diện sạch sẽ, thân thiện và tối ưu nhất cho người xem."
       }
+    },
+    "onboarding": {
+      "title": "Chào mừng bạn! 🎉",
+      "subtitle": "Hoàn tất hồ sơ để nhận JOY và các quyền lợi đặc biệt",
+      "phoneLabel": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại của bạn",
+      "referralLabel": "Mã giới thiệu (nếu có)",
+      "referralPlaceholder": "VD: HG123456",
+      "referralHint": "Nhập mã của người giới thiệu để nhận +10 JOY và +15 ngày Bio link miễn phí",
+      "submitting": "Đang xử lý...",
+      "submitButton": "Hoàn tất"
+    },
+    "joy": {
+      "walletTitle": "Ví JOY của bạn",
+      "referral": {
+        "countLabel": "Bạn đã giới thiệu {{count}} người",
+        "copied": "Đã sao chép liên kết giới thiệu!"
+      },
+      "sections": {
+        "wallet": "Ví",
+        "store": "Cửa Hàng",
+        "history": "Lịch Sử"
+      },
+      "redeem": {
+        "title": "Đổi mã quà tặng JOY",
+        "placeholder": "Nhập mã quà tặng",
+        "button": "Đổi mã",
+        "success": "Đổi mã thành công! +{{amount}} JOY",
+        "error": "Không thể đổi mã này."
+      },
+      "earnInfo": "Kiếm JOY bằng cách: giới thiệu bạn bè, tham gia trị liệu tâm lý, chơi cờ vua, hoặc nhập mã quà tặng từ Admin.",
+      "history": {
+        "transactions": "Lịch sử giao dịch JOY",
+        "empty": "Chưa có giao dịch nào.",
+        "orders": "Lịch sử mua hàng",
+        "emptyOrders": "Chưa có đơn hàng nào."
+      },
+      "store": {
+        "loading": "Đang tải sản phẩm...",
+        "empty": "Cửa hàng hiện chưa có sản phẩm.",
+        "purchaseSuccess": "Mua hàng thành công! Mã đơn hàng: {{code}}",
+        "purchaseError": "Không thể mua sản phẩm này.",
+        "outOfStock": "Hết hàng",
+        "insufficientBalance": "Không đủ JOY",
+        "buyButton": "Mua ngay"
+      }
+    },
+    "checkin": {
+      "title": "Điểm Danh Nhận JOY",
+      "subtitle": "Điểm danh mỗi ngày, nhận JOY mỗi tuần — đừng bỏ lỡ ngày nào!",
+      "loading": "Đang tải điểm danh...",
+      "dayLabel": "Ngày {{day}}",
+      "milestone": "Mốc {{days}} ngày",
+      "streakLabel": "Chuỗi liên tục: {{count}} ngày",
+      "claimButton": "Điểm danh",
+      "alreadyClaimed": "Đã điểm danh",
+      "locked": "Đã khoá",
+      "claimSuccess": "Điểm danh thành công! +{{amount}} JOY",
+      "claimSuccessBonus": "Điểm danh thành công! +{{total}} JOY (gồm mốc thưởng +{{bonus}} JOY)",
+      "claimError": "Không thể điểm danh lúc này."
     }
   },
   "memberTabs": {

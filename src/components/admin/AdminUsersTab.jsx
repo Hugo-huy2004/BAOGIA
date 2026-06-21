@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const AdminUsersTab = ({
   userStats,
@@ -31,6 +33,17 @@ const AdminUsersTab = ({
 }) => {
   const { t } = useTranslation();
   const [selectedVerificationUser, setSelectedVerificationUser] = useState(null);
+  const [onlineStatuses, setOnlineStatuses] = useState({});
+
+  useEffect(() => {
+    const emails = (users || []).map(u => u.email).filter(Boolean);
+    if (emails.length === 0) return;
+    fetch(`${API_BASE_URL}/presence/status?emails=${encodeURIComponent(emails.join(','))}`)
+      .then(r => r.json())
+      .then(setOnlineStatuses)
+      .catch(() => {});
+  }, [users]);
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Quick Stats Grid */}
@@ -213,12 +226,18 @@ const AdminUsersTab = ({
                       <tr key={user._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-inner">
-                              {user.avatarUrl ? (
-                                <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                <span className="material-symbols-outlined text-slate-400 text-sm">person</span>
-                              )}
+                            <div className="relative w-9 h-9 shrink-0">
+                              <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-inner">
+                                {user.avatarUrl ? (
+                                  <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="material-symbols-outlined text-slate-400 text-sm">person</span>
+                                )}
+                              </div>
+                              <span
+                                title={onlineStatuses[user.email] ? 'Online' : 'Offline'}
+                                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#12111a] ${onlineStatuses[user.email] ? 'bg-emerald-500' : 'bg-zinc-400'}`}
+                              />
                             </div>
                             <div className="min-w-0">
                               <div className="font-bold text-slate-800 dark:text-white text-xs truncate">{user.displayName}</div>
@@ -328,12 +347,15 @@ const AdminUsersTab = ({
                     {/* Top info row */}
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
-                          {user.avatarUrl ? (
-                            <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="material-symbols-outlined text-slate-400 text-xs">person</span>
-                          )}
+                        <div className="relative w-8 h-8 shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                            {user.avatarUrl ? (
+                              <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="material-symbols-outlined text-slate-400 text-xs">person</span>
+                            )}
+                          </div>
+                          <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#12111a] ${onlineStatuses[user.email] ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
                         </div>
                         <div className="min-w-0">
                           <h4 className="font-bold text-slate-800 dark:text-white text-xs truncate leading-tight">{user.displayName}</h4>

@@ -32,7 +32,7 @@ const getPatternStyle = (pattern, bgColor) => {
   return {};
 };
 
-export default React.memo(function DefaultTheme({ bio, isPreview = false }) {
+export default React.memo(function DefaultTheme({ bio, isPreview = false, isOnline = false }) {
   const themeObj = bio.theme || {};
   const bgColor = themeObj.bgColor || "#000000";
   const accentColor = themeObj.accentColor || "#ffffff";
@@ -117,6 +117,12 @@ export default React.memo(function DefaultTheme({ bio, isPreview = false }) {
                 {bio.headline}
               </h2>
             )}
+            <div className="flex items-center justify-center gap-1.5 mt-2">
+              <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-white/30'}`} />
+              <span className="text-[9px] tracking-[0.2em] font-medium text-white/60 uppercase">
+                {isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}
+              </span>
+            </div>
           </motion.div>
 
           {/* Scroll Down Indicator */}

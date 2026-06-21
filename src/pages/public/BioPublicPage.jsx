@@ -1,8 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import useSWR from "swr";
 import { useParams } from "react-router-dom";
 import dataApi from "../../services/dataApi";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
+
+const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 // Themes
 import DefaultTheme from "../../components/themes/DefaultTheme";
@@ -22,6 +24,15 @@ export default function BioPublicPage() {
 
   const expired = error?.message === "Bio not found";
   const loading = isLoading;
+
+  const [isOnline, setIsOnline] = useState(false);
+  useEffect(() => {
+    if (!bio?.email) return;
+    fetch(`${apiBase}/presence/status?email=${encodeURIComponent(bio.email)}`)
+      .then(r => r.json())
+      .then(data => setIsOnline(!!data[bio.email]))
+      .catch(() => {});
+  }, [bio?.email]);
 
   // Initialize theme values early
   const template = useMemo(() => bio?.theme?.template || "default", [bio]);
@@ -82,8 +93,8 @@ export default function BioPublicPage() {
   }
 
   // Render chosen template
-  if (template === "flat") return <FlatTheme bio={bio} />;
-  if (template === "brutalism") return <BrutalismTheme bio={bio} />;
-  
-  return <DefaultTheme bio={bio} />;
+  if (template === "flat") return <FlatTheme bio={bio} isOnline={isOnline} />;
+  if (template === "brutalism") return <BrutalismTheme bio={bio} isOnline={isOnline} />;
+
+  return <DefaultTheme bio={bio} isOnline={isOnline} />;
 }

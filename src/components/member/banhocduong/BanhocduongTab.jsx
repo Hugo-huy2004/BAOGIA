@@ -9,6 +9,7 @@ import SleepTracker from "./SleepTracker";
 import dataApi from "../../../services/dataApi";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useTranslation } from "react-i18next";
+import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTimer";
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
@@ -278,6 +279,7 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
 // ── Main BanhocduongTab ────────────────────────────────────────────────────────
 export default function BanhocduongTab({ onBack, defaultSubTab = "chat", defaultPresetTest = null, bio, showToast, setFormData, handleSave }) {
   const { t } = useTranslation();
+  useCompanionSessionTimer({ email: bio?.email, enabled: !!bio?.email });
   const [activeSubTab, setActiveSubTab]     = useState(defaultSubTab);
   const [presetTest, setPresetTest]         = useState(defaultPresetTest);
   const [showCancelModal, setShowCancelModal] = useState(false);

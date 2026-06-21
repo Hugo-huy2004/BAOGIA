@@ -3,6 +3,8 @@ import { Chess } from 'chess.js';
 import { randomUUID } from 'crypto';
 import ChessRating from '../models/ChessRating.js';
 import ChessGame from '../models/ChessGame.js';
+import Bio from '../models/Bio.js';
+import { awardJoy } from '../utils/joyService.js';
 
 // In-memory state
 const rooms = new Map();     // roomId -> RoomState
@@ -13,12 +15,6 @@ const clientMap = new Map(); // ws -> ClientState
 
 function generateRoomId() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
-}
-
-function calcElo(rating, opponentRating, score) {
-  const expected = 1 / (1 + Math.pow(10, (opponentRating - rating) / 400));
-  const K = 32;
-  return Math.round(rating + K * (score - expected));
 }
 
 function send(ws, payload) {
@@ -90,17 +86,23 @@ async function saveGame(room) {
     else if (room.result === '0-1') { whiteScore = 0; blackScore = 1; }
     else { whiteScore = 0.5; blackScore = 0.5; }
 
-    const wRating = room.white.rating;
-    const bRating = room.black.rating;
-    const newWhiteRating = calcElo(wRating, bRating, whiteScore);
-    const newBlackRating = calcElo(bRating, wRating, blackScore);
+    // Flat stake-based reward, applied directly to the real JOY wallet via
+    // awardJoy (which also keeps ChessRating.rating in sync). A loss always
+    // costs a flat 10 JOY regardless of opponent strength; a win pays out a
+    // flat reward — doubled for friend matches. Draws are a no-op.
+    const WIN_REWARD = room.mode === 'friend' ? 20 : 10;
+    const LOSS_COST = -10;
+    const whiteDelta = whiteScore === 1 ? WIN_REWARD : whiteScore === 0 ? LOSS_COST : 0;
+    const blackDelta = blackScore === 1 ? WIN_REWARD : blackScore === 0 ? LOSS_COST : 0;
+    const newWhiteRating = room.white.rating + whiteDelta;
+    const newBlackRating = room.black.rating + blackDelta;
 
     const now = new Date();
 
     await ChessRating.findOneAndUpdate(
       { email: wEmail },
       {
-        $set: { rating: newWhiteRating, lastPlayedAt: now, updatedAt: now },
+        $set: { lastPlayedAt: now, updatedAt: now },
         $inc: {
           gamesPlayed: 1,
           wins: whiteScore === 1 ? 1 : 0,
@@ -114,7 +116,7 @@ async function saveGame(room) {
     await ChessRating.findOneAndUpdate(
       { email: bEmail },
       {
-        $set: { rating: newBlackRating, lastPlayedAt: now, updatedAt: now },
+        $set: { lastPlayedAt: now, updatedAt: now },
         $inc: {
           gamesPlayed: 1,
           wins: blackScore === 1 ? 1 : 0,
@@ -124,6 +126,21 @@ async function saveGame(room) {
       },
       { upsert: true }
     );
+
+    for (const [email, delta] of [[wEmail, whiteDelta], [bEmail, blackDelta]]) {
+      if (delta === 0) continue;
+      try {
+        await awardJoy(
+          email,
+          delta,
+          'chess_match',
+          delta > 0 ? `Thắng trận cờ vua (+${delta} JOY)` : `Thua trận cờ vua (${delta} JOY)`,
+          { refId: room.id }
+        );
+      } catch (e) {
+        console.error('[ChessWS] joy award error:', e.message);
+      }
+    }
 
     return { newWhiteRating, newBlackRating };
   } catch (err) {
@@ -270,10 +287,10 @@ function dequeueMatch(client, timeControl) {
 
   // Assign colors randomly
   const [white, black] = Math.random() < 0.5 ? [client, opponent] : [opponent, client];
-  return createRoom({ white, black, timeControl });
+  return createRoom({ white, black, timeControl, mode: 'random' });
 }
 
-function createRoom({ white, black, timeControl, friendRoomId = null }) {
+function createRoom({ white, black, timeControl, friendRoomId = null, mode = 'friend' }) {
   const id = friendRoomId || generateRoomId();
   const tcMs = timeControl * 1000;
 
@@ -281,6 +298,7 @@ function createRoom({ white, black, timeControl, friendRoomId = null }) {
     id,
     white,
     black,
+    mode, // 'random' | 'friend' — drives the win-reward multiplier in saveGame()
     fen: new Chess().fen(),
     moves: [],
     pgn: '',
@@ -308,14 +326,28 @@ function createRoom({ white, black, timeControl, friendRoomId = null }) {
 
 // ─── Message handlers ────────────────────────────────────────────────────────
 
-function handleAuth(ws, msg) {
+async function handleAuth(ws, msg) {
   const client = clientMap.get(ws);
   if (!client) return;
   client.email = msg.email || null;
   client.displayName = msg.displayName || 'Guest';
-  client.rating = Number(msg.rating) || 1500;
   client.guestId = msg.guestId || client.guestId;
   client.avatarUrl = msg.avatarUrl || '';
+
+  if (client.email) {
+    // Never trust a client-sent rating for real members — JOY is the single
+    // source of truth, so fetch the real wallet balance fresh from the DB.
+    try {
+      let bio = await Bio.findOne({ email: client.email });
+      if (!bio) bio = await Bio.findOne({ contactEmail: client.email });
+      client.rating = bio?.joyBalance || 0;
+    } catch (_) {
+      client.rating = 0;
+    }
+  } else {
+    // Guests have no real wallet — cosmetic-only number for queue pairing display.
+    client.rating = Number(msg.rating) || 1500;
+  }
 }
 
 function handleCreateRoom(ws, msg) {

@@ -10,6 +10,7 @@ import {
   X, BarChart2, RotateCcw, Home, Share2,
   Frown, Trophy, Crown, Clock, Settings, Eye, EyeOff
 } from "lucide-react";
+import { useJoyStore } from "../../stores/joyStore";
 
 // ── Captured-piece utilities ──────────────────────────────────────────────────
 const PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9 };
@@ -702,12 +703,11 @@ export default function ChessGame({
     if (mode === "bot") {
       const isWin  = res.winner === colorRef.current;
       const isLoss = res.winner && res.winner !== colorRef.current;
-      const cnt    = moves.length;
       if (isWin) {
         change = botLevel === 1 ? 10 : botLevel === 2 ? 15 : botLevel === 3 ? 20 : 40;
       } else if (isLoss) {
-        let base = botLevel === 2 ? -12 : botLevel === 3 ? -10 : botLevel === 4 ? -8 : -15;
-        change = cnt < 10 ? base - 5 : cnt > 50 ? Math.min(-2, base + 6) : cnt > 30 ? Math.min(-4, base + 3) : base;
+        // Flat entry-cost loss — no longer scaled by bot difficulty or move count.
+        change = -10;
       }
       res.ratingChange = change;
       if (change !== 0 && userInfo?.email) {
@@ -721,15 +721,23 @@ export default function ChessGame({
             win: isWin,
             loss: isLoss,
             draw: !isWin && !isLoss,
-            avatarUrl: userInfo.avatarUrl || ""
+            avatarUrl: userInfo.avatarUrl || "",
+            joyReward: change
           }),
-        }).catch(() => {});
+        }).then(() => useJoyStore.getState().fetchBalance(userInfo.email)).catch(() => {});
       }
     }
     if (change !== 0) {
-      const newRating = (userInfo?.rating || 1500) + change;
+      const newRating = (userInfo?.rating ?? 1500) + change;
       if (setUserInfo) setUserInfo(prev => prev ? { ...prev, rating: newRating } : prev);
-      if (!userInfo?.email) localStorage.setItem("chess_guest_rating", newRating.toString());
+      if (!userInfo?.email) {
+        localStorage.setItem("chess_guest_rating", newRating.toString());
+      } else if (mode !== "bot") {
+        // PvP: the WS server already committed the JOY change before sending
+        // game_over, so re-fetch the authoritative balance (avoids any drift
+        // from other JOY events that may have happened mid-game).
+        useJoyStore.getState().fetchBalance(userInfo.email);
+      }
     }
     setResult(res);
     if (soundRef.current) {
@@ -857,7 +865,7 @@ export default function ChessGame({
         type: "auth",
         email: userInfo?.email || null,
         displayName: userInfo?.displayName || "Khách",
-        rating: userInfo?.rating || 1500,
+        rating: userInfo?.rating ?? 1500,
         guestId: gid,
         avatarUrl: userInfo?.avatarUrl || ""
       }));

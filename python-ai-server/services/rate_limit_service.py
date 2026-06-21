@@ -77,6 +77,23 @@ class RateLimitService:
 
         return max(0, max_tokens - _memory_store.get(key, 0))
 
+    async def consume_bonus_token(self, email: str, field: str) -> bool:
+        """Atomically consume one purchased bonus token from Bio.<field>
+        (bonusChatTokens / bonusCallTokens), shared with the Node server's
+        Utility Store. Returns True if a token was available and consumed.
+        """
+        if not email or self.db is None:
+            return False
+        try:
+            result = self.db.bios.find_one_and_update(
+                {"email": email, field: {"$gt": 0}},
+                {"$inc": {field: -1}}
+            )
+            return result is not None
+        except Exception as e:
+            print(f"⚠️ Rate limit bonus-token consume error: {e}")
+            return False
+
 
 # Singleton instance used across the application
 rate_limiter = RateLimitService()

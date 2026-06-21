@@ -12,6 +12,8 @@ const TABS = (t, counts) => [
   { id: "partners",  label: t("adminPanel.sidebar.partners"), icon: "handshake",     count: counts.partners },
   { id: "packages",  label: t("adminPanel.sidebar.packages"), icon: "featured_play_list", count: counts.packages },
   { id: "payments",  label: "Chuyển Khoản",             icon: "payments" },
+  { id: "joyGiftCards", label: t("adminPanel.sidebar.joyGiftCards"), icon: "redeem", count: counts.joyGiftCards },
+  { id: "utilityStore", label: t("adminPanel.sidebar.utilityStore"), icon: "storefront", count: counts.utilityStore },
   { id: "support",   label: t("adminPanel.sidebar.support"),  icon: "support_agent", count: counts.support, urgent: true },
   { id: "settings",  label: t("adminPanel.sidebar.settings"), icon: "settings" },
 ];
@@ -32,12 +34,14 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
     { id: "ai", label: "AI Center", icon: "auto_awesome", color: "text-accent", badge: "NEW" },
     { id: "partners", label: t("adminPanel.sidebar.partners", "Đối tác"), icon: "handshake", count: counts.partners },
     { id: "packages", label: t("adminPanel.sidebar.packages", "Gói cước"), icon: "featured_play_list", count: counts.packages },
+    { id: "joyGiftCards", label: t("adminPanel.sidebar.joyGiftCards"), icon: "redeem", count: counts.joyGiftCards },
+    { id: "utilityStore", label: t("adminPanel.sidebar.utilityStore"), icon: "storefront", count: counts.utilityStore },
     { id: "support", label: t("adminPanel.sidebar.support", "Ticket"), icon: "support_agent", count: counts.support, urgent: true },
     { id: "settings", label: t("adminPanel.sidebar.settings", "Cài đặt"), icon: "settings" },
     { id: "projects", label: "Dự án", icon: "assignment", count: counts.projects },
   ];
 
-  const utilityIds = ["ai", "partners", "packages", "support", "settings", "projects"];
+  const utilityIds = ["ai", "partners", "packages", "joyGiftCards", "utilityStore", "support", "settings", "projects"];
   const isUtilityActive = utilityIds.includes(activeTab);
 
   const utilityCount =

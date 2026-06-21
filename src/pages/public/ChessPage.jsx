@@ -68,7 +68,8 @@ export default function ChessPage() {
     } else {
       const gid = localStorage.getItem("chess_guest_id") || crypto.randomUUID();
       localStorage.setItem("chess_guest_id", gid);
-      const guestRating = Number(localStorage.getItem("chess_guest_rating")) || 1500;
+      const storedGuestRating = localStorage.getItem("chess_guest_rating");
+      const guestRating = storedGuestRating === null ? 1500 : Number(storedGuestRating);
       setUserInfo({ displayName: "Khách " + gid.slice(0, 4).toUpperCase(), guestId: gid, rating: guestRating });
     }
   }, []);

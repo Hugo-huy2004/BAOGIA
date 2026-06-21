@@ -2,10 +2,63 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import CompanionHistory from '../models/CompanionHistory.js';
+import { awardJoy } from '../utils/joyService.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// JOY cap: 60 JOY/day = 3600 awarded-seconds/day (10 JOY per 600s interval)
+const COMPANION_JOY_CAP_SECONDS = 3600;
+const HEARTBEAT_INTERVAL_SECONDS = 30;
+
+// POST: Active-session heartbeat — awards +10 JOY per confirmed 10 minutes
+// of active companion usage, capped at 60 JOY/day.
+router.post('/heartbeat', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    let doc = await CompanionHistory.findOneAndUpdate(
+      { email },
+      { $setOnInsert: { email, healingActive: false, healingDuration: 30, historyLogs: [], chatMessages: [] } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    const today = new Date().toISOString().slice(0, 10);
+    if (doc.activeSecondsDate !== today) {
+      doc.activeSecondsDate = today;
+      doc.activeSecondsToday = 0;
+      doc.joyAwardedSecondsToday = 0;
+      doc.dailyJoyCapReached = false;
+    }
+
+    doc.activeSecondsToday += HEARTBEAT_INTERVAL_SECONDS;
+
+    while (
+      !doc.dailyJoyCapReached &&
+      doc.activeSecondsToday - doc.joyAwardedSecondsToday >= 600
+    ) {
+      doc.joyAwardedSecondsToday += 600;
+      try {
+        await awardJoy(email, 10, 'companion', 'Hoàn thành 10 phút trị liệu tâm lý (+10 JOY)');
+      } catch (e) {
+        console.error('[companion joy award]', e.message);
+      }
+      if (doc.joyAwardedSecondsToday >= COMPANION_JOY_CAP_SECONDS) {
+        doc.dailyJoyCapReached = true;
+      }
+    }
+
+    await doc.save();
+    res.json({
+      activeSecondsToday: doc.activeSecondsToday,
+      dailyCapReached: doc.dailyJoyCapReached
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // GET: Fetch or initialize companion history for a specific email
 router.get('/history', async (req, res) => {

@@ -436,10 +436,10 @@ export default function ChessLobby({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">{userInfo.displayName}</p>
-                        <p className="text-xs text-muted-foreground font-mono">{userInfo.rating || 1500} JOY</p>
+                        <p className="text-xs text-muted-foreground font-mono">{userInfo.rating ?? 1500} JOY</p>
                       </div>
-                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${tier(userInfo.rating || 1500).cls}`}>
-                        {tier(userInfo.rating || 1500).label}
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${tier(userInfo.rating ?? 1500).cls}`}>
+                        {tier(userInfo.rating ?? 1500).label}
                       </span>
                     </div>
                   )}

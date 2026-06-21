@@ -145,7 +145,13 @@ const CompanionHistorySchema = new mongoose.Schema(
       severity: { type: String, enum: ['low', 'medium', 'high'] },
       trigger: String,
       resolved: { type: Boolean, default: false }
-    }]
+    }],
+
+    // JOY session-time tracking (heartbeat-based, see /api/companion/heartbeat)
+    activeSecondsToday: { type: Number, default: 0 },
+    activeSecondsDate: { type: String, default: '' },     // 'YYYY-MM-DD'
+    joyAwardedSecondsToday: { type: Number, default: 0 },
+    dailyJoyCapReached: { type: Boolean, default: false }
   },
   { timestamps: true, versionKey: false }
 );

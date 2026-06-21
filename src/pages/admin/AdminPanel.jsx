@@ -21,6 +21,8 @@ import AdminAICenter from "../../components/admin/AdminAICenter";
 import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import AdminPaymentsTab from "../../components/admin/AdminPaymentsTab";
+import AdminJoyGiftCardsTab from "../../components/admin/AdminJoyGiftCardsTab";
+import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
 
 export default function AdminPanel() {
   const { t, i18n } = useTranslation();
@@ -825,6 +827,8 @@ export default function AdminPanel() {
                 {activeTab === "partners" && t("admin.texts.txt_204")}
                 {activeTab === "packages" && t("admin.texts.txt_205")}
                 {activeTab === "payments" && "Quản lý Chuyển Khoản"}
+                {activeTab === "joyGiftCards" && t("adminPanel.sidebar.joyGiftCards")}
+                {activeTab === "utilityStore" && t("adminPanel.sidebar.utilityStore")}
                 {activeTab === "support" && t("admin.texts.txt_206")}
                 {activeTab === "settings" && t("admin.texts.txt_207")}
               </h2>
@@ -833,6 +837,8 @@ export default function AdminPanel() {
                 {activeTab === "bookings" && t("admin.texts.txt_209")}
                 {activeTab === "partners" && t("admin.texts.txt_210")}
                 {activeTab === "packages" && t("admin.texts.txt_211")}
+                {activeTab === "joyGiftCards" && t("adminTabs.joyGiftCards.headerDesc")}
+                {activeTab === "utilityStore" && t("adminTabs.utilityStore.headerDesc")}
                 {activeTab === "support" && t("admin.texts.txt_212")}
                 {activeTab === "settings" && t("admin.texts.txt_213")}
               </p>
@@ -1634,6 +1640,20 @@ export default function AdminPanel() {
         {activeTab === "payments" && (
           <div className="animate-fadeIn">
             <AdminPaymentsTab />
+          </div>
+        )}
+
+        {/* TAB: JOY GIFT CARDS */}
+        {activeTab === "joyGiftCards" && (
+          <div className="animate-fadeIn">
+            <AdminJoyGiftCardsTab />
+          </div>
+        )}
+
+        {/* TAB: UTILITY STORE */}
+        {activeTab === "utilityStore" && (
+          <div className="animate-fadeIn">
+            <AdminUtilityStoreTab />
           </div>
         )}
 

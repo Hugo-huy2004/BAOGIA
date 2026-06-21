@@ -160,7 +160,9 @@ async def chat(request: ChatRequest, req: Request):
         client_identifier = _client_id(request.userId, req)
         is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS)
         if not is_allowed:
-            return {"reply": f"Bạn đã sử dụng hết {MAX_CHAT_TOKENS} token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!"}
+            email = (request.bio or {}).get("email")
+            if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
+                return {"reply": f"Bạn đã sử dụng hết {MAX_CHAT_TOKENS} token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!"}
 
         reply = await ai_service.generate_chat_response(
             message=request.message,
@@ -179,10 +181,12 @@ async def chat_stream(request: ChatRequest, req: Request):
         client_identifier = _client_id(request.userId, req)
         is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS)
         if not is_allowed:
-            async def error_stream():
-                yield f"data: {json.dumps({'error': f'Bạn đã sử dụng hết {MAX_CHAT_TOKENS} token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!'}, ensure_ascii=False)}\n\n"
-                await asyncio.sleep(0.1)
-            return StreamingResponse(error_stream(), media_type="text/event-stream")
+            email = (request.bio or {}).get("email")
+            if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
+                async def error_stream():
+                    yield f"data: {json.dumps({'error': f'Bạn đã sử dụng hết {MAX_CHAT_TOKENS} token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!'}, ensure_ascii=False)}\n\n"
+                    await asyncio.sleep(0.1)
+                return StreamingResponse(error_stream(), media_type="text/event-stream")
 
         generator = ai_service.generate_chat_response_stream(
             message=request.message,
@@ -208,15 +212,17 @@ async def chat_audio(
         client_identifier = _client_id(userId, req)
         action = "call" if isCallMode else "audio_chat"
         max_tokens = 5 if isCallMode else 3
+        parsed_bio = json.loads(bio)
 
         is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, action, max_tokens)
         if not is_allowed:
-            return {"text": "Bạn đã sử dụng hết token trong ngày hôm nay. Vui lòng quay lại vào ngày mai nhé!", "audio_base64": None}
+            bonus_field = "bonusCallTokens" if isCallMode else "bonusChatTokens"
+            if not await rate_limiter.consume_bonus_token(parsed_bio.get("email"), bonus_field):
+                return {"text": "Bạn đã sử dụng hết token trong ngày hôm nay. Vui lòng quay lại vào ngày mai nhé!", "audio_base64": None}
 
         audio_bytes = await file.read()
         mime_type = file.content_type or "audio/webm"
         parsed_history = json.loads(history)
-        parsed_bio = json.loads(bio)
 
         response_data = await ai_service.generate_audio_response(
             audio_bytes=audio_bytes,

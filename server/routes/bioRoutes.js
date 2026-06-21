@@ -6,6 +6,7 @@ import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 import { encryptText, decryptText, hashPassword, comparePassword } from '../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation.js';
 import { sendPushNotification } from '../utils/pushNotifier.js';
+import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
 
 const router = express.Router();
 
@@ -315,6 +316,9 @@ router.get('/me', async (req, res) => {
       
       await bioDoc.save();
       if (global.validSlugs) global.validSlugs.add(bioDoc.slug);
+      // NOTE: referralCode is intentionally NOT generated here — it's generated
+      // lazily after the onboarding modal has a chance to collect the phone
+      // number, so phone-derived codes are the common case (see ensureReferralCode).
     }
 
     if (bioDoc) {
@@ -361,6 +365,48 @@ router.post('/me/verification', async (req, res) => {
 
     await bio.save();
     res.json({ success: true, bio });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /me/onboarding - One-time post-signup step: collect phone (so referral
+// codes can be phone-derived) and optionally apply a referrer's code.
+router.post('/me/onboarding', async (req, res) => {
+  try {
+    const { email, phone, referrerCode } = req.body;
+    if (!email) return res.status(400).json({ error: 'Missing email' });
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+
+    if (phone && String(phone).trim()) {
+      bio.phone = String(phone).trim();
+    }
+
+    const referralCode = await ensureReferralCode(bio);
+
+    let referralResult = null;
+    let referralError = null;
+    if (referrerCode && String(referrerCode).trim()) {
+      try {
+        referralResult = await applyReferral(bio, referrerCode);
+      } catch (err) {
+        referralError = err.message;
+      }
+    }
+
+    bio.onboardingCompleted = true;
+    await bio.save();
+
+    res.json({
+      success: true,
+      referralCode,
+      joyAwarded: referralResult?.joyAwarded || 0,
+      bioExtendedDays: referralResult?.bioExtendedDays || 0,
+      referralError
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

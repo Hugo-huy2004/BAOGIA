@@ -520,7 +520,9 @@
       "logoutAccount": "Log out of admin account",
       "utilities": "Utilities",
       "systemUtilities": "System Utilities",
-      "utilitiesDesc": "Quick access shortcuts and admin settings"
+      "utilitiesDesc": "Quick access shortcuts and admin settings",
+      "joyGiftCards": "JOY Gift Cards",
+      "utilityStore": "Utility Store"
     },
     "bottomNav": {
       "users": "Users",
@@ -794,6 +796,56 @@
       "expiry": "Bio Expiry:",
       "createNamePlaceholder": "Example: 3-Month Gift, VIP Bio Package...",
       "createDurationPlaceholder": "Example: 3"
+    },
+    "joyGiftCards": {
+      "headerDesc": "Create and manage JOY gift cards for members.",
+      "createTitle": "Create JOY gift card",
+      "amountLabel": "JOY amount per card",
+      "countLabel": "Number of cards",
+      "noteLabel": "Note (internal)",
+      "createBtn": "Create",
+      "createSuccess": "{{count}} gift cards created!",
+      "deleteSuccess": "Gift card deleted.",
+      "justCreated": "Just created",
+      "listTitle": "Gift card list",
+      "loading": "Loading...",
+      "empty": "No gift cards yet.",
+      "redeemedBy": "redeemed by"
+    },
+    "utilityStore": {
+      "headerDesc": "Manage Utility Store products and orders.",
+      "createTitle": "Create new product",
+      "editTitle": "Edit product",
+      "nameLabel": "Product name",
+      "descLabel": "Description",
+      "priceLabel": "Price (JOY)",
+      "stockLabel": "Stock (-1 = unlimited)",
+      "iconLabel": "Icon",
+      "saveBtn": "Save changes",
+      "createBtn": "Create product",
+      "cancelBtn": "Cancel",
+      "saveSuccess": "Product saved.",
+      "deleteSuccess": "Product deleted.",
+      "listTitle": "Product list",
+      "loading": "Loading...",
+      "empty": "No products yet.",
+      "active": "Active",
+      "inactive": "Hidden",
+      "unlimited": "Unlimited",
+      "editBtn": "Edit",
+      "disableBtn": "Disable",
+      "enableBtn": "Enable",
+      "ordersTitle": "Recent orders",
+      "noOrders": "No orders yet.",
+      "productTypeLabel": "Product type",
+      "typeGeneral": "General (code/gift redemption)",
+      "typeSystemValidity": "System Validity",
+      "typePsyStudy": "Psy-Study (AI tokens)",
+      "extendDaysLabel": "Days to extend validity",
+      "tokenTypeLabel": "Token type",
+      "tokenTypeChat": "Chat token",
+      "tokenTypeCall": "Call token",
+      "tokenAmountLabel": "Bonus token amount"
     }
   },
   "adminSupport": {
@@ -826,7 +878,8 @@
       "package": "Services Package",
       "partner": "Partners",
       "utilities": "Utilities",
-      "history": "Notifications"
+      "history": "Notifications",
+      "joy": "Services"
     },
     "logout": "LOGOUT",
     "sidebar": {
@@ -1174,6 +1227,66 @@
         "benefit2": "Classic Profile Layout: Traditional, clean, and distraction-free Bio Link layout.",
         "benefit3": "No Spam Ads: Zero advertisements for clean, reader-friendly, and optimal interface."
       }
+    },
+    "onboarding": {
+      "title": "Welcome! 🎉",
+      "subtitle": "Complete your profile to receive JOY and special perks",
+      "phoneLabel": "Phone number",
+      "phonePlaceholder": "Enter your phone number",
+      "referralLabel": "Referral code (optional)",
+      "referralPlaceholder": "e.g. HG123456",
+      "referralHint": "Enter a referrer's code to get +10 JOY and +15 free days of Bio link",
+      "submitting": "Submitting...",
+      "submitButton": "Finish"
+    },
+    "joy": {
+      "walletTitle": "Your JOY Wallet",
+      "referral": {
+        "countLabel": "You've referred {{count}} people",
+        "copied": "Referral link copied!"
+      },
+      "sections": {
+        "wallet": "Wallet",
+        "store": "Store",
+        "history": "History"
+      },
+      "redeem": {
+        "title": "Redeem a JOY gift code",
+        "placeholder": "Enter gift code",
+        "button": "Redeem",
+        "success": "Redeemed successfully! +{{amount}} JOY",
+        "error": "This code could not be redeemed."
+      },
+      "earnInfo": "Earn JOY by: referring friends, attending therapy sessions, winning chess games, or redeeming an admin gift code.",
+      "history": {
+        "transactions": "JOY transaction history",
+        "empty": "No transactions yet.",
+        "orders": "Purchase history",
+        "emptyOrders": "No orders yet."
+      },
+      "store": {
+        "loading": "Loading products...",
+        "empty": "The store has no products yet.",
+        "purchaseSuccess": "Purchase successful! Order code: {{code}}",
+        "purchaseError": "Could not purchase this product.",
+        "outOfStock": "Out of stock",
+        "insufficientBalance": "Insufficient JOY",
+        "buyButton": "Buy now"
+      }
+    },
+    "checkin": {
+      "title": "Daily Check-in for JOY",
+      "subtitle": "Check in every day, earn JOY every week — don't miss a day!",
+      "loading": "Loading check-in...",
+      "dayLabel": "Day {{day}}",
+      "milestone": "{{days}}-day milestone",
+      "streakLabel": "Current streak: {{count}} days",
+      "claimButton": "Check in",
+      "alreadyClaimed": "Checked in",
+      "locked": "Locked",
+      "claimSuccess": "Checked in! +{{amount}} JOY",
+      "claimSuccessBonus": "Checked in! +{{total}} JOY (includes +{{bonus}} JOY milestone bonus)",
+      "claimError": "Couldn't check in right now."
     }
   },
   "memberTabs": {

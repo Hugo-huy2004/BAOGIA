@@ -32,7 +32,7 @@ const getFlatPatternStyle = (pattern, bgColor) => {
   return {};
 };
 
-export default React.memo(function FlatTheme({ bio, isPreview = false }) {
+export default React.memo(function FlatTheme({ bio, isPreview = false, isOnline = false }) {
   const themeObj = bio.theme || {};
   const flatBgColor = (themeObj.bgColor === "#000000" || !themeObj.bgColor) ? "#f1f5f9" : themeObj.bgColor;
   const accentColor = themeObj.accentColor || "#ffffff";
@@ -126,6 +126,12 @@ export default React.memo(function FlatTheme({ bio, isPreview = false }) {
                 {bio.headline}
               </div>
             )}
+            <div className="flex items-center gap-1.5 mt-3">
+              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'}`} />
+              <span className="text-[9px] font-bold uppercase tracking-wider font-mono text-black/60">
+                {isOnline ? 'Online' : 'Offline'}
+              </span>
+            </div>
           </motion.div>
 
           {/* Slide Indicator arrow */}

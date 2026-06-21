@@ -194,6 +194,52 @@ const BioSchema = new mongoose.Schema(
       type: Date,
       required: true,
       index: { expires: 0 }
+    },
+    joyBalance: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    referralCode: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true
+    },
+    referralApplied: {
+      type: Boolean,
+      default: false
+    },
+    referredBy: {
+      type: String,
+      default: ''
+    },
+    referralCount: {
+      type: Number,
+      default: 0
+    },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false
+    },
+    // Bonus AI-chat tokens purchased from the Utility Store (Psy-Study products).
+    // Persisted on top of the Python AI server's daily free quota — consumed
+    // there once the daily cap is hit. See rate_limit_service.consume_bonus_token.
+    bonusChatTokens: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    bonusCallTokens: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    // Stable sequential index for Redis bitmap addressing (online/DAU presence
+    // tracking) — assigned lazily on first heartbeat, see presenceService.js.
+    presenceIndex: {
+      type: Number,
+      default: null
     }
   },
   { timestamps: true }
