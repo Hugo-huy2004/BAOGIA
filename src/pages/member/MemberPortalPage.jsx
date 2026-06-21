@@ -157,7 +157,7 @@ export default function MemberPortalPage() {
   // Mounted here (portal-wide) instead of inside SleepTracker so the 8-signal
   // detection (IdleDetector, DeviceMotion, etc.) keeps listening for as long as
   // the member has ANY portal page open — not just while they're sitting in the
-  // Bạn Học Đường > Sleep sub-tab, which nobody does while actually asleep.
+  // HugoPSY > Sleep sub-tab, which nobody does while actually asleep.
   const [pendingSleepCycle, setPendingSleepCycle] = useState(null);
   const handleSleepAutoDetect = React.useCallback((cycle) => {
     setPendingSleepCycle(cycle);

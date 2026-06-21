@@ -82,13 +82,13 @@ const QUESTION_TREE = {
     ]
   },
   utilities_features: {
-    text: "Hệ thống cung cấp các tiện ích tuyệt vời cho cậu nha:\n1. Trình tạo mã QR đa năng (Wifi, URL, Văn bản)\n2. Danh bạ thông minh vCard\n3. Chữ ký Email thương hiệu chuyên nghiệp\n4. Trợ lý Bạn Học Đường (Chữa lành)\n5. Web IDE (Học lập trình)\n6. HugoChess (Đấu cờ vua online)\nCậu muốn Culi hướng dẫn cái nào nè?",
+    text: "Hệ thống cung cấp các tiện ích tuyệt vời cho cậu nha:\n1. Trình tạo mã QR đa năng (Wifi, URL, Văn bản)\n2. HugoVCard (Danh bạ thông minh)\n3. HugoSMail (Chữ ký Email thương hiệu)\n4. HugoPSY (Chữa lành)\n5. HugoCoder (Học lập trình)\n6. HugoChess (Đấu cờ vua online)\nCậu muốn Culi hướng dẫn cái nào nè?",
     options: [
       { label: "Trình tạo mã QR", next: "qr_generator" },
-      { label: "Danh bạ vCard", next: "vcard_info" },
-      { label: "Chữ ký Email", next: "email_signature" },
-      { label: "Bạn Học Đường", next: "psychology" },
-      { label: "Web IDE (Code)", next: "ide" },
+      { label: "HugoVCard", next: "vcard_info" },
+      { label: "HugoSMail", next: "email_signature" },
+      { label: "HugoPSY", next: "psychology" },
+      { label: "HugoCoder", next: "ide" },
       { label: "HugoChess (Cờ)", next: "chess" },
       { label: "Quay lại mục trước", next: "portal_features" }
     ]
@@ -101,21 +101,21 @@ const QUESTION_TREE = {
     ]
   },
   vcard_info: {
-    text: "Tab Danh Bạ (vCard) tạo ra một mã QR chứa toàn bộ thông tin của cậu. Người khác chỉ cần dùng camera quét là điện thoại tự động bật popup lưu danh bạ mà không cần Internet!",
+    text: "Tab HugoVCard tạo ra một mã QR chứa toàn bộ thông tin của cậu. Người khác chỉ cần dùng camera quét là điện thoại tự động bật popup lưu danh bạ mà không cần Internet!",
     options: [
       { label: "Quay lại", next: "utilities_features" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   email_signature: {
-    text: "Tab Chữ ký Email giúp cậu tạo chữ ký xịn xò. Cậu có thể chọn Font, màu sắc, tích hợp icon mạng xã hội tự động, rồi tải file HTML về hoặc Copy chèn thẳng vào Gmail/Outlook nha.",
+    text: "Tab HugoSMail giúp cậu tạo chữ ký xịn xò. Cậu có thể chọn Font, màu sắc, tích hợp icon mạng xã hội tự động, rồi tải file HTML về hoặc Copy chèn thẳng vào Gmail/Outlook nha.",
     options: [
       { label: "Quay lại", next: "utilities_features" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
     ]
   },
   psychology: {
-    text: "Trợ lý Bạn Học Đường (ở Tab Utilities) là góc lắng nghe chia sẻ cảm xúc, thực hiện test tâm lý định kỳ (DASS-42, MMPI), và cung cấp bài tập hít thở trị liệu giúp cậu xả stress sau giờ học.",
+    text: "HugoPSY (ở Tab Utilities) là góc lắng nghe chia sẻ cảm xúc, thực hiện test tâm lý định kỳ (DASS-42, MMPI), và cung cấp bài tập hít thở trị liệu giúp cậu xả stress sau giờ học.",
     options: [
       { label: "Quay lại", next: "utilities_features" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
@@ -186,10 +186,10 @@ const PREFILL_MESSAGES = {
   upgrade: "Yêu cầu kích hoạt/nâng cấp tài khoản lên gói trả phí (Bio Plus hoặc Bio VIP).",
   partners: "Hỗ trợ và tư vấn tích hợp trình chỉnh sửa Bio Link (nhúng Iframe) lên website đối tác.",
   qr_generator: "Hỗ trợ sử dụng Trình tạo mã QR đa năng.",
-  vcard_info: "Hỗ trợ thiết lập và sử dụng tính năng Danh bạ thông minh (vCard).",
-  email_signature: "Hỗ trợ thiết kế và nhúng Chữ ký Email thương hiệu.",
-  psychology: "Hỗ trợ sử dụng chuyên mục Bạn Học Đường.",
-  ide: "Hỗ trợ sử dụng Web-based IDE lập trình.",
+  vcard_info: "Hỗ trợ thiết lập và sử dụng tính năng HugoVCard.",
+  email_signature: "Hỗ trợ thiết kế và nhúng chữ ký HugoSMail.",
+  psychology: "Hỗ trợ sử dụng chuyên mục HugoPSY.",
+  ide: "Hỗ trợ sử dụng HugoCoder lập trình.",
   chess: "Hỗ trợ tham gia sảnh cờ vua HugoChess.",
   how_to_cooperate: "Đề xuất hợp tác quảng cáo, nhúng Iframe hoặc dự án phát triển với Hugo Studio.",
   main: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ để được giải quyết vấn đề."
@@ -398,7 +398,7 @@ const HBot = () => {
           "X-Internal-Key": internalKey
         },
         body: JSON.stringify({
-          message: `Người dùng hỏi về hệ thống: "${query}". Hãy trả lời ngắn gọn (tối đa 3-4 câu), hướng dẫn chi tiết, thân mật, xưng hô Culi và bạn/cậu. Chỉ đề xuất các tính năng có sẵn: Bio Editor, Giao diện Theme, Measurements, Lịch hẹn (Booking), Tiện ích (QR, vCard, Chữ ký Email), Bạn Học Đường, Web IDE, HugoChess.`,
+          message: `Người dùng hỏi về hệ thống: "${query}". Hãy trả lời ngắn gọn (tối đa 3-4 câu), hướng dẫn chi tiết, thân mật, xưng hô Culi và bạn/cậu. Chỉ đề xuất các tính năng có sẵn: Bio Editor, Giao diện Theme, Measurements, Lịch hẹn (Booking), Tiện ích (QR, HugoVCard, HugoSMail, HugoOcculta, HugoTractare), HugoPSY, HugoCoder, HugoChess.`,
           history: [],
           bio: null
         })
@@ -416,7 +416,7 @@ const HBot = () => {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'bot',
-        text: "Culi chưa rõ câu hỏi của cậu lắm á. Cậu thử hỏi rõ hơn về các tính năng như: Thiết kế Bio Link, Giao diện Theme, Quản lý lịch hẹn, Chữ ký Email, Bạn Học Đường, hay Cờ vua nha!",
+        text: "Culi chưa rõ câu hỏi của cậu lắm á. Cậu thử hỏi rõ hơn về các tính năng như: Thiết kế Bio Link, Giao diện Theme, Quản lý lịch hẹn, HugoSMail, HugoPSY, hay Cờ vua nha!",
         time: new Date()
       }]);
     } finally {

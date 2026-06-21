@@ -59,7 +59,7 @@ export default class AIBot extends BaseBot {
 
     const name = this.bio?.displayName || "cậu";
     return this.healingActive
-      ? `Chào ${name}! Tớ là Bạn Học Đường AI của cậu đây. Cậu đang trong lộ trình phục hồi — hôm nay cậu thấy thế nào?`
+      ? `Chào ${name}! Tớ là HugoPSY AI của cậu đây. Cậu đang trong lộ trình phục hồi — hôm nay cậu thấy thế nào?`
       : `Chào ${name}! Tớ là AI Đồng Hành chuyên biệt. Tớ ở đây để lắng nghe mà không phán xét. Dạo này cậu thế nào?`;
   }
 
@@ -225,6 +225,15 @@ export default class AIBot extends BaseBot {
       }
     } catch (_) {}
     return { intent: "fallback" };
+  }
+
+  logLocalMatch(message, intentId) {
+    // Fire-and-forget telemetry — never await, never let a failure affect the chat UI.
+    fetchWithRetry(`${API_URL}/api/ai/intent/log-local`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, intentId, userId: this.bio?.email || "unknown" })
+    }).catch(() => {});
   }
 
   async getRemainingTokens() {

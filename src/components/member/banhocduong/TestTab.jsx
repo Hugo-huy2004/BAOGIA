@@ -505,7 +505,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
         tScore,
         elevated: isElevated,
         advice: isElevated 
-          ? `Ghi nhận xu hướng vượt ngưỡng của ${info.name}. Cậu có thể đang gặp phải một số bất ổn liên quan. Bạn Học Đường khuyên cậu nên chú ý giải tỏa tâm lý.`
+          ? `Ghi nhận xu hướng vượt ngưỡng của ${info.name}. Cậu có thể đang gặp phải một số bất ổn liên quan. HugoPSY khuyên cậu nên chú ý giải tỏa tâm lý.`
           : `Thang đo nằm trong giới hạn thích ứng bình thường.`
       };
     });
@@ -640,7 +640,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
           >
           <div className="text-center max-w-md mx-auto space-y-1.5">
             <h4 className="text-sm font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">
-              Khảo Sát Lâm Sàng Bạn Học Đường
+              Khảo Sát Lâm Sàng HugoPSY
             </h4>
             <p className="text-xs text-zinc-550 dark:text-zinc-450 leading-relaxed">
               Vui lòng chọn bài đánh giá. Để đảm bảo kết quả chính xác so với chẩn đoán tại bệnh viện, hãy trả lời trung thực nhất có thể. Dữ liệu được tính toán offline cục bộ và bảo mật tuyệt đối.
@@ -950,7 +950,7 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                 Bản đồ Sức khỏe Tâm thần Lâm sàng
               </span>
               <h3 className="text-sm font-black uppercase tracking-wider text-white">
-                Báo cáo kết quả phân tích Bạn Học Đường
+                Báo cáo kết quả phân tích HugoPSY
               </h3>
               <p className="text-[10px] text-zinc-450 font-bold">
                 Tương ứng với bộ chỉ số khoa học thực tế dùng trong bệnh viện tâm thần học.
@@ -1017,12 +1017,12 @@ export default function TestTab({ presetTest, bio, onNavigateToTab }) {
                     </h4>
                   </div>
                   <p className="text-xs text-zinc-650 dark:text-zinc-400 leading-relaxed font-medium">
-                    Bạn Học Đường ghi nhận chẩn đoán cục bộ của cậu. Để cải thiện cán cân tâm trạng một cách chuẩn khoa học và tự nhiên nhất:
+                    HugoPSY ghi nhận chẩn đoán cục bộ của cậu. Để cải thiện cán cân tâm trạng một cách chuẩn khoa học và tự nhiên nhất:
                   </p>
                   <ul className="list-disc pl-5 text-[11px] text-zinc-650 dark:text-zinc-400 space-y-2 font-bold">
                     <li>Thực hiện hít thở sâu tại tab <b>Hít thở 4-7-8</b> để chặn đứng cơn lo âu kích ứng đột ngột.</li>
                     <li>Sử dụng tab <b>Giải tỏa tiêu cực</b> thường xuyên để làm trống dòng suy nghĩ trước khi đi ngủ.</li>
-                    <li>Bật <b>Chế độ Chăm sóc Sức khỏe Tinh thần</b> bên dưới để hệ thống Bạn Học Đường tự động gợi ý check-in cảm xúc hàng ngày và giám sát hành trình giúp cậu.</li>
+                    <li>Bật <b>Chế độ Chăm sóc Sức khỏe Tinh thần</b> bên dưới để hệ thống HugoPSY tự động gợi ý check-in cảm xúc hàng ngày và giám sát hành trình giúp cậu.</li>
                     <li>Nếu có thang đo rơi vào ngưỡng <b>Nặng hoặc Rất nặng</b>, đừng ngần ngại nhấp liên hệ chia sẻ trực tiếp với phòng tham vấn học đường hoặc giáo viên tin cậy nhất.</li>
                   </ul>
                 </div>

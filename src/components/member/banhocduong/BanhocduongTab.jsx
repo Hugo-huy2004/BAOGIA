@@ -265,7 +265,7 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
               <div className="w-9 h-9 rounded-xl bg-zinc-800 dark:bg-zinc-200 flex items-center justify-center">
                 <span className="material-symbols-outlined text-white dark:text-zinc-900 text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>settings</span>
               </div>
-              <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.settingsHeader", "Cài đặt Bạn Học Đường")}</h3>
+              <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.settingsHeader", "Cài đặt HugoPSY")}</h3>
             </div>
             <button type="button" onClick={onClose}
               className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center active:scale-90 transition-transform">
@@ -503,7 +503,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <div className="relative z-20 flex items-center justify-between gap-3">
         <SubUtilityHeader
-          title={t("companion.tab.title", "Bạn Học Đường")}
+          title={t("companion.tab.title", "HugoPSY")}
           icon="psychology"
           colorClass="text-emerald-500"
           onBack={onBack}

@@ -11,6 +11,7 @@ const MemberFileToolsTab = lazy(() => import("./MemberFileToolsTab"));
 const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
 const MemberIdeTab = lazy(() => import("./MemberIdeTab"));
 const ChessPage = lazy(() => import("../../pages/public/ChessPage"));
+const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect }) {
   const { t } = useTranslation();
@@ -90,7 +91,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       )}
 
-      {/* Psychology Advisor Tool - Bạn Học Đường */}
+      {/* Psychology Advisor Tool - HugoPSY */}
       {selectedUtility === "psychology" && (
         <BanhocduongTab
           onBack={() => onSelectUtility(null)}
@@ -113,6 +114,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* Chess game */}
       {selectedUtility === "chess" && (
         <ChessPage />
+      )}
+
+      {/* HugoRadio */}
+      {selectedUtility === "radio" && (
+        <MemberRadioTab onBack={() => onSelectUtility(null)} showToast={showToast} />
       )}
       </Suspense>
     </div>

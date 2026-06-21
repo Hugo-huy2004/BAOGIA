@@ -14,6 +14,7 @@ from datetime import datetime
 
 from services.gemini_service import GeminiService
 from services.rate_limit_service import rate_limiter
+from services.intent_insights_service import intent_insights, normalize
 from middleware.auth import verify_internal_key
 
 # ---------------------------------------------------------------------------
@@ -64,6 +65,11 @@ class ChatRequest(BaseModel):
 
 class IntentClassifyRequest(BaseModel):
     message: str
+    userId: Optional[str] = "unknown"
+
+class LocalIntentLogRequest(BaseModel):
+    message: str
+    intentId: Optional[str] = None
     userId: Optional[str] = "unknown"
 
 
@@ -194,15 +200,35 @@ async def classify_intent(request: IntentClassifyRequest, req: Request):
             # the LLM tier will correctly explain "hết token" if the message escalates there.
             return {"intent": "fallback"}
 
-        result = await ai_service.classify_intent(request.message)
-        intent_id = result.get("intent") if isinstance(result, dict) else None
+        normalized = normalize(request.message)
+        cached_intent = await intent_insights.get_cached(normalized)
+        if cached_intent:
+            intent_id = cached_intent
+            await intent_insights.log_match(request.message, "cache", intent_id, client_identifier)
+        else:
+            result = await ai_service.classify_intent(request.message)
+            intent_id = result.get("intent") if isinstance(result, dict) else None
+            await intent_insights.log_match(request.message, "ai", intent_id, client_identifier)
+            if intent_id and intent_id != "fallback":
+                await intent_insights.set_cached(normalized, intent_id)
+
         if intent_id and intent_id != "fallback":
             weight = 0 if intent_id in ai_service.FREE_INTENT_IDS else 1
             if weight > 0:
                 await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=weight)
-        return result
+        return {"intent": intent_id or "fallback"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/ai/intent/log-local")
+async def log_local_intent_match(request: LocalIntentLogRequest, req: Request):
+    """Fire-and-forget telemetry for the frontend's free, zero-API-call local
+    Dice-match (findMatchingIntent) — without this, that tier is invisible to
+    the same analytics that track the AI-classify and fallback tiers."""
+    client_identifier = _client_id(request.userId, req)
+    await intent_insights.log_match(request.message, "local", request.intentId, client_identifier)
+    return {"ok": True}
 
 
 @app.post("/api/ai/chat")

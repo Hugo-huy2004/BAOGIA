@@ -64,6 +64,13 @@ export default class BotManager {
     return null;
   }
 
+  logLocalMatch(message, intentId) {
+    const bot = this._route();
+    if (typeof bot.logLocalMatch === 'function') {
+      bot.logLocalMatch(message, intentId);
+    }
+  }
+
   async chatAudio(audioBlob, isCallMode = false) {
     const bot = this._route();
     if (typeof bot.chatAudio === 'function') {

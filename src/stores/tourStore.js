@@ -57,21 +57,21 @@ export const TOUR_DEFINITIONS = {
     },
     {
       selector: '#utility-card-vcard',
-      title: 'Danh Bạ Thông Minh',
+      title: 'HugoVCard',
       content: 'Tạo mã QR chứa thông tin liên hệ. Người khác chỉ cần quét là điện thoại tự lưu danh bạ mà không cần Internet.',
       placement: 'top',
       beforeStep: (actions) => actions.switchTab('utilities')
     },
     {
       selector: '#utility-card-signature',
-      title: 'Chữ Ký Email Chuyên Nghiệp',
+      title: 'HugoSMail',
       content: 'Thiết kế mẫu chữ ký email xịn xò để chèn vào Gmail hoặc Outlook, giúp nâng tầm hình ảnh cá nhân.',
       placement: 'top',
       beforeStep: (actions) => actions.switchTab('utilities')
     },
     {
       selector: '#utility-card-psychology',
-      title: 'Bạn Học Đường',
+      title: 'HugoPSY',
       content: 'Góc tư vấn tâm lý tự động cùng AI, làm trắc nghiệm lâm sàng định kỳ (DASS-42) và thực hành các bài tập giảm stress.',
       placement: 'top',
       beforeStep: (actions) => actions.switchTab('utilities')

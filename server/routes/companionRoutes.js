@@ -15,14 +15,17 @@ const COMPANION_JOY_CAP_SECONDS = 3600;
 const HEARTBEAT_INTERVAL_SECONDS = 30;
 
 // Therapy sub-features that require a one-time 150 JOY unlock per account.
-// Breathing (4-7-8) and the gratitude journal stay free — not listed here.
+// All therapy methods are JOY-gated now — only the "basic" clinical-gated
+// methods (earn-via-engagement, not listed here) stay outside this paywall.
 const UNLOCKABLE_FEATURES = {
   reading: { cost: 150, label: 'Đọc Truyện AI Trị Liệu' },
   meditation: { cost: 150, label: 'Thiền Dẫn AI Cá Nhân Hoá' },
   depression: { cost: 150, label: 'CBT Worksheet Cá Nhân Hoá' },
   unlimited_calls: { cost: 150, label: 'Gọi Thoại Không Giới Hạn' },
   action_plan: { cost: 150, label: 'Lộ Trình Hoạt Động Cá Nhân Hoá' },
-  deep_report: { cost: 150, label: 'Báo Cáo Tâm Lý Chuyên Sâu' }
+  deep_report: { cost: 150, label: 'Báo Cáo Tâm Lý Chuyên Sâu' },
+  breathing: { cost: 150, label: 'Hít Thở 4-7-8' },
+  soundscape: { cost: 150, label: 'Âm Thanh Thiên Nhiên' }
 };
 
 // POST: Unlock a therapy sub-feature for 150 JOY (one-time, permanent per account)

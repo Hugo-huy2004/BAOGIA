@@ -1684,7 +1684,7 @@
   },
   "companion": {
     "tab": {
-      "title": "PSY-Studies",
+      "title": "HugoPSY",
       "settings": "Settings",
       "chat": "Chat",
       "therapy": "Therapy",
@@ -1707,7 +1707,7 @@
       },
       "dangerZone": "Danger Zone",
       "deleteChatToday": "Delete chat history for today",
-      "settingsHeader": "PSY-Studies Settings",
+      "settingsHeader": "HugoPSY Settings",
       "aiLimitToday": "AI Limit Today",
       "limitChat": "Conversations",
       "limitCall": "Consultation calls",
@@ -1837,44 +1837,62 @@
       "title": "Member Utilities",
       "desc": "Explore smart tools to optimize your workflow and personalize your Bio page.",
       "nfc": {
-        "title": "Personal NFC Card",
+        "title": "HugoNFC",
         "desc": "Configure tap settings to quickly share your Bio Link or contact info.",
         "btnText": "Set Up Now"
       },
       "vcard": {
-        "title": "vCard Contacts",
+        "title": "HugoVCard",
         "desc": "Create smart vCard QR codes to quickly scan and save contacts directly.",
         "btnText": "Set Up Now"
       },
       "signature": {
-        "title": "Email Signature",
+        "title": "HugoSMail",
         "desc": "Design professional business-standard email signatures.",
         "btnText": "Set Up Now"
       },
       "secretLink": {
-        "title": "Secret Links",
+        "title": "HugoOcculta",
         "desc": "Create password-protected redirect links dedicated to VIP partners.",
         "btnText": "Set Up Now"
       },
       "fileTools": {
-        "title": "File Utilities",
+        "title": "HugoTractare",
         "desc": "Online converter and compressor to optimize your image assets.",
         "btnText": "Open Tool"
       },
       "psychology": {
-        "title": "PSY-Studies",
+        "title": "HugoPSY",
         "desc": "AI study companion to consult mental health, track sleep, and heal emotions.",
         "btnText": "Open Utility"
       },
       "ide": {
-        "title": "Web-based IDE (Learning)",
+        "title": "HugoCoder",
         "desc": "Versatile code editor (C, C++, C#, Python, Web, PHP) with code suggestions, basic lessons, and local file saving guides.",
         "btnText": "Open Code IDE"
       },
       "chess": {
         "desc": "Mini chess community — play against Bots, random matchmaking, or create private rooms to share and play with friends. JOY & rating system.",
         "btnText": "Enter Lobby"
+      },
+      "radio": {
+        "desc": "Listen to Vietnamese news, international news, and music stations online, free.",
+        "btnText": "Open Radio"
       }
+    },
+    "radio": {
+      "categories": {
+        "vnNews": "Vietnamese News",
+        "intlNews": "International News",
+        "music": "Music"
+      },
+      "nowPlaying": "Now playing",
+      "paused": "Paused",
+      "buffering": "Connecting...",
+      "standby": "Pick a station to listen",
+      "volume": "Volume",
+      "noStations": "No stations found in this category.",
+      "toastPlayError": "This station can't be played right now, please try another one."
     },
     "nfc": {
       "cardTitle": "Hugo SmartCard NFC",

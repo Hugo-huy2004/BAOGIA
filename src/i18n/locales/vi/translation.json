@@ -1684,7 +1684,7 @@
   },
   "companion": {
     "tab": {
-      "title": "Bạn Học Đường",
+      "title": "HugoPSY",
       "settings": "Cài đặt",
       "chat": "Tâm Sự",
       "therapy": "Trị Liệu",
@@ -1707,7 +1707,7 @@
       },
       "dangerZone": "Vùng nguy hiểm",
       "deleteChatToday": "Xóa lịch sử trò chuyện hôm nay",
-      "settingsHeader": "Cài đặt Bạn Học Đường",
+      "settingsHeader": "Cài đặt HugoPSY",
       "aiLimitToday": "Giới hạn AI hôm nay",
       "limitChat": "Cuộc trò chuyện",
       "limitCall": "Cuộc gọi tư vấn",
@@ -1837,44 +1837,62 @@
       "title": "Tiện Ích Thành Viên",
       "desc": "Khám phá các công cụ thông minh giúp tối ưu hóa công việc và cá nhân hóa trang Bio của bạn.",
       "nfc": {
-        "title": "Thẻ NFC Cá Nhân",
+        "title": "HugoNFC",
         "desc": "Cấu hình chạm thẻ để chia sẻ nhanh Bio Link hoặc thông tin liên hệ.",
         "btnText": "Thiết Lập Ngay"
       },
       "vcard": {
-        "title": "Danh Bạ vCard",
+        "title": "HugoVCard",
         "desc": "Tạo QR code danh bạ thông minh quét nhanh lưu trực tiếp vào máy.",
         "btnText": "Thiết Lập Ngay"
       },
       "signature": {
-        "title": "Chữ Ký Email",
+        "title": "HugoSMail",
         "desc": "Thiết kế chữ ký email chuyên nghiệp chuẩn doanh nghiệp.",
         "btnText": "Thiết Lập Ngay"
       },
       "secretLink": {
-        "title": "Liên Kết Bí Mật",
+        "title": "HugoOcculta",
         "desc": "Tạo link bảo mật bằng mật khẩu dành riêng cho đối tác vip.",
         "btnText": "Thiết Lập Ngay"
       },
       "fileTools": {
-        "title": "Xử Lý File",
+        "title": "HugoTractare",
         "desc": "Trình chuyển đổi định dạng và nén dung lượng hình ảnh trực tuyến.",
         "btnText": "Mở Công Cụ"
       },
       "psychology": {
-        "title": "Bạn Học Đường",
+        "title": "HugoPSY",
         "desc": "AI hỗ trợ tư vấn tâm lý học tập, theo dõi giấc ngủ và trị liệu cảm xúc.",
         "btnText": "Mở Tiện Ích"
       },
       "ide": {
-        "title": "Web-based IDE (Học Tập)",
+        "title": "HugoCoder",
         "desc": "Trình soạn thảo code đa năng (C, C++, C#, Python, Web, PHP) với gợi ý code, bài học cơ bản và hướng dẫn lưu file local.",
         "btnText": "Mở Trình Code"
       },
       "chess": {
         "desc": "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống JOY & xếp hạng.",
         "btnText": "Vào Sảnh Cờ"
+      },
+      "radio": {
+        "desc": "Nghe đài tin tức Việt Nam, tin tức quốc tế và các kênh nhạc trực tuyến, miễn phí.",
+        "btnText": "Mở Đài Radio"
       }
+    },
+    "radio": {
+      "categories": {
+        "vnNews": "Tin Tức Việt Nam",
+        "intlNews": "Tin Tức Quốc Tế",
+        "music": "Nghe Nhạc"
+      },
+      "nowPlaying": "Đang phát",
+      "paused": "Đã tạm dừng",
+      "buffering": "Đang kết nối...",
+      "standby": "Chọn một đài để nghe",
+      "volume": "Âm lượng",
+      "noStations": "Không tìm thấy đài nào trong danh mục này.",
+      "toastPlayError": "Đài này hiện không phát được, vui lòng thử đài khác."
     },
     "nfc": {
       "cardTitle": "Thẻ NFC Hugo SmartCard",

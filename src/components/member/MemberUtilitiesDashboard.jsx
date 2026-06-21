@@ -10,49 +10,49 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
     {
       id: "nfc",
       icon: "sensors",
-      title: t("utilities.dashboard.nfc.title", "Thẻ NFC Cá Nhân"),
+      title: t("utilities.dashboard.nfc.title", "HugoNFC"),
       desc: t("utilities.dashboard.nfc.desc", "Cấu hình chạm thẻ để chia sẻ nhanh Bio Link hoặc thông tin liên hệ."),
       btnText: t("utilities.dashboard.nfc.btnText", "Thiết Lập Ngay")
     },
     {
       id: "vcard",
       icon: "contact_phone",
-      title: t("utilities.dashboard.vcard.title", "Danh Bạ vCard"),
+      title: t("utilities.dashboard.vcard.title", "HugoVCard"),
       desc: t("utilities.dashboard.vcard.desc", "Tạo QR code danh bạ thông minh quét nhanh lưu trực tiếp vào máy."),
       btnText: t("utilities.dashboard.vcard.btnText", "Thiết Lập Ngay")
     },
     {
       id: "signature",
       icon: "signature",
-      title: t("utilities.dashboard.signature.title", "Chữ Ký Email"),
+      title: t("utilities.dashboard.signature.title", "HugoSMail"),
       desc: t("utilities.dashboard.signature.desc", "Thiết kế chữ ký email chuyên nghiệp chuẩn doanh nghiệp."),
       btnText: t("utilities.dashboard.signature.btnText", "Thiết Lập Ngay")
     },
     {
       id: "secret_link",
       icon: "lock",
-      title: t("utilities.dashboard.secretLink.title", "Liên Kết Bí Mật"),
+      title: t("utilities.dashboard.secretLink.title", "HugoOcculta"),
       desc: t("utilities.dashboard.secretLink.desc", "Tạo link bảo mật bằng mật khẩu dành riêng cho đối tác vip."),
       btnText: t("utilities.dashboard.secretLink.btnText", "Thiết Lập Ngay")
     },
     {
       id: "file_tools",
       icon: "folder_zip",
-      title: t("utilities.dashboard.fileTools.title", "Xử Lý File"),
+      title: t("utilities.dashboard.fileTools.title", "HugoTractare"),
       desc: t("utilities.dashboard.fileTools.desc", "Trình chuyển đổi định dạng và nén dung lượng hình ảnh trực tuyến."),
       btnText: t("utilities.dashboard.fileTools.btnText", "Mở Công Cụ")
     },
     {
       id: "psychology",
       icon: "psychology",
-      title: t("companion.tab.title", "Bạn Học Đường"),
+      title: t("companion.tab.title", "HugoPSY"),
       desc: t("utilities.dashboard.psychology.desc", "AI hỗ trợ tư vấn tâm lý học tập, theo dõi giấc ngủ và trị liệu cảm xúc."),
       btnText: t("utilities.dashboard.psychology.btnText", "Mở Tiện Ích")
     },
     {
       id: "ide",
       icon: "code",
-      title: t("utilities.dashboard.ide.title", "Web-based IDE (Học Tập)"),
+      title: t("utilities.dashboard.ide.title", "HugoCoder"),
       desc: t("utilities.dashboard.ide.desc", "Trình soạn thảo code đa năng (C, C++, C#, Python, Web, PHP) với gợi ý code, bài học cơ bản và hướng dẫn lưu file local."),
       btnText: t("utilities.dashboard.ide.btnText", "Mở Trình Code")
     },
@@ -62,6 +62,13 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       title: "HugoChess",
       desc: t("utilities.dashboard.chess.desc", "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống JOY & xếp hạng."),
       btnText: t("utilities.dashboard.chess.btnText", "Vào Sảnh Cờ")
+    },
+    {
+      id: "radio",
+      icon: "radio",
+      title: "HugoRadio",
+      desc: t("utilities.dashboard.radio.desc", "Nghe đài tin tức Việt Nam, tin tức quốc tế và các kênh nhạc trực tuyến, miễn phí."),
+      btnText: t("utilities.dashboard.radio.btnText", "Mở Đài Radio")
     }
   ];
 
@@ -102,7 +109,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
               </div>
               <div className="space-y-0.5 md:space-y-1">
                 <h3 className="text-xs md:text-sm font-black text-zinc-800 dark:text-zinc-100 line-clamp-1 md:line-clamp-none">
-                  {util.title === "HugoChess" ? (
+                  {util.title.startsWith("Hugo") && util.title.length > 4 ? (
                     <>
                       <span className="inline-flex">
                         <span style={{ color: "#EF4444" }}>H</span>
@@ -110,7 +117,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
                         <span style={{ color: "#EAB308" }}>g</span>
                         <span style={{ color: "#22C55E" }}>o</span>
                       </span>
-                      <span>Chess</span>
+                      <span>{util.title.slice(4)}</span>
                     </>
                   ) : (
                     util.title

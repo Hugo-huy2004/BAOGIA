@@ -203,7 +203,7 @@ export default function HealingModal({
                   <p className="text-xs text-zinc-600 dark:text-zinc-350 leading-relaxed font-semibold max-w-sm mx-auto">
                     {consecutiveLow
                       ? 'Tâm trạng cậu đang khá trầm xuống liên tục. Hãy thực hành bài tập điều hòa nhịp thở hoặc trò chuyện với tớ nhé.'
-                      : 'Bạn Học Đường nhận thấy đã đến chu kỳ đánh giá định kỳ. Hãy làm một bài test DASS-42 để tớ đối chiếu chẩn đoán nhé.'}
+                      : 'HugoPSY nhận thấy đã đến chu kỳ đánh giá định kỳ. Hãy làm một bài test DASS-42 để tớ đối chiếu chẩn đoán nhé.'}
                   </p>
                 </div>
                 {consecutiveLow ? (

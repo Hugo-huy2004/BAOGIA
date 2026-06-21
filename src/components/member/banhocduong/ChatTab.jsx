@@ -1309,7 +1309,9 @@ export default function ChatTab({
       const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
       setMessages(prev => [...prev, userMsg]);
       setLoading(true);
-      
+      // Telemetry only — lets us measure real local-match coverage vs. AI/fallback tiers.
+      botManager.logLocalMatch(text, matched.id);
+
       // Save auto-collected emotional check-in status if returned by the intent
       if (matched.companionUpdate?.newLog && onUpdateCompanionState) {
         onUpdateCompanionState({ historyLogs: [...historyLogs, matched.companionUpdate.newLog] });

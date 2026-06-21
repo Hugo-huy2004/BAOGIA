@@ -1,5 +1,5 @@
 /**
- * Tracks "active" companion (Bạn Học Đường) usage and sends a heartbeat
+ * Tracks "active" companion (HugoPSY) usage and sends a heartbeat
  * every 30s while the tab is visible and the user has interacted recently.
  * The backend converts confirmed active time into +10 JOY per 10 minutes,
  * capped at 60 JOY/day — see POST /api/companion/heartbeat.

@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 import dataApi from '../services/dataApi';
 
 /**
- * All Healing Journey (Bạn Học Đường check-in) state and logic, extracted
+ * All Healing Journey (HugoPSY check-in) state and logic, extracted
  * from MemberPortalPage so that component stays lean.
  *
  * @param {{ email: string, onNavigate: Function, showToast: Function, sendNotification: Function }} opts
@@ -107,7 +107,7 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
           category: 'wellness',
           type: 'warning',
           title: 'Cảnh báo sức khỏe tâm thần',
-          message: 'Bạn Học Đường phát hiện tâm trạng của bạn đang trầm xuống liên tục. Hãy thực hành bài tập hít thở hoặc trò chuyện với trợ lý nhé.',
+          message: 'HugoPSY phát hiện tâm trạng của bạn đang trầm xuống liên tục. Hãy thực hành bài tập hít thở hoặc trò chuyện với trợ lý nhé.',
           actionUrl: '/member/utilities',
         });
       }
@@ -183,7 +183,7 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
   const goToChat = useCallback(() => {
     setShowModal(false);
     onNavigate('utilities', 'psychology', 'chat', null);
-    showToast('Đã chuyển hướng đến Trợ lý Bạn Học Đường.', 'success');
+    showToast('Đã chuyển hướng đến Trợ lý HugoPSY.', 'success');
   }, [onNavigate, showToast]);
 
   return {

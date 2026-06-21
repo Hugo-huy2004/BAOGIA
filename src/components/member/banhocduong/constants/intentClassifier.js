@@ -1,5 +1,5 @@
 /**
- * Local Intent Classifier for "Bạn Học Đường"
+ * Local Intent Classifier for "HugoPSY"
  * Computes client-side string similarity using the Sørensen-Dice coefficient (character bigrams)
  * normalized for accented and de-accented Vietnamese text.
  * Integrates user profile (`bio`) and historical test scores (`historyLogs`) to construct dynamic responses.
@@ -93,6 +93,7 @@ export const INTENT_DATABASE = [
       "xin chào",
       "chào bot",
       "chào bạn học đường",
+      "chào hugopsy",
       "chào chuyên viên",
       "chào nha",
       "helo cậu",
@@ -153,6 +154,7 @@ export const INTENT_DATABASE = [
       "bạn là ai",
       "tên cậu là gì",
       "bạn học đường là ai",
+      "hugopsy là ai",
       "đây là bot gì",
       "giới thiệu bản thân",
       "cậu tên gì",
@@ -161,7 +163,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return `Tớ là Bạn Học Đường, một chuyên viên đồng hành AI được thiết kế riêng để lắng nghe tâm tư, nâng cao nhận thức cảm xúc và luôn đồng hành cùng ${name} trong hành trình học tập cũng như chăm sóc sức khỏe tinh thần. 🌸`;
+      return `Tớ là HugoPSY, một chuyên viên đồng hành AI được thiết kế riêng để lắng nghe tâm tư, nâng cao nhận thức cảm xúc và luôn đồng hành cùng ${name} trong hành trình học tập cũng như chăm sóc sức khỏe tinh thần. 🌸`;
     }
   },
   {
