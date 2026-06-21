@@ -56,6 +56,14 @@ export default class BotManager {
     return { intent: "fallback" };
   }
 
+  async getRemainingTokens() {
+    const bot = this._route();
+    if (typeof bot.getRemainingTokens === 'function') {
+      return await bot.getRemainingTokens();
+    }
+    return null;
+  }
+
   async chatAudio(audioBlob, isCallMode = false) {
     const bot = this._route();
     if (typeof bot.chatAudio === 'function') {

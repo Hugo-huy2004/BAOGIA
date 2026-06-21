@@ -126,20 +126,12 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
         <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
           {t("memberPortal.joy.referral.countLabel", { count: referralCount })}
         </p>
-        {(bio?.bonusChatTokens > 0 || bio?.bonusCallTokens > 0) && (
+        {bio?.bonusChatTokens > 0 && (
           <div className="flex items-center gap-3 mt-1 text-[10px] font-bold">
-            {bio.bonusChatTokens > 0 && (
-              <span className="flex items-center gap-1 bg-white/70 dark:bg-black/20 rounded-full px-2.5 py-1 text-indigo-600 dark:text-indigo-400">
-                <span className="material-symbols-outlined text-[13px]">chat</span>
-                +{bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens")}
-              </span>
-            )}
-            {bio.bonusCallTokens > 0 && (
-              <span className="flex items-center gap-1 bg-white/70 dark:bg-black/20 rounded-full px-2.5 py-1 text-rose-600 dark:text-rose-400">
-                <span className="material-symbols-outlined text-[13px]">call</span>
-                +{bio.bonusCallTokens} {t("memberPortal.joy.store.callTokens")}
-              </span>
-            )}
+            <span className="flex items-center gap-1 bg-white/70 dark:bg-black/20 rounded-full px-2.5 py-1 text-indigo-600 dark:text-indigo-400">
+              <span className="material-symbols-outlined text-[13px]">chat</span>
+              +{bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens")}
+            </span>
           </div>
         )}
       </div>

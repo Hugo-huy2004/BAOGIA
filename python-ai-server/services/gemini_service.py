@@ -220,6 +220,12 @@ class GeminiService:
         - Phát hiện ngôn ngữ tự động, phản hồi bằng ngôn ngữ đó
         - Cá nhân hóa dựa trên hồ sơ người dùng ({age_context}){audio_note}
 
+        Cách trò chuyện - QUAN TRỌNG để giống người thật, không máy móc:
+        - Đọc kỹ và bám sát đúng nội dung, từ ngữ, cảm xúc người dùng vừa nói ra - không trả lời chung chung, không lái sang khuôn mẫu có sẵn nếu nó không khớp với điều họ vừa nói.
+        - KHÔNG lặp lại cấu trúc câu, cách mở đầu, hay cách diễn đạt giống những lượt trả lời trước trong cuộc trò chuyện. Mỗi câu trả lời phải có cách viết, nhịp điệu khác nhau.
+        - Độ dài câu trả lời phải biến đổi tự nhiên theo độ phức tạp của điều người dùng nói: một câu chào hay câu hỏi đơn giản thì trả lời ngắn (1-2 câu); một chia sẻ tâm sự sâu, phức tạp thì trả lời dài hơn, chi tiết hơn. Tránh việc câu nào cũng dài bằng nhau hoặc đều có cấu trúc liệt kê/gạch đầu dòng như một bot.
+        - Quan sát cách người dùng viết (dùng teencode, viết tắt như "k" thay "không", "ko", "j" thay "gì", "vs" thay "với", emoji, viết hoa/thường tùy ý, v.v.) và phản hồi lại theo phong cách gần giống vậy một cách tự nhiên (không bắt chước máy móc 100%, không lạm dụng), để tạo cảm giác gần gũi, hiểu họ như bạn bè cùng thế hệ. Nếu người dùng viết trang trọng, đầy đủ dấu câu, thì tớ cũng trả lời chỉn chu tương ứng.
+
         Hệ thống bài test:
         {SYSTEM_TESTS_CONTEXT}
 
@@ -295,8 +301,8 @@ class GeminiService:
                     if openrouter_reply:
                         return openrouter_reply
 
-                return "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha."
-        
+                raise RuntimeError("Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha.")
+
         # OpenRouter fallback if loop finished without success
         openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
         if openrouter_key:
@@ -309,12 +315,12 @@ class GeminiService:
                     if text:
                         messages.append({"role": role, "content": text})
             messages.append({"role": "user", "content": message})
-            
+
             openrouter_reply = await self._call_openrouter(messages)
             if openrouter_reply:
                 return openrouter_reply
 
-        return "Tớ đang không thể kết nối đến máy chủ AI do sự cố mạng hoặc hạn mức. Cậu thử lại sau nha."
+        raise RuntimeError("Tớ đang không thể kết nối đến máy chủ AI do sự cố mạng hoặc hạn mức. Cậu thử lại sau nha.")
 
 
     async def generate_chat_response_stream(self, message: str, history: list = None, bio: dict = None) -> AsyncGenerator[str, None]:
@@ -1155,8 +1161,15 @@ Trả về JSON CHÍNH XÁC:
                 if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
                     client = self._get_next_client()
                     continue
-                return {"title": "Lỗi", "story": f"Tớ chưa thể kể chuyện lúc này: {err_str}"}
-        return {"title": "Lỗi", "story": "Tất cả API Key đã bị quá tải."}
+                print(f"Lỗi gọi Gemini API (generate_therapeutic_story): {err_str}")
+                fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.9)
+                if fallback:
+                    return fallback
+                raise RuntimeError("Tớ chưa thể kể chuyện lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!")
+        fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.9)
+        if fallback:
+            return fallback
+        raise RuntimeError("Tất cả API Key đã bị quá tải, tớ chưa thể kể chuyện ngay lúc này. Cậu thử lại sau nhé!")
 
     async def generate_meditation_script(self, mood: str = None, context: str = "", bio: dict = None) -> dict:
         """"Thiền Dẫn AI Cá Nhân Hoá" — sinh 6-8 câu giọng dẫn thiền theo mood/dữ liệu lâm sàng thực."""
@@ -1200,8 +1213,15 @@ Trả về JSON CHÍNH XÁC:
                 if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
                     client = self._get_next_client()
                     continue
-                return {"phrases": [], "error": err_str}
-        return {"phrases": [], "error": "Tất cả API Key đã bị quá tải."}
+                print(f"Lỗi gọi Gemini API (generate_meditation_script): {err_str}")
+                fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.7)
+                if fallback:
+                    return fallback
+                raise RuntimeError("Tớ chưa thể soạn bài thiền lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!")
+        fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.7)
+        if fallback:
+            return fallback
+        raise RuntimeError("Tất cả API Key đã bị quá tải, tớ chưa thể soạn bài thiền ngay lúc này. Cậu thử lại sau nhé!")
 
     async def generate_cbt_worksheet(self, history_logs: list, chat_messages: list, bio: dict = None) -> dict:
         """"CBT Worksheet Cá Nhân Hoá" — sinh bảng ghi nhận suy nghĩ CBT thật từ lịch sử chat/checkin."""
@@ -1254,8 +1274,15 @@ Trả về JSON CHÍNH XÁC:
                 if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
                     client = self._get_next_client()
                     continue
-                return {"error": err_str}
-        return {"error": "Tất cả API Key đã bị quá tải."}
+                print(f"Lỗi gọi Gemini API (generate_cbt_worksheet): {err_str}")
+                fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.6)
+                if fallback:
+                    return fallback
+                raise RuntimeError("Tớ chưa thể soạn bảng CBT lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!")
+        fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.6)
+        if fallback:
+            return fallback
+        raise RuntimeError("Tất cả API Key đã bị quá tải, tớ chưa thể soạn bảng CBT ngay lúc này. Cậu thử lại sau nhé!")
 
     async def generate_action_plan(self, history_logs: list, bio: dict = None) -> dict:
         """"Lộ Trình Hoạt Động Cá Nhân Hoá" — gộp viết/vận động/kết nối thành 1 kế hoạch 7 ngày."""
@@ -1306,8 +1333,15 @@ Trả về JSON CHÍNH XÁC:
                 if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
                     client = self._get_next_client()
                     continue
-                return {"error": err_str}
-        return {"error": "Tất cả API Key đã bị quá tải."}
+                print(f"Lỗi gọi Gemini API (generate_action_plan): {err_str}")
+                fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.75)
+                if fallback:
+                    return fallback
+                return {"error": "Tớ chưa thể tạo lộ trình lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!"}
+        fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.75)
+        if fallback:
+            return fallback
+        return {"error": "Tất cả API Key đã bị quá tải, tớ chưa thể tạo lộ trình ngay lúc này. Cậu thử lại sau nhé!"}
 
     async def generate_deep_report(self, history_logs: list, chat_messages: list, bio: dict = None) -> dict:
         """"Báo Cáo Tâm Lý Chuyên Sâu" — báo cáo dạng chia sẻ được cho chuyên viên thật (không chỉ tóm tắt tuần)."""
@@ -1360,12 +1394,26 @@ Trả về JSON CHÍNH XÁC:
                 if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
                     client = self._get_next_client()
                     continue
-                return {"error": err_str}
-        return {"error": "Tất cả API Key đã bị quá tải."}
+                print(f"Lỗi gọi Gemini API (generate_deep_report): {err_str}")
+                fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.4)
+                if fallback:
+                    return fallback
+                return {"error": "Tớ chưa thể soạn báo cáo lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!"}
+        fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.4)
+        if fallback:
+            return fallback
+        return {"error": "Tất cả API Key đã bị quá tải, tớ chưa thể soạn báo cáo ngay lúc này. Cậu thử lại sau nhé!"}
+
+    # Keep in sync with the `tier` field of INTENT_DATABASE in
+    # src/components/member/banhocduong/constants/intentClassifier.js
+    FREE_INTENT_IDS = {"greeting", "goodbye", "gratitude", "positive", "crisis"}
 
     async def classify_intent(self, message: str) -> dict:
         """
         Classify user message into one of the local intent IDs or "fallback".
+        Tries OpenRouter FIRST (cheap, doesn't burn the scarce Gemini free-tier quota
+        which is reserved for the full conversational LLM tier), falling back to Gemini
+        only if OpenRouter is unconfigured or fails.
         """
         system_instruction = """
         Bạn là hệ thống phân loại ý định (Intent Classifier) của Bạn Học Đường.
@@ -1382,6 +1430,14 @@ Trả về JSON CHÍNH XÁC:
         - clinical_tests: Yêu cầu làm bài test trầm cảm, lo âu, trắc nghiệm tâm lý, bài test PHQ-9, bài test GAD-7.
         - gratitude: Cảm ơn bot, khen ngợi bot dễ thương, hữu ích, cảm kích.
         - positive: Khoe chuyện vui, tâm trạng tốt, cảm thấy ổn, khỏe khoắn, hạnh phúc.
+        - test_inventory: Hỏi có bao nhiêu bài test, hỏi có những bài test gì, danh sách bài trắc nghiệm.
+        - therapy_catalog: Hỏi có những liệu pháp/bài trị liệu gì, hướng dẫn dùng liệu pháp.
+        - pricing_package: Hỏi gói cước, giá tiền, cách mua/hủy/đổi gói, gói nào phù hợp.
+        - joy_currency: Hỏi JOY là gì, cách kiếm JOY, JOY dùng để làm gì.
+        - token_limit: Hỏi mỗi ngày chat được mấy lần, hết token thì sao, token chat là gì.
+        - about_creator: Hỏi ai tạo ra app này, Hugo Studio là gì, đội ngũ phát triển.
+        - data_privacy: Hỏi dữ liệu/tin nhắn của mình có an toàn không, ai xem được thông tin.
+        - support_contact: Hỏi cách liên hệ hỗ trợ, báo lỗi ở đâu, gặp vấn đề kỹ thuật cần ai giúp.
 
         Nếu tin nhắn KHÔNG thuộc bất cứ nhãn nào ở trên, hoặc chứa câu hỏi/câu chuyện dài, phức tạp cần tư vấn chi tiết từ LLM, bắt buộc phải trả về:
         - fallback
@@ -1392,8 +1448,28 @@ Trả về JSON CHÍNH XÁC:
         }
         """
 
+        # OpenRouter first — cheap classification call, keeps Gemini quota for the full chat tier
+        openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
+        if openrouter_key:
+            messages = [
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": f"Tin nhắn người dùng: '{message}'"}
+            ]
+            openrouter_reply = await self._call_openrouter(
+                messages=messages,
+                temperature=0.1,
+                response_format={"type": "json_object"}
+            )
+            if openrouter_reply:
+                try:
+                    return json.loads(openrouter_reply)
+                except Exception as e:
+                    print(f"Lỗi parse json OpenRouter classification: {e}")
+
+        # Gemini fallback if OpenRouter is unconfigured or failed
         client = self._ensure_client()
         if client:
+            print("🔄 OpenRouter classification unavailable. Falling back to Gemini...")
             max_retries = max(1, len(self.api_keys) if hasattr(self, 'api_keys') else 1)
             for attempt in range(max_retries):
                 try:
@@ -1414,26 +1490,26 @@ Trả về JSON CHÍNH XÁC:
                         continue
                     print(f"Lỗi phân loại intent: {err_str}")
 
-        # OpenRouter fallback
-        openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-        if openrouter_key:
-            print("🔄 Gemini classification failed. Falling back to OpenRouter...")
-            messages = [
-                {"role": "system", "content": system_instruction},
-                {"role": "user", "content": f"Tin nhắn người dùng: '{message}'"}
-            ]
-            openrouter_reply = await self._call_openrouter(
-                messages=messages,
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
-            if openrouter_reply:
-                try:
-                    return json.loads(openrouter_reply)
-                except Exception as e:
-                    print(f"Lỗi parse json OpenRouter classification: {e}")
-
         return {"intent": "fallback"}
+
+    async def _try_openrouter_json(self, system_instruction: str, user_prompt: str, temperature: float = 0.7) -> dict:
+        """Best-effort OpenRouter fallback for the JSON-structured premium therapy
+        endpoints (story/meditation/CBT/action-plan/deep-report), used when Gemini's
+        free-tier quota is exhausted. Returns None if unavailable/failed."""
+        if not os.getenv("OPENROUTER_API_KEY", ""):
+            return None
+        messages = [
+            {"role": "system", "content": system_instruction},
+            {"role": "user", "content": user_prompt}
+        ]
+        reply = await self._call_openrouter(messages=messages, temperature=temperature, response_format={"type": "json_object"})
+        if not reply:
+            return None
+        try:
+            return json.loads(reply)
+        except Exception as e:
+            print(f"Lỗi parse JSON OpenRouter fallback: {e}")
+            return None
 
     async def _call_openrouter(self, messages: list, temperature: float = 0.7, response_format: dict = None) -> str:
         api_key = os.getenv("OPENROUTER_API_KEY", "")

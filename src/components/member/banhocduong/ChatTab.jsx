@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
-import { Mic, MicOff, Volume2, PhoneCall } from "lucide-react";
+import { Mic, MicOff, Volume2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { CLINICAL_TESTS } from "./clinicalTests";
 import ChatMessages from "./ChatMessages";
 import ClinicalTestPanel from "./ClinicalTestPanel";
 import ClinicScanner from "./ClinicScanner";
-import AICallModal from "./AICallModal";
 import { webPushHelper } from "../../../utils/webPushHelper";
 
 import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogues";
@@ -20,6 +19,21 @@ const MOOD_META = {
   2: { emoji: "😔", label: "Mỏi mệt" },
   1: { emoji: "😣", label: "Kiệt sức" },
 };
+
+const ASPECT_LABELS = {
+  // Free dialogue tree
+  "studying": { short: "Áp lực học tập" },
+  "family": { short: "Vấn đề gia đình" },
+  "relationships": { short: "Bạn bè & Tình cảm" },
+  "self": { short: "Mệt mỏi & Mất ngủ" },
+  "normal": { short: "Tinh thần ổn định" },
+
+  // Companion dialogue tree
+  "checkin_progress": { short: "Báo cáo tiến triển" },
+  "recheck_evaluation": { short: "Đánh giá định kỳ" },
+  "doctor_sharing": { short: "Trò chuyện tự do" }
+};
+
 
 /** Lightweight client-side wellness snapshot computed from historyLogs — no extra
  * network calls, reuses the same log shapes EvaluationTab/TherapyTab already read. */
@@ -213,34 +227,22 @@ export default function ChatTab({
   const [chatMode, setChatMode] = useState("normal");
   const [activeTest, setActiveTest] = useState(null);
   const [isListening, setIsListening] = useState(false);
-  const [isRecordingAudio, setIsRecordingAudio] = useState(false);
-  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
-  const audioChunks = useRef([]);
 
-  const [remainingChatTokens, setRemainingChatTokens] = useState(3);
-  const [remainingCallTokens, setRemainingCallTokens] = useState(5);
+  const [remainingChatTokens, setRemainingChatTokens] = useState(10);
   const [inputText, setInputText] = useState("");
-  const hasUnlimitedCalls = bio?.unlockedCompanionFeatures?.includes("unlimited_calls");
+
+  // Server (rate_limit_service) is the source of truth for the daily chat budget —
+  // refresh from it instead of guessing locally, so the badge never goes stale.
+  const refreshRemainingTokens = useCallback(async () => {
+    const data = await botManager.getRemainingTokens();
+    if (data && typeof data.remaining === "number") {
+      setRemainingChatTokens(data.remaining);
+    }
+  }, [botManager]);
 
   useEffect(() => {
-    const today = new Date().toISOString().split("T")[0];
-    const storedChatTokens = localStorage.getItem(`ai_chat_tokens_${today}`);
-    if (storedChatTokens !== null) {
-      setRemainingChatTokens(parseInt(storedChatTokens));
-    } else {
-      setRemainingChatTokens(3);
-      localStorage.setItem(`ai_chat_tokens_${today}`, 3);
-    }
-
-    const storedCallTokens = localStorage.getItem(`consultant_tokens_${today}`);
-    if (storedCallTokens !== null) {
-      setRemainingCallTokens(parseInt(storedCallTokens));
-    } else {
-      setRemainingCallTokens(5);
-      localStorage.setItem(`consultant_tokens_${today}`, 5);
-    }
-  }, []);
+    refreshRemainingTokens();
+  }, [refreshRemainingTokens]);
 
   const lastMessage = messages[messages.length - 1];
   const isLastMessageCompleted = !lastMessage || lastMessage.sender === "user" || lastMessage.id === "init" || completedMessageIds.has(lastMessage.id);
@@ -358,101 +360,12 @@ export default function ChatTab({
 
 
 
-  const startAudioRecording = async () => {
-    const today = new Date().toISOString().split("T")[0];
-    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
-    const bonusTokens = bio?.bonusChatTokens || 0;
-    if (currentTokens + bonusTokens <= 0) {
-      showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
-      return;
-    }
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      audioChunks.current = [];
-      recorder.ondataavailable = e => {
-        if (e.data.size > 0) audioChunks.current.push(e.data);
-      };
-      recorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
-        setIsRecordingAudio(false);
-        setLoading(true);
-
-        const userMsg = {
-          id: `user-audio-${Date.now()}`,
-          sender: "user",
-          text: "🎤 [Tin nhắn thoại Audio]",
-          time: new Date(),
-          timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined
-        };
-        setMessages(prev => [...prev, userMsg]);
-        setDialogStage(0);
-
-        try {
-          const response = await botManager.chatAudio(audioBlob);
-          const textReply = response.text || "Tớ đã nhận được tin nhắn thoại của cậu.";
-          
-          if (currentTokens > 0) {
-            const newTokens = currentTokens - 1;
-            setRemainingChatTokens(newTokens);
-            localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
-          } else {
-            if (bio && bio.bonusChatTokens > 0 && onProfileUpdate) {
-              onProfileUpdate({ ...bio, bonusChatTokens: bio.bonusChatTokens - 1 });
-            }
-          }
-
-          const lowercaseText = textReply.toLowerCase();
-          let exerciseFlags = {};
-          if (lowercaseText.includes("thở") || lowercaseText.includes("stress") || lowercaseText.includes("căng thẳng") || lowercaseText.includes("áp lực") || lowercaseText.includes("lo lắng") || lowercaseText.includes("lo âu") || lowercaseText.includes("hoảng loạn")) {
-            exerciseFlags.showInlineBreathing = true;
-          } else if (lowercaseText.includes("vô dụng") || lowercaseText.includes("thất bại") || lowercaseText.includes("chán nản") || lowercaseText.includes("kém cỏi") || lowercaseText.includes("bế tắc") || lowercaseText.includes("tuyệt vọng")) {
-            exerciseFlags.showInlineCbt = true;
-          }
-
-          const botMsg = {
-            id: `bot-audio-${Date.now()}`,
-            sender: "bot",
-            text: textReply,
-            time: new Date(),
-            timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined,
-            ...exerciseFlags
-          };
-          setMessages(prev => [...prev, botMsg]);
-          
-          if (response.audio_base64) {
-            const audio = new Audio("data:audio/webm;base64," + response.audio_base64);
-            audio.play().catch(e => console.error("Lỗi phát audio:", e));
-          }
-        } catch(e) {
-          console.error(e);
-        } finally {
-          setLoading(false);
-        }
-      };
-      recorder.start();
-      setMediaRecorder(recorder);
-      setIsRecordingAudio(true);
-    } catch (err) {
-      console.error(err);
-      if (showToast) showToast("Không thể truy cập Microphone", "error");
-    }
-  };
-
-  const stopAudioRecording = () => {
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-      mediaRecorder.stop();
-      mediaRecorder.stream.getTracks().forEach(track => track.stop());
-    }
-  };
-
   const startListening = () => {
-    const today = new Date().toISOString().split("T")[0];
-    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
-    const bonusTokens = bio?.bonusChatTokens || 0;
-    if (currentTokens + bonusTokens <= 0) {
-      showToast && showToast("Cậu đã hết token trò chuyện AI hôm nay. Hãy quay lại vào ngày mai nhé!", "warning");
+    if (isListening && window.activeRecognition) {
+      try {
+        window.activeRecognition.stop();
+      } catch (_) {}
+      setIsListening(false);
       return;
     }
 
@@ -460,116 +373,46 @@ export default function ChatTab({
       showToast && showToast("Trình duyệt không hỗ trợ nhận diện giọng nói.", "error");
       return;
     }
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.lang = 'vi-VN';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
+    recognition.continuous = false;
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onresult = async (event) => {
-      const transcript = event.results[0][0].transcript;
-      setIsListening(false);
-
-      const userMsg = {
-        id: `user-voice-${Date.now()}`,
-        sender: "user",
-        text: transcript,
-        time: new Date(),
-        timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined
-      };
-      setMessages(prev => [...prev, userMsg]);
-      setDialogStage(0);
-
-      setLoading(true);
-      const botMsgId = `bot-voice-${Date.now()}`;
-
-      await botManager.chatStream(
-        transcript,
-        (chunkText) => {
-          setLoading(false);
-          setMessages(prev => {
-            if (!prev.some(m => m.id === botMsgId)) {
-              return [...prev, {
-                id: botMsgId,
-                sender: "bot",
-                text: chunkText,
-                time: new Date(),
-                timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined
-              }];
-            }
-            return prev.map(m => {
-              if (m.id === botMsgId) {
-                return { ...m, text: chunkText };
-              }
-              return m;
-            });
-          });
-        },
-        (botResponse) => {
-          let textReply = botResponse.reply;
-          let suggestionFlags = {
-            suggestPhq9: botResponse.suggestPhq9,
-            suggestGad7: botResponse.suggestGad7,
-            suggestWho5: botResponse.suggestWho5,
-            suggestBigFive: botResponse.suggestBigFive
-          };
-
-          if (botResponse.bioUpdate && onProfileUpdate && !isVentingMode) {
-            onProfileUpdate(botResponse.bioUpdate);
-            if (showToast) showToast("Đã tự động lưu thông tin mới vào hồ sơ y khoa.", "success");
-          }
-
-          if (currentTokens > 0) {
-            const newTokens = currentTokens - 1;
-            setRemainingChatTokens(newTokens);
-            localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
-          } else {
-            if (bio && bio.bonusChatTokens > 0 && onProfileUpdate) {
-              onProfileUpdate({ ...bio, bonusChatTokens: bio.bonusChatTokens - 1 });
-            }
-          }
-
-
-          const lowercaseText = transcript.toLowerCase();
-          let exerciseFlags = {};
-          if (lowercaseText.includes("thở") || lowercaseText.includes("stress") || lowercaseText.includes("căng thẳng") || lowercaseText.includes("áp lực") || lowercaseText.includes("lo lắng") || lowercaseText.includes("lo âu") || lowercaseText.includes("hoảng loạn")) {
-            exerciseFlags.showInlineBreathing = true;
-          } else if (lowercaseText.includes("vô dụng") || lowercaseText.includes("thất bại") || lowercaseText.includes("chán nản") || lowercaseText.includes("kém cỏi") || lowercaseText.includes("bế tắc") || lowercaseText.includes("tuyệt vọng")) {
-            exerciseFlags.showInlineCbt = true;
-          }
-
-          setMessages(prev => {
-            if (!prev.some(m => m.id === botMsgId)) {
-              return [...prev, {
-                id: botMsgId,
-                sender: "bot",
-                text: textReply,
-                time: new Date(),
-                timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined,
-                ...suggestionFlags,
-                ...exerciseFlags
-              }];
-            }
-            return prev.map(m => {
-              if (m.id === botMsgId) {
-                return { ...m, text: textReply, ...suggestionFlags, ...exerciseFlags };
-              }
-              return m;
-            });
-          });
-          setLoading(false);
-        }
-      );
-
+    recognition.onstart = () => {
+      setIsListening(true);
+      window.activeRecognition = recognition;
     };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInputText(prev => prev ? prev + " " + transcript : transcript);
+      if (inputRef.current) {
+        setTimeout(() => {
+          inputRef.current.style.height = 'auto';
+          inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 96) + 'px';
+        }, 50);
+      }
+    };
+
     recognition.onerror = () => {
       setIsListening(false);
-      showToast && showToast("Lỗi nhận diện giọng nói, vui lòng thử lại.", "info");
+      window.activeRecognition = null;
     };
-    recognition.onend = () => setIsListening(false);
 
-    recognition.start();
+    recognition.onend = () => {
+      setIsListening(false);
+      window.activeRecognition = null;
+    };
+
+    try {
+      recognition.start();
+    } catch (e) {
+      console.error(e);
+      setIsListening(false);
+    }
   };
 
   // Stage 1 -> Stage 2 (random bot — no token cost)
@@ -1528,6 +1371,8 @@ export default function ChatTab({
               time: new Date()
             }]);
             setLoading(false);
+            // The server already charged 0/1 token for this intent answer — resync the badge.
+            refreshRemainingTokens();
           }, 600);
           return;
         }
@@ -1536,11 +1381,9 @@ export default function ChatTab({
       console.warn("AI intent classification failed, falling back to full LLM:", err);
     }
 
-    // 3. Fallback: Call the streaming conversational LLM AI server. Check token limit first:
-    const today = new Date().toISOString().split("T")[0];
-    const currentTokens = parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) || 3);
+    // 3. Fallback: Call the streaming conversational LLM AI server (costs 3 tokens on success).
     const bonusTokens = bio?.bonusChatTokens || 0;
-    if (currentTokens + bonusTokens <= 0) {
+    if (remainingChatTokens + bonusTokens <= 0) {
       showToast?.("Hết token chat hôm nay. Quay lại vào ngày mai nhé!", "warning");
       setLoading(false);
       return;
@@ -1560,15 +1403,9 @@ export default function ChatTab({
         });
       },
       (botResponse) => {
-        if (currentTokens > 0) {
-          const newTokens = currentTokens - 1;
-          setRemainingChatTokens(newTokens);
-          localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
-        } else {
-          if (bio && bio.bonusChatTokens > 0 && onProfileUpdate) {
-            onProfileUpdate({ ...bio, bonusChatTokens: bio.bonusChatTokens - 1 });
-          }
-        }
+        // The server only charges (3 tokens, or a bonus token) after a confirmed successful
+        // reply — errors never cost anything. Resync from the server instead of guessing locally.
+        refreshRemainingTokens();
         if (botResponse.bioUpdate && onProfileUpdate) {
           onProfileUpdate(botResponse.bioUpdate);
           showToast?.("Đã lưu thông tin mới vào hồ sơ!", "success");
@@ -1617,12 +1454,9 @@ export default function ChatTab({
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border ${remainingChatTokens <= 1 ? 'bg-red-500/10 border-red-400/20 text-red-500' : 'bg-amber-500/10 border-amber-400/20 text-amber-600 dark:text-amber-400'}`} title={`Token còn lại: ${remainingChatTokens}/3 hôm nay${bio?.bonusChatTokens > 0 ? ` + ${bio.bonusChatTokens} token thưởng` : ''}`}>
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border ${remainingChatTokens + (bio?.bonusChatTokens || 0) <= 1 ? 'bg-red-500/10 border-red-400/20 text-red-500' : 'bg-amber-500/10 border-amber-400/20 text-amber-600 dark:text-amber-400'}`} title={`Token còn lại: ${remainingChatTokens + (bio?.bonusChatTokens || 0)}/10 hôm nay`}>
             <span className="material-symbols-outlined text-[11px]">toll</span>
-            <span className="text-[10px] font-black">{remainingChatTokens}/3</span>
-            {bio?.bonusChatTokens > 0 && (
-              <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-400">+{bio.bonusChatTokens}</span>
-            )}
+            <span className="text-[10px] font-black">{remainingChatTokens + (bio?.bonusChatTokens || 0)}/10</span>
           </div>
           {healingActive && (
             <button type="button" onClick={() => {
@@ -1709,37 +1543,39 @@ export default function ChatTab({
 
       {/* ── Input section (always at bottom — never scrolls away) ──────────────── */}
       {chatMode === "normal" && (
-        <div className="shrink-0 bg-white/96 dark:bg-[#0e0e12]/96 backdrop-blur-sm border-t border-zinc-100/80 dark:border-zinc-800/50"
-          style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}>
+        <div className="shrink-0 bg-transparent"
+          style={{ paddingBottom: 'max(4px, env(safe-area-inset-bottom))' }}>
 
           {/* Context-sensitive suggestion chips */}
           {isLastMessageCompleted && !loading && (
-            <div className="pt-2 px-3">
+            <div className="pt-2 px-4 pb-1">
 
               {/* Stage 1 — topic chips (horizontal scroll) */}
               {dialogStage === 1 && (
-                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
-                  {(healingActive ? COMPANION_DIALOGUE_TREE : DIALOGUE_TREE).aspects.map(a => (
-                    <button key={a.id} type="button" onClick={() => handleAspectSelect(a)}
-                      className="shrink-0 px-4 py-2.5 rounded-2xl bg-[#0071e3]/8 dark:bg-[#0071e3]/15 border border-[#0071e3]/20 dark:border-[#0071e3]/25 text-[#0071e3] dark:text-blue-300 text-[12px] font-semibold active:scale-95 transition-all whitespace-nowrap hover:bg-[#0071e3]/15">
-                      {a.text}
-                    </button>
-                  ))}
+                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 items-center">
+                  {(healingActive ? COMPANION_DIALOGUE_TREE : DIALOGUE_TREE).aspects.map(a => {
+                    const shortLabel = ASPECT_LABELS[a.id]?.short || a.text;
+                    return (
+                      <button key={a.id} type="button" onClick={() => handleAspectSelect(a)}
+                        className="shrink-0 px-4 py-2 rounded-2xl bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/20 dark:border-blue-500/35 text-blue-600 dark:text-blue-300 text-[12px] font-semibold active:scale-95 transition-all whitespace-nowrap hover:bg-blue-500/20">
+                        {shortLabel}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
-              {/* Stage 2 — sub-option list */}
+              {/* Stage 2 — sub-option list (horizontal scroll to save space) */}
               {dialogStage === 2 && selectedAspect && (
-                <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 items-center">
                   {selectedAspect.options.map(o => (
                     <button key={o.id} type="button" onClick={() => handleSubAspectSelect(o)}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200/60 dark:border-zinc-700/50 text-[12px] font-medium text-zinc-800 dark:text-zinc-200 active:scale-[0.99] hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all text-left">
-                      <span>{o.text}</span>
-                      <span className="material-symbols-outlined text-[14px] text-zinc-400 shrink-0">chevron_right</span>
+                      className="shrink-0 px-4 py-2 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/50 text-[12px] font-semibold text-zinc-700 dark:text-zinc-300 active:scale-95 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all whitespace-nowrap">
+                      {o.text}
                     </button>
                   ))}
                   <button type="button" onClick={() => setDialogStage(1)}
-                    className="w-full text-center py-1.5 text-[11px] text-zinc-400 font-medium hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+                    className="shrink-0 px-3.5 py-2 rounded-2xl text-[11px] text-zinc-500 hover:text-zinc-750 dark:text-zinc-400 dark:hover:text-zinc-200 font-semibold bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-all whitespace-nowrap">
                     ← Chủ đề khác
                   </button>
                 </div>
@@ -1747,15 +1583,15 @@ export default function ChatTab({
 
               {/* Stage 3 — severity chips */}
               {dialogStage === 3 && selectedSubOption && (
-                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 items-center">
                   {selectedSubOption.severityOptions.map(s => (
                     <button key={s.id} type="button" onClick={() => handleSeveritySelect(s)}
-                      className="shrink-0 px-4 py-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-700/30 text-amber-700 dark:text-amber-300 text-[12px] font-medium active:scale-95 transition-all whitespace-nowrap hover:bg-amber-100 dark:hover:bg-amber-900/30">
+                      className="shrink-0 px-4 py-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/25 dark:border-amber-500/35 text-amber-700 dark:text-amber-300 text-[12px] font-semibold active:scale-95 transition-all whitespace-nowrap hover:bg-amber-500/25">
                       {s.text}
                     </button>
                   ))}
                   <button type="button" onClick={() => setDialogStage(2)}
-                    className="shrink-0 px-4 py-2.5 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 text-[12px] font-medium active:scale-95 whitespace-nowrap">
+                    className="shrink-0 px-3.5 py-2 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 text-[12px] font-semibold active:scale-95 whitespace-nowrap">
                     ← Quay lại
                   </button>
                 </div>
@@ -1763,20 +1599,18 @@ export default function ChatTab({
 
               {/* Stage 4 — test or scan */}
               {dialogStage === 4 && (
-                <div className="grid grid-cols-2 gap-2 pb-1">
+                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 items-center">
                   <button type="button"
                     onClick={() => { const s = selectedSubOption?.severityOptions.find(o => o.nextAction === "recommend_test"); if (s) handleStartTest(s.test); }}
-                    className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl bg-[#0071e3] text-white text-[11px] font-bold active:scale-[0.97] shadow-md shadow-[#0071e3]/20 transition-all">
-                    <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings:"'FILL' 1" }}>assignment</span>
+                    className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white text-[12px] font-semibold active:scale-95 transition-all shadow-sm">
                     Làm bài test
                   </button>
                   <button type="button" onClick={() => setChatMode("scan")}
-                    className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 text-[11px] font-bold active:scale-[0.97] transition-all">
-                    <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings:"'FILL' 1" }}>cloud_upload</span>
+                    className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 text-[12px] font-semibold active:scale-95 transition-all">
                     Quét phòng khám
                   </button>
                   <button type="button" onClick={() => { setDialogStage(1); setMessages(prev => [...prev, { id:`bot-reset-${Date.now()}`, sender:"bot", text: healingActive ? "Tớ luôn ở đây. Cậu muốn chia sẻ thêm không?" : "Tớ sẵn sàng. Điều gì khác đang làm cậu băn khoăn?", time: new Date() }]); }}
-                    className="col-span-2 py-2.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-500 text-[11px] font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800/60 active:scale-[0.99] transition-all">
+                    className="shrink-0 px-4 py-2 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-zinc-500 text-[12px] font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800/60 active:scale-95 transition-all whitespace-nowrap">
                     Quay lại từ đầu
                   </button>
                 </div>
@@ -1786,8 +1620,7 @@ export default function ChatTab({
               {dialogStage === 5 && (
                 <div className="pb-1">
                   <button type="button" onClick={() => { setDialogStage(1); setMessages(prev => [...prev, { id:`bot-loop-${Date.now()}`, sender:"bot", text: healingActive ? "Tớ luôn bên cậu. Hôm nay cậu cảm thấy thế nào?" : "Tớ sẵn sàng lắng nghe. Gần đây có gì làm cậu bận tâm không?", time: new Date() }]); }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/50 dark:border-indigo-700/30 text-indigo-700 dark:text-indigo-300 text-[12px] font-bold active:scale-[0.98] transition-all">
-                    <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings:"'FILL' 1" }}>chat</span>
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-500/15 dark:bg-indigo-500/20 border border-indigo-500/20 dark:border-indigo-500/35 text-indigo-600 dark:text-indigo-400 text-[12px] font-semibold active:scale-95 transition-all">
                     Tiếp tục tâm sự
                   </button>
                 </div>
@@ -1797,18 +1630,15 @@ export default function ChatTab({
               {dialogStage === 0 && (
                 <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
                   <button type="button" onClick={() => { setDialogStage(1); setMessages(prev => [...prev, { id:`bot-restart-${Date.now()}`, sender:"bot", text: healingActive ? "Cậu muốn chia sẻ điều gì hôm nay?" : "Dạo gần đây có gì làm cậu bận tâm không?", time: new Date() }]); }}
-                    className="shrink-0 px-3.5 py-2 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/70 dark:border-zinc-700/50 text-zinc-600 dark:text-zinc-400 text-[11px] font-medium active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
-                    <span className="material-symbols-outlined text-[13px]">restart_alt</span>
+                    className="shrink-0 px-3.5 py-2 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/70 dark:border-zinc-700/50 text-zinc-600 dark:text-zinc-400 text-[11px] font-semibold active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
                     Bắt đầu lại
                   </button>
                   <button type="button" onClick={() => setShowTestsMenu(true)}
-                    className="shrink-0 px-3.5 py-2 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-700/30 text-amber-600 dark:text-amber-400 text-[11px] font-medium active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
-                    <span className="material-symbols-outlined text-[13px]">assignment</span>
+                    className="shrink-0 px-3.5 py-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 text-[11px] font-semibold active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
                     Bài test tâm lý
                   </button>
                   <button type="button" onClick={() => setChatMode("scan")}
-                    className="shrink-0 px-3.5 py-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/50 dark:border-emerald-700/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-medium active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
-                    <span className="material-symbols-outlined text-[13px]">cloud_upload</span>
+                    className="shrink-0 px-3.5 py-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
                     Quét hồ sơ
                   </button>
                 </div>
@@ -1816,26 +1646,22 @@ export default function ChatTab({
             </div>
           )}
 
-          {/* ── Text input bar ────────────────────────────────────────────── */}
-          <div className="flex px-3 pt-2 pb-3 items-end gap-2">
+          {/* ── Unified Floating Text Input Console ────────────────────────────────────────────── */}
+          <div className="mx-4 mb-2.5 p-1.5 rounded-3xl bg-white/90 dark:bg-[#1a1924]/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-lg flex items-center gap-1.5 transition-all focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/40">
 
-            {/* Voice to text */}
+            {/* Voice to text (compact) */}
             <button type="button" onClick={startListening}
               title="Nhận diện giọng nói"
-              className={`w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center transition-all active:scale-90 ${
+              className={`w-9 h-9 shrink-0 rounded-2xl flex items-center justify-center transition-all active:scale-90 ${
                 isListening
-                  ? 'bg-rose-500/15 border-2 border-rose-500 text-rose-500 animate-pulse'
-                  : 'bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/70 dark:border-zinc-700/60 text-zinc-600 dark:text-zinc-400'
+                  ? 'bg-rose-500/15 border border-rose-500/30 text-rose-500 animate-pulse'
+                  : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
               }`}>
-              <Mic className="w-[18px] h-[18px]" />
+              <Mic className="w-[16px] h-[16px]" />
             </button>
 
-            {/* Auto-grow textarea */}
-            <div className={`flex-1 rounded-2xl border flex items-end px-4 py-2.5 min-h-[44px] max-h-28 transition-colors ${
-              (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0
-                ? 'bg-zinc-100/80 dark:bg-zinc-800/40 border-zinc-200/50 dark:border-zinc-700/30 opacity-60'
-                : 'bg-zinc-100 dark:bg-zinc-800/80 border-zinc-200/70 dark:border-zinc-700/60 focus-within:border-[#0071e3]/50 dark:focus-within:border-[#0071e3]/40 focus-within:bg-white dark:focus-within:bg-zinc-800'
-            }`}>
+            {/* Auto-grow text input area */}
+            <div className="flex-1 min-h-[36px] flex items-center">
               <textarea
                 ref={inputRef}
                 value={inputText}
@@ -1850,53 +1676,31 @@ export default function ChatTab({
                 placeholder={(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 ? "Hết token hôm nay..." : "Nhắn tin cho Chuyên viên AI..."}
                 disabled={(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 || loading}
                 rows={1}
-                className="w-full bg-transparent text-[13px] text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none resize-none leading-snug"
+                className="w-full bg-transparent text-[13px] text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none resize-none leading-snug py-1.5"
                 style={{ height: '22px' }}
               />
             </div>
 
-            {/* Send (typed) OR Call (empty) */}
-            {inputText.trim() ? (
-              <button type="button" onClick={handleSendFreeText}
-                disabled={loading || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0}
-                className="w-11 h-11 shrink-0 rounded-2xl bg-[#0071e3] flex items-center justify-center text-white shadow-md shadow-[#0071e3]/25 active:scale-90 transition-all disabled:opacity-40">
-                <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings:"'FILL' 1" }}>send</span>
-              </button>
-
-            ) : (
-              <button type="button" onClick={() => setIsCallModalOpen(true)}
-                title={hasUnlimitedCalls ? "Gọi tư vấn AI (Không giới hạn)" : "Gọi tư vấn AI"}
-                className="relative w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/25 active:scale-90 transition-all">
-                <PhoneCall className="w-[18px] h-[18px]" />
-                {hasUnlimitedCalls && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-[8px] font-black text-zinc-900 flex items-center justify-center">∞</span>
-                )}
-              </button>
-            )}
+            {/* Send button (always visible, disabled if empty/loading/no tokens) */}
+            <button type="button" onClick={handleSendFreeText}
+              disabled={loading || !inputText.trim() || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0}
+              className={`w-9 h-9 shrink-0 rounded-2xl flex items-center justify-center transition-all ${
+                inputText.trim() && !loading && (remainingChatTokens + (bio?.bonusChatTokens || 0)) > 0
+                  ? "bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/25 active:scale-90"
+                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed"
+              }`}>
+              <span className="material-symbols-outlined text-[16px] font-bold">send</span>
+            </button>
           </div>
 
           {/* Mobile hint — shown only on mobile when no chips visible */}
           {!isLastMessageCompleted && !loading && (
-            <div className="md:hidden px-4 pb-3 pt-1 text-center">
-              <p className="text-[10px] text-zinc-400 dark:text-zinc-600">Chọn câu trả lời có sẵn bên trên</p>
+            <div className="md:hidden px-4 pb-2.5 pt-0.5 text-center">
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-600 font-medium">Chọn câu trả lời có sẵn bên trên</p>
             </div>
           )}
         </div>
       )}
-
-      {/* ── AI Call Modal ──────────────────────────────────────────────────────── */}
-      <AICallModal
-        isOpen={isCallModalOpen}
-        onClose={() => setIsCallModalOpen(false)}
-        botManager={botManager}
-        remainingCallTokens={hasUnlimitedCalls ? Infinity : remainingCallTokens}
-        setRemainingCallTokens={(n) => {
-          if (hasUnlimitedCalls) return;
-          const today = new Date().toISOString().split("T")[0];
-          setRemainingCallTokens(n);
-          localStorage.setItem(`consultant_tokens_${today}`, n);
-        }}
-      />
     </div>
   );
 }

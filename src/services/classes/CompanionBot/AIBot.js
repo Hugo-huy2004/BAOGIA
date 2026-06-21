@@ -157,7 +157,7 @@ export default class AIBot extends BaseBot {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let done = false, fullReply = "", buffer = "";
+      let done = false, fullReply = "", buffer = "", serverError = false;
 
       while (!done) {
         const { value, done: rd } = await reader.read();
@@ -172,10 +172,14 @@ export default class AIBot extends BaseBot {
             try {
               const p = JSON.parse(line.substring(6));
               if (p.text) { fullReply += p.text; onChunk?.(fullReply); }
-              else if (p.error) { fullReply += p.error; onChunk?.(fullReply); }
+              else if (p.error) { serverError = true; }
             } catch (_) {}
           }
         }
+      }
+      if (serverError && !fullReply.trim()) {
+        fullReply = "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha.";
+        onChunk?.(fullReply);
       }
       if (buffer.trim().startsWith("data: ")) {
         try {
@@ -214,13 +218,25 @@ export default class AIBot extends BaseBot {
       const res = await fetchWithRetry(`${API_URL}/api/ai/intent/classify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message, userId: this.bio?.email || "unknown" })
       });
       if (res?.ok) {
         return await res.json();
       }
     } catch (_) {}
     return { intent: "fallback" };
+  }
+
+  async getRemainingTokens() {
+    try {
+      const res = await fetchWithRetry(`${API_URL}/api/ai/chat/remaining?userId=${encodeURIComponent(this.bio?.email || "unknown")}`, {
+        method: "GET"
+      });
+      if (res?.ok) {
+        return await res.json();
+      }
+    } catch (_) {}
+    return null;
   }
 
   async analyzeTest(testName, scores, validity = null, clinical = null, lang = "vi") {

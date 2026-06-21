@@ -224,8 +224,8 @@ export default function ChatMessages({
                   <div
                     className={`relative px-4 py-2.5 text-[13px] leading-[1.55] ${
                       isBot
-                        ? "bg-white dark:bg-zinc-800/90 text-zinc-800 dark:text-zinc-100 rounded-2xl rounded-tl-sm shadow-sm border border-zinc-100/80 dark:border-zinc-700/50"
-                        : "bg-[#0071e3] text-white rounded-2xl rounded-tr-sm shadow-sm shadow-blue-500/15"
+                        ? "bg-zinc-50 dark:bg-[#1c1b26] text-zinc-800 dark:text-zinc-100 rounded-2xl rounded-tl-sm shadow-sm border border-zinc-200/60 dark:border-[#272635]"
+                        : "bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-[#0071e3] dark:to-[#3843d0] text-white rounded-2xl rounded-tr-sm shadow-md shadow-blue-500/20 border border-blue-400/20 dark:border-blue-500/10"
                     }`}
                   >
                     {isBot && !completedMessageIds.has(msg.id) && msg.id !== "init" ? (
@@ -375,7 +375,7 @@ export default function ChatMessages({
               <div className="w-7 h-7 rounded-2xl overflow-hidden border border-zinc-200/60 dark:border-zinc-700/40 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/40 dark:to-blue-900/40 shrink-0">
                 <img src="/image/avt7.png" alt="" className="w-full h-full object-cover" />
               </div>
-              <div className="px-4 py-3 bg-white dark:bg-zinc-800/90 rounded-2xl rounded-tl-sm border border-zinc-100/80 dark:border-zinc-700/50 shadow-sm flex items-center gap-1.5">
+              <div className="px-4 py-2.5 bg-zinc-50 dark:bg-[#1c1b26] rounded-2xl rounded-tl-sm border border-zinc-200/60 dark:border-[#272635] shadow-sm flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" style={{ animationDelay: "0ms" }} />
                 <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" style={{ animationDelay: "150ms" }} />
                 <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" style={{ animationDelay: "300ms" }} />

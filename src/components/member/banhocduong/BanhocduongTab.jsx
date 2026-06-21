@@ -7,6 +7,7 @@ import TherapyTab from "./TherapyTab";
 import EvaluationTab from "./EvaluationTab";
 import SleepTracker from "./SleepTracker";
 import dataApi from "../../../services/dataApi";
+import AIBot from "../../../services/classes/CompanionBot/AIBot";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useTranslation } from "react-i18next";
 import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTimer";
@@ -105,48 +106,50 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
   };
 
   return (
-    <div className="bg-gradient-to-r from-emerald-500/8 via-teal-500/5 to-transparent dark:from-emerald-900/20 dark:via-zinc-900/30 rounded-2xl border border-emerald-500/15 dark:border-emerald-800/20 p-4 space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+    <div className="bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent dark:from-emerald-950/20 dark:via-zinc-900/10 rounded-2xl border border-emerald-555/20 dark:border-emerald-800/30 px-4 py-2.5 flex items-center justify-between gap-4 shadow-sm shadow-emerald-500/5 backdrop-blur-md">
+      <div className="flex-1 flex items-center gap-3 min-w-0">
+        <div className="relative shrink-0 flex items-center justify-center">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-505 bg-emerald-500 animate-pulse" />
+        </div>
+        <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center md:gap-4">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">{t("companion.tab.activeRoadmap", "Lộ trình đang hoạt động")}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Lộ trình</p>
               {shortenedDays > 0 && (
-                <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
-                  {t("companion.tab.reducedDays", { count: shortenedDays }, `-${shortenedDays} ngày`)}
+                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+                  -{shortenedDays} ngày
                 </span>
               )}
             </div>
-            <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
-              {t("companion.tab.roadmapProgress", { current: currentDay, total: effectiveDur, date: startStr }, `Ngày ${currentDay}/${effectiveDur} · Bắt đầu ${startStr}`)}
+            <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 leading-tight">
+              Ngày {currentDay}/{effectiveDur} · Bắt đầu {startStr}
             </p>
           </div>
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {webPushHelper.isSupported() && notifStatus !== 'granted' && (
-            <button type="button" onClick={handleEnablePush} title={t("companion.tab.enablePush", "Bật nhắc nhở")}
-              className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 active:scale-90 transition-transform">
-              <span className="material-symbols-outlined text-[15px]">notifications</span>
-            </button>
-          )}
-          <button type="button" onClick={onCancel} title={t("companion.tab.cancelRoadmap", "Dừng lộ trình")}
-            className="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 active:scale-90 transition-transform">
-            <span className="material-symbols-outlined text-[15px]">stop_circle</span>
-          </button>
+          {/* Thin progress bar side-by-side */}
+          <div className="flex-grow flex items-center gap-2 mt-1 md:mt-0 min-w-[120px] max-w-xs">
+            <div className="flex-1 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }} animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 1.2, ease: 'easeOut' }}
+                className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
+              />
+            </div>
+            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 shrink-0">{progressPercent}%</span>
+          </div>
         </div>
       </div>
-      <div className="space-y-1">
-        <div className="flex justify-between text-[9px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-          <span>{t("companion.tab.progress", "Tiến trình")}</span><span className="text-emerald-600 dark:text-emerald-400">{progressPercent}%</span>
-        </div>
-        <div className="h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }} animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 1.2, ease: 'easeOut' }}
-            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
-          />
-        </div>
+      
+      <div className="flex items-center gap-1.5 shrink-0">
+        {webPushHelper.isSupported() && notifStatus !== 'granted' && (
+          <button type="button" onClick={handleEnablePush} title={t("companion.tab.enablePush", "Bật nhắc nhở")}
+            className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 active:scale-90 transition-transform">
+            <span className="material-symbols-outlined text-[14px]">notifications</span>
+          </button>
+        )}
+        <button type="button" onClick={onCancel} title={t("companion.tab.cancelRoadmap", "Dừng lộ trình")}
+          className="w-7 h-7 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 hover:bg-red-500/25 active:scale-90 transition-transform">
+          <span className="material-symbols-outlined text-[14px]">stop_circle</span>
+        </button>
       </div>
     </div>
   );
@@ -155,11 +158,21 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
 // ── Settings Panel (bottom sheet mobile / modal desktop) ───────────────────────
 function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
   const { t } = useTranslation();
-  const today    = new Date().toISOString().split("T")[0];
-  const CHAT_MAX = 3, CALL_MAX = 5;
-  const chatLeft = Math.max(0, parseInt(localStorage.getItem(`ai_chat_tokens_${today}`) ?? CHAT_MAX, 10));
-  const callLeft = Math.max(0, parseInt(localStorage.getItem(`consultant_tokens_${today}`) ?? CALL_MAX, 10));
+  const [chatLeft, setChatLeft] = useState(10);
+  const [chatMax, setChatMax] = useState(10);
   const [notifStatus, setNotifStatus] = useState(() => typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
+
+  // Server (rate_limit_service) is the source of truth for the daily chat budget.
+  useEffect(() => {
+    (async () => {
+      const bot = new AIBot(bio);
+      const data = await bot.getRemainingTokens();
+      if (data) {
+        if (typeof data.remaining === "number") setChatLeft(data.remaining);
+        if (typeof data.max === "number") setChatMax(data.max);
+      }
+    })();
+  }, [bio]);
 
   const handlePush = async () => {
     if (!webPushHelper.isSupported()) return;
@@ -264,33 +277,24 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
           <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl p-4 space-y-3">
             <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">{t("companion.tab.aiLimitToday", "Giới hạn AI hôm nay")}</p>
             {[
-              { label: t('companion.tab.limitChat', 'Cuộc trò chuyện'), left: chatLeft, max: CHAT_MAX, color: 'bg-[#0071e3]', low: chatLeft < 4 },
-              { label: t('companion.tab.limitCall', 'Cuộc gọi tư vấn'), left: callLeft, max: CALL_MAX,  color: 'bg-rose-500',   low: callLeft < 3 },
+              { label: t('companion.tab.limitChat', 'Cuộc trò chuyện'), left: chatLeft, max: chatMax, color: 'bg-[#0071e3]', low: chatLeft < 4 },
             ].map(item => (
               <div key={item.label} className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-bold">
                   <span className="text-zinc-600 dark:text-zinc-400">{item.label}</span>
-                  <span className={item.low ? 'text-amber-500 font-black' : 'text-zinc-500'}>{item.left}/{item.max}</span>
+                  <span className={item.low ? 'text-amber-500 font-black' : 'text-zinc-500'}>{item.left + (bio?.bonusChatTokens || 0)}/{item.max}</span>
                 </div>
                 <div className="h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                  <div className={`h-full ${item.color} rounded-full transition-all`} style={{ width: `${(item.left/item.max)*100}%` }} />
+                  <div className={`h-full ${item.color} rounded-full transition-all`} style={{ width: `${Math.min(100, ((item.left + (bio?.bonusChatTokens || 0)) / item.max) * 100)}%` }} />
                 </div>
               </div>
             ))}
-            {(bio?.bonusChatTokens > 0 || bio?.bonusCallTokens > 0) && (
+            {bio?.bonusChatTokens > 0 && (
               <div className="flex items-center gap-3 pt-1 border-t border-zinc-200/60 dark:border-zinc-700/40">
-                {bio.bonusChatTokens > 0 && (
-                  <span className="flex items-center gap-1 text-[10px] font-black text-indigo-600 dark:text-indigo-400">
-                    <span className="material-symbols-outlined text-[13px]">add_circle</span>
-                    {bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens", "lượt chat")} {t("companion.tab.bonusLabel", "thưởng")}
-                  </span>
-                )}
-                {bio.bonusCallTokens > 0 && (
-                  <span className="flex items-center gap-1 text-[10px] font-black text-indigo-600 dark:text-indigo-400">
-                    <span className="material-symbols-outlined text-[13px]">add_circle</span>
-                    {bio.bonusCallTokens} {t("memberPortal.joy.store.callTokens", "lượt gọi")} {t("companion.tab.bonusLabel", "thưởng")}
-                  </span>
-                )}
+                <span className="flex items-center gap-1 text-[10px] font-black text-indigo-600 dark:text-indigo-400">
+                  <span className="material-symbols-outlined text-[13px]">add_circle</span>
+                  {bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens", "lượt chat")} {t("companion.tab.bonusLabel", "thưởng")}
+                </span>
               </div>
             )}
             <p className="text-[9px] text-zinc-400 font-semibold">{t("companion.tab.tokenRefreshNote", "Token tự động làm mới lúc 00:00 mỗi ngày")}</p>
@@ -494,7 +498,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
   const activeTab = SUB_TABS.find(t => t.id === activeSubTab);
 
   return (
-    <div className="flex flex-col min-h-[calc(100svh-160px)] md:min-h-0 space-y-4 animate-fadeIn">
+    <div className="flex flex-col min-h-[calc(100svh-160px)] md:min-h-0 space-y-3 md:space-y-2.5 animate-fadeIn">
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <div className="relative z-20 flex items-center justify-between gap-3">
@@ -562,24 +566,30 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       <div className="flex gap-4 flex-1 min-h-0">
 
         {/* Desktop sidebar (md+) */}
-        <aside className="hidden md:flex flex-col gap-1.5 w-[52px] lg:w-[180px] shrink-0">
+        <aside className="hidden md:flex flex-col gap-2 w-[56px] lg:w-[190px] shrink-0">
           {SUB_TABS.map(tab => {
             const active = activeSubTab === tab.id;
             return (
               <motion.button
                 key={tab.id}
                 type="button"
-                whileTap={{ scale: 0.97 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => handleSubTabChange(tab.id)}
-                className={`flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-200 relative ${
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 relative font-bold border text-[11px] ${
                   active
-                    ? `bg-white dark:bg-zinc-900 shadow-md ${tab.light}`
-                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-white/70 dark:hover:bg-zinc-900/50'
+                    ? 'bg-gradient-to-r from-blue-500/15 to-indigo-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25 dark:border-blue-500/30 shadow-sm shadow-blue-500/5 backdrop-blur-md'
+                    : 'bg-white/40 dark:bg-[#12111a]/20 border-zinc-200/40 dark:border-zinc-800/30 text-zinc-500 dark:text-zinc-400 hover:bg-white/80 dark:hover:bg-[#1a1924]/40 hover:text-zinc-700 dark:hover:text-zinc-200'
                 }`}
               >
-                {active && <span className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 ${tab.dot} rounded-r-full`} />}
+                {active && (
+                  <motion.span
+                    layoutId="activeTabIndicator"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-r-full"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
                 <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
-                <span className="text-[11px] font-extrabold uppercase tracking-wide hidden lg:block">{t(`companion.tab.${tab.id}`, tab.label)}</span>
+                <span className="font-extrabold uppercase tracking-wide hidden lg:block text-left">{t(`companion.tab.${tab.id}`, tab.label)}</span>
               </motion.button>
             );
           })}

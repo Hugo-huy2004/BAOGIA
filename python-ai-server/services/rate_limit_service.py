@@ -29,9 +29,11 @@ class RateLimitService:
             self.mongo_client = None
             self.db = None
 
-    async def check_and_increment(self, user_id: str, action: str, max_tokens: int) -> tuple:
+    async def check_and_increment(self, user_id: str, action: str, max_tokens: int, weight: int = 1) -> tuple:
         """Returns (is_allowed, current_count).
-        Increments the counter first, then checks the limit so the token is always consumed.
+        Increments the counter by `weight` first, then checks the limit so the token is always consumed.
+        Callers that need peek-before-commit semantics (don't charge on failure) should call
+        `get_remaining` first and only call this method after confirming success.
         """
         today = datetime.now().strftime("%Y-%m-%d")
         key = f"{action}_{user_id}_{today}"
@@ -43,7 +45,7 @@ class RateLimitService:
                 result = self.db.ai_rate_limits.find_one_and_update(
                     {"_id": key},
                     {
-                        "$inc": {"count": 1},
+                        "$inc": {"count": weight},
                         "$setOnInsert": {
                             "expires_at": datetime.combine(
                                 datetime.now().date() + timedelta(days=1),
@@ -61,7 +63,7 @@ class RateLimitService:
                 # Fall through to in-memory
 
         # In-memory fallback
-        _memory_store[key] += 1
+        _memory_store[key] += weight
         count = _memory_store[key]
         return count <= max_tokens, count
 

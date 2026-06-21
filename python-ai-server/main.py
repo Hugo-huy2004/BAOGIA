@@ -64,6 +64,7 @@ class ChatRequest(BaseModel):
 
 class IntentClassifyRequest(BaseModel):
     message: str
+    userId: Optional[str] = "unknown"
 
 
 class TestAnalysisRequest(BaseModel):
@@ -157,10 +158,12 @@ def health_check():
     }
 
 
+MAX_CHAT_TOKENS = 10  # Daily chat budget. Free social/crisis intents = 0, intent-answered questions = -1, full LLM = -3.
+
+
 @app.get("/api/ai/chat/remaining")
 async def chat_remaining(userId: str = "unknown", req: Request = None):
     """Return remaining chat tokens for the calling user today."""
-    MAX_CHAT_TOKENS = 3
     client_identifier = _client_id(userId, req)
     remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
     return {"remaining": remaining, "max": MAX_CHAT_TOKENS}
@@ -182,9 +185,21 @@ async def proactive_push(request: ProactivePushRequest):
 
 
 @app.post("/api/ai/intent/classify")
-async def classify_intent(request: IntentClassifyRequest):
+async def classify_intent(request: IntentClassifyRequest, req: Request):
     try:
+        client_identifier = _client_id(request.userId, req)
+        remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
+        if remaining <= 0:
+            # Out of free tokens — skip the classification call entirely (saves an AI call);
+            # the LLM tier will correctly explain "hết token" if the message escalates there.
+            return {"intent": "fallback"}
+
         result = await ai_service.classify_intent(request.message)
+        intent_id = result.get("intent") if isinstance(result, dict) else None
+        if intent_id and intent_id != "fallback":
+            weight = 0 if intent_id in ai_service.FREE_INTENT_IDS else 1
+            if weight > 0:
+                await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=weight)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -192,12 +207,12 @@ async def classify_intent(request: IntentClassifyRequest):
 
 @app.post("/api/ai/chat")
 async def chat(request: ChatRequest, req: Request):
-    MAX_CHAT_TOKENS = 3
+    LLM_WEIGHT = 3
 
     try:
         client_identifier = _client_id(request.userId, req)
-        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS)
-        if not is_allowed:
+        remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
+        if remaining < LLM_WEIGHT:
             email = (request.bio or {}).get("email")
             if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
                 return {"reply": f"Bạn đã sử dụng hết {MAX_CHAT_TOKENS} token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!"}
@@ -207,6 +222,8 @@ async def chat(request: ChatRequest, req: Request):
             history=request.history,
             bio=request.bio
         )
+        # Only charge after a confirmed successful reply — errors never cost a token.
+        await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=LLM_WEIGHT)
         return {"reply": reply}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -214,11 +231,11 @@ async def chat(request: ChatRequest, req: Request):
 
 @app.post("/api/ai/chat/stream")
 async def chat_stream(request: ChatRequest, req: Request):
-    MAX_CHAT_TOKENS = 3
+    LLM_WEIGHT = 3
     try:
         client_identifier = _client_id(request.userId, req)
-        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS)
-        if not is_allowed:
+        remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
+        if remaining < LLM_WEIGHT:
             email = (request.bio or {}).get("email")
             if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
                 async def error_stream():
@@ -226,12 +243,28 @@ async def chat_stream(request: ChatRequest, req: Request):
                     await asyncio.sleep(0.1)
                 return StreamingResponse(error_stream(), media_type="text/event-stream")
 
-        generator = ai_service.generate_chat_response_stream(
+        inner_generator = ai_service.generate_chat_response_stream(
             message=request.message,
             history=request.history,
             bio=request.bio
         )
-        return StreamingResponse(generator, media_type="text/event-stream")
+
+        async def charged_stream():
+            had_error = False
+            async for chunk in inner_generator:
+                if chunk.strip().startswith("data: "):
+                    try:
+                        payload = json.loads(chunk.strip()[6:])
+                        if isinstance(payload, dict) and "error" in payload:
+                            had_error = True
+                    except Exception:
+                        pass
+                yield chunk
+            # Only charge after a confirmed successful, error-free stream — errors never cost a token.
+            if not had_error:
+                await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=LLM_WEIGHT)
+
+        return StreamingResponse(charged_stream(), media_type="text/event-stream")
     except Exception as e:
         print("Lỗi tại /api/ai/chat/stream:", str(e))
         raise HTTPException(status_code=500, detail=str(e))

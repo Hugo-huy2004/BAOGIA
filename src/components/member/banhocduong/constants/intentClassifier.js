@@ -84,6 +84,7 @@ export function getSimilarityScore(s1, s2) {
 export const INTENT_DATABASE = [
   {
     id: "greeting",
+    tier: "free",
     patterns: [
       "chào cậu",
       "chào bạn",
@@ -128,6 +129,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "goodbye",
+    tier: "free",
     patterns: [
       "tạm biệt",
       "bye",
@@ -145,6 +147,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "identity",
+    tier: "paid",
     patterns: [
       "cậu là ai",
       "bạn là ai",
@@ -163,6 +166,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "features",
+    tier: "paid",
     patterns: [
       "cậu có thể làm gì",
       "tính năng của ứng dụng",
@@ -180,6 +184,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "academic_stress",
+    tier: "paid",
     patterns: [
       "áp lực học tập",
       "học hành mệt mỏi",
@@ -198,6 +203,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "sleep",
+    tier: "paid",
     patterns: [
       "tớ bị mất ngủ",
       "khó ngủ quá",
@@ -215,6 +221,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "anxiety",
+    tier: "paid",
     patterns: [
       "tớ thấy lo lắng",
       "bị lo âu quá",
@@ -239,6 +246,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "sadness",
+    tier: "paid",
     patterns: [
       "tớ buồn quá",
       "chán nản mọi thứ",
@@ -263,6 +271,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "crisis",
+    tier: "free",
     patterns: [
       "tớ muốn tự tử",
       "muốn chết",
@@ -279,6 +288,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "clinical_tests",
+    tier: "paid",
     patterns: [
       "test trầm cảm",
       "test lo âu",
@@ -299,6 +309,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "gratitude",
+    tier: "free",
     patterns: [
       "cảm ơn cậu",
       "thank you",
@@ -316,6 +327,7 @@ export const INTENT_DATABASE = [
   },
   {
     id: "positive",
+    tier: "free",
     patterns: [
       "tớ thấy vui",
       "hôm nay rất vui",
@@ -330,6 +342,119 @@ export const INTENT_DATABASE = [
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return `Thật tuyệt vời khi thấy ${name} có một ngày tích cực như vậy! Hãy lưu giữ cảm giác dễ chịu này nhé. Hôm nay có điều gì cụ thể đã đem lại niềm vui cho cậu thế?`;
+    }
+  },
+  {
+    id: "test_inventory",
+    tier: "paid",
+    patterns: [
+      "bạn có bao nhiêu bài test",
+      "có những bài test gì",
+      "danh sách bài test",
+      "ứng dụng có mấy bài trắc nghiệm",
+      "các bài kiểm tra tâm lý",
+      "test tâm lý gồm những gì",
+      "có bao nhiêu bài trắc nghiệm"
+    ],
+    generateResponse: () => {
+      return `Hệ thống hiện có 4 bài đánh giá tâm lý chuẩn lâm sàng: **DASS-21/DASS-42** (tổng quan Trầm cảm - Lo âu - Căng thẳng), **MMPI** (chuyên sâu các rối loạn tâm lý lâm sàng), **PHQ-9** (chuyên sâu mức độ Trầm cảm) và **GAD-7** (chuyên sâu mức độ Lo âu). Cậu hãy chia sẻ tình trạng hiện tại của mình với tớ, tớ sẽ gợi ý bài phù hợp nhất, hoặc cậu có thể vào tab 'Đánh Giá' để chọn làm trực tiếp nhé!`;
+    }
+  },
+  {
+    id: "therapy_catalog",
+    tier: "paid",
+    patterns: [
+      "có liệu pháp gì",
+      "trị liệu gồm những gì",
+      "các liệu pháp tự chữa lành",
+      "hướng dẫn dùng liệu pháp",
+      "tớ nên dùng liệu pháp nào"
+    ],
+    generateResponse: () => {
+      return `Tớ có 4 liệu pháp tự chữa lành chính: **Điều hòa nhịp thở 4-7-8** (làm dịu hệ thần kinh ngay lập tức, hợp với lo âu/mất ngủ), **Ngồi Tĩnh Tâm** (thiền chánh niệm, hợp với căng thẳng/suy nghĩ dồn dập), **Trị liệu Trầm cảm (CBT)** (tái cấu trúc suy nghĩ tiêu cực) và **Đọc sách Trị liệu** (chiêm nghiệm, phù hợp khi muốn phát triển bản thân). Ngoài ra còn vài liệu pháp AI cá nhân hoá cao cấp có thể mở khoá bằng JOY. Cậu vào tab 'Trị Liệu' để khám phá chi tiết nhé!`;
+    }
+  },
+  {
+    id: "pricing_package",
+    tier: "paid",
+    patterns: [
+      "gói cước giá bao nhiêu",
+      "làm sao mua gói",
+      "cách hủy gói",
+      "cách đổi gói",
+      "gói nào phù hợp với tớ",
+      "phí dịch vụ là bao nhiêu",
+      "có mất phí không"
+    ],
+    generateResponse: () => {
+      return `Thông tin chi tiết về giá và các gói đồng hành hiện có, cậu xem trực tiếp ở tab 'Quản lý' trong Cổng thành viên nhé — ở đó có đầy đủ mô tả từng gói và nút kích hoạt/đổi gói. Nếu cậu mô tả tình trạng của mình, tớ có thể gợi ý gói phù hợp; còn việc thanh toán/hủy gói thì tab 'Quản lý' sẽ xử lý chính xác và cập nhật nhất.`;
+    }
+  },
+  {
+    id: "joy_currency",
+    tier: "paid",
+    patterns: [
+      "joy là gì",
+      "làm sao có joy",
+      "joy dùng để làm gì",
+      "kiếm joy thế nào",
+      "joy là tiền gì"
+    ],
+    generateResponse: () => {
+      return `JOY là đồng tiền nội bộ của hệ thống. Cậu kiếm JOY bằng cách giới thiệu bạn bè (referral) hoặc đổi từ quà tặng/gift card. JOY dùng để mở khoá các liệu pháp AI cá nhân hoá cao cấp hoặc mua vật phẩm trong Cửa hàng tiện ích (ví dụ thêm token chat). Cậu xem chi tiết số dư và lịch sử ở tab 'JOY' trong Cổng thành viên nhé!`;
+    }
+  },
+  {
+    id: "token_limit",
+    tier: "paid",
+    patterns: [
+      "mỗi ngày chat được mấy lần",
+      "hết token thì sao",
+      "token chat là gì",
+      "tại sao bị trừ token",
+      "khi nào token được làm mới"
+    ],
+    generateResponse: () => {
+      return `Mỗi ngày cậu có 10 token để trò chuyện cùng tớ. Những lời chào hỏi, cảm ơn hay tâm sự thuần cảm xúc thì hoàn toàn miễn phí. Khi cậu hỏi một câu hỏi cụ thể, nếu tớ trả lời được ngay bằng kiến thức có sẵn thì chỉ tốn 1 token, còn nếu cần tớ suy nghĩ sâu và trò chuyện đầy đủ thì tốn 3 token. Token sẽ làm mới vào ngày mới, hoặc cậu có thể dùng JOY mua thêm ở Cửa hàng tiện ích nếu cần dùng ngay.`;
+    }
+  },
+  {
+    id: "about_creator",
+    tier: "paid",
+    patterns: [
+      "ai tạo ra app này",
+      "hugo studio là gì",
+      "đội ngũ phát triển là ai",
+      "app này của ai"
+    ],
+    generateResponse: () => {
+      return `Tớ được Hugo Studio xây dựng và huấn luyện, với mục tiêu trở thành người bạn đồng hành sức khỏe tâm lý học đường cho học sinh, sinh viên Việt Nam. Tớ luôn được cải tiến để lắng nghe và hỗ trợ cậu tốt hơn mỗi ngày!`;
+    }
+  },
+  {
+    id: "data_privacy",
+    tier: "paid",
+    patterns: [
+      "dữ liệu của tớ có an toàn không",
+      "ai xem được tin nhắn của tớ",
+      "thông tin có bị lộ không",
+      "có ai đọc được tâm sự của tớ không"
+    ],
+    generateResponse: () => {
+      return `Mọi tâm sự và dữ liệu hồ sơ của cậu được lưu trữ bảo mật trên hệ thống và chỉ được dùng để tớ cá nhân hoá hỗ trợ cậu tốt hơn — không chia sẻ cho bên thứ ba. Cậu có thể hoàn toàn yên tâm chia sẻ thật lòng với tớ nhé.`;
+    }
+  },
+  {
+    id: "support_contact",
+    tier: "paid",
+    patterns: [
+      "liên hệ hỗ trợ thế nào",
+      "báo lỗi ở đâu",
+      "gặp vấn đề kỹ thuật thì sao",
+      "tớ muốn gặp nhân viên hỗ trợ"
+    ],
+    generateResponse: () => {
+      return `Nếu cậu gặp vấn đề kỹ thuật hoặc cần hỗ trợ trực tiếp từ con người, cậu hãy dùng khung chat hỗ trợ (biểu tượng trợ lý) ở trang chủ hoặc mục liên hệ trong tài khoản — đội ngũ Hugo Studio sẽ phản hồi sớm cho cậu. Còn nếu là chuyện tâm lý, tớ luôn ở đây lắng nghe cậu trước nhé!`;
     }
   }
 ];
@@ -361,6 +486,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
       return {
         reply: crisisIntent.generateResponse(bio, historyLogs),
         id: "crisis",
+        tier: "free",
         companionUpdate: {
           newLog: { date: new Date().toISOString(), type: "checkin", mood: 1, note: "Crisis matched locally" }
         }
@@ -387,6 +513,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     return {
       reply: replyText,
       id: bestMatch.id,
+      tier: bestMatch.tier || "paid",
       suggestPhq9: bestMatch.suggestPhq9 || false,
       suggestGad7: bestMatch.suggestGad7 || false,
       companionUpdate

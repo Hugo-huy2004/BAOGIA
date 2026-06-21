@@ -650,6 +650,23 @@ export const dataApi = {
       console.error('DELETE request failed:', error);
       throw error;
     }
+  },
+
+  async patch(url, body = {}, options = {}) {
+    try {
+      const targetUrl = url.startsWith('http') ? url : `${API_BASE_URL.replace(/\/api$/, '')}${url}`;
+      const response = await safeFetch(targetUrl, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(body),
+        ...options
+      });
+      const data = await response.json();
+      return { data };
+    } catch (error) {
+      console.error('PATCH request failed:', error);
+      throw error;
+    }
   }
 };
 
