@@ -78,31 +78,30 @@ function AppContent() {
           <Route path="/preview" element={<LivePreviewPage />} />
           <Route path="/customer-portal" element={<CustomerPortalPage />} />
           <Route path="/pay/:id" element={<PaymentGatewayPage />} />
-          <Route path="/member/ide" element={
-            (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
-              ? <MemberIdeTab onBack={() => window.close()} />
-              : <Navigate to="/login" replace />
-          } />
-          <Route path="/chess" element={<ChessPage />} />
-          <Route path="/chess/:roomId" element={<ChessPage />} />
+          <Route path="/member/ide" element={<Navigate to="/member/utilities/ide" replace />} />
+          <Route path="/chess" element={<Navigate to="/member/utilities/chess" replace />} />
+          <Route path="/chess/:roomId" element={<Navigate to={`/member/utilities/chess/${window.location.pathname.split("/").pop()}`} replace />} />
         </Routes>
       </Suspense>
     );
   }
 
   const isEmbed = new URLSearchParams(location.search).get("embed") === "true" || window.self !== window.top;
+  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/chess");
+  const hideNavbar = isEmbed || isFullscreenUtility;
+  const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false;
 
   return (
     <div className="min-h-screen bg-surface dark:bg-[#0b0a0f] text-slate-800 dark:text-slate-100 transition-colors duration-300 flex flex-col justify-between">
       
       {/* Static Top-Navigation Header bar */}
-      {!isEmbed && <Navbar />}
+      {!hideNavbar && <Navbar />}
       
       {/* Vacation Mode Notification Banner */}
-      {!isEmbed && <VacationNotificationBanner isVacationMode={isVacationMode} />}
+      {!hideNavbar && <VacationNotificationBanner isVacationMode={isVacationMode} />}
 
       {/* Global Advertisement Banner */}
-      {!isEmbed && <GlobalAdBanner />}
+      {!hideNavbar && <GlobalAdBanner />}
       
       {/* Dynamic Content Router */}
       <main className="flex-grow">
@@ -156,7 +155,7 @@ function AppContent() {
       {!isEmbed && showFooter && <Footer />}
 
       {/* Floating AI chatbot support assistant */}
-      {!isEmbed && data?.systemSettings?.enableHBot !== false && <HBot />}
+      {!hideHBot && <HBot />}
     </div>
   );
 }

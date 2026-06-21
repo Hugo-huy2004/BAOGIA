@@ -5,10 +5,11 @@ import ChessLobby from "../../components/chess/ChessLobby";
 import ChessGame from "../../components/chess/ChessGame";
 
 export default function ChessPage() {
-  const { roomId } = useParams();
+  const { roomId, psychTab } = useParams();
+  const activeRoom = roomId || psychTab;
   const navigate = useNavigate();
 
-  const [screen, setScreen] = useState(roomId ? "game" : "lobby");
+  const [screen, setScreen] = useState(activeRoom ? "game" : "lobby");
   const [boardTheme, setBoardTheme] = useState(() => localStorage.getItem("chess_board_theme") || "blue");
   const [myPieceTheme, setMyPieceTheme] = useState(() => localStorage.getItem("chess_my_piece_theme") || "maestro");
   const [oppPieceTheme, setOppPieceTheme] = useState(() => localStorage.getItem("chess_opp_piece_theme") || "maestro");
@@ -21,9 +22,9 @@ export default function ChessPage() {
   const [boardShadow, setBoardShadow] = useState(() => localStorage.getItem("chess_board_shadow") || "3d");
 
   const [gameConfig, setGameConfig] = useState(
-    roomId ? { mode: "friend", timeControl: 300 } : null
+    activeRoom ? { mode: "friend", timeControl: 300 } : null
   );
-  const [activeRoomId, setActiveRoomId] = useState(roomId || null);
+  const [activeRoomId, setActiveRoomId] = useState(activeRoom || null);
   const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
@@ -86,7 +87,11 @@ export default function ChessPage() {
       timeControl: 300
     });
     setScreen("game");
-    navigate(`/chess/${rid}`, { replace: true });
+    if (window.location.pathname.includes("/member/utilities/chess")) {
+      navigate(`/member/utilities/chess/${rid}`, { replace: true });
+    } else {
+      navigate(`/chess/${rid}`, { replace: true });
+    }
   }
 
   function handleBack() {
@@ -96,7 +101,11 @@ export default function ChessPage() {
     // Restore user settings
     setBoardTheme(localStorage.getItem("chess_board_theme") || "blue");
     setAppTheme(localStorage.getItem("chess_app_theme") || "midnight");
-    navigate("/chess", { replace: true });
+    if (window.location.pathname.includes("/member/utilities/chess")) {
+      navigate("/member/utilities/chess", { replace: true });
+    } else {
+      navigate("/chess", { replace: true });
+    }
   }
 
   return (
@@ -133,7 +142,11 @@ export default function ChessPage() {
           setUserInfo={setUserInfo}
           onRoomCreated={(id) => {
             setActiveRoomId(id);
-            navigate(`/chess/${id}`, { replace: true });
+            if (window.location.pathname.includes("/member/utilities/chess")) {
+              navigate(`/member/utilities/chess/${id}`, { replace: true });
+            } else {
+              navigate(`/chess/${id}`, { replace: true });
+            }
           }}
           boardTheme={boardTheme}
           setBoardTheme={setBoardTheme}

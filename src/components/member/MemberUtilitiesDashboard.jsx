@@ -92,13 +92,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
             id={`utility-card-${util.id}`}
             key={util.id}
             onClick={() => {
-              if (util.id === "ide") {
-                window.open("/member/ide", "_blank");
-              } else if (util.id === "chess") {
-                navigate("/chess");
-              } else {
-                setSelectedUtility(util.id);
-              }
+              setSelectedUtility(util.id);
             }}
             className="group cursor-pointer bg-white dark:bg-[#12111a] rounded-2xl p-4 md:p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-zinc-800 dark:hover:border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-[155px] md:h-[210px]"
           >

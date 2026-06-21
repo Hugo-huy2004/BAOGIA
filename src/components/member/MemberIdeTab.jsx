@@ -3,9 +3,13 @@ import Editor from "@monaco-editor/react";
 import { 
   FolderOpen, Folder, BookOpen, Database, Play, Plus, X, 
   Terminal, AlertTriangle, Monitor, ArrowLeft, Save, Eye,
-  Edit2, Trash2, ChevronDown, ChevronRight, FileCode, FileText, FileJson
+  Edit2, Trash2, ChevronDown, ChevronRight, FileCode, FileText, FileJson,
+  Sparkles, CheckCircle, Award, RefreshCw
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import confetti from "canvas-confetti";
+import { getMemberSession } from "../../services/authSession";
+import { useJoyStore } from "../../stores/joyStore";
 import { TEMPLATES, INITIAL_WORKSPACE, TUTORIALS } from "./ideData";
 
 // Helper to resolve language from file extension
@@ -55,6 +59,154 @@ const getFileIcon = (fileName) => {
 export default function MemberIdeTab({ onBack }) {
   const [isDesktop, setIsDesktop] = useState(true);
   const [activeSidebarTab, setActiveSidebarTab] = useState("explorer"); // explorer, learn, db
+
+  const [activeCourseId, setActiveCourseId] = useState(null);
+  const [completedLessons, setCompletedLessons] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("student_ide_progress") || "[]");
+    } catch (_) {
+      return [];
+    }
+  });
+  const [verificationStatus, setVerificationStatus] = useState(null); // null, 'success', 'failed'
+
+  const COURSES = [
+    {
+      id: "python_oop",
+      title: "Python OOP Basics",
+      description: "Học cách tạo lớp và kế thừa trong Python. Hãy kế thừa lớp Dog để tạo một chú chó GoldenRetriever có tiếng sủa đặc trưng.",
+      file: "src/oop/Animal.py",
+      lang: "python",
+      tasks: [
+        "Tạo lớp GoldenRetriever kế thừa từ Dog.",
+        "Định nghĩa phương thức bark(self) trả về chuỗi 'Gâu Gâu Vàng!'."
+      ],
+      starterCode: `class Animal:
+    def __init__(self, name):
+        self.name = name
+    def eat(self):
+        print(f"{self.name} đang ăn...")
+
+class Dog(Animal):
+    def bark(self):
+        return "Gâu Gâu!"
+
+# TODO: Viết class GoldenRetriever kế thừa từ Dog ở đây
+# và override phương thức bark() để trả về "Gâu Gâu Vàng!"
+`,
+      verify: (code) => {
+        const classRegex = /class\s+GoldenRetriever\s*\(\s*Dog\s*\)\s*:/;
+        const methodRegex = /def\s+bark\s*\(\s*self\s*\)\s*:/;
+        const returnRegex = /return\s+["']Gâu Gâu Vàng!["']/;
+        return classRegex.test(code) && methodRegex.test(code) && returnRegex.test(code);
+      }
+    },
+    {
+      id: "js_functions",
+      title: "JavaScript Functions",
+      description: "Viết hàm tính toán phần thưởng JOY dựa trên hệ số nhân. Hãy hoàn thành hàm calculateJoyReward(multiplier) để trả về 10 * multiplier.",
+      file: "src/web/app.js",
+      lang: "javascript",
+      tasks: [
+        "Khai báo hàm calculateJoyReward(multiplier) dùng từ khóa function hoặc hằng số arrow function.",
+        "Hàm phải trả về giá trị biểu thức multiplier nhân với 10 (hoặc 10 * multiplier)."
+      ],
+      starterCode: `// Viết mã nguồn Javascript ở đây
+// TODO: Định nghĩa hàm calculateJoyReward(multiplier) trả về 10 * multiplier
+`,
+      verify: (code) => {
+        const funcRegex = /(function\s+calculateJoyReward\s*\(\s*multiplier\s*\)|const\s+calculateJoyReward\s*=\s*(function\s*\(\s*multiplier\s*\)|\(\s*multiplier\s*\)\s*=>))/;
+        const returnRegex = /return\s+.*multiplier.*10|return\s+10\s*\*\s*multiplier/;
+        return funcRegex.test(code) && returnRegex.test(code);
+      }
+    },
+    {
+      id: "cpp_polymorphism",
+      title: "C++ Polymorphism",
+      description: "Tìm hiểu tính đa hình bằng cách tạo class con Square kế thừa từ Shape và ghi đè phương thức draw để in dòng chữ 'Vẽ hình Vuông (Square)' ra màn hình.",
+      file: "src/oop/Shape.cpp",
+      lang: "cpp",
+      tasks: [
+        "Khai báo class Square kế thừa kế thừa public từ Shape.",
+        "Ghi đè phương thức draw() với từ khóa override.",
+        "Trong hàm draw(), in 'Vẽ hình Vuông (Square)' ra std::cout."
+      ],
+      starterCode: `#include <iostream>
+#include <vector>
+using namespace std;
+
+class Shape {
+public:
+    virtual void draw() = 0;
+    virtual ~Shape() {}
+};
+
+// TODO: Tạo class Square kế thừa từ Shape và override hàm draw() để in "Vẽ hình Vuông (Square)" ra std::cout
+`,
+      verify: (code) => {
+        const classRegex = /class\s+Square\s*:\s*public\s+Shape/;
+        const methodRegex = /void\s+draw\s*\(\s*\)\s*override/;
+        const coutRegex = /cout\s*<<\s*["']Vẽ hình Vuông \(Square\)["']/;
+        return classRegex.test(code) && methodRegex.test(code) && coutRegex.test(code);
+      }
+    }
+  ];
+
+  const handleVerifyLesson = async (course) => {
+    const fileObj = workspaceFiles.find(f => f.path === course.file);
+    if (!fileObj) {
+      toast.error(`Vui lòng nạp bài học để tạo file ${course.file} trước!`);
+      return;
+    }
+    
+    const isCorrect = course.verify(fileObj.content);
+    if (isCorrect) {
+      setVerificationStatus("success");
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+      
+      const session = getMemberSession();
+      if (session?.email) {
+        if (!completedLessons.includes(course.id)) {
+          try {
+            const apiBase = import.meta.env.VITE_API_URL || '/api';
+            const r = await fetch(`${apiBase}/joy/award-learning`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: session.email, lessonId: course.id })
+            });
+            if (r.ok) {
+              const resData = await r.json();
+              if (resData.success && !resData.alreadyCompleted) {
+                toast.success("Tuyệt vời! Bạn được thưởng +10 JOY!", { icon: "🎉" });
+                useJoyStore.getState().fetchBalance(session.email);
+              } else {
+                toast.success("Chính xác! Bài học đã được xác minh hoàn thành.");
+              }
+            }
+          } catch (e) {
+            console.error("Error awarding joy for learning:", e);
+          }
+        } else {
+          toast.success("Chính xác! Bài học đã được xác minh hoàn thành.");
+        }
+      } else {
+        toast.success("Chính xác! Đăng nhập để nhận thưởng JOY.");
+      }
+      
+      if (!completedLessons.includes(course.id)) {
+        const nextCompleted = [...completedLessons, course.id];
+        setCompletedLessons(nextCompleted);
+        localStorage.setItem("student_ide_progress", JSON.stringify(nextCompleted));
+      }
+    } else {
+      setVerificationStatus("failed");
+      toast.error("Mã nguồn chưa chính xác, hãy kiểm tra lại yêu cầu đề bài!", { icon: "❌" });
+    }
+  };
 
   // File System state
   const [workspaceFiles, setWorkspaceFiles] = useState([]);
@@ -1160,34 +1312,153 @@ export default function MemberIdeTab({ onBack }) {
 
           {/* TAB 2: Tutorials & Learning */}
           {activeSidebarTab === "learn" && (
-            <div className="p-4 flex-1 flex flex-col overflow-y-auto space-y-4">
-              <span className="font-bold text-zinc-400 uppercase tracking-wider text-[10px]">Tài liệu & Học tập</span>
-              <p className="text-[10.5px] text-zinc-500 leading-relaxed font-sans">Chọn ngôn ngữ để nạp code mẫu học tập trực quan:</p>
-              
-              <div className="space-y-3.5">
-                {TUTORIALS.map((tutorial) => (
-                  <div key={tutorial.lang} className="bg-zinc-900/40 border border-zinc-800 rounded-lg p-3 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-zinc-300 text-xs font-sans">{tutorial.lang}</span>
-                      <button 
-                        onClick={() => openTemplate(tutorial.icon)}
-                        className="px-2 py-0.5 bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-600 hover:text-white rounded text-[10px] transition-all"
+            <div className="p-4 flex-1 flex flex-col overflow-y-auto space-y-4 font-sans">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-2 mb-1">
+                <span className="font-bold text-zinc-400 uppercase tracking-wider text-[10px] flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                  Bài học tương tác
+                </span>
+                {activeCourseId && (
+                  <button
+                    onClick={() => {
+                      setActiveCourseId(null);
+                      setVerificationStatus(null);
+                    }}
+                    className="text-[10px] text-indigo-450 hover:text-indigo-400 font-bold transition-all"
+                  >
+                    Quay lại
+                  </button>
+                )}
+              </div>
+
+              {activeCourseId ? (() => {
+                const course = COURSES.find(c => c.id === activeCourseId);
+                const isCompleted = completedLessons.includes(course.id);
+                return (
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-xs text-zinc-250 leading-tight">{course.title}</h4>
+                      <p className="text-[10px] text-zinc-500 leading-normal">{course.description}</p>
+                    </div>
+
+                    <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 space-y-2.5">
+                      <span className="font-bold text-[9px] uppercase tracking-wider text-zinc-400 block mb-1">Nhiệm vụ cần đạt:</span>
+                      <ul className="space-y-2">
+                        {course.tasks.map((task, i) => (
+                          <li key={i} className="flex items-start gap-2 text-[10px] text-zinc-400 font-medium leading-relaxed">
+                            <span className="material-symbols-outlined text-[13px] text-indigo-500 mt-0.5" style={{ fontVariationSettings: "'FILL' 0" }}>check_box_outline_blank</span>
+                            <span>{task}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      <button
+                        onClick={() => {
+                          const exists = workspaceFiles.some(f => f.path === course.file);
+                          if (!exists) {
+                            const newFile = {
+                              path: course.file,
+                              name: course.file.split("/").pop(),
+                              content: course.starterCode,
+                              language: getLanguageFromExt(course.file.split(".").pop().toLowerCase())
+                            };
+                            setWorkspaceFiles(prev => [...prev, newFile]);
+                          } else {
+                            setWorkspaceFiles(prev => prev.map(f => f.path === course.file ? { ...f, content: course.starterCode } : f));
+                          }
+                          if (!openTabs.includes(course.file)) {
+                            setOpenTabs(prev => [...prev, course.file]);
+                          }
+                          setActiveTabPath(course.file);
+                          toast.success(`Đã nạp file bài học: ${course.file}`, { icon: "📝" });
+                        }}
+                        className="w-full py-2 bg-zinc-900 hover:bg-zinc-800/80 text-zinc-350 rounded-xl border border-zinc-800 text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 active:scale-98"
                       >
-                        Nạp mẫu
+                        <RefreshCw className="w-3 h-3" />
+                        Nạp lại Starter Code
+                      </button>
+
+                      <button
+                        onClick={() => handleVerifyLesson(course)}
+                        className={`w-full py-2.5 text-[10.5px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 active:scale-95 ${
+                          isCompleted
+                            ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                            : "bg-indigo-600 hover:bg-indigo-500 text-white"
+                        }`}
+                      >
+                        {isCompleted ? <CheckCircle className="w-3.5 h-3.5" /> : <Award className="w-3.5 h-3.5" />}
+                        {isCompleted ? "Bài học đã hoàn thành" : "Kiểm tra bài học"}
                       </button>
                     </div>
-                    <p className="text-[10px] text-zinc-500 leading-relaxed font-sans">{tutorial.intro}</p>
-                    <div className="space-y-1.5 border-t border-zinc-800/60 pt-2">
-                      {tutorial.sections.map((sect, idx) => (
-                        <div key={idx} className="space-y-1">
-                          <p className="font-bold text-zinc-400 text-[9.5px] font-sans">{sect.title}</p>
-                          <p className="text-[9.5px] text-zinc-500 font-mono whitespace-pre-line leading-normal bg-zinc-950 p-1.5 rounded">{sect.content}</p>
-                        </div>
-                      ))}
-                    </div>
+
+                    {verificationStatus === "success" && (
+                      <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-[10.5px] text-emerald-450 leading-relaxed font-sans">
+                        🎉 <strong>Tuyệt vời!</strong> Bạn đã hoàn thành xuất sắc các yêu cầu của bài học. Hãy chuyển qua bài học tiếp theo nhé!
+                      </div>
+                    )}
+                    {verificationStatus === "failed" && (
+                      <div className="bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl text-[10.5px] text-rose-450 leading-relaxed font-sans">
+                        ❌ <strong>Chưa chính xác!</strong> Mã nguồn trong editor chưa đáp ứng đủ yêu cầu bài học. Hãy rà soát lại và thử lại.
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
+                );
+              })() : (
+                <div className="space-y-3.5">
+                  <p className="text-[10px] text-zinc-500 leading-relaxed font-sans">
+                    Hoàn thành bài học để rèn luyện tư duy lập trình hướng đối tượng và nhận thưởng **+10 JOY** cho mỗi bài học:
+                  </p>
+                  <div className="space-y-3">
+                    {COURSES.map((course) => {
+                      const isCompleted = completedLessons.includes(course.id);
+                      return (
+                        <div
+                          key={course.id}
+                          className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 space-y-2 hover:border-indigo-500/40 transition-all cursor-pointer group"
+                          onClick={() => {
+                            setActiveCourseId(course.id);
+                            setVerificationStatus(null);
+                            const exists = workspaceFiles.some(f => f.path === course.file);
+                            if (!exists) {
+                              const newFile = {
+                                path: course.file,
+                                name: course.file.split("/").pop(),
+                                content: course.starterCode,
+                                language: getLanguageFromExt(course.file.split(".").pop().toLowerCase())
+                              };
+                              setWorkspaceFiles(prev => [...prev, newFile]);
+                            }
+                            if (!openTabs.includes(course.file)) {
+                              setOpenTabs(prev => [...prev, course.file]);
+                            }
+                            setActiveTabPath(course.file);
+                          }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-zinc-200 text-xs font-sans">{course.title}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border ${
+                              isCompleted
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                            }`}>
+                              {isCompleted ? "Hoàn thành" : "+10 JOY"}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-zinc-500 leading-normal line-clamp-2 font-sans">
+                            {course.description}
+                          </p>
+                          <div className="flex items-center gap-1.5 text-[8.5px] font-bold text-zinc-650 group-hover:text-indigo-400 uppercase tracking-widest pt-1">
+                            <span>Vào bài học</span>
+                            <span className="material-symbols-outlined text-[9px] transform group-hover:translate-x-0.5 transition-transform">arrow_forward_ios</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Lock, Unlock, BookOpen, Wind, Brain, Heart, ArrowLeft,
+  Lock, Unlock, BookOpen, Wind, Brain, ArrowLeft,
   Pencil, Dumbbell, Users, Flame, CheckCircle2, Circle,
-  Timer, ChevronRight, Sparkles, TrendingUp, PhoneCall, FileText, CalendarCheck, Printer
+  Timer, ChevronRight, Sparkles, TrendingUp, FileText, CalendarCheck, Printer,
+  Headphones, Volume2
 } from "lucide-react";
 import BreathingTherapy from "./BreathingTherapy";
 import ReadingTherapy from "./ReadingTherapy";
@@ -20,46 +22,146 @@ const UNLOCK_COST = 150;
 
 // ─── Inline mini-panels ──────────────────────────────────────────────────────
 
-function GratitudePanel({ onBack, onComplete }) {
-  const [items, setItems] = useState(["", "", ""]);
-  const [done, setDone] = useState(false);
+function SoundscapePanel({ onBack, onComplete }) {
+  const [playing, setPlaying] = useState({
+    rain: false,
+    ocean: false,
+    campfire: false,
+    whiteNoise: false
+  });
+  
+  const [volumes, setVolumes] = useState({
+    rain: 0.5,
+    ocean: 0.5,
+    campfire: 0.5,
+    whiteNoise: 0.5
+  });
 
-  const handleSubmit = () => {
-    const filled = items.filter(i => i.trim());
-    if (filled.length === 0) return;
-    setDone(true);
-    setTimeout(() => onComplete(), 1400);
+  const audiosRef = useRef({
+    rain: new Audio("https://raw.githubusercontent.com/YoyoZhang24/RelaX50/master/audio/rain.mp3"),
+    ocean: new Audio("https://raw.githubusercontent.com/YoyoZhang24/RelaX50/master/audio/sea.mp3"),
+    campfire: new Audio("https://raw.githubusercontent.com/karthiknvd/noctune/main/sounds/campfire.mp3"),
+    whiteNoise: new Audio("https://raw.githubusercontent.com/YoyoZhang24/RelaX50/master/audio/ambient.mp3")
+  });
+
+  useEffect(() => {
+    Object.keys(audiosRef.current).forEach(key => {
+      audiosRef.current[key].loop = true;
+    });
+    
+    return () => {
+      Object.keys(audiosRef.current).forEach(key => {
+        audiosRef.current[key].pause();
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    Object.keys(audiosRef.current).forEach(key => {
+      audiosRef.current[key].volume = volumes[key];
+    });
+  }, [volumes]);
+
+  const toggleSound = (key) => {
+    const audio = audiosRef.current[key];
+    if (playing[key]) {
+      audio.pause();
+      setPlaying(p => ({ ...p, [key]: false }));
+    } else {
+      audio.play().catch(e => console.error("Audio play failed:", e));
+      setPlaying(p => ({ ...p, [key]: true }));
+    }
   };
+
+  const isAnyPlaying = Object.values(playing).some(v => v);
 
   return (
     <div className="space-y-5">
       <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold leading-relaxed">
-        Viết ra 3 điều bạn biết ơn hôm nay — dù nhỏ bé đến đâu. Nghiên cứu cho thấy thói quen này tăng hạnh phúc tới 25%.
+        Tạo không gian thư giãn của riêng bạn. Cậu có thể bật và trộn lẫn nhiều âm thanh thiên nhiên cùng một lúc, tùy chỉnh âm lượng của từng loại.
       </p>
-      {items.map((val, i) => (
-        <div key={i} className="flex items-center gap-3">
-          <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-500 flex items-center justify-center text-[10px] font-black shrink-0">{i + 1}</span>
-          <input
-            value={val}
-            onChange={e => { const n = [...items]; n[i] = e.target.value; setItems(n); }}
-            placeholder={["Một người tôi yêu quý…", "Một điều tôi tự hào…", "Một khoảnh khắc nhỏ đẹp…"][i]}
-            className="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl px-4 py-2.5 text-[11px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 outline-none focus:ring-2 ring-purple-400/50 transition-all font-medium"
-          />
-        </div>
-      ))}
-      {done ? (
-        <div className="flex items-center justify-center gap-2 py-3 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[11px] font-black">
-          <CheckCircle2 className="w-4 h-4" /> Đã ghi lại! Cảm ơn bạn 💜
-        </div>
-      ) : (
-        <button
-          onClick={handleSubmit}
-          disabled={!items.some(i => i.trim())}
-          className="w-full py-3 rounded-xl bg-purple-500 hover:bg-purple-600 disabled:opacity-40 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
-        >
-          Lưu nhật ký hôm nay
-        </button>
-      )}
+
+      {/* Visualizer animation */}
+      <div className="h-16 bg-black/10 dark:bg-black/40 rounded-2xl flex items-center justify-center gap-1 overflow-hidden px-4 border border-border/30 relative">
+        {isAnyPlaying ? (
+          <div className="flex items-end justify-center gap-1 h-8 w-full">
+            {[...Array(15)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="w-1 bg-indigo-500 rounded-full animate-bounce"
+                style={{
+                  height: "28px",
+                  animationDuration: `${0.6 + Math.random() * 0.4}s`,
+                  animationDelay: `${i * 0.05}s`
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <span className="text-[10px] text-zinc-500 font-bold flex items-center gap-1">
+            <Headphones className="w-3.5 h-3.5" /> Bật âm thanh để bắt đầu thư giãn
+          </span>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        {[
+          { key: "rain", label: "Mưa Rơi", icon: "cloud_rain", desc: "Tiếng mưa rơi trên mái lá" },
+          { key: "ocean", label: "Sóng Biển", icon: "waves", desc: "Rì rào sóng vỗ bờ cát bình yên" },
+          { key: "campfire", label: "Lửa Trại", icon: "local_fire_department", desc: "Tiếng lửa trại bập bùng, tí tách" },
+          { key: "whiteNoise", label: "Nhạc Tĩnh Tâm", icon: "spa", desc: "Nhạc thiền định thư giãn nhịp sóng não" }
+        ].map(item => (
+          <div key={item.key} className="bg-white/50 dark:bg-zinc-800/40 rounded-2xl p-3 flex flex-col gap-2 border border-zinc-200 dark:border-zinc-700/50">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="material-symbols-outlined text-lg text-indigo-400 shrink-0">{item.icon}</span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-zinc-800 dark:text-zinc-100">{item.label}</p>
+                  <p className="text-[9px] text-zinc-400 truncate">{item.desc}</p>
+                </div>
+              </div>
+              
+              <button
+                type="button"
+                onClick={() => toggleSound(item.key)}
+                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                  playing[item.key]
+                    ? "bg-indigo-500 text-white"
+                    : "bg-zinc-150 dark:bg-zinc-850 text-zinc-500 hover:bg-zinc-200"
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm">{playing[item.key] ? "pause" : "play_arrow"}</span>
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-2 px-1">
+              <Volume2 className="w-3 h-3 text-zinc-400" />
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={volumes[item.key]}
+                onChange={e => setVolumes(v => ({ ...v, [item.key]: parseFloat(e.target.value) }))}
+                className="flex-1 h-1 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              />
+              <span className="text-[8px] font-mono text-zinc-400 w-5 text-right">{Math.round(volumes[item.key] * 100)}%</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={() => {
+          Object.keys(audiosRef.current).forEach(key => {
+            audiosRef.current[key].pause();
+          });
+          onComplete();
+        }}
+        className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
+      >
+        Lưu hoạt động & dừng phát
+      </button>
     </div>
   );
 }
@@ -252,29 +354,11 @@ function ActionPlanPanel({ bio, historyLogs, onBack, onComplete }) {
   );
 }
 
-// ─── Gọi Thoại Không Giới Hạn (paid, passive perk — no "activity" to log) ──
-function UnlimitedCallsPanel({ onNavigateToTab }) {
-  return (
-    <div className="space-y-4 text-center py-2">
-      <div className="w-14 h-14 rounded-2xl bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto">
-        <PhoneCall className="w-6 h-6" />
-      </div>
-      <div>
-        <p className="text-[12px] font-black text-zinc-900 dark:text-zinc-100">Đã mở khoá Gọi Thoại Không Giới Hạn!</p>
-        <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 font-bold mt-1 leading-relaxed">Giới hạn 5 cuộc gọi/ngày đã được gỡ bỏ vĩnh viễn cho tài khoản này. Cậu có thể gọi tư vấn AI bao nhiêu lần tuỳ thích trong tab Tâm Sự.</p>
-      </div>
-      <button
-        onClick={() => onNavigateToTab?.("chat")}
-        className="w-full py-3 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
-      >
-        Đến Tâm Sự để gọi ngay
-      </button>
-    </div>
-  );
-}
+
 
 // ─── Báo Cáo Tâm Lý Chuyên Sâu (paid, generates a printable clinical-style report) ──
-function DeepReportPanel({ bio, historyLogs, chatMessages }) {
+function DeepReportPanel({ bio, historyLogs, chatMessages, onBack }) {
+  const { t } = useTranslation();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -303,47 +387,77 @@ function DeepReportPanel({ bio, historyLogs, chatMessages }) {
     return () => { cancelled = true; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loading) return <div className="py-10 text-center text-[11px] text-zinc-400 font-bold">Đang tổng hợp báo cáo...</div>;
+  if (loading) return (
+    <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp">
+      <div className="flex items-center justify-between border-b pb-2 border-zinc-200/50">
+        <button type="button" onClick={onBack} className="text-zinc-450 text-[10px] font-black uppercase tracking-wider hover:text-zinc-700">
+          Quay lại thẻ
+        </button>
+        <span className="text-[9.5px] font-black uppercase text-cyan-500">Báo cáo sức khỏe</span>
+      </div>
+      <div className="py-10 text-[11px] text-zinc-400 font-bold">Đang tổng hợp báo cáo...</div>
+    </div>
+  );
+
   if (error || !report) {
-    return <p className="text-[11px] text-rose-500 font-bold text-center py-6">{error || "Có lỗi xảy ra."}</p>;
+    return (
+      <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp">
+        <div className="flex items-center justify-between border-b pb-2 border-zinc-200/50">
+          <button type="button" onClick={onBack} className="text-zinc-450 text-[10px] font-black uppercase tracking-wider hover:text-zinc-700">
+            Quay lại thẻ
+          </button>
+          <span className="text-[9.5px] font-black uppercase text-cyan-500">Báo cáo sức khỏe</span>
+        </div>
+        <p className="text-[11px] text-rose-500 font-bold py-6">{error || "Có lỗi xảy ra."}</p>
+      </div>
+    );
   }
 
   const Section = ({ title, children }) => (
-    <div className="space-y-1">
+    <div className="space-y-1 text-left">
       <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">{title}</p>
       <div className="text-[11px] text-zinc-800 dark:text-zinc-200 font-medium leading-relaxed">{children}</div>
     </div>
   );
 
   return (
-    <div className="space-y-4">
-      <div id="deep-report-print" className="space-y-4 bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-700">
-        <Section title={`Báo cáo ngày ${report.report_date || ""}`}>{report.overview}</Section>
-        <Section title="Xu hướng tâm trạng">{report.mood_trend_summary}</Section>
-        <Section title="Tổng hợp test lâm sàng">{report.clinical_test_summary}</Section>
-        {report.risk_indicators?.length > 0 && (
-          <Section title="Chỉ số rủi ro">
-            <ul className="list-disc pl-4 space-y-0.5">{report.risk_indicators.map((r, i) => <li key={i}>{r}</li>)}</ul>
-          </Section>
-        )}
-        {report.strengths_and_progress?.length > 0 && (
-          <Section title="Điểm tích cực / tiến bộ">
-            <ul className="list-disc pl-4 space-y-0.5">{report.strengths_and_progress.map((r, i) => <li key={i}>{r}</li>)}</ul>
-          </Section>
-        )}
-        {report.recommendations_for_specialist?.length > 0 && (
-          <Section title="Gợi ý cho chuyên viên">
-            <ul className="list-disc pl-4 space-y-0.5">{report.recommendations_for_specialist.map((r, i) => <li key={i}>{r}</li>)}</ul>
-          </Section>
-        )}
-        <p className="text-[9px] text-zinc-400 italic pt-2 border-t border-zinc-200 dark:border-zinc-700">{report.disclaimer}</p>
+    <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp">
+      <div className="flex items-center justify-between border-b pb-2 border-zinc-200/50">
+        <button type="button" onClick={onBack} className="text-zinc-450 text-[10px] font-black uppercase tracking-wider hover:text-zinc-700">
+          Quay lại thẻ
+        </button>
+        <span className="text-[9.5px] font-black uppercase text-cyan-500">Báo cáo sức khỏe</span>
       </div>
-      <button
-        onClick={() => window.print()}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
-      >
-        <Printer className="w-4 h-4" /> In / Lưu PDF để gửi chuyên viên
-      </button>
+
+      <div className="space-y-4">
+        <div id="deep-report-print" className="space-y-4 bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-700">
+          <Section title={`Báo cáo ngày ${report.report_date || ""}`}>{report.overview}</Section>
+          <Section title="Xu hướng tâm trạng">{report.mood_trend_summary}</Section>
+          <Section title="Tổng hợp test lâm sàng">{report.clinical_test_summary}</Section>
+          {report.risk_indicators?.length > 0 && (
+            <Section title="Chỉ số rủi ro">
+              <ul className="list-disc pl-4 space-y-0.5">{report.risk_indicators.map((r, i) => <li key={i}>{r}</li>)}</ul>
+            </Section>
+          )}
+          {report.strengths_and_progress?.length > 0 && (
+            <Section title="Điểm tích cực / tiến bộ">
+              <ul className="list-disc pl-4 space-y-0.5">{report.strengths_and_progress.map((r, i) => <li key={i}>{r}</li>)}</ul>
+            </Section>
+          )}
+          {report.recommendations_for_specialist?.length > 0 && (
+            <Section title="Gợi ý cho chuyên viên">
+              <ul className="list-disc pl-4 space-y-0.5">{report.recommendations_for_specialist.map((r, i) => <li key={i}>{r}</li>)}</ul>
+            </Section>
+          )}
+          <p className="text-[9px] text-zinc-400 italic pt-2 border-t border-zinc-200 dark:border-zinc-700">{report.disclaimer}</p>
+        </div>
+        <button
+          onClick={() => window.print()}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
+        >
+          <Printer className="w-4 h-4" /> In / Lưu PDF để gửi chuyên viên
+        </button>
+      </div>
     </div>
   );
 }
@@ -352,18 +466,16 @@ function DeepReportPanel({ bio, historyLogs, chatMessages }) {
 
 const ALL_METHODS = [
   { id:"breath",     Icon: Wind,      name:"Hít Thở 4-7-8",    desc:"Làm dịu lo âu, nhịp tim nhanh tức thì (kèm Thư Giãn Cơ)", category:"Thở",   duration:"5 ph",     gradient:"from-amber-500/10 to-amber-500/5",    border:"border-amber-500/20 dark:border-amber-400/15",    badge:"bg-amber-500/10 text-amber-600 dark:text-amber-400",     iconBg:"bg-amber-500/15 text-amber-600 dark:text-amber-400",    btn:"bg-amber-500 hover:bg-amber-600",  lockKey:"breathing"  },
-  { id:"gratitude",  Icon: Heart,     name:"Nhật Ký Biết Ơn",  desc:"Liệt kê 3 điều trân trọng hôm nay",             category:"Cảm xúc",   duration:"5 ph",     gradient:"from-purple-500/10 to-purple-500/5",  border:"border-purple-500/20 dark:border-purple-400/15",  badge:"bg-purple-500/10 text-purple-600 dark:text-purple-400",  iconBg:"bg-purple-500/15 text-purple-600 dark:text-purple-400", btn:"bg-purple-500 hover:bg-purple-600", lockKey:"gratitude" },
-  { id:"reading",    Icon: BookOpen,  name:"Đọc Truyện AI Trị Liệu", desc:"AI viết & kể truyện ngắn riêng theo tâm trạng thật của bạn", category:"AI · Đọc", duration:"10 ph", gradient:"from-indigo-500/10 to-indigo-500/5",  border:"border-indigo-500/20 dark:border-indigo-400/15",  badge:"bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",  iconBg:"bg-indigo-500/15 text-indigo-600 dark:text-indigo-400", btn:"bg-indigo-500 hover:bg-indigo-600",  lockKey:"reading",    joyLockable:true  },
-  { id:"meditation", Icon: Flame,     name:"Thiền Dẫn AI Cá Nhân Hoá", desc:"Giọng dẫn thiền do AI soạn riêng theo mood hiện tại",  category:"AI · Thiền", duration:"10–20 ph", gradient:"from-teal-500/10 to-teal-500/5",      border:"border-teal-500/20 dark:border-teal-400/15",      badge:"bg-teal-500/10 text-teal-600 dark:text-teal-400",        iconBg:"bg-teal-500/15 text-teal-600 dark:text-teal-400",       btn:"bg-teal-500 hover:bg-teal-600",    lockKey:"meditation", joyLockable:true  },
-  { id:"depression", Icon: Brain,     name:"CBT Worksheet Cá Nhân Hoá", desc:"AI phân tích lịch sử chat thật, soạn bảng ghi suy nghĩ riêng cho bạn", category:"AI · Nhận thức", duration:"15 ph", gradient:"from-rose-500/10 to-rose-500/5",      border:"border-rose-500/20 dark:border-rose-400/15",      badge:"bg-rose-500/10 text-rose-600 dark:text-rose-400",        iconBg:"bg-rose-500/15 text-rose-600 dark:text-rose-400",       btn:"bg-rose-500 hover:bg-rose-600",    lockKey:"depression", joyLockable:true  },
-  { id:"action_plan",   Icon: CalendarCheck, name:"Lộ Trình 7 Ngày Cá Nhân Hoá", desc:"AI gộp viết · vận động · kết nối thành 1 kế hoạch riêng cho tuần này", category:"AI · Lộ trình", duration:"Cả tuần", gradient:"from-pink-500/10 to-pink-500/5", border:"border-pink-500/20 dark:border-pink-400/15", badge:"bg-pink-500/10 text-pink-600 dark:text-pink-400", iconBg:"bg-pink-500/15 text-pink-600 dark:text-pink-400", btn:"bg-pink-500 hover:bg-pink-600", lockKey:"action_plan", joyLockable:true },
-  { id:"unlimited_calls", Icon: PhoneCall, name:"Gọi Thoại Không Giới Hạn", desc:"Gỡ bỏ vĩnh viễn giới hạn 5 cuộc gọi tư vấn AI/ngày", category:"Đặc quyền", duration:"Vĩnh viễn", gradient:"from-violet-500/10 to-violet-500/5", border:"border-violet-500/20 dark:border-violet-400/15", badge:"bg-violet-500/10 text-violet-600 dark:text-violet-400", iconBg:"bg-violet-500/15 text-violet-600 dark:text-violet-400", btn:"bg-violet-500 hover:bg-violet-600", lockKey:"unlimited_calls", joyLockable:true },
-  { id:"deep_report", Icon: FileText, name:"Báo Cáo Tâm Lý Chuyên Sâu", desc:"Hồ sơ tổng hợp AI soạn để chia sẻ với chuyên viên thật, in/lưu PDF", category:"AI · Báo cáo", duration:"5 ph", gradient:"from-cyan-500/10 to-cyan-500/5", border:"border-cyan-500/20 dark:border-cyan-400/15", badge:"bg-cyan-500/10 text-cyan-600 dark:text-cyan-400", iconBg:"bg-cyan-500/15 text-cyan-600 dark:text-cyan-400", btn:"bg-cyan-500 hover:bg-cyan-600", lockKey:"deep_report", joyLockable:true },
+  { id:"soundscape", Icon: Headphones,name:"Âm Thanh Thiên Nhiên", desc:"Tự tạo không gian thư giãn với tiếng mưa, sóng biển, lửa trại", category:"Thư giãn", duration:"Tự do", gradient:"from-emerald-500/10 to-emerald-500/5", border:"border-emerald-500/20 dark:border-emerald-400/15", badge:"bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", iconBg:"bg-emerald-500/15 text-emerald-600 dark:text-emerald-400", btn:"bg-emerald-500 hover:bg-emerald-600", lockKey:"soundscape" },
+  { id:"reading",    Icon: BookOpen,  name:"Đọc Truyện & Giải Mã Giấc Mơ AI", desc:"AI viết & kể truyện trị liệu, giải mã điềm báo giấc mơ", category:"AI · Đọc", duration:"10 ph", gradient:"from-indigo-500/10 to-indigo-500/5",  border:"border-indigo-500/20 dark:border-indigo-400/15",  badge:"bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",  iconBg:"bg-indigo-500/15 text-indigo-600 dark:text-indigo-400", btn:"bg-indigo-500 hover:bg-indigo-600",  lockKey:"reading",    joyLockable:true  },
+  { id:"meditation", Icon: Flame,     name:"Thiền Định Giọng Nói AI", desc:"Giọng dẫn thiền do AI soạn riêng theo mood hiện tại của bạn",  category:"AI · Thiền", duration:"10–20 ph", gradient:"from-teal-500/10 to-teal-500/5",      border:"border-teal-500/20 dark:border-teal-400/15",      badge:"bg-teal-500/10 text-teal-600 dark:text-teal-400",        iconBg:"bg-teal-500/15 text-teal-600 dark:text-teal-400",       btn:"bg-teal-500 hover:bg-teal-600",    lockKey:"meditation", joyLockable:true  },
+  { id:"depression", Icon: Brain,     name:"CBT Worksheet & Lộ Trình", desc:"AI phân tích lịch sử chat, soạn bảng ghi suy nghĩ và lộ trình riêng", category:"AI · Nhận thức", duration:"15 ph", gradient:"from-rose-500/10 to-rose-500/5",      border:"border-rose-500/20 dark:border-rose-400/15",      badge:"bg-rose-500/10 text-rose-600 dark:text-rose-400",        iconBg:"bg-rose-500/15 text-rose-600 dark:text-rose-400",       btn:"bg-rose-500 hover:bg-rose-600",    lockKey:"depression", joyLockable:true  },
+  { id:"deep_report", Icon: FileText, name:"Báo Cáo Sức Khỏe Tâm Lý Chuyên Sâu", desc:"Hồ sơ tổng hợp AI soạn để chia sẻ với chuyên gia thật, in/lưu PDF", category:"AI · Báo cáo", duration:"5 ph", gradient:"from-cyan-500/10 to-cyan-500/5", border:"border-cyan-500/20 dark:border-cyan-400/15", badge:"bg-cyan-500/10 text-cyan-600 dark:text-cyan-400", iconBg:"bg-cyan-500/15 text-cyan-600 dark:text-cyan-400", btn:"bg-cyan-500 hover:bg-cyan-600", lockKey:"deep_report", joyLockable:true },
 ];
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdateCompanionState, healingActive, showToast, onBioUpdate, initialMethod }) {
+export default function TherapyTab({ onNavigateToTab, bio, historyLogs, chatMessages, onUpdateCompanionState, healingActive, showToast, onBioUpdate, initialMethod }) {
   const [activePanel, setActivePanel] = useState(initialMethod || null);
   const [unlockedFeatures, setUnlockedFeatures] = useState(bio?.unlockedCompanionFeatures || []);
   const [unlockingId, setUnlockingId] = useState(null);
@@ -378,8 +490,9 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
     reading: unlockedFeatures.includes("reading"),
     meditation: unlockedFeatures.includes("meditation"),
     depression: unlockedFeatures.includes("depression"),
+    deep_report: unlockedFeatures.includes("deep_report"),
     breathing: true,   // Hít Thở 4-7-8 (+ Thư Giãn Cơ) — always free
-    gratitude: true,   // Viết Nhật Ký — always free
+    soundscape: true,  // Âm thanh thiên nhiên — always free
     basic: true,       // Viết Tự Do / Vận Động Nhẹ / Kết Nối Xã Hội — always free, no clinical data required
   };
 
@@ -404,7 +517,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
       setUnlockedFeatures(data.unlockedFeatures || []);
       onBioUpdate?.({ unlockedCompanionFeatures: data.unlockedFeatures || [] });
       fetchJoyBalance(bio.email);
-      showToast?.(`Đã mở khoá "${method.name}"! 🎉`, "success");
+      showToast?.(`Đã mở khoá "${method.name}"!`, "success");
     } catch (err) {
       showToast?.(err.message, "error");
     } finally {
@@ -432,7 +545,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
   const handleCompleteActivity = (name, desc) => {
     const newEntry = { date: new Date().toISOString(), type: "therapy_activity", name, desc };
     onUpdateCompanionState({ historyLogs: [...historyLogs, newEntry] });
-    showToast?.("Đã ghi nhận hoạt động! 🎉", "success");
+    showToast?.("Đã ghi nhận hoạt động!", "success");
     setActivePanel(null);
   };
 
@@ -442,13 +555,14 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
   const activeMethod = ALL_METHODS.find(m => m.id === activePanel);
 
   // ── Full-screen panels for external components ──
-  if (activePanel === "reading") return <ReadingTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} />;
-  if (activePanel === "meditation") return <MeditationTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} />;
+  if (activePanel === "reading") return <ReadingTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} bio={bio} />;
+  if (activePanel === "meditation") return <MeditationTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} bio={bio} />;
   if (activePanel === "breath") return <BreathingTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} />;
-  if (activePanel === "depression") return <DepressionCbtTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} />;
+  if (activePanel === "depression") return <DepressionCbtTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} bio={bio} historyLogs={historyLogs} chatMessages={chatMessages} />;
+  if (activePanel === "deep_report") return <DeepReportPanel bio={bio} historyLogs={historyLogs} chatMessages={chatMessages} onBack={closePanel} />;
 
   // ── Inline mini-panels ──
-  const inlinePanels = { gratitude: true, muscle: true, writing: true, exercise: true, social: true };
+  const inlinePanels = { soundscape: true, muscle: true, writing: true, exercise: true, social: true };
   const showInline = activePanel && inlinePanels[activePanel];
 
   return (
@@ -600,10 +714,11 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, onUpdate
             <div className="h-px bg-zinc-200/60 dark:bg-zinc-700/40" />
 
             {/* Panel content */}
-            {activePanel === "gratitude" && (
-              <GratitudePanel
+
+            {activePanel === "soundscape" && (
+              <SoundscapePanel
                 onBack={closePanel}
-                onComplete={() => handleCompleteActivity("Nhật Ký Biết Ơn", "Ghi lại 3 điều biết ơn trong ngày")}
+                onComplete={() => handleCompleteActivity("Âm Thanh Thiên Nhiên", "Thư giãn đầu óc với nhạc thiên nhiên")}
               />
             )}
             {activePanel === "muscle" && (

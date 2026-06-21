@@ -627,7 +627,25 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                   />
                 )}
                 {activeSubTab === "therapy" && (
-                  <TherapyTab onNavigateToTab={handleNavigateToTab} bio={bio} historyLogs={historyLogs} onUpdateCompanionState={handleUpdateCompanionState} healingActive={healingActive} showToast={showToast} initialMethod={presetTest} />
+                  <TherapyTab
+                    onNavigateToTab={handleNavigateToTab}
+                    bio={bio}
+                    historyLogs={historyLogs}
+                    chatMessages={chatMessages}
+                    onUpdateCompanionState={handleUpdateCompanionState}
+                    healingActive={healingActive}
+                    showToast={showToast}
+                    initialMethod={presetTest}
+                    onBioUpdate={(newFields) => {
+                      if (setFormData && handleSave) {
+                        setFormData(prev => {
+                          const updated = { ...prev, ...newFields };
+                          setTimeout(() => handleSave({ preventDefault: () => {} }, updated), 0);
+                          return updated;
+                        });
+                      }
+                    }}
+                  />
                 )}
                 {activeSubTab === "sleep" && (
                   <div className="flex-1 overflow-y-auto p-4"><SleepTracker bio={bio} sleepAutoDetect={sleepAutoDetect} /></div>

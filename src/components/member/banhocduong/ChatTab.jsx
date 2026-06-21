@@ -58,7 +58,7 @@ function useWellnessInsight(historyLogs) {
     } else if (trend === "down") {
       suggestion = { methodId: "writing", label: "Viết Tự Do", reason: "Cảm xúc gần đây đang đi xuống — viết tự do giúp giải tỏa", icon: "edit_note" };
     } else if (streak === 0) {
-      suggestion = { methodId: "gratitude", label: "Nhật Ký Biết Ơn", reason: "Cậu chưa check-in hôm nay — bắt đầu nhẹ nhàng với nhật ký biết ơn", icon: "favorite" };
+      suggestion = { methodId: "soundscape", label: "Âm Thanh Thiên Nhiên", reason: "Cậu chưa check-in hôm nay — bắt đầu nhẹ nhàng với âm thanh thiên nhiên thư giãn", icon: "headphones" };
     } else {
       suggestion = { methodId: "exercise", label: "Vận Động Nhẹ", reason: "Tâm trạng đang ổn — duy trì năng lượng với vận động nhẹ", icon: "directions_run" };
     }
@@ -138,6 +138,57 @@ export default function ChatTab({
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showTestsMenu, setShowTestsMenu] = useState(false);
+
+  const [isVentingMode, setIsVentingMode] = useState(false);
+  const [ventingTimerMinutes, setVentingTimerMinutes] = useState(1);
+  const [normalMessagesBackup, setNormalMessagesBackup] = useState([]);
+
+  const glowStyle = `
+    @keyframes candleBreathe {
+      0%, 100% { box-shadow: inset 0 0 40px rgba(251, 146, 60, 0.08); background-color: rgba(251, 146, 60, 0.03); }
+      50% { box-shadow: inset 0 0 80px rgba(251, 146, 60, 0.16); background-color: rgba(251, 146, 60, 0.06); }
+    }
+    .candle-glow-bg {
+      animation: candleBreathe 4s ease-in-out infinite;
+    }
+  `;
+
+  const toggleVentingMode = () => {
+    if (!isVentingMode) {
+      setNormalMessagesBackup(messages);
+      setIsVentingMode(true);
+      setMessages([
+        {
+          id: `venting-greet-${Date.now()}`,
+          sender: "bot",
+          text: "🕯️ Cậu đang bước vào **Không gian Trút Bầu Tâm Sự An Toàn**. Tại đây, mọi tin nhắn gửi đi sẽ tự hủy sau thời gian đã chọn và hoàn toàn **không lưu lại bất cứ dấu vết nào** trong cơ sở dữ liệu hay bộ nhớ thiết bị. Hãy thoải mái trút bỏ mọi muộn phiền nhé.",
+          time: new Date(),
+          timeLeft: ventingTimerMinutes * 60
+        }
+      ]);
+      showToast?.("Đã kích hoạt chế độ trút giận an toàn!", "success");
+    } else {
+      setIsVentingMode(false);
+      setMessages(normalMessagesBackup);
+      showToast?.("Đã quay lại chế độ trò chuyện thông thường.", "info");
+    }
+  };
+
+  useEffect(() => {
+    if (!isVentingMode) return;
+    const interval = setInterval(() => {
+      setMessages(prev => {
+        const updated = prev.map(m => {
+          if (m.timeLeft !== undefined) {
+            return { ...m, timeLeft: m.timeLeft - 1 };
+          }
+          return m;
+        });
+        return updated.filter(m => m.timeLeft === undefined || m.timeLeft > 0);
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isVentingMode]);
 
   const botManager = React.useMemo(() => new BotManager(bio, historyLogs, healingActive), [bio, historyLogs, healingActive]);
 
@@ -291,7 +342,7 @@ export default function ChatTab({
 
   // Auto-save new chat messages to MongoDB and sync to localStorage synchronously to prevent tab unmount data loss
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length > 0 && !isVentingMode) {
       localStorage.setItem("banhocduong_chat_messages", JSON.stringify(messages));
       
       const lastMsg = messages[messages.length - 1];
@@ -300,7 +351,7 @@ export default function ChatTab({
         onUpdateCompanionState({ chatMessages: messages });
       }
     }
-  }, [messages]);
+  }, [messages, isVentingMode]);
 
 
 
@@ -330,7 +381,8 @@ export default function ChatTab({
           id: `user-audio-${Date.now()}`,
           sender: "user",
           text: "🎤 [Tin nhắn thoại Audio]",
-          time: new Date()
+          time: new Date(),
+          timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined
         };
         setMessages(prev => [...prev, userMsg]);
         setDialogStage(0);
@@ -341,11 +393,22 @@ export default function ChatTab({
           const newTokens = currentTokens - 1;
           setRemainingChatTokens(newTokens);
           localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
+
+          const lowercaseText = textReply.toLowerCase();
+          let exerciseFlags = {};
+          if (lowercaseText.includes("thở") || lowercaseText.includes("stress") || lowercaseText.includes("căng thẳng") || lowercaseText.includes("áp lực") || lowercaseText.includes("lo lắng") || lowercaseText.includes("lo âu") || lowercaseText.includes("hoảng loạn")) {
+            exerciseFlags.showInlineBreathing = true;
+          } else if (lowercaseText.includes("vô dụng") || lowercaseText.includes("thất bại") || lowercaseText.includes("chán nản") || lowercaseText.includes("kém cỏi") || lowercaseText.includes("bế tắc") || lowercaseText.includes("tuyệt vọng")) {
+            exerciseFlags.showInlineCbt = true;
+          }
+
           const botMsg = {
             id: `bot-audio-${Date.now()}`,
             sender: "bot",
             text: textReply,
             time: new Date(),
+            timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined,
+            ...exerciseFlags
           };
           setMessages(prev => [...prev, botMsg]);
           
@@ -402,7 +465,8 @@ export default function ChatTab({
         id: `user-voice-${Date.now()}`,
         sender: "user",
         text: transcript,
-        time: new Date()
+        time: new Date(),
+        timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined
       };
       setMessages(prev => [...prev, userMsg]);
       setDialogStage(0);
@@ -413,7 +477,8 @@ export default function ChatTab({
         id: botMsgId,
         sender: "bot",
         text: "...", // Initial empty text
-        time: new Date()
+        time: new Date(),
+        timeLeft: isVentingMode ? ventingTimerMinutes * 60 : undefined
       }]);
 
       await botManager.chatStream(
@@ -436,7 +501,7 @@ export default function ChatTab({
             suggestBigFive: botResponse.suggestBigFive
           };
 
-          if (botResponse.bioUpdate && onProfileUpdate) {
+          if (botResponse.bioUpdate && onProfileUpdate && !isVentingMode) {
             onProfileUpdate(botResponse.bioUpdate);
             if (showToast) showToast("Đã tự động lưu thông tin mới vào hồ sơ y khoa.", "success");
           }
@@ -445,9 +510,17 @@ export default function ChatTab({
           setRemainingChatTokens(newTokens);
           localStorage.setItem(`ai_chat_tokens_${today}`, newTokens);
 
+          const lowercaseText = transcript.toLowerCase();
+          let exerciseFlags = {};
+          if (lowercaseText.includes("thở") || lowercaseText.includes("stress") || lowercaseText.includes("căng thẳng") || lowercaseText.includes("áp lực") || lowercaseText.includes("lo lắng") || lowercaseText.includes("lo âu") || lowercaseText.includes("hoảng loạn")) {
+            exerciseFlags.showInlineBreathing = true;
+          } else if (lowercaseText.includes("vô dụng") || lowercaseText.includes("thất bại") || lowercaseText.includes("chán nản") || lowercaseText.includes("kém cỏi") || lowercaseText.includes("bế tắc") || lowercaseText.includes("tuyệt vọng")) {
+            exerciseFlags.showInlineCbt = true;
+          }
+
           setMessages(prev => prev.map(m => {
             if (m.id === botMsgId) {
-              return { ...m, text: textReply, ...suggestionFlags };
+              return { ...m, text: textReply, ...suggestionFlags, ...exerciseFlags };
             }
             return m;
           }));
@@ -1605,8 +1678,8 @@ export default function ChatTab({
             </div>
           )}
 
-          {/* ── Text input bar — Desktop only (md+) ─────────────────────────── */}
-          <div className="hidden md:flex px-3 pt-2 pb-3 items-end gap-2">
+          {/* ── Text input bar ────────────────────────────────────────────── */}
+          <div className="flex px-3 pt-2 pb-3 items-end gap-2">
 
             {/* Voice to text */}
             <button type="button" onClick={startListening}

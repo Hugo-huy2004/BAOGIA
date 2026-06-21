@@ -9,6 +9,8 @@ const MemberSignatureTab = lazy(() => import("./MemberSignatureTab"));
 const MemberSecretLinkTab = lazy(() => import("./MemberSecretLinkTab"));
 const MemberFileToolsTab = lazy(() => import("./MemberFileToolsTab"));
 const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
+const MemberIdeTab = lazy(() => import("./MemberIdeTab"));
+const ChessPage = lazy(() => import("../../pages/public/ChessPage"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect }) {
   const { t } = useTranslation();
@@ -101,6 +103,16 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           handleSave={handleSave}
           sleepAutoDetect={sleepAutoDetect}
         />
+      )}
+
+      {/* Web IDE Tool */}
+      {selectedUtility === "ide" && (
+        <MemberIdeTab onBack={() => onSelectUtility(null)} />
+      )}
+
+      {/* Chess game */}
+      {selectedUtility === "chess" && (
+        <ChessPage />
       )}
       </Suspense>
     </div>

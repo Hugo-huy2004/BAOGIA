@@ -287,7 +287,7 @@ router.get('/me', async (req, res) => {
 
     // Auto-create a placeholder Bio document if it doesn't exist and we have the Google displayName
     if (!bioDoc && displayName) {
-      const isEdu = isEduEmail(email);
+      const isEdu = await isEduEmail(email);
       const baseSlug = normalizeSlug(displayName);
       const newSlug = await createUniqueSlug(baseSlug);
       

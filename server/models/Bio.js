@@ -246,6 +246,11 @@ const BioSchema = new mongoose.Schema(
     unlockedCompanionFeatures: {
       type: [String],
       default: []
+    },
+    // List of completed interactive IDE lessons (IDs) that awarded JOY
+    completedLessons: {
+      type: [String],
+      default: []
     }
   },
   { timestamps: true }

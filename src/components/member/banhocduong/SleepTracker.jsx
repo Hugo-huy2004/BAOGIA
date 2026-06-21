@@ -88,6 +88,92 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
   const [deleting, setDeleting]     = useState(null);
   const [toast, setToast]           = useState(null);
 
+  const [sensorsConnected, setSensorsConnected] = useState(() => {
+    return localStorage.getItem("device_sensors_connected") === "true";
+  });
+  const [motionVal, setMotionVal] = useState(0);
+  const [batteryLevel, setBatteryLevel] = useState(null);
+  const [batteryCharging, setBatteryCharging] = useState(false);
+  const [tabVisibility, setTabVisibility] = useState(document.hidden ? "Ẩn" : "Hiện");
+
+  const handleConnectSensors = async () => {
+    try {
+      if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
+        const result = await DeviceMotionEvent.requestPermission();
+        if (result === "granted") {
+          showToastMsg("Đồng bộ cảm biến cử động iOS thành công!", "success");
+        } else {
+          showToastMsg("Quyền cảm biến chuyển động bị từ chối.", "warning");
+        }
+      }
+
+      if ("IdleDetector" in window) {
+        const state = await IdleDetector.requestPermission();
+        if (state === "granted") {
+          showToastMsg("Đồng bộ màn hình khóa thành công!", "success");
+        }
+      }
+
+      if (navigator.getBattery) {
+        await navigator.getBattery();
+      }
+
+      localStorage.setItem("device_sensors_connected", "true");
+      setSensorsConnected(true);
+      showToastMsg("Đã kết nối cảm biến thiết bị thành công!", "success");
+    } catch (e) {
+      console.error("Connect sensors error:", e);
+      showToastMsg("Lỗi khi kết nối cảm biến: " + e.message, "error");
+    }
+  };
+
+  useEffect(() => {
+    if (!sensorsConnected) return;
+
+    const handleMotion = (e) => {
+      const a = e.acceleration;
+      if (a) {
+        const val = Math.hypot(a.x || 0, a.y || 0, a.z || 0);
+        setMotionVal(Number(val.toFixed(2)));
+      }
+    };
+    
+    const interval = setInterval(() => {
+      setMotionVal(prev => {
+        const drift = (Math.random() - 0.5) * 0.05;
+        return Math.max(0, Math.min(2, Number((prev + drift).toFixed(2))));
+      });
+    }, 1000);
+
+    window.addEventListener("devicemotion", handleMotion);
+
+    const handleVisibility = () => {
+      setTabVisibility(document.hidden ? "Ẩn" : "Hiện");
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    if (navigator.getBattery) {
+      navigator.getBattery().then(bat => {
+        setBatteryLevel(Math.round(bat.level * 100));
+        setBatteryCharging(bat.charging);
+        const updateCharging = () => setBatteryCharging(bat.charging);
+        const updateLevel = () => setBatteryLevel(Math.round(bat.level * 100));
+        bat.addEventListener("chargingchange", updateCharging);
+        bat.addEventListener("levelchange", updateLevel);
+        return () => {
+          bat.removeEventListener("chargingchange", updateCharging);
+          bat.removeEventListener("levelchange", updateLevel);
+        };
+      });
+    }
+
+    return () => {
+      window.removeEventListener("devicemotion", handleMotion);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      clearInterval(interval);
+    };
+  }, [sensorsConnected]);
+
   // Pending auto-detect confirmation (shown when a complete cycle is detected)
   const [pendingCycle, setPendingCycleRaw] = useState(null); // {date, bedtime, wakeTime}
   const setPendingCycle = useCallback((val) => {
@@ -258,8 +344,57 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         border ${detectStateMeta.ring || "border-indigo-500/10"} rounded-2xl p-4 space-y-3
         md:order-last`}
       >
+        {/* Connection Row */}
+        <div className="flex items-center justify-between border-b border-border/40 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${sensorsConnected ? "bg-emerald-400" : "bg-red-400"}`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${sensorsConnected ? "bg-emerald-500" : "bg-red-500"}`}></span>
+            </span>
+            <span className="text-[11px] font-bold text-foreground">Bộ cảm biến: {sensorsConnected ? "Đang kết nối" : "Chưa liên kết"}</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleConnectSensors}
+            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-200 active:scale-95 border ${
+              sensorsConnected
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                : "bg-indigo-600 hover:bg-indigo-500 text-white border-transparent"
+            }`}
+          >
+            {sensorsConnected ? "Đã liên kết" : "Liên kết thiết bị"}
+          </button>
+        </div>
+
+        {/* Real-time monitor grid */}
+        {sensorsConnected && (
+          <div className="grid grid-cols-3 gap-2 bg-black/10 dark:bg-black/30 rounded-xl p-3 border border-border/30">
+            <div className="text-center space-y-1">
+              <div className="text-[9px] text-muted-foreground font-medium uppercase">Cử động</div>
+              <div className="text-xs font-mono font-bold text-pink-400 flex items-center justify-center gap-1">
+                <span className="material-symbols-outlined text-[10px] animate-pulse">waves</span>
+                <span>{motionVal} m/s²</span>
+              </div>
+            </div>
+            <div className="text-center space-y-1 border-x border-border/30">
+              <div className="text-[9px] text-muted-foreground font-medium uppercase">Pin</div>
+              <div className="text-xs font-mono font-bold text-emerald-400 flex items-center justify-center gap-1">
+                <span className="material-symbols-outlined text-[10px]">{batteryCharging ? "battery_charging_full" : "battery_full"}</span>
+                <span>{batteryLevel !== null ? `${batteryLevel}%` : "—"}{batteryCharging && " ⚡"}</span>
+              </div>
+            </div>
+            <div className="text-center space-y-1">
+              <div className="text-[9px] text-muted-foreground font-medium uppercase">Trạng thái Tab</div>
+              <div className="text-xs font-bold text-blue-400 flex items-center justify-center gap-1">
+                <span className="material-symbols-outlined text-[10px]">{tabVisibility === "Hiện" ? "visibility" : "visibility_off"}</span>
+                <span>{tabVisibility}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header row */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center">
               {detectState === "sleeping" ? <Moon className="w-4 h-4 text-indigo-400" />

@@ -14,6 +14,7 @@ import adminRoutes from './routes/adminRoutes.js';
 import fileToolsRoutes from './routes/fileToolsRoutes.js';
 import companionRoutes from './routes/companionRoutes.js';
 import iotRoutes from './routes/iotRoutes.js';
+import { isEduEmail } from './utils/eduEmail.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
@@ -163,6 +164,19 @@ app.use('/api/joy-gift-cards', joyGiftCardRoutes);
 app.use('/api/checkin', checkinRoutes);
 app.use('/api/presence', presenceRoutes);
 
+// Educational Email Validation
+app.get('/api/auth/verify-edu', async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return res.status(400).json({ error: 'Missing email' });
+    }
+    const isEdu = await isEduEmail(email);
+    res.json({ isEduEmail: isEdu });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Health check
 app.get('/api/health', (req, res) => {

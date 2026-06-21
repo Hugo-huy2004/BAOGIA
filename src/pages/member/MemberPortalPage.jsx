@@ -511,6 +511,78 @@ export default function MemberPortalPage() {
   // ── Active section info (mobile) ──────────────────────────────────────────────
   const activeSectionInfo = ACCOUNT_SECTIONS.find(s => s.id === mobileSubSection);
 
+  const isFullscreenUtility = activeTab === "utilities" && (subTab === "ide" || subTab === "chess");
+
+  if (isFullscreenUtility) {
+    return (
+      <div className="fixed inset-0 z-[120] w-screen h-screen bg-[#f5f5f7] dark:bg-[#000000] overflow-hidden flex flex-col font-body">
+        {/* Toast */}
+        <AnimatePresence>
+          {toast.message && (
+            <motion.div key="toast"
+              initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }}
+              transition={{ type:"spring", stiffness:400, damping:28 }}
+              className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl shadow-2xl border border-zinc-200/60 dark:border-zinc-800/80 max-w-md mx-auto"
+              style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}
+            >
+              <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-[#34c759]":toast.type==="warning"?"text-[#ff9500]":"text-[#ff3b30]"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
+                {toast.type==="success"?"check_circle":toast.type==="warning"?"warning":"error"}
+              </span>
+              <p className="flex-1 text-[11px] sm:text-xs font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] leading-relaxed">{toast.message}</p>
+              <button type="button" onClick={()=>setToast({message:"",type:""})} className="text-zinc-400 hover:text-zinc-600 shrink-0 transition-colors">
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Floating back button */}
+        <div className="absolute top-4 right-4 z-[200]">
+          <button
+            type="button"
+            onClick={() => navigate("/member/utilities")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 text-[10px] font-bold shadow-md hover:bg-zinc-150 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95"
+          >
+            <span className="material-symbols-outlined text-xs">arrow_back</span>
+            <span>Quay lại Tiện ích</span>
+          </button>
+        </div>
+        
+        <div className="flex-1 w-full h-full overflow-hidden">
+          <ErrorBoundary>
+            <React.Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
+              <MemberUtilitiesTab
+                bio={bio}
+                publicLink={publicLink}
+                showToast={showToast}
+                setFormData={setFormData}
+                handleSave={handleSave}
+                selectedUtility={utilitySelection}
+                onSelectUtility={handleSelectUtility}
+                psychologySubTab={psychologySubTabFromUrl}
+                onSelectPsychologySubTab={handleSelectPsychologySubTab}
+                defaultPsychologyPresetTest={defaultPsychologyPresetTest}
+                sleepAutoDetect={sleepAutoDetect}
+              />
+            </React.Suspense>
+          </ErrorBoundary>
+        </div>
+        
+        <CropModal cropModal={cropModal} setCropModal={setCropModal} handleDragStart={handleDragStart} handleDragMove={handleDragMove} handleDragEnd={handleDragEnd} handleCropSave={handleCropSave} t={t} />
+        {showOnboarding && !isGuestMode && memberSession?.email && (
+          <OnboardingProfileModal
+            email={memberSession.email}
+            onDone={(result) => {
+              setShowOnboarding(false);
+              if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
+              fetchJoyBalance(memberSession.email);
+            }}
+          />
+        )}
+      </div>
+    );
+  }
+
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] font-body selection:bg-[#0071e3]/20 transition-colors duration-300">

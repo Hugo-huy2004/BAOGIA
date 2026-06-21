@@ -49,4 +49,33 @@ router.post('/adjust', requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/joy/award-learning
+router.post('/award-learning', async (req, res) => {
+  try {
+    const { email, lessonId } = req.body;
+    if (!email || !lessonId) return res.status(400).json({ error: 'Email and lessonId are required' });
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    if (!bio.completedLessons) {
+      bio.completedLessons = [];
+    }
+
+    if (bio.completedLessons.includes(lessonId)) {
+      return res.json({ success: true, alreadyCompleted: true, balance: bio.joyBalance });
+    }
+
+    const result = await awardJoy(email, 10, 'ide_learning', `Hoàn thành bài học IDE: ${lessonId}`);
+    bio.completedLessons.push(lessonId);
+    bio.markModified('completedLessons');
+    await bio.save();
+
+    res.json({ success: true, balance: result.balance });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 export default router;

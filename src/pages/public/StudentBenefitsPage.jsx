@@ -30,7 +30,7 @@ export default function StudentBenefitsPage() {
     return () => clearTimeout(timer);
   }, [toast.message]);
 
-  const handleGoogleCredential = (response) => {
+  const handleGoogleCredential = async (response) => {
     setToast({ message: "", type: "" });
 
     if (!response?.credential) {
@@ -45,7 +45,8 @@ export default function StudentBenefitsPage() {
     const profile = JSON.parse(payloadJson);
 
     const email = profile.email || "";
-    if (!isEduEmail(email)) {
+    const isEdu = await isEduEmail(email);
+    if (!isEdu) {
       showToast(
         "Tài khoản của bạn sẽ ở trạng thái chờ duyệt vì đây không phải email .edu. Đang chuyển hướng...",
         "warning",

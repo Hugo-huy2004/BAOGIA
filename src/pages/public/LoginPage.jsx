@@ -43,7 +43,7 @@ export default function LoginPage() {
     }
   }, [allowRegistration, activeMode]);
 
-  const handleGoogleCredential = (response) => {
+  const handleGoogleCredential = async (response) => {
     setToast({ message: "", type: "" });
 
     if (!response?.credential) {
@@ -56,7 +56,8 @@ export default function LoginPage() {
     const profile = JSON.parse(payloadJson);
 
     const email = profile.email || "";
-    if (!isEduEmail(email)) {
+    const isEdu = await isEduEmail(email);
+    if (!isEdu) {
       showToast(
         t("loginPage.toast.eduRedirect"),
         "warning"
