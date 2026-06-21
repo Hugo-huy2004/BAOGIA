@@ -4,12 +4,16 @@ import { StatCard, Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
 import { Badge, StatusDot } from "../ui/Badge";
 import { Progress } from "../ui/Progress";
 import { Spinner } from "../ui/Spinner";
+import { getAiUrl } from "../../services/api";
 
 const VITE_API = import.meta.env.VITE_API_URL;
 
-// In dev: VITE_AI_URL is empty → relative path goes through Vite proxy to Python server
-// In prod: VITE_AI_URL is set → direct call to AI server
-const AI_BASE = import.meta.env.VITE_AI_URL ?? "";
+// Resolved the same way aiFetch() resolves it: explicit VITE_AI_URL, else
+// derived from VITE_API_URL (api. → ai.), else from the current hostname.
+// Falling back to a bare relative path here used to 405 in production
+// whenever VITE_AI_URL wasn't set — Vercel's SPA rewrite serves index.html
+// for any unmatched path, and a POST against that static resource is 405.
+const AI_BASE = getAiUrl();
 
 async function apiFetch(url) {
   const r = await fetch(url, { credentials: "include" });

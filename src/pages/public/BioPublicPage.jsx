@@ -28,10 +28,17 @@ export default function BioPublicPage() {
   const [isOnline, setIsOnline] = useState(false);
   useEffect(() => {
     if (!bio?.email) return;
-    fetch(`${apiBase}/presence/status?email=${encodeURIComponent(bio.email)}`)
-      .then(r => r.json())
-      .then(data => setIsOnline(!!data[bio.email]))
-      .catch(() => {});
+
+    const pollStatus = () => {
+      fetch(`${apiBase}/presence/status?email=${encodeURIComponent(bio.email)}`)
+        .then(r => r.json())
+        .then(data => setIsOnline(!!data[bio.email]))
+        .catch(() => {});
+    };
+
+    pollStatus();
+    const interval = setInterval(pollStatus, 15000);
+    return () => clearInterval(interval);
   }, [bio?.email]);
 
   // Initialize theme values early

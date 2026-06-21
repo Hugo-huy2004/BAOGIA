@@ -38,10 +38,17 @@ const AdminUsersTab = ({
   useEffect(() => {
     const emails = (users || []).map(u => u.email).filter(Boolean);
     if (emails.length === 0) return;
-    fetch(`${API_BASE_URL}/presence/status?emails=${encodeURIComponent(emails.join(','))}`)
-      .then(r => r.json())
-      .then(setOnlineStatuses)
-      .catch(() => {});
+
+    const pollStatuses = () => {
+      fetch(`${API_BASE_URL}/presence/status?emails=${encodeURIComponent(emails.join(','))}`)
+        .then(r => r.json())
+        .then(setOnlineStatuses)
+        .catch(() => {});
+    };
+
+    pollStatuses();
+    const interval = setInterval(pollStatuses, 15000);
+    return () => clearInterval(interval);
   }, [users]);
 
   return (

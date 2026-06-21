@@ -1,4 +1,4 @@
-const getAiUrl = () => {
+export const getAiUrl = () => {
   if (import.meta.env.VITE_AI_URL) return import.meta.env.VITE_AI_URL;
   const apiUrl = import.meta.env.VITE_API_URL || "";
   if (apiUrl.startsWith("http")) {
