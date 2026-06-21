@@ -1279,7 +1279,11 @@
         "purchaseError": "Could not purchase this product.",
         "outOfStock": "Out of stock",
         "insufficientBalance": "Insufficient JOY",
-        "buyButton": "Buy now"
+        "buyButton": "Buy now",
+        "daysUnit": "days validity",
+        "chatTokens": "chat credits",
+        "callTokens": "call credits",
+        "lowStock": "{{count}} left"
       }
     },
     "checkin": {

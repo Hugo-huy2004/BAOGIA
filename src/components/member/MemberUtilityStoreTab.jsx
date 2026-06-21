@@ -41,7 +41,19 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, showT
   }
 
   if (loading) {
-    return <div className="py-12 text-center text-xs text-zinc-400">{t("memberPortal.joy.store.loading")}</div>;
+    return (
+      <div className="grid grid-cols-2 gap-3">
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800/80 animate-pulse">
+            <div className="aspect-[4/3] bg-zinc-100 dark:bg-zinc-800/60" />
+            <div className="p-3 space-y-2">
+              <div className="h-2.5 w-3/4 rounded bg-zinc-100 dark:bg-zinc-800/60" />
+              <div className="h-2 w-1/2 rounded bg-zinc-100 dark:bg-zinc-800/60" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (products.length === 0) {
@@ -53,37 +65,76 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, showT
     );
   }
 
+  const perkLabel = (product) => {
+    if (product.productType === "system_validity" && product.extendDays > 0) {
+      return `+${product.extendDays} ${t("memberPortal.joy.store.daysUnit")}`;
+    }
+    if (product.productType === "psy_study_tokens" && product.tokenAmount > 0) {
+      return `+${product.tokenAmount} ${product.tokenType === "call" ? t("memberPortal.joy.store.callTokens") : t("memberPortal.joy.store.chatTokens")}`;
+    }
+    return null;
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-3">
       {products.map(product => {
         const insufficient = balance < product.priceJoy;
         const outOfStock = product.stock !== -1 && product.stock <= 0;
+        const lowStock = product.stock !== -1 && product.stock > 0 && product.stock <= 5;
+        const perk = perkLabel(product);
+        const disabled = insufficient || outOfStock || buyingId === product._id;
         return (
-          <div key={product._id} className="flex flex-col gap-2.5 p-4 bg-white dark:bg-[#181622] rounded-2xl border border-zinc-200 dark:border-zinc-800/80 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-[18px]">{product.icon || "redeem"}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h5 className="font-bold text-zinc-800 dark:text-white text-xs truncate">{product.name}</h5>
-                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{product.description}</p>
-              </div>
+          <div
+            key={product._id}
+            className={`group flex flex-col rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-[#181622] shadow-sm transition-all duration-200 ${outOfStock ? 'opacity-60' : 'hover:shadow-md hover:-translate-y-0.5'}`}
+          >
+            {/* Cover */}
+            <div className="relative aspect-[4/3] bg-gradient-to-br from-amber-50 to-amber-100/60 dark:from-amber-500/10 dark:to-amber-500/5 flex items-center justify-center overflow-hidden">
+              {product.imageUrl ? (
+                <img src={product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+              ) : (
+                <span className="material-symbols-outlined text-4xl text-amber-400 dark:text-amber-500/70">{product.icon || "redeem"}</span>
+              )}
+              {perk && (
+                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-indigo-600/90 text-white text-[8.5px] font-extrabold uppercase tracking-wide shadow-sm">
+                  {perk}
+                </span>
+              )}
+              {outOfStock ? (
+                <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-zinc-900/80 text-white text-[8.5px] font-extrabold uppercase tracking-wide">
+                  {t("memberPortal.joy.store.outOfStock")}
+                </span>
+              ) : lowStock && (
+                <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-rose-600/90 text-white text-[8.5px] font-extrabold uppercase tracking-wide">
+                  {t("memberPortal.joy.store.lowStock", { count: product.stock })}
+                </span>
+              )}
             </div>
-            <div className="flex items-center justify-between pt-1">
-              <JoyCoinBadge amount={product.priceJoy} size="sm" />
-              <button
-                onClick={() => handleBuy(product)}
-                disabled={insufficient || outOfStock || buyingId === product._id}
-                className="px-3.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {buyingId === product._id
-                  ? "..."
-                  : outOfStock
-                    ? t("memberPortal.joy.store.outOfStock")
-                    : insufficient
-                      ? t("memberPortal.joy.store.insufficientBalance")
-                      : t("memberPortal.joy.store.buyButton")}
-              </button>
+
+            {/* Content */}
+            <div className="flex flex-col flex-1 p-3 gap-2">
+              <div className="min-w-0">
+                <h5 className="font-bold text-zinc-800 dark:text-white text-[11.5px] leading-snug line-clamp-1">{product.name}</h5>
+                {product.description && (
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 mt-0.5 leading-relaxed">{product.description}</p>
+                )}
+              </div>
+              <div className="mt-auto flex flex-col gap-2 pt-1">
+                <JoyCoinBadge amount={product.priceJoy} size="sm" />
+                <button
+                  onClick={() => handleBuy(product)}
+                  disabled={disabled}
+                  className="w-full py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {buyingId === product._id
+                    ? "..."
+                    : outOfStock
+                      ? t("memberPortal.joy.store.outOfStock")
+                      : insufficient
+                        ? t("memberPortal.joy.store.insufficientBalance")
+                        : t("memberPortal.joy.store.buyButton")}
+                </button>
+              </div>
             </div>
           </div>
         );

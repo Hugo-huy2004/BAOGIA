@@ -1279,7 +1279,11 @@
         "purchaseError": "Không thể mua sản phẩm này.",
         "outOfStock": "Hết hàng",
         "insufficientBalance": "Không đủ JOY",
-        "buyButton": "Mua ngay"
+        "buyButton": "Mua ngay",
+        "daysUnit": "ngày HSD",
+        "chatTokens": "lượt chat",
+        "callTokens": "lượt gọi",
+        "lowStock": "Còn {{count}}"
       }
     },
     "checkin": {
