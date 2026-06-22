@@ -151,7 +151,8 @@ const CompanionHistorySchema = new mongoose.Schema(
     activeSecondsToday: { type: Number, default: 0 },
     activeSecondsDate: { type: String, default: '' },     // 'YYYY-MM-DD'
     joyAwardedSecondsToday: { type: Number, default: 0 },
-    dailyJoyCapReached: { type: Boolean, default: false }
+    dailyJoyCapReached: { type: Boolean, default: false },
+    claimedChallengesToday: { type: [String], default: [] }
   },
   { timestamps: true, versionKey: false }
 );

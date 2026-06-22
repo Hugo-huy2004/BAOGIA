@@ -25,6 +25,9 @@
   --muted-foreground: 220 9% 65%;
   --border: 233 17% 14%;
   --ring: 239 84% 72%;
+  --turn-glow: 99, 102, 241;
+  --glass-bg: rgba(18, 19, 26, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.05);
 }
 .app-theme-midnight header { background-color: rgba(9, 10, 15, 0.9) !important; border-color: rgba(255, 255, 255, 0.05) !important; }
 .app-theme-midnight .bg-card { background-color: #12131a !important; border-color: rgba(255, 255, 255, 0.05) !important; }
@@ -57,6 +60,9 @@
   --muted-foreground: 280 40% 75%;
   --border: 268 50% 18%;
   --ring: 262 83% 72%;
+  --turn-glow: 236, 72, 153;
+  --glass-bg: rgba(18, 10, 31, 0.6);
+  --glass-border: rgba(236, 72, 153, 0.18);
 }
 .app-theme-cyber header { background-color: rgba(11, 5, 20, 0.9) !important; border-color: rgba(236, 72, 153, 0.15) !important; }
 .app-theme-cyber .bg-card { background-color: #120a1f !important; border-color: rgba(236, 72, 153, 0.15) !important; box-shadow: 0 0 10px rgba(236, 72, 153, 0.05); }
@@ -87,6 +93,9 @@
   --muted-foreground: 128 20% 70%;
   --border: 133 38% 18%;
   --ring: 142 70% 45%;
+  --turn-glow: 16, 185, 129;
+  --glass-bg: rgba(11, 20, 13, 0.65);
+  --glass-border: rgba(16, 185, 129, 0.12);
 }
 .app-theme-forest header { background-color: rgba(4, 9, 5, 0.9) !important; border-color: rgba(16, 185, 129, 0.1) !important; }
 .app-theme-forest .bg-card { background-color: #0b140d !important; border-color: rgba(16, 185, 129, 0.1) !important; }
@@ -117,6 +126,9 @@
   --muted-foreground: 38 8% 45%;
   --border: 38 20% 90%;
   --ring: 239 84% 67%;
+  --turn-glow: 120, 113, 108;
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(0, 0, 0, 0.05);
 }
 .app-theme-paper header { background-color: rgba(250, 247, 242, 0.9) !important; border-color: rgba(0, 0, 0, 0.06) !important; }
 .app-theme-paper .bg-card { background-color: #ffffff !important; border-color: rgba(0, 0, 0, 0.06) !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
@@ -148,6 +160,9 @@
   --muted-foreground: 347 15% 45%;
   --border: 347 30% 94%;
   --ring: 347 80% 60%;
+  --turn-glow: 244, 63, 94;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(244, 63, 94, 0.08);
 }
 .app-theme-rose header { background-color: rgba(253, 249, 249, 0.9) !important; border-color: rgba(244, 63, 94, 0.08) !important; }
 .app-theme-rose .bg-card { background-color: #ffffff !important; border-color: rgba(244, 63, 94, 0.08) !important; }
@@ -177,6 +192,9 @@
   --muted-foreground: 0 0% 45%;
   --border: 0 0% 90%;
   --ring: 0 0% 20%;
+  --turn-glow: 17, 17, 17;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.06);
 }
 .app-theme-minimalist header { background-color: rgba(251, 251, 251, 0.9) !important; border-color: #e5e5e5 !important; }
 .app-theme-minimalist .bg-card { background-color: #ffffff !important; border-color: #e5e5e5 !important; }
@@ -489,4 +507,66 @@ coords.squares:nth-of-type(even) :nth-child(even) {
 .highlight-purple cg-board square.last-move { background-color: rgba(168, 85, 247, 0.35) !important; }
 .highlight-red    cg-board square.last-move { background-color: rgba(239, 68, 68, 0.35) !important; }
 .highlight-none   cg-board square.last-move { background-color: transparent !important; }
+
+/* ─── Premium Glassmorphic Cards & UI ────────────────────────────────────── */
+.chess-glass-card {
+  background: var(--glass-bg, rgba(255, 255, 255, 0.05)) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08)) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.chess-glass-card-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.chess-glass-card-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--turn-glow), 0.3) !important;
+  box-shadow: 0 8px 30px rgba(var(--turn-glow), 0.08), 0 0 10px rgba(var(--turn-glow), 0.05) !important;
+}
+
+/* ─── Active Turn Breathing Glow ────────────────────────────────────────── */
+@keyframes turn-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(var(--turn-glow), 0.15), 0 0 0 1.5px rgba(var(--turn-glow), 0.2);
+    border-color: rgba(var(--turn-glow), 0.25) !important;
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(var(--turn-glow), 0.35), 0 0 0 2.5px rgba(var(--turn-glow), 0.4);
+    border-color: rgba(var(--turn-glow), 0.5) !important;
+  }
+}
+.player-card-active-glow {
+  animation: turn-glow-pulse 2s ease-in-out infinite;
+  background: rgba(var(--turn-glow), 0.05) !important;
+  opacity: 1 !important;
+}
+
+/* ─── Leaderboard Podium Styles ─────────────────────────────────────────── */
+.podium-first {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+  border: 1.5px solid rgba(251, 191, 36, 0.4) !important;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.15) !important;
+}
+.podium-second {
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.15) 0%, rgba(148, 163, 184, 0.05) 100%);
+  border: 1.5px solid rgba(148, 163, 184, 0.3) !important;
+  box-shadow: 0 0 15px rgba(148, 163, 184, 0.08) !important;
+}
+.podium-third {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.15) 0%, rgba(194, 65, 12, 0.05) 100%);
+  border: 1.5px solid rgba(251, 146, 60, 0.3) !important;
+  box-shadow: 0 0 15px rgba(251, 146, 60, 0.08) !important;
+}
+
+/* ─── General Animations ────────────────────────────────────────────────── */
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 

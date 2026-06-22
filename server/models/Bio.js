@@ -251,6 +251,17 @@ const BioSchema = new mongoose.Schema(
     completedLessons: {
       type: [String],
       default: []
+    },
+    activeAuraTheme: {
+      type: String,
+      default: 'default'
+    },
+    rentedThemes: {
+      type: [{
+        themeId: { type: String, required: true },
+        expiresAt: { type: Date, required: true }
+      }],
+      default: []
     }
   },
   { timestamps: true }

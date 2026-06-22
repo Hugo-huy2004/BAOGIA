@@ -26,7 +26,11 @@ const JoyLedgerSchema = new mongoose.Schema({
       'store_purchase',
       'admin_adjustment',
       'checkin',
-      'companion_unlock'
+      'companion_unlock',
+      'daily_challenge',
+      'arcade_score',
+      'focus_session',
+      'aura_theme_rent'
     ],
     required: true
   },

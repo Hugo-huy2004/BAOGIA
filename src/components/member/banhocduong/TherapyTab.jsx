@@ -5,8 +5,9 @@ import {
   Lock, Unlock, BookOpen, Wind, Brain, ArrowLeft,
   Pencil, Dumbbell, Users, Flame, CheckCircle2, Circle,
   Timer, ChevronRight, Sparkles, TrendingUp, FileText, CalendarCheck, Printer,
-  Headphones, Volume2
+  Headphones, Volume2, Award, MessageSquare, ClipboardList
 } from "lucide-react";
+import confetti from "canvas-confetti";
 import BreathingTherapy from "./BreathingTherapy";
 import ReadingTherapy from "./ReadingTherapy";
 import MeditationTherapy from "./MeditationTherapy";
@@ -475,7 +476,19 @@ const ALL_METHODS = [
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function TherapyTab({ onNavigateToTab, bio, historyLogs, chatMessages, onUpdateCompanionState, healingActive, showToast, onBioUpdate, initialMethod }) {
+export default function TherapyTab({
+  onNavigateToTab,
+  bio,
+  historyLogs = [],
+  chatMessages = [],
+  claimedChallengesToday = [],
+  onClaimChallenge,
+  onUpdateCompanionState,
+  healingActive,
+  showToast,
+  onBioUpdate,
+  initialMethod
+}) {
   const [activePanel, setActivePanel] = useState(initialMethod || null);
   const [unlockedFeatures, setUnlockedFeatures] = useState(bio?.unlockedCompanionFeatures || []);
   const [unlockingId, setUnlockingId] = useState(null);
@@ -485,6 +498,107 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, chatMess
   useEffect(() => {
     if (bio?.unlockedCompanionFeatures) setUnlockedFeatures(bio.unlockedCompanionFeatures);
   }, [bio?.unlockedCompanionFeatures]);
+
+  // --- Daily Challenges State & Logic ---
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const isLogToday = (logDate) => {
+    if (!logDate) return false;
+    return new Date(logDate).toISOString().slice(0, 10) === todayStr;
+  };
+
+  const { breathCompleted, userMessagesCount, chatCompleted, assessmentCompleted } = React.useMemo(() => {
+    const breath = (historyLogs || []).some(log => 
+      log.type === "therapy_activity" && 
+      (log.name?.toLowerCase().includes("hít thở") || log.name?.toLowerCase().includes("thư giãn cơ")) &&
+      isLogToday(log.date)
+    );
+
+    const userCount = (chatMessages || []).filter(msg => 
+      msg.sender === "user" && 
+      isLogToday(msg.time)
+    ).length;
+
+    const assessment = (historyLogs || []).some(log => 
+      (log.type === "clinical_test" || log.test) && 
+      isLogToday(log.date)
+    );
+
+    return {
+      breathCompleted: breath,
+      userMessagesCount: userCount,
+      chatCompleted: userCount >= 3,
+      assessmentCompleted: assessment
+    };
+  }, [historyLogs, chatMessages, todayStr]);
+
+  // Challenge claims list
+  const claims = claimedChallengesToday || [];
+
+  const challenges = [
+    {
+      id: "breath",
+      title: "Hít thở 4-7-8 / Tập Cơ",
+      desc: "Luyện thở hoặc thư giãn cơ sâu",
+      reward: 15,
+      completed: breathCompleted,
+      progressText: breathCompleted ? "1/1" : "0/1",
+      progressPercent: breathCompleted ? 100 : 0,
+      claimed: claims.includes("breath"),
+      icon: Wind,
+      color: "from-amber-500/20 to-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+    },
+    {
+      id: "chat",
+      title: "Tâm sự cùng Companion AI",
+      desc: "Gửi ít nhất 3 tin nhắn hôm nay",
+      reward: 15,
+      completed: chatCompleted,
+      progressText: `${Math.min(3, userMessagesCount)}/3`,
+      progressPercent: Math.min(100, Math.round((userMessagesCount / 3) * 100)),
+      claimed: claims.includes("chat"),
+      icon: MessageSquare,
+      color: "from-indigo-500/20 to-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30"
+    },
+    {
+      id: "assessment",
+      title: "Làm test đánh giá tâm lý",
+      desc: "Hoàn thành 1 bài test lâm sàng",
+      reward: 20,
+      completed: assessmentCompleted,
+      progressText: assessmentCompleted ? "1/1" : "0/1",
+      progressPercent: assessmentCompleted ? 100 : 0,
+      claimed: claims.includes("assessment"),
+      icon: ClipboardList,
+      color: "from-teal-500/20 to-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/30"
+    }
+  ];
+
+  const totalCompleted = challenges.filter(c => c.completed).length;
+  const [claimingId, setClaimingId] = useState(null);
+
+  const handleClaimReward = async (id) => {
+    if (claimingId) return;
+    setClaimingId(id);
+    try {
+      const res = await onClaimChallenge?.(id);
+      if (res && res.success) {
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ["#fbbf24", "#f59e0b", "#34d399", "#38bdf8", "#ec4899"]
+        });
+        // refresh global balance
+        if (bio?.email) {
+          fetchJoyBalance(bio.email);
+        }
+      }
+    } catch (err) {
+      // already handles error showing toast
+    } finally {
+      setClaimingId(null);
+    }
+  };
 
   const unlocked = {
     reading: unlockedFeatures.includes("reading"),
@@ -567,6 +681,100 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs, chatMess
 
   return (
     <div className="p-4 pb-20 space-y-4 animate-fadeIn">
+
+      {/* Daily Challenges Widget */}
+      {!showInline && (
+        <div className="bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-transparent dark:from-amber-950/10 dark:via-zinc-900/5 rounded-3xl border border-amber-500/20 dark:border-amber-900/35 p-5 shadow-sm backdrop-blur-md space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-500">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 leading-none">
+                  Thử thách Chăm sóc Tinh thần
+                </h4>
+                <p className="text-[10px] text-zinc-400 font-bold leading-none mt-1">
+                  Thực hành tự phục hồi và tích lũy JOY hằng ngày
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-[10px] font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full">
+                Hoàn thành: {totalCompleted}/3
+              </span>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden relative">
+            <motion.div
+              className="h-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${(totalCompleted / 3) * 100}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            />
+          </div>
+
+          {/* Challenge List */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {challenges.map((ch) => {
+              const Icon = ch.icon;
+              return (
+                <div
+                  key={ch.id}
+                  className={`bg-white/40 dark:bg-[#12111a]/20 border border-zinc-200/40 dark:border-zinc-800/30 rounded-2xl p-3 flex flex-col justify-between gap-3 relative transition-all hover:bg-white/60 dark:hover:bg-[#1c1a26]/40`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br ${ch.color} shrink-0`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-black text-zinc-800 dark:text-zinc-200 leading-tight">
+                        {ch.title}
+                      </p>
+                      <p className="text-[9px] text-zinc-400 font-medium leading-tight mt-0.5">
+                        {ch.desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-850">
+                    <div className="flex flex-col">
+                      <span className="text-[8px] font-black uppercase text-zinc-450 dark:text-zinc-550 leading-none">
+                        Tiến độ
+                      </span>
+                      <span className="text-[10px] font-black text-zinc-700 dark:text-zinc-300 mt-0.5">
+                        {ch.progressText}
+                      </span>
+                    </div>
+
+                    {ch.claimed ? (
+                      <span className="flex items-center gap-1 text-[9px] font-black uppercase text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-xl">
+                        ✓ Đã nhận
+                      </span>
+                    ) : ch.completed ? (
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleClaimReward(ch.id)}
+                        disabled={claimingId !== null}
+                        className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-[9.5px] font-black uppercase tracking-wider rounded-xl shadow-md shadow-amber-555/20 active:scale-95 transition-all"
+                      >
+                        {claimingId === ch.id ? "Đang nhận..." : `Nhận +${ch.reward} JOY`}
+                      </motion.button>
+                    ) : (
+                      <span className="text-[9px] font-black uppercase text-zinc-400 bg-zinc-100 dark:bg-zinc-800/80 px-2.5 py-1 rounded-xl">
+                        Chưa đạt
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Stats bar */}
       {!showInline && (

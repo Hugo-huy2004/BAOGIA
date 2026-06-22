@@ -1,4 +1,51 @@
 {
+  "aura": {
+    "title": "HugoAura Focus & Lofi Lounge",
+    "pomodoroDesk": "Bàn Làm Việc Pomodoro",
+    "presetLite": "Tập trung nhẹ",
+    "presetDeep": "Tập trung sâu",
+    "presetMaster": "Bậc thầy tập trung",
+    "focusBlock": "PHIÊN TẬP TRUNG",
+    "breakInterval": "KHOẢNG NGHỈ GIẢI LAO",
+    "resetBtn": "Đặt lại",
+    "pauseBtn": "Tạm Dừng",
+    "startBtn": "Bắt Đầu",
+    "workSession": "Phiên Làm Việc",
+    "breakSession": "Giải Lao",
+    "lofiStation": "Lofi Focus Station",
+    "lofiWaves": "Sóng Nhạc Lofi",
+    "timelineScrub": "Tiến trình phát nhạc",
+    "volumeLabel": "Âm lượng",
+    "themeShop": "Cửa Hàng Giao Diện Aura",
+    "themeShopDesc": "Thuê giao diện auroras động độc bản ứng dụng cho toàn bộ trang của bạn. 50 JOY sử dụng trong 24 giờ.",
+    "themeUsed": "Sử dụng",
+    "themeApply": "Áp dụng",
+    "themeRentCost": "{{price}} JOY",
+    "presetWarning": "Vui lòng tạm dừng bộ đếm trước khi đổi mốc thời gian.",
+    "playWarning": "Hãy bấm lại để bắt đầu âm nhạc nhé.",
+    "toastFocusCompleted": "Chúc mừng! Cậu đã hoàn thành {{minutes}} phút tập trung sâu!",
+    "toastJoyReceived": "Nhận thành công +{{amount}} JOY vào tài khoản!",
+    "toastJoyFailed": "Không thể nhận thưởng JOY.",
+    "toastBreakCompleted": "Đã hết giờ nghỉ ngơi! Bắt đầu phiên làm việc mới nào.",
+    "toastLoginRequired": "Vui lòng đăng nhập để thuê giao diện.",
+    "toastRentSuccess": "Thuê thành công giao diện {{name}}!",
+    "toastRentFailed": "Giao dịch thất bại.",
+    "toastSelectFailed": "Không thể chọn giao diện.",
+    "toastSelectSuccess": "Đã áp dụng giao diện {{name}}!",
+    "toastNetworkError": "Đã xảy ra lỗi kết nối.",
+    "remainingHoursMinutes": "Còn {{hours}}h {{minutes}}m",
+    "remainingMinutes": "Còn {{minutes}}m",
+    "themeDefaultName": "Classic Cosmic",
+    "themeDefaultDesc": "Không gian vũ trụ dải sáng tím lam huyền ảo.",
+    "themeSunsetName": "Sunset Aura",
+    "themeSunsetDesc": "Sắc cam hoàng hôn ấm áp hòa cùng ánh hồng đào.",
+    "themeCyberpunkName": "Cyberpunk Neon",
+    "themeCyberpunkDesc": "Dải sáng neon xanh lam, fuchsia và tím rực rỡ.",
+    "themeEmeraldName": "Emerald Healing",
+    "themeEmeraldDesc": "Xanh ngọc bích mát lành điểm thêm tia sáng vàng.",
+    "themeObsidianName": "Obsidian Eclipse",
+    "themeObsidianDesc": "Sắc xám obsidian huyền bí cùng hạt sáng bạc."
+  },
   "navbar": {
     "home": "Trang chủ",
     "services": "Dịch vụ",
@@ -1878,6 +1925,10 @@
       "radio": {
         "desc": "Nghe đài tin tức Việt Nam, tin tức quốc tế và các kênh nhạc trực tuyến, miễn phí.",
         "btnText": "Mở Đài Radio"
+      },
+      "arcade": {
+        "desc": "2048, Caro đấu AI, Đoán Từ — chơi để ghi điểm và nhận JOY khi đạt kỷ lục mới.",
+        "btnText": "Vào Sảnh Game"
       }
     },
     "radio": {

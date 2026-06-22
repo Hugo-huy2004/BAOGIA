@@ -12,8 +12,10 @@ const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
 const MemberIdeTab = lazy(() => import("./MemberIdeTab"));
 const ChessPage = lazy(() => import("../../pages/public/ChessPage"));
 const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
+const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
+const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate }) {
   const { t } = useTranslation();
 
   // Dynamic API host determination for local dev and hosting domains
@@ -119,6 +121,16 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* HugoRadio */}
       {selectedUtility === "radio" && (
         <MemberRadioTab onBack={() => onSelectUtility(null)} showToast={showToast} />
+      )}
+
+      {/* HugoArcade */}
+      {selectedUtility === "arcade" && (
+        <HugoArcadeTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} />
+      )}
+
+      {/* HugoAura Focus */}
+      {selectedUtility === "aura" && (
+        <MemberAuraTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
       )}
       </Suspense>
     </div>

@@ -52,7 +52,10 @@ export default function FAQPage() {
             height: dot.size,
             left: `${dot.left}%`,
             top: `${dot.top}%`,
-            animation: `float-y ${dot.duration}s ease-in-out infinite`,
+            animationName: "float-y",
+            animationDuration: `${dot.duration}s`,
+            animationTimingFunction: "ease-in-out",
+            animationIterationCount: "infinite",
             animationDelay: `${dot.delay}s`
           }}
         />

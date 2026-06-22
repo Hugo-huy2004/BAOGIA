@@ -1,4 +1,51 @@
 {
+  "aura": {
+    "title": "HugoAura Focus & Lofi Lounge",
+    "pomodoroDesk": "Pomodoro Workspace",
+    "presetLite": "Focus Lite",
+    "presetDeep": "Focus Deep",
+    "presetMaster": "Focus Master",
+    "focusBlock": "FOCUS BLOCK",
+    "breakInterval": "BREAK INTERVAL",
+    "resetBtn": "Reset",
+    "pauseBtn": "Pause",
+    "startBtn": "Start",
+    "workSession": "Work Session",
+    "breakSession": "Break",
+    "lofiStation": "Lofi Focus Station",
+    "lofiWaves": "Lofi Focus Track",
+    "timelineScrub": "Music timeline progress",
+    "volumeLabel": "Volume",
+    "themeShop": "Aura Theme Shop",
+    "themeShopDesc": "Rent unique dynamic aurora backgrounds that apply to your entire portal. 50 JOY for 24 hours of usage.",
+    "themeUsed": "In Use",
+    "themeApply": "Apply",
+    "themeRentCost": "{{price}} JOY",
+    "presetWarning": "Please pause the timer before changing the duration preset.",
+    "playWarning": "Please click play again to start the music.",
+    "toastFocusCompleted": "Congratulations! You have completed {{minutes}} minutes of deep focus!",
+    "toastJoyReceived": "Successfully received +{{amount}} JOY in your wallet!",
+    "toastJoyFailed": "Failed to award JOY points.",
+    "toastBreakCompleted": "Break is over! Time to start a new work session.",
+    "toastLoginRequired": "Please log in to rent backgrounds.",
+    "toastRentSuccess": "Successfully rented theme {{name}}!",
+    "toastRentFailed": "Transaction failed.",
+    "toastSelectFailed": "Could not select theme.",
+    "toastSelectSuccess": "Applied theme {{name}}!",
+    "toastNetworkError": "Connection error occurred.",
+    "remainingHoursMinutes": "{{hours}}h {{minutes}}m left",
+    "remainingMinutes": "{{minutes}}m left",
+    "themeDefaultName": "Classic Cosmic",
+    "themeDefaultDesc": "Cosmic space with mystical purple-blue aurora glow.",
+    "themeSunsetName": "Sunset Aura",
+    "themeSunsetDesc": "Warm sunset orange blending with peach-pink vibes.",
+    "themeCyberpunkName": "Cyberpunk Neon",
+    "themeCyberpunkDesc": "Vibrant neon cyan, fuchsia and electric purple streaks.",
+    "themeEmeraldName": "Emerald Healing",
+    "themeEmeraldDesc": "Refreshing emerald green accented with golden rays.",
+    "themeObsidianName": "Obsidian Eclipse",
+    "themeObsidianDesc": "Mystical obsidian dark grey with silver particles."
+  },
   "navbar": {
     "home": "Home",
     "services": "Services",
@@ -1878,6 +1925,10 @@
       "radio": {
         "desc": "Listen to Vietnamese news, international news, and music stations online, free.",
         "btnText": "Open Radio"
+      },
+      "arcade": {
+        "desc": "2048, Caro vs AI, Word Guess — play for score and earn JOY on new personal bests.",
+        "btnText": "Enter Arcade"
       }
     },
     "radio": {

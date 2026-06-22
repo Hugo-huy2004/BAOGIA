@@ -69,6 +69,20 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       title: "HugoRadio",
       desc: t("utilities.dashboard.radio.desc", "Nghe đài tin tức Việt Nam, tin tức quốc tế và các kênh nhạc trực tuyến, miễn phí."),
       btnText: t("utilities.dashboard.radio.btnText", "Mở Đài Radio")
+    },
+    {
+      id: "arcade",
+      icon: "stadium",
+      title: "HugoArcade",
+      desc: t("utilities.dashboard.arcade.desc", "2048, Caro đấu AI, Đoán Từ — chơi để ghi điểm và nhận JOY khi đạt kỷ lục mới."),
+      btnText: t("utilities.dashboard.arcade.btnText", "Vào Sảnh Game")
+    },
+    {
+      id: "aura",
+      icon: "blur_on",
+      title: "HugoAura",
+      desc: t("utilities.dashboard.aura.desc", "Không gian tập trung Pomodoro tích hợp bộ trộn âm thanh thiên nhiên thư giãn & trị liệu, nhận JOY."),
+      btnText: t("utilities.dashboard.aura.btnText", "Vào Không Gian")
     }
   ];
 

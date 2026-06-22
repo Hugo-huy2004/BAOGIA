@@ -153,6 +153,14 @@ export default {
         "accordion-up":   { from: { height: "var(--radix-accordion-content-height)" }, to: { height: "0" } },
         // Radio VU-meter bar
         "eq-bar": { "0%, 100%": { transform: "scaleY(0.25)" }, "50%": { transform: "scaleY(1)" } },
+        // Invalid-guess shake (HugoArcade word game)
+        "shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "20%": { transform: "translateX(-6px)" },
+          "40%": { transform: "translateX(6px)" },
+          "60%": { transform: "translateX(-4px)" },
+          "80%": { transform: "translateX(4px)" },
+        },
       },
 
       animation: {

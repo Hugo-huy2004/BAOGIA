@@ -85,6 +85,7 @@ router.post('/heartbeat', async (req, res) => {
       doc.activeSecondsToday = 0;
       doc.joyAwardedSecondsToday = 0;
       doc.dailyJoyCapReached = false;
+      doc.claimedChallengesToday = [];
     }
 
     doc.activeSecondsToday += HEARTBEAT_INTERVAL_SECONDS;
@@ -139,6 +140,16 @@ router.get('/history', async (req, res) => {
         setDefaultsOnInsert: true
       }
     );
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (historyDoc.activeSecondsDate !== todayStr) {
+      historyDoc.activeSecondsDate = todayStr;
+      historyDoc.activeSecondsToday = 0;
+      historyDoc.joyAwardedSecondsToday = 0;
+      historyDoc.dailyJoyCapReached = false;
+      historyDoc.claimedChallengesToday = [];
+      await historyDoc.save();
+    }
 
     if (historyDoc.blockedUntil && new Date(historyDoc.blockedUntil) > new Date()) {
       return res.status(403).json({ error: 'Tài khoản của bạn đã bị tạm khóa do phát hiện nghi vấn xâm nhập. Vui lòng thử lại sau.', blockedUntil: historyDoc.blockedUntil });
@@ -228,6 +239,16 @@ router.post('/history', async (req, res) => {
         setDefaultsOnInsert: true
       }
     );
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (historyDoc.activeSecondsDate !== todayStr) {
+      historyDoc.activeSecondsDate = todayStr;
+      historyDoc.activeSecondsToday = 0;
+      historyDoc.joyAwardedSecondsToday = 0;
+      historyDoc.dailyJoyCapReached = false;
+      historyDoc.claimedChallengesToday = [];
+      await historyDoc.save();
+    }
 
     // --- Streak tracking for checkin logs ---
     if (historyLogs && Array.isArray(historyLogs)) {
@@ -522,6 +543,99 @@ router.post('/report/weekly', async (req, res) => {
     import('fs').then(fs => {
       fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
     }).catch(console.error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST: Claim daily challenge reward
+router.post('/claim-challenge', async (req, res) => {
+  try {
+    const { email, challengeId } = req.body;
+    if (!email || !challengeId) {
+      return res.status(400).json({ error: 'Email and challengeId are required' });
+    }
+
+    const validChallenges = {
+      breath: { amount: 15, name: 'Hít thở 4-7-8' },
+      chat: { amount: 15, name: 'Trò chuyện cùng AI' },
+      assessment: { amount: 20, name: 'Làm test tâm lý' }
+    };
+
+    const challengeDef = validChallenges[challengeId];
+    if (!challengeDef) {
+      return res.status(400).json({ error: 'Thử thách không hợp lệ.' });
+    }
+
+    let historyDoc = await CompanionHistory.findOne({ email });
+    if (!historyDoc) {
+      return res.status(404).json({ error: 'Không tìm thấy lịch sử trị liệu.' });
+    }
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (historyDoc.activeSecondsDate !== todayStr) {
+      historyDoc.activeSecondsDate = todayStr;
+      historyDoc.activeSecondsToday = 0;
+      historyDoc.joyAwardedSecondsToday = 0;
+      historyDoc.dailyJoyCapReached = false;
+      historyDoc.claimedChallengesToday = [];
+    }
+
+    if (!historyDoc.claimedChallengesToday) {
+      historyDoc.claimedChallengesToday = [];
+    }
+
+    if (historyDoc.claimedChallengesToday.includes(challengeId)) {
+      return res.status(400).json({ error: 'Bạn đã nhận phần thưởng cho thử thách này hôm nay rồi.' });
+    }
+
+    // Verify completion
+    let completed = false;
+    const isLogToday = (logDate) => {
+      if (!logDate) return false;
+      return new Date(logDate).toISOString().slice(0, 10) === todayStr;
+    };
+
+    if (challengeId === 'breath') {
+      completed = historyDoc.historyLogs.some(log => 
+        log.type === 'therapy_activity' && 
+        (log.name?.toLowerCase().includes('hít thở') || log.name?.toLowerCase().includes('thư giãn cơ')) &&
+        isLogToday(log.date)
+      );
+    } else if (challengeId === 'chat') {
+      const userMsgCount = historyDoc.chatMessages.filter(msg => 
+        msg.sender === 'user' && 
+        isLogToday(msg.time)
+      ).length;
+      completed = userMsgCount >= 3;
+    } else if (challengeId === 'assessment') {
+      completed = historyDoc.historyLogs.some(log => 
+        (log.type === 'clinical_test' || log.test) && 
+        isLogToday(log.date)
+      );
+    }
+
+    if (!completed) {
+      return res.status(400).json({ error: 'Bạn chưa hoàn thành thử thách này hôm nay.' });
+    }
+
+    // Award JOY
+    const { balance } = await awardJoy(
+      email,
+      challengeDef.amount,
+      'daily_challenge',
+      `Hoàn thành thử thách: ${challengeDef.name}`
+    );
+
+    historyDoc.claimedChallengesToday.push(challengeId);
+    historyDoc.markModified('claimedChallengesToday');
+    await historyDoc.save();
+
+    res.json({
+      success: true,
+      balance,
+      claimedChallengesToday: historyDoc.claimedChallengesToday
+    });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

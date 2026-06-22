@@ -359,6 +359,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
   const [chatMessages, setChatMessages]           = useState([]);
   const [adaptationAlert, setAdaptationAlert]     = useState(null);
   const [crisisFlags, setCrisisFlags]             = useState([]);
+  const [claimedChallengesToday, setClaimedChallengesToday] = useState([]);
 
   // ── Sync from DB ──────────────────────────────────────────────────────────────
   const syncWithDb = useCallback(async () => {
@@ -382,6 +383,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         ['healing_mode','healing_duration','healing_start_date','history','last_checkin_date','last_test_date','chat_distress_count','chat_messages']
           .forEach(k => localStorage.removeItem(`banhocduong_${k}`));
         setHealingActive(false); setHealingDuration(30); setHealingStartDate(""); setHistoryLogs([]); setChatMessages([]);
+        setClaimedChallengesToday([]);
       } else {
         setHealingActive(db.healingActive);
         setHealingDuration(db.healingDuration);
@@ -389,6 +391,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         setHistoryLogs(db.historyLogs || []);
         setChatMessages(db.chatMessages || []);
         setCrisisFlags(db.crisisFlags || []);
+        setClaimedChallengesToday(db.claimedChallengesToday || []);
         localStorage.setItem("banhocduong_healing_mode",       db.healingActive ? "active" : "");
         localStorage.setItem("banhocduong_healing_duration",   db.healingDuration.toString());
         localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
@@ -432,6 +435,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         setHealingActive(db.healingActive); setHealingDuration(db.healingDuration);
         setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
         setHistoryLogs(db.historyLogs || []); setChatMessages(db.chatMessages || []);
+        setClaimedChallengesToday(db.claimedChallengesToday || []);
       }
     } catch (e) { console.error("BHD handleUpdateCompanionState:", e); }
   }, [bio?.email]);
@@ -493,6 +497,20 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       const data = await r.json();
       if (r.ok) setCrisisFlags(data.crisisFlags || []);
     } catch (e) { console.error("BHD crisis resolve:", e); }
+  };
+
+  const handleClaimChallenge = async (challengeId) => {
+    if (!bio?.email) return;
+    try {
+      const res = await dataApi.claimChallengeReward(bio.email, challengeId);
+      if (res && res.success) {
+        setClaimedChallengesToday(res.claimedChallengesToday || []);
+        return res;
+      }
+    } catch (err) {
+      showToast?.(err.message || "Không thể nhận phần thưởng lúc này.", "error");
+      throw err;
+    }
   };
 
   const activeTab = SUB_TABS.find(t => t.id === activeSubTab);
@@ -642,6 +660,8 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                     bio={bio}
                     historyLogs={historyLogs}
                     chatMessages={chatMessages}
+                    claimedChallengesToday={claimedChallengesToday}
+                    onClaimChallenge={handleClaimChallenge}
                     onUpdateCompanionState={handleUpdateCompanionState}
                     healingActive={healingActive}
                     showToast={showToast}

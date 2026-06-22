@@ -3,6 +3,7 @@ import { Chess } from "chess.js";
 import { Chessground } from "chessground";
 import "chessground/assets/chessground.base.css";
 import "./chess-theme.css";
+import confetti from "canvas-confetti";
 import toast from "react-hot-toast";
 import {
   ArrowLeft, Flag, Handshake, Volume2, VolumeX,
@@ -245,26 +246,39 @@ function vibrate(pattern) {
 }
 
 // ── Desktop/Mobile Player Card ────────────────────────────────────────────────
-function PlayerCard({ name, rating, color, isMe, active, ms, thinking, captures = [], materialAdv = 0, avatarUrl }) {
+function PlayerCard({ name, rating, color, isMe, active, ms, thinking, captures = [], materialAdv = 0, avatarUrl, whitePieceTheme, blackPieceTheme }) {
   const danger = active && ms < 15000 && ms > 0;
   const sorted = [...captures].sort((a,b) => (PIECE_VALUES[b]||0) - (PIECE_VALUES[a]||0));
 
   return (
-    <div className={`flex items-center justify-between gap-3 px-4 py-3 bg-card/45 backdrop-blur-md border border-border/80 rounded-2xl shadow-sm transition-all duration-150 ${active ? "opacity-100 ring-1 ring-foreground/20" : "opacity-65"}`}>
+    <div className={`flex items-center justify-between gap-3 px-4 py-3 chess-glass-card rounded-2xl border transition-all duration-300 ${
+      active ? "player-card-active-glow" : "opacity-70 border-border/70"
+    }`}>
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center text-xl shrink-0 select-none overflow-hidden">
+        <div className="w-10 h-10 rounded-xl bg-muted border border-border/80 flex items-center justify-center text-xl shrink-0 select-none overflow-hidden relative shadow-sm">
           {avatarUrl ? (
             <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
           ) : (
-            color === "white" ? "♔" : "♚"
+            <span className="font-display font-black text-foreground/80">{color === "white" ? "♔" : "♚"}</span>
           )}
         </div>
         <div className="min-w-0 leading-tight">
-          <p className="font-bold text-sm truncate">{name}</p>
-          <div className="flex items-center gap-1.5 mt-0.5 min-h-[14px]">
+          <p className="font-bold text-sm truncate text-foreground">{name}</p>
+          <div className="flex items-center gap-1.5 mt-1 min-h-[14px]">
             {sorted.length > 0 ? (
               <span className="text-[12px] text-muted-foreground flex items-center gap-0.5">
-                {sorted.map((p,i) => <span key={i}>{PIECE_SYMS[p]}</span>)}
+                {sorted.map((p, i) => {
+                  const capColor = color === "white" ? "b" : "w";
+                  const capTheme = color === "white" ? blackPieceTheme : whitePieceTheme;
+                  return (
+                    <img
+                      key={i}
+                      src={`https://lichess1.org/assets/piece/${capTheme}/${capColor}${p.toUpperCase()}.svg`}
+                      alt={p}
+                      className="w-3.5 h-3.5 shrink-0 object-contain drop-shadow-sm select-none"
+                    />
+                  );
+                })}
               </span>
             ) : thinking ? (
               <span className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1">
@@ -274,10 +288,10 @@ function PlayerCard({ name, rating, color, isMe, active, ms, thinking, captures 
                 ))}
               </span>
             ) : rating != null ? (
-              <span className="text-[10px] text-muted-foreground font-mono">{rating} JOY</span>
+              <span className="text-[10px] text-muted-foreground/85 font-mono">{rating} JOY</span>
             ) : null}
             {materialAdv > 0 && (
-              <span className="text-[10px] font-black text-foreground bg-foreground/10 px-1.5 py-0.5 rounded leading-none">
+              <span className="text-[9px] font-black text-foreground bg-foreground/10 px-1.5 py-0.5 rounded leading-none">
                 +{materialAdv}
               </span>
             )}
@@ -294,46 +308,61 @@ function PlayerCard({ name, rating, color, isMe, active, ms, thinking, captures 
 }
 
 // ── Mobile Player Card ────────────────────────────────────────────────────────
-function MobilePlayerCard({ name, rating, color, isMe, active, ms, thinking, captures = [], materialAdv = 0, avatarUrl }) {
+function MobilePlayerCard({ name, rating, color, isMe, active, ms, thinking, captures = [], materialAdv = 0, avatarUrl, whitePieceTheme, blackPieceTheme }) {
   const danger = active && ms < 15000 && ms > 0;
   const sorted = [...captures].sort((a,b) => (PIECE_VALUES[b]||0) - (PIECE_VALUES[a]||0));
 
   return (
-    <div className={`flex items-center gap-2.5 px-3 py-2 select-none transition-all duration-150 ${active ? "opacity-100" : "opacity-55"}`}>
-      <div className="relative shrink-0">
-        <div className="w-10 h-10 rounded-2xl bg-muted border border-border flex items-center justify-center text-xl overflow-hidden">
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-          ) : (
-            color === "white" ? "♔" : "♚"
-          )}
+    <div className={`flex items-center justify-between gap-2.5 px-3 py-2.5 select-none rounded-2xl border transition-all duration-300 ${
+      active ? "player-card-active-glow" : "opacity-70 border-border/80 bg-card/25"
+    }`}>
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="relative shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-muted border border-border/80 flex items-center justify-center text-xl overflow-hidden shadow-sm">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="font-display font-black text-foreground/85">{color === "white" ? "♔" : "♚"}</span>
+            )}
+          </div>
+          {active && <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-foreground rounded-full border-2 border-background turn-dot animate-pulse" />}
         </div>
-        {active && <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-foreground rounded-full border-2 border-background turn-dot" />}
-      </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-baseline gap-1.5 leading-tight">
-          <p className="font-bold text-sm truncate">{name}</p>
-          {materialAdv > 0 && (
-            <span className="text-[10px] font-black text-foreground shrink-0">+{materialAdv}</span>
-          )}
-        </div>
-        <div className="flex items-center min-h-[15px] mt-0.5">
-          {sorted.length > 0 ? (
-            <span className="text-[13px] leading-none text-muted-foreground">
-              {sorted.map((p,i) => <span key={i}>{PIECE_SYMS[p]}</span>)}
-            </span>
-          ) : thinking ? (
-            <div className="flex items-center gap-1">
-              {[0,1,2].map(i => (
-                <span key={i} className="w-1 h-1 rounded-full bg-foreground/40 animate-bounce"
-                  style={{ animationDelay: `${i*0.15}s` }} />
-              ))}
-              <span className="text-[10px] text-muted-foreground font-semibold ml-1">đang nghĩ...</span>
-            </div>
-          ) : rating != null ? (
-            <span className="text-[10px] text-muted-foreground font-mono">{rating} JOY</span>
-          ) : null}
+        <div className="min-w-0">
+          <div className="flex items-baseline gap-1.5 leading-tight">
+            <p className="font-bold text-sm text-foreground truncate">{name}</p>
+            {materialAdv > 0 && (
+              <span className="text-[10px] font-black text-foreground shrink-0">+{materialAdv}</span>
+            )}
+          </div>
+          <div className="flex items-center min-h-[15px] mt-1">
+            {sorted.length > 0 ? (
+              <span className="flex items-center gap-0.5">
+                {sorted.map((p, i) => {
+                  const capColor = color === "white" ? "b" : "w";
+                  const capTheme = color === "white" ? blackPieceTheme : whitePieceTheme;
+                  return (
+                    <img
+                      key={i}
+                      src={`https://lichess1.org/assets/piece/${capTheme}/${capColor}${p.toUpperCase()}.svg`}
+                      alt={p}
+                      className="w-3.5 h-3.5 shrink-0 object-contain drop-shadow-sm select-none"
+                    />
+                  );
+                })}
+              </span>
+            ) : thinking ? (
+              <div className="flex items-center gap-1">
+                {[0,1,2].map(i => (
+                  <span key={i} className="w-1 h-1 rounded-full bg-foreground/40 animate-bounce"
+                    style={{ animationDelay: `${i*0.15}s` }} />
+                ))}
+                <span className="text-[10px] text-muted-foreground font-semibold ml-1">đang nghĩ...</span>
+              </div>
+            ) : rating != null ? (
+              <span className="text-[10px] text-muted-foreground/80 font-mono">{rating} JOY</span>
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -740,6 +769,15 @@ export default function ChessGame({
       }
     }
     setResult(res);
+    if (res.winner === colorRef.current) {
+      try {
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (_) {}
+    }
     if (soundRef.current) {
       if (!res.winner) playFx("move");
       else if (res.winner === colorRef.current) playFx("win");
@@ -1213,6 +1251,8 @@ export default function ChessGame({
             ms={oppMs} thinking={thinking}
             captures={oppCaptures} materialAdv={oppAdv}
             avatarUrl={mode === "bot" ? undefined : opponent?.avatarUrl}
+            whitePieceTheme={whitePieceTheme}
+            blackPieceTheme={blackPieceTheme}
           />
         </div>
 
@@ -1270,6 +1310,8 @@ export default function ChessGame({
             ms={myMs}
             captures={myCaptures} materialAdv={myAdv}
             avatarUrl={userInfo?.avatarUrl}
+            whitePieceTheme={whitePieceTheme}
+            blackPieceTheme={blackPieceTheme}
           />
         </div>
 
@@ -1333,6 +1375,8 @@ export default function ChessGame({
                 ms={oppMs} thinking={thinking}
                 captures={oppCaptures} materialAdv={oppAdv}
                 avatarUrl={mode === "bot" ? undefined : opponent?.avatarUrl}
+                whitePieceTheme={whitePieceTheme}
+                blackPieceTheme={blackPieceTheme}
               />
 
               <div className={`relative bg-card border border-border rounded-2xl overflow-hidden p-2 shadow-lg ${chess.inCheck() ? "board-in-check" : ""}`}>
@@ -1427,6 +1471,8 @@ export default function ChessGame({
                 ms={myMs}
                 captures={myCaptures} materialAdv={myAdv}
                 avatarUrl={userInfo?.avatarUrl}
+                whitePieceTheme={whitePieceTheme}
+                blackPieceTheme={blackPieceTheme}
               />
             </div>
 
@@ -2053,19 +2099,21 @@ export default function ChessGame({
 
       {/* ══ DRAW OFFER MODAL ════════════════════════════════════════════════════ */}
       {drawOffer && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-80 bg-background border border-border rounded-3xl p-6 shadow-2xl flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-5 duration-200">
-          <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground border border-border">
-            <Handshake className="w-6 h-6" />
-          </div>
-          <div className="text-center">
-            <p className="font-bold text-base">Đề nghị hòa cờ</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Đối thủ của bạn đang đề nghị hòa cờ.</p>
-          </div>
-          <div className="flex gap-2 w-full">
-            <button onClick={() => { setDrawOffer(false); wsRef.current?.send(JSON.stringify({type:"draw_decline"})); }}
-              className="flex-1 py-3 rounded-xl bg-muted hover:bg-muted/80 text-foreground border border-border text-xs font-bold transition-all">Từ chối</button>
-            <button onClick={() => { setDrawOffer(false); wsRef.current?.send(JSON.stringify({type:"draw_accept"})); }}
-              className="flex-1 py-3 rounded-xl bg-foreground hover:bg-foreground/90 text-background text-xs font-bold transition-all">Đồng ý</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="w-80 chess-glass-card rounded-3xl p-6 shadow-2xl flex flex-col items-center gap-4 animate-scale-in">
+            <div className="w-12 h-12 rounded-2xl bg-muted border border-border/80 flex items-center justify-center text-muted-foreground">
+              <Handshake className="w-6 h-6" />
+            </div>
+            <div className="text-center">
+              <p className="font-bold text-base text-foreground">Đề nghị hòa cờ</p>
+              <p className="text-xs text-muted-foreground mt-1">Đối thủ của bạn đang đề nghị hòa cờ.</p>
+            </div>
+            <div className="flex gap-2 w-full pt-1">
+              <button onClick={() => { setDrawOffer(false); wsRef.current?.send(JSON.stringify({type:"draw_decline"})); }}
+                className="flex-1 py-3 rounded-xl bg-muted hover:bg-muted/80 text-foreground border border-border text-xs font-bold transition-all active:scale-95">Từ chối</button>
+              <button onClick={() => { setDrawOffer(false); wsRef.current?.send(JSON.stringify({type:"draw_accept"})); }}
+                className="flex-1 py-3 rounded-xl bg-foreground hover:bg-foreground/90 text-background text-xs font-bold transition-all active:scale-95">Đồng ý</button>
+            </div>
           </div>
         </div>
       )}
@@ -2073,7 +2121,7 @@ export default function ChessGame({
       {/* ══ PROMOTION DIALOG ════════════════════════════════════════════════════ */}
       {pendingPromo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-card border border-border rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="chess-glass-card border border-white/10 rounded-3xl p-6 shadow-2xl space-y-4 animate-scale-in">
             <p className="text-xs font-black text-center uppercase tracking-widest text-muted-foreground">Phong quân thành</p>
             <div className="flex gap-2">
               {["q","r","b","n"].map(p => (
@@ -2095,10 +2143,14 @@ export default function ChessGame({
 
       {/* ══ RESULT MODAL ════════════════════════════════════════════════════════ */}
       {status === "finished" && result && !rematchRequested && !rematchOffered && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm p-0 md:p-4">
-          <div className="bg-card border border-border rounded-t-3xl md:rounded-3xl w-full md:max-w-sm shadow-2xl overflow-hidden animate-in fade-in-50 slide-in-from-bottom-10 duration-200">
-            <div className={`h-1.5 w-full ${
-              !result.winner ? "bg-foreground/30" : result.winner === playerColor ? "bg-foreground" : "bg-muted-foreground/40"
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-sm p-4">
+          <div className="chess-glass-card rounded-3xl w-full max-w-[340px] shadow-2xl overflow-hidden animate-scale-in">
+            <div className={`h-2 w-full bg-gradient-to-r ${
+              !result.winner 
+                ? "from-slate-400 to-slate-500" 
+                : result.winner === playerColor 
+                  ? "from-yellow-400 via-amber-500 to-yellow-300 animate-gradient" 
+                  : "from-red-400 to-rose-600"
             }`} />
 
             <div className="p-8 text-center space-y-5">
@@ -2106,20 +2158,20 @@ export default function ChessGame({
                 {!result.winner ? (
                   <Handshake className="w-16 h-16" strokeWidth={1.5} />
                 ) : result.winner === playerColor ? (
-                  <Trophy className="w-16 h-16 text-foreground" strokeWidth={1.5} />
+                  <Trophy className="w-16 h-16 text-yellow-500 fill-yellow-500/10 animate-bounce-gentle" strokeWidth={1.5} />
                 ) : (
-                  <Frown className="w-16 h-16" strokeWidth={1.5} />
+                  <Frown className="w-16 h-16 text-red-400/80" strokeWidth={1.5} />
                 )}
               </div>
               <div className="space-y-1">
-                <h2 className="font-black text-2xl">
+                <h2 className="font-black text-2xl text-foreground">
                   {!result.winner ? "Hòa cờ!" : result.winner === playerColor ? "Bạn thắng!" : "Bạn thua!"}
                 </h2>
                 <p className="text-sm text-muted-foreground">{REASON[result.reason] || result.reason}</p>
                 {result.ratingChange != null && (
-                  <div className={`inline-flex items-center gap-1 mt-2 px-3 py-1.5 rounded-xl text-sm font-black border ${
+                  <div className={`inline-flex items-center gap-1 mt-2.5 px-3.5 py-1.5 rounded-xl text-sm font-black border ${
                     result.ratingChange >= 0
-                      ? "bg-foreground text-background border-foreground"
+                      ? "bg-foreground text-background border-foreground shadow-sm"
                       : "bg-muted text-foreground border-border"
                   }`}>
                     {result.ratingChange >= 0 ? "+" : ""}{result.ratingChange} JOY
@@ -2129,15 +2181,15 @@ export default function ChessGame({
 
               {moves.length > 0 && (
                 <button onClick={copyPGN}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-muted hover:bg-muted/80 text-xs font-semibold text-muted-foreground border border-border transition-all">
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-muted hover:bg-muted/80 text-xs font-semibold text-muted-foreground border border-border transition-all active:scale-95">
                   {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                   {copied ? "Đã sao chép PGN!" : "Sao chép ván đấu (PGN)"}
                 </button>
               )}
 
-              <div className="flex gap-3">
-                <button onClick={onBack} className="flex-1 py-3.5 rounded-2xl bg-muted hover:bg-muted/80 text-foreground font-bold text-xs transition-all border border-border">Về sảnh</button>
-                <button onClick={requestRematch} className="flex-1 py-3.5 rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-bold text-xs transition-all">Đấu lại</button>
+              <div className="flex gap-3 pt-2">
+                <button onClick={onBack} className="flex-1 py-3.5 rounded-2xl bg-muted hover:bg-muted/80 text-foreground font-bold text-xs transition-all border border-border active:scale-95">Về sảnh</button>
+                <button onClick={requestRematch} className="flex-1 py-3.5 rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-bold text-xs transition-all active:scale-95 shadow-md">Đấu lại</button>
               </div>
             </div>
           </div>

@@ -555,6 +555,24 @@ export const dataApi = {
     }
   },
 
+  // Claim daily challenge reward
+  async claimChallengeReward(email, challengeId) {
+    try {
+      const response = await safeFetch(`${API_BASE_URL}/companion/claim-challenge`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ email, challengeId })
+      });
+      if (!response.ok) {
+        throw await createHttpError(response, 'Failed to claim challenge reward');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error claiming challenge reward:', error);
+      throw error;
+    }
+  },
+
   // --- In-App Inbox Notifications ---
   async getInbox(email, limit = 20) {
     const response = await safeFetch(`${API_BASE_URL}/inbox?email=${encodeURIComponent(email)}&limit=${limit}`, {

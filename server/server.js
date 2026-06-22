@@ -139,6 +139,7 @@ import joyGiftCardRoutes from './routes/joyGiftCardRoutes.js';
 import checkinRoutes from './routes/checkinRoutes.js';
 import presenceRoutes from './routes/presenceRoutes.js';
 import radioRoutes from './routes/radioRoutes.js';
+import arcadeRoutes from './routes/arcadeRoutes.js';
 
 // Routes
 app.use('/api/data', dataRoutes);
@@ -165,6 +166,7 @@ app.use('/api/joy-gift-cards', joyGiftCardRoutes);
 app.use('/api/checkin', checkinRoutes);
 app.use('/api/presence', presenceRoutes);
 app.use('/api/radio', radioRoutes);
+app.use('/api/arcade', arcadeRoutes);
 
 // Educational Email Validation
 app.get('/api/auth/verify-edu', async (req, res) => {

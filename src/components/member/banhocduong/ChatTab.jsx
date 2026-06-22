@@ -11,6 +11,7 @@ import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogue
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
 import { getRandomResponse, needsAI } from "./constants/randomResponses";
 import { findMatchingIntent, INTENT_DATABASE } from "./constants/intentClassifier";
+import WellnessRecommendationEngine from "../../../services/classes/CompanionBot/WellnessRecommendationEngine";
 
 const MOOD_META = {
   5: { emoji: "😄", label: "Rất tốt" },
@@ -35,66 +36,23 @@ const ASPECT_LABELS = {
 };
 
 
-/** Lightweight client-side wellness snapshot computed from historyLogs — no extra
- * network calls, reuses the same log shapes EvaluationTab/TherapyTab already read. */
-function useWellnessInsight(historyLogs) {
-  return React.useMemo(() => {
-    const checkins = historyLogs
-      .filter(l => l.type === "checkin" && l.mood)
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
+function WellnessInsightStrip({ bio, historyLogs, chatMessages, onNavigateToTab }) {
+  const { latestMood, streak, trend, latestClinical, recommendations } = React.useMemo(() => {
+    return WellnessRecommendationEngine.generateSuggestions(bio, historyLogs, chatMessages);
+  }, [bio, historyLogs, chatMessages]);
 
-    const latestMood = checkins.length ? checkins[checkins.length - 1].mood : null;
-
-    // Streak: consecutive days with a checkin, counting back from today
-    let streak = 0;
-    const days = new Set(checkins.map(c => new Date(c.date).toDateString()));
-    let d = new Date();
-    while (days.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
-
-    // Mood trend: avg of last 3 checkins vs the 3 before that
-    let trend = "stable";
-    if (checkins.length >= 4) {
-      const avg = arr => arr.reduce((a, b) => a + b, 0) / (arr.length || 1);
-      const recent = avg(checkins.slice(-3).map(c => c.mood));
-      const prior = avg(checkins.slice(-6, -3).map(c => c.mood));
-      if (recent - prior >= 0.5) trend = "up";
-      else if (prior - recent >= 0.5) trend = "down";
-    }
-
-    // Most recent clinical test result, if any
-    const clinicalLogs = historyLogs.filter(l => l.test || l.type === "clinical_test").sort((a, b) => new Date(a.date) - new Date(b.date));
-    const latestClinical = clinicalLogs[clinicalLogs.length - 1] || null;
-
-    // ── Smart suggestion: picks ONE concrete therapy method right now, based on
-    // today's actual signals, instead of leaving the user to dig through 9 cards.
-    let suggestion = null;
-    if (latestMood !== null && latestMood <= 2) {
-      suggestion = { methodId: "breath", label: "Hít Thở 4-7-8", reason: "Tâm trạng đang mệt mỏi — hít thở để làm dịu ngay", icon: "air" };
-    } else if (trend === "down") {
-      suggestion = { methodId: "writing", label: "Viết Tự Do", reason: "Cảm xúc gần đây đang đi xuống — viết tự do giúp giải tỏa", icon: "edit_note" };
-    } else if (streak === 0) {
-      suggestion = { methodId: "soundscape", label: "Âm Thanh Thiên Nhiên", reason: "Cậu chưa check-in hôm nay — bắt đầu nhẹ nhàng với âm thanh thiên nhiên thư giãn", icon: "headphones" };
-    } else {
-      suggestion = { methodId: "exercise", label: "Vận Động Nhẹ", reason: "Tâm trạng đang ổn — duy trì năng lượng với vận động nhẹ", icon: "directions_run" };
-    }
-
-    return { latestMood, streak, trend, latestClinical, suggestion };
-  }, [historyLogs]);
-}
-
-function WellnessInsightStrip({ historyLogs, onNavigateToTab }) {
-  const { latestMood, streak, trend, latestClinical, suggestion } = useWellnessInsight(historyLogs);
   const moodMeta = latestMood ? MOOD_META[latestMood] : null;
 
   const trendMeta = {
     up: { icon: "trending_up", label: "Cải thiện", cls: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10" },
     down: { icon: "trending_down", label: "Cần chú ý", cls: "text-rose-600 dark:text-rose-400 bg-rose-500/10" },
     stable: { icon: "trending_flat", label: "Ổn định", cls: "text-zinc-500 dark:text-zinc-400 bg-zinc-500/10" },
-  }[trend];
+  }[trend || "stable"];
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none px-4 -mt-0.5">
+    <div className="space-y-2 py-2">
+      {/* Mini Stats Row */}
+      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none px-4">
         <span className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/70 text-[10px] font-bold text-zinc-600 dark:text-zinc-300 whitespace-nowrap">
           {moodMeta ? <>{moodMeta.emoji} {moodMeta.label}</> : <>— Chưa check-in</>}
         </span>
@@ -117,21 +75,41 @@ function WellnessInsightStrip({ historyLogs, onNavigateToTab }) {
           </button>
         )}
       </div>
-      {suggestion && (
-        <button
-          type="button"
-          onClick={() => onNavigateToTab?.("therapy", suggestion.methodId)}
-          className="w-full flex items-center gap-2.5 px-4 py-2.5 mx-0 rounded-none bg-gradient-to-r from-violet-500/10 to-indigo-500/5 border-y border-violet-500/15 text-left active:scale-[0.99] transition-all"
-        >
-          <span className="shrink-0 w-7 h-7 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[15px]">{suggestion.icon}</span>
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-black text-violet-700 dark:text-violet-400">Gợi ý hôm nay: {suggestion.label}</span>
-            <span className="block text-[9.5px] text-zinc-500 dark:text-zinc-400 truncate">{suggestion.reason}</span>
-          </span>
-          <span className="material-symbols-outlined text-[16px] text-violet-400 shrink-0">chevron_right</span>
-        </button>
+
+      {/* Smart Suggestions List */}
+      {recommendations && recommendations.length > 0 && (
+        <div className="px-4 pb-1 space-y-1.5">
+          <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Gợi ý dành riêng cho cậu hôm nay:</p>
+          <div className="flex flex-col gap-2">
+            {recommendations.map((suggestion, idx) => (
+              <button
+                key={`${suggestion.id}-${idx}`}
+                type="button"
+                onClick={() => {
+                  if (suggestion.type === "therapy") {
+                    onNavigateToTab?.("therapy", suggestion.id);
+                  } else if (suggestion.type === "test") {
+                    onNavigateToTab?.("evaluation");
+                  } else if (suggestion.type === "unlock") {
+                    onNavigateToTab?.("therapy");
+                  }
+                }}
+                className="w-full flex items-center gap-3 p-2.5 rounded-2xl bg-gradient-to-r from-indigo-500/5 to-violet-500/5 hover:from-indigo-500/10 hover:to-violet-500/10 border border-zinc-100 dark:border-zinc-800/80 text-left active:scale-[0.99] transition-all"
+              >
+                <span className="shrink-0 w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[16px]">
+                    {suggestion.icon === "air" ? "wind_power" : suggestion.icon === "lock" ? "lock" : suggestion.icon === "spa" ? "spa" : "psychology"}
+                  </span>
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[10.5px] font-black text-indigo-700 dark:text-indigo-450 leading-tight">{suggestion.label}</span>
+                  <span className="block text-[9px] text-zinc-500 dark:text-zinc-400 mt-0.5 leading-snug">{suggestion.reason}</span>
+                </span>
+                <span className="material-symbols-outlined text-[16px] text-indigo-400 shrink-0">chevron_right</span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
@@ -1479,7 +1457,7 @@ export default function ChatTab({
 
       {/* ── Smart wellness insight strip ──────────────────────────────────────── */}
       <div className="shrink-0 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50">
-        <WellnessInsightStrip historyLogs={historyLogs} onNavigateToTab={onNavigateToTab} />
+        <WellnessInsightStrip bio={bio} historyLogs={historyLogs} chatMessages={messages} onNavigateToTab={onNavigateToTab} />
       </div>
 
       {/* ── Tests bottom sheet ──────────────────────────────────────────────────── */}

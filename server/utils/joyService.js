@@ -13,7 +13,11 @@ const TITLES = {
   gift_code: 'Đổi mã quà tặng',
   store_purchase: 'Mua hàng',
   admin_adjustment: 'Điều chỉnh JOY',
-  companion_unlock: 'Mở khoá tính năng trị liệu'
+  companion_unlock: 'Mở khoá tính năng trị liệu',
+  daily_challenge: 'Thử thách hàng ngày',
+  arcade_score: 'Kỷ lục HugoArcade mới',
+  focus_session: 'Tập trung sâu HugoAura',
+  aura_theme_rent: 'Thuê giao diện Aura'
 };
 
 /**

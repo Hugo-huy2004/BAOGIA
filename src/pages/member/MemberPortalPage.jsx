@@ -18,6 +18,7 @@ import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
+import AuraBackground from "../../components/member/portal/AuraBackground";
 
 // Sub-components
 import BirthdaySurprise from "../../components/member/BirthdaySurprise";
@@ -253,6 +254,21 @@ export default function MemberPortalPage() {
         const res = await memberService.getMemberBio(memberSession.email, memberSession.displayName, memberSession.avatarUrl);
         if (res?.bio) {
           const b = res.bio;
+          
+          // Theme rental expiration validation
+          if (b.activeAuraTheme && b.activeAuraTheme !== 'default') {
+            const themeRecord = b.rentedThemes?.find(t => t.themeId === b.activeAuraTheme);
+            if (!themeRecord || new Date(themeRecord.expiresAt).getTime() <= Date.now()) {
+              b.activeAuraTheme = 'default';
+              const apiBase = import.meta.env.VITE_API_URL || '/api';
+              fetch(`${apiBase}/joy/set-theme`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: b.email, themeId: 'default' })
+              }).catch(console.error);
+            }
+          }
+          
           setBio(b);
           // Defer balance/referral-code fetch until onboarding (phone capture) is done —
           // GET /api/joy/balance eagerly calls ensureReferralCode, and we want phone
@@ -618,9 +634,8 @@ export default function MemberPortalPage() {
         )}
       </AnimatePresence>
 
-      {/* Background decorators */}
-      <div className="absolute top-0 left-1/4 w-[40%] h-[400px] bg-gradient-to-br from-[#0071e3]/8 to-[#5856d6]/8 rounded-full filter blur-[120px] pointer-events-none opacity-60 dark:opacity-20" />
-      <div className="absolute top-1/3 right-1/4 w-[35%] h-[350px] bg-gradient-to-br from-[#30b0c7]/8 to-[#34c759]/5 rounded-full filter blur-[100px] pointer-events-none opacity-40 dark:opacity-10" />
+      {/* Animated Aura Background Backdrop */}
+      <AuraBackground theme={bio?.activeAuraTheme || 'default'} />
 
       <div className="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 md:pt-8 pb-28 md:pb-12 space-y-5 sm:space-y-6 relative z-10">
 
@@ -995,7 +1010,7 @@ export default function MemberPortalPage() {
                 {activeTab === "manage"    && <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} handleRedeemCode={handleRedeemCode} />}
                 {activeTab === "joy"       && <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />}
                 {activeTab === "partner"   && <MemberPartnerTab />}
-                {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} />}
+                {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />}
                 {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} />}
               </>
             )}

@@ -234,33 +234,90 @@ function Leaderboard({ active }) {
       {lb.length === 0 ? (
         <div className="py-12 text-center text-muted-foreground text-sm bg-card border border-border rounded-2xl">Chưa có người chơi nào</div>
       ) : (
-        <div className="bg-card border border-border rounded-2xl overflow-hidden">
-          {lb.map((p, i) => {
-            const t = tier(p.rating);
-            return (
-              <div key={p.email || i} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/40 transition-colors">
-                <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                  {i === 0 ? <Crown className="w-3.5 h-3.5 text-foreground" /> : <span className="text-[11px] font-black text-muted-foreground">{i + 1}</span>}
+        <div className="space-y-4">
+          {/* Visual Podium for Top 3 */}
+          <div className="grid grid-cols-3 gap-3 items-end pt-4 pb-2 select-none">
+            {/* 2nd Place */}
+            {lb[1] ? (
+              <div className="podium-second rounded-2xl p-3 flex flex-col items-center text-center space-y-2 relative h-36 justify-end animate-fadeIn">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-black flex items-center justify-center shadow-sm">2</span>
+                <div className="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-800 overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                  {lb[1].avatar ? <img src={lb[1].avatar} alt="" className="w-full h-full object-cover" /> : <span className="text-xs font-bold">{(lb[1].displayName ? lb[1].displayName[0].toUpperCase() : "A")}</span>}
                 </div>
-                {/* Avatar */}
-                <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center shrink-0 overflow-hidden text-[11px] font-bold select-none">
-                  {p.avatar ? (
-                    <img src={p.avatar} alt={p.displayName} className="w-full h-full object-cover" />
-                  ) : (
-                    (p.displayName ? p.displayName[0].toUpperCase() : "A")
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-foreground truncate">{p.displayName || "Ẩn danh"}</p>
-                  <p className="text-[11px] text-muted-foreground font-mono leading-tight">{p.gamesPlayed}V · {p.wins}T {p.losses}B {p.draws}H</p>
-                </div>
-                <div className="text-right shrink-0 space-y-0.5">
-                  <p className="font-black text-base leading-none text-foreground font-mono">{p.rating}</p>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${t.cls}`}>{t.label}</span>
+                <div className="w-full min-w-0">
+                  <p className="text-[11px] font-bold text-foreground truncate">{lb[1].displayName || "Ẩn danh"}</p>
+                  <p className="text-[11px] font-extrabold text-foreground/80 font-mono mt-0.5">{lb[1].rating}</p>
                 </div>
               </div>
-            );
-          })}
+            ) : (
+              <div className="invisible h-36" />
+            )}
+
+            {/* 1st Place */}
+            {lb[0] ? (
+              <div className="podium-first rounded-2xl p-3.5 flex flex-col items-center text-center space-y-2 relative h-40 justify-end z-10 scale-105 animate-fadeIn">
+                <Crown className="w-5 h-5 text-yellow-500 fill-current absolute -top-4 left-1/2 -translate-x-1/2 drop-shadow animate-bounce-gentle" />
+                <div className="w-12 h-12 rounded-full border-2 border-yellow-400 overflow-hidden bg-muted flex items-center justify-center shrink-0 shadow-md">
+                  {lb[0].avatar ? <img src={lb[0].avatar} alt="" className="w-full h-full object-cover" /> : <span className="text-sm font-bold">{(lb[0].displayName ? lb[0].displayName[0].toUpperCase() : "A")}</span>}
+                </div>
+                <div className="w-full min-w-0">
+                  <p className="text-xs font-black text-foreground truncate">{lb[0].displayName || "Ẩn danh"}</p>
+                  <p className="text-xs font-black text-yellow-600 dark:text-yellow-400 font-mono mt-0.5">{lb[0].rating}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="invisible h-40" />
+            )}
+
+            {/* 3rd Place */}
+            {lb[2] ? (
+              <div className="podium-third rounded-2xl p-3 flex flex-col items-center text-center space-y-2 relative h-32 justify-end animate-fadeIn">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-orange-200 dark:bg-orange-900 border border-orange-300 dark:border-orange-800 text-orange-700 dark:text-orange-300 text-[10px] font-black flex items-center justify-center shadow-sm">3</span>
+                <div className="w-10 h-10 rounded-full border border-orange-200 dark:border-orange-850 overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                  {lb[2].avatar ? <img src={lb[2].avatar} alt="" className="w-full h-full object-cover" /> : <span className="text-xs font-bold">{(lb[2].displayName ? lb[2].displayName[0].toUpperCase() : "A")}</span>}
+                </div>
+                <div className="w-full min-w-0">
+                  <p className="text-[11px] font-bold text-foreground truncate">{lb[2].displayName || "Ẩn danh"}</p>
+                  <p className="text-[11px] font-extrabold text-foreground/80 font-mono mt-0.5">{lb[2].rating}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="invisible h-32" />
+            )}
+          </div>
+
+          {/* Rest of the ranks */}
+          {lb.length > 3 && (
+            <div className="chess-glass-card border border-border rounded-2xl overflow-hidden divide-y divide-border/60">
+              {lb.slice(3).map((p, i) => {
+                const t = tier(p.rating);
+                const rank = i + 4;
+                return (
+                  <div key={p.email || i} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition-colors table-row-floating">
+                    <div className="w-6 text-center shrink-0">
+                      <span className="text-xs font-black text-muted-foreground">{rank}</span>
+                    </div>
+                    {/* Avatar */}
+                    <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center shrink-0 overflow-hidden text-[11px] font-bold select-none">
+                      {p.avatar ? (
+                        <img src={p.avatar} alt={p.displayName} className="w-full h-full object-cover" />
+                      ) : (
+                        (p.displayName ? p.displayName[0].toUpperCase() : "A")
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm text-foreground truncate">{p.displayName || "Ẩn danh"}</p>
+                      <p className="text-[11px] text-muted-foreground font-mono leading-tight">{p.gamesPlayed}V · {p.wins}T {p.losses}B {p.draws}H</p>
+                    </div>
+                    <div className="text-right shrink-0 space-y-0.5">
+                      <p className="font-black text-sm leading-none text-foreground font-mono">{p.rating}</p>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${t.cls}`}>{t.label}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -417,30 +474,41 @@ export default function ChessLobby({
             {step === "home" && (
               <div className="space-y-6">
                 {/* Hero Box */}
-                <div className="relative rounded-3xl overflow-hidden border border-border bg-card p-6 shadow-sm">
-                  <span className="pointer-events-none select-none absolute -right-3 -top-3 text-[120px] leading-none text-foreground/[0.04]">♛</span>
-                  <span className="pointer-events-none select-none absolute -left-4 -bottom-6 text-[100px] leading-none text-foreground/[0.03]">♞</span>
+                <div className="relative rounded-3xl overflow-hidden p-6 chess-glass-card border border-white/10 shadow-xl bg-gradient-to-br from-card/85 to-card/45 animate-fadeIn">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent/5 rounded-full blur-xl pointer-events-none" />
+                  <span className="pointer-events-none select-none absolute -right-3 -top-3 text-[120px] leading-none text-foreground/[0.05] font-display">♛</span>
+                  <span className="pointer-events-none select-none absolute -left-4 -bottom-6 text-[100px] leading-none text-foreground/[0.04] font-display">♞</span>
                   <div className="relative space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Cờ vua trực tuyến</p>
-                    <h1 className="font-display font-black text-3xl text-foreground leading-tight">Sẵn sàng<br />thách đấu?</h1>
-                    <p className="text-sm text-muted-foreground">Chơi với AI hoặc ghép cặp với người thật theo JOY</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">Cờ vua trực tuyến</p>
+                    <h1 className="font-display font-black text-3xl text-gradient leading-tight">Sẵn sàng<br />thách đấu?</h1>
+                    <p className="text-sm text-muted-foreground">Chơi với AI hoặc ghép cặp đấu trí trực tuyến</p>
                   </div>
                   {userInfo && (
-                    <div className="mt-4 pt-4 border-t border-border flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-muted border border-border flex items-center justify-center text-base shrink-0 select-none overflow-hidden font-bold">
-                        {userInfo.avatarUrl ? (
-                          <img src={userInfo.avatarUrl} alt={userInfo.displayName} className="w-full h-full object-cover" />
-                        ) : (
-                          (userInfo.displayName ? userInfo.displayName[0].toUpperCase() : "P")
-                        )}
+                    <div className="mt-4 pt-4 border-t border-border/60 flex items-center justify-between gap-3 relative z-10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-muted border border-border/80 flex items-center justify-center shrink-0 select-none overflow-hidden font-bold relative group">
+                          {userInfo.avatarUrl ? (
+                            <img src={userInfo.avatarUrl} alt={userInfo.displayName} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                          ) : (
+                            <span className="text-sm">{(userInfo.displayName ? userInfo.displayName[0].toUpperCase() : "P")}</span>
+                          )}
+                          <div className="absolute inset-0 border border-white/10 rounded-2xl pointer-events-none" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-foreground truncate">{userInfo.displayName}</p>
+                          <span className={`inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-full border mt-0.5 ${tier(userInfo.rating ?? 1500).cls}`}>
+                            {tier(userInfo.rating ?? 1500).label}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground truncate">{userInfo.displayName}</p>
-                        <p className="text-xs text-muted-foreground font-mono">{userInfo.rating ?? 1500} JOY</p>
+                      <div className="flex flex-col items-end shrink-0">
+                        <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Tài khoản</span>
+                        <div className="flex items-center gap-1 bg-yellow-500/10 border border-yellow-500/25 px-3 py-1 rounded-2xl text-yellow-600 dark:text-yellow-400 font-mono font-black text-sm shadow-sm">
+                          <Crown className="w-3.5 h-3.5 fill-current shrink-0" />
+                          <span>{userInfo.rating ?? 1500} JOY</span>
+                        </div>
                       </div>
-                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${tier(userInfo.rating ?? 1500).cls}`}>
-                        {tier(userInfo.rating ?? 1500).label}
-                      </span>
                     </div>
                   )}
                 </div>
@@ -450,14 +518,14 @@ export default function ChessLobby({
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-0.5">Chơi nhanh</p>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { label: "1 phút", tc: 60, mode: "random", text: "Bullet", icon: Zap },
-                      { label: "5 phút", tc: 300, mode: "random", text: "Blitz", icon: Flame },
-                      { label: "vs Bot",  tc: 300, mode: "bot", text: "Stockfish", icon: Bot },
+                      { label: "1 phút", tc: 60, mode: "random", text: "Bullet", icon: Zap, borderClass: "hover:border-yellow-500/40" },
+                      { label: "5 phút", tc: 300, mode: "random", text: "Blitz", icon: Flame, borderClass: "hover:border-red-500/40" },
+                      { label: "vs Bot",  tc: 300, mode: "bot", text: "Stockfish", icon: Bot, borderClass: "hover:border-primary/40" },
                     ].map(q => {
                       const QIcon = q.icon;
                       return (
                         <button key={q.label} onClick={() => onStartGame({ mode: q.mode, timeControl: q.tc, botLevel: 2, color: "random", boardTheme, myPieceTheme, oppPieceTheme })}
-                          className="flex flex-col items-center gap-1.5 py-4 rounded-2xl bg-card border border-border hover:border-foreground/20 active:scale-95 transition-all">
+                          className={`flex flex-col items-center gap-1.5 py-4 rounded-2xl chess-glass-card chess-glass-card-hover border border-border active:scale-95 transition-all ${q.borderClass}`}>
                           <QIcon className="w-6 h-6 text-foreground" strokeWidth={1.75} />
                           <span className="text-xs font-bold text-foreground mt-1">{q.label}</span>
                           <span className="text-[9px] text-muted-foreground font-semibold leading-none">{q.text}</span>
@@ -472,21 +540,21 @@ export default function ChessLobby({
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-0.5">Chế độ chơi</p>
                   {MODES.map(({ id, Icon, title, desc }) => (
                     <button key={id} onClick={() => selectMode(id)}
-                      className="w-full flex items-center gap-4 p-4 rounded-2xl bg-card border border-border hover:border-foreground/20 transition-all text-left group">
-                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0 transition-transform group-hover:scale-105">
+                      className="w-full flex items-center gap-4 p-4 rounded-2xl chess-glass-card chess-glass-card-hover border border-border hover:bg-card/45 transition-all text-left group">
+                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0 transition-transform group-hover:scale-110">
                         <Icon className="w-4.5 h-4.5 text-foreground" strokeWidth={1.75} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-foreground">{title}</p>
+                        <p className="font-bold text-sm text-foreground">{title}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-border group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
                     </button>
                   ))}
                 </div>
 
                 {/* Join by code */}
-                <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+                <div className="chess-glass-card border border-border rounded-2xl p-4 space-y-3">
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
                     <Hash className="w-3 h-3" strokeWidth={2.5} /> Nhập mã phòng
                   </p>
@@ -496,10 +564,10 @@ export default function ChessLobby({
                       onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6))}
                       onKeyDown={e => { if (e.key === "Enter" && code.length === 6) onJoinRoom(code); }}
                       placeholder="ABCD12"
-                      className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-mono tracking-widest placeholder:text-muted-foreground/40 focus:outline-none focus:border-foreground/40 focus:ring-2 focus:ring-foreground/10 transition-all text-foreground"
+                      className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-mono tracking-widest placeholder:text-muted-foreground/40 focus:outline-none focus:border-foreground/45 focus:ring-2 focus:ring-foreground/10 transition-all text-foreground"
                     />
                     <button onClick={() => code.length === 6 && onJoinRoom(code)} disabled={code.length !== 6}
-                      className="px-5 py-2.5 rounded-xl bg-foreground hover:bg-foreground/90 disabled:opacity-30 disabled:cursor-not-allowed text-background text-sm font-bold transition-all">
+                      className="px-5 py-2.5 rounded-xl bg-foreground hover:bg-foreground/90 disabled:opacity-30 disabled:cursor-not-allowed text-background text-sm font-bold transition-all shadow-sm">
                       Vào
                     </button>
                   </div>
