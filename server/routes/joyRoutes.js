@@ -256,10 +256,19 @@ router.post('/transfer', async (req, res) => {
       `Gửi JOY cho ${recipient.displayName || 'bạn bè'} (-${numAmount} JOY)`,
       { refId: recipient.email }
     );
+    const senderName = sender.displayName || 'Một người bạn';
     await awardJoy(
       recipient.email, netAmount, 'joy_gift_received',
-      `Nhận JOY từ ${sender.displayName || 'bạn bè'} (+${netAmount} JOY)`,
-      { refId: sender.email }
+      `${senderName} đã chuyển ${netAmount} JOY đến bạn.`,
+      {
+        refId: sender.email,
+        notificationTitle: 'Bạn vừa nhận được JOY',
+        notificationMessage: `${senderName} đã chuyển ${netAmount} JOY đến bạn. Số dư: ${Math.max(0, recipient.joyBalance + netAmount)} JOY.`,
+        pushNotify: true,
+        pushTitle: 'Bạn vừa nhận được JOY',
+        pushBody: `${senderName} đã chuyển ${netAmount} JOY đến bạn. Số dư: ${Math.max(0, recipient.joyBalance + netAmount)} JOY.`,
+        actionUrl: '/member/joy'
+      }
     );
 
     // Atomic increment — avoids overwriting the balance awardJoy() just wrote

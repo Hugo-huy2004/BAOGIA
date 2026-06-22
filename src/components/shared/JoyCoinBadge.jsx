@@ -16,7 +16,7 @@ export default function JoyCoinBadge({ amount, size = "md", className = "" }) {
   return (
     <span className={`inline-flex items-center gap-1.5 select-none ${className}`}>
       <span
-        className={`${s.coin} rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center shadow-inner shrink-0`}
+        className={`${s.coin} rounded-full bg-amber-400 border border-amber-500 flex items-center justify-center shrink-0`}
       >
         <span className={`${s.coinText} font-black text-amber-900 leading-none`}>Joy</span>
       </span>

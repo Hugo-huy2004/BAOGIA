@@ -19,6 +19,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon/**', 'image/**'],
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        importScripts: ['/push-sw.js'],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
@@ -112,6 +115,12 @@ export default defineConfig({
       },
       // Chess WebSocket → Node.js backend
       '/ws/chess': {
+        target: 'ws://127.0.0.1:8081',
+        ws: true,
+        changeOrigin: true,
+      },
+      // Member wallet/notification realtime channel → Node.js backend
+      '/ws': {
         target: 'ws://127.0.0.1:8081',
         ws: true,
         changeOrigin: true,

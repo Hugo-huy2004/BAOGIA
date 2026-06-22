@@ -2,6 +2,7 @@ import Bio from '../models/Bio.js';
 import JoyLedger from '../models/JoyLedger.js';
 import InAppNotification from '../models/InAppNotification.js';
 import ChessRating from '../models/ChessRating.js';
+import { sendPushNotification } from './pushNotifier.js';
 
 const TITLES = {
   referral_referrer: 'Quà giới thiệu',
@@ -64,18 +65,42 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
   // chess feature have a ChessRating doc — this never silently creates one.
   await ChessRating.updateOne({ email: bio.email }, { $set: { rating: bio.joyBalance, updatedAt: new Date() } });
 
+  let notification = null;
   if (opts.notify !== false) {
-    await InAppNotification.create({
+    notification = await InAppNotification.create({
       email: bio.email,
       type: numAmount >= 0 ? 'success' : 'info',
       category: 'joy',
-      title: TITLES[source] || 'Cập nhật JOY',
-      message: description || '',
-      actionUrl: opts.actionUrl || '/member'
+      title: opts.notificationTitle || TITLES[source] || 'Cập nhật JOY',
+      message: opts.notificationMessage || description || '',
+      actionUrl: opts.actionUrl || '/member/joy'
     });
   }
 
-  return { balance: bio.joyBalance, bio };
+  // Update every open device immediately. Web Push below covers devices where
+  // the PWA is in the background or has been closed.
+  const realtimeEvent = JSON.stringify({
+    type: 'joy_update',
+    balance: bio.joyBalance,
+    amount: numAmount,
+    source,
+    notification,
+    createdAt: new Date().toISOString()
+  });
+  for (const client of global.wsClients?.[bio.email] || []) {
+    if (client.readyState === 1) client.send(realtimeEvent);
+  }
+
+  if (opts.pushNotify === true && notification) {
+    await sendPushNotification(
+      bio.email,
+      opts.pushTitle || notification.title,
+      opts.pushBody || notification.message,
+      notification.actionUrl || '/member/joy'
+    );
+  }
+
+  return { balance: bio.joyBalance, bio, notification };
 }
 
 export async function getJoyBalance(email) {

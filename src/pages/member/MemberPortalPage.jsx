@@ -632,7 +632,7 @@ export default function MemberPortalPage() {
       <div className="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 md:pt-8 pb-28 md:pb-12 space-y-5 sm:space-y-6 relative z-10">
 
         {/* ── Portal Header ─────────────────────────────────────────────────── */}
-        <header className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-200 border border-white/30 dark:border-zinc-800/40 rounded-2xl px-4 sm:px-5 py-3.5 shadow-sm">
+        <header className={`${activeTab === "utilities" && mobileSubSection ? "hidden md:block" : ""} bg-white/60 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-200 border border-white/30 dark:border-zinc-800/40 rounded-2xl px-4 sm:px-5 py-3.5 shadow-sm`}>
           <div className="flex items-center justify-between gap-3">
             {/* Left */}
             <div className="flex items-center gap-3 min-w-0">

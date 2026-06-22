@@ -14,7 +14,7 @@ export default function ArcadePage() {
   }) : null, [session?.email, session?.displayName, session?.avatarUrl]);
 
   return (
-    <div className="fixed inset-0 w-screen h-[100dvh] overflow-hidden bg-[#080a12]">
+    <div className="fixed inset-0 w-screen h-[100dvh] overflow-hidden bg-[#f7f7fa] dark:bg-[#0b0a0f]">
       <HugoArcadeTab bio={player} onBack={() => navigate("/member/utilities")} />
     </div>
   );

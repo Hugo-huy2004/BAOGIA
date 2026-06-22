@@ -19,7 +19,43 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api';
+function applicationServerKeysMatch(subscription, expectedKey) {
+  const currentKey = subscription?.options?.applicationServerKey;
+  if (!currentKey) return false;
+  const currentBytes = new Uint8Array(currentKey);
+  if (currentBytes.length !== expectedKey.length) return false;
+  return currentBytes.every((byte, index) => byte === expectedKey[index]);
+}
+
+async function ensurePushSubscription(registration, applicationServerKey) {
+  let existing = await registration.pushManager.getSubscription();
+
+  if (existing && applicationServerKeysMatch(existing, applicationServerKey)) {
+    return existing;
+  }
+
+  if (existing) {
+    await existing.unsubscribe();
+    existing = null;
+  }
+
+  const options = { userVisibleOnly: true, applicationServerKey };
+  try {
+    return await registration.pushManager.subscribe(options);
+  } catch (error) {
+    // Another app instance may have subscribed between getSubscription() and
+    // subscribe(). Reuse it when the key matches; otherwise replace it once.
+    if (error?.name !== 'InvalidStateError') throw error;
+    const current = await registration.pushManager.getSubscription();
+    if (current && applicationServerKeysMatch(current, applicationServerKey)) {
+      return current;
+    }
+    if (current) await current.unsubscribe();
+    return registration.pushManager.subscribe(options);
+  }
+}
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const webPushHelper = {
   /**
@@ -69,7 +105,10 @@ export const webPushHelper = {
       console.log('✅ Service Worker registered successfully:', registration);
 
       // 2. Gọi API lấy VAPID Public Key từ server
-      const keyResponse = await fetch(`${API_BASE_URL}/notifications/vapid-public-key`);
+      const keyResponse = await fetch(`${API_BASE_URL}/notifications/vapid-public-key`, {
+        cache: 'no-store',
+        credentials: 'include'
+      });
       if (!keyResponse.ok) {
         throw new Error('Không thể lấy VAPID Public Key từ máy chủ.');
       }
@@ -79,12 +118,9 @@ export const webPushHelper = {
         throw new Error('VAPID Public Key trống hoặc không hợp lệ.');
       }
 
-      // 3. Đăng ký Push với Google FCM thông qua trình duyệt
+      // 3. Tái sử dụng subscription đúng key, hoặc tự thay subscription cũ.
       const applicationServerKey = urlBase64ToUint8Array(publicKey);
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true, // Bắt buộc là true đối với bảo mật trên Chrome
-        applicationServerKey: applicationServerKey
-      });
+      const subscription = await ensurePushSubscription(registration, applicationServerKey);
 
       console.log('✅ Browser Push Subscription Object acquired:', subscription);
 

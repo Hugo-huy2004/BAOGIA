@@ -16,6 +16,61 @@ const GAMES = [
 
 const GAME_COMPONENTS = { "2048": Game2048, caro: GameCaro, wordguess: GameWordGuess };
 
+const DEMO_FRAMES = {
+  "2048": [[2, 2, 4, 8], [0, 4, 4, 8], [0, 0, 8, 8], [0, 0, 0, 16]],
+  caro: [
+    ["x", "", "", "", "", "", "o", "", "", "", "", "", "x", "", "", "", "", "", "o", "", "", "", "", "", ""],
+    ["x", "", "", "", "", "", "o", "", "", "", "", "", "x", "", "", "", "", "", "o", "", "", "", "", "", "x"],
+    ["x", "", "", "", "", "", "x", "", "", "", "", "", "x", "", "", "", "", "", "x", "", "", "", "", "", "x"],
+  ],
+  wordguess: [
+    [{ l: "M", s: "absent" }, { l: "A", s: "present" }, { l: "Y", s: "absent" }, { l: "M", s: "absent" }, { l: "O", s: "present" }],
+    [{ l: "H", s: "correct" }, { l: "U", s: "correct" }, { l: "G", s: "correct" }, { l: "O", s: "correct" }, { l: "?", s: "active" }],
+    [{ l: "H", s: "correct" }, { l: "U", s: "correct" }, { l: "G", s: "correct" }, { l: "O", s: "correct" }, { l: "S", s: "correct" }],
+  ],
+};
+
+function GameArtwork({ game }) {
+  const [frame, setFrame] = useState(0);
+
+  useEffect(() => {
+    setFrame(0);
+    const timer = window.setInterval(() => {
+      setFrame((current) => (current + 1) % DEMO_FRAMES[game].length);
+    }, game === "2048" ? 1050 : 1250);
+    return () => window.clearInterval(timer);
+  }, [game]);
+
+  if (game === "2048") {
+    return (
+      <div className="arcade-art arcade-art-2048" aria-hidden="true">
+        <div className="demo-stage demo-2048-stage" key={frame}>
+          {DEMO_FRAMES[game][frame].map((value, index) => <span key={index} className={!value ? "empty" : `tile-${value}`}>{value || ""}</span>)}
+        </div>
+        <small><span className="material-symbols-outlined">swipe</span> Vuốt để gộp số giống nhau</small>
+      </div>
+    );
+  }
+  if (game === "caro") {
+    return (
+      <div className="arcade-art arcade-art-caro" aria-hidden="true">
+        <div className={`demo-stage demo-caro-stage ${frame === 2 ? "is-winning" : ""}`} key={frame}>
+          {DEMO_FRAMES[game][frame].map((cell, index) => <span key={index} className={cell}>{cell === "x" ? "×" : cell === "o" ? "○" : ""}</span>)}
+        </div>
+        <small><span className="material-symbols-outlined">gesture</span> Nối 5 quân để chiến thắng</small>
+      </div>
+    );
+  }
+  return (
+    <div className="arcade-art arcade-art-word" aria-hidden="true">
+      <div className="demo-stage demo-word-stage" key={frame}>
+        {DEMO_FRAMES[game][frame].map(({ l, s }, index) => <span key={`${index}-${l}`} className={s}>{l}</span>)}
+      </div>
+      <small><span className="material-symbols-outlined">keyboard</span> Đoán từ qua màu gợi ý</small>
+    </div>
+  );
+}
+
 export default function HugoArcadeTab({ onBack, bio }) {
   const [activeGame, setActiveGame] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -65,9 +120,9 @@ export default function HugoArcadeTab({ onBack, bio }) {
               const played = profile?.[g.id]?.gamesPlayed || 0;
               return (
                 <button key={g.id} onClick={() => setActiveGame(g.id)} className={`arcade-game-card accent-${g.accent}`}>
-                  <div className="arcade-card-top"><span className="arcade-card-index">0{index + 1}</span><span className="arcade-card-arrow material-symbols-outlined">north_east</span></div>
-                  <div className="arcade-game-symbol">{g.symbol}</div>
-                  <div className="arcade-card-copy"><span>{g.detail}</span><h3>{g.name}</h3><p>{g.tagline}</p></div>
+                  <div className="arcade-card-top"><span className="arcade-card-index">GAME 0{index + 1}</span><span className="arcade-card-status"><i /> SẴN SÀNG</span></div>
+                  <GameArtwork game={g.id} />
+                  <div className="arcade-card-copy"><span>{g.detail}</span><div className="arcade-card-title"><h3>{g.name}</h3><span className="material-symbols-outlined">arrow_outward</span></div><p>{g.tagline}</p></div>
                   <div className="arcade-card-footer"><div><small>KỶ LỤC</small><strong>{best.toLocaleString("vi-VN")}</strong></div><div><small>ĐÃ CHƠI</small><strong>{played}</strong></div><span className="arcade-play-pill"><span className="material-symbols-outlined">play_arrow</span> Chơi ngay</span></div>
                 </button>
               );

@@ -1,6 +1,7 @@
 /**
  * Service Worker
  * Handles: Web Push Notifications + PeriodicBackgroundSync (sleep monitor)
+ * Imported by the Workbox-generated /sw.js in production.
  */
 
 // ── PeriodicBackgroundSync — sleep monitor heartbeat ──────────────────────
@@ -86,11 +87,18 @@ self.addEventListener('push', function (event) {
       vibrate: [100, 50, 100], // Rung máy (với thiết bị di động hỗ trợ)
       data: {
         url: payload.url || '/member/portal?tab=banhocduong'
-      }
+      },
+      tag: payload.tag || (payload.url === '/member/joy' ? 'hugo-joy-wallet' : undefined),
+      renotify: true
     };
 
     event.waitUntil(
-      self.registration.showNotification(payload.title, options)
+      Promise.all([
+        self.registration.showNotification(payload.title, options),
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+          clientList.forEach((client) => client.postMessage({ type: 'HUGO_PUSH', payload }));
+        })
+      ])
     );
   } catch (error) {
     console.error('Lỗi hiển thị thông báo Push:', error);
@@ -110,7 +118,7 @@ self.addEventListener('notificationclick', function (event) {
         // Nếu đã có tab của trang web đang mở, chuyển sang tab đó và điều hướng
         for (let i = 0; i < clientList.length; i++) {
           const client = clientList[i];
-          if (client.url.includes('/member/portal') && 'focus' in client) {
+          if ('focus' in client) {
             return client.focus().then(() => client.navigate(targetUrl));
           }
         }

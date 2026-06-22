@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import dataApi from '../services/dataApi';
 
 // Only these categories are saved to DB — everything else is toast-only
-const PERSISTENT = new Set(['verification', 'package', 'wellness', 'security']);
+const PERSISTENT = new Set(['verification', 'package', 'wellness', 'security', 'joy']);
 
 export function useNotifications(email) {
   const [items, setItems] = useState([]);
@@ -21,6 +21,14 @@ export function useNotifications(email) {
 
   // Load on mount
   useEffect(() => { refresh(); }, [refresh]);
+
+  // Realtime JOY events are persisted by the server; refresh the inbox instead
+  // of creating a duplicate notification on the client.
+  useEffect(() => {
+    const handleRealtimeNotification = () => refresh();
+    window.addEventListener('hugo:notification', handleRealtimeNotification);
+    return () => window.removeEventListener('hugo:notification', handleRealtimeNotification);
+  }, [refresh]);
 
   // Transient toast only — never hits DB
   const showToast = useCallback((message, type = 'success') => {

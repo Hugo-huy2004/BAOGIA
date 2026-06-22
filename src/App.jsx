@@ -15,6 +15,7 @@ import { CursorEffect as Cursor } from "@hwagfu/cursor";
 import { useUIStore } from "./stores/uiStore";
 import { TooltipProvider } from "./components/ui/Tooltip";
 import { Toaster } from "react-hot-toast";
+import PWARealtimeBridge from "./components/PWARealtimeBridge";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -190,6 +191,7 @@ export default function App() {
       <DataProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <TooltipProvider>
+            <PWARealtimeBridge />
             <OfflineBanner />
             <AppContent />
             <PWAInstallBanner />

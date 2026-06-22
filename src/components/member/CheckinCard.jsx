@@ -54,11 +54,11 @@ export default function CheckinCard({ email, showToast }) {
   const rewardTable = status.rewardTable || [50, 80, 80, 80, 80, 80, 150];
 
   return (
-    <div className="bg-gradient-to-br from-rose-50 to-amber-50 dark:from-rose-500/10 dark:to-amber-500/5 rounded-3xl border border-rose-200/60 dark:border-rose-500/20 p-5 space-y-4">
+    <div className="bg-white dark:bg-[#15131e] rounded-3xl border border-zinc-200 dark:border-white/10 border-t-4 border-t-amber-400 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-black text-zinc-900 dark:text-white flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-rose-500 text-base">event_available</span>
+            <span className="material-symbols-outlined text-amber-500 text-base">event_available</span>
             {t("memberPortal.checkin.title")}
           </h3>
           <p className="text-[10px] text-zinc-500 dark:text-zinc-400">{t("memberPortal.checkin.subtitle")}</p>
@@ -82,7 +82,7 @@ export default function CheckinCard({ email, showToast }) {
                 claimed
                   ? "bg-emerald-500/10 border-emerald-400/50"
                   : isToday
-                    ? "bg-white dark:bg-zinc-800 border-rose-400 ring-2 ring-rose-300/50"
+                    ? "bg-amber-50 dark:bg-amber-500/10 border-amber-400 ring-2 ring-amber-300/40"
                     : "bg-white/60 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60 opacity-70"
               }`}
             >
@@ -119,7 +119,7 @@ export default function CheckinCard({ email, showToast }) {
         <button
           onClick={handleClaim}
           disabled={!status.canClaimToday || claiming}
-          className="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+          className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-zinc-950 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
         >
           {claiming
             ? "..."
