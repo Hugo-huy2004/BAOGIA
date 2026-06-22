@@ -862,7 +862,8 @@ export default function ChessGame({
       const isWin  = res.winner === colorRef.current;
       const isLoss = res.winner && res.winner !== colorRef.current;
       if (isWin) {
-        change = botLevel === 1 ? 10 : botLevel === 2 ? 15 : botLevel === 3 ? 20 : 40;
+        // Base reward x5.
+        change = (botLevel === 1 ? 10 : botLevel === 2 ? 15 : botLevel === 3 ? 20 : 40) * 5;
       } else if (isLoss) {
         // Flat entry-cost loss — no longer scaled by bot difficulty or move count.
         change = -10;

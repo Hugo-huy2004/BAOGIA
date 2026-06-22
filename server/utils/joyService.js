@@ -20,7 +20,12 @@ const TITLES = {
   focus_session: 'Tập trung sâu HugoAura',
   aura_theme_rent: 'Thuê giao diện Aura',
   joy_gift_sent: 'Gửi JOY cho bạn bè',
-  joy_gift_received: 'Nhận JOY từ bạn bè'
+  joy_gift_received: 'Nhận JOY từ bạn bè',
+  ide_learning: 'Hoàn thành bài học HugoCoder',
+  feature_subscription: 'Trao đổi JOY mở khóa tính năng',
+  bio_theme_rental: 'Trao đổi JOY diện giao diện Bio',
+  file_compression: 'Trao đổi JOY nén file HugoTractare',
+  admin_direct_add: 'Nhận JOY từ Admin'
 };
 
 /**

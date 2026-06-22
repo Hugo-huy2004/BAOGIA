@@ -9,7 +9,13 @@ import GameSlasher from "./GameSlasher";
 import GameGeometry from "./GameGeometry";
 import { fetchProfile } from "../../../services/arcadeApi";
 import { HOW_TO_PLAY } from "./arcadeConstants";
+import { useFeatureGate } from "../../../hooks/useFeatureGate";
+import { useJoyStore } from "../../../stores/joyStore";
+import JoyExchangeModal from "../shared/JoyExchangeModal";
 import "./arcade-theme.css";
+
+const ARCADE_PRICE_JOY = 199;
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 
 const GAMES = [
   { id: "2048", icon: "grid_view", name: "2048", tagline: "Gộp số. Phá giới hạn.", accent: "orange", symbol: "2048", detail: "Logic · Chiến thuật" },
@@ -130,9 +136,11 @@ function GameArtwork({ game }) {
   );
 }
 
-export default function HugoArcadeTab({ onBack, bio }) {
+export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
   const [activeGame, setActiveGame] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const { active: subscribed } = useFeatureGate(bio, "hugoArcade");
 
   useEffect(() => {
     if (!activeGame && bio?.email) fetchProfile(bio.email).then(setProfile);
@@ -144,14 +152,52 @@ export default function HugoArcadeTab({ onBack, bio }) {
     return sum + Object.values(record).reduce((s, tier) => s + (tier?.wins || 0), 0);
   }, 0);
 
+  const handleConfirmCharge = async () => {
+    const res = await fetch(`${API_BASE}/joy/subscribe-feature`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: bio.email, featureKey: "hugoArcade" })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Lỗi trao đổi JOY.");
+    return data;
+  };
+
+  const handleSuccess = (data) => {
+    useJoyStore.getState().setBalance(data.balance);
+    onBioUpdate?.({
+      ...bio,
+      featureSubscriptions: {
+        ...(bio.featureSubscriptions || {}),
+        hugoArcade: { active: true, expiresAt: data.expiresAt }
+      }
+    });
+  };
+
   if (!activeGame) {
     return (
       <div className="arcade-app arcade-scroll-shell">
         <header className="arcade-topbar">
           <button onClick={onBack} className="arcade-icon-btn" aria-label="Quay lại"><span className="material-symbols-outlined">arrow_back</span></button>
-          <div className="arcade-brand"><span className="arcade-brand-mark">H</span><div><strong>HugoArcade</strong><small>Play · Earn · Repeat</small></div></div>
+          <div className="arcade-brand"><span className="arcade-brand-mark material-symbols-outlined">stadia_controller</span><div><strong>HugoArcade</strong><small>Play · Earn · Repeat</small></div></div>
           <div className="arcade-live"><i /> ONLINE</div>
         </header>
+
+        {!subscribed && (
+          <div className="arcade-instruction" style={{ margin: "16px max(18px, env(safe-area-inset-left))", borderColor: "var(--warning, #f59e0b)" }}>
+            <span className="arcade-instruction-icon"><span className="material-symbols-outlined">workspace_premium</span></span>
+            <div>
+              <strong>Bứt phá & Huyền thoại đang chờ</strong>
+              <p>
+                Trao đổi {ARCADE_PRICE_JOY} JOY/tháng để mở khóa hai độ khó này ở mọi trò chơi. "Khởi động" luôn miễn phí cho mọi người.
+                {" "}
+                <button onClick={() => setShowInvoice(true)} style={{ fontWeight: 700, textDecoration: "underline" }}>
+                  Trao đổi {ARCADE_PRICE_JOY} JOY ngay
+                </button>
+              </p>
+            </div>
+          </div>
+        )}
 
         <main className="arcade-home">
           <section className="arcade-hero">
@@ -162,7 +208,7 @@ export default function HugoArcadeTab({ onBack, bio }) {
               <div className="arcade-hero-stats">
                 <div><strong>{totalGames}</strong><span>Ván đã chơi</span></div>
                 <div><strong>{totalWins}</strong><span>Chiến thắng</span></div>
-                <div><strong>+50</strong><span>JOY tối đa/ván</span></div>
+                <div><strong>+75</strong><span>JOY tối đa/ván</span></div>
               </div>
             </div>
             <div className="arcade-hero-art" aria-hidden="true">
@@ -190,10 +236,19 @@ export default function HugoArcadeTab({ onBack, bio }) {
 
           <section className="arcade-reward-banner">
             <div className="reward-icon"><span className="material-symbols-outlined">trophy</span></div>
-            <div><span>THỬ THÁCH HUYỀN THOẠI</span><h3>Thắng cấp cao nhất, nhận ngay <b>50 JOY</b></h3><p>Mỗi độ khó là một hành trình riêng. Càng khó, phần thưởng càng đáng giá.</p></div>
+            <div><span>THỬ THÁCH HUYỀN THOẠI</span><h3>Thắng cấp cao nhất, nhận ngay <b>75 JOY</b></h3><p>Mỗi độ khó là một hành trình riêng. Càng khó, phần thưởng càng đáng giá.</p></div>
             <span className="material-symbols-outlined reward-spark">auto_awesome</span>
           </section>
         </main>
+
+        <JoyExchangeModal
+          open={showInvoice}
+          bio={bio}
+          item="hugoArcade"
+          onClose={() => setShowInvoice(false)}
+          onConfirm={handleConfirmCharge}
+          onSuccess={handleSuccess}
+        />
       </div>
     );
   }
@@ -205,12 +260,12 @@ export default function HugoArcadeTab({ onBack, bio }) {
       <header className="arcade-topbar">
         <button onClick={() => setActiveGame(null)} className="arcade-icon-btn" aria-label="Về sảnh"><span className="material-symbols-outlined">arrow_back</span></button>
         <div className="arcade-brand"><span className="arcade-brand-mark">{gameInfo.symbol}</span><div><strong>{gameInfo.name}</strong><small>{gameInfo.detail}</small></div></div>
-        <span className="arcade-top-reward"><span className="material-symbols-outlined">stars</span> Tối đa 50 JOY</span>
+        <span className="arcade-top-reward"><span className="material-symbols-outlined">stars</span> Tối đa 75 JOY</span>
       </header>
       <main className="arcade-play-layout">
         <section className="arcade-play-main">
           <div className="arcade-game-intro"><div><span>HUGOARCADE / {gameInfo.name.toUpperCase()}</span><h1>{gameInfo.tagline}</h1></div><p>{HOW_TO_PLAY[activeGame]?.rule}</p></div>
-          <ArcadeGameFrame game={activeGame} bio={bio}>
+          <ArcadeGameFrame game={activeGame} bio={bio} onBioUpdate={onBioUpdate}>
             {(difficulty, onGameOver) => <GameComponent difficulty={difficulty} onGameOver={onGameOver} />}
           </ArcadeGameFrame>
         </section>

@@ -86,11 +86,12 @@ async function saveGame(room) {
     else if (room.result === '0-1') { whiteScore = 0; blackScore = 1; }
     else { whiteScore = 0.5; blackScore = 0.5; }
 
-    // Flat stake-based reward, applied directly to the real JOY wallet via
-    // awardJoy (which also keeps ChessRating.rating in sync). A loss always
-    // costs a flat 10 JOY regardless of opponent strength; a win pays out a
-    // flat reward — doubled for friend matches. Draws are a no-op.
-    const WIN_REWARD = room.mode === 'friend' ? 20 : 10;
+    // "rating" is just a live mirror of joyBalance (see awardJoy in
+    // joyService.js, which sets ChessRating.rating = bio.joyBalance on every
+    // call) — so this delta drives both the JOY payout and the displayed
+    // rating change, no separate ELO to protect. Win reward is the base x5;
+    // losing always costs a flat 10 JOY "entry stake", never deducted on a win.
+    const WIN_REWARD = (room.mode === 'friend' ? 20 : 10) * 5;
     const LOSS_COST = -10;
     const whiteDelta = whiteScore === 1 ? WIN_REWARD : whiteScore === 0 ? LOSS_COST : 0;
     const blackDelta = blackScore === 1 ? WIN_REWARD : blackScore === 0 ? LOSS_COST : 0;

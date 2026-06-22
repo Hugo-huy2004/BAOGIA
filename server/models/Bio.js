@@ -272,6 +272,39 @@ const BioSchema = new mongoose.Schema(
         expiresAt: { type: Date, required: true }
       }],
       default: []
+    },
+    // Monthly JOY subscriptions gating HugoCoder / HugoAura (Lofi + Theme Shop
+    // only — Pomodoro stays free) / HugoRadio / HugoArcade (Bứt phá + Huyền
+    // thoại tiers). `active` is a cosmetic cache only, written by the nightly
+    // cron sweep (cronJobs.js) — actual gating ALWAYS re-derives from
+    // `expiresAt` live (see featureSubscriptionService.js's isFeatureActive),
+    // so a missed/delayed cron run never grants unpaid access.
+    featureSubscriptions: {
+      hugoCoder: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      },
+      hugoAura: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      },
+      hugoRadio: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      },
+      hugoArcade: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      }
+    },
+    // Paid rental backing theme.template when it's 'brutalism'/'flat'
+    // (150 JOY/month). theme.template is the live/rendered value; this is the
+    // paid entitlement behind it, reverted to 'default' by the nightly cron
+    // sweep once expiresAt passes — even for owners who never log back in,
+    // since other people view the public bio page too.
+    bioThemeRental: {
+      template: { type: String, default: 'default' },
+      expiresAt: { type: Date, default: null }
     }
   },
   { timestamps: true }

@@ -7,6 +7,11 @@ import AdmZip from 'adm-zip';
 import sharp from 'sharp';
 import ffmpeg from 'fluent-ffmpeg';
 import { fileURLToPath } from 'url';
+import Bio from '../models/Bio.js';
+import { awardJoy } from '../utils/joyService.js';
+import { calcExchangeTotal } from '../utils/featureSubscriptionService.js';
+
+const COMPRESS_CHARGE = 50; // JOY/file, only for 'medium'/'strong' — 'light' stays free
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -119,12 +124,42 @@ router.post('/compress', upload.single('file'), async (req, res) => {
   
   try {
     if (!req.file) return res.status(400).json({ error: 'Không tìm thấy file tải lên.' });
-    
+
     const level = req.body.level || 'medium'; // light, medium, strong
+    const email = req.body.email;
+    const willCharge = level !== 'light';
     const inputPath = req.file.path;
     const originalExt = path.extname(req.file.originalname).toLowerCase();
     outputFilePath = path.join(tempDir, `out_${req.file.filename}`);
-    
+
+    // Pre-check balance BEFORE doing the (expensive) compression work, so
+    // users who can't afford it don't waste server compute.
+    if (willCharge) {
+      if (!email) {
+        cleanupFile(inputPath);
+        return res.status(400).json({ error: 'Thiếu thông tin tài khoản để trao đổi JOY.' });
+      }
+      let bio = await Bio.findOne({ email });
+      if (!bio) bio = await Bio.findOne({ contactEmail: email });
+      if (!bio) {
+        cleanupFile(inputPath);
+        return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+      }
+      const { tax, total } = calcExchangeTotal(COMPRESS_CHARGE);
+      if (bio.joyBalance < total) {
+        cleanupFile(inputPath);
+        return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY thuế) để trao đổi mức nén này.` });
+      }
+    }
+
+    // Charged only after a successful compression — never for failures.
+    const chargeIfNeeded = () => {
+      if (!willCharge) return;
+      const { tax, total } = calcExchangeTotal(COMPRESS_CHARGE);
+      awardJoy(email, -total, 'file_compression', `Nén file mức ${level === 'strong' ? 'Mạnh' : 'Vừa'} qua HugoTractare (gồm ${tax} JOY thuế giao dịch)`)
+        .catch((e) => console.error('[file_compression charge]', e.message));
+    };
+
     // IMAGE COMPRESSION
     if (['.jpg', '.jpeg', '.png', '.webp'].includes(originalExt)) {
       let quality = 65; // Vừa (Medium): giảm dung lượng xuống 50-70% (chất lượng ~65)
@@ -137,6 +172,7 @@ router.post('/compress', upload.single('file'), async (req, res) => {
         .webp({ quality, force: false })
         .toFile(outputFilePath);
 
+      chargeIfNeeded();
       res.download(outputFilePath, `compressed_${req.file.originalname}`, (err) => {
         cleanupFile(inputPath);
         cleanupFile(outputFilePath);
@@ -160,6 +196,7 @@ router.post('/compress', upload.single('file'), async (req, res) => {
           if (!res.headersSent) res.status(500).json({ error: 'Lỗi nén video.' });
         })
         .on('end', () => {
+          chargeIfNeeded();
           res.download(outputFilePath, `compressed_${path.basename(req.file.originalname, originalExt)}.mp4`, (err) => {
             cleanupFile(inputPath);
             cleanupFile(outputFilePath);

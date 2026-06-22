@@ -645,6 +645,11 @@ router.put('/:id', async (req, res) => {
     const nextSlug = await createUniqueSlug(nextSlugBase, existing._id);
 
     // Apply strict property-level defaults
+    // NOTE: template is intentionally NOT taken from req.body here. 'brutalism'
+    // and 'flat' cost 150 JOY/month (see POST /api/joy/subscribe-bio-theme) —
+    // this generic free PUT only ever preserves the existing template, except
+    // for the free downgrade back to 'default'.
+    const nextTemplate = theme.template === 'default' ? 'default' : (existing.theme?.template || 'default');
     const finalTheme = {
       bgColor: theme.bgColor || '#ffffff',
       textColor: theme.textColor || '#0f172a',
@@ -654,7 +659,7 @@ router.put('/:id', async (req, res) => {
       btnRadius: typeof theme.btnRadius === 'number' ? theme.btnRadius : 16,
       btnBorderWidth: typeof theme.btnBorderWidth === 'number' ? theme.btnBorderWidth : 0,
       btnShadow: typeof theme.btnShadow === 'number' ? theme.btnShadow : 4,
-      template: theme.template || 'default'
+      template: nextTemplate
     };
 
     // ── Track field changes for history ──────────────────────────────────────

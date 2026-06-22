@@ -93,30 +93,31 @@ export async function applyReferral(bio, referrerCodeRaw) {
     type: 'referral_bonus',
     icon: 'card_giftcard',
     title: 'Nhận quà giới thiệu',
-    detail: '+10 JOY và +15 ngày Bio Link nhờ mã giới thiệu',
+    detail: '+30 JOY và +15 ngày Bio Link nhờ mã giới thiệu',
     timestamp: new Date()
   });
   if (bio.history.length > 50) {
     bio.history = bio.history.slice(bio.history.length - 50);
   }
 
+  // Base rewards x3.
   await awardJoy(
     bio.email,
-    10,
+    30,
     'referral_referee',
-    'Bạn nhận được 10 JOY và +15 ngày Bio Link từ mã giới thiệu',
+    'Bạn nhận được 30 JOY và +15 ngày Bio Link từ mã giới thiệu',
     { bioDoc: bio }
   );
 
-  // Referrer: +50 JOY
+  // Referrer: +150 JOY
   referrer.referralCount += 1;
   await awardJoy(
     referrer.email,
-    50,
+    150,
     'referral_referrer',
     `${bio.displayName} đã sử dụng mã giới thiệu của bạn`,
     { bioDoc: referrer }
   );
 
-  return { success: true, joyAwarded: 10, bioExtendedDays: 15 };
+  return { success: true, joyAwarded: 30, bioExtendedDays: 15 };
 }

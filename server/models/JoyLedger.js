@@ -32,7 +32,12 @@ const JoyLedgerSchema = new mongoose.Schema({
       'focus_session',
       'aura_theme_rent',
       'joy_gift_sent',
-      'joy_gift_received'
+      'joy_gift_received',
+      'ide_learning',
+      'feature_subscription',
+      'bio_theme_rental',
+      'file_compression',
+      'admin_direct_add'
     ],
     required: true
   },

@@ -1,6 +1,8 @@
 import express from 'express';
 import ArcadeScore from '../models/ArcadeScore.js';
+import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
+import { isFeatureActive } from '../utils/featureSubscriptionService.js';
 
 const router = express.Router();
 
@@ -13,18 +15,13 @@ const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const RESULTS = ['win', 'lose', 'draw'];
 
 // Shared across all 3 games — one difficulty system, simple player expectations.
+// Win rewards are the base table x1.5. Losing always costs a flat 10 JOY
+// "entry stake" — never deducted on a win, only on a loss.
 const REWARD_TABLE = {
-  easy:   { win: 12, lose: -1 },
-  medium: { win: 25, lose: -2 },
-  hard:   { win: 50, lose: -3 },
+  easy:   { win: 18, lose: -10 },
+  medium: { win: 38, lose: -10 },
+  hard:   { win: 75, lose: -10 },
 };
-
-// Bounds the daily net swing while allowing multiple high-tier wins.
-const ARCADE_DAILY_NET_JOY_CAP = 120;
-
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
 
 // POST /api/arcade/score — body: { email, game, score, difficulty, result, displayName, avatarUrl }
 router.post('/score', async (req, res) => {
@@ -43,6 +40,15 @@ router.post('/score', async (req, res) => {
     }
     if (!RESULTS.includes(result)) {
       return res.status(400).json({ error: 'invalid result' });
+    }
+
+    // Server-side enforcement — frontend-only gating is bypassable via direct
+    // API calls. "Khởi động" (easy) always stays free for everyone.
+    if (difficulty !== 'easy') {
+      const bio = await Bio.findOne({ email });
+      if (!isFeatureActive(bio, 'hugoArcade')) {
+        return res.status(403).json({ error: 'Cần trao đổi JOY mở khóa Bứt phá / Huyền thoại để chơi độ khó này.' });
+      }
     }
 
     const recordInc = {};
@@ -70,41 +76,26 @@ router.post('/score', async (req, res) => {
 
     let joyDelta = 0;
     let joyAwarded = false;
-    let dailyCapReached = false;
 
+    // No daily limit — HugoArcade lets players earn JOY freely, as many
+    // rounds as they want per day.
     if (result !== 'draw') {
-      const today = todayStr();
-      if (doc.joyAwardedDate !== today) {
-        doc.joyAwardedDate = today;
-        doc.joyAwardedToday = 0;
-      }
-
-      // Shared cap across all 3 games — sum today's NET JOY from the user's
-      // other game docs too, not just this one. Signed, can be negative.
-      const otherDocs = await ArcadeScore.find({ email, game: { $ne: game }, joyAwardedDate: today }).lean();
-      const netSoFar = doc.joyAwardedToday + otherDocs.reduce((sum, d) => sum + (d.joyAwardedToday || 0), 0);
-
-      if (Math.abs(netSoFar) < ARCADE_DAILY_NET_JOY_CAP) {
-        const delta = REWARD_TABLE[difficulty][result];
-        try {
-          await awardJoy(
-            email, delta, 'arcade_score',
-            delta > 0 ? `Thắng ở HugoArcade (+${delta} JOY)` : `Thua ở HugoArcade (${delta} JOY)`,
-            { refId: game }
-          );
-          doc.joyAwardedToday += delta;
-          joyDelta = delta;
-          joyAwarded = true;
-        } catch (e) {
-          console.error('[arcade joy award]', e.message);
-        }
-      } else {
-        dailyCapReached = true;
+      const delta = REWARD_TABLE[difficulty][result];
+      try {
+        await awardJoy(
+          email, delta, 'arcade_score',
+          delta > 0 ? `Thắng ở HugoArcade (+${delta} JOY)` : `Thua ở HugoArcade (${delta} JOY)`,
+          { refId: game }
+        );
+        joyDelta = delta;
+        joyAwarded = true;
+      } catch (e) {
+        console.error('[arcade joy award]', e.message);
       }
     }
 
     await doc.save();
-    res.json({ bestScore: doc.bestScore, joyDelta, joyAwarded, dailyCapReached });
+    res.json({ bestScore: doc.bestScore, joyDelta, joyAwarded, dailyCapReached: false });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

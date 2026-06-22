@@ -90,6 +90,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         <MemberFileToolsTab
           onBack={() => onSelectUtility(null)}
           showToast={showToast}
+          bio={bio}
         />
       )}
 
@@ -110,7 +111,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* Web IDE Tool */}
       {selectedUtility === "ide" && (
-        <MemberIdeTab onBack={() => onSelectUtility(null)} />
+        <MemberIdeTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
       )}
 
       {/* Chess game */}
@@ -120,12 +121,12 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* HugoRadio */}
       {selectedUtility === "radio" && (
-        <MemberRadioTab onBack={() => onSelectUtility(null)} showToast={showToast} />
+        <MemberRadioTab onBack={() => onSelectUtility(null)} showToast={showToast} bio={bio} onBioUpdate={onBioUpdate} />
       )}
 
       {/* HugoArcade */}
       {selectedUtility === "arcade" && (
-        <HugoArcadeTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} />
+        <HugoArcadeTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
       )}
 
       {/* HugoAura Focus */}

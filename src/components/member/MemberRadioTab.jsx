@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Hls from "hls.js";
 import SubUtilityHeader from "./SubUtilityHeader";
 import { fetchStationsByNames, fetchStationByName, registerStationClick } from "../../services/radioBrowserApi";
+import FeatureGate from "./shared/FeatureGate";
 
 // Curated via the Radio Browser API (https://www.radio-browser.info) — exact station
 // names confirmed live against the API, resolved to fresh stream URLs at runtime
@@ -169,7 +170,7 @@ const FALLBACK_STATIONS = {
   ]
 };
 
-export default function MemberRadioTab({ onBack, showToast }) {
+export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) {
   const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState(RADIO_CATEGORIES[0].id);
   const [stationsByCategory, setStationsByCategory] = useState({});
@@ -477,6 +478,17 @@ export default function MemberRadioTab({ onBack, showToast }) {
   const needleLeft = `calc(1rem + (100% - 2rem) * ${(frequency - 87.5) / (108.0 - 87.5)})`;
 
   return (
+    <FeatureGate
+      bio={bio}
+      featureKey="hugoRadio"
+      priceJoy={150}
+      icon="radio"
+      title="Trao đổi JOY để mở khóa HugoRadio"
+      description="Nghe radio trực tuyến với hàng chục kênh tin tức và âm nhạc."
+      onBioUpdate={onBioUpdate}
+      onBack={onBack}
+      className="max-w-lg mx-auto mt-10"
+    >
     <div>
       <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-warning" onBack={onBack} />
 
@@ -694,5 +706,6 @@ export default function MemberRadioTab({ onBack, showToast }) {
         </div>
       )}
     </div>
+    </FeatureGate>
   );
 }

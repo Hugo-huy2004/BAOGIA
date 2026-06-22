@@ -89,10 +89,10 @@ const PIECE_THEMES = [
 ];
 
 const BOT_MODES = [
-  { id: 1, label: "Mới chơi",  desc: "+10 JOY mỗi thắng",  Icon: Smile, detail: "Dành cho người mới" },
-  { id: 2, label: "Basic",     desc: "+15 JOY mỗi thắng",  Icon: Bot,   detail: "Thử thách nhẹ nhàng" },
-  { id: 3, label: "Phẫn nộ",  desc: "+20 JOY mỗi thắng",  Icon: Flame, detail: "Bot đủ mạnh" },
-  { id: 4, label: "Trùm cuối", desc: "+40 JOY mỗi thắng",  Icon: Crown, detail: "Thử thách tối đa" },
+  { id: 1, label: "Mới chơi",  desc: "+50 JOY mỗi thắng",  Icon: Smile, detail: "Dành cho người mới" },
+  { id: 2, label: "Basic",     desc: "+75 JOY mỗi thắng",  Icon: Bot,   detail: "Thử thách nhẹ nhàng" },
+  { id: 3, label: "Phẫn nộ",  desc: "+100 JOY mỗi thắng",  Icon: Flame, detail: "Bot đủ mạnh" },
+  { id: 4, label: "Trùm cuối", desc: "+200 JOY mỗi thắng",  Icon: Crown, detail: "Thử thách tối đa" },
 ];
 
 const APP_THEMES = [

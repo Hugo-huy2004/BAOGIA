@@ -2,8 +2,12 @@ import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import SubUtilityHeader from "./SubUtilityHeader";
+import { useJoyStore } from "../../stores/joyStore";
+import JoyExchangeModal from "./shared/JoyExchangeModal";
 
-export default function MemberFileToolsTab({ onBack, showToast }) {
+const COMPRESS_CHARGE = 50; // JOY/file — 'light' stays free, 'medium'/'strong' charge this
+
+export default function MemberFileToolsTab({ onBack, showToast, bio }) {
   const { t } = useTranslation();
   const [activeSubTab, setActiveSubTab] = useState("extract"); // extract | compress
 
@@ -16,6 +20,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
   const [compressFile, setCompressFile] = useState(null);
   const [compressLevel, setCompressLevel] = useState("medium"); // light, medium, strong
   const [compressing, setCompressing] = useState(false);
+  const [showCompressInvoice, setShowCompressInvoice] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -64,15 +69,30 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
   };
 
   // === COMPRESS HANDLERS ===
-  const handleCompress = async () => {
+  const handleCompressClick = () => {
     if (!compressFile) return showToast(t("utilities.fileTools.compress.toastSelectFile"), "error");
     if (compressFile.size > 50 * 1024 * 1024) return showToast(t("utilities.fileTools.extract.toastSizeLimit"), "error");
 
+    if (compressLevel !== "light") {
+      setShowCompressInvoice(true);
+      return;
+    }
+    performCompress().catch((err) => {
+      console.error(err);
+      showToast(err.message || t("utilities.fileTools.compress.toastError"), "error");
+    });
+  };
+
+  // Throws on failure — the free (light) path above catches+toasts itself;
+  // the paid path's invoice modal (onConfirm) catches and displays inline.
+  const performCompress = async () => {
+    const willCharge = compressLevel !== "light";
     setCompressing(true);
     try {
       const formData = new FormData();
       formData.append("file", compressFile);
       formData.append("level", compressLevel);
+      formData.append("email", bio?.email || "");
 
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/files/compress`, {
         method: 'POST',
@@ -83,6 +103,8 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || t("utilities.fileTools.compress.toastError"));
       }
+
+      if (willCharge && bio?.email) useJoyStore.getState().fetchBalance(bio.email);
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -99,9 +121,9 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
       document.body.removeChild(link);
 
       showToast(t("utilities.fileTools.compress.toastSuccess"), "success");
+      return { success: true };
     } catch (err) {
-      console.error(err);
-      showToast(err.message || t("utilities.fileTools.compress.toastError"), "error");
+      throw new Error(err.message || t("utilities.fileTools.compress.toastError"));
     } finally {
       setCompressing(false);
     }
@@ -252,10 +274,16 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                     </button>
                   ))}
                 </div>
+                {compressLevel !== "light" && (
+                  <p className="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">bolt</span>
+                    Mức này trao đổi {COMPRESS_CHARGE} JOY/file
+                  </p>
+                )}
               </div>
 
               <button
-                onClick={handleCompress}
+                onClick={handleCompressClick}
                 disabled={!compressFile || compressing}
                 className="w-full py-2.5 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white rounded-md font-medium transition-colors flex items-center justify-center gap-2"
               >
@@ -270,6 +298,15 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <JoyExchangeModal
+        open={showCompressInvoice}
+        bio={bio}
+        item="fileCompression"
+        onClose={() => setShowCompressInvoice(false)}
+        onConfirm={performCompress}
+        onSuccess={() => { if (bio?.email) useJoyStore.getState().fetchBalance(bio.email); }}
+      />
     </div>
   );
 }

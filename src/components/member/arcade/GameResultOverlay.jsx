@@ -8,7 +8,7 @@ const RESULT_TEXT = {
   draw: { label: "Bất phân thắng bại", icon: "handshake", type: "draw" }
 };
 
-export default function GameResultOverlay({ result, score, difficulty, joyDelta, joyAwarded, dailyCapReached, onReplay, onChangeDifficulty }) {
+export default function GameResultOverlay({ result, score, difficulty, joyDelta, joyAwarded, onReplay, onChangeDifficulty }) {
   const info = RESULT_TEXT[result] || RESULT_TEXT.draw;
   const style = DIFFICULTY_STYLES[difficulty];
 
@@ -37,12 +37,6 @@ export default function GameResultOverlay({ result, score, difficulty, joyDelta,
       <div className={`result-reward ${joyPillClass}`}><small>PHẦN THƯỞNG</small>
         <strong>{joyDelta > 0 ? `+${joyDelta}` : joyDelta} <span>JOY</span></strong>
       </div>
-
-      {dailyCapReached && (
-        <p className="result-cap">
-          Đã đạt giới hạn JOY hôm nay từ HugoArcade, mai quay lại nhé. Điểm số vẫn được ghi nhận.
-        </p>
-      )}
 
       <div className="result-actions">
         <button

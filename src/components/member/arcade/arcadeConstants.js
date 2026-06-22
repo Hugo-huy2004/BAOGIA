@@ -2,9 +2,9 @@
 // values here are for the UI preview only — the server (arcadeRoutes.js's
 // REWARD_TABLE) is the source of truth and must be kept in sync if these change.
 export const DIFFICULTIES = [
-  { id: "easy", label: "Khởi động", kicker: "Làm quen", icon: "local_fire_department", win: 12, lose: -1, description: "Nhẹ nhàng, phù hợp để làm quen luật chơi và tích lũy chuỗi thắng." },
-  { id: "medium", label: "Bứt phá", kicker: "Phổ biến", icon: "bolt", win: 25, lose: -2, description: "Nhịp độ cân bằng, cần tập trung và một chiến thuật rõ ràng." },
-  { id: "hard", label: "Huyền thoại", kicker: "Thử thách lớn", icon: "workspace_premium", win: 50, lose: -3, description: "Mục tiêu khắc nghiệt dành cho người muốn chinh phục bảng xếp hạng." },
+  { id: "easy", label: "Khởi động", kicker: "Làm quen", icon: "local_fire_department", win: 18, lose: -10, description: "Nhẹ nhàng, phù hợp để làm quen luật chơi và tích lũy chuỗi thắng." },
+  { id: "medium", label: "Bứt phá", kicker: "Phổ biến", icon: "bolt", win: 38, lose: -10, description: "Nhịp độ cân bằng, cần tập trung và một chiến thuật rõ ràng." },
+  { id: "hard", label: "Huyền thoại", kicker: "Thử thách lớn", icon: "workspace_premium", win: 75, lose: -10, description: "Mục tiêu khắc nghiệt dành cho người muốn chinh phục bảng xếp hạng." },
 ];
 
 // Explicit (not template-literal) Tailwind class strings per tier — needed so

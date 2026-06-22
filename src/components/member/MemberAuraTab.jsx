@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useJoyStore } from "../../stores/joyStore";
 import SubUtilityHeader from "./SubUtilityHeader";
+import FeatureGate from "./shared/FeatureGate";
 
 const LOFI_PLAYLIST = [
   { id: "sunset_breeze", title: "Shinjuku Gyoen", artist: "Cat System Corp.", url: "https://archive.org/download/lofi-plvgkk/%E7%8C%AB%20%E3%82%B7%20Corp.%20-%20lofi%20-%2001%20Shinjuki%20Gyoen.mp3" },
@@ -19,10 +20,11 @@ const THEME_SHOP = [
   { id: "obsidian", name: "Obsidian Eclipse", desc: "Sắc xám obsidian huyền bí cùng hạt sáng bạc.", price: 50, preview: "from-warning via-muted to-warning/80" }
 ];
 
+// Base rewards x3.
 const FOCUS_PRESETS = [
-  { id: "lite", label: "Focus Lite", minutes: 25, reward: 5, icon: "local_cafe" },
-  { id: "deep", label: "Focus Deep", minutes: 60, reward: 15, icon: "psychology" },
-  { id: "master", label: "Focus Master", minutes: 180, reward: 50, icon: "workspace_premium" }
+  { id: "lite", label: "Focus Lite", minutes: 25, reward: 15, icon: "local_cafe" },
+  { id: "deep", label: "Focus Deep", minutes: 60, reward: 45, icon: "psychology" },
+  { id: "master", label: "Focus Master", minutes: 180, reward: 150, icon: "workspace_premium" }
 ];
 
 const THEME_ACCENTS = {
@@ -501,9 +503,20 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
           </div>
         </div>
 
-        {/* Right Column: Lofi Player & Theme Shop */}
+        {/* Right Column: Lofi Player & Theme Shop — gated behind a monthly
+            JOY subscription. Pomodoro (left column) stays free for everyone. */}
+        <FeatureGate
+          bio={bio}
+          featureKey="hugoAura"
+          priceJoy={150}
+          icon="music_note"
+          title="Mở khóa Lofi & Cửa hàng giao diện bằng JOY"
+          description="Pomodoro tập trung vẫn luôn miễn phí cho mọi người."
+          onBioUpdate={onBioUpdate}
+          className="lg:col-span-5"
+        >
         <div className="lg:col-span-5 flex flex-col gap-6">
-          
+
           {/* Lofi Lounge Player Card */}
           <div className="bg-white/40 dark:bg-zinc-950/40 backdrop-blur-3xl border border-white/20 dark:border-zinc-800/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between">
             <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-40`} />
@@ -690,8 +703,9 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
               </div>
             </div>
           </div>
-          
+
         </div>
+        </FeatureGate>
       </div>
     </div>
   );

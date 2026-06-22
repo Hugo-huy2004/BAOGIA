@@ -10,7 +10,7 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// JOY cap: 60 JOY/day = 3600 awarded-seconds/day (10 JOY per 600s interval)
+// JOY cap: 180 JOY/day = 3600 awarded-seconds/day (30 JOY per 600s interval, base x3)
 const COMPANION_JOY_CAP_SECONDS = 3600;
 const HEARTBEAT_INTERVAL_SECONDS = 30;
 
@@ -66,8 +66,8 @@ router.post('/unlock-feature', async (req, res) => {
   }
 });
 
-// POST: Active-session heartbeat — awards +10 JOY per confirmed 10 minutes
-// of active companion usage, capped at 60 JOY/day.
+// POST: Active-session heartbeat — awards +30 JOY per confirmed 10 minutes
+// of active companion usage, capped at 180 JOY/day.
 router.post('/heartbeat', async (req, res) => {
   try {
     const { email } = req.body;
@@ -96,7 +96,7 @@ router.post('/heartbeat', async (req, res) => {
     ) {
       doc.joyAwardedSecondsToday += 600;
       try {
-        await awardJoy(email, 10, 'companion', 'Hoàn thành 10 phút trị liệu tâm lý (+10 JOY)');
+        await awardJoy(email, 30, 'companion', 'Hoàn thành 10 phút trị liệu tâm lý (+30 JOY)');
       } catch (e) {
         console.error('[companion joy award]', e.message);
       }
@@ -547,10 +547,11 @@ router.post('/report/weekly', async (req, res) => {
   }
 });
 
+// Base rewards x3.
 const DAILY_CHALLENGES = {
-  breath: { amount: 15, name: 'Hít thở 4-7-8' },
-  chat: { amount: 15, name: 'Trò chuyện cùng AI' },
-  assessment: { amount: 20, name: 'Làm test tâm lý' }
+  breath: { amount: 45, name: 'Hít thở 4-7-8' },
+  chat: { amount: 45, name: 'Trò chuyện cùng AI' },
+  assessment: { amount: 60, name: 'Làm test tâm lý' }
 };
 
 // Shared by GET /challenges-status and POST /claim-challenge so the "did the

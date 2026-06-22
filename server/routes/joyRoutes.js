@@ -3,6 +3,23 @@ import Bio from '../models/Bio.js';
 import { awardJoy, getJoyHistory } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
+import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
+
+const BIO_THEME_RENTAL_PRICE = 150;
+const COMPRESS_CHARGE = 50;
+
+// Item labels shown on the invoice modal, keyed the same way the frontend
+// calls /exchange-quote — kept here (not duplicated client-side) so price
+// changes only ever need updating in one place.
+const EXCHANGE_ITEMS = {
+  hugoCoder: { label: 'HugoCoder (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoder },
+  hugoAura: { label: 'HugoAura — Lofi & Cửa hàng giao diện (1 tháng)', priceJoy: FEATURE_PRICES.hugoAura },
+  hugoRadio: { label: 'HugoRadio (1 tháng)', priceJoy: FEATURE_PRICES.hugoRadio },
+  hugoArcade: { label: 'HugoArcade — Bứt phá & Huyền thoại (1 tháng)', priceJoy: FEATURE_PRICES.hugoArcade },
+  bioThemeBrutalism: { label: 'Giao diện Bio: Brutalism (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
+  bioThemeFlat: { label: 'Giao diện Bio: Flat (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
+  fileCompression: { label: 'Nén file HugoTractare', priceJoy: COMPRESS_CHARGE }
+};
 
 const router = express.Router();
 
@@ -20,6 +37,37 @@ const TRANSFER_MIN_ACCOUNT_AGE_DAYS = 3;
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
+
+// GET /api/joy/exchange-quote?email=&item=  — invoice preview for the
+// confirmation modal shown before any "Trao đổi JOY" action. Returns the
+// same price/tax/total math the actual charge endpoints enforce, plus the
+// member's current balance and display info, so the UI never has to
+// duplicate (and risk drifting from) the server's pricing.
+router.get('/exchange-quote', async (req, res) => {
+  try {
+    const { email, item } = req.query;
+    if (!email || !item) return res.status(400).json({ error: 'email and item are required' });
+
+    const def = EXCHANGE_ITEMS[item];
+    if (!def) return res.status(400).json({ error: 'Mục trao đổi không hợp lệ.' });
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    const { tax, total } = calcExchangeTotal(def.priceJoy);
+    res.json({
+      label: def.label,
+      priceJoy: def.priceJoy,
+      tax,
+      total,
+      balance: bio.joyBalance,
+      trader: { displayName: bio.displayName || '', email: bio.email, avatarUrl: bio.avatarUrl || '' }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // GET /api/joy/balance?email=
 router.get('/balance', async (req, res) => {
@@ -82,7 +130,7 @@ router.post('/award-learning', async (req, res) => {
       return res.json({ success: true, alreadyCompleted: true, balance: bio.joyBalance });
     }
 
-    const result = await awardJoy(email, 10, 'ide_learning', `Hoàn thành bài học IDE: ${lessonId}`);
+    const result = await awardJoy(email, 30, 'ide_learning', `Hoàn thành bài học IDE: ${lessonId}`); // base x3
     bio.completedLessons.push(lessonId);
     bio.markModified('completedLessons');
     await bio.save();
@@ -103,10 +151,11 @@ router.post('/award-focus', async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
+    // Base rewards x3.
     let joyAmount = 0;
-    if (minutes >= 180) joyAmount = 50;
-    else if (minutes >= 60) joyAmount = 15;
-    else if (minutes >= 25) joyAmount = 5;
+    if (minutes >= 180) joyAmount = 150;
+    else if (minutes >= 60) joyAmount = 45;
+    else if (minutes >= 25) joyAmount = 15;
 
     if (joyAmount <= 0) {
       return res.status(400).json({ error: 'Thời gian tập trung chưa đủ để nhận thưởng JOY.' });
@@ -190,6 +239,72 @@ router.post('/set-theme', async (req, res) => {
     await bio.save();
 
     res.json({ success: true, bio });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// POST /api/joy/subscribe-feature  { email, featureKey, months? }
+// Monthly JOY subscription gating HugoCoder / HugoAura (Lofi+Shop only) /
+// HugoRadio / HugoArcade (Bứt phá+Huyền thoại tiers). See featureSubscriptionService.js.
+router.post('/subscribe-feature', async (req, res) => {
+  try {
+    const { email, featureKey, months } = req.body;
+    if (!email || !featureKey) return res.status(400).json({ error: 'email and featureKey are required' });
+    if (!FEATURE_PRICES[featureKey]) return res.status(400).json({ error: 'Tính năng không hợp lệ.' });
+
+    const { balance, expiresAt } = await chargeFeatureSubscription(email, featureKey, Number(months) || 1);
+    res.json({ success: true, balance, expiresAt });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// POST /api/joy/subscribe-bio-theme  { email, template: 'brutalism'|'flat' }
+// 'default' is always free and goes through the normal bio PUT — not this route.
+router.post('/subscribe-bio-theme', async (req, res) => {
+  try {
+    const { email, template } = req.body;
+    if (!email || !['brutalism', 'flat'].includes(template)) {
+      return res.status(400).json({ error: 'Giao diện không hợp lệ.' });
+    }
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    const currentExpiry = bio.bioThemeRental?.expiresAt ? new Date(bio.bioThemeRental.expiresAt).getTime() : 0;
+    const alreadyPaidForThisTemplate = bio.bioThemeRental?.template === template && currentExpiry > Date.now();
+
+    // Re-selecting a template already paid-for this period (e.g. switched to
+    // Classic and back) is free — no double charge within the same rental window.
+    if (!alreadyPaidForThisTemplate) {
+      const { tax, total } = calcExchangeTotal(BIO_THEME_RENTAL_PRICE);
+      if (bio.joyBalance < total) {
+        return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY thuế) để đổi giao diện này.` });
+      }
+
+      const { balance } = await awardJoy(
+        bio.email,
+        -total,
+        'bio_theme_rental',
+        `Trao đổi JOY diện giao diện Bio: ${template} (1 tháng, gồm ${tax} JOY thuế giao dịch)`,
+        { bioDoc: bio, skipSave: true }
+      );
+      bio.bioThemeRental = { template, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) };
+      bio.theme = bio.theme || {};
+      bio.theme.template = template;
+      bio.markModified('theme');
+      await bio.save();
+      return res.json({ success: true, balance, expiresAt: bio.bioThemeRental.expiresAt, bio });
+    }
+
+    bio.theme = bio.theme || {};
+    bio.theme.template = template;
+    bio.markModified('theme');
+    await bio.save();
+
+    res.json({ success: true, balance: bio.joyBalance, expiresAt: bio.bioThemeRental.expiresAt, bio });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

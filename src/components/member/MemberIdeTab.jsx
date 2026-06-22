@@ -11,6 +11,7 @@ import confetti from "canvas-confetti";
 import { getMemberSession } from "../../services/authSession";
 import { useJoyStore } from "../../stores/joyStore";
 import { TEMPLATES, INITIAL_WORKSPACE, TUTORIALS } from "./ideData";
+import FeatureGate from "./shared/FeatureGate";
 
 // Helper to resolve language from file extension
 const getLanguageFromExt = (ext) => {
@@ -56,7 +57,7 @@ const getFileIcon = (fileName) => {
   }
 };
 
-export default function MemberIdeTab({ onBack }) {
+export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   const [isDesktop, setIsDesktop] = useState(true);
   const [activeSidebarTab, setActiveSidebarTab] = useState("explorer"); // explorer, learn, db
 
@@ -181,7 +182,7 @@ public:
             if (r.ok) {
               const resData = await r.json();
               if (resData.success && !resData.alreadyCompleted) {
-                toast.success("Tuyệt vời! Bạn được thưởng +10 JOY!", { icon: "🎉" });
+                toast.success("Tuyệt vời! Bạn được thưởng +30 JOY!", { icon: "🎉" });
                 useJoyStore.getState().fetchBalance(session.email);
               } else {
                 toast.success("Chính xác! Bài học đã được xác minh hoàn thành.");
@@ -1191,6 +1192,17 @@ public:
   }
 
   return (
+    <FeatureGate
+      bio={bio}
+      featureKey="hugoCoder"
+      priceJoy={150}
+      icon="terminal"
+      title="Trao đổi JOY để mở khóa HugoCoder"
+      description="Soạn code, học bài tương tác và nhận JOY khi hoàn thành bài học."
+      onBioUpdate={onBioUpdate}
+      onBack={onBack}
+      className="max-w-lg mx-auto mt-10"
+    >
     <div className="flex flex-col bg-zinc-950 h-screen w-screen text-zinc-300 relative overflow-hidden">
       {/* Top IDE Header Control Bar */}
       <div className="bg-card border-b border-zinc-800 px-4 py-2.5 flex items-center justify-between text-xs text-zinc-400">
@@ -1408,7 +1420,7 @@ public:
               })() : (
                 <div className="space-y-3.5">
                   <p className="text-[10px] text-zinc-500 leading-relaxed font-sans">
-                    Hoàn thành bài học để rèn luyện tư duy lập trình hướng đối tượng và nhận thưởng **+10 JOY** cho mỗi bài học:
+                    Hoàn thành bài học để rèn luyện tư duy lập trình hướng đối tượng và nhận thưởng **+30 JOY** cho mỗi bài học:
                   </p>
                   <div className="space-y-3">
                     {COURSES.map((course) => {
@@ -1443,7 +1455,7 @@ public:
                                 ? "bg-success/10 text-success border-success/20"
                                 : "bg-primary/10 text-primary border-primary/20"
                             }`}>
-                              {isCompleted ? "Hoàn thành" : "+10 JOY"}
+                              {isCompleted ? "Hoàn thành" : "+30 JOY"}
                             </span>
                           </div>
                           <p className="text-[10px] text-zinc-500 leading-normal line-clamp-2 font-sans">
@@ -1675,5 +1687,6 @@ services:
 
       </div>
     </div>
+    </FeatureGate>
   );
 }

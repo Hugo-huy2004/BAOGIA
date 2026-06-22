@@ -1,19 +1,7 @@
 import React from 'react'
 import { Helmet } from 'react-helmet-async'
 
-interface MetadataProps {
-  title?: string
-  description?: string
-  keywords?: string[],
-  openGraph?: {
-    title?: string
-    description?: string
-    image?: string
-    url?: string
-  }
-}
-
-const Metadata = ({ title, description, keywords, openGraph }: MetadataProps) => {
+const Metadata = ({ title, description, keywords, openGraph }) => {
   return (
     <div>
       <Helmet>

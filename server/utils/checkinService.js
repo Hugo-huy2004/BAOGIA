@@ -31,13 +31,14 @@ export function getDayOfWeek(dateStr) {
   return ((d.getDay() + 6) % 7) + 1;
 }
 
+// Base daily rewards x3.
 export function rewardForDay(dayOfWeek) {
-  if (dayOfWeek === 1) return 50;
-  if (dayOfWeek === 7) return 150;
-  return 80;
+  if (dayOfWeek === 1) return 150;
+  if (dayOfWeek === 7) return 450;
+  return 240;
 }
 
-const REWARD_TABLE = [50, 80, 80, 80, 80, 80, 150];
+const REWARD_TABLE = [150, 240, 240, 240, 240, 240, 450];
 
 /**
  * Claims today's check-in reward for email. Throws a user-facing Vietnamese
@@ -92,11 +93,11 @@ export async function claimCheckin(email) {
 
   let bonusAwarded = 0;
   if (record.consecutiveDays === 14 && !record.milestone14Awarded) {
-    bonusAwarded += 700;
+    bonusAwarded += 2100;
     record.milestone14Awarded = true;
   }
   if (record.consecutiveDays === 30 && !record.milestone30Awarded) {
-    bonusAwarded += 1500;
+    bonusAwarded += 4500;
     record.milestone30Awarded = true;
   }
 

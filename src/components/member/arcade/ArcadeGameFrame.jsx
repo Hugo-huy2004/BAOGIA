@@ -8,7 +8,7 @@ import { HOW_TO_PLAY } from "./arcadeConstants";
 // Owns the select -> playing -> result stage machine shared by all 3 arcade
 // games, so each game component only needs to know how to play, not how to
 // report. Renders the actual game via a render-prop so this stays game-agnostic.
-export default function ArcadeGameFrame({ game, bio, children }) {
+export default function ArcadeGameFrame({ game, bio, onBioUpdate, children }) {
   const [stage, setStage] = useState("select"); // select | playing | result
   const [difficulty, setDifficulty] = useState(null);
   const [resultData, setResultData] = useState(null);
@@ -56,7 +56,7 @@ export default function ArcadeGameFrame({ game, bio, children }) {
             <span className="arcade-instruction-icon"><span className="material-symbols-outlined">lightbulb</span></span>
             <div><strong>Cách chơi</strong><p>{HOW_TO_PLAY[game]?.rule}</p></div>
           </div>
-          <DifficultySelector game={game} onSelect={handleSelectDifficulty} />
+          <DifficultySelector game={game} bio={bio} onBioUpdate={onBioUpdate} onSelect={handleSelectDifficulty} />
         </div>
       )}
 

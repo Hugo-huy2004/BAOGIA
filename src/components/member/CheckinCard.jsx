@@ -51,7 +51,7 @@ export default function CheckinCard({ email, showToast }) {
     return <div className="py-8 text-center text-xs text-zinc-400">{t("memberPortal.checkin.loading")}</div>;
   }
 
-  const rewardTable = status.rewardTable || [50, 80, 80, 80, 80, 80, 150];
+  const rewardTable = status.rewardTable || [150, 240, 240, 240, 240, 240, 450];
 
   return (
     <div className="bg-white dark:bg-[#15131e] rounded-3xl border border-zinc-200 dark:border-white/10 border-t-4 border-t-warning p-5 space-y-4">
@@ -100,8 +100,8 @@ export default function CheckinCard({ email, showToast }) {
 
       <div className="flex items-center gap-2">
         {[
-          { threshold: 14, bonus: 700, awarded: status.milestone14Awarded },
-          { threshold: 30, bonus: 1500, awarded: status.milestone30Awarded },
+          { threshold: 14, bonus: 2100, awarded: status.milestone14Awarded },
+          { threshold: 30, bonus: 4500, awarded: status.milestone30Awarded },
         ].map(m => (
           <div key={m.threshold} className={`flex-1 flex items-center justify-between gap-1 px-3 py-2 rounded-xl border text-[10px] ${
             m.awarded ? "bg-success/10 border-success/40" : "bg-white/60 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60"
