@@ -436,7 +436,7 @@ const HBot = () => {
   const lastBotMsg = [...messages].reverse().find(m => m.sender === 'bot');
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-[999] flex flex-col items-end">
+    <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)] md:bottom-6 right-4 md:right-6 z-[999] flex flex-col items-end">
       {/* Floating Chat Box */}
       {isOpen && (
         <div className="mb-3 w-[320px] sm:w-[360px] max-w-[calc(100vw-24px)] h-[380px] sm:h-[460px] md:h-[500px] max-h-[55vh] sm:max-h-[60vh] md:max-h-[calc(100vh-120px)] bg-[#f5f5f7]/95 dark:bg-[#1c1c1e]/95 backdrop-blur-lg rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-2xl overflow-hidden flex flex-col animate-fadeIn select-none">
