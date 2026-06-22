@@ -73,39 +73,51 @@ router.post('/heartbeat', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
-    let doc = await CompanionHistory.findOneAndUpdate(
+    // Atomic operators only below — no fetch-mutate-save — so concurrent
+    // heartbeats (fired every 30s, possibly from multiple tabs) can never
+    // collide into a Mongoose VersionError on this hot, frequently-concurrent path.
+    await CompanionHistory.findOneAndUpdate(
       { email },
       { $setOnInsert: { email, healingActive: false, healingDuration: 30, historyLogs: [], chatMessages: [] } },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true }
     );
 
     const today = new Date().toISOString().slice(0, 10);
-    if (doc.activeSecondsDate !== today) {
-      doc.activeSecondsDate = today;
-      doc.activeSecondsToday = 0;
-      doc.joyAwardedSecondsToday = 0;
-      doc.dailyJoyCapReached = false;
-      doc.claimedChallengesToday = [];
-    }
+    await CompanionHistory.updateOne(
+      { email, activeSecondsDate: { $ne: today } },
+      { $set: { activeSecondsDate: today, activeSecondsToday: 0, joyAwardedSecondsToday: 0, dailyJoyCapReached: false, claimedChallengesToday: [] } }
+    );
 
-    doc.activeSecondsToday += HEARTBEAT_INTERVAL_SECONDS;
+    let doc = await CompanionHistory.findOneAndUpdate(
+      { email },
+      { $inc: { activeSecondsToday: HEARTBEAT_INTERVAL_SECONDS } },
+      { new: true }
+    );
 
     while (
       !doc.dailyJoyCapReached &&
       doc.activeSecondsToday - doc.joyAwardedSecondsToday >= 600
     ) {
-      doc.joyAwardedSecondsToday += 600;
+      // CAS-style claim: only succeeds if no other concurrent request has
+      // already claimed this 600s block — prevents double-awarding JOY.
+      const claimed = await CompanionHistory.findOneAndUpdate(
+        { email, joyAwardedSecondsToday: doc.joyAwardedSecondsToday },
+        { $inc: { joyAwardedSecondsToday: 600 } },
+        { new: true }
+      );
+      if (!claimed) break;
+      doc = claimed;
       try {
         await awardJoy(email, 30, 'companion', 'Hoàn thành 10 phút trị liệu tâm lý (+30 JOY)');
       } catch (e) {
         console.error('[companion joy award]', e.message);
       }
-      if (doc.joyAwardedSecondsToday >= COMPANION_JOY_CAP_SECONDS) {
+      if (doc.joyAwardedSecondsToday >= COMPANION_JOY_CAP_SECONDS && !doc.dailyJoyCapReached) {
+        await CompanionHistory.updateOne({ email }, { $set: { dailyJoyCapReached: true } });
         doc.dailyJoyCapReached = true;
       }
     }
 
-    await doc.save();
     res.json({
       activeSecondsToday: doc.activeSecondsToday,
       dailyCapReached: doc.dailyJoyCapReached
@@ -143,12 +155,17 @@ router.get('/history', async (req, res) => {
 
     const todayStr = new Date().toISOString().slice(0, 10);
     if (historyDoc.activeSecondsDate !== todayStr) {
+      // Atomic update — avoids racing with a concurrent heartbeat save on
+      // the same document (which would throw a Mongoose VersionError here).
+      await CompanionHistory.updateOne(
+        { email, activeSecondsDate: { $ne: todayStr } },
+        { $set: { activeSecondsDate: todayStr, activeSecondsToday: 0, joyAwardedSecondsToday: 0, dailyJoyCapReached: false, claimedChallengesToday: [] } }
+      );
       historyDoc.activeSecondsDate = todayStr;
       historyDoc.activeSecondsToday = 0;
       historyDoc.joyAwardedSecondsToday = 0;
       historyDoc.dailyJoyCapReached = false;
       historyDoc.claimedChallengesToday = [];
-      await historyDoc.save();
     }
 
     if (historyDoc.blockedUntil && new Date(historyDoc.blockedUntil) > new Date()) {
@@ -169,14 +186,19 @@ router.get('/history', async (req, res) => {
         const progressDays = Math.max(1, Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1);
 
         if (!historyDoc.healingActive || progressDays > historyDoc.healingDuration) {
-          historyDoc.healingActive = false;
-          historyDoc.healingDuration = 30;
-          historyDoc.historyLogs = [];
-          historyDoc.chatMessages = [];
-          historyDoc.healingStartDate = null;
-          historyDoc.lastCheckinDate = '';
-          historyDoc.lastTestDate = '';
-          await historyDoc.save();
+          const resetFields = {
+            healingActive: false,
+            healingDuration: 30,
+            historyLogs: [],
+            chatMessages: [],
+            healingStartDate: null,
+            lastCheckinDate: '',
+            lastTestDate: ''
+          };
+          // Atomic update — this is the exact pattern that previously raced
+          // with a concurrent heartbeat .save() and threw a VersionError.
+          await CompanionHistory.updateOne({ email }, { $set: resetFields });
+          Object.assign(historyDoc, resetFields);
         }
       }
     }
@@ -242,12 +264,18 @@ router.post('/history', async (req, res) => {
 
     const todayStr = new Date().toISOString().slice(0, 10);
     if (historyDoc.activeSecondsDate !== todayStr) {
+      // Atomic update — historyDoc here was just returned by a $set
+      // findOneAndUpdate above, so calling .save() again risks a Mongoose
+      // VersionError if a concurrent heartbeat bumped the version meanwhile.
+      await CompanionHistory.updateOne(
+        { email, activeSecondsDate: { $ne: todayStr } },
+        { $set: { activeSecondsDate: todayStr, activeSecondsToday: 0, joyAwardedSecondsToday: 0, dailyJoyCapReached: false, claimedChallengesToday: [] } }
+      );
       historyDoc.activeSecondsDate = todayStr;
       historyDoc.activeSecondsToday = 0;
       historyDoc.joyAwardedSecondsToday = 0;
       historyDoc.dailyJoyCapReached = false;
       historyDoc.claimedChallengesToday = [];
-      await historyDoc.save();
     }
 
     // --- Streak tracking for checkin logs ---
@@ -632,18 +660,16 @@ router.post('/claim-challenge', async (req, res) => {
 
     const todayStr = new Date().toISOString().slice(0, 10);
     if (historyDoc.activeSecondsDate !== todayStr) {
-      historyDoc.activeSecondsDate = todayStr;
-      historyDoc.activeSecondsToday = 0;
-      historyDoc.joyAwardedSecondsToday = 0;
-      historyDoc.dailyJoyCapReached = false;
-      historyDoc.claimedChallengesToday = [];
+      // Atomic — avoids racing with a concurrent heartbeat save.
+      await CompanionHistory.updateOne(
+        { email, activeSecondsDate: { $ne: todayStr } },
+        { $set: { activeSecondsDate: todayStr, activeSecondsToday: 0, joyAwardedSecondsToday: 0, dailyJoyCapReached: false, claimedChallengesToday: [] } }
+      );
+      historyDoc = await CompanionHistory.findOne({ email });
     }
 
-    if (!historyDoc.claimedChallengesToday) {
-      historyDoc.claimedChallengesToday = [];
-    }
-
-    if (historyDoc.claimedChallengesToday.includes(challengeId)) {
+    const claimedToday = historyDoc.claimedChallengesToday || [];
+    if (claimedToday.includes(challengeId)) {
       return res.status(400).json({ error: 'Bạn đã nhận phần thưởng cho thử thách này hôm nay rồi.' });
     }
 
@@ -651,7 +677,17 @@ router.post('/claim-challenge', async (req, res) => {
       return res.status(400).json({ error: 'Bạn chưa hoàn thành thử thách này hôm nay.' });
     }
 
-    // Award JOY
+    // CAS-style claim BEFORE awarding JOY: only succeeds if no concurrent
+    // request already claimed this challenge today — guarantees exactly-once
+    // award and removes the .save()-after-awardJoy race entirely.
+    const claimResult = await CompanionHistory.updateOne(
+      { email, claimedChallengesToday: { $ne: challengeId } },
+      { $addToSet: { claimedChallengesToday: challengeId } }
+    );
+    if (claimResult.modifiedCount === 0) {
+      return res.status(400).json({ error: 'Bạn đã nhận phần thưởng cho thử thách này hôm nay rồi.' });
+    }
+
     const { balance } = await awardJoy(
       email,
       challengeDef.amount,
@@ -659,14 +695,10 @@ router.post('/claim-challenge', async (req, res) => {
       `Hoàn thành thử thách: ${challengeDef.name}`
     );
 
-    historyDoc.claimedChallengesToday.push(challengeId);
-    historyDoc.markModified('claimedChallengesToday');
-    await historyDoc.save();
-
     res.json({
       success: true,
       balance,
-      claimedChallengesToday: historyDoc.claimedChallengesToday
+      claimedChallengesToday: [...claimedToday, challengeId]
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
