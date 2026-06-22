@@ -53,7 +53,10 @@ const ZERO_RECORD = () => ({ easy: { wins: 0, losses: 0 }, medium: { wins: 0, lo
 const EMPTY_PROFILE = () => ({
   "2048": { bestScore: 0, gamesPlayed: 0, record: ZERO_RECORD() },
   caro: { bestScore: 0, gamesPlayed: 0, record: ZERO_RECORD() },
-  wordguess: { bestScore: 0, gamesPlayed: 0, record: ZERO_RECORD() }
+  wordguess: { bestScore: 0, gamesPlayed: 0, record: ZERO_RECORD() },
+  survivor: { bestScore: 0, gamesPlayed: 0, record: ZERO_RECORD() },
+  slasher: { bestScore: 0, gamesPlayed: 0, record: ZERO_RECORD() },
+  geometry: { bestScore: 0, gamesPlayed: 0, record: ZERO_RECORD() }
 });
 
 export async function fetchProfile(email) {

@@ -4,6 +4,9 @@ import ArcadeGameFrame from "./ArcadeGameFrame";
 import Game2048 from "./Game2048";
 import GameCaro from "./GameCaro";
 import GameWordGuess from "./GameWordGuess";
+import GameSurvivor from "./GameSurvivor";
+import GameSlasher from "./GameSlasher";
+import GameGeometry from "./GameGeometry";
 import { fetchProfile } from "../../../services/arcadeApi";
 import { HOW_TO_PLAY } from "./arcadeConstants";
 import "./arcade-theme.css";
@@ -11,10 +14,20 @@ import "./arcade-theme.css";
 const GAMES = [
   { id: "2048", icon: "grid_view", name: "2048", tagline: "Gộp số. Phá giới hạn.", accent: "orange", symbol: "2048", detail: "Logic · Chiến thuật" },
   { id: "caro", icon: "grid_3x3", name: "Caro AI", tagline: "Năm quân tạo nên chiến thắng.", accent: "violet", symbol: "×○", detail: "Đối kháng · AI" },
-  { id: "wordguess", icon: "spellcheck", name: "Mật Mã Từ", tagline: "Mỗi chữ cái là một manh mối.", accent: "emerald", symbol: "A?", detail: "Ngôn ngữ · Suy luận" }
+  { id: "wordguess", icon: "spellcheck", name: "Mật Mã Từ", tagline: "Mỗi chữ cái là một manh mối.", accent: "emerald", symbol: "A?", detail: "Ngôn ngữ · Suy luận" },
+  { id: "survivor", icon: "rocket_launch", name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.", accent: "rose", symbol: "✦", detail: "Hành động · Đạn mạc" },
+  { id: "slasher", icon: "sports_martial_arts", name: "Ninja Slasher", tagline: "Chém đứt mọi giới hạn.", accent: "cyan", symbol: "⚔", detail: "Vuốt · Phản xạ" },
+  { id: "geometry", icon: "category", name: "Geometry Dash", tagline: "Bước nhảy Neon.", accent: "pink", symbol: "▲", detail: "Nhịp điệu · Căn ke" }
 ];
 
-const GAME_COMPONENTS = { "2048": Game2048, caro: GameCaro, wordguess: GameWordGuess };
+const GAME_COMPONENTS = { 
+  "2048": Game2048, 
+  caro: GameCaro, 
+  wordguess: GameWordGuess,
+  survivor: GameSurvivor,
+  slasher: GameSlasher,
+  geometry: GameGeometry
+};
 
 const DEMO_FRAMES = {
   "2048": [[2, 2, 4, 8], [0, 4, 4, 8], [0, 0, 8, 8], [0, 0, 0, 16]],
@@ -28,6 +41,9 @@ const DEMO_FRAMES = {
     [{ l: "H", s: "correct" }, { l: "U", s: "correct" }, { l: "G", s: "correct" }, { l: "O", s: "correct" }, { l: "?", s: "active" }],
     [{ l: "H", s: "correct" }, { l: "U", s: "correct" }, { l: "G", s: "correct" }, { l: "O", s: "correct" }, { l: "S", s: "correct" }],
   ],
+  survivor: [1, 2, 3], // Demo loop
+  slasher: [1, 2, 3],
+  geometry: [1, 2, 3]
 };
 
 function GameArtwork({ game }) {
@@ -58,6 +74,49 @@ function GameArtwork({ game }) {
           {DEMO_FRAMES[game][frame].map((cell, index) => <span key={index} className={cell}>{cell === "x" ? "×" : cell === "o" ? "○" : ""}</span>)}
         </div>
         <small><span className="material-symbols-outlined">gesture</span> Nối 5 quân để chiến thắng</small>
+      </div>
+    );
+  }
+  if (game === "survivor") {
+    const cells = [
+       ["", "", "🔴", "", "🚀", "", "🔴", "", ""],
+       ["", "🔴", "", "", "🚀", "🔴", "", "", ""],
+       ["🔴", "", "", "🔴", "🚀", "", "", "", "🔴"]
+    ];
+    return (
+      <div className="arcade-art arcade-art-survivor" aria-hidden="true">
+        <div className="demo-stage demo-survivor-grid" key={frame}>
+          {cells[frame % 3].map((cell, index) => <span key={index} className={cell === "🚀" ? "ship" : cell === "🔴" ? "bullet" : ""}>{cell}</span>)}
+        </div>
+        <small><span className="material-symbols-outlined">rocket</span> Lách qua những kẽ hở hẹp nhất</small>
+      </div>
+    );
+  }
+  if (game === "slasher") {
+    const isCut = frame % 2 !== 0;
+    return (
+      <div className="arcade-art arcade-art-slasher" aria-hidden="true">
+        <div className="demo-stage demo-slasher-grid">
+          <span className={isCut ? "cut" : ""}>🍉</span>
+          <span className={isCut ? "cut" : ""} style={{ transitionDelay: '0.05s' }}>🍍</span>
+          <span className={isCut ? "cut" : ""} style={{ transitionDelay: '0.1s' }}>🥝</span>
+          {isCut && <div className="slash-line" />}
+        </div>
+        <small><span className="material-symbols-outlined">sports_martial_arts</span> Vuốt để chém đứt mục tiêu</small>
+      </div>
+    );
+  }
+  if (game === "geometry") {
+    const isJump = frame % 2 !== 0;
+    return (
+      <div className="arcade-art arcade-art-geometry" aria-hidden="true">
+        <div className="demo-stage demo-geometry-grid">
+          <span className={`cube ${isJump ? "jump" : ""}`}></span>
+          <span></span>
+          <span className="spike"></span>
+          <span></span>
+        </div>
+        <small><span className="material-symbols-outlined">arrow_upward</span> Chạm để nhảy né gai nhọn</small>
       </div>
     );
   }
@@ -112,7 +171,7 @@ export default function HugoArcadeTab({ onBack, bio }) {
             </div>
           </section>
 
-          <div className="arcade-section-heading"><div><span>CHỌN TRÒ CHƠI</span><h2>Hôm nay bạn muốn phá đảo gì?</h2></div><span className="arcade-game-count">03 games</span></div>
+          <div className="arcade-section-heading"><div><span>CHỌN TRÒ CHƠI</span><h2>Hôm nay bạn muốn phá đảo gì?</h2></div><span className="arcade-game-count">{GAMES.length < 10 ? `0${GAMES.length}` : GAMES.length} games</span></div>
 
           <section className="arcade-game-grid">
             {GAMES.map((g, index) => {

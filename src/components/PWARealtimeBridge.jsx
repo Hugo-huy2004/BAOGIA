@@ -60,7 +60,7 @@ export default function PWARealtimeBridge() {
                 </div>
                 
                 <div className="flex-1">
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Nhận Tiền Thưởng</p>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Nhận Thưởng</p>
                   <p className="text-sm font-medium text-foreground line-clamp-2 leading-snug">
                     {data.notification.message || `Tài khoản nhận điểm thưởng mới.`}
                   </p>

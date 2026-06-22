@@ -131,3 +131,26 @@
 @keyframes trophy-pop{0%{transform:scale(.4) rotate(-12deg)}70%{transform:scale(1.15) rotate(4deg)}100%{transform:scale(1)}}
 @media(max-width:560px){.game2048-board{--tile-gap:6px;--tile-adjust:4.5px;--gap-quarter:1.5px;--gap-half:3px;--gap-three-quarter:4.5px;--board-inset:8px}.game2048-cells span,.game2048-board .game2048-tile{border-radius:12px}.game2048-celebration{border-radius:15px}}
 @media(prefers-reduced-motion:reduce){.game2048-board .game2048-tile,.game2048-board .game2048-tile.is-new,.game2048-board .game2048-tile.is-merged,.game2048-celebration,.game2048-celebration>.material-symbols-outlined{animation-duration:1ms;transition-duration:1ms}}
+/* Demo animations for new games */
+.arcade-art-survivor { padding: 20px; }
+.demo-survivor-stage { position: relative; width: 100px; height: 100px; border-radius: 20px; background: #080a12; overflow: hidden; border: 1px solid rgba(244,63,94,0.3); }
+.demo-survivor-stage .ship { position: absolute; left: 45px; top: 45px; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #0ea5e9; animation: surv-ship 2s infinite ease-in-out; }
+.demo-survivor-stage .bullet { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #f43f5e; box-shadow: 0 0 8px #f43f5e; }
+.demo-survivor-stage .b1 { left: 100px; top: 20px; animation: surv-b1 2s infinite linear; }
+/* Flat demo styles for new games */
+.demo-survivor-grid { display: grid; grid-template-columns: repeat(3, 42px); grid-template-rows: repeat(3, 42px); gap: 3px; }
+.demo-survivor-grid span { width: 42px; height: 42px; border-radius: 9px; display: grid; place-items: center; background: var(--arcade-card); border: 1px solid color-mix(in srgb, var(--game-accent) 24%, var(--arcade-line)); font-size: 18px; }
+.demo-survivor-grid span.ship { background: color-mix(in srgb, var(--game-accent) 15%, transparent); border-color: var(--game-accent); font-size: 20px; box-shadow: 0 0 15px color-mix(in srgb, var(--game-accent) 30%, transparent); }
+.demo-survivor-grid span.bullet { color: #f43f5e; font-size: 14px; }
+
+.arcade-art .demo-slasher-grid { display: flex; gap: 6px; padding: 20px; position: relative; }
+.demo-slasher-grid span { width: 45px; height: 45px; border-radius: 12px; display: grid; place-items: center; background: var(--arcade-card); border: 2px solid color-mix(in srgb, var(--game-accent) 28%, var(--arcade-line)); font-size: 22px; transition: .2s cubic-bezier(.2,.8,.2,1); }
+.demo-slasher-grid span.cut { transform: scale(1.15) rotate(25deg); opacity: 0; }
+.demo-slasher-grid .slash-line { position: absolute; left: 10px; right: 10px; top: 50%; height: 3px; background: var(--game-accent); transform: rotate(-10deg); box-shadow: 0 0 10px var(--game-accent); z-index: 2; pointer-events: none; animation: slash-flash .3s ease-out forwards; }
+@keyframes slash-flash { 0% { opacity: 0; transform: rotate(-10deg) scaleX(0.5); } 50% { opacity: 1; transform: rotate(-10deg) scaleX(1.1); } 100% { opacity: 0; transform: rotate(-10deg) scaleX(1); } }
+
+.arcade-art .demo-geometry-grid { display: flex; gap: 5px; padding: 10px 10px 0 10px; border-bottom: 3px solid color-mix(in srgb, var(--game-accent) 30%, var(--arcade-line)); align-items: flex-end; height: 60px; }
+.demo-geometry-grid span { width: 32px; height: 32px; border-radius: 6px; background: var(--arcade-card); border: 2px solid color-mix(in srgb, var(--game-accent) 30%, var(--arcade-line)); transition: .3s cubic-bezier(.2,.8,.2,1); }
+.demo-geometry-grid span.cube { background: var(--game-accent); border-color: var(--game-accent); box-shadow: 0 0 12px color-mix(in srgb, var(--game-accent) 40%, transparent); }
+.demo-geometry-grid span.jump { transform: translateY(-40px) rotate(90deg); }
+.demo-geometry-grid span.spike { background: none; border: none; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 26px solid #f59e0b; margin-bottom: -1px; }
