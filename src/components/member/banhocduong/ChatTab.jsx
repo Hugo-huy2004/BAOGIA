@@ -35,6 +35,14 @@ const ASPECT_LABELS = {
   "doctor_sharing": { short: "Trò chuyện tự do" }
 };
 
+// Dialogue nodes already contain context-specific copy. Always prefer it over
+// the generic keyword responder, otherwise words such as "bài test" can be
+// misclassified as an academic concern simply because they contain "bài".
+const dialogueReply = (value, fallback = "") => {
+  if (Array.isArray(value)) return value.find(Boolean) || fallback;
+  return value || fallback;
+};
+
 
 function WellnessInsightStrip({ bio, historyLogs, chatMessages, onNavigateToTab }) {
   const { latestMood, streak, trend, latestClinical, recommendations } = React.useMemo(() => {
@@ -400,7 +408,7 @@ export default function ChatTab({
     setSelectedAspect(aspect);
     setLoading(true);
     setTimeout(() => {
-      const response = getRandomResponse(aspect.text, aspect.id);
+      const response = dialogueReply(aspect.reply, getRandomResponse(aspect.text, aspect.id));
       const botMsg = { id: `bot-${Date.now()}`, sender: "bot", text: response, time: new Date() };
       setMessages(prev => [...prev, botMsg]);
       setLoading(false);
@@ -415,7 +423,7 @@ export default function ChatTab({
     setSelectedSubOption(subOpt);
     setLoading(true);
     setTimeout(() => {
-      const response = getRandomResponse(subOpt.text);
+      const response = dialogueReply(subOpt.followUp, getRandomResponse(subOpt.text));
       const botMsg = { id: `bot-${Date.now()}`, sender: "bot", text: response, time: new Date() };
       setMessages(prev => [...prev, botMsg]);
       setLoading(false);
@@ -448,7 +456,7 @@ export default function ChatTab({
           50: "Hành trình Phục hồi Thấu cảm (Compassionate)",
           90: "Hành trình Đồng hành Chuyên sâu (Intensive)"
         };
-        const advice = getRandomResponse(sevOpt.text);
+        const advice = dialogueReply(sevOpt.advice, getRandomResponse(sevOpt.text));
         const finalReply = sevOpt.quote ? `${advice}\n\n💡 **Lời khuyên:** ${sevOpt.quote}` : advice;
         const botMsg = { id: `bot-advice-${Date.now()}`, sender: "bot", text: finalReply, time: new Date() };
         setMessages(prev => [...prev, botMsg]);

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 
 const SIZE = 4;
 const TARGET_TILE = { easy: 256, medium: 512, hard: 2048 };
+let tileSequence = 0;
+const createTile = (value, extra = {}) => ({ id: `tile-${++tileSequence}`, value, ...extra });
 
 function emptyGrid() {
   return Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
@@ -96,6 +98,57 @@ export function hasReachedTarget(grid, target) {
   return grid.some((row) => row.some((v) => v >= target));
 }
 
+function createTileGrid() {
+  return addRandomObjectTile(addRandomObjectTile(emptyGrid()));
+}
+
+function addRandomObjectTile(grid) {
+  const next = cloneGrid(grid);
+  const empty = [];
+  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (!next[r][c]) empty.push([r, c]);
+  if (!empty.length) return next;
+  const [r, c] = empty[Math.floor(Math.random() * empty.length)];
+  next[r][c] = createTile(Math.random() < .9 ? 2 : 4, { isNew: true });
+  return next;
+}
+
+function tileValues(grid) {
+  return grid.map((row) => row.map((tile) => tile?.value || 0));
+}
+
+function moveTileGrid(grid, direction) {
+  const result = emptyGrid();
+  let gained = 0;
+  let moved = false;
+
+  for (let line = 0; line < SIZE; line++) {
+    const coords = Array.from({ length: SIZE }, (_, index) => {
+      if (direction === "left") return [line, index];
+      if (direction === "right") return [line, SIZE - 1 - index];
+      if (direction === "up") return [index, line];
+      return [SIZE - 1 - index, line];
+    });
+    const tiles = coords.map(([r, c]) => ({ tile: grid[r][c], r, c })).filter(({ tile }) => tile);
+    let output = 0;
+    for (let index = 0; index < tiles.length; index++) {
+      const current = tiles[index];
+      const next = tiles[index + 1];
+      const [targetR, targetC] = coords[output++];
+      if (next && current.tile.value === next.tile.value) {
+        const value = current.tile.value * 2;
+        result[targetR][targetC] = createTile(value, { merged: true });
+        gained += value;
+        moved = true;
+        index++;
+      } else {
+        result[targetR][targetC] = { ...current.tile, isNew: false, merged: false };
+        if (current.r !== targetR || current.c !== targetC) moved = true;
+      }
+    }
+  }
+  return { grid: result, gained, moved };
+}
+
 const TILE_COLORS = {
   0:    { bg: "rgba(255,255,255,.045)", color: "transparent", border: "rgba(255,255,255,.035)", glow: "inset 0 1px rgba(255,255,255,.02)" },
   2:    { bg: "#475569", color: "#f8fafc", border: "#64748b", glow: "0 5px 14px rgba(51,65,85,.24)" },
@@ -113,27 +166,31 @@ const TILE_COLORS = {
 
 export default function Game2048({ difficulty = "medium", onGameOver }) {
   const targetTile = TARGET_TILE[difficulty] || 512;
-  const [grid, setGrid] = useState(() => addRandomTile(addRandomTile(emptyGrid())));
+  const [grid, setGrid] = useState(createTileGrid);
   const [score, setScore] = useState(0);
   const [status, setStatus] = useState(null); // null | 'win' | 'lose'
-  const [motion, setMotion] = useState({ direction: "", tick: 0, merged: false });
+  const [motion, setMotion] = useState({ direction: "", merged: false });
+  const [celebrating, setCelebrating] = useState(false);
   const reportedRef = useRef(false);
   const touchStartRef = useRef(null);
   const boardRef = useRef(null);
   const gridRef = useRef(grid);
-  const motionTickRef = useRef(0);
 
   const handleMove = useCallback((direction) => {
     if (status) return;
-    const { grid: newGrid, gained, moved } = move(gridRef.current, direction);
+    const { grid: newGrid, gained, moved } = moveTileGrid(gridRef.current, direction);
     if (!moved) return;
-    const withTile = addRandomTile(cloneGrid(newGrid));
+    const withTile = addRandomObjectTile(newGrid);
     gridRef.current = withTile;
-    setMotion({ direction, tick: ++motionTickRef.current, merged: gained > 0 });
+    setMotion({ direction, merged: gained > 0 });
     setGrid(withTile);
     if (gained) setScore((s) => s + gained);
-    if (hasReachedTarget(withTile, targetTile)) setStatus("win");
-    else if (isGameOver(withTile)) setStatus("lose");
+    const values = tileValues(withTile);
+    if (hasReachedTarget(values, targetTile)) {
+      setCelebrating(true);
+      setStatus("win");
+      navigator.vibrate?.([40, 50, 90]);
+    } else if (isGameOver(values)) setStatus("lose");
   }, [status, targetTile]);
 
   useEffect(() => {
@@ -149,10 +206,12 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
   }, [handleMove]);
 
   useEffect(() => {
-    if (status && !reportedRef.current) {
+    if (!status || reportedRef.current) return undefined;
+    const timer = window.setTimeout(() => {
       reportedRef.current = true;
       onGameOver?.(score, status);
-    }
+    }, status === "win" ? 1700 : 350);
+    return () => window.clearTimeout(timer);
   }, [status, score, onGameOver]);
 
   const handleTouchStart = (e) => {
@@ -199,24 +258,29 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
       </div>
 
       <div
-        key={motion.tick}
         ref={boardRef}
-        className={`game2048-board move-${motion.direction || "idle"} ${motion.merged ? "did-merge" : ""} grid grid-cols-4 grid-rows-4 w-full max-w-[520px] aspect-square touch-none`}
+        className={`game2048-board move-${motion.direction || "idle"} ${motion.merged ? "did-merge" : ""} w-full max-w-[520px] aspect-square touch-none`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={() => { touchStartRef.current = null; resetSwipePreview(); }}
       >
-        {grid.flat().map((value, idx) => (
-          <div
-            key={`${idx}-${value}`}
-            className={`game2048-tile aspect-square flex items-center justify-center font-black ${value !== 0 ? "is-filled" : ""}`}
-            style={{ background: (TILE_COLORS[value] || TILE_COLORS[2048]).bg, color: (TILE_COLORS[value] || TILE_COLORS[2048]).color, borderColor: (TILE_COLORS[value] || TILE_COLORS[2048]).border, boxShadow: (TILE_COLORS[value] || TILE_COLORS[2048]).glow, fontSize: value >= 1000 ? "clamp(16px,4vw,25px)" : "clamp(21px,5vw,34px)" }}
-            aria-label={value ? `Ô số ${value}` : "Ô trống"}
-          >
-            {value !== 0 && value}
+        <div className="game2048-cells" aria-hidden="true">{Array.from({ length: 16 }, (_, index) => <span key={index} />)}</div>
+        <div className="game2048-tiles">
+          {grid.flatMap((row, r) => row.map((tile, c) => tile ? (
+            <div key={tile.id}
+              className={`game2048-tile tile-row-${r} tile-col-${c} is-filled ${tile.isNew ? "is-new" : ""} ${tile.merged ? "is-merged" : ""}`}
+              style={{ "--row": r, "--col": c, background: (TILE_COLORS[tile.value] || TILE_COLORS[2048]).bg, color: (TILE_COLORS[tile.value] || TILE_COLORS[2048]).color, borderColor: (TILE_COLORS[tile.value] || TILE_COLORS[2048]).border, boxShadow: (TILE_COLORS[tile.value] || TILE_COLORS[2048]).glow, fontSize: tile.value >= 1000 ? "clamp(16px,4vw,25px)" : "clamp(21px,5vw,34px)" }}
+              aria-label={`Ô số ${tile.value}`}>{tile.value}</div>
+          ) : null))}
+        </div>
+        {celebrating && (
+          <div className="game2048-celebration" role="status" aria-live="polite">
+            <span className="material-symbols-outlined">emoji_events</span>
+            <strong>Chúc mừng!</strong>
+            <p>Bạn đã tạo được ô <b>{targetTile}</b></p>
           </div>
-        ))}
+        )}
       </div>
 
       <p className="game-control-hint"><span className="material-symbols-outlined">swipe</span> Vuốt màn hình hoặc dùng phím mũi tên để di chuyển</p>

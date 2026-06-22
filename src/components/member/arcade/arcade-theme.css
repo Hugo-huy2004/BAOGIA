@@ -109,13 +109,25 @@
 /* 2048 gesture feedback and directional movement */
 .game2048-tile{will-change:transform;transform:translate3d(0,0,0);backface-visibility:hidden}
 .game2048-board.is-dragging .game2048-tile{transform:translate3d(var(--swipe-x,0),var(--swipe-y,0),0);transition:transform 36ms linear}
-.game2048-board.move-left .game2048-tile.is-filled{animation:tile-move-left 190ms cubic-bezier(.2,.82,.25,1) both}
-.game2048-board.move-right .game2048-tile.is-filled{animation:tile-move-right 190ms cubic-bezier(.2,.82,.25,1) both}
-.game2048-board.move-up .game2048-tile.is-filled{animation:tile-move-up 190ms cubic-bezier(.2,.82,.25,1) both}
-.game2048-board.move-down .game2048-tile.is-filled{animation:tile-move-down 190ms cubic-bezier(.2,.82,.25,1) both}
-.game2048-board.did-merge .game2048-tile.is-filled{animation-duration:230ms}
-@keyframes tile-move-left{0%{opacity:.76;transform:translate3d(30px,0,0) scale(.97)}70%{opacity:1;transform:translate3d(-2px,0,0) scale(1.025)}100%{transform:translate3d(0,0,0) scale(1)}}
-@keyframes tile-move-right{0%{opacity:.76;transform:translate3d(-30px,0,0) scale(.97)}70%{opacity:1;transform:translate3d(2px,0,0) scale(1.025)}100%{transform:translate3d(0,0,0) scale(1)}}
-@keyframes tile-move-up{0%{opacity:.76;transform:translate3d(0,30px,0) scale(.97)}70%{opacity:1;transform:translate3d(0,-2px,0) scale(1.025)}100%{transform:translate3d(0,0,0) scale(1)}}
-@keyframes tile-move-down{0%{opacity:.76;transform:translate3d(0,-30px,0) scale(.97)}70%{opacity:1;transform:translate3d(0,2px,0) scale(1.025)}100%{transform:translate3d(0,0,0) scale(1)}}
-@media(prefers-reduced-motion:reduce){.game2048-board .game2048-tile.is-filled{animation-duration:1ms}}
+
+/* Coordinate-based 2048 board: persistent tiles interpolate to their real destination. */
+.game2048-board{position:relative;display:block;--tile-gap:10px;--tile-adjust:7.5px;--gap-quarter:2.5px;--gap-half:5px;--gap-three-quarter:7.5px;--board-inset:12px;overflow:hidden}
+.game2048-cells,.game2048-tiles{position:absolute;inset:var(--board-inset)}
+.game2048-cells{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:var(--tile-gap)}
+.game2048-cells span{border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.035)}
+.game2048-tiles{pointer-events:none}
+.game2048-board .game2048-tile{position:absolute;left:0;top:0;width:calc(25% - var(--tile-adjust));aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:18px;border:1px solid transparent;animation:none;transform:translate3d(0,0,0);transition:left 175ms cubic-bezier(.22,.8,.24,1),top 175ms cubic-bezier(.22,.8,.24,1),transform 80ms ease,box-shadow 175ms ease;z-index:2;will-change:left,top,transform}
+.game2048-board .tile-col-1{left:calc(25% + var(--gap-quarter))}.game2048-board .tile-col-2{left:calc(50% + var(--gap-half))}.game2048-board .tile-col-3{left:calc(75% + var(--gap-three-quarter))}
+.game2048-board .tile-row-1{top:calc(25% + var(--gap-quarter))}.game2048-board .tile-row-2{top:calc(50% + var(--gap-half))}.game2048-board .tile-row-3{top:calc(75% + var(--gap-three-quarter))}
+.game2048-board.is-dragging .game2048-tile{transform:translate3d(var(--swipe-x,0px),var(--swipe-y,0px),0);transition:transform 30ms linear}
+.game2048-board .game2048-tile.is-new{animation:tile-born 180ms cubic-bezier(.2,.9,.3,1) both}
+.game2048-board .game2048-tile.is-merged{animation:tile-merged 230ms cubic-bezier(.2,.9,.3,1) both;z-index:3}
+@keyframes tile-born{0%{opacity:0;transform:scale(.45)}100%{opacity:1;transform:scale(1)}}
+@keyframes tile-merged{0%{transform:scale(.84)}65%{transform:scale(1.13)}100%{transform:scale(1)}}
+.game2048-celebration{position:absolute;inset:var(--board-inset);z-index:10;border-radius:20px;background:rgba(24,24,27,.91);color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:celebration-in 350ms cubic-bezier(.16,1,.3,1);backdrop-filter:blur(7px)}
+.game2048-celebration>.material-symbols-outlined{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;background:#f59e0b;color:#18181b;font-size:30px;animation:trophy-pop 650ms cubic-bezier(.16,1,.3,1)}
+.game2048-celebration strong{font-size:clamp(25px,6vw,38px);font-weight:950;letter-spacing:-.04em;margin-top:14px}.game2048-celebration p{font-size:12px;color:#d4d4d8;margin-top:3px}.game2048-celebration p b{color:#fbbf24}
+@keyframes celebration-in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes trophy-pop{0%{transform:scale(.4) rotate(-12deg)}70%{transform:scale(1.15) rotate(4deg)}100%{transform:scale(1)}}
+@media(max-width:560px){.game2048-board{--tile-gap:6px;--tile-adjust:4.5px;--gap-quarter:1.5px;--gap-half:3px;--gap-three-quarter:4.5px;--board-inset:8px}.game2048-cells span,.game2048-board .game2048-tile{border-radius:12px}.game2048-celebration{border-radius:15px}}
+@media(prefers-reduced-motion:reduce){.game2048-board .game2048-tile,.game2048-board .game2048-tile.is-new,.game2048-board .game2048-tile.is-merged,.game2048-celebration,.game2048-celebration>.material-symbols-outlined{animation-duration:1ms;transition-duration:1ms}}
