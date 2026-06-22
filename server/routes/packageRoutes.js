@@ -1,6 +1,7 @@
 import express from 'express';
 import Package from '../models/Package.js';
 import Bio from '../models/Bio.js';
+import JoyGiftCard from '../models/JoyGiftCard.js';
 import { parseBirthday } from '../utils/birthdayAutomation.js';
 import { sendPushNotification } from '../utils/pushNotifier.js';
 
@@ -315,6 +316,33 @@ router.post('/redeem', async (req, res) => {
     // Fallback to standard packages
     const pkg = await Package.findOne({ giftCode: cleanCode });
     if (!pkg) {
+      // Check if it's a Joy Gift Card
+      const joyCard = await JoyGiftCard.findOne({ code: cleanCode });
+      if (joyCard) {
+        if (joyCard.redeemed) return res.status(400).json({ error: 'Mã Joy này đã được sử dụng.' });
+        
+        joyCard.redeemed = true;
+        joyCard.redeemedBy = email;
+        joyCard.redeemedAt = new Date();
+        await joyCard.save();
+
+        bio.joyCoins = (bio.joyCoins || 0) + joyCard.joyValue;
+        
+        pushHistory(bio, {
+          type: 'joy_gift_redeemed',
+          icon: 'redeem',
+          title: `Nhận ${joyCard.joyValue} Joy thành công!`,
+          detail: `Bạn vừa nhập mã Voucher và nhận được ${joyCard.joyValue} Joy.`
+        });
+        
+        await bio.save();
+        
+        return res.json({ 
+          message: `Nhận thành công ${joyCard.joyValue} Joy!`,
+          bio: bio
+        });
+      }
+
       return res.status(400).json({ error: 'Mã không hợp lệ hoặc đã được sử dụng.' });
     }
 

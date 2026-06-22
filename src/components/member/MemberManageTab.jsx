@@ -59,29 +59,24 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
       <div 
         onClick={() => setIsOpen(!isOpen)}
         style={{ 
-          background: `linear-gradient(135deg, ${color}15 0%, #15141c 60%, #0d0c10 100%)`,
-          borderColor: `${color}30`
+          backgroundColor: `${color}12`,
+          borderColor: color
         }}
-        className="relative overflow-hidden rounded-[24px] text-white p-6 sm:p-7 border shadow-[0_16px_36px_rgba(0,0,0,0.25)] flex flex-col justify-between h-[210px] sm:h-[235px] group transition-all duration-300 hover:scale-[1.01] hover:shadow-[0_20px_48px_rgba(0,0,0,0.35)] cursor-pointer select-none"
+        className="relative overflow-hidden rounded-[24px] p-6 sm:p-7 border-2 flex flex-col justify-between h-[210px] sm:h-[235px] group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer select-none"
       >
-        <div 
-          className="absolute inset-0 opacity-45 pointer-events-none transition-opacity duration-300 group-hover:opacity-60" 
-          style={{ backgroundImage: `radial-gradient(circle at 80% 20%, ${color}35 0%, transparent 80%)` }}
-        />
-        <div className="absolute -bottom-20 -left-20 w-52 h-52 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+        <div className="absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none transition-transform duration-500 group-hover:scale-125 group-hover:opacity-20" style={{ backgroundColor: color, borderBottomLeftRadius: '100%' }} />
 
         <div className="flex justify-between items-start relative z-10">
           <div className="space-y-1.5 text-left">
-            <div className="flex items-center gap-1.5 text-white/50 font-black uppercase text-[9px] tracking-[0.2em]">
-              <span className="material-symbols-outlined text-xs" style={{ color }}>workspace_premium</span>
+            <div className="flex items-center gap-1.5 font-black uppercase text-[9px] tracking-[0.2em]" style={{ color }}>
+              <span className="material-symbols-outlined text-xs">workspace_premium</span>
               {isBasePackage ? t("memberPortal.package.base") : t("memberPortal.package.promo")}
             </div>
-            <h3 className="text-lg sm:text-xl font-black tracking-tight uppercase bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all">{name}</h3>
+            <h3 className="text-xl sm:text-2xl font-black tracking-tight uppercase text-zinc-900 dark:text-white transition-all">{name}</h3>
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-white">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/50 dark:bg-black/20 border text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200" style={{ borderColor: `${color}40` }}>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: color }} />
             {t("memberPortal.package.activeStatus")}
           </div>
         </div>
@@ -90,30 +85,30 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div className="text-xs sm:text-sm font-semibold flex items-center gap-4 sm:gap-6 text-left">
               <div>
-                <span className="text-[8px] sm:text-[9px] block text-white/40 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.startDate")}</span>
-                <span className="text-[11px] sm:text-xs font-mono text-zinc-300 font-bold">{startLabel}</span>
+                <span className="text-[8px] sm:text-[9px] block text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.startDate")}</span>
+                <span className="text-[11px] sm:text-xs font-mono text-zinc-800 dark:text-zinc-200 font-bold">{startLabel}</span>
               </div>
               {expiresLabel && (
                 <>
-                  <div className="w-[1px] h-6 bg-white/10" />
+                  <div className="w-[2px] h-6" style={{ backgroundColor: `${color}30` }} />
                   <div>
-                    <span className="text-[8px] sm:text-[9px] block text-white/40 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.bioDuration")}</span>
-                    <span className="text-rose-400 font-bold text-[11px] sm:text-xs font-mono">{expiresLabel}</span>
+                    <span className="text-[8px] sm:text-[9px] block text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.bioDuration")}</span>
+                    <span className="font-bold text-[11px] sm:text-xs font-mono" style={{ color }}>{expiresLabel}</span>
                   </div>
                 </>
               )}
               {!expiresLabel && (
                 <>
-                  <div className="w-[1px] h-6 bg-white/10" />
+                  <div className="w-[2px] h-6" style={{ backgroundColor: `${color}30` }} />
                   <div>
-                    <span className="text-[8px] sm:text-[9px] block text-white/40 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.addedDuration")}</span>
-                    <span className="text-zinc-200 font-bold text-[11px] sm:text-xs font-mono">+{duration} {durationUnit === "days" ? t("memberPortal.package.days") : durationUnit === "years" ? t("memberPortal.package.years") : t("memberPortal.package.months")}</span>
+                    <span className="text-[8px] sm:text-[9px] block text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.addedDuration")}</span>
+                    <span className="text-zinc-800 dark:text-zinc-200 font-bold text-[11px] sm:text-xs font-mono">+{duration} {durationUnit === "days" ? t("memberPortal.package.days") : durationUnit === "years" ? t("memberPortal.package.years") : t("memberPortal.package.months")}</span>
                   </div>
                 </>
               )}
             </div>
             <div className="text-right flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm text-white/60 transition-transform duration-300" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
+              <span className="material-symbols-outlined text-sm text-zinc-400 transition-transform duration-300" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
                 expand_more
               </span>
             </div>

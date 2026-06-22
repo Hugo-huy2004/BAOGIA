@@ -40,6 +40,7 @@ const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
 const MemberIdeTab = lazy(() => import("./components/member/MemberIdeTab"));
 const ChessPage = lazy(() => import("./pages/public/ChessPage"));
 const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
+const UtilityPublicPage = lazy(() => import("./pages/public/UtilityPublicPage"));
 
 function AppContent() {
   const location = useLocation();
@@ -66,6 +67,7 @@ function AppContent() {
   const isIdeRoute = location.pathname === "/member/ide";
   const isChessRoute = location.pathname.startsWith("/chess");
   const isArcadeRoute = location.pathname === "/arcade" || location.pathname.startsWith("/member/utilities/arcade");
+  const isPublicUtilityRoute = location.pathname === "/banhocduong" || location.pathname === "/therapy" || location.pathname === "/radio" || location.pathname === "/aura";
 
   if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute && !isArcadeRoute) {
     return <MaintenancePage />;
@@ -151,6 +153,10 @@ function AppContent() {
             <Route path="/admin/projects" element={isAdminAuthenticated() ? <AdminProjectsPage /> : <Navigate to="/login" replace />} />
             <Route path="/admin/projects/:id" element={isAdminAuthenticated() ? <AdminProjectDetailPage /> : <Navigate to="/login" replace />} />
             <Route path="/support-request" element={<SupportRequestPage />} />
+            
+            {/* Dynamic Public Utility Route */}
+            <Route path="/:tool" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/introduction" replace />} />
+            
             <Route path="*" element={<Navigate to="/introduction" replace />} />
           </Routes>
         </Suspense>
