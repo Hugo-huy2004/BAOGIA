@@ -4,15 +4,15 @@ import HugoLogo from "../HugoLogo";
 import { toast } from "react-hot-toast";
 
 const getHistoryTypeConfig = (t) => ({
-  welcome:         { color: '#34c759', bg: 'bg-emerald-500/10 dark:bg-emerald-500/10', border: 'border-emerald-400/20', label: t("memberTabs.history.labels.welcome"), cat: 'account', icon: 'waving_hand' },
-  bio_link:        { color: '#0071e3', bg: 'bg-blue-500/10 dark:bg-blue-500/10',     border: 'border-blue-400/20',    label: 'Bio Link', cat: 'account', icon: 'link' },
-  package_received:{ color: '#6366f1', bg: 'bg-indigo-500/10 dark:bg-indigo-500/10', border: 'border-indigo-400/20',  label: t("memberTabs.history.labels.package_received"), cat: 'package', icon: 'card_membership' },
-  package_removed: { color: '#ff3b30', bg: 'bg-red-500/10 dark:bg-red-500/10',       border: 'border-red-400/20',     label: t("memberTabs.history.labels.package_removed"), cat: 'package', icon: 'unsubscribe' },
-  profile_updated: { color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/20',   label: t("memberTabs.history.labels.profile_updated"), cat: 'account', icon: 'manage_accounts' },
-  link_added:      { color: '#30b0c7', bg: 'bg-cyan-500/10 dark:bg-cyan-500/10',     border: 'border-cyan-400/20',    label: t("memberTabs.history.labels.link_added"), cat: 'account', icon: 'add_link' },
-  link_removed:    { color: '#8e8e93', bg: 'bg-zinc-500/10 dark:bg-zinc-500/10',     border: 'border-zinc-400/20',    label: t("memberTabs.history.labels.link_removed"), cat: 'account', icon: 'link_off' },
-  birthday_wish:   { color: '#ff2d55', bg: 'bg-rose-500/10 dark:bg-rose-500/10',     border: 'border-rose-400/20',    label: t("memberTabs.history.labels.birthday"), cat: 'gift', icon: 'cake' },
-  birthday_voucher:{ color: '#ff9500', bg: 'bg-amber-500/10 dark:bg-amber-500/10',   border: 'border-amber-400/20',   label: t("memberTabs.history.labels.gift"), cat: 'gift', icon: 'featured_play_list' },
+  welcome:         { color: 'hsl(var(--success))', bg: 'bg-success/10 dark:bg-success/15', border: 'border-success/20', label: t("memberTabs.history.labels.welcome"), cat: 'account', icon: 'waving_hand' },
+  bio_link:        { color: 'hsl(var(--info))', bg: 'bg-info/10 dark:bg-info/15',     border: 'border-info/20',    label: 'Bio Link', cat: 'account', icon: 'link' },
+  package_received:{ color: 'hsl(var(--primary))', bg: 'bg-primary/10 dark:bg-primary/15', border: 'border-primary/20',  label: t("memberTabs.history.labels.package_received"), cat: 'package', icon: 'card_membership' },
+  package_removed: { color: 'hsl(var(--destructive))', bg: 'bg-destructive/10 dark:bg-destructive/15',       border: 'border-destructive/20',     label: t("memberTabs.history.labels.package_removed"), cat: 'package', icon: 'unsubscribe' },
+  profile_updated: { color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15',   border: 'border-warning/20',   label: t("memberTabs.history.labels.profile_updated"), cat: 'account', icon: 'manage_accounts' },
+  link_added:      { color: 'hsl(var(--info))', bg: 'bg-info/10 dark:bg-info/15',     border: 'border-info/20',    label: t("memberTabs.history.labels.link_added"), cat: 'account', icon: 'add_link' },
+  link_removed:    { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted dark:bg-muted',     border: 'border-border',    label: t("memberTabs.history.labels.link_removed"), cat: 'account', icon: 'link_off' },
+  birthday_wish:   { color: 'hsl(var(--accent))', bg: 'bg-accent/10 dark:bg-accent/15',     border: 'border-accent/20',    label: t("memberTabs.history.labels.birthday"), cat: 'gift', icon: 'cake' },
+  birthday_voucher:{ color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15',   border: 'border-warning/20',   label: t("memberTabs.history.labels.gift"), cat: 'gift', icon: 'featured_play_list' },
 });
 
 const formatTime = (ts, t) => {
@@ -185,16 +185,16 @@ function MemberHistoryTab({ bio, t }) {
                         </div>
 
                         {entry.type === 'birthday_wish' && (
-                          <div className="flex items-center gap-1.5 py-1 border-b border-rose-100 dark:border-rose-900/20 w-fit">
+                          <div className="flex items-center gap-1.5 py-1 border-b border-accent/20 dark:border-accent/30 w-fit">
                             <HugoLogo className="text-[12px] font-black" />
-                            <span className="text-[8px] font-black text-rose-500 uppercase tracking-widest">Official Wish</span>
+                            <span className="text-[8px] font-black text-accent uppercase tracking-widest">Official Wish</span>
                           </div>
                         )}
 
                         {entry.type === 'birthday_voucher' && (
-                          <div className="flex items-center gap-1.5 py-1 border-b border-amber-100 dark:border-amber-900/20 w-fit">
+                          <div className="flex items-center gap-1.5 py-1 border-b border-warning/20 dark:border-warning/30 w-fit">
                             <HugoLogo className="text-[12px] font-black" />
-                            <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Official Gift</span>
+                            <span className="text-[8px] font-black text-warning uppercase tracking-widest">Official Gift</span>
                           </div>
                         )}
 
@@ -204,20 +204,20 @@ function MemberHistoryTab({ bio, t }) {
                         )}
                         
                         {entry.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
-                          <div className="mt-2.5 p-3 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100/40 dark:border-rose-900/20 rounded-xl flex items-center justify-between gap-3 shadow-inner">
+                          <div className="mt-2.5 p-3 bg-warning/10 dark:bg-warning/15 border border-warning/20 dark:border-warning/30 rounded-xl flex items-center justify-between gap-3 shadow-inner">
                             <div className="text-left">
-                              <p className="text-[8px] font-black text-rose-500 uppercase tracking-wider">{t("memberTabs.history.birthday_voucher_title")}</p>
-                              <p className="text-xs font-black font-mono tracking-widest text-rose-700 dark:text-rose-350 mt-0.5">{bio.birthdayVoucherCode}</p>
+                              <p className="text-[8px] font-black text-warning uppercase tracking-wider">{t("memberTabs.history.birthday_voucher_title")}</p>
+                              <p className="text-xs font-black font-mono tracking-widest text-warning mt-0.5">{bio.birthdayVoucherCode}</p>
                             </div>
                             {bio.birthdayVoucherClaimed ? (
-                              <span className="px-2.5 py-1 rounded-lg text-[8.5px] font-black uppercase bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1 shrink-0">
+                              <span className="px-2.5 py-1 rounded-lg text-[8.5px] font-black uppercase bg-success/10 text-success dark:bg-success/15 border border-success/20 dark:border-success/30 flex items-center gap-1 shrink-0">
                                 <span className="material-symbols-outlined text-xs font-bold">check_circle</span>{t("memberTabs.history.claimed")}
                               </span>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => onCopyVoucher(bio.birthdayVoucherCode)}
-                                className="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase bg-rose-600 hover:bg-rose-700 text-white transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
+                                className="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase bg-warning hover:bg-warning/90 text-warning-foreground transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
                               >
                                 <span className="material-symbols-outlined text-[10px]">
                                   {claimedCodes[bio.birthdayVoucherCode] ? "check" : "content_copy"}

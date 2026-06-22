@@ -33,24 +33,24 @@ const getFileIcon = (fileName) => {
   const ext = fileName.split(".").pop().toLowerCase();
   switch (ext) {
     case "py":
-      return <FileCode className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />;
+      return <FileCode className="w-3.5 h-3.5 text-warning flex-shrink-0" />;
     case "cpp":
     case "c":
-      return <FileCode className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />;
+      return <FileCode className="w-3.5 h-3.5 text-info flex-shrink-0" />;
     case "cs":
-      return <FileCode className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />;
+      return <FileCode className="w-3.5 h-3.5 text-accent flex-shrink-0" />;
     case "php":
-      return <FileCode className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />;
+      return <FileCode className="w-3.5 h-3.5 text-accent flex-shrink-0" />;
     case "html":
-      return <FileCode className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />;
+      return <FileCode className="w-3.5 h-3.5 text-warning flex-shrink-0" />;
     case "css":
-      return <FileCode className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />;
+      return <FileCode className="w-3.5 h-3.5 text-info flex-shrink-0" />;
     case "js":
-      return <FileCode className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" />;
+      return <FileCode className="w-3.5 h-3.5 text-warning flex-shrink-0" />;
     case "md":
-      return <FileText className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />;
+      return <FileText className="w-3.5 h-3.5 text-success flex-shrink-0" />;
     case "json":
-      return <FileJson className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />;
+      return <FileJson className="w-3.5 h-3.5 text-warning flex-shrink-0" />;
     default:
       return <FileText className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />;
   }
@@ -700,11 +700,11 @@ public:
     toast((t) => (
       <div className="flex flex-col gap-3 p-1">
         <div className="flex items-start gap-2.5">
-          <span className="material-symbols-outlined text-rose-555 dark:text-rose-400 text-lg mt-0.5 animate-pulse">warning</span>
+          <span className="material-symbols-outlined text-destructive text-lg mt-0.5 animate-pulse">warning</span>
           <div>
             <h4 className="text-xs font-black text-slate-800 dark:text-zinc-100 uppercase tracking-wider">Xác Nhận Xóa</h4>
             <p className="text-[10.5px] font-semibold text-slate-500 dark:text-zinc-450 mt-0.5 leading-relaxed whitespace-normal">
-              Bạn có chắc chắn muốn xóa {type === "folder" ? "thư mục" : "file"} <span className="font-mono font-bold text-rose-600 dark:text-rose-400">"{targetPath.split('/').pop()}"</span> không? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa {type === "folder" ? "thư mục" : "file"} <span className="font-mono font-bold text-destructive">"{targetPath.split('/').pop()}"</span> không? Hành động này không thể hoàn tác.
             </p>
           </div>
         </div>
@@ -732,10 +732,10 @@ public:
                   }
                   toast.success(`Đã xóa file ảo: ${targetPath}`, {
                     style: {
-                      background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
-                      color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+                      background: 'hsl(var(--card))',
+                      color: 'hsl(var(--card-foreground))',
                       borderRadius: '12px',
-                      border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+                      border: '1px solid hsl(var(--border))',
                     }
                   });
                 } else {
@@ -747,16 +747,16 @@ public:
                   }
                   toast.success(`Đã xóa thư mục ảo: ${targetPath}`, {
                     style: {
-                      background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
-                      color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+                      background: 'hsl(var(--card))',
+                      color: 'hsl(var(--card-foreground))',
                       borderRadius: '12px',
-                      border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+                      border: '1px solid hsl(var(--border))',
                     }
                   });
                 }
               }
             }}
-            className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all"
+            className="px-3 py-1.5 bg-destructive hover:bg-destructive/90 active:scale-95 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all"
           >
             Xác nhận
           </button>
@@ -766,10 +766,10 @@ public:
       duration: 10000,
       position: 'top-center',
       style: {
-        background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
-        color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
+        background: 'hsl(var(--card))',
+        color: 'hsl(var(--card-foreground))',
         borderRadius: '16px',
-        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+        border: '1px solid hsl(var(--border))',
         boxShadow: '0 20px 40px -15px rgba(0,0,0,0.15)',
         maxWidth: '350px',
         padding: '12px'
@@ -1024,7 +1024,7 @@ public:
               node.type === "folder"
                 ? "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
                 : activeTabPath === node.path
-                ? "bg-indigo-600/20 text-indigo-400 border-l-2 border-indigo-500 font-semibold"
+                ? "bg-primary/20 text-primary border-l-2 border-primary font-semibold"
                 : "text-zinc-450 hover:text-zinc-200 hover:bg-zinc-900/60"
             }`}
             onClick={() => {
@@ -1042,9 +1042,9 @@ public:
                     {expandedFolders[node.path] ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                   </span>
                   {expandedFolders[node.path] ? (
-                    <FolderOpen className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                    <FolderOpen className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                   ) : (
-                    <Folder className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                    <Folder className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                   )}
                 </>
               ) : (
@@ -1064,7 +1064,7 @@ public:
                   onKeyDown={(e) => handleInlineInputKeyDown(e, inlineAction)}
                   onBlur={() => handleInlineInputBlur(inlineAction)}
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-zinc-900 text-zinc-100 border border-indigo-500 rounded px-1 py-0.5 text-[11px] outline-none w-full font-mono"
+                  className="bg-zinc-900 text-zinc-100 border border-primary rounded px-1 py-0.5 text-[11px] outline-none w-full font-mono"
                 />
               ) : (
                 <span className="truncate select-none text-[11.5px] font-medium">{node.name}</span>
@@ -1119,7 +1119,7 @@ public:
                     e.stopPropagation();
                     handleDeleteEntry(node.path, node.type);
                   }}
-                  className="p-0.5 hover:bg-zinc-800 rounded text-zinc-400 hover:text-red-400"
+                  className="p-0.5 hover:bg-zinc-800 rounded text-zinc-400 hover:text-destructive"
                   title="Delete"
                 >
                   <Trash2 className="w-3 h-3" />
@@ -1140,7 +1140,7 @@ public:
               >
                 <span className="w-3" />
                 {inlineAction.type === "new_folder" ? (
-                  <Folder className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                  <Folder className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                 ) : (
                   <FileCode className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />
                 )}
@@ -1152,7 +1152,7 @@ public:
                   onChange={(e) => setInlineAction({ ...inlineAction, value: e.target.value })}
                   onKeyDown={(e) => handleInlineInputKeyDown(e, inlineAction)}
                   onBlur={() => handleInlineInputBlur(inlineAction)}
-                  className="bg-zinc-900 text-zinc-100 border border-indigo-500 rounded px-1 py-0.5 text-[11px] outline-none w-full font-mono"
+                  className="bg-zinc-900 text-zinc-100 border border-primary rounded px-1 py-0.5 text-[11px] outline-none w-full font-mono"
                 />
               </div>
             )}
@@ -1170,7 +1170,7 @@ public:
   if (!isDesktop) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px] p-6 text-center space-y-6 bg-white dark:bg-background rounded-xl border border-zinc-200 dark:border-zinc-800">
-        <div className="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-950 flex items-center justify-center text-rose-500">
+        <div className="w-16 h-16 rounded-full bg-destructive/10 dark:bg-destructive/20 flex items-center justify-center text-destructive">
           <Monitor className="w-8 h-8 animate-pulse" />
         </div>
         <div className="space-y-2 max-w-sm">
@@ -1193,7 +1193,7 @@ public:
   return (
     <div className="flex flex-col bg-zinc-950 h-screen w-screen text-zinc-300 relative overflow-hidden">
       {/* Top IDE Header Control Bar */}
-      <div className="bg-[#181824] border-b border-zinc-800 px-4 py-2.5 flex items-center justify-between text-xs text-zinc-400">
+      <div className="bg-card border-b border-zinc-800 px-4 py-2.5 flex items-center justify-between text-xs text-zinc-400">
         <div className="flex items-center gap-3">
           <button 
             onClick={onBack}
@@ -1202,7 +1202,7 @@ public:
             <ArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
           <div className="flex items-center gap-1.5 font-mono text-zinc-500">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-primary" />
             <span>STUDENT WORKSPACE</span>
           </div>
         </div>
@@ -1212,7 +1212,7 @@ public:
           {activeFile && (
             <button 
               onClick={handleSaveFile}
-              className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded transition-all shadow-sm"
+              className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-white font-bold px-3 py-1.5 rounded transition-all shadow-sm"
             >
               <Save className="w-3.5 h-3.5" />
               {activeFile.handle ? "Lưu Trực Tiếp (Disk)" : "Tải Về Máy (Local)"}
@@ -1233,25 +1233,25 @@ public:
       <div className="flex flex-1 overflow-hidden">
         
         {/* Left Side Icon Navigation Menu */}
-        <div className="w-14 bg-[#1e1e2e] border-r border-zinc-800 flex flex-col items-center py-4 justify-between">
+        <div className="w-14 bg-card border-r border-zinc-800 flex flex-col items-center py-4 justify-between">
           <div className="flex flex-col items-center gap-5 w-full">
             <button 
               onClick={() => setActiveSidebarTab("explorer")}
-              className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "explorer" ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" : "text-zinc-500 hover:text-zinc-200"}`}
+              className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "explorer" ? "bg-primary/10 text-primary border border-primary/20" : "text-zinc-500 hover:text-zinc-200"}`}
               title="Quản lý File"
             >
               <Folder className="w-5 h-5" />
             </button>
             <button 
               onClick={() => setActiveSidebarTab("learn")}
-              className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "learn" ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" : "text-zinc-500 hover:text-zinc-200"}`}
+              className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "learn" ? "bg-primary/10 text-primary border border-primary/20" : "text-zinc-500 hover:text-zinc-200"}`}
               title="Khóa học & Code mẫu"
             >
               <BookOpen className="w-5 h-5" />
             </button>
             <button 
               onClick={() => setActiveSidebarTab("db")}
-              className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "db" ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" : "text-zinc-500 hover:text-zinc-200"}`}
+              className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "db" ? "bg-primary/10 text-primary border border-primary/20" : "text-zinc-500 hover:text-zinc-200"}`}
               title="PHP & phpMyAdmin localhost"
             >
               <Database className="w-5 h-5" />
@@ -1263,7 +1263,7 @@ public:
         </div>
 
         {/* Sidebar Tab Panels */}
-        <div className="w-64 bg-[#13131c] border-r border-zinc-800 flex flex-col text-xs">
+        <div className="w-64 bg-card border-r border-zinc-800 flex flex-col text-xs">
           
           {/* TAB 1: File Explorer */}
           {activeSidebarTab === "explorer" && (
@@ -1302,7 +1302,7 @@ public:
               </div>
 
               {dirHandle && (
-                <div className="bg-emerald-500/5 border border-emerald-500/25 p-3 rounded-lg text-emerald-450 text-[10px] space-y-1">
+                <div className="bg-success/5 border border-success/25 p-3 rounded-lg text-success text-[10px] space-y-1">
                   <p className="font-bold flex items-center gap-1">📂 Thư mục: {dirHandle.name}</p>
                   <p className="text-zinc-500 leading-normal">Đồng bộ trực tiếp. Mọi chỉnh sửa được tự động lưu trực tiếp xuống file vật lý khi bạn dừng gõ 1 giây.</p>
                 </div>
@@ -1315,7 +1315,7 @@ public:
             <div className="p-4 flex-1 flex flex-col overflow-y-auto space-y-4 font-sans">
               <div className="flex items-center justify-between border-b border-zinc-800 pb-2 mb-1">
                 <span className="font-bold text-zinc-400 uppercase tracking-wider text-[10px] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
                   Bài học tương tác
                 </span>
                 {activeCourseId && (
@@ -1324,7 +1324,7 @@ public:
                       setActiveCourseId(null);
                       setVerificationStatus(null);
                     }}
-                    className="text-[10px] text-indigo-450 hover:text-indigo-400 font-bold transition-all"
+                    className="text-[10px] text-primary hover:text-primary/80 font-bold transition-all"
                   >
                     Quay lại
                   </button>
@@ -1346,7 +1346,7 @@ public:
                       <ul className="space-y-2">
                         {course.tasks.map((task, i) => (
                           <li key={i} className="flex items-start gap-2 text-[10px] text-zinc-400 font-medium leading-relaxed">
-                            <span className="material-symbols-outlined text-[13px] text-indigo-500 mt-0.5" style={{ fontVariationSettings: "'FILL' 0" }}>check_box_outline_blank</span>
+                            <span className="material-symbols-outlined text-[13px] text-primary mt-0.5" style={{ fontVariationSettings: "'FILL' 0" }}>check_box_outline_blank</span>
                             <span>{task}</span>
                           </li>
                         ))}
@@ -1384,8 +1384,8 @@ public:
                         onClick={() => handleVerifyLesson(course)}
                         className={`w-full py-2.5 text-[10.5px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 active:scale-95 ${
                           isCompleted
-                            ? "bg-emerald-600 hover:bg-emerald-500 text-white"
-                            : "bg-indigo-600 hover:bg-indigo-500 text-white"
+                            ? "bg-success hover:bg-success/90 text-white"
+                            : "bg-primary hover:bg-primary/90 text-white"
                         }`}
                       >
                         {isCompleted ? <CheckCircle className="w-3.5 h-3.5" /> : <Award className="w-3.5 h-3.5" />}
@@ -1394,12 +1394,12 @@ public:
                     </div>
 
                     {verificationStatus === "success" && (
-                      <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-[10.5px] text-emerald-450 leading-relaxed font-sans">
+                      <div className="bg-success/10 border border-success/20 p-3 rounded-xl text-[10.5px] text-success leading-relaxed font-sans">
                         🎉 <strong>Tuyệt vời!</strong> Bạn đã hoàn thành xuất sắc các yêu cầu của bài học. Hãy chuyển qua bài học tiếp theo nhé!
                       </div>
                     )}
                     {verificationStatus === "failed" && (
-                      <div className="bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl text-[10.5px] text-rose-450 leading-relaxed font-sans">
+                      <div className="bg-destructive/10 border border-destructive/20 p-3 rounded-xl text-[10.5px] text-destructive leading-relaxed font-sans">
                         ❌ <strong>Chưa chính xác!</strong> Mã nguồn trong editor chưa đáp ứng đủ yêu cầu bài học. Hãy rà soát lại và thử lại.
                       </div>
                     )}
@@ -1416,7 +1416,7 @@ public:
                       return (
                         <div
                           key={course.id}
-                          className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 space-y-2 hover:border-indigo-500/40 transition-all cursor-pointer group"
+                          className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 space-y-2 hover:border-primary/40 transition-all cursor-pointer group"
                           onClick={() => {
                             setActiveCourseId(course.id);
                             setVerificationStatus(null);
@@ -1440,8 +1440,8 @@ public:
                             <span className="font-bold text-zinc-200 text-xs font-sans">{course.title}</span>
                             <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border ${
                               isCompleted
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                ? "bg-success/10 text-success border-success/20"
+                                : "bg-primary/10 text-primary border-primary/20"
                             }`}>
                               {isCompleted ? "Hoàn thành" : "+10 JOY"}
                             </span>
@@ -1449,7 +1449,7 @@ public:
                           <p className="text-[10px] text-zinc-500 leading-normal line-clamp-2 font-sans">
                             {course.description}
                           </p>
-                          <div className="flex items-center gap-1.5 text-[8.5px] font-bold text-zinc-650 group-hover:text-indigo-400 uppercase tracking-widest pt-1">
+                          <div className="flex items-center gap-1.5 text-[8.5px] font-bold text-zinc-650 group-hover:text-primary uppercase tracking-widest pt-1">
                             <span>Vào bài học</span>
                             <span className="material-symbols-outlined text-[9px] transform group-hover:translate-x-0.5 transition-transform">arrow_forward_ios</span>
                           </div>
@@ -1507,14 +1507,14 @@ services:
                 <div className="bg-zinc-900/40 border border-zinc-800 p-2.5 rounded-lg space-y-1">
                   <p className="font-bold text-[10px] text-zinc-300">Bước 3: Khởi động hệ thống</p>
                   <p className="text-[9.5px] text-zinc-500">Chạy terminal tại thư mục chứa file và gõ lệnh:</p>
-                  <code className="block bg-zinc-950 p-1.5 text-[9px] font-mono text-indigo-400 rounded">docker-compose up -d</code>
+                  <code className="block bg-zinc-950 p-1.5 text-[9px] font-mono text-primary rounded">docker-compose up -d</code>
                 </div>
 
                 <div className="bg-zinc-900/40 border border-zinc-800 p-2.5 rounded-lg space-y-1">
                   <p className="font-bold text-[10px] text-zinc-300">Bước 4: Truy cập phpMyAdmin</p>
                   <p className="text-[9.5px] text-zinc-500">
                     Mở trình duyệt truy cập:
-                    <a href="http://localhost:8080" target="_blank" rel="noreferrer" className="block text-indigo-400 font-bold mt-1">http://localhost:8080</a>
+                    <a href="http://localhost:8080" target="_blank" rel="noreferrer" className="block text-primary font-bold mt-1">http://localhost:8080</a>
                     Tài khoản: root / Mật khẩu: root. Toàn bộ cơ sở dữ liệu được host cục bộ nên cực kỳ an toàn.
                   </p>
                 </div>
@@ -1525,9 +1525,9 @@ services:
         </div>
 
         {/* Editor Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 bg-[#1e1e2e]">
-          
-          <div className="flex items-center bg-[#181824] border-b border-zinc-800/80 px-2 overflow-x-auto gap-0.5 select-none scrollbar-none">
+        <div className="flex-1 flex flex-col min-w-0 bg-background">
+
+          <div className="flex items-center bg-card border-b border-zinc-800/80 px-2 overflow-x-auto gap-0.5 select-none scrollbar-none">
             {openTabs.map((path) => {
               if (!path || typeof path !== "string") return null;
               const fileObj = workspaceFiles.find(f => f && f.path === path);
@@ -1540,15 +1540,15 @@ services:
                   onClick={() => setActiveTabPath(path)}
                   className={`flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold border-t-2 cursor-pointer transition-all ${
                     isActive 
-                      ? "bg-[#1e1e2e] border-indigo-500 text-indigo-400" 
-                      : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-[#1e1e2e]/50"
+                      ? "bg-background border-primary text-primary"
+                      : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-background/50"
                   }`}
                 >
                   <FileCode className="w-3.5 h-3.5 text-zinc-500" />
                   <span>{name}</span>
-                  <button 
+                  <button
                     onClick={(e) => handleCloseTab(path, e)}
-                    className="hover:text-red-400 p-0.5 rounded transition-all ml-1"
+                    className="hover:text-destructive p-0.5 rounded transition-all ml-1"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -1605,7 +1605,7 @@ services:
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-zinc-500 gap-2 font-sans">
-                    <AlertTriangle className="w-8 h-8 text-indigo-500/45" />
+                    <AlertTriangle className="w-8 h-8 text-primary/45" />
                     <p className="text-xs">Không có file nào đang mở. Hãy mở một file từ File Explorer hoặc nạp bài học.</p>
                   </div>
                 )}
@@ -1614,19 +1614,19 @@ services:
           </div>
 
           {/* Execution Panel / Output Panel */}
-          <div className="bg-[#151522] border-t border-zinc-850 px-5 py-4 min-h-[140px] max-h-[160px] flex flex-col font-sans">
+          <div className="bg-card border-t border-zinc-850 px-5 py-4 min-h-[140px] max-h-[160px] flex flex-col font-sans">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800 text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
               <span className="flex items-center gap-1.5 font-mono">
                 <Terminal className="w-3.5 h-3.5" /> Bảng Hướng dẫn Chạy & Thực thi
                 <span className="mx-2 text-zinc-700">|</span>
-                <span className={`font-mono text-[9px] ${saveStatus.includes("Lỗi") ? "text-rose-400" : (saveStatus.includes("Đang") ? "text-amber-400" : "text-emerald-500")}`}>
+                <span className={`font-mono text-[9px] ${saveStatus.includes("Lỗi") ? "text-destructive" : (saveStatus.includes("Đang") ? "text-warning" : "text-success")}`}>
                   ● {saveStatus}
                 </span>
               </span>
               {activeFile?.language === "html" && (
                 <button 
                   onClick={() => setPreviewMode(!previewMode)}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 text-[10px] transition-all font-bold font-sans"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-[10px] transition-all font-bold font-sans"
                 >
                   <Play className="w-3 h-3" /> {previewMode ? "Dừng Xem" : "Xem Live Preview"}
                 </button>
@@ -1640,31 +1640,31 @@ services:
               {activeFile?.language === "python" && (
                 <>
                   <p className="text-zinc-500">Đối với Python, bạn mở Terminal trên máy tính (local) của bạn tại thư mục chứa file đã tải về và gõ lệnh chạy:</p>
-                  <code className="block bg-zinc-950 p-2 text-emerald-400 rounded mt-1 border border-zinc-800">python3 {activeFile.name}</code>
+                  <code className="block bg-zinc-950 p-2 text-success rounded mt-1 border border-zinc-800">python3 {activeFile.name}</code>
                 </>
               )}
               {activeFile?.language === "c" && (
                 <>
                   <p className="text-zinc-500">Đối với ngôn ngữ C, hãy cài đặt compiler GCC. Biên dịch và thực thi bằng lệnh Terminal:</p>
-                  <code className="block bg-zinc-950 p-2 text-emerald-400 rounded mt-1 border border-zinc-800">gcc {activeFile.name} -o output && ./output</code>
+                  <code className="block bg-zinc-950 p-2 text-success rounded mt-1 border border-zinc-800">gcc {activeFile.name} -o output && ./output</code>
                 </>
               )}
               {activeFile?.language === "cpp" && (
                 <>
                   <p className="text-zinc-500">Đối với C++, biên dịch bằng trình biên dịch g++:</p>
-                  <code className="block bg-zinc-950 p-2 text-emerald-400 rounded mt-1 border border-zinc-800">g++ {activeFile.name} -o output && ./output</code>
+                  <code className="block bg-zinc-950 p-2 text-success rounded mt-1 border border-zinc-800">g++ {activeFile.name} -o output && ./output</code>
                 </>
               )}
               {activeFile?.language === "csharp" && (
                 <>
                   <p className="text-zinc-500">Đối với C#, hãy cài đặt .NET SDK trên máy. Tạo project Console mới và chạy:</p>
-                  <code className="block bg-zinc-950 p-2 text-emerald-400 rounded mt-1 border border-zinc-800">dotnet run</code>
+                  <code className="block bg-zinc-950 p-2 text-success rounded mt-1 border border-zinc-800">dotnet run</code>
                 </>
               )}
               {activeFile?.language === "php" && (
                 <>
                   <p className="text-zinc-500">Đối với PHP, bạn có thể chạy server PHP tích hợp cục bộ để test nhanh mà không cần Apache:</p>
-                  <code className="block bg-zinc-950 p-2 text-emerald-400 rounded mt-1 border border-zinc-800">php -S localhost:8000</code>
+                  <code className="block bg-zinc-950 p-2 text-success rounded mt-1 border border-zinc-800">php -S localhost:8000</code>
                   <p className="text-[10px] text-zinc-650 mt-1">Truy cập http://localhost:8000 trên máy tính của bạn để xem kết quả.</p>
                 </>
               )}

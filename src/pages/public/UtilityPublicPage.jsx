@@ -55,7 +55,7 @@ export default function UtilityPublicPage() {
     if (loading) {
       return (
         <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       );
     }
@@ -125,19 +125,19 @@ export default function UtilityPublicPage() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-white dark:bg-zinc-900 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-zinc-200 dark:border-zinc-800"
+              className="bg-card rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-border"
             >
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="material-symbols-outlined text-3xl text-primary">lock</span>
               </div>
-              <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-3">Vui lòng đăng nhập</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-8 leading-relaxed">
+              <h3 className="text-xl font-black text-foreground mb-3">Vui lòng đăng nhập</h3>
+              <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
                 Để sử dụng đầy đủ các tính năng lưu trữ, cá nhân hoá và tương tác với tiện ích này, bạn cần đăng nhập vào tài khoản Hugo Studio.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowLoginPrompt(false)}
-                  className="flex-1 py-3 px-4 rounded-xl font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                  className="flex-1 py-3 px-4 rounded-xl font-bold text-muted-foreground bg-muted hover:bg-muted/70 transition-colors"
                 >
                   Đóng lại
                 </button>

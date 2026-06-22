@@ -478,10 +478,10 @@ export default function MemberRadioTab({ onBack, showToast }) {
 
   return (
     <div>
-      <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-amber-500" onBack={onBack} />
+      <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-warning" onBack={onBack} />
 
       {/* Retro radio face */}
-      <div className="relative mb-5 rounded-3xl bg-gradient-to-br from-zinc-800 via-zinc-850 to-black p-4 md:p-5 shadow-xl border border-amber-900/30 overflow-hidden">
+      <div className="relative mb-5 rounded-3xl bg-gradient-to-br from-zinc-800 via-zinc-850 to-black p-4 md:p-5 shadow-xl border border-warning/30 overflow-hidden">
         <div
           className="absolute inset-0 opacity-[0.07] pointer-events-none"
           style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1.4px)", backgroundSize: "10px 10px" }}
@@ -489,11 +489,11 @@ export default function MemberRadioTab({ onBack, showToast }) {
         <div className="relative z-10 flex flex-col gap-4">
           <div className="flex items-center gap-3 md:gap-4">
             {/* Digital display */}
-            <div className="flex-1 min-w-0 bg-black/85 rounded-xl px-4 py-3 border border-amber-500/25 shadow-inner flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 bg-black/85 rounded-xl px-4 py-3 border border-warning/25 shadow-inner flex items-center justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${isPlaying ? "bg-emerald-500 animate-pulse-glow" : isStatic ? "bg-red-500 animate-pulse" : "bg-zinc-600"}`} />
-                  <span className="text-[9px] font-black tracking-widest uppercase text-amber-500/80">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${isPlaying ? "bg-success animate-pulse-glow" : isStatic ? "bg-destructive animate-pulse" : "bg-zinc-600"}`} />
+                  <span className="text-[9px] font-black tracking-widest uppercase text-warning/80">
                     {isBuffering 
                       ? t("utilities.radio.buffering", "Đang kết nối...") 
                       : isStatic 
@@ -505,7 +505,7 @@ export default function MemberRadioTab({ onBack, showToast }) {
                             : t("utilities.radio.standby", "Chọn một đài để nghe")}
                   </span>
                 </div>
-                <p className="font-mono text-amber-400 text-[12px] md:text-sm font-bold tracking-wide truncate drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">
+                <p className="font-mono text-warning text-[12px] md:text-sm font-bold tracking-wide truncate drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">
                   {isStatic 
                     ? "SÓNG TẠP • STATIC NOISE" 
                     : nowPlaying?.name || "HUGO • RECEIVER"}
@@ -515,7 +515,7 @@ export default function MemberRadioTab({ onBack, showToast }) {
                   {[0, 1, 2, 3, 4].map((i) => (
                     <span
                       key={i}
-                      className="w-1 h-full rounded-full bg-amber-500 origin-bottom"
+                      className="w-1 h-full rounded-full bg-warning origin-bottom"
                       style={{
                         animationName: (isPlaying || isStatic) ? "eq-bar" : "none",
                         animationDuration: isStatic ? `${0.2 + Math.random() * 0.3}s` : `${0.7 + i * 0.12}s`,
@@ -532,17 +532,17 @@ export default function MemberRadioTab({ onBack, showToast }) {
               
               {/* LED Frequency indicator */}
               <div className="shrink-0 flex flex-col items-end justify-center font-mono select-none">
-                <span className="text-amber-500 text-lg md:text-2xl font-black tracking-tighter drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]">
+                <span className="text-warning text-lg md:text-2xl font-black tracking-tighter drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]">
                   {frequency.toFixed(1)}
                 </span>
-                <span className="text-[8px] font-bold text-amber-500/60 leading-none mt-0.5">MHz</span>
+                <span className="text-[8px] font-bold text-warning/60 leading-none mt-0.5">MHz</span>
               </div>
             </div>
 
             {/* Play / pause button */}
             <button
               onClick={togglePlayPause}
-              className="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 text-black flex items-center justify-center active:scale-95 transition-transform shadow-lg"
+              className="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-gradient-to-b from-warning to-warning/80 text-black flex items-center justify-center active:scale-95 transition-transform shadow-lg"
             >
               <span className="material-symbols-outlined text-2xl">{(isPlaying || isStatic) ? "pause" : "play_arrow"}</span>
             </button>
@@ -551,7 +551,7 @@ export default function MemberRadioTab({ onBack, showToast }) {
             <div className="relative w-12 h-12 md:w-14 md:h-14 shrink-0">
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-zinc-300 to-zinc-500 dark:from-zinc-400 dark:to-zinc-600 border-2 border-zinc-600/40 shadow-md">
                 <span
-                  className="absolute top-1.5 left-1/2 w-1 h-2.5 -translate-x-1/2 bg-amber-600 rounded-full origin-bottom"
+                  className="absolute top-1.5 left-1/2 w-1 h-2.5 -translate-x-1/2 bg-warning rounded-full origin-bottom"
                   style={{ transform: `rotate(${knobAngle}deg)`, transformOrigin: "50% 18px" }}
                 />
               </div>
@@ -569,7 +569,7 @@ export default function MemberRadioTab({ onBack, showToast }) {
 
           {/* Horizontal Tuning Slider Dial */}
           <div className="mt-1 px-1">
-            <div className="relative h-12 bg-zinc-950/85 rounded-xl border border-amber-500/20 px-4 flex flex-col justify-end overflow-hidden select-none shadow-inner">
+            <div className="relative h-12 bg-zinc-950/85 rounded-xl border border-warning/20 px-4 flex flex-col justify-end overflow-hidden select-none shadow-inner">
               {/* Ticks scale */}
               <div className="absolute inset-x-0 top-1 bottom-4 flex justify-between pointer-events-none px-4">
                 {Array.from({ length: 42 }).map((_, idx) => {
@@ -578,9 +578,9 @@ export default function MemberRadioTab({ onBack, showToast }) {
                   const showLabel = (idx - 1) % 4 === 0; // 88.0, 92.0, 96.0, 100.0, 104.0, 108.0
                   return (
                     <div key={idx} className="flex flex-col items-center h-full justify-between">
-                      <div className={`w-[1px] ${isMajor ? 'h-3.5 bg-amber-500/70' : 'h-1.5 bg-amber-500/30'}`} />
+                      <div className={`w-[1px] ${isMajor ? 'h-3.5 bg-warning/70' : 'h-1.5 bg-warning/30'}`} />
                       {showLabel && (
-                        <span className="text-[7.5px] font-mono text-amber-500/60 font-semibold leading-none mt-1">
+                        <span className="text-[7.5px] font-mono text-warning/60 font-semibold leading-none mt-1">
                           {Math.round(freq)}
                         </span>
                       )}
@@ -590,8 +590,8 @@ export default function MemberRadioTab({ onBack, showToast }) {
               </div>
               
               {/* Draggable needle overlay */}
-              <div 
-                className="absolute top-0 bottom-4 w-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] pointer-events-none z-10 transition-all duration-75"
+              <div
+                className="absolute top-0 bottom-4 w-0.5 bg-primary shadow-[0_0_8px_hsl(var(--primary))] pointer-events-none z-10 transition-all duration-75"
                 style={{ left: needleLeft }}
               />
 
@@ -611,13 +611,13 @@ export default function MemberRadioTab({ onBack, showToast }) {
             <div className="flex justify-between items-center mt-2 px-1">
               <button
                 onClick={() => handleFrequencyTuning(frequency - 0.1)}
-                className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-amber-500/80 active:scale-95 transition-all font-mono text-[9px] font-bold border border-zinc-700/50"
+                className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-warning/80 active:scale-95 transition-all font-mono text-[9px] font-bold border border-zinc-700/50"
               >
                 ◀ -0.1 MHz
               </button>
               
               <div className="flex items-center gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full ${isStatic ? "bg-red-500 animate-pulse-glow" : isPlaying ? "bg-emerald-500 animate-pulse-glow" : "bg-zinc-700"}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${isStatic ? "bg-destructive animate-pulse-glow" : isPlaying ? "bg-success animate-pulse-glow" : "bg-zinc-700"}`} />
                 <span className="font-mono text-[8px] text-zinc-400 font-bold uppercase tracking-wider">
                   {isStatic ? "STATIC SOUND" : isPlaying ? "STEREO SIGNAL" : "NO SIGNAL"}
                 </span>
@@ -625,7 +625,7 @@ export default function MemberRadioTab({ onBack, showToast }) {
               
               <button
                 onClick={() => handleFrequencyTuning(frequency + 0.1)}
-                className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-amber-500/80 active:scale-95 transition-all font-mono text-[9px] font-bold border border-zinc-700/50"
+                className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-warning/80 active:scale-95 transition-all font-mono text-[9px] font-bold border border-zinc-700/50"
               >
                 +0.1 MHz ▶
               </button>
@@ -642,7 +642,7 @@ export default function MemberRadioTab({ onBack, showToast }) {
             onClick={() => setActiveCategory(cat.id)}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[10.5px] font-bold transition-all ${idx > 0 ? "border-l border-zinc-200/60 dark:border-zinc-800/60" : ""} ${
               activeCategory === cat.id
-                ? "bg-amber-500 text-black"
+                ? "bg-primary text-white"
                 : "bg-white dark:bg-background text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900"
             }`}
           >
@@ -672,12 +672,12 @@ export default function MemberRadioTab({ onBack, showToast }) {
                 onClick={() => playStation(station)}
                 className={`relative text-left p-3.5 rounded-2xl border transition-all flex items-center gap-3 ${
                   active
-                    ? "border-amber-400 bg-amber-50 dark:bg-amber-500/10"
+                    ? "border-primary bg-primary/5 dark:bg-primary/10"
                     : "border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-background hover:border-zinc-400 dark:hover:border-zinc-600"
                 }`}
               >
-                <span className={`absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full ${active && isPlaying ? "bg-red-500 animate-pulse-glow" : "bg-zinc-300 dark:bg-zinc-700"}`} />
-                <div className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center ${active ? "bg-amber-500 text-black" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-300"}`}>
+                <span className={`absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full ${active && isPlaying ? "bg-success animate-pulse-glow" : "bg-zinc-300 dark:bg-zinc-700"}`} />
+                <div className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center ${active ? "bg-primary text-white" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-300"}`}>
                   <span className="material-symbols-outlined text-base">
                     {active && isBuffering ? "sync" : "radio"}
                   </span>

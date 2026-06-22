@@ -3,6 +3,13 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import Admin from '../models/Admin.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
+import fs from 'fs/promises';
+import path from 'path';
+import mongoose from 'mongoose';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -85,6 +92,79 @@ router.post('/verify-password', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Verify password error:', error);
     res.status(500).json({ error: 'Lỗi máy chủ' });
+  }
+});
+
+async function getDirSize(dirPath) {
+  let size = 0;
+  try {
+    const files = await fs.readdir(dirPath, { withFileTypes: true });
+    for (const file of files) {
+      const fullPath = path.join(dirPath, file.name);
+      if (file.isDirectory()) {
+        size += await getDirSize(fullPath);
+      } else {
+        const stats = await fs.stat(fullPath);
+        size += stats.size;
+      }
+    }
+  } catch (err) {
+    // Ignore errors for missing directories
+  }
+  return size;
+}
+
+router.get('/system-storage', requireAdmin, async (req, res) => {
+  try {
+    const publicPath = path.resolve(__dirname, '../../public');
+    const publicSize = await getDirSize(publicPath);
+
+    let dbSize = 0;
+    try {
+      if (mongoose.connection && mongoose.connection.db) {
+        const stats = await mongoose.connection.db.stats();
+        dbSize = stats.dataSize + stats.indexSize;
+      }
+    } catch (e) {
+      console.error("MongoDB stats error:", e);
+    }
+
+    res.json({
+      success: true,
+      data: {
+        publicFiles: publicSize,
+        database: dbSize,
+        total: publicSize + dbSize
+      }
+    });
+  } catch (error) {
+    console.error('System storage error:', error);
+    res.status(500).json({ error: 'Lỗi khi tính toán dung lượng' });
+  }
+});
+
+import Bio from '../models/Bio.js';
+
+router.get('/users/search', requireAdmin, async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.length < 2) return res.json({ success: true, data: [] });
+
+    const searchRegex = new RegExp(q, 'i');
+    
+    // Search by email, displayName, or phone
+    const users = await Bio.find({
+      $or: [
+        { email: searchRegex },
+        { displayName: searchRegex },
+        { phone: searchRegex }
+      ]
+    }).select('email displayName avatarUrl joyBalance phone packages').limit(10).lean();
+
+    res.json({ success: true, data: users });
+  } catch (error) {
+    console.error('User search error:', error);
+    res.status(500).json({ error: 'Lỗi tìm kiếm' });
   }
 });
 

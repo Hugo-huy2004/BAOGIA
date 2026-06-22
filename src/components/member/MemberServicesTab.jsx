@@ -45,7 +45,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
     <div className="space-y-6 animate-fadeIn">
       <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 p-6 shadow-sm">
         <h3 className="font-black text-sm uppercase tracking-wider text-foreground mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-emerald-500 text-lg">storefront</span>{t("memberTabs.services.title")}</h3>
+          <span className="material-symbols-outlined text-success text-lg">storefront</span>{t("memberTabs.services.title")}</h3>
         
         <p className="text-xs text-muted-foreground mb-6">{t("memberTabs.services.desc")}</p>
 
@@ -61,7 +61,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
                 value={newService.name}
                 onChange={(e) => setNewService(prev => ({ ...prev, name: e.target.value }))}
                 placeholder={t("memberTabs.services.namePlaceholder")}
-                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-foreground"
+                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground"
               />
             </div>
             <div className="space-y-1.5">
@@ -71,7 +71,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
                 value={newService.price}
                 onChange={(e) => setNewService(prev => ({ ...prev, price: e.target.value }))}
                 placeholder={t("memberTabs.services.pricePlaceholder")}
-                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-foreground"
+                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground"
               />
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
                   onClick={() => setNewService(prev => ({ ...prev, icon }))}
                   className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
                     newService.icon === icon
-                      ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400 border-2 border-emerald-500"
+                      ? "bg-success/10 text-success dark:bg-success/15 border-2 border-success"
                       : "bg-white dark:bg-[#181622] text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                 >
@@ -109,7 +109,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
           <div className="pt-2">
             <button
               onClick={handleAddService}
-              className="px-5 py-2.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center gap-2"
+              className="px-5 py-2.5 rounded-md bg-success hover:bg-success/90 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-sm">add_circle</span>{t("memberTabs.services.addButton")}</button>
           </div>
@@ -129,21 +129,21 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {formData.services.map((srv) => (
                 <div key={srv.id} className="group relative flex items-center gap-3 p-3 bg-white dark:bg-[#181622] rounded-lg border border-slate-200 dark:border-slate-800/80 shadow-sm">
-                  <div className="w-10 h-10 rounded-md bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-md bg-success/10 dark:bg-success/15 text-success flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[18px]">{srv.icon}</span>
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
                       <h5 className="font-bold text-foreground text-xs truncate">{srv.name}</h5>
-                      <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold text-[10px] whitespace-nowrap ml-2 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md">{srv.price}</span>
+                      <span className="font-mono text-success font-bold text-[10px] whitespace-nowrap ml-2 bg-success/10 dark:bg-success/15 px-2 py-0.5 rounded-md">{srv.price}</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground truncate">{srv.description}</p>
                   </div>
 
                   <button
                     onClick={() => handleRemoveService(srv.id)}
-                    className="w-7 h-7 rounded bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500 dark:hover:text-white flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-all absolute right-3"
+                    className="w-7 h-7 rounded bg-destructive/10 text-destructive hover:bg-destructive hover:text-white dark:bg-destructive/15 dark:text-destructive dark:hover:bg-destructive dark:hover:text-white flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-all absolute right-3"
                     title={t("memberTabs.services.deleteBtn")}
                   >
                     <span className="material-symbols-outlined text-sm">delete</span>

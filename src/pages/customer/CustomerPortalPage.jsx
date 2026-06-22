@@ -74,7 +74,7 @@ export default function CustomerPortalPage() {
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/20">
               {project.fullName.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -127,7 +127,7 @@ export default function CustomerPortalPage() {
             <span className="material-symbols-outlined text-[18px]">forum</span>
             {t("customerPortal.tabs.requests")}
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-[#09090b] animate-pulse">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-background animate-pulse">
                 {unreadCount}
               </span>
             )}

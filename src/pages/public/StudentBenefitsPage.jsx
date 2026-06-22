@@ -126,56 +126,56 @@ export default function StudentBenefitsPage() {
       icon: "money_off",
       title: "Miễn phí 100%",
       desc: "Tài trợ toàn bộ chi phí, không phí ẩn. Gói 12 tháng, sau đó tự động huỷ — không tính phí thêm.",
-      color: "text-emerald-500",
+      color: "text-primary",
     },
     {
       icon: "diamond",
       title: "Giao diện Premium",
       desc: "Thiết kế aesthetic chuẩn Gen Z cực kỳ mượt mà. Đảm bảo sạch sẽ tuyệt đối, không chèn bất cứ quảng cáo nào.",
-      color: "text-indigo-500",
+      color: "text-secondary",
     },
     {
       icon: "tune",
       title: "Toàn quyền tùy biến",
       desc: "Chỉnh sửa nội dung Bio Link 24/7. Thỏa sức sáng tạo với avatar, background, liên kết mạng xã hội theo phong cách cá nhân.",
-      color: "text-rose-500",
+      color: "text-accent",
     },
     {
       icon: "speed",
       title: "Hiệu năng & Tốc độ",
       desc: "Tốc độ tải trang siêu tốc. Trải nghiệm lướt mượt mà như một ứng dụng gốc trên nền tảng di động.",
-      color: "text-amber-500",
+      color: "text-success",
     },
   ];
 
   return (
     <div className="min-h-[calc(100vh-140px)] w-full flex items-center justify-center py-8 px-4 text-foreground relative overflow-hidden">
       {/* Dynamic Background Effects */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 dark:bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none animate-pulse-slow" />
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 dark:bg-primary/15 rounded-full blur-[120px] pointer-events-none animate-pulse-slow" />
       <div
-        className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-fuchsia-600/10 dark:bg-fuchsia-500/20 rounded-full blur-[120px] pointer-events-none animate-pulse-slow"
+        className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/10 dark:bg-accent/15 rounded-full blur-[120px] pointer-events-none animate-pulse-slow"
         style={{ animationDelay: "2s" }}
       />
-      <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-success/5 dark:bg-success/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Toast */}
       {toast.message && (
         <div
           className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-background shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] w-[calc(100vw-32px)] sm:w-auto sm:max-w-md border-2 transition-all animate-fadeIn ${
             toast.type === "success"
-              ? "border-emerald-500"
+              ? "border-success"
               : toast.type === "warning"
-              ? "border-amber-500 dark:border-amber-600"
-              : "border-red-500 dark:border-rose-500"
+              ? "border-warning"
+              : "border-destructive"
           }`}
         >
           <span
             className={`material-symbols-outlined shrink-0 text-xl ${
               toast.type === "success"
-                ? "text-emerald-500"
+                ? "text-success"
                 : toast.type === "warning"
-                ? "text-amber-500"
-                : "text-red-500 dark:text-rose-500"
+                ? "text-warning"
+                : "text-destructive"
             }`}
           >
             {toast.type === "success" ? "check_circle" : toast.type === "warning" ? "warning" : "error"}
@@ -185,7 +185,7 @@ export default function StudentBenefitsPage() {
           </div>
           <button
             onClick={() => setToast({ message: "", type: "" })}
-            className="text-slate-400 hover:text-slate-600 transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <span className="material-symbols-outlined text-lg">close</span>
           </button>

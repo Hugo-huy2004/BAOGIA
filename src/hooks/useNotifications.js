@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import dataApi from '../services/dataApi';
 
 // Only these categories are saved to DB — everything else is toast-only
-const PERSISTENT = new Set(['verification', 'package', 'wellness', 'security', 'joy']);
+const PERSISTENT = new Set(['verification', 'package', 'wellness', 'security', 'joy', 'payment']);
 
 export function useNotifications(email) {
   const [items, setItems] = useState([]);

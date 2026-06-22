@@ -187,7 +187,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
     const kY = getY(scores.K);
 
     return (
-      <div className="bg-[#15141c] rounded-lg p-3 border border-zinc-800 shadow-lg relative">
+      <div className="bg-card rounded-lg p-3 border border-zinc-800 shadow-lg relative">
         <h4 className="text-[9px] font-black tracking-widest text-primary uppercase mb-2 text-center">
           Biểu đồ L - F - K
         </h4>
@@ -217,19 +217,19 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
             <polyline
               points={`50,${lY} 140,${fY} 230,${kY}`}
               fill="none"
-              className="stroke-emerald-450"
+              className="stroke-success"
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
 
             {[
-              { x: 50, y: lY, val: scores.L, color: scores.L >= 70 ? "fill-red-500" : "fill-emerald-450" },
-              { x: 140, y: fY, val: scores.F, color: scores.F >= 80 ? "fill-red-500" : "fill-emerald-450" },
-              { x: 230, y: kY, val: scores.K, color: scores.K >= 70 ? "fill-red-500" : "fill-emerald-450" }
+              { x: 50, y: lY, val: scores.L, color: scores.L >= 70 ? "fill-destructive" : "fill-success" },
+              { x: 140, y: fY, val: scores.F, color: scores.F >= 80 ? "fill-destructive" : "fill-success" },
+              { x: 230, y: kY, val: scores.K, color: scores.K >= 70 ? "fill-destructive" : "fill-success" }
             ].map((dot, idx) => (
               <g key={idx}>
-                <circle cx={dot.x} cy={dot.y} r="4" className={`${dot.color} stroke-[#15141c]`} strokeWidth="1.5" />
+                <circle cx={dot.x} cy={dot.y} r="4" className={`${dot.color} stroke-card`} strokeWidth="1.5" />
                 <text x={dot.x + 8} y={dot.y - 6} className="fill-white font-mono font-black text-[8.5px]">{dot.val}</text>
               </g>
             ))}
@@ -290,21 +290,21 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                 <button
                   type="button"
                   onClick={() => handleStartScan("dass")}
-                  className="px-3 py-1.5 bg-primary text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-[#0077ed]"
+                  className="px-3 py-1.5 bg-primary text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-primary/90"
                 >
                   DASS-42
                 </button>
                 <button
                   type="button"
                   onClick={() => handleStartScan("mmpi")}
-                  className="px-3 py-1.5 bg-indigo-500 text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-indigo-650"
+                  className="px-3 py-1.5 bg-primary text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-primary/90"
                 >
                   MMPI-30
                 </button>
                 <button
                   type="button"
                   onClick={() => handleStartScan("general_medical")}
-                  className="px-3 py-1.5 bg-emerald-550 text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-emerald-600"
+                  className="px-3 py-1.5 bg-success text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-success/90"
                 >
                   XÉT NGHIỆM TỔNG QUÁT
                 </button>
@@ -375,7 +375,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                       <tr key={idx} className="border-t border-zinc-200 dark:border-zinc-800">
                         <td className="px-2 py-1.5 font-bold text-zinc-800 dark:text-zinc-200">{idxItem.name}</td>
                         <td className="px-2 py-1.5 text-center">
-                          <span className={`px-1.5 py-0.5 rounded ${idxItem.status === "high" ? "bg-red-100 text-red-600" : idxItem.status === "low" ? "bg-amber-100 text-amber-600" : "bg-emerald-100 text-emerald-600"} font-black`}>
+                          <span className={`px-1.5 py-0.5 rounded ${idxItem.status === "high" ? "bg-destructive/10 text-destructive" : idxItem.status === "low" ? "bg-warning/10 text-warning" : "bg-success/10 text-success"} font-black`}>
                             {idxItem.value} {idxItem.unit}
                           </span>
                         </td>
@@ -411,7 +411,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
               {renderValidityGraph(scanMmpiValidity)}
 
               <div className="space-y-2 max-h-40 overflow-y-auto pr-1 scrollbar-none border-t pt-2">
-                <span className="text-[9px] font-black uppercase text-indigo-500 tracking-widest block">10 Thang đo lâm sàng</span>
+                <span className="text-[9px] font-black uppercase text-primary tracking-widest block">10 Thang đo lâm sàng</span>
                 <div className="grid grid-cols-2 gap-2">
                   {Object.keys(scanMmpiClinical).map((scale) => (
                     <div key={scale} className="flex justify-between items-center gap-2 p-1.5 border border-zinc-200 dark:border-zinc-800 rounded">
@@ -443,7 +443,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
             <button
               type="button"
               onClick={handleSave}
-              className="flex-1 py-2 bg-primary text-white hover:bg-[#0077ed] text-[9.5px] font-black uppercase rounded"
+              className="flex-1 py-2 bg-primary text-white hover:bg-primary/90 text-[9.5px] font-black uppercase rounded"
             >
               Lưu hồ sơ & Trả lời
             </button>

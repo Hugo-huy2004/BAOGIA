@@ -209,16 +209,16 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
   // Ring animation variants for breath
   const ringVariants = {
     idle: { scale: 1, borderColor: "rgba(228, 228, 231, 0.2)", filter: "drop-shadow(0 0 0px rgba(161, 161, 170, 0))" },
-    inhale: { scale: 1.5, borderColor: "rgba(16, 185, 129, 0.4)", filter: "drop-shadow(0 0 20px rgba(16, 185, 129, 0.3))", transition: { duration: 4, ease: "easeInOut" } },
-    hold: { scale: 1.5, borderColor: "rgba(245, 158, 11, 0.5)", filter: "drop-shadow(0 0 25px rgba(245, 158, 11, 0.4))", transition: { duration: 7, ease: "linear" } },
-    exhale: { scale: 1, borderColor: "rgba(99, 102, 241, 0.3)", filter: "drop-shadow(0 0 10px rgba(99, 102, 241, 0.1))", transition: { duration: 8, ease: "easeInOut" } }
+    inhale: { scale: 1.5, borderColor: "hsl(var(--success) / 0.4)", filter: "drop-shadow(0 0 20px hsl(var(--success) / 0.3))", transition: { duration: 4, ease: "easeInOut" } },
+    hold: { scale: 1.5, borderColor: "hsl(var(--warning) / 0.5)", filter: "drop-shadow(0 0 25px hsl(var(--warning) / 0.4))", transition: { duration: 7, ease: "linear" } },
+    exhale: { scale: 1, borderColor: "hsl(var(--primary) / 0.3)", filter: "drop-shadow(0 0 10px hsl(var(--primary) / 0.1))", transition: { duration: 8, ease: "easeInOut" } }
   };
 
   const coreVariants = {
-    idle: { scale: 1, backgroundColor: "#27272a" },
-    inhale: { scale: 1.25, backgroundColor: "#10b981", transition: { duration: 4, ease: "easeInOut" } },
-    hold: { scale: 1.25, backgroundColor: "#f59e0b", transition: { duration: 7, ease: "linear" } },
-    exhale: { scale: 1, backgroundColor: "#6366f1", transition: { duration: 8, ease: "easeInOut" } }
+    idle: { scale: 1, backgroundColor: "hsl(var(--muted))" },
+    inhale: { scale: 1.25, backgroundColor: "hsl(var(--success))", transition: { duration: 4, ease: "easeInOut" } },
+    hold: { scale: 1.25, backgroundColor: "hsl(var(--warning))", transition: { duration: 7, ease: "linear" } },
+    exhale: { scale: 1, backgroundColor: "hsl(var(--primary))", transition: { duration: 8, ease: "easeInOut" } }
   };
 
   const handleModeChange = (mode) => {
@@ -229,17 +229,17 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
   };
 
   return (
-    <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp bg-gradient-to-br from-zinc-950 via-slate-900 to-indigo-950 text-zinc-100 p-6 rounded-3xl border border-zinc-800/80 shadow-2xl relative overflow-hidden">
+    <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp bg-gradient-to-br from-zinc-950 via-slate-900 to-primary/20 text-zinc-100 p-6 rounded-3xl border border-zinc-800/80 shadow-2xl relative overflow-hidden">
       {/* Background soft glow */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-warning/5 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between border-b pb-2.5 border-zinc-800/60">
         <button type="button" onClick={onBack} className="text-zinc-400 text-[10px] font-black uppercase tracking-wider hover:text-zinc-200 transition-colors">
           Quay lại thẻ
         </button>
-        <span className="text-[10px] font-black uppercase text-amber-500 tracking-wider">Hít Thở & Cơ Thể</span>
+        <span className="text-[10px] font-black uppercase text-warning tracking-wider">Hít Thở & Cơ Thể</span>
         <button
           type="button"
           onClick={() => {
@@ -253,8 +253,8 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
           }}
           title={(activeMode === "breath" ? breathVoiceEnabled : pmrVoiceEnabled) ? "Tắt giọng dẫn" : "Bật giọng dẫn"}
           className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md transition-colors ${
-            (activeMode === "breath" ? breathVoiceEnabled : pmrVoiceEnabled) 
-              ? "text-amber-400 bg-amber-500/10" 
+            (activeMode === "breath" ? breathVoiceEnabled : pmrVoiceEnabled)
+              ? "text-warning bg-warning/10"
               : "text-zinc-400 bg-white/5 hover:bg-white/10"
           }`}
         >
@@ -272,7 +272,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
               : "text-zinc-400 hover:text-zinc-200"
           }`}
         >
-          <Wind className="w-4 h-4 text-emerald-400" />
+          <Wind className="w-4 h-4 text-success" />
           Hít thở 4-7-8
         </button>
         <button
@@ -283,7 +283,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
               : "text-zinc-400 hover:text-zinc-200"
           }`}
         >
-          <Dumbbell className="w-4 h-4 text-purple-400" />
+          <Dumbbell className="w-4 h-4 text-accent" />
           Thư giãn cơ PMR
         </button>
       </div>
@@ -310,7 +310,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                   onClick={() => selectBreathDuration(item.time)}
                   className={`px-3 py-1.5 rounded-md border text-[9px] font-black uppercase tracking-wider transition-all ${
                     breathTargetDuration === item.time
-                      ? "bg-amber-500 border-transparent text-white shadow-sm"
+                      ? "bg-warning border-transparent text-warning-foreground shadow-sm"
                       : "border-white/10 text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
                   }`}
                 >
@@ -362,7 +362,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                     setBreathSecondsLeft(breathTargetDuration);
                     setBreathState("inhale");
                   }}
-                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all border border-emerald-500/30"
+                  className="px-6 py-2.5 rounded-xl bg-success hover:bg-success/90 text-success-foreground text-[10px] font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all border border-success/30"
                 >
                   Bắt đầu hít thở
                 </button>
@@ -370,7 +370,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                 <button
                   type="button"
                   onClick={() => setBreathState("idle")}
-                  className="px-6 py-2.5 rounded-xl border-2 border-red-500 hover:bg-red-500/10 text-red-400 text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
+                  className="px-6 py-2.5 rounded-xl border-2 border-destructive hover:bg-destructive/10 text-destructive text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
                 >
                   Dừng hít thở
                 </button>
@@ -399,7 +399,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                   <div className="grid grid-cols-2 gap-2 text-[10px] font-bold text-zinc-300">
                     {MUSCLE_STEPS.map((s, i) => (
                       <div key={i} className="flex items-center gap-1.5">
-                        <span className="w-4 h-4 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center text-[9px] shrink-0">{i+1}</span>
+                        <span className="w-4 h-4 rounded-full bg-accent/10 text-accent flex items-center justify-center text-[9px] shrink-0">{i+1}</span>
                         <span>{s.part}</span>
                       </div>
                     ))}
@@ -408,14 +408,14 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                 <button
                   type="button"
                   onClick={() => startPmrStep(0, "tense")}
-                  className="w-full py-3 rounded-xl bg-purple-650 hover:bg-purple-650/80 text-white text-[10px] font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all border border-purple-500/30"
+                  className="w-full py-3 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground text-[10px] font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all border border-accent/30"
                 >
                   Bắt đầu thư giãn cơ
                 </button>
               </div>
             ) : pmrState === "completed" ? (
               <div className="py-10 space-y-4 text-center">
-                <div className="w-16 h-16 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto animate-bounce">
+                <div className="w-16 h-16 bg-accent/10 text-accent rounded-full flex items-center justify-center mx-auto animate-bounce">
                   <Dumbbell className="w-8 h-8" />
                 </div>
                 <div className="space-y-1">
@@ -426,7 +426,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                 </div>
                 <button
                   onClick={stopPmr}
-                  className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white text-[9.5px] font-black uppercase tracking-wider rounded-xl transition-all"
+                  className="px-6 py-2 bg-accent hover:bg-accent/90 text-accent-foreground text-[9.5px] font-black uppercase tracking-wider rounded-xl transition-all"
                 >
                   Luyện tập lại
                 </button>
@@ -440,9 +440,9 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                       key={i}
                       className={`h-1.5 w-6 rounded-full transition-all duration-300 ${
                         i < pmrStep
-                          ? "bg-purple-500"
+                          ? "bg-accent"
                           : i === pmrStep
-                            ? "bg-purple-400 scale-y-110 shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                            ? "bg-accent scale-y-110 shadow-[0_0_10px_hsl(var(--accent)/0.5)]"
                             : "bg-white/10"
                       }`}
                     />
@@ -451,8 +451,8 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
 
                 <div className={`w-32 h-32 rounded-full flex flex-col items-center justify-center border-4 transition-all duration-1000 relative mx-auto ${
                   pmrState === "tense"
-                    ? "border-red-500 bg-red-500/10 scale-110 shadow-[0_0_25px_rgba(239,68,68,0.3)]"
-                    : "border-purple-500 bg-purple-500/10 scale-100 shadow-[0_0_25px_rgba(168,85,247,0.3)]"
+                    ? "border-destructive bg-destructive/10 scale-110 shadow-[0_0_25px_hsl(var(--destructive)/0.3)]"
+                    : "border-accent bg-accent/10 scale-100 shadow-[0_0_25px_hsl(var(--accent)/0.3)]"
                 }`}>
                   <span className="text-3xl font-black text-zinc-100">{pmrTimer}s</span>
                   <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400 mt-1">
@@ -461,7 +461,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                 </div>
 
                 <div className="text-center space-y-1 max-w-xs">
-                  <p className="text-[12px] font-black text-purple-450 uppercase tracking-wide">
+                  <p className="text-[12px] font-black text-accent uppercase tracking-wide">
                     {MUSCLE_STEPS[pmrStep].part}
                   </p>
                   <p className="text-[10px] text-zinc-300 font-bold leading-relaxed min-h-[30px]">
@@ -472,7 +472,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                 <button
                   type="button"
                   onClick={stopPmr}
-                  className="flex items-center gap-1.5 px-4 py-2 border-2 border-red-550/20 hover:bg-red-500/10 text-red-400 text-[9px] font-black uppercase tracking-wider rounded-xl transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2 border-2 border-destructive/20 hover:bg-destructive/10 text-destructive text-[9px] font-black uppercase tracking-wider rounded-xl transition-all"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> Dừng thực hành
                 </button>

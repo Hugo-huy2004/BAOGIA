@@ -161,12 +161,12 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                   setZipFile(e.target.files[0]);
                   setZipResult(null); // reset old result
                 }}
-                className="w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 dark:file:bg-blue-500/10 dark:file:text-blue-400"
+                className="w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 dark:file:bg-primary/15 dark:file:text-primary"
               />
               <button
                 onClick={handleZipUpload}
                 disabled={!zipFile || extracting}
-                className="mt-4 w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md font-medium transition-colors"
+                className="mt-4 w-full py-2.5 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white rounded-md font-medium transition-colors"
               >
                 {extracting ? t("utilities.fileTools.extract.processing") : t("utilities.fileTools.extract.btnUpload")}
               </button>
@@ -194,7 +194,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                       </div>
                       <button
                         onClick={() => handleDownloadZipEntry(entry.name)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded transition-colors flex-shrink-0"
+                        className="p-2 text-primary hover:bg-primary/10 dark:hover:bg-primary/15 rounded transition-colors flex-shrink-0"
                         title={t("utilities.fileTools.extract.btnDownloadTooltip")}
                       >
                         <span className="material-symbols-outlined text-lg">download</span>
@@ -225,7 +225,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                   type="file"
                   accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime"
                   onChange={(e) => setCompressFile(e.target.files[0])}
-                  className="w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 dark:file:bg-blue-500/10 dark:file:text-blue-400"
+                  className="w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 dark:file:bg-primary/15 dark:file:text-primary"
                 />
               </div>
 
@@ -244,7 +244,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
                       onClick={() => setCompressLevel(level.id)}
                       className={`py-2 px-1 text-xs sm:text-sm font-medium rounded border transition-all ${
                         compressLevel === level.id
-                          ? "border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
+                          ? "border-primary bg-primary/10 text-primary dark:bg-primary/15"
                           : "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
                       }`}
                     >
@@ -257,7 +257,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
               <button
                 onClick={handleCompress}
                 disabled={!compressFile || compressing}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-md font-medium transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white rounded-md font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {compressing && <span className="material-symbols-outlined animate-spin">refresh</span>}
                 {compressing ? t("utilities.fileTools.extract.processing") : t("utilities.fileTools.compress.btnSubmit")}

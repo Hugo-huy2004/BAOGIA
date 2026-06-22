@@ -38,7 +38,7 @@ export default function ServicesPage() {
       
       {/* Header section */}
       <section className="text-center space-y-4 max-w-3xl mx-auto">
-        <span className="inline-flex px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.24em] bg-slate-100 dark:bg-slate-900/50 text-muted-foreground border border-slate-200/50 dark:border-white/5">{t("servicesPage.header.badge")}</span>
+        <span className="inline-flex px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.24em] bg-muted text-muted-foreground border border-border">{t("servicesPage.header.badge")}</span>
         <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground">{t("servicesPage.header.title")}</h1>
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{t("servicesPage.header.desc")}</p>
       </section>
@@ -51,7 +51,7 @@ export default function ServicesPage() {
             
             {/* Top Badge */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-slate-900 dark:bg-white text-white dark:text-slate-950 border border-border shadow-sm flex items-center gap-1 whitespace-nowrap">
+              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-foreground text-background border border-border shadow-sm flex items-center gap-1 whitespace-nowrap">
                 <span className="material-symbols-outlined text-[10px]">school</span>{t("servicesPage.tier1.badge")}</span>
             </div>
 
@@ -61,14 +61,14 @@ export default function ServicesPage() {
               <div className="absolute -bottom-5 -right-[1px] w-10 h-10 rounded-full bg-background shadow-[inset_1px_0_0_0_hsl(var(--border))] z-20" />
               
               <div className="space-y-2 text-left">
-                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-muted-foreground border border-border">{t("servicesPage.tier1.subtitle")}</span>
+                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-muted text-muted-foreground border border-border">{t("servicesPage.tier1.subtitle")}</span>
                 <h3 className="font-display text-3xl font-extrabold text-foreground flex items-center gap-2">
                   {t("servicesPage.tier1.title")}
-                  <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-xl" title="Đã xác thực">verified</span>
+                  <span className="material-symbols-outlined text-muted-foreground text-xl" title="Đã xác thực">verified</span>
                 </h3>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-black text-foreground font-mono">{t("servicesPage.tier1.price")} <span className="text-xs font-normal text-slate-400">{t("servicesPage.tier1.priceUnit")}</span></p>
-                  <p className="text-sm text-slate-400 line-through decoration-slate-300 dark:decoration-slate-600 font-medium">{t("servicesPage.tier1.oldPrice")}</p>
+                  <p className="text-2xl font-black text-foreground font-mono">{t("servicesPage.tier1.price")} <span className="text-xs font-normal text-muted-foreground">{t("servicesPage.tier1.priceUnit")}</span></p>
+                  <p className="text-sm text-muted-foreground line-through decoration-muted-foreground font-medium">{t("servicesPage.tier1.oldPrice")}</p>
                 </div>
               </div>
             </div>
@@ -83,34 +83,34 @@ export default function ServicesPage() {
               <div className="text-left flex-1">
                 <ul className="space-y-4 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier1.f1_bold")}</strong> {t("servicesPage.tier1.f1_text")}<code>.edu</code>.</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier1.f2_bold")}</strong> {t("servicesPage.tier1.f2_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier1.f3_bold")}</strong> {t("servicesPage.tier1.f3_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier1.f4_bold")}</strong> {t("servicesPage.tier1.f4_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier1.f5_bold")}</strong> {t("servicesPage.tier1.f5_text")}</span>
                   </li>
                 </ul>
               </div>
 
               <div className="space-y-4 pt-8 text-left mt-auto">
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed bg-muted/50 p-2.5 rounded-lg border border-border">{t("servicesPage.tier1.note")}</p>
+                <p className="text-[10px] text-muted-foreground italic font-medium leading-relaxed bg-muted/50 p-2.5 rounded-lg border border-border">{t("servicesPage.tier1.note")}</p>
                 <Link 
                   to="/student-benefits"
                   onClick={playPopSound}
-                  className="w-full inline-flex justify-center items-center py-3.5 rounded-full border border-border hover:border-slate-800 dark:hover:border-white text-slate-700 dark:text-slate-200 dark:hover:text-white font-bold text-xs active:scale-98 transition-all duration-200 text-center dark:bg-white/5 hover:dark:bg-white/10"
+                  className="w-full inline-flex justify-center items-center py-3.5 rounded-full border border-border hover:border-foreground text-foreground/80 hover:text-foreground font-bold text-xs active:scale-98 transition-all duration-200 text-center hover:bg-muted"
                 >
                   {t("servicesPage.tier1.btn")}
                 </Link>
@@ -152,38 +152,38 @@ export default function ServicesPage() {
               <div className="text-left flex-1">
                 <ul className="space-y-4 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier2.f1_bold")}</strong> {t("servicesPage.tier2.f1_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier2.f2_bold")}</strong> {t("servicesPage.tier2.f2_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier2.f3_bold")}</strong> {t("servicesPage.tier2.f3_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier2.f4_bold")}</strong> {t("servicesPage.tier2.f4_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier2.f5_bold")}</strong> {t("servicesPage.tier2.f5_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier2.f6_bold")}</strong> {t("servicesPage.tier2.f6_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier2.f7_bold")}</strong> {t("servicesPage.tier2.f7_text")}</span>
                   </li>
                 </ul>
               </div>
 
               <div className="space-y-4 pt-8 text-left mt-auto">
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
+                <p className="text-[10px] text-muted-foreground italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
                 <Link 
                   to="/booking"
                   onClick={playPopSound}
@@ -198,7 +198,7 @@ export default function ServicesPage() {
             
             {/* Top Badge */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-slate-900 dark:bg-white text-white dark:text-slate-950 border border-border shadow-sm flex items-center gap-1 whitespace-nowrap">
+              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-foreground text-background border border-border shadow-sm flex items-center gap-1 whitespace-nowrap">
                 <span className="material-symbols-outlined text-[10px]">business_center</span>{t("servicesPage.tier3.badge")}</span>
             </div>
 
@@ -208,7 +208,7 @@ export default function ServicesPage() {
               <div className="absolute -bottom-5 -right-[1px] w-10 h-10 rounded-full bg-background shadow-[inset_1px_0_0_0_hsl(var(--border))] z-20" />
               
               <div className="space-y-2 text-left">
-                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-muted-foreground border border-border">{t("servicesPage.tier3.subtitle")}</span>
+                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-muted text-muted-foreground border border-border">{t("servicesPage.tier3.subtitle")}</span>
                 <h3 className="font-display text-3xl font-extrabold text-foreground">{t("servicesPage.tier3.title")}</h3>
                 <div className="space-y-1">
                   <p className="text-xl font-black text-foreground">{t("servicesPage.tier3.for")}</p>
@@ -227,42 +227,42 @@ export default function ServicesPage() {
               <div className="text-left flex-1">
                 <ul className="space-y-4 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier3.f1_bold")}</strong> {t("servicesPage.tier3.f1_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier3.f2_bold")}</strong> {t("servicesPage.tier3.f2_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier3.f3_bold")}</strong> {t("servicesPage.tier3.f3_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier3.f4_bold")}</strong> {t("servicesPage.tier3.f4_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier3.f5_bold")}</strong> {t("servicesPage.tier3.f5_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier3.f6_bold")}</strong> {t("servicesPage.tier3.f6_text")}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
+                    <span className="material-symbols-outlined text-sm text-muted-foreground mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier3.f7_bold")}</strong> {t("servicesPage.tier3.f7_text")}</span>
                   </li>
                 </ul>
               </div>
 
               <div className="space-y-4 pt-8 text-left mt-auto">
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
+                <p className="text-[10px] text-muted-foreground italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
                 <Link 
                   to="/booking"
                   onClick={playPopSound}
-                  className="w-full inline-flex justify-center items-center py-3.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-xs active:scale-98 transition-all duration-200 text-center shadow-md"
+                  className="w-full inline-flex justify-center items-center py-3.5 rounded-full bg-foreground text-background font-bold text-xs active:scale-98 transition-all duration-200 text-center shadow-md"
                 >{t("servicesPage.tier2.btn")}</Link>
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function ServicesPage() {
       {/* Strategic Partner Section */}
       <section className="mt-16 md:mt-24 text-center space-y-8 max-w-3xl mx-auto px-4">
         <div className="space-y-3">
-          <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 dark:bg-white/5 text-muted-foreground border border-border/50">{t("servicesPage.partner.badge")}</span>
+          <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-muted text-muted-foreground border border-border/50">{t("servicesPage.partner.badge")}</span>
           <h2 className="font-display text-2xl md:text-3xl font-extrabold text-foreground">{t("servicesPage.partner.title")}</h2>
           <p className="text-sm text-muted-foreground">{t("servicesPage.partner.desc")}</p>
         </div>

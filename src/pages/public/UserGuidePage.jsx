@@ -48,8 +48,8 @@ export default function UserGuidePage() {
         <aside className="hidden lg:block w-80 shrink-0 h-fit sticky top-6">
           <div className="glass border border-border p-6 rounded-3xl shadow-xl space-y-4 max-h-[85vh] overflow-y-auto scrollbar-hide">
             <div className="border-b border-border pb-3 text-center">
-              <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest block">Tài liệu hướng dẫn</span>
-              <span className="text-xs text-slate-400 dark:text-slate-500 font-bold">Hugo Studio User Manual v1.0</span>
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest block">Tài liệu hướng dẫn</span>
+              <span className="text-xs text-muted-foreground font-bold">Hugo Studio User Manual v1.0</span>
             </div>
             <nav className="space-y-1">
               {chapters.map((chapter) => (
@@ -58,8 +58,8 @@ export default function UserGuidePage() {
                   onClick={() => scrollToSection(chapter.id)}
                   className={`w-full text-left flex items-start gap-3 p-2.5 rounded-xl transition-all text-xs font-semibold leading-relaxed border ${
                     activeSection === chapter.id
-                      ? "bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/20"
-                      : "hover:bg-slate-100 dark:hover:bg-white/[0.02] border-transparent text-muted-foreground"
+                      ? "bg-primary/10 text-primary border-primary/20"
+                      : "hover:bg-muted dark:hover:bg-white/[0.02] border-transparent text-muted-foreground"
                   }`}
                 >
                   <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">{chapter.icon}</span>
@@ -75,7 +75,7 @@ export default function UserGuidePage() {
           
           {/* Header Title */}
           <div className="space-y-4 text-center pb-6 border-b border-border relative">
-            <span className="absolute top-0 right-0 bg-indigo-500/10 border border-indigo-500/20 text-indigo-550 dark:text-indigo-400 text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+            <span className="absolute top-0 right-0 bg-primary/10 border border-primary/20 text-primary text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
               Tài liệu chính thức
             </span>
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground uppercase leading-snug">
@@ -84,18 +84,18 @@ export default function UserGuidePage() {
             <p className="text-xs text-muted-foreground font-bold tracking-wider">
               TÀI LIỆU HƯỚNG DẪN KỸ THUẬT VÀ QUY TRÌNH DÀNH CHO THÀNH VIÊN VÀ KHÁCH HÀNG
             </p>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 italic">
+            <p className="text-[10px] text-muted-foreground italic">
               Ban hành và cập nhật gần nhất: Ngày 02 tháng 06 năm 2026
             </p>
           </div>
 
           {/* Guide Content Sections */}
-          <div className="space-y-12 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300 text-justify">
+          <div className="space-y-12 text-xs sm:text-sm leading-relaxed text-foreground/80 text-justify">
 
             {/* CHƯƠNG 1 */}
             <section id="chuong-1" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">help_center</span>
+                <span className="material-symbols-outlined text-primary">help_center</span>
                 Chương I: Tổng Quan Nền Tảng & Triết Lý Thiết Kế Sản Phẩm
               </h2>
               <div className="space-y-4">
@@ -107,7 +107,7 @@ export default function UserGuidePage() {
                 </p>
 
                 <div className="bg-muted border border-border p-5 rounded-2xl space-y-3">
-                  <h4 className="font-bold text-foreground text-xs uppercase tracking-wider text-indigo-500">
+                  <h4 className="font-bold text-foreground text-xs uppercase tracking-wider text-primary">
                     Triết lý thiết kế và Các tính năng cốt lõi của nền tảng:
                   </h4>
                   <ul className="list-disc pl-5 text-xs text-muted-foreground space-y-2.5">
@@ -134,7 +134,7 @@ export default function UserGuidePage() {
             {/* CHƯƠNG 2 */}
             <section id="chuong-2" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">person_add</span>
+                <span className="material-symbols-outlined text-primary">person_add</span>
                 Chương II: Đăng Ký Tài Khoản & Gói Hỗ Trợ Độc Quyền Dành Cho Sinh Viên
               </h2>
               <div className="space-y-4">
@@ -143,11 +143,11 @@ export default function UserGuidePage() {
                 </p>
 
                 <div className="space-y-4 text-xs">
-                  <div className="pl-4 border-l-2 border-slate-300 dark:border-slate-800 space-y-2">
+                  <div className="pl-4 border-l-2 border-border space-y-2">
                     <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
                       Quy trình đăng ký tài khoản tiêu chuẩn:
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                    <p className="text-muted-foreground text-justify">
                       1. Truy cập vào trang đăng nhập qua đường dẫn `/login` và chọn tab "Đăng ký".
                       <br />
                       2. Nhập đầy đủ thông tin: Họ tên (hiển thị trên trang hồ sơ), Địa chỉ Email cá nhân (được dùng để nhận mã OTP và quản trị tài khoản), Số điện thoại Zalo (để liên lạc kỹ thuật và liên kết Booking) và Mật khẩu tự thiết lập.
@@ -156,11 +156,11 @@ export default function UserGuidePage() {
                     </p>
                   </div>
 
-                  <div className="pl-4 border-l-2 border-indigo-500 space-y-2">
-                    <h5 className="font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider text-[11px]">
+                  <div className="pl-4 border-l-2 border-primary space-y-2">
+                    <h5 className="font-bold text-primary uppercase tracking-wider text-[11px]">
                       Quy trình tham gia chương trình tài trợ sinh viên (Premium Student):
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                    <p className="text-muted-foreground text-justify">
                       Hugo Studio thấu hiểu học sinh - sinh viên là những đối tượng có nhu cầu rất lớn về một trang giới thiệu bản thân chuyên nghiệp nhưng lại hạn chế về ngân sách. Vì vậy, chúng tôi triển khai chương trình tài trợ đặc biệt **Premium Student tài trợ 100% chi phí**:
                       <br />
                       - <strong>Điều kiện tham gia:</strong> Người dùng có địa chỉ email giáo dục hợp lệ cấp bởi các trường học, đại học, viện đào tạo tại Việt Nam hoặc quốc tế (địa chỉ email có đuôi định dạng dạng `.edu` hoặc `.edu.vn`).
@@ -185,7 +185,7 @@ export default function UserGuidePage() {
             {/* CHƯƠNG 3 */}
             <section id="chuong-3" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">dashboard</span>
+                <span className="material-symbols-outlined text-primary">dashboard</span>
                 Chương III: Thiết Kế Bento Grid Portfolio & Bio Link Chuyên Nghiệp
               </h2>
               <div className="space-y-4">
@@ -196,7 +196,7 @@ export default function UserGuidePage() {
                 <div className="space-y-4 text-xs">
                   <div className="space-y-1">
                     <h4 className="font-bold text-foreground">1. Các loại khối Bento được hỗ trợ trên hệ thống:</h4>
-                    <ul className="list-disc pl-5 text-slate-600 dark:text-slate-400 space-y-1.5 text-justify">
+                    <ul className="list-disc pl-5 text-muted-foreground space-y-1.5 text-justify">
                       <li><strong>Khối Hồ sơ (Profile Card):</strong> Hiển thị ảnh đại diện (avatar), họ tên, chức danh công việc và văn bản tiểu sử ngắn. Đây là khối cốt lõi định danh trang Bio Link của bạn.</li>
                       <li><strong>Khối Liên kết nhanh (Link Button):</strong> Chứa đường dẫn trỏ tới các trang mạng xã hội (Facebook, Instagram, TikTok, Threads) hoặc liên kết ngoài. Bạn có thể chọn icon đại diện, đặt tiêu đề và viết chú thích ngắn.</li>
                       <li><strong>Khối Chỉ số cơ thể (Body Stats Card):</strong> Hiển thị chiều cao, cân nặng và các số đo vòng một, vòng hai, vòng ba (dành cho người mẫu/KOLs).</li>
@@ -205,9 +205,9 @@ export default function UserGuidePage() {
                     </ul>
                   </div>
 
-                  <div className="space-y-1 border-t border-slate-200 dark:border-slate-800 pt-3">
+                  <div className="space-y-1 border-t border-border pt-3">
                     <h4 className="font-bold text-foreground">2. Các bước thiết kế và Tùy biến giao diện chi tiết:</h4>
-                    <p className="text-slate-600 dark:text-slate-400 text-justify leading-relaxed">
+                    <p className="text-muted-foreground text-justify leading-relaxed">
                       - <strong>Bước 1: Bố cục lưới Bento (Layout Settings):</strong> Truy cập mục "Thiết kế" trong Dashboard. Tại đây, bạn có thể lựa chọn kiểu hiển thị lưới Bento theo cột dọc (dành cho di động) hoặc dạng lưới lưới mở rộng (dành cho máy tính).
                       <br />
                       - <strong>Bước 2: Thay đổi chủ đề (Themes Selection):</strong> Hugo Studio cung cấp sẵn nhiều phong cách chủ đề nghệ thuật:
@@ -230,7 +230,7 @@ export default function UserGuidePage() {
             {/* CHƯƠNG 4 */}
             <section id="chuong-4" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">accessibility</span>
+                <span className="material-symbols-outlined text-primary">accessibility</span>
                 Chương IV: Quản Lý Số Đo Cơ Thể & Bảo Vệ Quyền Riêng Tư Thông Tin Đời Tư
               </h2>
               <div className="space-y-4">
@@ -243,7 +243,7 @@ export default function UserGuidePage() {
                     <h5 className="font-bold text-foreground text-xs">
                       1. Cách thức nhập dữ liệu chỉ số hình thể:
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed">
                       - Trong trang Dashboard, chọn mục "Quản lý số đo". Tại đây bạn có thể điền thông tin: Chiều cao (cm), Cân nặng (kg), Vòng một (Chest/Bust), Vòng hai (Waist), Vòng ba (Hips) và Kiểu dáng vóc dáng tổng quan. Hệ thống hỗ trợ cả định dạng số đo hệ mét tiêu chuẩn. Hãy đảm bảo thông tin của bạn là trung thực và cập nhật thường xuyên để phục vụ tốt nhất việc tìm kiếm lịch đặt hẹn từ các thương hiệu thời trang.
                     </p>
                   </div>
@@ -252,7 +252,7 @@ export default function UserGuidePage() {
                     <h5 className="font-bold text-foreground text-xs">
                       2. Quản lý hiển thị và Cơ chế bảo vệ đời tư cá nhân:
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed">
                       - <strong>Quyền gạt nút hiển thị (Privacy Toggle):</strong> Hệ thống trang bị nút gạt "Công khai khối số đo" (Public Stats Card) trong Dashboard. Khi nút gạt này tắt, toàn bộ thông tin số đo cơ thể của bạn sẽ bị ẩn hoàn toàn trên trang Bio Link công cộng, và chỉ có thể được xem nội bộ bởi chính bạn khi đăng nhập Dashboard. Mọi truy cập trái phép từ bên ngoài sẽ không thể quét được dữ liệu này.
                       <br />
                       - <strong>Lựa chọn gạt ẩn/hiện từng chỉ số:</strong> Bạn có thể tùy chọn ẩn riêng lẻ từng thông số (ví dụ: chỉ cho phép hiện chiều cao và vòng hai, ẩn đi cân nặng và vòng ba) nhằm bảo vệ tốt nhất cảm nhận quyền riêng tư cơ thể của mình.
@@ -265,7 +265,7 @@ export default function UserGuidePage() {
             {/* CHƯƠNG 5 */}
             <section id="chuong-5" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">event</span>
+                <span className="material-symbols-outlined text-primary">event</span>
                 Chương V: Vận Hành Hệ Thống Ghi Nhận Đặt Lịch Hẹn (Booking)
               </h2>
               <div className="space-y-4">
@@ -278,7 +278,7 @@ export default function UserGuidePage() {
                     <h6 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
                       Dành cho Thành viên (Người quản lý lịch hẹn):
                     </h6>
-                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                    <p className="text-muted-foreground text-justify">
                       - <strong>Thiết lập trạng thái sẵn sàng (Availability Settings):</strong> Bạn có thể bật/tắt chức năng nhận lịch hẹn bất kỳ lúc nào thông qua trang cấu hình Booking. Cài đặt các thông tin: những ngày trong tuần sẵn sàng nhận việc, khung giờ làm việc cố định (ví dụ từ 09:00 đến 17:00), và nội dung yêu cầu cụ thể mà Khách hàng bắt buộc phải điền.
                       <br />
                       - <strong>Phê duyệt lịch hẹn (Dashboard Management):</strong> Khi có yêu cầu đặt lịch hẹn mới, hệ thống sẽ gửi thông báo đến Email quản trị của bạn. Bạn đăng nhập Dashboard để xem chi tiết: Tên khách hàng, số điện thoại Zalo, mục đích công việc và nội dung mô tả công việc. Bạn có quyền nhấn "Chấp nhận" hoặc "Từ chối" lịch hẹn.
@@ -289,7 +289,7 @@ export default function UserGuidePage() {
                     <h6 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
                       Dành cho Khách hàng (Người gửi yêu cầu lịch hẹn):
                     </h6>
-                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                    <p className="text-muted-foreground text-justify">
                       - <strong>Gửi biểu mẫu lịch hẹn:</strong> Truy cập Bio Link của Thành viên, nhấp chọn khối Bento "Đặt lịch làm việc". Điền đầy đủ thông tin: Họ tên của bạn, địa chỉ Email để nhận thông báo phản hồi, số điện thoại kết nối Zalo, lựa chọn ngày giờ mong muốn diễn ra công việc và viết nội dung mô tả yêu cầu công việc chi tiết.
                       <br />
                       - <strong>Theo dõi trạng thái:</strong> Sau khi gửi lịch, hệ thống sẽ ghi nhận trạng thái Booking là "PENDING" (Đang chờ duyệt). Khi Thành viên nhấn chấp nhận hoặc từ chối lịch hẹn, một email thông báo tự động từ hệ thống Hugo Studio sẽ gửi về hòm thư của bạn để xác nhận kết quả cuối cùng.
@@ -297,7 +297,7 @@ export default function UserGuidePage() {
                   </div>
                 </div>
 
-                <p className="text-muted-foreground italic text-[11px] border-l-4 border-amber-500 pl-4">
+                <p className="text-muted-foreground italic text-[11px] border-l-4 border-warning pl-4">
                   * Khuyến cáo an toàn giao dịch: Hugo Studio chỉ đóng vai trò cung cấp giải pháp kỹ thuật lưu trữ và thông tin trung gian truyền tải Booking. Mọi thỏa thuận tài chính, ký kết hợp đồng dịch vụ, thanh toán tiền cát-xê công việc giữa hai bên phải được thực hiện tự do bên ngoài hệ thống. Chúng tôi miễn trừ mọi trách nhiệm giải quyết tranh chấp kinh tế phát sinh liên quan đến hoạt động Booking này.
                 </p>
               </div>
@@ -306,7 +306,7 @@ export default function UserGuidePage() {
             {/* CHƯƠNG 6 */}
             <section id="chuong-6" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">payments</span>
+                <span className="material-symbols-outlined text-primary">payments</span>
                 Chương VI: Hướng Dẫn Liên Kết Thanh Toán Dịch Vụ Studio Cá Nhân Của Admin
               </h2>
               <div className="space-y-4">
@@ -319,7 +319,7 @@ export default function UserGuidePage() {
                     <h5 className="font-bold text-foreground text-xs">
                       1. Giao diện Cổng thanh toán VietQR & Cách thức quét mã nhanh:
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed">
                       - Khi khách hàng trực tiếp đặt lịch chụp hình nghệ thuật hoặc thiết kế mỹ thuật với cá nhân Admin, Admin sẽ tạo một mã liên kết thanh toán (Payment Link) có mã hóa số tiền và lý do thanh toán độc nhất (Ví dụ: `PROFILE_HUGO_9999`) trên Dashboard Admin và gửi đường link trỏ tới giao diện thanh toán `/pay/:id` cho khách hàng.
                       <br />
                       - Khi truy cập liên kết thanh toán, khách hàng có thể lựa chọn các phương thức thanh toán nhanh:
@@ -336,7 +336,7 @@ export default function UserGuidePage() {
                     <h5 className="font-bold text-foreground text-xs">
                       2. Quy trình xác thực thanh toán tự động:
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed">
                       - Sau khi khách hàng hoàn tất giao dịch chuyển khoản thành công trên ứng dụng Mobile Banking của mình, cổng thanh toán đối tác PayOS sẽ gửi một phản hồi (Webhook/Callback API) trực tiếp tới máy chủ Hugo Studio trong vòng 3 giây để cập nhật tức thì trạng thái giao dịch từ "PENDING" (Đang chờ) thành "PAID" (Đã thanh toán).
                       <br />
                       - Giao diện hóa đơn điện tử ảo (Sponsorship Receipt) trên trang web sẽ tự động chuyển sang màu xanh xác nhận giao dịch thành công. Khách hàng không cần phải gửi ảnh chụp màn hình chuyển khoản qua tin nhắn cho Admin để xác thực thủ công.
@@ -349,7 +349,7 @@ export default function UserGuidePage() {
             {/* CHƯƠNG 7 */}
             <section id="chuong-7" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">image</span>
+                <span className="material-symbols-outlined text-primary">image</span>
                 Chương VII: Hướng Dẫn Tối Ưu Hóa Hình Ảnh & Nâng Cao Tốc Độ Tải Trang
               </h2>
               <div className="space-y-4">
@@ -362,7 +362,7 @@ export default function UserGuidePage() {
                     <h5 className="font-bold text-foreground text-xs">
                       1. Tiêu chuẩn kỹ thuật đối với hình ảnh tải lên hệ thống:
                     </h5>
-                    <p className="text-slate-606 dark:text-slate-400 leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed">
                       - <strong>Định dạng hình ảnh khuyến nghị:</strong> Hãy sử dụng định dạng ảnh thế hệ mới <strong>WebP</strong> hoặc định dạng <strong>PNG</strong> nén. Các định dạng này giữ được chất lượng hiển thị sắc nét nhưng có dung lượng tệp tin cực nhẹ (chỉ bằng 1/3 dung lượng ảnh JPG thông thường).
                       <br />
                       - <strong>Dung lượng tệp tin giới hạn:</strong> Hệ thống giới hạn mỗi ảnh tải lên có dung lượng tối đa là <strong>2MB</strong> đối với tài khoản Free và lên tới <strong>5MB</strong> đối với tài khoản Premium Student. Hãy sử dụng các công cụ nén ảnh trực tuyến miễn phí (như TinyPNG) trước khi tải ảnh lên.
@@ -375,7 +375,7 @@ export default function UserGuidePage() {
                     <h5 className="font-bold text-foreground text-xs">
                       2. Kỹ thuật Lazy Loading và Tăng tốc rải trang:
                     </h5>
-                    <p className="text-slate-606 dark:text-slate-400 leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed">
                       - Máy chủ Hugo Studio đã lập trình sẵn cơ chế <strong>Lazy Loading</strong> (Tải chậm hình ảnh). Các hình ảnh nằm ở phần dưới trang web (ngoài tầm nhìn ban đầu của màn hình) sẽ chỉ được tải về thiết bị khi khách truy cập cuộn màn hình xuống phía dưới. Điều này giúp giảm thiểu 80% băng thông tải trang ban đầu, giúp khách hàng xem Bento Portfolio của bạn nhanh chóng ngay cả khi đang sử dụng kết nối mạng 3G/4G yếu.
                     </p>
                   </div>
@@ -386,7 +386,7 @@ export default function UserGuidePage() {
             {/* CHƯƠNG 8 */}
             <section id="chuong-8" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">lock</span>
+                <span className="material-symbols-outlined text-primary">lock</span>
                 Chương VIII: Quản Lý Bảo Mật Tài Khoản & Session Token Đăng Nhập
               </h2>
               <div className="space-y-4">
@@ -394,7 +394,7 @@ export default function UserGuidePage() {
                   Hugo Studio áp dụng các giao thức an ninh mạng đa lớp để bảo vệ tài khoản của Thành viên trước các nguy cơ tấn công xâm nhập trái phép:
                 </p>
 
-                <div className="space-y-4 pl-4 border-l-2 border-indigo-500 text-xs">
+                <div className="space-y-4 pl-4 border-l-2 border-primary text-xs">
                   <p>
                     <strong>a) Quy chuẩn đặt mật khẩu an toàn tối thiểu:</strong>
                     <br />
@@ -423,7 +423,7 @@ export default function UserGuidePage() {
             {/* CHƯƠNG 9 */}
             <section id="chuong-9" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">build</span>
+                <span className="material-symbols-outlined text-primary">build</span>
                 Chương IX: Khắc Phục Sự Cố Kỹ Thuật Thường Gặp Khi Thiết Kế
               </h2>
               <div className="space-y-4">
@@ -470,7 +470,7 @@ export default function UserGuidePage() {
             {/* CHƯƠNG 10 */}
             <section id="chuong-10" className="space-y-4 scroll-mt-20">
               <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">support_agent</span>
+                <span className="material-symbols-outlined text-primary">support_agent</span>
                 Chương X: Quy Trình Gửi Phiếu Yêu Cầu Hỗ Trợ & Kênh Tương Tác Chính Thức
               </h2>
               <div className="space-y-4">
@@ -482,7 +482,7 @@ export default function UserGuidePage() {
                   <h5 className="font-bold text-foreground uppercase tracking-wider">
                     Các kênh tiếp nhận và hỗ trợ kỹ thuật chính thức:
                   </h5>
-                  <p className="text-slate-600 dark:text-slate-400">
+                  <p className="text-muted-foreground">
                     - <strong>Tương tác với Trợ lý ảo Bot Culi:</strong> Truy cập biểu tượng Chat Bot ở góc dưới bên phải màn hình để gửi mô tả lỗi nhanh. Bot Culi sẽ tự động phân loại sự cố và hướng dẫn bạn điền phiếu gửi hỗ trợ (Support Tickets) đúng quy định.
                     <br />
                     - <strong>Kênh hỗ trợ trực tiếp từ cá nhân Admin duy nhất:</strong>
@@ -493,13 +493,13 @@ export default function UserGuidePage() {
                       <span className="material-symbols-outlined text-sm">mail</span>
                       <span>Địa chỉ Email liên hệ: {data?.profile?.emailAddress || "support@hugowishpax.studio"}</span>
                     </p>
-                    <p className="flex items-center gap-2 text-emerald-600 dark:text-emerald-455">
+                    <p className="flex items-center gap-2 text-success">
                       <span className="material-symbols-outlined text-sm">chat</span>
                       <span>Kênh Zalo hỗ trợ kỹ thuật: {data?.profile?.zaloNumber || "0901234567"}</span>
                     </p>
                   </div>
                   
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 italic border-t border-slate-200 dark:border-slate-800 pt-3 text-justify">
+                  <p className="text-[10px] text-muted-foreground italic border-t border-border pt-3 text-justify">
                     * Cam kết thời gian phản hồi (SLA): Bộ phận hỗ trợ kỹ thuật của cá nhân Admin cam kết tiếp nhận sự cố, tiến hành đối soát thông tin tài khoản và xử lý phản hồi chi tiết cho Thành viên qua Email hoặc tin nhắn Zalo trong vòng tối đa **03 ngày làm việc** kể từ thời điểm nhận được phiếu yêu cầu hỗ trợ hợp lệ.
                   </p>
                 </div>
@@ -512,7 +512,7 @@ export default function UserGuidePage() {
           <div className="pt-6 border-t border-border text-center">
             <Link 
               to="/" 
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-2xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs tracking-wider uppercase transition-all shadow-md active:scale-95 hover:scale-[1.01]"
+              className="inline-flex items-center justify-center px-8 py-3.5 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-xs tracking-wider uppercase transition-all shadow-md active:scale-95 hover:scale-[1.01]"
               style={{ minHeight: 0, minWidth: 0 }}
             >
               Trở Về Trang Chủ

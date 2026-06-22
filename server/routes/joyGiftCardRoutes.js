@@ -64,6 +64,38 @@ router.post('/', requireAdmin, async (req, res) => {
   }
 });
 
+import InAppNotification from '../models/InAppNotification.js';
+
+// POST /api/joy-gift-cards/direct-add (admin) { email, amount, note }
+router.post('/direct-add', requireAdmin, async (req, res) => {
+  try {
+    const { email, amount, note } = req.body;
+    if (!email || !amount) return res.status(400).json({ error: 'Thiếu email hoặc số lượng JOY' });
+
+    const numericAmount = Number(amount);
+    if (numericAmount <= 0) return res.status(400).json({ error: 'Số lượng JOY phải lớn hơn 0' });
+
+    const { balance } = await awardJoy(
+      email,
+      numericAmount,
+      'admin_direct_add',
+      `Được tặng trực tiếp từ Admin: ${note || 'Không có ghi chú'}`
+    );
+
+    await InAppNotification.create({
+      email,
+      type: 'success',
+      category: 'joy',
+      title: 'Nhận điểm JOY thưởng',
+      message: `Bạn vừa được Admin tặng trực tiếp ${numericAmount} JOY. ${note ? `Lý do: ${note}` : ''}`
+    });
+
+    res.json({ success: true, balance, message: `Đã nạp ${numericAmount} JOY cho ${email}` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET /api/joy-gift-cards  (admin, optional ?redeemed=true/false)
 router.get('/', requireAdmin, async (req, res) => {
   try {

@@ -19,6 +19,7 @@ import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 import AuraBackground from "../../components/member/portal/AuraBackground";
+import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 
 // Sub-components
 import BirthdaySurprise from "../../components/member/BirthdaySurprise";
@@ -45,9 +46,9 @@ const MemberJoyTab       = React.lazy(() => import("../../components/member/Memb
 function StatusBadge({ status }) {
   const { t } = useTranslation();
   const cfg = {
-    active:   { label: t("memberPortal.status.active") || 'Đã xác minh', color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20', icon: 'verified' },
-    pending:  { label: t("memberPortal.status.pending") || 'Đang chờ',    color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',   icon: 'pending' },
-    rejected: { label: t("memberPortal.status.rejected") || 'Bị từ chối',  color: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',           icon: 'cancel' },
+    active:   { label: t("memberPortal.status.active") || 'Đã xác minh', color: 'bg-success/10 text-success border-success/20', icon: 'verified' },
+    pending:  { label: t("memberPortal.status.pending") || 'Đang chờ',    color: 'bg-warning/10 text-warning border-warning/20',   icon: 'pending' },
+    rejected: { label: t("memberPortal.status.rejected") || 'Bị từ chối',  color: 'bg-destructive/10 text-destructive border-destructive/20',           icon: 'cancel' },
   };
   const c = cfg[status] || cfg.pending;
   return (
@@ -153,10 +154,17 @@ export default function MemberPortalPage() {
   const bioTextareaRef  = useRef(null);
   const previewIframeRef = useRef(null);
 
-  // ── Smart notification system ─────────────────────────────────────────────────
   const { notifications, unreadCount: unreadNotifCount, toast, setToast,
     showToast, sendNotification, markRead, markAllRead, dismiss, refresh: refreshInbox,
   } = useNotifications(memberSession?.email || null);
+
+  const [activePaymentNotification, setActivePaymentNotification] = useState(null);
+  useEffect(() => {
+    const unreadPayment = notifications.find(n => !n.read && n.category === 'payment');
+    if (unreadPayment && (!activePaymentNotification || activePaymentNotification._id !== unreadPayment._id)) {
+      setActivePaymentNotification(unreadPayment);
+    }
+  }, [notifications, activePaymentNotification]);
 
   // ── Passive sleep auto-detection ─────────────────────────────────────────────
   // Mounted here (portal-wide) instead of inside SleepTracker so the 8-signal
@@ -216,13 +224,13 @@ export default function MemberPortalPage() {
 
   // ── Mobile account section definitions ───────────────────────────────────────
   const ACCOUNT_SECTIONS = useMemo(() => [
-    { id:'profile',  label:t("memberPortal.sidebar.personal"),  sub:t("memberPortal.bento.profileSub"),  icon:'person',          grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
-    { id:'design',   label:t("memberPortal.sidebar.theme"),     sub:t("memberPortal.bento.designSub"),   icon:'palette',         grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
-    { id:'links',    label:t("memberPortal.sidebar.links"),     sub:t("memberPortal.bento.linksSub", { count: formData.links?.length || 0 }), icon:'link',    grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
-    { id:'projects', label:t("memberPortal.sidebar.projects"),  sub:t("memberPortal.bento.projectsSub", { count: formData.projects?.length || 0 }), icon:'folder_special', grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900' },
-    { id:'services', label:t("memberPortal.sidebar.services"),  sub:t("memberPortal.bento.servicesSub", { count: formData.services?.length || 0 }),  icon:'storefront', grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900' },
-    { id:'career',   label:t("memberPortal.sidebar.career"),    sub:t("memberPortal.bento.careerSub"),   icon:'school',          grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
-    { id:'body',     label:t("memberPortal.sidebar.physical"),  sub:t("memberPortal.bento.bodySub"),     icon:'monitor_heart',   grad:'from-zinc-900 to-zinc-800 dark:from-zinc-950 dark:to-zinc-900'  },
+    { id:'profile',  label:t("memberPortal.sidebar.personal"),  sub:t("memberPortal.bento.profileSub"),  icon:'person',          grad:'from-card to-card'  },
+    { id:'design',   label:t("memberPortal.sidebar.theme"),     sub:t("memberPortal.bento.designSub"),   icon:'palette',         grad:'from-card to-card'  },
+    { id:'links',    label:t("memberPortal.sidebar.links"),     sub:t("memberPortal.bento.linksSub", { count: formData.links?.length || 0 }), icon:'link',    grad:'from-card to-card'  },
+    { id:'projects', label:t("memberPortal.sidebar.projects"),  sub:t("memberPortal.bento.projectsSub", { count: formData.projects?.length || 0 }), icon:'folder_special', grad:'from-card to-card' },
+    { id:'services', label:t("memberPortal.sidebar.services"),  sub:t("memberPortal.bento.servicesSub", { count: formData.services?.length || 0 }),  icon:'storefront', grad:'from-card to-card' },
+    { id:'career',   label:t("memberPortal.sidebar.career"),    sub:t("memberPortal.bento.careerSub"),   icon:'school',          grad:'from-card to-card'  },
+    { id:'body',     label:t("memberPortal.sidebar.physical"),  sub:t("memberPortal.bento.bodySub"),     icon:'monitor_heart',   grad:'from-card to-card'  },
   ], [formData.links?.length, formData.projects?.length, formData.services?.length, t]);
 
   // ── Render account sub-tab form (shared desktop + mobile) ────────────────────
@@ -545,7 +553,7 @@ export default function MemberPortalPage() {
               className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-card/95 backdrop-blur-xl shadow-2xl border border-border/50 max-w-md mx-auto"
               style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}
             >
-              <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-emerald-500":toast.type==="warning"?"text-amber-500":"text-rose-500"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
+              <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-success":toast.type==="warning"?"text-warning":"text-destructive"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
                 {toast.type==="success"?"check_circle":toast.type==="warning"?"warning":"error"}
               </span>
               <p className="flex-1 text-[11px] sm:text-xs font-semibold text-foreground leading-relaxed">{toast.message}</p>
@@ -558,7 +566,7 @@ export default function MemberPortalPage() {
         
         <div className="flex-1 w-full h-full overflow-hidden">
           <ErrorBoundary>
-            <React.Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
+            <React.Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
               <MemberUtilitiesTab
                 bio={bio}
                 publicLink={publicLink}
@@ -615,7 +623,7 @@ export default function MemberPortalPage() {
             className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-card/95 backdrop-blur-xl shadow-2xl border border-border/50 max-w-md mx-auto"
             style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}
           >
-            <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-emerald-500":toast.type==="warning"?"text-amber-500":"text-rose-500"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
+            <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-success":toast.type==="warning"?"text-warning":"text-destructive"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
               {toast.type==="success"?"check_circle":toast.type==="warning"?"warning":"error"}
             </span>
             <p className="flex-1 text-[11px] sm:text-xs font-semibold text-foreground leading-relaxed">{toast.message}</p>
@@ -686,13 +694,13 @@ export default function MemberPortalPage() {
             <div className={`flex items-center gap-3 shrink-0 ${activeTab === 'account' && !mobileSubSection ? 'hidden md:flex' : ''}`}>
               {isGuestMode ? (
                 <button type="button" onClick={() => window.location.href = "/login"}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-indigo-200/60 dark:border-indigo-900/30 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-primary/20 dark:border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
                   <span className="material-symbols-outlined text-sm">login</span>
                   <span className="hidden sm:inline">{t("navbar.login", "Đăng Nhập")}</span>
                 </button>
               ) : (
                 <button type="button" onClick={() => onTabClick({ id: "joy" })}
-                  className="hidden sm:flex items-center px-2.5 py-1.5 rounded-full border border-amber-200/60 dark:border-amber-900/30 bg-amber-500/5 hover:bg-amber-500/10 transition-all duration-200">
+                  className="hidden sm:flex items-center px-2.5 py-1.5 rounded-full border border-warning/20 dark:border-warning/30 bg-warning/5 hover:bg-warning/10 transition-all duration-200">
                   <JoyCoinBadge size="sm" />
                 </button>
               )}
@@ -701,7 +709,7 @@ export default function MemberPortalPage() {
                 shows on the Hồ Sơ Bio (account) tab, always visible on desktop. */}
             {!isGuestMode && (
               <button type="button" onClick={handleLogout}
-                className={`${activeTab === 'account' && !mobileSubSection ? 'flex' : 'hidden'} md:flex items-center gap-1.5 px-3 py-2 rounded-full border border-red-200/60 dark:border-red-900/30 bg-red-500/5 hover:bg-red-500/10 text-red-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200 shrink-0`}>
+                className={`${activeTab === 'account' && !mobileSubSection ? 'flex' : 'hidden'} md:flex items-center gap-1.5 px-3 py-2 rounded-full border border-destructive/20 dark:border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-destructive text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200 shrink-0`}>
                 <span className="material-symbols-outlined text-sm">logout</span>
                 <span className="hidden sm:inline">{t("memberPortal.logout")}</span>
               </button>
@@ -722,7 +730,7 @@ export default function MemberPortalPage() {
                     <span>{tab.label}</span>
                     {tab.partner && <span className="material-symbols-outlined text-[9px] opacity-50">open_in_new</span>}
                     {tab.id === 'history' && unreadHistoryCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm">
+                      <span className="absolute -top-0.5 -right-0.5 bg-destructive text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm">
                         {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
                       </span>
                     )}
@@ -854,7 +862,7 @@ export default function MemberPortalPage() {
                                   {bio?.status && !isGuestMode && <StatusBadge status={bio.status} />}
                                   {!isGuestMode && (
                                     <button type="button" onClick={() => onTabClick({ id: "joy" })}
-                                      className="inline-flex items-center px-2 py-1 rounded-full border border-amber-200/60 dark:border-amber-900/30 bg-amber-500/5 active:scale-95 transition-all">
+                                      className="inline-flex items-center px-2 py-1 rounded-full border border-warning/20 dark:border-warning/30 bg-warning/5 active:scale-95 transition-all">
                                       <JoyCoinBadge size="sm" />
                                     </button>
                                   )}
@@ -884,17 +892,17 @@ export default function MemberPortalPage() {
                             {/* ID-Card bottom stats row */}
                             <div className="mt-5 pt-3.5 border-t border-zinc-200/80 dark:border-zinc-800/60 flex items-center justify-between text-[9px] font-bold text-zinc-400 dark:text-zinc-500 font-mono tracking-wider">
                               <span className="flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[10px] text-blue-500">link</span>
+                                <span className="material-symbols-outlined text-[10px] text-primary">link</span>
                                 {t("memberPortal.bio.linksCount", { count: formData.links?.length || 0 }).toUpperCase()}
                               </span>
                               <span>•</span>
                               <span className="flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[10px] text-amber-500">folder_special</span>
+                                <span className="material-symbols-outlined text-[10px] text-secondary">folder_special</span>
                                 {t("memberPortal.bio.projectsCount", { count: formData.projects?.length || 0 }).toUpperCase()}
                               </span>
                               <span>•</span>
                               <span className="flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[10px] text-purple-500">palette</span>
+                                <span className="material-symbols-outlined text-[10px] text-accent">palette</span>
                                 {t("memberPortal.bio.themeLabel", { template: (formData.theme?.template || "Classic").toUpperCase() }).toUpperCase()}
                               </span>
                             </div>
@@ -1011,10 +1019,26 @@ export default function MemberPortalPage() {
 
         <CropModal cropModal={cropModal} setCropModal={setCropModal} handleDragStart={handleDragStart} handleDragMove={handleDragMove} handleDragEnd={handleDragEnd} handleCropSave={handleCropSave} t={t} />
 
+        <PaymentRequestModal 
+          isOpen={!!activePaymentNotification} 
+          notification={activePaymentNotification} 
+          onClose={() => {
+            if (activePaymentNotification) markRead(activePaymentNotification._id);
+            setActivePaymentNotification(null);
+          }}
+          onAction={() => {
+            if (activePaymentNotification?.actionUrl) {
+              window.location.href = activePaymentNotification.actionUrl;
+            }
+            if (activePaymentNotification) markRead(activePaymentNotification._id);
+            setActivePaymentNotification(null);
+          }}
+        />
+
         {confirmModal.isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
-              <div className="flex items-center gap-2 text-rose-500">
+              <div className="flex items-center gap-2 text-destructive">
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings:"'FILL' 1" }}>warning</span>
                 <h3 className="font-extrabold text-sm uppercase tracking-wider text-zinc-900 dark:text-white">{t("memberPortal.confirm.title")}</h3>
               </div>
@@ -1025,7 +1049,7 @@ export default function MemberPortalPage() {
                   {t("memberPortal.confirm.cancel")}
                 </button>
                 <button type="button" onClick={() => { confirmModal.onConfirm?.(); setConfirmModal({ isOpen:false, message:"", onConfirm:null }); }}
-                  className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold shadow-md transition-colors">
+                  className="py-2.5 rounded-xl bg-destructive hover:bg-destructive/90 text-white text-[11px] font-bold shadow-md transition-colors">
                   {t("memberPortal.confirm.confirm")}
                 </button>
               </div>
@@ -1072,7 +1096,7 @@ export default function MemberPortalPage() {
                     {tab.label}
                   </span>
                   {tab.id === "history" && unreadHistoryCount > 0 && (
-                    <span className="absolute top-0.5 right-[18%] bg-red-500 text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm">
+                    <span className="absolute top-0.5 right-[18%] bg-destructive text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm">
                       {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
                     </span>
                   )}

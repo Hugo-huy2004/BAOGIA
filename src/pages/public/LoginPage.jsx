@@ -206,18 +206,18 @@ export default function LoginPage() {
       {/* Floating Toast Notification */}
       {toast.message && (
         <div className={`fixed top-6 left-1/2 z-50 animate-toast-in flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-background shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] md:max-w-md w-[calc(100vw-32px)] border-2 transition-all ${
-          toast.type === "success" 
-            ? "border-emerald-500 dark:border-emerald-600" 
+          toast.type === "success"
+            ? "border-success"
             : toast.type === "warning"
-            ? "border-amber-500 dark:border-amber-600"
-            : "border-red-500 dark:border-rose-500"
+            ? "border-warning"
+            : "border-destructive"
         }`}>
           <span className={`material-symbols-outlined shrink-0 text-xl ${
-            toast.type === "success" 
-              ? "text-emerald-500" 
+            toast.type === "success"
+              ? "text-success"
               : toast.type === "warning"
-              ? "text-amber-500"
-              : "text-red-500 dark:text-rose-500"
+              ? "text-warning"
+              : "text-destructive"
           }`}>
             {toast.type === "success" ? "check_circle" : toast.type === "warning" ? "warning" : "error"}
           </span>
@@ -227,7 +227,7 @@ export default function LoginPage() {
           <button 
             type="button"
             onClick={() => setToast({ message: "", type: "" })}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-white shrink-0 ml-1 transition-colors"
+            className="text-muted-foreground hover:text-foreground dark:hover:text-white shrink-0 ml-1 transition-colors"
           >
             <span className="material-symbols-outlined text-lg">close</span>
           </button>
@@ -246,7 +246,7 @@ export default function LoginPage() {
             <span style={{ color: "#F97316" }}>u</span>
             <span style={{ color: "#EAB308" }}>g</span>
             <span style={{ color: "#22C55E" }}>o</span>
-            <span className="text-slate-300 dark:text-slate-600 mx-1.5 font-light"></span>
+            <span className="text-muted-foreground mx-1.5 font-light"></span>
             <span style={{ color: "#3B82F6" }}>S</span>
             <span style={{ color: "#6366F1" }}>t</span>
             <span style={{ color: "#A855F7" }}>u</span>
@@ -258,13 +258,13 @@ export default function LoginPage() {
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground transition-all">
             {activeMode === "customer" ? t("loginPage.header.titleCustomer") : activeMode === "member" ? t("loginPage.header.titleMember") : t("loginPage.header.titleAdmin")}
           </h1>
-          <p className="text-xs text-slate-400 dark:text-slate-400 font-medium">
+          <p className="text-xs text-muted-foreground font-medium">
             {activeMode === "customer" ? t("loginPage.header.descCustomer") : activeMode === "member" ? t("loginPage.header.descMember") : t("loginPage.header.descAdmin")}
           </p>
         </div>
 
         {/* Unified iOS-style Segmented Control */}
-        <div className="relative z-10 bg-slate-100 dark:bg-white/5 p-1 rounded-2xl flex w-full max-w-[340px] mx-auto border border-slate-200/50 dark:border-white/5 overflow-hidden">
+        <div className="relative z-10 bg-muted dark:bg-white/5 p-1 rounded-2xl flex w-full max-w-[340px] mx-auto border border-border/50 dark:border-white/5 overflow-hidden">
           {(() => {
             const tabs = [
               { id: 'customer', label: t("loginPage.tabs.customer") },
@@ -292,7 +292,7 @@ export default function LoginPage() {
                     className={`flex-1 py-2 text-[10px] sm:text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
                       activeMode === tab.id
                         ? "text-foreground"
-                        : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {tab.label}
@@ -309,7 +309,7 @@ export default function LoginPage() {
             <form key="form-customer" onSubmit={handleCustomerLogin} className="space-y-6">
               <div className="text-center space-y-1">
                 <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.customerForm.title")}</h2>
-                <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed">{t("loginPage.customerForm.desc")}</p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{t("loginPage.customerForm.desc")}</p>
               </div>
 
               <div className="space-y-4 pt-2">
@@ -321,21 +321,21 @@ export default function LoginPage() {
                     value={customerCode}
                     onChange={(e) => setCustomerCode(e.target.value.toUpperCase())}
                     placeholder={t("loginPage.customerForm.codePlaceholder")}
-                    className="w-full px-4 py-4 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-lg uppercase font-mono tracking-[0.5em] font-bold text-center"
+                    className="w-full px-4 py-4 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-lg uppercase font-mono tracking-[0.5em] font-bold text-center"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs sm:text-sm flex justify-center items-center gap-2"
+                  className="w-full py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs sm:text-sm flex justify-center items-center gap-2"
                 >
                   <span className="material-symbols-outlined text-[18px]">login</span> {t("loginPage.customerForm.btn")}
                 </button>
               </div>
 
-              <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 text-[11px] text-indigo-700 dark:text-indigo-300/80 flex gap-3 text-left leading-relaxed mt-4">
-                <span className="material-symbols-outlined text-indigo-500 shrink-0 text-lg mt-0.5 select-none">verified_user</span>
+              <div className="p-4 rounded-2xl bg-primary/10 dark:bg-primary/15 border border-primary/20 text-[11px] text-primary flex gap-3 text-left leading-relaxed mt-4">
+                <span className="material-symbols-outlined text-primary shrink-0 text-lg mt-0.5 select-none">verified_user</span>
                 <div>
-                  <span className="font-bold text-indigo-900 dark:text-indigo-200 block mb-0.5">{t("loginPage.customerForm.securityTitle")}</span>
+                  <span className="font-bold text-primary block mb-0.5">{t("loginPage.customerForm.securityTitle")}</span>
                   {t("loginPage.customerForm.securityDesc")}
                 </div>
               </div>
@@ -344,7 +344,7 @@ export default function LoginPage() {
             <form key="form-member" onSubmit={handleMemberLogin} className="space-y-6">
               <div className="text-center space-y-1">
                 <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.memberForm.title")}</h2>
-                <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed">{t("loginPage.memberForm.desc")}</p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{t("loginPage.memberForm.desc")}</p>
               </div>
 
               <div className="py-2 flex justify-center">
@@ -352,16 +352,16 @@ export default function LoginPage() {
               </div>
 
               {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
-                <p className="text-[10px] text-center text-red-500 font-medium">{t("loginPage.memberForm.missingClientId")}</p>
+                <p className="text-[10px] text-center text-destructive font-medium">{t("loginPage.memberForm.missingClientId")}</p>
               )}
 
-              <p className="text-[10px] text-center text-slate-400 dark:text-slate-500 font-medium">
+              <p className="text-[10px] text-center text-muted-foreground font-medium">
                 {gisReady ? t("loginPage.memberForm.gisReady") : t("loginPage.memberForm.gisLoading")}
               </p>
 
               {/* Apple-style Educational Disclaimer Card */}
               <div className="p-4 rounded-2xl bg-muted/50 border border-border/50 text-[11px] text-muted-foreground flex gap-3 text-left leading-relaxed mt-2">
-                <span className="material-symbols-outlined text-primary dark:text-[#60a5fa] shrink-0 text-lg mt-0.5 select-none">school</span>
+                <span className="material-symbols-outlined text-primary shrink-0 text-lg mt-0.5 select-none">school</span>
                 <div>
                   <span className="font-bold text-foreground block mb-0.5">{t("loginPage.memberForm.reqTitle")}</span>
                   {t("loginPage.memberForm.reqDesc")}
@@ -372,7 +372,7 @@ export default function LoginPage() {
             <form key="form-admin" onSubmit={handleAdminLogin} className="space-y-5">
               <div className="text-center space-y-1">
                 <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.adminForm.title")}</h2>
-                <p className="text-[11px] text-slate-400 dark:text-slate-400">{t("loginPage.adminForm.desc")}</p>
+                <p className="text-[11px] text-muted-foreground">{t("loginPage.adminForm.desc")}</p>
               </div>
 
               <div className="space-y-1.5">
@@ -382,7 +382,7 @@ export default function LoginPage() {
                   value={adminForm.username}
                   onChange={(e) => setAdminForm((prev) => ({ ...prev, username: e.target.value }))}
                   placeholder={t("loginPage.adminForm.userPlaceholder")}
-                  className="w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
+                  className="w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary transition-all text-xs"
                 />
               </div>
 
@@ -393,18 +393,18 @@ export default function LoginPage() {
                   value={adminForm.password}
                   onChange={(e) => setAdminForm((prev) => ({ ...prev, password: e.target.value }))}
                   placeholder={t("loginPage.adminForm.passPlaceholder")}
-                  className="w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
+                  className="w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary transition-all text-xs"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 font-bold py-3.5 rounded-xl hover:scale-[1.01] active:scale-99 transition-all text-xs shadow-md mt-2"
+                className="w-full bg-foreground hover:bg-foreground/90 dark:bg-white dark:hover:bg-white/90 text-background dark:text-background font-bold py-3.5 rounded-xl hover:scale-[1.01] active:scale-99 transition-all text-xs shadow-md mt-2"
               >
                 {t("loginPage.adminForm.btn")}
               </button>
 
-              <p className="text-[10px] text-center text-slate-400 dark:text-slate-500">{t("loginPage.adminForm.https")}</p>
+              <p className="text-[10px] text-center text-muted-foreground">{t("loginPage.adminForm.https")}</p>
             </form>
           )}
         </div>

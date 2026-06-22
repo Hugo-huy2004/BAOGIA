@@ -273,17 +273,17 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
   };
 
   return (
-    <div className="max-w-md mx-auto space-y-5 animate-scaleUp bg-gradient-to-br from-zinc-950 via-slate-900 to-indigo-950 text-zinc-100 p-6 rounded-3xl border border-zinc-800/80 shadow-2xl relative overflow-hidden">
+    <div className="max-w-md mx-auto space-y-5 animate-scaleUp bg-gradient-to-br from-zinc-950 via-slate-900 to-primary/20 text-zinc-100 p-6 rounded-3xl border border-zinc-800/80 shadow-2xl relative overflow-hidden">
       {/* Background soft glow */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/5 rounded-full blur-2xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between border-b pb-2.5 border-zinc-800/60">
         <button type="button" onClick={() => { handleReset(); onBack(); }} className="text-zinc-400 text-[10px] font-black uppercase tracking-wider hover:text-zinc-200 transition-colors">
           Quay lại thẻ
         </button>
-        <span className="text-[10px] font-black uppercase text-teal-500 tracking-wider">Thiền Dẫn AI</span>
+        <span className="text-[10px] font-black uppercase text-primary tracking-wider">Thiền Dẫn AI</span>
         <button
           type="button"
           onClick={() => {
@@ -295,7 +295,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
           }}
           title={voiceEnabled ? "Tắt giọng dẫn" : "Bật giọng dẫn"}
           className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md transition-colors ${
-            voiceEnabled ? "text-teal-400 bg-teal-500/10" : "text-zinc-400 bg-white/5 hover:bg-white/10"
+            voiceEnabled ? "text-primary bg-primary/10" : "text-zinc-400 bg-white/5 hover:bg-white/10"
           }`}
         >
           {voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
@@ -319,11 +319,11 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
                     onClick={() => setSelectedMood(m.id)}
                     className={`flex items-center gap-2 px-3 py-3 rounded-2xl border text-[10px] font-black uppercase tracking-wider transition-all text-left ${
                       selectedMood === m.id
-                        ? "bg-teal-500/10 border-teal-500 text-teal-400 scale-[1.02]"
+                        ? "bg-primary/10 border-primary text-primary scale-[1.02]"
                         : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
                     }`}
                   >
-                    {React.createElement(m.icon, { className: "w-4 h-4 text-teal-400 shrink-0" })}
+                    {React.createElement(m.icon, { className: "w-4 h-4 text-primary shrink-0" })}
                     <span>{m.label}</span>
                   </button>
                 ))}
@@ -335,14 +335,14 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
                   placeholder="Ví dụ: Tớ khó tập trung học do trong đầu luôn lo sợ thi rớt..."
                   value={customContext}
                   onChange={e => setCustomContext(e.target.value)}
-                  className="w-full h-20 p-3 border border-white/10 bg-white/5 text-xs rounded-xl outline-none focus:ring-2 ring-teal-400/50 transition-all font-medium text-white placeholder-zinc-550"
+                  className="w-full h-20 p-3 border border-white/10 bg-white/5 text-xs rounded-xl outline-none focus:ring-2 ring-primary/50 transition-all font-medium text-white placeholder-zinc-550"
                 />
               </div>
             </div>
 
             <button
               onClick={handleGenerate}
-              className="w-full py-3 bg-teal-600 hover:bg-teal-500 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 border border-teal-500/20"
+              className="w-full py-3 bg-primary hover:bg-primary/90 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 border border-primary/20"
             >
               <Sparkles className="w-4 h-4" />
               Tạo bài dẫn thiền AI
@@ -354,8 +354,8 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
       {step === "loading" && (
         <div className="py-20 text-center space-y-4 relative z-10">
           <div className="relative w-16 h-16 mx-auto">
-            <div className="absolute inset-0 rounded-full border-4 border-teal-500/20 border-t-teal-500 animate-spin" />
-            <Compass className="w-6 h-6 text-teal-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            <div className="absolute inset-0 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+            <Compass className="w-6 h-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
           </div>
           <div>
             <p className="text-[11px] font-black text-zinc-250">Đang soạn thảo bài dẫn thiền riêng...</p>
@@ -368,7 +368,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
         <div className="space-y-6 text-center py-4 relative z-10">
           
           {/* Timer Display */}
-          <div className="text-3xl font-mono font-black text-teal-450 tracking-widest animate-pulse">
+          <div className="text-3xl font-mono font-black text-primary tracking-widest animate-pulse">
             {formatTimerTime(sessionSeconds)}
           </div>
 
@@ -378,18 +378,18 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
               <motion.div
                 animate={isRunning ? { scale: [1, 1.4, 1.4, 1], rotate: 360 } : {}}
                 transition={isRunning ? { duration: 12, repeat: Infinity, ease: "easeInOut" } : {}}
-                className="w-40 h-40 rounded-full border border-teal-500/30 bg-teal-500/5 blur-[2px]"
+                className="w-40 h-40 rounded-full border border-primary/30 bg-primary/5 blur-[2px]"
               />
             </div>
             <div className="absolute inset-0 flex items-center justify-center">
               <motion.div
                 animate={isRunning ? { scale: [1.1, 1.3, 1.1] } : {}}
                 transition={isRunning ? { duration: 6, repeat: Infinity, ease: "easeInOut" } : {}}
-                className="w-32 h-32 rounded-full border border-teal-500/20 bg-teal-500/10"
+                className="w-32 h-32 rounded-full border border-primary/20 bg-primary/10"
               />
             </div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-22 h-22 rounded-full bg-teal-500/20 text-teal-450 flex items-center justify-center relative z-10 shadow-lg border-2 border-teal-500/40">
+              <div className="w-22 h-22 rounded-full bg-primary/20 text-primary flex items-center justify-center relative z-10 shadow-lg border-2 border-primary/40">
                 <Compass className="w-8 h-8 animate-spin" style={{ animationDuration: isRunning ? "24s" : "0s" }} />
               </div>
             </div>
@@ -423,7 +423,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
                 <div key={sound.key} className="flex flex-col gap-1 p-2 rounded-2xl bg-white/5 border border-white/10">
                   <div className="flex items-center justify-between">
                     <span className="text-[9px] font-bold text-zinc-300 flex items-center gap-1.5">
-                      {React.createElement(sound.icon, { className: "w-3.5 h-3.5 text-teal-400 shrink-0" })}
+                      {React.createElement(sound.icon, { className: "w-3.5 h-3.5 text-primary shrink-0" })}
                       <span>{sound.label}</span>
                     </span>
                     <button
@@ -431,7 +431,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
                       disabled={!isRunning}
                       className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${
                         playingSounds[sound.key]
-                          ? "bg-teal-500 text-white"
+                          ? "bg-primary text-white"
                           : "bg-white/5 text-zinc-400"
                       } disabled:opacity-30`}
                     >
@@ -446,7 +446,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
                       step="0.05"
                       value={volumes[sound.key]}
                       onChange={e => setVolumes(v => ({ ...v, [sound.key]: parseFloat(e.target.value) }))}
-                      className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                      className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary"
                     />
                   )}
                 </div>
@@ -474,7 +474,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
 
       {step === "completed" && (
         <div className="py-12 text-center space-y-5 relative z-10">
-          <div className="w-16 h-16 bg-teal-500/10 text-teal-400 rounded-full flex items-center justify-center mx-auto animate-bounce">
+          <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto animate-bounce">
             <Sparkles className="w-8 h-8" />
           </div>
           <div className="space-y-2">
@@ -485,7 +485,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
           </div>
           <button
             onClick={handleReset}
-            className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all w-full border border-teal-500/20"
+            className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all w-full border border-primary/20"
           >
             Quay lại & Thử chủ đề khác
           </button>

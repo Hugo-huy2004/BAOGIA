@@ -40,7 +40,7 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
     <div className="space-y-6 animate-fadeIn">
       <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 p-6 shadow-sm">
         <h3 className="font-black text-sm uppercase tracking-wider text-foreground mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-indigo-500 text-lg">folder_special</span>{t("memberTabs.projects.title")}</h3>
+          <span className="material-symbols-outlined text-primary text-lg">folder_special</span>{t("memberTabs.projects.title")}</h3>
         
         <p className="text-xs text-muted-foreground mb-6">{t("memberTabs.projects.desc")}</p>
 
@@ -56,7 +56,7 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
                   value={newProject.title}
                   onChange={(e) => setNewProject(prev => ({ ...prev, title: e.target.value }))}
                   placeholder={t("memberTabs.projects.namePlaceholder")}
-                  className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-foreground"
+                  className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground"
                 />
               </div>
               <div className="space-y-1.5">
@@ -66,7 +66,7 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
                   value={newProject.link}
                   onChange={(e) => setNewProject(prev => ({ ...prev, link: e.target.value }))}
                   placeholder="https://..."
-                  className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-foreground"
+                  className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground"
                 />
               </div>
             </div>
@@ -78,14 +78,14 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
                 onChange={(e) => setNewProject(prev => ({ ...prev, description: e.target.value }))}
                 placeholder={t("memberTabs.projects.descPlaceholder")}
                 rows={3}
-                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-foreground resize-none"
+                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground resize-none"
               />
             </div>
 
             <div className="pt-2">
               <button
                 onClick={handleAddProject}
-                className="px-5 py-2.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center gap-2"
+                className="px-5 py-2.5 rounded-md bg-primary hover:bg-primary/90 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center gap-2"
               >
                 <span className="material-symbols-outlined text-sm">add_circle</span>{t("memberTabs.projects.addButton")}</button>
             </div>
@@ -112,7 +112,7 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
                     
                     <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-100 dark:border-slate-800/60">
                       {proj.link ? (
-                        <a href={proj.link} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline">
+                        <a href={proj.link} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-primary flex items-center gap-1 hover:underline">
                           <span className="material-symbols-outlined text-[12px]">open_in_new</span>{t("memberTabs.projects.viewBtn")}</a>
                       ) : (
                         <span className="text-[10px] text-slate-400 italic">Không có link</span>
@@ -120,7 +120,7 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
                       
                       <button
                         onClick={() => handleRemoveProject(proj.id)}
-                        className="w-7 h-7 rounded bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500 dark:hover:text-white flex items-center justify-center transition-colors"
+                        className="w-7 h-7 rounded bg-destructive/10 text-destructive hover:bg-destructive hover:text-white dark:bg-destructive/15 dark:text-destructive dark:hover:bg-destructive dark:hover:text-white flex items-center justify-center transition-colors"
                         title={t("memberTabs.projects.deleteBtn")}
                       >
                         <span className="material-symbols-outlined text-sm">delete</span>

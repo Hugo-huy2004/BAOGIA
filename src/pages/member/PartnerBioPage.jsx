@@ -357,7 +357,7 @@ export default function PartnerBioPage() {
     return (
       <main className="min-h-screen bg-background dark:bg-background flex items-center justify-center text-center">
         <div className="space-y-3">
-          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Đang xác thực quyền đối tác...</p>
         </div>
       </main>
@@ -368,7 +368,7 @@ export default function PartnerBioPage() {
     return (
       <main className="min-h-screen bg-background dark:bg-background text-foreground flex items-center justify-center p-4">
         <div className="bg-white dark:bg-background border border-border/50 p-8 rounded-xl max-w-sm w-full shadow-2xl text-center space-y-4">
-          <div className="w-12 h-12 mx-auto rounded-lg bg-rose-50 dark:bg-rose-950/20 text-rose-500 flex items-center justify-center">
+          <div className="w-12 h-12 mx-auto rounded-lg bg-destructive/10 dark:bg-destructive/15 text-destructive flex items-center justify-center">
             <span className="material-symbols-outlined">lock</span>
           </div>
           <h2 className="text-base font-bold">Không Có Quyền Truy Cập</h2>
@@ -395,7 +395,7 @@ export default function PartnerBioPage() {
           </div>
 
           {toast.message && (
-            <div className="text-[10px] font-semibold text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-md px-3 py-2">
+            <div className="text-[10px] font-semibold text-destructive bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 dark:border-destructive/30 rounded-md px-3 py-2">
               {toast.message}
             </div>
           )}
@@ -406,12 +406,12 @@ export default function PartnerBioPage() {
               placeholder="Email của bạn..."
               value={inputEmail}
               onChange={(e) => setInputEmail(e.target.value)}
-              className="w-full text-center px-4 py-3 rounded-md bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-zinc-800 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+              className="w-full text-center px-4 py-3 rounded-md bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-zinc-800 text-xs focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               required
             />
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-indigo-650 text-white font-bold py-3 rounded-md text-xs uppercase tracking-wider transition-all"
+              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-md text-xs uppercase tracking-wider transition-all"
             >
               Thiết Kế Ngay
             </button>
@@ -425,7 +425,7 @@ export default function PartnerBioPage() {
     return (
       <main className="min-h-screen bg-background dark:bg-background flex items-center justify-center text-center">
         <div className="space-y-3">
-          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Đang tải cấu hình Bio...</p>
         </div>
       </main>
@@ -442,7 +442,7 @@ export default function PartnerBioPage() {
       {toast.message && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-lg bg-white/90 dark:bg-card/90 backdrop-blur-xl shadow-2xl border border-border/50 w-[calc(100vw-32px)] max-w-md animate-toast-in">
           <span className={`material-symbols-outlined shrink-0 text-xl ${
-            toast.type === "success" ? "text-emerald-500" : "text-rose-500"
+            toast.type === "success" ? "text-success" : "text-destructive"
           }`}>
             {toast.type === "success" ? "check_circle" : "error"}
           </span>
@@ -517,7 +517,7 @@ export default function PartnerBioPage() {
                         <button
                           type="button"
                           onClick={removeAvatar}
-                          className="text-[9px] font-bold text-red-500 hover:underline"
+                          className="text-[9px] font-bold text-destructive hover:underline"
                         >
                           Gỡ ảnh
                         </button>
@@ -626,7 +626,7 @@ export default function PartnerBioPage() {
                             <button
                               type="button"
                               onClick={() => removeLink(idx)}
-                              className="text-red-500 hover:text-red-600 p-1 rounded-full"
+                              className="text-destructive hover:text-destructive/90 p-1 rounded-full"
                             >
                               <span className="material-symbols-outlined text-lg">delete</span>
                             </button>
@@ -656,7 +656,7 @@ export default function PartnerBioPage() {
                         <button
                           type="button"
                           onClick={addLink}
-                          className="w-full bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold py-2 rounded-md text-[10px] uppercase tracking-wider transition-colors"
+                          className="w-full bg-primary/10 hover:bg-primary/20 text-primary font-bold py-2 rounded-md text-[10px] uppercase tracking-wider transition-colors"
                         >
                           + Thêm liên kết mạng xã hội
                         </button>
@@ -674,7 +674,7 @@ export default function PartnerBioPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="bg-indigo-600 hover:bg-indigo-650 disabled:bg-indigo-400 text-white font-bold text-[10px] px-6 py-2.5 rounded-full uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md shadow-indigo-600/10 shrink-0"
+                  className="bg-primary hover:bg-primary/90 disabled:bg-primary/60 text-white font-bold text-[10px] px-6 py-2.5 rounded-full uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md shadow-primary/10 shrink-0"
                 >
                   {saving ? (
                     <>
@@ -721,8 +721,8 @@ export default function PartnerBioPage() {
                   </div>
 
                   <div className="absolute top-[11px] left-1/2 -translate-x-1/2 w-[116px] h-[32px] rounded-full bg-black z-50 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.16),0_2px_6px_rgba(0,0,0,0.3)] pointer-events-none">
-                    <div className="absolute right-[14px] top-1/2 -translate-y-1/2 w-[9px] h-[9px] rounded-full bg-[#111827] border border-[#1f2937]">
-                      <div className="absolute left-[2px] top-[2px] w-[3px] h-[3px] rounded-full bg-blue-500/50" />
+                    <div className="absolute right-[14px] top-1/2 -translate-y-1/2 w-[9px] h-[9px] rounded-full bg-card border border-border">
+                      <div className="absolute left-[2px] top-[2px] w-[3px] h-[3px] rounded-full bg-info/50" />
                     </div>
                   </div>
               
@@ -883,7 +883,7 @@ export default function PartnerBioPage() {
                   href={shareUrl} 
                   target="_blank" 
                   rel="noreferrer" 
-                  className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                  className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
                 >
                   <span>{shareUrl}</span>
                   <span className="material-symbols-outlined text-[10px]">open_in_new</span>
@@ -928,7 +928,7 @@ export default function PartnerBioPage() {
                 }}
               />
               {/* Highlight circle boundary overlay */}
-              <div className="absolute inset-0 border border-indigo-500/30 rounded-lg pointer-events-none" />
+              <div className="absolute inset-0 border border-primary/30 rounded-lg pointer-events-none" />
             </div>
 
             {/* Slider zoom */}
@@ -959,7 +959,7 @@ export default function PartnerBioPage() {
               <button
                 type="button"
                 onClick={saveCroppedImage}
-                className="flex-grow bg-indigo-650 hover:bg-indigo-700 text-white py-2.5 rounded-md text-[10px] font-bold transition-all"
+                className="flex-grow bg-primary hover:bg-primary/90 text-white py-2.5 rounded-md text-[10px] font-bold transition-all"
               >
                 Lưu Vùng Cắt
               </button>

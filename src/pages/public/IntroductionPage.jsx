@@ -87,16 +87,17 @@ export default function IntroductionPage() {
 
   // Dynamic colors for transition bg glows
   const bgGlows = [
-    "from-indigo-500/10 to-purple-500/10",  // 0 Welcome
-    "from-cyan-500/10 to-indigo-500/10",    // 1 Web Dev
-    "from-amber-500/10 to-orange-500/10",   // 2 Personal Info
-    "from-fuchsia-500/10 to-pink-500/10",    // 3 Teammate Info
-    "from-emerald-500/10 to-teal-500/10",    // 4 Bio Edu
-    "from-blue-500/10 to-indigo-500/10",     // 5 Web Service
-    "from-green-500/10 to-emerald-500/10",   // 6 Ferns (new)
-    "from-violet-500/10 to-pink-500/10",    // 7 Philosophy
-    "from-rose-500/10 to-orange-500/10",    // 8 Contacts
-    "from-indigo-500/10 to-emerald-500/10"  // 9 CTA Start
+    "from-primary/10 to-accent/10",     // 0 Welcome
+    "from-info/10 to-primary/10",       // 1 Web Dev
+    "from-warning/10 to-warning/10",    // 2 Personal Info
+    "from-accent/10 to-accent/10",      // 3 Teammate Info
+    "from-success/10 to-success/10",    // 4 Bio Edu
+    "from-info/10 to-primary/10",       // 5 Web Service
+    "from-info/10 to-info/10",          // 6 Free Utilities (New)
+    "from-success/10 to-success/10",    // 7 Ferns
+    "from-accent/10 to-accent/10",      // 8 Philosophy
+    "from-destructive/10 to-warning/10", // 9 Contacts
+    "from-primary/10 to-success/10"     // 10 CTA Start
   ];
 
   return (
@@ -115,7 +116,7 @@ export default function IntroductionPage() {
 
       {/* Slide Indicators - Fixed on Right */}
       <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4">
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((idx) => (
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((idx) => (
           <button
             key={idx}
             onClick={() => scrollToSlide(idx)}
@@ -128,16 +129,17 @@ export default function IntroductionPage() {
               {idx === 3 && t("intro.nav.teammateInfo")}
               {idx === 4 && t("intro.nav.bioEdu")}
               {idx === 5 && t("intro.nav.webService")}
-              {idx === 6 && t("intro.nav.hobbies")}
-              {idx === 7 && t("intro.nav.philosophy")}
-              {idx === 8 && t("intro.nav.contacts")}
-              {idx === 9 && t("intro.nav.start")}
+              {idx === 6 && "Tiện Ích HSSV"}
+              {idx === 7 && t("intro.nav.hobbies")}
+              {idx === 8 && t("intro.nav.philosophy")}
+              {idx === 9 && t("intro.nav.contacts")}
+              {idx === 10 && t("intro.nav.start")}
             </span>
             <div
               className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 ${
                 activeIndex === idx
                   ? "bg-primary border-primary scale-125 shadow-lg shadow-primary/30"
-                  : "border-slate-400/50 bg-transparent hover:border-primary"
+                  : "border-muted-foreground/50 bg-transparent hover:border-primary"
               }`}
             />
           </button>
@@ -147,7 +149,7 @@ export default function IntroductionPage() {
       {/* --- DYNAMIC TRANSITION BACKGROUND GLOWS --- */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className={`absolute top-[-10%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-tr ${bgGlows[activeIndex]} blur-[150px] transition-all duration-1000 ease-in-out`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr ${bgGlows[(activeIndex + 1) % 10]} blur-[170px] transition-all duration-1000 ease-in-out`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr ${bgGlows[(activeIndex + 1) % 11]} blur-[170px] transition-all duration-1000 ease-in-out`} />
       </div>
 
       {/* --- SCROLL SNAP CONTAINER --- */}
@@ -164,7 +166,7 @@ export default function IntroductionPage() {
             initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
-            className="absolute left-[-10%] top-[10%] md:left-[5%] md:bottom-[10%] md:top-auto text-[8rem] md:text-[12rem] xl:text-[15rem] font-black text-slate-900/[0.03] dark:text-white/[0.02] pointer-events-none select-none tracking-tighter leading-none transform -rotate-12 md:rotate-0"
+            className="absolute left-[-10%] top-[10%] md:left-[5%] md:bottom-[10%] md:top-auto text-[8rem] md:text-[12rem] xl:text-[15rem] font-black text-foreground/[0.03] dark:text-foreground/[0.02] pointer-events-none select-none tracking-tighter leading-none transform -rotate-12 md:rotate-0"
           >
             CREATIVE
           </motion.div>
@@ -178,7 +180,7 @@ export default function IntroductionPage() {
               opacity: [0.3, 0.6, 0.3]
             }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[10%] md:top-[20%] right-[5%] md:right-[15%] w-24 h-24 md:w-32 md:h-32 bg-amber-400/30 rounded-full blur-[40px] md:blur-[60px] pointer-events-none"
+            className="absolute top-[10%] md:top-[20%] right-[5%] md:right-[15%] w-24 h-24 md:w-32 md:h-32 bg-warning/30 rounded-full blur-[40px] md:blur-[60px] pointer-events-none"
           />
           <motion.div 
             animate={{ 
@@ -213,7 +215,7 @@ export default function IntroductionPage() {
                 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-foreground"
               >
                 {t("intro.slide1.title1")} <br className="hidden sm:inline" />
-                <span className="bg-gradient-to-r from-primary via-accent to-[#fbbf24] bg-clip-text text-transparent animate-gradientShift">
+                <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
                   {t("intro.slide1.title2")}
                 </span>
               </motion.h1>
@@ -237,7 +239,7 @@ export default function IntroductionPage() {
               >
                 <button 
                   onClick={() => scrollToSlide(1)}
-                  className="group relative inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 text-xs sm:text-sm"
+                  className="group relative inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-foreground text-background font-bold overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 text-xs sm:text-sm"
                 >
                   <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   <span className="relative z-10 flex items-center gap-2">
@@ -245,7 +247,7 @@ export default function IntroductionPage() {
                     <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
                   </span>
                 </button>
-                <Link to="/booking" className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-border/50 text-slate-700 dark:text-white font-bold hover:border-primary hover:text-primary dark:hover:border-white/30 transition-all duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-sm">
+                <Link to="/booking" className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-border/50 text-foreground font-bold hover:border-primary hover:text-primary dark:hover:border-white/30 transition-all duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-sm">
                   {t("intro.slide1.book")}
                 </Link>
               </motion.div>
@@ -264,12 +266,12 @@ export default function IntroductionPage() {
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                className="absolute -top-3 -left-3 sm:-top-6 sm:-left-6 w-[250px] h-[250px] sm:w-[360px] sm:h-[360px] md:w-[420px] md:h-[420px] lg:w-[520px] lg:h-[520px] rounded-full border border-dashed border-slate-300 dark:border-white/10 pointer-events-none" 
+                className="absolute -top-3 -left-3 sm:-top-6 sm:-left-6 w-[250px] h-[250px] sm:w-[360px] sm:h-[360px] md:w-[420px] md:h-[420px] lg:w-[520px] lg:h-[520px] rounded-full border border-dashed border-border dark:border-white/10 pointer-events-none"
               />
               <motion.div 
                 animate={{ rotate: -360 }}
                 transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-                className="absolute top-2 left-2 sm:top-4 sm:left-4 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] lg:w-[420px] lg:h-[420px] rounded-full border border-slate-200 dark:border-primary/20 pointer-events-none" 
+                className="absolute top-2 left-2 sm:top-4 sm:left-4 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] lg:w-[420px] lg:h-[420px] rounded-full border border-border dark:border-primary/20 pointer-events-none"
               />
 
               {/* Floating Tech Badges - Specifically added for mobile pop */}
@@ -289,7 +291,7 @@ export default function IntroductionPage() {
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                 className="absolute -right-2 top-10 md:-right-4 md:top-24 glass p-2 md:p-3 rounded-2xl shadow-xl border border-border/50 z-30"
               >
-                <div className="text-pink-500 font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
+                <div className="text-accent font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
                   <span className="material-symbols-outlined text-lg md:text-xl">draw</span>
                   <span>DESIGN</span>
                 </div>
@@ -297,7 +299,7 @@ export default function IntroductionPage() {
               
               {/* Main Avatar Container - Squircle on mobile, Circle on desktop */}
               <div className="relative w-[220px] h-[220px] sm:w-[300px] sm:h-[300px] md:w-[340px] md:h-[340px] lg:w-[480px] lg:h-[480px] rounded-[3rem] sm:rounded-[4rem] md:rounded-full bg-white/30 dark:bg-black/20 backdrop-blur-3xl border border-white/60 dark:border-white/10 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(99,102,241,0.15)] overflow-hidden group z-20">
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-[#fbbf24]/20" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-warning/20" />
                 
                 {/* Floating animation for avatar */}
                 <motion.img
@@ -318,10 +320,10 @@ export default function IntroductionPage() {
                 className="absolute bottom-[-10px] sm:bottom-0 right-4 lg:bottom-8 lg:right-8 bg-card border border-border/50 backdrop-blur-xl px-4 py-2 sm:px-5 sm:py-3 rounded-2xl shadow-2xl z-30 text-[10px] sm:text-xs font-bold text-foreground flex items-center gap-2 transform rotate-[-2deg]"
               >
                 <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-success"></span>
                 </span>
-                <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">{t("intro.slide1.available")}</span>
+                <span className="text-success">{t("intro.slide1.available")}</span>
               </motion.div>
             </motion.div>
             
@@ -334,12 +336,12 @@ export default function IntroductionPage() {
             transition={{ delay: 1 }}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 md:hidden"
           >
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{t("intro.slide1.scrollDown")}</span>
-            <motion.div 
+            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{t("intro.slide1.scrollDown")}</span>
+            <motion.div
               animate={{ y: [0, 5, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <span className="material-symbols-outlined text-slate-400 text-lg">keyboard_arrow_down</span>
+              <span className="material-symbols-outlined text-muted-foreground text-lg">keyboard_arrow_down</span>
             </motion.div>
           </motion.div>
         </section>
@@ -469,7 +471,7 @@ export default function IntroductionPage() {
                       className="absolute inset-0 w-full h-full object-cover filter contrast-110 saturate-[0.9]" 
                     />
                     {/* Vintage photo overlay effect */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#facc15]/10 via-transparent to-primary/10 mix-blend-overlay pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-warning/10 via-transparent to-primary/10 mix-blend-overlay pointer-events-none" />
                     <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] pointer-events-none" />
                   </div>
                   
@@ -485,7 +487,7 @@ export default function IntroductionPage() {
                 </motion.div>
                 
                 {/* Secondary polaroid stacked behind */}
-                <div className="absolute inset-0 bg-slate-100 dark:bg-[#e2e8f0] p-2.5 shadow-lg transform rotate-[4deg] translate-x-2 translate-y-2 -z-10 flex items-center justify-center">
+                <div className="absolute inset-0 bg-muted dark:bg-muted p-2.5 shadow-lg transform rotate-[4deg] translate-x-2 translate-y-2 -z-10 flex items-center justify-center">
                    <div className="w-full h-full border-2 border-dashed border-slate-300 dark:border-slate-400 opacity-50"></div>
                 </div>
               </div>
@@ -536,7 +538,7 @@ export default function IntroductionPage() {
                 transition={{ duration: 0.5 }}
                 className="flex justify-center lg:justify-start"
               >
-                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-amber-400/20 to-[#f59e0b]/20 text-[#d97706] dark:text-amber-400 border border-amber-400/30 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
+                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-warning/20 text-warning border border-warning/30 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
                   {t("intro.slide3.badge")}
                 </span>
               </motion.div>
@@ -908,7 +910,70 @@ export default function IntroductionPage() {
           </div>
         </section>
 
-        {/* SLIDE 6: Personal Hobby (Sở thích cá nhân - Dương xỉ) */}
+        {/* SLIDE 6: Free Utilities for Students */}
+        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
+          {/* Background Watermark */}
+          <div className="absolute left-[5%] top-[10%] text-[8rem] xl:text-[12rem] font-black text-cyan-900/[0.03] dark:text-cyan-100/[0.015] pointer-events-none select-none tracking-tighter leading-none transform -rotate-12">
+            FREE .EDU
+          </div>
+
+          {/* Floating animated orbs */}
+          <motion.div 
+            animate={{ y: [0, -20, 0], x: [0, 10, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-[20%] right-[10%] w-32 h-32 bg-cyan-400/20 rounded-full blur-[50px] pointer-events-none"
+          />
+
+          <div className="flex flex-col gap-6 lg:gap-10 w-full max-w-7xl mx-auto items-center relative z-10">
+            {/* Header */}
+            <div className="text-center space-y-3">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/25">
+                <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
+                Tiện Ích HSSV Miễn Phí
+              </span>
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground leading-tight">
+                Đặc Quyền Dành Cho HSSV <br className="hidden sm:block" />
+                <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  Sở Hữu Email Giáo Dục
+                </span>
+              </h2>
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Tất cả các dịch vụ dưới đây đều miễn phí 100% không giới hạn. Yêu cầu duy nhất: Đăng nhập bằng tài khoản có liên kết email <strong>.edu.vn</strong> để kích hoạt đặc quyền.
+              </p>
+            </div>
+
+            {/* Cards Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 w-full">
+              {[
+                { id: "banhocduong", name: "Bạn Học Đường", desc: "AI trợ lý giải bài tập & tóm tắt kiến thức", icon: "school", color: "text-blue-500", bg: "bg-blue-500/10" },
+                { id: "therapy", name: "Hugo PSY", desc: "Chuyên gia tâm lý AI hỗ trợ cảm xúc", icon: "psychology", color: "text-rose-500", bg: "bg-rose-500/10" },
+                { id: "ide", name: "Web IDE", desc: "Lập trình trực tuyến không cần cài đặt", icon: "terminal", color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                { id: "radio", name: "Hugo Radio", desc: "Trạm phát sóng podcast cảm xúc chill", icon: "radio", color: "text-amber-500", bg: "bg-amber-500/10" },
+                { id: "aura", name: "Aura AI", desc: "Phân tích & tạo hình nền năng lượng", icon: "lens_blur", color: "text-purple-500", bg: "bg-purple-500/10" }
+              ].map((tool, idx) => (
+                <div key={tool.id} className={`${idx === 4 ? "col-span-2 md:col-span-1 lg:col-span-1" : ""} flex`}>
+                  <Link 
+                    to={`/public-tools/${tool.id}`}
+                    onClick={() => playTick()}
+                    className="group flex flex-col items-center justify-start pt-6 pb-5 px-4 text-center rounded-[2rem] bg-white/40 dark:bg-white/[0.02] border border-border/50 hover:border-cyan-500/50 hover:bg-cyan-500/5 dark:hover:bg-cyan-500/10 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(6,182,212,0.15)] relative overflow-hidden w-full h-full"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 dark:to-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    <div className={`w-14 h-14 shrink-0 rounded-2xl ${tool.bg} ${tool.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-inner`}>
+                      <span className="material-symbols-outlined text-3xl">{tool.icon}</span>
+                    </div>
+                    <h3 className="font-bold text-foreground mb-1.5 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">{tool.name}</h3>
+                    <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed px-1 mb-6 flex-1">{tool.desc}</p>
+                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-cyan-500 text-white text-[9px] font-bold uppercase tracking-wider opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-lg shadow-cyan-500/30">
+                      Khám Phá
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SLIDE 7: Personal Hobby (Sở thích cá nhân - Dương xỉ) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
           {/* RAIN EFFECT BACKGROUND */}
           <div className="absolute inset-0 pointer-events-none z-0 opacity-50">
@@ -998,7 +1063,7 @@ export default function IntroductionPage() {
           </div>
         </section>
 
-        {/* SLIDE 7: Philosophy & Experience (Overlapping Typography quotes) */}
+        {/* SLIDE 8: Philosophy & Experience (Overlapping Typography quotes) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
             {/* Left: philosophy quotes overlapping watermarks */}
@@ -1071,7 +1136,7 @@ export default function IntroductionPage() {
           </div>
         </section>
 
-        {/* SLIDE 8: Social Links (Liên kết của tôi, overlapping icons) */}
+        {/* SLIDE 9: Social Links (Liên kết của tôi, overlapping icons) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
           <div className="w-full max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-10 lg:space-y-12 relative z-10">
             {/* Profile Header with Avatar */}
@@ -1161,7 +1226,7 @@ export default function IntroductionPage() {
           </div>
         </section>
 
-        {/* SLIDE 9: Register & Start Journey (đăng ký và bắt đầu hành trình) */}
+        {/* SLIDE 10: Register & Start Journey (đăng ký và bắt đầu hành trình) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
           <div className="w-full max-w-4xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8 relative z-10">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25">
@@ -1169,7 +1234,7 @@ export default function IntroductionPage() {
             </span>
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight">
               {t("intro.slide10.title1")} <br />
-              <span className="bg-gradient-to-r from-primary via-accent to-[#fbbf24] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
                 {t("intro.slide10.title2")}
               </span>
             </h2>

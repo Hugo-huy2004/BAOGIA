@@ -120,5 +120,73 @@ router.post('/trigger-smart-push', requireAdmin, async (req, res) => {
   }
 });
 
+
+// API: Phát sóng thông báo cho tất cả người dùng (Admin)
+import Bio from '../models/Bio.js';
+import InAppNotification from '../models/InAppNotification.js';
+
+router.post('/broadcast-all', requireAdmin, async (req, res) => {
+  try {
+    const { title, message, type = 'info', category = 'system', actionUrl = '' } = req.body;
+    if (!title) return res.status(400).json({ error: 'Tiêu đề là bắt buộc.' });
+
+    // Lấy toàn bộ người dùng đang active
+    const activeUsers = await Bio.find({ status: 'active' }, 'email');
+    if (!activeUsers || activeUsers.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy người dùng hoạt động.' });
+    }
+
+    // 1. Tạo InAppNotification cho từng người dùng
+    const notifications = activeUsers.map(user => ({
+      email: user.email,
+      type,
+      category,
+      title,
+      message,
+      actionUrl
+    }));
+    await InAppNotification.insertMany(notifications);
+
+    // 2. Bắn thông báo Push qua webpush cho những người dùng đã đăng ký
+    const subscriptions = await NotificationSubscription.find({});
+    
+    let sentCount = 0;
+    let failedCount = 0;
+
+    if (subscriptions.length > 0) {
+      const payload = JSON.stringify({
+        title: title,
+        body: message,
+        icon: '/image/avt7.png', // Default icon
+        url: actionUrl || '/'
+      });
+
+      const sendPromises = subscriptions.map(sub => 
+        webpush.sendNotification(sub.subscription, payload)
+          .then(() => sentCount++)
+          .catch(err => {
+            failedCount++;
+            console.error(`Broadcast: Gửi thông báo thất bại cho endpoint: ${sub.subscription.endpoint}`);
+            // Xóa sub nếu hết hạn hoặc lỗi
+            if (err.statusCode === 410 || err.statusCode === 404) {
+              return NotificationSubscription.deleteOne({ _id: sub._id });
+            }
+          })
+      );
+
+      await Promise.allSettled(sendPromises);
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Đã gửi in-app cho ${activeUsers.length} người. Gửi Push thành công ${sentCount}, thất bại ${failedCount}.`,
+      stats: { inAppSent: activeUsers.length, pushSent: sentCount, pushFailed: failedCount }
+    });
+  } catch (error) {
+    console.error('Lỗi Broadcast Notification:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
 export { vapidKeys };

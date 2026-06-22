@@ -122,6 +122,15 @@ export default function Footer() {
               <li>
                 <Link to="/booking" onClick={playPopSound} className="hover:text-slate-900 dark:hover:text-white hover:translate-x-1 inline-block transition-all">{t("footer.booking", "Đặt Lịch")}</Link>
               </li>
+              <li>
+                <button 
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-donation'))} 
+                  className="hover:text-primary dark:hover:text-primary hover:translate-x-1 inline-block transition-all flex items-center gap-1.5 font-bold"
+                >
+                  <span className="material-symbols-outlined text-[16px]">local_cafe</span> 
+                  <span>Ủng Hộ Server</span>
+                </button>
+              </li>
             </ul>
           </div>
 

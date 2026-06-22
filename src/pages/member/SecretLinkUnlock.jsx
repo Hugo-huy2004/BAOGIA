@@ -69,7 +69,7 @@ export default function SecretLinkUnlock() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b0a0f] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white"></div>
       </div>
     );
@@ -77,9 +77,9 @@ export default function SecretLinkUnlock() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0b0a0f] flex items-center justify-center p-4">
-        <div className="bg-[#12111a] rounded-xl p-8 max-w-sm w-full text-center border border-zinc-800 shadow-2xl">
-          <span className="material-symbols-outlined text-rose-500 text-5xl mb-4">error</span>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="bg-card rounded-xl p-8 max-w-sm w-full text-center border border-zinc-800 shadow-2xl">
+          <span className="material-symbols-outlined text-destructive text-5xl mb-4">error</span>
           <h2 className="text-white font-black text-xl mb-2">Lỗi Truy Cập</h2>
           <p className="text-zinc-400 text-sm">{error}</p>
           <button 
@@ -94,12 +94,12 @@ export default function SecretLinkUnlock() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0a0f] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className={`relative z-10 bg-[#12111a] rounded-[2rem] p-8 sm:p-10 max-w-sm w-full border border-zinc-800 shadow-2xl transition-transform ${shake ? 'animate-shake' : ''}`}>
+      <div className={`relative z-10 bg-card rounded-[2rem] p-8 sm:p-10 max-w-sm w-full border border-zinc-800 shadow-2xl transition-transform ${shake ? 'animate-shake' : ''}`}>
         
         <div className="flex justify-center mb-6">
           <div className="w-16 h-16 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white">
@@ -123,11 +123,11 @@ export default function SecretLinkUnlock() {
               value={passwordInput}
               onChange={(e) => setPasswordInput(e.target.value)}
               disabled={checking}
-              className={`w-full bg-zinc-900 border ${passwordError ? 'border-rose-500/50 focus:border-rose-500 focus:ring-rose-500' : 'border-zinc-800 focus:border-indigo-500 focus:ring-indigo-500'} text-white rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:ring-1 transition-all font-mono`}
+              className={`w-full bg-zinc-900 border ${passwordError ? 'border-destructive/50 focus:border-destructive focus:ring-destructive' : 'border-zinc-800 focus:border-primary focus:ring-primary'} text-white rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:ring-1 transition-all font-mono`}
             />
           </div>
           {passwordError && (
-            <p className="text-rose-500 text-xs text-center font-medium animate-pulse">{passwordError}</p>
+            <p className="text-destructive text-xs text-center font-medium animate-pulse">{passwordError}</p>
           )}
 
           <button

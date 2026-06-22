@@ -21,20 +21,20 @@ const MOODS = [
 ];
 
 const QUALITY_LABELS = ["", "Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
-const QUALITY_COLORS = ["", "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-emerald-500", "bg-blue-500"];
-const QUALITY_TEXT   = ["", "text-red-500", "text-orange-500", "text-yellow-500", "text-emerald-500", "text-blue-500"];
+const QUALITY_COLORS = ["", "bg-destructive", "bg-warning", "bg-info", "bg-success", "bg-primary"];
+const QUALITY_TEXT   = ["", "text-destructive", "text-warning", "text-info", "text-success", "text-primary"];
 
 const SIGNAL_META = {
-  screen_locked:   { icon: Smartphone, label: "Màn hình khoá",   color: "text-indigo-400" },
-  screen_unlocked: { icon: Smartphone, label: "Màn hình mở",     color: "text-yellow-400" },
-  page_hidden:     { icon: Eye,        label: "Tab ẩn",           color: "text-blue-400"   },
-  page_visible:    { icon: Eye,        label: "Tab hiện",         color: "text-green-400"  },
-  inactivity_30m:  { icon: Clock,      label: "Không hoạt động",  color: "text-purple-400" },
-  user_activity:   { icon: Activity,   label: "Hoạt động",        color: "text-rose-400"   },
-  browser_close:   { icon: X,          label: "Đóng tab",         color: "text-orange-400" },
-  battery_charge:  { icon: Battery,    label: "Cắm sạc",          color: "text-emerald-400"},
-  device_still:    { icon: Smartphone, label: "Thiết bị tĩnh",    color: "text-cyan-400"   },
-  device_moving:   { icon: Activity,   label: "Thiết bị cử động", color: "text-pink-400"   },
+  screen_locked:   { icon: Smartphone, label: "Màn hình khoá",   color: "text-primary" },
+  screen_unlocked: { icon: Smartphone, label: "Màn hình mở",     color: "text-warning" },
+  page_hidden:     { icon: Eye,        label: "Tab ẩn",           color: "text-info"   },
+  page_visible:    { icon: Eye,        label: "Tab hiện",         color: "text-success"  },
+  inactivity_30m:  { icon: Clock,      label: "Không hoạt động",  color: "text-accent" },
+  user_activity:   { icon: Activity,   label: "Hoạt động",        color: "text-destructive"   },
+  browser_close:   { icon: X,          label: "Đóng tab",         color: "text-warning" },
+  battery_charge:  { icon: Battery,    label: "Cắm sạc",          color: "text-success"},
+  device_still:    { icon: Smartphone, label: "Thiết bị tĩnh",    color: "text-info"   },
+  device_moving:   { icon: Activity,   label: "Thiết bị cử động", color: "text-accent"   },
 };
 
 const CAPABILITY_ICONS = [
@@ -47,17 +47,17 @@ const CAPABILITY_ICONS = [
 
 function getScoreColor(score) {
   if (!score) return "text-muted-foreground";
-  if (score >= 80) return "text-emerald-400";
-  if (score >= 60) return "text-blue-400";
-  if (score >= 40) return "text-yellow-400";
-  return "text-red-400";
+  if (score >= 80) return "text-success";
+  if (score >= 60) return "text-info";
+  if (score >= 40) return "text-warning";
+  return "text-destructive";
 }
 
 function barColor(pct) {
-  if (pct >= 95) return "bg-blue-500";
-  if (pct >= 80) return "bg-emerald-500";
-  if (pct >= 65) return "bg-yellow-500";
-  return "bg-red-500";
+  if (pct >= 95) return "bg-primary";
+  if (pct >= 80) return "bg-success";
+  if (pct >= 65) return "bg-warning";
+  return "bg-destructive";
 }
 
 function ageGroup(bio) {
@@ -313,9 +313,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
   // ── Render helpers ─────────────────────────────────────────────────────
 
   const detectStateMeta = {
-    monitoring: { label: "Đang theo dõi",    dot: "bg-blue-400 animate-pulse",    ring: "border-blue-500/20" },
-    sleeping:   { label: "Đang ngủ...",       dot: "bg-indigo-400 animate-pulse",  ring: "border-indigo-500/30" },
-    awake:      { label: "Đã thức dậy",       dot: "bg-emerald-400",               ring: "border-emerald-500/20" },
+    monitoring: { label: "Đang theo dõi",    dot: "bg-info animate-pulse",    ring: "border-info/20" },
+    sleeping:   { label: "Đang ngủ...",       dot: "bg-primary animate-pulse",  ring: "border-primary/30" },
+    awake:      { label: "Đã thức dậy",       dot: "bg-success",               ring: "border-success/20" },
   }[detectState] || {};
 
   // ── JSX ────────────────────────────────────────────────────────────────
@@ -329,9 +329,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
           <motion.div
             initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
             className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold border
-              ${toast.type === "success" ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-200"
-              : toast.type === "error"   ? "bg-red-500/20 border-red-500/30 text-red-200"
-              : "bg-blue-500/20 border-blue-500/30 text-blue-200"}`}
+              ${toast.type === "success" ? "bg-success/20 border-success/30 text-success"
+              : toast.type === "error"   ? "bg-destructive/20 border-destructive/30 text-destructive"
+              : "bg-info/20 border-info/30 text-info"}`}
           >
             {toast.msg}
           </motion.div>
@@ -339,17 +339,17 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
       </AnimatePresence>
 
       {/* ── Live detection status card — prominent on mobile, secondary on desktop ── */}
-      <div className={`bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-sky-500/5
-        dark:from-indigo-950/30 dark:via-purple-950/20 dark:to-sky-950/10
-        border ${detectStateMeta.ring || "border-indigo-500/10"} rounded-2xl p-4 space-y-3
+      <div className={`bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/5
+        dark:from-primary/30 dark:via-accent/20 dark:to-secondary/10
+        border ${detectStateMeta.ring || "border-primary/10"} rounded-2xl p-4 space-y-3
         md:order-last`}
       >
         {/* Connection Row */}
         <div className="flex items-center justify-between border-b border-border/40 pb-3">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${sensorsConnected ? "bg-emerald-400" : "bg-red-400"}`}></span>
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${sensorsConnected ? "bg-emerald-500" : "bg-red-500"}`}></span>
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${sensorsConnected ? "bg-success" : "bg-destructive"}`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${sensorsConnected ? "bg-success" : "bg-destructive"}`}></span>
             </span>
             <span className="text-[11px] font-bold text-foreground">Bộ cảm biến: {sensorsConnected ? "Đang kết nối" : "Chưa liên kết"}</span>
           </div>
@@ -358,8 +358,8 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             onClick={handleConnectSensors}
             className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-200 active:scale-95 border ${
               sensorsConnected
-                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                : "bg-indigo-600 hover:bg-indigo-500 text-white border-transparent"
+                ? "bg-success/10 text-success border-success/20"
+                : "bg-primary hover:bg-primary/90 text-white border-transparent"
             }`}
           >
             {sensorsConnected ? "Đã liên kết" : "Liên kết thiết bị"}
@@ -371,21 +371,21 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
           <div className="grid grid-cols-3 gap-2 bg-black/10 dark:bg-black/30 rounded-xl p-3 border border-border/30">
             <div className="text-center space-y-1">
               <div className="text-[9px] text-muted-foreground font-medium uppercase">Cử động</div>
-              <div className="text-xs font-mono font-bold text-pink-400 flex items-center justify-center gap-1">
+              <div className="text-xs font-mono font-bold text-accent flex items-center justify-center gap-1">
                 <span className="material-symbols-outlined text-[10px] animate-pulse">waves</span>
                 <span>{motionVal} m/s²</span>
               </div>
             </div>
             <div className="text-center space-y-1 border-x border-border/30">
               <div className="text-[9px] text-muted-foreground font-medium uppercase">Pin</div>
-              <div className="text-xs font-mono font-bold text-emerald-400 flex items-center justify-center gap-1">
+              <div className="text-xs font-mono font-bold text-success flex items-center justify-center gap-1">
                 <span className="material-symbols-outlined text-[10px]">{batteryCharging ? "battery_charging_full" : "battery_full"}</span>
                 <span>{batteryLevel !== null ? `${batteryLevel}%` : "—"}{batteryCharging && " ⚡"}</span>
               </div>
             </div>
             <div className="text-center space-y-1">
               <div className="text-[9px] text-muted-foreground font-medium uppercase">Trạng thái Tab</div>
-              <div className="text-xs font-bold text-blue-400 flex items-center justify-center gap-1">
+              <div className="text-xs font-bold text-info flex items-center justify-center gap-1">
                 <span className="material-symbols-outlined text-[10px]">{tabVisibility === "Hiện" ? "visibility" : "visibility_off"}</span>
                 <span>{tabVisibility}</span>
               </div>
@@ -396,10 +396,10 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         {/* Header row */}
         <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center">
-              {detectState === "sleeping" ? <Moon className="w-4 h-4 text-indigo-400" />
-                : detectState === "awake" ? <Sun  className="w-4 h-4 text-amber-400" />
-                : <Clock className="w-4 h-4 text-blue-400" />}
+            <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
+              {detectState === "sleeping" ? <Moon className="w-4 h-4 text-primary" />
+                : detectState === "awake" ? <Sun  className="w-4 h-4 text-warning" />
+                : <Clock className="w-4 h-4 text-info" />}
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -412,7 +412,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
           <div className="flex gap-2">
             <button
               onClick={() => { setShowForm(v => !v); ensureFetched(); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 text-xs font-semibold transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 hover:bg-primary/25 text-primary text-xs font-semibold transition-all"
             >
               <Plus className="w-3.5 h-3.5" />
               Thêm thủ công
@@ -420,7 +420,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             <button
               onClick={() => { ensureFetched(); runAnalysis(); }}
               disabled={analyzing}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 text-xs font-semibold transition-all disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 hover:bg-accent/25 text-accent text-xs font-semibold transition-all disabled:opacity-50"
             >
               <Brain className="w-3.5 h-3.5" />
               {analyzing ? "Đang phân tích…" : "Phân tích AI"}
@@ -430,10 +430,10 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
         {/* Sleep onset info */}
         {detectState === "sleeping" && sleepStart && (
-          <div className="bg-indigo-500/10 border border-indigo-500/15 rounded-xl px-3 py-2.5 flex items-center gap-2">
-            <Moon className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+          <div className="bg-primary/10 border border-primary/15 rounded-xl px-3 py-2.5 flex items-center gap-2">
+            <Moon className="w-4 h-4 text-primary flex-shrink-0" />
             <div className="text-xs">
-              <span className="font-bold text-indigo-300">Ghi nhận ngủ lúc {sleepStart.time}</span>
+              <span className="font-bold text-primary">Ghi nhận ngủ lúc {sleepStart.time}</span>
               <span className="text-muted-foreground ml-1.5">· {sleepStart.date}</span>
             </div>
           </div>
@@ -444,11 +444,11 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <span className="text-[10px] text-muted-foreground font-medium">Tín hiệu ngủ đang thu thập…</span>
-              <span className="text-[10px] font-bold text-indigo-300">{confidence}%</span>
+              <span className="text-[10px] font-bold text-primary">{confidence}%</span>
             </div>
             <div className="h-1.5 bg-muted/30 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-indigo-500 rounded-full"
+                className="h-full bg-primary rounded-full"
                 animate={{ width: `${confidence}%` }}
                 transition={{ type: "spring", stiffness: 60 }}
               />
@@ -463,7 +463,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               key={key}
               className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold border transition-all
                 ${caps[key]
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                  ? "bg-success/10 border-success/20 text-success"
                   : "bg-muted/20 border-border/40 text-muted-foreground/50"
                 }`}
             >
@@ -499,12 +499,12 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         {stats && (
           <div className="grid grid-cols-3 gap-2 pt-1">
             {[
-              { label: "TB ngủ",   value: stats.avgDuration ? `${stats.avgDuration}h` : "—", color: "indigo" },
-              { label: "TB CL",    value: stats.avgQuality  ? `${stats.avgQuality}/5`  : "—", color: "purple" },
-              { label: "Đêm ghi", value: stats.total ?? 0,                                   color: "sky"    },
-            ].map(({ label, value, color }) => (
-              <div key={label} className={`bg-${color}-500/10 rounded-xl p-2.5 text-center border border-${color}-500/10`}>
-                <div className={`text-base font-black text-${color}-400`}>{value}</div>
+              { label: "TB ngủ",   value: stats.avgDuration ? `${stats.avgDuration}h` : "—", bg: "bg-primary/10", border: "border-primary/10", text: "text-primary" },
+              { label: "TB CL",    value: stats.avgQuality  ? `${stats.avgQuality}/5`  : "—", bg: "bg-accent/10", border: "border-accent/10", text: "text-accent" },
+              { label: "Đêm ghi", value: stats.total ?? 0,                                   bg: "bg-info/10", border: "border-info/10", text: "text-info" },
+            ].map(({ label, value, bg, border, text }) => (
+              <div key={label} className={`${bg} rounded-xl p-2.5 text-center border ${border}`}>
+                <div className={`text-base font-black ${text}`}>{value}</div>
                 <div className="text-[9px] text-muted-foreground">{label}</div>
               </div>
             ))}
@@ -519,14 +519,14 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             initial={{ opacity: 0, scale: 0.97, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: 8 }}
-            className="bg-gradient-to-r from-emerald-500/15 to-teal-500/10 border border-emerald-500/25 rounded-2xl p-4"
+            className="bg-gradient-to-r from-success/15 to-success/10 border border-success/25 rounded-2xl p-4"
           >
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 rounded-lg bg-success/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <ShieldCheck className="w-4 h-4 text-success" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-emerald-300">Tự động ghi nhận giấc ngủ</p>
+                <p className="text-sm font-bold text-success">Tự động ghi nhận giấc ngủ</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Hệ thống phát hiện bạn ngủ lúc{" "}
                   <span className="font-bold text-foreground">{pendingCycle.bedtime}</span>
@@ -561,7 +561,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                           onClick={() => setForm(f => ({ ...f, mood: m.value }))}
                           className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border flex items-center gap-1 transition-all
                             ${form.mood === m.value
-                              ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-300"
+                              ? "bg-primary/20 border-primary/40 text-primary"
                               : "bg-muted/20 border-border text-muted-foreground"}`}
                         >
                           {m.emoji} {m.label}
@@ -574,7 +574,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => confirmCycle()}
-                    className="flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all"
+                    className="flex-1 py-2 rounded-lg bg-success hover:bg-success/90 text-white text-xs font-bold transition-all"
                   >
                     <CheckCircle className="w-3.5 h-3.5 inline mr-1" />
                     Xác nhận & Lưu
@@ -613,7 +613,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             <form onSubmit={handleSave} className="bg-card border border-border rounded-2xl p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <Moon className="w-4 h-4 text-indigo-400" />
+                  <Moon className="w-4 h-4 text-primary" />
                   Ghi Nhật Ký Thủ Công
                 </h4>
                 <button type="button" onClick={() => setShowForm(false)}
@@ -662,7 +662,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                       onClick={() => setForm(f => ({ ...f, mood: m.value }))}
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1 transition-all
                         ${form.mood === m.value
-                          ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-300"
+                          ? "bg-primary/20 border-primary/40 text-primary"
                           : "bg-muted/20 border-border text-muted-foreground"}`}
                     >{m.emoji} {m.label}</button>
                   ))}
@@ -689,7 +689,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 <button type="button" onClick={() => setShowForm(false)}
                   className="px-4 py-2 rounded-lg text-xs font-semibold bg-muted/30 hover:bg-muted/50 text-muted-foreground transition-all">Huỷ</button>
                 <button type="submit"
-                  className="px-5 py-2 rounded-lg text-xs font-bold bg-indigo-500 hover:bg-indigo-600 text-white transition-all">Lưu</button>
+                  className="px-5 py-2 rounded-lg text-xs font-bold bg-primary hover:bg-primary/90 text-white transition-all">Lưu</button>
               </div>
             </form>
           </motion.div>
@@ -706,7 +706,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
       {loadingLogs && (
         <div className="flex justify-center py-6">
-          <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
@@ -728,19 +728,19 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                     <div className="font-bold text-foreground">{dur ? `${dur}h` : "—"}</div>
                     <div className="text-muted-foreground">{log.bedtime || "?"} → {log.wakeTime || "?"}</div>
                     {log.quality && <div className={QUALITY_TEXT[log.quality]}>{QUALITY_LABELS[log.quality]}</div>}
-                    {log.passiveDetected && <div className="text-indigo-400">Tự động ✓</div>}
+                    {log.passiveDetected && <div className="text-primary">Tự động ✓</div>}
                   </div>
                   <div className={`w-full rounded-t-lg ${fill} opacity-75 group-hover:opacity-100 transition-all`}
                     style={{ height: `${pct}%` }} />
                   <span className="text-[9px] text-muted-foreground font-medium">{day}</span>
                   {log.quality && <div className={`w-1.5 h-1.5 rounded-full ${QUALITY_COLORS[log.quality]}`} />}
-                  {log.passiveDetected && <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 ring-1 ring-indigo-400/40" title="Tự động" />}
+                  {log.passiveDetected && <div className="w-1.5 h-1.5 rounded-full bg-primary ring-1 ring-primary/40" title="Tự động" />}
                 </div>
               );
             })}
           </div>
           <div className="flex gap-4 mt-3 flex-wrap text-[10px] text-muted-foreground">
-            {[["bg-blue-500","≥ 100%"],["bg-emerald-500","80–99%"],["bg-yellow-500","65–79%"],["bg-red-500","< 65%"],["bg-indigo-400","Tự động"]].map(([c,l]) => (
+            {[["bg-primary","≥ 100%"],["bg-success","80–99%"],["bg-warning","65–79%"],["bg-destructive","< 65%"],["bg-primary","Tự động"]].map(([c,l]) => (
               <div key={l} className="flex items-center gap-1.5">
                 <div className={`w-2.5 h-2.5 rounded-sm ${c}`} />
                 {l}
@@ -755,11 +755,11 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         {analysis && (
           <motion.div
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }}
-            className="bg-gradient-to-br from-purple-500/10 via-indigo-500/5 to-blue-500/5
-              dark:from-purple-950/30 border border-purple-500/15 rounded-2xl p-5 space-y-4"
+            className="bg-gradient-to-br from-accent/10 via-primary/5 to-info/5
+              dark:from-accent/30 border border-accent/15 rounded-2xl p-5 space-y-4"
           >
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-purple-400" />
+              <Sparkles className="w-5 h-5 text-accent" />
               <h4 className="text-sm font-bold text-foreground">Phân Tích AI Giấc Ngủ</h4>
               <span className={`ml-auto text-2xl font-black ${getScoreColor(analysis.score)}`}>
                 {analysis.score ?? "—"}<span className="text-sm font-bold text-muted-foreground">/100</span>
@@ -782,12 +782,12 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
             {analysis.risk_flags?.length > 0 && (
               <div className="space-y-1.5">
-                <p className="text-xs font-bold text-red-400 flex items-center gap-1.5">
+                <p className="text-xs font-bold text-destructive flex items-center gap-1.5">
                   <AlertTriangle className="w-3.5 h-3.5" /> Cảnh báo
                 </p>
                 {analysis.risk_flags.map((f, i) => (
-                  <div key={i} className="text-xs text-foreground/80 bg-red-500/5 border border-red-500/10 rounded-lg px-3 py-2 flex gap-2">
-                    <span className="text-red-400 mt-0.5">•</span>{f}
+                  <div key={i} className="text-xs text-foreground/80 bg-destructive/5 border border-destructive/10 rounded-lg px-3 py-2 flex gap-2">
+                    <span className="text-destructive mt-0.5">•</span>{f}
                   </div>
                 ))}
               </div>
@@ -795,12 +795,12 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
             {analysis.strengths?.length > 0 && (
               <div className="space-y-1.5">
-                <p className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <p className="text-xs font-bold text-success flex items-center gap-1.5">
                   <CheckCircle className="w-3.5 h-3.5" /> Điểm mạnh
                 </p>
                 {analysis.strengths.map((s, i) => (
-                  <div key={i} className="text-xs text-foreground/80 bg-emerald-500/5 border border-emerald-500/10 rounded-lg px-3 py-2 flex gap-2">
-                    <span className="text-emerald-400 mt-0.5">✓</span>{s}
+                  <div key={i} className="text-xs text-foreground/80 bg-success/5 border border-success/10 rounded-lg px-3 py-2 flex gap-2">
+                    <span className="text-success mt-0.5">✓</span>{s}
                   </div>
                 ))}
               </div>
@@ -808,20 +808,20 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
             {analysis.recommendations?.length > 0 && (
               <div className="space-y-1.5">
-                <p className="text-xs font-bold text-indigo-400 flex items-center gap-1.5">
+                <p className="text-xs font-bold text-primary flex items-center gap-1.5">
                   <Brain className="w-3.5 h-3.5" /> Khuyến nghị AI
                 </p>
                 {analysis.recommendations.map((r, i) => (
-                  <div key={i} className="text-xs text-foreground/80 bg-indigo-500/5 border border-indigo-500/10 rounded-lg px-3 py-2 flex gap-2">
-                    <span className="text-indigo-400 font-bold mt-0.5">{i + 1}.</span>{r}
+                  <div key={i} className="text-xs text-foreground/80 bg-primary/5 border border-primary/10 rounded-lg px-3 py-2 flex gap-2">
+                    <span className="text-primary font-bold mt-0.5">{i + 1}.</span>{r}
                   </div>
                 ))}
               </div>
             )}
 
             {analysis.tonight_advice && (
-              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3">
-                <p className="text-xs font-bold text-indigo-300 flex items-center gap-1.5 mb-1">
+              <div className="bg-primary/10 border border-primary/20 rounded-xl p-3">
+                <p className="text-xs font-bold text-primary flex items-center gap-1.5 mb-1">
                   <Moon className="w-3.5 h-3.5" /> Lời khuyên tối nay
                 </p>
                 <p className="text-xs text-foreground/80">{analysis.tonight_advice}</p>
@@ -830,7 +830,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
             {analysis.science_note && (
               <p className="text-[10px] text-muted-foreground italic border-t border-border/50 pt-2.5">
-                <Zap className="w-3 h-3 inline mr-1 text-yellow-400" />
+                <Zap className="w-3 h-3 inline mr-1 text-warning" />
                 {analysis.science_note}
               </p>
             )}
@@ -856,8 +856,8 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 <div className="divide-y divide-border/50 max-h-72 overflow-y-auto">
                   {logs.map(log => (
                     <div key={log.date} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/10 transition-colors">
-                      <div className="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
-                        <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Moon className="w-3.5 h-3.5 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -865,7 +865,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                             {new Date(log.date).toLocaleDateString("vi-VN", { weekday: "short", day: "numeric", month: "short" })}
                           </span>
                           {log.passiveDetected && (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-400 font-semibold">
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/15 text-primary font-semibold">
                               Tự động{log.autoConfidence ? ` ${log.autoConfidence}%` : ""}
                             </span>
                           )}
@@ -885,7 +885,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                       <button
                         onClick={() => handleDelete(log.date)}
                         disabled={deleting === log.date}
-                        className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-50"
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all disabled:opacity-50"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -901,7 +901,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
       {/* Empty state */}
       {didFetch && logs.length === 0 && (
         <div className="text-center py-10 space-y-3">
-          <Moon className="w-10 h-10 text-indigo-400/40 mx-auto" />
+          <Moon className="w-10 h-10 text-primary/40 mx-auto" />
           <p className="text-sm text-muted-foreground">Hệ thống đang theo dõi. Ngủ ngon nhé!</p>
           <p className="text-xs text-muted-foreground/60">Nhật ký sẽ tự động xuất hiện sau khi bạn thức dậy.</p>
         </div>

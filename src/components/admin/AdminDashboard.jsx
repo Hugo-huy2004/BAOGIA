@@ -21,21 +21,6 @@ async function apiFetch(url) {
   return r.json();
 }
 
-async function aiPost(path, body) {
-  const r = await fetch(`${AI_BASE}${path}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(import.meta.env.VITE_INTERNAL_API_KEY
-        ? { "X-Internal-Key": import.meta.env.VITE_INTERNAL_API_KEY }
-        : {}),
-    },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
-
 function CrisisAlertsCard({ alerts }) {
   const { t } = useTranslation();
   if (!alerts.length) return null;
@@ -84,16 +69,19 @@ function ActivityItem({ icon, color, text, sub, time }) {
   );
 }
 
-function SystemHealthBar({ label, value, color }) {
+function StorageBar({ label, sizeInBytes, maxInBytes = 2 * 1024 * 1024 * 1024 }) {
+  const percent = Math.min((sizeInBytes / maxInBytes) * 100, 100);
+  const sizeMb = (sizeInBytes / (1024 * 1024)).toFixed(2);
+  
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs font-bold">
         <span className="text-muted-foreground">{label}</span>
-        <span className={value > 80 ? "text-destructive" : value > 60 ? "text-warning" : "text-success"}>
-          {value}%
+        <span className={percent > 80 ? "text-destructive" : percent > 60 ? "text-warning" : "text-primary"}>
+          {sizeMb} MB
         </span>
       </div>
-      <Progress value={value} color={value > 80 ? "destructive" : value > 60 ? "warning" : "success"} />
+      <Progress value={percent} color={percent > 80 ? "destructive" : percent > 60 ? "warning" : "primary"} />
     </div>
   );
 }
@@ -101,10 +89,14 @@ function SystemHealthBar({ label, value, color }) {
 export default function AdminDashboard({ stats, bookings, partners, packageTemplates, tickets, loading }) {
   const { t } = useTranslation();
   const [recentUsers, setRecentUsers] = useState([]);
-  const [aiInsight, setAiInsight] = useState(null);
-  const [insightLoading, setInsightLoading] = useState(false);
-  const [systemStats, setSystemStats] = useState({ dbSize: 42, apiLoad: 28, cacheHit: 91, uptime: 99.9 });
+  const [storageStats, setStorageStats] = useState({ publicFiles: 0, database: 0, total: 0 });
   const [crisisAlerts, setCrisisAlerts] = useState([]);
+
+  useEffect(() => {
+    apiFetch(`${VITE_API}/admin/system-storage`)
+      .then(res => setStorageStats(res.data || { publicFiles: 0, database: 0, total: 0 }))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const fetchAlerts = () => {
@@ -126,63 +118,6 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
       .then(res => setRecentUsers(Array.isArray(res) ? res : (res.bios || [])))
       .catch(() => {});
   }, []);
-
-  const autoTriggeredRef = useRef(false);
-
-  const fetchInsight = useCallback(async () => {
-    setInsightLoading(true);
-    try {
-      const data = await aiPost("/api/ai/proactive-push", {
-        logs: [
-          {
-            type: "admin_dashboard_analysis",
-            context: "Đây là báo cáo tổng quan hệ thống cho Admin. Hãy đưa ra nhận xét và gợi ý hành động ưu tiên dựa trên các số liệu chi tiết về người dùng, lịch hẹn, đối tác và gói dịch vụ.",
-            totalUsers,
-            activeUsers: stats.active || 0,
-            pendingUsers: stats.pending || 0,
-            lockedUsers: stats.locked || 0,
-            pendingBookings,
-            pendingTickets,
-            dashboardMetadata: {
-              totalBookingsCount: bookings.length,
-              pendingBookingsCount: pendingBookings,
-              recentBookingsList: bookings.slice(0, 5).map(b => ({
-                fullName: b.fullName,
-                email: b.email,
-                message: b.message ? b.message.slice(0, 50) : "",
-                contacted: b.contacted,
-                createdAt: b.createdAt
-              })),
-              partnersCount: partners.length,
-              partnersList: partners.slice(0, 10).map(p => p.name),
-              packageTemplatesCount: packageTemplates.length,
-              packageTemplatesList: packageTemplates.map(pkg => pkg.name),
-              pendingTicketsCount: pendingTickets
-            },
-            timestamp: new Date().toISOString(),
-          }
-        ]
-      });
-      // Response format: { should_send, title, body, reason }
-      const insight = [data?.title, data?.body].filter(Boolean).join(" — ")
-        || data?.reason
-        || t("adminDashboard.aiInsight.defaultMessage");
-      setAiInsight(insight);
-    } catch (e) {
-      setAiInsight(`${t("adminDashboard.aiInsight.connectionError")} ${e.message}`);
-    } finally {
-      setInsightLoading(false);
-    }
-  }, [totalUsers, pendingBookings, pendingTickets, stats, bookings, partners, packageTemplates]);
-
-  useEffect(() => {
-    if (totalUsers > 0 && Array.isArray(bookings) && Array.isArray(partners) && Array.isArray(packageTemplates)) {
-      if (!autoTriggeredRef.current) {
-        autoTriggeredRef.current = true;
-        fetchInsight();
-      }
-    }
-  }, [totalUsers, bookings, partners, packageTemplates, fetchInsight]);
 
   function fmtTime(d) {
     if (!d) return "";
@@ -310,60 +245,26 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
             </CardContent>
           </Card>
 
-          {/* System Health */}
+          {/* Data Capacity */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-success text-base">monitor_heart</span>
-                {t("adminDashboard.health.title")}
+                <span className="material-symbols-outlined text-primary text-base">cloud</span>
+                DUNG LƯỢNG DỮ LIỆU
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 pt-0">
-              <SystemHealthBar label="DB Usage" value={systemStats.dbSize} />
-              <SystemHealthBar label="API Load" value={systemStats.apiLoad} />
-              <SystemHealthBar label="Cache Hit Rate" value={100 - systemStats.cacheHit} />
-              <div className="pt-1 flex items-center gap-2">
-                <StatusDot status="online" />
-                <span className="text-[11px] font-bold text-success">Uptime {systemStats.uptime}%</span>
+              <StorageBar label="Tài nguyên tĩnh (Uploads/Assets)" sizeInBytes={storageStats.publicFiles} maxInBytes={5 * 1024 * 1024 * 1024} />
+              <StorageBar label="Cơ sở dữ liệu (MongoDB)" sizeInBytes={storageStats.database} maxInBytes={2 * 1024 * 1024 * 1024} />
+              
+              <div className="pt-2 mt-2 border-t border-border/50 flex items-center justify-between">
+                <span className="text-[11px] font-bold text-muted-foreground">Tổng dung lượng</span>
+                <span className="text-[11px] font-black text-foreground">{(storageStats.total / (1024 * 1024)).toFixed(2)} MB</span>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
-
-      {/* ── AI Insight Banner ── */}
-      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
-        <CardContent className="p-5">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-primary">auto_awesome</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-primary mb-1">{t("adminDashboard.aiInsight.title")}</p>
-              {insightLoading ? (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Spinner size="sm" />
-                  <span>{t("adminDashboard.aiInsight.analyzing")}</span>
-                </div>
-              ) : aiInsight ? (
-                <p className="text-sm text-foreground leading-relaxed">{aiInsight}</p>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  {t("adminDashboard.aiInsight.placeholder")}
-                </p>
-              )}
-            </div>
-            <button
-              onClick={fetchInsight}
-              disabled={insightLoading}
-              className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-colors disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-sm">{insightLoading ? "hourglass_empty" : "psychology"}</span>
-              {t("adminDashboard.aiInsight.analyzeBtn")}
-            </button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* ── Recent Bookings Activity ── */}
       {bookings.length > 0 && (

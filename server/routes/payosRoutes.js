@@ -77,6 +77,138 @@ router.post('/create', requireAdmin, async (req, res) => {
   }
 });
 
+import InAppNotification from '../models/InAppNotification.js';
+
+// [Admin] Request Payment from a specific user
+router.post('/request-payment', requireAdmin, async (req, res) => {
+  try {
+    const { email, amount, reason } = req.body;
+    
+    if (!email || !amount || !reason) {
+      return res.status(400).json({ error: 'Vui lòng cung cấp email, số tiền và lý do.' });
+    }
+
+    const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(Math.random() * 1000));
+    const customLinkId = crypto.randomBytes(4).toString('hex');
+    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:3000';
+    
+    const requestData = {
+      orderCode,
+      amount: Number(amount),
+      description: reason.substring(0, 25),
+      cancelUrl: `${frontendUrl}/pay/${customLinkId}?status=cancelled`,
+      returnUrl: `${frontendUrl}/pay/${customLinkId}?status=success`,
+    };
+
+    let paymentData;
+    try {
+      paymentData = await payos.paymentRequests.create(requestData);
+    } catch (payosError) {
+      console.error("PayOS Error:", payosError);
+      return res.status(500).json({ error: 'Lỗi khi gọi PayOS' });
+    }
+
+    const newLink = new PaymentLink({
+      customLinkId,
+      orderCode,
+      amount: Number(amount),
+      reason,
+      checkoutUrl: paymentData.checkoutUrl,
+      status: 'PENDING',
+      bin: paymentData.bin,
+      accountNumber: paymentData.accountNumber,
+      accountName: paymentData.accountName,
+      qrCode: paymentData.qrCode
+    });
+
+    await newLink.save();
+
+    // Send In-App Notification to the user
+    await InAppNotification.create({
+      email,
+      type: 'warning',
+      category: 'payment',
+      title: 'Yêu cầu thanh toán',
+      message: `Admin đã gửi một yêu cầu thanh toán trị giá ${(Number(amount)).toLocaleString('vi-VN')} ₫. Lý do: ${reason}`,
+      actionUrl: `/pay/${customLinkId}`
+    });
+
+    res.status(201).json({
+      success: true,
+      data: newLink,
+      message: `Đã gửi yêu cầu thanh toán đến ${email}`
+    });
+
+  } catch (error) {
+    console.error('Error requesting payment:', error);
+    res.status(500).json({ error: 'Lỗi server' });
+  }
+});
+
+// [Public] Create a Donation Link
+router.post('/donate', async (req, res) => {
+  try {
+    const { amount, name } = req.body;
+    
+    // Allowed amounts: 9.999, 19.999, 29.999, 59.999, 99.999
+    const allowedAmounts = [9999, 19999, 29999, 59999, 99999];
+    if (!allowedAmounts.includes(Number(amount))) {
+      return res.status(400).json({ error: 'Số tiền ủng hộ không hợp lệ.' });
+    }
+
+    const donatorName = name ? name.substring(0, 15).toUpperCase() : 'GUEST';
+    const reason = `DONATE ${donatorName}`.substring(0, 25);
+
+    // Generate unique Order Code (must be integer, max 53 bit)
+    const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(Math.random() * 1000));
+    
+    // Generate custom Link ID for frontend
+    const customLinkId = crypto.randomBytes(4).toString('hex');
+    
+    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:3000';
+    
+    const requestData = {
+      orderCode,
+      amount: Number(amount),
+      description: reason,
+      cancelUrl: `${frontendUrl}/pay/${customLinkId}?status=cancelled`,
+      returnUrl: `${frontendUrl}/pay/${customLinkId}?status=success`,
+    };
+
+    let paymentData;
+    try {
+      paymentData = await payos.paymentRequests.create(requestData);
+    } catch (payosError) {
+      console.error("PayOS Error in /donate:", payosError);
+      return res.status(500).json({ error: 'Lỗi khi kết nối đến ngân hàng. Vui lòng thử lại.' });
+    }
+
+    const newLink = new PaymentLink({
+      customLinkId,
+      orderCode,
+      amount: Number(amount),
+      reason,
+      checkoutUrl: paymentData.checkoutUrl,
+      status: 'PENDING',
+      bin: paymentData.bin,
+      accountNumber: paymentData.accountNumber,
+      accountName: paymentData.accountName,
+      qrCode: paymentData.qrCode
+    });
+
+    await newLink.save();
+
+    res.status(201).json({
+      success: true,
+      data: newLink
+    });
+
+  } catch (error) {
+    console.error('Error creating donation link:', error);
+    res.status(500).json({ error: 'Lỗi server' });
+  }
+});
+
 // [Admin] Get all payment links
 router.get('/all', requireAdmin, async (req, res) => {
   try {

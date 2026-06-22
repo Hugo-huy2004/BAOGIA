@@ -12,11 +12,11 @@ const LOFI_PLAYLIST = [
 ];
 
 const THEME_SHOP = [
-  { id: "default", name: "Classic Cosmic", desc: "Không gian vũ trụ dải sáng tím lam huyền ảo.", price: 0, preview: "from-indigo-500 via-purple-500 to-cyan-500" },
-  { id: "sunset", name: "Sunset Aura", desc: "Sắc cam hoàng hôn ấm áp hòa cùng ánh hồng đào.", price: 50, preview: "from-orange-400 via-rose-400 to-amber-300" },
-  { id: "cyberpunk", name: "Cyberpunk Neon", desc: "Dải sáng neon xanh lam, fuchsia và tím rực rỡ.", price: 50, preview: "from-cyan-400 via-fuchsia-500 to-indigo-600" },
-  { id: "emerald", name: "Emerald Healing", desc: "Xanh ngọc bích mát lành điểm thêm tia sáng vàng.", price: 50, preview: "from-emerald-400 via-teal-500 to-yellow-300" },
-  { id: "obsidian", name: "Obsidian Eclipse", desc: "Sắc xám obsidian huyền bí cùng hạt sáng bạc.", price: 50, preview: "from-slate-700 via-zinc-800 to-slate-900" }
+  { id: "default", name: "Classic Cosmic", desc: "Không gian vũ trụ dải sáng tím lam huyền ảo.", price: 0, preview: "from-primary via-accent to-secondary" },
+  { id: "sunset", name: "Sunset Aura", desc: "Sắc cam hoàng hôn ấm áp hòa cùng ánh hồng đào.", price: 50, preview: "from-secondary via-accent to-warning" },
+  { id: "cyberpunk", name: "Cyberpunk Neon", desc: "Dải sáng neon xanh lam, fuchsia và tím rực rỡ.", price: 50, preview: "from-secondary via-accent to-primary" },
+  { id: "emerald", name: "Emerald Healing", desc: "Xanh ngọc bích mát lành điểm thêm tia sáng vàng.", price: 50, preview: "from-success via-success/70 to-warning" },
+  { id: "obsidian", name: "Obsidian Eclipse", desc: "Sắc xám obsidian huyền bí cùng hạt sáng bạc.", price: 50, preview: "from-warning via-muted to-warning/80" }
 ];
 
 const FOCUS_PRESETS = [
@@ -27,49 +27,49 @@ const FOCUS_PRESETS = [
 
 const THEME_ACCENTS = {
   default: {
-    accentText: "text-purple-500 dark:text-purple-400",
-    accentBg: "bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700",
-    stroke: "stroke-purple-500",
-    glow: "shadow-purple-500/20",
-    sliderAccent: "accent-purple-500",
-    badge: "bg-purple-500/10 text-purple-600 border-purple-500/20 dark:text-purple-400 dark:bg-purple-500/5",
-    themeBg: "from-purple-500/10 to-indigo-500/10"
+    accentText: "text-primary",
+    accentBg: "bg-primary hover:bg-primary/90",
+    stroke: "stroke-primary",
+    glow: "shadow-primary/20",
+    sliderAccent: "accent-primary",
+    badge: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/5",
+    themeBg: "from-primary/10 to-primary/10"
   },
   sunset: {
-    accentText: "text-orange-500 dark:text-orange-400",
-    accentBg: "bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700",
-    stroke: "stroke-orange-500",
-    glow: "shadow-orange-500/20",
-    sliderAccent: "accent-orange-500",
-    badge: "bg-orange-500/10 text-orange-600 border-orange-500/20 dark:text-orange-400 dark:bg-orange-500/5",
-    themeBg: "from-orange-500/10 to-rose-500/10"
+    accentText: "text-secondary",
+    accentBg: "bg-secondary hover:bg-secondary/90",
+    stroke: "stroke-secondary",
+    glow: "shadow-secondary/20",
+    sliderAccent: "accent-secondary",
+    badge: "bg-secondary/10 text-secondary border-secondary/20 dark:bg-secondary/5",
+    themeBg: "from-secondary/10 to-secondary/10"
   },
   cyberpunk: {
-    accentText: "text-fuchsia-500 dark:text-fuchsia-400",
-    accentBg: "bg-fuchsia-500 hover:bg-fuchsia-600 dark:bg-fuchsia-600 dark:hover:bg-fuchsia-700",
-    stroke: "stroke-fuchsia-500",
-    glow: "shadow-fuchsia-500/20",
-    sliderAccent: "accent-fuchsia-500",
-    badge: "bg-fuchsia-500/10 text-fuchsia-600 border-fuchsia-500/20 dark:text-fuchsia-400 dark:bg-fuchsia-500/5",
-    themeBg: "from-fuchsia-500/10 to-cyan-500/10"
+    accentText: "text-accent",
+    accentBg: "bg-accent hover:bg-accent/90",
+    stroke: "stroke-accent",
+    glow: "shadow-accent/20",
+    sliderAccent: "accent-accent",
+    badge: "bg-accent/10 text-accent border-accent/20 dark:bg-accent/5",
+    themeBg: "from-accent/10 to-accent/10"
   },
   emerald: {
-    accentText: "text-emerald-500 dark:text-emerald-400",
-    accentBg: "bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700",
-    stroke: "stroke-emerald-500",
-    glow: "shadow-emerald-500/20",
-    sliderAccent: "accent-emerald-500",
-    badge: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400 dark:bg-emerald-500/5",
-    themeBg: "from-emerald-500/10 to-teal-500/10"
+    accentText: "text-success",
+    accentBg: "bg-success hover:bg-success/90",
+    stroke: "stroke-success",
+    glow: "shadow-success/20",
+    sliderAccent: "accent-success",
+    badge: "bg-success/10 text-success border-success/20 dark:bg-success/5",
+    themeBg: "from-success/10 to-success/10"
   },
   obsidian: {
-    accentText: "text-slate-400 dark:text-slate-350",
-    accentBg: "bg-slate-700 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700",
-    stroke: "stroke-slate-400",
-    glow: "shadow-slate-400/20",
-    sliderAccent: "accent-slate-500",
-    badge: "bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400 dark:bg-slate-500/5",
-    themeBg: "from-slate-700/10 to-zinc-700/10"
+    accentText: "text-warning",
+    accentBg: "bg-warning hover:bg-warning/90",
+    stroke: "stroke-warning",
+    glow: "shadow-warning/20",
+    sliderAccent: "accent-warning",
+    badge: "bg-warning/10 text-warning border-warning/20 dark:bg-warning/5",
+    themeBg: "from-warning/10 to-warning/10"
   }
 };
 
@@ -435,7 +435,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
             <div className="relative w-56 h-56 flex items-center justify-center mb-8 select-none">
               {/* Outer glowing ripple ring when active */}
               {timerActive && (
-                <div className={`absolute inset-4 rounded-full border-2 border-transparent border-t-purple-500/20 animate-spin`} style={{ animationDuration: "3s" }} />
+                <div className={`absolute inset-4 rounded-full border-2 border-transparent border-t-accent/20 animate-spin`} style={{ animationDuration: "3s" }} />
               )}
               
               <svg className="w-full h-full transform -rotate-90">
@@ -481,7 +481,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
               
               <button
                 onClick={handleToggleTimer}
-                className={`flex-[1.5] flex items-center justify-center gap-1.5 py-3.5 rounded-2xl text-white shadow-xl active:scale-95 transition-all font-black text-[10px] uppercase tracking-wider ${timerActive ? "bg-red-500 hover:bg-red-600 shadow-red-500/20" : `${accent.accentBg} ${accent.glow}`}`}
+                className={`flex-[1.5] flex items-center justify-center gap-1.5 py-3.5 rounded-2xl text-white shadow-xl active:scale-95 transition-all font-black text-[10px] uppercase tracking-wider ${timerActive ? "bg-destructive hover:bg-destructive/90 shadow-destructive/20" : `${accent.accentBg} ${accent.glow}`}`}
               >
                 <span className="material-symbols-outlined text-sm">{timerActive ? "pause" : "play_arrow"}</span>
                 {timerActive ? t("aura.pauseBtn") : t("aura.startBtn")}
@@ -642,7 +642,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                             {t(`aura.theme${theme.id.charAt(0).toUpperCase() + theme.id.slice(1)}Name`)}
                           </span>
                           {expiryText && (
-                            <span className="text-[8px] font-bold text-emerald-500 px-1 rounded bg-emerald-500/5 uppercase border border-emerald-500/10 shrink-0">
+                            <span className="text-[8px] font-bold text-success px-1 rounded bg-success/5 uppercase border border-success/10 shrink-0">
                               {expiryText}
                             </span>
                           )}

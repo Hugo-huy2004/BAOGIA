@@ -44,7 +44,7 @@ function RecipientAvatar({ name, avatar, size = "w-12 h-12" }) {
     return <img src={avatar} alt={name} className={`${size} rounded-full object-cover border border-zinc-200 dark:border-zinc-700`} />;
   }
   return (
-    <div className={`${size} rounded-full bg-amber-100 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-amber-700 dark:text-amber-400 font-black uppercase`}>
+    <div className={`${size} rounded-full bg-warning/10 dark:bg-warning/15 border border-warning/20 dark:border-warning/30 flex items-center justify-center text-warning font-black uppercase`}>
       {(name || "?").charAt(0)}
     </div>
   );
@@ -378,7 +378,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                           <button
                             onClick={handleLookupRecipient}
                             disabled={lookingUp || !sendPhone.trim()}
-                            className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider disabled:opacity-50 shrink-0"
+                            className="px-5 py-3 rounded-xl bg-warning hover:bg-warning/90 text-warning-foreground text-xs font-bold uppercase tracking-wider disabled:opacity-50 shrink-0"
                           >
                             {lookingUp ? "..." : t("memberPortal.joy.send.lookupButton")}
                           </button>
@@ -388,11 +388,11 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                     </>
                   ) : (
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-500/10 rounded-2xl p-4">
+                      <div className="flex items-center justify-between bg-warning/10 rounded-2xl p-4">
                         <div className="flex items-center gap-3">
                           <RecipientAvatar name={recipient.displayName} avatar={recipient.avatar} />
                           <div>
-                            <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                            <p className="text-[10px] font-bold text-warning uppercase tracking-wider">
                               {t("memberPortal.joy.send.recipientLabel")}
                             </p>
                             <p className="text-sm font-bold text-zinc-900 dark:text-white">{recipient.displayName}</p>
@@ -429,7 +429,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                       <button
                         onClick={() => setShowInvoice(true)}
                         disabled={numericSendAmount < 10}
-                        className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold uppercase tracking-wider disabled:opacity-50"
+                        className="w-full py-3.5 rounded-xl bg-warning hover:bg-warning/90 text-warning-foreground text-sm font-bold uppercase tracking-wider disabled:opacity-50"
                       >
                         Tạo Hóa Đơn Chuyển JOY
                       </button>
@@ -454,7 +454,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                       className="bg-white dark:bg-[#1a1924] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col"
                     >
                       <div className="p-6 pb-4 border-b border-zinc-200 dark:border-zinc-800 flex flex-col items-center">
-                        <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-500 flex items-center justify-center mb-3">
+                        <div className="w-12 h-12 rounded-full bg-warning/10 text-warning flex items-center justify-center mb-3">
                           <span className="material-symbols-outlined text-2xl">receipt_long</span>
                         </div>
                         <h3 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-wider">Hóa Đơn Chuyển JOY</h3>
@@ -480,7 +480,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Phí giao dịch (5%)</span>
-                            <span className="text-sm font-medium text-red-500">+{feePreview} JOY</span>
+                            <span className="text-sm font-medium text-destructive">+{feePreview} JOY</span>
                           </div>
                           <div className="w-full border-t border-dashed border-zinc-200 dark:border-zinc-700 my-1" />
                           <div className="flex justify-between items-center">
@@ -512,7 +512,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                         <button
                           onClick={handleConfirmSend}
                           disabled={sending}
-                          className="flex-[2] py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                          className="flex-[2] py-3 rounded-xl bg-success hover:bg-success/90 text-success-foreground text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                           {sending ? "Đang xử lý..." : "Xác nhận chuyển"}
                         </button>
@@ -539,7 +539,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
-                          c.claimed ? "bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+                          c.claimed ? "bg-success/10 dark:bg-success/15 text-success" : "bg-muted text-muted-foreground"
                         }`}>
                           <span className="material-symbols-outlined text-[20px]">
                             {c.claimed ? "check_circle" : "flag_circle"}
@@ -559,7 +559,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                       <button
                         onClick={() => handleClaimChallenge(c.id)}
                         disabled={!c.completed || c.claimed || claimingId === c.id}
-                        className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold uppercase tracking-wider disabled:opacity-40 disabled:bg-zinc-300 disabled:dark:bg-zinc-700 shrink-0"
+                        className="px-4 py-2 rounded-xl bg-warning hover:bg-warning/90 text-warning-foreground text-[11px] font-bold uppercase tracking-wider disabled:opacity-40 disabled:bg-muted shrink-0"
                       >
                         {claimingId === c.id ? "..." : c.claimed ? t("memberPortal.joy.missions.claimed") : t("memberPortal.joy.missions.claimButton")}
                       </button>
@@ -602,7 +602,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                             <p className="text-xs font-bold text-zinc-800 dark:text-white truncate">{tx.description}</p>
                             <p className="text-[10px] text-zinc-400">{new Date(tx.createdAt).toLocaleString("vi-VN")}</p>
                           </div>
-                          <span className={`font-mono font-bold text-xs whitespace-nowrap ml-2 ${tx.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
+                          <span className={`font-mono font-bold text-xs whitespace-nowrap ml-2 ${tx.amount >= 0 ? "text-success" : "text-destructive"}`}>
                             {tx.amount >= 0 ? "+" : ""}{tx.amount}
                           </span>
                         </div>
@@ -649,11 +649,11 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
               initial={{ scale: 0.95, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              className="bg-white dark:bg-[#1a1924] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.2)] border border-zinc-200 dark:border-zinc-800 relative flex flex-col"
+              className="bg-white dark:bg-[#1a1924] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl shadow-success/20 border border-zinc-200 dark:border-zinc-800 relative flex flex-col"
             >
-              <div className="h-32 bg-gradient-to-b from-emerald-500/20 to-transparent absolute top-0 left-0 right-0" />
+              <div className="h-32 bg-gradient-to-b from-success/20 to-transparent absolute top-0 left-0 right-0" />
               <div className="p-8 pb-6 flex flex-col items-center text-center relative z-10">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-4 animate-bounce-sm">
+                <div className="w-16 h-16 rounded-full bg-success flex items-center justify-center shadow-lg shadow-success/30 mb-4 animate-bounce-sm">
                   <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                     check
                   </span>
@@ -663,7 +663,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                 
                 <div className="mt-8 mb-6 w-full">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="text-4xl font-black text-emerald-500">-{receipt.amount}</span>
+                    <span className="text-4xl font-black text-success">-{receipt.amount}</span>
                     <span className="text-lg font-bold text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md">JOY</span>
                   </div>
                 </div>

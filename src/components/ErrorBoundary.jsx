@@ -43,7 +43,7 @@ export class ErrorBoundary extends React.Component {
         return (
           <div className="min-h-screen flex items-center justify-center bg-surface dark:bg-background p-4">
             <div className="text-center space-y-3">
-              <div className="w-8 h-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto" />
+              <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
               <p className="text-sm text-muted-foreground">Đang tải phiên bản mới nhất...</p>
             </div>
           </div>
@@ -51,15 +51,15 @@ export class ErrorBoundary extends React.Component {
       }
       return (
         <div className="min-h-screen flex items-center justify-center bg-surface dark:bg-background p-4">
-          <div className="max-w-md w-full bg-white dark:bg-background border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-center space-y-4">
-            <span className="material-symbols-outlined text-5xl text-rose-500">error</span>
+          <div className="max-w-md w-full bg-white dark:bg-background border border-border rounded-3xl p-8 text-center space-y-4">
+            <span className="material-symbols-outlined text-5xl text-destructive">error</span>
             <h1 className="text-2xl font-black text-foreground">Có lỗi xảy ra</h1>
             <p className="text-sm text-muted-foreground">
               {this.state.error?.message || 'Vui lòng làm mới trang'}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors"
+              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl transition-colors"
             >
               Làm mới trang
             </button>

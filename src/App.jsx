@@ -16,6 +16,7 @@ import { useUIStore } from "./stores/uiStore";
 import { TooltipProvider } from "./components/ui/Tooltip";
 import { Toaster } from "react-hot-toast";
 import PWARealtimeBridge from "./components/PWARealtimeBridge";
+import DonationModal from "./components/ui/DonationModal";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -201,6 +202,7 @@ export default function App() {
             <OfflineBanner />
             <AppContent />
             <PWAInstallBanner />
+            <DonationModal />
             <Toaster position="top-center" reverseOrder={false} />
           </TooltipProvider>
         </BrowserRouter>

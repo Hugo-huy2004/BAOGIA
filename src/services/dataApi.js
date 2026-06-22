@@ -685,6 +685,27 @@ export const dataApi = {
       console.error('PATCH request failed:', error);
       throw error;
     }
+  },
+
+  // Create a Donation Link via PayOS
+  async createDonationLink(payload) {
+    try {
+      // Allow sending without credentials for guests
+      const response = await fetch(`${API_BASE_URL}/payos/donate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Lỗi tạo mã quyên góp');
+      }
+      return data;
+    } catch (error) {
+      console.error('Error creating donation link:', error);
+      throw error;
+    }
   }
 };
 

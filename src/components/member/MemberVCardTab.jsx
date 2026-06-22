@@ -88,7 +88,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
       <SubUtilityHeader
         title={t("utilities.vcard.title", "Danh Bạ vCard Thông Minh")}
         icon="contact_phone"
-        colorClass="text-rose-500"
+        colorClass="text-accent"
         onBack={onBack}
       />
       
@@ -110,19 +110,19 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
                   size={200} 
                   level="Q" 
                   includeMargin={false}
-                  fgColor="#e11d48" // Rose 600
+                  fgColor="#8b5cf6" // Accent (violet-500)
               />
             </div>
             
             {/* Floating icon */}
-            <div className="absolute -bottom-4 -right-4 w-12 h-12 rounded-lg bg-rose-500 text-white border-2 border-white shadow-lg flex items-center justify-center">
+            <div className="absolute -bottom-4 -right-4 w-12 h-12 rounded-lg bg-accent text-white border-2 border-white shadow-lg flex items-center justify-center">
               <span className="material-symbols-outlined text-2xl">contact_page</span>
             </div>
           </div>
 
           <button 
             onClick={handleDownloadQR}
-            className="mt-10 px-8 py-3.5 rounded-lg text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-500/25 transition-all active:scale-[0.98] flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:brightness-110"
+            className="mt-10 px-8 py-3.5 rounded-lg text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-accent/25 transition-all active:scale-[0.98] flex items-center gap-2 bg-accent hover:brightness-110"
           >
             <span className="material-symbols-outlined text-lg">download</span>
             {t("utilities.vcard.qrCodeTitle", "MÃ QR VCARD QUÉT OFFLINE")}
@@ -133,7 +133,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
         <div className="bg-white dark:bg-background rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 p-6 shadow-sm flex flex-col justify-center space-y-6 min-h-[380px]">
           
           <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800/80 rounded-lg space-y-2">
-             <h4 className="text-xs font-black text-rose-500 uppercase flex items-center gap-1.5"><span className="material-symbols-outlined text-[16px]">info</span> {t("utilities.vcard.autoMechanism", "Cơ chế Tự Động")}</h4>
+             <h4 className="text-xs font-black text-accent uppercase flex items-center gap-1.5"><span className="material-symbols-outlined text-[16px]">info</span> {t("utilities.vcard.autoMechanism", "Cơ chế Tự Động")}</h4>
              <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">
                {t("utilities.vcard.autoMechanismDesc", "Vì lý do bảo mật của iOS/Android, một trang web không thể ngầm tự động thêm số điện thoại vào danh bạ của người dùng nếu không có thao tác xác nhận. Mã QR này chứa gói lệnh VCF, khi camera nhận dạng được, nó sẽ tự động bật popup Lưu Danh Bạ để người dùng bấm Lưu là xong.")}
              </p>
@@ -145,7 +145,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
               download
               className="w-full p-4 rounded-md bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-4 group cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-info/10 text-info flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">cloud_download</span>
               </div>
               <div className="flex-1 text-left">
@@ -156,16 +156,16 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
 
             <button
               onClick={handleShare}
-              className="w-full p-4 rounded-md bg-rose-50 dark:bg-rose-500/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 border border-rose-100 dark:border-rose-500/10 transition-colors flex items-center gap-4 group cursor-pointer text-left"
+              className="w-full p-4 rounded-md bg-accent/10 dark:bg-accent/5 hover:bg-accent/20 dark:hover:bg-accent/10 border border-accent/20 dark:border-accent/10 transition-colors flex items-center gap-4 group cursor-pointer text-left"
             >
-              <div className="w-10 h-10 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">{navigator.share ? "ios_share" : "content_copy"}</span>
               </div>
               <div className="flex-1">
-                <h4 className="text-[11px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5">
+                <h4 className="text-[11px] font-black text-accent uppercase tracking-wider mb-0.5">
                   {navigator.share ? t("utilities.vcard.shareBtn", "Chia sẻ qua App") : t("utilities.vcard.copyBtn", "Copy Link Trực Tuyến")}
                 </h4>
-                <p className="text-[10px] text-rose-600/70 dark:text-rose-400/70 font-medium">
+                <p className="text-[10px] text-accent/70 font-medium">
                   {navigator.share ? t("utilities.vcard.shareDesc", "Gửi ngay danh bạ qua AirDrop, Zalo, SMS...") : t("utilities.vcard.copyDesc", "Sao chép link tải danh bạ trực tuyến.")}
                 </p>
               </div>

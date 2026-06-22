@@ -8,7 +8,7 @@ export default function AdminBottomNav({
 }) {
   const { t } = useTranslation();
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 nav-bottom-safe bg-white/95 dark:bg-background/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-40 flex items-center justify-around px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 nav-bottom-safe bg-white/95 dark:bg-background/95 backdrop-blur-md border-t border-border z-40 flex items-center justify-around px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
       {[
         { id: "users", label: t("adminPanel.bottomNav.users"), icon: "group", count: counts.users },
         { id: "bookings", label: t("adminPanel.bottomNav.bookings"), icon: "calendar_month", count: counts.bookings },
@@ -24,7 +24,7 @@ export default function AdminBottomNav({
           className={`flex flex-col items-center justify-center flex-1 h-full relative transition-all ${
             activeTab === tab.id
               ? "text-primary"
-              : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           <div className="relative py-2 mt-1">
@@ -32,8 +32,8 @@ export default function AdminBottomNav({
             {tab.count !== undefined && tab.count > 0 && (
               <span className={`absolute -top-0 -right-2 px-1 rounded-full text-[7.5px] font-black leading-none ${
                 tab.id === "bookings" || tab.id === "support"
-                  ? "bg-rose-500 text-white animate-pulse"
-                  : "bg-slate-500 text-white"
+                  ? "bg-destructive text-white animate-pulse"
+                  : "bg-muted-foreground text-white"
               }`}>
                 {tab.count}
               </span>
@@ -41,7 +41,7 @@ export default function AdminBottomNav({
           </div>
           <span className="text-[9px] font-bold pb-2 tracking-wide">{tab.label}</span>
           {activeTab === tab.id && (
-            <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary dark:bg-[#a5b4fc]" />
+            <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
           )}
         </button>
       ))}
