@@ -470,18 +470,53 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
   let bestMatch = null;
   let highestScore = 0;
 
-  for (const intent of INTENT_DATABASE) {
-    for (const pattern of intent.patterns) {
-      const score = getSimilarityScore(text, pattern);
-      if (score > highestScore) {
-        highestScore = score;
-        bestMatch = intent;
+  const cleanText = removeVietnameseTones(text).toLowerCase();
+
+  const rules = [
+    { id: "crisis", regex: /(tu tu|muon chet|khong muon song|tu sat|ket lieu|lam hai ban than|tu lam dau|tu tu o dau)/ },
+    { id: "test_inventory", regex: /(bao nhieu bai test|nhung bai test|danh sach bai test|may bai trac nghiem|cac bai kiem tra tam ly|test tam ly gom|bao nhieu bai trac nghiem|test gi|cac bai test|co test gi)/ },
+    { id: "clinical_tests", regex: /(lam bai test|lam trac nghiem|lam trac nghiem tam ly|lam test tram cam|lam test lo au|phq9|gad7|who5|bigfive|mmpi|kiem tra tram cam|kiem tra lo au|kiem tra suc khoe tinh thuan)/ },
+    { id: "therapy_catalog", regex: /(co lieu phap gi|tri lieu gom|cac lieu phap tu chua lanh|huong dan dung lieu phap|nen dung lieu phap nao|bai tap tu chua lanh|phuong phap tri lieu|cac bai tri lieu)/ },
+    { id: "pricing_package", regex: /(gia bao nhieu|goi cuoc|mua goi|nap tien|ton phi|mat phi|goi premium|dang ky goi|phi dich vu)/ },
+    { id: "joy_currency", regex: /(joy la gi|kiem joy|dong joy|tien joy|xu joy|doi qua joy|dung joy|joy coin)/ },
+    { id: "token_limit", regex: /(gioi han token|het token|may token|reset token|luot chat|token la gi|token chat)/ },
+    { id: "about_creator", regex: /(ai tao ra|hugo studio|ai phat trien|ai lam ra app|tac gia|creator)/ },
+    { id: "data_privacy", regex: /(dự liệu của tớ có an toàn không|dữ liệu|bao mat|lo tin nhan|an toan du lieu|co ai doc duoc|co bi lo khong|rieng tu)/ },
+    { id: "support_contact", regex: /(bao loi|lien he ho tro|loi ky thuat|gap loi|tro giup|support|nhan vien ho tro)/ },
+    { id: "identity", regex: /(cau la ai|ban la ai|ten cau|chuyen vien ai|ten gi|la bot|la ai)/ },
+    { id: "features", regex: /(lam duoc gi|tinh nang|chuc nang|giup gi|huong dan|dung app|features|co the giup)/ },
+    { id: "sleep", regex: /(mat ngu|kho ngu|ngu ngon|thuc khuya|thieu ngu)/ },
+    { id: "academic_stress", regex: /(ap luc hoc|thi cu|diem so|thi rot|stress hoc|stress thi|bai tap qua tai)/ },
+    { id: "anxiety", regex: /(lo au|lo lang|bon chon|so hai|hoang so|anxiety|lo so)/ },
+    { id: "sadness", regex: /(buon|chan nan|tuyet vong|met moi|khoc|sad)/ },
+    { id: "gratitude", regex: /(cam on|thank|cute|de thuong|huu ich|tot qua)/ },
+    { id: "positive", regex: /(vui|khoe|hanh phuc|tuyet voi|rat tot|on|happy)/ }
+  ];
+
+  for (const rule of rules) {
+    if (rule.regex.test(cleanText)) {
+      const intentObj = INTENT_DATABASE.find(i => i.id === rule.id);
+      if (intentObj) {
+        bestMatch = intentObj;
+        highestScore = 0.95;
+        break;
+      }
+    }
+  }
+
+  if (!bestMatch) {
+    for (const intent of INTENT_DATABASE) {
+      for (const pattern of intent.patterns) {
+        const score = getSimilarityScore(text, pattern);
+        if (score > highestScore) {
+          highestScore = score;
+          bestMatch = intent;
+        }
       }
     }
   }
 
   // Exact matching keyword fallback for safety (e.g. self-harm / crisis keywords)
-  const cleanText = removeVietnameseTones(text);
   if (/tu tu|muon chet|khong muon song|tu lam dau|lam hai ban than/.test(cleanText)) {
     const crisisIntent = INTENT_DATABASE.find(i => i.id === "crisis");
     if (crisisIntent) {

@@ -170,21 +170,46 @@ export default class AIBot extends BaseBot {
             line = line.trim();
             if (!line.startsWith("data: ")) continue;
             try {
-              const p = JSON.parse(line.substring(6));
-              if (p.text) { fullReply += p.text; onChunk?.(fullReply); }
-              else if (p.error) { serverError = true; }
+              const rawContent = line.substring(6).trim();
+              try {
+                const p = JSON.parse(rawContent);
+                if (p.text) { fullReply += p.text; onChunk?.(fullReply); }
+                else if (p.error) {
+                  serverError = true;
+                  fullReply = "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc gặp sự cố kết nối. Cậu thử lại sau ít phút hoặc thực hành các bài tập tự trị liệu nhé!";
+                  onChunk?.(fullReply);
+                }
+              } catch (_) {
+                if (rawContent) {
+                  fullReply += rawContent;
+                  onChunk?.(fullReply);
+                }
+              }
             } catch (_) {}
           }
         }
       }
       if (serverError && !fullReply.trim()) {
-        fullReply = "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha.";
+        fullReply = "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc gặp sự cố kết nối. Cậu thử lại sau ít phút hoặc thực hành các bài tập tự trị liệu nhé!";
         onChunk?.(fullReply);
       }
       if (buffer.trim().startsWith("data: ")) {
         try {
-          const p = JSON.parse(buffer.substring(6).trim());
-          if (p.text) { fullReply += p.text; onChunk?.(fullReply); }
+          const rawContent = buffer.substring(6).trim();
+          try {
+            const p = JSON.parse(rawContent);
+            if (p.text) { fullReply += p.text; onChunk?.(fullReply); }
+            else if (p.error) {
+              serverError = true;
+              fullReply = "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc gặp sự cố kết nối. Cậu thử lại sau ít phút hoặc thực hành các bài tập tự trị liệu nhé!";
+              onChunk?.(fullReply);
+            }
+          } catch (_) {
+            if (rawContent) {
+              fullReply += rawContent;
+              onChunk?.(fullReply);
+            }
+          }
         } catch (_) {}
       }
 
