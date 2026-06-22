@@ -5,15 +5,17 @@ import MemberUtilityStoreTab from "./MemberUtilityStoreTab";
 import CheckinCard from "./CheckinCard";
 import { useJoyStore } from "../../stores/joyStore";
 import { resolvePhone, transferJoy, fetchChallengeStatus, claimChallenge } from "../../services/joyApi";
+import "./member-joy.css";
+import { WalletCards, Send, Target, Store, History } from "lucide-react";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 const SECTIONS = [
-  { id: "overview", icon: "account_balance_wallet" },
-  { id: "send", icon: "send" },
-  { id: "missions", icon: "flag_circle" },
-  { id: "store", icon: "storefront" },
-  { id: "history", icon: "receipt_long" },
+  { id: "overview", label: "Tổng quan", Icon: WalletCards },
+  { id: "send", label: "Gửi JOY", Icon: Send },
+  { id: "missions", label: "Nhiệm vụ", Icon: Target },
+  { id: "store", label: "Cửa hàng", Icon: Store },
+  { id: "history", label: "Lịch sử", Icon: History },
 ];
 
 const SOURCE_ICONS = {
@@ -222,70 +224,58 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
   const feePreview = numericSendAmount - netPreview;
 
   return (
-    <div className="space-y-5 animate-fadeIn">
+    <div className="joy-dashboard animate-fadeIn">
       {/* Wallet hero — always visible regardless of section, the wallet's anchor */}
-      <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-500/10 dark:to-amber-500/5 rounded-3xl border border-amber-200/60 dark:border-amber-500/20 p-6 flex flex-col items-center gap-3 text-center">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400">
-          {t("memberPortal.joy.walletTitle")}
-        </span>
-        <JoyCoinBadge amount={balance} size="lg" />
-        {referralCode && (
-          <div className="flex items-center gap-2 mt-1 bg-white/70 dark:bg-black/20 rounded-full px-3 py-1.5">
-            <span className="font-mono text-xs font-bold tracking-widest text-zinc-700 dark:text-zinc-200">{referralCode}</span>
-            <button onClick={copyReferralLink} className="text-amber-600 dark:text-amber-400">
-              <span className="material-symbols-outlined text-[16px]">content_copy</span>
-            </button>
-          </div>
-        )}
-        <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-          {t("memberPortal.joy.referral.countLabel", { count: referralCount })}
-        </p>
-        {bio?.bonusChatTokens > 0 && (
-          <div className="flex items-center gap-3 mt-1 text-[10px] font-bold">
-            <span className="flex items-center gap-1 bg-white/70 dark:bg-black/20 rounded-full px-2.5 py-1 text-indigo-600 dark:text-indigo-400">
-              <span className="material-symbols-outlined text-[13px]">chat</span>
-              +{bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens")}
-            </span>
-          </div>
-        )}
+      <div className="joy-wallet-hero">
+        <div className="joy-orb joy-orb-one" /><div className="joy-orb joy-orb-two" />
+        <div className="joy-balance-block">
+          <span className="joy-eyebrow"><span className="material-symbols-outlined">account_balance_wallet</span>{t("memberPortal.joy.walletTitle")}</span>
+          <JoyCoinBadge amount={balance} size="lg" className="joy-main-balance" />
+          <p>JOY có thể dùng cho quà tặng, tiện ích và các trải nghiệm trong hệ sinh thái Hugo.</p>
+        </div>
+        <div className="joy-hero-details">
+          <div className="joy-stat"><span className="material-symbols-outlined">group_add</span><div><small>ĐÃ GIỚI THIỆU</small><strong>{referralCount}</strong></div></div>
+          <div className="joy-stat"><span className="material-symbols-outlined">chat</span><div><small>CHAT THƯỞNG</small><strong>{bio?.bonusChatTokens || 0}</strong></div></div>
+          {referralCode && <button onClick={copyReferralLink} className="joy-referral-code"><span><small>MÃ GIỚI THIỆU</small><strong>{referralCode}</strong></span><span className="material-symbols-outlined">content_copy</span></button>}
+        </div>
       </div>
 
       {/* Section switcher — horizontally scrollable so 5 tabs stay legible on phones */}
-      <div className="flex gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-900/60 rounded-2xl overflow-x-auto scrollbar-none">
-        {SECTIONS.map(s => (
-          <button
+      <nav className="joy-section-nav">
+        {SECTIONS.map(s => {
+          const SectionIcon = s.Icon;
+          return <button
             key={s.id}
             onClick={() => setSection(s.id)}
-            className={`shrink-0 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-[11px] font-bold transition-all whitespace-nowrap ${
-              section === s.id ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 dark:text-zinc-400"
-            }`}
+            className={section === s.id ? "active" : ""}
           >
-            <span className="material-symbols-outlined text-[16px]">{s.icon}</span>
-            {t(`memberPortal.joy.sections.${s.id}`)}
-          </button>
-        ))}
-      </div>
+            <SectionIcon aria-hidden="true" />
+            <span>{t(`memberPortal.joy.sections.${s.id}`, s.label)}</span>
+          </button>;
+        })}
+      </nav>
 
       {section === "overview" && (
-        <div className="space-y-4">
-          <CheckinCard email={email} showToast={showToast} />
+        <div className="joy-overview-grid">
+          <div className="joy-checkin-wrap"><CheckinCard email={email} showToast={showToast} /></div>
+          <div className="joy-code-column">
           {!bio?.referralApplied && (
-            <div className="bg-white dark:bg-[#181622] rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 space-y-3">
+            <div className="joy-action-card referral-card">
               <h4 className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
                 {t("memberPortal.joy.applyReferral.title")}
               </h4>
-              <div className="flex gap-2">
+              <div className="joy-input-action">
                 <input
                   type="text"
                   value={referrerCodeInput}
                   onChange={e => setReferrerCodeInput(e.target.value.toUpperCase())}
                   placeholder={t("memberPortal.joy.applyReferral.placeholder")}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#0c0b11] text-sm font-mono tracking-widest text-zinc-900 dark:text-white"
+                  className="joy-code-input"
                 />
                 <button
                   onClick={handleApplyReferral}
                   disabled={applyingReferral}
-                  className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider disabled:opacity-50"
+                  className="joy-action-button amber"
                 >
                   {applyingReferral ? "..." : t("memberPortal.joy.applyReferral.button")}
                 </button>
@@ -293,36 +283,36 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
               <p className="text-[10px] text-zinc-400">{t("memberPortal.joy.applyReferral.hint")}</p>
             </div>
           )}
-          <div className="bg-white dark:bg-[#181622] rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 space-y-3">
+          <div className="joy-action-card gift-card">
             <h4 className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
               {t("memberPortal.joy.redeem.title")}
             </h4>
-            <div className="flex gap-2">
+            <div className="joy-input-action">
               <input
                 type="text"
                 value={giftCode}
                 onChange={e => setGiftCode(e.target.value.toUpperCase())}
                 placeholder={t("memberPortal.joy.redeem.placeholder")}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#0c0b11] text-sm font-mono tracking-widest text-zinc-900 dark:text-white"
+                className="joy-code-input"
               />
               <button
                 onClick={handleRedeem}
                 disabled={redeeming}
-                className="px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold uppercase tracking-wider disabled:opacity-50"
+                className="joy-action-button dark"
               >
                 {redeeming ? "..." : t("memberPortal.joy.redeem.button")}
               </button>
             </div>
           </div>
-          <p className="text-[11px] text-zinc-400 leading-relaxed px-1">
+          <p className="joy-earn-note">
             {t("memberPortal.joy.earnInfo")}
-          </p>
+          </p></div>
         </div>
       )}
 
       {section === "send" && (
-        <div className="space-y-4">
-          <div className="bg-white dark:bg-[#181622] rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 space-y-4">
+        <div className="joy-section-content">
+          <div className="joy-content-card joy-send-card">
             <div>
               <h4 className="text-sm font-bold text-zinc-800 dark:text-white">{t("memberPortal.joy.send.title")}</h4>
               <p className="text-[11px] text-zinc-400 mt-0.5">{t("memberPortal.joy.send.subtitle")}</p>
@@ -407,7 +397,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
       )}
 
       {section === "missions" && (
-        <div className="space-y-3">
+        <div className="joy-mission-list">
           {loadingChallenges ? (
             <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.missions.subtitle")}</p>
           ) : challenges.length === 0 ? (
@@ -416,7 +406,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
             challenges.map(c => (
               <div
                 key={c.id}
-                className="flex items-center justify-between gap-3 bg-white dark:bg-[#181622] rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-4"
+                className={`joy-mission-card ${c.claimed ? "claimed" : c.completed ? "completed" : ""}`}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
@@ -461,7 +451,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
       )}
 
       {section === "history" && (
-        <div className="space-y-5">
+        <div className="joy-history-grid">
           <div>
             <h4 className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-2 px-1">
               {t("memberPortal.joy.history.transactions")}
@@ -469,9 +459,9 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
             {transactions.length === 0 ? (
               <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.history.empty")}</p>
             ) : (
-              <div className="space-y-2">
+              <div className="joy-history-list">
                 {transactions.map((tx, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 bg-white dark:bg-[#181622] rounded-xl border border-zinc-200 dark:border-zinc-800/80">
+                  <div key={i} className="joy-history-row">
                     <span className="material-symbols-outlined text-[18px] text-zinc-400 shrink-0">
                       {SOURCE_ICONS[tx.source] || "receipt_long"}
                     </span>
@@ -494,9 +484,9 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
             {orders.length === 0 ? (
               <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.history.emptyOrders")}</p>
             ) : (
-              <div className="space-y-2">
+              <div className="joy-history-list">
                 {orders.map(o => (
-                  <div key={o._id} className="flex items-center justify-between p-3 bg-white dark:bg-[#181622] rounded-xl border border-zinc-200 dark:border-zinc-800/80">
+                  <div key={o._id} className="joy-history-row order-row">
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-zinc-800 dark:text-white truncate">{o.productName}</p>
                       <p className="text-[10px] text-zinc-400 font-mono">{o.purchaseCode}</p>
