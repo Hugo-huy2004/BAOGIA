@@ -192,6 +192,7 @@ import { initCompanionScheduler } from './utils/companionScheduler.js';
 import { initProactivePushService } from './services/proactivePushService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
 import { initChessWS } from './services/chessWS.js';
+import { initCronJobs } from './utils/cronJobs.js';
 
 // Create HTTP server so WebSocket can share the same port
 const server = http.createServer(app);
@@ -295,5 +296,8 @@ server.listen(PORT, () => {
 
   // Initialize Duolingo-style smart push (sleep, wellness, streak)
   initSmartNotificationService();
+
+  // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
+  initCronJobs();
 });
 // Nodemon watch trigger

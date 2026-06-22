@@ -8,7 +8,7 @@ export default function AdminBottomNav({
 }) {
   const { t } = useTranslation();
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 nav-bottom-safe bg-white/95 dark:bg-[#12111a]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-40 flex items-center justify-around px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 nav-bottom-safe bg-white/95 dark:bg-background/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-40 flex items-center justify-around px-2 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
       {[
         { id: "users", label: t("adminPanel.bottomNav.users"), icon: "group", count: counts.users },
         { id: "bookings", label: t("adminPanel.bottomNav.bookings"), icon: "calendar_month", count: counts.bookings },
@@ -23,7 +23,7 @@ export default function AdminBottomNav({
           onClick={() => setActiveTab(tab.id)}
           className={`flex flex-col items-center justify-center flex-1 h-full relative transition-all ${
             activeTab === tab.id
-              ? "text-primary dark:text-[#a5b4fc]"
+              ? "text-primary"
               : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
           }`}
         >

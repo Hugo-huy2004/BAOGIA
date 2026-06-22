@@ -9,7 +9,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Vacation & Maintenance Card */}
-        <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
+        <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined text-rose-500 text-lg">admin_panel_settings</span>
             {t("adminTabs.settings.onlineSys")}
@@ -51,7 +51,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
         </div>
 
         {/* Feature Flags Card */}
-        <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
+        <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-lg">toggle_on</span>
             {t("adminTabs.settings.advanced")}
@@ -111,7 +111,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       </div>
 
       {/* SEO Settings */}
-      <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-4">
+      <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-4">
         <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-2">
           <span className="material-symbols-outlined text-blue-500 text-lg">search</span>
           {t("admin.texts.txt_1")}
@@ -149,7 +149,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
       </div>
 
       {/* Advertisement Settings */}
-      <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
+      <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
         <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-base">campaign</span>
           {t("admin.texts.txt_2")}

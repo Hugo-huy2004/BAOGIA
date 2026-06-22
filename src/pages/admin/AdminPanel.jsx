@@ -903,7 +903,7 @@ export default function AdminPanel() {
 
         {/* TAB 2: BOOKINGS */}
         {activeTab === "bookings" && (
-          <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden animate-fadeIn">
+          <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden animate-fadeIn">
             
             {/* Split sub-tabs navigation */}
             <div className="flex border-b border-slate-200 dark:border-slate-800 px-6 pt-4 bg-slate-50/50 dark:bg-[#181622]/40 gap-4">
@@ -911,7 +911,7 @@ export default function AdminPanel() {
                 onClick={() => setBookingSubTab("pending")}
                 className={`pb-3 font-bold text-xs relative transition-all flex items-center gap-2 ${
                   bookingSubTab === "pending"
-                    ? "text-primary dark:text-[#a5b4fc]"
+                    ? "text-primary"
                     : "text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-300"
                 }`}
               >
@@ -930,7 +930,7 @@ export default function AdminPanel() {
                 onClick={() => setBookingSubTab("contacted")}
                 className={`pb-3 font-bold text-xs relative transition-all flex items-center gap-2 ${
                   bookingSubTab === "contacted"
-                    ? "text-primary dark:text-[#a5b4fc]"
+                    ? "text-primary"
                     : "text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-300"
                 }`}
               >
@@ -952,7 +952,7 @@ export default function AdminPanel() {
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="bg-slate-100/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800/70 font-bold uppercase tracking-wider text-[9px]">
+                      <tr className="bg-slate-100/50 dark:bg-slate-900/40 text-muted-foreground border-b border-slate-200 dark:border-slate-800/70 font-bold uppercase tracking-wider text-[9px]">
                         <th className="px-6 py-4 w-16 text-center">{t("admin.texts.txt_125")}</th>
                         <th className="px-6 py-4">{t("admin.texts.txt_126")}</th>
                         <th className="px-6 py-4">{t("admin.texts.txt_127")}</th>
@@ -982,13 +982,13 @@ export default function AdminPanel() {
                             </td>
                             <td className="px-6 py-4">
                               <div className="space-y-1">
-                                <div className="font-bold text-slate-800 dark:text-white text-xs">{booking.fullName}</div>
+                                <div className="font-bold text-foreground text-xs">{booking.fullName}</div>
                                 <div className="text-[10px] text-slate-400 font-mono select-all">{booking.phone}</div>
                                 <div className="text-[10px] text-slate-400 font-mono select-all">{booking.email}</div>
                               </div>
                             </td>
                             <td className="px-6 py-4 max-w-xs">
-                              <p className="text-slate-600 dark:text-slate-300 text-xs line-clamp-3 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
+                              <p className="text-muted-foreground text-xs line-clamp-3 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
                                 {booking.message || t("admin.texts.txt_216")}
                               </p>
                             </td>
@@ -1032,7 +1032,7 @@ export default function AdminPanel() {
                         {/* Top Row: Name, Date, Toggle Contacted status */}
                         <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0">
-                            <h4 className="font-bold text-slate-800 dark:text-white text-xs truncate leading-tight">{booking.fullName}</h4>
+                            <h4 className="font-bold text-foreground text-xs truncate leading-tight">{booking.fullName}</h4>
                             <p className="text-[10px] text-slate-400 mt-0.5 leading-none">
                               {new Date(booking.createdAt).toLocaleDateString('vi-VN')} • {new Date(booking.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                             </p>
@@ -1063,7 +1063,7 @@ export default function AdminPanel() {
                         </div>
 
                         {/* Contact details row */}
-                        <div className="flex flex-wrap gap-2 text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                        <div className="flex flex-wrap gap-2 text-[10px] font-bold text-muted-foreground">
                           <a href={`tel:${booking.phone}`} className="flex items-center gap-1 bg-slate-100/80 dark:bg-[#1a1626]/80 px-2.5 py-1 rounded-lg border border-slate-200/40 dark:border-slate-800/80 font-mono">
                             <span className="material-symbols-outlined text-[9px] font-bold">call</span>
                             <span>{booking.phone}</span>
@@ -1075,7 +1075,7 @@ export default function AdminPanel() {
                         </div>
 
                         {/* Message content */}
-                        <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed italic">
+                        <p className="text-xs text-muted-foreground bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed italic">
                           "{booking.message || t('adminTabs.bookings.empty')}"
                         </p>
 
@@ -1104,7 +1104,7 @@ export default function AdminPanel() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fadeIn">
             
             {/* Left panel: Add partner form */}
-            <div className="lg:col-span-4 bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+            <div className="lg:col-span-4 bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
               <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-base">add_link</span>
                     {t("adminTabs.partners.addBtn")}
@@ -1159,12 +1159,12 @@ export default function AdminPanel() {
             <div className="lg:col-span-8 space-y-6">
               
               {/* List */}
-              <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden flex flex-col justify-between min-h-[350px]">
+              <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden flex flex-col justify-between min-h-[350px]">
                 
                 {/* Header with Search */}
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">handshake</span>
+                    <span className="material-symbols-outlined text-muted-foreground text-base">handshake</span>
                     Danh Sách Đối Tác ({partners.length})
                   </h3>
                   
@@ -1203,7 +1203,7 @@ export default function AdminPanel() {
                               )}
                             </div>
                             <div className="min-w-0">
-                              <h4 className="font-bold text-slate-800 dark:text-white text-xs truncate">{partner.name}</h4>
+                              <h4 className="font-bold text-foreground text-xs truncate">{partner.name}</h4>
                               <p className="text-[10px] text-slate-400 truncate max-w-sm font-mono mt-0.5">{partner.iframeUrl}</p>
                             </div>
                           </div>
@@ -1265,14 +1265,14 @@ export default function AdminPanel() {
                       <button
                         onClick={() => setPartnerPage(p => Math.max(p - 1, 1))}
                         disabled={partnerPage === 1}
-                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-background text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
                       >
                         Trước
                       </button>
                       <button
                         onClick={() => setPartnerPage(p => Math.min(p + 1, totalPartnerPages))}
                         disabled={partnerPage === totalPartnerPages}
-                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161420] text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-background text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors"
                       >
                         Sau
                       </button>
@@ -1283,10 +1283,10 @@ export default function AdminPanel() {
 
               {/* Preview modal drawer formatted as a browser frame */}
               {previewPartner && (
-                <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4 animate-fadeIn">
+                <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4 animate-fadeIn">
                   <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                     <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-sm">visibility</span>
+                      <span className="material-symbols-outlined text-muted-foreground text-sm">visibility</span>
                       {t("adminTabs.partners.previewPrefix")} {previewPartner.name}
                     </h4>
                     <button 
@@ -1298,7 +1298,7 @@ export default function AdminPanel() {
                   </div>
 
                   {/* Modern Browser Mock Frame */}
-                  <div className="w-full bg-[#f1f5f9] dark:bg-[#1c1a27] rounded-xl overflow-hidden border border-slate-300 dark:border-slate-800 flex flex-col shadow-inner">
+                  <div className="w-full bg-[#f1f5f9] dark:bg-card rounded-xl overflow-hidden border border-slate-300 dark:border-slate-800 flex flex-col shadow-inner">
                     {/* Browser top-bar */}
                     <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-200/60 dark:bg-slate-900/60 border-b border-slate-300 dark:border-slate-800 select-none">
                       <div className="flex gap-1.5">
@@ -1344,7 +1344,7 @@ export default function AdminPanel() {
             <div className="lg:col-span-5 space-y-6">
               
               {/* Create package form */}
-              <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-base">add_card</span>
                   {t("adminTabs.packages.createTpl")}
@@ -1412,7 +1412,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Grant package form */}
-              <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-emerald-500 text-base">card_membership</span>
                   {t("adminTabs.packages.grant")}
@@ -1476,7 +1476,7 @@ export default function AdminPanel() {
             <div className="lg:col-span-7 space-y-6">
               
               {/* Search and delete user packages */}
-              <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <div className="space-y-1">
                   <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
                     <span className="material-symbols-outlined text-rose-500 text-base">manage_accounts</span>
@@ -1520,7 +1520,7 @@ export default function AdminPanel() {
                       <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("adminTabs.packages.currentPackages")}</span>
                       
                       {/* Base package (non-deletable) */}
-                      <div className="flex items-center justify-between p-3 bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+                      <div className="flex items-center justify-between p-3 bg-white dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
                         <div className="flex items-center gap-2">
                           <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
                           <div>
@@ -1534,7 +1534,7 @@ export default function AdminPanel() {
                       {/* Custom packages */}
                       {searchedMemberBio.packages && searchedMemberBio.packages.length > 0 ? (
                         searchedMemberBio.packages.map((pkg) => (
-                          <div key={pkg._id} className="flex items-center justify-between p-3 bg-white dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 hover:border-red-500/20 transition-all shadow-sm">
+                          <div key={pkg._id} className="flex items-center justify-between p-3 bg-white dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 hover:border-red-500/20 transition-all shadow-sm">
                             <div className="flex items-center gap-2">
                               <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: pkg.color || "#10b981" }} />
                               <div>
@@ -1560,9 +1560,9 @@ export default function AdminPanel() {
               </div>
 
               {/* Package templates list */}
-              <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+              <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">list_alt</span>
+                  <span className="material-symbols-outlined text-muted-foreground text-base">list_alt</span>
                     {t("adminTabs.packages.templates")} ({packageTemplates.length})
                   </h3>
 
@@ -1576,7 +1576,7 @@ export default function AdminPanel() {
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex items-center gap-2">
                             <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: pkg.color || "#6366f1" }} />
-                            <h4 className="font-bold text-xs text-slate-800 dark:text-white uppercase tracking-wide">{pkg.name}</h4>
+                            <h4 className="font-bold text-xs text-foreground uppercase tracking-wide">{pkg.name}</h4>
                           </div>
                           <button
                             onClick={() => handleDeletePackageTemplate(pkg._id)}
@@ -1592,7 +1592,7 @@ export default function AdminPanel() {
                           <span className="font-bold text-slate-700 dark:text-zinc-300 font-mono">+{pkg.duration} {pkg.durationUnit === "days" ? t("adminTabs.packages.days") : pkg.durationUnit === "years" ? t("adminTabs.packages.years") : t("adminTabs.packages.months")}</span>
                         </div>
 
-                        <div className="flex justify-between items-center bg-white dark:bg-[#1c1c1e] p-2 rounded-xl border border-zinc-200/50 dark:border-zinc-800 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+                        <div className="flex justify-between items-center bg-white dark:bg-card p-2 rounded-xl border border-zinc-200/50 dark:border-zinc-800 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
                           <div className="flex items-center gap-1.5 overflow-hidden">
                             <span className="material-symbols-outlined text-[11px] text-amber-500">redeem</span>
                             <span className="font-mono text-xs font-black tracking-widest text-slate-800 dark:text-slate-200 truncate">{pkg.giftCode || "NONE"}</span>
@@ -1676,7 +1676,7 @@ export default function AdminPanel() {
           <div className="space-y-6 animate-fadeIn">
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+              <div className="bg-white dark:bg-background p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
                 <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-[#a5b4fc] flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-xl">support_agent</span>
                 </div>
@@ -1684,11 +1684,11 @@ export default function AdminPanel() {
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     {t("adminSupport.totalReq")}
                   </div>
-                  <div className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">{supportTickets.length || 0}</div>
+                  <div className="text-lg font-extrabold text-foreground mt-0.5">{supportTickets.length || 0}</div>
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+              <div className="bg-white dark:bg-background p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
                 <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-[#fde047] flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-xl animate-pulse">pending</span>
                 </div>
@@ -1696,11 +1696,11 @@ export default function AdminPanel() {
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     {t("adminSupport.pending")}
                   </div>
-                  <div className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">{pendingTicketsCount}</div>
+                  <div className="text-lg font-extrabold text-foreground mt-0.5">{pendingTicketsCount}</div>
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+              <div className="bg-white dark:bg-background p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
                 <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-[#86efac] flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-xl">check_circle</span>
                 </div>
@@ -1708,7 +1708,7 @@ export default function AdminPanel() {
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     {t("adminSupport.resolved")}
                   </div>
-                  <div className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">
+                  <div className="text-lg font-extrabold text-foreground mt-0.5">
                     {Math.max(0, (supportTickets.length || 0) - pendingTicketsCount)}
                   </div>
                 </div>
@@ -1716,7 +1716,7 @@ export default function AdminPanel() {
             </div>
 
             {/* Filter and Content Card */}
-            <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
+            <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-6">
               
               {/* Header section with Filter controls */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-5">
@@ -1765,7 +1765,7 @@ export default function AdminPanel() {
                       return (
                         <div
                           key={ticket._id}
-                          className="p-5 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-[#161420]/30 hover:border-slate-200 dark:hover:border-slate-700/60 transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
+                          className="p-5 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-background/30 hover:border-slate-200 dark:hover:border-slate-700/60 transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
                         >
                           {/* Left column: User info & description */}
                           <div className="flex gap-4 items-start min-w-0">
@@ -1777,7 +1777,7 @@ export default function AdminPanel() {
                             <div className="space-y-2 min-w-0">
                               <div>
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="font-extrabold text-sm text-slate-800 dark:text-white">{ticket.fullName}</span>
+                                  <span className="font-extrabold text-sm text-foreground">{ticket.fullName}</span>
                                   <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
                                     ticket.status === 'pending'
                                       ? "bg-amber-500/10 text-amber-500"
@@ -1803,7 +1803,7 @@ export default function AdminPanel() {
 
                               <div className="pt-2">
                                 <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">{t("adminSupport.inquiry")}</span>
-                                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-3.5 rounded-xl whitespace-pre-wrap select-text">
+                                <p className="mt-1 text-xs text-muted-foreground leading-relaxed font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-3.5 rounded-xl whitespace-pre-wrap select-text">
                                   {ticket.issue}
                                 </p>
                               </div>
@@ -1851,14 +1851,14 @@ export default function AdminPanel() {
                         <button
                           disabled={supportPage === 1}
                           onClick={() => setSupportPage(prev => Math.max(1, prev - 1))}
-                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-muted-foreground hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                         >
                           Trước
                         </button>
                         <button
                           disabled={supportPage === supportTotalPages}
                           onClick={() => setSupportPage(prev => Math.min(supportTotalPages, prev + 1))}
-                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                          className="px-4 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-muted-foreground hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                         >
                           Sau
                         </button>
@@ -1883,13 +1883,13 @@ export default function AdminPanel() {
       {/* CONFIRM DELETE BIO ACCOUNT MODAL */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-background border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center gap-2 text-rose-500">
               <span className="material-symbols-outlined text-2xl animate-pulse">warning</span>
               <h3 className="font-extrabold text-sm uppercase tracking-wider">{t("adminPanel.modals.delAccountTitle")}</h3>
             </div>
             
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               {t("adminPanel.modals.delAccountReq1")} <strong>{deleteTarget.displayName}</strong> ({deleteTarget.email}) {t("adminPanel.modals.delAccountReq2")} <code>/bio/{deleteTarget.slug}</code>.
             </p>
             <div className="text-xs text-red-600 bg-red-50 dark:bg-red-950/20 p-3 rounded-xl border border-red-100 dark:border-red-900/30 font-semibold">
@@ -1937,11 +1937,11 @@ export default function AdminPanel() {
       {/* EXPORT DIRECT PARTNER LINK MODAL */}
       {exportLinkPartner && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-xl w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-background border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-xl w-full shadow-2xl space-y-4">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-405">
                 <span className="material-symbols-outlined text-xl">link</span>
-                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">{t("adminPanel.modals.exportLinkTitle")} {exportLinkPartner.name}</h3>
+                <h3 className="font-extrabold text-xs uppercase tracking-wider text-foreground">{t("adminPanel.modals.exportLinkTitle")} {exportLinkPartner.name}</h3>
               </div>
               <button 
                 onClick={() => setExportLinkPartner(null)}
@@ -1966,7 +1966,7 @@ export default function AdminPanel() {
                 />
               </div>
 
-              <div className="bg-slate-50 dark:bg-[#1f1929] p-3 rounded-xl border border-slate-200 dark:border-slate-800/80 text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              <div className="bg-slate-50 dark:bg-[#1f1929] p-3 rounded-xl border border-slate-200 dark:border-slate-800/80 text-[10px] text-muted-foreground leading-relaxed">
                 If partner website already has member's email, auto-pass via param: <code>{`${getPartnerBioEditorUrl(exportLinkPartner)}&email=CUSTOMER_EMAIL`}</code>
               </div>
             </div>
@@ -1997,11 +1997,11 @@ export default function AdminPanel() {
       {/* EXPORT IFRAME PARTNER MODAL */}
       {exportPartner && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-xl w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-background border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-xl w-full shadow-2xl space-y-4">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                 <span className="material-symbols-outlined text-xl">share</span>
-                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 dark:text-white">{t("adminPanel.modals.exportIframeTitle")} {exportPartner.name}</h3>
+                <h3 className="font-extrabold text-xs uppercase tracking-wider text-foreground">{t("adminPanel.modals.exportIframeTitle")} {exportPartner.name}</h3>
               </div>
               <button 
                 onClick={() => setExportPartner(null)}
@@ -2081,12 +2081,12 @@ export default function AdminPanel() {
       {/* CUSTOM REUSABLE CONFIRM MODAL */}
       {confirmModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-background border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-sm w-full shadow-2xl space-y-4">
             <div className="flex items-center gap-2 text-rose-500">
               <span className="material-symbols-outlined text-2xl">warning</span>
-              <h3 className="font-extrabold text-sm uppercase tracking-wider text-slate-800 dark:text-white">{t("adminPanel.core.modalConfirmTitle")}</h3>
+              <h3 className="font-extrabold text-sm uppercase tracking-wider text-foreground">{t("adminPanel.core.modalConfirmTitle")}</h3>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               {confirmModal.message}
             </p>
             <div className="flex gap-3 pt-2">

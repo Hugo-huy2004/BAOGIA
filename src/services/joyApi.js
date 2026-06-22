@@ -18,11 +18,11 @@ export async function resolvePhone(phone) {
   return parseOrThrow(res);
 }
 
-export async function transferJoy({ fromEmail, toPhone, amount }) {
+export async function transferJoy({ fromEmail, toPhone, amount, message }) {
   const res = await fetch(`${getApiUrl()}/joy/transfer`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fromEmail, toPhone, amount })
+    body: JSON.stringify({ fromEmail, toPhone, amount, message })
   });
   return parseOrThrow(res);
 }

@@ -54,15 +54,18 @@ router.post('/purchase', async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
-    if (bio.joyBalance < product.priceJoy) {
-      return res.status(400).json({ error: 'Số dư JOY không đủ.' });
+    const taxes = Math.floor(product.priceJoy * 0.09);
+    const totalCost = product.priceJoy + taxes;
+
+    if (bio.joyBalance < totalCost) {
+      return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${totalCost} JOY (bao gồm 9% thuế).` });
     }
 
     const { balance } = await awardJoy(
       email,
-      -product.priceJoy,
+      -totalCost,
       'store_purchase',
-      `Mua "${product.name}"`,
+      `Mua "${product.name}" (giá ${product.priceJoy} JOY + thuế ${taxes} JOY)`,
       { notify: false, bioDoc: bio, skipSave: true }
     );
 
@@ -102,7 +105,7 @@ router.post('/purchase', async (req, res) => {
       email,
       productId: product._id,
       productName: product.name,
-      priceJoy: product.priceJoy,
+      priceJoy: totalCost,
       purchaseCode,
       status: 'completed'
     });
@@ -117,7 +120,7 @@ router.post('/purchase', async (req, res) => {
       type: 'success',
       category: 'joy',
       title: 'Mua hàng thành công!',
-      message: `Bạn đã mua "${product.name}" với ${product.priceJoy} JOY${fulfillmentNote}. Mã đơn hàng: ${purchaseCode}`,
+      message: `Bạn đã mua "${product.name}" với ${totalCost} JOY${fulfillmentNote}. Mã đơn hàng: ${purchaseCode}`,
       actionUrl: '/member'
     });
 

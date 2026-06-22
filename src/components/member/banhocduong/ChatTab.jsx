@@ -1478,7 +1478,7 @@ export default function ChatTab({
       {showTestsMenu && (
         <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/50 backdrop-blur-sm"
           onClick={() => setShowTestsMenu(false)}>
-          <div className="bg-white dark:bg-[#1c1c1e] rounded-t-3xl px-5 pt-4 pb-6 space-y-2.5"
+          <div className="bg-white dark:bg-card rounded-t-3xl px-5 pt-4 pb-6 space-y-2.5"
             onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-1">
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Bài đánh giá lâm sàng</p>
@@ -1641,7 +1641,7 @@ export default function ChatTab({
           )}
 
           {/* ── Unified Floating Text Input Console ────────────────────────────────────────────── */}
-          <div className="mx-4 mb-2.5 p-1.5 rounded-3xl bg-white/90 dark:bg-[#1a1924]/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-lg flex items-center gap-1.5 transition-all focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/40">
+          <div className="mx-4 mb-2.5 p-1.5 rounded-3xl bg-white/90 dark:bg-card/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-lg flex items-center gap-1.5 transition-all focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/40">
 
             {/* Voice to text (compact) */}
             <button type="button" onClick={startListening}

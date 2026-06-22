@@ -41,20 +41,20 @@ export class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       if (this.state.autoReloading) {
         return (
-          <div className="min-h-screen flex items-center justify-center bg-surface dark:bg-[#0b0a0f] p-4">
+          <div className="min-h-screen flex items-center justify-center bg-surface dark:bg-background p-4">
             <div className="text-center space-y-3">
               <div className="w-8 h-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto" />
-              <p className="text-sm text-slate-500 dark:text-slate-400">Đang tải phiên bản mới nhất...</p>
+              <p className="text-sm text-muted-foreground">Đang tải phiên bản mới nhất...</p>
             </div>
           </div>
         );
       }
       return (
-        <div className="min-h-screen flex items-center justify-center bg-surface dark:bg-[#0b0a0f] p-4">
-          <div className="max-w-md w-full bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-center space-y-4">
+        <div className="min-h-screen flex items-center justify-center bg-surface dark:bg-background p-4">
+          <div className="max-w-md w-full bg-white dark:bg-background border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-center space-y-4">
             <span className="material-symbols-outlined text-5xl text-rose-500">error</span>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white">Có lỗi xảy ra</h1>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
+            <h1 className="text-2xl font-black text-foreground">Có lỗi xảy ra</h1>
+            <p className="text-sm text-muted-foreground">
               {this.state.error?.message || 'Vui lòng làm mới trang'}
             </p>
             <button

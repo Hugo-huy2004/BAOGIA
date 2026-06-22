@@ -167,7 +167,7 @@ export default function ChatMessages({
     if (!txt) return "";
     return txt.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
       part.startsWith("**") && part.endsWith("**")
-        ? <strong key={i} className="font-bold text-[#0071e3] dark:text-sky-400">{part.slice(2, -2)}</strong>
+        ? <strong key={i} className="font-bold text-primary dark:text-sky-400">{part.slice(2, -2)}</strong>
         : part
     );
   };
@@ -333,7 +333,7 @@ export default function ChatMessages({
                         <span className="text-[10px] font-extrabold uppercase tracking-wider">Chọn lộ trình</span>
                       </div>
                       <button type="button" onClick={() => onSelectDuration(msg.id, msg.recommendedDays)}
-                        className="w-full py-2 text-[11px] font-extrabold bg-[#0071e3] hover:bg-blue-600 text-white rounded-xl transition-all active:scale-95">
+                        className="w-full py-2 text-[11px] font-extrabold bg-primary hover:bg-blue-600 text-white rounded-xl transition-all active:scale-95">
                         Đồng ý ({msg.recommendedDays} ngày)
                       </button>
                       <div className="grid grid-cols-3 gap-1">

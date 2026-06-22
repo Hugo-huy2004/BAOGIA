@@ -188,7 +188,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
 
     return (
       <div className="bg-[#15141c] rounded-lg p-3 border border-zinc-800 shadow-lg relative">
-        <h4 className="text-[9px] font-black tracking-widest text-[#0071e3] uppercase mb-2 text-center">
+        <h4 className="text-[9px] font-black tracking-widest text-primary uppercase mb-2 text-center">
           Biểu đồ L - F - K
         </h4>
         <div className="relative flex justify-center">
@@ -254,7 +254,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
       </div>
 
       {scanState === "idle" && (
-        <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-xl p-6 text-center space-y-4 hover:border-[#0071e3] transition-all">
+        <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-xl p-6 text-center space-y-4 hover:border-primary transition-all">
           <input
             type="file"
             accept="image/*,application/pdf"
@@ -274,7 +274,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
           />
           <label htmlFor="chat-scanner-input-sub" className="cursor-pointer block space-y-3 py-2">
             <span className="material-symbols-outlined text-3xl text-zinc-450 block">cloud_upload</span>
-            <span className="text-[10.5px] font-black uppercase text-[#0071e3] hover:underline block">Chọn file ảnh hoặc PDF</span>
+            <span className="text-[10.5px] font-black uppercase text-primary hover:underline block">Chọn file ảnh hoặc PDF</span>
             <span className="text-[9px] text-zinc-400 dark:text-zinc-500 block">Chấp nhận PNG, JPG, PDF bệnh án</span>
           </label>
 
@@ -290,7 +290,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                 <button
                   type="button"
                   onClick={() => handleStartScan("dass")}
-                  className="px-3 py-1.5 bg-[#0071e3] text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-[#0077ed]"
+                  className="px-3 py-1.5 bg-primary text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-[#0077ed]"
                 >
                   DASS-42
                 </button>
@@ -316,18 +316,18 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
 
       {scanState === "scanning" && (
         <div className="p-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl space-y-4 text-center">
-          <span className="material-symbols-outlined text-2xl text-[#0071e3] animate-spin">refresh</span>
+          <span className="material-symbols-outlined text-2xl text-primary animate-spin">refresh</span>
           <p className="text-[10.5px] font-bold text-zinc-800 dark:text-zinc-200">
             {SCAN_STEPS[scanStepIdx]}
           </p>
           <div className="w-full bg-zinc-100 dark:bg-zinc-850 h-2 rounded-full overflow-hidden">
-            <div className="bg-[#0071e3] h-full transition-all duration-300" style={{ width: `${((scanStepIdx + 1) / 4) * 100}%` }} />
+            <div className="bg-primary h-full transition-all duration-300" style={{ width: `${((scanStepIdx + 1) / 4) * 100}%` }} />
           </div>
         </div>
       )}
 
       {scanState === "verified" && (
-        <div className="p-5 pt-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-[#1a1924] rounded-xl space-y-5 animate-scaleUp max-h-[340px] md:max-h-[360px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800">
+        <div className="p-5 pt-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-card rounded-xl space-y-5 animate-scaleUp max-h-[340px] md:max-h-[360px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800">
           <h5 className="text-[11px] font-black uppercase tracking-wider text-zinc-900 dark:text-white border-b pb-1">
             Xác thực thông tin trích xuất
           </h5>
@@ -389,7 +389,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
           ) : (
             <div className="space-y-4">
               <div className="space-y-2">
-                <span className="text-[9px] font-black uppercase text-[#0071e3] tracking-widest block">Thang đo kiểm định L-F-K</span>
+                <span className="text-[9px] font-black uppercase text-primary tracking-widest block">Thang đo kiểm định L-F-K</span>
                 <div className="grid grid-cols-3 gap-2">
                   {["L", "F", "K"].map((scale) => (
                     <div key={scale} className="space-y-1 text-center">
@@ -443,7 +443,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
             <button
               type="button"
               onClick={handleSave}
-              className="flex-1 py-2 bg-[#0071e3] text-white hover:bg-[#0077ed] text-[9.5px] font-black uppercase rounded"
+              className="flex-1 py-2 bg-primary text-white hover:bg-[#0077ed] text-[9.5px] font-black uppercase rounded"
             >
               Lưu hồ sơ & Trả lời
             </button>

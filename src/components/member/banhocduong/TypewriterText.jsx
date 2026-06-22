@@ -46,7 +46,7 @@ export default function TypewriterText({ text, id, onComplete }) {
     return parts.map((part, idx) => {
       if (part.startsWith("**") && part.endsWith("**")) {
         return (
-          <strong key={idx} className="font-extrabold text-[#0071e3] dark:text-emerald-405">
+          <strong key={idx} className="font-extrabold text-primary dark:text-emerald-405">
             {part.slice(2, -2)}
           </strong>
         );

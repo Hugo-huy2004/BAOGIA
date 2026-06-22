@@ -96,7 +96,7 @@ function MemberHistoryTab({ bio, t }) {
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
           <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-            <span className="material-symbols-outlined text-base text-[#0071e3]">notifications</span>{t("memberTabs.history.title")}</h2>
+            <span className="material-symbols-outlined text-base text-primary">notifications</span>{t("memberTabs.history.title")}</h2>
           <p className="text-[10px] text-zinc-450">
             {filteredEntries.length > 0 
               ? t("memberTabs.history.notification_count", { count: filteredEntries.length }) 
@@ -120,8 +120,8 @@ function MemberHistoryTab({ bio, t }) {
               onClick={() => setActiveFilter(filter.id)}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all duration-200 shrink-0 ${
                 active 
-                  ? "bg-[#0071e3] border-[#0071e3] text-white shadow-sm" 
-                  : "bg-white dark:bg-[#1a1924]/60 border-zinc-200/60 dark:border-zinc-800/80 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-250"
+                  ? "bg-primary border-primary text-white shadow-sm" 
+                  : "bg-white dark:bg-card/60 border-border/50 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-250"
               }`}
             >
               <span className="material-symbols-outlined text-xs">{filter.icon}</span>
@@ -133,7 +133,7 @@ function MemberHistoryTab({ bio, t }) {
 
       {/* Empty State */}
       {filteredEntries.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 bg-white/40 dark:bg-[#1a1924]/40 border border-zinc-150 dark:border-zinc-850 rounded-2xl p-6">
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 bg-white/40 dark:bg-card/40 border border-zinc-150 dark:border-zinc-850 rounded-2xl p-6">
           <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-300 dark:text-zinc-700">
             <span className="material-symbols-outlined text-2xl">notifications_off</span>
           </div>
@@ -161,7 +161,7 @@ function MemberHistoryTab({ bio, t }) {
                   return (
                     <div
                       key={idx}
-                      className="group flex gap-3.5 p-4 bg-white/60 dark:bg-[#1a1924]/60 backdrop-blur-xl rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm transition-all duration-300 hover:scale-[1.005] hover:shadow-md"
+                      className="group flex gap-3.5 p-4 bg-white/60 dark:bg-card/60 backdrop-blur-xl rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm transition-all duration-300 hover:scale-[1.005] hover:shadow-md"
                     >
                       {/* Left icon wrapper */}
                       <div className="shrink-0">

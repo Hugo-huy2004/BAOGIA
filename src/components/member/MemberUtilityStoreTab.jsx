@@ -171,12 +171,30 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
                 </div>
               )}
               <div className="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-zinc-800">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmPrice")}</span>
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmPrice", "Giá gốc")}</span>
                 <JoyCoinBadge amount={confirmProduct.priceJoy} size="sm" />
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmBalanceAfter")}</span>
-                <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">{(balance - confirmProduct.priceJoy).toLocaleString("vi-VN")} JOY</span>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-[10px] font-medium text-zinc-500">Thuế cấp hàng (2%)</span>
+                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-[10px] font-medium text-zinc-500">Thuế hỗ trợ (5%)</span>
+                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">+{Math.floor(confirmProduct.priceJoy * 0.05)} JOY</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-[10px] font-medium text-zinc-500">Thuế bảo dưỡng (2%)</span>
+                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-dashed border-zinc-200 dark:border-zinc-800">
+                <span className="text-[10px] font-black text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Tổng thanh toán</span>
+                <span className="text-sm font-black text-zinc-900 dark:text-white">
+                  {confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09)} JOY
+                </span>
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmBalanceAfter", "Số dư sau mua")}</span>
+                <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">{(balance - (confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09))).toLocaleString("vi-VN")} JOY</span>
               </div>
             </div>
 

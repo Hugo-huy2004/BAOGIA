@@ -11,7 +11,7 @@ const CATEGORY_ICON = {
 const TYPE_COLOR = {
   success: 'text-emerald-500',
   warning: 'text-amber-500',
-  info:    'text-[#0071e3]',
+  info:    'text-primary',
   error:   'text-red-500',
 };
 const TYPE_BG = {
@@ -77,7 +77,7 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
         <div className="flex items-center gap-3">
           {unreadCount > 0 && (
             <button type="button" onClick={onMarkAllRead}
-              className="text-[10px] font-bold text-[#0071e3] dark:text-[#0a84ff] hover:underline">
+              className="text-[10px] font-bold text-primary dark:text-primary hover:underline">
               Đọc tất cả
             </button>
           )}
@@ -119,7 +119,7 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
                     <p className={`text-[11px] font-bold leading-snug ${n.read ? 'text-zinc-600 dark:text-zinc-400' : 'text-zinc-800 dark:text-zinc-200'}`}>
                       {n.title}
                     </p>
-                    {!n.read && <div className="w-2 h-2 rounded-full bg-[#0071e3] mt-0.5 shrink-0" />}
+                    {!n.read && <div className="w-2 h-2 rounded-full bg-primary mt-0.5 shrink-0" />}
                   </div>
                   {n.message && (
                     <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed line-clamp-2">{n.message}</p>
@@ -195,7 +195,7 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-              className="absolute right-0 top-11 w-[360px] bg-white/96 dark:bg-[#1c1c1e]/96 backdrop-blur-2xl border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl shadow-2xl z-[200] overflow-hidden flex flex-col"
+              className="absolute right-0 top-11 w-[360px] bg-white/96 dark:bg-card/96 backdrop-blur-2xl border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl shadow-2xl z-[200] overflow-hidden flex flex-col"
             >
               {panelContent}
             </motion.div>
@@ -212,7 +212,7 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 340, damping: 32 }}
-            className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1c1c1e] rounded-t-3xl z-[149] flex flex-col shadow-2xl"
+            className="fixed bottom-0 left-0 right-0 bg-white dark:bg-card rounded-t-3xl z-[149] flex flex-col shadow-2xl"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
           >
             {/* Drag handle */}

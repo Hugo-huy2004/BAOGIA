@@ -3,7 +3,7 @@ import React from "react";
 export default function RejectedVerification({ handleLogout }) {
   return (
     <div className="max-w-md mx-auto py-12 px-4 animate-fadeIn relative">
-      <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-800/60 p-8 rounded-xl shadow-xl text-center space-y-6 relative overflow-hidden">
+      <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-800/60 p-8 rounded-xl shadow-xl text-center space-y-6 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-rose-500" />
         
         <div className="w-16 h-16 bg-red-55/5 dark:bg-red-950/20 text-red-500 rounded-full flex items-center justify-center mx-auto border border-red-100 dark:border-red-900/40">

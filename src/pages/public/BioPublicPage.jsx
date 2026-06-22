@@ -58,7 +58,7 @@ export default function BioPublicPage() {
 
   if (loading) {
     return (
-      <main className="min-h-[100dvh] flex items-center justify-center bg-[#0b0910]">
+      <main className="min-h-[100dvh] flex items-center justify-center bg-background">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto" />
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Loading...</p>
@@ -69,7 +69,7 @@ export default function BioPublicPage() {
 
   if (!bio || expired || bio.status === 'locked' || bio.status === 'pending') {
     return (
-      <main className="min-h-[100dvh] flex items-center justify-center bg-[#0b0910] px-4">
+      <main className="min-h-[100dvh] flex items-center justify-center bg-background px-4">
         <div className="w-full max-w-md bg-white/5 border border-white/10 p-8 rounded-3xl text-center space-y-4 shadow-xl">
           <span className={`material-symbols-outlined text-4xl ${bio?.status === 'pending' ? 'text-amber-500 dark:text-amber-500' : 'text-red-550 dark:text-red-500'}`}>
             {bio?.status === 'pending' ? 'hourglass_empty' : 'lock'}

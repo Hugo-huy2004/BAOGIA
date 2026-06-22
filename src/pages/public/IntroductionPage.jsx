@@ -121,7 +121,7 @@ export default function IntroductionPage() {
             onClick={() => scrollToSlide(idx)}
             className="group flex items-center justify-end gap-3 text-right focus:outline-none"
           >
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-[10px] font-bold tracking-widest text-[#6366f1] dark:text-[#a5b4fc] uppercase">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-[10px] font-bold tracking-widest text-primary uppercase">
               {idx === 0 && t("intro.nav.welcome")}
               {idx === 1 && t("intro.nav.webDev")}
               {idx === 2 && t("intro.nav.personalInfo")}
@@ -136,8 +136,8 @@ export default function IntroductionPage() {
             <div
               className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 ${
                 activeIndex === idx
-                  ? "bg-[#6366f1] border-[#6366f1] scale-125 shadow-lg shadow-[#6366f1]/30"
-                  : "border-slate-400/50 bg-transparent hover:border-[#6366f1]"
+                  ? "bg-primary border-primary scale-125 shadow-lg shadow-primary/30"
+                  : "border-slate-400/50 bg-transparent hover:border-primary"
               }`}
             />
           </button>
@@ -154,7 +154,7 @@ export default function IntroductionPage() {
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="w-full h-full overflow-y-auto snap-y snap-mandatory scroll-smooth no-scrollbar text-slate-800 dark:text-slate-100 relative z-10"
+        className="w-full h-full overflow-y-auto snap-y snap-mandatory scroll-smooth no-scrollbar text-foreground relative z-10"
       >
         
         {/* SLIDE 1: Welcome Section */}
@@ -178,7 +178,7 @@ export default function IntroductionPage() {
               opacity: [0.3, 0.6, 0.3]
             }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[10%] md:top-[20%] right-[5%] md:right-[15%] w-24 h-24 md:w-32 md:h-32 bg-[#fbbf24]/30 rounded-full blur-[40px] md:blur-[60px] pointer-events-none"
+            className="absolute top-[10%] md:top-[20%] right-[5%] md:right-[15%] w-24 h-24 md:w-32 md:h-32 bg-amber-400/30 rounded-full blur-[40px] md:blur-[60px] pointer-events-none"
           />
           <motion.div 
             animate={{ 
@@ -188,7 +188,7 @@ export default function IntroductionPage() {
               opacity: [0.2, 0.5, 0.2]
             }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute bottom-[15%] md:bottom-[25%] left-[5%] md:left-[25%] w-32 h-32 md:w-48 md:h-48 bg-[#6366f1]/30 rounded-full blur-[50px] md:blur-[80px] pointer-events-none"
+            className="absolute bottom-[15%] md:bottom-[25%] left-[5%] md:left-[25%] w-32 h-32 md:w-48 md:h-48 bg-primary/30 rounded-full blur-[50px] md:blur-[80px] pointer-events-none"
           />
 
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10 h-full justify-center">
@@ -201,7 +201,7 @@ export default function IntroductionPage() {
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 className="flex justify-center lg:justify-start"
               >
-                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-[#6366f1]/20 to-[#0ea5e9]/20 text-[#6366f1] dark:text-[#a5b4fc] border border-[#6366f1]/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-primary/20 to-accent/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
                   {t("intro.slide1.badge")}
                 </span>
               </motion.div>
@@ -210,10 +210,10 @@ export default function IntroductionPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-                className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-slate-900 dark:text-white"
+                className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-foreground"
               >
                 {t("intro.slide1.title1")} <br className="hidden sm:inline" />
-                <span className="bg-gradient-to-r from-[#6366f1] via-[#0ea5e9] to-[#fbbf24] bg-clip-text text-transparent animate-gradientShift">
+                <span className="bg-gradient-to-r from-primary via-accent to-[#fbbf24] bg-clip-text text-transparent animate-gradientShift">
                   {t("intro.slide1.title2")}
                 </span>
               </motion.h1>
@@ -222,10 +222,10 @@ export default function IntroductionPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-                className="text-[13px] sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed mx-auto lg:mx-0 px-2 sm:px-0"
+                className="text-[13px] sm:text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed mx-auto lg:mx-0 px-2 sm:px-0"
               >
                 <Trans i18nKey="intro.slide1.desc" values={{ name: data.profile.fullName }}>
-                  Chào mừng bạn đến với không gian sáng tạo của <strong className="text-[#6366f1] dark:text-[#a5b4fc] font-bold">{{name: data.profile.fullName}}</strong>. Nơi tôi kết hợp tính nghệ thuật tinh tế và sức mạnh kỹ thuật để tạo ra những sản phẩm số đẳng cấp.
+                  Chào mừng bạn đến với không gian sáng tạo của <strong className="text-primary font-bold">{{name: data.profile.fullName}}</strong>. Nơi tôi kết hợp tính nghệ thuật tinh tế và sức mạnh kỹ thuật để tạo ra những sản phẩm số đẳng cấp.
                 </Trans>
               </motion.p>
               
@@ -239,13 +239,13 @@ export default function IntroductionPage() {
                   onClick={() => scrollToSlide(1)}
                   className="group relative inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 text-xs sm:text-sm"
                 >
-                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#6366f1] to-[#0ea5e9] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   <span className="relative z-10 flex items-center gap-2">
                     {t("intro.slide1.explore")}
                     <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
                   </span>
                 </button>
-                <Link to="/booking" className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-slate-200 dark:border-white/10 text-slate-700 dark:text-white font-bold hover:border-[#6366f1] hover:text-[#6366f1] dark:hover:border-white/30 transition-all duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-sm">
+                <Link to="/booking" className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-border/50 text-slate-700 dark:text-white font-bold hover:border-primary hover:text-primary dark:hover:border-white/30 transition-all duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-sm">
                   {t("intro.slide1.book")}
                 </Link>
               </motion.div>
@@ -258,7 +258,7 @@ export default function IntroductionPage() {
               transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
               className="w-full lg:col-span-5 flex justify-center relative mt-6 mb-4 md:mt-0 order-2 lg:order-none scale-[1.05] md:scale-100"
             >
-              <div className="absolute w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] md:w-[380px] md:h-[380px] lg:w-[480px] lg:h-[480px] rounded-full bg-gradient-to-br from-[#6366f1]/30 to-[#0ea5e9]/30 blur-[50px] lg:blur-[100px] animate-pulse-soft" />
+              <div className="absolute w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] md:w-[380px] md:h-[380px] lg:w-[480px] lg:h-[480px] rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-[50px] lg:blur-[100px] animate-pulse-soft" />
               
               {/* Spinning geometric rings */}
               <motion.div 
@@ -269,16 +269,16 @@ export default function IntroductionPage() {
               <motion.div 
                 animate={{ rotate: -360 }}
                 transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-                className="absolute top-2 left-2 sm:top-4 sm:left-4 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] lg:w-[420px] lg:h-[420px] rounded-full border border-slate-200 dark:border-[#6366f1]/20 pointer-events-none" 
+                className="absolute top-2 left-2 sm:top-4 sm:left-4 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] lg:w-[420px] lg:h-[420px] rounded-full border border-slate-200 dark:border-primary/20 pointer-events-none" 
               />
 
               {/* Floating Tech Badges - Specifically added for mobile pop */}
               <motion.div 
                 animate={{ y: [-10, 10, -10], rotate: [0, 10, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -left-2 top-8 md:-left-8 md:top-20 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-2 md:p-3 rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 z-30"
+                className="absolute -left-2 top-8 md:-left-8 md:top-20 glass p-2 md:p-3 rounded-2xl shadow-xl border border-border/50 z-30"
               >
-                <div className="text-[#0ea5e9] font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
+                <div className="text-accent font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
                   <span className="material-symbols-outlined text-lg md:text-xl">code</span>
                   <span>REACT</span>
                 </div>
@@ -287,9 +287,9 @@ export default function IntroductionPage() {
               <motion.div 
                 animate={{ y: [10, -10, 10], rotate: [0, -10, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute -right-2 top-10 md:-right-4 md:top-24 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-2 md:p-3 rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 z-30"
+                className="absolute -right-2 top-10 md:-right-4 md:top-24 glass p-2 md:p-3 rounded-2xl shadow-xl border border-border/50 z-30"
               >
-                <div className="text-[#ec4899] font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
+                <div className="text-pink-500 font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
                   <span className="material-symbols-outlined text-lg md:text-xl">draw</span>
                   <span>DESIGN</span>
                 </div>
@@ -297,7 +297,7 @@ export default function IntroductionPage() {
               
               {/* Main Avatar Container - Squircle on mobile, Circle on desktop */}
               <div className="relative w-[220px] h-[220px] sm:w-[300px] sm:h-[300px] md:w-[340px] md:h-[340px] lg:w-[480px] lg:h-[480px] rounded-[3rem] sm:rounded-[4rem] md:rounded-full bg-white/30 dark:bg-black/20 backdrop-blur-3xl border border-white/60 dark:border-white/10 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(99,102,241,0.15)] overflow-hidden group z-20">
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/20 via-transparent to-[#fbbf24]/20" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-[#fbbf24]/20" />
                 
                 {/* Floating animation for avatar */}
                 <motion.img
@@ -315,7 +315,7 @@ export default function IntroductionPage() {
               <motion.div 
                 animate={{ y: [-3, 3, -3] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                className="absolute bottom-[-10px] sm:bottom-0 right-4 lg:bottom-8 lg:right-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/20 backdrop-blur-xl px-4 py-2 sm:px-5 sm:py-3 rounded-2xl shadow-2xl z-30 text-[10px] sm:text-xs font-bold text-slate-800 dark:text-white flex items-center gap-2 transform rotate-[-2deg]"
+                className="absolute bottom-[-10px] sm:bottom-0 right-4 lg:bottom-8 lg:right-8 bg-card border border-border/50 backdrop-blur-xl px-4 py-2 sm:px-5 sm:py-3 rounded-2xl shadow-2xl z-30 text-[10px] sm:text-xs font-bold text-foreground flex items-center gap-2 transform rotate-[-2deg]"
               >
                 <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -354,22 +354,22 @@ export default function IntroductionPage() {
           <div className="w-full max-w-7xl mx-auto">
             <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
               <div className="lg:col-span-7 space-y-4 sm:space-y-5 md:space-y-6 text-left relative z-10">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-[#0ea5e9]/10 text-[#0ea5e9] border border-[#0ea5e9]/25">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-accent/10 text-accent border border-accent/25">
                   {t("intro.slide2.badge")}
                 </span>
-                <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight">
                   {t("intro.slide2.title1")} <br />
-                  <span className="bg-gradient-to-r from-[#0ea5e9] to-[#6366f1] bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
                     {t("intro.slide2.title2")}
                   </span>
                 </h2>
-                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-2xl">
                   {t("intro.slide2.desc")}
                 </p>
                 <div className="pt-2">
                   <button 
                     onClick={() => scrollToSlide(2)}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0ea5e9] text-white font-bold text-xs shadow-lg shadow-[#0ea5e9]/20 hover:scale-[1.03] transition-transform"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-accent text-white font-bold text-xs shadow-lg shadow-accent/20 hover:scale-[1.03] transition-transform"
                   >
                     {t("intro.slide2.viewProfile")} <span className="material-symbols-outlined text-xs">arrow_forward</span>
                   </button>
@@ -379,10 +379,10 @@ export default function IntroductionPage() {
               {/* Overlapping Coding Window and Accent Card - visible on all sizes */}
               <div className="w-full flex lg:col-span-5 justify-center relative mt-2 sm:mt-4 md:mt-6 lg:mt-0">
                 {/* Back Underlapping Card */}
-                <div className="absolute -bottom-3 sm:-bottom-6 -left-3 sm:-left-6 w-32 h-32 sm:w-48 sm:h-48 rounded-[2rem] bg-gradient-to-tr from-[#6366f1]/20 to-transparent border border-slate-200/20 dark:border-white/5 pointer-events-none transform -rotate-6" />
+                <div className="absolute -bottom-3 sm:-bottom-6 -left-3 sm:-left-6 w-32 h-32 sm:w-48 sm:h-48 rounded-[2rem] bg-gradient-to-tr from-primary/20 to-transparent border border-slate-200/20 dark:border-white/5 pointer-events-none transform -rotate-6" />
 
                 {/* VS Code Mockup */}
-                <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-[420px] rounded-xl sm:rounded-[2rem] bg-slate-950 dark:bg-black/80 border border-slate-800 dark:border-white/10 p-3 sm:p-6 sm:p-8 shadow-2xl space-y-3 sm:space-y-4 font-mono text-[9px] sm:text-[11px] md:text-xs leading-relaxed text-slate-300 relative z-10">
+                <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-[420px] rounded-xl sm:rounded-[2rem] bg-slate-950 dark:bg-black/80 border border-border p-3 sm:p-6 sm:p-8 shadow-2xl space-y-3 sm:space-y-4 font-mono text-[9px] sm:text-[11px] md:text-xs leading-relaxed text-slate-300 relative z-10">
                   <div className="flex justify-between items-center pb-2 border-b border-slate-900">
                     <div className="flex gap-1">
                       <span className="w-2 h-2 rounded-full bg-red-500/80" />
@@ -408,7 +408,7 @@ export default function IntroductionPage() {
                 </div>
 
                 {/* Front Overlapping floating pill */}
-                <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-[#6366f1] text-white text-[8px] sm:text-[9px] font-black tracking-widest uppercase px-2.5 sm:px-4 py-1 sm:py-2 rounded-xl sm:rounded-2xl shadow-lg z-20 transform rotate-6">
+                <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-primary text-white text-[8px] sm:text-[9px] font-black tracking-widest uppercase px-2.5 sm:px-4 py-1 sm:py-2 rounded-xl sm:rounded-2xl shadow-lg z-20 transform rotate-6">
                   React + Vite
                 </div>
               </div>
@@ -437,7 +437,7 @@ export default function IntroductionPage() {
               scale: [1, 1.1, 1],
             }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[15%] right-[10%] w-32 h-32 bg-[#fbbf24]/10 rounded-full blur-[40px] pointer-events-none"
+            className="absolute top-[15%] right-[10%] w-32 h-32 bg-amber-400/10 rounded-full blur-[40px] pointer-events-none"
           />
 
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 w-full max-w-7xl mx-auto items-center">
@@ -456,7 +456,7 @@ export default function IntroductionPage() {
                 {/* Polaroid Frame */}
                 <motion.div 
                   whileTap={{ scale: 0.98, rotate: 0 }}
-                  className="relative bg-white dark:bg-[#f8f9fa] p-2.5 sm:p-3 shadow-[0_15px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_15px_40px_rgba(0,0,0,0.3)] transform rotate-[-3deg] hover:rotate-[1deg] transition-all duration-500 origin-bottom flex flex-col"
+                  className="relative bg-white dark:bg-background p-2.5 sm:p-3 shadow-[0_15px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_15px_40px_rgba(0,0,0,0.3)] transform rotate-[-3deg] hover:rotate-[1deg] transition-all duration-500 origin-bottom flex flex-col"
                 >
                   {/* Tape on top */}
                   <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-20 h-5 bg-white/40 dark:bg-white/20 backdrop-blur-sm border border-white/50 shadow-sm transform -rotate-2 z-20" />
@@ -469,7 +469,7 @@ export default function IntroductionPage() {
                       className="absolute inset-0 w-full h-full object-cover filter contrast-110 saturate-[0.9]" 
                     />
                     {/* Vintage photo overlay effect */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#facc15]/10 via-transparent to-[#6366f1]/10 mix-blend-overlay pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#facc15]/10 via-transparent to-primary/10 mix-blend-overlay pointer-events-none" />
                     <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] pointer-events-none" />
                   </div>
                   
@@ -498,7 +498,7 @@ export default function IntroductionPage() {
                 initial={{ opacity: 0, rotate: 0 }}
                 whileInView={{ opacity: 1, rotate: 2 }}
                 transition={{ duration: 0.8 }}
-                className="absolute w-[420px] h-[280px] rounded-[2.5rem] bg-[#6366f1]/10 dark:bg-[#1f1b2e]/80 border border-slate-200/50 dark:border-white/10 transform translate-x-4 translate-y-4 shadow-xl" 
+                className="absolute w-[420px] h-[280px] rounded-[2.5rem] bg-primary/10 dark:bg-card/80 border border-border/50 transform translate-x-4 translate-y-4 shadow-xl" 
               />
 
               <motion.div 
@@ -508,9 +508,9 @@ export default function IntroductionPage() {
                 className="w-[420px] rounded-[2.5rem] bg-white/60 dark:bg-black/60 backdrop-blur-2xl border border-white/80 dark:border-white/20 p-5 shadow-2xl hover:shadow-[0_25px_50px_rgba(99,102,241,0.3)] transform rotate-[-2deg] hover:rotate-0 transition-all duration-500 relative z-10 group overflow-hidden"
               >
                 {/* Decorative gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f1]/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
-                <div className="aspect-video rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative shadow-inner">
+                <div className="aspect-video rounded-2xl overflow-hidden bg-muted relative shadow-inner">
                   <img loading="lazy" 
                     src={realPhoto} 
                     alt="Hugo Portrait" 
@@ -523,7 +523,7 @@ export default function IntroductionPage() {
                 </div>
                 <div className="pt-5 text-center space-y-2 relative z-10">
                   <span className="font-display text-xl font-black bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent">Peter Hugo Wishpax Lê</span>
-                  <p className="text-xs text-[#6366f1] font-bold uppercase tracking-[0.2em] bg-[#6366f1]/10 inline-block px-3 py-1 rounded-lg">Software Engineering Student</p>
+                  <p className="text-xs text-primary font-bold uppercase tracking-[0.2em] bg-primary/10 inline-block px-3 py-1 rounded-lg">Software Engineering Student</p>
                 </div>
               </motion.div>
             </div>
@@ -536,7 +536,7 @@ export default function IntroductionPage() {
                 transition={{ duration: 0.5 }}
                 className="flex justify-center lg:justify-start"
               >
-                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-[#fbbf24]/20 to-[#f59e0b]/20 text-[#d97706] dark:text-[#fbbf24] border border-[#fbbf24]/30 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
+                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-amber-400/20 to-[#f59e0b]/20 text-[#d97706] dark:text-amber-400 border border-amber-400/30 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
                   {t("intro.slide3.badge")}
                 </span>
               </motion.div>
@@ -545,7 +545,7 @@ export default function IntroductionPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight hidden lg:block"
+                className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight hidden lg:block"
               >
                 {t("intro.slide3.title1")} <br className="hidden sm:inline lg:hidden"/> {t("intro.slide3.title2")}
               </motion.h2>
@@ -555,10 +555,10 @@ export default function IntroductionPage() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
-                  className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 lg:border-b lg:border-[#6366f1]/10 lg:pb-4"
+                  className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 lg:border-b lg:border-primary/10 lg:pb-4"
                 >
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 shadow-inner">
-                    <span className="material-symbols-outlined text-[#0ea5e9] text-xl sm:text-2xl">school</span>
+                    <span className="material-symbols-outlined text-accent text-xl sm:text-2xl">school</span>
                   </div>
                   
                   <div className="space-y-3 sm:space-y-4 w-full">
@@ -572,13 +572,13 @@ export default function IntroductionPage() {
                         href="https://ndc.edu.vn" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="p-3 sm:p-4 rounded-2xl bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/80 dark:border-white/10 hover:border-[#6366f1] transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
+                        className="p-3 sm:p-4 rounded-2xl glass-sm border border-white/80 dark:border-white/10 hover:border-primary transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
                       >
                         <div className="flex justify-between items-start gap-2">
-                          <span className="text-[10px] sm:text-xs font-black text-[#6366f1] uppercase tracking-wider leading-tight">{t("intro.slide3.highSchool")}</span>
-                          <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-[#6366f1] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-slate-100 dark:bg-slate-800 w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
+                          <span className="text-[10px] sm:text-xs font-black text-primary uppercase tracking-wider leading-tight">{t("intro.slide3.highSchool")}</span>
+                          <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-muted w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
                         </div>
-                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">{t("intro.slide3.highSchoolDesc")}</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium mt-1">{t("intro.slide3.highSchoolDesc")}</p>
                       </motion.a>
 
                       {/* University card */}
@@ -588,13 +588,13 @@ export default function IntroductionPage() {
                         href="https://greenwich.edu.vn" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="p-3 sm:p-4 rounded-2xl bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/80 dark:border-white/10 hover:border-[#0ea5e9] transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
+                        className="p-3 sm:p-4 rounded-2xl glass-sm border border-white/80 dark:border-white/10 hover:border-accent transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
                       >
                         <div className="flex justify-between items-start gap-2">
-                          <span className="text-[10px] sm:text-xs font-black text-[#0ea5e9] uppercase tracking-wider leading-tight">{t("intro.slide3.uni")}</span>
-                          <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-[#0ea5e9] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-slate-100 dark:bg-slate-800 w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
+                          <span className="text-[10px] sm:text-xs font-black text-accent uppercase tracking-wider leading-tight">{t("intro.slide3.uni")}</span>
+                          <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-accent group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-muted w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
                         </div>
-                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">{t("intro.slide3.uniDesc")}</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium mt-1">{t("intro.slide3.uniDesc")}</p>
                       </motion.a>
                     </div>
                   </div>
@@ -616,21 +616,21 @@ export default function IntroductionPage() {
             {/* Left side: Premium Digital Badge Card */}
             <div className="w-full lg:col-span-5 flex justify-center relative">
               {/* Pulsing neon back glow */}
-              <div className="absolute inset-0 w-full max-w-[280px] sm:max-w-[320px] h-full mx-auto rounded-2xl bg-gradient-to-tr from-[#ec4899]/15 to-[#d946ef]/15 blur-xl lg:blur-2xl animate-pulse" />
+              <div className="absolute inset-0 w-full max-w-[280px] sm:max-w-[320px] h-full mx-auto rounded-2xl bg-gradient-to-tr from-pink-500/15 to-[#d946ef]/15 blur-xl lg:blur-2xl animate-pulse" />
               
               {/* Single Unified Digital ID Card Container (Reduced rounded corners) */}
-              <div className="w-full max-w-[280px] sm:max-w-[320px] rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 p-3.5 sm:p-5 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 z-10">
+              <div className="w-full max-w-[280px] sm:max-w-[320px] rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-border/50 p-3.5 sm:p-5 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 z-10">
                 {/* ID Header Decoration */}
-                <div className="flex justify-between items-center pb-2.5 sm:pb-3 border-b border-slate-200 dark:border-white/10 mb-3 sm:mb-4">
-                  <span className="text-[8px] sm:text-[9px] font-black tracking-widest text-[#ec4899] uppercase">{t("intro.slide4.idTitle")}</span>
+                <div className="flex justify-between items-center pb-2.5 sm:pb-3 border-b border-border/50 mb-3 sm:mb-4">
+                  <span className="text-[8px] sm:text-[9px] font-black tracking-widest text-pink-500 uppercase">{t("intro.slide4.idTitle")}</span>
                   <div className="flex gap-1">
-                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#ec4899]" />
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-pink-500" />
                     <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#d946ef]" />
                   </div>
                 </div>
 
                 {/* Portrait Container - aspect-[4/3] on mobile (to keep height low but image wide), aspect-[4/5] on desktop (Reduced rounded corners) */}
-                <div className="aspect-[4/3] lg:aspect-[4/5] rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 relative border border-slate-200/50 dark:border-white/5">
+                <div className="aspect-[4/3] lg:aspect-[4/5] rounded-lg overflow-hidden bg-muted relative border border-slate-200/50 dark:border-white/5">
                   <img loading="lazy" 
                     src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png", 600)} 
                     alt="Jason Portrait" 
@@ -640,7 +640,7 @@ export default function IntroductionPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   
                   {/* Status indicator on photo */}
-                  <div className="absolute bottom-2.5 left-2.5 bg-[#ec4899] text-white text-[7px] sm:text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-md">
+                  <div className="absolute bottom-2.5 left-2.5 bg-pink-500 text-white text-[7px] sm:text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-md">
                     EST. 2005
                   </div>
                 </div>
@@ -648,12 +648,12 @@ export default function IntroductionPage() {
                 {/* ID Info Section */}
                 <div className="pt-3 sm:pt-4 space-y-2 sm:space-y-3 text-center">
                   <div>
-                    <h3 className="font-display text-base sm:text-lg font-black text-slate-800 dark:text-white leading-tight">Jason Phan</h3>
+                    <h3 className="font-display text-base sm:text-lg font-black text-foreground leading-tight">Jason Phan</h3>
                     <p className="text-[9px] sm:text-[10px] text-slate-400 font-medium tracking-wider uppercase mt-0.5 sm:mt-1">Software Engineering Student</p>
                   </div>
                   
                   {/* Decorative Scan/Chip/Details */}
-                  <div className="pt-2.5 sm:pt-3 border-t border-slate-200 dark:border-white/10 flex justify-between items-center text-[7px] sm:text-[8px] font-mono text-slate-400 text-left">
+                  <div className="pt-2.5 sm:pt-3 border-t border-border/50 flex justify-between items-center text-[7px] sm:text-[8px] font-mono text-slate-400 text-left">
                     <div>
                       <div>CLASS: SE-GP</div>
                       <div>ALLIANCE: TEAMMATE</div>
@@ -675,16 +675,16 @@ export default function IntroductionPage() {
             {/* Right side: Modern Cards & Strengths */}
             <div className="w-full lg:col-span-7 space-y-4 lg:space-y-6 text-left">
               <div className="space-y-2 lg:space-y-4">
-                <span className="inline-flex items-center gap-2 px-3 py-1 lg:px-3.5 lg:py-1.5 rounded-full text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.25em] bg-[#ec4899]/10 text-[#ec4899] border border-[#ec4899]/20">
+                <span className="inline-flex items-center gap-2 px-3 py-1 lg:px-3.5 lg:py-1.5 rounded-full text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.25em] bg-pink-500/10 text-pink-500 border border-pink-500/20">
                   {t("intro.slide4.badge")}
                 </span>
-                <h2 className="font-display text-2xl sm:text-3xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                <h2 className="font-display text-2xl sm:text-3xl lg:text-5xl font-extrabold text-foreground leading-tight">
                   {t("intro.slide4.title1")} <br />
-                  <span className="bg-gradient-to-r from-[#ec4899] via-[#d946ef] to-[#818cf8] bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-pink-500 via-[#d946ef] to-[#818cf8] bg-clip-text text-transparent">
                     {t("intro.slide4.title2")}
                   </span>
                 </h2>
-                <p className="hidden sm:block text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
+                <p className="hidden sm:block text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
                   {t("intro.slide4.desc")}
                 </p>
               </div>
@@ -697,14 +697,14 @@ export default function IntroductionPage() {
                   href="https://thptcayduong.edu.vn" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="group p-3.5 lg:p-5 rounded-lg lg:rounded-xl bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 hover:border-[#ec4899] dark:hover:border-[#ec4899]/50 transition-all duration-300 hover:scale-[1.02] shadow-sm hover:shadow-lg flex flex-col justify-between h-full"
+                  className="group p-3.5 lg:p-5 rounded-lg lg:rounded-xl bg-white/40 dark:bg-slate-900/40 border border-border/50 hover:border-pink-500 dark:hover:border-pink-500/50 transition-all duration-300 hover:scale-[1.02] shadow-sm hover:shadow-lg flex flex-col justify-between h-full"
                 >
                   <div className="space-y-2 lg:space-y-3">
-                    <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-md lg:rounded-lg bg-[#ec4899]/10 text-[#ec4899] flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-md lg:rounded-lg bg-pink-500/10 text-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <span className="material-symbols-outlined text-lg">school</span>
                     </div>
                     <div>
-                      <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#ec4899] transition-colors">{t("intro.slide4.highSchool")}</h4>
+                      <h4 className="font-display text-xs lg:text-sm font-bold text-foreground group-hover:text-pink-500 transition-colors">{t("intro.slide4.highSchool")}</h4>
                       <p className="text-[10px] lg:text-[11px] text-slate-400 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.highSchoolDesc")}</p>
                     </div>
                   </div>
@@ -719,14 +719,14 @@ export default function IntroductionPage() {
                   href="https://greenwich.edu.vn" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="group p-3.5 lg:p-5 rounded-lg lg:rounded-xl bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 hover:border-[#d946ef] dark:hover:border-[#d946ef]/50 transition-all duration-300 hover:scale-[1.02] shadow-sm hover:shadow-lg flex flex-col justify-between h-full"
+                  className="group p-3.5 lg:p-5 rounded-lg lg:rounded-xl bg-white/40 dark:bg-slate-900/40 border border-border/50 hover:border-[#d946ef] dark:hover:border-[#d946ef]/50 transition-all duration-300 hover:scale-[1.02] shadow-sm hover:shadow-lg flex flex-col justify-between h-full"
                 >
                   <div className="space-y-2 lg:space-y-3">
                     <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-md lg:rounded-lg bg-[#d946ef]/10 text-[#d946ef] flex items-center justify-center group-hover:scale-110 transition-transform">
                       <span className="material-symbols-outlined text-lg">local_library</span>
                     </div>
                     <div>
-                      <h4 className="font-display text-xs lg:text-sm font-bold text-slate-800 dark:text-white group-hover:text-[#d946ef] transition-colors">{t("intro.slide4.uniTitle")}</h4>
+                      <h4 className="font-display text-xs lg:text-sm font-bold text-foreground group-hover:text-[#d946ef] transition-colors">{t("intro.slide4.uniTitle")}</h4>
                       <p className="text-[10px] lg:text-[11px] text-slate-400 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.uniDesc")}</p>
                     </div>
                   </div>
@@ -746,19 +746,19 @@ export default function IntroductionPage() {
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center">
             <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6 relative z-10">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25">
                 {t("intro.slide5.badge")}
               </span>
-              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
                 {t("intro.slide5.title1")} <br />
                 {t("intro.slide5.title2")}
               </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
                 <Trans i18nKey="intro.slide5.desc">
-                  Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố <strong className="text-[#6366f1] dark:text-[#a5b4fc]">.edu</strong> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh hoàn toàn miễn phí.
+                  Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố <strong className="text-primary">.edu</strong> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh hoàn toàn miễn phí.
                 </Trans>
               </p>
-              <div className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+              <div className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-sm text-emerald-500">verified_user</span>
                   <span>{t("intro.slide5.check1")}</span>
@@ -773,7 +773,7 @@ export default function IntroductionPage() {
                 </div>
               </div>
               <div className="pt-2">
-                <Link to="/login" className="px-8 py-4 rounded-full bg-[#6366f1] text-white font-bold text-xs shadow-lg shadow-[#6366f1]/20 hover:scale-[1.03] transition-transform inline-block">
+                <Link to="/login" className="px-8 py-4 rounded-full bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20 hover:scale-[1.03] transition-transform inline-block">
                   {t("intro.slide5.createBtn")}
                 </Link>
               </div>
@@ -782,7 +782,7 @@ export default function IntroductionPage() {
             {/* Overlapping Stacks of Student Cards - hidden on mobile, visible md+ */}
             <div className="hidden md:flex md:col-span-5 justify-end relative">
               {/* Back Card */}
-              <div className="absolute top-4 left-4 w-full max-w-[360px] h-[240px] rounded-[2.5rem] bg-gradient-to-tr from-[#6366f1]/20 to-transparent border border-[#6366f1]/20 p-8 shadow-lg transform rotate-[-4deg] pointer-events-none" />
+              <div className="absolute top-4 left-4 w-full max-w-[360px] h-[240px] rounded-[2.5rem] bg-gradient-to-tr from-primary/20 to-transparent border border-primary/20 p-8 shadow-lg transform rotate-[-4deg] pointer-events-none" />
 
               {/* Front ID Card */}
               <div className="w-full max-w-[360px] rounded-[2.5rem] bg-gradient-to-b from-white/95 to-white/40 dark:from-slate-900/95 dark:to-slate-900/40 backdrop-blur-2xl border border-white/30 dark:border-white/10 p-6 lg:p-8 shadow-2xl relative z-10 transform rotate-[2deg] hover:rotate-0 transition-transform duration-500 group overflow-hidden">
@@ -791,8 +791,8 @@ export default function IntroductionPage() {
                 
                 <div className="flex justify-between items-start border-b border-slate-200/50 dark:border-white/5 pb-4">
                   <div>
-                    <span className="text-[8px] font-bold text-[#10b981] uppercase tracking-widest block">{t("intro.slide5.idTitle")}</span>
-                    <span className="font-display text-sm font-black text-slate-800 dark:text-white">{t("intro.slide5.idName")}</span>
+                    <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-widest block">{t("intro.slide5.idTitle")}</span>
+                    <span className="font-display text-sm font-black text-foreground">{t("intro.slide5.idName")}</span>
                   </div>
                   {/* Metallic smart card chip */}
                   <div className="w-9 h-7 rounded-md bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 shadow border border-yellow-600/30 flex items-center justify-center overflow-hidden">
@@ -805,15 +805,15 @@ export default function IntroductionPage() {
                 <div className="py-6 space-y-4 text-xs">
                   <div className="flex justify-between">
                     <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idEmailTitle")}</span>
-                    <span className="font-mono font-bold text-slate-800 dark:text-white">name@school.edu.vn</span>
+                    <span className="font-mono font-bold text-foreground">name@school.edu.vn</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idBenefitTitle")}</span>
-                    <span className="font-bold text-[#10b981]">{t("intro.slide5.idBenefitDesc")}</span>
+                    <span className="font-bold text-emerald-500">{t("intro.slide5.idBenefitDesc")}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idValidityTitle")}</span>
-                    <span className="font-bold text-slate-600 dark:text-slate-300">{t("intro.slide5.idValidityDesc")}</span>
+                    <span className="font-bold text-muted-foreground">{t("intro.slide5.idValidityDesc")}</span>
                   </div>
                 </div>
 
@@ -836,12 +836,12 @@ export default function IntroductionPage() {
             {/* Left: Interactive Browser Mockup of Service Prices - hidden on mobile, visible md+ */}
             <div className="hidden md:flex md:col-span-5 justify-center relative">
               {/* Backglow sphere */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#0ea5e9]/10 blur-3xl" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-accent/10 blur-3xl" />
 
               {/* Visual mockup of the pricing sheet in a beautiful browser shell */}
-              <div className="w-full max-w-[420px] rounded-[2rem] bg-white dark:bg-[#12111a] border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden relative z-10 transform -rotate-1 hover:rotate-0 transition-transform duration-500">
+              <div className="w-full max-w-[420px] rounded-[2rem] bg-white dark:bg-background border border-border/50 shadow-2xl overflow-hidden relative z-10 transform -rotate-1 hover:rotate-0 transition-transform duration-500">
                 {/* Browser Header Bar */}
-                <div className="bg-slate-100 dark:bg-slate-900 px-5 py-3.5 border-b border-slate-200 dark:border-white/5 flex items-center justify-between">
+                <div className="bg-slate-100 dark:bg-slate-900 px-5 py-3.5 border-b border-border/50 flex items-center justify-between">
                   <div className="flex gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
                     <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
@@ -855,23 +855,23 @@ export default function IntroductionPage() {
 
                 {/* Browser Content */}
                 <div className="p-6 space-y-4">
-                  <span className="text-[9px] font-extrabold text-[#0ea5e9] uppercase tracking-wider block">{t("intro.slide6.serviceOption")}</span>
+                  <span className="text-[9px] font-extrabold text-accent uppercase tracking-wider block">{t("intro.slide6.serviceOption")}</span>
                   <div className="space-y-3">
                     {/* Item 1 */}
-                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 shadow-sm">
+                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-muted/50 border border-slate-100 dark:border-white/5 shadow-sm">
                       <div>
-                        <div className="text-xs font-bold text-slate-800 dark:text-white">{t("intro.slide6.item1Title")}</div>
+                        <div className="text-xs font-bold text-foreground">{t("intro.slide6.item1Title")}</div>
                         <p className="text-[10px] text-slate-400 mt-0.5">{t("intro.slide6.item1Desc")}</p>
                       </div>
-                      <span className="text-[10px] font-bold text-[#0ea5e9] bg-[#0ea5e9]/10 px-2.5 py-1 rounded-full shrink-0">Pro</span>
+                      <span className="text-[10px] font-bold text-accent bg-accent/10 px-2.5 py-1 rounded-full shrink-0">Pro</span>
                     </div>
                     {/* Item 2 */}
-                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 shadow-sm">
+                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-muted/50 border border-slate-100 dark:border-white/5 shadow-sm">
                       <div>
-                        <div className="text-xs font-bold text-slate-800 dark:text-white">{t("intro.slide6.item2Title")}</div>
+                        <div className="text-xs font-bold text-foreground">{t("intro.slide6.item2Title")}</div>
                         <p className="text-[10px] text-slate-400 mt-0.5">{t("intro.slide6.item2Desc")}</p>
                       </div>
-                      <span className="text-[10px] font-bold text-[#6366f1] bg-[#6366f1]/10 px-2.5 py-1 rounded-full shrink-0">Apex</span>
+                      <span className="text-[10px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full shrink-0">Apex</span>
                     </div>
                   </div>
                 </div>
@@ -880,14 +880,14 @@ export default function IntroductionPage() {
 
             {/* Right Column details */}
             <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6 relative z-10">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#0ea5e9]/10 text-[#0ea5e9] border border-[#0ea5e9]/25">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-accent/10 text-accent border border-accent/25">
                 {t("intro.slide6.badge")}
               </span>
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
                 {t("intro.slide6.title1")} <br />
                 {t("intro.slide6.title2")}
               </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
                 {t("intro.slide6.desc")}
               </p>
               <div className="flex gap-4">
@@ -896,7 +896,7 @@ export default function IntroductionPage() {
                     playTick();
                     navigate("/services");
                   }}
-                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#6366f1] text-white font-bold text-xs shadow-lg shadow-[#6366f1]/20 hover:scale-[1.03] transition-transform"
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20 hover:scale-[1.03] transition-transform"
                 >
                   {t("intro.slide6.pricingBtn")}
                 </button>
@@ -937,13 +937,13 @@ export default function IntroductionPage() {
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/25">
                 {t("intro.slide7.badge")}
               </span>
-              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
                 {t("intro.slide7.title1")} <br />
                 <span className="bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
                   {t("intro.slide7.title2")}
                 </span>
               </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
                 {t("intro.slide7.desc")}
               </p>
             </div>
@@ -1005,36 +1005,36 @@ export default function IntroductionPage() {
             <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6 relative">
               
               {/* Massive overlapping quote watermarks */}
-              <span className="absolute -top-12 -left-10 text-[8rem] sm:text-[10rem] font-serif text-[#6366f1]/10 pointer-events-none select-none">“</span>
+              <span className="absolute -top-12 -left-10 text-[8rem] sm:text-[10rem] font-serif text-primary/10 pointer-events-none select-none">“</span>
               
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#fbbf24]/10 text-[#fbbf24] border border-[#fbbf24]/25 relative z-10">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-amber-400/10 text-amber-400 border border-amber-400/25 relative z-10">
                 {t("intro.slide8.badge")}
               </span>
-              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white relative z-10">
+              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-foreground relative z-10">
                 {t("intro.slide8.title1")} <br />
                 {t("intro.slide8.title2")}
               </h2>
               
-              <blockquote className="text-lg sm:text-2xl lg:text-4xl italic font-semibold text-[#6366f1] dark:text-[#a5b4fc] border-l-4 border-[#6366f1] pl-4 sm:pl-6 py-1 relative z-10 leading-snug">
+              <blockquote className="text-lg sm:text-2xl lg:text-4xl italic font-semibold text-primary border-l-4 border-primary pl-4 sm:pl-6 py-1 relative z-10 leading-snug">
                 {t("intro.slide8.quote")}
               </blockquote>
 
               <div className="grid grid-cols-2 gap-3 sm:gap-6 pt-1 sm:pt-2 text-xs sm:text-sm relative z-10">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
-                    <span className="material-symbols-outlined text-sm text-[#6366f1]">magic_button</span>
+                  <div className="flex items-center gap-2 font-bold text-foreground">
+                    <span className="material-symbols-outlined text-sm text-primary">magic_button</span>
                     <span>{t("intro.slide8.wowTitle")}</span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
                     {t("intro.slide8.wowDesc")}
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
-                    <span className="material-symbols-outlined text-sm text-[#0ea5e9]">fit_screen</span>
+                  <div className="flex items-center gap-2 font-bold text-foreground">
+                    <span className="material-symbols-outlined text-sm text-accent">fit_screen</span>
                     <span>{t("intro.slide8.sweetTitle")}</span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
                     {t("intro.slide8.sweetDesc")}
                   </p>
                 </div>
@@ -1046,25 +1046,25 @@ export default function IntroductionPage() {
               {/* Background accent ring */}
               <div className="absolute -top-6 -left-6 w-32 h-32 rounded-full border border-slate-200/50 dark:border-white/5 pointer-events-none" />
 
-              <div className="w-full max-w-[420px] rounded-[2.5rem] bg-white dark:bg-[#12111a] border border-slate-200 dark:border-white/10 p-6 lg:p-8 shadow-2xl flex flex-col justify-between relative overflow-hidden transform rotate-[1.5deg]">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-[#fbbf24]/10 rounded-full blur-xl" />
+              <div className="w-full max-w-[420px] rounded-[2.5rem] bg-white dark:bg-background border border-border/50 p-6 lg:p-8 shadow-2xl flex flex-col justify-between relative overflow-hidden transform rotate-[1.5deg]">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-xl" />
                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">{t("intro.slide8.principles")}</span>
                 <div className="space-y-4 text-xs sm:text-sm">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm sm:text-base font-bold text-[#6366f1] font-mono">01</span>
+                    <span className="text-sm sm:text-base font-bold text-primary font-mono">01</span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200">{t("intro.slide8.p1")}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm sm:text-base font-bold text-[#0ea5e9] font-mono">02</span>
+                    <span className="text-sm sm:text-base font-bold text-accent font-mono">02</span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200">{t("intro.slide8.p2")}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm sm:text-base font-bold text-[#fbbf24] font-mono">03</span>
+                    <span className="text-sm sm:text-base font-bold text-amber-400 font-mono">03</span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200">{t("intro.slide8.p3")}</span>
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-lg text-[#fbbf24]">volunteer_activism</span>
+                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 border border-border/50 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-lg text-amber-400">volunteer_activism</span>
                 </div>
               </div>
             </div>
@@ -1077,7 +1077,7 @@ export default function IntroductionPage() {
             {/* Profile Header with Avatar */}
             <div className="text-center space-y-2 sm:space-y-3 md:space-y-4 max-w-2xl mx-auto">
               <div className="flex justify-center mb-2 md:mb-4">
-                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#6366f1]/30 shadow-lg">
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-primary/30 shadow-lg">
                   <img loading="lazy" 
                     src={optimizeCloudinaryUrl(data.profile.avatarUrl, 300)} 
                     alt={data.profile.fullName}
@@ -1086,50 +1086,50 @@ export default function IntroductionPage() {
                 </div>
               </div>
               <div>
-                <h3 className="font-display text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+                <h3 className="font-display text-lg md:text-xl font-bold text-foreground">
                   {data.profile.fullName}
                 </h3>
-                <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs md:text-sm text-muted-foreground mt-1">
                   {data.profile.education}
                 </p>
               </div>
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25">
                 {t("intro.slide9.badge")}
               </span>
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white">
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground">
                 {t("intro.slide9.title")}
               </h2>
-              <p className="text-[11px] sm:text-xs lg:text-base text-slate-500 dark:text-slate-400 hidden sm:block">
+              <p className="text-[11px] sm:text-xs lg:text-base text-muted-foreground hidden sm:block">
                 {t("intro.slide9.desc")}
               </p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto pt-4 relative">
               {/* Asymmetric offset overlapping decorative panel */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1]/5 to-transparent rounded-[3rem] -rotate-1 pointer-events-none hidden md:block" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent rounded-[3rem] -rotate-1 pointer-events-none hidden md:block" />
 
               {/* Zalo */}
               <a 
                 href={`https://zalo.me/${data.profile.zaloNumber}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
+                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
               >
-                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-blue-100 dark:bg-blue-900/20 text-[#6366f1] dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-blue-100 dark:bg-blue-900/20 text-primary dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-2xl md:text-3xl">sms</span>
                 </div>
-                <span className="font-display text-sm md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.zalo")}</span>
+                <span className="font-display text-sm md:text-base font-bold text-foreground">{t("intro.slide9.zalo")}</span>
               </a>
 
               {/* Email */}
               <a
                 href={`mailto:${data.profile.emailAddress}`}
-                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
+                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
               >
                 <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-red-100 dark:bg-red-900/20 text-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-xl md:text-3xl">mail</span>
                 </div>
-                <span className="font-display text-xs md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.email")}</span>
+                <span className="font-display text-xs md:text-base font-bold text-foreground">{t("intro.slide9.email")}</span>
               </a>
 
               {/* Facebook */}
@@ -1137,12 +1137,12 @@ export default function IntroductionPage() {
                 href="https://facebook.com/hugowishpax.le"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
+                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
               >
                 <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-xl md:text-3xl">group</span>
                 </div>
-                <span className="font-display text-xs md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.fb")}</span>
+                <span className="font-display text-xs md:text-base font-bold text-foreground">{t("intro.slide9.fb")}</span>
               </a>
 
               {/* TikTok */}
@@ -1150,12 +1150,12 @@ export default function IntroductionPage() {
                 href="https://www.tiktok.com/@pethugowishpaxle?_r=1&_t=ZS-96UW9Neg8UW"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-[#12111a]/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
+                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
               >
-                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-black/10 dark:bg-white/10 text-slate-800 dark:text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-black/10 dark:bg-white/10 text-foreground flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-xl md:text-3xl">play_circle</span>
                 </div>
-                <span className="font-display text-xs md:text-base font-bold text-slate-800 dark:text-white">{t("intro.slide9.tiktok")}</span>
+                <span className="font-display text-xs md:text-base font-bold text-foreground">{t("intro.slide9.tiktok")}</span>
               </a>
             </div>
           </div>
@@ -1164,22 +1164,22 @@ export default function IntroductionPage() {
         {/* SLIDE 9: Register & Start Journey (đăng ký và bắt đầu hành trình) */}
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
           <div className="w-full max-w-4xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8 relative z-10">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/25">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25">
               {t("intro.slide10.badge")}
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight">
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight">
               {t("intro.slide10.title1")} <br />
-              <span className="bg-gradient-to-r from-[#6366f1] via-[#0ea5e9] to-[#fbbf24] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary via-accent to-[#fbbf24] bg-clip-text text-transparent">
                 {t("intro.slide10.title2")}
               </span>
             </h2>
-            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               {t("intro.slide10.desc")}
             </p>
             
             {/* Overlapping buttons and accent shadow */}
             <div className="flex justify-center gap-4 pt-4 relative">
-              <Link to="/login" className="px-8 py-4 rounded-full bg-[#6366f1] text-white font-bold hover:scale-[1.03] transition-transform shadow-xl shadow-[#6366f1]/25 text-xs sm:text-sm z-10">
+              <Link to="/login" className="px-8 py-4 rounded-full bg-primary text-white font-bold hover:scale-[1.03] transition-transform shadow-xl shadow-primary/25 text-xs sm:text-sm z-10">
                 {t("intro.slide10.registerBtn")}
               </Link>
               <Link to="/booking" className="px-8 py-4 rounded-full border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-xs sm:text-sm z-10">

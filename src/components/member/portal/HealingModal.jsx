@@ -69,7 +69,7 @@ export default function HealingModal({
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 20, opacity: 0 }}
             transition={{ type: 'spring', duration: 0.4 }}
-            className={`bg-white/85 dark:bg-[#12111a]/85 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/60 rounded-2xl p-6 sm:p-8 w-full shadow-2xl space-y-6 relative overflow-hidden ${
+            className={`bg-white/85 dark:bg-background/85 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/60 rounded-2xl p-6 sm:p-8 w-full shadow-2xl space-y-6 relative overflow-hidden ${
               (subStep === 'checkin' || subStep === 'wheel') ? 'max-w-md md:max-w-4xl' : 'max-w-md'
             }`}
           >
@@ -232,7 +232,7 @@ export default function HealingModal({
                       Để sau
                     </button>
                     <button type="button" onClick={onGoToTest}
-                      className="py-2.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors">
+                      className="py-2.5 rounded-xl bg-primary hover:bg-[#0077ed] text-white text-[10px] font-black uppercase tracking-wider shadow-md transition-colors">
                       Làm test ngay
                     </button>
                   </div>

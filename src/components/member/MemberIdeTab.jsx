@@ -1169,7 +1169,7 @@ public:
   // Desktop check view
   if (!isDesktop) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[500px] p-6 text-center space-y-6 bg-white dark:bg-[#12111a] rounded-xl border border-zinc-200 dark:border-zinc-800">
+      <div className="flex flex-col items-center justify-center min-h-[500px] p-6 text-center space-y-6 bg-white dark:bg-background rounded-xl border border-zinc-200 dark:border-zinc-800">
         <div className="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-950 flex items-center justify-center text-rose-500">
           <Monitor className="w-8 h-8 animate-pulse" />
         </div>

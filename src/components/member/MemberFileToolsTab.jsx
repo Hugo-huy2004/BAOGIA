@@ -150,7 +150,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="p-5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+            <div className="p-5 rounded-lg bg-white dark:bg-card border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 {t("utilities.fileTools.extract.label")}
               </label>
@@ -174,7 +174,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
 
             {/* Hiển thị kết quả ZIP */}
             {zipResult && zipResult.entries && (
-              <div className="p-5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+              <div className="p-5 rounded-lg bg-white dark:bg-card border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
                 <h4 className="text-sm font-medium text-zinc-900 dark:text-white mb-3">
                   {t("utilities.fileTools.extract.resultTitle")}
                 </h4>
@@ -216,7 +216,7 @@ export default function MemberFileToolsTab({ onBack, showToast }) {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="p-5 rounded-lg bg-white dark:bg-[#1c1c1e] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-5">
+            <div className="p-5 rounded-lg bg-white dark:bg-card border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-5">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                   {t("utilities.fileTools.compress.label")}

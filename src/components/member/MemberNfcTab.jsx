@@ -97,7 +97,7 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         
         {/* LEFT: Generator Form */}
-        <div className="bg-white dark:bg-[#12111a] rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 p-6 shadow-sm space-y-6">
+        <div className="bg-white dark:bg-background rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 p-6 shadow-sm space-y-6">
           
           <div>
             <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3 block">{t("utilities.qrCode.selectType", "1. Chọn loại dữ liệu")}</label>
@@ -108,7 +108,7 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
                 return (
                   <button key={tp.id} onClick={() => setQrType(tp.id)}
                     className={`flex flex-col items-center gap-2 p-3.5 rounded-lg border transition-all active:scale-95 text-center ${
-                      active ? `${c.bg} ${c.border} ${c.text} font-extrabold shadow-sm` : "border-zinc-200/60 dark:border-zinc-800/80 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
+                      active ? `${c.bg} ${c.border} ${c.text} font-extrabold shadow-sm` : "border-border/50 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
                     }`}>
                     <span className="material-symbols-outlined text-[22px]">{tp.icon}</span>
                     <span className="text-[10px] font-black uppercase tracking-widest leading-tight">
@@ -126,7 +126,7 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
               {qrType === "url" && (
                   <div className="space-y-2">
                       <div className="text-[10px] font-black uppercase tracking-widest text-indigo-500 flex items-center gap-1.5"><span className="material-symbols-outlined text-xs">public</span> {t("utilities.qrCode.profileUrlLabel", "URL HỒ SƠ CHÍNH")}</div>
-                      <div className="px-4 py-3 bg-white dark:bg-[#12111a] border border-zinc-200 dark:border-zinc-800 rounded-md text-xs font-bold text-zinc-700 dark:text-zinc-300 font-mono break-all select-all shadow-inner">{publicLink}</div>
+                      <div className="px-4 py-3 bg-white dark:bg-background border border-zinc-200 dark:border-zinc-800 rounded-md text-xs font-bold text-zinc-700 dark:text-zinc-300 font-mono break-all select-all shadow-inner">{publicLink}</div>
                       <p className="text-[10px] text-zinc-500 mt-2">{t("utilities.qrCode.profileUrlDesc", "Quét mã sẽ mở ngay trang Bio của bạn.")}</p>
                   </div>
               )}
@@ -134,7 +134,7 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
               {qrType === "vcard" && (
                   <div className="space-y-3">
                       <div className="text-[10px] font-black uppercase tracking-widest text-rose-500 flex items-center gap-1.5"><span className="material-symbols-outlined text-xs">medical_information</span> {t("utilities.qrCode.iceContactLabel", "LIÊN HỆ KHẨN CẤP (ICE)")}</div>
-                      <div className="grid grid-cols-2 gap-3 px-4 py-3 bg-white dark:bg-[#12111a] border border-zinc-200 dark:border-zinc-800 rounded-md shadow-inner text-[11px]">
+                      <div className="grid grid-cols-2 gap-3 px-4 py-3 bg-white dark:bg-background border border-zinc-200 dark:border-zinc-800 rounded-md shadow-inner text-[11px]">
                           <div><span className="text-zinc-400 font-bold">{t("utilities.vcard.fields.firstName", "Họ tên")}:</span> <span className="font-black text-zinc-800 dark:text-zinc-200">{bio?.displayName || "—"}</span></div>
                           <div><span className="text-zinc-400 font-bold">{t("utilities.vcard.fields.phone", "SĐT")}:</span> <span className="font-black text-zinc-800 dark:text-zinc-200">{bio?.phone || "—"}</span></div>
                           <div className="col-span-2 truncate"><span className="text-zinc-400 font-bold">{t("utilities.vcard.fields.email", "Email")}:</span> <span className="font-black text-zinc-800 dark:text-zinc-200">{bio?.contactEmail || bio?.email || "—"}</span></div>
@@ -149,11 +149,11 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
                       <div className="grid grid-cols-1 gap-4">
                           <div className="space-y-1.5">
                               <label className="text-[9.5px] font-bold uppercase tracking-wider text-zinc-500">{t("utilities.qrCode.wifiSsidLabel", "SSID (Tên Mạng)")}</label>
-                              <input value={wifiSsid} onChange={e => setWifiSsid(e.target.value)} placeholder="SSID..." className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#12111a] text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-shadow font-bold" />
+                              <input value={wifiSsid} onChange={e => setWifiSsid(e.target.value)} placeholder="SSID..." className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-background text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-shadow font-bold" />
                           </div>
                           <div className="space-y-1.5">
                               <label className="text-[9.5px] font-bold uppercase tracking-wider text-zinc-500">{t("utilities.qrCode.wifiPasswordLabel", "Mật Khẩu")}</label>
-                              <input value={wifiPass} onChange={e => setWifiPass(e.target.value)} placeholder="••••••••" type="password" className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#12111a] text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-shadow font-bold" />
+                              <input value={wifiPass} onChange={e => setWifiPass(e.target.value)} placeholder="••••••••" type="password" className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-background text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-shadow font-bold" />
                           </div>
                       </div>
                       <p className="text-[10px] text-zinc-500 mt-2">{t("utilities.qrCode.wifiDesc", "Quét mã điện thoại sẽ tự động kết nối mạng WiFi này.")}</p>
@@ -163,7 +163,7 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
               {qrType === "text" && (
                   <div className="space-y-2">
                       <div className="text-[10px] font-black uppercase tracking-widest text-amber-500 flex items-center gap-1.5"><span className="material-symbols-outlined text-xs">edit_document</span> {t("utilities.qrCode.customTextLabel", "LINK NHÓM / TÀI LIỆU")}</div>
-                      <textarea value={customText} onChange={e => setCustomText(e.target.value)} placeholder="..." rows={3} className="w-full px-4 py-3 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#12111a] text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-shadow font-mono resize-none" />
+                      <textarea value={customText} onChange={e => setCustomText(e.target.value)} placeholder="..." rows={3} className="w-full px-4 py-3 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-background text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-shadow font-mono resize-none" />
                       <p className="text-[10px] text-zinc-500 mt-2">{t("utilities.qrCode.customTextDesc", "Quét mã sẽ sao chép hoặc hiển thị nội dung này.")}</p>
                   </div>
               )}

@@ -166,7 +166,7 @@ export default function TourSystem() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-white/95 dark:bg-[#1a1924]/95 border border-zinc-200/50 dark:border-zinc-800/60 backdrop-blur-2xl rounded-2xl p-5 shadow-2xl text-left"
+          className="bg-white/95 dark:bg-card/95 border border-zinc-200/50 dark:border-zinc-800/60 backdrop-blur-2xl rounded-2xl p-5 shadow-2xl text-left"
         >
           {/* Header Progress */}
           <div className="flex justify-between items-center mb-2">
@@ -203,7 +203,7 @@ export default function TourSystem() {
             <button
               type="button"
               onClick={nextStep}
-              className="px-3.5 py-1.5 rounded-lg bg-[#007aff] hover:bg-[#0071ed] text-white text-[10px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all"
+              className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-[#0071ed] text-white text-[10px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all"
             >
               {isLastStep ? 'Hoàn thành' : 'Tiếp tục'}
             </button>

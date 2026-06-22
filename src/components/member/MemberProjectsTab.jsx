@@ -38,11 +38,11 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 p-6 shadow-sm">
-        <h3 className="font-black text-sm uppercase tracking-wider text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+      <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 p-6 shadow-sm">
+        <h3 className="font-black text-sm uppercase tracking-wider text-foreground mb-4 flex items-center gap-2">
           <span className="material-symbols-outlined text-indigo-500 text-lg">folder_special</span>{t("memberTabs.projects.title")}</h3>
         
-        <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">{t("memberTabs.projects.desc")}</p>
+        <p className="text-xs text-muted-foreground mb-6">{t("memberTabs.projects.desc")}</p>
 
         {/* Thêm dự án mới */}
         <div className="bg-slate-50 dark:bg-slate-900/30 p-4 rounded-lg border border-slate-100 dark:border-slate-800/60 mb-6">
@@ -50,35 +50,35 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">{t("memberTabs.projects.nameLabel")}</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">{t("memberTabs.projects.nameLabel")}</label>
                 <input
                   type="text"
                   value={newProject.title}
                   onChange={(e) => setNewProject(prev => ({ ...prev, title: e.target.value }))}
                   placeholder={t("memberTabs.projects.namePlaceholder")}
-                  className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-800 dark:text-white"
+                  className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-foreground"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">{t("memberTabs.projects.urlLabel")}</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">{t("memberTabs.projects.urlLabel")}</label>
                 <input
                   type="text"
                   value={newProject.link}
                   onChange={(e) => setNewProject(prev => ({ ...prev, link: e.target.value }))}
                   placeholder="https://..."
-                  className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-800 dark:text-white"
+                  className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-foreground"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">{t("memberTabs.projects.descLabel")}</label>
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">{t("memberTabs.projects.descLabel")}</label>
               <textarea
                 value={newProject.description}
                 onChange={(e) => setNewProject(prev => ({ ...prev, description: e.target.value }))}
                 placeholder={t("memberTabs.projects.descPlaceholder")}
                 rows={3}
-                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-800 dark:text-white resize-none"
+                className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-foreground resize-none"
               />
             </div>
 
@@ -94,7 +94,7 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
 
         {/* Danh sách dự án hiện tại */}
         <div className="space-y-4">
-          <h4 className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">{t("memberTabs.projects.listTitle")} <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">{(formData.projects || []).length}</span>
+          <h4 className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">{t("memberTabs.projects.listTitle")} <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-muted-foreground">{(formData.projects || []).length}</span>
           </h4>
 
           {(!formData.projects || formData.projects.length === 0) ? (
@@ -107,8 +107,8 @@ export default function MemberProjectsTab({ formData, setFormData, showToast, is
               {formData.projects.map((proj) => (
                 <div key={proj.id} className="group relative flex flex-col bg-white dark:bg-[#181622] rounded-lg border border-slate-200 dark:border-slate-800/80 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <div className="p-4 flex-1 flex flex-col">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-sm mb-1 line-clamp-1">{proj.title}</h5>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-3 line-clamp-2 leading-relaxed flex-1">{proj.description}</p>
+                    <h5 className="font-bold text-foreground text-sm mb-1 line-clamp-1">{proj.title}</h5>
+                    <p className="text-[10px] text-muted-foreground mb-3 line-clamp-2 leading-relaxed flex-1">{proj.description}</p>
                     
                     <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-100 dark:border-slate-800/60">
                       {proj.link ? (

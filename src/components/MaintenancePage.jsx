@@ -13,17 +13,17 @@ export default function MaintenancePage() {
         {/* Main Content */}
         <div className="space-y-6">
           {/* Heading */}
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-4xl sm:text-5xl font-black text-foreground tracking-tight">
             Bảo Trì Hệ Thống
           </h1>
 
           {/* Subheading */}
-          <p className="text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+          <p className="text-lg text-muted-foreground font-medium leading-relaxed">
             Hugo Studio đang được nâng cấp để mang lại trải nghiệm tốt hơn cho bạn.
           </p>
 
           {/* Description */}
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Chúng tôi sẽ quay lại trong thời gian sớm nhất. Cảm ơn bạn đã chờ đợi!
           </p>
         </div>
@@ -45,22 +45,22 @@ export default function MaintenancePage() {
         </div>
 
         {/* Info Card */}
-        <div className="bg-white dark:bg-[#12111a] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-sm">
+        <div className="bg-white dark:bg-background rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-sm">
           <div className="flex items-start gap-3">
             <span className="text-indigo-500 dark:text-indigo-400 text-xl font-bold">✓</span>
-            <span className="text-sm text-slate-600 dark:text-slate-300 text-left">
+            <span className="text-sm text-muted-foreground text-left">
               Dữ liệu của bạn được bảo mật hoàn toàn
             </span>
           </div>
           <div className="flex items-start gap-3">
             <span className="text-indigo-500 dark:text-indigo-400 text-xl font-bold">✓</span>
-            <span className="text-sm text-slate-600 dark:text-slate-300 text-left">
+            <span className="text-sm text-muted-foreground text-left">
               Chúng tôi sẽ hoàn tất trong 24 giờ tới.
             </span>
           </div>
           <div className="flex items-start gap-3">
             <span className="text-indigo-500 dark:text-indigo-400 text-xl font-bold">✓</span>
-            <span className="text-sm text-slate-600 dark:text-slate-300 text-left">
+            <span className="text-sm text-muted-foreground text-left">
               Cảm ơn bạn đã kiên nhẫn chờ đợi
             </span>
           </div>
@@ -69,7 +69,7 @@ export default function MaintenancePage() {
         {/* Status Badge */}
         <div className="mt-8 inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-900/50 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800">
           <span className="inline-block w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-          <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Đang bảo trì
           </span>
         </div>

@@ -9,14 +9,14 @@ export default function VerificationForm({
 }) {
   return (
     <div className="max-w-xl mx-auto py-8 px-4 animate-fadeIn">
-      <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-850/60 p-6 sm:p-8 rounded-xl shadow-xl space-y-6 relative overflow-hidden">
+      <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-850/60 p-6 sm:p-8 rounded-xl shadow-xl space-y-6 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
         
         <div className="text-center space-y-2">
           <span className="material-symbols-outlined text-4xl text-indigo-500">
             school
           </span>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-800 dark:text-white uppercase tracking-tight">
+          <h2 className="font-display text-xl sm:text-2xl font-black text-foreground uppercase tracking-tight">
             Xác Minh Tài Khoản Sinh Viên
           </h2>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
@@ -37,7 +37,7 @@ export default function VerificationForm({
                 placeholder="Nhập họ và tên của bạn..."
                 value={verificationForm.fullName}
                 onChange={(e) => setVerificationForm({ ...verificationForm, fullName: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-[#121214] text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
+                className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
               />
             </div>
 
@@ -52,7 +52,7 @@ export default function VerificationForm({
                   required
                   value={verificationForm.birthday}
                   onChange={(e) => setVerificationForm({ ...verificationForm, birthday: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-[#121214] text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
                 />
               </div>
 
@@ -67,7 +67,7 @@ export default function VerificationForm({
                   placeholder="Nhập số điện thoại Zalo..."
                   value={verificationForm.phoneZalo}
                   onChange={(e) => setVerificationForm({ ...verificationForm, phoneZalo: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-[#121214] text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
+                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
                 />
               </div>
             </div>
@@ -82,7 +82,7 @@ export default function VerificationForm({
                   required
                   value={verificationForm.schoolLevel}
                   onChange={(e) => setVerificationForm({ ...verificationForm, schoolLevel: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-[#121214] text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
                 >
                   <option value="">-- Chọn Cấp Học --</option>
                   <option value="TH">Tiểu học (TH)</option>
@@ -103,7 +103,7 @@ export default function VerificationForm({
                     placeholder="Tên trường học của bạn..."
                     value={verificationForm.schoolName}
                     onChange={(e) => setVerificationForm({ ...verificationForm, schoolName: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-[#121214] text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
+                    className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
                   />
                 </div>
               )}

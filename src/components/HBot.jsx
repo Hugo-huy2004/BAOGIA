@@ -511,9 +511,9 @@ const HBot = () => {
     <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)] md:bottom-6 right-4 md:right-6 z-[999] flex flex-col items-end">
       {/* Floating Chat Box */}
       {isOpen && (
-        <div className="mb-3 w-[320px] sm:w-[360px] max-w-[calc(100vw-24px)] h-[380px] sm:h-[460px] md:h-[500px] max-h-[55vh] sm:max-h-[60vh] md:max-h-[calc(100vh-120px)] bg-[#f5f5f7]/95 dark:bg-[#1c1c1e]/95 backdrop-blur-lg rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-2xl overflow-hidden flex flex-col animate-fadeIn select-none">
+        <div className="mb-3 w-[320px] sm:w-[360px] max-w-[calc(100vw-24px)] h-[380px] sm:h-[460px] md:h-[500px] max-h-[55vh] sm:max-h-[60vh] md:max-h-[calc(100vh-120px)] bg-background/95 dark:bg-card/95 backdrop-blur-lg rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-2xl overflow-hidden flex flex-col animate-fadeIn select-none">
           {/* Header */}
-          <div className="p-4 bg-white/85 dark:bg-[#2c2c2e]/85 text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800/80 shadow-sm backdrop-blur-md">
+          <div className="p-4 bg-white/85 dark:bg-[#2c2c2e]/85 text-foreground flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800/80 shadow-sm backdrop-blur-md">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 relative shrink-0">
                 <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
@@ -521,8 +521,8 @@ const HBot = () => {
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-white dark:border-[#2c2c2e] animate-pulse" />
               </div>
               <div>
-                <h4 className="font-bold text-sm leading-tight text-[#1d1d1f] dark:text-white">Culi</h4>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium">
+                <h4 className="font-bold text-sm leading-tight text-foreground">Culi</h4>
+                <p className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
                   Trợ lý nhỏ đáng yêu
                 </p>
               </div>
@@ -530,7 +530,7 @@ const HBot = () => {
             
             <button
               onClick={() => setIsOpen(false)}
-              className="w-7 h-7 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+              className="w-7 h-7 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-muted-foreground transition-colors"
               style={{ minWidth: 0, minHeight: 0 }}
             >
               <span className="material-symbols-outlined text-sm font-bold">close</span>
@@ -555,8 +555,8 @@ const HBot = () => {
                 <div
                   className={`p-3 rounded-2xl text-xs leading-relaxed ${
                     msg.sender === 'user'
-                      ? 'bg-[#007aff] text-white rounded-tr-none font-medium'
-                      : 'bg-[#e9e9eb] dark:bg-[#252528] text-[#1d1d1f] dark:text-[#f5f5f7] rounded-tl-none font-medium shadow-sm'
+                      ? 'bg-primary text-white rounded-tr-none font-medium'
+                      : 'bg-[#e9e9eb] dark:bg-[#252528] text-foreground rounded-tl-none font-medium shadow-sm'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.text}</p>
@@ -584,7 +584,7 @@ const HBot = () => {
                 <div className="w-8 h-8 shrink-0">
                   <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
                 </div>
-                <div className="p-3 bg-[#e9e9eb] dark:bg-[#252528] text-[#1d1d1f] dark:text-[#f5f5f7] rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
+                <div className="p-3 bg-[#e9e9eb] dark:bg-[#252528] text-foreground rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -596,16 +596,16 @@ const HBot = () => {
 
           {/* Options Menu Selection (Apple Style) */}
           {!isLoading && currentStep !== 'redirect_support' && (
-            <div className="p-3 border-t border-slate-200/50 dark:border-slate-800/80 bg-[#fbfbfd] dark:bg-[#12111a] flex flex-col gap-2 shrink-0 max-h-[190px] overflow-y-auto">
+            <div className="p-3 border-t border-slate-200/50 dark:border-slate-800/80 bg-[#fbfbfd] dark:bg-background flex flex-col gap-2 shrink-0 max-h-[190px] overflow-y-auto">
               {QUESTION_TREE[currentStep]?.options.map((opt, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleOptionClick(opt)}
-                  className="w-full text-left px-4 py-2.5 bg-[#f5f5f7] hover:bg-[#e8e8ed] dark:bg-[#252528] dark:hover:bg-[#2c2c2e] border-0 text-xs text-[#1d1d1f] dark:text-[#f5f5f7] hover:text-[#007aff] dark:hover:text-[#007aff] rounded-xl font-semibold transition-all active:scale-[0.99] flex items-center justify-between group"
+                  className="w-full text-left px-4 py-2.5 bg-background hover:bg-[#e8e8ed] dark:bg-[#252528] dark:hover:bg-[#2c2c2e] border-0 text-xs text-foreground hover:text-primary dark:hover:text-primary rounded-xl font-semibold transition-all active:scale-[0.99] flex items-center justify-between group"
                   style={{ minWidth: 0, minHeight: 0 }}
                 >
                   <span>{opt.label}</span>
-                  <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 group-hover:text-[#007aff] text-xs transition-colors">chevron_right</span>
+                  <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 group-hover:text-primary text-xs transition-colors">chevron_right</span>
                 </button>
               ))}
             </div>
@@ -613,9 +613,9 @@ const HBot = () => {
 
           {/* Processing / Redirection Status Banner */}
           {(isLoading || currentStep === 'redirect_support') && (
-            <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/80 bg-[#fbfbfd] dark:bg-[#12111a] text-center text-xs text-slate-500 shrink-0">
+            <div className="p-4 border-t border-slate-200/50 dark:border-slate-800/80 bg-[#fbfbfd] dark:bg-background text-center text-xs text-slate-500 shrink-0">
               {currentStep === 'redirect_support' ? (
-                <span className="text-[#007aff] dark:text-[#0a84ff] font-semibold flex items-center justify-center gap-1.5 animate-pulse">
+                <span className="text-primary dark:text-primary font-semibold flex items-center justify-center gap-1.5 animate-pulse">
                   <span className="material-symbols-outlined text-sm animate-spin">sync</span>
                   Đang chuyển hướng sang Zalo Support...
                 </span>
@@ -627,18 +627,18 @@ const HBot = () => {
 
           {/* Smart NLP Input field */}
           {!isLoading && currentStep !== 'redirect_support' && (
-            <div className="p-2.5 border-t border-slate-200/40 dark:border-slate-800/60 bg-white dark:bg-[#1c1c1e] flex gap-2 shrink-0">
+            <div className="p-2.5 border-t border-slate-200/40 dark:border-slate-800/60 bg-white dark:bg-card flex gap-2 shrink-0">
               <input
                 value={customInput}
                 onChange={e => setCustomInput(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") handleCustomQuery(); }}
                 placeholder="Hỏi Culi về hệ thống..."
-                className="flex-1 bg-slate-100 dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 rounded-xl px-3 py-2 text-xs focus:outline-none text-[#1d1d1f] dark:text-[#f5f5f7]"
+                className="flex-1 bg-slate-100 dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 rounded-xl px-3 py-2 text-xs focus:outline-none text-foreground"
               />
               <button
                 onClick={handleCustomQuery}
                 disabled={!customInput.trim()}
-                className="px-3 bg-[#007aff] hover:bg-[#0071ed] disabled:opacity-40 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center shrink-0"
+                className="px-3 bg-primary hover:bg-[#0071ed] disabled:opacity-40 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center shrink-0"
               >
                 Gửi
               </button>
@@ -653,7 +653,7 @@ const HBot = () => {
           <button
             type="button"
             onClick={handleNudgeClick}
-            className="text-left bg-white dark:bg-[#2c2c2e] border border-slate-200/60 dark:border-slate-700/60 rounded-2xl rounded-br-sm shadow-lg p-3 pr-7 text-xs text-[#1d1d1f] dark:text-white font-medium leading-relaxed"
+            className="text-left bg-white dark:bg-[#2c2c2e] border border-slate-200/60 dark:border-slate-700/60 rounded-2xl rounded-br-sm shadow-lg p-3 pr-7 text-xs text-foreground font-medium leading-relaxed"
           >
             {nudge.text}
           </button>

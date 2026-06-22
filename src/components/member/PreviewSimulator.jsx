@@ -51,7 +51,7 @@ export default function PreviewSimulator({
           className={`${
             previewMode === "mobile"
               ? "w-[280px] sm:w-[295px] h-[580px] sm:h-[610px] rounded-[2.5rem] sm:rounded-[3rem] border-[6px] sm:border-[8px] border-zinc-950 dark:border-zinc-800 bg-black shadow-2xl p-1.5 sm:p-2 relative flex flex-col justify-between"
-              : "w-full h-[580px] sm:h-[610px] rounded-lg sm:rounded-xl border-2 sm:border-4 border-zinc-200 dark:border-zinc-800 bg-[#f5f5f7] dark:bg-zinc-950 shadow-2xl p-0.5 sm:p-1 relative flex flex-col justify-between"
+              : "w-full h-[580px] sm:h-[610px] rounded-lg sm:rounded-xl border-2 sm:border-4 border-zinc-200 dark:border-zinc-800 bg-background dark:bg-zinc-950 shadow-2xl p-0.5 sm:p-1 relative flex flex-col justify-between"
           }`}
         >
           {/* Dynamic Island for mobile preview */}
@@ -59,7 +59,7 @@ export default function PreviewSimulator({
             <div className="absolute top-3 sm:top-4 left-1/2 -translate-x-1/2 w-16 sm:w-20 h-3 sm:h-4 bg-black rounded-full z-30 flex items-center justify-center shadow-inner" />
           )}
 
-          <div className="w-full h-full rounded-[1.8rem] sm:rounded-[2.3rem] overflow-hidden bg-white dark:bg-[#09090b] relative flex flex-col border border-zinc-900/10 dark:border-zinc-800/10">
+          <div className="w-full h-full rounded-[1.8rem] sm:rounded-[2.3rem] overflow-hidden bg-white dark:bg-background relative flex flex-col border border-zinc-900/10 dark:border-zinc-800/10">
             {/* Simulated Safari URL Bar */}
             <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200/50 dark:border-zinc-800/60 px-3 py-2 flex items-center justify-between text-[9px] text-zinc-450 select-none shrink-0">
               <div className="flex gap-1 shrink-0">

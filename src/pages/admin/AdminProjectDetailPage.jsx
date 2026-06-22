@@ -332,7 +332,7 @@ export default function AdminProjectDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0b0a0f] flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     );
@@ -341,7 +341,7 @@ export default function AdminProjectDetailPage() {
   if (!project) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0a0f] text-slate-800 dark:text-slate-100 p-4 md:p-8 animate-fadeIn">
+    <div className="min-h-screen bg-background text-foreground text-foreground p-4 md:p-8 animate-fadeIn">
       {/* Toast Notification */}
       {toastMsg && (
         <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-md shadow-lg font-bold text-sm animate-fadeInUp ${
@@ -356,7 +356,7 @@ export default function AdminProjectDetailPage() {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate('/admin/projects')}
-            className="w-10 h-10 flex items-center justify-center rounded-md bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-indigo-500 transition-colors shadow-sm"
+            className="w-10 h-10 flex items-center justify-center rounded-md bg-white dark:bg-background border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-indigo-500 transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
@@ -366,7 +366,7 @@ export default function AdminProjectDetailPage() {
                 Chi Tiết Dự Án
               </span>
             </div>
-            <h1 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white mt-1 leading-tight">{project.fullName}</h1>
+            <h1 className="text-xl md:text-2xl font-black text-foreground mt-1 leading-tight">{project.fullName}</h1>
             <div className="text-[11px] text-slate-500 flex flex-wrap items-center gap-2 mt-1.5">
               <span className="material-symbols-outlined text-sm">vpn_key</span>
               <span className="hidden sm:inline">{t("adminProjectDetail.accessCodeFull")}</span>
@@ -376,7 +376,7 @@ export default function AdminProjectDetailPage() {
               </span>
               <button 
                 onClick={handleCopyLink}
-                className="p-1 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors flex items-center justify-center"
+                className="p-1 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-muted-foreground transition-colors flex items-center justify-center"
                 title={t("adminProjectDetail.copyTooltip")}
               >
                 <span className="material-symbols-outlined text-[14px]">content_copy</span>
@@ -392,8 +392,8 @@ export default function AdminProjectDetailPage() {
         {/* Left Column (Status Updater & History) */}
         <div className="lg:col-span-5 space-y-6">
           {/* Status Updater */}
-          <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm">
-            <form onSubmit={handleOpenStatusModal} className="bg-slate-50 dark:bg-black/20 p-5 rounded-md border border-slate-200 dark:border-white/5 space-y-4">
+          <div className="bg-white dark:bg-background rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm">
+            <form onSubmit={handleOpenStatusModal} className="bg-slate-50 dark:bg-black/20 p-5 rounded-md border border-border/50 space-y-4">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("adminProjectDetail.updateProcessTitle")}</h4>
               
               <div className="space-y-1.5">
@@ -415,7 +415,7 @@ export default function AdminProjectDetailPage() {
         </div>
 
         {/* History Notes */}
-        <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-background rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-white/5 pb-2">{t("adminProjectDetail.historyTitle")}</h4>
           <div className="space-y-4 pl-2 max-h-[300px] overflow-y-auto">
             {project.progressNotes && project.progressNotes.length > 0 ? (
@@ -441,7 +441,7 @@ export default function AdminProjectDetailPage() {
         {/* Right Column (Chat) */}
         <div className="lg:col-span-7">
           {/* Chat/Messages */}
-          <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px]">
+          <div className="bg-white dark:bg-background rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px]">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-4 shrink-0">
             <span className="material-symbols-outlined text-indigo-500 text-base">forum</span>
               {t("adminProjectDetail.msgTitle")}
@@ -468,7 +468,7 @@ export default function AdminProjectDetailPage() {
           </div>
 
           <form onSubmit={handleSendMessage} className="mt-4 flex gap-2 shrink-0">
-            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={project.status === 'Hoàn tất' ? t("adminProjectDetail.msgPlaceholderCompleted") : t("adminProjectDetail.msgPlaceholderNormal")} className="flex-1 px-4 py-3 rounded-md border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#1f1929] text-slate-800 dark:text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={project.status === 'Hoàn tất' ? t("adminProjectDetail.msgPlaceholderCompleted") : t("adminProjectDetail.msgPlaceholderNormal")} className="flex-1 px-4 py-3 rounded-md border border-border/50 bg-slate-50 dark:bg-[#1f1929] text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
             <button type="submit" disabled={!newMessage.trim()} className="px-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-bold rounded-md transition-all">{t("adminProjectDetail.sendBtn")}</button>
           </form>
           </div>
@@ -478,7 +478,7 @@ export default function AdminProjectDetailPage() {
       {/* Multi-step Status Modal */}
       {showStatusModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-[#12111a] border border-slate-200 dark:border-slate-800 rounded-md w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+          <div className="bg-white dark:bg-background border border-slate-200 dark:border-slate-800 rounded-md w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-black/20 shrink-0">
@@ -544,7 +544,7 @@ export default function AdminProjectDetailPage() {
                               type="date" 
                               value={startDateStr} 
                               onChange={e => setStartDateStr(e.target.value)} 
-                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-background text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                             />
                           </div>
                           <div className="space-y-1">
@@ -553,7 +553,7 @@ export default function AdminProjectDetailPage() {
                               type="date" 
                               value={endDateStr} 
                               onChange={e => setEndDateStr(e.target.value)} 
-                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-background text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                             />
                           </div>
                         </div>
@@ -565,7 +565,7 @@ export default function AdminProjectDetailPage() {
                               min="1"
                               value={warrantyDays} 
                               onChange={e => setWarrantyDays(Number(e.target.value))} 
-                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-background text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                             />
                           </div>
                           <div className="space-y-1">
@@ -574,7 +574,7 @@ export default function AdminProjectDetailPage() {
                               type="text" 
                               value={developerName} 
                               onChange={e => setDeveloperName(e.target.value)} 
-                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-[#12111a] text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                              className="w-full rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-background text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                               placeholder="Tên lập trình viên"
                             />
                           </div>
@@ -646,7 +646,7 @@ export default function AdminProjectDetailPage() {
                     <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-200 dark:border-indigo-800/50">
                       <span className="material-symbols-outlined text-3xl text-indigo-600 dark:text-indigo-400">admin_panel_settings</span>
                     </div>
-                    <h4 className="font-bold text-slate-800 dark:text-white">{t("adminProjectDetail.modal.securityTitle")}</h4>
+                    <h4 className="font-bold text-foreground">{t("adminProjectDetail.modal.securityTitle")}</h4>
                     <p className="text-xs text-slate-500 mt-1">{t("adminProjectDetail.modal.securityDesc")}</p>
                   </div>
                   
@@ -662,7 +662,7 @@ export default function AdminProjectDetailPage() {
                         }
                       }}
                       placeholder={t("adminProjectDetail.modal.passwordPlaceholder")} 
-                      className="w-full px-4 py-3 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1f1929] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center tracking-widest"
+                      className="w-full px-4 py-3 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1f1929] text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center tracking-widest"
                       autoFocus
                     />
                     {passwordError && <p className="text-rose-500 text-xs font-bold text-center mt-1">{passwordError}</p>}
@@ -687,7 +687,7 @@ export default function AdminProjectDetailPage() {
                   <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce border border-emerald-200 dark:border-emerald-800/50">
                     <span className="material-symbols-outlined text-4xl text-emerald-600 dark:text-emerald-400">task_alt</span>
                   </div>
-                  <h4 className="text-xl font-bold text-slate-800 dark:text-white">{t("adminProjectDetail.modal.successTitle")}</h4>
+                  <h4 className="text-xl font-bold text-foreground">{t("adminProjectDetail.modal.successTitle")}</h4>
                   <p className="text-sm text-slate-500">{t("adminProjectDetail.modal.successDesc")}</p>
                   <p className="text-xs text-slate-400 mt-4 italic">{t("adminProjectDetail.modal.autoClose")}</p>
                 </div>

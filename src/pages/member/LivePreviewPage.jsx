@@ -75,7 +75,7 @@ export default function LivePreviewPage() {
 
   const loadingFallback = (
     <div className="h-full w-full flex items-center justify-center bg-transparent">
-      <div className="w-8 h-8 sm:w-10 sm:h-10 border-3 border-[#0071e3] border-t-transparent rounded-full animate-spin mx-auto" />
+      <div className="w-8 h-8 sm:w-10 sm:h-10 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
     </div>
   );
 

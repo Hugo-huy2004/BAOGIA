@@ -56,69 +56,69 @@ const AdminUsersTab = ({
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Card 1: Total */}
-        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-[#a5b4fc] flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-lg sm:text-xl">group</span>
           </div>
           <div className="min-w-0">
             <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_26")}</div>
-            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{userStats.total.toLocaleString()}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{userStats.total.toLocaleString()}</div>
           </div>
         </div>
         {/* Card 2: Active */}
-        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-lg sm:text-xl">person_play</span>
           </div>
           <div className="min-w-0">
             <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_27")}</div>
-            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{userStats.active.toLocaleString()}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{userStats.active.toLocaleString()}</div>
           </div>
         </div>
         {/* Card 3: Pending */}
-        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-lg sm:text-xl">hourglass_empty</span>
           </div>
           <div className="min-w-0">
             <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">Chờ duyệt</div>
-            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{(userStats.pending || 0).toLocaleString()}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{(userStats.pending || 0).toLocaleString()}</div>
           </div>
         </div>
         {/* Card 4: Rejected */}
-        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-lg sm:text-xl">cancel</span>
           </div>
           <div className="min-w-0">
             <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">Từ chối</div>
-            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{(userStats.rejected || 0).toLocaleString()}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{(userStats.rejected || 0).toLocaleString()}</div>
           </div>
         </div>
         {/* Card 5: Locked */}
-        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-lg sm:text-xl">block</span>
           </div>
           <div className="min-w-0">
             <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_28")}</div>
-            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{userStats.locked.toLocaleString()}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{userStats.locked.toLocaleString()}</div>
           </div>
         </div>
         {/* Card 6: Lifetime */}
-        <div className="bg-white dark:bg-[#12111a] p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-450 flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-lg sm:text-xl">workspace_premium</span>
           </div>
           <div className="min-w-0">
             <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_29")}</div>
-            <div className="text-sm sm:text-lg font-extrabold text-slate-800 dark:text-white mt-0.5 leading-tight">{userStats.lifetime.toLocaleString()}</div>
+            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{userStats.lifetime.toLocaleString()}</div>
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-[#12111a] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-3">
+      <div className="bg-white dark:bg-background p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-3">
         <div className="flex flex-col md:flex-row gap-3">
           {/* Search Input */}
           <div className="relative flex-grow">
@@ -128,7 +128,7 @@ const AdminUsersTab = ({
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder={t("admin.texts.txt_55")}
-              className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder-slate-400 text-slate-800 dark:text-white outline-none"
+              className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder-slate-400 text-foreground outline-none"
             />
             {searchInput && (
               <button
@@ -146,7 +146,7 @@ const AdminUsersTab = ({
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">{t("admin.texts.txt_30")}</option>
               <option value="active">{t("admin.texts.txt_31")}</option>
@@ -158,7 +158,7 @@ const AdminUsersTab = ({
             <select
               value={expirationFilter}
               onChange={(e) => { setExpirationFilter(e.target.value); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">{t("admin.texts.txt_33")}</option>
               <option value="active">{t("admin.texts.txt_34")}</option>
@@ -170,7 +170,7 @@ const AdminUsersTab = ({
             <select
               value={userSortBy}
               onChange={(e) => { setUserSortBy(e.target.value); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="createdAt">{t("admin.texts.txt_37")}</option>
               <option value="expiresAt">{t("admin.texts.txt_38")}</option>
@@ -180,7 +180,7 @@ const AdminUsersTab = ({
             {/* Sort Order Toggle */}
             <button
               onClick={() => setUserSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1 hover:bg-slate-105 dark:hover:bg-slate-900 transition-colors"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground flex items-center gap-1 hover:bg-slate-105 dark:hover:bg-slate-900 transition-colors"
             >
               <span className="material-symbols-outlined text-sm font-bold">
                 {userSortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}
@@ -192,7 +192,7 @@ const AdminUsersTab = ({
             <select
               value={userLimit}
               onChange={(e) => { setUserLimit(parseInt(e.target.value)); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value={10}>{t("admin.texts.txt_40")}</option>
               <option value={20}>{t("admin.texts.txt_41")}</option>
@@ -204,10 +204,10 @@ const AdminUsersTab = ({
       </div>
 
       {/* Main Users Table / List Card */}
-      <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex justify-between items-center">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">group</span>
+            <span className="material-symbols-outlined text-muted-foreground text-base">group</span>
             {t("admin.texts.txt_229")} ({totalMatchedUsers})
           </h3>
         </div>
@@ -218,7 +218,7 @@ const AdminUsersTab = ({
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-100/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800/70 font-bold uppercase tracking-wider text-[9px]">
+                  <tr className="bg-slate-100/50 dark:bg-slate-900/40 text-muted-foreground border-b border-slate-200 dark:border-slate-800/70 font-bold uppercase tracking-wider text-[9px]">
                     <th className="px-6 py-4">{t("admin.texts.txt_44")}</th>
                     <th className="px-6 py-4">Bio Link</th>
                     <th className="px-6 py-4">{t("admin.texts.txt_45")}</th>
@@ -247,14 +247,14 @@ const AdminUsersTab = ({
                               />
                             </div>
                             <div className="min-w-0">
-                              <div className="font-bold text-slate-800 dark:text-white text-xs truncate">{user.displayName}</div>
+                              <div className="font-bold text-foreground text-xs truncate">{user.displayName}</div>
                               <div className="text-[10px] text-slate-400 truncate">{user.email}</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 font-mono text-[11px]">
                           <div className="flex items-center gap-2">
-                            <a href={bioUrl} target="_blank" rel="noreferrer" className="text-primary dark:text-[#a5b4fc] hover:underline font-bold truncate">
+                            <a href={bioUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold truncate">
                               /bio/{user.slug}
                             </a>
                             <button
@@ -330,7 +330,7 @@ const AdminUsersTab = ({
                             )}
                             <button
                               onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
-                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-all shadow-sm active:scale-95"
+                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground transition-all shadow-sm active:scale-95"
                             >
                               {t("admin.texts.txt_231")}
                             </button>
@@ -365,7 +365,7 @@ const AdminUsersTab = ({
                           <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#12111a] ${onlineStatuses[user.email] ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-bold text-slate-800 dark:text-white text-xs truncate leading-tight">{user.displayName}</h4>
+                          <h4 className="font-bold text-foreground text-xs truncate leading-tight">{user.displayName}</h4>
                           <p className="text-[10px] text-slate-400 truncate leading-none mt-0.5">{user.email}</p>
                         </div>
                       </div>
@@ -384,7 +384,7 @@ const AdminUsersTab = ({
 
                     {/* Copy Link Pill Row */}
                     <div className="flex items-center justify-between bg-slate-100/60 dark:bg-[#1a1626]/80 px-3 py-1.5 rounded-xl border border-slate-200/40 dark:border-slate-800/80">
-                      <a href={bioUrl} target="_blank" rel="noreferrer" className="text-primary dark:text-[#a5b4fc] text-xs font-mono font-bold truncate hover:underline flex-1">
+                      <a href={bioUrl} target="_blank" rel="noreferrer" className="text-primary text-xs font-mono font-bold truncate hover:underline flex-1">
                         /bio/{user.slug}
                       </a>
                       <button
@@ -454,7 +454,7 @@ const AdminUsersTab = ({
 
             {/* Smart Pagination Controls */}
             <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/30 dark:bg-[#181622]/20 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
-              <div className="text-slate-500 dark:text-slate-400 font-medium">
+              <div className="text-muted-foreground font-medium">
                 {t("admin.texts.txt_232")} <strong className="text-slate-700 dark:text-white">{totalMatchedUsers > 0 ? (userPage - 1) * userLimit + 1 : 0}</strong> {t("admin.texts.txt_52")} <strong className="text-slate-700 dark:text-white">{Math.min(userPage * userLimit, totalMatchedUsers)}</strong> {t("admin.texts.txt_53")} <strong className="text-slate-700 dark:text-white">{totalMatchedUsers}</strong> {t("admin.texts.txt_233")}
               </div>
 
@@ -463,7 +463,7 @@ const AdminUsersTab = ({
                   <button
                     disabled={userPage === 1}
                     onClick={() => setUserPage(1)}
-                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-600 dark:text-slate-300"
+                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-muted-foreground"
                     title={t("admin.texts.txt_67")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">first_page</span>
@@ -471,7 +471,7 @@ const AdminUsersTab = ({
                   <button
                     disabled={userPage === 1}
                     onClick={() => setUserPage(prev => Math.max(1, prev - 1))}
-                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-600 dark:text-slate-300"
+                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-muted-foreground"
                     title={t("admin.texts.txt_68")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">chevron_left</span>
@@ -488,7 +488,7 @@ const AdminUsersTab = ({
                           className={`w-8 h-8 rounded-lg border font-bold transition-all ${
                             userPage === p
                               ? "bg-indigo-600 border-indigo-600 text-white shadow-sm"
-                              : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300"
+                              : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-muted-foreground"
                           }`}
                         >
                           {p}
@@ -505,7 +505,7 @@ const AdminUsersTab = ({
                   <button
                     disabled={userPage === totalPages}
                     onClick={() => setUserPage(prev => Math.min(totalPages, prev + 1))}
-                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-600 dark:text-slate-300"
+                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-muted-foreground"
                     title={t("admin.texts.txt_234")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">chevron_right</span>
@@ -513,7 +513,7 @@ const AdminUsersTab = ({
                   <button
                     disabled={userPage === totalPages}
                     onClick={() => setUserPage(totalPages)}
-                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-slate-600 dark:text-slate-300"
+                    className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors disabled:opacity-40 disabled:pointer-events-none text-muted-foreground"
                     title={t("admin.texts.txt_69")}
                   >
                     <span className="material-symbols-outlined text-sm font-bold">last_page</span>
@@ -535,13 +535,13 @@ const AdminUsersTab = ({
       {/* Verification Details Modal */}
       {selectedVerificationUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-md bg-white dark:bg-[#12111a] rounded-[2rem] border border-slate-200 dark:border-slate-800/80 shadow-2xl overflow-hidden relative space-y-6 p-6 sm:p-8">
+          <div className="w-full max-w-md bg-white dark:bg-background rounded-[2rem] border border-slate-200 dark:border-slate-800/80 shadow-2xl overflow-hidden relative space-y-6 p-6 sm:p-8">
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
             
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-indigo-500 text-2xl">school</span>
-                <h3 className="text-base sm:text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight">Chi tiết yêu cầu xác minh</h3>
+                <h3 className="text-base sm:text-lg font-black text-foreground uppercase tracking-tight">Chi tiết yêu cầu xác minh</h3>
               </div>
               <button
                 onClick={() => setSelectedVerificationUser(null)}
@@ -558,7 +558,7 @@ const AdminUsersTab = ({
               </div>
               <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
                 <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Họ và tên</span>
-                <span className="col-span-2 text-slate-800 dark:text-white font-bold">{selectedVerificationUser.verificationRequest?.fullName}</span>
+                <span className="col-span-2 text-foreground font-bold">{selectedVerificationUser.verificationRequest?.fullName}</span>
               </div>
               <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
                 <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Sinh nhật</span>
@@ -595,7 +595,7 @@ const AdminUsersTab = ({
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setSelectedVerificationUser(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold rounded-xl transition-all active:scale-95"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground text-xs font-bold rounded-xl transition-all active:scale-95"
               >
                 Đóng
               </button>

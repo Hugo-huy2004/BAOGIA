@@ -45,7 +45,7 @@ const Starfield = ({ normalizedX, normalizedY }) => {
   const parallaxY = useTransform(normalizedY, [-1, 1], [-20, 20]);
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden bg-[#020108]">
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden bg-background">
       <motion.div style={{ x: parallaxX, y: parallaxY }} className="w-full h-full absolute inset-0">
         <motion.div animate={{ rotate: 360 }} transition={{ duration: 150, repeat: Infinity, ease: "linear" }} className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-indigo-900/10 blur-[150px] mix-blend-screen" />
         <motion.div animate={{ rotate: -360 }} transition={{ duration: 200, repeat: Infinity, ease: "linear" }} className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-900/10 blur-[150px] mix-blend-screen" />
@@ -376,7 +376,7 @@ export default function TemplatesPage() {
           initial={{ opacity: 0, scale: 0.9, y: 100, rotateX: 15 }} 
           animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-          className="w-full max-w-5xl h-[360px] sm:h-[420px] md:h-[65vh] bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/10 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden flex flex-col shadow-[0_30px_100px_rgba(16,185,129,0.15)] relative shrink-0"
+          className="w-full max-w-5xl h-[360px] sm:h-[420px] md:h-[65vh] bg-card backdrop-blur-3xl border border-white/10 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden flex flex-col shadow-[0_30px_100px_rgba(16,185,129,0.15)] relative shrink-0"
           data-no-swipe="true"
           style={{ perspective: "1200px" }}
         >
@@ -415,7 +415,7 @@ export default function TemplatesPage() {
   const CurrentSlideComponent = slides[currentSlide];
 
   return (
-    <div ref={sliderRef} className="relative w-full h-[90vh] min-h-[600px] bg-[#020108] text-white overflow-hidden font-sans select-none rounded-b-[2rem]" style={{ touchAction: "none", perspective: "1000px" }}>
+    <div ref={sliderRef} className="relative w-full h-[90vh] min-h-[600px] bg-background text-white overflow-hidden font-sans select-none rounded-b-[2rem]" style={{ touchAction: "none", perspective: "1000px" }}>
       <Starfield normalizedX={normalizedX} normalizedY={normalizedY} />
 
       {/* Galaxy Navigation Indicators */}

@@ -514,7 +514,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
     <div className="p-4 sm:p-6 space-y-6 text-left animate-fadeIn bg-transparent pb-20">
 
       {/* ── Mobile Compact Header ────────────────────────────────────────────── */}
-      <div className="lg:hidden flex items-center gap-3.5 p-4 rounded-2xl border bg-white/60 dark:bg-[#1a1924]/60 backdrop-blur-xl border-zinc-200/50 dark:border-zinc-800/50 shadow-sm">
+      <div className="lg:hidden flex items-center gap-3.5 p-4 rounded-2xl border bg-white/60 dark:bg-card/60 backdrop-blur-xl border-zinc-200/50 dark:border-zinc-800/50 shadow-sm">
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-md overflow-hidden border-2 border-white dark:border-zinc-800">
           {bio?.avatarUrl ? (
             <img src={bio.avatarUrl} alt={bio.displayName || bio.name} className="w-full h-full object-cover" />
@@ -854,10 +854,10 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
 
           <button
             onClick={() => onNavigateToTab("sleep")}
-            className="w-full mt-3 py-2 rounded-xl bg-[#0071e3]/10 hover:bg-[#0071e3]/15 text-[9px] font-black uppercase tracking-wider text-[#0071e3] active:scale-[0.98] transition-all flex items-center justify-center gap-1"
+            className="w-full mt-3 py-2 rounded-xl bg-primary/10 hover:bg-primary/15 text-[9px] font-black uppercase tracking-wider text-primary active:scale-[0.98] transition-all flex items-center justify-center gap-1"
           >
             {t("companion.evaluation.syncSleepSensors", "Đồng bộ thiết bị")}
-            <Moon className="w-3 h-3 text-[#0071e3]" />
+            <Moon className="w-3 h-3 text-primary" />
           </button>
         </div>
 
@@ -899,7 +899,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
 
       {/* ── Deep Analysis Charts (RadarChart + LineChart) ────────────────────── */}
       {totalTestsCount > 0 && (
-        <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
+        <div className="p-5 rounded-2xl border bg-white dark:bg-card border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
           <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800/50 pb-3">
             <TrendingUp className="w-5 h-5 text-blue-500" />
             <h4 className="text-sm font-black uppercase tracking-wider text-zinc-900 dark:text-white">{t("companion.profile.deepAnalysis", "Biểu Đồ Xu Hướng Sức Khỏe")}</h4>
@@ -925,7 +925,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
       )}
 
       {/* ── Metrics Detailed Dashboard Table ───────────────────────────────── */}
-      <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
+      <div className="p-5 rounded-2xl border bg-white dark:bg-card border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800/50 pb-3">
           <ShieldCheck className="w-5 h-5 text-blue-500" />
           <h4 className="text-sm font-black uppercase tracking-wider text-zinc-900 dark:text-white">{t("companion.evaluation.tableTitle", "Bảng Chỉ Số Chi Tiết")}</h4>
@@ -1025,7 +1025,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
         };
 
         return (
-          <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
+          <div className="p-5 rounded-2xl border bg-white dark:bg-card border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
             <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800/50 pb-3">
               <TrendingDown className="w-5 h-5 text-emerald-500" />
               <h4 className="text-sm font-black uppercase tracking-wider text-zinc-900 dark:text-white">{t("companion.evaluation.historyTitle", "Lịch Sử & So Sánh Kết Quả Tham Vấn")}</h4>
@@ -1094,7 +1094,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
       })()}
 
       {/* Chronological timeline */}
-      <div className="p-5 rounded-2xl border bg-white dark:bg-[#1a1924] border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
+      <div className="p-5 rounded-2xl border bg-white dark:bg-card border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-indigo-500" />
@@ -1183,7 +1183,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
       </div>
 
       {/* ── Collapsible Account/Bio Details for Mobile ────────────────────── */}
-      <div className="block lg:hidden p-4 rounded-2xl border bg-white/60 dark:bg-[#1a1924]/60 backdrop-blur-xl border-zinc-200/50 dark:border-zinc-800/50 shadow-sm">
+      <div className="block lg:hidden p-4 rounded-2xl border bg-white/60 dark:bg-card/60 backdrop-blur-xl border-zinc-200/50 dark:border-zinc-800/50 shadow-sm">
         <button
           onClick={() => setShowPersonalDetails(v => !v)}
           className="w-full flex items-center justify-between"

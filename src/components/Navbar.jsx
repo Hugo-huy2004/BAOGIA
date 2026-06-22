@@ -73,10 +73,10 @@ export default function Navbar() {
           <span className="text-[#ef4444]">H</span>
           <span className="text-[#f97316]">u</span>
           <span className="text-[#f59e0b]">g</span>
-          <span className="text-[#10b981]">o</span>
+          <span className="text-emerald-500">o</span>
           <span className="w-1" />
           <span className="text-[#3b82f6]">S</span>
-          <span className="text-[#6366f1]">t</span>
+          <span className="text-primary">t</span>
           <span className="text-[#a855f7]">u</span>
           <span className="text-[#ec4899]">d</span>
           <span className="text-[#f43f5e]">i</span>

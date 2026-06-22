@@ -50,7 +50,7 @@ export default function Footer() {
               </span>
             </Link>
             {/* Tagline — hidden on small mobile to save space */}
-            <p className="hidden sm:block text-xs leading-relaxed text-slate-500 dark:text-slate-400 max-w-xs">
+            <p className="hidden sm:block text-xs leading-relaxed text-muted-foreground max-w-xs">
               {t("footer.tagline", "Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.")}
             </p>
             {/* Contact row — compact on mobile */}
@@ -202,7 +202,7 @@ export default function Footer() {
 
         {/* Bottom Section: Copyright & System Status */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 text-xs text-slate-400 dark:text-slate-500">
-          <p className="font-medium text-slate-500 dark:text-slate-400 text-center sm:text-left">
+          <p className="font-medium text-muted-foreground text-center sm:text-left">
             © {new Date().getFullYear()} <span className="font-semibold text-slate-700 dark:text-slate-300">{data.profile.fullName || "Peter Hugo Wishpax Le"}</span>. All rights reserved.
           </p>
           <div className="flex items-center gap-4">

@@ -285,7 +285,7 @@ export default function PaymentGatewayPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0b0a0f] text-slate-800 dark:text-zinc-100 flex flex-col items-center justify-center space-y-4 transition-colors duration-300">
+      <div className="min-h-screen bg-background text-foreground text-slate-800 dark:text-zinc-100 flex flex-col items-center justify-center space-y-4 transition-colors duration-300">
         <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
         <p className="text-slate-400 dark:text-zinc-500 font-bold tracking-widest uppercase text-[10px] animate-pulse">
           Đang tải thông tin hóa đơn...
@@ -296,15 +296,15 @@ export default function PaymentGatewayPage() {
 
   if (error || !paymentInfo) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0b0a0f] text-slate-800 dark:text-zinc-100 flex flex-col items-center justify-center p-6 text-center space-y-6 transition-colors duration-300">
+      <div className="min-h-screen bg-background text-foreground text-slate-800 dark:text-zinc-100 flex flex-col items-center justify-center p-6 text-center space-y-6 transition-colors duration-300">
         <div className="w-20 h-20 bg-rose-500/10 dark:bg-rose-500/5 rounded-full flex items-center justify-center text-rose-550 border border-rose-200 dark:border-rose-500/20 shadow-md">
           <span className="material-symbols-outlined text-4xl">error</span>
         </div>
-        <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Hóa đơn không hợp lệ</h1>
+        <h1 className="text-2xl font-black tracking-tight text-foreground">Hóa đơn không hợp lệ</h1>
         <p className="text-slate-500 dark:text-zinc-400 max-w-sm text-sm">{error || "Giao dịch không tồn tại hoặc đã hết hạn."}</p>
         <button 
           onClick={() => window.location.href = '/'}
-          className="px-6 py-3 bg-white dark:bg-zinc-800/80 hover:bg-slate-100 dark:hover:bg-zinc-700/80 hover:scale-[1.02] border border-slate-200 dark:border-white/5 rounded-xl font-bold transition-all text-xs shadow-sm text-slate-800 dark:text-white"
+          className="px-6 py-3 bg-white dark:bg-zinc-800/80 hover:bg-slate-100 dark:hover:bg-zinc-700/80 hover:scale-[1.02] border border-border/50 rounded-xl font-bold transition-all text-xs shadow-sm text-foreground"
         >
           Về Trang Chủ
         </button>
@@ -334,13 +334,13 @@ export default function PaymentGatewayPage() {
   const RECOMMENDED_BANKS = ['vcb', 'mbbank', 'tcb'];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0b0a0f] text-slate-800 dark:text-zinc-200 flex flex-col font-sans relative overflow-x-hidden pb-12 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground text-slate-800 dark:text-zinc-200 flex flex-col font-sans relative overflow-x-hidden pb-12 transition-colors duration-300">
       {/* Ambient background glows */}
       <div className="absolute top-0 right-[-10%] w-[600px] h-[600px] bg-emerald-50/[0.03] dark:bg-emerald-500/5 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-indigo-50/[0.03] dark:bg-indigo-500/5 rounded-full blur-[150px] pointer-events-none" />
 
       {/* Top Brand Header */}
-      <header className="py-5 px-6 relative z-10 flex items-center justify-between border-b border-slate-200 dark:border-white/5 bg-white/60 dark:bg-white/[0.02] backdrop-blur-md">
+      <header className="py-5 px-6 relative z-10 flex items-center justify-between border-b border-border/50 bg-white/60 dark:bg-white/[0.02] backdrop-blur-md">
         <div className="w-8" /> {/* Spacer for centering logo */}
         <div className="flex flex-col items-center justify-center">
           <HugoLogo className="text-2xl mb-1.5" />
@@ -357,7 +357,7 @@ export default function PaymentGatewayPage() {
         
         {/* SUCCESS / PAID STATE */}
         {isPaid && (
-          <div className="bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl border border-slate-200 dark:border-emerald-500/20 rounded-[32px] p-6 sm:p-8 shadow-xl dark:shadow-2xl relative overflow-hidden text-center space-y-6 animate-fadeIn">
+          <div className="bg-white/80 dark:bg-background/80 backdrop-blur-2xl border border-slate-200 dark:border-emerald-500/20 rounded-[32px] p-6 sm:p-8 shadow-xl dark:shadow-2xl relative overflow-hidden text-center space-y-6 animate-fadeIn">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400" />
             <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mx-auto drop-shadow-[0_0_20px_rgba(16,185,129,0.15)]">
               <span className="material-symbols-outlined text-4xl animate-bounce-gentle">check_circle</span>
@@ -371,18 +371,18 @@ export default function PaymentGatewayPage() {
             </div>
 
             {/* Virtual Dotted Receipt */}
-            <div className="bg-slate-50 dark:bg-black/30 rounded-2xl p-5 border border-slate-200 dark:border-white/5 text-left text-xs space-y-4 relative">
-              <div className="flex justify-between items-center py-1.5 border-b border-slate-200 dark:border-white/5">
+            <div className="bg-slate-50 dark:bg-black/30 rounded-2xl p-5 border border-border/50 text-left text-xs space-y-4 relative">
+              <div className="flex justify-between items-center py-1.5 border-b border-border/50">
                 <span className="text-slate-400 dark:text-zinc-550 font-bold uppercase tracking-wider">Số tiền đã trả</span>
                 <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">
                   {paymentInfo.amount.toLocaleString('vi-VN')} <span className="text-[10px] text-emerald-600 dark:text-emerald-550 font-extrabold">VNĐ</span>
                 </span>
               </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-slate-200 dark:border-white/5">
+              <div className="flex justify-between items-center py-1.5 border-b border-border/50">
                 <span className="text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider">Nội dung</span>
                 <span className="font-semibold text-slate-700 dark:text-zinc-300">{paymentInfo.reason}</span>
               </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-slate-200 dark:border-white/5">
+              <div className="flex justify-between items-center py-1.5 border-b border-border/50">
                 <span className="text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider">Mã giao dịch</span>
                 <span className="font-mono text-slate-700 dark:text-zinc-300 bg-slate-200/50 dark:bg-white/5 px-2.5 py-1 rounded-md">{paymentInfo.customLinkId}</span>
               </div>
@@ -394,7 +394,7 @@ export default function PaymentGatewayPage() {
 
             <button 
               onClick={() => window.location.href = '/'}
-              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white rounded-xl py-3 text-xs font-bold transition-all border border-slate-200 dark:border-white/5 hover:scale-[1.01]"
+              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white rounded-xl py-3 text-xs font-bold transition-all border border-border/50 hover:scale-[1.01]"
             >
               Quay lại trang chủ
             </button>
@@ -403,7 +403,7 @@ export default function PaymentGatewayPage() {
 
         {/* CANCELLED STATE */}
         {isCancelled && !isPaid && (
-          <div className="bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl border border-slate-200 dark:border-rose-500/20 rounded-[32px] p-6 sm:p-8 shadow-xl dark:shadow-2xl relative overflow-hidden text-center space-y-6 animate-fadeIn">
+          <div className="bg-white/80 dark:bg-background/80 backdrop-blur-2xl border border-slate-200 dark:border-rose-500/20 rounded-[32px] p-6 sm:p-8 shadow-xl dark:shadow-2xl relative overflow-hidden text-center space-y-6 animate-fadeIn">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-orange-400" />
             <div className="w-20 h-20 bg-rose-100 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-full flex items-center justify-center text-rose-550 dark:text-rose-450 mx-auto drop-shadow-[0_0_20px_rgba(244,63,94,0.15)]">
               <span className="material-symbols-outlined text-4xl">cancel</span>
@@ -418,7 +418,7 @@ export default function PaymentGatewayPage() {
 
             <button 
               onClick={() => window.location.href = '/'}
-              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white rounded-xl py-3 text-xs font-bold transition-all border border-slate-200 dark:border-white/5 hover:scale-[1.01]"
+              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white rounded-xl py-3 text-xs font-bold transition-all border border-border/50 hover:scale-[1.01]"
             >
               Về Trang Chủ
             </button>
@@ -427,10 +427,10 @@ export default function PaymentGatewayPage() {
 
         {/* ACTIVE PENDING STATE */}
         {!isPaid && !isCancelled && (
-          <div className="bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-[32px] shadow-xl dark:shadow-2xl overflow-hidden animate-fadeIn space-y-6">
+          <div className="bg-white/80 dark:bg-background/80 backdrop-blur-2xl border border-border/50 rounded-[32px] shadow-xl dark:shadow-2xl overflow-hidden animate-fadeIn space-y-6">
             
             {/* Header / Amount Block */}
-            <div className="p-6 sm:p-8 bg-gradient-to-b from-slate-50 to-transparent dark:from-white/[0.03] dark:to-transparent border-b border-slate-200 dark:border-white/5 text-center relative">
+            <div className="p-6 sm:p-8 bg-gradient-to-b from-slate-50 to-transparent dark:from-white/[0.03] dark:to-transparent border-b border-border/50 text-center relative">
               <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-amber-100 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-full px-2.5 py-1 text-[9px] font-bold text-amber-700 dark:text-amber-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse-soft" />
                 CHỜ THANH TOÁN
@@ -492,7 +492,7 @@ export default function PaymentGatewayPage() {
                           <button
                             key={bank.code}
                             onClick={() => handleOpenBankApp(bank.code)}
-                            className="flex items-center gap-1.5 p-2 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl border border-slate-200/60 dark:border-white/10 active:scale-95 transition-all text-[9.5px] font-extrabold text-slate-800 dark:text-white shadow-sm truncate group"
+                            className="flex items-center gap-1.5 p-2 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl border border-slate-200/60 dark:border-white/10 active:scale-95 transition-all text-[9.5px] font-extrabold text-foreground shadow-sm truncate group"
                             title={`Mở app ${bank.name}`}
                           >
                             <img src={bank.logo} alt={bank.name} className="w-4.5 h-4.5 object-contain shrink-0 group-hover:scale-105 transition-transform" />
@@ -508,14 +508,14 @@ export default function PaymentGatewayPage() {
 
             {/* Methods Selector (Tabs Navigation - Premium Glass Pill layout) */}
             <div className="px-4 py-1">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-100/70 dark:bg-black/40 p-1.5 rounded-[22px] border border-slate-200 dark:border-white/5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-100/70 dark:bg-black/40 p-1.5 rounded-[22px] border border-border/50">
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all relative overflow-hidden ${
                       activeTab === tab.id
-                        ? 'bg-white dark:bg-[#201d30]/80 border border-slate-200 dark:border-white/10 text-emerald-600 dark:text-emerald-450 shadow-[0_4px_20px_-5px_rgba(16,185,129,0.15)] font-bold'
+                        ? 'bg-white dark:bg-[#201d30]/80 border border-border/50 text-emerald-600 dark:text-emerald-450 shadow-[0_4px_20px_-5px_rgba(16,185,129,0.15)] font-bold'
                         : 'hover:bg-slate-50 dark:hover:bg-white/[0.02] border border-transparent text-slate-500 dark:text-zinc-400 font-medium hover:text-slate-800 dark:hover:text-zinc-200'
                     }`}
                   >
@@ -537,7 +537,7 @@ export default function PaymentGatewayPage() {
               {activeTab === 'banking' && (
                 <div className="space-y-5 animate-fadeIn">
                   <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Mở Ứng Dụng Ngân Hàng</h3>
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Mở Ứng Dụng Ngân Hàng</h3>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
                       Chọn logo ngân hàng bạn dùng dưới đây. App Banking sẽ tự động mở lên và điền sẵn mọi thông tin.
                     </p>
@@ -549,7 +549,7 @@ export default function PaymentGatewayPage() {
                         <button
                           key={bank.code}
                           onClick={() => handleOpenBankApp(bank.code)}
-                          className="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50/50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 hover:border-emerald-500/30 dark:hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-emerald-500/[0.02] hover:shadow-sm transition-all group active:scale-95 text-center relative overflow-hidden"
+                          className="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50/50 dark:bg-white/[0.02] border border-border/50 hover:border-emerald-500/30 dark:hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-emerald-500/[0.02] hover:shadow-sm transition-all group active:scale-95 text-center relative overflow-hidden"
                           title={`Mở ứng dụng ${bank.name}`}
                         >
                           {RECOMMENDED_BANKS.includes(bank.code) && (
@@ -557,7 +557,7 @@ export default function PaymentGatewayPage() {
                               Nhanh
                             </span>
                           )}
-                          <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center p-1.5 mb-2 group-hover:bg-slate-50 dark:group-hover:bg-white/10 transition-colors border border-slate-200 dark:border-white/5">
+                          <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center p-1.5 mb-2 group-hover:bg-slate-50 dark:group-hover:bg-white/10 transition-colors border border-border/50">
                             <img 
                               src={bank.logo} 
                               alt={bank.name} 
@@ -587,13 +587,13 @@ export default function PaymentGatewayPage() {
               {activeTab === 'vietqr' && (
                 <div className="space-y-6 animate-fadeIn">
                   <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Quét Mã VietQR Chuyển Khoản</h3>
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Quét Mã VietQR Chuyển Khoản</h3>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
                       Mở ứng dụng ngân hàng bất kỳ, quét mã QR này và kiểm tra thông tin trước khi chuyển.
                     </p>
                   </div>
 
-                  <div className="flex flex-col md:flex-row items-center gap-6 bg-slate-50/50 dark:bg-white/[0.01] border border-slate-200 dark:border-white/5 p-5 sm:p-6 rounded-[28px]">
+                  <div className="flex flex-col md:flex-row items-center gap-6 bg-slate-50/50 dark:bg-white/[0.01] border border-border/50 p-5 sm:p-6 rounded-[28px]">
                     {/* QR Display Card */}
                     {qrImageUrl ? (
                       <div className="w-full md:w-auto shrink-0 flex flex-col items-center">
@@ -625,7 +625,7 @@ export default function PaymentGatewayPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="w-52 h-52 bg-slate-100 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 rounded-[24px] flex items-center justify-center text-center text-xs text-slate-400 dark:text-zinc-550">
+                      <div className="w-52 h-52 bg-slate-100 dark:bg-white/5 border border-dashed border-border/50 rounded-[24px] flex items-center justify-center text-center text-xs text-slate-400 dark:text-zinc-550">
                         Không tạo được mã QR
                       </div>
                     )}
@@ -688,7 +688,7 @@ export default function PaymentGatewayPage() {
               {activeTab === 'momo' && (
                 <div className="space-y-5 animate-fadeIn">
                   <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Thanh Toán Bằng Ví MoMo</h3>
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Thanh Toán Bằng Ví MoMo</h3>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
                       Sử dụng tính năng quét mã VietQR có sẵn trên MoMo để chuyển khoản ngân hàng nhanh.
                     </p>
@@ -727,7 +727,7 @@ export default function PaymentGatewayPage() {
               {activeTab === 'applepay' && (
                 <div className="space-y-6 animate-fadeIn">
                   <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                       {isApplePaySupported ? "Thẻ Quốc Tế / Apple Pay" : "Thẻ Quốc Tế / ATM Nội Địa"}
                     </h3>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
@@ -738,7 +738,7 @@ export default function PaymentGatewayPage() {
                   </div>
 
                   {/* Glassmorphic Credit Card mockup */}
-                  <div className="relative w-full max-w-sm mx-auto h-44 bg-gradient-to-br from-slate-800 to-slate-950 dark:from-[#1c1a2e] dark:to-[#0a0812] border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-xl flex flex-col justify-between overflow-hidden group">
+                  <div className="relative w-full max-w-sm mx-auto h-44 bg-gradient-to-br from-slate-800 to-slate-950 dark:from-[#1c1a2e] dark:to-[#0a0812] border border-border/50 rounded-2xl p-6 shadow-xl flex flex-col justify-between overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700" />
                     <div className="flex justify-between items-start">
                       <span className="material-symbols-outlined text-3xl text-white/70">contactless</span>
@@ -804,7 +804,7 @@ export default function PaymentGatewayPage() {
             </div>
 
             {/* Bottom metadata and Action buttons */}
-            <div className="px-6 py-4 bg-slate-50/50 dark:bg-white/[0.01] border-t border-slate-200 dark:border-white/5 flex flex-col space-y-4">
+            <div className="px-6 py-4 bg-slate-50/50 dark:bg-white/[0.01] border-t border-border/50 flex flex-col space-y-4">
               
               {/* Info text */}
               <div className="text-[10px] text-slate-500 dark:text-zinc-500 flex flex-col sm:flex-row justify-between items-center gap-2">
@@ -844,13 +844,13 @@ export default function PaymentGatewayPage() {
         )}
 
         {/* Optional Branding Banner */}
-        <div className="bg-white/50 dark:bg-[#100e1a]/50 backdrop-blur-xl rounded-[24px] p-5 border border-slate-200 dark:border-white/5 flex flex-col sm:flex-row items-center gap-4 shadow-sm relative overflow-hidden group">
+        <div className="bg-white/50 dark:bg-[#100e1a]/50 backdrop-blur-xl rounded-[24px] p-5 border border-border/50 flex flex-col sm:flex-row items-center gap-4 shadow-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 dark:bg-primary/10 blur-[50px] pointer-events-none" />
           <div className="w-11 h-11 shrink-0 bg-indigo-50 dark:bg-primary/10 rounded-full flex items-center justify-center border border-indigo-100 dark:border-primary/20">
             <span className="material-symbols-outlined text-xl text-indigo-650 dark:text-primary animate-bounce-gentle">auto_awesome</span>
           </div>
           <div className="text-center sm:text-left relative z-10 flex-1">
-            <h4 className="text-slate-800 dark:text-white font-bold text-xs mb-0.5">Thiết kế Profile Chuyên Nghiệp</h4>
+            <h4 className="text-foreground font-bold text-xs mb-0.5">Thiết kế Profile Chuyên Nghiệp</h4>
             <p className="text-slate-500 dark:text-zinc-400 text-[10px] leading-relaxed mb-2">Nâng tầm thương hiệu cá nhân của bạn với danh thiếp điện tử Bento từ Hugo Studio.</p>
             <a 
               href="https://www.hugowishpax.studio" 

@@ -11,9 +11,9 @@ const router = express.Router();
 // at the DB level (see Bio.js's partial index), so "verified" here means
 // guaranteed-single-owner, not SMS-verified. A 5% friction fee discourages
 // spammy transfers without acting as a platform revenue cut ("phi lợi nhuận").
-const TRANSFER_MIN = 1;
-const TRANSFER_MAX = 500;
-const TRANSFER_DAILY_CAP = 100;
+const TRANSFER_MIN = 10;
+const TRANSFER_MAX = 1000;
+const TRANSFER_DAILY_CAP = 1000;
 const TRANSFER_FEE_RATE = 0.05;
 const TRANSFER_MIN_ACCOUNT_AGE_DAYS = 3;
 
@@ -211,10 +211,10 @@ router.get('/resolve-phone', async (req, res) => {
   }
 });
 
-// POST /api/joy/transfer  { fromEmail, toPhone, amount }
+// POST /api/joy/transfer  { fromEmail, toPhone, amount, message }
 router.post('/transfer', async (req, res) => {
   try {
-    const { fromEmail, toPhone, amount } = req.body;
+    const { fromEmail, toPhone, amount, message } = req.body;
     if (!fromEmail || !toPhone) {
       return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc số điện thoại người nhận.' });
     }
@@ -227,6 +227,10 @@ router.post('/transfer', async (req, res) => {
     const sender = await Bio.findOne({ email: fromEmail });
     if (!sender) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người gửi.' });
 
+    if (sender.joyBalance < 20) {
+      return res.status(400).json({ error: 'Số dư của bạn phải có ít nhất 20 JOY mới được phép chuyển.' });
+    }
+
     const accountAgeMs = Date.now() - new Date(sender.createdAt).getTime();
     if (accountAgeMs < TRANSFER_MIN_ACCOUNT_AGE_DAYS * 24 * 60 * 60 * 1000) {
       return res.status(400).json({ error: `Tài khoản cần đủ ${TRANSFER_MIN_ACCOUNT_AGE_DAYS} ngày tuổi mới được gửi JOY.` });
@@ -238,35 +242,38 @@ router.post('/transfer', async (req, res) => {
       return res.status(400).json({ error: 'Không thể tự gửi JOY cho chính mình.' });
     }
 
-    if (sender.joyBalance < numAmount) {
-      return res.status(400).json({ error: 'Số dư JOY không đủ.' });
-    }
-
     const today = todayStr();
     const sentTodaySoFar = sender.joySentDate === today ? sender.joySentToday : 0;
     if (sentTodaySoFar + numAmount > TRANSFER_DAILY_CAP) {
       return res.status(400).json({ error: `Vượt giới hạn gửi ${TRANSFER_DAILY_CAP} JOY/ngày. Cậu đã gửi ${sentTodaySoFar} JOY hôm nay.` });
     }
 
-    const netAmount = Math.floor(numAmount * (1 - TRANSFER_FEE_RATE));
-    const feeAmount = numAmount - netAmount;
+    const feeAmount = Math.floor(numAmount * TRANSFER_FEE_RATE);
+    const totalDeducted = numAmount + feeAmount;
+
+    if (sender.joyBalance < totalDeducted) {
+      return res.status(400).json({ error: `Số dư JOY không đủ. Bạn cần ${totalDeducted} JOY (bao gồm ${feeAmount} JOY phí giao dịch).` });
+    }
+
+    const customMsg = message ? ` Lời nhắn: "${message}"` : '';
+    const recipientName = recipient.displayName || 'bạn bè';
 
     const senderResult = await awardJoy(
-      sender.email, -numAmount, 'joy_gift_sent',
-      `Gửi JOY cho ${recipient.displayName || 'bạn bè'} (-${numAmount} JOY)`,
+      sender.email, -totalDeducted, 'joy_gift_sent',
+      `Gửi JOY cho ${recipientName} (-${numAmount} JOY, phí -${feeAmount} JOY).${customMsg}`,
       { refId: recipient.email }
     );
     const senderName = sender.displayName || 'Một người bạn';
     await awardJoy(
-      recipient.email, netAmount, 'joy_gift_received',
-      `${senderName} đã chuyển ${netAmount} JOY đến bạn.`,
+      recipient.email, numAmount, 'joy_gift_received',
+      `${senderName} đã chuyển ${numAmount} JOY đến bạn.${customMsg}`,
       {
         refId: sender.email,
         notificationTitle: 'Bạn vừa nhận được JOY',
-        notificationMessage: `${senderName} đã chuyển ${netAmount} JOY đến bạn. Số dư: ${Math.max(0, recipient.joyBalance + netAmount)} JOY.`,
+        notificationMessage: `${senderName} đã chuyển ${numAmount} JOY đến bạn.${customMsg} Số dư: ${Math.max(0, recipient.joyBalance + numAmount)} JOY.`,
         pushNotify: true,
         pushTitle: 'Bạn vừa nhận được JOY',
-        pushBody: `${senderName} đã chuyển ${netAmount} JOY đến bạn. Số dư: ${Math.max(0, recipient.joyBalance + netAmount)} JOY.`,
+        pushBody: `${senderName} đã chuyển ${numAmount} JOY đến bạn.${customMsg}`,
         actionUrl: '/member/joy'
       }
     );

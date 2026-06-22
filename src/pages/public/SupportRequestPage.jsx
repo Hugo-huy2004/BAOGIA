@@ -128,14 +128,14 @@ const SupportRequestPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center justify-center p-4 py-12 relative overflow-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-background dark:bg-black text-foreground flex items-center justify-center p-4 py-12 relative overflow-hidden transition-colors duration-300">
       
       {/* Background Decorative Apple-style Soft Accents */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#007aff]/5 dark:bg-[#0a84ff]/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/5 dark:bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-slate-400/5 dark:bg-slate-800/5 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Main Container */}
-      <div className="w-full max-w-xl bg-white/80 dark:bg-[#1c1c1e]/85 backdrop-blur-xl rounded-3xl border border-[#e5e5e7] dark:border-[#2c2c2e] shadow-2xl p-6 sm:p-10 relative overflow-hidden transition-all">
+      <div className="w-full max-w-xl glass rounded-3xl border border-border shadow-2xl p-6 sm:p-10 relative overflow-hidden transition-all">
         
         {isSuccess ? (
           /* SUCCESS STATE */
@@ -145,10 +145,10 @@ const SupportRequestPage = () => {
             </div>
             
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">
                 Gửi Yêu Cầu Thành Công
               </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+              <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
                 Hệ thống hỗ trợ 1:1 đã tiếp nhận vấn đề của bạn. Đội ngũ kỹ thuật viên sẽ chủ động liên hệ trực tiếp qua số Zalo bạn cung cấp trong vòng 10 - 15 phút tới.
               </p>
             </div>
@@ -156,7 +156,7 @@ const SupportRequestPage = () => {
             <div className="pt-4 flex gap-4 justify-center">
               <button
                 onClick={() => navigate('/')}
-                className="px-6 py-2.5 bg-[#007aff] hover:bg-[#0071e3] dark:bg-[#0a84ff] dark:hover:bg-[#0071e3] text-white font-semibold text-xs rounded-2xl shadow-md flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95"
+                className="px-6 py-2.5 bg-primary hover:bg-primary dark:bg-primary dark:hover:bg-primary text-white font-semibold text-xs rounded-2xl shadow-md flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95"
                 style={{ minHeight: 0, minWidth: 0 }}
               >
                 <span className="material-symbols-outlined text-sm">home</span>
@@ -177,7 +177,7 @@ const SupportRequestPage = () => {
           /* FORM STATE */
           <div className="space-y-6">
             <div className="space-y-2 text-center sm:text-left">
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
                 Yêu Cầu Hỗ Trợ 1:1
               </h1>
               <p className="text-xs text-slate-400 dark:text-slate-400 leading-relaxed">
@@ -205,7 +205,7 @@ const SupportRequestPage = () => {
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
                   placeholder="Nhập họ và tên của bạn"
-                  className="w-full px-4 py-3 bg-slate-50/50 dark:bg-black/40 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl text-xs focus:outline-none focus:border-[#007aff] dark:focus:border-[#0a84ff] focus:ring-2 focus:ring-[#007aff]/15 transition-all text-slate-800 dark:text-slate-100 font-medium"
+                  className="w-full px-4 py-3 bg-slate-50/50 dark:bg-black/40 border border-border/50 rounded-2xl text-xs focus:outline-none focus:border-primary dark:focus:border-primary focus:ring-2 focus:ring-[#007aff]/15 transition-all text-foreground font-medium"
                 />
               </div>
 
@@ -222,7 +222,7 @@ const SupportRequestPage = () => {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="example@mail.com"
-                    className="w-full px-4 py-3 bg-slate-50/50 dark:bg-black/40 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl text-xs focus:outline-none focus:border-[#007aff] dark:focus:border-[#0a84ff] focus:ring-2 focus:ring-[#007aff]/15 transition-all text-slate-800 dark:text-slate-100 font-medium"
+                    className="w-full px-4 py-3 bg-slate-50/50 dark:bg-black/40 border border-border/50 rounded-2xl text-xs focus:outline-none focus:border-primary dark:focus:border-primary focus:ring-2 focus:ring-[#007aff]/15 transition-all text-foreground font-medium"
                   />
                 </div>
 
@@ -238,7 +238,7 @@ const SupportRequestPage = () => {
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     placeholder="Ví dụ: 0901234567"
-                    className="w-full px-4 py-3 bg-slate-50/50 dark:bg-black/40 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl text-xs focus:outline-none focus:border-[#007aff] dark:focus:border-[#0a84ff] focus:ring-2 focus:ring-[#007aff]/15 transition-all text-slate-800 dark:text-slate-100 font-medium"
+                    className="w-full px-4 py-3 bg-slate-50/50 dark:bg-black/40 border border-border/50 rounded-2xl text-xs focus:outline-none focus:border-primary dark:focus:border-primary focus:ring-2 focus:ring-[#007aff]/15 transition-all text-foreground font-medium"
                   />
                 </div>
               </div>
@@ -255,7 +255,7 @@ const SupportRequestPage = () => {
                   value={issue}
                   onChange={e => setIssue(e.target.value)}
                   placeholder="Hãy mô tả chi tiết lỗi, thắc mắc hoặc yêu cầu nâng cấp gói dịch vụ của bạn tại đây..."
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500/80 transition-colors text-slate-800 dark:text-slate-100 resize-none"
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500/80 transition-colors text-foreground resize-none"
                 />
               </div>
 
@@ -264,7 +264,7 @@ const SupportRequestPage = () => {
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs rounded-2xl border border-slate-200/40 dark:border-slate-800/40 transition-colors"
+                  className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-muted-foreground font-semibold text-xs rounded-2xl border border-slate-200/40 dark:border-slate-800/40 transition-colors"
                   style={{ minHeight: 0, minWidth: 0 }}
                 >
                   Quay lại
@@ -273,7 +273,7 @@ const SupportRequestPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-[2] px-4 py-3 bg-[#007aff] hover:bg-[#0071e3] text-white font-semibold text-xs rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-50"
+                  className="flex-[2] px-4 py-3 bg-primary hover:bg-primary text-white font-semibold text-xs rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-50"
                   style={{ minHeight: 0, minWidth: 0 }}
                 >
                   {isSubmitting ? (

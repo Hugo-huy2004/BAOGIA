@@ -149,7 +149,7 @@ export default function StudentBenefitsPage() {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-140px)] w-full flex items-center justify-center py-8 px-4 text-slate-800 dark:text-slate-100 relative overflow-hidden">
+    <div className="min-h-[calc(100vh-140px)] w-full flex items-center justify-center py-8 px-4 text-foreground relative overflow-hidden">
       {/* Dynamic Background Effects */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 dark:bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none animate-pulse-slow" />
       <div
@@ -161,7 +161,7 @@ export default function StudentBenefitsPage() {
       {/* Toast */}
       {toast.message && (
         <div
-          className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-[#161420] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] w-[calc(100vw-32px)] sm:w-auto sm:max-w-md border-2 transition-all animate-fadeIn ${
+          className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-background shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] w-[calc(100vw-32px)] sm:w-auto sm:max-w-md border-2 transition-all animate-fadeIn ${
             toast.type === "success"
               ? "border-emerald-500"
               : toast.type === "warning"
@@ -198,7 +198,7 @@ export default function StudentBenefitsPage() {
           <div className="space-y-4 text-center lg:text-left">
             <Link
               to="/services"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[10px] font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-white/10 transition-all uppercase tracking-widest w-max mx-auto lg:mx-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-border/50 text-[10px] font-bold text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-white/10 transition-all uppercase tracking-widest w-max mx-auto lg:mx-0"
             >
               <span className="material-symbols-outlined text-sm">
                 arrow_back
@@ -213,7 +213,7 @@ export default function StudentBenefitsPage() {
                 </span>
                 Tài Trợ 100% Học Sinh - Sinh Viên
               </div>
-              <h1 className="font-display text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+              <h1 className="font-display text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-[1.1]">
                 Xây Dựng <br className="hidden lg:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 drop-shadow-sm">
                   Thương Hiệu Số
@@ -230,7 +230,7 @@ export default function StudentBenefitsPage() {
           {/* Value Comparison */}
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6 p-4 rounded-3xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-100 dark:border-indigo-500/20">
             <div className="text-center sm:text-left">
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-0.5">
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-0.5">
                 Giá gốc dịch vụ
               </p>
               <p className="text-lg font-bold text-slate-400 dark:text-slate-500 line-through decoration-slate-400/50">
@@ -255,20 +255,20 @@ export default function StudentBenefitsPage() {
             {benefits.map((benefit, idx) => (
               <div
                 key={idx}
-                className="group relative bg-white/50 dark:bg-[#161420]/50 backdrop-blur-md border border-slate-200 dark:border-white/5 p-4 rounded-2xl hover:bg-white dark:hover:bg-[#1c1a27] hover:border-indigo-300 dark:hover:border-indigo-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10"
+                className="group relative bg-white/50 dark:bg-background/50 backdrop-blur-md border border-border/50 p-4 rounded-2xl hover:bg-white dark:hover:bg-[#1c1a27] hover:border-indigo-300 dark:hover:border-indigo-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10"
               >
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
                 <div
-                  className={`w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ${benefit.color} shadow-sm`}
+                  className={`w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-border/50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ${benefit.color} shadow-sm`}
                 >
                   <span className="material-symbols-outlined text-xl">
                     {benefit.icon}
                   </span>
                 </div>
-                <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
+                <h3 className="text-sm font-bold text-foreground mb-1">
                   {benefit.title}
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
                   {benefit.desc}
                 </p>
               </div>
@@ -281,7 +281,7 @@ export default function StudentBenefitsPage() {
           {/* Decorative elements behind card */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 blur-3xl rounded-full pointer-events-none" />
 
-          <div className="w-full max-w-[380px] bg-white/80 dark:bg-[#12111a]/90 backdrop-blur-2xl border border-slate-200 dark:border-white/10 p-6 sm:p-8 rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+          <div className="w-full max-w-[380px] bg-white/80 dark:bg-background/90 backdrop-blur-2xl border border-border/50 p-6 sm:p-8 rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] relative overflow-hidden group">
             {/* Animated Gradient Border Top */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
 
@@ -293,10 +293,10 @@ export default function StudentBenefitsPage() {
                 </span>
               </div>
               <div>
-                <h2 className="font-display text-xl font-bold text-slate-800 dark:text-white mb-1">
+                <h2 className="font-display text-xl font-bold text-foreground mb-1">
                   Định Danh Sinh Viên
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed px-2">
+                <p className="text-[11px] text-muted-foreground leading-relaxed px-2">
                   Chỉ áp dụng cho tài khoản Google giáo dục (
                   <strong className="text-indigo-600 dark:text-indigo-400">
                     .edu
@@ -344,7 +344,7 @@ export default function StudentBenefitsPage() {
                 </p>
               )}
 
-              <div className="w-full p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 flex gap-2.5 text-left leading-relaxed">
+              <div className="w-full p-3.5 rounded-2xl bg-muted/50 border border-border/50 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 flex gap-2.5 text-left leading-relaxed">
                 <span className="material-symbols-outlined text-indigo-500 shrink-0 text-lg mt-0.5">
                   shield_person
                 </span>

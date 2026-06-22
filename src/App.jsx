@@ -97,7 +97,7 @@ function AppContent() {
   const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false;
 
   return (
-    <div className="min-h-screen bg-surface dark:bg-[#0b0a0f] text-slate-800 dark:text-slate-100 transition-colors duration-300 flex flex-col justify-between">
+    <div className="min-h-screen bg-surface dark:bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
       
       {/* Static Top-Navigation Header bar */}
       {!hideNavbar && <Navbar />}

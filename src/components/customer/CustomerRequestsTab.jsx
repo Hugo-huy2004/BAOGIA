@@ -67,7 +67,7 @@ export default function CustomerRequestsTab({ project }) {
   };
 
   return (
-    <div className="bg-white dark:bg-[#12111a] rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px] max-w-4xl mx-auto overflow-hidden">
+    <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-[600px] max-w-4xl mx-auto overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-white/5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
@@ -76,7 +76,7 @@ export default function CustomerRequestsTab({ project }) {
             <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-[#12111a] rounded-full"></span>
           </div>
           <div>
-            <h3 className="font-bold text-sm text-slate-800 dark:text-white">{project.handlerName || t("customerPortal.requests.supportTitle")}</h3>
+            <h3 className="font-bold text-sm text-foreground">{project.handlerName || t("customerPortal.requests.supportTitle")}</h3>
             <p className="text-[10px] text-slate-500">{t("customerPortal.requests.supportSubtitle")}</p>
           </div>
         </div>
@@ -114,14 +114,14 @@ export default function CustomerRequestsTab({ project }) {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12111a] shrink-0">
+      <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-background shrink-0">
         <form onSubmit={handleSend} className="flex items-center gap-2">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={isCompleted ? t("customerPortal.requests.placeholderCompleted") : t("customerPortal.requests.placeholderNormal")}
-            className={`flex-1 px-4 py-3 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/25 text-slate-800 dark:text-white focus:outline-none focus:ring-1 text-sm ${isCompleted ? 'focus:ring-amber-500' : 'focus:ring-indigo-500'}`}
+            className={`flex-1 px-4 py-3 rounded-full border border-border/50 bg-slate-50 dark:bg-black/25 text-foreground focus:outline-none focus:ring-1 text-sm ${isCompleted ? 'focus:ring-amber-500' : 'focus:ring-indigo-500'}`}
           />
           <button
             type="submit"

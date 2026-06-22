@@ -84,7 +84,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 bg-white dark:bg-[#12111a] rounded-[2rem] p-6 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+    <div className="max-w-4xl mx-auto space-y-6 bg-white dark:bg-background rounded-[2rem] p-6 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
       <SubUtilityHeader
         title={t("utilities.vcard.title", "Danh Bạ vCard Thông Minh")}
         icon="contact_phone"
@@ -130,7 +130,7 @@ export default function MemberVCardTab({ bio, showToast, getApiUrl, onBack }) {
         </div>
 
         {/* RIGHT: Action Tools */}
-        <div className="bg-white dark:bg-[#12111a] rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 p-6 shadow-sm flex flex-col justify-center space-y-6 min-h-[380px]">
+        <div className="bg-white dark:bg-background rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 p-6 shadow-sm flex flex-col justify-center space-y-6 min-h-[380px]">
           
           <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800/80 rounded-lg space-y-2">
              <h4 className="text-xs font-black text-rose-500 uppercase flex items-center gap-1.5"><span className="material-symbols-outlined text-[16px]">info</span> {t("utilities.vcard.autoMechanism", "Cơ chế Tự Động")}</h4>

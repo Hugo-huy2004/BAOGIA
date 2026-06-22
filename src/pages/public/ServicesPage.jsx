@@ -34,42 +34,54 @@ export default function ServicesPage() {
 
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 md:space-y-16 py-8 md:py-12 px-4 md:px-6 mb-16 text-slate-800 dark:text-slate-100">
+    <div className="max-w-6xl mx-auto space-y-12 md:space-y-16 py-8 md:py-12 px-4 md:px-6 mb-16 text-foreground">
       
       {/* Header section */}
       <section className="text-center space-y-4 max-w-3xl mx-auto">
-        <span className="inline-flex px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.24em] bg-slate-100 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5">{t("servicesPage.header.badge")}</span>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white">{t("servicesPage.header.title")}</h1>
-        <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed">{t("servicesPage.header.desc")}</p>
+        <span className="inline-flex px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.24em] bg-slate-100 dark:bg-slate-900/50 text-muted-foreground border border-slate-200/50 dark:border-white/5">{t("servicesPage.header.badge")}</span>
+        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground">{t("servicesPage.header.title")}</h1>
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{t("servicesPage.header.desc")}</p>
       </section>
 
       {/* Services Grid */}
       <section className="flex lg:grid lg:grid-cols-3 gap-6 lg:gap-8 overflow-x-auto lg:overflow-visible pt-6 lg:pt-0 pb-8 lg:pb-0 snap-x snap-mandatory scrollbar-hide items-stretch mt-4 md:mt-8 px-4 lg:px-0 -mx-4 lg:mx-0 animate-fadeIn">
           
           {/* Tier 1: {t("servicesPage.tier1.title")} (Free) */}
-          <div className="flex-none w-[85vw] sm:w-[380px] lg:w-auto snap-center lg:snap-align-none flex flex-col justify-between rounded-[2rem] bg-gradient-to-br from-white to-slate-50 dark:from-[#12111a] dark:to-black border border-slate-200/50 dark:border-white/10 p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300 relative group overflow-visible">
+          <div className="flex-none w-[85vw] sm:w-[380px] lg:w-auto snap-center lg:snap-align-none flex flex-col transition-all duration-300 relative group hover:-translate-y-2">
             
-            {/* Badge */}
+            {/* Top Badge */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-slate-900 dark:bg-white text-white dark:text-slate-950 border border-slate-200 dark:border-white/10 shadow-sm flex items-center gap-1 whitespace-nowrap">
+              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-slate-900 dark:bg-white text-white dark:text-slate-950 border border-border shadow-sm flex items-center gap-1 whitespace-nowrap">
                 <span className="material-symbols-outlined text-[10px]">school</span>{t("servicesPage.tier1.badge")}</span>
             </div>
-            
-            <div className="space-y-6 relative z-10">
+
+            {/* Top Section */}
+            <div className="bg-card border border-border border-b-0 rounded-t-[2rem] p-6 sm:p-8 pb-8 relative z-0">
+              <div className="absolute -bottom-5 -left-[1px] w-10 h-10 rounded-full bg-background shadow-[inset_-1px_0_0_0_hsl(var(--border))] z-20" />
+              <div className="absolute -bottom-5 -right-[1px] w-10 h-10 rounded-full bg-background shadow-[inset_1px_0_0_0_hsl(var(--border))] z-20" />
+              
               <div className="space-y-2 text-left">
-                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5">{t("servicesPage.tier1.subtitle")}</span>
-                <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-muted-foreground border border-border">{t("servicesPage.tier1.subtitle")}</span>
+                <h3 className="font-display text-3xl font-extrabold text-foreground flex items-center gap-2">
                   {t("servicesPage.tier1.title")}
                   <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-xl" title="Đã xác thực">verified</span>
                 </h3>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-black text-slate-800 dark:text-white font-mono">{t("servicesPage.tier1.price")} <span className="text-xs font-normal text-slate-400">{t("servicesPage.tier1.priceUnit")}</span></p>
+                  <p className="text-2xl font-black text-foreground font-mono">{t("servicesPage.tier1.price")} <span className="text-xs font-normal text-slate-400">{t("servicesPage.tier1.priceUnit")}</span></p>
                   <p className="text-sm text-slate-400 line-through decoration-slate-300 dark:decoration-slate-600 font-medium">{t("servicesPage.tier1.oldPrice")}</p>
                 </div>
               </div>
+            </div>
 
-              <div className="border-t border-slate-200 dark:border-white/5 pt-6 text-left">
-                <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+            {/* Dashed separator line */}
+            <div className="bg-card relative z-10 px-6 sm:px-8">
+              <div className="border-t-2 border-dashed border-border w-full" />
+            </div>
+
+            {/* Bottom Section */}
+            <div className="bg-card border border-border border-t-0 rounded-b-[2rem] p-6 sm:p-8 pt-8 flex-1 flex flex-col relative z-0">
+              <div className="text-left flex-1">
+                <ul className="space-y-4 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier1.f1_bold")}</strong> {t("servicesPage.tier1.f1_text")}<code>.edu</code>.</span>
@@ -92,41 +104,53 @@ export default function ServicesPage() {
                   </li>
                 </ul>
               </div>
-            </div>
 
-            <div className="space-y-4 pt-8 relative z-10">
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed bg-slate-50 dark:bg-white/5 p-2.5 rounded-lg border border-slate-100 dark:border-white/5 text-left">{t("servicesPage.tier1.note")}</p>
-              <Link 
-                to="/student-benefits"
-                onClick={playPopSound}
-                className="w-full inline-flex justify-center items-center py-3.5 rounded-full border border-slate-300 dark:border-white/30 hover:border-slate-800 dark:hover:border-white text-slate-700 dark:text-slate-200 dark:hover:text-white font-bold text-xs hover:scale-[1.01] active:scale-98 transition-all duration-200 text-center dark:bg-white/5 hover:dark:bg-white/10"
-              >
-                {t("servicesPage.tier1.btn")}
-              </Link>
+              <div className="space-y-4 pt-8 text-left mt-auto">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed bg-muted/50 p-2.5 rounded-lg border border-border">{t("servicesPage.tier1.note")}</p>
+                <Link 
+                  to="/student-benefits"
+                  onClick={playPopSound}
+                  className="w-full inline-flex justify-center items-center py-3.5 rounded-full border border-border hover:border-slate-800 dark:hover:border-white text-slate-700 dark:text-slate-200 dark:hover:text-white font-bold text-xs active:scale-98 transition-all duration-200 text-center dark:bg-white/5 hover:dark:bg-white/10"
+                >
+                  {t("servicesPage.tier1.btn")}
+                </Link>
+              </div>
             </div>
           </div>
 
           {/* Tier 2: Signature Portfolio */}
-          <div className="flex-none w-[85vw] sm:w-[380px] lg:w-auto snap-center lg:snap-align-none flex flex-col justify-between rounded-[2rem] bg-gradient-to-br from-white to-slate-50 dark:from-[#12111a] dark:to-black border-2 border-primary dark:border-[#a5b4fc]/50 p-6 sm:p-8 shadow-2xl hover:shadow-[0_25px_50px_rgba(99,102,241,0.15)] transition-all duration-300 relative group overflow-visible">
+          <div className="flex-none w-[85vw] sm:w-[380px] lg:w-auto snap-center lg:snap-align-none flex flex-col transition-all duration-300 relative group hover:-translate-y-2">
             
             {/* Top Badge */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-primary text-white shadow-md flex items-center gap-1 whitespace-nowrap">
+              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-primary text-white shadow-md flex items-center gap-1 whitespace-nowrap glow-sm">
                 <span className="material-symbols-outlined text-[10px]">star</span>{t("servicesPage.tier2.badge")}</span>
             </div>
-            
-            <div className="space-y-6">
+
+            {/* Top Section */}
+            <div className="bg-card border-2 border-primary border-b-0 rounded-t-[2rem] p-6 sm:p-8 pb-8 relative z-0 shadow-[0_-15px_30px_-15px_rgba(99,102,241,0.15)] group-hover:shadow-[0_-25px_50px_-20px_rgba(99,102,241,0.25)] transition-all">
+              <div className="absolute -bottom-5 -left-[2px] w-10 h-10 rounded-full bg-background shadow-[inset_-2px_0_0_0_hsl(var(--primary))] z-20" />
+              <div className="absolute -bottom-5 -right-[2px] w-10 h-10 rounded-full bg-background shadow-[inset_2px_0_0_0_hsl(var(--primary))] z-20" />
+              
               <div className="space-y-2 text-left">
-                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-primary/10 text-primary dark:text-[#a5b4fc] border border-primary/20">{t("servicesPage.tier2.subtitle")}</span>
-                <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">{t("servicesPage.tier2.title")}</h3>
+                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-primary/10 text-primary border border-primary/20">{t("servicesPage.tier2.subtitle")}</span>
+                <h3 className="font-display text-3xl font-extrabold text-foreground">{t("servicesPage.tier2.title")}</h3>
                 <div className="space-y-1">
-                  <p className="text-xl font-black text-slate-800 dark:text-white">{t("servicesPage.tier2.for")}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{t("servicesPage.tier2.desc")}</p>
+                  <p className="text-xl font-black text-foreground">{t("servicesPage.tier2.for")}</p>
+                  <p className="text-[11px] text-muted-foreground font-medium">{t("servicesPage.tier2.desc")}</p>
                 </div>
               </div>
+            </div>
 
-              <div className="border-t border-slate-200 dark:border-white/5 pt-6 text-left">
-                <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+            {/* Dashed separator line */}
+            <div className="bg-card relative z-10 px-6 sm:px-8 border-x-2 border-primary">
+              <div className="border-t-2 border-dashed border-primary/40 w-full" />
+            </div>
+
+            {/* Bottom Section */}
+            <div className="bg-card border-2 border-primary border-t-0 rounded-b-[2rem] p-6 sm:p-8 pt-8 flex-1 flex flex-col relative z-0 shadow-[0_15px_30px_-15px_rgba(99,102,241,0.15)] group-hover:shadow-[0_25px_50px_-20px_rgba(99,102,241,0.25)] transition-all">
+              <div className="text-left flex-1">
+                <ul className="space-y-4 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier2.f1_bold")}</strong> {t("servicesPage.tier2.f1_text")}</span>
@@ -157,39 +181,51 @@ export default function ServicesPage() {
                   </li>
                 </ul>
               </div>
-            </div>
 
-            <div className="space-y-4 pt-8 text-left">
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
-              <Link 
-                to="/booking"
-                onClick={playPopSound}
-                className="w-full inline-flex justify-center items-center py-3.5 rounded-full bg-primary text-white font-bold text-xs hover:scale-[1.01] active:scale-98 transition-all duration-200 text-center shadow-lg shadow-primary/25"
-              >{t("servicesPage.tier2.btn")}</Link>
+              <div className="space-y-4 pt-8 text-left mt-auto">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
+                <Link 
+                  to="/booking"
+                  onClick={playPopSound}
+                  className="w-full inline-flex justify-center items-center py-3.5 rounded-full bg-primary text-white font-bold text-xs active:scale-98 transition-all duration-200 text-center clay-btn-primary"
+                >{t("servicesPage.tier2.btn")}</Link>
+              </div>
             </div>
           </div>
 
           {/* Tier 3: Ultimate Web App */}
-          <div className="flex-none w-[85vw] sm:w-[380px] lg:w-auto snap-center lg:snap-align-none flex flex-col justify-between rounded-[2rem] bg-gradient-to-br from-white to-slate-50 dark:from-[#12111a] dark:to-black border border-slate-200/50 dark:border-white/10 p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-300 relative group overflow-visible">
+          <div className="flex-none w-[85vw] sm:w-[380px] lg:w-auto snap-center lg:snap-align-none flex flex-col transition-all duration-300 relative group hover:-translate-y-2">
             
             {/* Top Badge */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-slate-900 dark:bg-white text-white dark:text-slate-950 border border-slate-200 dark:border-white/10 shadow-sm flex items-center gap-1 whitespace-nowrap">
+              <span className="px-3.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-slate-900 dark:bg-white text-white dark:text-slate-950 border border-border shadow-sm flex items-center gap-1 whitespace-nowrap">
                 <span className="material-symbols-outlined text-[10px]">business_center</span>{t("servicesPage.tier3.badge")}</span>
             </div>
-            
-            <div className="space-y-6">
+
+            {/* Top Section */}
+            <div className="bg-card border border-border border-b-0 rounded-t-[2rem] p-6 sm:p-8 pb-8 relative z-0">
+              <div className="absolute -bottom-5 -left-[1px] w-10 h-10 rounded-full bg-background shadow-[inset_-1px_0_0_0_hsl(var(--border))] z-20" />
+              <div className="absolute -bottom-5 -right-[1px] w-10 h-10 rounded-full bg-background shadow-[inset_1px_0_0_0_hsl(var(--border))] z-20" />
+              
               <div className="space-y-2 text-left">
-                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-white/5">{t("servicesPage.tier3.subtitle")}</span>
-                <h3 className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">{t("servicesPage.tier3.title")}</h3>
+                <span className="inline-block px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-900 text-muted-foreground border border-border">{t("servicesPage.tier3.subtitle")}</span>
+                <h3 className="font-display text-3xl font-extrabold text-foreground">{t("servicesPage.tier3.title")}</h3>
                 <div className="space-y-1">
-                  <p className="text-xl font-black text-slate-800 dark:text-white">{t("servicesPage.tier3.for")}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{t("servicesPage.tier3.desc")}</p>
+                  <p className="text-xl font-black text-foreground">{t("servicesPage.tier3.for")}</p>
+                  <p className="text-[11px] text-muted-foreground font-medium">{t("servicesPage.tier3.desc")}</p>
                 </div>
               </div>
+            </div>
 
-              <div className="border-t border-slate-200 dark:border-white/5 pt-6 text-left">
-                <ul className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+            {/* Dashed separator line */}
+            <div className="bg-card relative z-10 px-6 sm:px-8">
+              <div className="border-t-2 border-dashed border-border w-full" />
+            </div>
+
+            {/* Bottom Section */}
+            <div className="bg-card border border-border border-t-0 rounded-b-[2rem] p-6 sm:p-8 pt-8 flex-1 flex flex-col relative z-0">
+              <div className="text-left flex-1">
+                <ul className="space-y-4 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 mt-0.5 select-none">check</span>
                     <span><strong>{t("servicesPage.tier3.f1_bold")}</strong> {t("servicesPage.tier3.f1_text")}</span>
@@ -220,15 +256,15 @@ export default function ServicesPage() {
                   </li>
                 </ul>
               </div>
-            </div>
 
-            <div className="space-y-4 pt-8 text-left">
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
-              <Link 
-                to="/booking"
-                onClick={playPopSound}
-                className="w-full inline-flex justify-center items-center py-3.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-xs hover:scale-[1.01] active:scale-98 transition-all duration-200 text-center shadow-md"
-              >{t("servicesPage.tier2.btn")}</Link>
+              <div className="space-y-4 pt-8 text-left mt-auto">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium leading-relaxed">{t("servicesPage.tier2.note")}</p>
+                <Link 
+                  to="/booking"
+                  onClick={playPopSound}
+                  className="w-full inline-flex justify-center items-center py-3.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-xs active:scale-98 transition-all duration-200 text-center shadow-md"
+                >{t("servicesPage.tier2.btn")}</Link>
+              </div>
             </div>
           </div>
 
@@ -237,9 +273,9 @@ export default function ServicesPage() {
       {/* Strategic Partner Section */}
       <section className="mt-16 md:mt-24 text-center space-y-8 max-w-3xl mx-auto px-4">
         <div className="space-y-3">
-          <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">{t("servicesPage.partner.badge")}</span>
-          <h2 className="font-display text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">{t("servicesPage.partner.title")}</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">{t("servicesPage.partner.desc")}</p>
+          <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-slate-100 dark:bg-white/5 text-muted-foreground border border-border/50">{t("servicesPage.partner.badge")}</span>
+          <h2 className="font-display text-2xl md:text-3xl font-extrabold text-foreground">{t("servicesPage.partner.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("servicesPage.partner.desc")}</p>
         </div>
         
         <div className="flex justify-center items-center py-2 gap-0 sm:gap-1 md:gap-2">

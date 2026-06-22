@@ -60,7 +60,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
         
         <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden">
           <div
-            className="bg-[#0071e3] h-full transition-all duration-300"
+            className="bg-primary h-full transition-all duration-300"
             style={{ width: `${percentProgress}%` }}
           />
         </div>
@@ -79,7 +79,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="w-full relative p-4 rounded-lg border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-[#1a1924] shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)] text-zinc-800 dark:text-zinc-100 font-bold text-xs text-center leading-relaxed"
+            className="w-full relative p-4 rounded-lg border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-card shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)] text-zinc-800 dark:text-zinc-100 font-bold text-xs text-center leading-relaxed"
           >
             "{activeTest.questions[currentQuestionIdx]}"
           </motion.div>

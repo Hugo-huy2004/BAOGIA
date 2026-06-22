@@ -93,7 +93,7 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
   };
 
   return (
-    <div className="bg-white dark:bg-[#12111a] rounded-[2rem] p-6 lg:p-8 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-6">
+    <div className="bg-white dark:bg-background rounded-[2rem] p-6 lg:p-8 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-6">
       <SubUtilityHeader 
         title={t("utilities.secretLink.title")} 
         icon="lock" 
@@ -103,7 +103,7 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
       
       {!isEditing ? (
         <div className="space-y-6">
-          <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200/60 dark:border-zinc-800/80">
+          <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-border/50">
             <h4 className="text-[11px] font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-1 flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px]">info</span>
               {t("utilities.secretLink.infoTitle")}

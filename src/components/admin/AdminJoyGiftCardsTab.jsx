@@ -70,7 +70,7 @@ export default function AdminJoyGiftCardsTab() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fadeIn">
       <div className="lg:col-span-5 space-y-6">
-        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-amber-500 text-base">redeem</span>
             {t('adminTabs.joyGiftCards.createTitle')}
@@ -111,7 +111,7 @@ export default function AdminJoyGiftCardsTab() {
         </div>
 
         {lastCreated.length > 0 && (
-          <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-emerald-200 dark:border-emerald-900/40 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-background rounded-xl p-6 border border-emerald-200 dark:border-emerald-900/40 shadow-sm space-y-3">
             <h4 className="font-bold text-[11px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t('adminTabs.joyGiftCards.justCreated')}</h4>
             <div className="space-y-1.5 max-h-48 overflow-y-auto">
               {lastCreated.map(c => (
@@ -123,9 +123,9 @@ export default function AdminJoyGiftCardsTab() {
       </div>
 
       <div className="lg:col-span-7">
-        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">list_alt</span>
+            <span className="material-symbols-outlined text-muted-foreground text-base">list_alt</span>
             {t('adminTabs.joyGiftCards.listTitle')} ({cards.length})
           </h3>
           {loading ? (
@@ -135,7 +135,7 @@ export default function AdminJoyGiftCardsTab() {
           ) : (
             <div className="space-y-2 max-h-[600px] overflow-y-auto">
               {cards.map(c => (
-                <div key={c._id} className="flex items-center justify-between p-3 bg-zinc-50/50 dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60">
+                <div key={c._id} className="flex items-center justify-between p-3 bg-zinc-50/50 dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60">
                   <div className="flex items-center gap-3 min-w-0">
                     <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${c.redeemed ? 'bg-zinc-400' : 'bg-emerald-500'}`} />
                     <div className="min-w-0">

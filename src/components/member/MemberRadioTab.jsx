@@ -643,7 +643,7 @@ export default function MemberRadioTab({ onBack, showToast }) {
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[10.5px] font-bold transition-all ${idx > 0 ? "border-l border-zinc-200/60 dark:border-zinc-800/60" : ""} ${
               activeCategory === cat.id
                 ? "bg-amber-500 text-black"
-                : "bg-white dark:bg-[#12111a] text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                : "bg-white dark:bg-background text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900"
             }`}
           >
             <span className="material-symbols-outlined text-sm">{cat.icon}</span>
@@ -673,7 +673,7 @@ export default function MemberRadioTab({ onBack, showToast }) {
                 className={`relative text-left p-3.5 rounded-2xl border transition-all flex items-center gap-3 ${
                   active
                     ? "border-amber-400 bg-amber-50 dark:bg-amber-500/10"
-                    : "border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-[#12111a] hover:border-zinc-400 dark:hover:border-zinc-600"
+                    : "border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-background hover:border-zinc-400 dark:hover:border-zinc-600"
                 }`}
               >
                 <span className={`absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full ${active && isPlaying ? "bg-red-500 animate-pulse-glow" : "bg-zinc-300 dark:bg-zinc-700"}`} />

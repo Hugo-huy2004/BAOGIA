@@ -52,7 +52,7 @@ export default function MobileDrawer() {
 
       {/* Drawer Menu */}
       <div
-        className={`fixed top-0 left-0 h-screen w-64 bg-white/85 dark:bg-[#12111a]/90 backdrop-blur-2xl backdrop-saturate-200 border-r border-white/25 dark:border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.4)] z-[210] transform transition-transform duration-300 md:hidden overflow-y-auto flex flex-col ${
+        className={`fixed top-0 left-0 h-screen w-64 bg-white/85 dark:bg-background/90 backdrop-blur-2xl backdrop-saturate-200 border-r border-white/25 dark:border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.4)] z-[210] transform transition-transform duration-300 md:hidden overflow-y-auto flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -70,10 +70,10 @@ export default function MobileDrawer() {
             <span className="text-[#ef4444] dark:text-[#f87171]">H</span>
             <span className="text-[#f97316] dark:text-[#fb923c]">u</span>
             <span className="text-[#f59e0b] dark:text-[#fbbf24]">g</span>
-            <span className="text-[#10b981] dark:text-[#34d399]">o</span>
+            <span className="text-emerald-500 dark:text-[#34d399]">o</span>
             <span className="w-1"></span>
             <span className="text-[#3b82f6] dark:text-[#60a5fa]">S</span>
-            <span className="text-[#6366f1] dark:text-[#818cf8]">t</span>
+            <span className="text-primary dark:text-[#818cf8]">t</span>
             <span className="text-[#a855f7] dark:text-[#c084fc]">u</span>
             <span className="text-[#ec4899] dark:text-[#f472b6]">d</span>
             <span className="text-[#f43f5e] dark:text-[#fb7185]">i</span>
@@ -96,7 +96,7 @@ export default function MobileDrawer() {
               onClick={() => setIsOpen(false)}
               className={`block px-4 py-3 rounded-lg font-medium text-sm transition-colors ${
                 location.pathname === item.path
-                  ? "bg-primary-container/30 dark:bg-slate-700/40 text-primary dark:text-[#a5b4fc]"
+                  ? "bg-primary-container/30 dark:bg-slate-700/40 text-primary"
                   : "text-on-surface dark:text-slate-200 hover:bg-primary-container/20 dark:hover:bg-slate-700/30"
               }`}
             >

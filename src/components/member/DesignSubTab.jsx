@@ -18,14 +18,14 @@ export default function DesignSubTab({
             onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'default' } }))}
             className={`p-3.5 rounded-lg border text-left transition-all ${
               (formData.theme?.template !== 'brutalism' && formData.theme?.template !== 'flat')
-                ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
-                : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                ? 'bg-primary/10 border-primary text-black dark:text-white ring-1 ring-[#0071e3]'
+                : 'bg-white dark:bg-card border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="material-symbols-outlined text-lg">view_carousel</span>
               {(formData.theme?.template !== 'brutalism' && formData.theme?.template !== 'flat') && (
-                <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
+                <span className="material-symbols-outlined text-primary text-xs font-bold">check_circle</span>
               )}
             </div>
             <h4 className="text-[11px] font-bold mt-2">{t("memberPortal.design.classicTitle")}</h4>
@@ -37,14 +37,14 @@ export default function DesignSubTab({
             onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'brutalism' } }))}
             className={`p-3.5 rounded-lg border text-left transition-all ${
               formData.theme?.template === 'brutalism'
-                ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
-                : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                ? 'bg-primary/10 border-primary text-black dark:text-white ring-1 ring-[#0071e3]'
+                : 'bg-white dark:bg-card border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="material-symbols-outlined text-lg">token</span>
               {formData.theme?.template === 'brutalism' && (
-                <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
+                <span className="material-symbols-outlined text-primary text-xs font-bold">check_circle</span>
               )}
             </div>
             <h4 className="text-[11px] font-bold mt-2 text-red-500 dark:text-red-400">Brutalism</h4>
@@ -56,14 +56,14 @@ export default function DesignSubTab({
             onClick={() => setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: 'flat' } }))}
             className={`p-3.5 rounded-lg border text-left transition-all ${
               formData.theme?.template === 'flat'
-                ? 'bg-[#0071e3]/10 border-[#0071e3] text-black dark:text-white ring-1 ring-[#0071e3]'
-                : 'bg-white dark:bg-[#1c1c1e] border-zinc-200 dark:border-zinc-850 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                ? 'bg-primary/10 border-primary text-black dark:text-white ring-1 ring-[#0071e3]'
+                : 'bg-white dark:bg-card border-zinc-200 dark:border-zinc-850 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="material-symbols-outlined text-lg">grid_view</span>
               {formData.theme?.template === 'flat' && (
-                <span className="material-symbols-outlined text-[#0071e3] text-xs font-bold">check_circle</span>
+                <span className="material-symbols-outlined text-primary text-xs font-bold">check_circle</span>
               )}
             </div>
             <h4 className="text-[11px] font-bold mt-2 text-teal-650 dark:text-teal-400">{t("memberPortal.design.flatTitle")}</h4>

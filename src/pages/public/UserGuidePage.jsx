@@ -39,15 +39,15 @@ export default function UserGuidePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] py-12 px-4 sm:px-6 transition-colors duration-300 font-sans">
+    <div className="min-h-screen bg-background dark:bg-black text-foreground py-12 px-4 sm:px-6 transition-colors duration-300 font-sans">
       
       {/* Container to handle sidebar and content */}
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 relative">
         
         {/* LEFT COLUMN: STICKY SIDEBAR NAVIGATION (Desktop only) */}
         <aside className="hidden lg:block w-80 shrink-0 h-fit sticky top-6">
-          <div className="bg-white/80 dark:bg-[#1c1c1e]/85 backdrop-blur-xl border border-[#e5e5e7] dark:border-[#2c2c2e] p-6 rounded-3xl shadow-xl space-y-4 max-h-[85vh] overflow-y-auto scrollbar-hide">
-            <div className="border-b border-[#e5e5e7] dark:border-[#2c2c2e] pb-3 text-center">
+          <div className="glass border border-border p-6 rounded-3xl shadow-xl space-y-4 max-h-[85vh] overflow-y-auto scrollbar-hide">
+            <div className="border-b border-border pb-3 text-center">
               <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest block">Tài liệu hướng dẫn</span>
               <span className="text-xs text-slate-400 dark:text-slate-500 font-bold">Hugo Studio User Manual v1.0</span>
             </div>
@@ -59,7 +59,7 @@ export default function UserGuidePage() {
                   className={`w-full text-left flex items-start gap-3 p-2.5 rounded-xl transition-all text-xs font-semibold leading-relaxed border ${
                     activeSection === chapter.id
                       ? "bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/20"
-                      : "hover:bg-slate-100 dark:hover:bg-white/[0.02] border-transparent text-slate-500 dark:text-slate-400"
+                      : "hover:bg-slate-100 dark:hover:bg-white/[0.02] border-transparent text-muted-foreground"
                   }`}
                 >
                   <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">{chapter.icon}</span>
@@ -71,17 +71,17 @@ export default function UserGuidePage() {
         </aside>
 
         {/* RIGHT COLUMN: MAIN CONTENT PANEL */}
-        <div className="flex-1 bg-white/80 dark:bg-[#1c1c1e]/85 backdrop-blur-xl p-6 sm:p-12 rounded-3xl border border-[#e5e5e7] dark:border-[#2c2c2e] shadow-2xl transition-all duration-300 space-y-8">
+        <div className="flex-1 glass p-6 sm:p-12 rounded-3xl border border-border shadow-2xl transition-all duration-300 space-y-8">
           
           {/* Header Title */}
-          <div className="space-y-4 text-center pb-6 border-b border-[#e5e5e7] dark:border-[#2c2c2e] relative">
+          <div className="space-y-4 text-center pb-6 border-b border-border relative">
             <span className="absolute top-0 right-0 bg-indigo-500/10 border border-indigo-500/20 text-indigo-550 dark:text-indigo-400 text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
               Tài liệu chính thức
             </span>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-white uppercase leading-snug">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground uppercase leading-snug">
               Cẩm Nang Hướng Dẫn Sử Dụng Toàn Diện Hugo Studio
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold tracking-wider">
+            <p className="text-xs text-muted-foreground font-bold tracking-wider">
               TÀI LIỆU HƯỚNG DẪN KỸ THUẬT VÀ QUY TRÌNH DÀNH CHO THÀNH VIÊN VÀ KHÁCH HÀNG
             </p>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 italic">
@@ -94,7 +94,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 1 */}
             <section id="chuong-1" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">help_center</span>
                 Chương I: Tổng Quan Nền Tảng & Triết Lý Thiết Kế Sản Phẩm
               </h2>
@@ -106,11 +106,11 @@ export default function UserGuidePage() {
                   Đối tượng sử dụng cốt lõi của Hugo Studio bao gồm: Các nghệ sĩ, người mẫu chuyên nghiệp (Models), diễn viên (Actors), KOLs, PG/PB, các lập trình viên (Developers), nhà thiết kế đồ họa (Designers), học sinh - sinh viên và các chuyên gia tự do mong muốn xây dựng một danh thiếp điện tử cao cấp, độc bản trên không gian số.
                 </p>
 
-                <div className="bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e] p-5 rounded-2xl space-y-3">
-                  <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider text-indigo-500">
+                <div className="bg-muted border border-border p-5 rounded-2xl space-y-3">
+                  <h4 className="font-bold text-foreground text-xs uppercase tracking-wider text-indigo-500">
                     Triết lý thiết kế và Các tính năng cốt lõi của nền tảng:
                   </h4>
-                  <ul className="list-disc pl-5 text-xs text-slate-500 dark:text-slate-400 space-y-2.5">
+                  <ul className="list-disc pl-5 text-xs text-muted-foreground space-y-2.5">
                     <li>
                       <strong>Cấu trúc Bento Grid thông minh:</strong> Cho phép chia nhỏ trang web thành các khối hình học (pills, squares, rectangles) xếp khít nhau như hộp cơm Bento Nhật Bản. Cơ chế này giúp tối ưu không gian hiển thị thông tin và tương thích tự động 100% với màn hình điện thoại di động lẫn máy tính.
                     </li>
@@ -133,7 +133,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 2 */}
             <section id="chuong-2" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">person_add</span>
                 Chương II: Đăng Ký Tài Khoản & Gói Hỗ Trợ Độc Quyền Dành Cho Sinh Viên
               </h2>
@@ -144,7 +144,7 @@ export default function UserGuidePage() {
 
                 <div className="space-y-4 text-xs">
                   <div className="pl-4 border-l-2 border-slate-300 dark:border-slate-800 space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
                       Quy trình đăng ký tài khoản tiêu chuẩn:
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 text-justify">
@@ -184,7 +184,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 3 */}
             <section id="chuong-3" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">dashboard</span>
                 Chương III: Thiết Kế Bento Grid Portfolio & Bio Link Chuyên Nghiệp
               </h2>
@@ -195,7 +195,7 @@ export default function UserGuidePage() {
 
                 <div className="space-y-4 text-xs">
                   <div className="space-y-1">
-                    <h4 className="font-bold text-slate-800 dark:text-white">1. Các loại khối Bento được hỗ trợ trên hệ thống:</h4>
+                    <h4 className="font-bold text-foreground">1. Các loại khối Bento được hỗ trợ trên hệ thống:</h4>
                     <ul className="list-disc pl-5 text-slate-600 dark:text-slate-400 space-y-1.5 text-justify">
                       <li><strong>Khối Hồ sơ (Profile Card):</strong> Hiển thị ảnh đại diện (avatar), họ tên, chức danh công việc và văn bản tiểu sử ngắn. Đây là khối cốt lõi định danh trang Bio Link của bạn.</li>
                       <li><strong>Khối Liên kết nhanh (Link Button):</strong> Chứa đường dẫn trỏ tới các trang mạng xã hội (Facebook, Instagram, TikTok, Threads) hoặc liên kết ngoài. Bạn có thể chọn icon đại diện, đặt tiêu đề và viết chú thích ngắn.</li>
@@ -206,7 +206,7 @@ export default function UserGuidePage() {
                   </div>
 
                   <div className="space-y-1 border-t border-slate-200 dark:border-slate-800 pt-3">
-                    <h4 className="font-bold text-slate-800 dark:text-white">2. Các bước thiết kế và Tùy biến giao diện chi tiết:</h4>
+                    <h4 className="font-bold text-foreground">2. Các bước thiết kế và Tùy biến giao diện chi tiết:</h4>
                     <p className="text-slate-600 dark:text-slate-400 text-justify leading-relaxed">
                       - <strong>Bước 1: Bố cục lưới Bento (Layout Settings):</strong> Truy cập mục "Thiết kế" trong Dashboard. Tại đây, bạn có thể lựa chọn kiểu hiển thị lưới Bento theo cột dọc (dành cho di động) hoặc dạng lưới lưới mở rộng (dành cho máy tính).
                       <br />
@@ -229,7 +229,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 4 */}
             <section id="chuong-4" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">accessibility</span>
                 Chương IV: Quản Lý Số Đo Cơ Thể & Bảo Vệ Quyền Riêng Tư Thông Tin Đời Tư
               </h2>
@@ -239,8 +239,8 @@ export default function UserGuidePage() {
                 </p>
 
                 <div className="space-y-4 text-xs text-justify">
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
                       1. Cách thức nhập dữ liệu chỉ số hình thể:
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -248,8 +248,8 @@ export default function UserGuidePage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
                       2. Quản lý hiển thị và Cơ chế bảo vệ đời tư cá nhân:
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -264,7 +264,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 5 */}
             <section id="chuong-5" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">event</span>
                 Chương V: Vận Hành Hệ Thống Ghi Nhận Đặt Lịch Hẹn (Booking)
               </h2>
@@ -274,8 +274,8 @@ export default function UserGuidePage() {
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
+                  <div className="p-5 bg-muted rounded-xl border border-border space-y-2">
+                    <h6 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
                       Dành cho Thành viên (Người quản lý lịch hẹn):
                     </h6>
                     <p className="text-slate-600 dark:text-slate-400 text-justify">
@@ -285,8 +285,8 @@ export default function UserGuidePage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
+                  <div className="p-5 bg-muted rounded-xl border border-border space-y-2">
+                    <h6 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
                       Dành cho Khách hàng (Người gửi yêu cầu lịch hẹn):
                     </h6>
                     <p className="text-slate-600 dark:text-slate-400 text-justify">
@@ -297,7 +297,7 @@ export default function UserGuidePage() {
                   </div>
                 </div>
 
-                <p className="text-slate-500 dark:text-slate-400 italic text-[11px] border-l-4 border-amber-500 pl-4">
+                <p className="text-muted-foreground italic text-[11px] border-l-4 border-amber-500 pl-4">
                   * Khuyến cáo an toàn giao dịch: Hugo Studio chỉ đóng vai trò cung cấp giải pháp kỹ thuật lưu trữ và thông tin trung gian truyền tải Booking. Mọi thỏa thuận tài chính, ký kết hợp đồng dịch vụ, thanh toán tiền cát-xê công việc giữa hai bên phải được thực hiện tự do bên ngoài hệ thống. Chúng tôi miễn trừ mọi trách nhiệm giải quyết tranh chấp kinh tế phát sinh liên quan đến hoạt động Booking này.
                 </p>
               </div>
@@ -305,7 +305,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 6 */}
             <section id="chuong-6" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">payments</span>
                 Chương VI: Hướng Dẫn Liên Kết Thanh Toán Dịch Vụ Studio Cá Nhân Của Admin
               </h2>
@@ -315,8 +315,8 @@ export default function UserGuidePage() {
                 </p>
 
                 <div className="space-y-4 text-xs text-justify">
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
                       1. Giao diện Cổng thanh toán VietQR & Cách thức quét mã nhanh:
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -332,8 +332,8 @@ export default function UserGuidePage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
                       2. Quy trình xác thực thanh toán tự động:
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -348,7 +348,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 7 */}
             <section id="chuong-7" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">image</span>
                 Chương VII: Hướng Dẫn Tối Ưu Hóa Hình Ảnh & Nâng Cao Tốc Độ Tải Trang
               </h2>
@@ -358,8 +358,8 @@ export default function UserGuidePage() {
                 </p>
 
                 <div className="space-y-4 text-xs text-justify">
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
                       1. Tiêu chuẩn kỹ thuật đối với hình ảnh tải lên hệ thống:
                     </h5>
                     <p className="text-slate-606 dark:text-slate-400 leading-relaxed">
@@ -371,8 +371,8 @@ export default function UserGuidePage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
                       2. Kỹ thuật Lazy Loading và Tăng tốc rải trang:
                     </h5>
                     <p className="text-slate-606 dark:text-slate-400 leading-relaxed">
@@ -385,7 +385,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 8 */}
             <section id="chuong-8" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">lock</span>
                 Chương VIII: Quản Lý Bảo Mật Tài Khoản & Session Token Đăng Nhập
               </h2>
@@ -422,7 +422,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 9 */}
             <section id="chuong-9" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">build</span>
                 Chương IX: Khắc Phục Sự Cố Kỹ Thuật Thường Gặp Khi Thiết Kế
               </h2>
@@ -469,7 +469,7 @@ export default function UserGuidePage() {
 
             {/* CHƯƠNG 10 */}
             <section id="chuong-10" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
                 <span className="material-symbols-outlined text-indigo-550 dark:text-indigo-400">support_agent</span>
                 Chương X: Quy Trình Gửi Phiếu Yêu Cầu Hỗ Trợ & Kênh Tương Tác Chính Thức
               </h2>
@@ -478,8 +478,8 @@ export default function UserGuidePage() {
                   Khi cần hỗ trợ kỹ thuật chuyên sâu (khôi phục tài khoản bị hack, báo lỗi hệ thống, xác thực sinh viên thủ công), Thành viên có thể gửi yêu cầu hỗ trợ chính thức theo các kênh tương tác sau:
                 </p>
 
-                <div className="p-6 rounded-2xl bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-4 text-xs">
-                  <h5 className="font-bold text-[#1d1d1f] dark:text-white uppercase tracking-wider">
+                <div className="p-6 rounded-2xl bg-muted border border-border space-y-4 text-xs">
+                  <h5 className="font-bold text-foreground uppercase tracking-wider">
                     Các kênh tiếp nhận và hỗ trợ kỹ thuật chính thức:
                   </h5>
                   <p className="text-slate-600 dark:text-slate-400">
@@ -489,7 +489,7 @@ export default function UserGuidePage() {
                   </p>
                   
                   <div className="space-y-2 pt-1 font-mono">
-                    <p className="flex items-center gap-2 text-[#007aff] dark:text-[#0a84ff]">
+                    <p className="flex items-center gap-2 text-primary dark:text-primary">
                       <span className="material-symbols-outlined text-sm">mail</span>
                       <span>Địa chỉ Email liên hệ: {data?.profile?.emailAddress || "support@hugowishpax.studio"}</span>
                     </p>
@@ -509,7 +509,7 @@ export default function UserGuidePage() {
           </div>
 
           {/* Bottom Back Button */}
-          <div className="pt-6 border-t border-[#e5e5e7] dark:border-[#2c2c2e] text-center">
+          <div className="pt-6 border-t border-border text-center">
             <Link 
               to="/" 
               className="inline-flex items-center justify-center px-8 py-3.5 rounded-2xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs tracking-wider uppercase transition-all shadow-md active:scale-95 hover:scale-[1.01]"

@@ -41,15 +41,15 @@ export default function PrivacyPolicyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-black text-[#1d1d1f] dark:text-[#f5f5f7] py-12 px-4 sm:px-6 transition-colors duration-300 font-sans">
+    <div className="min-h-screen bg-background dark:bg-black text-foreground py-12 px-4 sm:px-6 transition-colors duration-300 font-sans">
       
       {/* Container to handle sidebar and content */}
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 relative">
         
         {/* LEFT COLUMN: STICKY SIDEBAR NAVIGATION (Desktop only) */}
         <aside className="hidden lg:block w-80 shrink-0 h-fit sticky top-6">
-          <div className="bg-white/80 dark:bg-[#1c1c1e]/85 backdrop-blur-xl border border-[#e5e5e7] dark:border-[#2c2c2e] p-6 rounded-3xl shadow-xl space-y-4 max-h-[85vh] overflow-y-auto scrollbar-hide">
-            <div className="border-b border-[#e5e5e7] dark:border-[#2c2c2e] pb-3 text-center">
+          <div className="glass border border-border p-6 rounded-3xl shadow-xl space-y-4 max-h-[85vh] overflow-y-auto scrollbar-hide">
+            <div className="border-b border-border pb-3 text-center">
               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block">Mục lục điều khoản</span>
               <span className="text-xs text-slate-400 dark:text-slate-500 font-bold">Hugo Studio Legal Version 6.0</span>
             </div>
@@ -61,7 +61,7 @@ export default function PrivacyPolicyPage() {
                   className={`w-full text-left flex items-start gap-3 p-2.5 rounded-xl transition-all text-xs font-semibold leading-relaxed border ${
                     activeSection === chapter.id
                       ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                      : "hover:bg-slate-100 dark:hover:bg-white/[0.02] border-transparent text-slate-500 dark:text-slate-400"
+                      : "hover:bg-slate-100 dark:hover:bg-white/[0.02] border-transparent text-muted-foreground"
                   }`}
                 >
                   <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">{chapter.icon}</span>
@@ -73,17 +73,17 @@ export default function PrivacyPolicyPage() {
         </aside>
 
         {/* RIGHT COLUMN: MAIN LEGAL CONTENT PANEL */}
-        <div className="flex-1 bg-white/80 dark:bg-[#1c1c1e]/85 backdrop-blur-xl p-6 sm:p-12 rounded-3xl border border-[#e5e5e7] dark:border-[#2c2c2e] shadow-2xl transition-all duration-300 space-y-8">
+        <div className="flex-1 glass p-6 sm:p-12 rounded-3xl border border-border shadow-2xl transition-all duration-300 space-y-8">
           
           {/* Header Title */}
-          <div className="space-y-4 text-center pb-6 border-b border-[#e5e5e7] dark:border-[#2c2c2e] relative">
-            <span className="absolute top-0 right-0 bg-[#007aff]/10 border border-[#007aff]/20 text-[#007aff] text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+          <div className="space-y-4 text-center pb-6 border-b border-border relative">
+            <span className="absolute top-0 right-0 bg-primary/10 border border-primary/20 text-primary text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
               Bản đầy đủ pháp lý
             </span>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-white uppercase leading-snug">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground uppercase leading-snug">
               Chính Sách Bảo Mật & Điều Khoản Sử Dụng Toàn Diện
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold tracking-wider">
+            <p className="text-xs text-muted-foreground font-bold tracking-wider">
               VĂN BẢN QUY ĐỊNH PHÁP LÝ CHÍNH THỨC CỦA HỆ THỐNG HUGO STUDIO
             </p>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 italic">
@@ -96,8 +96,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 1 */}
             <section id="chuong-1" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">gavel</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">gavel</span>
                 Chương I: Cơ Sở Pháp Lý & Văn Bản Quy Phạm Pháp Luật Chi Tiết
               </h2>
               <div className="space-y-4">
@@ -105,8 +105,8 @@ export default function PrivacyPolicyPage() {
                   Văn bản Điều khoản sử dụng và Chính sách Bảo mật này (sau đây gọi tắt là "Điều khoản" hoặc "Quy chế") thiết lập một thỏa thuận ràng buộc pháp lý đầy đủ và tối cao giữa người sử dụng (bao gồm Thành viên đăng ký và Khách hàng tương tác) và cá nhân Quản trị viên (Admin) duy nhất điều hành Hugo Studio. Toàn bộ nội dung quy chế này được biên soạn, đối chiếu và ban hành căn cứ trên tinh thần nghiêm túc tuân thủ các quy định hiện hành của hệ thống luật pháp nước Cộng hòa Xã hội Chủ nghĩa Việt Nam và các công ước pháp luật quốc tế về an ninh mạng, bảo vệ thông tin đời tư cá nhân và giao dịch dân sự tự nguyện.
                 </p>
                 
-                <div className="bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e] p-6 rounded-2xl space-y-4">
-                  <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                <div className="bg-muted border border-border p-6 rounded-2xl space-y-4">
+                  <h4 className="font-bold text-foreground text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                     I. Hệ thống pháp luật áp dụng của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam:
                   </h4>
                   
@@ -153,8 +153,8 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e] p-6 rounded-2xl space-y-4">
-                  <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                <div className="bg-muted border border-border p-6 rounded-2xl space-y-4">
+                  <h4 className="font-bold text-foreground text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                     II. Các Hiến chương và Đạo luật Quốc tế được Viện dẫn Đối chiếu:
                   </h4>
                   <div className="space-y-3 text-xs text-slate-600 dark:text-slate-400">
@@ -186,7 +186,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
                 
-                <p className="text-slate-500 dark:text-slate-400 italic text-[11px] border-l-4 border-amber-500 pl-4">
+                <p className="text-muted-foreground italic text-[11px] border-l-4 border-amber-500 pl-4">
                   * Khuyến cáo pháp lý đặc biệt: Việc người sử dụng tiếp tục các thao tác điều hướng trên website, thực hiện điền biểu mẫu, tạo lập Bio Link, Bento Portfolio biểu thị rằng người sử dụng đã dành thời gian đọc kỹ, thấu hiểu toàn bộ nội dung và tự nguyện cam kết tuân thủ không điều kiện các thỏa thuận được lập ra tại đây. Nếu không đồng ý với bất kỳ điều khoản nào, xin vui lòng ngừng truy cập website ngay lập tức.
                 </p>
               </div>
@@ -194,8 +194,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 2 */}
             <section id="chuong-2" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">menu_book</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">menu_book</span>
                 Chương II: Giải Thích Thuật Ngữ và Định Nghĩa Pháp Lý Chi Tiết
               </h2>
               <div className="space-y-4">
@@ -269,8 +269,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 3 */}
             <section id="chuong-3" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">lan</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">lan</span>
                 Chương III: Phạm Vi Dịch Vụ & Đối Tượng Điều Chỉnh Pháp Lý Toàn Diện
               </h2>
               <div className="space-y-4">
@@ -279,7 +279,7 @@ export default function PrivacyPolicyPage() {
                 </p>
 
                 <div className="space-y-4">
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e]">
+                  <div className="p-5 bg-muted rounded-2xl border border-border">
                     <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
                       3.1 Trình Thiết Kế Bio Link & Bento Grid Portfolio (Hoàn toàn miễn phí):
                     </h5>
@@ -292,7 +292,7 @@ export default function PrivacyPolicyPage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e]">
+                  <div className="p-5 bg-muted rounded-2xl border border-border">
                     <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
                       3.2 Phân Hệ Số Đo Hình Thể Cá Nhân (Measurements Panel):
                     </h5>
@@ -303,7 +303,7 @@ export default function PrivacyPolicyPage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e]">
+                  <div className="p-5 bg-muted rounded-2xl border border-border">
                     <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
                       3.3 Hệ Thống Ghi Nhận Đặt Lịch Hẹn (Booking Engine):
                     </h5>
@@ -314,7 +314,7 @@ export default function PrivacyPolicyPage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e]">
+                  <div className="p-5 bg-muted rounded-2xl border border-border">
                     <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
                       3.4 Giao Diện Tích Hợp Iframe Đối Tác (Partner Sandbox Integration):
                     </h5>
@@ -323,7 +323,7 @@ export default function PrivacyPolicyPage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e]">
+                  <div className="p-5 bg-muted rounded-2xl border border-border">
                     <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
                       3.5 Trợ Lý Ảo Bot Culi (Support Assistant System):
                     </h5>
@@ -337,8 +337,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 4 */}
             <section id="chuong-4" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">database</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">database</span>
                 Chương IV: Danh Mục Dữ Liệu Cá Nhân Thu Thập & Phương Thức Thu Thập
               </h2>
               <div className="space-y-4">
@@ -348,7 +348,7 @@ export default function PrivacyPolicyPage() {
 
                 <div className="space-y-4">
                   <div className="pl-4 border-l-2 border-emerald-500 space-y-2">
-                    <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
+                    <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">
                       1. Dữ Liệu Cá Nhân Cơ Bản (Cung cấp trực tiếp bởi Thành viên):
                     </h4>
                     <p className="text-xs text-slate-600 dark:text-slate-400 text-justify">
@@ -361,7 +361,7 @@ export default function PrivacyPolicyPage() {
                   </div>
 
                   <div className="pl-4 border-l-2 border-amber-500 space-y-2">
-                    <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
+                    <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">
                       2. Dữ Liệu Thanh Toán Dịch Vụ Của Admin (Chỉ thu thập từ Khách hàng của riêng Admin):
                     </h4>
                     <p className="text-xs text-slate-606 dark:text-slate-400 text-justify">
@@ -370,7 +370,7 @@ export default function PrivacyPolicyPage() {
                   </div>
 
                   <div className="pl-4 border-l-2 border-blue-500 space-y-2">
-                    <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
+                    <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">
                       3. Dữ Liệu Thu Thập Từ Khách Hàng (Khi gửi Booking cho Thành viên):
                     </h4>
                     <p className="text-xs text-slate-606 dark:text-slate-400 text-justify">
@@ -379,7 +379,7 @@ export default function PrivacyPolicyPage() {
                   </div>
 
                   <div className="pl-4 border-l-2 border-indigo-500 space-y-2">
-                    <h4 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
+                    <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">
                       4. Dữ Liệu Kỹ Thuật Tự Động Thu Thập Qua Hệ Thống:
                     </h4>
                     <p className="text-xs text-slate-606 dark:text-slate-400 text-justify">
@@ -396,8 +396,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 5 */}
             <section id="chuong-5" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">security</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">security</span>
                 Chương V: Mục Đích, Biện Pháp & Quy Trình Xử Lý Dữ Liệu Cá Nhân
               </h2>
               <div className="space-y-4">
@@ -407,7 +407,7 @@ export default function PrivacyPolicyPage() {
 
                 <div className="space-y-4 text-xs">
                   <div className="space-y-1">
-                    <h4 className="font-bold text-slate-800 dark:text-white">1. Mục đích xử lý dữ liệu chi tiết:</h4>
+                    <h4 className="font-bold text-foreground">1. Mục đích xử lý dữ liệu chi tiết:</h4>
                     <ul className="list-disc pl-5 space-y-1 text-slate-600 dark:text-slate-400 text-justify">
                       <li>Xác thực quyền đăng nhập tài khoản và khôi phục tài khoản khi xảy ra sự cố quên mật khẩu thông qua mã OTP điện tử gửi tới email đã đăng ký.</li>
                       <li>Khởi tạo, duy trì hiển thị và quản lý trang Bio Link, Bento Portfolio cá nhân hoàn toàn miễn phí của Thành viên trên internet theo đúng tùy biến thiết kế.</li>
@@ -419,7 +419,7 @@ export default function PrivacyPolicyPage() {
                   </div>
 
                   <div className="space-y-2 pt-2">
-                    <h4 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+                    <h4 className="font-bold text-foreground uppercase tracking-wider">
                       2. Các biện pháp bảo vệ kỹ thuật đầu cuối (End-to-End Security Measures):
                     </h4>
                     <p className="text-slate-600 dark:text-slate-400 text-justify">
@@ -427,30 +427,30 @@ export default function PrivacyPolicyPage() {
                     </p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                      <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1.5">
+                      <div className="p-4 bg-muted rounded-xl border border-border space-y-1.5">
                         <h6 className="font-bold text-emerald-600 dark:text-emerald-455">a) Mã hóa Mật khẩu bảo mật mật thiết:</h6>
-                        <p className="text-slate-500 dark:text-slate-400 text-justify">
+                        <p className="text-muted-foreground text-justify">
                           Toàn bộ mật khẩu của Thành viên đều được băm một chiều (One-way Cryptographic Hashing) bằng thuật toán <strong>SHA-256</strong> kết hợp với mã muối ngẫu nhiên (Salt) có độ phức tạp cao trước khi lưu vào MongoDB. Cơ chế này đảm bảo ngay cả khi cơ sở dữ liệu bị lộ lọt, kẻ tấn công cũng không thể dịch ngược để đọc mật khẩu gốc dưới dạng văn bản thuần (Plaintext).
                         </p>
                       </div>
 
-                      <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1.5">
+                      <div className="p-4 bg-muted rounded-xl border border-border space-y-1.5">
                         <h6 className="font-bold text-emerald-600 dark:text-emerald-455">b) Bộ lọc CORS và cách ly máy chủ API:</h6>
-                        <p className="text-slate-500 dark:text-slate-400 text-justify">
+                        <p className="text-muted-foreground text-justify">
                           Máy chủ API (Node.js/Express) thiết lập cấu hình chính sách chia sẻ tài nguyên nguồn gốc chéo <strong>CORS (Cross-Origin Resource Sharing)</strong> cực kỳ chặt chẽ. Hệ thống chỉ phê duyệt và tiếp nhận các yêu cầu truy vấn đến từ các tên miền chính thức của Hugo Studio. Mọi yêu cầu API giả mạo hoặc xuất phát từ các nguồn gốc lạ ngoài danh sách sẽ bị từ chối xử lý ngay lập tức tại tầng mạng.
                         </p>
                       </div>
 
-                      <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1.5">
+                      <div className="p-4 bg-muted rounded-xl border border-border space-y-1.5">
                         <h6 className="font-bold text-emerald-600 dark:text-emerald-455">c) Cơ chế Route Guard & Chặn bypass luồng:</h6>
-                        <p className="text-slate-500 dark:text-slate-400 text-justify">
+                        <p className="text-muted-foreground text-justify">
                           Các biểu mẫu hỗ trợ kỹ thuật được bảo vệ nghiêm ngặt bằng cơ chế kiểm soát định tuyến (Route Guard). Hệ thống sẽ chặn kết nối và trả về trang lỗi nếu phát hiện trình duyệt cố tình bỏ qua (bypass) luồng gửi biểu mẫu thông tin tiêu chuẩn hoặc truy cập trực tiếp vào các liên kết xử lý nội bộ mà không có sự chỉ dẫn của Trợ lý ảo Bot Culi.
                         </p>
                       </div>
 
-                      <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1.5">
+                      <div className="p-4 bg-muted rounded-xl border border-border space-y-1.5">
                         <h6 className="font-bold text-emerald-600 dark:text-emerald-455">d) Nén mã hóa hình ảnh và Lưu trữ đám mây phân quyền:</h6>
-                        <p className="text-slate-500 dark:text-slate-400 text-justify">
+                        <p className="text-muted-foreground text-justify">
                           Mọi hình ảnh đại diện, ảnh Portfolio tải lên hệ thống đều được nén tự động và chuyển đổi sang định dạng hình ảnh thế hệ mới <strong>WebP</strong> nhằm tối ưu băng thông. Các tập tin này được lưu giữ trên hệ thống lưu trữ đám mây phân quyền cao, ngăn chặn việc quét tập tin hàng loạt từ bên ngoài thông qua các script tự động.
                         </p>
                       </div>
@@ -462,8 +462,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 6 */}
             <section id="chuong-6" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">schedule</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">schedule</span>
                 Chương VI: Quy Tắc Mốc Thời Gian & Lưu Trữ Dữ Liệu Chi Tiết
               </h2>
               <div className="space-y-4">
@@ -472,8 +472,8 @@ export default function PrivacyPolicyPage() {
                 </p>
 
                 <div className="space-y-4 text-xs text-justify">
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
                       a) Hiệu lực sử dụng tài khoản và Bio Link (Miễn Phí 100% Không Giới Hạn):
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -481,8 +481,8 @@ export default function PrivacyPolicyPage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
                       b) Quy định về Thời hạn phiên làm việc và Tự động vô hiệu hóa Session Token (Quy tắc 14 Ngày):
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -492,8 +492,8 @@ export default function PrivacyPolicyPage() {
                     </p>
                   </div>
 
-                  <div className="p-5 bg-[#f5f5f7] dark:bg-[#252528] rounded-2xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-2">
-                    <h5 className="font-bold text-slate-800 dark:text-white text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
                       c) Quy trình Xử lý và Lưu trữ dữ liệu khi xóa tài khoản:
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -510,8 +510,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 7 */}
             <section id="chuong-7" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">credit_card</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">credit_card</span>
                 Chương VII: Quy Chế Thanh Toán Dịch Vụ Studio Cá Nhân & Tuyên Bố Miễn Trừ Thương Mại Điện Tử
               </h2>
               <div className="space-y-4">
@@ -519,9 +519,9 @@ export default function PrivacyPolicyPage() {
                   Nhằm làm rõ bản chất phi thương mại điện tử của website và phân tách hoàn toàn các hoạt động thanh toán nội bộ của cá nhân Admin khỏi các tính năng công cụ miễn phí cung cấp cho Thành viên, chúng tôi tuyên bố quy chế tài chính như sau:
                 </p>
 
-                <div className="bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e] p-6 rounded-2xl space-y-4 text-xs">
+                <div className="bg-muted border border-border p-6 rounded-2xl space-y-4 text-xs">
                   <div className="space-y-1.5">
-                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px] text-emerald-600 dark:text-emerald-450">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-emerald-600 dark:text-emerald-450">
                       a) Khẳng định Nền tảng miễn phí 100% - Không quản lý, mua bán gói dịch vụ:
                     </h5>
                     <p className="text-justify text-slate-600 dark:text-slate-400">
@@ -532,7 +532,7 @@ export default function PrivacyPolicyPage() {
                   </div>
 
                   <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-800 pt-3">
-                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px] text-amber-600 dark:text-amber-450">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-amber-600 dark:text-amber-450">
                       b) Bản chất Cổng thanh toán tích hợp (Công cụ lập hóa đơn dịch vụ Studio cá nhân ngoài đời thực của Admin):
                     </h5>
                     <p className="text-justify text-slate-600 dark:text-slate-400">
@@ -545,7 +545,7 @@ export default function PrivacyPolicyPage() {
                   </div>
 
                   <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-800 pt-3">
-                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px] text-red-550">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-red-550">
                       c) Cam kết tuyệt đối Phi Trung gian thanh toán (Không thu hộ / Không chi hộ):
                     </h5>
                     <p className="text-justify text-slate-600 dark:text-slate-400">
@@ -556,7 +556,7 @@ export default function PrivacyPolicyPage() {
                   </div>
 
                   <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-800 pt-3">
-                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
                       d) Bảo mật dữ liệu giao dịch thẻ ngân hàng theo Tiêu chuẩn PCI DSS:
                     </h5>
                     <p className="text-justify text-slate-600 dark:text-slate-400">
@@ -567,7 +567,7 @@ export default function PrivacyPolicyPage() {
                   </div>
 
                   <div className="space-y-1.5 border-t border-slate-200 dark:border-slate-800 pt-3">
-                    <h5 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[11px] text-red-550">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-red-550">
                       e) Quyết toán Thuế cá nhân tự doanh và Miễn trừ nghĩa vụ hóa đơn thương mại doanh nghiệp:
                     </h5>
                     <p className="text-justify text-slate-600 dark:text-slate-400">
@@ -582,8 +582,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 8 */}
             <section id="chuong-8" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">shield_heart</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">shield_heart</span>
                 Chương VIII: Cam Kết Bảo Mật Tuyệt Đối & Chống Thương Mại Hóa Dữ Liệu
               </h2>
               <div className="space-y-4">
@@ -621,8 +621,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 9 */}
             <section id="chuong-9" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">badge</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">badge</span>
                 Chương IX: Quyền & Nghĩa Vụ Hợp Pháp Của Chủ Thể Dữ Liệu
               </h2>
               <div className="space-y-4">
@@ -631,37 +631,37 @@ export default function PrivacyPolicyPage() {
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
-                    <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">1. Quyền được biết & Quyền đồng ý:</h6>
-                    <p className="text-justify text-slate-500 dark:text-slate-400">
+                  <div className="p-4 bg-muted rounded-xl border border-border space-y-1">
+                    <h6 className="font-bold text-foreground uppercase tracking-wider">1. Quyền được biết & Quyền đồng ý:</h6>
+                    <p className="text-justify text-muted-foreground">
                       Người dùng có quyền được biết rõ ràng, chi tiết mục đích, phạm vi thu thập, phương thức xử lý dữ liệu cá nhân của mình thông qua văn bản này. Mọi hành vi xử lý dữ liệu chỉ được thực hiện khi có sự đồng ý tự nguyện của người dùng bằng cách chủ động tích chọn hộp kiểm đồng ý khi đăng ký tài khoản.
                     </p>
                   </div>
 
-                  <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
-                    <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">2. Quyền truy cập, chỉnh sửa & Đính chính dữ liệu:</h6>
-                    <p className="text-justify text-slate-500 dark:text-slate-400">
+                  <div className="p-4 bg-muted rounded-xl border border-border space-y-1">
+                    <h6 className="font-bold text-foreground uppercase tracking-wider">2. Quyền truy cập, chỉnh sửa & Đính chính dữ liệu:</h6>
+                    <p className="text-justify text-muted-foreground">
                       Thành viên có quyền đăng nhập vào giao diện quản trị Dashboard cá nhân vào bất kỳ thời điểm nào để xem lại dữ liệu đang lưu trữ trên máy chủ, tự đính chính thông tin bị sai sót (như thay đổi họ tên hiển thị, cập nhật lại số điện thoại Zalo, chỉnh sửa các liên kết mạng xã hội hoặc cập nhật lại số đo cơ thể).
                     </p>
                   </div>
 
-                  <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
-                    <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">3. Quyền rút lại sự đồng ý & Quyền yêu cầu xóa:</h6>
-                    <p className="text-justify text-slate-500 dark:text-slate-400">
+                  <div className="p-4 bg-muted rounded-xl border border-border space-y-1">
+                    <h6 className="font-bold text-foreground uppercase tracking-wider">3. Quyền rút lại sự đồng ý & Quyền yêu cầu xóa:</h6>
+                    <p className="text-justify text-muted-foreground">
                       Người dùng có quyền rút lại sự đồng ý cho phép xử lý dữ liệu bất cứ lúc nào bằng cách gửi yêu cầu hủy tài khoản trực tuyến hoặc liên hệ qua kênh hỗ trợ của Admin. Sau khi nhận được yêu cầu, hệ thống cam kết sẽ thực hiện quy trình xóa bỏ dữ liệu vĩnh viễn (Hard Delete) theo đúng thời hạn 30 ngày quy định tại Chương VI.
                     </p>
                   </div>
 
-                  <div className="p-4 bg-[#f5f5f7] dark:bg-[#252528] rounded-xl border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-1">
-                    <h6 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">4. Quyền khiếu nại, tố cáo & Khởi kiện:</h6>
-                    <p className="text-justify text-slate-500 dark:text-slate-400">
+                  <div className="p-4 bg-muted rounded-xl border border-border space-y-1">
+                    <h6 className="font-bold text-foreground uppercase tracking-wider">4. Quyền khiếu nại, tố cáo & Khởi kiện:</h6>
+                    <p className="text-justify text-muted-foreground">
                       Người dùng có quyền khiếu nại trực tiếp đến Admin nếu phát hiện dữ liệu của mình bị xử lý sai mục đích cam kết. Ngoài ra, người dùng có quyền gửi đơn tố cáo đến các cơ quan quản lý chuyên trách về bảo vệ dữ liệu cá nhân hoặc khởi kiện ra Tòa án nhân dân để đòi bồi thường thiệt hại thực tế phát sinh.
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-2 pt-2 text-xs">
-                  <h4 className="font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+                  <h4 className="font-bold text-foreground uppercase tracking-wider">
                     Nghĩa vụ đi kèm của Chủ thể dữ liệu:
                   </h4>
                   <p className="text-slate-600 dark:text-slate-400 text-justify">
@@ -678,8 +678,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 10 */}
             <section id="chuong-10" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">block</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">block</span>
                 Chương X: Giới Hạn & Miễn Trừ Trách Nhiệm Pháp Lý Của Hệ Thống
               </h2>
               <div className="space-y-4">
@@ -717,8 +717,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 11 */}
             <section id="chuong-11" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">balance</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">balance</span>
                 Chương XI: Luật Áp Dụng & Cơ Chế Giải Quyết Tranh Chấp Pháp Lý
               </h2>
               <div className="space-y-4">
@@ -735,8 +735,8 @@ export default function PrivacyPolicyPage() {
 
             {/* CHƯƠNG 12 */}
             <section id="chuong-12" className="space-y-4 scroll-mt-20">
-              <h2 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-white flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
-                <span className="material-symbols-outlined text-[#007aff]">mail</span>
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">mail</span>
                 Chương XII: Điều Khoản Thi Hành & Thông Tin Liên Hệ Yêu Cầu Khử Dữ Liệu
               </h2>
               <div className="space-y-4">
@@ -747,8 +747,8 @@ export default function PrivacyPolicyPage() {
                   Khi có sự sửa đổi nội dung quy chế, ban quản trị sẽ cập nhật ngày ban hành ở đầu trang và đăng thông báo công khai nổi bật tại trang quản trị Dashboard của Thành viên. Việc Thành viên tiếp tục duy trì hoạt động tài khoản và sử dụng dịch vụ sau khi các nội dung sửa đổi được đăng tải đồng nghĩa với việc chấp thuận hoàn toàn các nội dung sửa đổi bổ sung đó.
                 </p>
 
-                <div className="p-6 rounded-2xl bg-[#f5f5f7] dark:bg-[#252528] border border-[#e5e5e7] dark:border-[#2c2c2e] space-y-4">
-                  <h4 className="font-bold text-[#1d1d1f] dark:text-white uppercase tracking-wider text-xs sm:text-sm">
+                <div className="p-6 rounded-2xl bg-muted border border-border space-y-4">
+                  <h4 className="font-bold text-foreground uppercase tracking-wider text-xs sm:text-sm">
                     Thông tin liên hệ chính thức thực thi quyền bảo vệ dữ liệu cá nhân:
                   </h4>
                   <p className="text-xs text-slate-600 dark:text-slate-400">
@@ -756,7 +756,7 @@ export default function PrivacyPolicyPage() {
                   </p>
                   
                   <div className="space-y-2 pt-1 text-xs font-mono">
-                    <p className="flex items-center gap-2 text-[#007aff] dark:text-[#0a84ff]">
+                    <p className="flex items-center gap-2 text-primary dark:text-primary">
                       <span className="material-symbols-outlined text-sm">mail</span>
                       <span>Địa chỉ Email liên hệ: {data?.profile?.emailAddress || "support@hugowishpax.studio"}</span>
                     </p>
@@ -776,10 +776,10 @@ export default function PrivacyPolicyPage() {
           </div>
 
           {/* Bottom Agree Button */}
-          <div className="pt-6 border-t border-[#e5e5e7] dark:border-[#2c2c2e] text-center">
+          <div className="pt-6 border-t border-border text-center">
             <Link 
               to="/" 
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-2xl bg-[#007aff] hover:bg-[#0071e3] text-white font-bold text-xs tracking-wider uppercase transition-all shadow-md active:scale-95 hover:scale-[1.01]"
+              className="inline-flex items-center justify-center px-8 py-3.5 rounded-2xl bg-primary hover:bg-primary text-white font-bold text-xs tracking-wider uppercase transition-all shadow-md active:scale-95 hover:scale-[1.01]"
               style={{ minHeight: 0, minWidth: 0 }}
             >
               Đồng Ý Điều Khoản & Trở Về Trang Chủ

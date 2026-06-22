@@ -723,7 +723,7 @@ export default function TherapyTab({
               return (
                 <div
                   key={ch.id}
-                  className={`bg-white/40 dark:bg-[#12111a]/20 border border-zinc-200/40 dark:border-zinc-800/30 rounded-2xl p-3 flex flex-col justify-between gap-3 relative transition-all hover:bg-white/60 dark:hover:bg-[#1c1a26]/40`}
+                  className={`bg-white/40 dark:bg-background/20 border border-zinc-200/40 dark:border-zinc-800/30 rounded-2xl p-3 flex flex-col justify-between gap-3 relative transition-all hover:bg-white/60 dark:hover:bg-[#1c1a26]/40`}
                 >
                   <div className="flex items-start gap-2.5">
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br ${ch.color} shrink-0`}>

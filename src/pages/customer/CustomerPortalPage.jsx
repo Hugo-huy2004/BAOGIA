@@ -68,10 +68,10 @@ export default function CustomerPortalPage() {
   if (!project) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-slate-800 dark:text-slate-100">
+    <div className="min-h-screen bg-slate-50 dark:bg-background text-foreground">
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#121214]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-500/20">

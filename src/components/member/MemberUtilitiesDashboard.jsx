@@ -115,7 +115,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
             onClick={() => {
               setSelectedUtility(util.id);
             }}
-            className="group cursor-pointer bg-white dark:bg-[#12111a] rounded-2xl p-4 md:p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-zinc-800 dark:hover:border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-[155px] md:h-[210px]"
+            className="group cursor-pointer bg-white dark:bg-background rounded-2xl p-4 md:p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-zinc-800 dark:hover:border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between h-[155px] md:h-[210px]"
           >
             <div className="space-y-2 md:space-y-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-colors group-hover:bg-zinc-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black">

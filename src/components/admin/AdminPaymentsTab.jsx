@@ -235,7 +235,7 @@ export default function AdminPaymentsTab() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Payment Creation Form Card */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#12111a] rounded-[22px] border border-slate-200/80 dark:border-slate-800/80 shadow-sm p-6 space-y-5">
+        <div className="lg:col-span-2 bg-white dark:bg-background rounded-[22px] border border-border/50 shadow-sm p-6 space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-lg">payments</span>
             {t('admin.payments.form_title')}
@@ -266,7 +266,7 @@ export default function AdminPaymentsTab() {
                     required
                     value={displayAmount}
                     onChange={handleAmountChange}
-                    className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-slate-800 dark:text-white font-bold"
+                    className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-foreground font-bold"
                     placeholder={t('admin.payments.amount_placeholder')}
                   />
                 </div>
@@ -283,7 +283,7 @@ export default function AdminPaymentsTab() {
                   maxLength={25}
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-slate-800 dark:text-white font-mono uppercase font-bold"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs focus:outline-none input-premium-focus transition-all text-foreground font-mono uppercase font-bold"
                   placeholder={t('admin.payments.reason_placeholder')}
                 />
                 {/* Suggested quick tags */}
@@ -293,7 +293,7 @@ export default function AdminPaymentsTab() {
                       key={idx}
                       type="button"
                       onClick={() => applySuggestion(item.prefix)}
-                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-700/60 text-[8px] sm:text-[9px] font-bold text-slate-500 dark:text-slate-400 rounded-lg border border-slate-200/40 dark:border-slate-700/30 transition-colors uppercase tracking-tight"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-700/60 text-[8px] sm:text-[9px] font-bold text-muted-foreground rounded-lg border border-slate-200/40 dark:border-slate-700/30 transition-colors uppercase tracking-tight"
                     >
                       + {item.label}
                     </button>
@@ -320,13 +320,13 @@ export default function AdminPaymentsTab() {
         </div>
 
         {/* Info & Integration Card */}
-        <div className="bg-white dark:bg-[#12111a] rounded-[22px] border border-slate-200/80 dark:border-slate-800/80 shadow-sm p-6 flex flex-col justify-between">
+        <div className="bg-white dark:bg-background rounded-[22px] border border-border/50 shadow-sm p-6 flex flex-col justify-between">
           <div className="space-y-4">
             <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
               <span className="material-symbols-outlined text-secondary text-lg">info</span>
               Cổng Thanh Toán PayOS
             </h3>
-            <ul className="space-y-3 text-[11px] text-slate-500 dark:text-slate-400">
+            <ul className="space-y-3 text-[11px] text-muted-foreground">
               <li className="flex items-start gap-2.5">
                 <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5 animate-pulse-soft">check_circle</span>
                 <span>Tự động tạo link thanh toán VietQR chuyển khoản nhanh 24/7.</span>
@@ -350,7 +350,7 @@ export default function AdminPaymentsTab() {
       </div>
 
       {/* History Table Card */}
-      <div className="bg-white dark:bg-[#12111a] rounded-[22px] border border-slate-200/80 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
+      <div className="bg-white dark:bg-background rounded-[22px] border border-border/50 shadow-sm p-6 space-y-4">
         <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-lg">history</span>
           {t('admin.payments.history_title')}
@@ -371,7 +371,7 @@ export default function AdminPaymentsTab() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {links.map(link => (
                 <tr key={link._id} className="table-row-floating hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition-all">
-                  <td className="p-4 font-mono text-[10px] text-slate-500 dark:text-slate-400">
+                  <td className="p-4 font-mono text-[10px] text-muted-foreground">
                     {link?.customLinkId || 'N/A'}
                   </td>
                   <td className="p-4 font-bold text-primary dark:text-indigo-400">

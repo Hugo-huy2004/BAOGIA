@@ -138,7 +138,7 @@ function PackageCard({ name, duration, durationUnit, benefits, color, startLabel
           {formattedBenefits.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-left">
               {formattedBenefits.map((benefit, i) => (
-                <div key={i} className="flex gap-2.5 items-start p-3 rounded-xl bg-white dark:bg-[#1a1924]/60 border border-zinc-200/50 dark:border-zinc-800/40 transition-all hover:scale-[1.01] hover:border-zinc-300 dark:hover:border-zinc-700">
+                <div key={i} className="flex gap-2.5 items-start p-3 rounded-xl bg-white dark:bg-card/60 border border-zinc-200/50 dark:border-zinc-800/40 transition-all hover:scale-[1.01] hover:border-zinc-300 dark:hover:border-zinc-700">
                   <span className="material-symbols-outlined text-xs mt-0.5 shrink-0" style={{ color }}>check_circle</span>
                   <p className="text-[10px] font-bold text-zinc-700 dark:text-zinc-350 leading-relaxed">{benefit}</p>
                 </div>
@@ -181,7 +181,7 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
       {/* Header */}
       <div className="space-y-1 text-left">
         <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-          <span className="material-symbols-outlined text-base text-[#0071e3]">wallet</span>{t("memberTabs.manage.ownedPackagesTitle")}</h2>
+          <span className="material-symbols-outlined text-base text-primary">wallet</span>{t("memberTabs.manage.ownedPackagesTitle")}</h2>
         <p className="text-[10px] text-zinc-455 dark:text-zinc-400">{t("memberTabs.manage.ownedPackagesDesc")}</p>
       </div>
 
@@ -244,10 +244,10 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
       </div>
 
       {/* Public Link Card */}
-      <div className="bg-white/60 dark:bg-[#1a1924]/60 backdrop-blur-xl rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 space-y-4">
+      <div className="bg-white/60 dark:bg-card/60 backdrop-blur-xl rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 space-y-4">
         <div className="space-y-1 text-left">
           <h4 className="text-[11px] font-black text-zinc-800 dark:text-white uppercase tracking-widest flex items-center gap-2">
-            <span className="material-symbols-outlined text-sm text-[#0071e3]">link</span>
+            <span className="material-symbols-outlined text-sm text-primary">link</span>
             {t("memberTabs.manage.publicLinkTitle")}
           </h4>
           <p className="text-[9.5px] text-zinc-450 dark:text-zinc-400">{t("memberTabs.manage.publicLinkDesc")}</p>

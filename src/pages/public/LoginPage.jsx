@@ -192,7 +192,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4 py-12 text-slate-800 dark:text-slate-100">
+    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4 py-12 text-foreground">
       <style>{`
         @keyframes slideInDown {
           0% { transform: translate(-50%, -120%); opacity: 0; }
@@ -205,7 +205,7 @@ export default function LoginPage() {
 
       {/* Floating Toast Notification */}
       {toast.message && (
-        <div className={`fixed top-6 left-1/2 z-50 animate-toast-in flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-[#161420] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] md:max-w-md w-[calc(100vw-32px)] border-2 transition-all ${
+        <div className={`fixed top-6 left-1/2 z-50 animate-toast-in flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-background shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] md:max-w-md w-[calc(100vw-32px)] border-2 transition-all ${
           toast.type === "success" 
             ? "border-emerald-500 dark:border-emerald-600" 
             : toast.type === "warning"
@@ -221,7 +221,7 @@ export default function LoginPage() {
           }`}>
             {toast.type === "success" ? "check_circle" : toast.type === "warning" ? "warning" : "error"}
           </span>
-          <div className="flex-1 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug">
+          <div className="flex-1 text-xs sm:text-sm font-semibold text-foreground leading-snug">
             {toast.message}
           </div>
           <button 
@@ -236,8 +236,8 @@ export default function LoginPage() {
 
       <section className="w-full max-w-md space-y-6 relative">
         {/* Decorative background glows */}
-        <div className="absolute -top-24 -left-20 w-72 h-72 rounded-full bg-[#6366f1]/8 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-[#0ea5e9]/8 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -left-20 w-72 h-72 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-accent/8 blur-3xl pointer-events-none" />
 
         <div className="text-center relative z-10 space-y-2">
           {/* Multi-colored logo */}
@@ -255,7 +255,7 @@ export default function LoginPage() {
             <span style={{ color: "#0EA5E9" }}>o</span>
           </div>
 
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white transition-all">
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground transition-all">
             {activeMode === "customer" ? t("loginPage.header.titleCustomer") : activeMode === "member" ? t("loginPage.header.titleMember") : t("loginPage.header.titleAdmin")}
           </h1>
           <p className="text-xs text-slate-400 dark:text-slate-400 font-medium">
@@ -277,7 +277,7 @@ export default function LoginPage() {
             return (
               <>
                 <div 
-                  className="absolute top-1 bottom-1 bg-white dark:bg-[#181720] rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                  className="absolute top-1 bottom-1 bg-white dark:bg-card rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
                   style={{
                     left: `calc(${activeIndex * tabWidth}% + 4px)`,
                     width: `calc(${tabWidth}% - 8px)`
@@ -291,7 +291,7 @@ export default function LoginPage() {
                     onClick={() => setActiveMode(tab.id)}
                     className={`flex-1 py-2 text-[10px] sm:text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
                       activeMode === tab.id
-                        ? "text-slate-900 dark:text-white"
+                        ? "text-foreground"
                         : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                     }`}
                   >
@@ -304,24 +304,24 @@ export default function LoginPage() {
         </div>
 
         {/* Minimalist Apple Glass Card */}
-        <div className="relative z-10 bg-white/70 dark:bg-[#111016]/80 backdrop-blur-2xl border border-slate-200/50 dark:border-white/10 p-6 sm:p-8 rounded-3xl shadow-xl transition-all">
+        <div className="relative z-10 bg-white/70 dark:bg-background/80 backdrop-blur-2xl border border-border/50 p-6 sm:p-8 rounded-3xl shadow-xl transition-all">
           {activeMode === "customer" ? (
             <form key="form-customer" onSubmit={handleCustomerLogin} className="space-y-6">
               <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">{t("loginPage.customerForm.title")}</h2>
+                <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.customerForm.title")}</h2>
                 <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed">{t("loginPage.customerForm.desc")}</p>
               </div>
 
               <div className="space-y-4 pt-2">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1 text-center">{t("loginPage.customerForm.codeLabel")}</label>
+                  <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1 text-center">{t("loginPage.customerForm.codeLabel")}</label>
                   <input
                     type="text"
                     maxLength={6}
                     value={customerCode}
                     onChange={(e) => setCustomerCode(e.target.value.toUpperCase())}
                     placeholder={t("loginPage.customerForm.codePlaceholder")}
-                    className="w-full px-4 py-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-lg uppercase font-mono tracking-[0.5em] font-bold text-center"
+                    className="w-full px-4 py-4 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-lg uppercase font-mono tracking-[0.5em] font-bold text-center"
                   />
                 </div>
                 <button
@@ -343,7 +343,7 @@ export default function LoginPage() {
           ) : activeMode === "member" ? (
             <form key="form-member" onSubmit={handleMemberLogin} className="space-y-6">
               <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">{t("loginPage.memberForm.title")}</h2>
+                <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.memberForm.title")}</h2>
                 <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed">{t("loginPage.memberForm.desc")}</p>
               </div>
 
@@ -360,10 +360,10 @@ export default function LoginPage() {
               </p>
 
               {/* Apple-style Educational Disclaimer Card */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 text-[11px] text-slate-500 dark:text-slate-400 flex gap-3 text-left leading-relaxed mt-2">
-                <span className="material-symbols-outlined text-[#0071e3] dark:text-[#60a5fa] shrink-0 text-lg mt-0.5 select-none">school</span>
+              <div className="p-4 rounded-2xl bg-muted/50 border border-border/50 text-[11px] text-muted-foreground flex gap-3 text-left leading-relaxed mt-2">
+                <span className="material-symbols-outlined text-primary dark:text-[#60a5fa] shrink-0 text-lg mt-0.5 select-none">school</span>
                 <div>
-                  <span className="font-bold text-slate-800 dark:text-white block mb-0.5">{t("loginPage.memberForm.reqTitle")}</span>
+                  <span className="font-bold text-foreground block mb-0.5">{t("loginPage.memberForm.reqTitle")}</span>
                   {t("loginPage.memberForm.reqDesc")}
                 </div>
               </div>
@@ -371,29 +371,29 @@ export default function LoginPage() {
           ) : (
             <form key="form-admin" onSubmit={handleAdminLogin} className="space-y-5">
               <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-slate-800 dark:text-white">{t("loginPage.adminForm.title")}</h2>
+                <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.adminForm.title")}</h2>
                 <p className="text-[11px] text-slate-400 dark:text-slate-400">{t("loginPage.adminForm.desc")}</p>
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1">{t("loginPage.adminForm.userLabel")}</label>
+                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1">{t("loginPage.adminForm.userLabel")}</label>
                 <input
                   type="text"
                   value={adminForm.username}
                   onChange={(e) => setAdminForm((prev) => ({ ...prev, username: e.target.value }))}
                   placeholder={t("loginPage.adminForm.userPlaceholder")}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
+                  className="w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1">{t("loginPage.adminForm.passLabel")}</label>
+                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1">{t("loginPage.adminForm.passLabel")}</label>
                 <input
                   type="password"
                   value={adminForm.password}
                   onChange={(e) => setAdminForm((prev) => ({ ...prev, password: e.target.value }))}
                   placeholder={t("loginPage.adminForm.passPlaceholder")}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/25 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
+                  className="w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-[#6366f1] dark:focus:ring-[#a5b4fc] transition-all text-xs"
                 />
               </div>
 

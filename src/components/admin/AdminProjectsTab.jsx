@@ -145,7 +145,7 @@ export default function AdminProjectsTab({ showNotification }) {
     <div className="animate-fadeIn">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Create Form */}
-        <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-background rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-base">add_business</span>
             Thêm Khách Hàng Mới
@@ -183,17 +183,17 @@ export default function AdminProjectsTab({ showNotification }) {
         </div>
 
         {/* Project List */}
-        <div className="bg-white dark:bg-[#12111a] rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-full min-h-[600px]">
+        <div className="bg-white dark:bg-background rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-full min-h-[600px]">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-4 shrink-0">
             <span className="material-symbols-outlined text-emerald-500 text-base">view_list</span>
             Danh Sách Khách Hàng
           </h3>
           <div className="flex-1 space-y-3 overflow-y-auto pr-2">
             {currentProjects.map(p => (
-              <div key={p._id} onClick={() => handleOpenDetail(p)} className="cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 p-4 rounded-md border border-slate-200 dark:border-white/5 transition-colors relative group">
+              <div key={p._id} onClick={() => handleOpenDetail(p)} className="cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 p-4 rounded-md border border-border/50 transition-colors relative group">
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2">
+                    <div className="font-bold text-sm text-foreground flex items-center gap-2">
                       {p.fullName}
                       {p.unreadCount > 0 && (
                         <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
@@ -249,7 +249,7 @@ export default function AdminProjectsTab({ showNotification }) {
                   className={`w-8 h-8 flex items-center justify-center rounded-md border text-xs font-bold transition-colors ${
                     currentPage === idx + 1 
                       ? 'border-indigo-600 bg-indigo-600 text-white' 
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-muted-foreground hover:bg-slate-50 dark:hover:bg-slate-700'
                   }`}
                 >
                   {idx + 1}
@@ -271,13 +271,13 @@ export default function AdminProjectsTab({ showNotification }) {
       {/* Delete Confirmation Modal */}
       {deleteTarget && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-[#161420] w-full max-w-sm rounded-md p-6 shadow-2xl border border-slate-200 dark:border-slate-800 transform transition-all scale-100">
+          <div className="bg-white dark:bg-background w-full max-w-sm rounded-md p-6 shadow-2xl border border-slate-200 dark:border-slate-800 transform transition-all scale-100">
             <div className="flex flex-col items-center text-center space-y-3 mb-6">
               <div className="w-14 h-14 bg-rose-100 dark:bg-rose-900/30 text-rose-500 dark:text-rose-400 rounded-full flex items-center justify-center mb-1">
                 <span className="material-symbols-outlined text-3xl">warning</span>
               </div>
-              <h3 className="text-lg font-black text-slate-800 dark:text-white">{t("adminProjects.tab.deleteTitle")}</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 px-2 leading-relaxed">
+              <h3 className="text-lg font-black text-foreground">{t("adminProjects.tab.deleteTitle")}</h3>
+              <p className="text-xs text-muted-foreground px-2 leading-relaxed">
                 {t("adminProjects.tab.deleteDesc")} <strong className="text-slate-700 dark:text-slate-300">{deleteTarget.fullName}</strong>. Bao gồm dự án, mã đăng nhập và toàn bộ tin nhắn. 
                 <span className="block mt-1 text-rose-500 font-semibold">{t("adminProjects.tab.deleteWarn")}</span>
               </p>
@@ -293,7 +293,7 @@ export default function AdminProjectsTab({ showNotification }) {
                   placeholder={t("adminProjects.tab.deletePassPlaceholder")}
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 transition-all dark:text-white placeholder-slate-400"
+                  className="w-full bg-slate-50 dark:bg-black/20 border border-border/50 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 transition-all dark:text-white placeholder-slate-400"
                 />
                 {deleteError && (
                   <p className="text-[11px] text-rose-500 font-medium pl-1 animate-fadeIn">{deleteError}</p>

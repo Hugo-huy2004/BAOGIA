@@ -101,7 +101,7 @@ export default function AdminUtilityStoreTab() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fadeIn">
       <div className="lg:col-span-5 space-y-6">
-        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+        <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
             <span className="material-symbols-outlined text-amber-500 text-base">{editingId ? 'edit' : 'add_box'}</span>
             {editingId ? t('adminTabs.utilityStore.editTitle') : t('adminTabs.utilityStore.createTitle')}
@@ -188,9 +188,9 @@ export default function AdminUtilityStoreTab() {
       </div>
 
       <div className="lg:col-span-7 space-y-6">
-        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">storefront</span>
+            <span className="material-symbols-outlined text-muted-foreground text-base">storefront</span>
             {t('adminTabs.utilityStore.listTitle')} ({products.length})
           </h3>
           {loading ? (
@@ -204,7 +204,7 @@ export default function AdminUtilityStoreTab() {
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="material-symbols-outlined text-amber-500 text-base shrink-0">{p.icon || 'redeem'}</span>
-                      <h4 className="font-bold text-xs text-slate-800 dark:text-white truncate">{p.name}</h4>
+                      <h4 className="font-bold text-xs text-foreground truncate">{p.name}</h4>
                     </div>
                     <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${p.active ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30' : 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800'}`}>
                       {p.active ? t('adminTabs.utilityStore.active') : t('adminTabs.utilityStore.inactive')}
@@ -232,9 +232,9 @@ export default function AdminUtilityStoreTab() {
           )}
         </div>
 
-        <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
+        <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base">receipt_long</span>
+            <span className="material-symbols-outlined text-muted-foreground text-base">receipt_long</span>
             {t('adminTabs.utilityStore.ordersTitle')} ({orders.length})
           </h3>
           {orders.length === 0 ? (
@@ -242,7 +242,7 @@ export default function AdminUtilityStoreTab() {
           ) : (
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {orders.map(o => (
-                <div key={o._id} className="flex items-center justify-between p-3 bg-zinc-50/50 dark:bg-[#1c1c1e] rounded-xl border border-zinc-200/50 dark:border-zinc-800/60">
+                <div key={o._id} className="flex items-center justify-between p-3 bg-zinc-50/50 dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60">
                   <div className="min-w-0">
                     <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 block truncate">{o.productName}</span>
                     <span className="text-[9px] text-zinc-400">{o.email} · {o.purchaseCode}</span>

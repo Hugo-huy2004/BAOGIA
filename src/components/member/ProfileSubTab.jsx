@@ -18,11 +18,11 @@ export default function ProfileSubTab({
   return (
     <div className="space-y-4 animate-fadeIn">
       {/* Section: Avatar Editor */}
-      <div className="space-y-2 text-center py-4 bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+      <div className="space-y-2 text-center py-4 bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
         <div
           className={`relative w-20 h-20 rounded-full border shadow-md bg-zinc-100 dark:bg-zinc-900 mx-auto flex items-center justify-center overflow-hidden group cursor-pointer transition-all duration-200 ${
             isDragOver
-              ? "border-2 border-dashed border-[#0071e3] scale-105 bg-blue-50/10 dark:bg-blue-900/10"
+              ? "border-2 border-dashed border-primary scale-105 bg-blue-50/10 dark:bg-blue-900/10"
               : "border-zinc-200 dark:border-zinc-800"
           }`}
           onClick={() => !saving && avatarInputRef.current.click()}
@@ -82,10 +82,10 @@ export default function ProfileSubTab({
       {/* Section A: Basic settings */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.basicInfo")}</h3>
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Display name */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-primary">
               <span className="material-symbols-outlined text-base">person</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.fullName")}</label>
@@ -96,7 +96,7 @@ export default function ProfileSubTab({
               onChange={handleFieldChange}
               required
               placeholder={t("memberPortal.bio.placeholderName")}
-              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+              className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
             />
           </div>
 
@@ -112,7 +112,7 @@ export default function ProfileSubTab({
               value={formData.headline}
               onChange={handleFieldChange}
               placeholder="Designer, Web Architect, Developer..."
-              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+              className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
             />
           </div>
 
@@ -128,7 +128,7 @@ export default function ProfileSubTab({
               value={formData.birthday}
               onChange={handleFieldChange}
               placeholder={t("memberPortal.bio.placeholderBirthday")}
-              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+              className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
             />
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function ProfileSubTab({
       {/* Section B: Contact settings */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.contactInfo")}</h3>
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Read-only email */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px] bg-zinc-50/50 dark:bg-zinc-900/10">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#34c759]">
@@ -150,7 +150,7 @@ export default function ProfileSubTab({
               <span className="text-xs font-semibold text-zinc-500">
                 {memberSession?.email || "-"}
               </span>
-              <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[#34c759]/10 border border-[#34c759]/20 text-[9px] font-bold text-[#34c759] shrink-0">
+              <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[#34c759]/10 border border-[#34c759]/20 text-[9px] font-bold text-emerald-500 shrink-0">
                 <span className="material-symbols-outlined text-[10px]">verified</span>
                 Student verified
               </div>
@@ -169,13 +169,13 @@ export default function ProfileSubTab({
               value={formData.phone}
               onChange={handleFieldChange}
               placeholder={t("memberPortal.bio.placeholderPhone")}
-              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+              className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
             />
           </div>
 
           {/* Contact Email */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#0071e3]">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-primary">
               <span className="material-symbols-outlined text-base">alternate_email</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.email")}</label>
@@ -185,7 +185,7 @@ export default function ProfileSubTab({
               value={formData.contactEmail}
               onChange={handleFieldChange}
               placeholder={t("memberPortal.bio.placeholderEmail")}
-              className="w-full bg-transparent text-[#1d1d1f] dark:text-[#f5f5f7] placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
+              className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold"
             />
           </div>
         </div>

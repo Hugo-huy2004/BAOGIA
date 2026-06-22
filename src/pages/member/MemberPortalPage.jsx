@@ -519,9 +519,9 @@ export default function MemberPortalPage() {
   // ── Loading screen ────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-[#f5f5f7] dark:bg-[#000000]">
+      <div className="min-h-[60vh] flex items-center justify-center bg-background dark:bg-background">
         <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-2 border-[#0071e3] border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-[10px] text-zinc-450 font-bold uppercase tracking-widest">{t("memberPortal.loadingConfig")}</p>
         </div>
       </div>
@@ -535,20 +535,20 @@ export default function MemberPortalPage() {
 
   if (isFullscreenUtility) {
     return (
-      <div className="fixed inset-0 z-[120] w-screen h-screen bg-[#f5f5f7] dark:bg-[#000000] overflow-hidden flex flex-col font-body">
+      <div className="fixed inset-0 z-[120] w-screen h-screen bg-background dark:bg-background overflow-hidden flex flex-col font-body">
         {/* Toast */}
         <AnimatePresence>
           {toast.message && (
             <motion.div key="toast"
               initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }}
               transition={{ type:"spring", stiffness:400, damping:28 }}
-              className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl shadow-2xl border border-zinc-200/60 dark:border-zinc-800/80 max-w-md mx-auto"
+              className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-card/95 backdrop-blur-xl shadow-2xl border border-border/50 max-w-md mx-auto"
               style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}
             >
-              <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-[#34c759]":toast.type==="warning"?"text-[#ff9500]":"text-[#ff3b30]"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
+              <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-emerald-500":toast.type==="warning"?"text-amber-500":"text-rose-500"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
                 {toast.type==="success"?"check_circle":toast.type==="warning"?"warning":"error"}
               </span>
-              <p className="flex-1 text-[11px] sm:text-xs font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] leading-relaxed">{toast.message}</p>
+              <p className="flex-1 text-[11px] sm:text-xs font-semibold text-foreground leading-relaxed">{toast.message}</p>
               <button type="button" onClick={()=>setToast({message:"",type:""})} className="text-zinc-400 hover:text-zinc-600 shrink-0 transition-colors">
                 <span className="material-symbols-outlined text-base">close</span>
               </button>
@@ -593,7 +593,7 @@ export default function MemberPortalPage() {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] font-body selection:bg-[#0071e3]/20 transition-colors duration-300">
+    <div className="min-h-screen bg-background dark:bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
 
       <HealingModal
         showModal={healing.showModal} subStep={healing.subStep} state={healing.state}
@@ -612,13 +612,13 @@ export default function MemberPortalPage() {
           <motion.div key="toast"
             initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }}
             transition={{ type:"spring", stiffness:400, damping:28 }}
-            className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-[#1c1c1e]/95 backdrop-blur-xl shadow-2xl border border-zinc-200/60 dark:border-zinc-800/80 max-w-md mx-auto"
+            className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-card/95 backdrop-blur-xl shadow-2xl border border-border/50 max-w-md mx-auto"
             style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}
           >
-            <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-[#34c759]":toast.type==="warning"?"text-[#ff9500]":"text-[#ff3b30]"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
+            <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-emerald-500":toast.type==="warning"?"text-amber-500":"text-rose-500"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
               {toast.type==="success"?"check_circle":toast.type==="warning"?"warning":"error"}
             </span>
-            <p className="flex-1 text-[11px] sm:text-xs font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] leading-relaxed">{toast.message}</p>
+            <p className="flex-1 text-[11px] sm:text-xs font-semibold text-foreground leading-relaxed">{toast.message}</p>
             <button type="button" onClick={()=>setToast({message:"",type:""})} className="text-zinc-400 hover:text-zinc-600 shrink-0 transition-colors">
               <span className="material-symbols-outlined text-base">close</span>
             </button>
@@ -663,13 +663,13 @@ export default function MemberPortalPage() {
                 ) : null}
                 {activeTab === 'account' && !mobileSubSection && (
                   <div className="md:hidden flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[#0071e3] dark:text-[#0a84ff] text-base" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
+                    <span className="material-symbols-outlined text-primary dark:text-primary text-base" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
                     <span className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-800 dark:text-zinc-200">{t("memberPortal.tabs.bio").toUpperCase()}</span>
                   </div>
                 )}
                 <div className={`${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''}`}>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-[#0071e3] dark:text-[#0a84ff]">
+                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-primary dark:text-primary">
                       {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
                     </span>
                     {bio?.status && !isGuestMode && <StatusBadge status={bio.status} />}
@@ -693,7 +693,7 @@ export default function MemberPortalPage() {
               ) : (
                 <button type="button" onClick={() => onTabClick({ id: "joy" })}
                   className="hidden sm:flex items-center px-2.5 py-1.5 rounded-full border border-amber-200/60 dark:border-amber-900/30 bg-amber-500/5 hover:bg-amber-500/10 transition-all duration-200">
-                  <JoyCoinBadge amount={joyBalance} size="sm" />
+                  <JoyCoinBadge size="sm" />
                 </button>
               )}
             </div>
@@ -773,7 +773,7 @@ export default function MemberPortalPage() {
                               return (
                                 <button id={`account-sec-${tab.id}`} key={tab.id} type="button" onClick={() => navigate(`/member/account/${tab.id}`)}
                                   className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider transition-all duration-200 border ${
-                                    active ? "bg-[#0071e3] border-[#0071e3] text-white shadow-md shadow-[#0071e3]/10 translate-x-1" : "bg-white dark:bg-[#1c1c1e] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border-zinc-200 dark:border-zinc-800/60"
+                                    active ? "bg-primary border-primary text-white shadow-md shadow-primary/10 translate-x-1" : "bg-white dark:bg-card text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 border-border"
                                   }`}>
                                   <span className="material-symbols-outlined text-base shrink-0" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
                                   <span className="truncate">{tab.label}</span>
@@ -818,7 +818,7 @@ export default function MemberPortalPage() {
                             </div>
                           </div>
                           {/* Form content */}
-                          <div className="bg-white dark:bg-[#12111a] rounded-2xl border border-zinc-200/50 dark:border-zinc-800/80 p-5 shadow-sm">
+                          <div className="bg-white dark:bg-background rounded-2xl border border-border/50 p-5 shadow-sm">
                             {renderAccountForm(mobileSubSection)}
                           </div>
                           {/* Save button */}
@@ -834,7 +834,7 @@ export default function MemberPortalPage() {
                         /* ── Section overview ── */
                         <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
                           {/* Profile hero card */}
-                          <div className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-zinc-50 dark:from-[#13121f] dark:via-[#1e1c2a] dark:to-[#13121f] border border-zinc-200/50 dark:border-[#2e2b3d]/60 shadow-xl">
+                          <div className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-zinc-50 dark:from-[#13121f] dark:via-[#1e1c2a] dark:to-[#13121f] border border-border/50 shadow-xl">
                             {/* Mesh background glows for dark mode */}
                             <div className="absolute -top-16 -right-16 w-36 h-36 bg-gradient-to-br from-[#0071e3]/10 to-transparent rounded-full filter blur-2xl pointer-events-none opacity-0 dark:opacity-100" />
                             <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-gradient-to-br from-[#af52de]/10 to-transparent rounded-full filter blur-2xl pointer-events-none opacity-0 dark:opacity-100" />
@@ -855,7 +855,7 @@ export default function MemberPortalPage() {
                                   {!isGuestMode && (
                                     <button type="button" onClick={() => onTabClick({ id: "joy" })}
                                       className="inline-flex items-center px-2 py-1 rounded-full border border-amber-200/60 dark:border-amber-900/30 bg-amber-500/5 active:scale-95 transition-all">
-                                      <JoyCoinBadge amount={joyBalance} size="sm" />
+                                      <JoyCoinBadge size="sm" />
                                     </button>
                                   )}
                                 </div>
@@ -938,7 +938,7 @@ export default function MemberPortalPage() {
                                     key={sec.id}
                                     type="button"
                                     onClick={() => navigate(`/member/account/${sec.id}`)}
-                                    className="col-span-2 bg-white dark:bg-[#1a1924]/60 border border-zinc-200/50 dark:border-zinc-800/80 rounded-2xl p-4 text-left active:scale-[0.97] transition-all duration-155 shadow-sm hover:shadow-md flex items-center justify-between gap-4 min-h-[90px]"
+                                    className="col-span-2 bg-white dark:bg-card/60 border border-border/50 rounded-2xl p-4 text-left active:scale-[0.97] transition-all duration-155 shadow-sm hover:shadow-md flex items-center justify-between gap-4 min-h-[90px]"
                                   >
                                     <div className="flex items-center gap-3.5 flex-1 min-w-0">
                                       <div className={`w-12 h-12 rounded-2xl ${iconGradients[sec.id]} flex items-center justify-center shadow-md shrink-0`}>
@@ -969,7 +969,7 @@ export default function MemberPortalPage() {
                                   key={sec.id}
                                   type="button"
                                   onClick={() => navigate(`/member/account/${sec.id}`)}
-                                  className="bg-white dark:bg-[#1a1924]/60 border border-zinc-200/50 dark:border-zinc-800/80 rounded-2xl p-4 text-left active:scale-[0.96] transition-all duration-155 shadow-sm hover:shadow-md flex flex-col justify-between min-h-[125px]"
+                                  className="bg-white dark:bg-card/60 border border-border/50 rounded-2xl p-4 text-left active:scale-[0.96] transition-all duration-155 shadow-sm hover:shadow-md flex flex-col justify-between min-h-[125px]"
                                 >
                                   <div className="flex items-start justify-between w-full">
                                     <div className={`w-10 h-10 rounded-xl ${iconGradients[sec.id] || "bg-zinc-50 text-zinc-700"} flex items-center justify-center shadow-md`}>
@@ -1050,7 +1050,7 @@ export default function MemberPortalPage() {
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
       {bio?.status !== 'pending' && (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-white/85 dark:bg-[#111]/85 backdrop-blur-2xl backdrop-saturate-200 border-t border-zinc-200/40 dark:border-zinc-800/30 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
+        <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden glass border-t border-zinc-200/40 dark:border-zinc-800/30 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)', paddingTop: '10px' }}>
           <div className="flex justify-around px-2">
             {mobileTabs.map(tab => {
@@ -1060,15 +1060,15 @@ export default function MemberPortalPage() {
                   className="flex flex-col items-center justify-center gap-0.5 flex-1 relative py-1 px-1 transition-colors duration-200">
                   {/* Active pill indicator */}
                   {isActive && (
-                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#0071e3] dark:bg-[#0a84ff] rounded-full" />
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary dark:bg-primary rounded-full" />
                   )}
                   <span
-                    className={`material-symbols-outlined transition-all duration-200 ${isActive ? 'text-[#0071e3] dark:text-[#0a84ff] text-2xl' : 'text-zinc-400 dark:text-zinc-500 text-[22px]'}`}
+                    className={`material-symbols-outlined transition-all duration-200 ${isActive ? 'text-primary dark:text-primary text-2xl' : 'text-zinc-400 dark:text-zinc-500 text-[22px]'}`}
                     style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 500" : "'FILL' 0, 'wght' 400" }}
                   >
                     {tab.icon}
                   </span>
-                  <span className={`text-[9px] font-bold tracking-wide truncate max-w-full transition-colors duration-200 ${isActive ? 'text-[#0071e3] dark:text-[#0a84ff]' : 'text-zinc-400 dark:text-zinc-500'}`}>
+                  <span className={`text-[9px] font-bold tracking-wide truncate max-w-full transition-colors duration-200 ${isActive ? 'text-primary dark:text-primary' : 'text-zinc-400 dark:text-zinc-500'}`}>
                     {tab.label}
                   </span>
                   {tab.id === "history" && unreadHistoryCount > 0 && (

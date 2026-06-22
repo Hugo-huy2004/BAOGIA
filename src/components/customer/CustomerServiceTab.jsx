@@ -26,19 +26,19 @@ export default function CustomerServiceTab({ project }) {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Handler Info */}
-      <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-background rounded-xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Dự án đang thực hiện</h2>
-          <div className="text-lg font-black text-slate-800 dark:text-white font-display">{project.servicePackage}</div>
+          <div className="text-lg font-black text-foreground font-display">{project.servicePackage}</div>
         </div>
         
-        <div className="flex items-center gap-4 bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/5">
+        <div className="flex items-center gap-4 bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-border/50">
           <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
             <span className="material-symbols-outlined text-2xl">support_agent</span>
           </div>
           <div>
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Người xử lý / Quản lý dự án</div>
-            <div className="font-bold text-slate-800 dark:text-white mt-0.5">{project.handlerName || 'Đang cập nhật'}</div>
+            <div className="font-bold text-foreground mt-0.5">{project.handlerName || 'Đang cập nhật'}</div>
             {project.handlerPhone && (
               <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px]">call</span>
@@ -50,8 +50,8 @@ export default function CustomerServiceTab({ project }) {
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-white dark:bg-[#12111a] rounded-xl p-6 md:p-8 border border-slate-200 dark:border-slate-800/80 shadow-sm relative overflow-hidden">
-        <h3 className="font-bold text-slate-800 dark:text-white mb-8 flex items-center gap-2">
+      <div className="bg-white dark:bg-background rounded-xl p-6 md:p-8 border border-slate-200 dark:border-slate-800/80 shadow-sm relative overflow-hidden">
+        <h3 className="font-bold text-foreground mb-8 flex items-center gap-2">
           <span className="material-symbols-outlined text-indigo-500">route</span>
           Tiến Trình Dự Án
         </h3>

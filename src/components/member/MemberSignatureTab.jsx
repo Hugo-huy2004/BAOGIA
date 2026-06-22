@@ -116,7 +116,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast, onBack 
   };
 
   return (
-    <div className="bg-white dark:bg-[#12111a] rounded-[2rem] p-6 lg:p-8 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-8">
+    <div className="bg-white dark:bg-background rounded-[2rem] p-6 lg:p-8 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-8">
       <SubUtilityHeader 
         title={t("utilities.signature.title")} 
         icon="signature" 

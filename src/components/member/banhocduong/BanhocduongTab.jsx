@@ -14,10 +14,10 @@ import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTime
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
-  { id: 'chat',       label: 'Tâm Sự',    icon: 'psychology_alt', grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-[#0071e3]/10 text-[#0071e3] dark:text-[#0a84ff]',   dot: 'bg-[#0071e3] dark:bg-[#0a84ff]'   },
-  { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-[#0071e3]/10 text-[#0071e3] dark:text-[#0a84ff]',   dot: 'bg-[#0071e3] dark:bg-[#0a84ff]'   },
-  { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-[#0071e3]/10 text-[#0071e3] dark:text-[#0a84ff]',   dot: 'bg-[#0071e3] dark:bg-[#0a84ff]'   },
-  { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-[#0071e3]/10 text-[#0071e3] dark:text-[#0a84ff]',   dot: 'bg-[#0071e3] dark:bg-[#0a84ff]'   },
+  { id: 'chat',       label: 'Tâm Sự',    icon: 'psychology_alt', grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary dark:text-primary',   dot: 'bg-primary dark:bg-primary'   },
+  { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary dark:text-primary',   dot: 'bg-primary dark:bg-primary'   },
+  { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary dark:text-primary',   dot: 'bg-primary dark:bg-primary'   },
+  { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary dark:text-primary',   dot: 'bg-primary dark:bg-primary'   },
 ];
 
 // ── Helper: count qualified therapy activities ─────────────────────────────────
@@ -250,7 +250,7 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
       <motion.div
         initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 340, damping: 32 }}
-        className="bg-white dark:bg-[#1c1c1e] rounded-t-3xl md:rounded-2xl w-full md:w-[400px] shadow-2xl border-t border-zinc-200/50 dark:border-zinc-800/50 overflow-hidden"
+        className="bg-white dark:bg-card rounded-t-3xl md:rounded-2xl w-full md:w-[400px] shadow-2xl border-t border-zinc-200/50 dark:border-zinc-800/50 overflow-hidden"
         style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
       >
         {/* Drag handle */}
@@ -277,7 +277,7 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
           <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl p-4 space-y-3">
             <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">{t("companion.tab.aiLimitToday", "Giới hạn AI hôm nay")}</p>
             {[
-              { label: t('companion.tab.limitChat', 'Cuộc trò chuyện'), left: chatLeft, max: chatMax, color: 'bg-[#0071e3]', low: chatLeft < 4 },
+              { label: t('companion.tab.limitChat', 'Cuộc trò chuyện'), left: chatLeft, max: chatMax, color: 'bg-primary', low: chatLeft < 4 },
             ].map(item => (
               <div key={item.label} className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-bold">
@@ -316,7 +316,7 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
                 notifStatus === 'granted'   ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' :
                 notifStatus === 'denied'    ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400' :
                 notifStatus === 'unsupported' ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400' :
-                'bg-[#0071e3] text-white shadow-sm shadow-[#0071e3]/20'
+                'bg-primary text-white shadow-sm shadow-primary/20'
               }`}
               disabled={notifStatus === 'denied' || notifStatus === 'unsupported'}
             >
@@ -596,7 +596,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                 className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 relative font-bold border text-[11px] ${
                   active
                     ? 'bg-gradient-to-r from-blue-500/15 to-indigo-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25 dark:border-blue-500/30 shadow-sm shadow-blue-500/5 backdrop-blur-md'
-                    : 'bg-white/40 dark:bg-[#12111a]/20 border-zinc-200/40 dark:border-zinc-800/30 text-zinc-500 dark:text-zinc-400 hover:bg-white/80 dark:hover:bg-[#1a1924]/40 hover:text-zinc-700 dark:hover:text-zinc-200'
+                    : 'bg-white/40 dark:bg-background/20 border-zinc-200/40 dark:border-zinc-800/30 text-zinc-500 dark:text-zinc-400 hover:bg-white/80 dark:hover:bg-[#1a1924]/40 hover:text-zinc-700 dark:hover:text-zinc-200'
                 }`}
               >
                 {active && (
@@ -614,7 +614,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         </aside>
 
         {/* Content area */}
-        <div className="flex-1 min-w-0 bg-white/80 dark:bg-[#12111a]/80 backdrop-blur-2xl rounded-3xl border border-zinc-200/40 dark:border-zinc-800/50 shadow-lg overflow-hidden flex flex-col relative">
+        <div className="flex-1 min-w-0 bg-white/80 dark:bg-background/80 backdrop-blur-2xl rounded-3xl border border-zinc-200/40 dark:border-zinc-800/50 shadow-lg overflow-hidden flex flex-col relative">
           {/* Subtle animated background */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
             <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-blue-400/10 dark:bg-blue-600/10 rounded-full blur-[80px]" />

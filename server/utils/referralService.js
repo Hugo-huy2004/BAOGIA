@@ -71,7 +71,7 @@ export async function applyReferral(bio, referrerCodeRaw) {
     throw new Error('Mã giới thiệu đã được áp dụng trước đó.');
   }
 
-  const referrer = await Bio.findOne({ referralCode });
+  const referrer = await Bio.findOne({ referralCode: referrerCode });
   if (!referrer) {
     throw new Error('Mã giới thiệu không hợp lệ.');
   }
