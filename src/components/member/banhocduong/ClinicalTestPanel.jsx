@@ -30,7 +30,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
   const percentProgress = ((currentQuestionIdx) / activeTest.questions.length) * 100;
 
   return (
-    <div className="space-y-5 pt-4 max-w-md mx-auto animate-scaleUp max-h-[460px] md:max-h-[500px] overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 pb-4">
+    <div className="space-y-5 pt-4 px-4 max-w-md mx-auto h-full animate-scaleUp overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 pb-4">
       <div className="text-center space-y-1.5">
         <div className="flex justify-between items-center px-1">
           <div className="flex items-center gap-2">

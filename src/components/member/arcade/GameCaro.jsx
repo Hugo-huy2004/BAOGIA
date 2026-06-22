@@ -263,14 +263,11 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
     : { win: "Cậu thắng! 🎉", lose: "AI thắng rồi, thử lại nhé!", draw: "Hòa! Bàn cờ đã đầy." }[status];
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
-      <p className="text-sm font-bold text-zinc-600 dark:text-zinc-300 flex items-center">
-        {statusText}
-        {thinking && <ThinkingDots />}
-      </p>
+    <div className="caro-shell flex flex-col items-center gap-4 w-full">
+      <div className="caro-status"><span className={`caro-turn-dot ${turn === PLAYER && status === "playing" ? "active" : ""}`} /><div><small>{thinking ? "ĐỐI THỦ" : "TRẠNG THÁI"}</small><strong>{statusText}</strong></div>{thinking && <ThinkingDots />}</div>
 
-      <div className="overflow-x-auto max-w-full">
-        <div className="inline-grid gap-[3px] bg-zinc-200 dark:bg-zinc-900 p-2.5 rounded-2xl" style={{ gridTemplateColumns: `repeat(${SIZE}, 2.4rem)` }}>
+      <div className="caro-board-wrap">
+        <div className="caro-board" style={{ gridTemplateColumns: `repeat(${SIZE}, 1fr)` }}>
           {board.map((row, r) =>
             row.map((cell, c) => {
               const isLast = lastMove && lastMove.r === r && lastMove.c === c;
@@ -279,21 +276,21 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
                   key={`${r}-${c}`}
                   onClick={() => handleCellClick(r, c)}
                   disabled={status !== "playing" || cell !== EMPTY || turn !== PLAYER}
-                  className={`w-[2.4rem] h-[2.4rem] flex items-center justify-center rounded-md text-lg font-black transition-colors disabled:cursor-default ${
+                  className={`caro-cell flex items-center justify-center font-black transition-colors disabled:cursor-default ${
                     isLast
-                      ? "bg-zinc-900/5 dark:bg-white/10 ring-2 ring-inset ring-zinc-400 dark:ring-zinc-500"
-                      : "bg-white dark:bg-[#12111a] hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                      ? "last-move"
+                      : ""
                   }`}
                 >
-                  {cell === PLAYER && <span className="text-blue-500 animate-scale-in">X</span>}
-                  {cell === AI && <span className="text-rose-500 animate-scale-in">O</span>}
+                  {cell === PLAYER && <span className="caro-x animate-scale-in">X</span>}
+                  {cell === AI && <span className="caro-o animate-scale-in">O</span>}
                 </button>
               );
             })
           )}
         </div>
       </div>
-      <p className="text-xs text-zinc-400 text-center">Xếp 5 quân X liên tiếp (ngang/dọc/chéo) để thắng AI</p>
+      <div className="caro-legend"><span><i className="x">X</i> Bạn</span><span><i className="o">O</i> Hugo AI</span><span><span className="material-symbols-outlined">target</span> Xếp 5 liên tiếp</span></div>
     </div>
   );
 }

@@ -49,19 +49,19 @@ export default function ArcadeGameFrame({ game, bio, children }) {
   };
 
   return (
-    <div className="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-[#12111a] p-5 md:p-6 shadow-sm w-full">
+    <div className="arcade-panel w-full">
       {stage === "select" && (
-        <div className="flex flex-col gap-5">
-          <div className="rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200/60 dark:border-zinc-800/60 p-4 md:p-5">
-            <p className="text-xs font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-2">Cách chơi</p>
-            <p className="text-sm text-zinc-700 dark:text-zinc-200 leading-relaxed">{HOW_TO_PLAY[game]?.rule}</p>
+        <div className="flex flex-col gap-4">
+          <div className="arcade-instruction">
+            <span className="arcade-instruction-icon"><span className="material-symbols-outlined">lightbulb</span></span>
+            <div><strong>Cách chơi</strong><p>{HOW_TO_PLAY[game]?.rule}</p></div>
           </div>
           <DifficultySelector game={game} onSelect={handleSelectDifficulty} />
         </div>
       )}
 
       {stage === "playing" && (
-        <div key={playKey} className="flex justify-center">
+        <div key={playKey} className="flex justify-center min-w-0">
           {children(difficulty, handleGameOver)}
         </div>
       )}

@@ -30,7 +30,9 @@ const JoyLedgerSchema = new mongoose.Schema({
       'daily_challenge',
       'arcade_score',
       'focus_session',
-      'aura_theme_rent'
+      'aura_theme_rent',
+      'joy_gift_sent',
+      'joy_gift_received'
     ],
     required: true
   },

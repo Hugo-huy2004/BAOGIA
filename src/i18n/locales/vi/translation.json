@@ -1295,7 +1295,9 @@
       "sections": {
         "wallet": "Ví",
         "store": "Cửa Hàng",
-        "history": "Lịch Sử"
+        "history": "Lịch Sử",
+        "send": "Gửi JOY",
+        "missions": "Nhiệm vụ"
       },
       "redeem": {
         "title": "Đổi mã quà tặng JOY",
@@ -1340,6 +1342,34 @@
         "confirmCancel": "Huỷ",
         "confirmButton": "Xác nhận mua",
         "confirmProcessing": "Đang xử lý..."
+      },
+      "send": {
+        "title": "Gửi JOY",
+        "subtitle": "Gửi JOY tới bạn bè bằng số điện thoại, giống chuyển tiền MoMo.",
+        "phoneLabel": "Số điện thoại người nhận",
+        "phonePlaceholder": "VD: 0901234567",
+        "lookupButton": "Tìm người nhận",
+        "notFound": "Không tìm thấy người dùng với số điện thoại này.",
+        "recipientLabel": "Gửi tới",
+        "amountLabel": "Số JOY muốn gửi",
+        "amountPlaceholder": "Tối đa 500 JOY/lần",
+        "feeNote": "Phí chống lạm dụng 5%: người nhận sẽ nhận {{net}} JOY (phí {{fee}} JOY).",
+        "dailyCapNote": "Giới hạn gửi 100 JOY/ngày.",
+        "confirmButton": "Xác nhận gửi",
+        "cancelButton": "Hủy",
+        "sending": "Đang gửi...",
+        "success": "Đã gửi {{net}} JOY tới {{name}}!",
+        "changeRecipient": "Đổi người nhận",
+        "ageGateHint": "Tài khoản cần đủ 3 ngày tuổi mới được gửi JOY."
+      },
+      "missions": {
+        "title": "Nhiệm vụ hôm nay",
+        "subtitle": "Hoàn thành nhiệm vụ nhỏ mỗi ngày để kiếm thêm JOY.",
+        "claimButton": "Nhận JOY",
+        "claimed": "Đã nhận",
+        "notDoneYet": "Chưa hoàn thành",
+        "claimSuccess": "+{{amount}} JOY!",
+        "empty": "Không thể tải nhiệm vụ lúc này."
       }
     },
     "checkin": {

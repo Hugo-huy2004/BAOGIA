@@ -2,9 +2,9 @@
 // values here are for the UI preview only — the server (arcadeRoutes.js's
 // REWARD_TABLE) is the source of truth and must be kept in sync if these change.
 export const DIFFICULTIES = [
-  { id: "easy", label: "Dễ", win: 5, lose: -2 },
-  { id: "medium", label: "Trung Bình", win: 10, lose: -3 },
-  { id: "hard", label: "Khó", win: 20, lose: -5 },
+  { id: "easy", label: "Khởi động", kicker: "Làm quen", icon: "local_fire_department", win: 12, lose: -1, description: "Nhẹ nhàng, phù hợp để làm quen luật chơi và tích lũy chuỗi thắng." },
+  { id: "medium", label: "Bứt phá", kicker: "Phổ biến", icon: "bolt", win: 25, lose: -2, description: "Nhịp độ cân bằng, cần tập trung và một chiến thuật rõ ràng." },
+  { id: "hard", label: "Huyền thoại", kicker: "Thử thách lớn", icon: "workspace_premium", win: 50, lose: -3, description: "Mục tiêu khắc nghiệt dành cho người muốn chinh phục bảng xếp hạng." },
 ];
 
 // Explicit (not template-literal) Tailwind class strings per tier — needed so
@@ -36,14 +36,14 @@ export const DIFFICULTY_STYLES = {
 export const HOW_TO_PLAY = {
   "2048": {
     rule: "Vuốt hoặc dùng phím mũi tên để trượt và gộp các ô cùng số. Gộp đủ để đạt ô mục tiêu trước khi bàn cờ đầy.",
-    objective: { easy: "Đạt ô 256", medium: "Đạt ô 512", hard: "Đạt ô 2048" }
+    objective: { easy: "Kiến tạo ô 256", medium: "Chinh phục ô 512", hard: "Đánh thức ô 2048" }
   },
   caro: {
     rule: "Đặt quân X, xếp đủ 5 quân liên tiếp (ngang/dọc/chéo) trước khi AI làm được điều đó.",
-    objective: { easy: "AI mới học, gần như không phòng thủ", medium: "AI chặn và xây thế chủ động", hard: "AI tính trước 1 bước, rất khó qua mặt" }
+    objective: { easy: "Đấu AI tập sự", medium: "Đấu AI chiến thuật", hard: "Hạ AI nhìn trước nước đi" }
   },
   wordguess: {
     rule: "Đoán từ tiếng Việt 5 chữ (không dấu). Sau mỗi lượt, màu ô cho biết chữ đúng vị trí, đúng chữ sai vị trí, hoặc không có trong từ.",
-    objective: { easy: "8 lượt đoán", medium: "6 lượt đoán", hard: "4 lượt đoán" }
+    objective: { easy: "Giải mã trong 8 lượt", medium: "Giải mã trong 6 lượt", hard: "Giải mã chỉ với 4 lượt" }
   }
 };

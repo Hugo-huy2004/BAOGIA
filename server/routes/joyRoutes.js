@@ -6,6 +6,21 @@ import { requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Phone-based P2P JOY transfer — "send JOY by phone like MoMo" without real
+// SMS/OTP infra (none exists in this codebase): Bio.phone is enforced unique
+// at the DB level (see Bio.js's partial index), so "verified" here means
+// guaranteed-single-owner, not SMS-verified. A 5% friction fee discourages
+// spammy transfers without acting as a platform revenue cut ("phi lợi nhuận").
+const TRANSFER_MIN = 1;
+const TRANSFER_MAX = 500;
+const TRANSFER_DAILY_CAP = 100;
+const TRANSFER_FEE_RATE = 0.05;
+const TRANSFER_MIN_ACCOUNT_AGE_DAYS = 3;
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 // GET /api/joy/balance?email=
 router.get('/balance', async (req, res) => {
   try {
@@ -175,6 +190,95 @@ router.post('/set-theme', async (req, res) => {
     await bio.save();
 
     res.json({ success: true, bio });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// GET /api/joy/resolve-phone?phone= — lookup before sending, MoMo-style confirm.
+// Never returns email (privacy) — only what's needed to show "Gửi tới: <name>".
+router.get('/resolve-phone', async (req, res) => {
+  try {
+    const { phone } = req.query;
+    if (!phone) return res.status(400).json({ error: 'Số điện thoại là bắt buộc.' });
+
+    const bio = await Bio.findOne({ phone: String(phone).trim() });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng với số điện thoại này.' });
+
+    res.json({ displayName: bio.displayName || 'Người dùng Hugo Studio', avatar: bio.avatarUrl || '' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/joy/transfer  { fromEmail, toPhone, amount }
+router.post('/transfer', async (req, res) => {
+  try {
+    const { fromEmail, toPhone, amount } = req.body;
+    if (!fromEmail || !toPhone) {
+      return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc số điện thoại người nhận.' });
+    }
+
+    const numAmount = Number(amount);
+    if (!Number.isFinite(numAmount) || !Number.isInteger(numAmount) || numAmount < TRANSFER_MIN || numAmount > TRANSFER_MAX) {
+      return res.status(400).json({ error: `Số JOY gửi phải từ ${TRANSFER_MIN} đến ${TRANSFER_MAX}.` });
+    }
+
+    const sender = await Bio.findOne({ email: fromEmail });
+    if (!sender) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người gửi.' });
+
+    const accountAgeMs = Date.now() - new Date(sender.createdAt).getTime();
+    if (accountAgeMs < TRANSFER_MIN_ACCOUNT_AGE_DAYS * 24 * 60 * 60 * 1000) {
+      return res.status(400).json({ error: `Tài khoản cần đủ ${TRANSFER_MIN_ACCOUNT_AGE_DAYS} ngày tuổi mới được gửi JOY.` });
+    }
+
+    const recipient = await Bio.findOne({ phone: String(toPhone).trim() });
+    if (!recipient) return res.status(404).json({ error: 'Không tìm thấy người nhận với số điện thoại này.' });
+    if (recipient.email === sender.email) {
+      return res.status(400).json({ error: 'Không thể tự gửi JOY cho chính mình.' });
+    }
+
+    if (sender.joyBalance < numAmount) {
+      return res.status(400).json({ error: 'Số dư JOY không đủ.' });
+    }
+
+    const today = todayStr();
+    const sentTodaySoFar = sender.joySentDate === today ? sender.joySentToday : 0;
+    if (sentTodaySoFar + numAmount > TRANSFER_DAILY_CAP) {
+      return res.status(400).json({ error: `Vượt giới hạn gửi ${TRANSFER_DAILY_CAP} JOY/ngày. Cậu đã gửi ${sentTodaySoFar} JOY hôm nay.` });
+    }
+
+    const netAmount = Math.floor(numAmount * (1 - TRANSFER_FEE_RATE));
+    const feeAmount = numAmount - netAmount;
+
+    const senderResult = await awardJoy(
+      sender.email, -numAmount, 'joy_gift_sent',
+      `Gửi JOY cho ${recipient.displayName || 'bạn bè'} (-${numAmount} JOY)`,
+      { refId: recipient.email }
+    );
+    await awardJoy(
+      recipient.email, netAmount, 'joy_gift_received',
+      `Nhận JOY từ ${sender.displayName || 'bạn bè'} (+${netAmount} JOY)`,
+      { refId: sender.email }
+    );
+
+    // Atomic increment — avoids overwriting the balance awardJoy() just wrote
+    // by saving a stale in-memory `sender` document.
+    await Bio.updateOne(
+      { email: sender.email },
+      sender.joySentDate !== today
+        ? { $set: { joySentDate: today, joySentToday: numAmount } }
+        : { $set: { joySentDate: today }, $inc: { joySentToday: numAmount } }
+    );
+
+    res.json({
+      success: true,
+      balance: senderResult.balance,
+      sentAmount: numAmount,
+      netAmount,
+      feeAmount,
+      recipientName: recipient.displayName || ''
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

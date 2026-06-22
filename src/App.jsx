@@ -38,6 +38,7 @@ const SecretLinkUnlock = lazy(() => import("./pages/member/SecretLinkUnlock"));
 const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
 const MemberIdeTab = lazy(() => import("./components/member/MemberIdeTab"));
 const ChessPage = lazy(() => import("./pages/public/ChessPage"));
+const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
 
 function AppContent() {
   const location = useLocation();
@@ -63,12 +64,13 @@ function AppContent() {
   const isPayRoute = location.pathname.startsWith("/pay/");
   const isIdeRoute = location.pathname === "/member/ide";
   const isChessRoute = location.pathname.startsWith("/chess");
+  const isArcadeRoute = location.pathname === "/arcade" || location.pathname.startsWith("/member/utilities/arcade");
 
-  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute) {
+  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute && !isArcadeRoute) {
     return <MaintenancePage />;
   }
 
-  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute) {
+  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
     return (
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
         <Routes>
@@ -81,13 +83,15 @@ function AppContent() {
           <Route path="/member/ide" element={<Navigate to="/member/utilities/ide" replace />} />
           <Route path="/chess" element={<Navigate to="/member/utilities/chess" replace />} />
           <Route path="/chess/:roomId" element={<Navigate to={`/member/utilities/chess/${window.location.pathname.split("/").pop()}`} replace />} />
+          <Route path="/arcade" element={isMemberAuthenticated() ? <ArcadePage /> : <Navigate to="/login" replace />} />
+          <Route path="/member/utilities/arcade" element={<Navigate to="/arcade" replace />} />
         </Routes>
       </Suspense>
     );
   }
 
   const isEmbed = new URLSearchParams(location.search).get("embed") === "true" || window.self !== window.top;
-  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/chess");
+  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/chess") || location.pathname.startsWith("/member/utilities/arcade");
   const hideNavbar = isEmbed || isFullscreenUtility;
   const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false;
 

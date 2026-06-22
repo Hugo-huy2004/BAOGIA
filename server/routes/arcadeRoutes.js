@@ -14,14 +14,13 @@ const RESULTS = ['win', 'lose', 'draw'];
 
 // Shared across all 3 games — one difficulty system, simple player expectations.
 const REWARD_TABLE = {
-  easy:   { win: 5,  lose: -2 },
-  medium: { win: 10, lose: -3 },
-  hard:   { win: 20, lose: -5 },
+  easy:   { win: 12, lose: -1 },
+  medium: { win: 25, lose: -2 },
+  hard:   { win: 50, lose: -3 },
 };
 
-// Bounds the worst-case daily swing (either direction) from arcade play —
-// roughly half of the companion feature's existing 60 JOY/day cap.
-const ARCADE_DAILY_NET_JOY_CAP = 30;
+// Bounds the daily net swing while allowing multiple high-tier wins.
+const ARCADE_DAILY_NET_JOY_CAP = 120;
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);

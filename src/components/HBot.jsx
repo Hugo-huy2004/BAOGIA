@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTourStore } from '../stores/tourStore';
+import { getMemberSession } from '../services/authSession';
+import { useJoyStore } from '../stores/joyStore';
+import { fetchProfile as fetchArcadeProfile } from '../services/arcadeApi';
+
+const VALID_TOUR_IDS = ['bio_editor', 'booking', 'utilities'];
+const OPEN_TOUR_REGEX = /\[OPEN_TOUR:\s*(\w+)\]/i;
 
 const QUESTION_TREE = {
   main: {
@@ -213,6 +219,7 @@ const TOUR_MAP = {
 const HBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
+  const [nudge, setNudge] = useState(null); // { text } | null — proactive companion bubble
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -258,6 +265,56 @@ const HBot = () => {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isLoading]);
+
+  // Proactive companion nudge — checks the cheapest already-existing signals once per
+  // day per member, shows at most one (priority order below), never forces the chat open.
+  useEffect(() => {
+    if (!isMemberPage) return;
+    const session = getMemberSession();
+    if (!session?.email) return;
+
+    const flagKey = `hbot_nudge_shown_${new Date().toISOString().slice(0, 10)}`;
+    if (sessionStorage.getItem(flagKey)) return;
+
+    const apiBase = import.meta.env.VITE_API_URL || "/api";
+
+    (async () => {
+      try {
+        const [checkinStatus, arcadeProfile] = await Promise.all([
+          fetch(`${apiBase}/checkin/status?email=${encodeURIComponent(session.email)}`, { credentials: 'include' })
+            .then(r => (r.ok ? r.json() : null)).catch(() => null),
+          fetchArcadeProfile(session.email).catch(() => null)
+        ]);
+        await useJoyStore.getState().fetchBalance(session.email);
+        const balance = useJoyStore.getState().balance;
+
+        let text = null;
+        if (checkinStatus && checkinStatus.canClaimToday && !checkinStatus.alreadyClaimedToday && !checkinStatus.weekLocked) {
+          text = "Cậu chưa điểm danh hôm nay đó, ghé nhận JOY nhé! 🎁";
+        } else if (arcadeProfile && Object.values(arcadeProfile).every(g => g.gamesPlayed === 0)) {
+          text = "Cậu chưa thử HugoArcade — vài phút giải trí mà vẫn nhận JOY đó! 🎮";
+        } else if (balance < 10) {
+          text = "JOY của cậu đang thấp á — điểm danh, chơi HugoArcade hoặc đấu HugoChess để kiếm thêm nhé!";
+        }
+
+        if (text) {
+          setNudge({ text });
+          sessionStorage.setItem(flagKey, "1");
+        }
+      } catch (_) {}
+    })();
+  }, [isMemberPage]);
+
+  const handleNudgeClick = () => {
+    if (nudge) setMessages(prev => [...prev, { id: Date.now(), sender: 'bot', text: nudge.text, time: new Date() }]);
+    setNudge(null);
+    setIsOpen(true);
+  };
+
+  const handleDismissNudge = (e) => {
+    e.stopPropagation();
+    setNudge(null);
+  };
 
   if (!isMemberPage) return null;
 
@@ -391,6 +448,11 @@ const HBot = () => {
 
       const AI_URL = getAiUrl();
       const internalKey = import.meta.env.VITE_INTERNAL_API_KEY || "";
+      const session = getMemberSession();
+      // Last 10 turns, same { sender, text } shape gemini_service.py already parses —
+      // no remapping needed. Excludes the just-appended user message (sent separately below).
+      const recentHistory = messages.slice(-10).map(m => ({ sender: m.sender, text: m.text }));
+
       const res = await fetch(`${AI_URL}/api/ai/chat`, {
         method: "POST",
         headers: {
@@ -398,16 +460,26 @@ const HBot = () => {
           "X-Internal-Key": internalKey
         },
         body: JSON.stringify({
-          message: `Người dùng hỏi về hệ thống: "${query}". Hãy trả lời ngắn gọn (tối đa 3-4 câu), hướng dẫn chi tiết, thân mật, xưng hô Culi và bạn/cậu. Chỉ đề xuất các tính năng có sẵn: Bio Editor, Giao diện Theme, Measurements, Lịch hẹn (Booking), Tiện ích (QR, HugoVCard, HugoSMail, HugoOcculta, HugoTractare), HugoPSY, HugoCoder, HugoChess.`,
-          history: [],
-          bio: null
+          message: query,
+          history: recentHistory,
+          bio: session ? { displayName: session.displayName } : null,
+          userId: session?.email || "unknown",
+          persona: "guide"
         })
       });
 
       if (res.ok) {
         const data = await res.json();
-        const text = data.reply || "Culi chưa hiểu rõ ý cậu lắm. Cậu có thể chọn các mục hướng dẫn có sẵn bên dưới hoặc gõ chi tiết hơn nha!";
-        setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'bot', text, time: new Date() }]);
+        let text = data.reply || "Culi chưa hiểu rõ ý cậu lắm. Cậu có thể chọn các mục hướng dẫn có sẵn bên dưới hoặc gõ chi tiết hơn nha!";
+
+        let tourId = null;
+        const tourMatch = text.match(OPEN_TOUR_REGEX);
+        if (tourMatch?.[1] && VALID_TOUR_IDS.includes(tourMatch[1])) {
+          tourId = tourMatch[1];
+          text = text.replace(OPEN_TOUR_REGEX, "").trim();
+        }
+
+        setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'bot', text, tourId, time: new Date() }]);
       } else {
         throw new Error("API responded with non-200");
       }
@@ -489,11 +561,13 @@ const HBot = () => {
                 >
                   <p className="whitespace-pre-wrap">{msg.text}</p>
                   
-                  {/* Dynamic Onboarding Tour Button */}
-                  {msg.sender === 'bot' && msg.id === lastBotMsg?.id && TOUR_MAP[currentStep] && (
+                  {/* Dynamic Onboarding Tour Button — fires from the fixed QUESTION_TREE
+                      (TOUR_MAP[currentStep]) or from an AI free-text reply that requested
+                      a tour via the [OPEN_TOUR: ...] tag (msg.tourId, parsed in handleCustomQuery). */}
+                  {msg.sender === 'bot' && msg.id === lastBotMsg?.id && (TOUR_MAP[currentStep] || msg.tourId) && (
                     <button
                       type="button"
-                      onClick={() => handleStartTour(TOUR_MAP[currentStep])}
+                      onClick={() => handleStartTour(msg.tourId || TOUR_MAP[currentStep])}
                       className="mt-2.5 w-full py-2 px-3 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1 shadow-md cursor-pointer pointer-events-auto"
                     >
                       <span className="material-symbols-outlined text-xs">play_circle</span>
@@ -570,6 +644,26 @@ const HBot = () => {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Proactive companion nudge — never forces the chat open, just an inviting bubble */}
+      {!isOpen && nudge && (
+        <div className="relative mb-2 max-w-[220px] animate-fadeIn">
+          <button
+            type="button"
+            onClick={handleNudgeClick}
+            className="text-left bg-white dark:bg-[#2c2c2e] border border-slate-200/60 dark:border-slate-700/60 rounded-2xl rounded-br-sm shadow-lg p-3 pr-7 text-xs text-[#1d1d1f] dark:text-white font-medium leading-relaxed"
+          >
+            {nudge.text}
+          </button>
+          <button
+            type="button"
+            onClick={handleDismissNudge}
+            className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300"
+          >
+            <span className="material-symbols-outlined text-[12px]">close</span>
+          </button>
         </div>
       )}
 

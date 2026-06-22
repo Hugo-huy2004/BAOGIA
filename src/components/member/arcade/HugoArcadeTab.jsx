@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import SubUtilityHeader from "../SubUtilityHeader";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import ArcadeGameFrame from "./ArcadeGameFrame";
 import Game2048 from "./Game2048";
@@ -7,11 +6,12 @@ import GameCaro from "./GameCaro";
 import GameWordGuess from "./GameWordGuess";
 import { fetchProfile } from "../../../services/arcadeApi";
 import { HOW_TO_PLAY } from "./arcadeConstants";
+import "./arcade-theme.css";
 
 const GAMES = [
-  { id: "2048", icon: "grid_view", name: "2048" },
-  { id: "caro", icon: "grid_3x3", name: "Caro" },
-  { id: "wordguess", icon: "spellcheck", name: "Đoán Từ" }
+  { id: "2048", icon: "grid_view", name: "2048", tagline: "Gộp số. Phá giới hạn.", accent: "orange", symbol: "2048", detail: "Logic · Chiến thuật" },
+  { id: "caro", icon: "grid_3x3", name: "Caro AI", tagline: "Năm quân tạo nên chiến thắng.", accent: "violet", symbol: "×○", detail: "Đối kháng · AI" },
+  { id: "wordguess", icon: "spellcheck", name: "Mật Mã Từ", tagline: "Mỗi chữ cái là một manh mối.", accent: "emerald", symbol: "A?", detail: "Ngôn ngữ · Suy luận" }
 ];
 
 const GAME_COMPONENTS = { "2048": Game2048, caro: GameCaro, wordguess: GameWordGuess };
@@ -24,50 +24,84 @@ export default function HugoArcadeTab({ onBack, bio }) {
     if (!activeGame && bio?.email) fetchProfile(bio.email).then(setProfile);
   }, [activeGame, bio?.email]);
 
+  const totalGames = GAMES.reduce((sum, g) => sum + (profile?.[g.id]?.gamesPlayed || 0), 0);
+  const totalWins = GAMES.reduce((sum, g) => {
+    const record = profile?.[g.id]?.record || {};
+    return sum + Object.values(record).reduce((s, tier) => s + (tier?.wins || 0), 0);
+  }, 0);
+
   if (!activeGame) {
     return (
-      <div>
-        <SubUtilityHeader title="HugoArcade" icon="stadium" colorClass="text-violet-500" onBack={onBack} />
+      <div className="arcade-app arcade-scroll-shell">
+        <header className="arcade-topbar">
+          <button onClick={onBack} className="arcade-icon-btn" aria-label="Quay lại"><span className="material-symbols-outlined">arrow_back</span></button>
+          <div className="arcade-brand"><span className="arcade-brand-mark">H</span><div><strong>HugoArcade</strong><small>Play · Earn · Repeat</small></div></div>
+          <div className="arcade-live"><i /> ONLINE</div>
+        </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {GAMES.map((g) => {
-            const best = profile?.[g.id]?.bestScore || 0;
-            return (
-              <button
-                key={g.id}
-                onClick={() => setActiveGame(g.id)}
-                className="text-left p-5 md:p-6 rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-[#12111a] hover:border-zinc-400 dark:hover:border-zinc-600 transition-all flex flex-col gap-3"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-violet-500/10 text-violet-500 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-2xl">{g.icon}</span>
-                </div>
-                <p className="text-lg font-black text-zinc-800 dark:text-zinc-100">{g.name}</p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{HOW_TO_PLAY[g.id]?.rule}</p>
-                {best > 0 && (
-                  <p className="text-xs font-bold text-zinc-400 dark:text-zinc-500">Điểm cao nhất: {best}</p>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        <main className="arcade-home">
+          <section className="arcade-hero">
+            <div className="arcade-hero-copy">
+              <span className="arcade-eyebrow"><span className="material-symbols-outlined">stadia_controller</span> MINI GAME UNIVERSE</span>
+              <h1>Chơi một ván.<br/><em>Vui cả ngày.</em></h1>
+              <p>Ba thế giới, ba kiểu tư duy. Chinh phục thử thách, lập kỷ lục và mang JOY về ví.</p>
+              <div className="arcade-hero-stats">
+                <div><strong>{totalGames}</strong><span>Ván đã chơi</span></div>
+                <div><strong>{totalWins}</strong><span>Chiến thắng</span></div>
+                <div><strong>+50</strong><span>JOY tối đa/ván</span></div>
+              </div>
+            </div>
+            <div className="arcade-hero-art" aria-hidden="true">
+              <span className="tile t1">2</span><span className="tile t2">X</span><span className="tile t3">A</span><span className="tile t4">8</span>
+              <div className="arcade-orbit"><span className="material-symbols-outlined">sports_esports</span></div>
+            </div>
+          </section>
+
+          <div className="arcade-section-heading"><div><span>CHỌN TRÒ CHƠI</span><h2>Hôm nay bạn muốn phá đảo gì?</h2></div><span className="arcade-game-count">03 games</span></div>
+
+          <section className="arcade-game-grid">
+            {GAMES.map((g, index) => {
+              const best = profile?.[g.id]?.bestScore || 0;
+              const played = profile?.[g.id]?.gamesPlayed || 0;
+              return (
+                <button key={g.id} onClick={() => setActiveGame(g.id)} className={`arcade-game-card accent-${g.accent}`}>
+                  <div className="arcade-card-top"><span className="arcade-card-index">0{index + 1}</span><span className="arcade-card-arrow material-symbols-outlined">north_east</span></div>
+                  <div className="arcade-game-symbol">{g.symbol}</div>
+                  <div className="arcade-card-copy"><span>{g.detail}</span><h3>{g.name}</h3><p>{g.tagline}</p></div>
+                  <div className="arcade-card-footer"><div><small>KỶ LỤC</small><strong>{best.toLocaleString("vi-VN")}</strong></div><div><small>ĐÃ CHƠI</small><strong>{played}</strong></div><span className="arcade-play-pill"><span className="material-symbols-outlined">play_arrow</span> Chơi ngay</span></div>
+                </button>
+              );
+            })}
+          </section>
+
+          <section className="arcade-reward-banner">
+            <div className="reward-icon"><span className="material-symbols-outlined">trophy</span></div>
+            <div><span>THỬ THÁCH HUYỀN THOẠI</span><h3>Thắng cấp cao nhất, nhận ngay <b>50 JOY</b></h3><p>Mỗi độ khó là một hành trình riêng. Càng khó, phần thưởng càng đáng giá.</p></div>
+            <span className="material-symbols-outlined reward-spark">auto_awesome</span>
+          </section>
+        </main>
       </div>
     );
   }
 
   const gameInfo = GAMES.find((g) => g.id === activeGame);
   const GameComponent = GAME_COMPONENTS[activeGame];
-
   return (
-    <div>
-      <SubUtilityHeader title={gameInfo.name} icon={gameInfo.icon} colorClass="text-violet-500" onBack={() => setActiveGame(null)} />
-      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5">
-        <ArcadeGameFrame game={activeGame} bio={bio}>
-          {(difficulty, onGameOver) => (
-            <GameComponent difficulty={difficulty} onGameOver={onGameOver} />
-          )}
-        </ArcadeGameFrame>
-        <ArcadeLeaderboard game={activeGame} active={true} />
-      </div>
+    <div className={`arcade-app arcade-scroll-shell accent-${gameInfo.accent}`}>
+      <header className="arcade-topbar">
+        <button onClick={() => setActiveGame(null)} className="arcade-icon-btn" aria-label="Về sảnh"><span className="material-symbols-outlined">arrow_back</span></button>
+        <div className="arcade-brand"><span className="arcade-brand-mark">{gameInfo.symbol}</span><div><strong>{gameInfo.name}</strong><small>{gameInfo.detail}</small></div></div>
+        <span className="arcade-top-reward"><span className="material-symbols-outlined">stars</span> Tối đa 50 JOY</span>
+      </header>
+      <main className="arcade-play-layout">
+        <section className="arcade-play-main">
+          <div className="arcade-game-intro"><div><span>HUGOARCADE / {gameInfo.name.toUpperCase()}</span><h1>{gameInfo.tagline}</h1></div><p>{HOW_TO_PLAY[activeGame]?.rule}</p></div>
+          <ArcadeGameFrame game={activeGame} bio={bio}>
+            {(difficulty, onGameOver) => <GameComponent difficulty={difficulty} onGameOver={onGameOver} />}
+          </ArcadeGameFrame>
+        </section>
+        <aside className="arcade-side-panel"><ArcadeLeaderboard game={activeGame} active={true} /></aside>
+      </main>
     </div>
   );
 }

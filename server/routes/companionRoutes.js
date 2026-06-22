@@ -547,6 +547,70 @@ router.post('/report/weekly', async (req, res) => {
   }
 });
 
+const DAILY_CHALLENGES = {
+  breath: { amount: 15, name: 'Hít thở 4-7-8' },
+  chat: { amount: 15, name: 'Trò chuyện cùng AI' },
+  assessment: { amount: 20, name: 'Làm test tâm lý' }
+};
+
+// Shared by GET /challenges-status and POST /claim-challenge so the "did the
+// user actually do this today" check can never drift between the two routes.
+function isChallengeCompletedToday(historyDoc, challengeId, todayStr) {
+  const isLogToday = (logDate) => {
+    if (!logDate) return false;
+    return new Date(logDate).toISOString().slice(0, 10) === todayStr;
+  };
+
+  if (challengeId === 'breath') {
+    return historyDoc.historyLogs.some(log =>
+      log.type === 'therapy_activity' &&
+      (log.name?.toLowerCase().includes('hít thở') || log.name?.toLowerCase().includes('thư giãn cơ')) &&
+      isLogToday(log.date)
+    );
+  }
+  if (challengeId === 'chat') {
+    const userMsgCount = historyDoc.chatMessages.filter(msg =>
+      msg.sender === 'user' &&
+      isLogToday(msg.time)
+    ).length;
+    return userMsgCount >= 3;
+  }
+  if (challengeId === 'assessment') {
+    return historyDoc.historyLogs.some(log =>
+      (log.type === 'clinical_test' || log.test) &&
+      isLogToday(log.date)
+    );
+  }
+  return false;
+}
+
+// GET: status of today's 3 daily challenges (completed / already claimed),
+// powers the "Nhiệm vụ" tab in the JOY wallet without guessing client-side.
+router.get('/challenges-status', async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const historyDoc = await CompanionHistory.findOne({ email });
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const claimedToday = historyDoc?.activeSecondsDate === todayStr
+      ? (historyDoc.claimedChallengesToday || [])
+      : [];
+
+    const challenges = Object.entries(DAILY_CHALLENGES).map(([id, def]) => ({
+      id,
+      name: def.name,
+      amount: def.amount,
+      completed: historyDoc ? isChallengeCompletedToday(historyDoc, id, todayStr) : false,
+      claimed: claimedToday.includes(id)
+    }));
+
+    res.json({ challenges });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST: Claim daily challenge reward
 router.post('/claim-challenge', async (req, res) => {
   try {
@@ -555,13 +619,7 @@ router.post('/claim-challenge', async (req, res) => {
       return res.status(400).json({ error: 'Email and challengeId are required' });
     }
 
-    const validChallenges = {
-      breath: { amount: 15, name: 'Hít thở 4-7-8' },
-      chat: { amount: 15, name: 'Trò chuyện cùng AI' },
-      assessment: { amount: 20, name: 'Làm test tâm lý' }
-    };
-
-    const challengeDef = validChallenges[challengeId];
+    const challengeDef = DAILY_CHALLENGES[challengeId];
     if (!challengeDef) {
       return res.status(400).json({ error: 'Thử thách không hợp lệ.' });
     }
@@ -588,33 +646,7 @@ router.post('/claim-challenge', async (req, res) => {
       return res.status(400).json({ error: 'Bạn đã nhận phần thưởng cho thử thách này hôm nay rồi.' });
     }
 
-    // Verify completion
-    let completed = false;
-    const isLogToday = (logDate) => {
-      if (!logDate) return false;
-      return new Date(logDate).toISOString().slice(0, 10) === todayStr;
-    };
-
-    if (challengeId === 'breath') {
-      completed = historyDoc.historyLogs.some(log => 
-        log.type === 'therapy_activity' && 
-        (log.name?.toLowerCase().includes('hít thở') || log.name?.toLowerCase().includes('thư giãn cơ')) &&
-        isLogToday(log.date)
-      );
-    } else if (challengeId === 'chat') {
-      const userMsgCount = historyDoc.chatMessages.filter(msg => 
-        msg.sender === 'user' && 
-        isLogToday(msg.time)
-      ).length;
-      completed = userMsgCount >= 3;
-    } else if (challengeId === 'assessment') {
-      completed = historyDoc.historyLogs.some(log => 
-        (log.type === 'clinical_test' || log.test) && 
-        isLogToday(log.date)
-      );
-    }
-
-    if (!completed) {
+    if (!isChallengeCompletedToday(historyDoc, challengeId, todayStr)) {
       return res.status(400).json({ error: 'Bạn chưa hoàn thành thử thách này hôm nay.' });
     }
 

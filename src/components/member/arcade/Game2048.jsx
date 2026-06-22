@@ -97,18 +97,18 @@ export function hasReachedTarget(grid, target) {
 }
 
 const TILE_COLORS = {
-  0: "bg-zinc-100 dark:bg-zinc-800/60",
-  2: "bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200",
-  4: "bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-100",
-  8: "bg-amber-200 text-amber-900",
-  16: "bg-amber-300 text-amber-900",
-  32: "bg-orange-300 text-white",
-  64: "bg-orange-400 text-white",
-  128: "bg-yellow-400 text-white",
-  256: "bg-yellow-500 text-white",
-  512: "bg-rose-400 text-white",
-  1024: "bg-rose-500 text-white",
-  2048: "bg-rose-600 text-white"
+  0:    { bg: "rgba(255,255,255,.045)", color: "transparent", border: "rgba(255,255,255,.035)", glow: "inset 0 1px rgba(255,255,255,.02)" },
+  2:    { bg: "linear-gradient(145deg,#475569,#334155)", color: "#f8fafc", border: "#64748b", glow: "0 7px 18px rgba(51,65,85,.38)" },
+  4:    { bg: "linear-gradient(145deg,#0891b2,#0e7490)", color: "#ecfeff", border: "#22d3ee", glow: "0 8px 20px rgba(6,182,212,.30)" },
+  8:    { bg: "linear-gradient(145deg,#10b981,#047857)", color: "#ecfdf5", border: "#34d399", glow: "0 8px 21px rgba(16,185,129,.32)" },
+  16:   { bg: "linear-gradient(145deg,#84cc16,#4d7c0f)", color: "#f7fee7", border: "#a3e635", glow: "0 9px 22px rgba(132,204,22,.34)" },
+  32:   { bg: "linear-gradient(145deg,#eab308,#a16207)", color: "#fffbeb", border: "#facc15", glow: "0 9px 24px rgba(234,179,8,.36)" },
+  64:   { bg: "linear-gradient(145deg,#f97316,#c2410c)", color: "#fff7ed", border: "#fb923c", glow: "0 10px 26px rgba(249,115,22,.40)" },
+  128:  { bg: "linear-gradient(145deg,#ef4444,#b91c1c)", color: "#fef2f2", border: "#f87171", glow: "0 11px 28px rgba(239,68,68,.43)" },
+  256:  { bg: "linear-gradient(145deg,#ec4899,#be185d)", color: "#fdf2f8", border: "#f472b6", glow: "0 11px 30px rgba(236,72,153,.46)" },
+  512:  { bg: "linear-gradient(145deg,#a855f7,#7e22ce)", color: "#faf5ff", border: "#c084fc", glow: "0 12px 32px rgba(168,85,247,.50)" },
+  1024: { bg: "linear-gradient(145deg,#6366f1,#3730a3)", color: "#eef2ff", border: "#818cf8", glow: "0 13px 34px rgba(99,102,241,.54)" },
+  2048: { bg: "linear-gradient(135deg,#fde047 0%,#f59e0b 48%,#ea580c 100%)", color: "#451a03", border: "#fef08a", glow: "0 0 38px rgba(250,204,21,.68), inset 0 1px rgba(255,255,255,.65)" }
 };
 
 export default function Game2048({ difficulty = "medium", onGameOver }) {
@@ -167,32 +167,30 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
-      <div className="flex items-center justify-between w-full max-w-[400px]">
-        <p className="text-xs font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-          Mục tiêu <span className="text-zinc-900 dark:text-white">{targetTile}</span>
-        </p>
-        <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400">
-          Điểm: <span className="text-zinc-900 dark:text-white font-black">{score}</span>
-        </p>
+    <div className="game2048-shell flex flex-col items-center gap-4 w-full">
+      <div className="game2048-hud w-full max-w-[520px]">
+        <div><small>ĐIỂM HIỆN TẠI</small><strong>{score.toLocaleString("vi-VN")}</strong></div>
+        <div className="target"><small>MỤC TIÊU</small><strong>{targetTile}</strong></div>
       </div>
 
       <div
-        className="grid grid-cols-4 grid-rows-4 gap-3 p-3.5 bg-zinc-200 dark:bg-zinc-900 rounded-3xl w-full max-w-[400px] aspect-square touch-none shadow-inner"
+        className="game2048-board grid grid-cols-4 grid-rows-4 w-full max-w-[520px] aspect-square touch-none"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         {grid.flat().map((value, idx) => (
           <div
             key={`${idx}-${value}`}
-            className={`aspect-square flex items-center justify-center rounded-2xl font-black ${value >= 1000 ? "text-lg" : "text-2xl"} shadow-sm ${value !== 0 ? "animate-scale-in" : ""} ${TILE_COLORS[value] || "bg-rose-700 text-white"}`}
+            className={`game2048-tile aspect-square flex items-center justify-center font-black ${value !== 0 ? "animate-scale-in" : ""}`}
+            style={{ background: (TILE_COLORS[value] || TILE_COLORS[2048]).bg, color: (TILE_COLORS[value] || TILE_COLORS[2048]).color, borderColor: (TILE_COLORS[value] || TILE_COLORS[2048]).border, boxShadow: (TILE_COLORS[value] || TILE_COLORS[2048]).glow, fontSize: value >= 1000 ? "clamp(16px,4vw,25px)" : "clamp(21px,5vw,34px)" }}
+            aria-label={value ? `Ô số ${value}` : "Ô trống"}
           >
             {value !== 0 && value}
           </div>
         ))}
       </div>
 
-      <p className="text-xs text-zinc-400 text-center">Dùng phím mũi tên hoặc vuốt màn hình để di chuyển</p>
+      <p className="game-control-hint"><span className="material-symbols-outlined">swipe</span> Vuốt màn hình hoặc dùng phím mũi tên để di chuyển</p>
     </div>
   );
 }

@@ -96,6 +96,10 @@ export default function MemberPortalPage() {
   const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
 
   const handleSelectUtility = (utilityId) => {
+    if (utilityId === "arcade") {
+      navigate("/arcade");
+      return;
+    }
     navigate(utilityId ? `/member/utilities/${utilityId}` : "/member/utilities");
   };
   const handleSelectPsychologySubTab = (subTabId) => {
@@ -527,7 +531,7 @@ export default function MemberPortalPage() {
   // ── Active section info (mobile) ──────────────────────────────────────────────
   const activeSectionInfo = ACCOUNT_SECTIONS.find(s => s.id === mobileSubSection);
 
-  const isFullscreenUtility = activeTab === "utilities" && (subTab === "ide" || subTab === "chess");
+  const isFullscreenUtility = activeTab === "utilities" && (subTab === "ide" || subTab === "chess" || subTab === "arcade");
 
   if (isFullscreenUtility) {
     return (
@@ -551,18 +555,6 @@ export default function MemberPortalPage() {
             </motion.div>
           )}
         </AnimatePresence>
-        
-        {/* Floating back button */}
-        <div className="absolute top-4 right-4 z-[200]">
-          <button
-            type="button"
-            onClick={() => navigate("/member/utilities")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 text-[10px] font-bold shadow-md hover:bg-zinc-150 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95"
-          >
-            <span className="material-symbols-outlined text-xs">arrow_back</span>
-            <span>Quay lại Tiện ích</span>
-          </button>
-        </div>
         
         <div className="flex-1 w-full h-full overflow-hidden">
           <ErrorBoundary>

@@ -1455,10 +1455,16 @@ export default function ChatTab({
         </div>
       </div>
 
-      {/* ── Smart wellness insight strip ──────────────────────────────────────── */}
-      <div className="shrink-0 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50">
-        <WellnessInsightStrip bio={bio} historyLogs={historyLogs} chatMessages={messages} onNavigateToTab={onNavigateToTab} />
-      </div>
+      {/* ── Smart wellness insight strip ──────────────────────────────────────────
+          Only shown in normal chat mode — hidden during an active test/scan so that
+          flow gets the full available height instead of being squeezed below it
+          (this was the main cramped-on-mobile complaint: the strip ate space that
+          the test panel needed, especially on short viewports). */}
+      {chatMode === "normal" && (
+        <div className="shrink-0 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50">
+          <WellnessInsightStrip bio={bio} historyLogs={historyLogs} chatMessages={messages} onNavigateToTab={onNavigateToTab} />
+        </div>
+      )}
 
       {/* ── Tests bottom sheet ──────────────────────────────────────────────────── */}
       {showTestsMenu && (

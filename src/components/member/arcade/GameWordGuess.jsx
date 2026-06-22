@@ -43,11 +43,8 @@ function pickTarget() {
 }
 
 const STATUS_CLASS = {
-  correct: "bg-emerald-500 border-emerald-500 text-white",
-  present: "bg-amber-400 border-amber-400 text-white",
-  absent: "bg-zinc-300 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-700 text-white",
-  active: "bg-white dark:bg-[#1a1925] border-zinc-400 dark:border-zinc-500 text-zinc-900 dark:text-white",
-  empty: "bg-white dark:bg-[#12111a] border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-100"
+  correct: "word-correct", present: "word-present", absent: "word-absent",
+  active: "word-active", empty: "word-empty"
 };
 
 const KEY_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
@@ -118,12 +115,12 @@ export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
   });
 
   return (
-    <div className="flex flex-col items-center gap-5 w-full max-w-[400px]">
+    <div className="wordgame-shell flex flex-col items-center gap-5 w-full max-w-[480px]">
       <div className="flex flex-col items-center gap-1 text-center">
-        <p className="text-xs font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-          Đoán từ tiếng Việt 5 chữ
+        <p className="wordgame-kicker">
+          Mật mã tiếng Việt · 5 chữ
         </p>
-        <p className="text-sm font-bold text-zinc-700 dark:text-zinc-200">
+        <p className="wordgame-status">
           {status === "won" && "Chính xác! 🎉"}
           {status === "lost" && `Hết lượt! Đáp án: ${target}`}
           {status === "playing" && `Lượt ${guesses.length + 1} / ${maxGuesses}`}
@@ -138,7 +135,7 @@ export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
               return (
                 <div
                   key={cIdx}
-                  className={`w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-xl border-2 font-black text-xl uppercase transition-colors ${STATUS_CLASS[s]}`}
+                  className={`word-cell w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center font-black text-xl uppercase transition-colors ${STATUS_CLASS[s]}`}
                 >
                   {letter.trim()}
                 </div>
@@ -148,13 +145,13 @@ export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
         ))}
       </div>
 
-      <div className="flex flex-col gap-1.5 w-full">
+      <div className="word-keyboard flex flex-col gap-1.5 w-full">
         {KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1">
             {i === 2 && (
               <button
                 onClick={() => setInput((s) => s.slice(0, -1))}
-                className="flex-[1.5] h-12 rounded-lg bg-zinc-200 dark:bg-zinc-700 text-xs font-bold text-zinc-700 dark:text-zinc-200 active:scale-95 transition-transform"
+                className="word-key special flex-[1.5] h-12 text-xs font-bold active:scale-95 transition-transform"
               >
                 ⌫
               </button>
@@ -163,11 +160,10 @@ export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
               <button
                 key={letter}
                 onClick={() => status === "playing" && input.length < WORD_LENGTH && setInput((s) => s + letter)}
-                className={`flex-1 h-12 rounded-lg text-sm font-bold transition-colors ${
-                  letterStatus[letter] === "correct" ? "bg-emerald-500 text-white" :
-                  letterStatus[letter] === "present" ? "bg-amber-400 text-white" :
-                  letterStatus[letter] === "absent" ? "bg-zinc-300 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400" :
-                  "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200"
+                className={`word-key flex-1 h-12 text-sm font-bold transition-colors ${
+                  letterStatus[letter] === "correct" ? "correct" :
+                  letterStatus[letter] === "present" ? "present" :
+                  letterStatus[letter] === "absent" ? "absent" : ""
                 }`}
               >
                 {letter}
@@ -176,7 +172,7 @@ export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
             {i === 2 && (
               <button
                 onClick={submitGuess}
-                className="flex-[1.5] h-12 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-bold active:scale-95 transition-transform"
+                className="word-key submit flex-[1.5] h-12 text-xs font-bold active:scale-95 transition-transform"
               >
                 Gửi
               </button>

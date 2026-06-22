@@ -62,6 +62,7 @@ class ChatRequest(BaseModel):
     history: Optional[List[Dict[str, Any]]] = None
     bio: Optional[Dict[str, Any]] = None
     userId: Optional[str] = "unknown"
+    persona: Optional[str] = "companion"
 
 class IntentClassifyRequest(BaseModel):
     message: str
@@ -246,7 +247,8 @@ async def chat(request: ChatRequest, req: Request):
         reply = await ai_service.generate_chat_response(
             message=request.message,
             history=request.history,
-            bio=request.bio
+            bio=request.bio,
+            persona=request.persona
         )
         # Only charge after a confirmed successful reply — errors never cost a token.
         await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=LLM_WEIGHT)

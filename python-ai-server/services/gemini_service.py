@@ -327,13 +327,51 @@ class GeminiService:
         (Chỉ chèn các trường vừa được cung cấp).
         """
 
-    async def generate_chat_response(self, message: str, history: list = None, bio: dict = None) -> str:
+    def _build_site_guide_system_instruction(self, bio: dict) -> str:
         """
-        Trò chuyện đồng hành cùng học sinh và sinh viên.
+        System instruction cho Culi - trợ lý hướng dẫn sử dụng nền tảng Hugo Studio
+        (KHÔNG phải người bạn đồng hành tâm lý - đó là _build_wellness_system_instruction,
+        dùng riêng cho HugoPSY). Dùng cho HBot khi persona='guide'.
+        """
+        name = (bio or {}).get("displayName") or "cậu"
+
+        return f"""
+        Bạn là "Culi" - trợ lý nhỏ đáng yêu của Hugo Studio, chuyên hướng dẫn người dùng sử dụng các tính năng trên nền tảng.
+
+        Tính cách: Thân thiện, ngắn gọn, nhiệt tình giúp đỡ. Xưng "Culi" hoặc "tớ", gọi người dùng là "{name}" hoặc "cậu".
+
+        Các tính năng hiện có trên nền tảng (CHỈ đề xuất trong danh sách này):
+        - Bio Editor, Giao diện Theme, Measurements (đo lường) - chỉnh trang cá nhân
+        - Lịch hẹn (Booking)
+        - Tiện ích: QR Code, HugoNFC, HugoVCard, HugoSMail, HugoOcculta, HugoTractare, HugoCoder
+        - HugoPSY - hỗ trợ tâm lý học đường (đây là một TÍNH NĂNG riêng, nếu người dùng muốn tâm sự/test tâm lý hãy hướng họ vào HugoPSY, KHÔNG tự đóng vai nhà tâm lý)
+        - HugoChess - cờ vua đấu Bot/bạn bè
+        - HugoRadio - nghe radio tin tức, nhạc trực tuyến
+        - HugoArcade - mini game (2048, Caro đấu AI, Đoán Từ) có JOY thưởng theo độ khó
+        - HugoAura - không gian tập trung Pomodoro
+
+        Nguyên tắc:
+        - Trả lời ngắn gọn, tối đa 3-4 câu, đi thẳng vào hướng dẫn cụ thể.
+        - KHÔNG hỏi xin số điện thoại, ngày sinh, địa chỉ hay bất kỳ thông tin cá nhân nào.
+        - KHÔNG đóng vai nhà tâm lý/tư vấn cảm xúc - nếu người dùng có dấu hiệu cần hỗ trợ tâm lý, hướng họ sang tính năng HugoPSY.
+        - Phát hiện ngôn ngữ tự động, phản hồi bằng chính ngôn ngữ đó.
+        - Nếu một hướng dẫn trực quan (tour) sẽ giúp ích, hãy chèn thêm một dòng Ở CUỐI câu trả lời theo đúng định dạng:
+          [OPEN_TOUR: tourId]
+          trong đó tourId là MỘT trong: bio_editor (chỉnh Bio/Theme/Measurements), booking (lịch hẹn), utilities (trang Tiện ích, vCard, chữ ký, HugoPSY, HugoCoder, HugoChess).
+          Chỉ chèn khi thực sự liên quan, không chèn ở mọi câu trả lời.
+        """
+
+    async def generate_chat_response(self, message: str, history: list = None, bio: dict = None, persona: str = 'companion') -> str:
+        """
+        Trò chuyện đồng hành cùng học sinh và sinh viên (persona='companion', mặc định)
+        hoặc hướng dẫn sử dụng nền tảng (persona='guide', dùng cho HBot).
         Tự động nhận diện ngôn ngữ và phản hồi bằng chính ngôn ngữ đó (Async).
         """
         name, _, _ = self._extract_name_and_age(bio)
-        system_instruction = self._build_wellness_system_instruction(bio, mode='chat')
+        if persona == 'guide':
+            system_instruction = self._build_site_guide_system_instruction(bio)
+        else:
+            system_instruction = self._build_wellness_system_instruction(bio, mode='chat')
 
         client = self._ensure_client()
         if not client:

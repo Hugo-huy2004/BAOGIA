@@ -514,6 +514,135 @@ const SHADOW_STYLES = [
   { id: "3d",   label: "Nổi khối 3D" },
 ];
 
+const APP_THEME_COLORS = {
+  midnight: ["#090a0f", "#6366f1"], cyber: ["#0b0514", "#ec4899"],
+  forest: ["#040905", "#10b981"], paper: ["#faf7f2", "#a8a29e"],
+  rose: ["#fdf9f9", "#fb7185"], minimalist: ["#fbfbfb", "#171717"],
+};
+
+function SettingSwitch({ label, description, checked, onChange }) {
+  return (
+    <button type="button" onClick={() => onChange(!checked)}
+      className="w-full flex items-center justify-between gap-4 py-2.5 text-left group">
+      <span className="min-w-0">
+        <span className="block text-xs font-bold text-foreground">{label}</span>
+        <span className="block text-[10px] leading-relaxed text-muted-foreground mt-0.5">{description}</span>
+      </span>
+      <span className={`relative w-10 h-6 rounded-full shrink-0 transition-colors ${checked ? "bg-foreground" : "bg-muted border border-border"}`}>
+        <span className={`absolute top-1 w-4 h-4 rounded-full transition-transform shadow-sm ${checked ? "translate-x-5 bg-background" : "translate-x-1 bg-muted-foreground/60"}`} />
+      </span>
+    </button>
+  );
+}
+
+function PieceStylePicker({ label, color, value, onChange }) {
+  const previewPieces = ["K", "Q", "R", "B", "N", "P"];
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">{label}</span>
+        <span className="text-[9px] font-semibold text-muted-foreground">{PIECE_THEMES.find(p => p.id === value)?.label}</span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {PIECE_THEMES.map(theme => {
+          const selected = value === theme.id;
+          return (
+            <button type="button" key={theme.id} onClick={() => onChange(theme.id)}
+              aria-pressed={selected}
+              className={`relative rounded-xl border p-2.5 text-left transition-all active:scale-[0.98] ${selected
+                ? "border-foreground bg-foreground/10 ring-1 ring-foreground/20"
+                : "border-border bg-background/60 hover:border-foreground/35"}`}>
+              {selected && <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-foreground text-background flex items-center justify-center"><Check className="w-3 h-3" /></span>}
+              <div className="flex items-center -space-x-1 pr-5 mb-1.5 h-8 overflow-hidden">
+                {previewPieces.map(piece => <img key={piece}
+                  src={`https://lichess1.org/assets/piece/${theme.id}/${color}${piece}.svg`}
+                  alt="" loading="lazy" className="w-7 h-7 object-contain drop-shadow-sm" />)}
+              </div>
+              <span className="block text-[11px] font-black text-foreground">{theme.label}</span>
+              <span className="block text-[9px] text-muted-foreground truncate mt-0.5">{theme.desc}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function GameSettingsPanel({
+  appTheme, boardTheme, myPieceTheme, oppPieceTheme, highlightTheme, soundPack, playerColor,
+  boardBorder, boardShadow, showCoords, autoQueen,
+  changeAppTheme, changeBoardTheme, changeMyPieceTheme, changeOppPieceTheme,
+  changeHighlightTheme, changeSoundPack, changeBoardBorder, changeBoardShadow,
+  changeShowCoords, changeAutoQueen,
+}) {
+  const chip = (selected) => `relative min-h-10 rounded-xl border px-2.5 py-2 text-[11px] font-bold transition-all active:scale-[0.97] ${
+    selected ? "border-foreground bg-foreground text-background shadow-sm" : "border-border bg-background/60 text-foreground hover:border-foreground/35"
+  }`;
+
+  return (
+    <div className="chess-settings-panel space-y-5">
+      <section className="space-y-2.5">
+        <div><h4 className="text-xs font-black text-foreground">Không gian chơi</h4><p className="text-[10px] text-muted-foreground">Đổi màu toàn bộ ứng dụng</p></div>
+        <div className="grid grid-cols-3 gap-2">
+          {APP_THEMES.map(theme => {
+            const colors = APP_THEME_COLORS[theme.id];
+            return <button type="button" key={theme.id} onClick={() => changeAppTheme(theme.id)} className={chip(appTheme === theme.id)}>
+              <span className="flex justify-center mb-1.5">
+                <span className="w-7 h-4 rounded-full border border-white/15 overflow-hidden flex shadow-sm">
+                  <span className="w-1/2" style={{background: colors[0]}} /><span className="w-1/2" style={{background: colors[1]}} />
+                </span>
+              </span>
+              <span className="block truncate">{theme.label.replace(" (Sáng)", "")}</span>
+              {appTheme === theme.id && <Check className="absolute top-1.5 right-1.5 w-3 h-3" />}
+            </button>;
+          })}
+        </div>
+      </section>
+
+      <section className="space-y-2.5 pt-4 border-t border-border/70">
+        <div><h4 className="text-xs font-black text-foreground">Bàn cờ</h4><p className="text-[10px] text-muted-foreground">Màu ô và hiệu ứng nước đi</p></div>
+        <div className="grid grid-cols-3 gap-2">
+          {BOARD_THEMES.map(b => <button type="button" key={b.id} onClick={() => changeBoardTheme(b.id)} className={chip(boardTheme === b.id)}>
+            <span className="w-7 h-7 mx-auto mb-1.5 rounded-lg overflow-hidden grid grid-cols-2 border border-black/10 rotate-3">
+              <span style={{background:b.previewLight}} /><span style={{background:b.previewDark}} />
+              <span style={{background:b.previewDark}} /><span style={{background:b.previewLight}} />
+            </span>
+            <span className="block truncate">{b.label.split(" ")[0]}</span>
+            {boardTheme === b.id && <Check className="absolute top-1.5 right-1.5 w-3 h-3" />}
+          </button>)}
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {HIGHLIGHT_THEMES.map(hl => <button type="button" key={hl.id} onClick={() => changeHighlightTheme(hl.id)} className={chip(highlightTheme === hl.id)}>{hl.label.replace(" Neon", "").replace(" Laser", "")}</button>)}
+        </div>
+      </section>
+
+      <section className="space-y-4 pt-4 border-t border-border/70">
+        <div className="flex items-start justify-between gap-3">
+          <div><h4 className="text-xs font-black text-foreground">Giao diện quân cờ</h4><p className="text-[10px] text-muted-foreground">Chọn riêng phong cách quân của mỗi bên</p></div>
+          {oppPieceTheme !== myPieceTheme && <button type="button" onClick={() => changeOppPieceTheme(myPieceTheme)} className="shrink-0 px-2.5 py-1.5 rounded-lg bg-muted border border-border text-[9px] font-bold text-foreground">Dùng cùng bộ</button>}
+        </div>
+        <PieceStylePicker label={`Quân của tôi · ${playerColor === "black" ? "Đen" : "Trắng"}`} color={playerColor === "black" ? "b" : "w"} value={myPieceTheme} onChange={changeMyPieceTheme} />
+        <PieceStylePicker label={`Quân đối thủ · ${playerColor === "black" ? "Trắng" : "Đen"}`} color={playerColor === "black" ? "w" : "b"} value={oppPieceTheme} onChange={changeOppPieceTheme} />
+      </section>
+
+      <section className="space-y-2.5 pt-4 border-t border-border/70">
+        <div><h4 className="text-xs font-black text-foreground">Chi tiết & âm thanh</h4><p className="text-[10px] text-muted-foreground">Tinh chỉnh cảm giác khi chơi</p></div>
+        <div className="grid grid-cols-2 gap-2">
+          <label className="space-y-1 text-[10px] font-bold text-muted-foreground">Khung bàn cờ<select value={boardBorder} onChange={e=>changeBoardBorder(e.target.value)} className="w-full bg-background border border-border rounded-xl px-3 py-2 text-xs text-foreground">{BORDER_STYLES.map(x=><option key={x.id} value={x.id}>{x.label}</option>)}</select></label>
+          <label className="space-y-1 text-[10px] font-bold text-muted-foreground">Độ nổi<select value={boardShadow} onChange={e=>changeBoardShadow(e.target.value)} className="w-full bg-background border border-border rounded-xl px-3 py-2 text-xs text-foreground">{SHADOW_STYLES.map(x=><option key={x.id} value={x.id}>{x.label}</option>)}</select></label>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {SOUND_PACKS.map(sp => <button type="button" key={sp.id} onClick={() => changeSoundPack(sp.id)} className={chip(soundPack === sp.id)}>{sp.label}</button>)}
+        </div>
+        <div className="divide-y divide-border/60">
+          <SettingSwitch label="Hiện tọa độ" description="Ký hiệu A–H và 1–8" checked={showCoords} onChange={changeShowCoords} />
+          <SettingSwitch label="Tự động phong Hậu" description="Phong Hậu ngay khi Tốt tới hàng cuối" checked={autoQueen} onChange={changeAutoQueen} />
+        </div>
+      </section>
+    </div>
+  );
+}
+
 const INSIGHT_CLASSES = {
   best: "border border-foreground bg-foreground text-background font-bold px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider",
   brilliant: "border-2 border-foreground bg-foreground text-background font-black px-2 py-0.5 rounded-lg text-[9px] uppercase tracking-wider animate-pulse",
@@ -1214,10 +1343,10 @@ export default function ChessGame({
   return (
     <>
       {/* ══ MOBILE LAYOUT ══════════════════════════════════════════════════════ */}
-      <div className="md:hidden flex flex-col bg-background text-foreground" style={{ height: "100dvh", overflow: "hidden" }}>
+      <div className="chess-mobile-game lg:hidden flex flex-col bg-background text-foreground" style={{ height: "100dvh", overflow: "hidden" }}>
 
         {/* Mobile Header — 44px */}
-        <header className="shrink-0 h-11 flex items-center justify-between px-3 border-b border-border bg-background/95 backdrop-blur-xl z-10">
+        <header className="chess-mobile-header shrink-0 h-11 flex items-center justify-between px-3 border-b border-border bg-background/95 backdrop-blur-xl z-10">
           <button onClick={onBack} className="p-1.5 rounded-xl hover:bg-muted transition-colors text-muted-foreground">
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -1242,7 +1371,7 @@ export default function ChessGame({
         </header>
 
         {/* Opponent card — 54px */}
-        <div className="shrink-0 border-b border-border">
+        <div className="chess-mobile-player shrink-0 border-b border-border">
           <MobilePlayerCard
             name={mode === "bot" ? `Stockfish Lv${botLevel}` : (opponent?.displayName || "Đang chờ...")}
             rating={mode !== "bot" ? opponent?.rating : undefined}
@@ -1257,7 +1386,7 @@ export default function ChessGame({
         </div>
 
         {/* Board area — flex-1 */}
-        <div className="flex-1 min-h-0 flex items-center justify-center px-3 py-1 relative">
+        <div className="chess-mobile-board-area flex-1 min-h-0 flex items-center justify-center px-3 py-1 relative">
           {status === "waiting" && mode !== "friend" && (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm p-4 text-center">
               {noOpponentWaiting ? (
@@ -1302,7 +1431,7 @@ export default function ChessGame({
         </div>
 
         {/* My card — 54px */}
-        <div className="shrink-0 border-t border-border">
+        <div className="chess-mobile-player shrink-0 border-t border-border">
           <MobilePlayerCard
             name={userInfo?.displayName || "Bạn"} rating={userInfo?.rating}
             color={playerColor} isMe
@@ -1316,10 +1445,10 @@ export default function ChessGame({
         </div>
 
         {/* Horizontal move list — 36px */}
-        <HorizontalMoveList moves={moves} />
+        <div className="chess-mobile-moves"><HorizontalMoveList moves={moves} /></div>
 
         {/* Bottom action bar — 52px */}
-        <div className="shrink-0 flex items-center px-2 py-1 gap-0.5 border-t border-border bg-background" style={{ height: 52 }}>
+        <div className="chess-mobile-actions shrink-0 flex items-center px-2 py-1 gap-0.5 border-t border-border bg-background" style={{ height: 52 }}>
           <MobileBtn icon={Flag} label="Đầu hàng" onClick={resign} disabled={status !== "active"} />
           <MobileBtn icon={Handshake} label="Hòa cờ" onClick={offerDraw} disabled={status !== "active"} />
           <MobileBtn icon={Lightbulb} label="Gợi ý" onClick={requestHint}
@@ -1334,7 +1463,7 @@ export default function ChessGame({
       </div>
 
       {/* ══ DESKTOP LAYOUT ══════════════════════════════════════════════════════ */}
-      <div className="hidden md:block min-h-screen text-foreground transition-colors duration-200">
+      <div className="hidden lg:block min-h-screen text-foreground transition-colors duration-200">
 
         <header className="sticky top-0 z-20 bg-background/90 backdrop-blur-xl border-b border-border">
           <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
@@ -1362,11 +1491,11 @@ export default function ChessGame({
           </div>
         </header>
 
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+        <main className="chess-game-main max-w-7xl mx-auto px-4 py-5">
+          <div className="grid grid-cols-12 gap-5 xl:gap-7 items-start">
 
             {/* Left Column: Board Arena */}
-            <div className="md:col-span-7 lg:col-span-8 space-y-4">
+            <div className="chess-arena-column col-span-7 xl:col-span-8 space-y-3.5">
               <PlayerCard
                 name={mode === "bot" ? `Stockfish Lv${botLevel}` : (opponent?.displayName || "Đang chờ...")}
                 rating={mode !== "bot" ? opponent?.rating : undefined}
@@ -1379,7 +1508,7 @@ export default function ChessGame({
                 blackPieceTheme={blackPieceTheme}
               />
 
-              <div className={`relative bg-card border border-border rounded-2xl overflow-hidden p-2 shadow-lg ${chess.inCheck() ? "board-in-check" : ""}`}>
+              <div className={`chess-desktop-board relative bg-card border border-border rounded-2xl overflow-hidden p-2 shadow-lg ${chess.inCheck() ? "board-in-check" : ""}`}>
                 {status === "waiting" && (
                   <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-background/95 backdrop-blur-md rounded-xl p-6">
                     {mode !== "friend" ? (
@@ -1452,7 +1581,7 @@ export default function ChessGame({
                       }
                     </div>
                   )}
-                  <div style={{ flex: 1, aspectRatio: "1", position: "relative" }}>
+                  <div className="chess-board-square" style={{ flex: 1, aspectRatio: "1", position: "relative" }}>
                     <Board chess={chess} onMove={handleMove} orientation={playerColor}
                       disabled={boardDisabled} lastMove={lastMove} hintMove={hintMove}
                       boardTheme={boardTheme} whitePieceTheme={whitePieceTheme} blackPieceTheme={blackPieceTheme}
@@ -1477,7 +1606,7 @@ export default function ChessGame({
             </div>
 
             {/* Right Column: Unified Command Sidebar */}
-            <div className="md:col-span-5 lg:col-span-4 bg-card border border-border rounded-2xl overflow-hidden shadow-md flex flex-col">
+            <aside className="chess-command-sidebar col-span-5 xl:col-span-4 bg-card border border-border rounded-2xl overflow-hidden shadow-md flex flex-col">
               {/* Sidebar Tabs Header */}
               <div className="flex border-b border-border bg-muted/30 shrink-0">
                 <button
@@ -1674,159 +1803,29 @@ export default function ChessGame({
 
                 {/* LIVE PERSONALIZATION STYLING TAB */}
                 {sidebarTab === "settings" && (
-                  <div className="p-4 space-y-4 flex-1 overflow-y-auto">
-                    <div className="space-y-3.5">
-                      {/* App Theme */}
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">Giao diện ứng dụng</label>
-                        <select
-                          value={appTheme}
-                          onChange={(e) => changeAppTheme(e.target.value)}
-                          className="w-full text-xs rounded-xl px-3 py-2 border border-border bg-background focus:outline-none"
-                        >
-                          {APP_THEMES.map(theme => (
-                            <option key={theme.id} value={theme.id}>{theme.label}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Board Theme */}
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">Giao diện bàn cờ</label>
-                        <select
-                          value={boardTheme}
-                          onChange={(e) => changeBoardTheme(e.target.value)}
-                          className="w-full text-xs rounded-xl px-3 py-2 border border-border bg-background focus:outline-none"
-                        >
-                          {BOARD_THEMES.map(b => (
-                            <option key={b.id} value={b.id}>{b.label}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Piece Themes */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">Quân của tôi</label>
-                          <select
-                            value={myPieceTheme}
-                            onChange={(e) => changeMyPieceTheme(e.target.value)}
-                            className="w-full text-xs rounded-xl px-3 py-2 border border-border bg-background focus:outline-none"
-                          >
-                            {PIECE_THEMES.map(p => (
-                              <option key={p.id} value={p.id}>{p.label}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">Quân đối thủ</label>
-                          <select
-                            value={oppPieceTheme}
-                            onChange={(e) => changeOppPieceTheme(e.target.value)}
-                            className="w-full text-xs rounded-xl px-3 py-2 border border-border bg-background focus:outline-none"
-                          >
-                            {PIECE_THEMES.map(p => (
-                              <option key={p.id} value={p.id}>{p.label}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* Move Highlight */}
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">Màu nước đi cuối</label>
-                        <select
-                          value={highlightTheme}
-                          onChange={(e) => changeHighlightTheme(e.target.value)}
-                          className="w-full text-xs rounded-xl px-3 py-2 border border-border bg-background focus:outline-none"
-                        >
-                          {HIGHLIGHT_THEMES.map(hl => (
-                            <option key={hl.id} value={hl.id}>{hl.label}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Sound Pack */}
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">Gói âm thanh</label>
-                        <select
-                          value={soundPack}
-                          onChange={(e) => changeSoundPack(e.target.value)}
-                          className="w-full text-xs rounded-xl px-3 py-2 border border-border bg-background focus:outline-none"
-                        >
-                          {SOUND_PACKS.map(sp => (
-                            <option key={sp.id} value={sp.id}>{sp.label}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Border & Shadow */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">Khung viền</label>
-                          <select
-                            value={boardBorder}
-                            onChange={(e) => changeBoardBorder(e.target.value)}
-                            className="w-full text-xs rounded-xl px-3 py-2 border border-border bg-background focus:outline-none"
-                          >
-                            {BORDER_STYLES.map(b => (
-                              <option key={b.id} value={b.id}>{b.label}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">Đổ bóng</label>
-                          <select
-                            value={boardShadow}
-                            onChange={(e) => changeBoardShadow(e.target.value)}
-                            className="w-full text-xs rounded-xl px-3 py-2 border border-border bg-background focus:outline-none"
-                          >
-                            {SHADOW_STYLES.map(s => (
-                              <option key={s.id} value={s.id}>{s.label}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* Coordinates & Auto Queen */}
-                      <div className="pt-2 space-y-2 border-t border-border/40">
-                        <label className="flex items-center justify-between text-xs cursor-pointer select-none">
-                          <span className="text-muted-foreground font-semibold">Hiện tọa độ (A-H, 1-8)</span>
-                          <input
-                            type="checkbox"
-                            checked={showCoords}
-                            onChange={(e) => changeShowCoords(e.target.checked)}
-                            className="rounded border-border focus:ring-0 w-4 h-4 accent-foreground"
-                          />
-                        </label>
-
-                        <label className="flex items-center justify-between text-xs cursor-pointer select-none">
-                          <span className="text-muted-foreground font-semibold">Tự động phong Hậu</span>
-                          <input
-                            type="checkbox"
-                            checked={autoQueen}
-                            onChange={(e) => changeAutoQueen(e.target.checked)}
-                            className="rounded border-border focus:ring-0 w-4 h-4 accent-foreground"
-                          />
-                        </label>
-                      </div>
-                    </div>
+                  <div className="p-4 flex-1 overflow-y-auto">
+                    <GameSettingsPanel {...{
+                      appTheme, boardTheme, myPieceTheme, oppPieceTheme, highlightTheme, soundPack, playerColor,
+                      boardBorder, boardShadow, showCoords, autoQueen, changeAppTheme, changeBoardTheme,
+                      changeMyPieceTheme, changeOppPieceTheme, changeHighlightTheme, changeSoundPack,
+                      changeBoardBorder, changeBoardShadow, changeShowCoords, changeAutoQueen,
+                    }} />
                   </div>
                 )}
               </div>
-            </div>
+            </aside>
           </div>
-        </div>
+        </main>
       </div>
 
       {/* ══ MOBILE SETTINGS DRAWER ═════════════════════════════════════════════ */}
       {showSettingsModal && (
-        <div className="md:hidden fixed inset-0 z-40" onClick={() => setShowSettingsModal(false)}>
+        <div className="lg:hidden fixed inset-0 z-40" onClick={() => setShowSettingsModal(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
           <div
-            className="absolute inset-x-0 bottom-0 bg-background border-t border-border rounded-t-3xl shadow-2xl transition-all duration-200"
+            className="chess-settings-sheet absolute inset-x-0 bottom-0 bg-background border-t border-border rounded-t-3xl shadow-2xl transition-all duration-200 flex flex-col overflow-hidden"
             onClick={e => e.stopPropagation()}
-            style={{ maxHeight: "75vh" }}
+            style={{ height: "min(88dvh, 760px)" }}
           >
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 rounded-full bg-muted-foreground/25" />
@@ -1848,7 +1847,14 @@ export default function ChessGame({
               </button>
             </div>
 
-            <div className="overflow-y-auto p-5 space-y-4 text-left" style={{ maxHeight: "calc(75vh - 70px)" }}>
+            <div className="chess-settings-scroll flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 text-left">
+              <GameSettingsPanel {...{
+                appTheme, boardTheme, myPieceTheme, oppPieceTheme, highlightTheme, soundPack, playerColor,
+                boardBorder, boardShadow, showCoords, autoQueen, changeAppTheme, changeBoardTheme,
+                changeMyPieceTheme, changeOppPieceTheme, changeHighlightTheme, changeSoundPack,
+                changeBoardBorder, changeBoardShadow, changeShowCoords, changeAutoQueen,
+              }} />
+              <div className="hidden">
               {/* App Theme */}
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Giao diện ứng dụng</label>
@@ -1995,6 +2001,7 @@ export default function ChessGame({
                   />
                 </label>
               </div>
+              </div>
             </div>
           </div>
         </div>
@@ -2002,7 +2009,7 @@ export default function ChessGame({
 
       {/* ══ MOBILE AI DRAWER ════════════════════════════════════════════════════ */}
       {showAIDrawer && (
-        <div className="md:hidden fixed inset-0 z-40" onClick={() => setShowAIDrawer(false)}>
+        <div className="lg:hidden fixed inset-0 z-40" onClick={() => setShowAIDrawer(false)}>
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
           <div
             className="absolute inset-x-0 bottom-0 bg-background border-t border-border rounded-t-3xl shadow-2xl transition-all duration-200"

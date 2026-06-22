@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import { DIFFICULTY_STYLES } from "./arcadeConstants";
 
 const RESULT_TEXT = {
-  win: { label: "Cậu thắng! 🎉", color: "text-emerald-500" },
-  lose: { label: "Thua rồi, thử lại nhé!", color: "text-rose-500" },
-  draw: { label: "Hòa!", color: "text-zinc-500" }
+  win: { label: "Chiến thắng!", icon: "trophy", type: "win" },
+  lose: { label: "Chưa phá đảo", icon: "replay", type: "lose" },
+  draw: { label: "Bất phân thắng bại", icon: "handshake", type: "draw" }
 };
 
 export default function GameResultOverlay({ result, score, difficulty, joyDelta, joyAwarded, dailyCapReached, onReplay, onChangeDifficulty }) {
@@ -22,37 +22,38 @@ export default function GameResultOverlay({ result, score, difficulty, joyDelta,
       initial={{ opacity: 0, scale: 0.95, y: 8 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-      className="flex flex-col items-center gap-4 py-10 px-4"
+      className={`arcade-result result-${info.type}`}
     >
-      <p className={`text-2xl font-black ${info.color}`}>{info.label}</p>
+      <div className="result-icon"><span className="material-symbols-outlined">{info.icon}</span></div>
+      <span className="result-kicker">KẾT QUẢ THỬ THÁCH</span><h2>{info.label}</h2>
 
       <div className="flex items-center gap-2.5">
-        <span className={`text-xs font-bold px-2.5 py-1.5 rounded-full border ${style?.pillIdle || ""}`}>
+        <span className="result-difficulty">
           {difficulty === "easy" ? "Dễ" : difficulty === "medium" ? "Trung Bình" : "Khó"}
         </span>
-        <span className="text-sm font-bold text-zinc-500 dark:text-zinc-400">Điểm: {score}</span>
+        <span className="result-score">{score.toLocaleString("vi-VN")} điểm</span>
       </div>
 
-      <div className={`px-5 py-2 rounded-full text-lg font-black ${joyPillClass}`}>
-        {joyDelta > 0 ? `+${joyDelta}` : joyDelta} JOY
+      <div className={`result-reward ${joyPillClass}`}><small>PHẦN THƯỞNG</small>
+        <strong>{joyDelta > 0 ? `+${joyDelta}` : joyDelta} <span>JOY</span></strong>
       </div>
 
       {dailyCapReached && (
-        <p className="text-xs text-zinc-400 text-center max-w-[280px]">
+        <p className="result-cap">
           Đã đạt giới hạn JOY hôm nay từ HugoArcade, mai quay lại nhé. Điểm số vẫn được ghi nhận.
         </p>
       )}
 
-      <div className="flex gap-3 mt-2">
+      <div className="result-actions">
         <button
           onClick={onReplay}
-          className="px-5 h-12 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-bold active:scale-95 transition-transform"
+          className="result-primary"
         >
           Chơi lại
         </button>
         <button
           onClick={onChangeDifficulty}
-          className="px-5 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-sm font-bold active:scale-95 transition-transform"
+          className="result-secondary"
         >
           Đổi độ khó
         </button>

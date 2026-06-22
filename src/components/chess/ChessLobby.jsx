@@ -421,10 +421,10 @@ export default function ChessLobby({
   const setActivePieceTheme = (which, val) => which === "my" ? setLocalMyPiece(val) : setLocalOppPiece(val);
 
   return (
-    <div className="min-h-screen text-foreground transition-all duration-300">
+    <div className="chess-app-shell min-h-screen text-foreground transition-all duration-300">
 
       {/* ── Nav ── */}
-      <header className="sticky top-0 z-20 h-14 flex items-center border-b border-border bg-background/90 backdrop-blur-xl px-4">
+      <header className="chess-app-header sticky top-0 z-20 h-14 flex items-center border-b border-border bg-background/90 backdrop-blur-xl px-4">
         <div className="max-w-6xl mx-auto w-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -457,7 +457,7 @@ export default function ChessLobby({
                 <button key={t.id} onClick={() => setTab(t.id)}
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     tab === t.id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                  } ${t.id === "play" ? "md:hidden" : ""}`}>
+                  } ${t.id === "play" ? "lg:hidden" : ""}`}>
                   {t.label}
                 </button>
               ))}
@@ -466,11 +466,11 @@ export default function ChessLobby({
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+      <main className="chess-lobby-main max-w-6xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-start">
 
           {/* Left Column: Play Lobby / Configuration Setup */}
-          <div className={`md:col-span-7 space-y-6 ${step === "home" && tab !== "play" ? "hidden md:block" : "block"}`}>
+          <div className={`lg:col-span-7 space-y-6 ${step === "home" && tab !== "play" ? "hidden lg:block" : "block"}`}>
             {step === "home" && (
               <div className="space-y-6">
                 {/* Hero Box */}
@@ -707,7 +707,7 @@ export default function ChessLobby({
           </div>
 
           {/* Right Column: Tabbed Leaderboard and Advanced Personalization settings */}
-          <div className={`md:col-span-5 space-y-6 ${step === "home" && tab === "play" ? "hidden md:block" : step === "config" ? "hidden md:block" : "block"}`}>
+          <div className={`lg:col-span-5 space-y-6 ${step === "home" && tab === "play" ? "hidden lg:block" : step === "config" ? "hidden lg:block" : "block"}`}>
             <div className="bg-card border border-border rounded-3xl p-5 shadow-sm space-y-4">
               
               {/* Tabs selector */}
@@ -911,7 +911,7 @@ export default function ChessLobby({
           </div>
 
         </div>
-      </div>
+      </main>
     </div>
   );
 }
@@ -1122,4 +1122,3 @@ function ToggleSetting({ label, desc, icon: Icon, value, onChange }) {
     </button>
   );
 }
-

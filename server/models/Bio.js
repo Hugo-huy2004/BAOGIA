@@ -34,6 +34,16 @@ const BioSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    // Date-keyed daily cap on JOY sent via phone transfer — same reset pattern
+    // as ArcadeScore.joyAwardedDate/joyAwardedToday.
+    joySentDate: {
+      type: String,
+      default: ''
+    },
+    joySentToday: {
+      type: Number,
+      default: 0
+    },
     hobbies: {
       type: String,
       default: ''
@@ -265,6 +275,18 @@ const BioSchema = new mongoose.Schema(
     }
   },
   { timestamps: true }
+);
+
+// Guarantees at most one account per non-empty phone (empty-string default is
+// excluded via the partial filter, so it doesn't collide with itself across
+// every phoneless Bio) — the basis for "send JOY by phone" resolving to
+// exactly one recipient.
+// MongoDB partial indexes only support a restricted operator set ($eq/$exists/
+// $gt/$gte/$lt/$lte/$type) — $ne isn't allowed, so "non-empty string" is
+// expressed as $gt '' (every real phone number sorts after the empty string).
+BioSchema.index(
+  { phone: 1 },
+  { unique: true, partialFilterExpression: { phone: { $gt: '' } } }
 );
 
 const Bio = mongoose.model('Bio', BioSchema);

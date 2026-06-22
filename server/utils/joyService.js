@@ -17,7 +17,9 @@ const TITLES = {
   daily_challenge: 'Thử thách hàng ngày',
   arcade_score: 'Kỷ lục HugoArcade mới',
   focus_session: 'Tập trung sâu HugoAura',
-  aura_theme_rent: 'Thuê giao diện Aura'
+  aura_theme_rent: 'Thuê giao diện Aura',
+  joy_gift_sent: 'Gửi JOY cho bạn bè',
+  joy_gift_received: 'Nhận JOY từ bạn bè'
 };
 
 /**

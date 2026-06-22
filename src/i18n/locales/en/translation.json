@@ -1295,7 +1295,9 @@
       "sections": {
         "wallet": "Wallet",
         "store": "Store",
-        "history": "History"
+        "history": "History",
+        "send": "Send JOY",
+        "missions": "Missions"
       },
       "redeem": {
         "title": "Redeem a JOY gift code",
@@ -1340,6 +1342,34 @@
         "confirmCancel": "Cancel",
         "confirmButton": "Confirm purchase",
         "confirmProcessing": "Processing..."
+      },
+      "send": {
+        "title": "Send JOY",
+        "subtitle": "Send JOY to a friend by phone number, like a MoMo transfer.",
+        "phoneLabel": "Recipient's phone number",
+        "phonePlaceholder": "e.g. 0901234567",
+        "lookupButton": "Find recipient",
+        "notFound": "No user found with this phone number.",
+        "recipientLabel": "Sending to",
+        "amountLabel": "Amount to send",
+        "amountPlaceholder": "Up to 500 JOY per transfer",
+        "feeNote": "5% anti-abuse fee: the recipient gets {{net}} JOY (fee: {{fee}} JOY).",
+        "dailyCapNote": "Limit: 100 JOY sent per day.",
+        "confirmButton": "Confirm send",
+        "cancelButton": "Cancel",
+        "sending": "Sending...",
+        "success": "Sent {{net}} JOY to {{name}}!",
+        "changeRecipient": "Change recipient",
+        "ageGateHint": "Your account must be at least 3 days old to send JOY."
+      },
+      "missions": {
+        "title": "Today's missions",
+        "subtitle": "Complete small daily missions to earn extra JOY.",
+        "claimButton": "Claim JOY",
+        "claimed": "Claimed",
+        "notDoneYet": "Not done yet",
+        "claimSuccess": "+{{amount}} JOY!",
+        "empty": "Couldn't load missions right now."
       }
     },
     "checkin": {
