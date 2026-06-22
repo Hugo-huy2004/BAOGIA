@@ -58,6 +58,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
   const fetchBalance = useJoyStore(s => s.fetchBalance);
 
   const [referralCount, setReferralCount] = useState(0);
+  const [referralApplied, setReferralApplied] = useState(Boolean(bio?.referralApplied));
   const [transactions, setTransactions] = useState([]);
   const [orders, setOrders] = useState([]);
   const [giftCode, setGiftCode] = useState("");
@@ -84,7 +85,10 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
     fetchBalance(email);
     fetch(`${apiBase}/referral/me?email=${encodeURIComponent(email)}`, { credentials: "include" })
       .then(r => r.json())
-      .then(d => setReferralCount(d.referralCount || 0))
+      .then(d => {
+        setReferralCount(d.referralCount || 0);
+        setReferralApplied(Boolean(d.referralApplied || d.referredBy));
+      })
       .catch(() => {});
   }, [email]);
 
@@ -149,6 +153,8 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || t("memberPortal.joy.applyReferral.error"));
       fetchBalance(email);
+      setReferralApplied(true);
+      onBioUpdate?.({ referralApplied: true });
       showToast?.(t("memberPortal.joy.applyReferral.success", { days: data.bioExtendedDays }), "success");
       setReferrerCodeInput("");
     } catch (err) {
@@ -158,10 +164,20 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
     }
   }
 
-  function copyReferralLink() {
-    const link = `${window.location.origin}/login?ref=${referralCode}`;
-    navigator.clipboard.writeText(link);
+  function copyReferralCode() {
+    navigator.clipboard.writeText(referralCode);
     showToast?.(t("memberPortal.joy.referral.copied"), "success");
+  }
+
+  function normalizeReferralInput(value) {
+    let next = value.trim();
+    if (next.includes("?") || next.includes("://")) {
+      try {
+        const parsed = new URL(next, window.location.origin);
+        next = parsed.searchParams.get("ref") || next;
+      } catch (_) {}
+    }
+    return next.toUpperCase().replace(/\s+/g, "").slice(0, 24);
   }
 
   function resetSendFlow() {
@@ -236,7 +252,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
         <div className="joy-hero-details">
           <div className="joy-stat"><span className="material-symbols-outlined">group_add</span><div><small>ĐÃ GIỚI THIỆU</small><strong>{referralCount}</strong></div></div>
           <div className="joy-stat"><span className="material-symbols-outlined">chat</span><div><small>CHAT THƯỞNG</small><strong>{bio?.bonusChatTokens || 0}</strong></div></div>
-          {referralCode && <button onClick={copyReferralLink} className="joy-referral-code"><span><small>MÃ GIỚI THIỆU</small><strong>{referralCode}</strong></span><span className="material-symbols-outlined">content_copy</span></button>}
+          {referralCode && <button onClick={copyReferralCode} className="joy-referral-code"><span><small>MÃ GIỚI THIỆU · CHẠM ĐỂ SAO CHÉP</small><strong>{referralCode}</strong></span><span className="material-symbols-outlined">content_copy</span></button>}
         </div>
       </div>
 
@@ -259,7 +275,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
         <div className="joy-overview-grid">
           <div className="joy-checkin-wrap"><CheckinCard email={email} showToast={showToast} /></div>
           <div className="joy-code-column">
-          {!bio?.referralApplied && (
+          {!referralApplied && (
             <div className="joy-action-card referral-card">
               <h4 className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
                 {t("memberPortal.joy.applyReferral.title")}
@@ -268,7 +284,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate }) {
                 <input
                   type="text"
                   value={referrerCodeInput}
-                  onChange={e => setReferrerCodeInput(e.target.value.toUpperCase())}
+                  onChange={e => setReferrerCodeInput(normalizeReferralInput(e.target.value))}
                   placeholder={t("memberPortal.joy.applyReferral.placeholder")}
                   className="joy-code-input"
                 />

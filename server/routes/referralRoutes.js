@@ -15,7 +15,12 @@ router.get('/me', async (req, res) => {
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
     const referralCode = await ensureReferralCode(bio);
-    res.json({ referralCode, referralCount: bio.referralCount, referredBy: bio.referredBy });
+    res.json({
+      referralCode,
+      referralCount: bio.referralCount,
+      referralApplied: bio.referralApplied,
+      referredBy: bio.referredBy
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

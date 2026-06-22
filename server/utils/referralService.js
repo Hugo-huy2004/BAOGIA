@@ -54,7 +54,17 @@ export async function ensureReferralCode(bio) {
  * with a user-facing Vietnamese message.
  */
 export async function applyReferral(bio, referrerCodeRaw) {
-  const referrerCode = String(referrerCodeRaw || '').toUpperCase().trim();
+  let referrerCode = String(referrerCodeRaw || '').trim();
+  // Accept either the raw HG code or a full shared URL such as /login?ref=HGxxxxxx.
+  // The previous UI copied the full URL while this service only accepted raw
+  // codes, which made a normal copy/paste flow fail as "invalid".
+  if (referrerCode.includes('?') || referrerCode.includes('://')) {
+    try {
+      const parsed = new URL(referrerCode, 'https://hugowishpax.local');
+      referrerCode = parsed.searchParams.get('ref') || referrerCode;
+    } catch (_) {}
+  }
+  referrerCode = referrerCode.toUpperCase().replace(/\s+/g, '');
   if (!referrerCode) throw new Error('Mã giới thiệu không hợp lệ.');
 
   if (bio.referralApplied) {
