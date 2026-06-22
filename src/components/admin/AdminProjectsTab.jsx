@@ -1,12 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+
+const STATUS_OPTIONS = ['Đang liên hệ', 'Đang lên thiết kế', 'Đang thực hiện', 'Đang Kiểm tra', 'Hoàn tất'];
+
+const STATUS_COLORS = {
+  'Đang liên hệ': 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+  'Đang lên thiết kế': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  'Đang thực hiện': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+  'Đang Kiểm tra': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  'Hoàn tất': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+};
 
 export default function AdminProjectsTab({ showNotification }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Delete modal state
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -138,8 +150,22 @@ export default function AdminProjectsTab({ showNotification }) {
     navigate(`/admin/projects/${project._id}`);
   };
 
-  const totalPages = Math.ceil(projects.length / ITEMS_PER_PAGE);
-  const currentProjects = projects.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const filteredProjects = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return projects.filter(p => {
+      const matchesQuery = !q ||
+        p.fullName?.toLowerCase().includes(q) ||
+        p.phone?.toLowerCase().includes(q) ||
+        p.loginCode?.toLowerCase().includes(q);
+      const matchesStatus = !statusFilter || p.status === statusFilter;
+      return matchesQuery && matchesStatus;
+    });
+  }, [projects, search, statusFilter]);
+
+  useEffect(() => { setCurrentPage(1); }, [search, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProjects.length / ITEMS_PER_PAGE));
+  const currentProjects = filteredProjects.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <div className="animate-fadeIn">
@@ -184,53 +210,82 @@ export default function AdminProjectsTab({ showNotification }) {
 
         {/* Project List */}
         <div className="bg-white dark:bg-background rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-full min-h-[600px]">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-4 shrink-0">
-            <span className="material-symbols-outlined text-emerald-500 text-base">view_list</span>
-            Danh Sách Khách Hàng
-          </h3>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 shrink-0">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 shrink-0">
+              <span className="material-symbols-outlined text-emerald-500 text-base">view_list</span>
+              Danh Sách Khách Hàng ({filteredProjects.length})
+            </h3>
+          </div>
+
+          {/* Search + Status filter */}
+          <div className="flex flex-col sm:flex-row gap-2 mb-4 shrink-0">
+            <div className="relative flex-1">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("adminProjects.tab.searchPlaceholder")}
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs py-3 pl-9 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs py-3 px-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold shrink-0"
+            >
+              <option value="">{t("adminProjects.tab.statusAll")}</option>
+              {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+
           <div className="flex-1 space-y-3 overflow-y-auto pr-2">
             {currentProjects.map(p => (
-              <div key={p._id} onClick={() => handleOpenDetail(p)} className="cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 p-4 rounded-md border border-border/50 transition-colors relative group">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-bold text-sm text-foreground flex items-center gap-2">
-                      {p.fullName}
+              <div key={p._id} onClick={() => handleOpenDetail(p)} className="cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 p-4 rounded-xl border border-border/50 transition-colors">
+                <div className="flex justify-between items-start gap-3">
+                  <div className="min-w-0">
+                    <div className="font-bold text-sm text-foreground flex items-center gap-2 flex-wrap">
+                      <span className="truncate">{p.fullName}</span>
                       {p.unreadCount > 0 && (
-                        <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                        <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse shrink-0">
                           {p.unreadCount} {t("adminProjects.tab.newMsg")}
                         </span>
                       )}
                     </div>
-                    <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-semibold">{p.servicePackage}</div>
-                  </div>
-                  <div className="text-right">
-                    <span className={`text-[10px] px-2 py-1 rounded-md font-bold ${p.status === 'Hoàn tất' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'}`}>
-                      {p.status}
-                    </span>
-                    <div className="mt-2 flex items-center justify-end gap-1">
-                      <div className="text-xs font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-200 dark:border-amber-800/50 inline-block">
-                        MÃ: {p.loginCode}
-                      </div>
-                      <button 
-                        onClick={(e) => handleCopyLink(e, p.loginCode)}
-                        className="p-1.5 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-500 transition-colors"
-                        title={t("admin.texts.txt_87")}
-                      >
-                        <span className="material-symbols-outlined text-[14px]">share</span>
-                      </button>
+                    <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-semibold truncate">{p.servicePackage}</div>
+                    <div className="text-xs font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-200 dark:border-amber-800/50 inline-block mt-2">
+                      MÃ: {p.loginCode}
                     </div>
                   </div>
+                  <span className={`text-[10px] px-2 py-1 rounded-md font-bold shrink-0 text-center ${STATUS_COLORS[p.status] || STATUS_COLORS['Đang liên hệ']}`}>
+                    {p.status}
+                  </span>
                 </div>
-                <button onClick={(e) => handleDeleteClick(e, p)} className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-rose-100 text-rose-500 dark:bg-rose-900/30 dark:text-rose-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white shadow-sm" title={t("admin.texts.txt_88")}>
-                  <span className="material-symbols-outlined text-sm">delete</span>
-                </button>
+
+                {/* Always-visible action row — no hover-only controls so this works on touch devices */}
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/40">
+                  <button
+                    onClick={(e) => handleCopyLink(e, p.loginCode)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">share</span>
+                    {t("admin.texts.txt_87")}
+                  </button>
+                  <button
+                    onClick={(e) => handleDeleteClick(e, p)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 text-rose-500 dark:text-rose-400 text-[10px] font-bold uppercase transition-colors"
+                    title={t("admin.texts.txt_88")}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">delete</span>
+                  </button>
+                </div>
               </div>
             ))}
-            {projects.length === 0 && !loading && (
+            {currentProjects.length === 0 && !loading && (
               <div className="text-center text-xs text-slate-500 italic py-4">{t("adminProjects.tab.empty")}</div>
             )}
           </div>
-          
+
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800/50 flex justify-center items-center gap-2 shrink-0">

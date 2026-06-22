@@ -86,7 +86,7 @@ function StorageBar({ label, sizeInBytes, maxInBytes = 2 * 1024 * 1024 * 1024 })
   );
 }
 
-export default function AdminDashboard({ stats, bookings, partners, packageTemplates, tickets, loading }) {
+export default function AdminDashboard({ stats, bookings, totalProjects, totalPackages, openTickets, loading }) {
   const { t } = useTranslation();
   const [recentUsers, setRecentUsers] = useState([]);
   const [storageStats, setStorageStats] = useState({ publicFiles: 0, database: 0, total: 0 });
@@ -110,8 +110,7 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
   }, []);
 
   const pendingBookings = bookings.filter(b => !b.contacted).length;
-  const pendingTickets  = tickets;
-  const totalUsers      = stats.total || 0;
+  const totalUsers = stats.total || 0;
 
   useEffect(() => {
     apiFetch(`${VITE_API}/bios?limit=5&sortBy=createdAt&sortOrder=desc`)
@@ -164,9 +163,9 @@ export default function AdminDashboard({ stats, bookings, partners, packageTempl
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard icon="calendar_month" label={t("adminDashboard.kpi.newBookings")} value={pendingBookings} color="info" />
-        <StatCard icon="handshake"      label={t("adminDashboard.kpi.partners")}    value={partners.length} color="accent" />
-        <StatCard icon="featured_play_list" label={t("adminDashboard.kpi.packages")} value={packageTemplates.length} color="secondary" />
-        <StatCard icon="support_agent"  label={t("adminDashboard.kpi.openTickets")} value={pendingTickets} color="warning" />
+        <StatCard icon="assignment"     label={t("adminPanel.sidebar.projects", "Dự án")} value={totalProjects || 0} color="accent" />
+        <StatCard icon="featured_play_list" label={t("adminDashboard.kpi.packages")} value={totalPackages || 0} color="secondary" />
+        <StatCard icon="support_agent"  label={t("adminDashboard.kpi.openTickets")} value={openTickets || 0} color="warning" />
       </div>
 
       {/* ── Main 3-col grid ── */}

@@ -1,8 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getAdminSession } from '../../services/authSession';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, showNotification, handleLogout, uploadingAd, handleAdImageUpload, handleAdDelete }) => {
   const { t } = useTranslation();
+
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [changingPw, setChangingPw] = useState(false);
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (pwForm.newPassword !== pwForm.confirmPassword) {
+      return showNotification(t('adminTabs.settings.passwordMismatch'), 'error');
+    }
+    setChangingPw(true);
+    try {
+      const session = getAdminSession();
+      const res = await fetch(`${API_BASE_URL}/admin/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {})
+        },
+        credentials: 'include',
+        body: JSON.stringify({ currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword })
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Lỗi đổi mật khẩu');
+      showNotification(t('adminTabs.settings.changePasswordSuccess'));
+      setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      showNotification(err.message, 'error');
+    } finally {
+      setChangingPw(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Settings Grid */}
@@ -108,6 +143,123 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Supreme Admin Authority Card */}
+      <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-4">
+        <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <span className="material-symbols-outlined text-rose-500 text-lg">verified_user</span>
+          {t("adminTabs.settings.supremeTitle")}
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-t border-slate-100 dark:border-slate-800/60 pt-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.autoApprove")}</span>
+              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.autoApproveDesc")}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => updateSystemSettings({ autoApproveNew: !data?.systemSettings?.autoApproveNew })}
+              className={`relative inline-flex items-center w-[44px] min-w-[44px] h-[24px] min-h-[24px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                data?.systemSettings?.autoApproveNew ? "bg-emerald-500" : "bg-slate-200 dark:bg-slate-800"
+              }`}
+            >
+              <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-sm transition ${data?.systemSettings?.autoApproveNew ? "translate-x-5" : "translate-x-0"}`} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.autoLock")}</span>
+              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.autoLockDesc")}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => updateSystemSettings({ autoLockInactive: !data?.systemSettings?.autoLockInactive })}
+              className={`relative inline-flex items-center w-[44px] min-w-[44px] h-[24px] min-h-[24px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                data?.systemSettings?.autoLockInactive ? "bg-rose-500" : "bg-slate-200 dark:bg-slate-800"
+              }`}
+            >
+              <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-sm transition ${data?.systemSettings?.autoLockInactive ? "translate-x-5" : "translate-x-0"}`} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.crisisAlert")}</span>
+              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.crisisAlertDesc")}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => updateSystemSettings({ alertCrisis: !data?.systemSettings?.alertCrisis })}
+              className={`relative inline-flex items-center w-[44px] min-w-[44px] h-[24px] min-h-[24px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                data?.systemSettings?.alertCrisis !== false ? "bg-amber-500" : "bg-slate-200 dark:bg-slate-800"
+              }`}
+            >
+              <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-sm transition ${data?.systemSettings?.alertCrisis !== false ? "translate-x-5" : "translate-x-0"}`} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.primaryColor")}</span>
+              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.primaryColorDesc")}</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <input
+                type="color"
+                value={data?.systemSettings?.primaryColor || "#3B82F6"}
+                onChange={(e) => updateSystemSettings({ primaryColor: e.target.value })}
+                className="w-9 h-9 rounded-lg border border-slate-200 dark:border-slate-800 cursor-pointer bg-transparent"
+              />
+              <span className="text-xs font-mono font-bold text-slate-500 uppercase">{data?.systemSettings?.primaryColor || "#3B82F6"}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Admin Account & Security Card */}
+      <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 sm:p-8 space-y-4">
+        <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <span className="material-symbols-outlined text-indigo-500 text-lg">lock_person</span>
+          {t("adminTabs.settings.securityTitle")}
+        </h3>
+        <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 dark:border-slate-800/60 pt-4 items-end">
+          <div className="space-y-1">
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t("adminTabs.settings.currentPassword")}</label>
+            <input
+              type="password" required
+              value={pwForm.currentPassword}
+              onChange={(e) => setPwForm(p => ({ ...p, currentPassword: e.target.value }))}
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 focus:ring-1 focus:ring-primary"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t("adminTabs.settings.newPassword")}</label>
+            <input
+              type="password" required minLength={6}
+              value={pwForm.newPassword}
+              onChange={(e) => setPwForm(p => ({ ...p, newPassword: e.target.value }))}
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 focus:ring-1 focus:ring-primary"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t("adminTabs.settings.confirmPassword")}</label>
+            <input
+              type="password" required minLength={6}
+              value={pwForm.confirmPassword}
+              onChange={(e) => setPwForm(p => ({ ...p, confirmPassword: e.target.value }))}
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 focus:ring-1 focus:ring-primary"
+            />
+          </div>
+          <div className="md:col-span-3">
+            <button type="submit" disabled={changingPw} className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-3 px-6 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50">
+              <span className="material-symbols-outlined text-base">{changingPw ? 'progress_activity' : 'key'}</span>
+              {t("adminTabs.settings.changePasswordBtn")}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* SEO Settings */}

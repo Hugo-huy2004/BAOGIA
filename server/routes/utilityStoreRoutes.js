@@ -5,6 +5,7 @@ import UtilityOrder from '../models/UtilityOrder.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import InAppNotification from '../models/InAppNotification.js';
+import cloudinaryUtil from '../utils/cloudinary.js';
 
 const router = express.Router();
 
@@ -156,6 +157,18 @@ router.get('/admin/orders', requireAdmin, async (req, res) => {
   try {
     const orders = await UtilityOrder.find().sort({ createdAt: -1 }).limit(200);
     res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/utility-store/admin/upload-image  { base64Str, oldUrl }
+router.post('/admin/upload-image', requireAdmin, async (req, res) => {
+  try {
+    const { base64Str, oldUrl } = req.body;
+    if (!base64Str) return res.status(400).json({ error: 'base64Str is required' });
+    const url = await cloudinaryUtil.uploadProductImage(base64Str, oldUrl || '');
+    res.json({ url });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

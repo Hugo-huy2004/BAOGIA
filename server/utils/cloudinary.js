@@ -131,9 +131,41 @@ export const uploadAdImage = async (base64Str, oldUrl = '') => {
   return uploadResponse.secure_url;
 };
 
+export const uploadProductImage = async (base64Str, oldUrl = '') => {
+  const isConfigured = process.env.CLOUDINARY_URL ||
+    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+
+  if (!isConfigured) {
+    throw new Error('Cloudinary is not configured.');
+  }
+
+  if (oldUrl) {
+    const oldPublicId = getPublicIdFromUrl(oldUrl);
+    if (oldPublicId) {
+      try {
+        await cloudinary.uploader.destroy(oldPublicId);
+      } catch (err) {}
+    }
+  }
+
+  const folderPath = 'hugo_wishpax/utility_store';
+  const publicId = `product_${Date.now()}`;
+
+  const uploadResponse = await cloudinary.uploader.upload(base64Str, {
+    folder: folderPath,
+    public_id: publicId,
+    overwrite: true,
+    resource_type: 'image',
+    quality: 'auto'
+  });
+
+  return uploadResponse.secure_url;
+};
+
 export default {
   uploadAvatar,
   deleteAvatar,
   getPublicIdFromUrl,
-  uploadAdImage
+  uploadAdImage,
+  uploadProductImage
 };

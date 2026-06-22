@@ -95,6 +95,36 @@ router.post('/verify-password', requireAdmin, async (req, res) => {
   }
 });
 
+// Change admin password route
+router.post('/change-password', requireAdmin, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Mật khẩu hiện tại và mật khẩu mới là bắt buộc' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Mật khẩu mới phải có ít nhất 6 ký tự' });
+    }
+
+    const admin = await Admin.findById(req.admin.id);
+    if (!admin) {
+      return res.status(404).json({ error: 'Không tìm thấy tài khoản admin' });
+    }
+
+    if (admin.password !== sha256(currentPassword)) {
+      return res.status(401).json({ error: 'Mật khẩu hiện tại không chính xác' });
+    }
+
+    admin.password = sha256(newPassword);
+    await admin.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Change admin password error:', error);
+    res.status(500).json({ error: 'Lỗi máy chủ' });
+  }
+});
+
 async function getDirSize(dirPath) {
   let size = 0;
   try {

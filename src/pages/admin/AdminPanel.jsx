@@ -13,11 +13,9 @@ import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import AdminServicesTab from "../../components/admin/AdminServicesTab";
 import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
+import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 
-// Refactored Tabs
-import AdminBookingsTab from "../../components/admin/AdminBookingsTab";
-import AdminPartnersTab from "../../components/admin/AdminPartnersTab";
-import AdminSupportTicketsTab from "../../components/admin/AdminSupportTicketsTab";
+import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
 
 const api = new BaseApi();
 
@@ -31,12 +29,14 @@ export default function AdminPanel() {
   // Global counts for Sidebar
   const [counts, setCounts] = useState({
     users: 0,
-    bookings: 0,
-    partners: 0,
+    contactSupport: 0,
     packages: 0,
-    support: 0,
-    projects: 0
+    projects: 0,
+    pendingBookings: 0,
+    openTickets: 0,
+    totalProjects: 0
   });
+  const [recentBookings, setRecentBookings] = useState([]);
 
   // Users State (Kept in AdminPanel to pass to Dashboard & AdminUsersTab)
   const [users, setUsers] = useState([]);
@@ -156,35 +156,36 @@ export default function AdminPanel() {
     const fetchDashboardCounts = async () => {
       setLoading(true);
       try {
-        const [bookingsRes, partnersRes, packagesRes, ticketsRes, unreadProjectsRes] = await Promise.all([
+        const [bookingsRes, packagesRes, ticketsRes, unreadProjectsRes, projectsRes] = await Promise.all([
           api.fetchWithAuth("/bookings"),
-          api.fetchWithAuth("/partners"),
           api.fetchWithAuth("/packages"),
           api.fetchWithAuth("/support/tickets?limit=1"),
-          api.fetchWithAuth("/customer-projects/unread-total")
+          api.fetchWithAuth("/customer-projects/unread-total"),
+          api.fetchWithAuth("/customer-projects")
         ]);
 
         let newCounts = { ...counts };
-        
-        if (bookingsRes.ok) {
+
+        if (bookingsRes.ok && ticketsRes.ok) {
           const b = await bookingsRes.json();
-          newCounts.bookings = b.filter(x => !x.contacted).length;
-        }
-        if (partnersRes.ok) {
-          const p = await partnersRes.json();
-          newCounts.partners = p.length;
+          const tData = await ticketsRes.json();
+          const pendingBookingsCount = b.filter(x => !x.contacted).length;
+          newCounts.pendingBookings = pendingBookingsCount;
+          newCounts.openTickets = tData.pendingCount || 0;
+          newCounts.contactSupport = pendingBookingsCount + (tData.pendingCount || 0);
+          setRecentBookings(b);
         }
         if (packagesRes.ok) {
           const pkg = await packagesRes.json();
           newCounts.packages = pkg.length;
         }
-        if (ticketsRes.ok) {
-          const tData = await ticketsRes.json();
-          newCounts.support = tData.pendingCount || 0;
-        }
         if (unreadProjectsRes.ok) {
           const uData = await unreadProjectsRes.json();
           newCounts.projects = uData.total || 0;
+        }
+        if (projectsRes.ok) {
+          const pData = await projectsRes.json();
+          newCounts.totalProjects = Array.isArray(pData) ? pData.length : 0;
         }
         setCounts(newCounts);
       } catch (err) {
@@ -428,7 +429,7 @@ export default function AdminPanel() {
       />
 
       {/* MAIN WORKSPACE CONTENT */}
-      <section className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-24 md:pb-8 relative">
+      <section className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-8 relative">
         
         {/* Workspace Title Header */}
         {activeTab !== "dashboard" && activeTab !== "automation" && (
@@ -436,11 +437,8 @@ export default function AdminPanel() {
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
                 {activeTab === "users" && t("admin.texts.txt_202", "Quản lý Thành Viên")}
-                {activeTab === "bookings" && t("admin.texts.txt_203", "Quản lý Lịch Hẹn")}
-                {activeTab === "partners" && t("admin.texts.txt_204", "Đối Tác & Liên Kết")}
-                {activeTab === "services" && "Dịch vụ & Thanh toán"}
-                {activeTab === "utilityStore" && t("adminPanel.sidebar.utilityStore", "Cửa hàng tiện ích")}
-                {activeTab === "support" && t("admin.texts.txt_206", "Hỗ Trợ & Khiếu Nại")}
+                {activeTab === "contactSupport" && "Liên Hệ & Hỗ Trợ"}
+                {activeTab === "projects" && t("adminProjects.page.title", "Dự Án Khách Hàng")}
                 {activeTab === "settings" && t("admin.texts.txt_207", "Cài Đặt Hệ Thống")}
               </h2>
             </div>
@@ -449,7 +447,14 @@ export default function AdminPanel() {
 
         {/* Dynamic Tab Content */}
         {activeTab === "dashboard" && (
-          <AdminDashboard stats={userStats} bookings={[]} partners={[]} packageTemplates={[]} tickets={counts.support} loading={loading} />
+          <AdminDashboard
+            stats={userStats}
+            bookings={recentBookings}
+            totalProjects={counts.totalProjects}
+            totalPackages={counts.packages}
+            openTickets={counts.openTickets}
+            loading={loading}
+          />
         )}
         {activeTab === "automation" && (
           <AdminAutomationTab showNotification={showNotification} stats={userStats} users={users} />
@@ -468,11 +473,8 @@ export default function AdminPanel() {
             getExpirationDaysOnly={getExpirationDaysOnly} formatExpiration={formatExpiration}
           />
         )}
-        {activeTab === "bookings" && (
-          <AdminBookingsTab showNotification={showNotification} triggerConfirm={triggerConfirm} />
-        )}
-        {activeTab === "partners" && (
-          <AdminPartnersTab showNotification={showNotification} triggerConfirm={triggerConfirm} />
+        {activeTab === "contactSupport" && (
+          <AdminContactSupportTab showNotification={showNotification} triggerConfirm={triggerConfirm} />
         )}
         {activeTab === "services" && (
           <AdminServicesTab triggerConfirm={triggerConfirm} />
@@ -480,8 +482,8 @@ export default function AdminPanel() {
         {activeTab === "utilityStore" && (
           <AdminUtilityStoreTab />
         )}
-        {activeTab === "support" && (
-          <AdminSupportTicketsTab showNotification={showNotification} triggerConfirm={triggerConfirm} />
+        {activeTab === "projects" && (
+          <AdminProjectsTab showNotification={showNotification} />
         )}
         {activeTab === "settings" && (
           <AdminSettingsTab

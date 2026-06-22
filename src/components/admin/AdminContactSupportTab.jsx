@@ -68,11 +68,10 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
       list = supportTickets.map(t => ({
         id: t._id,
         type: 'support',
-        name: t.userEmail, // We don't have name, use email
-        email: t.userEmail,
-        phone: "",
-        content: t.message,
-        category: t.type,
+        name: t.fullName,
+        email: t.email,
+        phone: t.phone,
+        content: t.issue,
         status: t.status === 'resolved' ? 'resolved' : 'pending',
         createdAt: t.createdAt,
         raw: t
@@ -97,6 +96,9 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
 
     return list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [bookings, supportTickets, activeSubTab, statusFilter, searchQuery, t]);
+
+  const pendingBookingsCount = useMemo(() => bookings.filter(b => !b.contacted).length, [bookings]);
+  const pendingTicketsCount = useMemo(() => supportTickets.filter(t => t.status !== 'resolved').length, [supportTickets]);
 
   // Auto-select first item if none selected and list changes
   useEffect(() => {
@@ -178,19 +180,29 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
           <div className="flex bg-slate-200/60 dark:bg-slate-800 p-1 rounded-xl w-max">
             <button
               onClick={() => setActiveSubTab("bookings")}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
                 activeSubTab === "bookings" ? "bg-white dark:bg-slate-700 shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Lịch Hẹn
+              {pendingBookingsCount > 0 && (
+                <span className="px-1.5 min-w-[18px] h-[18px] rounded-full text-[10px] font-black leading-[18px] text-center bg-destructive text-white">
+                  {pendingBookingsCount}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setActiveSubTab("support")}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
                 activeSubTab === "support" ? "bg-white dark:bg-slate-700 shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Hỗ Trợ 1:1
+              {pendingTicketsCount > 0 && (
+                <span className="px-1.5 min-w-[18px] h-[18px] rounded-full text-[10px] font-black leading-[18px] text-center bg-destructive text-white">
+                  {pendingTicketsCount}
+                </span>
+              )}
             </button>
           </div>
 
@@ -272,11 +284,7 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
                         <h4 className={`font-bold text-sm truncate ${isSelected ? 'text-primary' : 'text-foreground'}`}>
                           {item.name}
                         </h4>
-                        {item.type === 'support' && (
-                          <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider bg-slate-100 text-slate-500 dark:bg-slate-800">
-                            {item.category}
-                          </span>
-                        )}
+                        <span className="text-[10px] text-muted-foreground truncate block">{item.email}</span>
                       </div>
                       <div className="shrink-0 text-right">
                         <div className={`w-2.5 h-2.5 rounded-full mb-1 ml-auto ${item.status === 'resolved' ? 'bg-success' : 'bg-warning animate-pulse'}`} />
