@@ -22,10 +22,20 @@ export function useNotifications(email) {
   // Load on mount
   useEffect(() => { refresh(); }, [refresh]);
 
-  // Realtime JOY events are persisted by the server; refresh the inbox instead
-  // of creating a duplicate notification on the client.
+  // The WS path (PWARealtimeBridge) already hands us the full persisted
+  // notification document — splice it straight into state instead of paying
+  // for a whole extra GET /inbox round trip. The background-push path only
+  // carries a display payload (no _id), so that one still falls back to a
+  // real refresh.
   useEffect(() => {
-    const handleRealtimeNotification = () => refresh();
+    const handleRealtimeNotification = (e) => {
+      const incoming = e.detail;
+      if (incoming?._id) {
+        setItems(prev => prev.some(n => n._id === incoming._id) ? prev : [incoming, ...prev]);
+      } else {
+        refresh();
+      }
+    };
     window.addEventListener('hugo:notification', handleRealtimeNotification);
     return () => window.removeEventListener('hugo:notification', handleRealtimeNotification);
   }, [refresh]);

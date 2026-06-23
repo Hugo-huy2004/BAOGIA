@@ -38,6 +38,18 @@ export default function PWARealtimeBridge() {
       socket.addEventListener('message', (event) => {
         try {
           const data = JSON.parse(event.data);
+
+          if (data.type === 'bio_status_update') {
+            // Admin approved/rejected a verification request — push the new
+            // bio fields straight into the portal so it updates instantly,
+            // no manual reload needed.
+            window.dispatchEvent(new CustomEvent('hugo:bio-update', { detail: data }));
+            if (data.isEduVerified) {
+              toast.success('Tài khoản của bạn đã được xác minh sinh viên! Hạn dùng đã được nâng lên 365 ngày.', { duration: 6000 });
+            }
+            return;
+          }
+
           if (data.type !== 'joy_update') return;
           useJoyStore.getState().setBalance(Number(data.balance) || 0);
           window.dispatchEvent(new CustomEvent('hugo:notification', { detail: data.notification }));

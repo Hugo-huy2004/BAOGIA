@@ -8,6 +8,7 @@ import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation
 import { sendPushNotification } from '../utils/pushNotifier.js';
 import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
 import { isEduEmail } from '../utils/eduEmail.js';
+import { broadcastToEmail } from '../utils/realtime.js';
 
 const router = express.Router();
 
@@ -126,6 +127,10 @@ router.post('/bulk-approve-pending', requireAdmin, async (req, res) => {
       }
 
       bio.status = 'active';
+      bio.isEduVerified = true;
+      // Extend so the member gets a full 365 days counted from their original
+      // signup date, replacing whatever trial/expiry they had before.
+      bio.expiresAt = new Date(new Date(bio.createdAt).getTime() + TWELVE_MONTHS_MS);
       pushHistory(bio, {
         type: 'profile_updated',
         icon: 'verified',
@@ -135,6 +140,7 @@ router.post('/bulk-approve-pending', requireAdmin, async (req, res) => {
 
       await bio.save();
       clearCache(`bio_slug_${bio.slug}`);
+      broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: true, expiresAt: bio.expiresAt });
       count++;
     }
 
@@ -242,28 +248,45 @@ router.patch('/:id/status', async (req, res) => {
       return res.status(404).json({ error: 'Bio not found' });
     }
 
-    // Auto-fill profile fields when approving from pending to active
-    if (status === 'active' && bio.status === 'pending') {
-      if (bio.verificationRequest && bio.verificationRequest.submitted) {
-        bio.displayName = bio.verificationRequest.fullName || bio.displayName;
-        bio.birthday = bio.verificationRequest.birthday || bio.birthday;
-        bio.phone = bio.verificationRequest.phoneZalo || bio.phone;
-        if (bio.verificationRequest.schoolName) {
-          bio.education = `${bio.verificationRequest.schoolLevel || ''} - ${bio.verificationRequest.schoolName}`.trim().replace(/^- /, '');
-        }
-        bio.verificationRequest.notifiedStatus = 'approved';
+    // Auto-fill profile fields + extend to a full year when approving a
+    // submitted verification request — covers both the legacy pending→active
+    // gate and the new flow where non-edu trial members are already 'active'
+    // and just need their submitted request approved.
+    const isApprovingVerification = status === 'active' && bio.verificationRequest?.submitted && !bio.isEduVerified;
+    if (isApprovingVerification) {
+      bio.displayName = bio.verificationRequest.fullName || bio.displayName;
+      bio.birthday = bio.verificationRequest.birthday || bio.birthday;
+      bio.phone = bio.verificationRequest.phoneZalo || bio.phone;
+      if (bio.verificationRequest.schoolName) {
+        bio.education = `${bio.verificationRequest.schoolLevel || ''} - ${bio.verificationRequest.schoolName}`.trim().replace(/^- /, '');
       }
+      bio.verificationRequest.notifiedStatus = 'approved';
+      bio.isEduVerified = true;
+      // Extend so the member gets a full 365 days counted from their original
+      // signup date, replacing whatever trial/expiry they had before.
+      bio.expiresAt = new Date(new Date(bio.createdAt).getTime() + TWELVE_MONTHS_MS);
     } else if (status === 'rejected') {
       if (bio.verificationRequest) {
         bio.verificationRequest.notifiedStatus = 'rejected';
       }
     }
 
-    bio.status = status;
+    // Rejecting an already-active trial member's verification just declines
+    // the edu upgrade — it must NOT lock them out of their running 30-day
+    // trial. Only a legacy 'pending'-gated account actually moves to the
+    // hard 'rejected' (no-access) state.
+    if (status === 'rejected' && bio.status === 'active') {
+      bio.verificationRequest.submitted = false;
+    } else {
+      bio.status = status;
+    }
     await bio.save();
 
     // Clear public cache so guest devices reflect status changes instantly
     clearCache(`bio_slug_${bio.slug}`);
+    if (isApprovingVerification || status === 'rejected') {
+      broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: bio.isEduVerified, expiresAt: bio.expiresAt });
+    }
 
     res.json({ bio });
   } catch (error) {
@@ -290,10 +313,15 @@ router.get('/me', async (req, res) => {
       const isEdu = await isEduEmail(email);
       const baseSlug = normalizeSlug(displayName);
       const newSlug = await createUniqueSlug(baseSlug);
-      
+
+      // Edu emails get full 1-year access immediately. Everyone else now gets
+      // a 30-day trial with full portal access right away (no blocking
+      // "pending" gate) — they can submit verification any time from the
+      // "Sinh viên chưa xác minh" tab to extend to a full year on approval.
       const expiresAt = new Date();
-      expiresAt.setFullYear(expiresAt.getFullYear() + 1); // Default to 1 year expiration
-      
+      if (isEdu) expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+      else expiresAt.setDate(expiresAt.getDate() + 30);
+
       const welcomeHistory = [
         {
           type: 'welcome',
@@ -309,7 +337,8 @@ router.get('/me', async (req, res) => {
         displayName,
         avatarUrl: avatarUrl || '',
         slug: newSlug,
-        status: isEdu ? 'active' : 'pending',
+        status: 'active',
+        isEduVerified: isEdu,
         expiresAt,
         history: welcomeHistory,
         createdAt: new Date()
@@ -339,10 +368,18 @@ router.get('/me', async (req, res) => {
   }
 });
 
+// Strips a leading school-level token (TH/THCS/THPT/ĐH/CĐ and common spellings)
+// from a school name so "THCS Nguyễn Du" becomes "Nguyễn Du" regardless of
+// whether the user typed the level into the name field by habit.
+const SCHOOL_LEVEL_PREFIX = /^(tiểu học|trung học cơ sở|trung học phổ thông|cao đẳng|đại học|thcs|thpt|cđ|đh|th)[\s.:-]+/i;
+function stripSchoolLevelPrefix(name) {
+  return String(name || '').trim().replace(SCHOOL_LEVEL_PREFIX, '').trim();
+}
+
 // POST /me/verification - Submit student verification request form
 router.post('/me/verification', async (req, res) => {
   try {
-    const { email, fullName, birthday, schoolLevel, schoolName, phoneZalo, avatarUrl } = req.body;
+    const { email, fullName, birthday, schoolLevel, schoolName, schoolIdCode, phoneZalo, avatarUrl } = req.body;
 
     if (!email) {
       return res.status(400).json({ error: 'Missing email' });
@@ -357,7 +394,8 @@ router.post('/me/verification', async (req, res) => {
       fullName: fullName || '',
       birthday: birthday || '',
       schoolLevel: schoolLevel || '',
-      schoolName: schoolName || '',
+      schoolName: stripSchoolLevelPrefix(schoolName),
+      schoolIdCode: schoolIdCode || '',
       phoneZalo: phoneZalo || '',
       avatarUrl: avatarUrl || '',
       submitted: true,

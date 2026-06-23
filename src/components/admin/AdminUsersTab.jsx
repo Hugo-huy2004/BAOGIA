@@ -287,6 +287,11 @@ const AdminUsersTab = ({
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                               Từ chối
                             </span>
+                          ) : user.verificationRequest?.submitted && !user.isEduVerified ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                              Thử 30 ngày · Chờ duyệt
+                            </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -313,9 +318,9 @@ const AdminUsersTab = ({
                               >
                                 Kích hoạt
                               </button>
-                            ) : user.status === 'pending' ? (
+                            ) : (user.status === 'pending' || (user.status === 'active' && user.verificationRequest?.submitted && !user.isEduVerified)) ? (
                               <button
-                                onClick={() => handleToggleBioStatus(user._id, 'pending', 'active')}
+                                onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
                                 className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm active:scale-95"
                               >
                                 Duyệt
@@ -376,9 +381,11 @@ const AdminUsersTab = ({
                           ? "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30"
                           : user.status === 'rejected'
                           ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-500 dark:border-rose-900/30"
+                          : user.verificationRequest?.submitted && !user.isEduVerified
+                          ? "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30"
                           : "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30"
                       }`}>
-                        {user.status === 'locked' ? t("admin.texts.txt_61") : user.status === 'pending' ? 'Chờ duyệt' : user.status === 'rejected' ? 'Từ chối' : t("admin.texts.txt_62")}
+                        {user.status === 'locked' ? t("admin.texts.txt_61") : user.status === 'pending' ? 'Chờ duyệt' : user.status === 'rejected' ? 'Từ chối' : (user.verificationRequest?.submitted && !user.isEduVerified) ? 'Thử 30 ngày' : t("admin.texts.txt_62")}
                       </span>
                     </div>
 
@@ -424,9 +431,9 @@ const AdminUsersTab = ({
                           >
                             Kích hoạt
                           </button>
-                        ) : user.status === 'pending' ? (
+                        ) : (user.status === 'pending' || (user.status === 'active' && user.verificationRequest?.submitted && !user.isEduVerified)) ? (
                           <button
-                            onClick={() => handleToggleBioStatus(user._id, 'pending', 'active')}
+                            onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
                             className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-emerald-500 border-emerald-500 text-white transition-all"
                           >
                             Duyệt
@@ -573,6 +580,10 @@ const AdminUsersTab = ({
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
+                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Mã HS/SV</span>
+                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-mono font-bold">{selectedVerificationUser.verificationRequest?.schoolIdCode || 'Chưa cung cấp'}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
                 <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Số điện thoại (Zalo)</span>
                 <span className="col-span-2 text-slate-800 dark:text-slate-200 font-mono font-bold">{selectedVerificationUser.verificationRequest?.phoneZalo}</span>
               </div>
@@ -584,9 +595,11 @@ const AdminUsersTab = ({
                       ? 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30'
                       : selectedVerificationUser.status === 'rejected'
                       ? 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-500 dark:border-rose-900/30'
+                      : (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified)
+                      ? 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30'
                       : 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30'
                   }`}>
-                    {selectedVerificationUser.status === 'pending' ? 'Chờ duyệt' : selectedVerificationUser.status === 'rejected' ? 'Từ chối' : 'Đã duyệt'}
+                    {selectedVerificationUser.status === 'pending' ? 'Chờ duyệt' : selectedVerificationUser.status === 'rejected' ? 'Từ chối' : (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified) ? 'Đang thử 30 ngày · Chờ duyệt' : 'Đã duyệt'}
                   </span>
                 </span>
               </div>
@@ -599,12 +612,12 @@ const AdminUsersTab = ({
               >
                 Đóng
               </button>
-              
-              {selectedVerificationUser.status === 'pending' && (
+
+              {(selectedVerificationUser.status === 'pending' || (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified)) && (
                 <>
                   <button
                     onClick={() => {
-                      handleToggleBioStatus(selectedVerificationUser._id, 'pending', 'rejected');
+                      handleToggleBioStatus(selectedVerificationUser._id, selectedVerificationUser.status, 'rejected');
                       setSelectedVerificationUser(null);
                     }}
                     className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all active:scale-95 shadow-md"
@@ -613,7 +626,7 @@ const AdminUsersTab = ({
                   </button>
                   <button
                     onClick={() => {
-                      handleToggleBioStatus(selectedVerificationUser._id, 'pending', 'active');
+                      handleToggleBioStatus(selectedVerificationUser._id, selectedVerificationUser.status, 'active');
                       setSelectedVerificationUser(null);
                     }}
                     className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all active:scale-95 shadow-md"

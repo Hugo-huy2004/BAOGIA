@@ -19,6 +19,22 @@ import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 import AuraBackground from "../../components/member/portal/AuraBackground";
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
+import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
+
+// Maps a raw Bio document onto the editable formData shape — pulled out so
+// both the lazy-cache hydrate (instant paint) and the real fetch (revalidate)
+// build the exact same shape.
+function bioToFormData(b, fallbackDisplayName, emptyTheme) {
+  return {
+    email: b.email||"", displayName: b.displayName||fallbackDisplayName||"", headline: b.headline||"",
+    bio: b.bio||"", birthday: b.birthday||"", phone: b.phone||"", hobbies: b.hobbies||"",
+    height: b.height||"", weight: b.weight||"", measurements: b.measurements||"",
+    address: b.address||"", education: b.education||"", skills: b.skills||"",
+    jobTitle: b.jobTitle||"", contactEmail: b.contactEmail||"", avatarUrl: b.avatarUrl||"",
+    links: b.links||[], theme: { ...emptyTheme, ...b.theme }, tabs: b.tabs||[],
+    projects: b.projects||[], services: b.services||[], secretLinks: b.secretLinks||[], slug: b.slug||"",
+  };
+}
 
 // Sub-components
 import BirthdaySurprise from "../../components/member/BirthdaySurprise";
@@ -56,10 +72,14 @@ function StatusBadge({ status }) {
 export default function MemberPortalPage() {
   const { t } = useTranslation();
   const memberSession = getMemberSession();
+  // Instant-paint from the last-known-good copy on this device — the real
+  // fetch below still always runs to revalidate, this just avoids showing a
+  // blank loading spinner on every reload for a returning member.
+  const cachedBioRef = useRef(getCachedBio(memberSession?.email));
 
   // ── Core state ──────────────────────────────────────────────────────────────
-  const [bio, setBio]         = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [bio, setBio]         = useState(() => cachedBioRef.current);
+  const [loading, setLoading] = useState(() => !cachedBioRef.current);
   const [saving, setSaving]   = useState(false);
   const [showBirthdaySurprise, setShowBirthdaySurprise] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -68,7 +88,7 @@ export default function MemberPortalPage() {
   usePresenceHeartbeat(memberSession?.email);
   const [verificationForm, setVerificationForm] = useState({
     fullName: memberSession?.displayName || "", birthday: "", schoolLevel: "",
-    schoolName: "", phoneZalo: "", acceptTerms: false, acceptContact: false,
+    schoolName: "", schoolIdCode: "", phoneZalo: "", acceptTerms: false, acceptContact: false,
   });
   const [verifying, setVerifying] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
@@ -142,11 +162,15 @@ export default function MemberPortalPage() {
 
   // ── Form state ────────────────────────────────────────────────────────────────
   const emptyTheme = { bgColor:"#ffffff", textColor:"#0f172a", accentColor:"#6366f1", pattern:"none", preset:"default", btnRadius:16, btnBorderWidth:0, btnShadow:4, template:"default" };
-  const [formData, setFormData] = useState({
-    displayName: memberSession?.displayName || "", headline:"", bio:"", birthday:"", phone:"",
-    hobbies:"", height:"", weight:"", measurements:"", address:"", education:"", skills:"",
-    jobTitle:"", contactEmail:"", avatarUrl:"", links:[], theme: emptyTheme, tabs:[], projects:[], services:[],
-  });
+  const [formData, setFormData] = useState(() =>
+    cachedBioRef.current
+      ? bioToFormData(cachedBioRef.current, memberSession?.displayName, emptyTheme)
+      : {
+          displayName: memberSession?.displayName || "", headline:"", bio:"", birthday:"", phone:"",
+          hobbies:"", height:"", weight:"", measurements:"", address:"", education:"", skills:"",
+          jobTitle:"", contactEmail:"", avatarUrl:"", links:[], theme: emptyTheme, tabs:[], projects:[], services:[],
+        }
+  );
   const [newLinkLabel, setNewLinkLabel] = useState("");
   const [newLinkUrl, setNewLinkUrl]     = useState("");
   const [cropModal, setCropModal]       = useState({ isOpen:false, imageSrc:null, zoom:1, aspect:1, offset:{x:0,y:0} });
@@ -296,15 +320,7 @@ export default function MemberPortalPage() {
               if (localStorage.getItem("bday_effect_shown") !== todayStr) { setShowBirthdaySurprise(true); localStorage.setItem("bday_effect_shown", todayStr); }
             }
           }
-          setFormData({
-            email: b.email||"", displayName: b.displayName||memberSession.displayName||"", headline: b.headline||"",
-            bio: b.bio||"", birthday: b.birthday||"", phone: b.phone||"", hobbies: b.hobbies||"",
-            height: b.height||"", weight: b.weight||"", measurements: b.measurements||"",
-            address: b.address||"", education: b.education||"", skills: b.skills||"",
-            jobTitle: b.jobTitle||"", contactEmail: b.contactEmail||"", avatarUrl: b.avatarUrl||"",
-            links: b.links||[], theme: { ...emptyTheme, ...b.theme }, tabs: b.tabs||[],
-            projects: b.projects||[], services: b.services||[], secretLinks: b.secretLinks||[], slug: b.slug||"",
-          });
+          setFormData(bioToFormData(b, memberSession.displayName, emptyTheme));
           // Fire-and-forget — Companion/banhocduong history only seeds a localStorage
           // cache for a separate utility tab, it must not block the portal's own render.
           dataApi.getCompanionHistory(memberSession.email).then(comp => {
@@ -365,16 +381,35 @@ export default function MemberPortalPage() {
     if (bioTextareaRef.current) { bioTextareaRef.current.style.height = "auto"; bioTextareaRef.current.style.height = `${bioTextareaRef.current.scrollHeight}px`; }
   }, [formData.bio, activeTab, accountSubTab, mobileSubSection]);
 
+  // Keep the instant-paint cache in sync with whatever the real API last
+  // returned (or any local mutation), so the *next* load/reload starts from
+  // up-to-date data instead of last session's snapshot.
+  useEffect(() => {
+    if (!isGuestMode && memberSession?.email && bio) setCachedBio(memberSession.email, bio);
+  }, [bio, isGuestMode, memberSession?.email]);
+
+  // Realtime: admin approved/rejected a verification request over WS (see
+  // PWARealtimeBridge) — merge straight into state so the portal updates
+  // instantly without the member needing to reload.
+  useEffect(() => {
+    const handleBioUpdate = (e) => {
+      const { status, isEduVerified, expiresAt } = e.detail || {};
+      setBio(prev => prev ? { ...prev, status, isEduVerified, expiresAt, verificationRequest: { ...prev.verificationRequest, submitted: isEduVerified ? prev.verificationRequest?.submitted : false } } : prev);
+    };
+    window.addEventListener('hugo:bio-update', handleBioUpdate);
+    return () => window.removeEventListener('hugo:bio-update', handleBioUpdate);
+  }, []);
+
   // ── Handlers ──────────────────────────────────────────────────────────────────
-  const handleLogout = () => { logoutAuth(); window.location.href = "/login"; };
+  const handleLogout = () => { if (memberSession?.email) clearCachedBio(memberSession.email); logoutAuth(); window.location.href = "/login"; };
 
   const handleVerificationSubmit = async (e) => {
     e.preventDefault();
     if (!verificationForm.acceptTerms || !verificationForm.acceptContact) { showToast(t("memberPortal.toast.acceptTermsWarning"), "error"); return; }
-    if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.phoneZalo) { showToast(t("memberPortal.toast.fillAllWarning"), "error"); return; }
+    if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.schoolIdCode || !verificationForm.phoneZalo) { showToast(t("memberPortal.toast.fillAllWarning"), "error"); return; }
     setVerifying(true);
     try {
-      const res = await memberService.submitVerification(memberSession.email, { fullName: verificationForm.fullName, birthday: verificationForm.birthday, schoolLevel: verificationForm.schoolLevel, schoolName: verificationForm.schoolName, phoneZalo: verificationForm.phoneZalo });
+      const res = await memberService.submitVerification(memberSession.email, { fullName: verificationForm.fullName, birthday: verificationForm.birthday, schoolLevel: verificationForm.schoolLevel, schoolName: verificationForm.schoolName, schoolIdCode: verificationForm.schoolIdCode, phoneZalo: verificationForm.phoneZalo });
       if (res.success) { showToast(t("memberPortal.toast.submitSuccess"), "success"); setBio(res.bio); }
     } catch (err) { showToast(err.message || t("memberPortal.toast.submitError"), "error"); }
     finally { setVerifying(false); }
@@ -457,7 +492,7 @@ export default function MemberPortalPage() {
     if (!bio?._id) return;
     triggerConfirm(t("memberPortal.confirm.deletePersonal"), async () => {
       setSaving(true);
-      try { await memberService.deleteMemberBio(bio._id); setBio(null); setFormData(emptyFormReset(false)); showToast(t("memberPortal.toast.deletePersonalSuccess"), "success"); navigate("/member/account"); }
+      try { await memberService.deleteMemberBio(bio._id); if (memberSession?.email) clearCachedBio(memberSession.email); setBio(null); setFormData(emptyFormReset(false)); showToast(t("memberPortal.toast.deletePersonalSuccess"), "success"); navigate("/member/account"); }
       catch (_) { showToast(t("memberPortal.toast.deletePersonalError"), "error"); }
       finally { setSaving(false); }
     });
@@ -474,6 +509,8 @@ export default function MemberPortalPage() {
   };
 
   // ── Tab definitions ───────────────────────────────────────────────────────────
+  const needsEduVerification = !isGuestMode && bio?.status === 'active' && bio?.isEduVerified === false;
+
   const desktopTabs = useMemo(() => {
     return [
       { id: "account",   label: t("memberPortal.tabs.bio"),       icon: "person",          partner: false },
@@ -485,8 +522,11 @@ export default function MemberPortalPage() {
       ...(!isGuestMode ? [
         { id: "partner",   label: t("memberPortal.tabs.partner"),    icon: "handshake",       partner: true  }
       ] : []),
+      ...(needsEduVerification ? [
+        { id: "verify",    label: "Sinh viên chưa xác minh",         icon: "school",          partner: false, alert: !bio?.verificationRequest?.submitted }
+      ] : []),
     ];
-  }, [isGuestMode, t]);
+  }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);
 
   const mobileTabs = useMemo(() => {
     if (isGuestMode) {
@@ -501,10 +541,13 @@ export default function MemberPortalPage() {
         { id: "account",   label: t("memberPortal.tabs.bio"),       icon: "person" },
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "paid" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
-        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" }
+        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" },
+        ...(needsEduVerification ? [
+          { id: "verify",  label: "Xác minh",                        icon: "school", alert: !bio?.verificationRequest?.submitted }
+        ] : []),
       ];
     }
-  }, [isGuestMode, t]);
+  }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);
 
   const onTabClick = (tab) => {
     if (tab.id === "login") {
@@ -729,6 +772,9 @@ export default function MemberPortalPage() {
                         {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
                       </span>
                     )}
+                    {tab.alert && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-white dark:ring-[#0c0b11]" />
+                    )}
                   </button>
                 );
               })}
@@ -924,6 +970,26 @@ export default function MemberPortalPage() {
                 {activeTab === "partner"   && <MemberPartnerTab />}
                 {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />}
                 {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />}
+                {activeTab === "verify"    && (
+                  bio?.verificationRequest?.submitted ? (
+                    <div className="max-w-xl mx-auto py-6 px-4 animate-fadeIn">
+                      <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-850/60 p-6 sm:p-8 rounded-xl shadow-sm text-center space-y-4 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-400" />
+                        <div className="w-14 h-14 bg-amber-500/5 dark:bg-amber-950/20 text-amber-500 rounded-full flex items-center justify-center mx-auto border border-amber-100 dark:border-amber-900/40">
+                          <span className="material-symbols-outlined text-2xl animate-spin-slow">hourglass_empty</span>
+                        </div>
+                        <h2 className="font-display text-lg font-black text-amber-600 dark:text-amber-400 uppercase tracking-tight">
+                          Đang Chờ Phê Duyệt
+                        </h2>
+                        <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed px-2">
+                          Yêu cầu xác minh sinh viên của bạn đã được gửi đến Admin. Bạn vẫn dùng được toàn bộ tính năng trong thời gian dùng thử — khi được duyệt, hạn dùng của bạn sẽ tự động nâng lên đủ 365 ngày kể từ ngày đăng ký, không cần làm gì thêm.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <VerificationForm verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleLogout={handleLogout} verifying={verifying} />
+                  )
+                )}
               </>
             )}
           </React.Suspense>
@@ -1011,6 +1077,9 @@ export default function MemberPortalPage() {
                     <span className="absolute top-0.5 right-[18%] bg-destructive text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm">
                       {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
                     </span>
+                  )}
+                  {tab.alert && (
+                    <span className="absolute top-0.5 right-[22%] w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-[#0c0b11]" />
                   )}
                 </button>
               );

@@ -195,10 +195,18 @@ const BioSchema = new mongoose.Schema(
       birthday: { type: String, default: '' },
       schoolLevel: { type: String, default: '' },
       schoolName: { type: String, default: '' },
+      schoolIdCode: { type: String, default: '' },
       phoneZalo: { type: String, default: '' },
       avatarUrl: { type: String, default: '' },
       submitted: { type: Boolean, default: false },
       notifiedStatus: { type: String, default: 'none' }
+    },
+    // True for academic-email signups (instant 1-year access). False means the
+    // member is on the 30-day non-edu trial until an admin approves their
+    // submitted verificationRequest — see POST /bios/:id/status.
+    isEduVerified: {
+      type: Boolean,
+      default: false
     },
     expiresAt: {
       type: Date,

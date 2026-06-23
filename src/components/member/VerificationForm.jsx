@@ -1,5 +1,30 @@
 import React from "react";
 
+// Recognized level tokens a member might accidentally type into the school
+// name field (e.g. "THCS Nguyễn Du") — stripped automatically, and used to
+// auto-fill the level dropdown so they don't have to pick it manually.
+const LEVEL_TOKENS = [
+  { re: /^trung học cơ sở[\s.:-]+/i, level: "THCS" },
+  { re: /^trung học phổ thông[\s.:-]+/i, level: "THPT" },
+  { re: /^tiểu học[\s.:-]+/i, level: "TH" },
+  { re: /^cao đẳng[\s.:-]+/i, level: "CD" },
+  { re: /^đại học[\s.:-]+/i, level: "DH" },
+  { re: /^thcs[\s.:-]+/i, level: "THCS" },
+  { re: /^thpt[\s.:-]+/i, level: "THPT" },
+  { re: /^cđ[\s.:-]+/i, level: "CD" },
+  { re: /^đh[\s.:-]+/i, level: "DH" },
+  { re: /^th[\s.:-]+/i, level: "TH" },
+];
+
+function parseSchoolName(rawValue, currentLevel) {
+  for (const { re, level } of LEVEL_TOKENS) {
+    if (re.test(rawValue)) {
+      return { schoolName: rawValue.replace(re, "").trim(), schoolLevel: level };
+    }
+  }
+  return { schoolName: rawValue, schoolLevel: currentLevel };
+}
+
 export default function VerificationForm({
   verificationForm,
   setVerificationForm,
@@ -7,6 +32,11 @@ export default function VerificationForm({
   handleLogout,
   verifying
 }) {
+  const handleSchoolNameChange = (e) => {
+    const { schoolName, schoolLevel } = parseSchoolName(e.target.value, verificationForm.schoolLevel);
+    setVerificationForm({ ...verificationForm, schoolName, schoolLevel });
+  };
+
   return (
     <div className="max-w-xl mx-auto py-8 px-4 animate-fadeIn">
       <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-850/60 p-6 sm:p-8 rounded-xl shadow-xl space-y-6 relative overflow-hidden">
@@ -73,10 +103,25 @@ export default function VerificationForm({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* School Level */}
+              {/* School Name — just type the name, level is auto-detected */}
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
-                  Trường đang học (Cấp học)
+                  Tên trường học
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="VD: Thăng Long (không cần ghi TH/THCS/ĐH...)"
+                  value={verificationForm.schoolName}
+                  onChange={handleSchoolNameChange}
+                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
+                />
+              </div>
+
+              {/* School Level — auto-filled from the name above, can override manually */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
+                  Cấp học
                 </label>
                 <select
                   required
@@ -88,25 +133,25 @@ export default function VerificationForm({
                   <option value="TH">Tiểu học (TH)</option>
                   <option value="THCS">Trung học cơ sở (THCS)</option>
                   <option value="THPT">Trung học phổ thông (THPT)</option>
+                  <option value="CD">Cao đẳng (CĐ)</option>
+                  <option value="DH">Đại học (ĐH)</option>
                 </select>
               </div>
+            </div>
 
-              {/* School Name */}
-              {verificationForm.schoolLevel && (
-                <div className="space-y-1 animate-fadeIn">
-                  <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
-                    Tên trường học
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Tên trường học của bạn..."
-                    value={verificationForm.schoolName}
-                    onChange={(e) => setVerificationForm({ ...verificationForm, schoolName: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
-                  />
-                </div>
-              )}
+            {/* Student/School ID code */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
+                Mã học sinh / sinh viên
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Nhập mã số HS/SV của bạn..."
+                value={verificationForm.schoolIdCode}
+                onChange={(e) => setVerificationForm({ ...verificationForm, schoolIdCode: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
+              />
             </div>
           </div>
 
