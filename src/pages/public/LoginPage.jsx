@@ -5,6 +5,9 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
 import { isEduEmail } from "../../utils/eduEmail";
+import { webauthnHelper } from "../../utils/webauthnHelper";
+
+const LAST_EMAIL_KEY = "hugo_last_member_email";
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -24,6 +27,17 @@ export default function LoginPage() {
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
   const googleButtonRef = useRef(null);
+  const [showBiometricOption, setShowBiometricOption] = useState(false);
+  const [biometricEmail, setBiometricEmail] = useState("");
+  const [biometricBusy, setBiometricBusy] = useState(false);
+
+  useEffect(() => {
+    const lastEmail = localStorage.getItem(LAST_EMAIL_KEY);
+    if (lastEmail && webauthnHelper.isSupported() && webauthnHelper.hasSavedDeviceFlag(lastEmail)) {
+      setBiometricEmail(lastEmail);
+      setShowBiometricOption(true);
+    }
+  }, []);
 
   const showToast = (message, type = "error") => {
     setToast({ message, type });
@@ -70,8 +84,28 @@ export default function LoginPage() {
       provider: "google",
       avatarUrl: profile.picture
     });
+    localStorage.setItem(LAST_EMAIL_KEY, profile.email);
 
     navigate("/member");
+  };
+
+  const handleBiometricLogin = async () => {
+    if (!biometricEmail) return;
+    setBiometricBusy(true);
+    try {
+      const member = await webauthnHelper.loginWithBiometric(biometricEmail);
+      loginMember(member);
+      localStorage.setItem(LAST_EMAIL_KEY, biometricEmail);
+      navigate("/member");
+    } catch (err) {
+      if (err?.code === 'NO_CREDENTIALS') {
+        showToast("Thiết bị này chưa bật đăng nhập vân tay cho email này.", "warning");
+      } else if (err?.name !== 'NotAllowedError') {
+        showToast("Không thể đăng nhập bằng vân tay/Face ID. Hãy dùng Google.", "error");
+      }
+    } finally {
+      setBiometricBusy(false);
+    }
   };
 
   useEffect(() => {
@@ -346,6 +380,23 @@ export default function LoginPage() {
                 <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.memberForm.title")}</h2>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">{t("loginPage.memberForm.desc")}</p>
               </div>
+
+              {showBiometricOption && (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={handleBiometricLogin}
+                    disabled={biometricBusy}
+                    className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-lg">fingerprint</span>
+                    {biometricBusy ? "Đang xác thực..." : `Đăng nhập bằng vân tay/Face ID (${biometricEmail})`}
+                  </button>
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                    <div className="flex-1 h-px bg-border/60" /> hoặc <div className="flex-1 h-px bg-border/60" />
+                  </div>
+                </div>
+              )}
 
               <div className="py-2 flex justify-center">
                 <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-300" />

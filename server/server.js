@@ -140,6 +140,7 @@ import checkinRoutes from './routes/checkinRoutes.js';
 import presenceRoutes from './routes/presenceRoutes.js';
 import radioRoutes from './routes/radioRoutes.js';
 import arcadeRoutes from './routes/arcadeRoutes.js';
+import webauthnRoutes from './routes/webauthnRoutes.js';
 
 // Routes
 app.use('/api/data', dataRoutes);
@@ -164,6 +165,7 @@ app.use('/api/referral', referralRoutes);
 app.use('/api/utility-store', utilityStoreRoutes);
 app.use('/api/joy-gift-cards', joyGiftCardRoutes);
 app.use('/api/checkin', checkinRoutes);
+app.use('/api/webauthn', webauthnRoutes);
 app.use('/api/presence', presenceRoutes);
 app.use('/api/radio', radioRoutes);
 app.use('/api/arcade', arcadeRoutes);

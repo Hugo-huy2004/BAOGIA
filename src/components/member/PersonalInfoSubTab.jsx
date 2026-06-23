@@ -1,6 +1,7 @@
 import React from "react";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import OptimizedInput from "../common/OptimizedInput";
+import BiometricLoginCard from "./BiometricLoginCard";
 
 // Merges the former Cá nhân (Profile) + Sự nghiệp (Career) + Hình thể (Body)
 // sub-tabs into one "Thông tin cá nhân" tab — same row-style fields, just
@@ -16,10 +17,12 @@ export default function PersonalInfoSubTab({
   handleAvatarChange,
   handleRemoveAvatar,
   memberSession,
+  showToast,
   t
 }) {
   return (
     <div className="space-y-4 animate-fadeIn">
+      <BiometricLoginCard memberSession={memberSession} showToast={showToast} />
       {/* Section: Avatar Editor */}
       <div className="space-y-2 text-center py-4 bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
         <div
