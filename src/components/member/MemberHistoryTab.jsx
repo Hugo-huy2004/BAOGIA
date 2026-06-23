@@ -15,6 +15,20 @@ const getHistoryTypeConfig = (t) => ({
   birthday_voucher:{ color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15',   border: 'border-warning/20',   label: t("memberTabs.history.labels.gift"), cat: 'gift', icon: 'featured_play_list' },
 });
 
+// Notifications (InAppNotification — JOY transactions, verification, package,
+// security, payment, etc.) are merged into this same feed, bucketed by
+// category instead of the bio.history `type` above.
+const NOTIF_CATEGORY_CONFIG = {
+  joy:          { color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15', border: 'border-warning/20', cat: 'joy', icon: 'paid' },
+  payment:      { color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15', border: 'border-warning/20', cat: 'joy', icon: 'payments' },
+  package:      { color: 'hsl(var(--primary))', bg: 'bg-primary/10 dark:bg-primary/15', border: 'border-primary/20', cat: 'package', icon: 'card_membership' },
+  verification: { color: 'hsl(var(--info))', bg: 'bg-info/10 dark:bg-info/15', border: 'border-info/20', cat: 'account', icon: 'verified_user' },
+  security:     { color: 'hsl(var(--destructive))', bg: 'bg-destructive/10 dark:bg-destructive/15', border: 'border-destructive/20', cat: 'account', icon: 'security' },
+  wellness:     { color: 'hsl(var(--accent))', bg: 'bg-accent/10 dark:bg-accent/15', border: 'border-accent/20', cat: 'account', icon: 'favorite' },
+  system:       { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted dark:bg-muted', border: 'border-border', cat: 'account', icon: 'notifications' },
+  general:      { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted dark:bg-muted', border: 'border-border', cat: 'account', icon: 'notifications' },
+};
+
 const formatTime = (ts, t) => {
   if (!ts) return '';
   const d = new Date(ts);
@@ -42,20 +56,56 @@ const getRelativeDateHeader = (dateString, t) => {
   }
 };
 
-function MemberHistoryTab({ bio, t }) {
+function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRead, onDismiss }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [claimedCodes, setClaimedCodes] = useState({});
 
   const typeConfig = getHistoryTypeConfig(t);
-  const rawEntries = [...(bio?.history || [])].reverse();
+
+  // Merge bio.history (profile/package/gift events, no read state) with the
+  // InAppNotification feed (JOY transactions + everything else, has read
+  // state) into one chronological list.
+  const mergedEntries = useMemo(() => {
+    const fromBio = [...(bio?.history || [])].reverse().map((entry, idx) => {
+      const cfg = typeConfig[entry.type] || typeConfig['profile_updated'];
+      return {
+        key: `bio-${idx}-${entry.timestamp}`,
+        source: 'bio',
+        timestamp: entry.timestamp,
+        title: entry.title,
+        detail: entry.detail,
+        icon: entry.icon || cfg.icon,
+        cfg,
+        raw: entry,
+      };
+    });
+
+    const fromNotif = notifications.map((n) => {
+      const cfg = NOTIF_CATEGORY_CONFIG[n.category] || NOTIF_CATEGORY_CONFIG.system;
+      return {
+        key: `notif-${n._id}`,
+        source: 'notification',
+        id: n._id,
+        timestamp: n.createdAt,
+        title: n.title,
+        detail: n.message,
+        icon: cfg.icon,
+        cfg,
+        read: n.read,
+      };
+    });
+
+    return [...fromBio, ...fromNotif].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  }, [bio?.history, notifications, typeConfig]);
+
+  const unreadNotifCount = notifications.filter(n => !n.read).length;
 
   const filteredEntries = useMemo(() => {
-    return rawEntries.filter(entry => {
+    return mergedEntries.filter(entry => {
       if (activeFilter === "all") return true;
-      const cfg = typeConfig[entry.type] || typeConfig['profile_updated'];
-      return cfg.cat === activeFilter;
+      return entry.cfg.cat === activeFilter;
     });
-  }, [rawEntries, activeFilter]);
+  }, [mergedEntries, activeFilter]);
 
   const groupedEntries = useMemo(() => {
     const groups = {};
@@ -89,7 +139,7 @@ function MemberHistoryTab({ bio, t }) {
       }
     });
   };
- 
+
   return (
     <div className="max-w-xl mx-auto space-y-5 px-3 sm:px-0 animate-fadeIn text-left">
       {/* Header */}
@@ -98,17 +148,27 @@ function MemberHistoryTab({ bio, t }) {
           <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
             <span className="material-symbols-outlined text-base text-primary">notifications</span>{t("memberTabs.history.title")}</h2>
           <p className="text-[10px] text-zinc-450">
-            {filteredEntries.length > 0 
-              ? t("memberTabs.history.notification_count", { count: filteredEntries.length }) 
+            {filteredEntries.length > 0
+              ? t("memberTabs.history.notification_count", { count: filteredEntries.length })
               : t("memberTabs.history.no_events")}
           </p>
         </div>
+        {unreadNotifCount > 0 && (
+          <button
+            type="button"
+            onClick={onMarkAllRead}
+            className="text-[10px] font-bold text-primary hover:underline shrink-0"
+          >
+            Đọc tất cả ({unreadNotifCount})
+          </button>
+        )}
       </div>
- 
+
       {/* Category Filter Pills */}
       <div className="flex gap-1.5 overflow-x-auto scrollbar-none py-1">
         {[
           { id: "all",     label: t("memberTabs.history.filter.all"), icon: "inbox" },
+          { id: "joy",     label: "JOY", icon: "paid" },
           { id: "account", label: t("memberTabs.history.filter.account"), icon: "manage_accounts" },
           { id: "package", label: t("memberTabs.history.filter.package"), icon: "card_membership" },
           { id: "gift",    label: t("memberTabs.history.filter.gift"), icon: "redeem" }
@@ -119,8 +179,8 @@ function MemberHistoryTab({ bio, t }) {
               key={filter.id}
               onClick={() => setActiveFilter(filter.id)}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all duration-200 shrink-0 ${
-                active 
-                  ? "bg-primary border-primary text-white shadow-sm" 
+                active
+                  ? "bg-primary border-primary text-white shadow-sm"
                   : "bg-white dark:bg-card/60 border-border/50 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-250"
               }`}
             >
@@ -156,42 +216,54 @@ function MemberHistoryTab({ bio, t }) {
 
               {/* Day Notification Items */}
               <div className="space-y-2">
-                {group.items.map((entry, idx) => {
-                  const cfg = typeConfig[entry.type] || typeConfig['profile_updated'];
+                {group.items.map((entry) => {
+                  const cfg = entry.cfg;
+                  const isNotif = entry.source === 'notification';
+                  const unread = isNotif && !entry.read;
                   return (
                     <div
-                      key={idx}
-                      className="group flex gap-3.5 p-4 bg-white/60 dark:bg-card/60 backdrop-blur-xl rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm transition-all duration-300 hover:scale-[1.005] hover:shadow-md"
+                      key={entry.key}
+                      onClick={() => unread && onMarkRead?.(entry.id)}
+                      className={`group flex gap-3.5 p-4 backdrop-blur-xl rounded-2xl border shadow-sm transition-all duration-300 hover:scale-[1.005] hover:shadow-md ${
+                        unread
+                          ? 'bg-primary/5 dark:bg-primary/10 border-primary/20 cursor-pointer'
+                          : 'bg-white/60 dark:bg-card/60 border-zinc-200/50 dark:border-zinc-800/60'
+                      }`}
                     >
                       {/* Left icon wrapper */}
                       <div className="shrink-0">
                         <div
                           className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm transition-transform duration-300 group-hover:scale-105 ${cfg.bg} ${cfg.border}`}
                         >
-                          <span className="material-symbols-outlined text-[15px]" style={{ color: cfg.color }}>{entry.icon || cfg.icon}</span>
+                          <span className="material-symbols-outlined text-[15px]" style={{ color: cfg.color }}>{entry.icon}</span>
                         </div>
                       </div>
 
                       {/* Content column */}
                       <div className="flex-1 min-w-0 space-y-1.5 text-left">
                         <div className="flex items-center justify-between gap-4 flex-wrap">
-                          <span
-                            className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${cfg.bg} border ${cfg.border}`}
-                            style={{ color: cfg.color }}
-                          >
-                            {cfg.label}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            {!isNotif && (
+                              <span
+                                className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${cfg.bg} border ${cfg.border}`}
+                                style={{ color: cfg.color }}
+                              >
+                                {typeConfig[entry.raw?.type]?.label || ''}
+                              </span>
+                            )}
+                            {unread && <div className="w-2 h-2 rounded-full bg-primary shrink-0" />}
+                          </div>
                           <span className="text-[9px] text-zinc-400 font-bold">{formatTime(entry.timestamp, t)}</span>
                         </div>
 
-                        {entry.type === 'birthday_wish' && (
+                        {entry.raw?.type === 'birthday_wish' && (
                           <div className="flex items-center gap-1.5 py-1 border-b border-accent/20 dark:border-accent/30 w-fit">
                             <HugoLogo className="text-[12px] font-black" />
                             <span className="text-[8px] font-black text-accent uppercase tracking-widest">Official Wish</span>
                           </div>
                         )}
 
-                        {entry.type === 'birthday_voucher' && (
+                        {entry.raw?.type === 'birthday_voucher' && (
                           <div className="flex items-center gap-1.5 py-1 border-b border-warning/20 dark:border-warning/30 w-fit">
                             <HugoLogo className="text-[12px] font-black" />
                             <span className="text-[8px] font-black text-warning uppercase tracking-widest">Official Gift</span>
@@ -202,8 +274,8 @@ function MemberHistoryTab({ bio, t }) {
                         {entry.detail && (
                           <p className="text-[10px] text-zinc-550 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap">{entry.detail}</p>
                         )}
-                        
-                        {entry.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
+
+                        {entry.raw?.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
                           <div className="mt-2.5 p-3 bg-warning/10 dark:bg-warning/15 border border-warning/20 dark:border-warning/30 rounded-xl flex items-center justify-between gap-3 shadow-inner">
                             <div className="text-left">
                               <p className="text-[8px] font-black text-warning uppercase tracking-wider">{t("memberTabs.history.birthday_voucher_title")}</p>
@@ -228,6 +300,17 @@ function MemberHistoryTab({ bio, t }) {
                           </div>
                         )}
                       </div>
+
+                      {isNotif && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); onDismiss?.(entry.id); }}
+                          className="text-zinc-400 hover:text-destructive transition-colors shrink-0 self-start p-1 active:scale-90"
+                          aria-label="Xóa"
+                        >
+                          <span className="material-symbols-outlined text-sm">close</span>
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -238,7 +321,7 @@ function MemberHistoryTab({ bio, t }) {
       )}
 
       {/* Footer Note */}
-      {rawEntries.length >= 50 && (
+      {filteredEntries.length >= 50 && (
         <p className="text-center text-[9px] text-zinc-400 italic pt-3">{t("memberTabs.history.footer_note")}</p>
       )}
     </div>

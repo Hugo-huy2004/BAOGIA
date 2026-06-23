@@ -372,20 +372,24 @@ router.post('/transfer', async (req, res) => {
 
     const customMsg = message ? ` Lời nhắn: "${message}"` : '';
     const recipientName = recipient.displayName || 'bạn bè';
+    const senderName = sender.displayName || 'Một người bạn';
+
+    // Short, human-readable transaction code shared by both ledger rows —
+    // lets the receipt/notification on either side reference the same transfer.
+    const txCode = `JOY${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
 
     const senderResult = await awardJoy(
       sender.email, -totalDeducted, 'joy_gift_sent',
-      `Gửi JOY cho ${recipientName} (-${numAmount} JOY, phí -${feeAmount} JOY).${customMsg}`,
-      { refId: recipient.email }
+      `Gửi JOY cho ${recipientName} (-${numAmount} JOY, phí -${feeAmount} JOY). Mã GD: ${txCode}.${customMsg}`,
+      { refId: txCode }
     );
-    const senderName = sender.displayName || 'Một người bạn';
     await awardJoy(
       recipient.email, numAmount, 'joy_gift_received',
-      `${senderName} đã chuyển ${numAmount} JOY đến bạn.${customMsg}`,
+      `${senderName} đã chuyển ${numAmount} JOY đến bạn. Mã GD: ${txCode}.${customMsg}`,
       {
-        refId: sender.email,
+        refId: txCode,
         notificationTitle: 'Bạn vừa nhận được JOY',
-        notificationMessage: `${senderName} đã chuyển ${numAmount} JOY đến bạn.${customMsg} Số dư: ${Math.max(0, recipient.joyBalance + numAmount)} JOY.`,
+        notificationMessage: `${senderName} đã chuyển ${numAmount} JOY đến bạn. Mã GD: ${txCode}.${customMsg} Số dư: ${Math.max(0, recipient.joyBalance + numAmount)} JOY.`,
         pushNotify: true,
         pushTitle: 'Bạn vừa nhận được JOY',
         pushBody: `${senderName} đã chuyển ${numAmount} JOY đến bạn.${customMsg}`,
@@ -406,9 +410,13 @@ router.post('/transfer', async (req, res) => {
       success: true,
       balance: senderResult.balance,
       sentAmount: numAmount,
-      netAmount,
+      netAmount: numAmount,
       feeAmount,
-      recipientName: recipient.displayName || ''
+      recipientName: recipient.displayName || '',
+      senderName,
+      message: message || '',
+      txCode,
+      createdAt: new Date().toISOString()
     });
   } catch (error) {
     res.status(400).json({ error: error.message });

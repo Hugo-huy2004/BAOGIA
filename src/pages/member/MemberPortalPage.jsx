@@ -12,7 +12,6 @@ import { useHealingJourney } from "../../hooks/useHealingJourney";
 import HealingModal from "../../components/member/portal/HealingModal";
 import { useTourStore } from "../../stores/tourStore";
 import TourSystem from "../../components/TourSystem";
-import NotificationBell from "../../components/member/portal/NotificationBell";
 import { useJoyStore } from "../../stores/joyStore";
 import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
@@ -28,17 +27,13 @@ import RejectedVerification from "../../components/member/RejectedVerification";
 import VerificationForm from "../../components/member/VerificationForm";
 import PendingVerification from "../../components/member/PendingVerification";
 import PreviewSimulator from "../../components/member/PreviewSimulator";
-import ProfileSubTab from "../../components/member/ProfileSubTab";
+import PersonalInfoSubTab from "../../components/member/PersonalInfoSubTab";
 import DesignSubTab from "../../components/member/DesignSubTab";
 import LinksSubTab from "../../components/member/LinksSubTab";
-import CareerSubTab from "../../components/member/CareerSubTab";
-import BodySubTab from "../../components/member/BodySubTab";
 
 // Lazy-loaded main tabs
-const MemberProjectsTab  = React.lazy(() => import("../../components/member/MemberProjectsTab"));
-const MemberServicesTab  = React.lazy(() => import("../../components/member/MemberServicesTab"));
+const AchievementsSubTab = React.lazy(() => import("../../components/member/AchievementsSubTab"));
 const MemberHistoryTab   = React.lazy(() => import("../../components/member/MemberHistoryTab"));
-const MemberManageTab    = React.lazy(() => import("../../components/member/MemberManageTab"));
 const MemberPartnerTab   = React.lazy(() => import("../../components/member/MemberPartnerTab"));
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
 const MemberJoyTab       = React.lazy(() => import("../../components/member/MemberJoyTab"));
@@ -107,6 +102,10 @@ export default function MemberPortalPage() {
     navigate(`/member/utilities/psychology/${subTabId}`);
   };
 
+  const { notifications, unreadCount: unreadNotifCount, toast, setToast,
+    showToast, sendNotification, markRead, markAllRead, dismiss, refresh: refreshInbox,
+  } = useNotifications(memberSession?.email || null);
+
   // ── History unread badge ─────────────────────────────────────────────────────
   const [readHistoryTimestamp, setReadHistoryTimestamp] = useState(
     () => localStorage.getItem("read_history_timestamp") || null
@@ -118,11 +117,16 @@ export default function MemberPortalPage() {
     }
   }, [activeTab, bio?.history]);
   const unreadHistoryCount = useMemo(() => {
-    if (!bio?.history?.length) return 0;
-    if (!readHistoryTimestamp) return bio.history.length;
-    const ref = new Date(readHistoryTimestamp).getTime();
-    return bio.history.filter(e => new Date(e.timestamp).getTime() > ref).length;
-  }, [bio?.history, readHistoryTimestamp]);
+    let count = unreadNotifCount || 0;
+    if (bio?.history?.length) {
+      if (!readHistoryTimestamp) count += bio.history.length;
+      else {
+        const ref = new Date(readHistoryTimestamp).getTime();
+        count += bio.history.filter(e => new Date(e.timestamp).getTime() > ref).length;
+      }
+    }
+    return count;
+  }, [bio?.history, readHistoryTimestamp, unreadNotifCount]);
 
   // ── Partners ──────────────────────────────────────────────────────────────────
   const [partners, setPartners] = useState([]);
@@ -153,10 +157,6 @@ export default function MemberPortalPage() {
   const avatarInputRef  = useRef(null);
   const bioTextareaRef  = useRef(null);
   const previewIframeRef = useRef(null);
-
-  const { notifications, unreadCount: unreadNotifCount, toast, setToast,
-    showToast, sendNotification, markRead, markAllRead, dismiss, refresh: refreshInbox,
-  } = useNotifications(memberSession?.email || null);
 
   const [activePaymentNotification, setActivePaymentNotification] = useState(null);
   useEffect(() => {
@@ -224,25 +224,19 @@ export default function MemberPortalPage() {
 
   // ── Mobile account section definitions ───────────────────────────────────────
   const ACCOUNT_SECTIONS = useMemo(() => [
-    { id:'profile',  label:t("memberPortal.sidebar.personal"),  sub:t("memberPortal.bento.profileSub"),  icon:'person',          grad:'from-card to-card'  },
-    { id:'design',   label:t("memberPortal.sidebar.theme"),     sub:t("memberPortal.bento.designSub"),   icon:'palette',         grad:'from-card to-card'  },
-    { id:'links',    label:t("memberPortal.sidebar.links"),     sub:t("memberPortal.bento.linksSub", { count: formData.links?.length || 0 }), icon:'link',    grad:'from-card to-card'  },
-    { id:'projects', label:t("memberPortal.sidebar.projects"),  sub:t("memberPortal.bento.projectsSub", { count: formData.projects?.length || 0 }), icon:'folder_special', grad:'from-card to-card' },
-    { id:'services', label:t("memberPortal.sidebar.services"),  sub:t("memberPortal.bento.servicesSub", { count: formData.services?.length || 0 }),  icon:'storefront', grad:'from-card to-card' },
-    { id:'career',   label:t("memberPortal.sidebar.career"),    sub:t("memberPortal.bento.careerSub"),   icon:'school',          grad:'from-card to-card'  },
-    { id:'body',     label:t("memberPortal.sidebar.physical"),  sub:t("memberPortal.bento.bodySub"),     icon:'monitor_heart',   grad:'from-card to-card'  },
+    { id:'profile',      label:'Thông tin cá nhân', sub:t("memberPortal.bento.profileSub"),  icon:'person',          grad:'from-card to-card'  },
+    { id:'design',       label:t("memberPortal.sidebar.theme"),     sub:t("memberPortal.bento.designSub"),   icon:'palette',         grad:'from-card to-card'  },
+    { id:'links',        label:t("memberPortal.sidebar.links"),     sub:t("memberPortal.bento.linksSub", { count: formData.links?.length || 0 }), icon:'link',    grad:'from-card to-card'  },
+    { id:'achievements', label:'Thành tích',        sub:t("memberPortal.bento.projectsSub", { count: (formData.projects?.length || 0) + (formData.services?.length || 0) }), icon:'military_tech', grad:'from-card to-card' },
   ], [formData.links?.length, formData.projects?.length, formData.services?.length, t]);
 
   // ── Render account sub-tab form (shared desktop + mobile) ────────────────────
   const renderAccountForm = (tabId) => {
     switch(tabId) {
-      case 'profile':  return <ProfileSubTab formData={formData} handleFieldChange={handleFieldChange} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} t={t} />;
-      case 'design':   return <DesignSubTab formData={formData} setFormData={setFormData} t={t} bio={bio} onBioUpdate={setBio} showToast={showToast} />;
-      case 'links':    return <LinksSubTab formData={formData} newLinkLabel={newLinkLabel} setNewLinkLabel={setNewLinkLabel} newLinkUrl={newLinkUrl} setNewLinkUrl={setNewLinkUrl} handleLinkInputKeyDown={handleLinkInputKeyDown} addSocialLink={addSocialLink} removeSocialLink={removeSocialLink} handleFieldChange={handleFieldChange} bioTextareaRef={bioTextareaRef} t={t} />;
-      case 'projects': return <MemberProjectsTab formData={formData} setFormData={setFormData} handleSave={handleSave} showToast={showToast} isGuestMode={isGuestMode} bio={bio} />;
-      case 'services': return <MemberServicesTab formData={formData} setFormData={setFormData} handleSave={handleSave} showToast={showToast} isGuestMode={isGuestMode} bio={bio} />;
-      case 'career':   return <CareerSubTab formData={formData} handleFieldChange={handleFieldChange} t={t} />;
-      case 'body':     return <BodySubTab formData={formData} handleFieldChange={handleFieldChange} t={t} />;
+      case 'profile':      return <PersonalInfoSubTab formData={formData} handleFieldChange={handleFieldChange} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} t={t} />;
+      case 'design':       return <DesignSubTab formData={formData} setFormData={setFormData} t={t} bio={bio} onBioUpdate={setBio} showToast={showToast} />;
+      case 'links':        return <LinksSubTab formData={formData} newLinkLabel={newLinkLabel} setNewLinkLabel={setNewLinkLabel} newLinkUrl={newLinkUrl} setNewLinkUrl={setNewLinkUrl} handleLinkInputKeyDown={handleLinkInputKeyDown} addSocialLink={addSocialLink} removeSocialLink={removeSocialLink} handleFieldChange={handleFieldChange} bioTextareaRef={bioTextareaRef} t={t} />;
+      case 'achievements': return <AchievementsSubTab formData={formData} setFormData={setFormData} handleSave={handleSave} showToast={showToast} isGuestMode={isGuestMode} bio={bio} />;
       default: return null;
     }
   };
@@ -311,21 +305,21 @@ export default function MemberPortalPage() {
             links: b.links||[], theme: { ...emptyTheme, ...b.theme }, tabs: b.tabs||[],
             projects: b.projects||[], services: b.services||[], secretLinks: b.secretLinks||[], slug: b.slug||"",
           });
-          try {
-            const comp = await dataApi.getCompanionHistory(memberSession.email);
-            if (comp) {
-              healing.setHistoryLogs(comp.historyLogs || []);
-              if (comp.healingActive && comp.healingStartDate) {
-                const diffDays = Math.floor((Date.now() - new Date(comp.healingStartDate).getTime()) / 86_400_000) + 1;
-                healing.setState({ active: comp.healingActive, day: diffDays, duration: comp.healingDuration, isExpired: diffDays > comp.healingDuration });
-              }
-              ['mode','duration','start_date','last_checkin_date','last_test_date','chat_distress_count'].forEach(k => {
-                const val = { mode: comp.healingActive?'active':'', duration: comp.healingDuration, start_date: comp.healingStartDate||'', last_checkin_date: comp.lastCheckinDate||'', last_test_date: comp.lastTestDate||'', chat_distress_count: comp.chatDistressCount||0 }[k];
-                localStorage.setItem(`banhocduong_${k}`, String(val));
-              });
-              localStorage.setItem("banhocduong_history", JSON.stringify(comp.historyLogs||[]));
+          // Fire-and-forget — Companion/banhocduong history only seeds a localStorage
+          // cache for a separate utility tab, it must not block the portal's own render.
+          dataApi.getCompanionHistory(memberSession.email).then(comp => {
+            if (!comp) return;
+            healing.setHistoryLogs(comp.historyLogs || []);
+            if (comp.healingActive && comp.healingStartDate) {
+              const diffDays = Math.floor((Date.now() - new Date(comp.healingStartDate).getTime()) / 86_400_000) + 1;
+              healing.setState({ active: comp.healingActive, day: diffDays, duration: comp.healingDuration, isExpired: diffDays > comp.healingDuration });
             }
-          } catch (_) {}
+            ['mode','duration','start_date','last_checkin_date','last_test_date','chat_distress_count'].forEach(k => {
+              const val = { mode: comp.healingActive?'active':'', duration: comp.healingDuration, start_date: comp.healingStartDate||'', last_checkin_date: comp.lastCheckinDate||'', last_test_date: comp.lastTestDate||'', chat_distress_count: comp.chatDistressCount||0 }[k];
+              localStorage.setItem(`banhocduong_${k}`, String(val));
+            });
+            localStorage.setItem("banhocduong_history", JSON.stringify(comp.historyLogs||[]));
+          }).catch(() => {});
         }
       } catch (err) { showToast(t("memberPortal.toast.loadError"), "error"); }
       finally { setLoading(false); }
@@ -484,12 +478,13 @@ export default function MemberPortalPage() {
     return [
       { id: "account",   label: t("memberPortal.tabs.bio"),       icon: "person",          partner: false },
       ...(!isGuestMode ? [
-        { id: "manage",    label: t("memberPortal.tabs.package"),    icon: "card_membership", partner: false },
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "paid",            partner: false },
-        { id: "partner",   label: t("memberPortal.tabs.partner"),    icon: "handshake",       partner: true  }
       ] : []),
       { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps",            partner: false },
       { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history",         partner: false },
+      ...(!isGuestMode ? [
+        { id: "partner",   label: t("memberPortal.tabs.partner"),    icon: "handshake",       partner: true  }
+      ] : []),
     ];
   }, [isGuestMode, t]);
 
@@ -504,7 +499,6 @@ export default function MemberPortalPage() {
     } else {
       return [
         { id: "account",   label: t("memberPortal.tabs.bio"),       icon: "person" },
-        { id: "manage",    label: t("memberPortal.tabs.package"),    icon: "card_membership" },
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "paid" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
         { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" }
@@ -770,13 +764,10 @@ export default function MemberPortalPage() {
                           {/* Vertical sub-tab sidebar */}
                           <div className="md:col-span-3 flex flex-col gap-1.5 sticky top-20 z-20">
                             {[
-                              { id:"profile",  label:t("memberPortal.sidebar.personal"), icon:"person" },
-                              { id:"design",   label:t("memberPortal.sidebar.theme"),    icon:"palette" },
-                              { id:"links",    label:t("memberPortal.sidebar.links"),    icon:"link" },
-                              { id:"projects", label:t("memberPortal.sidebar.projects"), icon:"folder_special" },
-                              { id:"services", label:t("memberPortal.sidebar.services"), icon:"storefront" },
-                              { id:"career",   label:t("memberPortal.sidebar.career"),   icon:"school" },
-                              { id:"body",     label:t("memberPortal.sidebar.physical"), icon:"straighten" },
+                              { id:"profile",      label:"Thông tin cá nhân", icon:"person" },
+                              { id:"design",       label:t("memberPortal.sidebar.theme"),    icon:"palette" },
+                              { id:"links",        label:t("memberPortal.sidebar.links"),    icon:"link" },
+                              { id:"achievements", label:"Thành tích",       icon:"military_tech" },
                             ].map(tab => {
                               const active = accountSubTab === tab.id;
                               return (
@@ -811,35 +802,17 @@ export default function MemberPortalPage() {
                       </div>
                     </div>
 
-                    {/* ── MOBILE layout (<md): app-like cards ────────────── */}
+                    {/* ── MOBILE layout (<md): all Bio sections shown stacked,
+                         no tab-switching — tabs don't suit a phone screen. ── */}
                     <div className="md:hidden">
-                      {mobileSubSection ? (
-                        /* ── Sub-section detail view ── */
-                        <motion.div key={mobileSubSection} initial={{ x: 24, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ type:'spring', stiffness:380, damping:30 }} className="space-y-4">
-                          {/* Section header bar */}
-                          <div className={`flex items-center gap-3.5 p-4 rounded-2xl bg-gradient-to-r ${activeSectionInfo?.grad} text-white shadow-lg`}>
-                            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-                              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings:"'FILL' 1" }}>{activeSectionInfo?.icon}</span>
-                            </div>
-                            <div className="flex-1 min-w-0 text-left">
-                              <p className="font-extrabold text-sm leading-tight">{activeSectionInfo?.label}</p>
-                              <p className="text-white/70 text-[10px] truncate">{activeSectionInfo?.sub}</p>
-                            </div>
-                          </div>
-                          {/* Form content */}
-                          <div className="bg-white dark:bg-background rounded-2xl border border-border/50 p-5 shadow-sm">
-                            {renderAccountForm(mobileSubSection)}
-                          </div>
-                          {/* Save button */}
-                          <button type="button" onClick={() => handleSave()} disabled={saving}
-                            className="w-full bg-black dark:bg-white text-white dark:text-black py-4 rounded-2xl font-extrabold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 text-xs uppercase tracking-wider">
-                            {saving
-                              ? <><div className="w-4 h-4 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" /><span>{t("memberPortal.bio.saving")}</span></>
-                              : <><span className="material-symbols-outlined text-base" style={{ fontVariationSettings:"'FILL' 1" }}>save</span><span>{t("memberPortal.bio.saveChanges")}</span></>
-                            }
-                          </button>
-                        </motion.div>
-                      ) : (
+                      {(() => {
+                        const SECTION_TINTS = {
+                          profile:      { badge: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
+                          design:       { badge: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
+                          links:        { badge: "bg-sky-500/10 text-sky-600 dark:text-sky-400" },
+                          achievements: { badge: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+                        };
+                        return (
                         /* ── Section overview ── */
                         <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
                           {/* Profile hero card */}
@@ -909,110 +882,48 @@ export default function MemberPortalPage() {
                             </div>
                           </div>
  
-                          {/* Section cards — Bento Grid layout */}
-                          <div className="grid grid-cols-2 gap-3 text-left">
+                          {/* All sections shown stacked — no tabs/drill-down on mobile */}
+                          <div className="space-y-4">
                             {ACCOUNT_SECTIONS.map((sec) => {
-                              const isProfile = sec.id === 'profile';
-                              
-                              let badgeText = null;
-                              let badgeColor = "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700/50";
-                              if (sec.id === 'links' && formData.links?.length > 0) {
-                                badgeText = `${formData.links.length} Link`;
-                                badgeColor = "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
-                              } else if (sec.id === 'projects' && formData.projects?.length > 0) {
-                                badgeText = `${formData.projects.length} Dự án`;
-                                badgeColor = "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
-                              } else if (sec.id === 'services' && formData.services?.length > 0) {
-                                badgeText = `${formData.services.length} Dịch vụ`;
-                                badgeColor = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
-                              } else if (sec.id === 'design') {
-                                badgeText = (formData.theme?.template || "Classic").toUpperCase();
-                                badgeColor = "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20";
-                              }
-
-                              const iconGradients = {
-                                profile: "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
-                                design: "bg-gradient-to-br from-pink-500 to-rose-500 text-white",
-                                links: "bg-gradient-to-br from-indigo-500 to-purple-600 text-white",
-                                projects: "bg-gradient-to-br from-amber-500 to-orange-600 text-white",
-                                services: "bg-gradient-to-br from-emerald-500 to-teal-600 text-white",
-                                career: "bg-gradient-to-br from-red-500 to-pink-600 text-white",
-                                body: "bg-gradient-to-br from-cyan-500 to-blue-600 text-white",
-                              };
-
-                              if (isProfile) {
-                                return (
-                                  <button
-                                    id={`account-sec-${sec.id}-mobile`}
-                                    key={sec.id}
-                                    type="button"
-                                    onClick={() => navigate(`/member/account/${sec.id}`)}
-                                    className="col-span-2 bg-white dark:bg-card/60 border border-border/50 rounded-2xl p-4 text-left active:scale-[0.97] transition-all duration-155 shadow-sm hover:shadow-md flex items-center justify-between gap-4 min-h-[90px]"
-                                  >
-                                    <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                                      <div className={`w-12 h-12 rounded-2xl ${iconGradients[sec.id]} flex items-center justify-center shadow-md shrink-0`}>
-                                        <span className="material-symbols-outlined text-[22px]">{sec.icon}</span>
-                                      </div>
-                                      <div className="min-w-0 flex-1">
-                                        <div className="flex items-center gap-2">
-                                          <p className="text-sm font-black text-zinc-900 dark:text-white leading-tight">
-                                            {sec.label}
-                                          </p>
-                                          {badgeText && (
-                                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border ${badgeColor}`}>
-                                              {badgeText}
-                                            </span>
-                                          )}
-                                        </div>
-                                        <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-1 leading-snug">{sec.sub}</p>
-                                      </div>
-                                    </div>
-                                    <span className="material-symbols-outlined text-zinc-400 dark:text-zinc-600 text-sm shrink-0">arrow_forward_ios</span>
-                                  </button>
-                                );
-                              }
-
+                              const tint = SECTION_TINTS[sec.id] || SECTION_TINTS.profile;
                               return (
-                                <button
-                                  id={`account-sec-${sec.id}-mobile`}
-                                  key={sec.id}
-                                  type="button"
-                                  onClick={() => navigate(`/member/account/${sec.id}`)}
-                                  className="bg-white dark:bg-card/60 border border-border/50 rounded-2xl p-4 text-left active:scale-[0.96] transition-all duration-155 shadow-sm hover:shadow-md flex flex-col justify-between min-h-[125px]"
-                                >
-                                  <div className="flex items-start justify-between w-full">
-                                    <div className={`w-10 h-10 rounded-xl ${iconGradients[sec.id] || "bg-zinc-50 text-zinc-700"} flex items-center justify-center shadow-md`}>
-                                      <span className="material-symbols-outlined text-[19px]">{sec.icon}</span>
+                                <div key={sec.id} id={`account-sec-${sec.id}-mobile`} className="space-y-3">
+                                  <div className="flex items-center gap-3 px-1">
+                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tint.badge}`}>
+                                      <span className="material-symbols-outlined text-[18px]">{sec.icon}</span>
                                     </div>
-                                    {badgeText && (
-                                      <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border ${badgeColor}`}>
-                                        {badgeText}
-                                      </span>
-                                    )}
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-black text-zinc-900 dark:text-white leading-tight">{sec.label}</p>
+                                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{sec.sub}</p>
+                                    </div>
                                   </div>
-                                  
-                                  <div className="mt-4">
-                                    <p className="text-xs font-black text-zinc-900 dark:text-white leading-tight flex items-center justify-between">
-                                      <span>{sec.label}</span>
-                                      <span className="material-symbols-outlined text-zinc-400 dark:text-zinc-600 text-[10px]">arrow_forward_ios</span>
-                                    </p>
-                                    <p className="text-[9.5px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2 leading-tight">{sec.sub}</p>
+                                  <div className="bg-white dark:bg-card/60 border border-border/50 rounded-2xl p-4 shadow-sm">
+                                    {renderAccountForm(sec.id)}
                                   </div>
-                                </button>
+                                </div>
                               );
                             })}
                           </div>
+
+                          {/* Single save button covering all sections at once */}
+                          <button type="button" onClick={() => handleSave()} disabled={saving}
+                            className="w-full bg-black dark:bg-white text-white dark:text-black py-4 rounded-2xl font-extrabold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 text-xs uppercase tracking-wider">
+                            {saving
+                              ? <><div className="w-4 h-4 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin" /><span>{t("memberPortal.bio.saving")}</span></>
+                              : <><span className="material-symbols-outlined text-base" style={{ fontVariationSettings:"'FILL' 1" }}>save</span><span>{t("memberPortal.bio.saveChanges")}</span></>
+                            }
+                          </button>
                         </motion.div>
-                      )}
+                        );
+                      })()}
                     </div>
                   </div>
                 )}
 
-                {activeTab === "manage"    && <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} handleRedeemCode={handleRedeemCode} />}
-                {activeTab === "joy"       && <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />}
+                {activeTab === "joy"       && <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} handleRedeemCode={handleRedeemCode} />}
                 {activeTab === "partner"   && <MemberPartnerTab />}
                 {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />}
-                {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} />}
+                {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />}
               </>
             )}
           </React.Suspense>

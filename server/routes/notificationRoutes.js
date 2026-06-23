@@ -123,7 +123,7 @@ router.post('/trigger-smart-push', requireAdmin, async (req, res) => {
 
 // API: Phát sóng thông báo cho tất cả người dùng (Admin)
 import Bio from '../models/Bio.js';
-import InAppNotification from '../models/InAppNotification.js';
+import InAppNotification, { pruneNotifications } from '../models/InAppNotification.js';
 
 router.post('/broadcast-all', requireAdmin, async (req, res) => {
   try {
@@ -146,6 +146,9 @@ router.post('/broadcast-all', requireAdmin, async (req, res) => {
       actionUrl
     }));
     await InAppNotification.insertMany(notifications);
+    // insertMany() skips the schema's post-save prune hook — enforce the
+    // 100-per-account cap manually for every user just notified.
+    Promise.all(activeUsers.map(u => pruneNotifications(u.email))).catch(e => console.error('[broadcast prune]', e.message));
 
     // 2. Bắn thông báo Push qua webpush cho những người dùng đã đăng ký
     const subscriptions = await NotificationSubscription.find({});

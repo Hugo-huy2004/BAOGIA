@@ -7,6 +7,8 @@ const CATEGORY_ICON = {
   wellness:     'favorite',
   security:     'security',
   payment:      'payments',
+  joy:          'paid',
+  general:      'notifications',
   system:       'notifications',
 };
 const TYPE_COLOR = {

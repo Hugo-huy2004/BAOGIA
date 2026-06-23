@@ -1,15 +1,88 @@
-.joy-dashboard{--joy-gold:#f59e0b;--joy-amber:#d97706;--joy-card:#fff;--joy-line:rgba(24,24,27,.09);--joy-muted:#71717a;display:flex;flex-direction:column;gap:18px;width:100%;max-width:1180px;margin:0 auto;padding-bottom:32px}
-.dark .joy-dashboard{--joy-card:#15131e;--joy-line:rgba(255,255,255,.075);--joy-muted:#9290a0}
-.joy-wallet-hero{min-height:230px;border-radius:28px;padding:30px 34px;position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);align-items:center;gap:28px;color:#fff;background:#18181b;border:1px solid rgba(251,191,36,.24);box-shadow:0 16px 42px rgba(24,24,27,.14)}
-.joy-wallet-hero:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#f59e0b}
-.joy-orb{position:absolute;border-radius:50%;filter:blur(10px);pointer-events:none}.joy-orb-one{width:190px;height:190px;right:-55px;top:-65px;background:rgba(251,191,36,.15)}.joy-orb-two{width:110px;height:110px;left:42%;bottom:-72px;background:rgba(249,115,22,.17)}
-.joy-balance-block,.joy-hero-details{position:relative;z-index:1}.joy-eyebrow{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#fcd34d}.joy-eyebrow .material-symbols-outlined{font-size:17px}.joy-main-balance{margin:16px 0 8px}.joy-main-balance>span:first-child{width:48px!important;height:48px!important;box-shadow:0 0 30px rgba(245,158,11,.3)}.joy-main-balance>span:last-child{font-size:clamp(25px,4vw,39px)!important;letter-spacing:-.045em;color:#fff!important}.joy-balance-block>p{font-size:10px;line-height:1.6;color:rgba(255,255,255,.55);max-width:510px}
-.joy-hero-details{display:grid;grid-template-columns:1fr 1fr;gap:10px}.joy-stat,.joy-referral-code{min-height:68px;border-radius:17px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.055);backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;padding:12px;text-align:left}.joy-stat>.material-symbols-outlined{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(251,191,36,.12);color:#fbbf24;font-size:17px}.joy-stat div,.joy-referral-code>span:first-child{display:flex;flex-direction:column}.joy-stat small,.joy-referral-code small{font-size:7px;color:rgba(255,255,255,.48);letter-spacing:.12em}.joy-stat strong{font-size:17px}.joy-referral-code{grid-column:1/-1;justify-content:space-between;color:#fff}.joy-referral-code strong{font:800 14px monospace;letter-spacing:.16em;margin-top:3px}.joy-referral-code>.material-symbols-outlined{font-size:18px;color:#fbbf24}
-.joy-section-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:5px;border-radius:18px;border:1px solid var(--joy-line);background:var(--joy-card);box-shadow:0 7px 25px rgba(24,24,27,.04);position:sticky;top:8px;z-index:15}.joy-section-nav button{min-width:0;min-height:47px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;color:var(--joy-muted);font-size:10px;font-weight:800;white-space:nowrap;transition:.2s}.joy-section-nav button .material-symbols-outlined{font-size:17px}.joy-section-nav button:hover{background:rgba(245,158,11,.06);color:var(--joy-amber)}.joy-section-nav button.active{color:#18181b;background:#f59e0b;box-shadow:0 7px 18px rgba(217,119,6,.18)}
-.joy-overview-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.75fr);gap:16px;align-items:start}.joy-checkin-wrap>div{margin:0!important;border-radius:24px!important;padding:22px!important;box-shadow:0 12px 34px rgba(244,63,94,.06)}.joy-code-column{display:flex;flex-direction:column;gap:12px}.joy-action-card,.joy-content-card{border:1px solid var(--joy-line);background:var(--joy-card);border-radius:20px;padding:18px;box-shadow:0 9px 28px rgba(24,24,27,.04);display:flex;flex-direction:column;gap:11px}.joy-action-card h4{font-size:9px!important;font-weight:900!important;letter-spacing:.13em!important}.joy-action-card.referral-card{border-top:3px solid #f59e0b}.joy-action-card.gift-card{border-top:3px solid #8b5cf6}.joy-input-action{display:flex;gap:8px}.joy-code-input{min-width:0;flex:1;height:42px;padding:0 12px;border-radius:12px;border:1px solid var(--joy-line);background:rgba(113,113,122,.055);font:800 12px monospace;letter-spacing:.12em;color:inherit;outline:none}.joy-code-input:focus{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.1)}.joy-action-button{height:42px;padding:0 14px;border-radius:12px;color:white;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.joy-action-button.amber{background:#d97706}.joy-action-button.dark{background:#27272a}.dark .joy-action-button.dark{background:#f4f4f5;color:#18181b}.joy-action-button:disabled{opacity:.45}.joy-earn-note{font-size:9px;color:var(--joy-muted);line-height:1.6;padding:2px 3px}
-.joy-section-content{max-width:760px;margin:0 auto;width:100%}.joy-content-card{padding:24px;gap:18px}.joy-send-card>div:first-child{padding-bottom:14px;border-bottom:1px solid var(--joy-line)}
-.joy-mission-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.joy-mission-card{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--joy-line);background:var(--joy-card);border-radius:18px;padding:15px;box-shadow:0 7px 22px rgba(24,24,27,.035)}.joy-mission-card.completed{border-color:rgba(245,158,11,.42);background:#fffbeb}.dark .joy-mission-card.completed{background:#211b12}.joy-mission-card.claimed{border-color:rgba(16,185,129,.25)}
-.joy-history-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:18px;align-items:start}.joy-history-grid>div{min-width:0}.joy-history-list{border:1px solid var(--joy-line);border-radius:18px;overflow:hidden;background:var(--joy-card)}.joy-history-row{min-height:61px;display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--joy-line)}.joy-history-row:last-child{border-bottom:0}.joy-history-row:hover{background:rgba(245,158,11,.035)}.joy-history-row.order-row{justify-content:space-between}
-.joy-section-nav button svg{width:17px;height:17px;flex:none;stroke-width:2}.joy-section-nav button>span{overflow:hidden;text-overflow:ellipsis}
-@media(max-width:900px){.joy-wallet-hero{grid-template-columns:1fr;gap:20px}.joy-hero-details{grid-template-columns:repeat(3,1fr)}.joy-referral-code{grid-column:auto}.joy-overview-grid,.joy-history-grid{grid-template-columns:1fr}.joy-code-column{display:grid;grid-template-columns:1fr 1fr}.joy-earn-note{grid-column:1/-1}.joy-mission-list{grid-template-columns:1fr}}
-@media(max-width:600px){.joy-dashboard{gap:12px;padding-bottom:20px}.joy-wallet-hero{min-height:0;border-radius:22px;padding:23px 19px}.joy-main-balance{margin-top:13px}.joy-main-balance>span:first-child{width:40px!important;height:40px!important}.joy-balance-block>p{font-size:9px}.joy-hero-details{grid-template-columns:1fr 1fr}.joy-referral-code{grid-column:1/-1}.joy-section-nav{border-radius:15px;overflow-x:auto;grid-template-columns:repeat(5,minmax(68px,1fr));top:4px}.joy-section-nav button{min-height:52px;flex-direction:column;gap:2px;font-size:8px;padding:5px}.joy-section-nav button .material-symbols-outlined{font-size:18px}.joy-code-column{display:flex}.joy-checkin-wrap>div{padding:15px!important;border-radius:20px!important}.joy-input-action{flex-direction:column}.joy-action-button{width:100%}.joy-content-card{padding:17px}.joy-send-card .flex.gap-2{flex-direction:column}.joy-send-card .flex.gap-2>button{width:100%}.joy-mission-card{padding:12px}.joy-history-row{padding:10px}.joy-stat{padding:10px}.joy-stat>.material-symbols-outlined{display:none}}
+/* ============================================================
+   JOY Wallet — simplified, follows Hugo Studio's own design
+   tokens (--primary/--accent/--success/--warning/--card/--border
+   from src/index.css) instead of a one-off color scheme.
+   ============================================================ */
+.joy-dashboard{--joy-card:hsl(var(--card));--joy-line:hsl(var(--border));--joy-muted:hsl(var(--muted-foreground));display:flex;flex-direction:column;gap:18px;width:100%;max-width:1080px;margin:0 auto;padding-bottom:32px}
+
+/* ── Hero ────────────────────────────────────────────────────── */
+.joy-card-hero{position:relative;overflow:hidden;border-radius:22px;padding:26px;color:hsl(var(--primary-foreground));background:linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)));box-shadow:0 14px 34px -10px hsl(var(--primary)/0.4)}
+.joy-card-row-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between}
+.joy-card-brand{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.9}
+.joy-card-brand .material-symbols-outlined{font-size:17px}
+.joy-card-balance{position:relative;z-index:1;margin:18px 0 4px;display:flex;align-items:baseline;gap:8px}
+.joy-card-balance .joy-balance-num{font-size:clamp(28px,4.5vw,38px);font-weight:800;letter-spacing:-.02em}
+.joy-card-balance .joy-balance-unit{font-size:12px;font-weight:700;opacity:.7;text-transform:uppercase}
+.joy-card-sub{position:relative;z-index:1;font-size:11px;opacity:.78;line-height:1.6;max-width:480px}
+.joy-card-stats{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.joy-card-stat{background:hsl(0 0% 100%/0.14);border:1px solid hsl(0 0% 100%/0.18);border-radius:13px;padding:10px 12px}
+.joy-card-stat small{display:block;font-size:7px;font-weight:700;letter-spacing:.1em;opacity:.7;text-transform:uppercase;margin-bottom:3px}
+.joy-card-stat strong{font-size:14px;font-weight:800}
+.joy-card-stat.is-code{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px;transition:.15s}
+.joy-card-stat.is-code:hover{background:hsl(0 0% 100%/0.2)}
+.joy-card-stat.is-code strong{font-family:monospace;letter-spacing:.08em;font-size:12px}
+.joy-card-stat.is-code .material-symbols-outlined{font-size:14px;opacity:.75}
+
+/* ── Quick actions ───────────────────────────────────────────── */
+.joy-actions-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.joy-action-circle{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;cursor:pointer}
+.joy-action-circle .joy-action-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:21px;transition:.15s;background:hsl(var(--primary)/0.1);color:hsl(var(--primary))}
+.joy-action-circle:hover .joy-action-icon{background:hsl(var(--primary)/0.16)}
+.joy-action-circle span:last-child{font-size:9.5px;font-weight:700;color:var(--joy-muted);text-transform:uppercase;letter-spacing:.03em}
+
+/* ── Segmented switch ────────────────────────────────────────── */
+.joy-segment{display:flex;gap:4px;padding:4px;border-radius:14px;background:hsl(var(--muted));position:sticky;top:8px;z-index:15}
+.joy-segment button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;border-radius:11px;font-size:11px;font-weight:700;color:var(--joy-muted);transition:.15s}
+.joy-segment button.active{background:var(--joy-card);color:hsl(var(--primary));box-shadow:0 3px 10px hsl(var(--shadow)/0.08)}
+
+/* ── Feed cards ──────────────────────────────────────────────── */
+.joy-feed{display:flex;flex-direction:column;gap:14px}
+.joy-feed-card{border:1px solid var(--joy-line);background:var(--joy-card);border-radius:18px;padding:18px;box-shadow:0 4px 16px hsl(var(--shadow)/0.03)}
+.joy-feed-card-title{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--joy-muted);margin-bottom:12px}
+.joy-feed-card-title .material-symbols-outlined{font-size:17px;color:hsl(var(--primary))}
+.joy-checkin-wrap>div{margin:0!important;border-radius:14px!important;padding:0!important;box-shadow:none!important;border:none!important}
+
+/* Coupon / referral mini-tabs */
+.joy-offer-tabs{display:flex;gap:6px;margin-bottom:12px}
+.joy-offer-tabs button{flex:1;padding:7px;border-radius:9px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;background:hsl(var(--muted));color:var(--joy-muted);transition:.15s}
+.joy-offer-tabs button.active{background:hsl(var(--primary));color:hsl(var(--primary-foreground))}
+.joy-input-action{display:flex;gap:8px}
+.joy-code-input{min-width:0;flex:1;height:42px;padding:0 13px;border-radius:11px;border:1px solid var(--joy-line);background:hsl(var(--muted)/0.5);font:700 12px monospace;letter-spacing:.08em;color:inherit;outline:none}
+.joy-code-input:focus{border-color:hsl(var(--primary));box-shadow:0 0 0 3px hsl(var(--primary)/0.12)}
+.joy-action-button{height:42px;padding:0 15px;border-radius:11px;color:hsl(var(--primary-foreground));font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:hsl(var(--primary))}
+.joy-action-button.amber{background:hsl(var(--warning));color:hsl(var(--warning-foreground))}
+.joy-action-button:disabled{opacity:.45}
+.joy-earn-note{font-size:9.5px;color:var(--joy-muted);line-height:1.6;margin-top:9px}
+
+/* Missions — horizontal scroll row */
+.joy-mission-scroll{display:flex;gap:9px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.joy-mission-scroll::-webkit-scrollbar{display:none}
+.joy-mission-pill{flex:0 0 auto;min-width:190px;display:flex;flex-direction:column;gap:9px;border:1px solid var(--joy-line);border-radius:15px;padding:13px;background:hsl(var(--muted)/0.4)}
+.joy-mission-pill.completed{border-color:hsl(var(--primary)/0.35);background:hsl(var(--primary)/0.06)}
+.joy-mission-pill.claimed{opacity:.55}
+.joy-mission-pill-top{display:flex;gap:8px;align-items:center}
+.joy-mission-pill-icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:hsl(var(--primary)/0.12);color:hsl(var(--primary));font-size:16px;flex-shrink:0}
+.joy-mission-pill.claimed .joy-mission-pill-icon{background:hsl(var(--success)/0.12);color:hsl(var(--success))}
+.joy-mission-pill-name{font-size:11.5px;font-weight:700;color:inherit;line-height:1.3}
+.joy-mission-pill-sub{font-size:9.5px;color:var(--joy-muted);margin-top:2px}
+.joy-mission-pill button{width:100%;padding:7px;border-radius:9px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;transition:.15s}
+.joy-mission-pill button:disabled{opacity:.4;background:hsl(var(--muted-foreground))}
+
+/* ── "Gửi JOY" modal ─────────────────────────────────────────── */
+.joy-send-input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid hsl(var(--border));background:hsl(var(--background));color:hsl(var(--foreground));font-size:14px;font-weight:600;outline:none;transition:.15s}
+.joy-send-input::placeholder{color:hsl(var(--muted-foreground));font-weight:500}
+.joy-send-input:focus{border-color:hsl(var(--primary));box-shadow:0 0 0 3px hsl(var(--primary)/0.15)}
+.joy-send-cta{width:100%;margin-top:10px;padding:13px;border-radius:14px;background:linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)));color:hsl(var(--primary-foreground));font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;transition:.15s;box-shadow:0 8px 18px -6px hsl(var(--primary)/0.35)}
+.joy-send-cta:hover:not(:disabled){transform:translateY(-1px)}
+.joy-send-cta:disabled{opacity:.4;box-shadow:none;cursor:not-allowed}
+
+@media(max-width:600px){
+  .joy-dashboard{gap:12px;padding-bottom:20px}
+  .joy-card-hero{padding:20px;border-radius:20px}
+  .joy-card-balance .joy-balance-num{font-size:28px}
+  .joy-card-stats{grid-template-columns:1fr 1fr}
+  .joy-card-stat.is-code{grid-column:1/-1}
+  .joy-action-circle .joy-action-icon{width:44px;height:44px;font-size:19px;border-radius:13px}
+  .joy-feed-card{padding:14px;border-radius:16px}
+  .joy-mission-pill{min-width:165px}
+}

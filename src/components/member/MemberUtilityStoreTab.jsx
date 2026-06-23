@@ -1,8 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import JoyCoinBadge from "../shared/JoyCoinBadge";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
+
+const CATEGORY_LABELS = {
+  all: "Tất cả",
+  general: "Chung",
+  joy: "JOY",
+};
 
 export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBioUpdate, showToast }) {
   const { t } = useTranslation();
@@ -10,6 +16,8 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
   const [loading, setLoading] = useState(true);
   const [buyingId, setBuyingId] = useState(null);
   const [confirmProduct, setConfirmProduct] = useState(null);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
 
   useEffect(() => {
     fetch(`${apiBase}/utility-store/products`)
@@ -18,6 +26,20 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const categories = useMemo(() => {
+    const set = new Set(products.map(p => p.category || "general"));
+    return ["all", ...Array.from(set)];
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return products.filter(p => {
+      const matchesCategory = category === "all" || (p.category || "general") === category;
+      const matchesSearch = !q || p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q);
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, search, category]);
 
   async function handleBuy(product) {
     if (!bio?.email || buyingId) return;
@@ -79,8 +101,42 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
   };
 
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {products.map(product => {
+    <div className="space-y-4">
+      {/* Search + category filter */}
+      <div className="flex flex-col sm:flex-row gap-2.5">
+        <div className="relative flex-1">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-base">search</span>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Tìm sản phẩm..."
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#181622] text-xs text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+          />
+        </div>
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-none">
+          {categories.map(c => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border whitespace-nowrap shrink-0 transition-all ${
+                category === c ? "bg-amber-500 border-amber-500 text-white shadow-sm" : "bg-white dark:bg-[#181622] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400"
+              }`}
+            >
+              {CATEGORY_LABELS[c] || c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filteredProducts.length === 0 ? (
+        <div className="py-12 text-center bg-zinc-50/50 dark:bg-zinc-900/30 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
+          <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-700 mb-2">search_off</span>
+          <p className="text-xs text-zinc-400">Không tìm thấy sản phẩm phù hợp.</p>
+        </div>
+      ) : (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      {filteredProducts.map(product => {
         const insufficient = balance < product.priceJoy;
         const outOfStock = product.stock !== -1 && product.stock <= 0;
         const lowStock = product.stock !== -1 && product.stock > 0 && product.stock <= 5;
@@ -142,6 +198,8 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
           </div>
         );
       })}
+      </div>
+      )}
 
       {/* Purchase confirmation modal — gives the user a deliberate second step
           before any JOY is spent, instead of a single-click buy. */}

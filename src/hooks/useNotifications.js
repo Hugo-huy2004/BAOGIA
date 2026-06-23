@@ -14,7 +14,7 @@ export function useNotifications(email) {
   const refresh = useCallback(async () => {
     if (!email) return;
     try {
-      const { notifications } = await dataApi.getInbox(email, 30);
+      const { notifications } = await dataApi.getInbox(email, 100);
       setItems(notifications);
     } catch (_) {}
   }, [email]);
