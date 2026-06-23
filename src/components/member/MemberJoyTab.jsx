@@ -261,7 +261,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
         </div>
         <div className="joy-card-balance">
           <span className="joy-balance-num">{(balance ?? 0).toLocaleString("vi-VN")}</span>
-          <JoyCoinBadge amount={null} size="lg" className="joy-balance-coin" />
+          <JoyCoinBadge amount={balance} hideAmount size="lg" className="joy-balance-coin" />
         </div>
         <p className="joy-card-sub">{t("memberPortal.joyWallet.sub")}</p>
         <div className="joy-card-stats">

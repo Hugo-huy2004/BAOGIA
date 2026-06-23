@@ -92,7 +92,7 @@ export default function JoyCoinBadge({ amount: propAmount, size = "md", classNam
           JOY
         </span>
       </motion.span>
-      {actualAmount != null && (
+      {!hideAmount && (
         <span className={`${s.label} font-mono font-bold transition-colors duration-300 ${flashColor}`}>
           {Number(displayAmount).toLocaleString("vi-VN")} <span className="text-[0.8em] text-muted-foreground ml-0.5">JOY</span>
         </span>

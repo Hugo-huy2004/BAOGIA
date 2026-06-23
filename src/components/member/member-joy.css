@@ -15,9 +15,9 @@
 .joy-card-row-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between}
 .joy-card-brand{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsl(var(--warning))}
 .joy-card-brand .material-symbols-outlined{font-size:17px}
-.joy-card-balance{position:relative;z-index:1;margin:16px 0 4px;display:flex;align-items:baseline;gap:8px}
+.joy-card-balance{position:relative;z-index:1;margin:16px 0 4px;display:flex;align-items:center;gap:10px}
 .joy-card-balance .joy-balance-num{font-size:clamp(28px,4.5vw,38px);font-weight:800;letter-spacing:-.02em;color:hsl(var(--warning))}
-.joy-card-balance .joy-balance-unit{font-size:12px;font-weight:700;color:hsl(var(--foreground)/0.6);text-transform:uppercase}
+.joy-balance-coin{transform:scale(1.15)}
 .joy-card-sub{position:relative;z-index:1;font-size:11px;color:hsl(var(--joy-muted));line-height:1.6;max-width:480px}
 /* Content-sized chips that hug their text instead of stretching into equal
    full-width thirds — on a wide hero card, 3 short values in a 1fr/1fr/1fr
