@@ -5,7 +5,6 @@ import { useData } from "../context/DataContext";
 import MobileDrawer from "./MobileDrawer";
 import { useTranslation } from "react-i18next";
 import { useUIStore } from "../stores/uiStore";
-import { eduUrl, adminUrl } from "../utils/domains";
 
 function playPop() {
   try {
@@ -25,9 +24,6 @@ function playPop() {
 }
 
 function NavLink({ to, active, onClick, children }) {
-  // Once edu./admin.hugowishpax.studio are live, account/login links must
-  // cross actual hostnames — a client-side <Link> can't navigate across
-  // domains, so fall back to a real <a> whenever `to` is an absolute URL.
   const className = `relative inline-flex h-8 items-center text-[12px] font-medium leading-none tracking-wide transition-colors duration-200 select-none ${
     active ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
   }`;
@@ -37,9 +33,6 @@ function NavLink({ to, active, onClick, children }) {
       {active && <span className="absolute -bottom-[14px] left-0 right-0 h-0.5 rounded-full bg-primary" />}
     </>
   );
-  if (/^https?:\/\//.test(to)) {
-    return <a href={to} onClick={onClick} className={className}>{content}</a>;
-  }
   return <Link to={to} onClick={onClick} className={className}>{content}</Link>;
 }
 
@@ -50,7 +43,7 @@ export default function Navbar() {
   const allowBooking = data?.systemSettings?.allowBooking !== false;
 
   const isLoggedIn = isMemberAuthenticated() || isAdminAuthenticated();
-  const accountPath = isAdminAuthenticated() ? adminUrl("/admin") : (isMemberAuthenticated() ? eduUrl("/member") : eduUrl("/login"));
+  const accountPath = isAdminAuthenticated() ? "/admin" : (isMemberAuthenticated() ? "/member" : "/login");
 
   const toggleLanguage = () => {
     const newLang = i18n.language.startsWith("vi") ? "en" : "vi";

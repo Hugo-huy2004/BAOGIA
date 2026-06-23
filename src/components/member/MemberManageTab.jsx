@@ -1,5 +1,17 @@
 import { withTranslation } from "react-i18next";
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Darkens a #rrggbb color by a percentage — used to build a two-tone gradient
+// for the membership-card look from a single package accent color.
+function shadeColor(hex, percent) {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  const r = Math.max(0, Math.min(255, (num >> 16) + amt));
+  const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00ff) + amt));
+  const b = Math.max(0, Math.min(255, (num & 0x0000ff) + amt));
+  return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)}`;
+}
 
 const getBasePackageDetails = (serviceLabel, t) => {
   const label = serviceLabel || "Student Bio";
@@ -50,113 +62,109 @@ const getBasePackageDetails = (serviceLabel, t) => {
   };
 };
 
-function PackageCard({ name, duration, durationUnit, benefits, color, startLabel, expiresLabel, isBasePackage = false, t }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const formattedBenefits = benefits || [];
+// Membership-card visual — modeled after a physical card (chip, brand row,
+// embossed name, validity dates) instead of a list row, since the previous
+// flat/expandable rows still read as "just another settings list." Tapping
+// opens a bottom sheet with the full benefits instead of expanding in place,
+// which only worked when cards were stacked vertically.
+function PackageCard({ name, duration, durationUnit, benefits, color, startLabel, expiresLabel, isBasePackage = false, t, onOpenDetails }) {
+  const durationLabel = expiresLabel || `+${duration} ${durationUnit === "days" ? t("memberPortal.package.days") : durationUnit === "years" ? t("memberPortal.package.years") : t("memberPortal.package.months")}`;
+  const dark = shadeColor(color, -35);
 
   return (
-    <div className="space-y-3">
-      <div 
-        onClick={() => setIsOpen(!isOpen)}
-        style={{ 
-          backgroundColor: `${color}12`,
-          borderColor: color
-        }}
-        className="relative overflow-hidden rounded-[24px] p-6 sm:p-7 border-2 flex flex-col justify-between h-[210px] sm:h-[235px] group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer select-none"
-      >
-        <div className="absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none transition-transform duration-500 group-hover:scale-125 group-hover:opacity-20" style={{ backgroundColor: color, borderBottomLeftRadius: '100%' }} />
+    <button
+      type="button"
+      onClick={onOpenDetails}
+      className="relative shrink-0 w-[260px] sm:w-[300px] h-[160px] sm:h-[175px] rounded-[22px] p-4 sm:p-5 text-left overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-1 active:scale-[0.97] snap-center"
+      style={{ background: `linear-gradient(135deg, ${color} 0%, ${dark} 100%)` }}
+    >
+      {/* Embossed watermark icon, bleeding off the edge like a card's brand mark */}
+      <span className="material-symbols-outlined absolute -right-4 -bottom-6 text-white/10 pointer-events-none" style={{ fontSize: 130 }}>workspace_premium</span>
 
-        <div className="flex justify-between items-start relative z-10">
-          <div className="space-y-1.5 text-left">
-            <div className="flex items-center gap-1.5 font-black uppercase text-[9px] tracking-[0.2em]" style={{ color }}>
-              <span className="material-symbols-outlined text-xs">workspace_premium</span>
-              {isBasePackage ? t("memberPortal.package.base") : t("memberPortal.package.promo")}
-            </div>
-            <h3 className="text-xl sm:text-2xl font-black tracking-tight uppercase text-zinc-900 dark:text-white transition-all">{name}</h3>
+      <div className="relative z-10 h-full flex flex-col justify-between text-white">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-1.5 font-black uppercase text-[8px] tracking-[0.18em] opacity-85">
+            <span className="material-symbols-outlined text-[13px]">hexagon</span>
+            HUGO {isBasePackage ? t("memberPortal.package.base") : t("memberPortal.package.promo")}
           </div>
-
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/50 dark:bg-black/20 border text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200" style={{ borderColor: `${color}40` }}>
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: color }} />
+          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 text-[7.5px] font-bold uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             {t("memberPortal.package.activeStatus")}
-          </div>
+          </span>
         </div>
 
-        <div className="space-y-3 relative z-10 mt-auto">
-          <div className="flex items-end justify-between flex-wrap gap-4">
-            <div className="text-xs sm:text-sm font-semibold flex items-center gap-4 sm:gap-6 text-left">
-              <div>
-                <span className="text-[8px] sm:text-[9px] block text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.startDate")}</span>
-                <span className="text-[11px] sm:text-xs font-mono text-zinc-800 dark:text-zinc-200 font-bold">{startLabel}</span>
-              </div>
-              {expiresLabel && (
-                <>
-                  <div className="w-[2px] h-6" style={{ backgroundColor: `${color}30` }} />
-                  <div>
-                    <span className="text-[8px] sm:text-[9px] block text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.bioDuration")}</span>
-                    <span className="font-bold text-[11px] sm:text-xs font-mono" style={{ color }}>{expiresLabel}</span>
-                  </div>
-                </>
-              )}
-              {!expiresLabel && (
-                <>
-                  <div className="w-[2px] h-6" style={{ backgroundColor: `${color}30` }} />
-                  <div>
-                    <span className="text-[8px] sm:text-[9px] block text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider mb-0.5">{t("memberPortal.package.addedDuration")}</span>
-                    <span className="text-zinc-800 dark:text-zinc-200 font-bold text-[11px] sm:text-xs font-mono">+{duration} {durationUnit === "days" ? t("memberPortal.package.days") : durationUnit === "years" ? t("memberPortal.package.years") : t("memberPortal.package.months")}</span>
-                  </div>
-                </>
-              )}
+        {/* Chip — purely decorative, sells the "membership card" metaphor */}
+        <div className="w-8 h-6 rounded-md bg-white/20 border border-white/30 mt-1" />
+
+        <div>
+          <h3 className="text-base sm:text-lg font-black tracking-tight uppercase leading-tight truncate">{name}</h3>
+          <div className="flex items-end justify-between mt-2 gap-3">
+            <div>
+              <span className="block text-[7px] font-bold uppercase tracking-[0.15em] opacity-70">{t("memberPortal.package.startDate")}</span>
+              <span className="text-[11px] font-mono font-bold">{startLabel}</span>
             </div>
-            <div className="text-right flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm text-zinc-400 transition-transform duration-300" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
-                expand_more
-              </span>
+            <div className="text-right">
+              <span className="block text-[7px] font-bold uppercase tracking-[0.15em] opacity-70">{expiresLabel ? t("memberPortal.package.bioDuration") : t("memberPortal.package.addedDuration")}</span>
+              <span className="text-[11px] font-mono font-bold">{durationLabel}</span>
             </div>
           </div>
         </div>
       </div>
+    </button>
+  );
+}
 
-      <div 
-        className="transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden"
-        style={{ 
-          maxHeight: isOpen ? '1000px' : '0px',
-          opacity: isOpen ? 1 : 0
-        }}
+function PackageDetailsSheet({ pkg, onClose, t }) {
+  if (!pkg) return null;
+  const formattedBenefits = pkg.benefits || [];
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
       >
-        <div className="bg-zinc-50 dark:bg-[#15141c]/30 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 p-5 space-y-4">
-          <div className="space-y-0.5 text-left">
-            <h4 className="text-[10px] sm:text-[11px] font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm" style={{ color }}>verified_user</span>{t("memberTabs.manage.benefitsTitle")}</h4>
-            <p className="text-[9px] text-zinc-400">{t("memberPortal.package.benefitsDesc")}</p>
+        <motion.div
+          initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
+          onClick={(e) => e.stopPropagation()}
+          className="w-full sm:max-w-sm bg-white dark:bg-[#1a1924] rounded-t-[28px] sm:rounded-[28px] p-6 space-y-4 max-h-[80vh] overflow-y-auto"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0" style={{ backgroundColor: pkg.color }}>
+                <span className="material-symbols-outlined text-lg">workspace_premium</span>
+              </span>
+              <div>
+                <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight">{pkg.name}</h3>
+                <p className="text-[9px] text-zinc-450 dark:text-zinc-400">{t("memberTabs.manage.benefitsTitle")}</p>
+              </div>
+            </div>
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
+              <span className="material-symbols-outlined text-base">close</span>
+            </button>
           </div>
 
           {formattedBenefits.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-left">
+            <div className="space-y-2">
               {formattedBenefits.map((benefit, i) => (
-                <div key={i} className="flex gap-2.5 items-start p-3 rounded-xl bg-white dark:bg-card/60 border border-zinc-200/50 dark:border-zinc-800/40 transition-all hover:scale-[1.01] hover:border-zinc-300 dark:hover:border-zinc-700">
-                  <span className="material-symbols-outlined text-xs mt-0.5 shrink-0" style={{ color }}>check_circle</span>
-                  <p className="text-[10px] font-bold text-zinc-700 dark:text-zinc-350 leading-relaxed">{benefit}</p>
+                <div key={i} className="flex gap-2.5 items-start p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800">
+                  <span className="material-symbols-outlined text-xs mt-0.5 shrink-0" style={{ color: pkg.color }}>check_circle</span>
+                  <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 leading-relaxed">{benefit}</p>
                 </div>
               ))}
             </div>
           ) : (
             <p className="text-[10px] text-zinc-450 italic py-2">{t("memberPortal.package.noDetails")}</p>
           )}
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
-function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, saving, handleRedeemCode, t, i18n }) {
-  const [giftCode, setGiftCode] = useState("");
+function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, saving, t, i18n }) {
   const [copied, setCopied] = useState(false);
-
-  const handleRedeem = () => {
-    if (!giftCode.trim()) return;
-    handleRedeemCode(giftCode.trim());
-    setGiftCode("");
-  };
+  const [activePkg, setActivePkg] = useState(null);
 
   const onCopy = () => {
     handleCopyLink();
@@ -180,63 +188,36 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
         <p className="text-[10px] text-zinc-455 dark:text-zinc-400">{t("memberTabs.manage.ownedPackagesDesc")}</p>
       </div>
 
-      {/* Base Package Card */}
-      <PackageCard t={t}
-        name={basePkg.name}
-        duration={12}
-        durationUnit="months"
-        benefits={basePkg.benefits}
-        color={basePkg.color}
-        startLabel={startLabel}
-        expiresLabel={expiresLabel}
-        isBasePackage={true}
-      />
-
-      {/* Custom assigned packages from bio.packages */}
-      {bio?.packages && bio.packages.map((pkg) => (
+      {/* Membership-card carousel — swipe horizontally like a wallet instead of scrolling a vertical list */}
+      <div className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-none">
         <PackageCard t={t}
-          key={pkg._id}
-          name={pkg.name}
-          duration={pkg.duration}
-          durationUnit={pkg.durationUnit}
-          benefits={pkg.benefits}
-          color={pkg.color}
-          startLabel={new Date(pkg.addedAt).toLocaleDateString(dateLocale)}
-          isBasePackage={false}
+          name={basePkg.name}
+          duration={12}
+          durationUnit="months"
+          benefits={basePkg.benefits}
+          color={basePkg.color}
+          startLabel={startLabel}
+          expiresLabel={expiresLabel}
+          isBasePackage={true}
+          onOpenDetails={() => setActivePkg({ name: basePkg.name, color: basePkg.color, benefits: basePkg.benefits })}
         />
-      ))}
 
-      {/* Redeem Gift Code Card */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent rounded-2xl border border-amber-500/20 shadow-sm p-6 space-y-4">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-[40px] pointer-events-none" />
-        <div className="space-y-1 text-left">
-          <h4 className="text-[11px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest flex items-center gap-2">
-            <span className="material-symbols-outlined text-sm">redeem</span>
-            {t("memberTabs.manage.giftTitle")}
-          </h4>
-          <p className="text-[10px] text-amber-700/80 dark:text-amber-500/70 leading-relaxed">{t("memberTabs.manage.giftDesc")}</p>
-        </div>
-        
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder={t("memberTabs.manage.placeholderGift")}
-            value={giftCode}
-            onChange={(e) => setGiftCode(e.target.value.toUpperCase())}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleRedeem(); }}
-            className="flex-1 rounded-xl border border-amber-500/20 bg-white/50 dark:bg-black/25 text-xs p-3 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40 font-bold font-mono tracking-widest placeholder:tracking-normal placeholder:font-medium placeholder:text-zinc-400"
+        {bio?.packages && bio.packages.map((pkg) => (
+          <PackageCard t={t}
+            key={pkg._id}
+            name={pkg.name}
+            duration={pkg.duration}
+            durationUnit={pkg.durationUnit}
+            benefits={pkg.benefits}
+            color={pkg.color}
+            startLabel={new Date(pkg.addedAt).toLocaleDateString(dateLocale)}
+            isBasePackage={false}
+            onOpenDetails={() => setActivePkg(pkg)}
           />
-          <button
-            type="button"
-            onClick={handleRedeem}
-            disabled={!giftCode.trim()}
-            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90 active:scale-95 text-white font-black uppercase text-[10px] tracking-wider px-4 rounded-xl transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
-          >
-            <span className="material-symbols-outlined text-sm">verified</span>
-            <span>{t("memberTabs.manage.redeemBtn")}</span>
-          </button>
-        </div>
+        ))}
       </div>
+
+      <PackageDetailsSheet pkg={activePkg} onClose={() => setActivePkg(null)} t={t} />
 
       {/* Public Link Card */}
       <div className="bg-white/60 dark:bg-card/60 backdrop-blur-xl rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 space-y-4">

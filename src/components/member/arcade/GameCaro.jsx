@@ -290,7 +290,7 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
           )}
         </div>
       </div>
-      <div className="caro-legend"><span><i className="x">X</i> Bạn</span><span><i className="o">O</i> Hugo AI</span><span><span className="material-symbols-outlined">target</span> Xếp 5 liên tiếp</span></div>
+      <div className="caro-legend"><span><i className="x">X</i> Bạn</span><span><i className="o">O</i> Hugo AI</span><span>Xếp 5 liên tiếp</span></div>
     </div>
   );
 }

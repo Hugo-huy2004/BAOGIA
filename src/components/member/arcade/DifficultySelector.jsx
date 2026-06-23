@@ -40,7 +40,6 @@ export default function DifficultySelector({ game, bio, onBioUpdate, onSelect, t
 
       {!subscribed && (
         <div className="arcade-instruction" style={{ borderColor: "var(--warning, #f59e0b)" }}>
-          <span className="arcade-instruction-icon"><span className="material-symbols-outlined">workspace_premium</span></span>
           <div>
             <strong>Bứt phá & Huyền thoại đang chờ</strong>
             <p>
@@ -67,16 +66,16 @@ export default function DifficultySelector({ game, bio, onBioUpdate, onSelect, t
             >
               {d.id === "medium" && !locked && <span className="challenge-popular">ĐỀ XUẤT</span>}
               {locked && <span className="challenge-popular" style={{ background: "var(--warning, #f59e0b)" }}>CẦN JOY</span>}
-              <div className="challenge-card-head"><span className="challenge-icon material-symbols-outlined">{locked ? "lock" : d.icon}</span><span className="challenge-number">0{index+1}</span></div>
+              <div className="challenge-card-head"><span className="challenge-icon">{locked ? "✕" : d.label.charAt(0)}</span><span className="challenge-number">0{index+1}</span></div>
               <span className="challenge-kicker">{d.kicker}</span><h4>{d.label}</h4>
               <p>{d.description}</p>
-              <div className="challenge-objective"><span className="material-symbols-outlined">flag</span><div><small>MỤC TIÊU</small><strong>{objectives[d.id]}</strong></div></div>
-              <div className="challenge-reward"><div><small>THẮNG NHẬN</small><strong>+{d.win} <span>JOY</span></strong></div><span className="challenge-go material-symbols-outlined">{locked ? "lock" : "arrow_forward"}</span></div>
+              <div className="challenge-objective"><div><small>MỤC TIÊU</small><strong>{objectives[d.id]}</strong></div></div>
+              <div className="challenge-reward"><div><small>THẮNG NHẬN</small><strong>+{d.win} <span>JOY</span></strong></div><span className="challenge-go">{locked ? "✕" : "→"}</span></div>
             </button>
           );
         })}
       </div>
-      <p className="challenge-note"><span className="material-symbols-outlined">shield</span> Điểm và phần thưởng được ghi nhận tự động sau mỗi ván</p>
+      <p className="challenge-note">Điểm và phần thưởng được ghi nhận tự động sau mỗi ván</p>
 
       <JoyExchangeModal
         open={showInvoice}

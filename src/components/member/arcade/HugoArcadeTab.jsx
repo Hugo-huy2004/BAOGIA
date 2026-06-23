@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import ArcadeGameFrame from "./ArcadeGameFrame";
@@ -6,11 +6,8 @@ import Game2048 from "./Game2048";
 import GameCaro from "./GameCaro";
 import GameWordGuess from "./GameWordGuess";
 import GameSurvivor from "./GameSurvivor";
+import GameSnake from "./GameSnake";
 import ChessPage from "../../../pages/public/ChessPage";
-
-// Racer drags in three.js/@react-three — lazy so opening the Arcade lobby
-// doesn't pull ~300KB of 3D engine before anyone's even picked a game.
-const HugoRacer = lazy(() => import("./racer/HugoRacer"));
 import { fetchProfile } from "../../../services/arcadeApi";
 import { HOW_TO_PLAY } from "./arcadeConstants";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
@@ -22,12 +19,12 @@ const ARCADE_PRICE_JOY = 199;
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 
 const GAMES = [
-  { id: "2048", icon: "grid_view", name: "2048", tagline: "Gộp số. Phá giới hạn.", accent: "orange", symbol: "2048", detail: "Logic · Chiến thuật" },
-  { id: "caro", icon: "grid_3x3", name: "Caro AI", tagline: "Năm quân tạo nên chiến thắng.", accent: "violet", symbol: "×○", detail: "Đối kháng · AI" },
-  { id: "chess", icon: "chess", name: "HugoChess", tagline: "Đấu Bot hoặc bạn bè, có JOY.", accent: "amber", symbol: "♞", detail: "Cờ vua · Xếp hạng" },
-  { id: "wordguess", icon: "spellcheck", name: "Mật Mã Từ", tagline: "Mỗi chữ cái là một manh mối.", accent: "emerald", symbol: "A?", detail: "Ngôn ngữ · Suy luận" },
-  { id: "survivor", icon: "rocket_launch", name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.", accent: "rose", symbol: "✦", detail: "Hành động · Đạn mạc" },
-  { id: "racer", icon: "directions_car", name: "HugoRacer 3D", tagline: "Đua xe 3D, né đối thủ, về nhất.", accent: "cyan", symbol: "", detail: "Đua xe 3D · Vật lý" }
+  { id: "2048", name: "2048", tagline: "Gộp số. Phá giới hạn.", accent: "orange", symbol: "2048", detail: "Logic · Chiến thuật" },
+  { id: "caro", name: "Caro AI", tagline: "Năm quân tạo nên chiến thắng.", accent: "violet", symbol: "×○", detail: "Đối kháng · AI" },
+  { id: "chess", name: "HugoChess", tagline: "Đấu Bot hoặc bạn bè, có JOY.", accent: "amber", symbol: "♞", detail: "Cờ vua · Xếp hạng" },
+  { id: "wordguess", name: "Mật Mã Từ", tagline: "Mỗi chữ cái là một manh mối.", accent: "emerald", symbol: "A?", detail: "Ngôn ngữ · Suy luận" },
+  { id: "survivor", name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.", accent: "rose", symbol: "✦", detail: "Hành động · Đạn mạc" },
+  { id: "snake", name: "Hugo Snake", tagline: "Ăn mồi, dài ra, đừng tự đâm mình.", accent: "cyan", symbol: "S", detail: "Cổ điển · Phản xạ" }
 ];
 
 // Chess is a real-time multiplayer room game with its own lobby/leaderboard —
@@ -40,7 +37,7 @@ const GAME_COMPONENTS = {
   caro: GameCaro,
   wordguess: GameWordGuess,
   survivor: GameSurvivor,
-  racer: HugoRacer
+  snake: GameSnake
 };
 
 const DEMO_FRAMES = {
@@ -57,23 +54,10 @@ const DEMO_FRAMES = {
   ],
   survivor: [1, 2, 3], // Demo loop
   chess: [1, 2, 3],
-  racer: [1, 2, 3]
+  snake: [1, 2, 3]
 };
 
-// A small badge of the game's own material icon, pinned to every artwork —
-// the abstract mini-demos below read fine once you know what the game is,
-// but at a glance on the grid they all look like generic motion-graphics.
-// The badge gives an instant, unambiguous "this is a racing game / a word
-// game / etc." cue before anyone reads the title underneath.
-function ArtworkIconBadge({ icon }) {
-  return (
-    <span className="arcade-art-icon-badge" aria-hidden="true">
-      <span className="material-symbols-outlined">{icon}</span>
-    </span>
-  );
-}
-
-function GameArtwork({ game, icon }) {
+function GameArtwork({ game }) {
   const [frame, setFrame] = useState(0);
 
   useEffect(() => {
@@ -84,38 +68,38 @@ function GameArtwork({ game, icon }) {
     return () => window.clearInterval(timer);
   }, [game]);
 
-  if (game === "racer") {
-    const offset = frame * 18;
+  if (game === "snake") {
+    const frames = [
+      ["", "", "🍎", "", "", "🐍", "🐍", "🐍", ""],
+      ["", "🍎", "", "", "", "", "🐍", "🐍", "🐍"],
+      ["", "", "", "🍎", "", "", "", "🐍", "🐍"],
+    ];
     return (
-      <div className="arcade-art arcade-art-racer" aria-hidden="true">
-        <ArtworkIconBadge icon={icon} />
-        <div className="demo-stage demo-racer-stage">
-          <div className="racer-road" style={{ backgroundPositionY: `${offset}px` }} />
-          <span className="racer-car">🏎️</span>
+      <div className="arcade-art arcade-art-snake" aria-hidden="true">
+        <div className="demo-stage demo-survivor-grid" key={frame}>
+          {frames[frame % frames.length].map((cell, index) => <span key={index} className={cell === "🍎" ? "bullet" : cell === "🐍" ? "ship" : ""}>{cell}</span>)}
         </div>
-        <small><span className="material-symbols-outlined">sports_motorsports</span> Đua xe 3D, né đối thủ AI</small>
+        <small>Ăn mồi, dài ra, đừng tự đâm mình</small>
       </div>
     );
   }
   if (game === "2048") {
     return (
       <div className="arcade-art arcade-art-2048" aria-hidden="true">
-        <ArtworkIconBadge icon={icon} />
         <div className="demo-stage demo-2048-stage" key={frame}>
           {DEMO_FRAMES[game][frame].map((value, index) => <span key={index} className={!value ? "empty" : `tile-${value}`}>{value || ""}</span>)}
         </div>
-        <small><span className="material-symbols-outlined">swipe</span> Vuốt để gộp số giống nhau</small>
+        <small>Vuốt để gộp số giống nhau</small>
       </div>
     );
   }
   if (game === "caro") {
     return (
       <div className="arcade-art arcade-art-caro" aria-hidden="true">
-        <ArtworkIconBadge icon={icon} />
         <div className={`demo-stage demo-caro-stage ${frame === 2 ? "is-winning" : ""}`} key={frame}>
           {DEMO_FRAMES[game][frame].map((cell, index) => <span key={index} className={cell}>{cell === "x" ? "×" : cell === "o" ? "○" : ""}</span>)}
         </div>
-        <small><span className="material-symbols-outlined">gesture</span> Nối 5 quân để chiến thắng</small>
+        <small>Nối 5 quân để chiến thắng</small>
       </div>
     );
   }
@@ -127,11 +111,10 @@ function GameArtwork({ game, icon }) {
     ];
     return (
       <div className="arcade-art arcade-art-survivor" aria-hidden="true">
-        <ArtworkIconBadge icon={icon} />
         <div className="demo-stage demo-survivor-grid" key={frame}>
           {cells[frame % 3].map((cell, index) => <span key={index} className={cell === "🚀" ? "ship" : cell === "🔴" ? "bullet" : ""}>{cell}</span>)}
         </div>
-        <small><span className="material-symbols-outlined">rocket</span> Lách qua những kẽ hở hẹp nhất</small>
+        <small>Lách qua những kẽ hở hẹp nhất</small>
       </div>
     );
   }
@@ -139,29 +122,28 @@ function GameArtwork({ game, icon }) {
     const board = ["♜","♞","♝","♛","♚","♝","♞","♜"];
     return (
       <div className="arcade-art arcade-art-chess" aria-hidden="true">
-        <ArtworkIconBadge icon={icon} />
         <div className="demo-stage demo-chess-stage">
           {board.map((p, i) => <span key={i} className={i % 2 === 0 ? "dark" : ""}>{p}</span>)}
         </div>
-        <small><span className="material-symbols-outlined">emoji_events</span> Đấu Bot hoặc bạn bè, leo rank</small>
+        <small>Đấu Bot hoặc bạn bè, leo rank</small>
       </div>
     );
   }
   return (
     <div className="arcade-art arcade-art-word" aria-hidden="true">
-      <ArtworkIconBadge icon={icon} />
       <div className="demo-stage demo-word-stage" key={frame}>
         {DEMO_FRAMES[game][frame].map(({ l, s }, index) => <span key={`${index}-${l}`} className={s}>{l}</span>)}
       </div>
-      <small><span className="material-symbols-outlined">keyboard</span> Đoán từ qua màu gợi ý</small>
+      <small>Đoán từ qua màu gợi ý</small>
     </div>
   );
 }
 
 export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
   const [searchParams] = useSearchParams();
-  // Deep-link support: /arcade?game=chess&room=<id> (old /chess/:roomId share
-  // links redirect here) opens straight into Chess with that room joined.
+  // Deep-link support: /member/utilities/arcade?game=chess&room=<id> (old
+  // /chess/:roomId share links redirect here) opens straight into Chess with
+  // that room joined.
   const [activeGame, setActiveGame] = useState(() => searchParams.get("game") === "chess" ? "chess" : null);
   const chessRoomId = searchParams.get("room") || null;
   const [profile, setProfile] = useState(null);
@@ -218,14 +200,13 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
     return (
       <div className="arcade-app arcade-scroll-shell">
         <header className="arcade-topbar">
-          <button onClick={onBack} className="arcade-icon-btn" aria-label="Quay lại"><span className="material-symbols-outlined">arrow_back</span></button>
-          <div className="arcade-brand"><span className="arcade-brand-mark material-symbols-outlined">stadia_controller</span><div><strong>HugoArcade</strong><small>Play · Earn · Repeat</small></div></div>
+          <button onClick={onBack} className="arcade-icon-btn" aria-label="Quay lại">←</button>
+          <div className="arcade-brand"><span className="arcade-brand-mark">HA</span><div><strong>HugoArcade</strong><small>Play · Earn · Repeat</small></div></div>
           <div className="arcade-live"><i /> ONLINE</div>
         </header>
 
         {!subscribed && (
           <div className="arcade-instruction" style={{ margin: "16px max(18px, env(safe-area-inset-left))", borderColor: "var(--warning, #f59e0b)" }}>
-            <span className="arcade-instruction-icon"><span className="material-symbols-outlined">workspace_premium</span></span>
             <div>
               <strong>Bứt phá & Huyền thoại đang chờ</strong>
               <p>
@@ -242,7 +223,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
         <main className="arcade-home">
           <section className="arcade-hero">
             <div className="arcade-hero-copy">
-              <span className="arcade-eyebrow"><span className="material-symbols-outlined">stadia_controller</span> MINI GAME UNIVERSE</span>
+              <span className="arcade-eyebrow">MINI GAME UNIVERSE</span>
               <h1>Chơi một ván.<br/><em>Vui cả ngày.</em></h1>
               <p>Ba thế giới, ba kiểu tư duy. Chinh phục thử thách, lập kỷ lục và mang JOY về ví.</p>
               <div className="arcade-hero-stats">
@@ -250,10 +231,6 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
                 <div><strong>{totalWins}</strong><span>Chiến thắng</span></div>
                 <div><strong>+75</strong><span>JOY tối đa/ván</span></div>
               </div>
-            </div>
-            <div className="arcade-hero-art" aria-hidden="true">
-              <span className="tile t1">2</span><span className="tile t2">X</span><span className="tile t3">A</span><span className="tile t4">8</span>
-              <div className="arcade-orbit"><span className="material-symbols-outlined">sports_esports</span></div>
             </div>
           </section>
 
@@ -266,18 +243,16 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
               return (
                 <button key={g.id} onClick={() => setActiveGame(g.id)} className={`arcade-game-card accent-${g.accent}`}>
                   <div className="arcade-card-top"><span className="arcade-card-index">GAME 0{index + 1}</span><span className="arcade-card-status"><i /> SẴN SÀNG</span></div>
-                  <GameArtwork game={g.id} icon={g.icon} />
-                  <div className="arcade-card-copy"><span>{g.detail}</span><div className="arcade-card-title"><h3>{g.name}</h3><span className="material-symbols-outlined">arrow_outward</span></div><p>{g.tagline}</p></div>
-                  <div className="arcade-card-footer"><div><small>KỶ LỤC</small><strong>{best.toLocaleString("vi-VN")}</strong></div><div><small>ĐÃ CHƠI</small><strong>{played}</strong></div><span className="arcade-play-pill"><span className="material-symbols-outlined">play_arrow</span> Chơi ngay</span></div>
+                  <GameArtwork game={g.id} />
+                  <div className="arcade-card-copy"><span>{g.detail}</span><div className="arcade-card-title"><h3>{g.name}</h3><span className="arcade-card-arrow-glyph">→</span></div><p>{g.tagline}</p></div>
+                  <div className="arcade-card-footer"><div><small>KỶ LỤC</small><strong>{best.toLocaleString("vi-VN")}</strong></div><div><small>ĐÃ CHƠI</small><strong>{played}</strong></div><span className="arcade-play-pill">Chơi ngay</span></div>
                 </button>
               );
             })}
           </section>
 
           <section className="arcade-reward-banner">
-            <div className="reward-icon"><span className="material-symbols-outlined">trophy</span></div>
             <div><span>THỬ THÁCH HUYỀN THOẠI</span><h3>Thắng cấp cao nhất, nhận ngay <b>75 JOY</b></h3><p>Mỗi độ khó là một hành trình riêng. Càng khó, phần thưởng càng đáng giá.</p></div>
-            <span className="material-symbols-outlined reward-spark">auto_awesome</span>
           </section>
         </main>
 
@@ -313,12 +288,12 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
     <div className={`arcade-app arcade-scroll-shell accent-${gameInfo.accent} ${isPlaying ? "arcade-fullscreen-play" : ""}`}>
       <header className="arcade-topbar">
         <button onClick={handleTopbarBack} className="arcade-icon-btn" aria-label={isPlaying ? "Thoát" : "Về sảnh"}>
-          <span className="material-symbols-outlined">{isPlaying ? "close" : "arrow_back"}</span>
+          {isPlaying ? "✕" : "←"}
         </button>
         <div className="arcade-brand">{gameInfo.symbol && <span className="arcade-brand-mark">{gameInfo.symbol}</span>}<div><strong>{gameInfo.name}</strong><small>{gameInfo.detail}</small></div></div>
         {isPlaying
           ? <button onClick={handleTopbarBack} className="arcade-quit-btn">Quit</button>
-          : <span className="arcade-top-reward"><span className="material-symbols-outlined">stars</span> Tối đa 75 JOY</span>}
+          : <span className="arcade-top-reward">Tối đa 75 JOY</span>}
       </header>
       <main className="arcade-play-layout">
         <section className="arcade-play-main">

@@ -61,7 +61,6 @@ const ArcadeGameFrame = forwardRef(function ArcadeGameFrame({ game, bio, onBioUp
       {stage === "select" && (
         <div className="flex flex-col gap-4">
           <div className="arcade-instruction">
-            <span className="arcade-instruction-icon"><span className="material-symbols-outlined">lightbulb</span></span>
             <div><strong>Cách chơi</strong><p>{HOW_TO_PLAY[game]?.rule}</p></div>
           </div>
           <DifficultySelector game={game} bio={bio} onBioUpdate={onBioUpdate} onSelect={handleSelectDifficulty} />

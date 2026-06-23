@@ -8,6 +8,9 @@ export default function GameSurvivor({ difficulty, onGameOver }) {
   const [playing, setPlaying] = useState(false);
   const scoreRef = useRef(0);
   const reqRef = useRef(null);
+  // Virtual D-pad state for touch — buttons nudge the same `target` point
+  // that pointer-drag already steers toward, so both input methods just work.
+  const controlsRef = useRef({ up: false, down: false, left: false, right: false });
 
   // Engine state
   const state = useRef({
@@ -101,6 +104,16 @@ export default function GameSurvivor({ difficulty, onGameOver }) {
       // Clear with trail effect
       ctx.fillStyle = "rgba(10, 10, 15, 0.3)";
       ctx.fillRect(0, 0, width, height);
+
+      // Virtual D-pad — nudges the target point continuously while held
+      const dpad = controlsRef.current;
+      const padSpeed = 5.5;
+      if (dpad.up) s.target.y -= padSpeed;
+      if (dpad.down) s.target.y += padSpeed;
+      if (dpad.left) s.target.x -= padSpeed;
+      if (dpad.right) s.target.x += padSpeed;
+      s.target.x = Math.max(0, Math.min(width, s.target.x));
+      s.target.y = Math.max(0, Math.min(height, s.target.y));
 
       // Player Movement (lerp towards target)
       s.player.x += (s.target.x - s.player.x) * 0.15;
@@ -203,19 +216,45 @@ export default function GameSurvivor({ difficulty, onGameOver }) {
     state.current.target.y = e.clientY - rect.top;
   };
 
+  const press = (dir, val) => (e) => { e.preventDefault(); controlsRef.current[dir] = val; };
+
   return (
-    <div className="arcade-game-container relative w-full max-w-lg aspect-square mx-auto bg-zinc-950 rounded-xl overflow-hidden shadow-2xl border border-white/10 touch-none">
-      {!playing && timeLeft > 0 && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
-          <span className="text-white text-6xl font-bold animate-ping">{timeLeft}</span>
-        </div>
-      )}
-      <canvas
-        ref={canvasRef}
-        className="w-full h-full cursor-crosshair touch-none"
-        onPointerMove={handlePointerMove}
-        onPointerDown={handlePointerMove}
-      />
+    <div className="w-full max-w-lg mx-auto space-y-4">
+      <div className="arcade-game-container relative w-full aspect-square bg-zinc-950 rounded-xl overflow-hidden shadow-2xl border border-white/10 touch-none">
+        {!playing && timeLeft > 0 && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+            <span className="text-white text-6xl font-bold animate-ping">{timeLeft}</span>
+          </div>
+        )}
+        <canvas
+          ref={canvasRef}
+          className="w-full h-full cursor-crosshair touch-none"
+          onPointerMove={handlePointerMove}
+          onPointerDown={handlePointerMove}
+        />
+      </div>
+
+      {/* Virtual D-pad — the canvas alone needs a precise drag to steer, which
+          is fiddly on a phone; these give a thumb-friendly alternative. */}
+      <div className="arcade-dpad">
+        <div />
+        <button className="arcade-dpad-btn" onPointerDown={press("up", true)} onPointerUp={press("up", false)} onPointerLeave={press("up", false)}>
+          ▲
+        </button>
+        <div />
+        <button className="arcade-dpad-btn" onPointerDown={press("left", true)} onPointerUp={press("left", false)} onPointerLeave={press("left", false)}>
+          ◀
+        </button>
+        <div className="arcade-dpad-center" />
+        <button className="arcade-dpad-btn" onPointerDown={press("right", true)} onPointerUp={press("right", false)} onPointerLeave={press("right", false)}>
+          ▶
+        </button>
+        <div />
+        <button className="arcade-dpad-btn" onPointerDown={press("down", true)} onPointerUp={press("down", false)} onPointerLeave={press("down", false)}>
+          ▼
+        </button>
+        <div />
+      </div>
     </div>
   );
 }

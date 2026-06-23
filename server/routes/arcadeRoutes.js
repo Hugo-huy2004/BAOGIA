@@ -9,7 +9,7 @@ const router = express.Router();
 // Per-game score ceilings — reject obviously implausible/forged values outright.
 // Not full replay verification, just sanity bounds; real abuse resistance comes
 // from the win/loss-driven reward table + shared daily net-JOY cap below.
-const SCORE_CEILINGS = { '2048': 500000, caro: 200, wordguess: 100, survivor: 600, racer: 2000 };
+const SCORE_CEILINGS = { '2048': 500000, caro: 200, wordguess: 100, survivor: 600, snake: 320 };
 
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const RESULTS = ['win', 'lose', 'draw'];

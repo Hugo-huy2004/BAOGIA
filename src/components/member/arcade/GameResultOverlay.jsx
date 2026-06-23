@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import { DIFFICULTY_STYLES } from "./arcadeConstants";
 
 const RESULT_TEXT = {
-  win: { label: "Chiến thắng!", icon: "trophy", type: "win" },
-  lose: { label: "Chưa phá đảo", icon: "replay", type: "lose" },
-  draw: { label: "Bất phân thắng bại", icon: "handshake", type: "draw" }
+  win: { label: "Chiến thắng!", glyph: "✓", type: "win" },
+  lose: { label: "Chưa phá đảo", glyph: "↻", type: "lose" },
+  draw: { label: "Bất phân thắng bại", glyph: "=", type: "draw" }
 };
 
 export default function GameResultOverlay({ result, score, difficulty, joyDelta, joyAwarded, onReplay, onChangeDifficulty }) {
@@ -24,7 +24,7 @@ export default function GameResultOverlay({ result, score, difficulty, joyDelta,
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className={`arcade-result result-${info.type}`}
     >
-      <div className="result-icon"><span className="material-symbols-outlined">{info.icon}</span></div>
+      <div className="result-icon">{info.glyph}</div>
       <span className="result-kicker">KẾT QUẢ THỬ THÁCH</span><h2>{info.label}</h2>
 
       <div className="flex items-center gap-2.5">

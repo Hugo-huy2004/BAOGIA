@@ -46,6 +46,7 @@ import VerificationModal from "../../components/member/VerificationModal";
 import PendingVerification from "../../components/member/PendingVerification";
 import PreviewSimulator from "../../components/member/PreviewSimulator";
 import PersonalInfoSubTab from "../../components/member/PersonalInfoSubTab";
+import MemberSettingsTab from "../../components/member/MemberSettingsTab";
 import DesignSubTab from "../../components/member/DesignSubTab";
 import LinksSubTab from "../../components/member/LinksSubTab";
 
@@ -127,10 +128,6 @@ export default function MemberPortalPage() {
   const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
 
   const handleSelectUtility = (utilityId) => {
-    if (utilityId === "arcade") {
-      navigate("/arcade");
-      return;
-    }
     navigate(utilityId ? `/member/utilities/${utilityId}` : "/member/utilities");
   };
   const handleSelectPsychologySubTab = (subTabId) => {
@@ -276,7 +273,7 @@ export default function MemberPortalPage() {
   // ── Render account sub-tab form (shared desktop + mobile) ────────────────────
   const renderAccountForm = (tabId, opts = {}) => {
     switch(tabId) {
-      case 'profile':      return <PersonalInfoSubTab formData={formData} handleFieldChange={handleFieldChange} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} showToast={showToast} bio={bio} onBioUpdate={setBio} hideAvatarSection={opts.hideAvatarSection} t={t} />;
+      case 'profile':      return <PersonalInfoSubTab formData={formData} handleFieldChange={handleFieldChange} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} bio={bio} hideAvatarSection={opts.hideAvatarSection} t={t} />;
       case 'design':       return <DesignSubTab formData={formData} setFormData={setFormData} t={t} bio={bio} onBioUpdate={setBio} showToast={showToast} />;
       case 'links':        return <LinksSubTab formData={formData} newLinkLabel={newLinkLabel} setNewLinkLabel={setNewLinkLabel} newLinkUrl={newLinkUrl} setNewLinkUrl={setNewLinkUrl} handleLinkInputKeyDown={handleLinkInputKeyDown} addSocialLink={addSocialLink} removeSocialLink={removeSocialLink} handleFieldChange={handleFieldChange} bioTextareaRef={bioTextareaRef} t={t} />;
       case 'achievements': return <AchievementsSubTab formData={formData} setFormData={setFormData} handleSave={handleSave} showToast={showToast} isGuestMode={isGuestMode} bio={bio} />;
@@ -521,14 +518,6 @@ export default function MemberPortalPage() {
   };
 
   const handleCopyLink = async () => { if (!publicLink) return; await navigator.clipboard.writeText(publicLink); showToast(t("memberPortal.toast.copySuccess"), "success"); };
-  const handleRedeemCode = async (code) => {
-    if (!code) return; setSaving(true);
-    try {
-      const r = await memberService.redeemGiftCode(memberSession.email, code);
-      if (r.bio) { setBio(r.bio); sendNotification({ category:'package', type:'success', title:'Gói dịch vụ đã được kích hoạt!', message: r.message || t("memberPortal.toast.giftSuccess") }); }
-    } catch (err) { showToast(err.message || t("memberPortal.toast.giftError"), "error"); }
-    finally { setSaving(false); }
-  };
 
   // ── Tab definitions ───────────────────────────────────────────────────────────
   const needsEduVerification = !isGuestMode && bio?.status === 'active' && bio?.isEduVerified === false;
@@ -546,6 +535,9 @@ export default function MemberPortalPage() {
       ] : []),
       ...(needsEduVerification ? [
         { id: "verify",    label: "Sinh viên chưa xác minh",         icon: "school",          partner: false, alert: !bio?.verificationRequest?.submitted }
+      ] : []),
+      ...(!isGuestMode ? [
+        { id: "settings",  label: "Cài đặt",                         icon: "settings",        partner: false }
       ] : []),
     ];
   }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);
@@ -567,6 +559,7 @@ export default function MemberPortalPage() {
         ...(needsEduVerification ? [
           { id: "verify",  label: "Xác minh",                        icon: "school", alert: !bio?.verificationRequest?.submitted }
         ] : []),
+        { id: "settings",  label: "Cài đặt",                         icon: "settings" },
       ];
     }
   }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);
@@ -1032,10 +1025,11 @@ export default function MemberPortalPage() {
                   </div>
                 )}
 
-                {activeTab === "joy"       && <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} handleRedeemCode={handleRedeemCode} />}
+                {activeTab === "joy"       && <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} />}
                 {activeTab === "partner"   && <MemberPartnerTab />}
                 {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />}
                 {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />}
+                {activeTab === "settings"  && <MemberSettingsTab memberSession={memberSession} showToast={showToast} handleLogout={handleLogout} />}
               </>
             )}
           </React.Suspense>

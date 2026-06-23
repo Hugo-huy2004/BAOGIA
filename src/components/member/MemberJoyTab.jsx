@@ -20,6 +20,10 @@ const SECTIONS = [
 ];
 
 const LOADING_STEPS = ["Đang xác thực giao dịch...", "Đang chuyển JOY...", "Đang hoàn tất..."];
+// First-page size for the missions grid before "Xem thêm" reveals the rest —
+// matches the 5-col desktop / 2-col mobile grid so the first page never cuts
+// a card off mid-row.
+const MISSION_PREVIEW_COUNT = 10;
 
 function RecipientAvatar({ name, avatar, size = "w-12 h-12" }) {
   if (avatar) {
@@ -32,7 +36,7 @@ function RecipientAvatar({ name, avatar, size = "w-12 h-12" }) {
   );
 }
 
-export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, handleCopyLink, handleDeleteBio, saving, handleRedeemCode }) {
+export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, handleCopyLink, handleDeleteBio, saving }) {
   const { t } = useTranslation();
   const [section, setSection] = useState("wallet");
   const balance = useJoyStore(s => s.balance);
@@ -64,6 +68,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
   const [challenges, setChallenges] = useState([]);
   const [loadingChallenges, setLoadingChallenges] = useState(false);
   const [claimingId, setClaimingId] = useState(null);
+  const [missionsExpanded, setMissionsExpanded] = useState(false);
 
   const email = bio?.email;
 
@@ -310,76 +315,80 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
       <div className="relative min-h-[400px]">
         <AnimatePresence mode="wait">
           {section === "wallet" && (
-            <motion.div key="wallet" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="joy-feed">
-              <div className="joy-feed-card joy-checkin-wrap"><CheckinCard email={email} showToast={showToast} /></div>
-
-              {/* Ưu đãi & Mã — coupon + referral combined into one card with segments */}
-              <div className="joy-feed-card" id="joy-coupon-card">
-                <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">redeem</span>Ưu đãi &amp; Mã</h3>
-                {!referralApplied && (
-                  <div className="joy-offer-tabs">
-                    <button onClick={() => setOfferTab("coupon")} className={offerTab === "coupon" ? "active" : ""}>Coupon</button>
-                    <button onClick={() => setOfferTab("referral")} className={offerTab === "referral" ? "active" : ""}>Giới thiệu</button>
-                  </div>
-                )}
-                {offerTab === "referral" && !referralApplied ? (
-                  <>
-                    <div className="joy-input-action">
-                      <input
-                        type="text"
-                        value={referrerCodeInput}
-                        onChange={e => setReferrerCodeInput(normalizeReferralInput(e.target.value))}
-                        placeholder={t("memberPortal.joy.applyReferral.placeholder")}
-                        className="joy-code-input"
-                      />
-                      <button
-                        onClick={handleApplyReferral}
-                        disabled={applyingReferral}
-                        className="joy-action-button amber"
-                      >
-                        {applyingReferral ? "..." : t("memberPortal.joy.applyReferral.button")}
-                      </button>
-                    </div>
-                    <p className="text-[10px] text-zinc-400 mt-2">{t("memberPortal.joy.applyReferral.hint")}</p>
-                  </>
-                ) : (
-                  <>
-                    <div className="joy-input-action">
-                      <input
-                        type="text"
-                        value={giftCode}
-                        onChange={e => setGiftCode(e.target.value.toUpperCase())}
-                        placeholder="Nhập mã Coupon..."
-                        className="joy-code-input"
-                      />
-                      <button
-                        onClick={handleRedeem}
-                        disabled={redeeming}
-                        className="joy-action-button"
-                      >
-                        {redeeming ? "..." : "Đổi Coupon"}
-                      </button>
-                    </div>
-                    <p className="joy-earn-note">{t("memberPortal.joy.earnInfo")}</p>
-                  </>
-                )}
+            <motion.div key="wallet" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="joy-feed-grid">
+              {/* Left column — check-in alone */}
+              <div className="joy-feed">
+                <div className="joy-feed-card joy-checkin-wrap"><CheckinCard email={email} showToast={showToast} /></div>
               </div>
 
-              {/* Nhiệm vụ hàng ngày — horizontal scroll, app-like */}
-              <div className="joy-feed-card" id="joy-missions-card">
-                <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">flag_circle</span>{t("memberPortal.joy.sections.missions", "Nhiệm vụ")}</h3>
-                {loadingChallenges ? (
-                  <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.missions.subtitle")}</p>
-                ) : challenges.length === 0 ? (
-                  <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.missions.empty")}</p>
-                ) : (
-                  <div className="joy-mission-scroll">
-                    {challenges.map(c => (
-                      <div key={c.id} className={`joy-mission-pill ${c.claimed ? "claimed" : c.completed ? "completed" : ""}`}>
-                        <div className="joy-mission-pill-top">
-                          <span className="joy-mission-pill-icon material-symbols-outlined">{c.claimed ? "check_circle" : "flag_circle"}</span>
-                          <div className="min-w-0">
-                            <p className="joy-mission-pill-name truncate">{c.name}</p>
+              {/* Right column — coupon/referral grouped together with missions
+                  (both are "earn JOY" actions), per request to stop splitting
+                  them apart into unrelated columns */}
+              <div className="joy-feed">
+                <div className="joy-feed-card" id="joy-coupon-card">
+                  <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">redeem</span>Ưu đãi &amp; Mã</h3>
+                  {!referralApplied && (
+                    <div className="joy-offer-tabs">
+                      <button onClick={() => setOfferTab("coupon")} className={offerTab === "coupon" ? "active" : ""}>Coupon</button>
+                      <button onClick={() => setOfferTab("referral")} className={offerTab === "referral" ? "active" : ""}>Giới thiệu</button>
+                    </div>
+                  )}
+                  {offerTab === "referral" && !referralApplied ? (
+                    <>
+                      <div className="joy-input-action">
+                        <input
+                          type="text"
+                          value={referrerCodeInput}
+                          onChange={e => setReferrerCodeInput(normalizeReferralInput(e.target.value))}
+                          placeholder={t("memberPortal.joy.applyReferral.placeholder")}
+                          className="joy-code-input"
+                        />
+                        <button
+                          onClick={handleApplyReferral}
+                          disabled={applyingReferral}
+                          className="joy-action-button amber"
+                        >
+                          {applyingReferral ? "..." : t("memberPortal.joy.applyReferral.button")}
+                        </button>
+                      </div>
+                      <p className="text-[10px] text-zinc-400 mt-2">{t("memberPortal.joy.applyReferral.hint")}</p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="joy-input-action">
+                        <input
+                          type="text"
+                          value={giftCode}
+                          onChange={e => setGiftCode(e.target.value.toUpperCase())}
+                          placeholder="Nhập mã Coupon..."
+                          className="joy-code-input"
+                        />
+                        <button
+                          onClick={handleRedeem}
+                          disabled={redeeming}
+                          className="joy-action-button"
+                        >
+                          {redeeming ? "..." : "Đổi Coupon"}
+                        </button>
+                      </div>
+                      <p className="joy-earn-note">{t("memberPortal.joy.earnInfo")}</p>
+                    </>
+                  )}
+                </div>
+
+                <div className="joy-feed-card" id="joy-missions-card">
+                  <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">flag_circle</span>{t("memberPortal.joy.sections.missions", "Nhiệm vụ")}</h3>
+                  {loadingChallenges ? (
+                    <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.missions.subtitle")}</p>
+                  ) : challenges.length === 0 ? (
+                    <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.missions.empty")}</p>
+                  ) : (
+                    <>
+                      <div className="joy-mission-grid">
+                        {(missionsExpanded ? challenges : challenges.slice(0, MISSION_PREVIEW_COUNT)).map(c => (
+                          <div key={c.id} className={`joy-mission-tile ${c.claimed ? "claimed" : c.completed ? "completed" : ""}`}>
+                            <span className="joy-mission-pill-icon material-symbols-outlined">{c.claimed ? "check_circle" : "flag_circle"}</span>
+                            <p className="joy-mission-pill-name">{c.name}</p>
                             <p className="joy-mission-pill-sub">
                               {c.claimed
                                 ? t("memberPortal.joy.missions.claimed")
@@ -387,26 +396,37 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
                                   ? `+${c.amount} JOY`
                                   : t("memberPortal.joy.missions.notDoneYet")}
                             </p>
+                            <button
+                              onClick={() => handleClaimChallenge(c.id)}
+                              disabled={!c.completed || c.claimed || claimingId === c.id}
+                            >
+                              {claimingId === c.id ? "..." : c.claimed ? t("memberPortal.joy.missions.claimed") : t("memberPortal.joy.missions.claimButton")}
+                            </button>
                           </div>
-                        </div>
-                        <button
-                          onClick={() => handleClaimChallenge(c.id)}
-                          disabled={!c.completed || c.claimed || claimingId === c.id}
-                        >
-                          {claimingId === c.id ? "..." : c.claimed ? t("memberPortal.joy.missions.claimed") : t("memberPortal.joy.missions.claimButton")}
-                        </button>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
+                      {challenges.length > MISSION_PREVIEW_COUNT && (
+                        <button
+                          onClick={() => setMissionsExpanded(v => !v)}
+                          className="joy-mission-more"
+                        >
+                          {missionsExpanded ? t("memberPortal.joy.missions.collapse", "Ẩn bớt") : t("memberPortal.joy.missions.seeMore", "Xem thêm")}
+                          <span className="material-symbols-outlined text-sm" style={{ transform: missionsExpanded ? 'rotate(180deg)' : 'none' }}>expand_more</span>
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
 
-              {/* Gói dịch vụ Hugo Studio + link công khai (formerly the "Gói dịch vụ" top-level tab) */}
-              <div className="joy-feed-card">
-                <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">workspace_premium</span>Gói dịch vụ &amp; Trang Bio</h3>
-                <React.Suspense fallback={<div className="py-8 text-center text-xs text-zinc-400">Đang tải...</div>}>
-                  <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} handleRedeemCode={handleRedeemCode} />
-                </React.Suspense>
+              {/* Full-width row below — packages carousel needs the extra width, plus bio link */}
+              <div className="joy-feed joy-feed-span">
+                <div className="joy-feed-card">
+                  <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">workspace_premium</span>Gói dịch vụ &amp; Trang Bio</h3>
+                  <React.Suspense fallback={<div className="py-8 text-center text-xs text-zinc-400">Đang tải...</div>}>
+                    <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} />
+                  </React.Suspense>
+                </div>
               </div>
             </motion.div>
           )}

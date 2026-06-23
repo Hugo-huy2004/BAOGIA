@@ -35,12 +35,19 @@
 .joy-segment button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;border-radius:11px;font-size:11px;font-weight:700;color:var(--joy-muted);transition:.15s}
 .joy-segment button.active{background:var(--joy-card);color:hsl(var(--primary));box-shadow:0 3px 10px hsl(var(--shadow)/0.08)}
 
-/* ── Feed cards ──────────────────────────────────────────────── */
-.joy-feed{display:flex;flex-direction:column;gap:14px}
-.joy-feed-card{border:1px solid var(--joy-line);background:var(--joy-card);border-radius:18px;padding:18px;box-shadow:0 4px 16px hsl(var(--shadow)/0.03)}
+/* ── Feed — 1|2 on the top row (check-in+missions, then coupon), then 3
+   spans the full width below (packages — the carousel needs the room).
+   Each block is still one continuous card internally (hairline-divided, not
+   stacked separate boxes) so cohesion within a block is preserved. ──────── */
+.joy-feed-grid{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+@media (min-width:1024px){.joy-feed-grid{grid-template-columns:1fr 1fr;gap:18px}}
+.joy-feed-span{grid-column:1 / -1}
+.joy-feed{border:1px solid var(--joy-line);background:var(--joy-card);border-radius:18px;box-shadow:0 4px 16px hsl(var(--shadow)/0.03);overflow:hidden}
+.joy-feed-card{padding:18px;border-bottom:1px solid var(--joy-line)}
+.joy-feed-card:last-child{border-bottom:none}
 .joy-feed-card-title{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--joy-muted);margin-bottom:12px}
 .joy-feed-card-title .material-symbols-outlined{font-size:17px;color:hsl(var(--primary))}
-.joy-checkin-wrap>div{margin:0!important;border-radius:14px!important;padding:0!important;box-shadow:none!important;border:none!important}
+.joy-checkin-wrap>div{margin:0!important;border-radius:14px!important;padding:0!important;box-shadow:none!important;border:none!important;background:none!important}
 
 /* Coupon / referral mini-tabs */
 .joy-offer-tabs{display:flex;gap:6px;margin-bottom:12px}
@@ -54,19 +61,23 @@
 .joy-action-button:disabled{opacity:.45}
 .joy-earn-note{font-size:9.5px;color:var(--joy-muted);line-height:1.6;margin-top:9px}
 
-/* Missions — horizontal scroll row */
-.joy-mission-scroll{display:flex;gap:9px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.joy-mission-scroll::-webkit-scrollbar{display:none}
-.joy-mission-pill{flex:0 0 auto;min-width:190px;display:flex;flex-direction:column;gap:9px;border:1px solid var(--joy-line);border-radius:15px;padding:13px;background:hsl(var(--muted)/0.4)}
-.joy-mission-pill.completed{border-color:hsl(var(--primary)/0.35);background:hsl(var(--primary)/0.06)}
-.joy-mission-pill.claimed{opacity:.55}
-.joy-mission-pill-top{display:flex;gap:8px;align-items:center}
-.joy-mission-pill-icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:hsl(var(--primary)/0.12);color:hsl(var(--primary));font-size:16px;flex-shrink:0}
-.joy-mission-pill.claimed .joy-mission-pill-icon{background:hsl(var(--success)/0.12);color:hsl(var(--success))}
-.joy-mission-pill-name{font-size:11.5px;font-weight:700;color:inherit;line-height:1.3}
-.joy-mission-pill-sub{font-size:9.5px;color:var(--joy-muted);margin-top:2px}
-.joy-mission-pill button{width:100%;padding:7px;border-radius:9px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;transition:.15s}
-.joy-mission-pill button:disabled{opacity:.4;background:hsl(var(--muted-foreground))}
+/* Missions — full wrap-grid, no horizontal swiping. Fixed 3 columns (not an
+   auto-fit count tied to container width) so a typical 5-7 item list breaks
+   into 3+2 or 3+3+1 rather than 4+1 or 5+1 — far less leftover empty space
+   in the last row, and tiles get more breathing room than a tight 5-up grid. */
+.joy-mission-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:480px){.joy-mission-grid{grid-template-columns:repeat(3,1fr)}}
+.joy-mission-tile{display:flex;flex-direction:column;align-items:flex-start;gap:7px;border:1px solid var(--joy-line);border-radius:15px;padding:14px;background:hsl(var(--muted)/0.4)}
+.joy-mission-tile.completed{border-color:hsl(var(--primary)/0.35);background:hsl(var(--primary)/0.06)}
+.joy-mission-tile.claimed{opacity:.55}
+.joy-mission-pill-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:hsl(var(--primary)/0.12);color:hsl(var(--primary));font-size:17px;flex-shrink:0}
+.joy-mission-tile.claimed .joy-mission-pill-icon{background:hsl(var(--success)/0.12);color:hsl(var(--success))}
+.joy-mission-pill-name{font-size:11px;font-weight:700;color:inherit;line-height:1.3}
+.joy-mission-pill-sub{font-size:9.5px;color:var(--joy-muted)}
+.joy-mission-tile button{width:100%;margin-top:auto;padding:7px;border-radius:9px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;transition:.15s}
+.joy-mission-tile button:disabled{opacity:.4;background:hsl(var(--muted-foreground))}
+.joy-mission-more{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;margin-top:10px;padding:8px;border-radius:9px;border:1px solid var(--joy-line);background:transparent;color:var(--joy-muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;transition:.15s}
+.joy-mission-more:hover{background:hsl(var(--muted)/0.5);color:hsl(var(--foreground))}
 
 /* ── "Gửi JOY" modal ─────────────────────────────────────────── */
 .joy-send-input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid hsl(var(--border));background:hsl(var(--background));color:hsl(var(--foreground));font-size:14px;font-weight:600;outline:none;transition:.15s}
@@ -84,5 +95,4 @@
   .joy-card-stat.is-code{grid-column:1/-1}
   .joy-action-circle .joy-action-icon{width:44px;height:44px;font-size:19px;border-radius:13px}
   .joy-feed-card{padding:14px;border-radius:16px}
-  .joy-mission-pill{min-width:165px}
 }

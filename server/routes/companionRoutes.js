@@ -3,6 +3,8 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import CompanionHistory from '../models/CompanionHistory.js';
 import Bio from '../models/Bio.js';
+import SleepLog from '../models/SleepLog.js';
+import ArcadeScore from '../models/ArcadeScore.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 
@@ -575,16 +577,33 @@ router.post('/report/weekly', async (req, res) => {
   }
 });
 
-// Base rewards x3.
+// Base rewards x3. Expanded beyond the original 3 (all psychology-only) to
+// give members missions across other parts of the app too, per request.
 const DAILY_CHALLENGES = {
   breath: { amount: 45, name: 'Hít thở 4-7-8' },
   chat: { amount: 45, name: 'Trò chuyện cùng AI' },
-  assessment: { amount: 60, name: 'Làm test tâm lý' }
+  assessment: { amount: 60, name: 'Làm test tâm lý' },
+  sleep: { amount: 30, name: 'Ghi nhật ký giấc ngủ' },
+  arcade: { amount: 25, name: 'Chơi 1 trận tại HugoArcade' }
 };
 
 // Shared by GET /challenges-status and POST /claim-challenge so the "did the
 // user actually do this today" check can never drift between the two routes.
-function isChallengeCompletedToday(historyDoc, challengeId, todayStr) {
+// Async because the new challenges (sleep, arcade) check other collections.
+async function isChallengeCompletedToday(historyDoc, challengeId, todayStr, email) {
+  // sleep/arcade live in their own collections, independent of whether the
+  // member has ever touched the Companion/psychology features at all.
+  if (challengeId === 'sleep') {
+    const log = await SleepLog.findOne({ email, date: todayStr });
+    return Boolean(log);
+  }
+  if (challengeId === 'arcade') {
+    const startOfDay = new Date(`${todayStr}T00:00:00.000Z`);
+    const played = await ArcadeScore.findOne({ email, lastPlayedAt: { $gte: startOfDay } });
+    return Boolean(played);
+  }
+  if (!historyDoc) return false;
+
   const isLogToday = (logDate) => {
     if (!logDate) return false;
     return new Date(logDate).toISOString().slice(0, 10) === todayStr;
@@ -613,7 +632,7 @@ function isChallengeCompletedToday(historyDoc, challengeId, todayStr) {
   return false;
 }
 
-// GET: status of today's 3 daily challenges (completed / already claimed),
+// GET: status of today's daily challenges (completed / already claimed),
 // powers the "Nhiệm vụ" tab in the JOY wallet without guessing client-side.
 router.get('/challenges-status', async (req, res) => {
   try {
@@ -626,13 +645,13 @@ router.get('/challenges-status', async (req, res) => {
       ? (historyDoc.claimedChallengesToday || [])
       : [];
 
-    const challenges = Object.entries(DAILY_CHALLENGES).map(([id, def]) => ({
+    const challenges = await Promise.all(Object.entries(DAILY_CHALLENGES).map(async ([id, def]) => ({
       id,
       name: def.name,
       amount: def.amount,
-      completed: historyDoc ? isChallengeCompletedToday(historyDoc, id, todayStr) : false,
+      completed: await isChallengeCompletedToday(historyDoc, id, todayStr, email),
       claimed: claimedToday.includes(id)
-    }));
+    })));
 
     res.json({ challenges });
   } catch (error) {
@@ -653,10 +672,15 @@ router.post('/claim-challenge', async (req, res) => {
       return res.status(400).json({ error: 'Thử thách không hợp lệ.' });
     }
 
-    let historyDoc = await CompanionHistory.findOne({ email });
-    if (!historyDoc) {
-      return res.status(404).json({ error: 'Không tìm thấy lịch sử trị liệu.' });
-    }
+    // claimedChallengesToday lives on CompanionHistory regardless of which
+    // challenge is being claimed — find-or-create so members who've never
+    // touched the psychology features (but did the sleep/arcade mission)
+    // aren't blocked from claiming.
+    let historyDoc = await CompanionHistory.findOneAndUpdate(
+      { email },
+      { $setOnInsert: { email } },
+      { upsert: true, new: true }
+    );
 
     const todayStr = new Date().toISOString().slice(0, 10);
     if (historyDoc.activeSecondsDate !== todayStr) {
@@ -673,7 +697,7 @@ router.post('/claim-challenge', async (req, res) => {
       return res.status(400).json({ error: 'Bạn đã nhận phần thưởng cho thử thách này hôm nay rồi.' });
     }
 
-    if (!isChallengeCompletedToday(historyDoc, challengeId, todayStr)) {
+    if (!(await isChallengeCompletedToday(historyDoc, challengeId, todayStr, email))) {
       return res.status(400).json({ error: 'Bạn chưa hoàn thành thử thách này hôm nay.' });
     }
 

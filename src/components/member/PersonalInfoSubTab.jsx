@@ -1,7 +1,6 @@
 import React from "react";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import OptimizedInput from "../common/OptimizedInput";
-import BiometricLoginCard from "./BiometricLoginCard";
 
 // Merges the former Cá nhân (Profile) + Sự nghiệp (Career) + Hình thể (Body)
 // sub-tabs into one "Thông tin cá nhân" tab — same row-style fields, just
@@ -17,7 +16,6 @@ export default function PersonalInfoSubTab({
   handleAvatarChange,
   handleRemoveAvatar,
   memberSession,
-  showToast,
   bio,
   hideAvatarSection,
   t
@@ -29,7 +27,6 @@ export default function PersonalInfoSubTab({
   const identityLocked = !!bio?.isEduVerified;
   return (
     <div className="space-y-4 animate-fadeIn">
-      <BiometricLoginCard memberSession={memberSession} showToast={showToast} />
       {/* Section: Avatar Editor — hidden on mobile since the hero card above
           already shows the avatar with its own tap-to-change overlay; the
           hidden file input still renders so that ref keeps working either way. */}

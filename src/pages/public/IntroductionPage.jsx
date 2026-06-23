@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { eduUrl } from "../../utils/domains";
 import { useData } from "../../context/DataContext";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
@@ -776,7 +775,7 @@ export default function IntroductionPage() {
                 </div>
               </div>
               <div className="pt-2">
-                <a href={eduUrl("/login")} className="px-8 py-4 rounded-full bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20 hover:scale-[1.03] transition-transform inline-block">
+                <a href="/login" className="px-8 py-4 rounded-full bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20 hover:scale-[1.03] transition-transform inline-block">
                   {t("intro.slide5.createBtn")}
                 </a>
               </div>
@@ -1245,7 +1244,7 @@ export default function IntroductionPage() {
             
             {/* Overlapping buttons and accent shadow */}
             <div className="flex justify-center gap-4 pt-4 relative">
-              <a href={eduUrl("/login")} className="px-8 py-4 rounded-full bg-primary text-white font-bold hover:scale-[1.03] transition-transform shadow-xl shadow-primary/25 text-xs sm:text-sm z-10">
+              <a href="/login" className="px-8 py-4 rounded-full bg-primary text-white font-bold hover:scale-[1.03] transition-transform shadow-xl shadow-primary/25 text-xs sm:text-sm z-10">
                 {t("intro.slide10.registerBtn")}
               </a>
               <Link to="/booking" className="px-8 py-4 rounded-full border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-xs sm:text-sm z-10">

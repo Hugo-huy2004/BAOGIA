@@ -276,14 +276,14 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
         </div>
         {celebrating && (
           <div className="game2048-celebration" role="status" aria-live="polite">
-            <span className="material-symbols-outlined">emoji_events</span>
+            <span className="game2048-celebration-glyph">✓</span>
             <strong>Chúc mừng!</strong>
             <p>Bạn đã tạo được ô <b>{targetTile}</b></p>
           </div>
         )}
       </div>
 
-      <p className="game-control-hint"><span className="material-symbols-outlined">swipe</span> Vuốt màn hình hoặc dùng phím mũi tên để di chuyển</p>
+      <p className="game-control-hint">Vuốt màn hình hoặc dùng phím mũi tên để di chuyển</p>
     </div>
   );
 }

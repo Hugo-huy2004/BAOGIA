@@ -147,5 +147,39 @@ export const webPushHelper = {
       console.error('Lỗi trong quá trình đăng ký Web Push:', error);
       throw error;
     }
+  },
+
+  /**
+   * True nếu thiết bị này đang có một push subscription hoạt động — dùng để
+   * đồng bộ trạng thái công tắc trong tab Cài đặt với thực tế của trình duyệt.
+   */
+  async isSubscribed() {
+    if (!this.isSupported()) return false;
+    try {
+      const registration = await navigator.serviceWorker.getRegistration('/');
+      if (!registration) return false;
+      const sub = await registration.pushManager.getSubscription();
+      return !!sub;
+    } catch (_) {
+      return false;
+    }
+  },
+
+  /**
+   * Hủy push subscription trên cả trình duyệt và server — đúng nghĩa "tắt"
+   * thông báo đẩy, không chỉ ẩn giao diện.
+   */
+  async unsubscribe() {
+    if (!this.isSupported()) return;
+    const registration = await navigator.serviceWorker.getRegistration('/');
+    const sub = await registration?.pushManager.getSubscription();
+    if (!sub) return;
+    const endpoint = sub.endpoint;
+    await sub.unsubscribe();
+    await fetch(`${API_BASE_URL}/notifications/unsubscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint }),
+    }).catch(() => {});
   }
 };

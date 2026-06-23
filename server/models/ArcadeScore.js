@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const ArcadeScoreSchema = new mongoose.Schema({
   email: { type: String, required: true, index: true },
-  game: { type: String, enum: ['2048', 'caro', 'wordguess', 'survivor', 'racer'], required: true },
+  game: { type: String, enum: ['2048', 'caro', 'wordguess', 'survivor', 'snake'], required: true },
   displayName: { type: String, default: '' },
   avatar: { type: String, default: null },
   bestScore: { type: Number, default: 0 },

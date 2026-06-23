@@ -59,6 +59,19 @@ router.post('/subscribe', async (req, res) => {
   }
 });
 
+// Removes this device's push subscription — used by the Settings tab's
+// notification toggle to actually stop push delivery, not just hide the UI.
+router.post('/unsubscribe', async (req, res) => {
+  try {
+    const { endpoint } = req.body;
+    if (!endpoint) return res.status(400).json({ error: 'endpoint là bắt buộc.' });
+    await NotificationSubscription.deleteOne({ 'subscription.endpoint': endpoint });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // API 3 (Dùng thử): Gửi thông báo đẩy mẫu tới một email cụ thể
 router.post('/send-test', async (req, res) => {
   try {

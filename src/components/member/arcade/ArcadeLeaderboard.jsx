@@ -47,9 +47,9 @@ export default function ArcadeLeaderboard({ game, active = true }) {
         <button
           onClick={() => fetchLb(true)}
           disabled={spinning}
-          className="arcade-lb-refresh"
+          className={`arcade-lb-refresh ${spinning ? "animate-spin" : ""}`}
         >
-          <span className={`material-symbols-outlined text-sm ${spinning ? "animate-spin" : ""}`}>refresh</span>
+          ↻
         </button>
       </div>
 
@@ -64,12 +64,8 @@ export default function ArcadeLeaderboard({ game, active = true }) {
               key={p.email || i}
               className={`arcade-lb-row ${i < 3 ? `top-${i+1}` : ""}`}
             >
-              <div className="arcade-rank-number">
-                {i === 0 ? (
-                  <span className="material-symbols-outlined text-[13px] text-amber-500">emoji_events</span>
-                ) : (
-                  <span>{i + 1}</span>
-                )}
+              <div className={`arcade-rank-number ${i === 0 ? "is-top" : ""}`}>
+                {i + 1}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="arcade-lb-name">{p.displayName || "Ẩn danh"}</p>

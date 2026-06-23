@@ -6,8 +6,9 @@ import ChessGame from "../../components/chess/ChessGame";
 
 // `embedded` + `initialRoomId` let HugoArcadeTab mount this as one of its
 // games (Chess now lives inside Arcade, not as its own top-level utility) —
-// room deep-links resolve to /arcade?game=chess&room=<id> instead of the old
-// standalone /chess/:roomId path, and "back" returns to the Arcade lobby.
+// room deep-links resolve to /member/utilities/arcade?game=chess&room=<id>
+// instead of the old standalone /chess/:roomId path, and "back" returns to
+// the Arcade lobby.
 export default function ChessPage({ embedded = false, initialRoomId = null, onBack: onExitArcade } = {}) {
   const { roomId, psychTab } = useParams();
   const activeRoom = roomId || psychTab || initialRoomId;
@@ -92,7 +93,7 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
     });
     setScreen("game");
     if (embedded) {
-      navigate(`/arcade?game=chess&room=${rid}`, { replace: true });
+      navigate(`/member/utilities/arcade?game=chess&room=${rid}`, { replace: true });
     } else {
       navigate(`/chess/${rid}`, { replace: true });
     }
@@ -106,7 +107,7 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
     setBoardTheme(localStorage.getItem("chess_board_theme") || "blue");
     setAppTheme(localStorage.getItem("chess_app_theme") || "midnight");
     if (embedded) {
-      navigate("/arcade?game=chess", { replace: true });
+      navigate("/member/utilities/arcade?game=chess", { replace: true });
     } else {
       navigate("/chess", { replace: true });
     }
@@ -123,7 +124,7 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
           className="fixed top-3 left-3 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-950/70 hover:bg-indigo-900/80 border border-indigo-400/20 text-white text-[11px] font-bold backdrop-blur-md transition-all active:scale-95 shadow-lg"
           style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
         >
-          <span className="material-symbols-outlined text-sm">{screen === "lobby" ? "arrow_back" : "close"}</span> {screen === "lobby" ? "HugoArcade" : "Thoát"}
+          {screen === "lobby" ? "← HugoArcade" : "✕ Thoát"}
         </button>
       )}
       {screen === "lobby" && (
@@ -147,6 +148,7 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
           setBoardBorder={setBoardBorder}
           boardShadow={boardShadow}
           setBoardShadow={setBoardShadow}
+          embedded={embedded}
         />
       )}
       {screen === "game" && gameConfig && (
