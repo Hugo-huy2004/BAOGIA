@@ -9,16 +9,18 @@ const SIZES = {
 };
 
 /**
- * Reusable JOY coin badge — a circular gold coin with "Joy" centered,
+ * Reusable JOY coin badge — a 3D-shaded gold coin with "JOY" embossed on it,
  * followed by the numeric amount. Used everywhere a spendable JOY balance
  * is shown (member header, Services tab, store, admin tools).
- * 
+ *
  * If `amount` is undefined, it automatically subscribes to useJoyStore.
+ * Pass `hideAmount` to render just the coin (e.g. next to a number that's
+ * already displayed elsewhere, like the JOY Wallet hero card).
  */
-export default function JoyCoinBadge({ amount: propAmount, size = "md", className = "" }) {
+export default function JoyCoinBadge({ amount: propAmount, size = "md", className = "", hideAmount = false }) {
   const s = SIZES[size] || SIZES.md;
   const storeBalance = useJoyStore(state => state.balance);
-  const actualAmount = propAmount !== undefined ? propAmount : storeBalance;
+  const actualAmount = (propAmount !== undefined ? propAmount : storeBalance) ?? 0;
 
   const [displayAmount, setDisplayAmount] = useState(actualAmount);
   const prevAmountRef = useRef(actualAmount);
@@ -74,10 +76,21 @@ export default function JoyCoinBadge({ amount: propAmount, size = "md", classNam
     <span className={`inline-flex items-center gap-1.5 select-none ${className}`}>
       <motion.span
         animate={controls}
-        className={`${s.coin} rounded-full bg-gradient-to-br from-amber-300 to-amber-500 border border-amber-500 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(251,191,36,0.3)] relative overflow-hidden`}
+        className={`${s.coin} rounded-full shrink-0 relative overflow-hidden`}
+        style={{
+          background: "radial-gradient(circle at 35% 22%, #fef3c7 0%, #fcd34d 38%, #f59e0b 68%, #b45309 100%)",
+          boxShadow: "inset 0 -3px 5px rgba(120,53,15,.55), inset 0 2px 2px rgba(255,255,255,.65), 0 2px 4px rgba(0,0,0,.35)",
+          border: "1px solid #92400e"
+        }}
       >
-        <span className="absolute inset-0 bg-white/20 blur-[1px] rounded-full translate-y-[-30%]"></span>
-        <span className={`${s.coinText} font-black text-amber-900 leading-none relative z-10`}>Joy</span>
+        {/* Top sheen — the highlight that sells the spherical/3D read */}
+        <span className="absolute top-[8%] left-[18%] w-[55%] h-[40%] rounded-full bg-white/55 blur-[2px]" />
+        <span
+          className={`${s.coinText} font-black text-amber-900 leading-none relative z-10 flex items-center justify-center w-full h-full`}
+          style={{ textShadow: "0 1px 0 rgba(255,255,255,.5), 0 -1px 0 rgba(120,53,15,.5)" }}
+        >
+          JOY
+        </span>
       </motion.span>
       {actualAmount != null && (
         <span className={`${s.label} font-mono font-bold transition-colors duration-300 ${flashColor}`}>

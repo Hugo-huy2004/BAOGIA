@@ -5,23 +5,31 @@
    ============================================================ */
 .joy-dashboard{--joy-card:hsl(var(--card));--joy-line:hsl(var(--border));--joy-muted:hsl(var(--muted-foreground));display:flex;flex-direction:column;gap:18px;width:100%;max-width:1080px;margin:0 auto;padding-bottom:32px}
 
-/* ── Hero ────────────────────────────────────────────────────── */
-.joy-card-hero{position:relative;overflow:hidden;border-radius:22px;padding:26px;color:hsl(var(--primary-foreground));background:linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)));box-shadow:0 14px 34px -10px hsl(var(--primary)/0.4)}
+/* ── Hero — flat dark card with JOY's own gold/amber identity (--warning),
+   the same color already used everywhere else JOY appears (JoyCoinBadge,
+   CheckinCard's top border, the Info & Version bonus card) — standing out
+   against the dark card without reaching for an unrelated brand gradient. ── */
+.joy-card-hero{position:relative;overflow:hidden;border-radius:16px;padding:22px;color:hsl(var(--foreground));background:linear-gradient(160deg,hsl(var(--warning)/0.16),hsl(var(--joy-card)) 55%);border:1px solid hsl(var(--warning)/0.3);box-shadow:0 1px 2px hsl(0 0% 0%/0.2)}
+.joy-card-hero:before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,hsl(var(--warning)),#fde047)}
+.joy-card-hero:after{content:"";position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:hsl(var(--warning)/0.22);filter:blur(44px);pointer-events:none}
 .joy-card-row-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between}
-.joy-card-brand{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.9}
+.joy-card-brand{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsl(var(--warning))}
 .joy-card-brand .material-symbols-outlined{font-size:17px}
-.joy-card-balance{position:relative;z-index:1;margin:18px 0 4px;display:flex;align-items:baseline;gap:8px}
-.joy-card-balance .joy-balance-num{font-size:clamp(28px,4.5vw,38px);font-weight:800;letter-spacing:-.02em}
-.joy-card-balance .joy-balance-unit{font-size:12px;font-weight:700;opacity:.7;text-transform:uppercase}
-.joy-card-sub{position:relative;z-index:1;font-size:11px;opacity:.78;line-height:1.6;max-width:480px}
-.joy-card-stats{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
-.joy-card-stat{background:hsl(0 0% 100%/0.14);border:1px solid hsl(0 0% 100%/0.18);border-radius:13px;padding:10px 12px}
-.joy-card-stat small{display:block;font-size:7px;font-weight:700;letter-spacing:.1em;opacity:.7;text-transform:uppercase;margin-bottom:3px}
-.joy-card-stat strong{font-size:14px;font-weight:800}
-.joy-card-stat.is-code{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px;transition:.15s}
-.joy-card-stat.is-code:hover{background:hsl(0 0% 100%/0.2)}
-.joy-card-stat.is-code strong{font-family:monospace;letter-spacing:.08em;font-size:12px}
-.joy-card-stat.is-code .material-symbols-outlined{font-size:14px;opacity:.75}
+.joy-card-balance{position:relative;z-index:1;margin:16px 0 4px;display:flex;align-items:baseline;gap:8px}
+.joy-card-balance .joy-balance-num{font-size:clamp(28px,4.5vw,38px);font-weight:800;letter-spacing:-.02em;color:hsl(var(--warning))}
+.joy-card-balance .joy-balance-unit{font-size:12px;font-weight:700;color:hsl(var(--foreground)/0.6);text-transform:uppercase}
+.joy-card-sub{position:relative;z-index:1;font-size:11px;color:hsl(var(--joy-muted));line-height:1.6;max-width:480px}
+/* Content-sized chips that hug their text instead of stretching into equal
+   full-width thirds — on a wide hero card, 3 short values in a 1fr/1fr/1fr
+   grid left huge empty space inside each box. */
+.joy-card-stats{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.joy-card-stat{display:inline-flex;flex-direction:column;background:hsl(var(--background)/0.4);border:1px solid hsl(var(--warning)/0.18);border-radius:11px;padding:8px 14px}
+.joy-card-stat small{display:block;font-size:7px;font-weight:700;letter-spacing:.1em;color:hsl(var(--joy-muted));text-transform:uppercase;white-space:nowrap;margin-bottom:3px}
+.joy-card-stat strong{font-size:14px;font-weight:800;color:hsl(var(--foreground));white-space:nowrap}
+.joy-card-stat.is-code{cursor:pointer;flex-direction:row;align-items:center;gap:10px;transition:.15s}
+.joy-card-stat.is-code:hover{background:hsl(var(--warning)/0.1)}
+.joy-card-stat.is-code strong{font-family:monospace;letter-spacing:.08em;font-size:12px;color:hsl(var(--warning))}
+.joy-card-stat.is-code .material-symbols-outlined{font-size:14px;color:hsl(var(--joy-muted))}
 
 /* ── Quick actions ───────────────────────────────────────────── */
 .joy-actions-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
@@ -91,8 +99,9 @@
   .joy-dashboard{gap:12px;padding-bottom:20px}
   .joy-card-hero{padding:20px;border-radius:20px}
   .joy-card-balance .joy-balance-num{font-size:28px}
-  .joy-card-stats{grid-template-columns:1fr 1fr}
-  .joy-card-stat.is-code{grid-column:1/-1}
+  .joy-card-stats{justify-content:space-between}
+  .joy-card-stat{flex:1}
+  .joy-card-stat.is-code{width:100%}
   .joy-action-circle .joy-action-icon{width:44px;height:44px;font-size:19px;border-radius:13px}
   .joy-feed-card{padding:14px;border-radius:16px}
 }

@@ -534,10 +534,10 @@ export default function MemberPortalPage() {
         { id: "partner",   label: t("memberPortal.tabs.partner"),    icon: "handshake",       partner: true  }
       ] : []),
       ...(needsEduVerification ? [
-        { id: "verify",    label: "Sinh viên chưa xác minh",         icon: "school",          partner: false, alert: !bio?.verificationRequest?.submitted }
+        { id: "verify",    label: t("memberPortal.tabs.verifyEduPending"), icon: "school",          partner: false, alert: !bio?.verificationRequest?.submitted }
       ] : []),
       ...(!isGuestMode ? [
-        { id: "settings",  label: "Cài đặt",                         icon: "settings",        partner: false }
+        { id: "settings",  label: t("memberPortal.tabs.settings"),  icon: "settings",        partner: false }
       ] : []),
     ];
   }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);
@@ -557,9 +557,9 @@ export default function MemberPortalPage() {
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
         { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" },
         ...(needsEduVerification ? [
-          { id: "verify",  label: "Xác minh",                        icon: "school", alert: !bio?.verificationRequest?.submitted }
+          { id: "verify",  label: t("memberPortal.tabs.verify"),    icon: "school", alert: !bio?.verificationRequest?.submitted }
         ] : []),
-        { id: "settings",  label: "Cài đặt",                         icon: "settings" },
+        { id: "settings",  label: t("memberPortal.tabs.settings"),  icon: "settings" },
       ];
     }
   }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);

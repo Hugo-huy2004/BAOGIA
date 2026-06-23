@@ -908,7 +908,23 @@
       "partner": "Partners",
       "utilities": "Utilities",
       "history": "Notifications",
-      "joy": "Services"
+      "joy": "Services",
+      "settings": "Settings",
+      "verify": "Verify",
+      "verifyEduPending": "Student not verified"
+    },
+    "joyWallet": {
+      "brand": "Hugo JOY Wallet",
+      "sub": "JOY can be used for gifts, utilities, and experiences across the Hugo ecosystem.",
+      "statReferrals": "Referred",
+      "statBonusChat": "Bonus chat",
+      "statReferralCode": "Referral code",
+      "sectionWallet": "Manage Wallet",
+      "sectionStore": "Store",
+      "actionSend": "Send JOY",
+      "actionCoupon": "Coupon",
+      "actionMissions": "Missions",
+      "actionStore": "Store"
     },
     "logout": "LOGOUT",
     "sidebar": {
@@ -1367,6 +1383,59 @@
       "claimSuccess": "Checked in! +{{amount}} JOY",
       "claimSuccessBonus": "Checked in! +{{total}} JOY (includes +{{bonus}} JOY milestone bonus)",
       "claimError": "Couldn't check in right now."
+    },
+    "settings": {
+      "title": "Settings",
+      "desc": "Manage notifications, quick login, and other options for your account.",
+      "pushTitle": "Push notifications",
+      "pushDesc": "Turn on to get notified about JOY, packages, verification, and other important updates — even when Hugo Studio isn't open.",
+      "pushProcessing": "Processing...",
+      "pushOn": "Enabled",
+      "pushOff": "Off",
+      "pushUnsupported": "This device/browser doesn't support push notifications.",
+      "pushEnabledToast": "Push notifications enabled!",
+      "pushDisabledToast": "Push notifications turned off.",
+      "pushDeniedToast": "Notification permission denied. Re-enable it in your browser settings.",
+      "pushErrorToast": "Couldn't change the notification status right now.",
+      "languageTitle": "Default language",
+      "languageDesc": "Choose the default display language for Hugo Studio — remembered for your next visit.",
+      "comingSoonTitle": "Coming soon",
+      "comingSoonDesc": "More settings (appearance, privacy...) will appear here.",
+      "logout": "Log out"
+    },
+    "infoVersion": {
+      "title": "Info & Version",
+      "desc": "About Hugo Studio, the current version, and a small reward just for you.",
+      "aboutTitle": "About Hugo Studio",
+      "aboutBody": "Hugo Studio is a personal Bio-link platform combined with a versatile utility toolkit, built so everyone can find their own corner that fits their personality and pace of life — there's no one-size-fits-all here.",
+      "aboutBody2": "From your personal Bio page and a daily JOY rewards system, to utilities like HugoHelpdesk, HugoHandle, HugoPSY, HugoCoder, HugoRadio, HugoArcade and HugoAura — every tool lives in one place, so you can build your personal image, work, study and unwind without switching between different apps.",
+      "featuresTitle": "Key features",
+      "features": {
+        "bio": { "title": "Personal Bio page", "desc": "Your own profile, links and services page — customize the design and share it with a single link." },
+        "helpdesk": { "title": "HugoHelpdesk", "desc": "Smart QR/NFC codes and a professional email signature for sharing your contact info quickly." },
+        "handle": { "title": "HugoHandle", "desc": "Password-protected secure links and an online image converter/compressor." },
+        "psychology": { "title": "HugoPSY", "desc": "AI-assisted study counseling, sleep tracking, and emotional therapy support." },
+        "ide": { "title": "HugoCoder", "desc": "A multi-language code editor with code suggestions and beginner programming lessons." },
+        "radio": { "title": "HugoRadio", "desc": "Vietnamese and international news radio plus online music channels, free." },
+        "arcade": { "title": "HugoArcade", "desc": "2048, Caro, Chess, Hugo Snake and more mini games — play to earn JOY." },
+        "aura": { "title": "HugoAura", "desc": "A Pomodoro focus space with relaxing nature sounds and therapy audio." }
+      },
+      "guideTitle": "How to use Hugo Studio",
+      "guide": {
+        "step1": { "title": "Complete your Bio profile", "desc": "Add a profile photo, your personal info, and important links in the Profile tab." },
+        "step2": { "title": "Explore the Utilities", "desc": "Open the Utilities tab to pick the tool that fits you — each utility serves a different need." },
+        "step3": { "title": "Earn JOY every day", "desc": "Check in daily, complete missions, and play mini games in HugoArcade to build up JOY." },
+        "step4": { "title": "Share your Bio page", "desc": "Use your public link or the QR/NFC code from HugoHelpdesk to share your page with anyone." }
+      },
+      "versionLabel": "Current version",
+      "versionNote": "Continuously updated with new features — thank you for being part of Hugo Studio.",
+      "bonusTitle": "Discovery gift",
+      "bonusDesc": "Thanks for visiting Info & Version — here's a small JOY gift.",
+      "bonusButton": "Claim +20 JOY",
+      "bonusClaiming": "Claiming...",
+      "bonusClaimed": "Already claimed",
+      "bonusSuccess": "+20 JOY claimed, thanks for exploring!",
+      "bonusError": "Couldn't claim the bonus right now."
     }
   },
   "memberTabs": {

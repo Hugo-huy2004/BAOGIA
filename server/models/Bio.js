@@ -270,6 +270,11 @@ const BioSchema = new mongoose.Schema(
       type: [String],
       default: []
     },
+    // One-time JOY bonus for opening the Info & Version utility — see joyRoutes.js claim-info-bonus.
+    infoBonusClaimed: {
+      type: Boolean,
+      default: false
+    },
     activeAuraTheme: {
       type: String,
       default: 'default'

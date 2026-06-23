@@ -7,6 +7,7 @@ import { useJoyStore } from "../../stores/joyStore";
 import { resolvePhone, transferJoy, fetchChallengeStatus, claimChallenge } from "../../services/joyApi";
 import "./member-joy.css";
 import { WalletCards, Store } from "lucide-react";
+import JoyCoinBadge from "../shared/JoyCoinBadge";
 
 const MemberManageTab = React.lazy(() => import("./MemberManageTab"));
 
@@ -14,10 +15,6 @@ const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 // "Quản Lý Ví" absorbs the former Tổng quan + Nhiệm vụ + Gửi JOY + Gói dịch vụ
 // sections — one e-wallet style home screen instead of hopping across tabs.
-const SECTIONS = [
-  { id: "wallet", label: "Quản Lý Ví", Icon: WalletCards },
-  { id: "store", label: "Cửa hàng", Icon: Store },
-];
 
 const LOADING_STEPS = ["Đang xác thực giao dịch...", "Đang chuyển JOY...", "Đang hoàn tất..."];
 // First-page size for the missions grid before "Xem thêm" reveals the rest —
@@ -38,6 +35,10 @@ function RecipientAvatar({ name, avatar, size = "w-12 h-12" }) {
 
 export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, handleCopyLink, handleDeleteBio, saving }) {
   const { t } = useTranslation();
+  const SECTIONS = [
+    { id: "wallet", label: t("memberPortal.joyWallet.sectionWallet"), Icon: WalletCards },
+    { id: "store", label: t("memberPortal.joyWallet.sectionStore"), Icon: Store },
+  ];
   const [section, setSection] = useState("wallet");
   const balance = useJoyStore(s => s.balance);
   const referralCode = useJoyStore(s => s.referralCode);
@@ -253,26 +254,26 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
 
   return (
     <div className="joy-dashboard animate-fadeIn">
-      {/* Hero — simple card following Hugo Studio's primary/accent gradient */}
+      {/* Hero — flat dark card matching the rest of Hugo Studio's member portal */}
       <div className="joy-card-hero">
         <div className="joy-card-row-top">
-          <span className="joy-card-brand"><span className="material-symbols-outlined">bolt</span>Hugo JOY Wallet</span>
+          <span className="joy-card-brand"><span className="material-symbols-outlined">bolt</span>{t("memberPortal.joyWallet.brand")}</span>
         </div>
         <div className="joy-card-balance">
           <span className="joy-balance-num">{(balance ?? 0).toLocaleString("vi-VN")}</span>
-          <span className="joy-balance-unit">JOY</span>
+          <JoyCoinBadge amount={null} size="lg" className="joy-balance-coin" />
         </div>
-        <p className="joy-card-sub">JOY có thể dùng cho quà tặng, tiện ích và các trải nghiệm trong hệ sinh thái Hugo.</p>
+        <p className="joy-card-sub">{t("memberPortal.joyWallet.sub")}</p>
         <div className="joy-card-stats">
-          <div className="joy-card-stat"><small>Đã giới thiệu</small><strong>{referralCount}</strong></div>
-          <div className="joy-card-stat"><small>Chat thưởng</small><strong>{bio?.bonusChatTokens || 0}</strong></div>
+          <div className="joy-card-stat"><small>{t("memberPortal.joyWallet.statReferrals")}</small><strong>{referralCount}</strong></div>
+          <div className="joy-card-stat"><small>{t("memberPortal.joyWallet.statBonusChat")}</small><strong>{bio?.bonusChatTokens || 0}</strong></div>
           {referralCode ? (
             <button onClick={copyReferralCode} className="joy-card-stat is-code">
-              <span><small>Mã giới thiệu</small><strong>{referralCode}</strong></span>
+              <span><small>{t("memberPortal.joyWallet.statReferralCode")}</small><strong>{referralCode}</strong></span>
               <span className="material-symbols-outlined">content_copy</span>
             </button>
           ) : (
-            <div className="joy-card-stat"><small>Mã giới thiệu</small><strong>—</strong></div>
+            <div className="joy-card-stat"><small>{t("memberPortal.joyWallet.statReferralCode")}</small><strong>—</strong></div>
           )}
         </div>
       </div>
@@ -281,19 +282,19 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
       <div className="joy-actions-row">
         <button className="joy-action-circle" onClick={() => setSendFlowOpen(true)}>
           <span className="joy-action-icon material-symbols-outlined">send</span>
-          <span>Gửi JOY</span>
+          <span>{t("memberPortal.joyWallet.actionSend")}</span>
         </button>
         <button className="joy-action-circle" onClick={() => goToWalletSection('joy-coupon-card')}>
           <span className="joy-action-icon material-symbols-outlined">confirmation_number</span>
-          <span>Coupon</span>
+          <span>{t("memberPortal.joyWallet.actionCoupon")}</span>
         </button>
         <button className="joy-action-circle" onClick={() => goToWalletSection('joy-missions-card')}>
           <span className="joy-action-icon material-symbols-outlined">flag_circle</span>
-          <span>Nhiệm vụ</span>
+          <span>{t("memberPortal.joyWallet.actionMissions")}</span>
         </button>
         <button className="joy-action-circle" onClick={() => setSection('store')}>
           <span className="joy-action-icon material-symbols-outlined">storefront</span>
-          <span>Cửa hàng</span>
+          <span>{t("memberPortal.joyWallet.actionStore")}</span>
         </button>
       </div>
 

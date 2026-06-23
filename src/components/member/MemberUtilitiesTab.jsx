@@ -9,6 +9,7 @@ const MemberIdeTab = lazy(() => import("./MemberIdeTab"));
 const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
 const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
 const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
+const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate }) {
   const { t } = useTranslation();
@@ -78,6 +79,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* HugoAura Focus */}
       {selectedUtility === "aura" && (
         <MemberAuraTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+      )}
+
+      {/* Info & Version */}
+      {selectedUtility === "info" && (
+        <MemberInfoVersionTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
       )}
       </Suspense>
     </div>

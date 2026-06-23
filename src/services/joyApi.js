@@ -46,3 +46,12 @@ export async function claimChallenge(email, challengeId) {
   });
   return parseOrThrow(res);
 }
+
+export async function claimInfoBonus(email) {
+  const res = await fetch(`${getApiUrl()}/joy/claim-info-bonus`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  });
+  return parseOrThrow(res);
+}

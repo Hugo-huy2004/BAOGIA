@@ -141,6 +141,30 @@ router.post('/award-learning', async (req, res) => {
   }
 });
 
+// POST /api/joy/claim-info-bonus — one-time bonus for opening Info & Version
+router.post('/claim-info-bonus', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    if (bio.infoBonusClaimed) {
+      return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance });
+    }
+
+    const result = await awardJoy(email, 20, 'info_bonus', 'Khám phá Info & Version (+20 JOY)');
+    bio.infoBonusClaimed = true;
+    await bio.save();
+
+    res.json({ success: true, balance: result.balance });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // POST /api/joy/award-focus
 router.post('/award-focus', async (req, res) => {
   try {

@@ -37,7 +37,8 @@ const JoyLedgerSchema = new mongoose.Schema({
       'feature_subscription',
       'bio_theme_rental',
       'file_compression',
-      'admin_direct_add'
+      'admin_direct_add',
+      'info_bonus'
     ],
     required: true
   },

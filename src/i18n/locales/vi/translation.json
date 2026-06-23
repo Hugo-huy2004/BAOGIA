@@ -908,7 +908,23 @@
       "partner": "Đối tác",
       "utilities": "Tiện Ích",
       "history": "Thông báo",
-      "joy": "Dịch Vụ"
+      "joy": "Dịch Vụ",
+      "settings": "Cài đặt",
+      "verify": "Xác minh",
+      "verifyEduPending": "Sinh viên chưa xác minh"
+    },
+    "joyWallet": {
+      "brand": "Hugo JOY Wallet",
+      "sub": "JOY có thể dùng cho quà tặng, tiện ích và các trải nghiệm trong hệ sinh thái Hugo.",
+      "statReferrals": "Đã giới thiệu",
+      "statBonusChat": "Chat thưởng",
+      "statReferralCode": "Mã giới thiệu",
+      "sectionWallet": "Quản Lý Ví",
+      "sectionStore": "Cửa hàng",
+      "actionSend": "Gửi JOY",
+      "actionCoupon": "Coupon",
+      "actionMissions": "Nhiệm vụ",
+      "actionStore": "Cửa hàng"
     },
     "logout": "ĐĂNG XUẤT",
     "sidebar": {
@@ -1367,6 +1383,59 @@
       "claimSuccess": "Điểm danh thành công! +{{amount}} JOY",
       "claimSuccessBonus": "Điểm danh thành công! +{{total}} JOY (gồm mốc thưởng +{{bonus}} JOY)",
       "claimError": "Không thể điểm danh lúc này."
+    },
+    "settings": {
+      "title": "Cài đặt",
+      "desc": "Quản lý thông báo, đăng nhập nhanh và các tuỳ chọn khác cho tài khoản của bạn.",
+      "pushTitle": "Thông báo đẩy",
+      "pushDesc": "Bật để nhận thông báo về JOY, gói dịch vụ, xác minh và các cập nhật quan trọng khác — ngay cả khi không mở Hugo Studio.",
+      "pushProcessing": "Đang xử lý...",
+      "pushOn": "Đã bật",
+      "pushOff": "Đang tắt",
+      "pushUnsupported": "Thiết bị/trình duyệt này không hỗ trợ thông báo đẩy.",
+      "pushEnabledToast": "Đã bật thông báo đẩy!",
+      "pushDisabledToast": "Đã tắt thông báo đẩy.",
+      "pushDeniedToast": "Quyền thông báo bị từ chối. Bật lại trong cài đặt trình duyệt.",
+      "pushErrorToast": "Không thể thay đổi trạng thái thông báo lúc này.",
+      "languageTitle": "Ngôn ngữ mặc định",
+      "languageDesc": "Chọn ngôn ngữ hiển thị mặc định cho Hugo Studio — được nhớ cho lần truy cập sau.",
+      "comingSoonTitle": "Sắp ra mắt",
+      "comingSoonDesc": "Thêm các tuỳ chọn cài đặt khác (giao diện, quyền riêng tư...) sẽ xuất hiện ở đây.",
+      "logout": "Đăng xuất"
+    },
+    "infoVersion": {
+      "title": "Info & Version",
+      "desc": "Giới thiệu về Hugo Studio, phiên bản hiện tại và một phần thưởng nhỏ chỉ dành cho bạn.",
+      "aboutTitle": "Giới thiệu Hugo Studio",
+      "aboutBody": "Hugo Studio là nền tảng Bio-link cá nhân kết hợp bộ công cụ tiện ích đa năng, được xây dựng để mỗi người đều tìm được một góc riêng phù hợp với cá tính và nhịp sống của mình — không có khuôn mẫu chung cho tất cả.",
+      "aboutBody2": "Từ trang Bio cá nhân, hệ thống JOY tích lũy mỗi ngày, đến các tiện ích như HugoHelpdesk, HugoHandle, HugoPSY, HugoCoder, HugoRadio, HugoArcade và HugoAura — mọi công cụ đều nằm trong một nơi duy nhất, để bạn xây dựng hình ảnh cá nhân, làm việc, học tập và giải trí mà không cần chuyển qua nhiều ứng dụng khác nhau.",
+      "featuresTitle": "Tính năng nổi bật",
+      "features": {
+        "bio": { "title": "Trang Bio cá nhân", "desc": "Trang giới thiệu, liên kết và dịch vụ của riêng bạn, tuỳ biến giao diện và chia sẻ bằng một đường link duy nhất." },
+        "helpdesk": { "title": "HugoHelpdesk", "desc": "Mã QR/NFC thông minh và chữ ký email chuyên nghiệp để chia sẻ thông tin liên hệ nhanh chóng." },
+        "handle": { "title": "HugoHandle", "desc": "Link bảo mật bằng mật khẩu và công cụ chuyển đổi/nén ảnh trực tuyến." },
+        "psychology": { "title": "HugoPSY", "desc": "AI hỗ trợ tư vấn tâm lý học tập, theo dõi giấc ngủ và trị liệu cảm xúc." },
+        "ide": { "title": "HugoCoder", "desc": "Trình soạn thảo code đa ngôn ngữ với gợi ý code và bài học lập trình cơ bản." },
+        "radio": { "title": "HugoRadio", "desc": "Radio tin tức Việt Nam, quốc tế và các kênh nhạc trực tuyến, miễn phí." },
+        "arcade": { "title": "HugoArcade", "desc": "2048, Caro, Cờ vua, Hugo Snake và nhiều mini game khác — chơi để nhận JOY." },
+        "aura": { "title": "HugoAura", "desc": "Không gian tập trung Pomodoro cùng âm thanh thiên nhiên thư giãn & trị liệu." }
+      },
+      "guideTitle": "Hướng dẫn sử dụng",
+      "guide": {
+        "step1": { "title": "Hoàn thiện hồ sơ Bio", "desc": "Thêm ảnh đại diện, thông tin cá nhân và các liên kết quan trọng trong tab Hồ Sơ." },
+        "step2": { "title": "Khám phá Tiện Ích", "desc": "Mở tab Tiện Ích để chọn công cụ phù hợp với bạn — mỗi tiện ích phục vụ một nhu cầu khác nhau." },
+        "step3": { "title": "Tích JOY mỗi ngày", "desc": "Điểm danh, hoàn thành nhiệm vụ và chơi mini game tại HugoArcade để tích lũy JOY." },
+        "step4": { "title": "Chia sẻ trang Bio", "desc": "Dùng đường link công khai hoặc mã QR/NFC từ HugoHelpdesk để chia sẻ trang của bạn với mọi người." }
+      },
+      "versionLabel": "Phiên bản hiện tại",
+      "versionNote": "Cập nhật liên tục với các tính năng mới — cảm ơn bạn đã đồng hành cùng Hugo Studio.",
+      "bonusTitle": "Quà khám phá",
+      "bonusDesc": "Cảm ơn bạn đã ghé Info & Version — nhận ngay một phần JOY nhỏ làm quà.",
+      "bonusButton": "Nhận +20 JOY",
+      "bonusClaiming": "Đang nhận...",
+      "bonusClaimed": "Đã nhận quà rồi",
+      "bonusSuccess": "Đã nhận +20 JOY, cảm ơn bạn đã khám phá!",
+      "bonusError": "Không thể nhận quà lúc này."
     }
   },
   "memberTabs": {

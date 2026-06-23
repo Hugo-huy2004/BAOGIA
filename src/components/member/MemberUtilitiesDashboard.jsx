@@ -14,6 +14,7 @@ const GRADIENTS = {
   teal:    "from-teal-400 via-emerald-500 to-green-500",
   orange:  "from-amber-400 via-orange-500 to-red-500",
   purple:  "from-fuchsia-500 via-purple-500 to-indigo-500",
+  slate:   "from-slate-500 via-zinc-500 to-stone-500",
 };
 
 // Three alternating card silhouettes — organic/blob, standard squircle,
@@ -99,6 +100,16 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       desc: t("utilities.dashboard.aura.desc", "Không gian tập trung Pomodoro tích hợp bộ trộn âm thanh thiên nhiên thư giãn & trị liệu, nhận JOY."),
       shortDesc: "Pomodoro & âm thanh thư giãn.",
       btnText: t("utilities.dashboard.aura.btnText", "Vào Không Gian")
+    },
+    {
+      id: "info",
+      icon: "info",
+      glyphs: ["new_releases", "redeem"],
+      tint: "slate",
+      title: "Info & Version",
+      desc: t("memberPortal.infoVersion.desc"),
+      shortDesc: t("memberPortal.infoVersion.desc"),
+      btnText: t("memberPortal.infoVersion.title")
     }
   ];
 
