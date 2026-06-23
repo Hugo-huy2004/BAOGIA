@@ -747,6 +747,7 @@ export default function ChessGame({
   const soundRef  = useRef(true);
   const soundPackRef = useRef(soundPack);
   const wsRef     = useRef(null);
+  const heartbeatRef = useRef(null);
   const clockRef  = useRef(null);
   const clk       = useRef({ turn:"w", wMs: timeControl*1000, bMs: timeControl*1000, last:0 });
   const genRef    = useRef(0);
@@ -804,12 +805,15 @@ export default function ChessGame({
   useEffect(() => { colorRef.current = playerColor; }, [playerColor]);
 
   const snd = useCallback(t => { if (soundRef.current) playFx(t, soundPackRef.current); }, []);
+  // Lowered across the board — even Skill Level 0 at higher search depth
+  // still played near full-strength tactically, so easy/medium bots were
+  // beating casual players. Depth (below) does the heavier lifting now.
   const sfLevelValue = (() => {
     if (mode !== "bot") return 10;
     if (botLevel === 1) return 0;
-    if (botLevel === 2) return 6;
-    if (botLevel === 3) return 12;
-    if (botLevel === 4) return 20;
+    if (botLevel === 2) return 3;
+    if (botLevel === 3) return 7;
+    if (botLevel === 4) return 14;
     return 10;
   })();
   const sfEnabled = mode === "bot" || aiAssistant;
@@ -970,8 +974,8 @@ export default function ChessGame({
     if (mode !== "bot" || status !== "active" || !sfReady) return;
     const botClr = colorRef.current === "white" ? "b" : "w";
     if (turn !== botClr) return;
-    const sfDepths = { 1: 4, 2: 8, 3: 12, 4: 16 };
-    const depth = sfDepths[botLevel] || 8;
+    const sfDepths = { 1: 1, 2: 3, 3: 6, 4: 10 };
+    const depth = sfDepths[botLevel] || 4;
     const gen = ++genRef.current;
     const fenNow = chess.fen();
     const thinkMs = 800 + Math.random() * (botLevel * 250);
@@ -1040,6 +1044,13 @@ export default function ChessGame({
       if (propRoomId)             ws.send(JSON.stringify({ type:"join_room", roomId: propRoomId }));
       else if (mode === "friend") ws.send(JSON.stringify({ type:"create_room", timeControl, mode:"friend", color: preferColor||"random", boardTheme: config?.boardTheme||"blue", myPieceTheme: config?.myPieceTheme||"maestro", oppPieceTheme: config?.oppPieceTheme||"maestro" }));
       else                        ws.send(JSON.stringify({ type:"create_room", timeControl, mode:"random" }));
+      // Keepalive — without this, a long think between moves leaves the
+      // socket idle long enough for the hosting platform's proxy to silently
+      // drop it (most idle-connection timeouts are ~30-60s), which read to
+      // players as "mất kết nối server" mid-game.
+      heartbeatRef.current = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "ping" }));
+      }, 25000);
     };
     ws.onmessage = e => {
       let msg; try { msg = JSON.parse(e.data); } catch { return; }
@@ -1132,9 +1143,9 @@ export default function ChessGame({
         default: break;
       }
     };
-    ws.onclose = () => setWsStatus("disconnected");
+    ws.onclose = () => { clearInterval(heartbeatRef.current); setWsStatus("disconnected"); };
     ws.onerror = () => setWsStatus("error");
-    return () => { ws.close(); stopClock(); };
+    return () => { clearInterval(heartbeatRef.current); ws.close(); stopClock(); };
   }, []); // eslint-disable-line
 
   function handleMove(from, to) {
