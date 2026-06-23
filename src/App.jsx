@@ -16,6 +16,7 @@ import { useUIStore } from "./stores/uiStore";
 import { TooltipProvider } from "./components/ui/Tooltip";
 import { Toaster } from "react-hot-toast";
 import PWARealtimeBridge from "./components/PWARealtimeBridge";
+import PWAQuickLogin from "./components/PWAQuickLogin";
 import DonationModal from "./components/ui/DonationModal";
 import { getAppMode } from "./utils/domains";
 
@@ -211,6 +212,7 @@ export default function App() {
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <TooltipProvider>
             <PWARealtimeBridge />
+            <PWAQuickLogin />
             <OfflineBanner />
             <AppContent />
             <PWAInstallBanner />

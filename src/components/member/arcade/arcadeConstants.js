@@ -49,5 +49,9 @@ export const HOW_TO_PLAY = {
   survivor: {
     rule: "Di chuyển tự do 360 độ để né đạn. Càng sống sót lâu, màn hình càng hỗn loạn. Sóng âm sẽ phát ra khi bạn chuyển màn.",
     objective: { easy: "Sống sót 30 giây", medium: "Sống sót 60 giây", hard: "Sống sót 90 giây" }
+  },
+  racer: {
+    rule: "Dùng phím mũi tên/WASD (hoặc nút chạm trên điện thoại) để lái xe 3D qua đường đua, né xe đối thủ AI và về đích trước.",
+    objective: { easy: "Về nhất với 1 đối thủ AI, 2 vòng đua", medium: "Về nhất với 2 đối thủ AI, 3 vòng đua", hard: "Về nhất với 3 đối thủ AI tốc độ cao, 3 vòng đua" }
   }
 };

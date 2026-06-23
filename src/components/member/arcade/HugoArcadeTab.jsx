@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { useSearchParams } from "react-router-dom";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import ArcadeGameFrame from "./ArcadeGameFrame";
@@ -7,6 +7,10 @@ import GameCaro from "./GameCaro";
 import GameWordGuess from "./GameWordGuess";
 import GameSurvivor from "./GameSurvivor";
 import ChessPage from "../../../pages/public/ChessPage";
+
+// Racer drags in three.js/@react-three — lazy so opening the Arcade lobby
+// doesn't pull ~300KB of 3D engine before anyone's even picked a game.
+const HugoRacer = lazy(() => import("./racer/HugoRacer"));
 import { fetchProfile } from "../../../services/arcadeApi";
 import { HOW_TO_PLAY } from "./arcadeConstants";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
@@ -22,7 +26,8 @@ const GAMES = [
   { id: "caro", icon: "grid_3x3", name: "Caro AI", tagline: "Năm quân tạo nên chiến thắng.", accent: "violet", symbol: "×○", detail: "Đối kháng · AI" },
   { id: "chess", icon: "chess", name: "HugoChess", tagline: "Đấu Bot hoặc bạn bè, có JOY.", accent: "amber", symbol: "♞", detail: "Cờ vua · Xếp hạng" },
   { id: "wordguess", icon: "spellcheck", name: "Mật Mã Từ", tagline: "Mỗi chữ cái là một manh mối.", accent: "emerald", symbol: "A?", detail: "Ngôn ngữ · Suy luận" },
-  { id: "survivor", icon: "rocket_launch", name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.", accent: "rose", symbol: "✦", detail: "Hành động · Đạn mạc" }
+  { id: "survivor", icon: "rocket_launch", name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.", accent: "rose", symbol: "✦", detail: "Hành động · Đạn mạc" },
+  { id: "racer", icon: "directions_car", name: "HugoRacer 3D", tagline: "Đua xe 3D, né đối thủ, về nhất.", accent: "cyan", symbol: "", detail: "Đua xe 3D · Vật lý" }
 ];
 
 // Chess is a real-time multiplayer room game with its own lobby/leaderboard —
@@ -34,7 +39,8 @@ const GAME_COMPONENTS = {
   "2048": Game2048,
   caro: GameCaro,
   wordguess: GameWordGuess,
-  survivor: GameSurvivor
+  survivor: GameSurvivor,
+  racer: HugoRacer
 };
 
 const DEMO_FRAMES = {
@@ -50,10 +56,24 @@ const DEMO_FRAMES = {
     [{ l: "H", s: "correct" }, { l: "U", s: "correct" }, { l: "G", s: "correct" }, { l: "O", s: "correct" }, { l: "S", s: "correct" }],
   ],
   survivor: [1, 2, 3], // Demo loop
-  chess: [1, 2, 3]
+  chess: [1, 2, 3],
+  racer: [1, 2, 3]
 };
 
-function GameArtwork({ game }) {
+// A small badge of the game's own material icon, pinned to every artwork —
+// the abstract mini-demos below read fine once you know what the game is,
+// but at a glance on the grid they all look like generic motion-graphics.
+// The badge gives an instant, unambiguous "this is a racing game / a word
+// game / etc." cue before anyone reads the title underneath.
+function ArtworkIconBadge({ icon }) {
+  return (
+    <span className="arcade-art-icon-badge" aria-hidden="true">
+      <span className="material-symbols-outlined">{icon}</span>
+    </span>
+  );
+}
+
+function GameArtwork({ game, icon }) {
   const [frame, setFrame] = useState(0);
 
   useEffect(() => {
@@ -64,9 +84,23 @@ function GameArtwork({ game }) {
     return () => window.clearInterval(timer);
   }, [game]);
 
+  if (game === "racer") {
+    const offset = frame * 18;
+    return (
+      <div className="arcade-art arcade-art-racer" aria-hidden="true">
+        <ArtworkIconBadge icon={icon} />
+        <div className="demo-stage demo-racer-stage">
+          <div className="racer-road" style={{ backgroundPositionY: `${offset}px` }} />
+          <span className="racer-car">🏎️</span>
+        </div>
+        <small><span className="material-symbols-outlined">sports_motorsports</span> Đua xe 3D, né đối thủ AI</small>
+      </div>
+    );
+  }
   if (game === "2048") {
     return (
       <div className="arcade-art arcade-art-2048" aria-hidden="true">
+        <ArtworkIconBadge icon={icon} />
         <div className="demo-stage demo-2048-stage" key={frame}>
           {DEMO_FRAMES[game][frame].map((value, index) => <span key={index} className={!value ? "empty" : `tile-${value}`}>{value || ""}</span>)}
         </div>
@@ -77,6 +111,7 @@ function GameArtwork({ game }) {
   if (game === "caro") {
     return (
       <div className="arcade-art arcade-art-caro" aria-hidden="true">
+        <ArtworkIconBadge icon={icon} />
         <div className={`demo-stage demo-caro-stage ${frame === 2 ? "is-winning" : ""}`} key={frame}>
           {DEMO_FRAMES[game][frame].map((cell, index) => <span key={index} className={cell}>{cell === "x" ? "×" : cell === "o" ? "○" : ""}</span>)}
         </div>
@@ -92,6 +127,7 @@ function GameArtwork({ game }) {
     ];
     return (
       <div className="arcade-art arcade-art-survivor" aria-hidden="true">
+        <ArtworkIconBadge icon={icon} />
         <div className="demo-stage demo-survivor-grid" key={frame}>
           {cells[frame % 3].map((cell, index) => <span key={index} className={cell === "🚀" ? "ship" : cell === "🔴" ? "bullet" : ""}>{cell}</span>)}
         </div>
@@ -103,6 +139,7 @@ function GameArtwork({ game }) {
     const board = ["♜","♞","♝","♛","♚","♝","♞","♜"];
     return (
       <div className="arcade-art arcade-art-chess" aria-hidden="true">
+        <ArtworkIconBadge icon={icon} />
         <div className="demo-stage demo-chess-stage">
           {board.map((p, i) => <span key={i} className={i % 2 === 0 ? "dark" : ""}>{p}</span>)}
         </div>
@@ -112,6 +149,7 @@ function GameArtwork({ game }) {
   }
   return (
     <div className="arcade-art arcade-art-word" aria-hidden="true">
+      <ArtworkIconBadge icon={icon} />
       <div className="demo-stage demo-word-stage" key={frame}>
         {DEMO_FRAMES[game][frame].map(({ l, s }, index) => <span key={`${index}-${l}`} className={s}>{l}</span>)}
       </div>
@@ -228,7 +266,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
               return (
                 <button key={g.id} onClick={() => setActiveGame(g.id)} className={`arcade-game-card accent-${g.accent}`}>
                   <div className="arcade-card-top"><span className="arcade-card-index">GAME 0{index + 1}</span><span className="arcade-card-status"><i /> SẴN SÀNG</span></div>
-                  <GameArtwork game={g.id} />
+                  <GameArtwork game={g.id} icon={g.icon} />
                   <div className="arcade-card-copy"><span>{g.detail}</span><div className="arcade-card-title"><h3>{g.name}</h3><span className="material-symbols-outlined">arrow_outward</span></div><p>{g.tagline}</p></div>
                   <div className="arcade-card-footer"><div><small>KỶ LỤC</small><strong>{best.toLocaleString("vi-VN")}</strong></div><div><small>ĐÃ CHƠI</small><strong>{played}</strong></div><span className="arcade-play-pill"><span className="material-symbols-outlined">play_arrow</span> Chơi ngay</span></div>
                 </button>
@@ -277,7 +315,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
         <button onClick={handleTopbarBack} className="arcade-icon-btn" aria-label={isPlaying ? "Thoát" : "Về sảnh"}>
           <span className="material-symbols-outlined">{isPlaying ? "close" : "arrow_back"}</span>
         </button>
-        <div className="arcade-brand"><span className="arcade-brand-mark">{gameInfo.symbol}</span><div><strong>{gameInfo.name}</strong><small>{gameInfo.detail}</small></div></div>
+        <div className="arcade-brand">{gameInfo.symbol && <span className="arcade-brand-mark">{gameInfo.symbol}</span>}<div><strong>{gameInfo.name}</strong><small>{gameInfo.detail}</small></div></div>
         {isPlaying
           ? <button onClick={handleTopbarBack} className="arcade-quit-btn">Quit</button>
           : <span className="arcade-top-reward"><span className="material-symbols-outlined">stars</span> Tối đa 75 JOY</span>}
@@ -288,7 +326,11 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
             <div className="arcade-game-intro"><div><span>HUGOARCADE / {gameInfo.name.toUpperCase()}</span><h1>{gameInfo.tagline}</h1></div><p>{HOW_TO_PLAY[activeGame]?.rule}</p></div>
           )}
           <ArcadeGameFrame ref={gameFrameRef} game={activeGame} bio={bio} onBioUpdate={onBioUpdate} onStageChange={(stage) => setIsPlaying(stage === "playing")}>
-            {(difficulty, onGameOver) => <GameComponent difficulty={difficulty} onGameOver={onGameOver} />}
+            {(difficulty, onGameOver) => (
+              <Suspense fallback={<div className="flex items-center justify-center py-16 text-zinc-400 text-sm">Đang tải game...</div>}>
+                <GameComponent difficulty={difficulty} onGameOver={onGameOver} />
+              </Suspense>
+            )}
           </ArcadeGameFrame>
         </section>
         {!isPlaying && <aside className="arcade-side-panel"><ArcadeLeaderboard game={activeGame} active={true} /></aside>}

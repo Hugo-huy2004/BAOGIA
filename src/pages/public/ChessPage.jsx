@@ -114,13 +114,16 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
 
   return (
     <div className={`chess-container min-h-screen app-theme-${appTheme}`}>
-      {embedded && screen === "lobby" && (
+      {/* Always present while embedded — other Arcade games get a permanent
+          Quit affordance during play, Chess shouldn't be the one game where
+          leaving mid-match takes an extra hop through its own lobby first. */}
+      {embedded && (
         <button
           onClick={onExitArcade}
-          className="fixed top-3 left-3 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 hover:bg-black/55 text-white text-[11px] font-bold backdrop-blur-md transition-all active:scale-95"
+          className="fixed top-3 left-3 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-950/70 hover:bg-indigo-900/80 border border-indigo-400/20 text-white text-[11px] font-bold backdrop-blur-md transition-all active:scale-95 shadow-lg"
           style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
         >
-          <span className="material-symbols-outlined text-sm">arrow_back</span> HugoArcade
+          <span className="material-symbols-outlined text-sm">{screen === "lobby" ? "arrow_back" : "close"}</span> {screen === "lobby" ? "HugoArcade" : "Thoát"}
         </button>
       )}
       {screen === "lobby" && (
