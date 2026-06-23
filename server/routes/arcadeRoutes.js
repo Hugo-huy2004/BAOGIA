@@ -45,7 +45,8 @@ router.post('/score', async (req, res) => {
     // Server-side enforcement — frontend-only gating is bypassable via direct
     // API calls. "Khởi động" (easy) always stays free for everyone.
     if (difficulty !== 'easy') {
-      const bio = await Bio.findOne({ email });
+      let bio = await Bio.findOne({ email });
+      if (!bio) bio = await Bio.findOne({ contactEmail: email });
       if (!isFeatureActive(bio, 'hugoArcade')) {
         return res.status(403).json({ error: 'Cần trao đổi JOY mở khóa Bứt phá / Huyền thoại để chơi độ khó này.' });
       }

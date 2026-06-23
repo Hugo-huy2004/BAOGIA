@@ -579,6 +579,7 @@ export default function MemberPortalPage() {
                 onSelectPsychologySubTab={handleSelectPsychologySubTab}
                 defaultPsychologyPresetTest={defaultPsychologyPresetTest}
                 sleepAutoDetect={sleepAutoDetect}
+                onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
               />
             </React.Suspense>
           </ErrorBoundary>
