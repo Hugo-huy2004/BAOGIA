@@ -1,13 +1,12 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import SubUtilityHeader from "./SubUtilityHeader";
 import { useJoyStore } from "../../stores/joyStore";
 import JoyExchangeModal from "./shared/JoyExchangeModal";
 
 const COMPRESS_CHARGE = 50; // JOY/file — 'light' stays free, 'medium'/'strong' charge this
 
-export default function MemberFileToolsTab({ onBack, showToast, bio }) {
+export default function MemberFileToolsTab({ showToast, bio }) {
   const { t } = useTranslation();
   const [activeSubTab, setActiveSubTab] = useState("extract"); // extract | compress
 
@@ -131,13 +130,6 @@ export default function MemberFileToolsTab({ onBack, showToast, bio }) {
 
   return (
     <div className="space-y-6">
-      <SubUtilityHeader 
-        title={t("utilities.fileTools.title")} 
-        description={t("utilities.fileTools.desc")}
-        onBack={onBack}
-        icon="folder_zip"
-      />
-
       {/* Tabs */}
       <div className="flex bg-zinc-100 dark:bg-zinc-800/50 p-1 rounded-md">
         <button

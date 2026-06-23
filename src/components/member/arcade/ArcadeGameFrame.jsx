@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import DifficultySelector from "./DifficultySelector";
 import GameResultOverlay from "./GameResultOverlay";
 import { submitScore } from "../../../services/arcadeApi";
@@ -8,12 +8,18 @@ import { HOW_TO_PLAY } from "./arcadeConstants";
 // Owns the select -> playing -> result stage machine shared by all 3 arcade
 // games, so each game component only needs to know how to play, not how to
 // report. Renders the actual game via a render-prop so this stays game-agnostic.
-export default function ArcadeGameFrame({ game, bio, onBioUpdate, children }) {
+// Exposes a `quit` imperative handle and an `onStageChange` callback so the
+// parent (HugoArcadeTab) can switch the whole page into a locked fullscreen
+// layout during "playing" — without that, swipe gestures meant for the game
+// end up scrolling the page instead, which makes touch games unplayable.
+const ArcadeGameFrame = forwardRef(function ArcadeGameFrame({ game, bio, onBioUpdate, children, onStageChange }, ref) {
   const [stage, setStage] = useState("select"); // select | playing | result
   const [difficulty, setDifficulty] = useState(null);
   const [resultData, setResultData] = useState(null);
   // Bumped on every "Chơi lại" to force the game component to remount with fresh state.
   const [playKey, setPlayKey] = useState(0);
+
+  useEffect(() => { onStageChange?.(stage); }, [stage]);
 
   const handleSelectDifficulty = (id) => {
     setDifficulty(id);
@@ -48,6 +54,8 @@ export default function ArcadeGameFrame({ game, bio, onBioUpdate, children }) {
     setStage("select");
   };
 
+  useImperativeHandle(ref, () => ({ quit: handleChangeDifficulty }));
+
   return (
     <div className="arcade-panel w-full">
       {stage === "select" && (
@@ -76,4 +84,6 @@ export default function ArcadeGameFrame({ game, bio, onBioUpdate, children }) {
       )}
     </div>
   );
-}
+});
+
+export default ArcadeGameFrame;

@@ -126,7 +126,6 @@ mongoose.connect(MONGODB_URI, {
   .catch(err => console.error(' MongoDB connection failed:', err));
 
 import customerRoutes from './routes/customerRoutes.js';
-import vcardRoutes from './routes/vcardRoutes.js';
 import payosRoutes from './routes/payosRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import sleepRoutes from './routes/sleepRoutes.js';
@@ -153,7 +152,6 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/files', fileToolsRoutes);
 app.use('/api/companion', companionRoutes);
 app.use('/api/customer-projects', customerRoutes);
-app.use('/api/vcard', vcardRoutes);
 app.use('/api/payos', payosRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/iot', iotRoutes);

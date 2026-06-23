@@ -49,13 +49,5 @@ export const HOW_TO_PLAY = {
   survivor: {
     rule: "Di chuyển tự do 360 độ để né đạn. Càng sống sót lâu, màn hình càng hỗn loạn. Sóng âm sẽ phát ra khi bạn chuyển màn.",
     objective: { easy: "Sống sót 30 giây", medium: "Sống sót 60 giây", hard: "Sống sót 90 giây" }
-  },
-  slasher: {
-    rule: "Vuốt chuột (kéo thả) để chém nát các khối mục tiêu bay lên. Chém trượt hoặc chém trúng bom sẽ trừ máu.",
-    objective: { easy: "Ghi 50 điểm", medium: "Ghi 150 điểm", hard: "Ghi 300 điểm" }
-  },
-  geometry: {
-    rule: "Nhân vật trượt tự động. Click hoặc bấm Phím Cách để nhảy lách qua chướng ngại vật Neon rực rỡ.",
-    objective: { easy: "Hoàn thành 30%", medium: "Hoàn thành 60%", hard: "100% không mất mạng" }
   }
 };

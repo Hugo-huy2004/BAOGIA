@@ -41,19 +41,19 @@ export default function VerificationForm({
     <div className="max-w-xl mx-auto py-8 px-4 animate-fadeIn">
       <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-850/60 p-6 sm:p-8 rounded-xl shadow-xl space-y-6 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-        
+
         <div className="text-center space-y-2">
           <span className="material-symbols-outlined text-4xl text-indigo-500">
             school
           </span>
           <h2 className="font-display text-xl sm:text-2xl font-black text-foreground uppercase tracking-tight">
-            Xác Minh Tài Khoản Sinh Viên
+            Hoàn Tất Thông Tin Sinh Viên
           </h2>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-            Để nhận đặc quyền Bio Link miễn phí, vui lòng cung cấp thông tin học tập của bạn dưới đây. Quản trị viên sẽ phê duyệt trong vòng 24 giờ.
+            Thông tin dưới đây sẽ được cố định sau khi xác minh, vui lòng nhập chính xác.
           </p>
         </div>
-        
+
         <form onSubmit={handleVerificationSubmit} className="space-y-5">
           <div className="space-y-4">
             {/* Full Name */}
@@ -179,7 +179,7 @@ export default function VerificationForm({
                 className="mt-0.5 w-4 h-4 rounded border-zinc-350 dark:border-zinc-800 text-indigo-600 focus:ring-indigo-500"
               />
               <span className="text-[11px] text-zinc-650 dark:text-zinc-400 leading-normal">
-                Chúng tôi sẽ liên hệ bạn trong 24 tiếng tới để xác minh edu của bạn.
+                Email .edu sẽ được duyệt ngay lập tức; email thường sẽ được Admin xem xét trong 24 tiếng tới.
               </span>
             </label>
           </div>
@@ -201,7 +201,7 @@ export default function VerificationForm({
               {verifying && (
                 <span className="animate-spin border-2 border-white border-t-transparent w-3 h-3 rounded-full shrink-0" />
               )}
-              Gửi yêu cầu xác minh
+              Gửi thông tin
               <span className="material-symbols-outlined text-xs">send</span>
             </button>
           </div>

@@ -17,6 +17,7 @@ import { TooltipProvider } from "./components/ui/Tooltip";
 import { Toaster } from "react-hot-toast";
 import PWARealtimeBridge from "./components/PWARealtimeBridge";
 import DonationModal from "./components/ui/DonationModal";
+import { getAppMode } from "./utils/domains";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -43,9 +44,19 @@ const ChessPage = lazy(() => import("./pages/public/ChessPage"));
 const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
 const UtilityPublicPage = lazy(() => import("./pages/public/UtilityPublicPage"));
 
+// Once DNS for edu./project./admin.hugowishpax.studio exists, each subdomain
+// lands a visitor on a sensible default screen instead of the marketing
+// homepage — landing mode (apex/www/localhost) is untouched, so this is a
+// no-op until those DNS records are actually created.
+const SUBDOMAIN_HOME = { edu: '/login', project: '/customer-portal', admin: '/admin' };
+
 function AppContent() {
   const location = useLocation();
   const { data } = useData();
+  const appMode = getAppMode();
+  if (appMode !== 'landing' && (location.pathname === '/' || location.pathname === '/introduction')) {
+    return <Navigate to={SUBDOMAIN_HOME[appMode]} replace />;
+  }
   const isBioRoute = location.pathname.startsWith('/bio/');
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
   const isPreviewRoute = location.pathname === "/preview";
@@ -85,8 +96,9 @@ function AppContent() {
           <Route path="/customer-portal" element={<CustomerPortalPage />} />
           <Route path="/pay/:id" element={<PaymentGatewayPage />} />
           <Route path="/member/ide" element={<Navigate to="/member/utilities/ide" replace />} />
-          <Route path="/chess" element={<Navigate to="/member/utilities/chess" replace />} />
-          <Route path="/chess/:roomId" element={<Navigate to={`/member/utilities/chess/${window.location.pathname.split("/").pop()}`} replace />} />
+          {/* Chess now lives inside HugoArcade — old /chess links resolve into Arcade with the room preserved */}
+          <Route path="/chess" element={<Navigate to="/arcade?game=chess" replace />} />
+          <Route path="/chess/:roomId" element={<Navigate to={`/arcade?game=chess&room=${window.location.pathname.split("/").pop()}`} replace />} />
           <Route path="/arcade" element={isMemberAuthenticated() ? <ArcadePage /> : <Navigate to="/login" replace />} />
           <Route path="/member/utilities/arcade" element={<Navigate to="/arcade" replace />} />
         </Routes>
@@ -95,7 +107,7 @@ function AppContent() {
   }
 
   const isEmbed = new URLSearchParams(location.search).get("embed") === "true" || window.self !== window.top;
-  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/chess") || location.pathname.startsWith("/member/utilities/arcade");
+  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/arcade");
   const hideNavbar = isEmbed || isFullscreenUtility;
   const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false;
 
@@ -203,7 +215,11 @@ export default function App() {
             <AppContent />
             <PWAInstallBanner />
             <DonationModal />
-            <Toaster position="top-center" reverseOrder={false} />
+            <Toaster
+              position="top-center"
+              reverseOrder={false}
+              containerStyle={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
+            />
           </TooltipProvider>
         </BrowserRouter>
       </DataProvider>

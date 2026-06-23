@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import ArcadeGameFrame from "./ArcadeGameFrame";
 import Game2048 from "./Game2048";
 import GameCaro from "./GameCaro";
 import GameWordGuess from "./GameWordGuess";
 import GameSurvivor from "./GameSurvivor";
-import GameSlasher from "./GameSlasher";
-import GameGeometry from "./GameGeometry";
+import ChessPage from "../../../pages/public/ChessPage";
 import { fetchProfile } from "../../../services/arcadeApi";
 import { HOW_TO_PLAY } from "./arcadeConstants";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
@@ -20,19 +20,21 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 const GAMES = [
   { id: "2048", icon: "grid_view", name: "2048", tagline: "Gộp số. Phá giới hạn.", accent: "orange", symbol: "2048", detail: "Logic · Chiến thuật" },
   { id: "caro", icon: "grid_3x3", name: "Caro AI", tagline: "Năm quân tạo nên chiến thắng.", accent: "violet", symbol: "×○", detail: "Đối kháng · AI" },
+  { id: "chess", icon: "chess", name: "HugoChess", tagline: "Đấu Bot hoặc bạn bè, có JOY.", accent: "amber", symbol: "♞", detail: "Cờ vua · Xếp hạng" },
   { id: "wordguess", icon: "spellcheck", name: "Mật Mã Từ", tagline: "Mỗi chữ cái là một manh mối.", accent: "emerald", symbol: "A?", detail: "Ngôn ngữ · Suy luận" },
-  { id: "survivor", icon: "rocket_launch", name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.", accent: "rose", symbol: "✦", detail: "Hành động · Đạn mạc" },
-  { id: "slasher", icon: "sports_martial_arts", name: "Ninja Slasher", tagline: "Chém đứt mọi giới hạn.", accent: "cyan", symbol: "⚔", detail: "Vuốt · Phản xạ" },
-  { id: "geometry", icon: "category", name: "Geometry Dash", tagline: "Bước nhảy Neon.", accent: "pink", symbol: "▲", detail: "Nhịp điệu · Căn ke" }
+  { id: "survivor", icon: "rocket_launch", name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.", accent: "rose", symbol: "✦", detail: "Hành động · Đạn mạc" }
 ];
 
-const GAME_COMPONENTS = { 
-  "2048": Game2048, 
-  caro: GameCaro, 
+// Chess is a real-time multiplayer room game with its own lobby/leaderboard —
+// it doesn't fit the generic single-player ArcadeGameFrame flow the other
+// games use, so it renders its full existing UI (ChessPage) instead.
+const STANDALONE_GAMES = new Set(["chess"]);
+
+const GAME_COMPONENTS = {
+  "2048": Game2048,
+  caro: GameCaro,
   wordguess: GameWordGuess,
-  survivor: GameSurvivor,
-  slasher: GameSlasher,
-  geometry: GameGeometry
+  survivor: GameSurvivor
 };
 
 const DEMO_FRAMES = {
@@ -48,8 +50,7 @@ const DEMO_FRAMES = {
     [{ l: "H", s: "correct" }, { l: "U", s: "correct" }, { l: "G", s: "correct" }, { l: "O", s: "correct" }, { l: "S", s: "correct" }],
   ],
   survivor: [1, 2, 3], // Demo loop
-  slasher: [1, 2, 3],
-  geometry: [1, 2, 3]
+  chess: [1, 2, 3]
 };
 
 function GameArtwork({ game }) {
@@ -98,31 +99,14 @@ function GameArtwork({ game }) {
       </div>
     );
   }
-  if (game === "slasher") {
-    const isCut = frame % 2 !== 0;
+  if (game === "chess") {
+    const board = ["♜","♞","♝","♛","♚","♝","♞","♜"];
     return (
-      <div className="arcade-art arcade-art-slasher" aria-hidden="true">
-        <div className="demo-stage demo-slasher-grid">
-          <span className={isCut ? "cut" : ""}>🍉</span>
-          <span className={isCut ? "cut" : ""} style={{ transitionDelay: '0.05s' }}>🍍</span>
-          <span className={isCut ? "cut" : ""} style={{ transitionDelay: '0.1s' }}>🥝</span>
-          {isCut && <div className="slash-line" />}
+      <div className="arcade-art arcade-art-chess" aria-hidden="true">
+        <div className="demo-stage demo-chess-stage">
+          {board.map((p, i) => <span key={i} className={i % 2 === 0 ? "dark" : ""}>{p}</span>)}
         </div>
-        <small><span className="material-symbols-outlined">sports_martial_arts</span> Vuốt để chém đứt mục tiêu</small>
-      </div>
-    );
-  }
-  if (game === "geometry") {
-    const isJump = frame % 2 !== 0;
-    return (
-      <div className="arcade-art arcade-art-geometry" aria-hidden="true">
-        <div className="demo-stage demo-geometry-grid">
-          <span className={`cube ${isJump ? "jump" : ""}`}></span>
-          <span></span>
-          <span className="spike"></span>
-          <span></span>
-        </div>
-        <small><span className="material-symbols-outlined">arrow_upward</span> Chạm để nhảy né gai nhọn</small>
+        <small><span className="material-symbols-outlined">emoji_events</span> Đấu Bot hoặc bạn bè, leo rank</small>
       </div>
     );
   }
@@ -137,10 +121,28 @@ function GameArtwork({ game }) {
 }
 
 export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
-  const [activeGame, setActiveGame] = useState(null);
+  const [searchParams] = useSearchParams();
+  // Deep-link support: /arcade?game=chess&room=<id> (old /chess/:roomId share
+  // links redirect here) opens straight into Chess with that room joined.
+  const [activeGame, setActiveGame] = useState(() => searchParams.get("game") === "chess" ? "chess" : null);
+  const chessRoomId = searchParams.get("room") || null;
   const [profile, setProfile] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const { active: subscribed } = useFeatureGate(bio, "hugoArcade");
+  // True only while a match is actually running — drives the locked
+  // fullscreen layout below (hides leaderboard/intro, blocks page scroll) so
+  // swipe gestures aimed at the game don't drag the page up/down instead.
+  const [isPlaying, setIsPlaying] = useState(false);
+  const gameFrameRef = useRef(null);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prevOverflow; };
+  }, [isPlaying]);
+
+  useEffect(() => { setIsPlaying(false); }, [activeGame]);
 
   useEffect(() => {
     if (!activeGame && bio?.email) fetchProfile(bio.email).then(setProfile);
@@ -254,22 +256,42 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
   }
 
   const gameInfo = GAMES.find((g) => g.id === activeGame);
+
+  // Chess brings its own full-screen lobby/board/leaderboard UI — mount it
+  // directly instead of wrapping it in the generic single-player game shell.
+  if (STANDALONE_GAMES.has(activeGame)) {
+    return <ChessPage embedded initialRoomId={chessRoomId} onBack={() => setActiveGame(null)} />;
+  }
+
   const GameComponent = GAME_COMPONENTS[activeGame];
+  // While playing, the topbar's "back" button becomes "Quit" — it backs out
+  // of the match into difficulty-select instead of leaving the game entirely,
+  // since a stray tap mid-match shouldn't bounce the member back to the lobby.
+  const handleTopbarBack = () => {
+    if (isPlaying) gameFrameRef.current?.quit();
+    else setActiveGame(null);
+  };
   return (
-    <div className={`arcade-app arcade-scroll-shell accent-${gameInfo.accent}`}>
+    <div className={`arcade-app arcade-scroll-shell accent-${gameInfo.accent} ${isPlaying ? "arcade-fullscreen-play" : ""}`}>
       <header className="arcade-topbar">
-        <button onClick={() => setActiveGame(null)} className="arcade-icon-btn" aria-label="Về sảnh"><span className="material-symbols-outlined">arrow_back</span></button>
+        <button onClick={handleTopbarBack} className="arcade-icon-btn" aria-label={isPlaying ? "Thoát" : "Về sảnh"}>
+          <span className="material-symbols-outlined">{isPlaying ? "close" : "arrow_back"}</span>
+        </button>
         <div className="arcade-brand"><span className="arcade-brand-mark">{gameInfo.symbol}</span><div><strong>{gameInfo.name}</strong><small>{gameInfo.detail}</small></div></div>
-        <span className="arcade-top-reward"><span className="material-symbols-outlined">stars</span> Tối đa 75 JOY</span>
+        {isPlaying
+          ? <button onClick={handleTopbarBack} className="arcade-quit-btn">Quit</button>
+          : <span className="arcade-top-reward"><span className="material-symbols-outlined">stars</span> Tối đa 75 JOY</span>}
       </header>
       <main className="arcade-play-layout">
         <section className="arcade-play-main">
-          <div className="arcade-game-intro"><div><span>HUGOARCADE / {gameInfo.name.toUpperCase()}</span><h1>{gameInfo.tagline}</h1></div><p>{HOW_TO_PLAY[activeGame]?.rule}</p></div>
-          <ArcadeGameFrame game={activeGame} bio={bio} onBioUpdate={onBioUpdate}>
+          {!isPlaying && (
+            <div className="arcade-game-intro"><div><span>HUGOARCADE / {gameInfo.name.toUpperCase()}</span><h1>{gameInfo.tagline}</h1></div><p>{HOW_TO_PLAY[activeGame]?.rule}</p></div>
+          )}
+          <ArcadeGameFrame ref={gameFrameRef} game={activeGame} bio={bio} onBioUpdate={onBioUpdate} onStageChange={(stage) => setIsPlaying(stage === "playing")}>
             {(difficulty, onGameOver) => <GameComponent difficulty={difficulty} onGameOver={onGameOver} />}
           </ArcadeGameFrame>
         </section>
-        <aside className="arcade-side-panel"><ArcadeLeaderboard game={activeGame} active={true} /></aside>
+        {!isPlaying && <aside className="arcade-side-panel"><ArcadeLeaderboard game={activeGame} active={true} /></aside>}
       </main>
     </div>
   );

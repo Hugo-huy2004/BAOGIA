@@ -173,6 +173,16 @@
 @media (max-width: 767px) {
   html, body { -ms-overflow-style: none; scrollbar-width: none; }
   html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+
+  /* iOS Safari/WebKit auto-zooms the whole page on focus of any text input
+     with a computed font-size under 16px, then snaps back out on blur — that
+     forced zoom-in/zoom-out is the jarring "giật giật" jump members hit while
+     typing on forms across the app. Floor every form control at 16px so it
+     never triggers, regardless of whatever smaller text-xs/text-sm class a
+     component applies. */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* =========================================================

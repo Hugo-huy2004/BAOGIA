@@ -86,14 +86,7 @@ export default function MemberNfcTab({ bio, publicLink, showToast }) {
   const activeColor = COLOR_MAP[QR_TYPES.find(t => t.id === qrType)?.color || "indigo"];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      
-      {/* Header Info */}
-      <div className="text-center space-y-2">
-        <h2 className="text-xl font-black text-zinc-800 dark:text-zinc-100 uppercase tracking-tight">{t("utilities.qrCode.title", "Tạo Mã QR Thông Minh")}</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("utilities.qrCode.desc", "Thiết lập dữ liệu để người khác quét và thực hiện cài đặt ngay lập tức.")}</p>
-      </div>
-
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         
         {/* LEFT: Generator Form */}

@@ -14,6 +14,7 @@ import { useTourStore } from "../../stores/tourStore";
 import TourSystem from "../../components/TourSystem";
 import { useJoyStore } from "../../stores/joyStore";
 import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
+import { useKeyboardVisible } from "../../hooks/useKeyboardVisible";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
@@ -41,6 +42,7 @@ import BirthdaySurprise from "../../components/member/BirthdaySurprise";
 import CropModal from "../../components/member/CropModal";
 import RejectedVerification from "../../components/member/RejectedVerification";
 import VerificationForm from "../../components/member/VerificationForm";
+import VerificationModal from "../../components/member/VerificationModal";
 import PendingVerification from "../../components/member/PendingVerification";
 import PreviewSimulator from "../../components/member/PreviewSimulator";
 import PersonalInfoSubTab from "../../components/member/PersonalInfoSubTab";
@@ -54,14 +56,20 @@ const MemberPartnerTab   = React.lazy(() => import("../../components/member/Memb
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
 const MemberJoyTab       = React.lazy(() => import("../../components/member/MemberJoyTab"));
 
-function StatusBadge({ status }) {
+// The green "verified" tick is reserved for accounts whose education info has
+// actually been approved (isEduVerified) — an active 30-day trial account
+// must show a neutral "đang dùng thử" state instead, even though its status
+// is technically 'active' (full portal access during the trial window).
+function StatusBadge({ status, isEduVerified }) {
   const { t } = useTranslation();
   const cfg = {
     active:   { label: t("memberPortal.status.active") || 'Đã xác minh', color: 'bg-success/10 text-success border-success/20', icon: 'verified' },
+    trial:    { label: 'Đang dùng thử', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20', icon: 'hourglass_top' },
     pending:  { label: t("memberPortal.status.pending") || 'Đang chờ',    color: 'bg-warning/10 text-warning border-warning/20',   icon: 'pending' },
     rejected: { label: t("memberPortal.status.rejected") || 'Bị từ chối',  color: 'bg-destructive/10 text-destructive border-destructive/20',           icon: 'cancel' },
   };
-  const c = cfg[status] || cfg.pending;
+  const key = status === 'active' && !isEduVerified ? 'trial' : status;
+  const c = cfg[key] || cfg.pending;
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${c.color}`}>
       <span className="material-symbols-outlined text-[10px]">{c.icon}</span>{c.label}
@@ -86,6 +94,10 @@ export default function MemberPortalPage() {
   const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
   const joyBalance = useJoyStore(s => s.balance);
   usePresenceHeartbeat(memberSession?.email);
+  // Hides the fixed mobile bottom bar while the on-screen keyboard is up —
+  // without this, the bar visibly jitters/jumps as the keyboard opens/closes
+  // because it's fixed against a viewport that's actively resizing.
+  const isKeyboardVisible = useKeyboardVisible();
   const [verificationForm, setVerificationForm] = useState({
     fullName: memberSession?.displayName || "", birthday: "", schoolLevel: "",
     schoolName: "", schoolIdCode: "", phoneZalo: "", acceptTerms: false, acceptContact: false,
@@ -103,6 +115,9 @@ export default function MemberPortalPage() {
   const mobileSubSection = subTab || null;
 
   const [previewMode, setPreviewMode]     = useState("mobile");
+  // Mobile account sections collapse into an accordion (one open at a time)
+  // instead of all-stacked — all-stacked made the page very long to scroll.
+  const [mobileExpandedSection, setMobileExpandedSection] = useState("profile");
 
   // ── Utilities navigation — synced to the URL so a page refresh keeps the
   // member on the exact same utility/sub-tab instead of bouncing them back to
@@ -179,6 +194,10 @@ export default function MemberPortalPage() {
   const [isDragOver, setIsDragOver]     = useState(false);
 
   const avatarInputRef  = useRef(null);
+  // Separate ref for the mobile hero card's own avatar — it must stay
+  // clickable even when the "Thông tin cá nhân" accordion section (which owns
+  // avatarInputRef) is collapsed and not mounted.
+  const heroAvatarInputRef = useRef(null);
   const bioTextareaRef  = useRef(null);
   const previewIframeRef = useRef(null);
 
@@ -255,9 +274,9 @@ export default function MemberPortalPage() {
   ], [formData.links?.length, formData.projects?.length, formData.services?.length, t]);
 
   // ── Render account sub-tab form (shared desktop + mobile) ────────────────────
-  const renderAccountForm = (tabId) => {
+  const renderAccountForm = (tabId, opts = {}) => {
     switch(tabId) {
-      case 'profile':      return <PersonalInfoSubTab formData={formData} handleFieldChange={handleFieldChange} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} showToast={showToast} t={t} />;
+      case 'profile':      return <PersonalInfoSubTab formData={formData} handleFieldChange={handleFieldChange} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} showToast={showToast} bio={bio} onBioUpdate={setBio} hideAvatarSection={opts.hideAvatarSection} t={t} />;
       case 'design':       return <DesignSubTab formData={formData} setFormData={setFormData} t={t} bio={bio} onBioUpdate={setBio} showToast={showToast} />;
       case 'links':        return <LinksSubTab formData={formData} newLinkLabel={newLinkLabel} setNewLinkLabel={setNewLinkLabel} newLinkUrl={newLinkUrl} setNewLinkUrl={setNewLinkUrl} handleLinkInputKeyDown={handleLinkInputKeyDown} addSocialLink={addSocialLink} removeSocialLink={removeSocialLink} handleFieldChange={handleFieldChange} bioTextareaRef={bioTextareaRef} t={t} />;
       case 'achievements': return <AchievementsSubTab formData={formData} setFormData={setFormData} handleSave={handleSave} showToast={showToast} isGuestMode={isGuestMode} bio={bio} />;
@@ -410,7 +429,10 @@ export default function MemberPortalPage() {
     setVerifying(true);
     try {
       const res = await memberService.submitVerification(memberSession.email, { fullName: verificationForm.fullName, birthday: verificationForm.birthday, schoolLevel: verificationForm.schoolLevel, schoolName: verificationForm.schoolName, schoolIdCode: verificationForm.schoolIdCode, phoneZalo: verificationForm.phoneZalo });
-      if (res.success) { showToast(t("memberPortal.toast.submitSuccess"), "success"); setBio(res.bio); }
+      if (res.success) {
+        showToast(res.bio?.isEduVerified ? "Xác minh thành công! Bạn đã có thể sử dụng đầy đủ tính năng." : t("memberPortal.toast.submitSuccess"), "success");
+        setBio(res.bio);
+      }
     } catch (err) { showToast(err.message || t("memberPortal.toast.submitError"), "error"); }
     finally { setVerifying(false); }
   };
@@ -549,6 +571,8 @@ export default function MemberPortalPage() {
     }
   }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);
 
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+
   const onTabClick = (tab) => {
     if (tab.id === "login") {
       window.location.href = "/login";
@@ -556,6 +580,12 @@ export default function MemberPortalPage() {
     }
     if (tab.partner) {
       window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer");
+      return;
+    }
+    // Verification used to be its own tab — now it opens as a popup on top
+    // of whatever tab the member is already on, instead of navigating away.
+    if (tab.id === "verify") {
+      setShowVerifyModal(true);
       return;
     }
     navigate(`/member/${tab.id}`);
@@ -576,7 +606,7 @@ export default function MemberPortalPage() {
   // ── Active section info (mobile) ──────────────────────────────────────────────
   const activeSectionInfo = ACCOUNT_SECTIONS.find(s => s.id === mobileSubSection);
 
-  const isFullscreenUtility = activeTab === "utilities" && (subTab === "ide" || subTab === "chess" || subTab === "arcade");
+  const isFullscreenUtility = activeTab === "utilities" && (subTab === "ide" || subTab === "arcade");
 
   if (isFullscreenUtility) {
     return (
@@ -718,7 +748,7 @@ export default function MemberPortalPage() {
                     <span className="text-[8px] font-black uppercase tracking-[0.2em] text-primary dark:text-primary">
                       {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
                     </span>
-                    {bio?.status && !isGuestMode && <StatusBadge status={bio.status} />}
+                    {bio?.status && !isGuestMode && <StatusBadge status={bio.status} isEduVerified={bio.isEduVerified} />}
                   </div>
                   <h1 className="text-sm sm:text-base font-bold tracking-tight text-black dark:text-white truncate">
                     {isGuestMode ? t("memberPortal.designYourBio") : `${t("memberPortal.greeting")}, ${memberSession?.displayName || t("memberPortal.student")}`}
@@ -868,18 +898,33 @@ export default function MemberPortalPage() {
                             <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-gradient-to-br from-[#af52de]/10 to-transparent rounded-full filter blur-2xl pointer-events-none opacity-0 dark:opacity-100" />
                             
                             <div className="relative flex items-start gap-4 text-left">
-                              {/* Avatar */}
-                              {formData.avatarUrl ? (
-                                <img src={formData.avatarUrl} alt="avatar" className="w-16 h-16 rounded-2xl object-cover ring-2 ring-zinc-200 dark:ring-zinc-800 shadow-md shrink-0" />
-                              ) : (
-                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0071e3] to-[#5856d6] flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
-                                  {(formData.displayName||'?')[0]?.toUpperCase()}
-                                </div>
-                              )}
+                              {/* Avatar — tap to change directly from the hero card, no need to
+                                  open "Thông tin cá nhân" first (that section no longer shows
+                                  its own duplicate avatar editor on mobile) */}
+                              <button
+                                type="button"
+                                onClick={() => !isGuestMode && !saving && heroAvatarInputRef.current?.click()}
+                                className="relative w-16 h-16 rounded-2xl shrink-0 group"
+                                disabled={isGuestMode || saving}
+                              >
+                                {formData.avatarUrl ? (
+                                  <img src={formData.avatarUrl} alt="avatar" className="w-16 h-16 rounded-2xl object-cover ring-2 ring-zinc-200 dark:ring-zinc-800 shadow-md" />
+                                ) : (
+                                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0071e3] to-[#5856d6] flex items-center justify-center text-white font-black text-xl shadow-md">
+                                    {(formData.displayName||'?')[0]?.toUpperCase()}
+                                  </div>
+                                )}
+                                {!isGuestMode && (
+                                  <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md ring-2 ring-white dark:ring-[#13121f]">
+                                    <span className="material-symbols-outlined text-[13px]">photo_camera</span>
+                                  </span>
+                                )}
+                              </button>
+                              <input type="file" ref={heroAvatarInputRef} accept="image/*" onChange={handleAvatarChange} className="hidden" disabled={saving} />
                               
                               <div className="flex-1 min-w-0">
                                 <div className="flex flex-wrap items-center gap-1.5">
-                                  {bio?.status && !isGuestMode && <StatusBadge status={bio.status} />}
+                                  {bio?.status && !isGuestMode && <StatusBadge status={bio.status} isEduVerified={bio.isEduVerified} />}
                                   {!isGuestMode && (
                                     <button type="button" onClick={() => onTabClick({ id: "joy" })}
                                       className="inline-flex items-center px-2 py-1 rounded-full border border-warning/20 dark:border-warning/30 bg-warning/5 active:scale-95 transition-all">
@@ -928,24 +973,45 @@ export default function MemberPortalPage() {
                             </div>
                           </div>
  
-                          {/* All sections shown stacked — no tabs/drill-down on mobile */}
-                          <div className="space-y-4">
+                          {/* Accordion — tap a section's header to expand it, only one
+                              open at a time. Replaces the earlier "show everything
+                              stacked" layout, which made the page too long to scroll. */}
+                          <div className="space-y-2.5">
                             {ACCOUNT_SECTIONS.map((sec) => {
                               const tint = SECTION_TINTS[sec.id] || SECTION_TINTS.profile;
+                              const isOpen = mobileExpandedSection === sec.id;
                               return (
-                                <div key={sec.id} id={`account-sec-${sec.id}-mobile`} className="space-y-3">
-                                  <div className="flex items-center gap-3 px-1">
+                                <div key={sec.id} id={`account-sec-${sec.id}-mobile`} className="bg-white dark:bg-card/60 border border-border/50 rounded-2xl shadow-sm overflow-hidden">
+                                  <button
+                                    type="button"
+                                    onClick={() => setMobileExpandedSection(isOpen ? null : sec.id)}
+                                    className="w-full flex items-center gap-3 px-3.5 py-3 text-left active:bg-zinc-50 dark:active:bg-white/5 transition-colors"
+                                  >
                                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tint.badge}`}>
                                       <span className="material-symbols-outlined text-[18px]">{sec.icon}</span>
                                     </div>
-                                    <div className="min-w-0">
+                                    <div className="min-w-0 flex-1">
                                       <p className="text-xs font-black text-zinc-900 dark:text-white leading-tight">{sec.label}</p>
                                       <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{sec.sub}</p>
                                     </div>
-                                  </div>
-                                  <div className="bg-white dark:bg-card/60 border border-border/50 rounded-2xl p-4 shadow-sm">
-                                    {renderAccountForm(sec.id)}
-                                  </div>
+                                    <span className={`material-symbols-outlined text-zinc-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                                  </button>
+                                  <AnimatePresence initial={false}>
+                                    {isOpen && (
+                                      <motion.div
+                                        key="content"
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="overflow-hidden"
+                                      >
+                                        <div className="px-4 pb-4 pt-1 border-t border-border/50">
+                                          {renderAccountForm(sec.id, { hideAvatarSection: true })}
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
                                 </div>
                               );
                             })}
@@ -970,26 +1036,6 @@ export default function MemberPortalPage() {
                 {activeTab === "partner"   && <MemberPartnerTab />}
                 {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />}
                 {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />}
-                {activeTab === "verify"    && (
-                  bio?.verificationRequest?.submitted ? (
-                    <div className="max-w-xl mx-auto py-6 px-4 animate-fadeIn">
-                      <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-850/60 p-6 sm:p-8 rounded-xl shadow-sm text-center space-y-4 relative overflow-hidden">
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-400" />
-                        <div className="w-14 h-14 bg-amber-500/5 dark:bg-amber-950/20 text-amber-500 rounded-full flex items-center justify-center mx-auto border border-amber-100 dark:border-amber-900/40">
-                          <span className="material-symbols-outlined text-2xl animate-spin-slow">hourglass_empty</span>
-                        </div>
-                        <h2 className="font-display text-lg font-black text-amber-600 dark:text-amber-400 uppercase tracking-tight">
-                          Đang Chờ Phê Duyệt
-                        </h2>
-                        <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed px-2">
-                          Yêu cầu xác minh sinh viên của bạn đã được gửi đến Admin. Bạn vẫn dùng được toàn bộ tính năng trong thời gian dùng thử — khi được duyệt, hạn dùng của bạn sẽ tự động nâng lên đủ 365 ngày kể từ ngày đăng ký, không cần làm gì thêm.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <VerificationForm verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleLogout={handleLogout} verifying={verifying} />
-                  )
-                )}
               </>
             )}
           </React.Suspense>
@@ -997,7 +1043,18 @@ export default function MemberPortalPage() {
 
         <CropModal cropModal={cropModal} setCropModal={setCropModal} handleDragStart={handleDragStart} handleDragMove={handleDragMove} handleDragEnd={handleDragEnd} handleCropSave={handleCropSave} t={t} />
 
-        <PaymentRequestModal 
+        <VerificationModal
+          open={showVerifyModal}
+          onClose={() => setShowVerifyModal(false)}
+          bio={bio}
+          verificationForm={verificationForm}
+          setVerificationForm={setVerificationForm}
+          handleVerificationSubmit={handleVerificationSubmit}
+          handleLogout={handleLogout}
+          verifying={verifying}
+        />
+
+        <PaymentRequestModal
           isOpen={!!activePaymentNotification} 
           notification={activePaymentNotification} 
           onClose={() => {
@@ -1051,7 +1108,7 @@ export default function MemberPortalPage() {
       </div>
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
-      {bio?.status !== 'pending' && (
+      {bio?.status !== 'pending' && !isKeyboardVisible && (
         <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden glass border-t border-zinc-200/40 dark:border-zinc-800/30 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)', paddingTop: '10px' }}>
           <div className="flex justify-around px-2">

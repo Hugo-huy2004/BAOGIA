@@ -30,6 +30,7 @@
     "chessground": "^9.2.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "firebase": "^12.15.0",
     "framer-motion": "^12.39.0",
     "hls.js": "^1.6.16",
     "hwagfu-link": "^1.0.1",

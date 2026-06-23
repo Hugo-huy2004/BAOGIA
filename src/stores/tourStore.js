@@ -56,16 +56,9 @@ export const TOUR_DEFINITIONS = {
       beforeStep: (actions) => actions.switchTab('utilities')
     },
     {
-      selector: '#utility-card-vcard',
-      title: 'HugoVCard',
-      content: 'Tạo mã QR chứa thông tin liên hệ. Người khác chỉ cần quét là điện thoại tự lưu danh bạ mà không cần Internet.',
-      placement: 'top',
-      beforeStep: (actions) => actions.switchTab('utilities')
-    },
-    {
-      selector: '#utility-card-signature',
-      title: 'HugoSMail',
-      content: 'Thiết kế mẫu chữ ký email xịn xò để chèn vào Gmail hoặc Outlook, giúp nâng tầm hình ảnh cá nhân.',
+      selector: '#utility-card-helpdesk',
+      title: 'HugoHelpdesk',
+      content: 'Tạo mã QR chứa thông tin liên hệ (NFC) và thiết kế mẫu chữ ký email xịn xò để chèn vào Gmail hoặc Outlook.',
       placement: 'top',
       beforeStep: (actions) => actions.switchTab('utilities')
     },

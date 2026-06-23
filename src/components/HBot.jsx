@@ -88,10 +88,9 @@ const QUESTION_TREE = {
     ]
   },
   utilities_features: {
-    text: "Hệ thống cung cấp các tiện ích tuyệt vời cho cậu nha:\n1. Trình tạo mã QR đa năng (Wifi, URL, Văn bản)\n2. HugoVCard (Danh bạ thông minh)\n3. HugoSMail (Chữ ký Email thương hiệu)\n4. HugoPSY (Chữa lành)\n5. HugoCoder (Học lập trình)\n6. HugoChess (Đấu cờ vua online)\nCậu muốn Culi hướng dẫn cái nào nè?",
+    text: "Hệ thống cung cấp các tiện ích tuyệt vời cho cậu nha:\n1. Trình tạo mã QR đa năng (Wifi, URL, Văn bản, Danh bạ)\n2. HugoSMail (Chữ ký Email thương hiệu)\n3. HugoPSY (Chữa lành)\n4. HugoCoder (Học lập trình)\n5. HugoChess (Đấu cờ vua online)\nCậu muốn Culi hướng dẫn cái nào nè?",
     options: [
       { label: "Trình tạo mã QR", next: "qr_generator" },
-      { label: "HugoVCard", next: "vcard_info" },
       { label: "HugoSMail", next: "email_signature" },
       { label: "HugoPSY", next: "psychology" },
       { label: "HugoCoder", next: "ide" },
@@ -100,14 +99,7 @@ const QUESTION_TREE = {
     ]
   },
   qr_generator: {
-    text: "Trình tạo QR (nằm ở Tab QR Code) cho phép cậu tạo mã QR cho Wi-Fi, URL, Văn bản,... tải về siêu nét (PNG) hoặc in ra quét offline mượt mà không cần mạng luôn đó!",
-    options: [
-      { label: "Quay lại", next: "utilities_features" },
-      { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
-    ]
-  },
-  vcard_info: {
-    text: "Tab HugoVCard tạo ra một mã QR chứa toàn bộ thông tin của cậu. Người khác chỉ cần dùng camera quét là điện thoại tự động bật popup lưu danh bạ mà không cần Internet!",
+    text: "Trình tạo QR (trong HugoHelpdesk) cho phép cậu tạo mã QR cho Wi-Fi, URL, Văn bản, hoặc cả Danh bạ (vCard) — quét là điện thoại tự động bật popup lưu danh bạ mà không cần Internet! Tải về siêu nét (PNG) hoặc in ra quét offline mượt mà.",
     options: [
       { label: "Quay lại", next: "utilities_features" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
@@ -192,7 +184,6 @@ const PREFILL_MESSAGES = {
   upgrade: "Yêu cầu kích hoạt/nâng cấp tài khoản lên gói trả phí (Bio Plus hoặc Bio VIP).",
   partners: "Hỗ trợ và tư vấn tích hợp trình chỉnh sửa Bio Link (nhúng Iframe) lên website đối tác.",
   qr_generator: "Hỗ trợ sử dụng Trình tạo mã QR đa năng.",
-  vcard_info: "Hỗ trợ thiết lập và sử dụng tính năng HugoVCard.",
   email_signature: "Hỗ trợ thiết kế và nhúng chữ ký HugoSMail.",
   psychology: "Hỗ trợ sử dụng chuyên mục HugoPSY.",
   ide: "Hỗ trợ sử dụng HugoCoder lập trình.",
@@ -209,7 +200,6 @@ const TOUR_MAP = {
   view_booking: 'booking',
   utilities_features: 'utilities',
   qr_generator: 'utilities',
-  vcard_info: 'utilities',
   email_signature: 'utilities',
   psychology: 'utilities',
   ide: 'utilities',
@@ -393,10 +383,8 @@ const HBot = () => {
       matchStep = "booking";
     } else if (q.includes("xem lịch") || q.includes("quản lý lịch")) {
       matchStep = "view_booking";
-    } else if (q.includes("mã qr") || q.includes("wifi") || q.includes("qr code") || q.includes("tạo qr")) {
+    } else if (q.includes("mã qr") || q.includes("wifi") || q.includes("qr code") || q.includes("tạo qr") || q.includes("danh bạ") || q.includes("vcard") || q.includes("offline")) {
       matchStep = "qr_generator";
-    } else if (q.includes("danh bạ") || q.includes("vcard") || q.includes("offline")) {
-      matchStep = "vcard_info";
     } else if (q.includes("chữ ký") || q.includes("signature") || q.includes("chữ ký email")) {
       matchStep = "email_signature";
     } else if (q.includes("bạn học đường") || q.includes("tâm lý") || q.includes("chữa lành") || q.includes("stress") || q.includes("hít thở")) {

@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import SubUtilityHeader from "./SubUtilityHeader";
 
 const generateId = () => Math.random().toString(36).substr(2, 6);
 
-export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack, setFormData, handleSave }) {
+export default function MemberSecretLinkTab({ bio, publicLink, showToast, setFormData, handleSave }) {
   const { t } = useTranslation();
   
   // Extract secretLinks from bio or fallback to empty array
@@ -93,14 +92,7 @@ export default function MemberSecretLinkTab({ bio, publicLink, showToast, onBack
   };
 
   return (
-    <div className="bg-white dark:bg-background rounded-[2rem] p-6 lg:p-8 border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-6">
-      <SubUtilityHeader 
-        title={t("utilities.secretLink.title")} 
-        icon="lock" 
-        colorClass="text-zinc-800 dark:text-zinc-200" 
-        onBack={onBack}
-      />
-      
+    <div className="space-y-6">
       {!isEditing ? (
         <div className="space-y-6">
           <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-border/50">

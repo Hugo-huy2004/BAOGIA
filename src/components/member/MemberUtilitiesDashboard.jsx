@@ -25,49 +25,22 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
 
   const utilities = [
     {
-      id: "nfc",
-      icon: "sensors",
-      tint: "sky",
-      title: t("utilities.dashboard.nfc.title", "HugoNFC"),
-      desc: t("utilities.dashboard.nfc.desc", "Cấu hình chạm thẻ để chia sẻ nhanh Bio Link hoặc thông tin liên hệ."),
-      shortDesc: "Chạm thẻ chia sẻ Bio Link nhanh.",
-      btnText: t("utilities.dashboard.nfc.btnText", "Thiết Lập Ngay")
-    },
-    {
-      id: "vcard",
-      icon: "contact_phone",
+      id: "helpdesk",
+      icon: "support_agent",
       tint: "indigo",
-      title: t("utilities.dashboard.vcard.title", "HugoVCard"),
-      desc: t("utilities.dashboard.vcard.desc", "Tạo QR code danh bạ thông minh quét nhanh lưu trực tiếp vào máy."),
-      shortDesc: "QR code danh bạ, lưu nhanh vào máy.",
-      btnText: t("utilities.dashboard.vcard.btnText", "Thiết Lập Ngay")
+      title: "HugoHelpdesk",
+      desc: "Mã QR/NFC thông minh và chữ ký email chuyên nghiệp — gộp 2 công cụ chia sẻ thông tin liên hệ vào một nơi.",
+      shortDesc: "Mã QR/NFC & chữ ký email.",
+      btnText: "Mở Helpdesk"
     },
     {
-      id: "signature",
-      icon: "signature",
-      tint: "violet",
-      title: t("utilities.dashboard.signature.title", "HugoSMail"),
-      desc: t("utilities.dashboard.signature.desc", "Thiết kế chữ ký email chuyên nghiệp chuẩn doanh nghiệp."),
-      shortDesc: "Chữ ký email chuyên nghiệp.",
-      btnText: t("utilities.dashboard.signature.btnText", "Thiết Lập Ngay")
-    },
-    {
-      id: "secret_link",
-      icon: "lock",
+      id: "handle",
+      icon: "handyman",
       tint: "rose",
-      title: t("utilities.dashboard.secretLink.title", "HugoOcculta"),
-      desc: t("utilities.dashboard.secretLink.desc", "Tạo link bảo mật bằng mật khẩu dành riêng cho đối tác vip."),
-      shortDesc: "Link bảo mật bằng mật khẩu riêng.",
-      btnText: t("utilities.dashboard.secretLink.btnText", "Thiết Lập Ngay")
-    },
-    {
-      id: "file_tools",
-      icon: "folder_zip",
-      tint: "emerald",
-      title: t("utilities.dashboard.fileTools.title", "HugoTractare"),
-      desc: t("utilities.dashboard.fileTools.desc", "Trình chuyển đổi định dạng và nén dung lượng hình ảnh trực tuyến."),
-      shortDesc: "Đổi định dạng & nén ảnh trực tuyến.",
-      btnText: t("utilities.dashboard.fileTools.btnText", "Mở Công Cụ")
+      title: "HugoHandle",
+      desc: "Link bảo mật bằng mật khẩu và trình chuyển đổi/nén ảnh trực tuyến — gộp 2 công cụ xử lý file & link.",
+      shortDesc: "Link bảo mật & nén/đổi ảnh.",
+      btnText: "Mở Handle"
     },
     {
       id: "psychology",
@@ -88,15 +61,6 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       btnText: t("utilities.dashboard.ide.btnText", "Mở Trình Code")
     },
     {
-      id: "chess",
-      icon: "chess",
-      tint: "amber",
-      title: "HugoChess",
-      desc: t("utilities.dashboard.chess.desc", "Cộng đồng cờ vua mini — đấu Bot, ghép ngẫu nhiên, hoặc tạo phòng chia sẻ link chơi ngay cùng bạn bè. Hệ thống JOY & xếp hạng."),
-      shortDesc: "Cờ vua: đấu Bot hoặc bạn bè, có JOY.",
-      btnText: t("utilities.dashboard.chess.btnText", "Vào Sảnh Cờ")
-    },
-    {
       id: "radio",
       icon: "radio",
       tint: "teal",
@@ -110,8 +74,8 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
       icon: "stadium",
       tint: "orange",
       title: "HugoArcade",
-      desc: t("utilities.dashboard.arcade.desc", "2048, Caro đấu AI, Đoán Từ — chơi để ghi điểm và nhận JOY khi đạt kỷ lục mới."),
-      shortDesc: "Mini game ghi điểm, nhận JOY.",
+      desc: t("utilities.dashboard.arcade.desc", "2048, Caro, Cờ vua, Đoán Từ và nhiều game khác — chơi để ghi điểm và nhận JOY khi đạt kỷ lục mới."),
+      shortDesc: "Mini game & cờ vua, nhận JOY.",
       btnText: t("utilities.dashboard.arcade.btnText", "Vào Sảnh Game")
     },
     {

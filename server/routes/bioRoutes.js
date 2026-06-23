@@ -139,6 +139,7 @@ router.post('/bulk-approve-pending', requireAdmin, async (req, res) => {
       });
 
       await bio.save();
+      await removeDuplicateIdentityAccounts(bio);
       clearCache(`bio_slug_${bio.slug}`);
       broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: true, expiresAt: bio.expiresAt });
       count++;
@@ -233,6 +234,22 @@ router.get('/', requireAdmin, async (req, res) => {
   }
 });
 
+// A person should only ever hold one verified account. If they previously
+// signed up under a different email (edu + non-edu by mistake, or two
+// trial attempts) and this verification reveals the same identity (same
+// phone or same student ID), the other email's Bio is deleted outright —
+// keeping only the one that just got verified.
+async function removeDuplicateIdentityAccounts(bio) {
+  const phone = bio.verificationRequest?.phoneZalo;
+  const schoolIdCode = bio.verificationRequest?.schoolIdCode;
+  const identityFilters = [];
+  if (phone) identityFilters.push({ 'verificationRequest.phoneZalo': phone });
+  if (schoolIdCode) identityFilters.push({ 'verificationRequest.schoolIdCode': schoolIdCode });
+  if (!identityFilters.length) return;
+
+  await Bio.deleteMany({ _id: { $ne: bio._id }, $or: identityFilters });
+}
+
 // PATCH: Lock/Unlock/Approve/Reject bio
 router.patch('/:id/status', async (req, res) => {
   try {
@@ -281,6 +298,7 @@ router.patch('/:id/status', async (req, res) => {
       bio.status = status;
     }
     await bio.save();
+    if (isApprovingVerification) await removeDuplicateIdentityAccounts(bio);
 
     // Clear public cache so guest devices reflect status changes instantly
     clearCache(`bio_slug_${bio.slug}`);
@@ -314,9 +332,10 @@ router.get('/me', async (req, res) => {
       const baseSlug = normalizeSlug(displayName);
       const newSlug = await createUniqueSlug(baseSlug);
 
-      // Edu emails get full 1-year access immediately. Everyone else now gets
-      // a 30-day trial with full portal access right away (no blocking
-      // "pending" gate) — they can submit verification any time from the
+      // Edu emails get full 1-year access immediately and are considered
+      // verified outright — no form, no admin step. Everyone else gets a
+      // 30-day trial with full portal access right away (no blocking
+      // "pending" gate) and can submit verification any time from the
       // "Sinh viên chưa xác minh" tab to extend to a full year on approval.
       const expiresAt = new Date();
       if (isEdu) expiresAt.setFullYear(expiresAt.getFullYear() + 1);
@@ -351,6 +370,16 @@ router.get('/me', async (req, res) => {
       // number, so phone-derived codes are the common case (see ensureReferralCode).
     }
 
+    // Self-heal: accounts created while edu emails still went through the
+    // 30-day-trial-then-verify flow are stuck on isEduVerified=false forever
+    // since nothing re-checks them after creation — catch that here on every
+    // portal load instead of needing a one-off migration script.
+    if (bioDoc && bioDoc.status === 'active' && !bioDoc.isEduVerified && (await isEduEmail(bioDoc.email))) {
+      bioDoc.isEduVerified = true;
+      bioDoc.expiresAt = new Date(new Date(bioDoc.createdAt).getTime() + TWELVE_MONTHS_MS);
+      await bioDoc.save();
+    }
+
     if (bioDoc) {
       await cleanupExpiredBirthdayNotifications(bioDoc);
       const bioObj = bioDoc.toObject();
@@ -376,7 +405,11 @@ function stripSchoolLevelPrefix(name) {
   return String(name || '').trim().replace(SCHOOL_LEVEL_PREFIX, '').trim();
 }
 
-// POST /me/verification - Submit student verification request form
+// POST /me/verification - Submit the mandatory profile/verification form.
+// Edu emails self-approve immediately (no admin wait); everyone else still
+// queues for admin review (see PATCH /:id/status). Phone is just a plain
+// field here — no SMS OTP requirement, since members change numbers often
+// and forcing OTP just to submit this form was too much friction.
 router.post('/me/verification', async (req, res) => {
   try {
     const { email, fullName, birthday, schoolLevel, schoolName, schoolIdCode, phoneZalo, avatarUrl } = req.body;
@@ -401,8 +434,29 @@ router.post('/me/verification', async (req, res) => {
       submitted: true,
       notifiedStatus: 'none'
     };
+    bio.phone = phoneZalo;
+
+    const isEdu = await isEduEmail(email);
+    if (isEdu) {
+      // Edu identity is already proven by the email domain + a verified phone
+      // — no human needs to review this, approve it on the spot.
+      bio.displayName = bio.verificationRequest.fullName || bio.displayName;
+      bio.birthday = bio.verificationRequest.birthday || bio.birthday;
+      if (bio.verificationRequest.schoolName) {
+        bio.education = `${bio.verificationRequest.schoolLevel || ''} - ${bio.verificationRequest.schoolName}`.trim().replace(/^- /, '');
+      }
+      bio.verificationRequest.notifiedStatus = 'approved';
+      bio.isEduVerified = true;
+      bio.expiresAt = new Date(new Date(bio.createdAt).getTime() + TWELVE_MONTHS_MS);
+    }
 
     await bio.save();
+    if (isEdu) await removeDuplicateIdentityAccounts(bio);
+    clearCache(`bio_slug_${bio.slug}`);
+    if (isEdu) {
+      broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: true, expiresAt: bio.expiresAt });
+    }
+
     res.json({ success: true, bio });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -678,7 +732,22 @@ router.put('/:id', async (req, res) => {
       }
     }
 
-    const nextDisplayName = displayName || existing.displayName;
+    // Once a verification request has been approved, the fields it set
+    // (name/birthday/phone/education) are fixed — silently ignore any
+    // incoming change to them instead of rejecting the whole save, so a
+    // direct API call can't bypass the UI lock in PersonalInfoSubTab.
+    const lockedDisplayName = existing.isEduVerified ? existing.displayName : displayName;
+    const lockedBirthday = existing.isEduVerified ? existing.birthday : birthday;
+    const lockedPhone = existing.isEduVerified ? existing.phone : phone;
+    const lockedEducation = existing.isEduVerified ? existing.education : education;
+    // Members get exactly one email — the one they signed in with. The
+    // separate "Contact Email" field is banned outright (not just for
+    // verified accounts) so it can never be (re)introduced via direct API
+    // calls now that the UI field is gone; existing legacy values are left
+    // alone since other routes still fall back to matching by contactEmail.
+    const lockedContactEmail = existing.contactEmail;
+
+    const nextDisplayName = lockedDisplayName || existing.displayName;
     const nextSlugBase = normalizeSlug(nextDisplayName || existing.email.split('@')[0]);
     const nextSlug = await createUniqueSlug(nextSlugBase, existing._id);
 
@@ -702,7 +771,7 @@ router.put('/:id', async (req, res) => {
 
     // ── Track field changes for history ──────────────────────────────────────
     const textFields = ['displayName','headline','bio','birthday','phone','contactEmail','hobbies','height','weight','measurements','address','education','skills','jobTitle'];
-    const fieldValues = { displayName: nextDisplayName, headline, bio, birthday, phone, contactEmail, hobbies, height, weight, measurements, address, education, skills, jobTitle };
+    const fieldValues = { displayName: nextDisplayName, headline, bio, birthday: lockedBirthday, phone: lockedPhone, contactEmail: lockedContactEmail, hobbies, height, weight, measurements, address, education: lockedEducation, skills, jobTitle };
 
     let updatedFieldsDetail = [];
 
@@ -758,17 +827,17 @@ router.put('/:id', async (req, res) => {
     existing.displayName = nextDisplayName;
     existing.headline = headline;
     existing.bio = bio;
-    existing.birthday = birthday;
-    existing.phone = phone;
+    existing.birthday = lockedBirthday;
+    existing.phone = lockedPhone;
     existing.hobbies = hobbies;
     existing.height = height;
     existing.weight = weight;
     existing.measurements = measurements;
     existing.address = address;
-    existing.education = education;
+    existing.education = lockedEducation;
     existing.skills = skills;
     existing.jobTitle = jobTitle;
-    existing.contactEmail = contactEmail;
+    existing.contactEmail = lockedContactEmail;
     existing.links = links;
     existing.theme = finalTheme;
     existing.tabs = tabs;

@@ -4,9 +4,13 @@ import { isMemberAuthenticated } from "../../services/authSession";
 import ChessLobby from "../../components/chess/ChessLobby";
 import ChessGame from "../../components/chess/ChessGame";
 
-export default function ChessPage() {
+// `embedded` + `initialRoomId` let HugoArcadeTab mount this as one of its
+// games (Chess now lives inside Arcade, not as its own top-level utility) —
+// room deep-links resolve to /arcade?game=chess&room=<id> instead of the old
+// standalone /chess/:roomId path, and "back" returns to the Arcade lobby.
+export default function ChessPage({ embedded = false, initialRoomId = null, onBack: onExitArcade } = {}) {
   const { roomId, psychTab } = useParams();
-  const activeRoom = roomId || psychTab;
+  const activeRoom = roomId || psychTab || initialRoomId;
   const navigate = useNavigate();
 
   const [screen, setScreen] = useState(activeRoom ? "game" : "lobby");
@@ -87,8 +91,8 @@ export default function ChessPage() {
       timeControl: 300
     });
     setScreen("game");
-    if (window.location.pathname.includes("/member/utilities/chess")) {
-      navigate(`/member/utilities/chess/${rid}`, { replace: true });
+    if (embedded) {
+      navigate(`/arcade?game=chess&room=${rid}`, { replace: true });
     } else {
       navigate(`/chess/${rid}`, { replace: true });
     }
@@ -101,8 +105,8 @@ export default function ChessPage() {
     // Restore user settings
     setBoardTheme(localStorage.getItem("chess_board_theme") || "blue");
     setAppTheme(localStorage.getItem("chess_app_theme") || "midnight");
-    if (window.location.pathname.includes("/member/utilities/chess")) {
-      navigate("/member/utilities/chess", { replace: true });
+    if (embedded) {
+      navigate("/arcade?game=chess", { replace: true });
     } else {
       navigate("/chess", { replace: true });
     }
@@ -110,6 +114,15 @@ export default function ChessPage() {
 
   return (
     <div className={`chess-container min-h-screen app-theme-${appTheme}`}>
+      {embedded && screen === "lobby" && (
+        <button
+          onClick={onExitArcade}
+          className="fixed top-3 left-3 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 hover:bg-black/55 text-white text-[11px] font-bold backdrop-blur-md transition-all active:scale-95"
+          style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
+        >
+          <span className="material-symbols-outlined text-sm">arrow_back</span> HugoArcade
+        </button>
+      )}
       {screen === "lobby" && (
         <ChessLobby
           onStartGame={handleStartGame}

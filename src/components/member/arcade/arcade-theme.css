@@ -6,6 +6,16 @@
   height: 100dvh; min-height: 100%; font-family: "Plus Jakarta Sans", sans-serif;
 }
 .arcade-scroll-shell { height: 100%; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
+/* Locked fullscreen play mode — entered once a difficulty is picked. Page
+   scroll/leaderboard/intro copy are hidden so a swipe meant for the game
+   can't drag the page instead; only the Quit button exits this mode. */
+.arcade-app.arcade-fullscreen-play { position: fixed; inset: 0; z-index: 200; overflow: hidden; touch-action: none; }
+.arcade-app.arcade-fullscreen-play .arcade-play-layout { height: calc(100% - 68px); padding: 0; display: flex; }
+.arcade-app.arcade-fullscreen-play .arcade-play-main { width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.arcade-quit-btn { padding: 6px 16px; border-radius: 999px; border: 1px solid var(--arcade-line); background: rgba(255,255,255,.06); color: var(--arcade-text); font-size: 12px; font-weight: 700; letter-spacing: .02em; transition: .2s; }
+.arcade-quit-btn:hover { background: rgba(255,255,255,.12); }
+@media(max-width:560px) { .arcade-app.arcade-fullscreen-play .arcade-play-layout { height: calc(100% - 60px); } }
 .arcade-topbar { height: 68px; position: sticky; top: 0; z-index: 30; display:flex; align-items:center; gap:14px; padding: 0 max(18px, env(safe-area-inset-left)); border-bottom:1px solid var(--arcade-line); background:rgba(8,10,18,.84); backdrop-filter:blur(20px); }
 .arcade-icon-btn { width:40px; height:40px; border:1px solid var(--arcade-line); border-radius:13px; display:grid; place-items:center; color:var(--arcade-text); background:rgba(255,255,255,.04); transition:.2s; }
 .arcade-icon-btn:hover { background:rgba(255,255,255,.1); transform:translateX(-2px); }
@@ -76,6 +86,9 @@
 .arcade-art-caro{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,42px);gap:3px}
 .arcade-art-caro span{width:42px;height:42px;border-radius:9px;display:grid;place-items:center;background:var(--arcade-card);border:1px solid color-mix(in srgb,var(--game-accent) 24%,var(--arcade-line));font-size:25px;font-weight:950;color:var(--game-accent)}
 .arcade-art-caro span:nth-child(3),.arcade-art-caro span:nth-child(7){color:#f43f5e}
+.arcade-art-chess{grid-template-columns:repeat(8,18px);grid-template-rows:18px;gap:0}
+.arcade-art-chess span{width:18px;height:18px;display:grid;place-items:center;font-size:14px;background:var(--arcade-card)}
+.arcade-art-chess span.dark{background:color-mix(in srgb,var(--game-accent) 16%,var(--arcade-card))}
 .arcade-art-word{display:flex;align-items:center;justify-content:center;gap:6px;padding:20px}
 .arcade-art-word span{width:43px;height:50px;border-radius:10px;display:grid;place-items:center;background:var(--arcade-card);border:2px solid color-mix(in srgb,var(--game-accent) 34%,var(--arcade-line));font-size:17px;font-weight:950;color:var(--game-accent)}
 .arcade-art-word span.solved{background:#059669;border-color:#059669;color:white}.arcade-art-word span:last-child{border-style:dashed}
@@ -143,15 +156,3 @@
 .demo-survivor-grid span { width: 42px; height: 42px; border-radius: 9px; display: grid; place-items: center; background: var(--arcade-card); border: 1px solid color-mix(in srgb, var(--game-accent) 24%, var(--arcade-line)); font-size: 18px; }
 .demo-survivor-grid span.ship { background: color-mix(in srgb, var(--game-accent) 15%, transparent); border-color: var(--game-accent); font-size: 20px; box-shadow: 0 0 15px color-mix(in srgb, var(--game-accent) 30%, transparent); }
 .demo-survivor-grid span.bullet { color: #f43f5e; font-size: 14px; }
-
-.arcade-art .demo-slasher-grid { display: flex; gap: 6px; padding: 20px; position: relative; }
-.demo-slasher-grid span { width: 45px; height: 45px; border-radius: 12px; display: grid; place-items: center; background: var(--arcade-card); border: 2px solid color-mix(in srgb, var(--game-accent) 28%, var(--arcade-line)); font-size: 22px; transition: .2s cubic-bezier(.2,.8,.2,1); }
-.demo-slasher-grid span.cut { transform: scale(1.15) rotate(25deg); opacity: 0; }
-.demo-slasher-grid .slash-line { position: absolute; left: 10px; right: 10px; top: 50%; height: 3px; background: var(--game-accent); transform: rotate(-10deg); box-shadow: 0 0 10px var(--game-accent); z-index: 2; pointer-events: none; animation: slash-flash .3s ease-out forwards; }
-@keyframes slash-flash { 0% { opacity: 0; transform: rotate(-10deg) scaleX(0.5); } 50% { opacity: 1; transform: rotate(-10deg) scaleX(1.1); } 100% { opacity: 0; transform: rotate(-10deg) scaleX(1); } }
-
-.arcade-art .demo-geometry-grid { display: flex; gap: 5px; padding: 10px 10px 0 10px; border-bottom: 3px solid color-mix(in srgb, var(--game-accent) 30%, var(--arcade-line)); align-items: flex-end; height: 60px; }
-.demo-geometry-grid span { width: 32px; height: 32px; border-radius: 6px; background: var(--arcade-card); border: 2px solid color-mix(in srgb, var(--game-accent) 30%, var(--arcade-line)); transition: .3s cubic-bezier(.2,.8,.2,1); }
-.demo-geometry-grid span.cube { background: var(--game-accent); border-color: var(--game-accent); box-shadow: 0 0 12px color-mix(in srgb, var(--game-accent) 40%, transparent); }
-.demo-geometry-grid span.jump { transform: translateY(-40px) rotate(90deg); }
-.demo-geometry-grid span.spike { background: none; border: none; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 26px solid #f59e0b; margin-bottom: -1px; }
