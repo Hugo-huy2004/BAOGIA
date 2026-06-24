@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 import { playGameSelect, playGameWin, playGameLose, playGameMove } from "../../../utils/audio";
+import { hapticSelect, hapticWin, hapticLose, hapticMove } from "../../../utils/haptics";
 
 const SIZE = 13;
 const WIN_LEN = 5;
@@ -215,10 +216,12 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
     setMoveCount(newMoveCount);
     setLastMove({ r, c });
     playGameSelect();
+    hapticSelect();
 
     if (checkWin(next, r, c, PLAYER)) {
       setStatus("win");
       playGameWin();
+      hapticWin();
       reportGameOver("win", newMoveCount);
       return;
     }
@@ -247,10 +250,12 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
       setThinking(false);
       setLastMove({ r: ar, c: ac });
       playGameMove();
+      hapticMove();
 
       if (checkWin(afterAi, ar, ac, AI)) {
         setStatus("lose");
         playGameLose();
+        hapticLose();
         reportGameOver("lose", aiMoveCount);
         return;
       }

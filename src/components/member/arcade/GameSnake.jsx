@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { playGameMerge, playGameWin, playGameLose } from "../../../utils/audio";
+import { hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
 
 const GOALS = { easy: 8, medium: 14, hard: 20 };
 const GRID = 18;
@@ -89,7 +90,7 @@ export default function GameSnake({ difficulty, onGameOver }) {
         setPlaying(false);
         const score = s.score;
         const won = score >= GOALS[difficulty];
-        if (won) playGameWin(); else playGameLose();
+        if (won) { playGameWin(); hapticWin(); } else { playGameLose(); hapticLose(); }
         setTimeout(() => onGameOver(score, won ? "win" : "lose"), 600);
         return false;
       }
@@ -99,6 +100,7 @@ export default function GameSnake({ difficulty, onGameOver }) {
         s.score += 1;
         s.food = randomCell(s.snake);
         playGameMerge();
+        hapticMerge();
       } else {
         s.snake.pop();
       }

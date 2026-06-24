@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { playGameWin, playGameLose } from "../../../utils/audio";
+import { hapticWin, hapticLose } from "../../../utils/haptics";
 
 const GOALS = { easy: 30, medium: 60, hard: 90 };
 
@@ -160,7 +161,7 @@ export default function GameSurvivor({ difficulty, onGameOver }) {
           setPlaying(false);
           const score = scoreRef.current;
           const won = score >= GOALS[difficulty];
-          if (won) playGameWin(); else playGameLose();
+          if (won) { playGameWin(); hapticWin(); } else { playGameLose(); hapticLose(); }
           setTimeout(() => {
             onGameOver(score, won ? "win" : "lose");
           }, 1000);

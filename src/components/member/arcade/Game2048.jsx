@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { playGameMove, playGameMerge, playGameWin, playGameLose } from "../../../utils/audio";
+import { hapticMove, hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
 
 const SIZE = 4;
 const TARGET_TILE = { easy: 256, medium: 512, hard: 2048 };
@@ -188,14 +189,14 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
     gridRef.current = withTile;
     setMotion({ direction, merged: gained > 0 });
     setGrid(withTile);
-    if (gained) { setScore((s) => s + gained); playGameMerge(); } else { playGameMove(); }
+    if (gained) { setScore((s) => s + gained); playGameMerge(); hapticMerge(); } else { playGameMove(); hapticMove(); }
     const values = tileValues(withTile);
     if (hasReachedTarget(values, targetTile)) {
       setCelebrating(true);
       setStatus("win");
       playGameWin();
-      navigator.vibrate?.([40, 50, 90]);
-    } else if (isGameOver(values)) { setStatus("lose"); playGameLose(); }
+      hapticWin();
+    } else if (isGameOver(values)) { setStatus("lose"); playGameLose(); hapticLose(); }
   }, [status, targetTile]);
 
   useEffect(() => {
