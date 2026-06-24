@@ -570,10 +570,10 @@ export default function PrivacyPolicyPage() {
                 <div className="space-y-4 text-xs text-justify">
                   <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
                     <h5 className="font-bold text-foreground text-xs">
-                      a) Hiệu lực sử dụng tài khoản và Bio Link (Miễn Phí 100% Không Giới Hạn):
+                      a) Hiệu lực sử dụng tài khoản và Bio Link (Miễn Phí 100% và tự động xóa sau 365 ngày nếu không có voucher quà tặng):
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                      - Tài khoản Thành viên và trang Bio Link/Bento Portfolio được tạo lập trên hệ thống hoàn toàn miễn phí và không bị giới hạn thời hạn sử dụng. Dữ liệu của Thành viên được lưu giữ vĩnh viễn trên máy chủ, ngoại trừ các trường hợp Thành viên chủ động yêu cầu xóa tài khoản hoặc tài khoản bị vô hiệu hóa do vi phạm các quy định cấm đăng tải nội dung trái pháp luật tại Chương III.
+                      - Tài khoản Thành viên và trang Bio Link/Bento Portfolio được tạo lập trên hệ thống hoàn toàn miễn phí và 365 ngày hạn sử dụng. Dữ liệu của Thành viên được lưu giữ trên máy chủ đến khi tài khảon hoàn toàn bị xóa, ngoại trừ các trường hợp Thành viên chủ động yêu cầu xóa tài khoản hoặc tài khoản bị vô hiệu hóa do vi phạm các quy định cấm đăng tải nội dung trái pháp luật tại Chương III.
                     </p>
                   </div>
 
@@ -597,7 +597,7 @@ export default function PrivacyPolicyPage() {
                       <br />
                       - <strong>Xóa cứng vĩnh viễn (Hard Delete):</strong> Đúng 30 ngày kể từ ngày Thành viên xác nhận yêu cầu xóa, hệ thống sẽ tự động quét cơ sở dữ liệu và thực hiện xóa cứng vĩnh viễn không thể phục hồi toàn bộ thông tin đăng ký, ảnh đại diện, số đo cơ thể, dữ liệu lịch hẹn Booking trên máy chủ MongoDB Atlas.
                       <br />
-                      - <strong>Ngoại lệ lưu trữ bắt buộc đối với dữ liệu hóa đơn của Admin:</strong> Thông tin lịch sử thanh toán hóa đơn dịch vụ Studio cá nhân của khách hàng trực tiếp của Admin phải được lưu giữ trong thời hạn tối thiểu 05 năm kể từ ngày giao dịch thành công để phục vụ công tác quyết toán thuế thu nhập cá nhân của Admin theo luật thuế Việt Nam. Dữ liệu hóa đơn này được lưu trữ nội bộ riêng biệt và hoàn toàn không liên quan đến dữ liệu của các Thành viên sử dụng Bio Link miễn phí.
+                      - <strong>Ngoại lệ lưu trữ bắt buộc đối với dữ liệu hóa đơn của Admin:</strong> Thông tin lịch sử thanh toán hóa đơn dịch vụ Studio cá nhân của khách hàng trực tiếp của Admin phải được lưu giữ trong thời hạn tối thiểu 2 năm kể từ ngày giao dịch thành công để phục vụ công tác quyết toán thuế thu nhập cá nhân của Admin theo luật thuế Việt Nam. Dữ liệu hóa đơn này được lưu trữ nội bộ riêng biệt và hoàn toàn không liên quan đến dữ liệu của các Thành viên sử dụng Bio Link miễn phí.
                     </p>
                   </div>
 

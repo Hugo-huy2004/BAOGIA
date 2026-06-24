@@ -112,6 +112,37 @@ router.post('/adjust', requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/joy/reset-to-zero  { email }  (admin-only — supreme override, e.g.
+// for confirmed JOY-trading abuse; see PrivacyPolicyPage Chương XIII điểm d).
+// Computes the exact negating delta server-side so Admin never has to know/
+// guess the user's current balance — eliminates off-by-one risk of using
+// /adjust with a manually typed negative amount.
+router.post('/reset-to-zero', requireAdmin, async (req, res) => {
+  try {
+    const { email, reason } = req.body;
+    if (!email) return res.status(400).json({ error: 'email is required' });
+
+    const bio = await Bio.findOne({ email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
+
+    const currentBalance = bio.joyBalance || 0;
+    if (currentBalance <= 0) {
+      return res.json({ success: true, balance: 0, message: 'Số dư JOY đã là 0.' });
+    }
+
+    const result = await awardJoy(
+      email,
+      -currentBalance,
+      'admin_adjustment',
+      `Admin thu hồi toàn bộ JOY về 0${reason ? ` — Lý do: ${reason}` : ''}`,
+      { bioDoc: bio }
+    );
+    res.json({ success: true, balance: result.balance });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // POST /api/joy/award-learning
 router.post('/award-learning', async (req, res) => {
   try {

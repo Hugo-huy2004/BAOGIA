@@ -439,6 +439,42 @@ router.post('/history', async (req, res) => {
   }
 });
 
+// POST: Instant high-severity crisis flag, raised directly by the client-side
+// self-harm/suicide-risk detector (isCrisisText in intentClassifier.js) the
+// moment it matches — unlike the gradual chatDistressCount-based detection
+// above, this bypasses any accumulation threshold so Admin is alerted on the
+// very first message, with enough context (phone, recent messages) to call
+// the member back immediately without having to dig through their history.
+router.post('/crisis-alert', async (req, res) => {
+  try {
+    const { email, trigger, conversationSummary } = req.body;
+    if (!email) return res.status(400).json({ error: 'email is required' });
+
+    const bioDoc = await Bio.findOne({ email }).select('phone').lean();
+
+    await CompanionHistory.findOneAndUpdate(
+      { email },
+      {
+        $push: {
+          crisisFlags: {
+            detectedAt: new Date(),
+            severity: 'high',
+            trigger: trigger || 'Phát hiện cụm từ tự tử/tự hại trong tin nhắn',
+            resolved: false,
+            phone: bioDoc?.phone || '',
+            conversationSummary: (conversationSummary || '').slice(0, 1000)
+          }
+        }
+      },
+      { upsert: true }
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST: Mark a crisis flag as resolved once the member confirms they've sought help
 router.post('/crisis/resolve', async (req, res) => {
   try {
@@ -466,8 +502,8 @@ router.get('/admin/crisis-alerts', requireAdmin, async (req, res) => {
     }).select('email crisisFlags').lean();
 
     const emails = docs.map(d => d.email);
-    const bios = await Bio.find({ email: { $in: emails } }).select('email displayName').lean();
-    const nameByEmail = Object.fromEntries(bios.map(b => [b.email, b.displayName]));
+    const bios = await Bio.find({ email: { $in: emails } }).select('email displayName phone').lean();
+    const bioByEmail = Object.fromEntries(bios.map(b => [b.email, b]));
 
     const alerts = [];
     docs.forEach(doc => {
@@ -475,7 +511,9 @@ router.get('/admin/crisis-alerts', requireAdmin, async (req, res) => {
         .filter(f => f.severity === 'high' && !f.resolved)
         .forEach(f => alerts.push({
           email: doc.email,
-          displayName: nameByEmail[doc.email] || doc.email,
+          displayName: bioByEmail[doc.email]?.displayName || doc.email,
+          phone: f.phone || bioByEmail[doc.email]?.phone || '',
+          conversationSummary: f.conversationSummary || '',
           flagId: f._id,
           detectedAt: f.detectedAt,
           trigger: f.trigger

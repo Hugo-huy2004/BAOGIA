@@ -114,7 +114,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#181622] text-xs text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
           />
         </div>
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-none">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           {categories.map(c => (
             <button
               key={c}
@@ -233,15 +233,15 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
                 <JoyCoinBadge amount={confirmProduct.priceJoy} size="sm" />
               </div>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-[10px] font-medium text-zinc-500">Thuế cấp hàng (2%)</span>
+                <span className="text-[10px] font-medium text-zinc-500">Phí cấp hàng (2%)</span>
                 <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
               </div>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-[10px] font-medium text-zinc-500">Thuế hỗ trợ (5%)</span>
+                <span className="text-[10px] font-medium text-zinc-500">Phí hỗ trợ (5%)</span>
                 <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">+{Math.floor(confirmProduct.priceJoy * 0.05)} JOY</span>
               </div>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-[10px] font-medium text-zinc-500">Thuế bảo dưỡng (2%)</span>
+                <span className="text-[10px] font-medium text-zinc-500">Phí bảo dưỡng (2%)</span>
                 <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-dashed border-zinc-200 dark:border-zinc-800">

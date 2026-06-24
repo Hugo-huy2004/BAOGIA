@@ -90,7 +90,7 @@ export default function JoyExchangeModal({ open, bio, item, onClose, onConfirm, 
                   <span className="font-bold text-foreground">{quote.priceJoy} JOY</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Thuế giao dịch (9%)</span>
+                  <span className="text-muted-foreground">Phí giao dịch (9%)</span>
                   <span className="font-bold text-foreground">{quote.tax} JOY</span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-border/60">

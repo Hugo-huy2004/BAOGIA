@@ -34,6 +34,22 @@ const BioSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    // Anomalous-login guard: the first geolocation reading after the member
+    // opts in becomes the "trusted" reference point. Later readings further
+    // than ~50km away (see bioRoutes.js /me/check-location) flag the session
+    // for forced re-login. Never set without explicit browser permission —
+    // the geolocation prompt itself is the user's consent.
+    trustedLocation: {
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+      updatedAt: { type: Date, default: null }
+    },
+    lastLocationCheck: {
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+      distanceKm: { type: Number, default: null },
+      checkedAt: { type: Date, default: null }
+    },
     // Date-keyed daily cap on JOY sent via phone transfer — same reset pattern
     // as ArcadeScore.joyAwardedDate/joyAwardedToday.
     joySentDate: {

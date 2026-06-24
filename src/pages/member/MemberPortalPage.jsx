@@ -16,6 +16,8 @@ import { useJoyStore } from "../../stores/joyStore";
 import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useKeyboardVisible } from "../../hooks/useKeyboardVisible";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
+import { useLocationGuard } from "../../hooks/useLocationGuard";
+import { useIsMobile } from "../../hooks/useIsMobile";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 import AuraBackground from "../../components/member/portal/AuraBackground";
@@ -237,6 +239,14 @@ export default function MemberPortalPage() {
     pendingCycle: pendingSleepCycle,
     clearPendingCycle: () => setPendingSleepCycle(null),
   }), [sleepDetect, pendingSleepCycle]);
+
+  // Anomalous-login guard — forces re-login if the device strays >50km from
+  // the member's trusted location. Opt-in via the browser's native
+  // geolocation permission prompt; fails open if denied/unavailable.
+  useLocationGuard({
+    email: memberSession?.email,
+    enabled: !!memberSession?.email,
+  });
 
   // ── Healing journey hook ──────────────────────────────────────────────────────
   const isEmbedded = useMemo(() => window.self !== window.top || new URLSearchParams(window.location.search).get("embed") === "true", []);
@@ -610,11 +620,29 @@ export default function MemberPortalPage() {
   // ── Active section info (mobile) ──────────────────────────────────────────────
   const activeSectionInfo = ACCOUNT_SECTIONS.find(s => s.id === mobileSubSection);
 
-  const isFullscreenUtility = activeTab === "utilities" && (subTab === "ide" || subTab === "arcade");
+  // HugoPSY gets the same true top-level fullscreen takeover as HugoCoder/
+  // HugoArcade, but mobile-only — nesting a CSS `position: fixed` deep inside
+  // the normal page tree doesn't actually escape the portal header/bottom tab
+  // bar (they're siblings in the SAME stacking context, so it just gets
+  // squeezed between them instead of covering them). This early-return branch
+  // is the only way that's worked elsewhere in this codebase.
+  //
+  // On mobile, ALL of HugoPSY funnels through chat now (Sleep/Evaluation tabs
+  // are gone from the mobile nav, Therapy opens as an in-chat overlay) — so
+  // any psychology sub-tab gets the fullscreen takeover there. Desktop is
+  // unchanged from before — normal sidebar+tabs UI, never fullscreen.
+  const isMobileView = useIsMobile();
+  const isFullscreenUtility = activeTab === "utilities" && (
+    subTab === "ide" || subTab === "arcade" ||
+    (subTab === "psychology" && isMobileView)
+  );
 
   if (isFullscreenUtility) {
+    // h-[100dvh] (not h-screen/100vh) so this actually shrinks with the
+    // on-screen keyboard on iOS/Android instead of staying pinned to the
+    // full layout viewport while content underneath gets covered.
     return (
-      <div className="fixed inset-0 z-[120] w-screen h-screen bg-background dark:bg-background overflow-hidden flex flex-col font-body">
+      <div className="fixed inset-0 z-[120] w-screen h-screen h-[100dvh] bg-background dark:bg-background overflow-hidden flex flex-col font-body">
         {/* Toast */}
         <AnimatePresence>
           {toast.message && (

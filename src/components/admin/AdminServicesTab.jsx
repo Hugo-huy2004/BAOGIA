@@ -208,6 +208,35 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     }
   }
 
+  // Supreme admin override — instantly zeroes a user's JOY wallet. Server
+  // computes the exact negating delta (see /api/joy/reset-to-zero) so there's
+  // no risk of admin mistyping a manual negative /adjust amount.
+  const [resettingJoy, setResettingJoy] = useState(false);
+  async function handleJoyResetToZero() {
+    if (!joyUser) return;
+    triggerConfirm(
+      `Thu hồi TOÀN BỘ JOY của ${joyUser.displayName} về 0? Hành động này không thể hoàn tác.`,
+      async () => {
+        setResettingJoy(true);
+        try {
+          const r = await fetch(`${API_BASE_URL}/joy/reset-to-zero`, {
+            method: 'POST',
+            headers: getHeaders(),
+            credentials: 'include',
+            body: JSON.stringify({ email: joyUser.email, reason: joyForm.note }),
+          });
+          const data = await r.json();
+          if (!r.ok) throw new Error(data.error || 'Lỗi thu hồi JOY');
+          toast.success(`Đã thu hồi toàn bộ JOY của ${joyUser.displayName} về 0`);
+        } catch (err) {
+          toast.error(err.message);
+        } finally {
+          setResettingJoy(false);
+        }
+      }
+    );
+  }
+
   async function handleJoyDelete(id) {
     try {
       const r = await fetch(`${API_BASE_URL}/joy-gift-cards/${id}`, { method: 'DELETE', headers: getHeaders(), credentials: 'include' });
@@ -574,6 +603,17 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
                     <button type="submit" disabled={creatingJoy || (joyMode === 'direct' && !joyUser)} className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs transition-all disabled:opacity-50 uppercase tracking-wider flex justify-center items-center gap-2">
                       {creatingJoy ? <span className="material-symbols-outlined animate-spin text-sm">refresh</span> : (joyMode === 'direct' ? 'Cộng Điểm Ngay' : 'Tạo Thẻ JOY')}
                     </button>
+                    {joyMode === 'direct' && joyUser && (
+                      <button
+                        type="button"
+                        onClick={handleJoyResetToZero}
+                        disabled={resettingJoy}
+                        className="w-full py-3 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 rounded-xl font-bold text-xs transition-all disabled:opacity-50 uppercase tracking-wider flex justify-center items-center gap-2"
+                      >
+                        {resettingJoy ? <span className="material-symbols-outlined animate-spin text-sm">refresh</span> : <span className="material-symbols-outlined text-sm">remove_circle</span>}
+                        Thu Hồi Toàn Bộ JOY Về 0
+                      </button>
+                    )}
                   </form>
                 </div>
               )}
@@ -652,6 +692,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
                       <th className="p-4">Mã JOY (Voucher)</th>
                       <th className="p-4">Mệnh Giá</th>
                       <th className="p-4">Trạng Thái</th>
+                      <th className="p-4">Hiệu Lực</th>
                       <th className="p-4">Ghi Chú</th>
                       <th className="p-4 text-center">Thao Tác</th>
                     </tr>
@@ -672,6 +713,13 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
                           ) : (
                             <span className="text-emerald-600 bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 px-2.5 py-1 rounded-full text-[10px] font-bold">Chưa dùng</span>
                           )}
+                        </td>
+                        <td className="p-4 text-[11px]">
+                          {c.expiresAt ? (
+                            new Date(c.expiresAt).getTime() < Date.now() && !c.redeemed
+                              ? <span className="text-rose-500 font-bold">Đã hết hạn</span>
+                              : <span className="text-slate-500">{new Date(c.expiresAt).toLocaleDateString('vi-VN')}</span>
+                          ) : '-'}
                         </td>
                         <td className="p-4 text-slate-500 text-[11px]">{c.note || '-'}</td>
                         <td className="p-4 text-center">

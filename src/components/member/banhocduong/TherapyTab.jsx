@@ -492,6 +492,10 @@ export default function TherapyTab({
   const [activePanel, setActivePanel] = useState(initialMethod || null);
   const [unlockedFeatures, setUnlockedFeatures] = useState(bio?.unlockedCompanionFeatures || []);
   const [unlockingId, setUnlockingId] = useState(null);
+  // Invoice shown right after a successful JOY-for-therapy exchange — mirrors
+  // the receipt UX of the JOY transfer flow (MemberJoyTab.jsx), since the
+  // unlock toast alone left no on-screen record of the transaction.
+  const [unlockReceipt, setUnlockReceipt] = useState(null);
   const joyBalance = useJoyStore(s => s.balance);
   const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
 
@@ -632,6 +636,7 @@ export default function TherapyTab({
       onBioUpdate?.({ unlockedCompanionFeatures: data.unlockedFeatures || [] });
       fetchJoyBalance(bio.email);
       showToast?.(`Đã mở khoá "${method.name}"!`, "success");
+      setUnlockReceipt({ name: method.name, cost: UNLOCK_COST, balanceAfter: data.balance, time: new Date() });
     } catch (err) {
       showToast?.(err.message, "error");
     } finally {
@@ -957,6 +962,64 @@ export default function TherapyTab({
                 onComplete={() => handleCompleteActivity("Kết Nối Xã Hội", "Chủ động kết nối với người thân / bạn bè")}
               />
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Invoice for a JOY-for-therapy exchange — see unlockReceipt above */}
+      <AnimatePresence>
+        {unlockReceipt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[220] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            onClick={() => setUnlockReceipt(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-[#1a1924] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col"
+            >
+              <div className="p-6 pb-4 border-b border-zinc-200 dark:border-zinc-800 flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3">
+                  <span className="material-symbols-outlined text-2xl">receipt_long</span>
+                </div>
+                <h3 className="text-lg font-black text-zinc-900 dark:text-white uppercase tracking-wider">Hoá Đơn Trao Đổi JOY</h3>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl p-4 text-left space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Liệu pháp</span>
+                    <span className="text-sm font-bold text-zinc-900 dark:text-white text-right">{unlockReceipt.name}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Thời gian</span>
+                    <span className="text-sm font-medium text-zinc-900 dark:text-white">{unlockReceipt.time.toLocaleString("vi-VN")}</span>
+                  </div>
+                  <div className="w-full border-t border-dashed border-zinc-200 dark:border-zinc-700 my-1" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Số JOY đã trừ</span>
+                    <span className="text-sm font-bold text-destructive">-{unlockReceipt.cost} JOY</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Số dư còn lại</span>
+                    <span className="text-lg font-black text-zinc-900 dark:text-white">{unlockReceipt.balanceAfter} <small className="text-xs text-zinc-500 font-bold">JOY</small></span>
+                  </div>
+                </div>
+                <p className="text-[10px] text-zinc-400 text-center">Tính năng đã được mở khoá vĩnh viễn cho tài khoản của cậu. Lịch sử giao dịch đầy đủ có tại tab Ví JOY.</p>
+              </div>
+              <div className="p-4 bg-zinc-50 dark:bg-zinc-900/30 border-t border-zinc-200 dark:border-zinc-800">
+                <button
+                  onClick={() => setUnlockReceipt(null)}
+                  className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider transition-colors"
+                >
+                  Đã hiểu
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

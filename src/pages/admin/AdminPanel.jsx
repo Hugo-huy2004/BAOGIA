@@ -7,7 +7,7 @@ import { userApi } from "../../services/api/UserApi";
 
 // Components
 import AdminSidebar from "../../components/admin/AdminSidebar";
-import AdminDashboard from "../../components/admin/AdminDashboard";
+import AdminDashboard, { SosOverlay } from "../../components/admin/AdminDashboard";
 import AdminAutomationTab from "../../components/admin/AdminAutomationTab";
 import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
@@ -37,6 +37,35 @@ export default function AdminPanel() {
     totalProjects: 0
   });
   const [recentBookings, setRecentBookings] = useState([]);
+
+  // Polled globally (not just on the dashboard tab) so the SOS overlay fires
+  // no matter which admin tab is currently open — a 15s window is the
+  // practical ceiling for "ngay lập tức" without standing up push delivery.
+  const [crisisAlerts, setCrisisAlerts] = useState([]);
+  useEffect(() => {
+    const apiBase = import.meta.env.VITE_API_URL || "/api";
+    const fetchAlerts = () => {
+      fetch(`${apiBase}/companion/admin/crisis-alerts`, { credentials: "include" })
+        .then(r => r.ok ? r.json() : [])
+        .then(data => setCrisisAlerts(Array.isArray(data) ? data : []))
+        .catch(() => {});
+    };
+    fetchAlerts();
+    const interval = setInterval(fetchAlerts, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleResolveCrisisAlert = (alert) => {
+    const apiBase = import.meta.env.VITE_API_URL || "/api";
+    fetch(`${apiBase}/companion/crisis/resolve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email: alert.email, flagId: alert.flagId })
+    })
+      .then(() => setCrisisAlerts(prev => prev.filter(a => a.flagId !== alert.flagId)))
+      .catch(() => {});
+  };
 
   // Users State (Kept in AdminPanel to pass to Dashboard & AdminUsersTab)
   const [users, setUsers] = useState([]);
@@ -339,6 +368,8 @@ export default function AdminPanel() {
   return (
     <div className="h-[calc(100vh-56px)] bg-slate-50/30 dark:bg-background text-foreground flex flex-col md:flex-row overflow-hidden">
 
+      <SosOverlay alerts={crisisAlerts} />
+
       {/* TOAST NOTIFICATION */}
       {toastMsg && (
         <div className={`fixed top-16 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-card border shadow-[0_24px_60px_hsl(var(--shadow)/0.25)] max-w-sm animate-toast-in ${
@@ -454,6 +485,8 @@ export default function AdminPanel() {
             totalPackages={counts.packages}
             openTickets={counts.openTickets}
             loading={loading}
+            crisisAlerts={crisisAlerts}
+            onResolveCrisisAlert={handleResolveCrisisAlert}
           />
         )}
         {activeTab === "automation" && (

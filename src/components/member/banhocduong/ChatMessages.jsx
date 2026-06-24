@@ -108,7 +108,12 @@ function InlineCbtCard() {
   );
 }
 
-export default function ChatMessages({
+// React.memo so a parent re-render (e.g. ChatTab updating on every keystroke
+// in the composer) doesn't also re-render this — potentially long — message
+// list. Only actually skips re-rendering if every prop below keeps a stable
+// reference between renders (see ChatTab.jsx's useCallback wraps on the
+// handlers passed in here).
+function ChatMessages({
   messages,
   completedMessageIds,
   setCompletedMessageIds,
@@ -116,7 +121,9 @@ export default function ChatMessages({
   onSelectDuration,
   loading,
   onNavigateToTab,
-  messagesEndRef
+  messagesEndRef,
+  onUnlockFeature,
+  unlockingMethodId
 }) {
   const [playingId, setPlayingId] = React.useState(null);
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
@@ -158,8 +165,11 @@ export default function ChatMessages({
     if (!userScrolledUpRef.current) scrollToBottom("smooth");
   }, [messages, loading]);
 
-  // Always scroll to bottom on mount
-  React.useEffect(() => {
+  // Always scroll to bottom on mount — useLayoutEffect (not useEffect) so
+  // this happens before the browser paints. With useEffect, the list would
+  // briefly flash at the top, then visibly jump to the bottom; that jump is
+  // exactly the "đẩy xuống gây lag" (push-down lag) reported when entering chat.
+  React.useLayoutEffect(() => {
     scrollToBottom("instant");
   }, []);
 
@@ -325,6 +335,49 @@ export default function ChatMessages({
                     </div>
                   )}
 
+                  {/* Crisis quick-call actions — one tap to dial, not just a phone
+                      number buried in text. Rendered prominently (red) and always
+                      visible (not collapsible) since this is a safety affordance. */}
+                  {isBot && Array.isArray(msg.quickActions) && msg.quickActions.some(a => a.tel) && (
+                    <div className="mt-1 p-3 rounded-2xl rounded-tl-sm bg-red-50 dark:bg-red-950/30 border-2 border-red-300 dark:border-red-700/50 space-y-2 w-full max-w-[280px]">
+                      <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
+                        <span className="material-symbols-outlined text-[15px]">emergency</span>
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider">Gọi ngay để được giúp đỡ</span>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        {msg.quickActions.filter(a => a.tel).map((action, qaIdx) => (
+                          <a
+                            key={qaIdx}
+                            href={`tel:${action.tel}`}
+                            className="w-full py-2 text-[11px] font-extrabold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5"
+                          >
+                            {action.label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* JOY unlock-now buttons — lets a therapy-navigation request
+                      that hit a paywall be resolved with one tap, right in chat,
+                      instead of sending the member off to the Therapy tab first. */}
+                  {isBot && Array.isArray(msg.quickActions) && msg.quickActions.some(a => a.type === "unlock") && (
+                    <div className="mt-1 p-3 rounded-2xl rounded-tl-sm bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-300 dark:border-amber-700/40 space-y-2 w-full max-w-[280px]">
+                      {msg.quickActions.filter(a => a.type === "unlock").map((action, qaIdx) => (
+                        <button
+                          key={qaIdx}
+                          type="button"
+                          disabled={unlockingMethodId === action.methodId}
+                          onClick={() => onUnlockFeature?.(action)}
+                          className="w-full py-2 text-[11px] font-extrabold bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5"
+                        >
+                          <span className="material-symbols-outlined text-[14px]">paid</span>
+                          {unlockingMethodId === action.methodId ? "Đang xử lý..." : action.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Journey duration picker */}
                   {isBot && msg.isCompanionSetup && !msg.selectedChoice && (
                     <div className="mt-1 p-3 rounded-2xl rounded-tl-sm bg-indigo-50 dark:bg-indigo-950/25 border border-indigo-200/60 dark:border-indigo-700/30 space-y-2 w-full max-w-[260px]">
@@ -407,3 +460,5 @@ export default function ChatMessages({
     </div>
   );
 }
+
+export default React.memo(ChatMessages);

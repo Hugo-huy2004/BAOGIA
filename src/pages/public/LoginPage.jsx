@@ -206,6 +206,9 @@ export default function LoginPage() {
       setCustomerCode(code);
       autoLoginCustomer(code);
     }
+    if (params.get("reason") === "location_anomaly") {
+      showToast("Hệ thống phát hiện thiết bị đăng nhập từ vị trí cách xa thường lệ trên 50km, cậu vui lòng đăng nhập lại để xác thực an toàn nhé.", "warning");
+    }
   }, []);
 
   const autoLoginCustomer = async (code) => {

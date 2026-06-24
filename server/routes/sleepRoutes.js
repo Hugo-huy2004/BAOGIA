@@ -3,6 +3,27 @@ import SleepLog from '../models/SleepLog.js';
 
 const router = express.Router();
 
+// The Python AI server has no public subdomain — same fix as
+// server/routes/aiProxyRoutes.js. Forward the analyze call server-to-server.
+const AI_SERVER_URL = process.env.AI_SERVER_URL || 'http://localhost:8000';
+
+// POST /api/sleep/analyze — proxy to the Python sleep analyzer
+router.post('/analyze', async (req, res) => {
+  try {
+    const upstream = await fetch(`${AI_SERVER_URL}/api/sleep/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body || {})
+    });
+    const text = await upstream.text();
+    res.status(upstream.status);
+    res.set('Content-Type', upstream.headers.get('content-type') || 'application/json');
+    res.send(text);
+  } catch (e) {
+    res.status(502).json({ error: 'AI server unreachable' });
+  }
+});
+
 /** Compute duration from bedtime/wakeTime strings ("HH:MM") */
 function computeDuration(bedtime, wakeTime) {
   if (!bedtime || !wakeTime) return null;

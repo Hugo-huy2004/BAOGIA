@@ -189,7 +189,7 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
       </div>
 
       {/* Membership-card carousel — swipe horizontally like a wallet instead of scrolling a vertical list */}
-      <div className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-none">
+      <div className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
         <PackageCard t={t}
           name={basePkg.name}
           duration={12}
@@ -233,7 +233,7 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
           <div className="space-y-3.5">
             <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-zinc-50/80 dark:bg-black/35 border border-zinc-200/60 dark:border-zinc-800 font-mono text-[10px] sm:text-xs text-zinc-700 dark:text-zinc-300 font-bold select-all shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
               <span className="material-symbols-outlined text-xs text-emerald-500 shrink-0">lock</span>
-              <span className="flex-1 overflow-x-auto scrollbar-none whitespace-nowrap text-left">{publicLink}</span>
+              <span className="flex-1 overflow-x-auto scrollbar-hide whitespace-nowrap text-left">{publicLink}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

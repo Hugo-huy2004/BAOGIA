@@ -32,6 +32,13 @@ const JoyGiftCardSchema = new mongoose.Schema(
     note: {
       type: String,
       default: ''
+    },
+    // Gift cards are valid for 365 days from issuance — set at creation time
+    // (see joyGiftCardRoutes.js) rather than computed from createdAt at read
+    // time, so the expiry date is stable even if the card sits unredeemed.
+    expiresAt: {
+      type: Date,
+      required: true
     }
   },
   { timestamps: true }

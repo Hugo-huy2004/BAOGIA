@@ -144,7 +144,14 @@ const CompanionHistorySchema = new mongoose.Schema(
       detectedAt: Date,
       severity: { type: String, enum: ['low', 'medium', 'high'] },
       trigger: String,
-      resolved: { type: Boolean, default: false }
+      resolved: { type: Boolean, default: false },
+      // Populated only for instant high-severity flags raised directly by the
+      // local self-harm/suicide-risk detector (see ChatTab.jsx isCrisisText),
+      // not by the gradual chatDistressCount accumulator — gives Admin the
+      // context needed to call the user back immediately without digging
+      // through their full chat history.
+      phone: { type: String, default: '' },
+      conversationSummary: { type: String, default: '' }
     }],
 
     // JOY session-time tracking (heartbeat-based, see /api/companion/heartbeat)

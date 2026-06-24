@@ -165,7 +165,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
       </div>
 
       {/* Category Filter Pills */}
-      <div className="flex gap-1.5 overflow-x-auto scrollbar-none py-1">
+      <div className="flex gap-1.5 overflow-x-auto scrollbar-hide py-1">
         {[
           { id: "all",     label: t("memberTabs.history.filter.all"), icon: "inbox" },
           { id: "joy",     label: "JOY", icon: "paid" },

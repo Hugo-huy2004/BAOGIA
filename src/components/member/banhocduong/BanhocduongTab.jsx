@@ -11,6 +11,7 @@ import AIBot from "../../../services/classes/CompanionBot/AIBot";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useTranslation } from "react-i18next";
 import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTimer";
+import { useIsMobile } from "../../../hooks/useIsMobile";
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
@@ -506,7 +507,9 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
   }, [syncWithDb]);
 
   const handleSubTabChange = (id) => { setActiveSubTab(id); setPresetTest(null); };
-  const handleNavigateToTab = (id, preset = null) => { setActiveSubTab(id); setPresetTest(preset); };
+  // useCallback so this stays a stable prop reference into ChatTab → keeps
+  // ChatMessages.jsx's React.memo from being defeated by a fresh fn every render.
+  const handleNavigateToTab = useCallback((id, preset = null) => { setActiveSubTab(id); setPresetTest(preset); }, []);
 
   const getProgressDay = useCallback(() => {
     if (!healingStartDate) return 1;
@@ -562,11 +565,34 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
 
   const activeTab = SUB_TABS.find(t => t.id === activeSubTab);
 
+  // Mobile no longer has a visible tab switcher at all — Sleep/Evaluation
+  // are reachable only by asking the AI in chat, and Therapy opens as an
+  // in-chat overlay (see ChatTab.jsx) — so whatever `activeSubTab` happens to
+  // be (e.g. restored from a deep link), mobile always renders Chat.
+  const isMobileView = useIsMobile();
+  const effectiveSubTab = isMobileView ? "chat" : activeSubTab;
+
+  // Shared with JourneyCard's own calc — computed once here too so the
+  // compact "lộ trình" pill in ChatTab's slim mobile header (back/token/lộ
+  // trình only, per the new chat-only mobile UX) shows the exact same numbers
+  // without duplicating the formula inconsistently.
+  const journeyProgress = useMemo(() => {
+    if (!healingActive) return null;
+    const currentDay = getProgressDay();
+    const qualifiedCount = countQualifiedActivities(historyLogs);
+    const effectiveDur = Math.max(1, healingDuration - Math.floor(qualifiedCount * 0.6));
+    const percent = Math.min(100, Math.round((currentDay / healingDuration) * 100) + qualifiedCount * 2);
+    return { currentDay, duration: effectiveDur, percent };
+  }, [healingActive, healingDuration, historyLogs]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="flex flex-col min-h-[calc(100svh-160px)] md:min-h-0 space-y-3 md:space-y-2.5 animate-fadeIn">
 
-      {/* ── Header ───────────────────────────────────────────────────────────── */}
-      <div className="relative z-20 flex items-center justify-between gap-3">
+      {/* ── Header ───────────────────────────────────────────────────────────────
+          Hidden on mobile while the Chat tab is the fullscreen takeover below —
+          ChatTab's own header (with its back-chevron via onExitFullscreen) is
+          the only app bar shown in that mode. Always visible on desktop. */}
+      <div className={`relative z-20 items-center justify-between gap-3 ${effectiveSubTab === "chat" ? "hidden md:flex" : "flex"}`}>
         <SubUtilityHeader
           title={t("companion.tab.title", "HugoPSY")}
           icon="psychology"
@@ -594,19 +620,21 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
 
       {/* ── Journey progress card ─────────────────────────────────────────────── */}
       {healingActive && (
-        <JourneyCard
-          duration={healingDuration}
-          startDate={healingStartDate}
-          getProgressDay={getProgressDay}
-          onCancel={handleCancelHealing}
-          historyLogs={historyLogs}
-          bio={bio}
-          showToast={showToast}
-        />
+        <div className={effectiveSubTab === "chat" ? "hidden md:block" : ""}>
+          <JourneyCard
+            duration={healingDuration}
+            startDate={healingStartDate}
+            getProgressDay={getProgressDay}
+            onCancel={handleCancelHealing}
+            historyLogs={historyLogs}
+            bio={bio}
+            showToast={showToast}
+          />
+        </div>
       )}
 
-      {/* ── Mobile tab pills ──────────────────────────────────────────────────── */}
-      <div className="md:hidden flex gap-2 overflow-x-auto scrollbar-none pb-1 -mx-1 px-1">
+      {/* ── Mobile tab pills — hidden while Chat is fullscreen (see above) ────── */}
+      <div className={`${effectiveSubTab === "chat" ? "hidden" : "flex"} md:hidden gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1`}>
         {SUB_TABS.map(tab => {
           const active = activeSubTab === tab.id;
           return (
@@ -627,7 +655,14 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         })}
       </div>
 
-      {/* ── Main workspace ────────────────────────────────────────────────────── */}
+      {/* ── Main workspace ─────────────────────────────────────────────────────────
+          True fullscreen for the Chat tab is handled one level up — see
+          MemberPortalPage.jsx's `isFullscreenUtility` branch, which renders
+          this whole component inside its own `fixed inset-0` page (no portal
+          header/bottom tab bar at all), exactly like HugoArcade/HugoCoder
+          already do. A `fixed` div nested in here can't escape that ancestor's
+          stacking context to cover siblings outside it, so this just needs to
+          fill the height it's given. */}
       <div className="flex gap-4 flex-1 min-h-0">
 
         {/* Desktop sidebar (md+) */}
@@ -661,7 +696,11 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         </aside>
 
         {/* Content area */}
-        <div className="flex-1 min-w-0 bg-white/80 dark:bg-background/80 backdrop-blur-2xl rounded-3xl border border-zinc-200/40 dark:border-zinc-800/50 shadow-lg overflow-hidden flex flex-col relative">
+        <div className={`flex-1 min-w-0 bg-white/80 dark:bg-background/80 backdrop-blur-2xl overflow-hidden flex flex-col relative ${
+          effectiveSubTab === "chat"
+            ? "rounded-none border-0 shadow-none md:rounded-3xl md:border md:border-zinc-200/40 md:dark:border-zinc-800/50 md:shadow-lg"
+            : "rounded-3xl border border-zinc-200/40 dark:border-zinc-800/50 shadow-lg"
+        }`}>
           {/* Subtle animated background */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
             <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-blue-400/10 dark:bg-blue-600/10 rounded-full blur-[80px]" />
@@ -671,17 +710,19 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
           <div className="relative z-10 flex-1 flex flex-col min-h-0">
             <AnimatePresence mode="wait">
               <motion.div
-                key={activeSubTab}
+                key={effectiveSubTab}
                 initial={{ opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -12 }}
                 transition={{ duration: 0.2, ease: "easeInOut" }}
                 className="flex-1 flex flex-col min-h-0 h-full"
               >
-                {activeSubTab === "chat" && (
+                {effectiveSubTab === "chat" && (
                   <ChatTab
                     key={clearMessagesKey}
                     onNavigateToTab={handleNavigateToTab}
+                    onExitFullscreen={onBack}
+                    journeyProgress={journeyProgress}
                     bio={bio}
                     historyLogs={historyLogs}
                     onUpdateCompanionState={handleUpdateCompanionState}
@@ -701,7 +742,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                     }}
                   />
                 )}
-                {activeSubTab === "therapy" && (
+                {effectiveSubTab === "therapy" && (
                   <TherapyTab
                     onNavigateToTab={handleNavigateToTab}
                     bio={bio}
@@ -724,10 +765,10 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                     }}
                   />
                 )}
-                {activeSubTab === "sleep" && (
+                {effectiveSubTab === "sleep" && (
                   <div className="flex-1 overflow-y-auto p-4"><SleepTracker bio={bio} sleepAutoDetect={sleepAutoDetect} /></div>
                 )}
-                {activeSubTab === "evaluation" && (
+                {effectiveSubTab === "evaluation" && (
                   <EvaluationTab onNavigateToTab={handleNavigateToTab} bio={bio} historyLogs={historyLogs} showToast={showToast} />
                 )}
               </motion.div>

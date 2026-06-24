@@ -93,7 +93,7 @@ export default function AchievementsSubTab({ formData, setFormData, showToast, i
         <p className="text-xs text-muted-foreground -mt-2">Liệt kê dự án bạn từng làm và dịch vụ bạn cung cấp — hiển thị công khai trên trang Bio của bạn.</p>
 
         {/* Filter pills */}
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-none">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           {FILTERS.map(f => (
             <button
               key={f.id}

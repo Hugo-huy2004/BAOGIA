@@ -728,7 +728,7 @@ export default function PartnerBioPage() {
               
                   {/* Dynamic screen view */}
                   <div 
-                    className="absolute inset-0 overflow-y-auto scrollbar-none snap-y snap-mandatory text-white bg-black"
+                    className="absolute inset-0 overflow-y-auto scrollbar-hide snap-y snap-mandatory text-white bg-black"
                     style={{
                       backgroundColor: bioData.theme.bgColor || "#000000",
                       ...getPatternStyle(bioData.theme.pattern, bioData.theme.bgColor || "#000000")

@@ -5,13 +5,21 @@ import { CLINICAL_TESTS } from "./clinicalTests";
 import ChatMessages from "./ChatMessages";
 import ClinicalTestPanel from "./ClinicalTestPanel";
 import ClinicScanner from "./ClinicScanner";
+import TherapyTab from "./TherapyTab";
+import ChatInputBar from "./ChatInputBar";
+import { RenderColoredText } from "../../HugoLogo";
 import { webPushHelper } from "../../../utils/webPushHelper";
 
-import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogues";
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
-import { getRandomResponse, needsAI } from "./constants/randomResponses";
-import { findMatchingIntent, INTENT_DATABASE } from "./constants/intentClassifier";
+import { findMatchingIntent, INTENT_DATABASE, buildMetricsSummary, removeVietnameseTones } from "./constants/intentClassifier";
+import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogues";
+
+// Short-label overrides for dialogue aspect chips (mobile space-saving).
+// Falls back to the full `a.text` from the tree if a key is missing.
+const ASPECT_LABELS = {};
+import { THERAPY_METHODS } from "./constants/therapyMethods";
 import WellnessRecommendationEngine from "../../../services/classes/CompanionBot/WellnessRecommendationEngine";
+import { useJoyStore } from "../../../stores/joyStore";
 
 // Raw chat text is only kept for 7 days — older messages are permanently
 // dropped to keep the stored history light. Long-term "memory" instead comes
@@ -36,27 +44,6 @@ const MOOD_META = {
   1: { emoji: "😣", label: "Kiệt sức" },
 };
 
-const ASPECT_LABELS = {
-  // Free dialogue tree
-  "studying": { short: "Áp lực học tập" },
-  "family": { short: "Vấn đề gia đình" },
-  "relationships": { short: "Bạn bè & Tình cảm" },
-  "self": { short: "Mệt mỏi & Mất ngủ" },
-  "normal": { short: "Tinh thần ổn định" },
-
-  // Companion dialogue tree
-  "checkin_progress": { short: "Báo cáo tiến triển" },
-  "recheck_evaluation": { short: "Đánh giá định kỳ" },
-  "doctor_sharing": { short: "Trò chuyện tự do" }
-};
-
-// Dialogue nodes already contain context-specific copy. Always prefer it over
-// the generic keyword responder, otherwise words such as "bài test" can be
-// misclassified as an academic concern simply because they contain "bài".
-const dialogueReply = (value, fallback = "") => {
-  if (Array.isArray(value)) return value.find(Boolean) || fallback;
-  return value || fallback;
-};
 
 
 function WellnessInsightStrip({ bio, historyLogs, chatMessages, onNavigateToTab }) {
@@ -80,7 +67,7 @@ function WellnessInsightStrip({ bio, historyLogs, chatMessages, onNavigateToTab 
   return (
     <div className="space-y-2 py-2">
       {/* Mini Stats Row */}
-      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none px-4">
+      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide px-4">
         <span className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/70 text-[10px] font-bold text-zinc-600 dark:text-zinc-300 whitespace-nowrap">
           {moodMeta ? <>{moodMeta.emoji} {moodMeta.label}</> : <>— Chưa check-in</>}
         </span>
@@ -166,12 +153,20 @@ export default function ChatTab({
   setPresetTest, 
   showToast, 
   healingActive,
-  onProfileUpdate 
+  onProfileUpdate,
+  onExitFullscreen,
+  journeyProgress
 }) {
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showTestsMenu, setShowTestsMenu] = useState(false);
+  const [showTherapyOverlay, setShowTherapyOverlay] = useState(false);
+  const [therapyInitialMethod, setTherapyInitialMethod] = useState(null);
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [unlockingMethodId, setUnlockingMethodId] = useState(null);
+  const joyBalance = useJoyStore(s => s.balance);
+  const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
 
   const [isVentingMode, setIsVentingMode] = useState(false);
   const [ventingTimerMinutes, setVentingTimerMinutes] = useState(1);
@@ -226,6 +221,23 @@ export default function ChatTab({
 
   const botManager = React.useMemo(() => new BotManager(bio, historyLogs, healingActive), [bio, historyLogs, healingActive]);
 
+  // Fire-and-forget: the moment the local crisis detector fires (real-time,
+  // before any network round-trip for the reply itself), tell Admin right
+  // away with enough context to call the member back without digging through
+  // history — bypasses the slower chatDistressCount accumulation entirely.
+  const reportCrisisToAdmin = useCallback((triggerText, recentMessages) => {
+    const apiBase = import.meta.env.VITE_API_URL || "/api";
+    const summary = recentMessages
+      .slice(-6)
+      .map(m => `${m.sender === "user" ? "Người dùng" : "AI"}: ${m.text}`)
+      .join("\n");
+    fetch(`${apiBase}/companion/crisis-alert`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: bio?.email, trigger: triggerText, conversationSummary: summary })
+    }).catch(() => {});
+  }, [bio?.email]);
+
   // Local intents now return an array of 2-3 short chunks instead of one long
   // paragraph — this drips them in one at a time (with a human-ish pause
   // between each) so a single intent reply reads like a real person texting
@@ -251,6 +263,106 @@ export default function ChatTab({
     });
   }, []);
 
+  // Buy-now from the chat's "unlock" quick action (see therapy_locked intent
+  // in intentClassifier.js) — same endpoint/flow as TherapyTab's own unlock
+  // button, just triggered from a chat bubble instead of the grid card.
+  const handleUnlockFeature = useCallback(async (action) => {
+    if (!bio?.email || unlockingMethodId) return;
+    if (joyBalance < action.cost) {
+      showToast?.(`Bạn cần ${action.cost} JOY để mở khoá tính năng này. Số dư hiện tại: ${joyBalance} JOY.`, "warning");
+      return;
+    }
+    setUnlockingMethodId(action.methodId);
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || "/api";
+      const r = await fetch(`${apiBase}/companion/unlock-feature`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: bio.email, feature: action.lockKey }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Không thể mở khoá tính năng này.");
+      onProfileUpdate?.({ unlockedCompanionFeatures: data.unlockedFeatures || [] });
+      fetchJoyBalance(bio.email);
+      const method = THERAPY_METHODS.find(m => m.id === action.methodId);
+      pushBotMessageChunks([`Đã mở khoá xong rồi nè! 🎉 Mở "${method?.name || action.label}" cho cậu luôn đây.`]);
+      setTherapyInitialMethod(action.methodId);
+      setShowTherapyOverlay(true);
+    } catch (err) {
+      showToast?.(err.message, "error");
+    } finally {
+      setUnlockingMethodId(null);
+    }
+  }, [bio?.email, unlockingMethodId, joyBalance, onProfileUpdate, fetchJoyBalance, showToast, pushBotMessageChunks]);
+
+  // ── "+" quick actions (mobile chat-only nav — see therapy/metrics/sleep
+  // intents in intentClassifier.js for the free-text equivalents) ───────────
+  const pushUserActionBubble = useCallback((label) => {
+    setMessages(prev => [...prev, { id: `user-action-${Date.now()}`, sender: "user", text: label, time: new Date() }]);
+  }, []);
+
+  const handleMetricsReportAction = useCallback(() => {
+    setShowQuickActions(false);
+    pushUserActionBubble("Báo cáo các chỉ số hiện tại");
+    setLoading(true);
+    setTimeout(() => {
+      pushBotMessageChunks(buildMetricsSummary(historyLogs)).then(() => setLoading(false));
+    }, 500);
+  }, [historyLogs, pushBotMessageChunks, pushUserActionBubble]);
+
+  const handleRequestTestAction = useCallback(() => {
+    setShowQuickActions(false);
+    setShowTestsMenu(true);
+  }, []);
+
+  const handleOpenTherapyAction = useCallback(() => {
+    setShowQuickActions(false);
+    setTherapyInitialMethod(null);
+    setShowTherapyOverlay(true);
+  }, []);
+
+  const runSleepSummary = useCallback(async () => {
+    setLoading(true);
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || "/api";
+      const r = await fetch(`${apiBase}/sleep?email=${encodeURIComponent(bio?.email || "")}&limit=14`, { credentials: "include" });
+      const data = await r.json();
+      const logs = data?.logs || [];
+      const stats = data?.stats || {};
+      const qualityLabel = (q) => q >= 4.5 ? "rất tốt" : q >= 3.5 ? "tốt" : q >= 2.5 ? "trung bình" : "kém";
+      if (!logs.length) {
+        await pushBotMessageChunks(["Tớ chưa thấy dữ liệu giấc ngủ nào của cậu cả.", "Cậu ghi lại giấc ngủ ở mục Giấc Ngủ, hoặc bật tự động phát hiện trong hồ sơ nhé."]);
+      } else {
+        const latest = logs[0];
+        const lines = [
+          `🌙 Đêm gần nhất (${new Date(latest.date).toLocaleDateString("vi-VN")}): ngủ ${latest.duration ?? "?"} giờ, chất lượng ${qualityLabel(latest.quality || 3)}.`,
+          `Trung bình ${stats.total || logs.length} đêm gần đây: ${stats.avgDuration ?? "?"} giờ/đêm, chất lượng ${qualityLabel(stats.avgQuality || 3)}.`
+        ];
+        if (stats.avgDuration && stats.avgDuration < 6) lines.push("Cậu đang ngủ khá ít so với mức khuyến nghị (7–9 giờ) — thử ngủ sớm hơn vài đêm xem sao nhé.");
+        await pushBotMessageChunks(lines);
+      }
+    } catch (_) {
+      await pushBotMessageChunks(["Tớ chưa lấy được dữ liệu giấc ngủ lúc này, cậu thử lại sau nhé."]);
+    } finally {
+      setLoading(false);
+    }
+  }, [bio?.email, pushBotMessageChunks]);
+
+  const handleSleepSummaryAction = useCallback(() => {
+    setShowQuickActions(false);
+    pushUserActionBubble("Xem đánh giá giấc ngủ");
+    runSleepSummary();
+  }, [pushUserActionBubble, runSleepSummary]);
+
+  // Free-text equivalent of "Xem đánh giá giấc ngủ" — needs a network call so
+  // it can't live in the synchronous intentClassifier.js, hence the special
+  // case here ahead of the local/AI intent pipeline in handleSendFreeText.
+  const SLEEP_SUMMARY_KEYWORDS = ["danh gia giac ngu", "giac ngu cua toi", "giac ngu cua to", "tinh trang giac ngu", "ngu the nao", "ngu co tot khong"];
+  const isSleepSummaryRequest = (text) => {
+    const clean = removeVietnameseTones(text).toLowerCase();
+    return SLEEP_SUMMARY_KEYWORDS.some(kw => clean.includes(kw));
+  };
 
   // Auto-launch preset test from redirects
   useEffect(() => {
@@ -262,10 +374,13 @@ export default function ChatTab({
     }
   }, [presetTest]);
 
-  // dialogStage: 1 (aspect concern), 2 (probing question), 3 (severity check), 4 (test recommend), 5 (advice duration setup), 0 (loop options)
+  // dialogStage only still exists for a handful of internal setDialogStage(...)
+  // writes deep in test/scan completion logic below — the guided dialogue-tree
+  // UI that used to read it (topic/severity chips) is gone (free-text + LLM
+  // intent only, per design), so nothing reads this value anymore. Left as
+  // dead state rather than touching every one of those call sites for zero
+  // behavior change.
   const [dialogStage, setDialogStage] = useState(1);
-  const [selectedAspect, setSelectedAspect] = useState(null);
-  const [selectedSubOption, setSelectedSubOption] = useState(null);
 
   // chatMode: 'normal' | 'test' | 'scan'
   const [chatMode, setChatMode] = useState("normal");
@@ -470,89 +585,12 @@ export default function ChatTab({
     }
   };
 
-  // Stage 1 -> Stage 2 (random bot — no token cost)
-  const handleAspectSelect = (aspect) => {
-    const userMsg = { id: `user-${Date.now()}`, sender: "user", text: aspect.text, time: new Date() };
-    setMessages(prev => [...prev, userMsg]);
-    setSelectedAspect(aspect);
-    setLoading(true);
-    setTimeout(() => {
-      const response = dialogueReply(aspect.reply, getRandomResponse(aspect.text, aspect.id));
-      const botMsg = { id: `bot-${Date.now()}`, sender: "bot", text: response, time: new Date() };
-      setMessages(prev => [...prev, botMsg]);
-      setLoading(false);
-      setDialogStage(2);
-    }, 400 + Math.random() * 600);
-  };
-
-  // Stage 2 -> Stage 3 (random bot — no token cost)
-  const handleSubAspectSelect = (subOpt) => {
-    const userMsg = { id: `user-${Date.now()}`, sender: "user", text: subOpt.text, time: new Date() };
-    setMessages(prev => [...prev, userMsg]);
-    setSelectedSubOption(subOpt);
-    setLoading(true);
-    setTimeout(() => {
-      const response = dialogueReply(subOpt.followUp, getRandomResponse(subOpt.text));
-      const botMsg = { id: `bot-${Date.now()}`, sender: "bot", text: response, time: new Date() };
-      setMessages(prev => [...prev, botMsg]);
-      setLoading(false);
-      setDialogStage(3);
-    }, 400 + Math.random() * 600);
-  };
-
-  // Stage 3 -> Stage 4 / advice (random bot — no token cost)
-  const handleSeveritySelect = (sevOpt) => {
-    const userMsg = { id: `user-${Date.now()}`, sender: "user", text: sevOpt.text, time: new Date() };
-    setMessages(prev => [...prev, userMsg]);
-    setLoading(true);
-
-    setTimeout(() => {
-      if (sevOpt.nextAction === "recommend_test") {
-        const botMsg = {
-          id: `bot-${Date.now()}`,
-          sender: "bot",
-          text: `Cảm ơn cậu đã chia sẻ. 🩺 Tớ gợi ý cậu làm bài **${sevOpt.testLabel}** để tớ hiểu rõ hơn tình trạng và đưa ra hướng dẫn chính xác nhất nhé!`,
-          time: new Date()
-        };
-        setMessages(prev => [...prev, botMsg]);
-        setLoading(false);
-        setDialogStage(4);
-      } else {
-        const pkgNames = {
-          7: "Hành trình Nuôi dưỡng Bình yên (Peace)",
-          14: "Hành trình Chăm sóc Tinh thần (Mindfulness)",
-          30: "Hành trình Tái tạo Cân bằng (Balance)",
-          50: "Hành trình Phục hồi Thấu cảm (Compassionate)",
-          90: "Hành trình Đồng hành Chuyên sâu (Intensive)"
-        };
-        const advice = dialogueReply(sevOpt.advice, getRandomResponse(sevOpt.text));
-        const finalReply = sevOpt.quote ? `${advice}\n\n💡 **Lời khuyên:** ${sevOpt.quote}` : advice;
-        const botMsg = { id: `bot-advice-${Date.now()}`, sender: "bot", text: finalReply, time: new Date() };
-        setMessages(prev => [...prev, botMsg]);
-
-        if (healingActive) {
-          setLoading(false);
-          setDialogStage(0);
-        } else {
-          const name = pkgNames[sevOpt.recommendedDays] || "Hành trình Chăm sóc Tinh thần (Mindfulness)";
-          const proposalMsg = {
-            id: `bot-proposal-${Date.now() + 10}`,
-            sender: "bot",
-            text: `Để hỗ trợ tốt nhất cho cậu, tớ khuyên kích hoạt **${name}** trong **${sevOpt.recommendedDays} ngày** để đồng hành cùng cậu hàng ngày. Cậu có muốn kích hoạt không?`,
-            time: new Date(Date.now() + 10),
-            isCompanionSetup: true,
-            recommendedDays: sevOpt.recommendedDays
-          };
-          setMessages(prev => [...prev, proposalMsg]);
-          setLoading(false);
-          setDialogStage(5);
-        }
-      }
-    }, 500 + Math.random() * 500);
-  };
 
   // Duration adjustments agreement option
-  const handleSelectDuration = (msgId, duration) => {
+  // Stable identity (useCallback) is what lets ChatMessages.jsx's React.memo
+  // actually skip re-rendering the message list on every keystroke elsewhere
+  // in this component — an inline function prop would defeat memo entirely.
+  const handleSelectDuration = useCallback((msgId, duration) => {
     setMessages((prev) =>
       prev.map((m) => {
         if (m.id === msgId) {
@@ -634,9 +672,9 @@ export default function ChatTab({
       setMessages((prev) => [...prev, userMsg, botMsg]);
     }
     setDialogStage(0);
-  };
+  }, [historyLogs, healingActive, onUpdateCompanionState, bio]);
 
-  const handleStartTest = (testId) => {
+  const handleStartTest = useCallback((testId) => {
     const baseTest = CLINICAL_TESTS[testId];
     if (!baseTest) return;
 
@@ -671,8 +709,7 @@ export default function ChatTab({
     setTimeout(() => {
       setLoading(false);
     }, 600);
-  };
-
+  }, []);
 
 
 
@@ -733,14 +770,29 @@ export default function ChatTab({
     let reviewText = "";
     let eventLog = null;
 
-    // Call Python AI backend for analysis
+    // Numeric-severity gate: PHQ-9/GAD-7 minimal scores and WHO-5 "good"
+    // scores already have a complete, accurate canned interpretation (see
+    // clinicalTests.js) — there's nothing nuanced an LLM call adds for a
+    // clean result, so skip the network/token cost entirely for those tiers.
+    // Only escalate to the LLM when the score actually signals something
+    // worth a more personalized response (mild-or-above distress, or low
+    // wellbeing on WHO-5). Big Five has no risk tiers, so it always benefits
+    // from the richer LLM phrasing.
+    const needsAiForScore = (id, scoreVal) => {
+      if (id === "phq9" || id === "gad7") return scoreVal > 4;
+      if (id === "who5") return scoreVal * 4 < 50;
+      return true;
+    };
+
+    // Call Python AI backend for analysis — only when the numeric gate above
+    // says the result is worth the extra round-trip.
     let aiAnalysis = null;
     try {
-      if (testId === "phq9") {
+      if (testId === "phq9" && needsAiForScore("phq9", score)) {
         aiAnalysis = await botManager.aiBot.analyzeTest("phq9", { score }, null, null, "vi");
-      } else if (testId === "gad7") {
+      } else if (testId === "gad7" && needsAiForScore("gad7", score)) {
         aiAnalysis = await botManager.aiBot.analyzeTest("gad7", { score }, null, null, "vi");
-      } else if (testId === "who5") {
+      } else if (testId === "who5" && needsAiForScore("who5", score)) {
         aiAnalysis = await botManager.aiBot.analyzeTest("who5", { score }, null, null, "vi");
       } else if (testId === "bigfive") {
         const interpretation = CLINICAL_TESTS.bigfive.getInterpretation(answers);
@@ -1367,6 +1419,15 @@ export default function ChatTab({
     const text = inputText.trim();
     if (!text || loading) return;
 
+    // 0. Sleep summary needs a network call (SleepLog isn't in historyLogs),
+    // so it can't be a synchronous intentClassifier.js rule like the rest.
+    if (isSleepSummaryRequest(text)) {
+      setInputText("");
+      setMessages(prev => [...prev, { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() }]);
+      runSleepSummary();
+      return;
+    }
+
     // 1. Fast check: check local intents with Sørensen-Dice similarity (>= 80%) first.
     const matched = findMatchingIntent(text, bio, historyLogs);
     if (matched) {
@@ -1382,12 +1443,25 @@ export default function ChatTab({
         onUpdateCompanionState({ historyLogs: [...historyLogs, matched.companionUpdate.newLog] });
       }
 
+      if (matched.id === "crisis") {
+        reportCrisisToAdmin(text, [...messages, userMsg]);
+      }
+
       // Natural typing delay simulation, then drip the reply chunk(s) in
       setTimeout(() => {
         pushBotMessageChunks(matched.reply, {
           suggestPhq9: matched.suggestPhq9,
-          suggestGad7: matched.suggestGad7
-        }).then(() => setLoading(false));
+          suggestGad7: matched.suggestGad7,
+          quickActions: matched.quickActions || null
+        }).then(() => {
+          setLoading(false);
+          // Therapy-navigation intents (see intentClassifier.js) ask to open a
+          // panel directly — do it once the reply has finished dripping in.
+          if (matched.action?.type === "open_therapy") {
+            setTherapyInitialMethod(matched.action.methodId);
+            setShowTherapyOverlay(true);
+          }
+        });
       }, 600);
       return;
     }
@@ -1420,11 +1494,15 @@ export default function ChatTab({
           if (companionUpdate?.newLog && onUpdateCompanionState) {
             onUpdateCompanionState({ historyLogs: [...historyLogs, companionUpdate.newLog] });
           }
+          if (intentObj.id === "crisis") {
+            reportCrisisToAdmin(text, [...messages, userMsg]);
+          }
 
           setTimeout(() => {
             pushBotMessageChunks(replyText, {
               suggestPhq9: intentObj.suggestPhq9 || false,
-              suggestGad7: intentObj.suggestGad7 || false
+              suggestGad7: intentObj.suggestGad7 || false,
+              quickActions: intentObj.quickActions || null
             }).then(() => {
               setLoading(false);
               // The server already charged 0/1 token for this intent answer — resync the badge.
@@ -1485,21 +1563,92 @@ export default function ChatTab({
     );
   };
 
+  // Therapy methods open right inside the chat (no tab switch) — Mở trị liệu
+  // tâm lý from the "+" menu, or asking by name in free text, both land here.
+  // Reusing TherapyTab wholesale (instead of re-implementing unlock checks,
+  // JOY balance, and 8+ exercise panels a second time) keeps the paywall and
+  // panel logic in exactly one place.
+  if (showTherapyOverlay) {
+    return (
+      <div className="flex flex-col min-h-0 h-full bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
+        <div className="shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50" style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}>
+          <button
+            type="button"
+            onClick={() => { setShowTherapyOverlay(false); setTherapyInitialMethod(null); }}
+            className="w-8 h-8 -ml-1 rounded-full flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all shrink-0"
+          >
+            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+          </button>
+          <p className="text-[13px] font-extrabold text-zinc-800 dark:text-zinc-100">Trị Liệu Tâm Lý</p>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <TherapyTab
+            bio={bio}
+            historyLogs={historyLogs}
+            chatMessages={messages}
+            healingActive={healingActive}
+            showToast={showToast}
+            onUpdateCompanionState={onUpdateCompanionState}
+            onBioUpdate={onProfileUpdate}
+            onNavigateToTab={() => { setShowTherapyOverlay(false); setTherapyInitialMethod(null); }}
+            initialMethod={therapyInitialMethod}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={chatWrapperRef} className="flex flex-col min-h-0 bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
 
       {/* ── Header ─────────────────────────────────────────────────────────────── */}
-      <div className="shrink-0 flex items-center justify-between gap-2 px-4 py-2.5 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50">
+      <div className="shrink-0 flex items-center justify-between gap-2 px-4 py-2.5 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50" style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}>
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center shadow-sm shadow-indigo-500/20 shrink-0 relative">
-            <span className="material-symbols-outlined text-white text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>psychology</span>
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-[#0e0e12]" />
+          {/* Mobile-only: this header doubles as the app bar of the fullscreen
+              chat takeover (see BanhocduongTab.jsx) — there's no other back
+              affordance once the surrounding tab chrome is hidden. */}
+          {onExitFullscreen && (
+            <button
+              type="button"
+              onClick={onExitFullscreen}
+              className="md:hidden w-8 h-8 -ml-1 rounded-full flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all shrink-0"
+            >
+              <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+            </button>
+          )}
+          {/* Mobile-only: small HugoPSY icon + wordmark, "Hugo" colored per the
+              Hugo Studio brand (see HugoLogo.jsx) — this is the only identity
+              chrome left once the bot-name/status block below goes desktop-only. */}
+          <div className="md:hidden flex items-center gap-1.5 shrink-0">
+            <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center shadow-sm shadow-indigo-500/20 shrink-0">
+              <span className="material-symbols-outlined text-white text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+            </div>
+            <p className="text-[12px] font-black leading-none whitespace-nowrap">
+              <RenderColoredText text="Hugo" /><span className="text-[#0071e3]">PSY</span>
+            </p>
           </div>
-          <div>
-            <p className="text-[12px] font-extrabold text-zinc-800 dark:text-zinc-100 leading-none">Chuyên viên Đồng Hành AI</p>
-            <p className="text-[9px] text-emerald-500 font-semibold mt-0.5">● Đang hoạt động</p>
+          {/* Bot identity — desktop only now. On mobile the header is strictly
+              back + token + lộ trình (per the chat-only mobile redesign);
+              everything else (who the bot is, retaking a test, settings) is
+              obtainable by just asking in chat instead of dedicated chrome. */}
+          <div className="hidden md:flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center shadow-sm shadow-indigo-500/20 shrink-0 relative">
+              <span className="material-symbols-outlined text-white text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>psychology</span>
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-[#0e0e12]" />
+            </div>
+            <div>
+              <p className="text-[12px] font-extrabold text-zinc-800 dark:text-zinc-100 leading-none">Chuyên viên Đồng Hành AI</p>
+              <p className="text-[9px] text-emerald-500 font-semibold mt-0.5">● Đang hoạt động</p>
+            </div>
           </div>
+          {/* Mobile-only compact "lộ trình" pill — replaces the standalone
+              JourneyCard block that used to sit above the chat, eating space. */}
+          {journeyProgress && (
+            <div className="md:hidden flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-600 dark:text-emerald-400">
+              <span className="material-symbols-outlined text-[12px]">route</span>
+              <span className="text-[10px] font-black whitespace-nowrap">Ngày {journeyProgress.currentDay}/{journeyProgress.duration} · {journeyProgress.percent}%</span>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full border ${remainingChatTokens + (bio?.bonusChatTokens || 0) <= 1 ? 'bg-red-500/10 border-red-400/20 text-red-500' : 'bg-amber-500/10 border-amber-400/20 text-amber-600 dark:text-amber-400'}`} title={`Token còn lại: ${remainingChatTokens + (bio?.bonusChatTokens || 0)}/10 hôm nay`}>
@@ -1515,7 +1664,7 @@ export default function ChatTab({
               }
               setShowTestsMenu(true);
             }}
-              className="px-2.5 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-indigo-600 dark:text-indigo-400 text-[9px] font-extrabold flex items-center gap-1 active:scale-95 transition-all">
+              className="hidden md:flex px-2.5 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-indigo-600 dark:text-indigo-400 text-[9px] font-extrabold items-center gap-1 active:scale-95 transition-all">
               <span className="material-symbols-outlined text-[11px]">refresh</span>
               Test lại
             </button>
@@ -1578,6 +1727,8 @@ export default function ChatTab({
             loading={loading}
             onNavigateToTab={onNavigateToTab}
             messagesEndRef={messagesEndRef}
+            onUnlockFeature={handleUnlockFeature}
+            unlockingMethodId={unlockingMethodId}
           />
         )}
         {chatMode === "test" && activeTest && (
@@ -1602,11 +1753,11 @@ export default function ChatTab({
 
           {/* Context-sensitive suggestion chips */}
           {isLastMessageCompleted && !loading && (
-            <div className="pt-2 px-4 pb-1">
+            <div className="pt-2 px-4 pb-3">
 
               {/* Stage 1 — topic chips (horizontal scroll) */}
               {dialogStage === 1 && (
-                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 items-center">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 items-center">
                   {(healingActive ? COMPANION_DIALOGUE_TREE : DIALOGUE_TREE).aspects.map(a => {
                     const shortLabel = ASPECT_LABELS[a.id]?.short || a.text;
                     return (
@@ -1621,7 +1772,7 @@ export default function ChatTab({
 
               {/* Stage 2 — sub-option list (horizontal scroll to save space) */}
               {dialogStage === 2 && selectedAspect && (
-                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 items-center">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 items-center">
                   {selectedAspect.options.map(o => (
                     <button key={o.id} type="button" onClick={() => handleSubAspectSelect(o)}
                       className="shrink-0 px-4 py-2 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/50 text-[12px] font-semibold text-zinc-700 dark:text-zinc-300 active:scale-95 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all whitespace-nowrap">
@@ -1637,7 +1788,7 @@ export default function ChatTab({
 
               {/* Stage 3 — severity chips */}
               {dialogStage === 3 && selectedSubOption && (
-                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 items-center">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 items-center">
                   {selectedSubOption.severityOptions.map(s => (
                     <button key={s.id} type="button" onClick={() => handleSeveritySelect(s)}
                       className="shrink-0 px-4 py-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/25 dark:border-amber-500/35 text-amber-700 dark:text-amber-300 text-[12px] font-semibold active:scale-95 transition-all whitespace-nowrap hover:bg-amber-500/25">
@@ -1653,7 +1804,7 @@ export default function ChatTab({
 
               {/* Stage 4 — test or scan */}
               {dialogStage === 4 && (
-                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 items-center">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 items-center">
                   <button type="button"
                     onClick={() => { const s = selectedSubOption?.severityOptions.find(o => o.nextAction === "recommend_test"); if (s) handleStartTest(s.test); }}
                     className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white text-[12px] font-semibold active:scale-95 transition-all shadow-sm">
@@ -1682,7 +1833,7 @@ export default function ChatTab({
 
               {/* Stage 0 — quick actions when in free chat */}
               {dialogStage === 0 && (
-                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                   <button type="button" onClick={() => { setDialogStage(1); setMessages(prev => [...prev, { id:`bot-restart-${Date.now()}`, sender:"bot", text: healingActive ? "Cậu muốn chia sẻ điều gì hôm nay?" : "Dạo gần đây có gì làm cậu bận tâm không?", time: new Date() }]); }}
                     className="shrink-0 px-3.5 py-2 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/70 dark:border-zinc-700/50 text-zinc-600 dark:text-zinc-400 text-[11px] font-semibold active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap">
                     Bắt đầu lại
@@ -1700,52 +1851,49 @@ export default function ChatTab({
             </div>
           )}
 
-          {/* ── Unified Floating Text Input Console ────────────────────────────────────────────── */}
-          <div className="mx-4 mb-2.5 p-1.5 rounded-3xl bg-white/90 dark:bg-card/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-lg flex items-center gap-1.5 transition-all focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/40">
-
-            {/* Voice to text (compact) */}
-            <button type="button" onClick={startListening}
-              title="Nhận diện giọng nói"
-              className={`w-9 h-9 shrink-0 rounded-2xl flex items-center justify-center transition-all active:scale-90 ${
-                isListening
-                  ? 'bg-rose-500/15 border border-rose-500/30 text-rose-500 animate-pulse'
-                  : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
-              }`}>
-              <Mic className="w-[16px] h-[16px]" />
-            </button>
-
-            {/* Auto-grow text input area */}
-            <div className="flex-1 min-h-[36px] flex items-center">
-              <textarea
-                ref={inputRef}
-                value={inputText}
-                onChange={e => {
-                  setInputText(e.target.value);
-                  e.target.style.height = 'auto';
-                  e.target.style.height = Math.min(e.target.scrollHeight, 96) + 'px';
-                }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendFreeText(); }
-                }}
-                placeholder={(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 ? "Hết token hôm nay..." : "Nhắn tin cho Chuyên viên AI..."}
-                disabled={(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 || loading}
-                rows={1}
-                className="w-full bg-transparent text-[13px] text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none resize-none leading-snug py-1.5"
-                style={{ height: '22px' }}
-              />
+          {/* "+" quick actions — discoverable entry point for the things chat
+              can now do directly (report metrics, request a test, sleep
+              review, open therapy) without switching tabs. */}
+          {showQuickActions && (
+            <div className="mx-4 mb-2 p-1.5 rounded-2xl bg-white/95 dark:bg-[#15151c]/95 backdrop-blur-xl border border-zinc-200/60 dark:border-zinc-800/60 shadow-lg space-y-1 animate-fadeIn">
+              <button type="button" onClick={handleMetricsReportAction}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/60 active:scale-[0.98] transition-all text-left">
+                <span className="material-symbols-outlined text-[16px] text-blue-500">monitoring</span>
+                <span className="text-[12px] font-semibold text-zinc-700 dark:text-zinc-200">Báo cáo các chỉ số hiện tại</span>
+              </button>
+              <button type="button" onClick={handleRequestTestAction}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/60 active:scale-[0.98] transition-all text-left">
+                <span className="material-symbols-outlined text-[16px] text-amber-500">checklist</span>
+                <span className="text-[12px] font-semibold text-zinc-700 dark:text-zinc-200">Yêu cầu làm bài test</span>
+              </button>
+              <button type="button" onClick={handleSleepSummaryAction}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/60 active:scale-[0.98] transition-all text-left">
+                <span className="material-symbols-outlined text-[16px] text-indigo-500">bedtime</span>
+                <span className="text-[12px] font-semibold text-zinc-700 dark:text-zinc-200">Xem đánh giá giấc ngủ</span>
+              </button>
+              <button type="button" onClick={handleOpenTherapyAction}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/60 active:scale-[0.98] transition-all text-left">
+                <span className="material-symbols-outlined text-[16px] text-emerald-500">spa</span>
+                <span className="text-[12px] font-semibold text-zinc-700 dark:text-zinc-200">Mở trị liệu tâm lý</span>
+              </button>
             </div>
+          )}
 
-            {/* Send button (always visible, disabled if empty/loading/no tokens) */}
-            <button type="button" onClick={handleSendFreeText}
-              disabled={loading || !inputText.trim() || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0}
-              className={`w-9 h-9 shrink-0 rounded-2xl flex items-center justify-center transition-all ${
-                inputText.trim() && !loading && (remainingChatTokens + (bio?.bonusChatTokens || 0)) > 0
-                  ? "bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/25 active:scale-90"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed"
-              }`}>
-              <span className="material-symbols-outlined text-[16px] font-bold">send</span>
-            </button>
-          </div>
+          {/* ── Composer (split into its own memoized component — see
+              ChatInputBar.jsx — so typing a keystroke never has to re-render
+              the message list above it) ──────────────────────────────────── */}
+          <ChatInputBar
+            inputRef={inputRef}
+            value={inputText}
+            onChange={setInputText}
+            onSend={handleSendFreeText}
+            disabled={(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 || loading}
+            placeholder={(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 ? "Hết token hôm nay..." : "Nhắn tin cho Chuyên viên AI..."}
+            isListening={isListening}
+            onVoice={startListening}
+            showQuickActions={showQuickActions}
+            onToggleQuickActions={() => setShowQuickActions(v => !v)}
+          />
 
           {/* Mobile hint — shown only on mobile when no chips visible */}
           {!isLastMessageCompleted && !loading && (

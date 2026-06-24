@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 
-const AI_URL = import.meta.env.VITE_AI_URL || "";
+// Same-origin /api/ai/* proxy (server/routes/aiProxyRoutes.js) — no separate
+// "ai.<domain>" host, see AIBot.js for the full explanation.
+const AI_URL = `${import.meta.env.VITE_API_URL || "/api"}/ai`;
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY || "";
 
 const SCAN_STEPS = [
@@ -46,7 +48,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
       const formData = new FormData();
       formData.append("file", scanFile);
 
-      const response = await fetch(`${AI_URL}/api/ai/analyze-report`, {
+      const response = await fetch(`${AI_URL}/analyze-report`, {
         method: "POST",
         headers: { "X-Internal-Key": INTERNAL_KEY },
         body: formData
@@ -410,7 +412,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
 
               {renderValidityGraph(scanMmpiValidity)}
 
-              <div className="space-y-2 max-h-40 overflow-y-auto pr-1 scrollbar-none border-t pt-2">
+              <div className="space-y-2 max-h-40 overflow-y-auto pr-1 scrollbar-hide border-t pt-2">
                 <span className="text-[9px] font-black uppercase text-primary tracking-widest block">10 Thang đo lâm sàng</span>
                 <div className="grid grid-cols-2 gap-2">
                   {Object.keys(scanMmpiClinical).map((scale) => (

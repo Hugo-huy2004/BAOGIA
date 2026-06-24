@@ -1539,7 +1539,7 @@ services:
         {/* Editor Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 bg-background">
 
-          <div className="flex items-center bg-card border-b border-zinc-800/80 px-2 overflow-x-auto gap-0.5 select-none scrollbar-none">
+          <div className="flex items-center bg-card border-b border-zinc-800/80 px-2 overflow-x-auto gap-0.5 select-none scrollbar-hide">
             {openTabs.map((path) => {
               if (!path || typeof path !== "string") return null;
               const fileObj = workspaceFiles.find(f => f && f.path === path);

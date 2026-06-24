@@ -9,6 +9,8 @@ function generateCode() {
   return 'JOY-' + Math.random().toString(36).substring(2, 10).toUpperCase();
 }
 
+const GIFT_CARD_VALIDITY_MS = 365 * 24 * 60 * 60 * 1000;
+
 // POST /api/joy-gift-cards/redeem  { email, code }  (member-facing)
 router.post('/redeem', async (req, res) => {
   try {
@@ -19,6 +21,9 @@ router.post('/redeem', async (req, res) => {
     const card = await JoyGiftCard.findOne({ code: cleanCode });
     if (!card) return res.status(404).json({ error: 'Mã không hợp lệ.' });
     if (card.redeemed) return res.status(400).json({ error: 'Mã này đã được sử dụng.' });
+    if (card.expiresAt && card.expiresAt.getTime() < Date.now()) {
+      return res.status(400).json({ error: 'Mã quà tặng JOY này đã hết hiệu lực sử dụng (quá 365 ngày kể từ ngày phát hành).' });
+    }
 
     card.redeemed = true;
     card.redeemedBy = email;
@@ -54,7 +59,7 @@ router.post('/', requireAdmin, async (req, res) => {
       while (await JoyGiftCard.exists({ code })) {
         code = generateCode();
       }
-      docs.push({ code, amount: Number(amount), note: note || '' });
+      docs.push({ code, amount: Number(amount), note: note || '', expiresAt: new Date(Date.now() + GIFT_CARD_VALIDITY_MS) });
     }
 
     const created = await JoyGiftCard.insertMany(docs);

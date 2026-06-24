@@ -530,6 +530,74 @@ router.post('/me/dismiss-notification', async (req, res) => {
   }
 });
 
+// Haversine distance in kilometers between two lat/lng points.
+function distanceKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+const ANOMALY_RADIUS_KM = 50;
+
+// POST /me/check-location  { email, lat, lng }  — member opts in via the
+// browser's native geolocation permission prompt (no separate consent UI
+// needed, the prompt itself IS the consent). First reading becomes the
+// trusted reference point; later readings further than 50km flag `anomaly:
+// true` so the client can force a re-login. Never blocks/denies anything
+// server-side — enforcement (logout + redirect) happens client-side in
+// useLocationGuard.js, consistent with how this codebase has no session-
+// revocation list for its stateless JWTs.
+router.post('/me/check-location', async (req, res) => {
+  try {
+    const { email, lat, lng } = req.body;
+    if (!email || typeof lat !== 'number' || typeof lng !== 'number') {
+      return res.status(400).json({ error: 'email, lat and lng are required' });
+    }
+
+    const bio = await Bio.findOne({ email });
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+
+    if (!bio.trustedLocation?.lat) {
+      bio.trustedLocation = { lat, lng, updatedAt: new Date() };
+      bio.lastLocationCheck = { lat, lng, distanceKm: 0, checkedAt: new Date() };
+      await bio.save();
+      return res.json({ success: true, anomaly: false, distanceKm: 0, trustedSet: true });
+    }
+
+    const distance = distanceKm(bio.trustedLocation.lat, bio.trustedLocation.lng, lat, lng);
+    bio.lastLocationCheck = { lat, lng, distanceKm: distance, checkedAt: new Date() };
+    await bio.save();
+
+    res.json({ success: true, anomaly: distance > ANOMALY_RADIUS_KM, distanceKm: Math.round(distance) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /me/reset-trusted-location  { email, lat, lng } — member confirms
+// "yes this is really me, this is my new normal location" after a forced
+// re-login from an anomaly, so they aren't logged out again immediately.
+router.post('/me/reset-trusted-location', async (req, res) => {
+  try {
+    const { email, lat, lng } = req.body;
+    if (!email || typeof lat !== 'number' || typeof lng !== 'number') {
+      return res.status(400).json({ error: 'email, lat and lng are required' });
+    }
+    const bio = await Bio.findOneAndUpdate(
+      { email },
+      { $set: { trustedLocation: { lat, lng, updatedAt: new Date() } } },
+      { new: true }
+    );
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/slug/:slug', async (req, res) => {
   try {
     const slug = req.params.slug;

@@ -453,6 +453,20 @@
 }
 .animate-toast-in { animation: toast-slide-in 0.3s cubic-bezier(0.16,1,0.3,1); }
 
+/* Admin SOS crisis alert — slow ambient pulse on the dashboard card, fast
+   flashing strip on the global takeover banner (SosOverlay) */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-pulse-slow { animation: pulse-slow 2.2s ease-in-out infinite; }
+
+@keyframes sos-flash {
+  0%, 100% { background-color: hsl(var(--destructive)); }
+  50% { background-color: #7f1d1d; }
+}
+.animate-sos-flash { animation: sos-flash 0.8s ease-in-out infinite; }
+
 /* Heartbeat */
 @keyframes heartbeat {
   0%, 100% { transform: scale(1); }

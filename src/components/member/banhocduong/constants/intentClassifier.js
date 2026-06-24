@@ -4,6 +4,7 @@
  * normalized for accented and de-accented Vietnamese text.
  * Integrates user profile (`bio`) and historical test scores (`historyLogs`) to construct dynamic responses.
  */
+import { matchTherapyMethod } from "./therapyMethods";
 
 // Helper to isolate user's friendly name (first name)
 function getFriendlyName(bio) {
@@ -43,6 +44,60 @@ export function removeVietnameseTones(str) {
   // Normalize character composition NFD and strip combining diacritic marks
   result = result.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   return result;
+}
+
+// Single source of truth for self-harm/suicide-risk detection, used by both the
+// regex `rules` fast-path and the redundant safety-net check in findMatchingIntent.
+// Broader than a plain keyword list on purpose: real messages are rarely the
+// textbook phrase "tôi muốn tự tử" — they show up as "tôi sẽ chết", "nếu tôi
+// chết rồi thì sao", etc. We deliberately bias toward over-triggering (a caring
+// message + hotline buttons shown when not strictly needed costs little) over
+// under-triggering (missing a real crisis costs everything). The negative
+// lookahead on "chet" excludes common Vietnamese hyperbole idioms ("chết mất",
+// "đói chết", "chết cười"...) that aren't expressions of suicidal ideation.
+export function isCrisisText(cleanText) {
+  if (!cleanText) return false;
+  const explicit = /(tu tu|tu sat|ket lieu|lam hai ban than|tu lam dau|tu tu o dau|khong muon song|khong con muon song|muon ket thuc tat ca|ket thuc cuoc doi|bien mat vinh vien|khong thiet song|song khong co y nghia|the gioi se tot hon khi khong co|khong ai can (toi|minh|to)( nua)?)/;
+  if (explicit.test(cleanText)) return true;
+
+  // "tôi/tớ/mình [sẽ/sắp/có lẽ sẽ] chết" or "nếu tôi/tớ/mình chết..." —
+  // a first-person death statement, excluding common hyperbole suffixes.
+  const firstPersonDeath = /\b(toi|to|minh)\b[^.!?]{0,12}\bchet\b(?!\s*(mat|doi|met|khat|cuoi|ngat|sieng|thui|qua|di))/;
+  const conditionalDeath = /\bneu\b[^.!?]{0,15}\b(toi|to|minh)\b[^.!?]{0,12}\bchet\b/;
+  return firstPersonDeath.test(cleanText) || conditionalDeath.test(cleanText);
+}
+
+// ── Dynamic "current metrics" report ────────────────────────────────────────
+// Mirrors EvaluationTab.jsx's own severity thresholds (kept duplicated on
+// purpose — that file is a heavy UI component this lightweight module has no
+// business importing). Used both by the "+" quick action and by free-text
+// requests like "đánh giá hiện tại của tớ thế nào".
+const SEVERITY_LABELS = { normal: "Ổn định", mild: "Nhẹ", moderate: "Trung bình", severe: "Cao", extremely_severe: "Rất cao" };
+function phq9Severity(score) { if (score == null) return null; if (score <= 4) return "normal"; if (score <= 9) return "mild"; if (score <= 14) return "moderate"; if (score <= 19) return "severe"; return "extremely_severe"; }
+function gad7Severity(score) { if (score == null) return null; if (score <= 4) return "normal"; if (score <= 9) return "mild"; if (score <= 14) return "moderate"; return "severe"; }
+function who5Severity(score) { if (score == null) return null; return score >= 13 ? "normal" : score >= 9 ? "mild" : score >= 5 ? "moderate" : "severe"; }
+function formatVnDate(d) { try { return new Date(d).toLocaleDateString("vi-VN"); } catch (_) { return ""; } }
+
+export function buildMetricsSummary(historyLogs = []) {
+  const phq9Logs = historyLogs.filter(l => l.test === "phq9");
+  const gad7Logs = historyLogs.filter(l => l.test === "gad7");
+  const who5Logs = historyLogs.filter(l => l.test === "who5");
+  const latestPhq9 = phq9Logs[phq9Logs.length - 1];
+  const latestGad7 = gad7Logs[gad7Logs.length - 1];
+  const latestWho5 = who5Logs[who5Logs.length - 1];
+
+  if (!latestPhq9 && !latestGad7 && !latestWho5) {
+    return ["Cậu chưa làm bài test nào để tớ có chỉ số báo cáo cả.", "Cậu muốn làm một bài test ngắn ngay bây giờ không?"];
+  }
+
+  const lines = ["📊 Đây là chỉ số gần nhất của cậu:"];
+  if (latestPhq9) lines.push(`• PHQ-9 (trầm cảm): ${latestPhq9.score}/27 — mức ${SEVERITY_LABELS[phq9Severity(latestPhq9.score)]}, đo ngày ${formatVnDate(latestPhq9.date)}.`);
+  if (latestGad7) lines.push(`• GAD-7 (lo âu): ${latestGad7.score}/21 — mức ${SEVERITY_LABELS[gad7Severity(latestGad7.score)]}, đo ngày ${formatVnDate(latestGad7.date)}.`);
+  if (latestWho5) lines.push(`• WHO-5 (sức khoẻ tinh thần): ${latestWho5.score}/25 — mức ${SEVERITY_LABELS[who5Severity(latestWho5.score)]}, đo ngày ${formatVnDate(latestWho5.date)}.`);
+
+  const anySevere = [latestPhq9 && phq9Severity(latestPhq9.score), latestGad7 && gad7Severity(latestGad7.score), latestWho5 && who5Severity(latestWho5.score)]
+    .some(s => s === "severe" || s === "extremely_severe");
+  return [lines.join("\n"), anySevere ? "Mấy chỉ số này đang ở mức cao — cậu có muốn tớ mở luôn một liệu pháp phù hợp không?" : "Nhìn chung là ổn, cứ duy trì nhịp chăm sóc bản thân như vậy nhé! 💙"];
 }
 
 // Calculate Sørensen-Dice coefficient similarity between two strings
@@ -281,14 +336,30 @@ export const INTENT_DATABASE = [
       "tự tử ở đâu",
       "làm hại bản thân",
       "muốn kết liễu đời mình",
-      "muốn tự sát"
+      "muốn tự sát",
+      "nếu tôi chết rồi thì sao",
+      "tôi sẽ chết",
+      "không ai cần tôi nữa",
+      "biến mất khỏi thế giới này",
+      "sống không có ý nghĩa",
+      "muốn kết thúc tất cả"
     ],
     // Kept as a single atomic message on purpose — urgent safety info (hotline,
     // emergency number) must never be split/delayed across multiple bubbles.
+    // Two-beat structure per product requirement: (1) deep emotional validation
+    // first, so it never reads like a canned/robotic safety notice, THEN (2) the
+    // actionable safety info + tappable quickActions (rendered as tel: buttons
+    // by ChatTab, not just plain text) so the user can reach help in one tap.
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return `${name} ơi, tớ nghe thấy nỗi đau đớn tột cùng của cậu lúc này. Xin cậu hãy nhớ rằng cậu cực kỳ quan trọng và không cô đơn. Hãy gọi ngay 115 (Cấp cứu) hoặc đường dây nóng tư vấn tâm lý khẩn cấp 1800 599 920. Cậu cũng có thể liên hệ với người thân hoặc bất kỳ ai cậu tin tưởng nhất để họ ở bên cậu ngay lúc này nhé. Tớ luôn ở đây mong cậu an toàn.`;
-    }
+      return `${name} ơi, tớ đang nghe thấy một nỗi đau rất lớn trong những gì cậu vừa nói, và tớ không xem nhẹ nó một chút nào. Cậu không hề yếu đuối hay sai trái khi cảm thấy như vậy — chỉ là cậu đang phải mang một gánh nặng quá sức một mình ngay lúc này. Tớ thật lòng mong cậu được an toàn, và tớ sẽ ở đây cùng cậu qua khoảnh khắc này. Ngay bây giờ, xin cậu hãy chạm vào một trong các nút gọi khẩn cấp dưới đây hoặc tìm một người cậu tin tưởng để họ ở bên cậu lúc này — cậu xứng đáng được giúp đỡ và không phải một mình chịu đựng điều này.`;
+    },
+    // Rendered by ChatTab as one-tap tel: call buttons directly under the message —
+    // not just numbers buried in text — so reaching real help takes a single tap.
+    quickActions: [
+      { label: "📞 Gọi Cấp Cứu 115", tel: "115" },
+      { label: "📞 Đường Dây Nóng Tâm Lý 1800 599 920", tel: "1800599920" }
+    ]
   },
   {
     id: "clinical_tests",
@@ -694,8 +765,61 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
 
   const cleanText = removeVietnameseTones(text).toLowerCase();
 
+  // Crisis detection runs before anything else, via isCrisisText() (shared
+  // detector, see definition above) rather than a regex entry in `rules` —
+  // it needs broader logic (negative lookahead, conditional phrasing) than a
+  // single inline pattern can express clearly.
+  if (isCrisisText(cleanText)) {
+    const crisisIntent = INTENT_DATABASE.find(i => i.id === "crisis");
+    if (crisisIntent) {
+      return {
+        reply: crisisIntent.generateResponse(bio, historyLogs),
+        id: "crisis",
+        tier: "free",
+        quickActions: crisisIntent.quickActions || null,
+        companionUpdate: {
+          newLog: { date: new Date().toISOString(), type: "checkin", mood: 1, note: "Crisis matched locally" }
+        }
+      };
+    }
+  }
+
+  // Therapy-navigation: "tớ muốn tập thiền" / "cho tớ đọc truyện trị liệu"
+  // etc. opens the method directly in chat (no tab switch) — or, if it's a
+  // JOY-locked method the user hasn't bought, offers a buy-now button right
+  // here instead of just describing it (see `therapy_catalog` above for the
+  // purely informational "what therapies exist" variant).
+  const therapyMethod = matchTherapyMethod(cleanText);
+  if (therapyMethod) {
+    const unlocked = !therapyMethod.joyLockable || (bio?.unlockedCompanionFeatures || []).includes(therapyMethod.lockKey);
+    if (unlocked) {
+      return {
+        reply: [`Mở ngay "${therapyMethod.name}" cho cậu nè 💙`],
+        id: "therapy_open",
+        tier: "free",
+        quickActions: null,
+        action: { type: "open_therapy", methodId: therapyMethod.id }
+      };
+    }
+    return {
+      reply: [
+        `"${therapyMethod.name}" đang là tính năng cần mở khoá bằng JOY (${therapyMethod.cost} JOY) cậu ơi.`,
+        "Cậu có muốn mở khoá luôn không? Tớ có nút mua nhanh ngay dưới đây."
+      ],
+      id: "therapy_locked",
+      tier: "free",
+      quickActions: [{ type: "unlock", methodId: therapyMethod.id, lockKey: therapyMethod.lockKey, cost: therapyMethod.cost, label: `Mở khoá (${therapyMethod.cost} JOY)` }]
+    };
+  }
+
+  // "đánh giá hiện tại của tớ thế nào", "chỉ số tâm lý của tớ" — answered as
+  // a chat message straight from historyLogs (numeric, no LLM call needed),
+  // same data source as the "+" quick action and the (desktop-only) Evaluation tab.
+  if (/(danh gia hien tai|chi so hien tai|chi so tam ly|ket qua test gan nhat|tinh trang hien tai cua toi|tinh trang tam ly cua toi)/.test(cleanText)) {
+    return { reply: buildMetricsSummary(historyLogs), id: "metrics_report", tier: "free", quickActions: null };
+  }
+
   const rules = [
-    { id: "crisis", regex: /(tu tu|muon chet|khong muon song|tu sat|ket lieu|lam hai ban than|tu lam dau|tu tu o dau)/ },
     { id: "panic_attack", regex: /(kho tho|ngop tho|tim dap nhanh|hoang loan|run ray|sap ngat|panic)/ },
     { id: "checkin_feature", regex: /(check.?in la gi|diem danh cam xuc|streak la gi|tai sao phai check)/ },
     { id: "venting_space", regex: /(khong gian trut gian|trut bau tam su|tin nhan tu huy|che do trut gian)/ },
@@ -752,21 +876,6 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     }
   }
 
-  // Exact matching keyword fallback for safety (e.g. self-harm / crisis keywords)
-  if (/tu tu|muon chet|khong muon song|tu lam dau|lam hai ban than/.test(cleanText)) {
-    const crisisIntent = INTENT_DATABASE.find(i => i.id === "crisis");
-    if (crisisIntent) {
-      return {
-        reply: crisisIntent.generateResponse(bio, historyLogs),
-        id: "crisis",
-        tier: "free",
-        companionUpdate: {
-          newLog: { date: new Date().toISOString(), type: "checkin", mood: 1, note: "Crisis matched locally" }
-        }
-      };
-    }
-  }
-
   // If match similarity is >= 80% (0.8)
   if (highestScore >= 0.8 && bestMatch) {
     const replyText = bestMatch.generateResponse(bio, historyLogs);
@@ -789,6 +898,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
       tier: bestMatch.tier || "paid",
       suggestPhq9: bestMatch.suggestPhq9 || false,
       suggestGad7: bestMatch.suggestGad7 || false,
+      quickActions: bestMatch.quickActions || null,
       companionUpdate
     };
   }

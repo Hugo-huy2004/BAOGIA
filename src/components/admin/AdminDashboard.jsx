@@ -21,27 +21,68 @@ async function apiFetch(url) {
   return r.json();
 }
 
-function CrisisAlertsCard({ alerts }) {
+// Rendered both as the dashboard card AND (via SosOverlay below) as a
+// full-screen takeover the instant a high-severity flag lands, so Admin
+// notices it within one polling cycle, not just when they happen to scroll
+// to the dashboard's crisis card.
+function CrisisAlertsCard({ alerts, onResolve }) {
   const { t } = useTranslation();
   if (!alerts.length) return null;
   return (
-    <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-5 space-y-3">
+    <div className="rounded-2xl border-2 border-destructive bg-destructive/5 p-5 space-y-3 animate-pulse-slow">
       <div className="flex items-center gap-2">
         <span className="material-symbols-outlined text-destructive text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
         <h3 className="text-sm font-extrabold text-destructive">{t("adminDashboard.crisisAlerts.title", "Cảnh báo khủng hoảng tâm lý")} ({alerts.length})</h3>
       </div>
       <div className="space-y-2">
         {alerts.map(a => (
-          <div key={a.flagId} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-card border border-destructive/20">
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-foreground truncate">{a.displayName}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{a.trigger || "—"} · {new Date(a.detectedAt).toLocaleString("vi-VN")}</p>
+          <div key={a.flagId} className="p-3 rounded-xl bg-card border border-destructive/20 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-foreground truncate">{a.displayName}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{a.trigger || "—"} · {new Date(a.detectedAt).toLocaleString("vi-VN")}</p>
+              </div>
+              <div className="shrink-0 flex items-center gap-2">
+                {a.phone && (
+                  <a href={`tel:${a.phone}`} className="px-2.5 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-[10px] font-bold whitespace-nowrap flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[13px]">call</span> {a.phone}
+                  </a>
+                )}
+                <a href={`mailto:${a.email}`} className="text-[10px] font-bold text-primary hover:underline whitespace-nowrap">
+                  {a.email}
+                </a>
+              </div>
             </div>
-            <a href={`mailto:${a.email}`} className="shrink-0 text-[10px] font-bold text-primary hover:underline whitespace-nowrap">
-              {a.email}
-            </a>
+            {a.conversationSummary && (
+              <pre className="text-[10px] text-muted-foreground whitespace-pre-wrap bg-muted/50 rounded-lg p-2 max-h-32 overflow-y-auto font-sans">{a.conversationSummary}</pre>
+            )}
+            <button
+              onClick={() => onResolve?.(a)}
+              className="text-[10px] font-bold text-emerald-600 hover:underline"
+            >
+              Đánh dấu đã xử lý
+            </button>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// Full-viewport flashing red takeover — shown above everything else in
+// AdminPanel the moment any unresolved high-severity flag exists, so it's
+// impossible to miss even if Admin isn't currently looking at the dashboard.
+export function SosOverlay({ alerts }) {
+  if (!alerts || alerts.length === 0) return null;
+  const latest = alerts[0];
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[9999] pointer-events-none">
+      <div className="animate-sos-flash bg-destructive text-destructive-foreground px-4 py-2.5 flex items-center justify-center gap-2 text-xs font-extrabold pointer-events-auto shadow-lg">
+        <span className="material-symbols-outlined animate-pulse">emergency</span>
+        SOS — {latest.displayName} vừa gửi tín hiệu cần giúp đỡ khẩn cấp ({alerts.length} cảnh báo chưa xử lý)
+        {latest.phone && (
+          <a href={`tel:${latest.phone}`} className="underline font-black">Gọi ngay {latest.phone}</a>
+        )}
       </div>
     </div>
   );
@@ -86,27 +127,15 @@ function StorageBar({ label, sizeInBytes, maxInBytes = 2 * 1024 * 1024 * 1024 })
   );
 }
 
-export default function AdminDashboard({ stats, bookings, totalProjects, totalPackages, openTickets, loading }) {
+export default function AdminDashboard({ stats, bookings, totalProjects, totalPackages, openTickets, loading, crisisAlerts = [], onResolveCrisisAlert }) {
   const { t } = useTranslation();
   const [recentUsers, setRecentUsers] = useState([]);
   const [storageStats, setStorageStats] = useState({ publicFiles: 0, database: 0, total: 0 });
-  const [crisisAlerts, setCrisisAlerts] = useState([]);
 
   useEffect(() => {
     apiFetch(`${VITE_API}/admin/system-storage`)
       .then(res => setStorageStats(res.data || { publicFiles: 0, database: 0, total: 0 }))
       .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const fetchAlerts = () => {
-      apiFetch(`${VITE_API}/companion/admin/crisis-alerts`)
-        .then(data => setCrisisAlerts(Array.isArray(data) ? data : []))
-        .catch(() => {});
-    };
-    fetchAlerts();
-    const interval = setInterval(fetchAlerts, 60000);
-    return () => clearInterval(interval);
   }, []);
 
   const pendingBookings = bookings.filter(b => !b.contacted).length;
@@ -151,7 +180,7 @@ export default function AdminDashboard({ stats, bookings, totalProjects, totalPa
   return (
     <div className="space-y-6 animate-fade-in">
 
-      <CrisisAlertsCard alerts={crisisAlerts} />
+      <CrisisAlertsCard alerts={crisisAlerts} onResolve={onResolveCrisisAlert} />
 
       {/* ── KPI Row ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

@@ -7,7 +7,13 @@ import {
 } from "lucide-react";
 import dataApi from "../../../services/dataApi";
 
-const AI_BASE = import.meta.env.VITE_AI_URL ?? "";
+// Same fix as AIBot.js: there's no separate "ai.<domain>" host — the Python
+// analyzer is reached same-origin via the Node API's /api/sleep/analyze proxy
+// (see server/routes/sleepRoutes.js). The old VITE_AI_URL-based absolute URL
+// resolved to an unconfigured subdomain in production, silently breaking the
+// "Phân tích AI" feature (every call 404'd against Node, which has no such
+// route, and the JSON parse of that 404 page produced garbage analysis).
+const AI_BASE = import.meta.env.VITE_API_URL || "/api";
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 
 // ── Static data ────────────────────────────────────────────────────────────
@@ -277,7 +283,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
     setAnalyzing(true);
     setAnalysis(null);
     try {
-      const res = await fetch(`${AI_BASE}/api/sleep/analyze`, {
+      const res = await fetch(`${AI_BASE}/sleep/analyze`, {
         method:  "POST",
         headers: { "Content-Type": "application/json", "X-Internal-Key": INTERNAL_KEY },
         body:    JSON.stringify({ sleepLogs: logs.slice(0, 14), bio: bio || {} }),

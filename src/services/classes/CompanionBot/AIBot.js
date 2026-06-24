@@ -1,26 +1,10 @@
 import BaseBot from "./BaseBot";
 
-const getAiUrl = () => {
-  if (import.meta.env.VITE_AI_URL) return import.meta.env.VITE_AI_URL;
-  const apiUrl = import.meta.env.VITE_API_URL || "";
-  if (apiUrl.startsWith("http")) {
-    try {
-      const url = new URL(apiUrl);
-      if (url.hostname.startsWith("api.")) {
-        url.hostname = url.hostname.replace("api.", "ai.");
-        return `${url.protocol}//${url.hostname}`;
-      }
-    } catch (e) {}
-  }
-  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-    if (window.location.hostname.includes("hugowishpax.studio")) {
-      return `${window.location.protocol}//ai.hugowishpax.studio`;
-    }
-  }
-  return "http://localhost:8000";
-};
-
-const API_URL = getAiUrl();
+// The Python AI server has no public subdomain of its own — it's reached
+// same-origin through the main API gateway's /api/ai/* proxy (see
+// server/routes/aiProxyRoutes.js), exactly like every other /api/* route.
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
+const API_URL = `${API_BASE}/ai`;
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY || "";
 
 async function fetchWithRetry(url, options, retries = 1) {
@@ -41,7 +25,7 @@ export default class AIBot extends BaseBot {
 
   async getGreeting() {
     try {
-      const res = await fetchWithRetry(`${API_URL}/api/ai/chat`, {
+      const res = await fetchWithRetry(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -67,7 +51,7 @@ export default class AIBot extends BaseBot {
     const responses = selectedItem[type];
     const baseText = Array.isArray(responses) ? responses[0] : (responses || "");
     try {
-      const res = await fetchWithRetry(`${API_URL}/api/ai/chat`, {
+      const res = await fetchWithRetry(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -99,7 +83,7 @@ export default class AIBot extends BaseBot {
       formData.append("bio", JSON.stringify(this._bioWithSummary() || {}));
       formData.append("isCallMode", isCallMode);
       formData.append("userId", this.bio?.email || "unknown");
-      const res = await fetchWithRetry(`${API_URL}/api/ai/chat/audio`, { method: "POST", body: formData });
+      const res = await fetchWithRetry(`${API_URL}/chat/audio`, { method: "POST", body: formData });
       if (res?.ok) return await res.json();
     } catch (_) {}
     return null;
@@ -171,7 +155,7 @@ export default class AIBot extends BaseBot {
 
   async chat(message) {
     try {
-      const res = await fetchWithRetry(`${API_URL}/api/ai/chat`, {
+      const res = await fetchWithRetry(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId: this.bio?.email || "unknown" })
@@ -205,7 +189,7 @@ export default class AIBot extends BaseBot {
 
   async chatStream(message, onChunk, onDone) {
     try {
-      const res = await fetchWithRetry(`${API_URL}/api/ai/chat/stream`, {
+      const res = await fetchWithRetry(`${API_URL}/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId: this.bio?.email || "unknown" })
@@ -297,7 +281,7 @@ export default class AIBot extends BaseBot {
 
   async classifyIntent(message) {
     try {
-      const res = await fetchWithRetry(`${API_URL}/api/ai/intent/classify`, {
+      const res = await fetchWithRetry(`${API_URL}/intent/classify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, userId: this.bio?.email || "unknown" })
@@ -311,7 +295,7 @@ export default class AIBot extends BaseBot {
 
   logLocalMatch(message, intentId) {
     // Fire-and-forget telemetry — never await, never let a failure affect the chat UI.
-    fetchWithRetry(`${API_URL}/api/ai/intent/log-local`, {
+    fetchWithRetry(`${API_URL}/intent/log-local`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, intentId, userId: this.bio?.email || "unknown" })
@@ -320,7 +304,7 @@ export default class AIBot extends BaseBot {
 
   async getRemainingTokens() {
     try {
-      const res = await fetchWithRetry(`${API_URL}/api/ai/chat/remaining?userId=${encodeURIComponent(this.bio?.email || "unknown")}`, {
+      const res = await fetchWithRetry(`${API_URL}/chat/remaining?userId=${encodeURIComponent(this.bio?.email || "unknown")}`, {
         method: "GET"
       });
       if (res?.ok) {
@@ -332,7 +316,7 @@ export default class AIBot extends BaseBot {
 
   async analyzeTest(testName, scores, validity = null, clinical = null, lang = "vi") {
     try {
-      const res = await fetchWithRetry(`${API_URL}/api/ai/analyze-test`, {
+      const res = await fetchWithRetry(`${API_URL}/analyze-test`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ testName, scores, validity, clinical, lang, bio: this._bioWithSummary() })
