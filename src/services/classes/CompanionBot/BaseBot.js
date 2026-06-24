@@ -1,8 +1,13 @@
 export default class BaseBot {
-  constructor(bio, historyLogs, healingActive) {
+  constructor(bio, historyLogs, healingActive, chatMessages = []) {
     this.bio = bio;
     this.historyLogs = historyLogs;
     this.healingActive = healingActive;
+    // Recent raw chat turns (last 7 days only — see CHAT_RETENTION_MS in
+    // ChatTab.jsx) used for short-term conversational context. Long-term
+    // "memory" instead comes from historyLogs (mood/test indicators), which
+    // are never pruned — see AIBot._buildWellnessSummary().
+    this.chatMessages = chatMessages || [];
   }
 
   /**

@@ -5,15 +5,23 @@ import { ArrowLeft } from "lucide-react";
 export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel }) {
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [testAnswers, setTestAnswers] = useState([]);
+  // A fast double-tap on the LAST question's answer (easy to trigger on
+  // mobile) used to fire onTestComplete twice — each call kicked off its own
+  // async AI-analysis request, so the chat ended up with two duplicate
+  // review messages and the panel stayed stuck in "test" mode until the tab
+  // was switched. Once submitting, every further tap is ignored.
+  const [submitting, setSubmitting] = useState(false);
 
   const handleAnswerClick = (val) => {
+    if (submitting) return;
     const nextAnswers = [...testAnswers, val];
-    setTestAnswers(nextAnswers);
 
     if (currentQuestionIdx + 1 < activeTest.questions.length) {
+      setTestAnswers(nextAnswers);
       setCurrentQuestionIdx((prev) => prev + 1);
     } else {
       // Test finished! Calculate results
+      setSubmitting(true);
       const testId = activeTest.id;
       const score = nextAnswers.reduce((a, b) => a + b, 0);
       onTestComplete(testId, score, nextAnswers);
@@ -92,8 +100,9 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
           <button
             key={opt.value}
             type="button"
+            disabled={submitting}
             onClick={() => handleAnswerClick(opt.value)}
-            className="w-full py-2 px-3.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-[10px] font-black text-zinc-800 dark:text-zinc-250 uppercase tracking-wider text-left hover:bg-zinc-50 dark:hover:bg-zinc-850 active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center justify-between"
+            className="w-full py-2 px-3.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-[10px] font-black text-zinc-800 dark:text-zinc-250 uppercase tracking-wider text-left hover:bg-zinc-50 dark:hover:bg-zinc-850 active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center justify-between disabled:opacity-50 disabled:pointer-events-none"
           >
             <span>{opt.label}</span>
             <span className="font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded text-[8px]">{opt.value} điểm</span>

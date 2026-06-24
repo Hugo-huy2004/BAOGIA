@@ -13,6 +13,21 @@ import { getRandomResponse, needsAI } from "./constants/randomResponses";
 import { findMatchingIntent, INTENT_DATABASE } from "./constants/intentClassifier";
 import WellnessRecommendationEngine from "../../../services/classes/CompanionBot/WellnessRecommendationEngine";
 
+// Raw chat text is only kept for 7 days — older messages are permanently
+// dropped to keep the stored history light. Long-term "memory" instead comes
+// from historyLogs (mood check-ins, test scores), which are NOT pruned here —
+// the AI leans on those aggregated indicators to still feel like it
+// remembers the user well beyond the 7-day chat window.
+const CHAT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+function pruneOldMessages(msgs) {
+  if (!Array.isArray(msgs)) return msgs;
+  const cutoff = Date.now() - CHAT_RETENTION_MS;
+  return msgs.filter(m => {
+    const t = m.time instanceof Date ? m.time.getTime() : new Date(m.time).getTime();
+    return Number.isNaN(t) || t >= cutoff;
+  });
+}
+
 const MOOD_META = {
   5: { emoji: "😄", label: "Rất tốt" },
   4: { emoji: "🙂", label: "Tốt" },
@@ -211,6 +226,31 @@ export default function ChatTab({
 
   const botManager = React.useMemo(() => new BotManager(bio, historyLogs, healingActive), [bio, historyLogs, healingActive]);
 
+  // Local intents now return an array of 2-3 short chunks instead of one long
+  // paragraph — this drips them in one at a time (with a human-ish pause
+  // between each) so a single intent reply reads like a real person texting
+  // a few short messages in a row, not a wall of text. Extras (suggestPhq9
+  // etc., used to render the test-shortcut buttons) only attach to the last
+  // chunk. Resolves once the final chunk has been appended.
+  const pushBotMessageChunks = useCallback((replyOrChunks, extra = {}) => {
+    const chunks = Array.isArray(replyOrChunks) ? replyOrChunks : [replyOrChunks];
+    return new Promise((resolve) => {
+      chunks.forEach((chunkText, idx) => {
+        setTimeout(() => {
+          const isLast = idx === chunks.length - 1;
+          setMessages(prev => [...prev, {
+            id: `bot-text-${Date.now()}-${idx}`,
+            sender: "bot",
+            text: chunkText,
+            time: new Date(),
+            ...(isLast ? extra : {})
+          }]);
+          if (isLast) resolve();
+        }, idx === 0 ? 0 : 550 + Math.random() * 350);
+      });
+    });
+  }, []);
+
 
   // Auto-launch preset test from redirects
   useEffect(() => {
@@ -230,6 +270,11 @@ export default function ChatTab({
   // chatMode: 'normal' | 'test' | 'scan'
   const [chatMode, setChatMode] = useState("normal");
   const [activeTest, setActiveTest] = useState(null);
+  // Second line of defense against handleTestComplete firing twice (e.g. if
+  // ClinicalTestPanel's own submitting-guard is ever bypassed) — a ref (not
+  // state) so the very first synchronous line of the function can check it
+  // without waiting for a re-render.
+  const testCompletingRef = useRef(false);
   const [isListening, setIsListening] = useState(false);
 
   const [remainingChatTokens, setRemainingChatTokens] = useState(10);
@@ -293,10 +338,10 @@ export default function ChatTab({
         return;
       }
 
-      const mapped = chatMessages.map(m => ({
+      const mapped = pruneOldMessages(chatMessages.map(m => ({
         ...m,
         time: m.time instanceof Date ? m.time : new Date(m.time)
-      }));
+      })));
       setMessages(mapped);
       lastSavedMessageIdRef.current = incomingLastId;
       const ids = mapped.map(m => m.id);
@@ -314,14 +359,19 @@ export default function ChatTab({
         try {
           const parsed = JSON.parse(localMsgs);
           if (parsed.length > 0) {
-            const mapped = parsed.map(m => ({ ...m, time: new Date(m.time) }));
-            setMessages(mapped);
-            lastSavedMessageIdRef.current = mapped[mapped.length - 1].id;
-            
-            // Mark all existing loaded messages as completed immediately
-            const ids = mapped.map(m => m.id);
-            setCompletedMessageIds(new Set(ids));
-            return;
+            const mapped = pruneOldMessages(parsed.map(m => ({ ...m, time: new Date(m.time) })));
+            if (mapped.length > 0) {
+              setMessages(mapped);
+              lastSavedMessageIdRef.current = mapped[mapped.length - 1].id;
+
+              // Mark all existing loaded messages as completed immediately
+              const ids = mapped.map(m => m.id);
+              setCompletedMessageIds(new Set(ids));
+              return;
+            }
+            // Everything loaded was older than the 7-day retention window —
+            // fall through to the fresh greeting below instead of showing an
+            // empty chat.
           }
         } catch (e) {
           console.error("Failed to parse local chat messages", e);
@@ -350,12 +400,13 @@ export default function ChatTab({
   // Auto-save new chat messages to MongoDB and sync to localStorage synchronously to prevent tab unmount data loss
   useEffect(() => {
     if (messages.length > 0 && !isVentingMode) {
-      localStorage.setItem("banhocduong_chat_messages", JSON.stringify(messages));
-      
-      const lastMsg = messages[messages.length - 1];
+      const trimmed = pruneOldMessages(messages);
+      localStorage.setItem("banhocduong_chat_messages", JSON.stringify(trimmed));
+
+      const lastMsg = trimmed[trimmed.length - 1];
       if (lastMsg && lastMsg.id !== lastSavedMessageIdRef.current) {
         lastSavedMessageIdRef.current = lastMsg.id;
-        onUpdateCompanionState({ chatMessages: messages });
+        onUpdateCompanionState({ chatMessages: trimmed });
       }
     }
   }, [messages, isVentingMode]);
@@ -626,6 +677,16 @@ export default function ChatTab({
 
 
   const handleTestComplete = async (testId, score, answers) => {
+    if (testCompletingRef.current) return;
+    testCompletingRef.current = true;
+    try {
+      await handleTestCompleteInner(testId, score, answers);
+    } finally {
+      testCompletingRef.current = false;
+    }
+  };
+
+  const handleTestCompleteInner = async (testId, score, answers) => {
     // If DASS-42 or MMPI-30, calculate scores and route to handleScanComplete
     if (testId === "dass42") {
       let d = 0, a = 0, s = 0;
@@ -1321,18 +1382,12 @@ export default function ChatTab({
         onUpdateCompanionState({ historyLogs: [...historyLogs, matched.companionUpdate.newLog] });
       }
 
-      // Natural typing delay simulation (600ms) for local matched intent responses
-      const botMsgId = `bot-text-${Date.now()}`;
+      // Natural typing delay simulation, then drip the reply chunk(s) in
       setTimeout(() => {
-        setMessages(prev => [...prev, {
-          id: botMsgId,
-          sender: "bot",
-          text: matched.reply,
+        pushBotMessageChunks(matched.reply, {
           suggestPhq9: matched.suggestPhq9,
-          suggestGad7: matched.suggestGad7,
-          time: new Date()
-        }]);
-        setLoading(false);
+          suggestGad7: matched.suggestGad7
+        }).then(() => setLoading(false));
       }, 600);
       return;
     }
@@ -1366,19 +1421,15 @@ export default function ChatTab({
             onUpdateCompanionState({ historyLogs: [...historyLogs, companionUpdate.newLog] });
           }
 
-          const botMsgId = `bot-text-${Date.now()}`;
           setTimeout(() => {
-            setMessages(prev => [...prev, {
-              id: botMsgId,
-              sender: "bot",
-              text: replyText,
+            pushBotMessageChunks(replyText, {
               suggestPhq9: intentObj.suggestPhq9 || false,
-              suggestGad7: intentObj.suggestGad7 || false,
-              time: new Date()
-            }]);
-            setLoading(false);
-            // The server already charged 0/1 token for this intent answer — resync the badge.
-            refreshRemainingTokens();
+              suggestGad7: intentObj.suggestGad7 || false
+            }).then(() => {
+              setLoading(false);
+              // The server already charged 0/1 token for this intent answer — resync the badge.
+              refreshRemainingTokens();
+            });
           }, 600);
           return;
         }
@@ -1401,11 +1452,15 @@ export default function ChatTab({
       text,
       (chunkText) => {
         setLoading(false);
+        // The LLM may emit "|||" mid-stream as its multi-bubble separator —
+        // while still streaming there's only one live bubble, so just show
+        // it as a paragraph break rather than the raw delimiter.
+        const displayText = chunkText.split("|||").join("\n\n");
         setMessages(prev => {
           if (!prev.some(m => m.id === botMsgId)) {
-            return [...prev, { id: botMsgId, sender: "bot", text: chunkText, time: new Date() }];
+            return [...prev, { id: botMsgId, sender: "bot", text: displayText, time: new Date() }];
           }
-          return prev.map(m => m.id === botMsgId ? { ...m, text: chunkText } : m);
+          return prev.map(m => m.id === botMsgId ? { ...m, text: displayText } : m);
         });
       },
       (botResponse) => {
@@ -1416,29 +1471,16 @@ export default function ChatTab({
           onProfileUpdate(botResponse.bioUpdate);
           showToast?.("Đã lưu thông tin mới vào hồ sơ!", "success");
         }
-        setMessages(prev => {
-          if (!prev.some(m => m.id === botMsgId)) {
-            return [...prev, {
-              id: botMsgId,
-              sender: "bot",
-              text: botResponse.reply,
-              suggestPhq9: botResponse.suggestPhq9,
-              suggestGad7: botResponse.suggestGad7,
-              suggestWho5: botResponse.suggestWho5,
-              suggestBigFive: botResponse.suggestBigFive,
-              time: new Date()
-            }];
-          }
-          return prev.map(m => m.id === botMsgId ? {
-            ...m,
-            text: botResponse.reply,
-            suggestPhq9: botResponse.suggestPhq9,
-            suggestGad7: botResponse.suggestGad7,
-            suggestWho5: botResponse.suggestWho5,
-            suggestBigFive: botResponse.suggestBigFive,
-          } : m);
-        });
-        setLoading(false);
+        // Now that streaming is done, replace the single live bubble with the
+        // real split bubbles (the LLM was asked to separate them with "|||").
+        const chunks = botResponse.reply.split("|||").map(c => c.trim()).filter(Boolean);
+        setMessages(prev => prev.filter(m => m.id !== botMsgId));
+        pushBotMessageChunks(chunks.length ? chunks : [botResponse.reply], {
+          suggestPhq9: botResponse.suggestPhq9,
+          suggestGad7: botResponse.suggestGad7,
+          suggestWho5: botResponse.suggestWho5,
+          suggestBigFive: botResponse.suggestBigFive,
+        }).then(() => setLoading(false));
       }
     );
   };

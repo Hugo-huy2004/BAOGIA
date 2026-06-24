@@ -174,6 +174,17 @@
   html, body { -ms-overflow-style: none; scrollbar-width: none; }
   html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
 
+  /* Most of the app's headings/buttons/labels use Tailwind's default rem-based
+     scale (text-sm, text-lg, text-xl...) rather than fixed px, and Tailwind's
+     spacing scale (p-*, gap-*, m-*) is rem-based too — so scaling the root
+     font-size down also tightens padding/gaps site-wide, addressing both
+     "chữ quá to" and "quá dày đặc" with one lever instead of hand-editing
+     every component. Doesn't affect the input/select/textarea 16px floor
+     above (that's a literal px value, immune to root scaling) or any
+     component using fixed text-[Npx] arbitrary values, which were already
+     small. Desktop (768px+) is untouched.*/
+  html { font-size: 87.5%; } /* 16px -> 14px */
+
   /* iOS Safari/WebKit auto-zooms the whole page on focus of any text input
      with a computed font-size under 16px, then snaps back out on blur — that
      forced zoom-in/zoom-out is the jarring "giật giật" jump members hit while

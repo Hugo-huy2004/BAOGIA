@@ -156,11 +156,40 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
 }
 
 // ── Settings Panel (bottom sheet mobile / modal desktop) ───────────────────────
-function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
+function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }) {
   const { t } = useTranslation();
   const [chatLeft, setChatLeft] = useState(10);
   const [chatMax, setChatMax] = useState(10);
   const [notifStatus, setNotifStatus] = useState(() => typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
+
+  // Personalized stats — total days companioning, current check-in streak,
+  // and the most recent clinical test taken, so Settings isn't just toggles.
+  const { totalDays, streak, lastTest } = React.useMemo(() => {
+    const logs = historyLogs || [];
+    const dayStrings = new Set(logs.map(l => new Date(l.date).toDateString()));
+
+    let streakCount = 0;
+    const checkinDays = new Set(logs.filter(l => l.type === "checkin" && l.mood).map(l => new Date(l.date).toDateString()));
+    let cursor = new Date();
+    if (!checkinDays.has(cursor.toDateString())) cursor.setDate(cursor.getDate() - 1);
+    while (checkinDays.has(cursor.toDateString())) {
+      streakCount++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    const testLogs = logs.filter(l => l.test).sort((a, b) => new Date(b.date) - new Date(a.date));
+    let lastTestInfo = null;
+    if (testLogs.length > 0) {
+      const latest = testLogs[0];
+      const daysAgo = Math.floor((Date.now() - new Date(latest.date).getTime()) / 86_400_000);
+      lastTestInfo = {
+        name: latest.test.toUpperCase(),
+        when: daysAgo <= 0 ? "hôm nay" : daysAgo === 1 ? "hôm qua" : `${daysAgo} ngày trước`
+      };
+    }
+
+    return { totalDays: dayStrings.size, streak: streakCount, lastTest: lastTestInfo };
+  }, [historyLogs]);
 
   // Server (rate_limit_service) is the source of truth for the daily chat budget.
   useEffect(() => {
@@ -244,7 +273,7 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[160] bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4"
+      className="fixed inset-0 z-[1100] bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)] md:pb-4"
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       <motion.div
@@ -272,6 +301,24 @@ function SettingsPanel({ onClose, bio, showToast, onClearMessages }) {
               <span className="material-symbols-outlined text-zinc-500 text-sm">close</span>
             </button>
           </div>
+
+          {/* Personalized stats */}
+          {(totalDays > 0 || streak > 0 || lastTest) && (
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-xl p-3 text-center">
+                <p className="text-base font-black text-zinc-800 dark:text-zinc-100">{totalDays}</p>
+                <p className="text-[8.5px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsDays", "Ngày đồng hành")}</p>
+              </div>
+              <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-xl p-3 text-center">
+                <p className="text-base font-black text-orange-500">{streak}🔥</p>
+                <p className="text-[8.5px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsStreak", "Streak check-in")}</p>
+              </div>
+              <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-xl p-3 text-center">
+                <p className="text-base font-black text-indigo-500 truncate">{lastTest ? lastTest.name : "—"}</p>
+                <p className="text-[8.5px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{lastTest ? lastTest.when : t("companion.tab.statsNoTest", "Chưa test")}</p>
+              </div>
+            </div>
+          )}
 
           {/* Token usage */}
           <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl p-4 space-y-3">
@@ -696,6 +743,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
             onClose={() => setShowSettings(false)}
             bio={bio}
             showToast={showToast}
+            historyLogs={historyLogs}
             onClearMessages={() => { setChatMessages([]); setClearMessagesKey(k => k + 1); }}
           />
         )}

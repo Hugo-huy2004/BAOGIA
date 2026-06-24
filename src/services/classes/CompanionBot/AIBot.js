@@ -47,7 +47,7 @@ export default class AIBot extends BaseBot {
         body: JSON.stringify({
           message: "Hãy đưa ra một câu chào thân mật bằng tiếng Việt dành cho người dùng quay trở lại không gian đồng hành chữa lành sức khỏe tinh thần.",
           history: [],
-          bio: this.bio,
+          bio: this._bioWithSummary(),
           userId: this.bio?.email || "unknown"
         })
       });
@@ -73,7 +73,7 @@ export default class AIBot extends BaseBot {
         body: JSON.stringify({
           message: `Viết lại câu phản hồi sau đây một cách đồng cảm, ấm áp, sâu sắc và tự nhiên hơn, xưng hô 'tớ' và 'cậu': "${baseText}"`,
           history: [],
-          bio: this.bio,
+          bio: this._bioWithSummary(),
           userId: this.bio?.email || "unknown"
         })
       });
@@ -96,7 +96,7 @@ export default class AIBot extends BaseBot {
       const formData = new FormData();
       formData.append("file", audioBlob, "voice.webm");
       formData.append("history", JSON.stringify(mappedHistory));
-      formData.append("bio", JSON.stringify(this.bio || {}));
+      formData.append("bio", JSON.stringify(this._bioWithSummary() || {}));
       formData.append("isCallMode", isCallMode);
       formData.append("userId", this.bio?.email || "unknown");
       const res = await fetchWithRetry(`${API_URL}/api/ai/chat/audio`, { method: "POST", body: formData });
@@ -105,11 +105,68 @@ export default class AIBot extends BaseBot {
     return null;
   }
 
+  // Recent actual conversation turns (last 7 days only, see ChatTab.jsx's
+  // CHAT_RETENTION_MS) — this was previously mapping over historyLogs (mood/
+  // test indicator entries, which have no .sender/.text) and so was silently
+  // sending almost no real context to the LLM. Now uses the real chat array.
   _buildHistory(limit = 8) {
-    return (this.historyLogs || []).slice(-limit).map(log => ({
+    return (this.chatMessages || []).slice(-limit).map(log => ({
       role: log.sender === "bot" ? "model" : "user",
       content: log.text || log.desc || ""
     })).filter(i => i.content !== "");
+  }
+
+  // Long-term "memory" substitute: since raw chat is pruned after 7 days,
+  // this condenses historyLogs (mood check-ins, clinical test scores, streak)
+  // into a short Vietnamese summary attached to `bio` so the AI can still
+  // speak as if it remembers the user's journey beyond the 7-day window.
+  _buildWellnessSummary() {
+    const logs = this.historyLogs || [];
+    if (logs.length === 0) return "";
+    const parts = [];
+
+    const checkins = logs.filter(l => l.type === "checkin" && l.mood);
+    if (checkins.length > 0) {
+      const days = new Set(checkins.map(c => new Date(c.date).toDateString()));
+      let streak = 0;
+      let cursor = new Date();
+      if (!days.has(cursor.toDateString())) cursor.setDate(cursor.getDate() - 1);
+      while (days.has(cursor.toDateString())) { streak++; cursor.setDate(cursor.getDate() - 1); }
+      const latestMood = checkins[checkins.length - 1].mood;
+      parts.push(`Streak check-in hiện tại: ${streak} ngày. Tâm trạng check-in gần nhất: ${latestMood}/5.`);
+    }
+
+    ["phq9", "gad7", "who5"].forEach(testId => {
+      const testLogs = logs.filter(l => l.test === testId);
+      if (testLogs.length > 0) {
+        const latest = testLogs[testLogs.length - 1];
+        const daysAgo = Math.floor((Date.now() - new Date(latest.date).getTime()) / 86_400_000);
+        parts.push(`Test ${testId.toUpperCase()} gần nhất: ${latest.score} điểm, ${daysAgo <= 0 ? "hôm nay" : `${daysAgo} ngày trước`}.`);
+      }
+    });
+
+    return parts.join(" ");
+  }
+
+  // Builds the ONLY bio payload ever sent to the third-party AI server
+  // (Gemini/OpenRouter). Deliberately a strict allow-list, not the raw Bio
+  // document — `this.bio` carries email, phone, address, exact birthday,
+  // body measurements etc., none of which should ever leave the client and
+  // reach an external AI provider. Only a display name and a derived age
+  // *number* (no birthdate) go out, plus the aggregated wellness summary.
+  _bioWithSummary() {
+    let age = null;
+    const dob = this.bio?.dob || this.bio?.birthday;
+    if (dob) {
+      const year = parseInt(String(dob).match(/\d{4}/)?.[0], 10);
+      if (year) age = new Date().getFullYear() - year;
+    }
+    const summary = this._buildWellnessSummary();
+    return {
+      displayName: this.bio?.displayName || this.bio?.name || "",
+      ...(age ? { age } : {}),
+      ...(summary ? { wellnessSummary: summary } : {})
+    };
   }
 
   async chat(message) {
@@ -117,7 +174,7 @@ export default class AIBot extends BaseBot {
       const res = await fetchWithRetry(`${API_URL}/api/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, history: this._buildHistory(), bio: this.bio, userId: this.bio?.email || "unknown" })
+        body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId: this.bio?.email || "unknown" })
       });
       if (res?.ok) {
         const data = await res.json();
@@ -151,7 +208,7 @@ export default class AIBot extends BaseBot {
       const res = await fetchWithRetry(`${API_URL}/api/ai/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, history: this._buildHistory(), bio: this.bio, userId: this.bio?.email || "unknown" })
+        body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId: this.bio?.email || "unknown" })
       });
       if (!res?.ok) throw new Error("Server error");
 
@@ -278,7 +335,7 @@ export default class AIBot extends BaseBot {
       const res = await fetchWithRetry(`${API_URL}/api/ai/analyze-test`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ testName, scores, validity, clinical, lang, bio: this.bio })
+        body: JSON.stringify({ testName, scores, validity, clinical, lang, bio: this._bioWithSummary() })
       });
       if (res?.ok) { const data = await res.json(); return data.analysis; }
     } catch (_) {}

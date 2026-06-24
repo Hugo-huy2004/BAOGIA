@@ -26,7 +26,10 @@ export default function PrivacyPolicyPage() {
     { id: "chuong-9", title: "Chương IX: Quyền & Nghĩa Vụ Của Chủ Thể Dữ Liệu", icon: "badge" },
     { id: "chuong-10", title: "Chương X: Giới Hạn & Miễn Trừ Trách Nhiệm Pháp Lý", icon: "block" },
     { id: "chuong-11", title: "Chương XI: Luật Áp Dụng & Giải Quyết Tranh Chấp", icon: "balance" },
-    { id: "chuong-12", title: "Chương XII: Điều Khoản Thi Hành & Thông Tin Liên Hệ", icon: "mail" }
+    { id: "chuong-12", title: "Chương XII: Điều Khoản Thi Hành & Thông Tin Liên Hệ", icon: "mail" },
+    { id: "chuong-13", title: "Chương XIII: Hệ Sinh Thái JOY, Trò Chơi Hóa & Quà Tặng", icon: "stadia_controller" },
+    { id: "chuong-14", title: "Chương XIV: Trợ Lý AI HugoPSY & Dữ Liệu Sức Khỏe Tinh Thần", icon: "psychology" },
+    { id: "chuong-15", title: "Chương XV: Đăng Nhập Sinh Trắc Học, Thông Báo Đẩy & Thiết Bị", icon: "fingerprint" }
   ];
 
   const scrollToSection = (id) => {
@@ -51,7 +54,7 @@ export default function PrivacyPolicyPage() {
           <div className="glass border border-border p-6 rounded-3xl shadow-xl space-y-4 max-h-[85vh] overflow-y-auto scrollbar-hide">
             <div className="border-b border-border pb-3 text-center">
               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block">Mục lục điều khoản</span>
-              <span className="text-xs text-slate-400 dark:text-slate-500 font-bold">Hugo Studio Legal Version 6.0</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-bold">Hugo Studio Legal Version 7.0</span>
             </div>
             <nav className="space-y-1">
               {chapters.map((chapter) => (
@@ -87,7 +90,7 @@ export default function PrivacyPolicyPage() {
               VĂN BẢN QUY ĐỊNH PHÁP LÝ CHÍNH THỨC CỦA HỆ THỐNG HUGO STUDIO
             </p>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 italic">
-              Cập nhật và ban hành áp dụng chính thức: Ngày 02 tháng 06 năm 2026
+              Cập nhật và ban hành áp dụng chính thức: Ngày 24 tháng 06 năm 2026 (Phiên bản 7.0 — bổ sung Hệ sinh thái JOY, HugoPSY AI, HugoChess, HugoArcade, Đăng nhập sinh trắc học)
             </p>
           </div>
 
@@ -149,6 +152,14 @@ export default function PrivacyPolicyPage() {
                       - Căn cứ <strong>Luật An toàn thông tin mạng năm 2015 (Luật số 86/2015/QH13)</strong>, quy định trách nhiệm của cơ quan, tổ chức, cá nhân trong việc bảo vệ thông tin cá nhân trên môi trường mạng và xử lý sự cố an toàn thông tin mạng.
                       <br />
                       - Căn cứ <strong>Luật An ninh mạng năm 2018 (Luật số 24/2018/QH14)</strong>, đặc biệt tại <em>Điều 8</em> (Các hành vi bị nghiêm cấm trên không gian mạng) và <em>Điều 26</em> (Bảo đảm an ninh thông tin trên không gian mạng). Hugo Studio cam kết ngăn chặn các hành vi phát tán mã độc, lừa đảo chiếm đoạt tài sản, phát tán văn hóa phẩm đồi trụy hoặc các nội dung gây ảnh hưởng đến an ninh quốc gia thông qua nền tảng Bio Link của Thành viên.
+                    </p>
+
+                    <p>
+                      <strong>5. Quy định về Bảo vệ Trẻ em trên Môi trường mạng và Trò chơi điện tử không thưởng (Non-Reward Gamification):</strong>
+                      <br />
+                      - Căn cứ <strong>Luật Trẻ em năm 2016 (Luật số 102/2016/QH13)</strong> và <strong>Nghị định số 56/2017/NĐ-CP</strong> quy định chi tiết về bảo vệ trẻ em trên môi trường mạng, do nền tảng phục vụ phần lớn đối tượng học sinh, sinh viên (trong đó có thể bao gồm người dùng dưới 18 tuổi), Hugo Studio cam kết không thu thập dữ liệu nhạy cảm của trẻ em khi chưa có sự đồng ý hợp pháp và luôn ưu tiên thiết kế các tính năng trò chơi hóa (HugoArcade, HugoChess) theo hướng giải trí lành mạnh, không cờ bạc, không cá cược, không quy đổi thành tiền thật.
+                      <br />
+                      - Hệ thống điểm JOY và các vật phẩm trò chơi hóa được trình bày chi tiết tại <em>Chương XIII</em> của văn bản này được xác định rõ là <strong>đơn vị ghi nhận tương tác nội bộ phi tài chính</strong>, không thuộc phạm vi điều chỉnh của <em>Thông tư số 24/2014/TT-NHNN</em> về dịch vụ trung gian thanh toán hay các quy định về tiền điện tử, ví điện tử của Ngân hàng Nhà nước Việt Nam, nhằm tránh mọi rủi ro bị hiểu lầm là mô hình cờ bạc trá hình hoặc phát hành tiền ảo.
                     </p>
                   </div>
                 </div>
@@ -263,6 +274,30 @@ export default function PrivacyPolicyPage() {
                   <p>
                     <strong>15. Xác thực OTP điện tử:</strong> Phương thức gửi mã số bí mật dùng một lần có thời hạn hiệu lực ngắn đến địa chỉ email của người dùng để xác nhận quyền sở hữu tài khoản hoặc xác thực các thao tác thay đổi thông tin quan trọng.
                   </p>
+
+                  <p>
+                    <strong>16. JOY (Đơn vị tương tác nội bộ phi tài chính):</strong> Là một loại điểm số ghi nhận trong nội bộ hệ thống Hugo Studio, được cấp cho Thành viên thông qua các hoạt động tương tác (chơi game HugoArcade, thi đấu HugoChess, điểm danh, hoàn thành nhiệm vụ đồng hành cùng HugoPSY). JOY <strong>không phải là tiền tệ, không phải tài sản số, không có giá trị quy đổi ra tiền mặt</strong> và không thể chuyển nhượng, mua bán, rút ra ngoài hệ thống dưới bất kỳ hình thức nào.
+                  </p>
+
+                  <p>
+                    <strong>17. HugoPSY (Trợ lý Đồng hành Sức khỏe Tinh thần bằng AI):</strong> Là tính năng chatbot trò chuyện được vận hành bởi mô hình ngôn ngữ lớn của bên thứ ba (Google Gemini, dự phòng bởi OpenRouter), nhằm mục đích lắng nghe, đồng hành, gợi ý các bài kiểm tra sàng lọc tâm lý phổ biến (PHQ-9, GAD-7, WHO-5, Big Five) và đưa ra phản hồi mang tính hỗ trợ tinh thần. HugoPSY <strong>không phải là dịch vụ y tế, không phải bác sĩ tâm lý hay chuyên gia trị liệu được cấp phép</strong> và không thay thế cho việc thăm khám, chẩn đoán, điều trị y khoa chính thức.
+                  </p>
+
+                  <p>
+                    <strong>18. HugoChess & HugoArcade (Phân hệ Trò chơi Giải trí):</strong> Là các tính năng trò chơi điện tử trực tuyến (cờ vua đối kháng, các minigame như rắn săn mồi, 2048, sinh tồn, đoán từ) được tích hợp nhằm mục đích giải trí thuần túy, ghi nhận điểm số/JOY mang tính khích lệ, không có yếu tố cá cược hoặc đặt cược tài sản thật.
+                  </p>
+
+                  <p>
+                    <strong>19. Đăng nhập sinh trắc học / Khóa truy cập (Biometric Login / Passkey - WebAuthn):</strong> Là phương thức xác thực đăng nhập sử dụng chuẩn công nghệ FIDO2/WebAuthn quốc tế, cho phép Thành viên đăng nhập bằng vân tay, khuôn mặt hoặc mã PIN của chính thiết bị cá nhân thay cho việc gõ mật khẩu.
+                  </p>
+
+                  <p>
+                    <strong>20. Thông báo đẩy (Push Notification):</strong> Là tin nhắn thông báo ngắn được gửi tới thiết bị của Thành viên thông qua trình duyệt hoặc ứng dụng web lũy tiến (PWA) nhằm nhắc nhở lịch hẹn, sự kiện hoặc tương tác mới mà không cần Thành viên đang mở website.
+                  </p>
+
+                  <p>
+                    <strong>21. Bên xử lý dữ liệu AI bên thứ ba (Third-Party AI Data Processor):</strong> Là các nhà cung cấp dịch vụ mô hình ngôn ngữ lớn nằm ngoài hạ tầng của Hugo Studio (cụ thể là Google Gemini API và OpenRouter) được sử dụng để xử lý nội dung trò chuyện văn bản của Thành viên với HugoPSY nhằm sinh ra phản hồi tự động, được quy định chi tiết về phạm vi dữ liệu được phép gửi đi tại Chương XIV.
+                  </p>
                 </div>
               </div>
             </section>
@@ -331,6 +366,39 @@ export default function PrivacyPolicyPage() {
                       - Trợ lý ảo Bot Culi là hệ thống tương tác tự động được tích hợp trên các biểu mẫu liên hệ nhằm hướng dẫn người dùng điền thông tin hỗ trợ kỹ thuật đúng quy trình. Lịch sử trò chuyện và thông tin yêu cầu gửi qua Bot Culi sẽ được ghi nhận thành các phiếu ghi hỗ trợ (Support Tickets) nhằm phục vụ công tác khắc phục sự cố kỹ thuật của Admin.
                     </p>
                   </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border">
+                    <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
+                      3.6 Trợ Lý Đồng Hành Sức Khỏe Tinh Thần HugoPSY (Miễn phí, giới hạn theo hạn ngạch token):
+                    </h5>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 text-justify">
+                      - HugoPSY là không gian trò chuyện hỗ trợ tinh thần được vận hành theo hai lớp xử lý kết hợp: (i) một bộ phân loại ý định cục bộ (Local Intent Classifier) hoạt động ngay trên trình duyệt/máy chủ nội bộ, trả lời tức thì với hơn 30 chủ đề tâm lý phổ biến mà không cần gửi dữ liệu ra ngoài; và (ii) khi không có chủ đề cục bộ phù hợp, hệ thống chuyển tiếp một phiên bản dữ liệu đã được tối giản nghiêm ngặt (xem Chương XIV) tới mô hình AI của bên thứ ba để sinh phản hồi tự nhiên hơn.
+                      <br />
+                      - Hạn ngạch xử lý qua AI bên thứ ba được giới hạn theo từng Thành viên (token-based) nhằm đảm bảo công bằng tài nguyên vận hành và được Admin tự nguyện gánh chịu toàn bộ chi phí, không thu phí Thành viên dưới mọi hình thức.
+                      <br />
+                      - <strong>Tuyên bố miễn trừ y tế:</strong> Mọi nội dung, gợi ý, bài kiểm tra sàng lọc (PHQ-9, GAD-7, WHO-5, Big Five) và phân tích kết quả do HugoPSY cung cấp chỉ mang tính chất tham khảo, hỗ trợ tinh thần ban đầu, <strong>không cấu thành chẩn đoán y khoa</strong>. Trường hợp phát hiện dấu hiệu khủng hoảng tâm lý nghiêm trọng, hệ thống sẽ ưu tiên hiển thị thông tin đường dây nóng hỗ trợ khẩn cấp và khuyến nghị Thành viên liên hệ chuyên gia y tế, tổng đài tâm lý hoặc cơ sở y tế gần nhất.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border">
+                    <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
+                      3.7 HugoChess & HugoArcade (Phân Hệ Trò Chơi Giải Trí Tích Lũy JOY):
+                    </h5>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 text-justify">
+                      - HugoChess cho phép Thành viên thi đấu cờ vua trực tuyến với người dùng khác hoặc với máy, ghi nhận điểm xếp hạng (rating) nội bộ mang tính tham khảo giải trí. HugoArcade cung cấp các minigame giải trí ngắn (rắn săn mồi, 2048, sinh tồn, đoán từ, v.v.) tích lũy điểm số JOY và điểm cao (high score) cá nhân.
+                      <br />
+                      - Chi tiết đầy đủ về bản chất phi tài chính của JOY, thẻ quà tặng (Gift Card) và quy chế trò chơi hóa được quy định toàn diện tại <em>Chương XIII</em> của văn bản này.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border">
+                    <h5 className="font-bold text-slate-855 dark:text-white text-xs mb-2 uppercase tracking-wide">
+                      3.8 Đăng Nhập Sinh Trắc Học & Thông Báo Đẩy (Biometric Login & Push Notification):
+                    </h5>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 text-justify">
+                      - Hệ thống hỗ trợ đăng nhập nhanh bằng sinh trắc học (vân tay/khuôn mặt của thiết bị) theo chuẩn WebAuthn/FIDO2 và gửi thông báo đẩy nhắc nhở qua trình duyệt. Chi tiết kỹ thuật và phạm vi dữ liệu lưu trữ được quy định toàn diện tại <em>Chương XV</em>.
+                    </p>
+                  </div>
                 </div>
               </div>
             </section>
@@ -388,6 +456,34 @@ export default function PrivacyPolicyPage() {
                       - <strong>Dữ liệu thiết bị & Trình duyệt (User Agent):</strong> Loại thiết bị sử dụng (điện thoại di động, máy tính bảng, máy tính cá nhân), hệ điều hành (iOS, Android, Windows, macOS), loại trình duyệt sử dụng (Safari, Chrome, Firefox) để tối ưu hiển thị giao diện.
                       <br />
                       - <strong>Cookie và Session Token:</strong> Sử dụng cookie kỹ thuật và Local Storage để lưu trữ Session Token đã được mã hóa nhằm duy trì trạng thái đăng nhập của Thành viên mà không bắt buộc phải nhập lại mật khẩu trong mỗi phiên làm việc.
+                    </p>
+                  </div>
+
+                  <div className="pl-4 border-l-2 border-rose-500 space-y-2">
+                    <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">
+                      5. Dữ Liệu Sức Khỏe Tinh Thần & Trò Chuyện Với HugoPSY (Dữ liệu nhạy cảm — xem chi tiết Chương XIV):
+                    </h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 text-justify">
+                      - <strong>Nội dung trò chuyện thô (Raw Chat):</strong> Toàn bộ tin nhắn văn bản Thành viên trao đổi với HugoPSY, chỉ được lưu trữ tối đa <strong>07 ngày gần nhất</strong> rồi tự động bị xóa vĩnh viễn khỏi hệ thống (xem quy tắc lưu trữ tại Chương VI và Chương XIV).
+                      <br />
+                      - <strong>Chỉ số sức khỏe tinh thần đã lượng hóa (Indicator Logs):</strong> Kết quả các bài kiểm tra sàng lọc (điểm số PHQ-9, GAD-7, WHO-5, Big Five), nhãn tâm trạng điểm danh hằng ngày (mood check-in) và streak đồng hành. Các chỉ số này được lưu trữ dài hạn dưới dạng số liệu tổng hợp (không lưu nội dung chữ thô) để hệ thống "nhớ" hành trình của Thành viên dù tin nhắn gốc đã bị xóa.
+                      <br />
+                      - <strong>Tóm tắt sức khỏe tinh thần (Wellness Summary):</strong> Một đoạn văn bản ngắn được hệ thống tự động tổng hợp từ các chỉ số trên (ví dụ: "Streak check-in 5 ngày, tâm trạng gần nhất 4/5, điểm PHQ-9 gần nhất 8 điểm cách đây 2 ngày") — đây là dữ liệu duy nhất đại diện cho lịch sử dài hạn được phép gửi cho AI bên thứ ba.
+                    </p>
+                  </div>
+
+                  <div className="pl-4 border-l-2 border-purple-500 space-y-2">
+                    <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">
+                      6. Dữ Liệu Trò Chơi Hóa, Điểm JOY & Sinh Trắc Học Thiết Bị:
+                    </h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 text-justify">
+                      - <strong>Số dư và lịch sử JOY (JOY Ledger):</strong> Số điểm JOY hiện có, lịch sử cộng/trừ điểm theo từng hoạt động (chơi game, điểm danh, đổi thẻ quà tặng nội bộ).
+                      <br />
+                      - <strong>Điểm số trò chơi:</strong> Điểm cao cá nhân tại các minigame HugoArcade, điểm xếp hạng (rating) và lịch sử ván đấu tại HugoChess.
+                      <br />
+                      - <strong>Thông tin xác thực sinh trắc học (WebAuthn Credential):</strong> Hugo Studio <strong>chỉ lưu trữ một khóa công khai (Public Key) và mã định danh thiết bị</strong> do chuẩn FIDO2/WebAuthn của trình duyệt cấp ra — hệ thống <strong>không bao giờ thu thập, truyền tải hay lưu trữ</strong> hình ảnh vân tay, khuôn mặt hoặc bất kỳ mẫu sinh trắc học gốc nào; toàn bộ dữ liệu sinh trắc học gốc luôn được giữ và xử lý cục bộ trên chính thiết bị của người dùng.
+                      <br />
+                      - <strong>Mã đăng ký nhận thông báo đẩy (Push Subscription Endpoint):</strong> Một địa chỉ endpoint kỹ thuật do trình duyệt cấp khi Thành viên đồng ý nhận thông báo, dùng để gửi tin nhắn nhắc nhở mà không gắn liền với danh tính cá nhân nào khác ngoài tài khoản đã đăng nhập.
                     </p>
                   </div>
                 </div>
@@ -504,6 +600,17 @@ export default function PrivacyPolicyPage() {
                       - <strong>Ngoại lệ lưu trữ bắt buộc đối với dữ liệu hóa đơn của Admin:</strong> Thông tin lịch sử thanh toán hóa đơn dịch vụ Studio cá nhân của khách hàng trực tiếp của Admin phải được lưu giữ trong thời hạn tối thiểu 05 năm kể từ ngày giao dịch thành công để phục vụ công tác quyết toán thuế thu nhập cá nhân của Admin theo luật thuế Việt Nam. Dữ liệu hóa đơn này được lưu trữ nội bộ riêng biệt và hoàn toàn không liên quan đến dữ liệu của các Thành viên sử dụng Bio Link miễn phí.
                     </p>
                   </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground text-xs">
+                      d) Quy Tắc Lưu Trữ Đặc Biệt Đối Với Dữ Liệu Trò Chuyện HugoPSY (Quy Tắc 7 Ngày):
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                      - Để giảm thiểu rủi ro lưu trữ dữ liệu nhạy cảm về sức khỏe tinh thần lâu dài, toàn bộ <strong>nội dung trò chuyện thô (Raw Chat)</strong> giữa Thành viên và HugoPSY chỉ được hệ thống giữ lại trong vòng <strong>07 ngày gần nhất</strong>. Mỗi khi tải lại phiên trò chuyện, hệ thống tự động quét và xóa vĩnh viễn không thể phục hồi mọi tin nhắn cũ hơn 7 ngày khỏi bộ nhớ lưu trữ của Thành viên.
+                      <br />
+                      - Riêng các <strong>chỉ số đã lượng hóa</strong> (điểm số bài test, nhãn tâm trạng, streak điểm danh) không thuộc diện bị xóa theo quy tắc 7 ngày này — các chỉ số này được lưu trữ dài hạn dưới dạng số liệu nhằm phục vụ tính năng "ghi nhớ hành trình" cá nhân hóa, theo đúng cơ chế kỹ thuật và phạm vi được mô tả chi tiết tại Chương XIV.
+                    </p>
+                  </div>
                 </div>
               </div>
             </section>
@@ -602,6 +709,12 @@ export default function PrivacyPolicyPage() {
                     <strong>b) Trường hợp ngoại lệ cung cấp thông tin cho Cơ quan Nhà nước có thẩm quyền:</strong>
                     <br />
                     Dữ liệu cá nhân lưu trữ trên máy chủ Hugo Studio chỉ được phép cung cấp hoặc trích xuất cho bên thứ ba khi có văn bản yêu cầu chính thức, hợp pháp từ các cơ quan bảo vệ pháp luật của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam (bao gồm Cơ quan Điều tra An ninh, Cơ quan Cảnh sát điều tra, Tòa án nhân dân các cấp, Viện kiểm sát nhân dân) trong các trường hợp liên quan đến hoạt động điều tra tội phạm công nghệ cao, lừa đảo chiếm đoạt tài sản, đe dọa an ninh quốc gia hoặc vi phạm pháp luật hình sự khác. Trình tự cung cấp thông tin sẽ được Admin kiểm soát nghiêm ngặt nhằm đảm bảo tuân thủ đúng quy định của Bộ luật Tố tụng Hình sự hiện hành.
+                  </p>
+
+                  <p>
+                    <strong>b.1) Trường hợp ngoại lệ duy nhất khác — Chuyển giao tối giản dữ liệu cho AI bên thứ ba phục vụ HugoPSY:</strong>
+                    <br />
+                    Để vận hành tính năng trò chuyện AI của HugoPSY, một phần nội dung tương tác buộc phải được gửi tới máy chủ của nhà cung cấp mô hình ngôn ngữ lớn bên thứ ba (Google Gemini API, dự phòng OpenRouter). Đây là ngoại lệ chuyển giao dữ liệu duy nhất ngoài trường hợp yêu cầu của cơ quan nhà nước, và được kiểm soát bằng nguyên tắc tối giản hóa nghiêm ngặt: hệ thống <strong>tuyệt đối không</strong> gửi đi email, số điện thoại, địa chỉ, ngày sinh đầy đủ, số đo hình thể, học vấn, kỹ năng hay bất kỳ định danh cá nhân trực tiếp nào khác trong bio hồ sơ của Thành viên tới các nhà cung cấp này. Chỉ duy nhất tên hiển thị, một số tuổi được suy ra (không kèm ngày sinh) và một đoạn tóm tắt chỉ số sức khỏe tinh thần đã được tổng hợp ẩn danh mới được phép xuất hiện trong dữ liệu gửi đi. Quy chế đầy đủ về việc này được quy định chi tiết, không thể sửa đổi đơn phương, tại <em>Chương XIV</em> của văn bản này.
                   </p>
 
                   <p>
@@ -769,6 +882,262 @@ export default function PrivacyPolicyPage() {
                   <p className="text-[10px] text-slate-400 dark:text-slate-500 italic border-t border-slate-200 dark:border-slate-800 pt-3 text-justify">
                     * Cam kết xử lý yêu cầu (SLA): Cá nhân Admin duy nhất phụ trách kỹ thuật cam kết sẽ tiếp nhận, đối soát thông tin tài khoản của người gửi yêu cầu nhằm tránh mạo danh và thực hiện xử lý kỹ thuật, phản hồi bằng văn bản hoặc thư điện tử xác nhận hoàn tất yêu cầu đính chính, rút lại sự đồng ý hoặc xóa dữ liệu của Thành viên trong thời hạn tối đa ba (03) ngày làm việc kể từ thời điểm nhận được yêu cầu hợp lệ.
                   </p>
+                </div>
+              </div>
+            </section>
+
+            {/* CHƯƠNG 13 */}
+            <section id="chuong-13" className="space-y-4 scroll-mt-20">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">stadia_controller</span>
+                Chương XIII: Hệ Sinh Thái JOY, Trò Chơi Hóa (HugoArcade/HugoChess) & Quà Tặng
+              </h2>
+              <div className="space-y-4">
+                <p>
+                  Nhằm tăng sự gắn kết và mang lại trải nghiệm giải trí lành mạnh cho Thành viên, Hugo Studio xây dựng một hệ sinh thái trò chơi hóa (Gamification) xoay quanh đơn vị điểm nội bộ <strong>JOY</strong>. Chương này quy định chi tiết, minh bạch và dứt khoát bản chất phi tài chính của toàn bộ hệ sinh thái này.
+                </p>
+
+                <div className="space-y-4 text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-red-550">
+                      a) Tuyên bố pháp lý cốt lõi: JOY không phải là tiền, không phải tài sản số:
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - JOY là điểm số ghi nhận tương tác nội bộ, tồn tại duy nhất trong phạm vi cơ sở dữ liệu của Hugo Studio, không được phát hành dưới dạng token blockchain, không được niêm yết trên bất kỳ sàn giao dịch nào, và <strong>không thể mua bằng tiền thật, không thể bán lại, không thể rút ra thành tiền mặt hoặc bất kỳ tài sản có giá trị quy đổi nào</strong>.
+                      <br />
+                      - Vì không có giá trị quy đổi tiền thật và không được mua bán trao đổi với bên ngoài, JOY và toàn bộ tính năng liên quan <strong>không thuộc phạm vi điều chỉnh</strong> của các quy định pháp luật về tiền điện tử, ví điện tử trung gian thanh toán (Thông tư 39/2014/TT-NHNN, Thông tư 23/2019/TT-NHNN) hay các quy định về kinh doanh đặt cược, cá cược, trò chơi có thưởng (Nghị định 06/2017/NĐ-CP). Hugo Studio cam kết không bao giờ phát triển cơ chế nạp tiền thật để mua JOY hoặc đổi JOY ra tiền thật trong tương lai dưới mô hình hiện tại.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                      b) Cách thức tích lũy JOY:
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      Thành viên tích lũy JOY thông qua các hoạt động hoàn toàn miễn phí và tự nguyện: chơi các minigame tại HugoArcade (2048, rắn săn mồi, sinh tồn, đoán từ, v.v.), thi đấu cờ vua tại HugoChess, điểm danh hằng ngày, hoàn thành nhiệm vụ đồng hành với HugoPSY, hoặc các sự kiện khuyến khích tương tác khác do Admin chủ động tổ chức theo từng giai đoạn.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                      c) Thẻ Quà Tặng JOY (JOY Gift Card) & Sổ Cái Giao Dịch Nội Bộ (JOY Ledger):
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Thành viên có thể sử dụng JOY đã tích lũy để đổi lấy các vật phẩm trang trí hồ sơ, hiệu ứng giao diện hoặc thẻ quà tặng nội bộ (JOY Gift Card) mang tính biểu trưng/giải trí trong phạm vi hệ thống. Mọi giao dịch cộng/trừ JOY đều được ghi lại đầy đủ trong sổ cái nội bộ (JOY Ledger) gắn với tài khoản Thành viên để phục vụ minh bạch hóa lịch sử điểm số khi có khiếu nại hoặc tra soát.
+                      <br />
+                      - JOY Gift Card không có giá trị sử dụng ngoài hệ thống Hugo Studio và không được bảo đảm quy đổi nếu tài khoản bị khóa do vi phạm Điều khoản tại Chương III. Việc chuyển nhượng JOY/JOY Gift Card giữa các tài khoản — nếu có — chỉ được thực hiện thông qua chính cơ chế chuyển nhượng nội bộ do Admin chủ động thiết kế và kiểm soát trực tiếp trên hệ thống (nếu được mở), tuyệt đối không thông qua bất kỳ thỏa thuận, giao dịch hay trung gian nào ngoài hệ thống — xem nguyên tắc cấm mua bán cá nhân chi tiết tại điểm (d) dưới đây.
+                    </p>
+                  </div>
+
+                  <div className="p-6 bg-red-500/5 rounded-2xl border-2 border-red-500/30 space-y-3">
+                    <h5 className="font-black text-red-600 dark:text-red-450 uppercase tracking-wider text-[12px] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-base">block</span>
+                      d) Cấm Tuyệt Đối Hành Vi Mua Bán, Trao Đổi, Quy Đổi JOY Giữa Các Cá Nhân (Anti Peer-to-Peer Trading):
+                    </h5>
+                    <p className="text-slate-700 dark:text-slate-300 text-justify font-semibold">
+                      Hugo Studio tuyên bố dứt khoát: <strong>không chấp thuận, không công nhận và không bảo vệ về mặt pháp lý</strong> dưới bất kỳ hình thức nào đối với các giao dịch dân sự tự phát giữa hai hay nhiều Thành viên nhằm mua bán, trao đổi, quy đổi điểm JOY hoặc JOY Gift Card lấy tiền mặt, chuyển khoản ngân hàng, thẻ nạp điện thoại, hàng hóa, dịch vụ hoặc bất kỳ lợi ích vật chất nào khác ngoài phạm vi kỹ thuật do Admin trực tiếp kiểm soát.
+                    </p>
+                    <ol className="list-decimal pl-5 space-y-2 text-slate-600 dark:text-slate-400 text-justify">
+                      <li>
+                        <strong>Nghiêm cấm các hành vi cụ thể sau:</strong> rao bán JOY/JOY Gift Card lấy tiền thật trên hệ thống Hugo Studio hoặc trên bất kỳ nền tảng mạng xã hội/diễn đàn/nhóm chat bên ngoài nào; nhận chuyển khoản hoặc thanh toán hộ để "tặng" JOY cho người khác; thỏa thuận đổi JOY ngang giá với tiền tệ hoặc tài sản số khác (tiền điện tử, voucher, thẻ game); lập nhiều tài khoản giả (tài khoản rác) để cày JOY rồi gộp/bán lại cho tài khoản khác nhằm mục đích thương mại hóa.
+                      </li>
+                      <li>
+                        <strong>Lý do của lệnh cấm:</strong> JOY được thiết kế là đặc quyền khích lệ giải trí nội bộ, miễn phí, không có giá trị quy đổi pháp lý (xem điểm a). Việc cho phép cá nhân tự ý mua bán sẽ biến JOY thành một dạng "tiền ảo trá hình" ngoài tầm kiểm soát của Admin, kéo theo rủi ro gian lận giữa các Thành viên, rủi ro bị xếp vào nhóm hoạt động cờ bạc/kinh doanh tiền ảo trái phép theo pháp luật Việt Nam, và xung đột trực tiếp với tuyên bố pháp lý tại điểm (a) của chương này.
+                      </li>
+                      <li>
+                        <strong>Chế tài xử lý vi phạm:</strong> Khi phát hiện hoặc nhận được báo cáo hợp lý về hành vi mua bán JOY giữa các cá nhân, Admin có quyền, không cần báo trước: tịch thu (trừ về 0) toàn bộ số dư JOY liên quan đến giao dịch vi phạm của các tài khoản tham gia; tạm khóa hoặc chấm dứt vĩnh viễn tài khoản của các bên liên quan theo mức độ vi phạm; và từ chối giải quyết mọi khiếu nại tài chính phát sinh từ các giao dịch mua bán JOY tự phát đó, do bản chất các giao dịch này không được Hugo Studio công nhận là hợp pháp ngay từ đầu.
+                      </li>
+                      <li>
+                        <strong>Miễn trừ trách nhiệm của Admin đối với tranh chấp dân sự giữa các cá nhân:</strong> Mọi tổn thất tài chính phát sinh từ việc một Thành viên tự ý chuyển tiền thật cho Thành viên khác để "mua" JOY — bao gồm cả trường hợp bị lừa đảo, không nhận được JOY như thỏa thuận — là tranh chấp dân sự thuần túy giữa các cá nhân, nằm hoàn toàn ngoài phạm vi kiểm soát và trách nhiệm pháp lý của Admin/Hugo Studio, tương tự nguyên tắc miễn trừ đã quy định đối với phân hệ Booking tại Chương III.
+                      </li>
+                    </ol>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                      e) Tính năng Donate/Ủng hộ (Tip/Buy Me A Coffee) cho cá nhân Admin:
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Tiện ích widget donate hiển thị trên giao diện cho phép người dùng tự nguyện gửi một khoản ủng hộ nhỏ trực tiếp cho cá nhân Admin nhằm duy trì chi phí vận hành hạ tầng máy chủ (bao gồm cả chi phí gọi API AI cho HugoPSY). Đây là hành vi tặng cho tự nguyện mang tính dân sự cá nhân, không phải giao dịch mua bán hàng hóa/dịch vụ, không phát sinh nghĩa vụ đối ứng nào từ phía Admin, và hoàn toàn tách biệt khỏi cơ chế JOY.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                      f) Quyền điều chỉnh và miễn trừ bảo đảm về JOY:
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Admin giữ toàn quyền điều chỉnh tỷ lệ tích điểm, danh mục vật phẩm đổi thưởng, hoặc tạm ngưng/chấm dứt toàn bộ hệ thống JOY vào bất kỳ thời điểm nào vì lý do kỹ thuật hoặc vận hành mà không phát sinh nghĩa vụ bồi thường cho Thành viên, do bản chất JOY là đặc quyền khích lệ giải trí miễn phí, không phải tài sản được pháp luật bảo hộ như tài sản dân sự thông thường.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* CHƯƠNG 14 */}
+            <section id="chuong-14" className="space-y-4 scroll-mt-20">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">psychology</span>
+                Chương XIV: Trợ Lý AI HugoPSY, Dữ Liệu Sức Khỏe Tinh Thần & Bên Xử Lý AI Bên Thứ Ba
+              </h2>
+              <div className="space-y-4">
+                <p>
+                  Đây là chương quan trọng nhất liên quan đến quyền riêng tư của Thành viên khi sử dụng HugoPSY. Do dữ liệu sức khỏe tinh thần được xếp vào nhóm <strong>dữ liệu cá nhân nhạy cảm</strong> theo <em>Điều 16, Nghị định 13/2023/NĐ-CP</em>, Hugo Studio cam kết áp dụng các biện pháp bảo vệ nghiêm ngặt hơn mức tiêu chuẩn thông thường, được công khai minh bạch tuyệt đối tại chương này.
+                </p>
+
+                <div className="space-y-4 text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-emerald-600 dark:text-emerald-450">
+                      a) Kiến trúc xử lý hai lớp — Ưu tiên tối đa xử lý nội bộ (Local-First):
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Phần lớn các lượt trò chuyện với HugoPSY được xử lý hoàn toàn bằng một bộ phân loại ý định cục bộ (Local Intent Classifier) chạy trên hạ tầng do Hugo Studio kiểm soát trực tiếp, dựa trên hơn 30 nhóm chủ đề tâm lý — cô đơn, mâu thuẫn gia đình/bạn bè, chia tay, tự ti, trì hoãn, nóng giận, hoảng loạn, mất mát, lo âu tương lai và nhiều chủ đề khác — mà <strong>không cần gửi bất kỳ dữ liệu nào ra bên ngoài hệ thống</strong>.
+                      <br />
+                      - Chỉ khi không có chủ đề cục bộ phù hợp, hệ thống mới chuyển tiếp yêu cầu tới mô hình AI bên thứ ba để sinh phản hồi linh hoạt hơn, theo đúng nguyên tắc tối giản dữ liệu được quy định tại điểm (b) dưới đây.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-emerald-600 dark:text-emerald-450">
+                      a.1) Diễn giải chi tiết cơ chế vận hành kỹ thuật từng bước (How It Works):
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      Để Thành viên hiểu rõ "phía sau" của một lượt trò chuyện với HugoPSY diễn ra như thế nào, Hugo Studio công khai minh bạch trình tự xử lý kỹ thuật như sau:
+                      <br />
+                      &nbsp;&nbsp;<strong>Bước 1 — Nhận diện ý định (Intent Classification):</strong> Khi Thành viên gửi một tin nhắn, hệ thống trước tiên chạy thuật toán so khớp văn bản nội bộ (dựa trên độ tương đồng song-gram Sørensen-Dice kết hợp các quy tắc biểu thức nhanh) để xác định tin nhắn có khớp với một trong hơn 30 chủ đề tâm lý đã được biên soạn sẵn hay không (cô đơn, mâu thuẫn gia đình/bạn bè, chia tay, tự ti, trì hoãn, nóng giận, hoảng loạn, mất mát, lo âu tương lai, sắp xếp không gian sống, chi tiêu có ý thức, v.v.).
+                      <br />
+                      &nbsp;&nbsp;<strong>Bước 2a — Khớp chủ đề cục bộ (đa số trường hợp):</strong> Nếu khớp, hệ thống trả lời ngay bằng nội dung đã biên soạn trước, được lập trình hiển thị thành 2-3 tin nhắn ngắn gửi liên tiếp có độ trễ ngẫu nhiên (giả lập cảm giác đang gõ chữ thật) nhằm tạo trải nghiệm gần gũi, tự nhiên hơn một khối văn bản dài. Toàn bộ quá trình này không phát sinh bất kỳ kết nối nào tới máy chủ AI bên thứ ba.
+                      <br />
+                      &nbsp;&nbsp;<strong>Bước 2b — Chuyển tiếp AI bên thứ ba (khi không khớp chủ đề cục bộ):</strong> Hệ thống dựng gói dữ liệu tối giản (xem điểm b), kèm tối đa 8 lượt trao đổi gần nhất và bản tóm tắt sức khỏe tinh thần, rồi gửi yêu cầu tới Google Gemini API. Phản hồi được truyền ngược về theo cơ chế truyền trực tuyến (streaming) — Thành viên thấy chữ xuất hiện dần thay vì chờ toàn bộ câu trả lời. Nếu Gemini gặp lỗi, hết hạn ngạch hoặc quá tải, hệ thống tự động chuyển sang gọi OpenRouter làm phương án dự phòng mà Thành viên không cần thực hiện thêm hành động nào.
+                      <br />
+                      &nbsp;&nbsp;<strong>Bước 3 — Hạn ngạch token cá nhân hóa:</strong> Mỗi tài khoản được cấp một hạn ngạch số lượt gọi AI bên thứ ba theo ngày/theo phiên (do Admin tự nguyện chi trả toàn bộ chi phí vận hành). Khi vượt hạn ngạch, hệ thống ưu tiên trả lời bằng các chủ đề cục bộ đã biên soạn sẵn hoặc thông báo Thành viên thử lại sau, không khóa tài khoản, không thu phí bổ sung.
+                      <br />
+                      &nbsp;&nbsp;<strong>Bước 4 — Ghi nhận chỉ số (không ghi nhận nội dung thô dài hạn):</strong> Nếu cuộc trò chuyện liên quan đến việc hoàn thành một bài kiểm tra sàng lọc (PHQ-9, GAD-7, WHO-5, Big Five) hoặc một lượt điểm danh tâm trạng, hệ thống trích xuất đúng con số kết quả để lưu vào nhật ký chỉ số dài hạn; nội dung chữ thô của cuộc trò chuyện vẫn tuân theo quy tắc xóa sau 7 ngày tại Chương VI.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-red-550">
+                      b) Danh sách Bên xử lý AI bên thứ ba & Nguyên tắc tối giản dữ liệu tuyệt đối (Strict Allow-List):
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Hugo Studio sử dụng <strong>Google Gemini API</strong> làm nhà cung cấp AI chính, và <strong>OpenRouter</strong> làm phương án dự phòng khi Gemini gặp sự cố hoặc vượt hạn ngạch. Cả hai đều là bên xử lý dữ liệu (Data Processor) độc lập, vận hành theo chính sách bảo mật riêng của họ đối với dữ liệu được gửi tới.
+                      <br />
+                      - Hệ thống tuyệt đối <strong>không gửi đi nguyên trạng hồ sơ (Bio) của Thành viên</strong>. Trước khi gửi bất kỳ yêu cầu nào tới AI bên thứ ba, hệ thống luôn dựng lại một gói dữ liệu tối giản theo cơ chế danh sách cho phép nghiêm ngặt (allow-list), chỉ chứa đúng ba (03) loại thông tin sau và không gì khác:
+                      <br />
+                      &nbsp;&nbsp;+ <strong>Tên hiển thị (Display Name)</strong> — không kèm họ tên đầy đủ trên giấy tờ nếu khác với tên hiển thị Thành viên tự đặt.
+                      <br />
+                      &nbsp;&nbsp;+ <strong>Một số tuổi được suy ra (Age)</strong> — được tính toán từ năm sinh ngay trên thiết bị/máy chủ nội bộ, sau đó loại bỏ hoàn toàn ngày, tháng sinh trước khi gửi đi; ngày sinh đầy đủ <strong>không bao giờ</strong> được chuyển tới AI bên thứ ba.
+                      <br />
+                      &nbsp;&nbsp;+ <strong>Tóm tắt sức khỏe tinh thần đã tổng hợp (Wellness Summary)</strong> — một đoạn văn bản ngắn do hệ thống tự sinh từ các chỉ số đã lượng hóa (streak điểm danh, tâm trạng gần nhất, điểm bài test gần nhất), không chứa nguyên văn nội dung trò chuyện.
+                      <br />
+                      - Các trường dữ liệu sau <strong>không bao giờ</strong> rời khỏi hệ thống nội bộ của Hugo Studio dưới bất kỳ hình thức nào: địa chỉ email, số điện thoại, địa chỉ nhà, ngày sinh đầy đủ, số đo hình thể, trình độ học vấn, kỹ năng cá nhân, chức danh công việc, đường dẫn trang Bio Link (slug) và ảnh đại diện. Mã định danh tài khoản (email) chỉ được dùng nội bộ phía máy chủ để giới hạn hạn ngạch token, không được đính kèm trong nội dung gửi tới AI.
+                      <br />
+                      - HugoPSY được lập trình với nguyên tắc bảo mật chủ động: AI <strong>không được phép chủ động hỏi xin</strong> số điện thoại, địa chỉ nhà hoặc ngày sinh của Thành viên trong bất kỳ tình huống trò chuyện nào.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                      c) Lịch sử trò chuyện gửi kèm mỗi yêu cầu AI:
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Để AI hiểu mạch trò chuyện, một số lượt trao đổi gần nhất (tối đa 8 lượt, nằm trong phạm vi dữ liệu 7 ngày tại Chương VI) được gửi kèm theo mỗi yêu cầu. Toàn bộ các nhà cung cấp AI bên thứ ba được lựa chọn dựa trên chính sách công khai của họ về việc không sử dụng dữ liệu API doanh nghiệp để huấn luyện lại mô hình nền tảng theo mặc định; Thành viên có quyền yêu cầu Admin cung cấp đường dẫn chính sách bảo mật hiện hành của các nhà cung cấp này khi có yêu cầu hợp lệ.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-amber-600 dark:text-amber-450">
+                      d) Cơ chế phát hiện khủng hoảng & Ưu tiên an toàn người dùng:
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Khi hệ thống phát hiện các dấu hiệu ngôn từ liên quan đến khủng hoảng tâm lý nghiêm trọng hoặc nguy cơ tự gây hại, HugoPSY sẽ ưu tiên hiển thị nguyên vẹn, không chia nhỏ, không trì hoãn một thông điệp duy nhất chứa thông tin đường dây nóng hỗ trợ khẩn cấp và khuyến nghị tìm kiếm trợ giúp chuyên môn ngay lập tức, thay vì tiếp tục đối thoại thông thường.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                      e) Quyền riêng tư đặc biệt đối với Thành viên là học sinh, sinh viên chưa đủ 18 tuổi:
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Do phần lớn người dùng nền tảng là học sinh, sinh viên, Hugo Studio khuyến nghị Thành viên dưới 18 tuổi nên có sự đồng hành hoặc trao đổi với phụ huynh/người giám hộ về việc sử dụng HugoPSY khi gặp các vấn đề tâm lý nghiêm trọng, và cam kết không bao giờ sử dụng dữ liệu sức khỏe tinh thần thu thập được cho bất kỳ mục đích quảng cáo, phân tích hành vi thương mại hoặc bán cho bên thứ ba dưới mọi hình thức.
+                    </p>
+                  </div>
+
+                  <div className="p-6 bg-red-500/5 rounded-2xl border-2 border-red-500/30 space-y-3">
+                    <h5 className="font-black text-red-600 dark:text-red-450 uppercase tracking-wider text-[12px] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-base">emergency</span>
+                      f) Tuyên Bố Miễn Trừ Trách Nhiệm Y Khoa Toàn Diện & Dứt Khoát (Comprehensive Medical Disclaimer):
+                    </h5>
+                    <p className="text-slate-700 dark:text-slate-300 text-justify font-semibold">
+                      Đây là tuyên bố pháp lý quan trọng nhất của toàn bộ Chương XIV. Bằng việc bắt đầu sử dụng tính năng HugoPSY, Thành viên xác nhận đã đọc, hiểu rõ và đồng ý vô điều kiện với toàn bộ nội dung miễn trừ dưới đây:
+                    </p>
+                    <ol className="list-decimal pl-5 space-y-2 text-slate-600 dark:text-slate-400 text-justify">
+                      <li>
+                        <strong>HugoPSY không phải là dịch vụ y tế, không phải là bác sĩ, không phải là chuyên gia tâm lý được cấp phép hành nghề.</strong> Toàn bộ nội dung trả lời, lời khuyên, bài tập gợi ý, kết quả phân tích bài kiểm tra sàng lọc (PHQ-9, GAD-7, WHO-5, Big Five) do HugoPSY cung cấp — bất kể được tạo ra từ bộ phân loại ý định cục bộ hay từ mô hình AI bên thứ ba (Google Gemini/OpenRouter) — chỉ mang tính chất <strong>tham khảo, hỗ trợ tinh thần ban đầu và mang tính giải trí/đồng hành</strong>, hoàn toàn <strong>không cấu thành, không thay thế và không được hiểu là chẩn đoán y khoa, kết luận tâm thần học, kê đơn điều trị hay tư vấn chuyên môn chính thức</strong> dưới bất kỳ hình thức nào.
+                      </li>
+                      <li>
+                        <strong>Bản chất xác suất của công nghệ trí tuệ nhân tạo:</strong> Thành viên hiểu và chấp nhận rằng mô hình ngôn ngữ lớn (Large Language Model) có thể đưa ra phản hồi không chính xác, lỗi thời, thiếu ngữ cảnh hoặc không phù hợp với tình huống cá nhân cụ thể (hiện tượng "ảo giác AI" - AI hallucination) do đặc tính kỹ thuật vốn có của công nghệ sinh văn bản dựa trên xác suất, không phải sự thấu hiểu y khoa thực sự của con người.
+                      </li>
+                      <li>
+                        <strong>Tuyệt đối không trì hoãn việc thăm khám chuyên môn:</strong> Trong mọi trường hợp Thành viên có dấu hiệu rối loạn tâm lý nghiêm trọng, ý nghĩ hoặc hành vi tự gây hại, tự tử, loạn thần, hoặc bất kỳ tình trạng khẩn cấp về sức khỏe tâm thần nào, Thành viên có nghĩa vụ <strong>liên hệ ngay lập tức</strong> với bác sĩ tâm thần, chuyên gia tâm lý được cấp phép, cơ sở y tế gần nhất, đường dây nóng hỗ trợ khẩn cấp quốc gia, hoặc gọi số điện thoại cấp cứu <strong>115</strong>. Tuyệt đối không sử dụng HugoPSY là kênh duy nhất hoặc kênh thay thế cho việc can thiệp y tế khẩn cấp.
+                      </li>
+                      <li>
+                        <strong>Miễn trừ trách nhiệm pháp lý của Admin:</strong> Cá nhân Admin và hệ thống Hugo Studio <strong>không chịu bất kỳ trách nhiệm pháp lý, dân sự hay hình sự nào</strong> đối với mọi hậu quả trực tiếp hoặc gián tiếp phát sinh từ việc Thành viên sử dụng, dựa vào, hoặc hành động theo nội dung phản hồi của HugoPSY, bao gồm nhưng không giới hạn ở: quyết định cá nhân về sức khỏe, tài chính, quan hệ xã hội, hoặc bất kỳ thiệt hại thực tế nào khác. Việc miễn trừ này không áp dụng đối với nghĩa vụ bảo mật dữ liệu cá nhân đã cam kết tại các điểm (a)-(e) phía trên.
+                      </li>
+                      <li>
+                        <strong>Tính năng tự nguyện, không bắt buộc:</strong> Việc sử dụng HugoPSY là hoàn toàn tự nguyện. Thành viên có quyền ngừng sử dụng tính năng này vào bất kỳ thời điểm nào mà không ảnh hưởng đến các quyền lợi khác trên hệ thống Hugo Studio.
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* CHƯƠNG 15 */}
+            <section id="chuong-15" className="space-y-4 scroll-mt-20">
+              <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2.5 uppercase border-b border-white/5 pb-2">
+                <span className="material-symbols-outlined text-primary">fingerprint</span>
+                Chương XV: Đăng Nhập Sinh Trắc Học, Thông Báo Đẩy & Bảo Mật Thiết Bị
+              </h2>
+              <div className="space-y-4">
+                <p>
+                  Chương này quy định chi tiết về hai tính năng tiện ích nâng cao liên quan trực tiếp đến thiết bị cá nhân của Thành viên: đăng nhập sinh trắc học và thông báo đẩy.
+                </p>
+
+                <div className="space-y-4 text-xs">
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px] text-emerald-600 dark:text-emerald-450">
+                      a) Đăng nhập sinh trắc học theo chuẩn WebAuthn/FIDO2 — Không lưu trữ dữ liệu sinh trắc học gốc:
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Khi Thành viên kích hoạt đăng nhập bằng vân tay hoặc khuôn mặt, toàn bộ quá trình xác thực sinh trắc học (quét vân tay, nhận diện khuôn mặt) diễn ra <strong>hoàn toàn cục bộ trên chính thiết bị</strong> của Thành viên (chip bảo mật/Secure Enclave của điện thoại, máy tính), tuân theo chuẩn công nghệ quốc tế FIDO2/WebAuthn.
+                      <br />
+                      - Máy chủ Hugo Studio <strong>không bao giờ nhận, xử lý hoặc lưu trữ</strong> hình ảnh vân tay, khuôn mặt hay bất kỳ mẫu sinh trắc học gốc nào. Hệ thống chỉ lưu giữ duy nhất một <strong>khóa công khai mật mã (Public Key)</strong> không thể dùng để khôi phục lại dữ liệu sinh trắc học gốc, cùng một mã định danh thiết bị để xác minh khi đăng nhập lần sau.
+                      <br />
+                      - Thành viên có thể chủ động gỡ bỏ phương thức đăng nhập sinh trắc học của bất kỳ thiết bị nào khỏi tài khoản của mình tại trang Cài đặt bất cứ lúc nào.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                      b) Thông báo đẩy (Push Notification) qua Ứng dụng Web Lũy Tiến (PWA):
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Thành viên có quyền tự nguyện cấp hoặc từ chối quyền nhận thông báo đẩy thông qua hộp thoại xin phép tiêu chuẩn của trình duyệt. Khi đồng ý, trình duyệt cấp một địa chỉ endpoint kỹ thuật duy nhất cho thiết bị đó, được lưu gắn với tài khoản để gửi nhắc nhở lịch hẹn, sự kiện hoặc tương tác mới.
+                      <br />
+                      - Thành viên có thể thu hồi quyền nhận thông báo bất kỳ lúc nào thông qua cài đặt trình duyệt hoặc trang Cài đặt thông báo trong Dashboard; sau khi thu hồi, địa chỉ endpoint liên quan sẽ bị xóa khỏi hệ thống trong lần đồng bộ kế tiếp.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-muted rounded-2xl border border-border space-y-2">
+                    <h5 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                      c) Quản lý phiên đăng nhập đa thiết bị:
+                    </h5>
+                    <p className="text-slate-600 dark:text-slate-400 text-justify">
+                      - Thành viên có thể đăng nhập đồng thời trên nhiều thiết bị; mỗi thiết bị duy trì một Session Token độc lập tuân theo quy tắc hết hạn 14 ngày tại Chương VI. Thành viên có quyền chủ động đăng xuất từ xa một thiết bị cụ thể nếu nghi ngờ thiết bị đó bị truy cập trái phép.
+                    </p>
+                  </div>
                 </div>
               </div>
             </section>

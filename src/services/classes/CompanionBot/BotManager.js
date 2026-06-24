@@ -2,9 +2,9 @@ import RandomBot from "./RandomBot";
 import AIBot from "./AIBot";
 
 export default class BotManager {
-  constructor(bio, historyLogs, healingActive) {
-    this.randomBot = new RandomBot(bio, historyLogs, healingActive);
-    this.aiBot = new AIBot(bio, historyLogs, healingActive);
+  constructor(bio, historyLogs, healingActive, chatMessages = []) {
+    this.randomBot = new RandomBot(bio, historyLogs, healingActive, chatMessages);
+    this.aiBot = new AIBot(bio, historyLogs, healingActive, chatMessages);
   }
 
   /**
