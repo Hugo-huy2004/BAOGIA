@@ -45,6 +45,11 @@ const dialogueReply = (value, fallback = "") => {
 
 
 function WellnessInsightStrip({ bio, historyLogs, chatMessages, onNavigateToTab }) {
+  // Collapsed by default — this strip used to always show the full suggestion
+  // list (icon + label + reason per card) pinned above the chat, which on a
+  // phone ate most of the screen before any actual conversation was visible.
+  // Now it's a single compact teaser pill that expands on tap.
+  const [expanded, setExpanded] = useState(false);
   const { latestMood, streak, trend, latestClinical, recommendations } = React.useMemo(() => {
     return WellnessRecommendationEngine.generateSuggestions(bio, historyLogs, chatMessages);
   }, [bio, historyLogs, chatMessages]);
@@ -84,10 +89,22 @@ function WellnessInsightStrip({ bio, historyLogs, chatMessages, onNavigateToTab 
         )}
       </div>
 
-      {/* Smart Suggestions List */}
+      {/* Smart Suggestions — collapsed teaser by default, expands on tap */}
       {recommendations && recommendations.length > 0 && (
         <div className="px-4 pb-1 space-y-1.5">
-          <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Gợi ý dành riêng cho cậu hôm nay:</p>
+          <button
+            type="button"
+            onClick={() => setExpanded(v => !v)}
+            className="w-full flex items-center justify-between gap-2 text-left"
+          >
+            <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">
+              💡 {recommendations.length} gợi ý dành riêng cho cậu hôm nay
+            </p>
+            <span className="material-symbols-outlined text-[14px] text-zinc-400 transition-transform" style={{ transform: expanded ? "rotate(180deg)" : "none" }}>
+              expand_more
+            </span>
+          </button>
+          {expanded && (
           <div className="flex flex-col gap-2">
             {recommendations.map((suggestion, idx) => (
               <button
@@ -117,6 +134,7 @@ function WellnessInsightStrip({ bio, historyLogs, chatMessages, onNavigateToTab 
               </button>
             ))}
           </div>
+          )}
         </div>
       )}
     </div>
