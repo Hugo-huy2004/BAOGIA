@@ -3,7 +3,9 @@ import { webauthnHelper } from "../../utils/webauthnHelper";
 
 // Lets a member register this device's fingerprint/Face ID so future logins
 // don't require re-accepting the Google prompt every time.
-export default function BiometricLoginCard({ memberSession, showToast }) {
+// `bare` drops the own card chrome (border/shadow/bg) so it can nest inside
+// another card — e.g. MemberSettingsTab's grouped "Đăng nhập" section.
+export default function BiometricLoginCard({ memberSession, showToast, bare = false }) {
   const [supported, setSupported] = useState(false);
   const [devices, setDevices] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -44,16 +46,20 @@ export default function BiometricLoginCard({ memberSession, showToast }) {
   };
 
   return (
-    <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <span className="material-symbols-outlined text-primary text-lg">fingerprint</span>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">
-          Đăng nhập bằng vân tay / Face ID
-        </h3>
+    <div className={bare ? "p-4 space-y-3" : "bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-3"}>
+      <div className="flex items-center gap-3">
+        <span className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+          <span className="material-symbols-outlined text-base text-emerald-500">fingerprint</span>
+        </span>
+        <div>
+          <h3 className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
+            Đăng nhập bằng vân tay / Face ID
+          </h3>
+          <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
+            Quét vân tay hoặc Face ID trên thiết bị này thay vì đăng nhập lại bằng Google mỗi lần.
+          </p>
+        </div>
       </div>
-      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
-        Bật để lần sau mở Hugo Studio trên thiết bị này, bạn chỉ cần quét vân tay hoặc Face ID thay vì đăng nhập lại bằng Google.
-      </p>
 
       {devices.length > 0 && (
         <div className="space-y-1.5">

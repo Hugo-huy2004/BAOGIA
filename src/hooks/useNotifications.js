@@ -1,5 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import dataApi from '../services/dataApi';
+import { playNotificationSound } from '../utils/audio';
+import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
 
 // Only these categories are saved to DB — everything else is toast-only
 const PERSISTENT = new Set(['verification', 'package', 'wellness', 'security', 'joy', 'payment']);
@@ -30,6 +32,7 @@ export function useNotifications(email) {
   useEffect(() => {
     const handleRealtimeNotification = (e) => {
       const incoming = e.detail;
+      if (isNotificationSoundEnabled()) playNotificationSound();
       if (incoming?._id) {
         setItems(prev => prev.some(n => n._id === incoming._id) ? prev : [incoming, ...prev]);
       } else {

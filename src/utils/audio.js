@@ -32,6 +32,31 @@ export const playPopSound = () => {
   }
 };
 
+// Two-tone "ding-dong" chime for incoming notifications (toasts, real-time
+// JOY/verification updates) — distinct from the UI pop/tick sounds above so
+// it's recognizable as "something happened" rather than a button click.
+export const playNotificationSound = () => {
+  try {
+    const ctx = getAudioContext();
+    const notes = [{ hz: 880, at: 0 }, { hz: 1320, at: 0.12 }];
+    notes.forEach(({ hz, at }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(hz, ctx.currentTime + at);
+      gain.gain.setValueAtTime(0.001, ctx.currentTime + at);
+      gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + at + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + at + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + at);
+      osc.stop(ctx.currentTime + at + 0.32);
+    });
+  } catch (e) {
+    console.warn("Notification sound failed:", e);
+  }
+};
+
 export const playTick = () => {
   try {
     const ctx = getAudioContext();

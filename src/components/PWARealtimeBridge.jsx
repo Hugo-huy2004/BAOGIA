@@ -5,6 +5,8 @@ import { getMemberSession } from '../services/authSession';
 import { useJoyStore } from '../stores/joyStore';
 import { webPushHelper } from '../utils/webPushHelper';
 import { motion, AnimatePresence } from 'framer-motion';
+import { playNotificationSound } from '../utils/audio';
+import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
@@ -45,6 +47,7 @@ export default function PWARealtimeBridge() {
             // no manual reload needed.
             window.dispatchEvent(new CustomEvent('hugo:bio-update', { detail: data }));
             if (data.isEduVerified) {
+              if (isNotificationSoundEnabled()) playNotificationSound();
               toast.success('Tài khoản của bạn đã được xác minh sinh viên! Hạn dùng đã được nâng lên 365 ngày.', { duration: 6000 });
             }
             return;

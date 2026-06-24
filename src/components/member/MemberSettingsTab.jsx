@@ -3,21 +3,42 @@ import { useTranslation } from "react-i18next";
 import BiometricLoginCard from "./BiometricLoginCard";
 import ToggleSwitch from "../common/ToggleSwitch";
 import { webPushHelper } from "../../utils/webPushHelper";
+import { webauthnHelper } from "../../utils/webauthnHelper";
+import { playNotificationSound } from "../../utils/audio";
+import { isNotificationSoundEnabled, setNotificationSoundEnabled } from "../../utils/notificationSoundPref";
 
 const LANGUAGES = [
   { code: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
   { code: "en", label: "English", flag: "🇬🇧" },
 ];
 
-function SettingsSection({ icon, title, desc, children }) {
+// One grouped card per section (notifications / login / preferences), each
+// holding one or more rows separated by a hairline divider — replaces the
+// old "one floating box per setting" layout with the denser native-settings
+// look (iOS Settings / Android system settings) members already know.
+function SettingsGroup({ label, children }) {
   return (
-    <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <span className="material-symbols-outlined text-primary text-lg">{icon}</span>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-200">{title}</h3>
+    <div className="space-y-2">
+      {label && <p className="px-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{label}</p>}
+      <div className="bg-white dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm divide-y divide-zinc-100 dark:divide-zinc-800/60 overflow-hidden">
+        {children}
       </div>
-      {desc && <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">{desc}</p>}
-      {children}
+    </div>
+  );
+}
+
+function SettingsRow({ icon, iconColor = "text-primary", iconBg = "bg-primary/10", title, desc, control, warn }) {
+  return (
+    <div className="flex items-start gap-3 p-4">
+      <span className={`w-8 h-8 rounded-full ${iconBg} flex items-center justify-center shrink-0 mt-0.5`}>
+        <span className={`material-symbols-outlined text-base ${iconColor}`}>{icon}</span>
+      </span>
+      <div className="min-w-0 flex-1 space-y-0.5">
+        <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{title}</p>
+        {desc && <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-relaxed">{desc}</p>}
+        {warn && <p className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold pt-0.5">{warn}</p>}
+      </div>
+      {control && <div className="shrink-0 self-center">{control}</div>}
     </div>
   );
 }
@@ -31,11 +52,14 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
   const [pushSupported, setPushSupported] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => isNotificationSoundEnabled());
+  const [biometricSupported, setBiometricSupported] = useState(false);
   const email = memberSession?.email;
 
   useEffect(() => {
     setPushSupported(webPushHelper.isSupported());
     webPushHelper.isSubscribed().then(setPushEnabled);
+    setBiometricSupported(webauthnHelper.isSupported());
   }, []);
 
   const handleTogglePush = async () => {
@@ -62,6 +86,12 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
     }
   };
 
+  const handleToggleSound = (next) => {
+    setSoundEnabled(next);
+    setNotificationSoundEnabled(next);
+    if (next) playNotificationSound(); // instant preview so the toggle's effect is obvious
+  };
+
   const currentLang = i18n.language?.startsWith("en") ? "en" : "vi";
   const selectLanguage = (code) => {
     if (code === currentLang) return;
@@ -69,7 +99,7 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
   };
 
   return (
-    <div className="max-w-xl mx-auto space-y-4 animate-fadeIn">
+    <div className="max-w-xl mx-auto space-y-5 animate-fadeIn">
       <div className="space-y-1 text-left px-1">
         <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
           <span className="material-symbols-outlined text-base text-primary">settings</span>
@@ -78,48 +108,65 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
         <p className="text-[10px] text-zinc-455 dark:text-zinc-400">{t("memberPortal.settings.desc")}</p>
       </div>
 
-      <SettingsSection
-        icon="notifications"
-        title={t("memberPortal.settings.pushTitle")}
-        desc={t("memberPortal.settings.pushDesc")}
-      >
-        {pushSupported ? (
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-200">
-              {pushBusy ? t("memberPortal.settings.pushProcessing") : pushEnabled ? t("memberPortal.settings.pushOn") : t("memberPortal.settings.pushOff")}
-            </span>
+      <SettingsGroup label={t("memberPortal.settings.groupNotifications")}>
+        <SettingsRow
+          icon="notifications"
+          title={t("memberPortal.settings.pushTitle")}
+          desc={pushSupported ? t("memberPortal.settings.pushDesc") : null}
+          warn={!pushSupported ? t("memberPortal.settings.pushUnsupported") : null}
+          control={pushSupported && (
             <ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={t("memberPortal.settings.pushTitle")} />
+          )}
+        />
+        <SettingsRow
+          icon="volume_up"
+          iconColor="text-amber-500"
+          iconBg="bg-amber-500/10"
+          title={t("memberPortal.settings.soundTitle")}
+          desc={t("memberPortal.settings.soundDesc")}
+          control={<ToggleSwitch checked={soundEnabled} onChange={handleToggleSound} label={t("memberPortal.settings.soundTitle")} />}
+        />
+      </SettingsGroup>
+
+      {biometricSupported && email && (
+        <SettingsGroup label={t("memberPortal.settings.groupLogin")}>
+          <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
+        </SettingsGroup>
+      )}
+
+      <SettingsGroup label={t("memberPortal.settings.groupPreferences")}>
+        <div className="p-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-base text-violet-500">language</span>
+            </span>
+            <div>
+              <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{t("memberPortal.settings.languageTitle")}</p>
+              <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-relaxed">{t("memberPortal.settings.languageDesc")}</p>
+            </div>
           </div>
-        ) : (
-          <p className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">{t("memberPortal.settings.pushUnsupported")}</p>
-        )}
-      </SettingsSection>
-
-      <BiometricLoginCard memberSession={memberSession} showToast={showToast} />
-
-      <SettingsSection icon="language" title={t("memberPortal.settings.languageTitle")} desc={t("memberPortal.settings.languageDesc")}>
-        <div className="grid grid-cols-2 gap-2">
-          {LANGUAGES.map((lng) => (
-            <button
-              key={lng.code}
-              onClick={() => selectLanguage(lng.code)}
-              className={`relative flex items-center justify-center gap-2 py-2.5 rounded-md text-xs font-bold transition-all border ${
-                currentLang === lng.code
-                  ? "bg-primary/10 text-primary border-primary/30"
-                  : "bg-transparent text-zinc-500 dark:text-zinc-400 border-zinc-200/70 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/40"
-              }`}
-            >
-              <span className="text-base leading-none">{lng.flag}</span>
-              {lng.label}
-              {currentLang === lng.code && (
-                <span className="material-symbols-outlined text-sm absolute right-2.5">check_circle</span>
-              )}
-            </button>
-          ))}
+          <div className="grid grid-cols-2 gap-2 pl-11">
+            {LANGUAGES.map((lng) => (
+              <button
+                key={lng.code}
+                onClick={() => selectLanguage(lng.code)}
+                className={`relative flex items-center justify-center gap-2 py-2.5 rounded-md text-xs font-bold transition-all border ${
+                  currentLang === lng.code
+                    ? "bg-primary/10 text-primary border-primary/30"
+                    : "bg-transparent text-zinc-500 dark:text-zinc-400 border-zinc-200/70 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/40"
+                }`}
+              >
+                <span className="text-base leading-none">{lng.flag}</span>
+                {lng.label}
+                {currentLang === lng.code && (
+                  <span className="material-symbols-outlined text-sm absolute right-2.5">check_circle</span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
-      </SettingsSection>
-
-      <SettingsSection icon="more_horiz" title={t("memberPortal.settings.comingSoonTitle")} desc={t("memberPortal.settings.comingSoonDesc")} />
+        <SettingsRow icon="more_horiz" iconColor="text-zinc-400" iconBg="bg-zinc-400/10" title={t("memberPortal.settings.comingSoonTitle")} desc={t("memberPortal.settings.comingSoonDesc")} />
+      </SettingsGroup>
 
       <button
         onClick={handleLogout}
