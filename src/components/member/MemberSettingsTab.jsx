@@ -8,8 +8,8 @@ import { playNotificationSound } from "../../utils/audio";
 import { isNotificationSoundEnabled, setNotificationSoundEnabled } from "../../utils/notificationSoundPref";
 
 const LANGUAGES = [
-  { code: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
-  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "vi", label: "Tiếng Việt" },
+  { code: "en", label: "English" },
 ];
 
 // One grouped card per section (notifications / login / preferences), each
@@ -156,7 +156,6 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
                     : "bg-transparent text-zinc-500 dark:text-zinc-400 border-zinc-200/70 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/40"
                 }`}
               >
-                <span className="text-base leading-none">{lng.flag}</span>
                 {lng.label}
                 {currentLang === lng.code && (
                   <span className="material-symbols-outlined text-sm absolute right-2.5">check_circle</span>

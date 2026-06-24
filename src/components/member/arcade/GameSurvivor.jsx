@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { playGameWin, playGameLose } from "../../../utils/audio";
 
 const GOALS = { easy: 30, medium: 60, hard: 90 };
 
@@ -158,8 +159,10 @@ export default function GameSurvivor({ difficulty, onGameOver }) {
           spawnParticles(s.player.x, s.player.y, "#fff");
           setPlaying(false);
           const score = scoreRef.current;
+          const won = score >= GOALS[difficulty];
+          if (won) playGameWin(); else playGameLose();
           setTimeout(() => {
-            onGameOver(score, score >= GOALS[difficulty] ? "win" : "lose");
+            onGameOver(score, won ? "win" : "lose");
           }, 1000);
           return;
         }

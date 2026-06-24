@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef } from "react";
+import { playGameSelect, playGameWin, playGameLose, playGameMove } from "../../../utils/audio";
 
 const SIZE = 13;
 const WIN_LEN = 5;
@@ -213,9 +214,11 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
     setBoard(next);
     setMoveCount(newMoveCount);
     setLastMove({ r, c });
+    playGameSelect();
 
     if (checkWin(next, r, c, PLAYER)) {
       setStatus("win");
+      playGameWin();
       reportGameOver("win", newMoveCount);
       return;
     }
@@ -243,9 +246,11 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
       setMoveCount(aiMoveCount);
       setThinking(false);
       setLastMove({ r: ar, c: ac });
+      playGameMove();
 
       if (checkWin(afterAi, ar, ac, AI)) {
         setStatus("lose");
+        playGameLose();
         reportGameOver("lose", aiMoveCount);
         return;
       }

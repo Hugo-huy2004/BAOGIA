@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { playGameMove, playGameMerge, playGameWin, playGameLose } from "../../../utils/audio";
 
 const SIZE = 4;
 const TARGET_TILE = { easy: 256, medium: 512, hard: 2048 };
@@ -149,22 +150,22 @@ function moveTileGrid(grid, direction) {
   return { grid: result, gained, moved };
 }
 
-// Neon sign treatment — dark tile face + a saturated glowing border/text in
-// each tile's own color, rather than a solid pastel fill, so every tile reads
-// like it's lit up against the dark board instead of a flat colored square.
+// Solid glowing neon blocks — each tile is filled with its own vivid color
+// (not a dark face with a thin outline), with a bright outer halo so the
+// whole board reads as lit-up colored glass instead of black squares.
 const TILE_COLORS = {
   0:    { bg: "rgba(255,255,255,.045)", color: "transparent", border: "rgba(255,255,255,.035)", glow: "inset 0 1px rgba(255,255,255,.02)" },
-  2:    { bg: "#0a1620", color: "#22d3ee", border: "#22d3ee", glow: "0 0 10px #22d3ee,0 0 22px rgba(34,211,238,.5),inset 0 0 12px rgba(34,211,238,.18)" },
-  4:    { bg: "#1a0a20", color: "#e879f9", border: "#e879f9", glow: "0 0 10px #e879f9,0 0 22px rgba(232,121,249,.5),inset 0 0 12px rgba(232,121,249,.18)" },
-  8:    { bg: "#0a200f", color: "#39ff88", border: "#39ff88", glow: "0 0 10px #39ff88,0 0 22px rgba(57,255,136,.5),inset 0 0 12px rgba(57,255,136,.18)" },
-  16:   { bg: "#201d0a", color: "#faff00", border: "#faff00", glow: "0 0 10px #faff00,0 0 22px rgba(250,255,0,.5),inset 0 0 12px rgba(250,255,0,.18)" },
-  32:   { bg: "#201205", color: "#ff8a00", border: "#ff8a00", glow: "0 0 10px #ff8a00,0 0 22px rgba(255,138,0,.5),inset 0 0 12px rgba(255,138,0,.18)" },
-  64:   { bg: "#20060a", color: "#ff2e63", border: "#ff2e63", glow: "0 0 11px #ff2e63,0 0 24px rgba(255,46,99,.55),inset 0 0 12px rgba(255,46,99,.2)" },
-  128:  { bg: "#16051f", color: "#b026ff", border: "#b026ff", glow: "0 0 11px #b026ff,0 0 24px rgba(176,38,255,.55),inset 0 0 12px rgba(176,38,255,.2)" },
-  256:  { bg: "#1f0316", color: "#ff10f0", border: "#ff10f0", glow: "0 0 11px #ff10f0,0 0 24px rgba(255,16,240,.55),inset 0 0 12px rgba(255,16,240,.2)" },
-  512:  { bg: "#04151f", color: "#00ffd5", border: "#00ffd5", glow: "0 0 12px #00ffd5,0 0 26px rgba(0,255,213,.6),inset 0 0 14px rgba(0,255,213,.22)" },
-  1024: { bg: "#0a0d20", color: "#4d6bff", border: "#4d6bff", glow: "0 0 12px #4d6bff,0 0 26px rgba(77,107,255,.6),inset 0 0 14px rgba(77,107,255,.22)" },
-  2048: { bg: "#1a1500", color: "#ffe600", border: "#ffe600", glow: "0 0 16px #ffe600,0 0 34px rgba(255,230,0,.75),inset 0 0 16px rgba(255,230,0,.28)" }
+  2:    { bg: "#22d3ee", color: "#04222b", border: "#a5f3fc", glow: "0 0 14px #22d3ee,0 0 30px rgba(34,211,238,.65),inset 0 -4px 10px rgba(0,0,0,.18),inset 0 3px 6px rgba(255,255,255,.5)" },
+  4:    { bg: "#e879f9", color: "#2b0a2b", border: "#f5d0fe", glow: "0 0 14px #e879f9,0 0 30px rgba(232,121,249,.65),inset 0 -4px 10px rgba(0,0,0,.18),inset 0 3px 6px rgba(255,255,255,.5)" },
+  8:    { bg: "#39ff88", color: "#04220f", border: "#bbf7d0", glow: "0 0 14px #39ff88,0 0 30px rgba(57,255,136,.65),inset 0 -4px 10px rgba(0,0,0,.18),inset 0 3px 6px rgba(255,255,255,.5)" },
+  16:   { bg: "#faff00", color: "#2b2900", border: "#fef9c3", glow: "0 0 14px #faff00,0 0 30px rgba(250,255,0,.65),inset 0 -4px 10px rgba(0,0,0,.18),inset 0 3px 6px rgba(255,255,255,.5)" },
+  32:   { bg: "#ff8a00", color: "#2b1700", border: "#fed7aa", glow: "0 0 14px #ff8a00,0 0 30px rgba(255,138,0,.65),inset 0 -4px 10px rgba(0,0,0,.2),inset 0 3px 6px rgba(255,255,255,.45)" },
+  64:   { bg: "#ff2e63", color: "#2b0410", border: "#fecdd3", glow: "0 0 16px #ff2e63,0 0 32px rgba(255,46,99,.7),inset 0 -4px 10px rgba(0,0,0,.2),inset 0 3px 6px rgba(255,255,255,.45)" },
+  128:  { bg: "#b026ff", color: "#1f0429", border: "#e9d5ff", glow: "0 0 16px #b026ff,0 0 32px rgba(176,38,255,.7),inset 0 -4px 10px rgba(0,0,0,.2),inset 0 3px 6px rgba(255,255,255,.45)" },
+  256:  { bg: "#ff10f0", color: "#2b0429", border: "#fbcfe8", glow: "0 0 16px #ff10f0,0 0 32px rgba(255,16,240,.7),inset 0 -4px 10px rgba(0,0,0,.2),inset 0 3px 6px rgba(255,255,255,.45)" },
+  512:  { bg: "#00ffd5", color: "#00261f", border: "#ccfbf1", glow: "0 0 18px #00ffd5,0 0 36px rgba(0,255,213,.75),inset 0 -4px 10px rgba(0,0,0,.2),inset 0 3px 6px rgba(255,255,255,.5)" },
+  1024: { bg: "#4d6bff", color: "#070b29", border: "#dbeafe", glow: "0 0 18px #4d6bff,0 0 36px rgba(77,107,255,.75),inset 0 -4px 10px rgba(0,0,0,.22),inset 0 3px 6px rgba(255,255,255,.45)" },
+  2048: { bg: "#ffe600", color: "#2b2400", border: "#fef9c3", glow: "0 0 20px #ffe600,0 0 42px rgba(255,230,0,.85),inset 0 -4px 10px rgba(0,0,0,.22),inset 0 3px 6px rgba(255,255,255,.55)" }
 };
 
 export default function Game2048({ difficulty = "medium", onGameOver }) {
@@ -187,13 +188,14 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
     gridRef.current = withTile;
     setMotion({ direction, merged: gained > 0 });
     setGrid(withTile);
-    if (gained) setScore((s) => s + gained);
+    if (gained) { setScore((s) => s + gained); playGameMerge(); } else { playGameMove(); }
     const values = tileValues(withTile);
     if (hasReachedTarget(values, targetTile)) {
       setCelebrating(true);
       setStatus("win");
+      playGameWin();
       navigator.vibrate?.([40, 50, 90]);
-    } else if (isGameOver(values)) setStatus("lose");
+    } else if (isGameOver(values)) { setStatus("lose"); playGameLose(); }
   }, [status, targetTile]);
 
   useEffect(() => {

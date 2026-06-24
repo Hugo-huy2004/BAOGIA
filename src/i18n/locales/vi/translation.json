@@ -1408,7 +1408,17 @@
       "languageDesc": "Chọn ngôn ngữ hiển thị mặc định cho Hugo Studio — được nhớ cho lần truy cập sau.",
       "comingSoonTitle": "Sắp ra mắt",
       "comingSoonDesc": "Thêm các tuỳ chọn cài đặt khác (giao diện, quyền riêng tư...) sẽ xuất hiện ở đây.",
-      "logout": "Đăng xuất"
+      "logout": "Đăng xuất",
+      "biometric": {
+        "title": "Đăng nhập bằng vân tay / Face ID",
+        "desc": "Quét vân tay hoặc Face ID trên thiết bị này thay vì đăng nhập lại bằng Google mỗi lần.",
+        "removeBtn": "Xoá",
+        "registerBtn": "+ Bật cho thiết bị này",
+        "registering": "Đang xử lý...",
+        "registerSuccess": "Đã bật đăng nhập bằng vân tay/Face ID cho thiết bị này!",
+        "registerError": "Không thể bật đăng nhập vân tay. Hãy thử lại.",
+        "deviceComputer": "Máy tính"
+      }
     },
     "infoVersion": {
       "title": "Info & Version",

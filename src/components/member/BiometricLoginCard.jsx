@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 
 // Lets a member register this device's fingerprint/Face ID so future logins
@@ -6,6 +7,7 @@ import { webauthnHelper } from "../../utils/webauthnHelper";
 // `bare` drops the own card chrome (border/shadow/bg) so it can nest inside
 // another card — e.g. MemberSettingsTab's grouped "Đăng nhập" section.
 export default function BiometricLoginCard({ memberSession, showToast, bare = false }) {
+  const { t } = useTranslation();
   const [supported, setSupported] = useState(false);
   const [devices, setDevices] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -27,14 +29,14 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
     try {
       const deviceName = /iphone|ipad/i.test(navigator.userAgent) ? 'iPhone/iPad'
         : /android/i.test(navigator.userAgent) ? 'Android'
-        : /mac/i.test(navigator.userAgent) ? 'Mac' : 'Máy tính';
+        : /mac/i.test(navigator.userAgent) ? 'Mac' : t("memberPortal.settings.biometric.deviceComputer");
       await webauthnHelper.registerDevice(email, deviceName);
       webauthnHelper.markDeviceFlag(email);
       const updated = await webauthnHelper.listDevices(email);
       setDevices(updated);
-      showToast?.("Đã bật đăng nhập bằng vân tay/Face ID cho thiết bị này!", "success");
+      showToast?.(t("memberPortal.settings.biometric.registerSuccess"), "success");
     } catch (err) {
-      if (err?.name !== 'NotAllowedError') showToast?.("Không thể bật đăng nhập vân tay. Hãy thử lại.", "error");
+      if (err?.name !== 'NotAllowedError') showToast?.(t("memberPortal.settings.biometric.registerError"), "error");
     } finally {
       setBusy(false);
     }
@@ -53,10 +55,10 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
         </span>
         <div>
           <h3 className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
-            Đăng nhập bằng vân tay / Face ID
+            {t("memberPortal.settings.biometric.title")}
           </h3>
           <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
-            Quét vân tay hoặc Face ID trên thiết bị này thay vì đăng nhập lại bằng Google mỗi lần.
+            {t("memberPortal.settings.biometric.desc")}
           </p>
         </div>
       </div>
@@ -66,7 +68,7 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
           {devices.map(d => (
             <div key={d._id} className="flex items-center justify-between text-[11px] px-2.5 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800">
               <span className="text-zinc-600 dark:text-zinc-300 font-medium">{d.deviceName}</span>
-              <button onClick={() => handleRemove(d._id)} className="text-rose-500 hover:text-rose-600 font-bold">Xoá</button>
+              <button onClick={() => handleRemove(d._id)} className="text-rose-500 hover:text-rose-600 font-bold">{t("memberPortal.settings.biometric.removeBtn")}</button>
             </div>
           ))}
         </div>
@@ -77,7 +79,7 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
         disabled={busy}
         className="w-full py-2 rounded-md bg-primary/10 text-primary hover:bg-primary/15 text-xs font-bold transition-all disabled:opacity-50"
       >
-        {busy ? "Đang xử lý..." : "+ Bật cho thiết bị này"}
+        {busy ? t("memberPortal.settings.biometric.registering") : t("memberPortal.settings.biometric.registerBtn")}
       </button>
     </div>
   );

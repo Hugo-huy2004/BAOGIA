@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { playGameMerge, playGameWin, playGameLose } from "../../../utils/audio";
 
 const GOALS = { easy: 8, medium: 14, hard: 20 };
 const GRID = 18;
@@ -87,7 +88,9 @@ export default function GameSnake({ difficulty, onGameOver }) {
       if (hitWall || hitSelf) {
         setPlaying(false);
         const score = s.score;
-        setTimeout(() => onGameOver(score, score >= GOALS[difficulty] ? "win" : "lose"), 600);
+        const won = score >= GOALS[difficulty];
+        if (won) playGameWin(); else playGameLose();
+        setTimeout(() => onGameOver(score, won ? "win" : "lose"), 600);
         return false;
       }
 
@@ -95,6 +98,7 @@ export default function GameSnake({ difficulty, onGameOver }) {
       if (next.x === s.food.x && next.y === s.food.y) {
         s.score += 1;
         s.food = randomCell(s.snake);
+        playGameMerge();
       } else {
         s.snake.pop();
       }

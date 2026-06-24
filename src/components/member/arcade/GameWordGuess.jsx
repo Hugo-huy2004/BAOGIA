@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { playGameSelect, playGameWin, playGameLose } from "../../../utils/audio";
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES_BY_DIFFICULTY = { easy: 8, medium: 6, hard: 4 };
@@ -80,10 +81,14 @@ export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
 
     if (word === target) {
       setStatus("won");
+      playGameWin();
       reportGameOver("won", newGuesses.length);
     } else if (newGuesses.length >= maxGuesses) {
       setStatus("lost");
+      playGameLose();
       reportGameOver("lost", newGuesses.length);
+    } else {
+      playGameSelect();
     }
   };
 
