@@ -4,6 +4,7 @@ import { useTourStore } from '../stores/tourStore';
 import { getMemberSession } from '../services/authSession';
 import { useJoyStore } from '../stores/joyStore';
 import { fetchProfile as fetchArcadeProfile } from '../services/arcadeApi';
+import { isHBotVisible, setHBotVisible, HBOT_VISIBILITY_EVENT } from '../utils/floatingWidgetPref';
 
 const VALID_TOUR_IDS = ['bio_editor', 'booking', 'utilities'];
 const OPEN_TOUR_REGEX = /\[OPEN_TOUR:\s*(\w+)\]/i;
@@ -208,6 +209,7 @@ const TOUR_MAP = {
 
 const HBot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [visible, setVisible] = useState(() => isHBotVisible());
   const [customInput, setCustomInput] = useState("");
   const [nudge, setNudge] = useState(null); // { text } | null — proactive companion bubble
   const [messages, setMessages] = useState([
@@ -249,6 +251,12 @@ const HBot = () => {
 
   // Only show H-Bot in MemberPortal
   const isMemberPage = location.pathname.startsWith('/member');
+
+  useEffect(() => {
+    const onVisibilityChange = (e) => setVisible(e.detail.visible);
+    window.addEventListener(HBOT_VISIBILITY_EVENT, onVisibilityChange);
+    return () => window.removeEventListener(HBOT_VISIBILITY_EVENT, onVisibilityChange);
+  }, []);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -306,7 +314,14 @@ const HBot = () => {
     setNudge(null);
   };
 
-  if (!isMemberPage) return null;
+  if (!isMemberPage || !visible) return null;
+
+  const handleHide = (e) => {
+    e.stopPropagation();
+    setIsOpen(false);
+    setVisible(false);
+    setHBotVisible(false);
+  };
 
   const handleOptionClick = (option) => {
     if (isLoading) return;
@@ -496,7 +511,7 @@ const HBot = () => {
   const lastBotMsg = [...messages].reverse().find(m => m.sender === 'bot');
 
   return (
-    <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)] md:bottom-6 right-4 md:right-6 z-[999] flex flex-col items-end">
+    <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+6rem)] md:bottom-6 right-4 md:right-6 z-[999] flex flex-col items-end">
       {/* Floating Chat Box */}
       {isOpen && (
         <div className="mb-3 w-[320px] sm:w-[360px] max-w-[calc(100vw-24px)] h-[380px] sm:h-[460px] md:h-[500px] max-h-[55vh] sm:max-h-[60vh] md:max-h-[calc(100vh-120px)] bg-background/95 dark:bg-card/95 backdrop-blur-lg rounded-3xl border border-border shadow-2xl overflow-hidden flex flex-col animate-fadeIn select-none">
@@ -657,14 +672,25 @@ const HBot = () => {
 
       {/* Floating Toggle Button */}
       {!isOpen && (
-        <button
-          onClick={handleOpenChat}
-          className="group relative w-12 h-12 md:w-16 md:h-16 transition-all duration-300 hover:-translate-y-0.5 select-none hover:scale-105 active:scale-95"
-          style={{ minWidth: 0, minHeight: 0 }}
-        >
-          {/* Full transparent sticker rendering with no rounding or borders */}
-          <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
-        </button>
+        <div className="relative">
+          <button
+            onClick={handleOpenChat}
+            className="group relative w-12 h-12 md:w-16 md:h-16 transition-all duration-300 hover:-translate-y-0.5 select-none hover:scale-105 active:scale-95"
+            style={{ minWidth: 0, minHeight: 0 }}
+          >
+            {/* Full transparent sticker rendering with no rounding or borders */}
+            <img src="/image/avt5.png" alt="Culi" className="w-full h-full object-contain" />
+          </button>
+          {/* Dismiss — hides Culi if it's getting in the way; re-enable from Settings */}
+          <button
+            type="button"
+            onClick={handleHide}
+            aria-label="Ẩn trợ lý Culi"
+            className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-zinc-700 text-white border border-white/80 dark:border-zinc-900 flex items-center justify-center shadow-md active:scale-90 transition-transform"
+          >
+            <span className="material-symbols-outlined text-[12px] leading-none">close</span>
+          </button>
+        </div>
       )}
     </div>
   );

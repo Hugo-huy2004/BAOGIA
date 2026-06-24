@@ -18,6 +18,7 @@ import { Toaster } from "react-hot-toast";
 import PWARealtimeBridge from "./components/PWARealtimeBridge";
 import PWAQuickLogin from "./components/PWAQuickLogin";
 import DonationModal from "./components/ui/DonationModal";
+import { initGlobalHaptics } from "./utils/haptics";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -196,6 +197,8 @@ export default function App() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
+  useEffect(() => initGlobalHaptics(), []);
+
   return (
     <ErrorBoundary>
       <DataProvider>
@@ -210,7 +213,7 @@ export default function App() {
             <Toaster
               position="top-center"
               reverseOrder={false}
-              containerStyle={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
+              containerStyle={{ top: 'calc(env(safe-area-inset-top, 0px) + 2rem)' }}
             />
           </TooltipProvider>
         </BrowserRouter>

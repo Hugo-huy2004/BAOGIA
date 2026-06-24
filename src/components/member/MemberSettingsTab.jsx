@@ -6,6 +6,7 @@ import { webPushHelper } from "../../utils/webPushHelper";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { playNotificationSound } from "../../utils/audio";
 import { isNotificationSoundEnabled, setNotificationSoundEnabled } from "../../utils/notificationSoundPref";
+import { isHBotVisible, setHBotVisible, isDonationWidgetVisible, setDonationWidgetVisible } from "../../utils/floatingWidgetPref";
 
 const LANGUAGES = [
   { code: "vi", label: "Tiếng Việt" },
@@ -53,6 +54,8 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(() => isNotificationSoundEnabled());
+  const [hbotVisible, setHbotVisibleState] = useState(() => isHBotVisible());
+  const [donationVisible, setDonationVisibleState] = useState(() => isDonationWidgetVisible());
   const [biometricSupported, setBiometricSupported] = useState(false);
   const email = memberSession?.email;
 
@@ -90,6 +93,16 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
     setSoundEnabled(next);
     setNotificationSoundEnabled(next);
     if (next) playNotificationSound(); // instant preview so the toggle's effect is obvious
+  };
+
+  const handleToggleHBot = (next) => {
+    setHbotVisibleState(next);
+    setHBotVisible(next);
+  };
+
+  const handleToggleDonation = (next) => {
+    setDonationVisibleState(next);
+    setDonationWidgetVisible(next);
   };
 
   const currentLang = i18n.language?.startsWith("en") ? "en" : "vi";
@@ -165,6 +178,25 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
           </div>
         </div>
         <SettingsRow icon="more_horiz" iconColor="text-zinc-400" iconBg="bg-zinc-400/10" title={t("memberPortal.settings.comingSoonTitle")} desc={t("memberPortal.settings.comingSoonDesc")} />
+      </SettingsGroup>
+
+      <SettingsGroup label={t("memberPortal.settings.groupWidgets")}>
+        <SettingsRow
+          icon="support_agent"
+          iconColor="text-blue-500"
+          iconBg="bg-blue-500/10"
+          title={t("memberPortal.settings.hbotTitle")}
+          desc={t("memberPortal.settings.hbotDesc")}
+          control={<ToggleSwitch checked={hbotVisible} onChange={handleToggleHBot} label={t("memberPortal.settings.hbotTitle")} />}
+        />
+        <SettingsRow
+          icon="volunteer_activism"
+          iconColor="text-pink-500"
+          iconBg="bg-pink-500/10"
+          title={t("memberPortal.settings.donationTitle")}
+          desc={t("memberPortal.settings.donationDesc")}
+          control={<ToggleSwitch checked={donationVisible} onChange={handleToggleDonation} label={t("memberPortal.settings.donationTitle")} />}
+        />
       </SettingsGroup>
 
       <button

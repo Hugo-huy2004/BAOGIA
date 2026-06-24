@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { dataApi } from "../../services/dataApi";
 import { getMemberSession } from "../../services/authSession";
 import toast from "react-hot-toast";
+import { isDonationWidgetVisible, setDonationWidgetVisible, DONATION_VISIBILITY_EVENT } from "../../utils/floatingWidgetPref";
 
 const DONATION_PACKS = [
   { amount: 9999, label: "Trà Đá", icon: "emoji_food_beverage", color: "bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/30" },
@@ -19,6 +20,7 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
   
   const [loading, setLoading] = useState(false);
   const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const [visible, setVisible] = useState(() => isDonationWidgetVisible());
 
   useEffect(() => {
     const handleOpen = () => setInternalIsOpen(true);
@@ -26,8 +28,22 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
     return () => window.removeEventListener('open-donation', handleOpen);
   }, []);
 
+  useEffect(() => {
+    const onVisibilityChange = (e) => setVisible(e.detail.visible);
+    window.addEventListener(DONATION_VISIBILITY_EVENT, onVisibilityChange);
+    return () => window.removeEventListener(DONATION_VISIBILITY_EVENT, onVisibilityChange);
+  }, []);
+
   const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
   const onClose = propOnClose || (() => setInternalIsOpen(false));
+
+  const handleHide = (e) => {
+    e.stopPropagation();
+    setVisible(false);
+    setDonationWidgetVisible(false);
+  };
+
+  if (!visible) return null;
 
   const handleDonate = async (amount) => {
     setLoading(true);
@@ -53,21 +69,32 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
       {/* Floating Action Button when closed */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
+          <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setInternalIsOpen(true)}
-            className="fixed bottom-[130px] md:bottom-24 right-3 md:right-7 z-[999] w-14 h-14 bg-white dark:bg-zinc-800 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-primary group overflow-hidden"
+            className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+10.5rem)] md:bottom-24 right-3 md:right-7 z-[999]"
           >
-            {/* Soft pulsing background effect */}
-            <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping opacity-75"></div>
-            <span className="material-symbols-outlined text-[24px] relative z-10 group-hover:animate-bounce">
-              volunteer_activism
-            </span>
-          </motion.button>
+            <button
+              onClick={() => setInternalIsOpen(true)}
+              className="relative w-14 h-14 bg-white dark:bg-zinc-800 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-primary group overflow-hidden active:scale-90 transition-transform"
+            >
+              {/* Soft pulsing background effect */}
+              <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping opacity-75"></div>
+              <span className="material-symbols-outlined text-[24px] relative z-10 group-hover:animate-bounce">
+                volunteer_activism
+              </span>
+            </button>
+            {/* Dismiss — hides the donation widget if it's getting in the way; re-enable from Settings */}
+            <button
+              type="button"
+              onClick={handleHide}
+              aria-label="Ẩn nút donate"
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-zinc-700 text-white border border-white/80 dark:border-zinc-900 flex items-center justify-center shadow-md active:scale-90 transition-transform"
+            >
+              <span className="material-symbols-outlined text-[12px] leading-none">close</span>
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -79,7 +106,7 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed bottom-[190px] md:bottom-[160px] right-4 md:right-6 z-[1000] w-[340px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col"
+            className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+14.5rem)] md:bottom-[160px] right-4 md:right-6 z-[1000] w-[340px] max-w-[calc(100vw-24px)] shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col"
           >
             {loading && (
               <div className="absolute inset-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center z-10">

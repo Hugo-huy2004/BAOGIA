@@ -6,7 +6,7 @@ export default function PWAInstallBanner() {
   if (!canInstall || isInstalled) return null
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50
+    <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+5.5rem)] md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-[150]
                     bg-card rounded-2xl shadow-xl border border-primary/10
                     p-4 flex items-center gap-3 animate-slide-up">
       <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">

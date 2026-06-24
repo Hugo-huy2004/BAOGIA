@@ -48,8 +48,8 @@ export default function PWAQuickLogin() {
 
   return (
     <div
-      className="fixed left-0 right-0 z-[90] flex justify-center px-4"
-      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
+      className="fixed left-0 right-0 z-[150] flex justify-center px-4"
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 5.5rem)" }}
     >
       <div className="flex items-center gap-3 bg-foreground text-background rounded-full pl-2 pr-2 py-2 shadow-2xl max-w-sm w-full">
         <button
