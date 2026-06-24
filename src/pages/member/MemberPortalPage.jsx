@@ -115,6 +115,17 @@ export default function MemberPortalPage() {
   const accountSubTab = subTab || "profile";
   const mobileSubSection = subTab || null;
 
+  // Lazy tabs (joy/partner/utilities/history/settings) used to fully unmount
+  // whenever you left them — every revisit re-triggered the lazy chunk load,
+  // every internal useEffect fetch, and a full re-render from scratch, which
+  // is what made switching back to an already-visited tab feel laggy. Once a
+  // tab has been visited, keep it mounted and just hide it with CSS instead —
+  // switching back to it becomes a free, instant DOM show/hide.
+  const [visitedTabs, setVisitedTabs] = useState(() => new Set([activeTab]));
+  useEffect(() => {
+    if (!visitedTabs.has(activeTab)) setVisitedTabs(prev => new Set(prev).add(activeTab));
+  }, [activeTab]); // eslint-disable-line
+
   const [previewMode, setPreviewMode]     = useState("mobile");
   // Mobile account sections collapse into an accordion (one open at a time)
   // instead of all-stacked — all-stacked made the page very long to scroll.
@@ -1025,11 +1036,31 @@ export default function MemberPortalPage() {
                   </div>
                 )}
 
-                {activeTab === "joy"       && <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} />}
-                {activeTab === "partner"   && <MemberPartnerTab />}
-                {activeTab === "utilities" && <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />}
-                {activeTab === "history"   && <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />}
-                {activeTab === "settings"  && <MemberSettingsTab memberSession={memberSession} showToast={showToast} handleLogout={handleLogout} />}
+                {visitedTabs.has("joy") && (
+                  <div style={{ display: activeTab === "joy" ? undefined : "none" }}>
+                    <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} />
+                  </div>
+                )}
+                {visitedTabs.has("partner") && (
+                  <div style={{ display: activeTab === "partner" ? undefined : "none" }}>
+                    <MemberPartnerTab />
+                  </div>
+                )}
+                {visitedTabs.has("utilities") && (
+                  <div style={{ display: activeTab === "utilities" ? undefined : "none" }}>
+                    <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />
+                  </div>
+                )}
+                {visitedTabs.has("history") && (
+                  <div style={{ display: activeTab === "history" ? undefined : "none" }}>
+                    <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
+                  </div>
+                )}
+                {visitedTabs.has("settings") && (
+                  <div style={{ display: activeTab === "settings" ? undefined : "none" }}>
+                    <MemberSettingsTab memberSession={memberSession} showToast={showToast} handleLogout={handleLogout} />
+                  </div>
+                )}
               </>
             )}
           </React.Suspense>
