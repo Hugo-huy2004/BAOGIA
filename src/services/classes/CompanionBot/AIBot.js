@@ -7,19 +7,28 @@ const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const API_URL = `${API_BASE}/ai`;
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY || "";
 
-async function fetchWithRetry(url, options, retries = 1) {
+async function fetchWithRetry(url, options, retries = 2) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const res = await fetch(url, { ...options, headers: { ...options.headers, "X-Internal-Key": INTERNAL_KEY } });
       if (res.ok) return res;
-      if (res.status >= 400 && res.status < 500) return res; // Don't retry client errors
+      // Client errors (4xx) — don't retry, return as-is so callers can inspect
+      if (res.status >= 400 && res.status < 500) return res;
+      // Server errors (5xx incl. 502 Bad Gateway) — retry with exponential backoff,
+      // but swallow silently on final attempt so console stays clean when AI is down.
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, 600 * Math.pow(2, attempt))); // 600ms, 1.2s
+        continue;
+      }
+      return null; // Final attempt — server still down, degrade gracefully
     } catch (err) {
-      if (attempt === retries) throw err;
-      await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
+      if (attempt === retries) return null; // Network error — degrade gracefully
+      await new Promise(r => setTimeout(r, 600 * Math.pow(2, attempt)));
     }
   }
   return null;
 }
+
 
 export default class AIBot extends BaseBot {
 

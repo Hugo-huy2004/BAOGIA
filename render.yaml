@@ -1,0 +1,51 @@
+################################################################################
+# render.yaml — Render Blueprint
+# Defines the Hugo Studio Python AI server as a Render Web Service.
+# Render reads this file from the repo root on every push.
+#
+# Docs: https://render.com/docs/blueprint-spec
+################################################################################
+
+services:
+  # ── Python FastAPI AI Server ─────────────────────────────────────────────
+  - type: web
+    name: hugostudio-ai-server
+    runtime: python
+    region: singapore          # Closest to Vietnam — change to "oregon" if needed
+
+    # Render builds from this subdirectory
+    rootDir: python-ai-server
+
+    # Install dependencies
+    buildCommand: pip install -r requirements.txt
+
+    # Start the server — Render injects $PORT automatically
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+    # Free tier — upgrade to "starter" (paid) for always-on (no cold starts)
+    plan: free
+
+    # Health check — Render uses this to decide if deploy succeeded
+    healthCheckPath: /health
+
+    # Environment variables — set values in Render dashboard, NOT here
+    # (never commit secrets to git)
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false            # Must be set manually in Render dashboard
+
+      - key: INTERNAL_API_KEY
+        sync: false            # Same key as VITE_INTERNAL_API_KEY in frontend
+
+      - key: ALLOWED_ORIGINS
+        value: "https://hugostudio.vn,https://hugowishpax.studio,https://www.hugostudio.vn"
+
+      - key: MONGO_URI
+        sync: false            # MongoDB Atlas connection string (if used by rate limiter)
+
+      - key: REDIS_URL
+        sync: false            # Upstash Redis URL (if used by rate limiter — optional)
+
+      # Python runtime settings
+      - key: PYTHONUNBUFFERED
+        value: "1"             # Ensures logs appear in Render dashboard in real-time

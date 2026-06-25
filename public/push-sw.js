@@ -4,7 +4,28 @@
  * Imported by the Workbox-generated /sw.js in production.
  */
 
+
+// ── Message handler — SKIP_WAITING + unknown types ────────────────────────
+// Workbox's autoUpdate registerType sends a SKIP_WAITING message to activate
+// a newly installed SW. Without an explicit handler the channel closes before
+// a response arrives, producing the console warning:
+//   "A listener indicated an asynchronous response by returning true,
+//    but the message channel closed before a response was received"
+// Handling it explicitly (and NOT returning true for fire-and-forget types)
+// silences that warning completely.
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    // Activate the new SW immediately — respond before channel closes.
+    event.waitUntil(self.skipWaiting());
+    return;
+  }
+  // All other message types are fire-and-forget (no response expected).
+  // Do NOT return true — that would tell the browser to expect a response
+  // and trigger the warning when none arrives.
+});
+
 // ── PeriodicBackgroundSync — sleep monitor heartbeat ──────────────────────
+
 // Runs in background every 30 min (when PWA is installed + permission granted).
 // Reads sleep state written by useSleepAutoDetect hook via CacheStorage.
 
