@@ -642,7 +642,8 @@ export default function MemberPortalPage() {
     // on-screen keyboard on iOS/Android instead of staying pinned to the
     // full layout viewport while content underneath gets covered.
     return (
-      <div className="fixed inset-0 z-[120] w-screen h-screen h-[100dvh] bg-background dark:bg-background overflow-hidden flex flex-col font-body">
+      <div className="fixed inset-0 z-[120] w-screen bg-background dark:bg-background overflow-hidden flex flex-col font-body" style={{ height: '100dvh' }}>
+
         {/* Toast */}
         <AnimatePresence>
           {toast.message && (

@@ -1599,7 +1599,8 @@ export default function ChatTab({
   }
 
   return (
-    <div ref={chatWrapperRef} className="flex flex-col min-h-0 bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
+    <div ref={chatWrapperRef} className="flex flex-col flex-1 h-full min-h-0 bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
+
 
       {/* ── Header ─────────────────────────────────────────────────────────────── */}
       <div className="shrink-0 flex items-center justify-between gap-2 px-4 py-2.5 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50" style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}>
