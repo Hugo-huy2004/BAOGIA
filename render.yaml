@@ -1,51 +1,53 @@
 ################################################################################
 # render.yaml — Render Blueprint
-# Defines the Hugo Studio Python AI server as a Render Web Service.
-# Render reads this file from the repo root on every push.
+# Chạy Node.js + Python FastAPI trong CÙNG 1 Web Service.
 #
-# Docs: https://render.com/docs/blueprint-spec
+# Cách hoạt động:
+#   1. Build: cài npm + pip dependencies
+#   2. Start: start.sh khởi động Python (port 8000, nền) rồi Node.js ($PORT, chính)
+#   3. Node.js proxy /api/ai/* → http://127.0.0.1:8000 (nội bộ)
 ################################################################################
 
 services:
-  # ── Python FastAPI AI Server ─────────────────────────────────────────────
   - type: web
-    name: hugostudio-ai-server
-    runtime: python
-    region: singapore          # Closest to Vietnam — change to "oregon" if needed
+    name: hugostudio-api           # Đổi thành tên service đang chạy trên Render nếu muốn update
+    runtime: node
+    region: singapore
 
-    # Render builds from this subdirectory
-    rootDir: python-ai-server
+    # Build: cài cả npm và pip
+    buildCommand: |
+      npm install --prefix server
+      pip install -r python-ai-server/requirements.txt
 
-    # Install dependencies
-    buildCommand: pip install -r requirements.txt
+    # Start: chạy cả 2 server qua script
+    startCommand: bash start.sh
 
-    # Start the server — Render injects $PORT automatically
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-
-    # Free tier — upgrade to "starter" (paid) for always-on (no cold starts)
+    # Render expose port này ra ngoài (Node.js lắng nghe)
+    # Python chạy nội bộ port 8000 — không cần expose
     plan: free
 
-    # Health check — Render uses this to decide if deploy succeeded
-    healthCheckPath: /health
+    healthCheckPath: /health       # Node.js cần có GET /health endpoint
 
-    # Environment variables — set values in Render dashboard, NOT here
-    # (never commit secrets to git)
     envVars:
-      - key: GEMINI_API_KEY
-        sync: false            # Must be set manually in Render dashboard
+      # ── Node.js ──────────────────────────────────────────────────────────
+      - key: NODE_ENV
+        value: production
+
+      - key: MONGODB_URI
+        sync: false
+
+      - key: JWT_SECRET
+        sync: false
 
       - key: INTERNAL_API_KEY
-        sync: false            # Same key as VITE_INTERNAL_API_KEY in frontend
+        sync: false
+
+      # ── Python AI ─────────────────────────────────────────────────────────
+      - key: GEMINI_API_KEY
+        sync: false
 
       - key: ALLOWED_ORIGINS
         value: "https://hugostudio.vn,https://hugowishpax.studio,https://www.hugostudio.vn"
 
-      - key: MONGO_URI
-        sync: false            # MongoDB Atlas connection string (if used by rate limiter)
-
-      - key: REDIS_URL
-        sync: false            # Upstash Redis URL (if used by rate limiter — optional)
-
-      # Python runtime settings
       - key: PYTHONUNBUFFERED
-        value: "1"             # Ensures logs appear in Render dashboard in real-time
+        value: "1"
