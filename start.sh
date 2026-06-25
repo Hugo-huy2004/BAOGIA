@@ -6,7 +6,6 @@
 
 set -e
 
-# Thư mục gốc của repo (nơi start.sh nằm)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "📁 Repo root: $SCRIPT_DIR"
 
@@ -15,6 +14,16 @@ cd "$SCRIPT_DIR/python-ai-server"
 uvicorn main:app --host 127.0.0.1 --port 8000 &
 PYTHON_PID=$!
 echo "✅ Python AI server PID: $PYTHON_PID"
+
+# Đợi Python sẵn sàng trước khi start Node.js (tối đa 30 giây)
+echo "⏳ Đang chờ Python AI server sẵn sàng..."
+for i in $(seq 1 30); do
+  if curl -sf http://127.0.0.1:8000/health > /dev/null 2>&1; then
+    echo "✅ Python AI server đã sẵn sàng (sau ${i}s)"
+    break
+  fi
+  sleep 1
+done
 
 echo "🟢 Khởi động Node.js server trên port $PORT..."
 cd "$SCRIPT_DIR/server"
