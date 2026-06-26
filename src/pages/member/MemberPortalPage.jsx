@@ -101,6 +101,7 @@ export default function MemberPortalPage() {
   // without this, the bar visibly jitters/jumps as the keyboard opens/closes
   // because it's fixed against a viewport that's actively resizing.
   const isKeyboardVisible = useKeyboardVisible();
+  const isMobileView = useIsMobile();
   const [verificationForm, setVerificationForm] = useState({
     fullName: memberSession?.displayName || "", birthday: "", schoolLevel: "",
     schoolName: "", schoolIdCode: "", phoneZalo: "", acceptTerms: false, acceptContact: false,
@@ -631,7 +632,6 @@ export default function MemberPortalPage() {
   // are gone from the mobile nav, Therapy opens as an in-chat overlay) — so
   // any psychology sub-tab gets the fullscreen takeover there. Desktop is
   // unchanged from before — normal sidebar+tabs UI, never fullscreen.
-  const isMobileView = useIsMobile();
   const isFullscreenUtility = activeTab === "utilities" && (
     subTab === "ide" || subTab === "arcade" ||
     (subTab === "psychology" && isMobileView)

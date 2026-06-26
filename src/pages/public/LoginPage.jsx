@@ -26,6 +26,7 @@ export default function LoginPage() {
   const [customerCode, setCustomerCode] = useState("");
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
+  const [googleConfigError, setGoogleConfigError] = useState("");
   const googleButtonRef = useRef(null);
   const [showBiometricOption, setShowBiometricOption] = useState(false);
   const [biometricEmail, setBiometricEmail] = useState("");
@@ -112,10 +113,13 @@ export default function LoginPage() {
     if (activeMode !== "member") return;
 
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    setGisReady(false);
+    setGoogleConfigError("");
     if (!clientId || !googleButtonRef.current) return;
 
     let cancelled = false;
     let timer = null;
+    let timeout = null;
 
     const tryInitGoogle = () => {
       if (cancelled) return;
@@ -133,24 +137,40 @@ export default function LoginPage() {
       }
 
       googleButtonRef.current.innerHTML = "";
-      googleId.renderButton(googleButtonRef.current, {
-        theme: document.documentElement.classList.contains("dark") ? "filled_black" : "outline",
-        size: "large",
-        width: 320,
-        text: "continue_with"
-      });
+      try {
+        googleId.renderButton(googleButtonRef.current, {
+          theme: document.documentElement.classList.contains("dark") ? "filled_black" : "outline",
+          size: "large",
+          width: 320,
+          text: "continue_with"
+        });
+      } catch (error) {
+        setGoogleConfigError(`Google Sign-In chưa được cấp quyền cho origin ${window.location.origin}.`);
+        if (timer) window.clearInterval(timer);
+        return;
+      }
 
       if (timer) {
         window.clearInterval(timer);
       }
+      if (timeout) {
+        window.clearTimeout(timeout);
+      }
     };
 
     timer = window.setInterval(tryInitGoogle, 250);
+    timeout = window.setTimeout(() => {
+      if (!cancelled) {
+        setGoogleConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}. Hãy thêm origin này vào Google Cloud Console.`);
+        window.clearInterval(timer);
+      }
+    }, 4000);
     tryInitGoogle();
 
     return () => {
       cancelled = true;
       window.clearInterval(timer);
+      window.clearTimeout(timeout);
     };
   }, [activeMode]);
 
@@ -409,8 +429,15 @@ export default function LoginPage() {
                 <p className="text-[10px] text-center text-destructive font-medium">{t("loginPage.memberForm.missingClientId")}</p>
               )}
 
+              {googleConfigError && (
+                <div className="rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-left text-[10px] text-warning dark:text-amber-300">
+                  <p className="font-semibold">{googleConfigError}</p>
+                  <p className="mt-1 text-muted-foreground">Authorized JavaScript origins cần chứa origin hiện tại và domain production.</p>
+                </div>
+              )}
+
               <p className="text-[10px] text-center text-muted-foreground font-medium">
-                {gisReady ? t("loginPage.memberForm.gisReady") : t("loginPage.memberForm.gisLoading")}
+                {googleConfigError ? "Google Sign-In đang bị chặn bởi cấu hình OAuth." : gisReady ? t("loginPage.memberForm.gisReady") : t("loginPage.memberForm.gisLoading")}
               </p>
 
               {/* Apple-style Educational Disclaimer Card */}

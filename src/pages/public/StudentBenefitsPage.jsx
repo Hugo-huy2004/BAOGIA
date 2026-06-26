@@ -16,6 +16,7 @@ export default function StudentBenefitsPage() {
   const navigate = useNavigate();
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
+  const [googleConfigError, setGoogleConfigError] = useState("");
   const googleButtonRef = useRef(null);
 
   const showToast = (message, type = "error") => {
@@ -65,10 +66,13 @@ export default function StudentBenefitsPage() {
 
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    setGisReady(false);
+    setGoogleConfigError("");
     if (!clientId || !googleButtonRef.current) return;
 
     let cancelled = false;
     let timer = null;
+    let timeout = null;
 
     const tryInitGoogle = () => {
       if (cancelled) return;
@@ -95,27 +99,41 @@ export default function StudentBenefitsPage() {
 
       if (googleButtonRef.current) {
         googleButtonRef.current.innerHTML = "";
-        googleId.renderButton(googleButtonRef.current, {
-          theme: document.documentElement.classList.contains("dark")
-            ? "filled_black"
-            : "outline",
-          size: "large",
-          width: 280,
-          text: "continue_with",
-          shape: "pill",
-          logo_alignment: "left",
-        });
+        try {
+          googleId.renderButton(googleButtonRef.current, {
+            theme: document.documentElement.classList.contains("dark")
+              ? "filled_black"
+              : "outline",
+            size: "large",
+            width: 280,
+            text: "continue_with",
+            shape: "pill",
+            logo_alignment: "left",
+          });
+        } catch (error) {
+          setGoogleConfigError(`Google Sign-In chưa được cấp quyền cho origin ${window.location.origin}.`);
+          if (timer) window.clearInterval(timer);
+          return;
+        }
       }
 
       if (timer) window.clearInterval(timer);
+      if (timeout) window.clearTimeout(timeout);
     };
 
     timer = window.setInterval(tryInitGoogle, 250);
+    timeout = window.setTimeout(() => {
+      if (!cancelled) {
+        setGoogleConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}. Hãy thêm origin này vào Google Cloud Console.`);
+        window.clearInterval(timer);
+      }
+    }, 4000);
     tryInitGoogle();
 
     return () => {
       cancelled = true;
       window.clearInterval(timer);
+      window.clearTimeout(timeout);
       // Reset flag khi unmount
       window.__googleInitializedForStudent = false;
     };
@@ -343,6 +361,17 @@ export default function StudentBenefitsPage() {
                   Cảnh báo: Thiếu Google Client ID
                 </p>
               )}
+
+              {googleConfigError && (
+                <div className="w-full rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-left text-[10px] text-warning dark:text-amber-300">
+                  <p className="font-semibold">{googleConfigError}</p>
+                  <p className="mt-1 text-muted-foreground">Authorized JavaScript origins cần chứa origin hiện tại và domain production.</p>
+                </div>
+              )}
+
+              <p className="text-[10px] text-center text-muted-foreground font-medium">
+                {googleConfigError ? "Google Sign-In đang bị chặn bởi cấu hình OAuth." : gisReady ? "Google Sign-In đã sẵn sàng." : "Đang tải Google Sign-In..."}
+              </p>
 
               <div className="w-full p-3.5 rounded-2xl bg-muted/50 border border-border/50 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 flex gap-2.5 text-left leading-relaxed">
                 <span className="material-symbols-outlined text-indigo-500 shrink-0 text-lg mt-0.5">
