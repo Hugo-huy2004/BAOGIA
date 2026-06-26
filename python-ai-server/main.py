@@ -15,6 +15,7 @@ from datetime import datetime
 from services.gemini_service import GeminiService
 from services.rate_limit_service import rate_limiter
 from services.intent_insights_service import intent_insights, normalize
+from services.warning_sentinel import warning_sentinel
 from middleware.auth import verify_internal_key
 
 # ---------------------------------------------------------------------------
@@ -144,6 +145,17 @@ def _client_id(user_id: str, req: Request) -> str:
         return req.client.host
     return "unknown"
 
+def _client_ip(req: Request) -> str:
+    if req and req.client:
+        return req.client.host or ""
+    return ""
+
+def _lock_message(minutes: int) -> str:
+    return f"🔒 Token PSY của cậu đang bị khóa tạm thời. Vui lòng quay lại sau khoảng {minutes} phút nữa nhé."
+
+def _sentinel_text(messages: list[str]) -> str:
+    return "|||".join(messages)
+
 # ---------------------------------------------------------------------------
 # Health & meta endpoints
 # ---------------------------------------------------------------------------
@@ -172,8 +184,10 @@ MAX_CHAT_TOKENS = 10  # Daily chat budget. Free social/crisis intents = 0, inten
 async def chat_remaining(userId: str = "unknown", req: Request = None):
     """Return remaining chat tokens for the calling user today."""
     client_identifier = _client_id(userId, req)
+    ip = _client_ip(req)
+    lock_minutes = warning_sentinel.get_lock_remaining_minutes(client_identifier, ip)
     remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
-    return {"remaining": remaining, "max": MAX_CHAT_TOKENS}
+    return {"remaining": 0 if lock_minutes > 0 else remaining, "max": MAX_CHAT_TOKENS, "locked": lock_minutes > 0, "lockMinutes": lock_minutes}
 
 # ---------------------------------------------------------------------------
 # AI Chat endpoints
@@ -195,6 +209,16 @@ async def proactive_push(request: ProactivePushRequest):
 async def classify_intent(request: IntentClassifyRequest, req: Request):
     try:
         client_identifier = _client_id(request.userId, req)
+        ip = _client_ip(req)
+        lock_minutes = warning_sentinel.get_lock_remaining_minutes(client_identifier, ip)
+        if lock_minutes > 0:
+            return {"reply": _lock_message(lock_minutes), "locked": True, "lockMinutes": lock_minutes}
+
+        violation_type = warning_sentinel.detect_violation(request.message)
+        if violation_type:
+            result = warning_sentinel.check_and_warn(client_identifier, ip, violation_type)
+            return {"reply": _sentinel_text(result["messages"]), "warning": True, "locked": result.get("locked", False), "warningCount": result.get("count", 0), "lockMinutes": 180 if result.get("locked") else 0}
+
         remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
         if remaining <= 0:
             # Out of free tokens — skip the classification call entirely (saves an AI call);
@@ -238,9 +262,27 @@ async def chat(request: ChatRequest, req: Request):
 
     try:
         client_identifier = _client_id(request.userId, req)
+        ip = _client_ip(req)
+        lock_minutes = warning_sentinel.get_lock_remaining_minutes(client_identifier, ip)
+        if lock_minutes > 0:
+            async def locked_stream():
+                yield f"data: {json.dumps({'text': _lock_message(lock_minutes), 'locked': True, 'lockMinutes': lock_minutes}, ensure_ascii=False)}\n\n"
+                await asyncio.sleep(0.1)
+            return StreamingResponse(locked_stream(), media_type="text/event-stream")
+
+        violation_type = warning_sentinel.detect_violation(request.message)
+        if violation_type:
+            result = warning_sentinel.check_and_warn(client_identifier, ip, violation_type)
+            async def warning_stream():
+                for idx, msg in enumerate(result["messages"]):
+                    text = msg if idx == 0 else f"|||{msg}"
+                    yield f"data: {json.dumps({'text': text, 'warning': True, 'locked': result.get('locked', False), 'warningCount': result.get('count', 0), 'lockMinutes': 180 if result.get('locked') else 0}, ensure_ascii=False)}\n\n"
+                    await asyncio.sleep(0.05)
+            return StreamingResponse(warning_stream(), media_type="text/event-stream")
+
         remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
         if remaining < LLM_WEIGHT:
-            email = (request.bio or {}).get("email")
+            email = request.userId if request.userId and "@" in request.userId else (request.bio or {}).get("email")
             if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
                 return {"reply": f"Bạn đã sử dụng hết {MAX_CHAT_TOKENS} token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!"}
 
@@ -264,7 +306,7 @@ async def chat_stream(request: ChatRequest, req: Request):
         client_identifier = _client_id(request.userId, req)
         remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
         if remaining < LLM_WEIGHT:
-            email = (request.bio or {}).get("email")
+            email = request.userId if request.userId and "@" in request.userId else (request.bio or {}).get("email")
             if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
                 async def error_stream():
                     yield f"data: {json.dumps({'error': f'Bạn đã sử dụng hết {MAX_CHAT_TOKENS} token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!'}, ensure_ascii=False)}\n\n"

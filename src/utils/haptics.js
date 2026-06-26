@@ -5,6 +5,7 @@
 // where it's unsupported.
 export function triggerHaptic(durationMs = 10) {
   try {
+    if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
     navigator.vibrate?.(durationMs);
   } catch (_) {}
 }
@@ -16,7 +17,7 @@ export function triggerHaptic(durationMs = 10) {
 export const hapticMove = () => triggerHaptic(8);
 export const hapticSelect = () => triggerHaptic(10);
 export const hapticMerge = () => triggerHaptic(16);
-export const hapticWin = () => { try { navigator.vibrate?.([20, 40, 20, 40, 30]); } catch (_) {} };
+export const hapticWin = () => triggerHaptic([20, 40, 20, 40, 30]);
 export const hapticLose = () => triggerHaptic(60);
 
 // Delegated, app-wide tap haptic — fires once on pointerdown for any element

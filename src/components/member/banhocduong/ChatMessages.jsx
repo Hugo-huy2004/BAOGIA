@@ -155,14 +155,14 @@ function ChatMessages({
     setShowScrollBtn(isUp);
   };
 
-  const scrollToBottom = (behavior = "smooth") => {
+  const scrollToBottom = (behavior = "auto") => {
     const el = containerRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior });
   };
 
   // Auto-scroll to bottom on new messages ONLY if user hasn't scrolled up
   React.useEffect(() => {
-    if (!userScrolledUpRef.current) scrollToBottom("smooth");
+    if (!userScrolledUpRef.current) requestAnimationFrame(() => scrollToBottom("auto"));
   }, [messages, loading]);
 
   // Always scroll to bottom on mount — useLayoutEffect (not useEffect) so
@@ -170,7 +170,7 @@ function ChatMessages({
   // briefly flash at the top, then visibly jump to the bottom; that jump is
   // exactly the "đẩy xuống gây lag" (push-down lag) reported when entering chat.
   React.useLayoutEffect(() => {
-    scrollToBottom("instant");
+    scrollToBottom("auto");
   }, []);
 
   const formatText = (txt) => {
@@ -188,9 +188,9 @@ function ChatMessages({
         id="chat-messages-container"
         ref={containerRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-auto overscroll-contain px-3 sm:px-4 py-3 scrollbar-thin scrollbar-thumb-zinc-200/60 dark:scrollbar-thumb-zinc-700/60 scrollbar-track-transparent"
+        className="h-full overflow-y-auto overscroll-contain px-2.5 sm:px-4 py-2.5 sm:py-3 scrollbar-thin scrollbar-thumb-zinc-200/60 dark:scrollbar-thumb-zinc-700/60 scrollbar-track-transparent"
       >
-        <div className="min-h-full flex flex-col justify-end gap-2">
+        <div className="min-h-full flex flex-col justify-end gap-1.5 sm:gap-2">
         {/* Date separator at top */}
         <div className="flex items-center gap-3 py-2 px-2">
           <div className="flex-1 h-px bg-zinc-200/60 dark:bg-zinc-700/40" />
@@ -211,16 +211,10 @@ function ChatMessages({
             return (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 16, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{
-                  opacity: 0,
-                  filter: "blur(8px)",
-                  scale: 1.15,
-                  y: -24,
-                  transition: { duration: 0.9, ease: "easeOut" }
-                }}
-                transition={{ type: "spring", stiffness: 260, damping: 22, mass: 0.8 }}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, transition: { duration: 0.12 } }}
+                transition={{ duration: 0.16, ease: "easeOut" }}
                 className={`flex items-end gap-2 ${isBot ? "justify-start" : "justify-end"}`}
               >
                 {/* Bot avatar */}
@@ -230,10 +224,10 @@ function ChatMessages({
                   </div>
                 )}
 
-                <div className={`flex flex-col gap-1 max-w-[78%] ${isBot ? "items-start" : "items-end"}`}>
+                <div className={`flex flex-col gap-1 max-w-[82%] sm:max-w-[78%] ${isBot ? "items-start" : "items-end"}`}>
                   {/* Message bubble */}
                   <div
-                    className={`relative px-4 py-2.5 text-[13px] leading-[1.55] ${
+                    className={`relative px-3.5 sm:px-4 py-2 sm:py-2.5 text-[13px] leading-[1.5] ${
                       isBot
                         ? "bg-zinc-50 dark:bg-[#1c1b26] text-zinc-800 dark:text-zinc-100 rounded-2xl rounded-tl-sm shadow-sm border border-zinc-200/60 dark:border-[#272635]"
                         : "bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-[#0071e3] dark:to-[#3843d0] text-white rounded-2xl rounded-tr-sm shadow-md shadow-blue-500/20 border border-blue-400/20 dark:border-blue-500/10"

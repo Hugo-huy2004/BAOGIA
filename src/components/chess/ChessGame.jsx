@@ -242,7 +242,10 @@ function fmt(ms) {
 }
 
 function vibrate(pattern) {
-  try { navigator.vibrate?.(pattern); } catch (_) {}
+  try {
+    if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
+    navigator.vibrate?.(pattern);
+  } catch (_) {}
 }
 
 // ── Desktop/Mobile Player Card ────────────────────────────────────────────────

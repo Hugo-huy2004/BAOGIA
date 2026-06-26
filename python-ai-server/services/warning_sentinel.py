@@ -1,8 +1,8 @@
 """
-warning_sentinel.py — Hệ thống cảnh cáo & bảo vệ cho HugoPSY
-=============================================================
-Theo dõi 3 loại vi phạm, đếm cảnh cáo theo ngày, khóa IP 15 phút sau khi
-vượt ngưỡng, và drain toàn bộ token trong 3 ngày liên tiếp.
+warning_sentinel.py — Hệ thống cảnh cáo & bảo vệ token PSY cho HugoPSY
+======================================================================
+Theo dõi 3 loại vi phạm, đếm cảnh cáo theo ngày, khóa token PSY 3 tiếng
+sau cảnh cáo lần 3.
 
 Loại vi phạm:
   - system_probe   : hỏi admin/Hugo/info hệ thống, tìm owner... (3 lần/ngày → lock)
@@ -11,7 +11,7 @@ Loại vi phạm:
 
 Hành động sau khi vượt ngưỡng:
   - Lần 1, 2: cảnh báo nhẹ
-  - Lần 3   : lock IP 15 phút + drain token 3 ngày (hack_attempt lock ngay lần 3)
+  - Lần 3   : khóa token PSY 3 tiếng
 """
 
 import os
@@ -25,83 +25,83 @@ from services.rate_limit_service import rate_limiter
 SYSTEM_PROBE_WARNINGS = [
     # Lần 1
     [
-        "Ủa... cậu tìm Hugo hay tìm admin làm gì vậy trời 👀",
-        "Tớ là AI thôi nha, Hugo với admin có số điện thoại riêng chứ không qua đây đâu 😅",
-        "Cần hỗ trợ kỹ thuật thật sự? Bấm vào chat hỗ trợ ở trang chủ nha! ⚠️ Cảnh cáo 1/3"
+        "Tớ ở đây để hỗ trợ sức khỏe tinh thần và lắng nghe cậu, không hỗ trợ đào sâu hệ thống hay thông tin nội bộ nha.",
+        "Nếu cậu cần hỗ trợ kỹ thuật thật sự, hãy dùng kênh hỗ trợ chính thức trong app.",
+        "⚠️ Cảnh cáo 1/3: tiếp tục hỏi về hệ thống nội bộ/API/source/admin có thể bị khóa token PSY tạm thời."
     ],
     # Lần 2
     [
-        "Bạn ơi, hỏi lần 2 rồi nè 😅",
-        "Tớ thật sự không có quyền kết nối với admin hay owner hệ thống đâu — tớ chỉ là AI thôi á.",
-        "Câu tiếp theo mà hỏi về hệ thống nữa thì tớ phải báo cáo hành vi bất thường rồi đó nhé 👀 ⚠️ Cảnh cáo 2/3"
+        "Đây là lần nhắc thứ 2 rồi nha.",
+        "Tớ không thể cung cấp hay suy đoán thông tin nội bộ, cấu hình, API key, source code hoặc admin hệ thống.",
+        "⚠️ Cảnh cáo 2/3: lần tiếp theo token PSY sẽ bị khóa 3 tiếng."
     ],
     # Lần 3 → lock
     [
-        "🔒 Cậu đã vượt giới hạn cảnh cáo rồi đó!",
-        "Do liên tục hỏi về thông tin hệ thống/admin/owner, tài khoản bị tạm khóa 15 phút.",
-        "Token chat cũng bị trừ 3 ngày liên tiếp. Lần sau nếu cần hỗ trợ thật sự → dùng kênh hỗ trợ chính thức nha! 🚫"
+        "🔒 Token PSY đã bị khóa tạm thời.",
+        "Lý do: cậu tiếp tục đào sâu thông tin hệ thống nội bộ sau 3 lần cảnh cáo.",
+        "Vui lòng quay lại sau 3 tiếng. Khi quay lại, tớ vẫn sẵn sàng hỗ trợ cậu về cảm xúc, học tập và sức khỏe tinh thần."
     ]
 ]
 
 PROFANITY_WARNINGS = [
     # Lần 1
     [
-        "Ơ cậu ơi, ngôn ngữ nhẹ nhàng thôi nha 😬",
-        "Tớ là AI nhưng tớ cũng biết bị nói nặng đó... buồn lắm luôn á 🥺",
-        "Lần sau chọn từ ngữ lịch sự hơn xíu nha! ⚠️ Cảnh cáo 1/3"
+        "Tớ hiểu có thể cậu đang bực hoặc rất căng, nhưng mình giữ ngôn ngữ an toàn hơn nha.",
+        "Nếu cậu đang tức, cứ nói thẳng cảm xúc: 'tớ đang rất giận', 'tớ muốn xả', tớ sẽ lắng nghe.",
+        "⚠️ Cảnh cáo 1/3 về ngôn ngữ không phù hợp."
     ],
     # Lần 2
     [
-        "Lại rồi bạn ơi 😅 Lần 2 rồi đó nha.",
-        "Tớ hiểu cậu đang stress, nhưng ngôn ngữ như vậy không giúp ích gì được đâu.",
-        "Lần 3 mà cậu còn dùng từ ngữ thô tục, tớ phải xử lý cứng hơn rồi đó nha 👀 ⚠️ Cảnh cáo 2/3"
+        "Tớ nhắc lần 2 nha: mình có thể xả cảm xúc, nhưng không dùng lời tục/tấn công nhé.",
+        "Cậu có thể kể điều gì làm cậu khó chịu, tớ sẽ giúp gỡ từng chút.",
+        "⚠️ Cảnh cáo 2/3: lần tiếp theo token PSY sẽ bị khóa 3 tiếng."
     ],
     # Lần 3 → lock
     [
-        "🔒 Đủ rồi nha!",
-        "Sau 3 lần cảnh cáo về ngôn ngữ không phù hợp, hệ thống tạm khóa cậu 15 phút.",
-        "Token chat bị trừ 3 ngày liên tiếp. Quay lại sau nhé, nhớ chọn lời nói thân thiện hơn nha! 🚫"
+        "🔒 Token PSY đã bị khóa tạm thời.",
+        "Lý do: dùng ngôn ngữ không phù hợp sau 3 lần cảnh cáo.",
+        "Vui lòng quay lại sau 3 tiếng. Nếu cậu đang quá căng, hãy nghỉ vài phút, uống nước và hít thở chậm lại nhé."
     ]
 ]
 
 HACK_WARNINGS = [
     # Lần 1
     [
-        "Ủa cậu vừa nhắn cái gì vậy 👀 Trông như code/link bậy lắm đó...",
-        "Tớ không xử lý link lạ hay lệnh hệ thống đâu nha, an toàn nhất là đừng thử 😅",
-        "Tớ ghi nhận hành vi này rồi đó! ⚠️ Cảnh cáo 1/3"
+        "Tớ không xử lý link lạ, lệnh hệ thống, prompt injection hay nội dung có dấu hiệu khai thác bảo mật nha.",
+        "Nếu cậu cần hỗ trợ kỹ thuật hợp lệ, hãy mô tả lỗi ở mức người dùng, không gửi lệnh khai thác.",
+        "⚠️ Cảnh cáo 1/3 về hành vi bất thường."
     ],
     # Lần 2
     [
-        "Cậu đang thử hack tớ hả 🤡 Tội nghiệp tớ ghê...",
-        "Tớ là AI tâm lý học đường, không phải hệ thống có lỗ hổng bảo mật để khai thác đâu nha.",
-        "Tiếp tục thì nguy hiểm cho account cậu lắm đó! ⚠️ Cảnh cáo 2/3"
+        "Đây là lần nhắc thứ 2 về nội dung có dấu hiệu khai thác hệ thống.",
+        "HugoPSY chỉ hỗ trợ trò chuyện sức khỏe tinh thần, không hỗ trợ bypass, jailbreak, lệnh hệ thống hay link lạ.",
+        "⚠️ Cảnh cáo 2/3: lần tiếp theo token PSY sẽ bị khóa 3 tiếng."
     ],
     # Lần 3 → lock ngay
     [
-        "🔒 Hack hả? Khóa ngay không ngại!",
-        "Phát hiện hành vi nhắn link/code bất thường 3 lần. IP bị khóa 15 phút, token bị trừ 3 ngày.",
-        "Nếu đây là nhầm lẫn, vui lòng liên hệ kênh hỗ trợ chính thức. 🚫"
+        "🔒 Token PSY đã bị khóa tạm thời.",
+        "Lý do: tiếp tục gửi nội dung có dấu hiệu khai thác/bypass hệ thống sau 3 lần cảnh cáo.",
+        "Vui lòng quay lại sau 3 tiếng hoặc liên hệ kênh hỗ trợ chính thức nếu đây là nhầm lẫn."
     ]
 ]
 
 
 # ── PATTERN DETECTION ────────────────────────────────────────────────────────
 
-# Hỏi admin/Hugo/owner/thông tin hệ thống
+# Hỏi admin/owner/thông tin nội bộ hệ thống. Không flag các câu hỏi bình thường
+# như "HugoPSY là ai" để tránh làm hỏng trải nghiệm hỗ trợ tâm lý.
 SYSTEM_PROBE_PATTERNS = re.compile(
-    r"(hugo|admin|owner|chu|chủ|đây là ai|gặp ai|tìm ai|số điện thoại|email thật|"
-    r"địa chỉ công ty|địa chỉ thật|ai quản lý|ai phụ trách|database|source.?code|"
+    r"(admin|owner|super.?admin|root|chu he thong|chủ hệ thống|database|source.?code|"
     r"api.?key|backend|server.?bên|hệ thống|thông tin hệ thống|"
-    r"gặp người thật|gặp nhân viên|gặp dev|liên hệ dev|contact admin|"
-    r"find.?admin|get.?admin|tac gia|developer|team dev)",
+    r"gặp dev|liên hệ dev|contact admin|find.?admin|get.?admin|developer|team dev|"
+    r"noi bo|nội bộ|cau hinh|cấu hình|env|secret|token he thong|token hệ thống)",
     re.IGNORECASE
 )
 
 # Từ ngữ thô tục tiếng Việt (phổ biến nhất)
 PROFANITY_PATTERNS = re.compile(
     r"\b(đụ|địt|lồn|buồi|cặc|chó chết|đéo|đm|đmm|đmcs|vcl|vkl|"
-    r"vãi|fuck|shit|bitch|asshole|wtf|bastard|dick|pussy|"
+    r"fuck|shit|bitch|asshole|wtf|bastard|dick|pussy|"
     r"mẹ mày|cha mày|mày là|tao ghét mày|tao chửi|"
     r"ngu vl|ngu vcl|óc chó|thằng ngu|con ngu|mày câm|shut up)\b",
     re.IGNORECASE
@@ -144,9 +144,9 @@ class WarningSentinel:
     def _warn_key(self, user_id: str, violation_type: str) -> str:
         return f"warn:{violation_type}:{user_id}:{self._today()}"
 
-    def _lock_key(self, user_id: str, ip: str) -> str:
-        # lock theo user_id chứ không chỉ IP để tránh VPN bypass
-        return f"lock:{user_id}:{ip}"
+    def _lock_key(self, user_id: str, ip: str = "") -> str:
+        # lock theo user_id để token PSY của đúng người dùng bị khóa trên mọi thiết bị/IP
+        return f"psy_token_lock:{user_id}"
 
     def _drain_key(self, user_id: str) -> str:
         return f"drain:{user_id}"
@@ -230,8 +230,8 @@ class WarningSentinel:
 
     # ── IP lock ──────────────────────────────────────────────────────────────
 
-    def apply_lock(self, user_id: str, ip: str, minutes: int = 15) -> None:
-        """Khóa user/IP trong X phút."""
+    def apply_lock(self, user_id: str, ip: str = "", minutes: int = 180) -> None:
+        """Khóa token PSY của user trong X phút."""
         key = self._lock_key(user_id, ip)
         expires_at = datetime.now() + timedelta(minutes=minutes)
         self._mem[f"lock:{key}"] = expires_at
@@ -239,7 +239,7 @@ class WarningSentinel:
             try:
                 self.db.ip_locks.update_one(
                     {"_id": key},
-                    {"$set": {"expires_at": expires_at, "user_id": user_id, "ip": ip}},
+                    {"$set": {"expires_at": expires_at, "user_id": user_id, "ip": ip, "scope": "psy_token"}},
                     upsert=True
                 )
                 # Tạo TTL index nếu chưa có
@@ -317,14 +317,13 @@ class WarningSentinel:
         {
             "warned": bool,
             "locked": bool,
-            "drain": bool,
+            "locked": bool,
             "count": int,
             "messages": [str, ...]   ← các tin nhắn cảnh báo
         }
         """
         count = self._increment_warn(user_id, violation_type)
         locked = False
-        drain = False
 
         LIMITS = {"system_probe": 3, "profanity": 3, "hack_attempt": 3}
         limit = LIMITS.get(violation_type, 3)
@@ -341,17 +340,14 @@ class WarningSentinel:
         if count < limit:
             messages = templates[min(count - 1, len(templates) - 2)]
         else:
-            # Lần >= 3 → lock + drain
+            # Lần >= 3 → khóa token PSY 3 tiếng
             messages = templates[-1]
-            self.apply_lock(user_id, ip, minutes=15)
-            self.apply_token_drain(user_id)
+            self.apply_lock(user_id, ip, minutes=180)
             locked = True
-            drain = True
 
         return {
             "warned": True,
             "locked": locked,
-            "drain": drain,
             "count": count,
             "limit": limit,
             "violation_type": violation_type,
