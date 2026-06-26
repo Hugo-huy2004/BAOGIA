@@ -97,6 +97,10 @@ export const webPushHelper = {
       return null;
     }
 
+    if (import.meta.env.DEV) {
+      return null;
+    }
+
     try {
       // 1. Đăng ký Service Worker sw.js nằm ở thư mục root
       const registration = await navigator.serviceWorker.register('/sw.js', {

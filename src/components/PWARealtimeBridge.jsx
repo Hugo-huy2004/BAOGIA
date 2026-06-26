@@ -140,6 +140,7 @@ export default function PWARealtimeBridge() {
   }, [email]);
 
   useEffect(() => {
+    if (import.meta.env.DEV) return undefined;
     if (!('serviceWorker' in navigator)) return undefined;
     let interval;
     let isRefreshing = false;

@@ -14,7 +14,8 @@ export default function AdminAutomationTab({ showNotification, stats, users }) {
     message: "",
     type: "info",
     category: "system",
-    actionUrl: ""
+    actionUrl: "",
+    targetEmail: ""
   });
   
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,10 @@ export default function AdminAutomationTab({ showNotification, stats, users }) {
       return showNotification("Tiêu đề và nội dung là bắt buộc", "error");
     }
 
-    if (!window.confirm("Bạn có chắc chắn muốn gửi thông báo này tới TOÀN BỘ người dùng đang hoạt động?")) {
+    const targetLabel = formData.targetEmail.trim()
+      ? (formData.targetEmail.trim().toLowerCase() === 'all' ? 'TOÀN BỘ người dùng đang hoạt động' : `người dùng ${formData.targetEmail.trim()}`)
+      : "TOÀN BỘ người dùng đang hoạt động";
+    if (!window.confirm(`Bạn có chắc chắn muốn gửi thông báo này tới ${targetLabel}?`)) {
       return;
     }
 
@@ -49,7 +53,8 @@ export default function AdminAutomationTab({ showNotification, stats, users }) {
         message: "",
         type: "info",
         category: "system",
-        actionUrl: ""
+        actionUrl: "",
+        targetEmail: ""
       });
     } catch (err) {
       showNotification(err.message, "error");
@@ -141,6 +146,18 @@ export default function AdminAutomationTab({ showNotification, stats, users }) {
                 </div>
 
                 <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Email người nhận (Tùy chọn)</label>
+                  <input
+                    type="email"
+                    value={formData.targetEmail}
+                    onChange={(e) => setFormData(prev => ({ ...prev, targetEmail: e.target.value }))}
+                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary transition-all"
+                    placeholder="Email cụ thể hoặc gõ all để gửi toàn bộ"
+                  />
+                  <p className="text-[10px] text-muted-foreground">Nhập email nếu chỉ muốn gửi cho một thành viên cụ thể. Gõ `all` hoặc để trống để broadcast toàn hệ thống.</p>
+                </div>
+
+                <div className="space-y-2">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Đường dẫn đính kèm (Tùy chọn)</label>
                   <input
                     type="text"
@@ -183,7 +200,8 @@ export default function AdminAutomationTab({ showNotification, stats, users }) {
                 <h3 className="font-bold text-warning text-sm">Cơ chế hoạt động</h3>
               </div>
               <ul className="text-xs text-foreground/80 space-y-2 list-disc list-inside leading-relaxed">
-                <li>Thông báo sẽ được gửi tới <strong>{stats?.active || 0}</strong> thành viên đang hoạt động trên hệ thống.</li>
+                <li>Nếu để trống email người nhận, thông báo sẽ được gửi tới <strong>{stats?.active || 0}</strong> thành viên đang hoạt động trên hệ thống.</li>
+                <li>Nếu nhập email người nhận, chỉ đúng tài khoản đó mới nhận in-app và push.</li>
                 <li>Mỗi thành viên sẽ nhận được 1 thông báo hiển thị ở biểu tượng chuông (In-App).</li>
                 <li>Những thành viên đã cấp quyền <strong>Push Notification</strong> trên trình duyệt/điện thoại sẽ nhận được ngay thông báo đẩy popup.</li>
               </ul>

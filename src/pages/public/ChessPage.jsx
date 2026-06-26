@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { Suspense, lazy, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { isMemberAuthenticated } from "../../services/authSession";
-import ChessLobby from "../../components/chess/ChessLobby";
-import ChessGame from "../../components/chess/ChessGame";
+
+const ChessLobby = lazy(() => import("../../components/chess/ChessLobby"));
+const ChessGame = lazy(() => import("../../components/chess/ChessGame"));
 
 // `embedded` + `initialRoomId` let HugoArcadeTab mount this as one of its
 // games (Chess now lives inside Arcade, not as its own top-level utility) —
@@ -127,63 +128,65 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
           {screen === "lobby" ? "← HugoArcade" : "✕ Thoát"}
         </button>
       )}
-      {screen === "lobby" && (
-        <ChessLobby
-          onStartGame={handleStartGame}
-          onJoinRoom={handleJoinRoom}
-          userInfo={userInfo}
-          boardTheme={boardTheme}
-          setBoardTheme={setBoardTheme}
-          myPieceTheme={myPieceTheme}
-          setMyPieceTheme={setMyPieceTheme}
-          oppPieceTheme={oppPieceTheme}
-          setOppPieceTheme={setOppPieceTheme}
-          appTheme={appTheme}
-          setAppTheme={setAppTheme}
-          highlightTheme={highlightTheme}
-          setHighlightTheme={setHighlightTheme}
-          soundPack={soundPack}
-          setSoundPack={setSoundPack}
-          boardBorder={boardBorder}
-          setBoardBorder={setBoardBorder}
-          boardShadow={boardShadow}
-          setBoardShadow={setBoardShadow}
-          embedded={embedded}
-        />
-      )}
-      {screen === "game" && gameConfig && (
-        <ChessGame
-          config={gameConfig}
-          roomId={activeRoomId}
-          onBack={handleBack}
-          userInfo={userInfo}
-          setUserInfo={setUserInfo}
-          onRoomCreated={(id) => {
-            setActiveRoomId(id);
-            if (window.location.pathname.includes("/member/utilities/chess")) {
-              navigate(`/member/utilities/chess/${id}`, { replace: true });
-            } else {
-              navigate(`/chess/${id}`, { replace: true });
-            }
-          }}
-          boardTheme={boardTheme}
-          setBoardTheme={setBoardTheme}
-          myPieceTheme={myPieceTheme}
-          setMyPieceTheme={setMyPieceTheme}
-          oppPieceTheme={oppPieceTheme}
-          setOppPieceTheme={setOppPieceTheme}
-          appTheme={appTheme}
-          setAppTheme={setAppTheme}
-          highlightTheme={highlightTheme}
-          setHighlightTheme={setHighlightTheme}
-          soundPack={soundPack}
-          setSoundPack={setSoundPack}
-          boardBorder={boardBorder}
-          setBoardBorder={setBoardBorder}
-          boardShadow={boardShadow}
-          setBoardShadow={setBoardShadow}
-        />
-      )}
+      <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+        {screen === "lobby" && (
+          <ChessLobby
+            onStartGame={handleStartGame}
+            onJoinRoom={handleJoinRoom}
+            userInfo={userInfo}
+            boardTheme={boardTheme}
+            setBoardTheme={setBoardTheme}
+            myPieceTheme={myPieceTheme}
+            setMyPieceTheme={setMyPieceTheme}
+            oppPieceTheme={oppPieceTheme}
+            setOppPieceTheme={setOppPieceTheme}
+            appTheme={appTheme}
+            setAppTheme={setAppTheme}
+            highlightTheme={highlightTheme}
+            setHighlightTheme={setHighlightTheme}
+            soundPack={soundPack}
+            setSoundPack={setSoundPack}
+            boardBorder={boardBorder}
+            setBoardBorder={setBoardBorder}
+            boardShadow={boardShadow}
+            setBoardShadow={setBoardShadow}
+            embedded={embedded}
+          />
+        )}
+        {screen === "game" && gameConfig && (
+          <ChessGame
+            config={gameConfig}
+            roomId={activeRoomId}
+            onBack={handleBack}
+            userInfo={userInfo}
+            setUserInfo={setUserInfo}
+            onRoomCreated={(id) => {
+              setActiveRoomId(id);
+              if (window.location.pathname.includes("/member/utilities/chess")) {
+                navigate(`/member/utilities/chess/${id}`, { replace: true });
+              } else {
+                navigate(`/chess/${id}`, { replace: true });
+              }
+            }}
+            boardTheme={boardTheme}
+            setBoardTheme={setBoardTheme}
+            myPieceTheme={myPieceTheme}
+            setMyPieceTheme={setMyPieceTheme}
+            oppPieceTheme={oppPieceTheme}
+            setOppPieceTheme={setOppPieceTheme}
+            appTheme={appTheme}
+            setAppTheme={setAppTheme}
+            highlightTheme={highlightTheme}
+            setHighlightTheme={setHighlightTheme}
+            soundPack={soundPack}
+            setSoundPack={setSoundPack}
+            boardBorder={boardBorder}
+            setBoardBorder={setBoardBorder}
+            boardShadow={boardShadow}
+            setBoardShadow={setBoardShadow}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

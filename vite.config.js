@@ -133,6 +133,8 @@ export default defineConfig({
     },
   },
   build: {
+    minify: 'oxc',
+    cssMinify: 'lightningcss',
     chunkSizeWarningLimit: 1000,
     sourcemap: false,
     rollupOptions: {
@@ -152,8 +154,5 @@ export default defineConfig({
         }
       }
     }
-  },
-  esbuild: {
-    drop: ['console', 'debugger'],
   }
 })

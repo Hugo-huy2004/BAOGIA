@@ -112,8 +112,8 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
       </aside>
 
       {/* ── MOBILE / TABLET HEADER + SWIPEABLE TAB BAR ── */}
-      <div className="md:hidden sticky top-14 z-30 bg-white dark:bg-background border-b border-border shadow-sm">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2">
+      <div className="md:hidden sticky top-0 z-30 bg-white/95 dark:bg-background/95 backdrop-blur-xl border-b border-border shadow-sm">
+        <div className="flex items-center justify-between px-4 pb-2" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)' }}>
           <div className="font-display text-lg font-black flex items-center gap-2">
             <HugoLogo />
             <span className="text-[10px] bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Admin</span>
@@ -128,7 +128,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
         </div>
 
         {/* All tabs reachable in one swipe — no extra tap through a drawer */}
-        <div className="flex gap-1.5 overflow-x-auto px-3 pb-2.5 scrollbar-hide snap-x snap-mandatory">
+        <div className="flex gap-1.5 overflow-x-auto px-3 pb-3 scrollbar-hide snap-x snap-mandatory">
           {flatItems.map(tab => {
             const isActive = activeTab === tab.id;
             return (

@@ -170,7 +170,7 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
   }
 
   return (
-    <div className="bg-white dark:bg-background rounded-[24px] border border-border shadow-sm flex flex-col overflow-hidden h-[calc(100vh-140px)] min-h-[600px] animate-fadeIn">
+    <div className="bg-white dark:bg-background rounded-[24px] border border-border shadow-sm flex flex-col overflow-hidden min-h-[70dvh] md:min-h-[600px] md:h-[calc(100dvh-140px)] animate-fadeIn">
       
       {/* ── HEADER ── */}
       <div className="border-b border-border bg-slate-50/50 dark:bg-card/40 shrink-0">

@@ -32,11 +32,20 @@ export default function SmartUserSearch({ onSelect, placeholder = "Tìm theo Tê
         const { getAdminSession } = await import('../../services/authSession');
         const session = getAdminSession();
         const response = await fetch(`${API_BASE_URL}/admin/users/search?q=${encodeURIComponent(query)}`, {
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {})
           }
         });
+
+        if (response.status === 401 || response.status === 403) {
+          setResults([]);
+          setIsOpen(false);
+          toast.error('Phiên quản trị đã hết hạn. Vui lòng đăng nhập lại.');
+          return;
+        }
+
         const data = await response.json();
         if (data.success) {
           setResults(data.data);

@@ -140,13 +140,18 @@ import InAppNotification, { pruneNotifications } from '../models/InAppNotificati
 
 router.post('/broadcast-all', requireAdmin, async (req, res) => {
   try {
-    const { title, message, type = 'info', category = 'system', actionUrl = '' } = req.body;
+    const { title, message, type = 'info', category = 'system', actionUrl = '', targetEmail = '' } = req.body;
     if (!title) return res.status(400).json({ error: 'Tiêu đề là bắt buộc.' });
+    const normalizedTargetEmail = String(targetEmail || '').trim().toLowerCase();
+    const isBroadcastAll = normalizedTargetEmail === '' || normalizedTargetEmail === 'all';
 
-    // Lấy toàn bộ người dùng đang active
-    const activeUsers = await Bio.find({ status: 'active' }, 'email');
+    // Nếu có targetEmail thì chỉ gửi cho đúng người đó. Nếu không, mới broadcast.
+    const activeUsers = await Bio.find(
+      isBroadcastAll ? { status: 'active' } : { status: 'active', email: normalizedTargetEmail },
+      'email'
+    );
     if (!activeUsers || activeUsers.length === 0) {
-      return res.status(404).json({ error: 'Không tìm thấy người dùng hoạt động.' });
+      return res.status(404).json({ error: isBroadcastAll ? 'Không tìm thấy người dùng hoạt động.' : 'Không tìm thấy thành viên active với email này.' });
     }
 
     // 1. Tạo InAppNotification cho từng người dùng
@@ -164,7 +169,9 @@ router.post('/broadcast-all', requireAdmin, async (req, res) => {
     Promise.all(activeUsers.map(u => pruneNotifications(u.email))).catch(e => console.error('[broadcast prune]', e.message));
 
     // 2. Bắn thông báo Push qua webpush cho những người dùng đã đăng ký
-    const subscriptions = await NotificationSubscription.find({});
+    const subscriptions = await NotificationSubscription.find(
+      isBroadcastAll ? { email: { $in: activeUsers.map(user => user.email) } } : { email: normalizedTargetEmail }
+    );
     
     let sentCount = 0;
     let failedCount = 0;
@@ -195,7 +202,9 @@ router.post('/broadcast-all', requireAdmin, async (req, res) => {
 
     res.json({ 
       success: true, 
-      message: `Đã gửi in-app cho ${activeUsers.length} người. Gửi Push thành công ${sentCount}, thất bại ${failedCount}.`,
+      message: isBroadcastAll
+        ? `Đã gửi in-app cho ${activeUsers.length} người. Gửi Push thành công ${sentCount}, thất bại ${failedCount}.`
+        : `Đã gửi thông báo cho ${normalizedTargetEmail}. Push thành công ${sentCount}, thất bại ${failedCount}.`,
       stats: { inAppSent: activeUsers.length, pushSent: sentCount, pushFailed: failedCount }
     });
   } catch (error) {

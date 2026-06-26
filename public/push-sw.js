@@ -15,8 +15,12 @@
 // silences that warning completely.
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    // Activate the new SW immediately — respond before channel closes.
-    event.waitUntil(self.skipWaiting());
+    // Activate the new SW immediately and reply on the same message channel.
+    // Some update helpers use MessageChannel and warn if no response arrives.
+    event.waitUntil((async () => {
+      await self.skipWaiting();
+      event.ports?.[0]?.postMessage({ ok: true });
+    })());
     return;
   }
   // All other message types are fire-and-forget (no response expected).

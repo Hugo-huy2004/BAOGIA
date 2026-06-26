@@ -293,7 +293,12 @@ export default class AIBot extends BaseBot {
       const res = await fetchWithRetry(`${API_URL}/intent/classify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, userId: this.bio?.email || "unknown" })
+        body: JSON.stringify({
+          message,
+          history: this._buildHistory(12),
+          bio: this._bioWithSummary(),
+          userId: this.bio?.email || "unknown"
+        })
       });
       if (res?.ok) {
         return await res.json();

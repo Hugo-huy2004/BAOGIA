@@ -1,14 +1,14 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { Suspense, lazy, useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMemberSession } from "../../services/authSession";
 import { dataApi } from "../../services/dataApi";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import BanhocduongTab from "../../components/member/banhocduong/BanhocduongTab";
-import TherapyTab from "../../components/member/banhocduong/TherapyTab";
-import MemberRadioTab from "../../components/member/MemberRadioTab";
-import MemberAuraTab from "../../components/member/MemberAuraTab";
-import MemberIdeTab from "../../components/member/MemberIdeTab";
+const BanhocduongTab = lazy(() => import("../../components/member/banhocduong/BanhocduongTab"));
+const TherapyTab = lazy(() => import("../../components/member/banhocduong/TherapyTab"));
+const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab"));
+const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
+const MemberIdeTab = lazy(() => import("../../components/member/MemberIdeTab"));
 
 export default function UtilityPublicPage() {
   const { tool } = useParams();
@@ -90,6 +90,18 @@ export default function UtilityPublicPage() {
     }
   };
 
+  const renderToolContent = () => (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      }
+    >
+      {renderTool()}
+    </Suspense>
+  );
+
   // Maps for SEO titles
   const titles = {
     "banhocduong": "Bạn Học Đường - AI Trợ Lý Học Tập | Hugo Studio",
@@ -109,7 +121,7 @@ export default function UtilityPublicPage() {
     <div className="relative min-h-screen bg-surface dark:bg-background pt-24 pb-20 px-4 md:px-8">
       <div className="max-w-6xl mx-auto">
         <div onClickCapture={!isAuthenticated ? handleIntercept : undefined}>
-          {renderTool()}
+          {renderToolContent()}
         </div>
       </div>
 

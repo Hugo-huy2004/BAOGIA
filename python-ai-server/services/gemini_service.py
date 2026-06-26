@@ -1571,16 +1571,35 @@ Trả về JSON CHÍNH XÁC:
     # src/components/member/banhocduong/constants/intentClassifier.js
     FREE_INTENT_IDS = {"greeting", "goodbye", "gratitude", "positive", "crisis"}
 
-    async def classify_intent(self, message: str) -> dict:
+    async def classify_intent(self, message: str, history: list | None = None, bio: dict | None = None) -> dict:
         """
         Classify user message into one of the local intent IDs or "fallback".
         Tries OpenRouter FIRST (cheap, doesn't burn the scarce Gemini free-tier quota
         which is reserved for the full conversational LLM tier), falling back to Gemini
         only if OpenRouter is unconfigured or fails.
         """
+        recent_turns = []
+        for item in (history or [])[-6:]:
+            role = "user" if item.get("role") == "user" else "model"
+            content = str(item.get("content") or "").strip()
+            if content:
+                recent_turns.append(f"{role}: {content}")
+        history_block = "\n".join(recent_turns) if recent_turns else "(không có ngữ cảnh trước đó)"
+
+        profile_bits = []
+        if isinstance(bio, dict):
+            if bio.get("displayName"):
+                profile_bits.append(f"Tên hiển thị: {bio['displayName']}")
+            if bio.get("age"):
+                profile_bits.append(f"Tuổi: {bio['age']}")
+            if bio.get("wellnessSummary"):
+                profile_bits.append(f"Tóm tắt sức khỏe tinh thần: {bio['wellnessSummary']}")
+        bio_block = "\n".join(profile_bits) if profile_bits else "(không có hồ sơ bổ sung)"
+
         system_instruction = """
         Bạn là hệ thống phân loại ý định (Intent Classifier) của HugoPSY.
         Nhiệm vụ: chỉ phân loại các câu RẤT RÕ RÀNG, ngắn, mang tính điều hướng/tính năng/safety. Với mọi câu tâm sự, chia sẻ cảm xúc, câu hỏi cần suy luận hoặc cần đồng cảm sâu, PHẢI trả về fallback để LLM chính trả lời.
+        Bạn PHẢI dùng cả ngữ cảnh hội thoại gần đây và hồ sơ rút gọn nếu có. Ví dụ: "mở bài đó đi", "cái trên là gì", "cho tớ làm luôn" chỉ được map sang intent tính năng nếu ngữ cảnh ngay trước đó thực sự nói về test/liệu pháp/gói dịch vụ. Nếu thiếu ngữ cảnh rõ ràng, trả fallback.
         - greeting: Chào hỏi bot, chào chuyên viên, hello, hi, bắt đầu trò chuyện.
         - goodbye: Tạm biệt, đi ngủ, đi học, đi làm, dừng trò chuyện.
         - identity: Hỏi bot là ai, tên gì, do ai tạo ra, có phải AI không, chức vụ là gì.
@@ -1613,8 +1632,28 @@ Trả về JSON CHÍNH XÁC:
 
         Trả về kết quả ở định dạng JSON chính xác:
         {
-          "intent": "nhãn đã chọn"
+          "intent": "nhãn đã chọn",
+          "confidence": 0.0,
+          "cacheable": true,
+          "reason": "giải thích cực ngắn"
         }
+
+        Quy tắc đầu ra:
+        - confidence là số từ 0 đến 1.
+        - Chỉ trả intent khác fallback nếu confidence >= 0.9.
+        - cacheable=true chỉ khi ý định có thể suy ra chỉ từ câu hiện tại, không phụ thuộc ngữ cảnh riêng của cuộc trò chuyện.
+        - Nếu phải dựa vào ngữ cảnh hội thoại để hiểu câu hiện tại, đặt cacheable=false.
+        - Nếu là cảm xúc/tâm sự nhưng có chứa từ khóa bề mặt giống intent điều hướng, vẫn phải trả fallback.
+        """
+        user_prompt = f"""
+        Hồ sơ rút gọn:
+        {bio_block}
+
+        Hội thoại gần đây:
+        {history_block}
+
+        Tin nhắn hiện tại của người dùng:
+        {message}
         """
 
         # OpenRouter first — cheap classification call, keeps Gemini quota for the full chat tier
@@ -1622,7 +1661,7 @@ Trả về JSON CHÍNH XÁC:
         if openrouter_key:
             messages = [
                 {"role": "system", "content": system_instruction},
-                {"role": "user", "content": f"Tin nhắn người dùng: '{message}'"}
+                {"role": "user", "content": user_prompt}
             ]
             openrouter_reply = await self._call_openrouter(
                 messages=messages,
@@ -1631,7 +1670,10 @@ Trả về JSON CHÍNH XÁC:
             )
             if openrouter_reply:
                 try:
-                    return json.loads(openrouter_reply)
+                    parsed = json.loads(openrouter_reply)
+                    if parsed.get("intent") != "fallback" and float(parsed.get("confidence", 0)) < 0.9:
+                        return {"intent": "fallback", "confidence": parsed.get("confidence", 0), "cacheable": False, "reason": "low_confidence"}
+                    return parsed
                 except Exception as e:
                     print(f"Lỗi parse json OpenRouter classification: {e}")
 
@@ -1644,14 +1686,17 @@ Trả về JSON CHÍNH XÁC:
                 try:
                     response = await client.aio.models.generate_content(
                         model=self.model_name,
-                        contents=[f"Tin nhắn người dùng: '{message}'"],
+                        contents=[user_prompt],
                         config=types.GenerateContentConfig(
                             system_instruction=system_instruction,
                             response_mime_type="application/json",
                             temperature=0.1
                         )
                     )
-                    return json.loads(response.text)
+                    parsed = json.loads(response.text)
+                    if parsed.get("intent") != "fallback" and float(parsed.get("confidence", 0)) < 0.9:
+                        return {"intent": "fallback", "confidence": parsed.get("confidence", 0), "cacheable": False, "reason": "low_confidence"}
+                    return parsed
                 except Exception as e:
                     err_str = str(e)
                     if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:

@@ -67,6 +67,8 @@ class ChatRequest(BaseModel):
 
 class IntentClassifyRequest(BaseModel):
     message: str
+    history: Optional[List[Dict[str, Any]]] = None
+    bio: Optional[Dict[str, Any]] = None
     userId: Optional[str] = "unknown"
 
 class LocalIntentLogRequest(BaseModel):
@@ -231,10 +233,14 @@ async def classify_intent(request: IntentClassifyRequest, req: Request):
             intent_id = cached_intent
             await intent_insights.log_match(request.message, "cache", intent_id, client_identifier)
         else:
-            result = await ai_service.classify_intent(request.message)
+            result = await ai_service.classify_intent(
+                request.message,
+                history=request.history,
+                bio=request.bio
+            )
             intent_id = result.get("intent") if isinstance(result, dict) else None
             await intent_insights.log_match(request.message, "ai", intent_id, client_identifier)
-            if intent_id and intent_id != "fallback":
+            if intent_id and intent_id != "fallback" and result.get("cacheable", True):
                 await intent_insights.set_cached(normalized, intent_id)
 
         if intent_id and intent_id != "fallback":

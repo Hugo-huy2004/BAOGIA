@@ -366,7 +366,10 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="h-[calc(100vh-56px)] bg-slate-50/30 dark:bg-background text-foreground flex flex-col md:flex-row overflow-hidden">
+    <div
+      className="h-[100dvh] min-h-[100dvh] bg-slate-50/30 dark:bg-background text-foreground flex flex-col md:flex-row overflow-hidden"
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
 
       <SosOverlay alerts={crisisAlerts} />
 
@@ -460,7 +463,7 @@ export default function AdminPanel() {
       />
 
       {/* MAIN WORKSPACE CONTENT */}
-      <section className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-8 relative">
+      <section className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] relative min-h-0">
         
         {/* Workspace Title Header */}
         {activeTab !== "dashboard" && activeTab !== "automation" && (
