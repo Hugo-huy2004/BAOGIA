@@ -188,8 +188,9 @@ function ChatMessages({
         id="chat-messages-container"
         ref={containerRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-auto px-3 py-3 space-y-2 scrollbar-thin scrollbar-thumb-zinc-200/60 dark:scrollbar-thumb-zinc-700/60 scrollbar-track-transparent"
+        className="h-full overflow-y-auto overscroll-contain px-3 sm:px-4 py-3 scrollbar-thin scrollbar-thumb-zinc-200/60 dark:scrollbar-thumb-zinc-700/60 scrollbar-track-transparent"
       >
+        <div className="min-h-full flex flex-col justify-end gap-2">
         {/* Date separator at top */}
         <div className="flex items-center gap-3 py-2 px-2">
           <div className="flex-1 h-px bg-zinc-200/60 dark:bg-zinc-700/40" />
@@ -438,6 +439,7 @@ function ChatMessages({
         </AnimatePresence>
 
         <div ref={messagesEndRef} className="h-1" />
+        </div>
       </div>
 
       {/* Scroll-to-bottom button */}

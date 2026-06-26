@@ -416,17 +416,29 @@ export default function ChatTab({
   const inputRef = useRef(null);
   const chatWrapperRef = useRef(null);
 
-  // Compute exact height to fill viewport below ChatTab — no reliance on ancestor heights
+  // The chat frame follows the visual viewport so the composer stays above the
+  // on-screen keyboard. Only the message list scrolls, like a native chat app.
   useLayoutEffect(() => {
     const el = chatWrapperRef.current;
     if (!el) return;
-    const isMobile = window.innerWidth < 768;
-    const BOTTOM_NAV = isMobile ? 64 : 0; // slightly larger to account for safe-area
     const setH = () => {
-      const vvh = window.visualViewport?.height ?? window.innerHeight;
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const isMobile = window.innerWidth < 768;
       const top = Math.max(0, el.getBoundingClientRect().top);
-      const h = vvh - top - BOTTOM_NAV;
-      if (h > 200) el.style.height = h + "px";
+      let nextHeight;
+
+      if (!isMobile) {
+        nextHeight = Math.min(760, Math.max(520, viewportHeight - top - 24));
+      } else {
+        nextHeight = onExitFullscreen ? viewportHeight : viewportHeight - top;
+      }
+
+      if (nextHeight > 240) {
+        el.style.height = `${Math.floor(nextHeight)}px`;
+        el.style.maxHeight = `${Math.floor(nextHeight)}px`;
+        el.style.minHeight = "0";
+        el.style.overflow = "hidden";
+      }
     };
     setH();
     // Re-measure after entry animation (200ms) and again after layout settles
@@ -434,13 +446,15 @@ export default function ChatTab({
     const t2 = setTimeout(setH, 500);
     window.addEventListener("resize", setH);
     window.visualViewport?.addEventListener("resize", setH);
+    window.visualViewport?.addEventListener("scroll", setH);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       window.removeEventListener("resize", setH);
       window.visualViewport?.removeEventListener("resize", setH);
+      window.visualViewport?.removeEventListener("scroll", setH);
     };
-  }, []);
+  }, [onExitFullscreen]);
 
   // Sync messages state when chatMessages prop updates from DB
   useEffect(() => {
@@ -1599,7 +1613,7 @@ export default function ChatTab({
   }
 
   return (
-    <div ref={chatWrapperRef} className="flex flex-col flex-1 h-full min-h-0 bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
+    <div ref={chatWrapperRef} className="flex flex-col flex-1 h-full min-h-0 bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden md:rounded-3xl">
 
 
       {/* ── Header ─────────────────────────────────────────────────────────────── */}
@@ -1749,8 +1763,8 @@ export default function ChatTab({
 
       {/* ── Input section (always at bottom — never scrolls away) ──────────────── */}
       {chatMode === "normal" && (
-        <div className="shrink-0 bg-transparent"
-          style={{ paddingBottom: 'max(4px, env(safe-area-inset-bottom))' }}>
+        <div className="shrink-0 bg-white/95 dark:bg-[#0e0e12]/95 border-t border-zinc-100 dark:border-zinc-800/60 backdrop-blur-xl shadow-[0_-8px_24px_rgba(15,23,42,0.04)]"
+          style={{ paddingBottom: 'max(6px, env(safe-area-inset-bottom))' }}>
 
           {/* Context-sensitive suggestion chips */}
           {isLastMessageCompleted && !loading && (

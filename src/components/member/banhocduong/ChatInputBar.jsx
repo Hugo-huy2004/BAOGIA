@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Mic } from "lucide-react";
 
 /**
@@ -20,20 +20,8 @@ function ChatInputBar({
   showQuickActions,
   onToggleQuickActions,
 }) {
-  // Focus immediately on mount so the keyboard opens as part of the HugoPSY
-  // transition itself, rather than later when the member taps the field —
-  // doing it then means the keyboard's viewport resize lands on top of an
-  // already-settled layout, which is what reads as a jarring "push" instead
-  // of a smooth part of opening the chat. Note: iOS Safari's "must be a
-  // direct user gesture" rule for the keyboard means this is most reliable
-  // when this mount itself was triggered by a tap (true here — entering
-  // HugoPSY from the utilities grid always is).
-  useEffect(() => {
-    if (!disabled) inputRef?.current?.focus();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
-    <div className="mx-4 mb-2.5 p-1.5 rounded-3xl bg-white/90 dark:bg-card/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-lg flex items-center gap-1.5 transition-all focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/40">
+    <div className="mx-3 sm:mx-4 mb-1.5 p-1.5 rounded-[28px] bg-white dark:bg-[#171720] border border-zinc-200/70 dark:border-zinc-800/80 shadow-sm flex items-end gap-1.5 transition-all focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/40">
 
       {/* "+" toggle for the quick actions sheet */}
       <button type="button" onClick={onToggleQuickActions}
@@ -58,7 +46,7 @@ function ChatInputBar({
       </button>
 
       {/* Auto-grow text input area */}
-      <div className="flex-1 min-h-[36px] flex items-center">
+      <div className="flex-1 min-h-[36px] flex items-center rounded-2xl bg-zinc-100/80 dark:bg-zinc-900/80 px-2">
         <textarea
           ref={inputRef}
           value={value}
@@ -73,7 +61,7 @@ function ChatInputBar({
           placeholder={placeholder}
           disabled={disabled}
           rows={1}
-          className="w-full bg-transparent text-[13px] text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none resize-none leading-snug py-1.5"
+          className="w-full bg-transparent text-[14px] text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none resize-none leading-snug py-2 max-h-24 overflow-y-auto"
           style={{ height: '22px' }}
         />
       </div>
