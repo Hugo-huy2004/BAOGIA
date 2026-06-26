@@ -585,8 +585,10 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
     return { currentDay, duration: effectiveDur, percent };
   }, [healingActive, healingDuration, historyLogs]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const isMobileChat = effectiveSubTab === "chat" && isMobileView;
+
   return (
-    <div className="flex flex-col min-h-[calc(100svh-160px)] md:min-h-0 space-y-3 md:space-y-2.5 animate-fadeIn">
+    <div className={isMobileChat ? "flex flex-col h-full min-h-0 overflow-hidden" : "flex flex-col min-h-[calc(100svh-160px)] md:min-h-0 space-y-3 md:space-y-2.5 animate-fadeIn"}>
 
       {/* ── Header ───────────────────────────────────────────────────────────────
           Hidden on mobile while the Chat tab is the fullscreen takeover below —

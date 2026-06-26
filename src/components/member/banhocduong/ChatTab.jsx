@@ -389,28 +389,22 @@ export default function ChatTab({
     if (!el) return;
     let raf = 0;
     let lastHeight = 0;
-    let lastTop = "";
     const setH = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const vv = window.visualViewport;
         const viewportHeight = vv?.height ?? window.innerHeight;
-        const viewportTop = vv?.offsetTop ?? 0;
         const isMobile = window.innerWidth < 768;
         const top = Math.max(0, el.getBoundingClientRect().top);
         let nextHeight;
 
         if (isMobile && onExitFullscreen) {
-          el.style.position = "fixed";
+          el.style.position = "relative";
           el.style.left = "0";
           el.style.right = "0";
-          const nextTop = `${Math.floor(viewportTop)}px`;
-          if (nextTop !== lastTop) {
-            lastTop = nextTop;
-            el.style.top = nextTop;
-          }
-          el.style.width = "100vw";
-          el.style.zIndex = "130";
+          el.style.top = "";
+          el.style.width = "100%";
+          el.style.zIndex = "";
           nextHeight = viewportHeight;
         } else if (!isMobile) {
           el.style.position = "relative";

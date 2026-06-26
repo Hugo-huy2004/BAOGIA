@@ -16,8 +16,10 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <div className="flex items-center justify-center py-12 text-slate-400 text-sm">{t("companion.tab.loading", "Đang tải...")}</div>;
 
+  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "ide" || selectedUtility === "arcade";
+
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden" : "space-y-6 animate-fadeIn"}>
       <Suspense fallback={fallback}>
       {/* Utility Selector Dashboard */}
       {selectedUtility === null && (
@@ -89,5 +91,4 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
     </div>
   );
 }
-
 
