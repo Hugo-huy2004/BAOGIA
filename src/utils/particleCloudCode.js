@@ -215,11 +215,11 @@ function decodeFromBlobs(blobs, minDotArea, matchToleranceFrac) {
 // to frame, whereas a still photo holds it constant.
 export function analyzeParticleCloudFrame(imageData, opts = {}) {
   const {
-    brightThreshold = 140, // lum above this = a glowing dot on a dark background
-    darkThreshold = 110,   // lum below this = a dark dot on a light background
-    minDotArea = 2,
-    maxDotArea = 600,
-    matchToleranceFrac = 0.42,
+    brightThreshold = 120, // lum above this = a glowing dot on a dark background
+    darkThreshold = 135,   // lum below this = a dark dot on a light background
+    minDotArea = 1,
+    maxDotArea = 2500,
+    matchToleranceFrac = 0.55,
   } = opts;
   const { data, width, height } = imageData;
   const n = width * height;

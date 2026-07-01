@@ -27,9 +27,9 @@ import { analyzeParticleCloudFrame } from "../../../utils/particleCloudCode";
 // Liveness / agreement tuning. The generator spins ~0.9°/frame (~54°/s), so a
 // live code sweeps well past ROT_MIN_DEG within the time window, while camera
 // angle noise on a static photo stays near zero net displacement.
-const AGREE_MIN_FRAMES = 4;    // consecutive frames that must decode identically
-const AGREE_MIN_MS = 250;      // ...spanning at least this long
-const ROT_MIN_DEG = 8;         // ...with at least this much net rotation (liveness)
+const AGREE_MIN_FRAMES = 2;    // consecutive frames that must decode identically
+const AGREE_MIN_MS = 100;      // ...spanning at least this long
+const ROT_MIN_DEG = 2;         // ...with at least this much net rotation (liveness)
 
 function shortestAngleDelta(from, to) {
   // Smallest signed difference in degrees, wrapped into (-180, 180].

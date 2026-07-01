@@ -8,12 +8,16 @@ import { initSecurityShield } from './utils/security.js'
 // Kích hoạt khiên bảo mật chống F12/Hacker
 initSecurityShield();
 
-if (import.meta.env.DEV && 'serviceWorker' in navigator) {
-  // Dev should always load fresh Vite modules instead of any previously cached PWA assets.
+if ('serviceWorker' in navigator) {
+  // Xóa toàn bộ Service Worker cũ để tránh lỗi bad-precaching-response
   navigator.serviceWorker.getRegistrations().then((registrations) => {
     registrations.forEach((registration) => {
       registration.unregister().catch(() => {});
     });
+  });
+  // Xóa luôn Cache Storage để ép trình duyệt tải file mới
+  caches.keys().then((keyList) => {
+    return Promise.all(keyList.map((key) => caches.delete(key)));
   });
 }
 
