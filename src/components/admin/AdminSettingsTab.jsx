@@ -67,6 +67,23 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
             </button>
           </div>
 
+          {/* Block Utilities */}
+          <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
+            <div>
+              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">Khóa Tiện Ích (Bảo trì)</span>
+              <p className="text-[10px] text-slate-400 mt-1">Chặn truy cập tiện ích trên domain hugowishpax.studio</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => updateSystemSettings({ blockUtilities: !data?.systemSettings?.blockUtilities })}
+              className={`relative inline-flex items-center w-[44px] min-w-[44px] h-[24px] min-h-[24px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                data?.systemSettings?.blockUtilities ? "bg-rose-500" : "bg-slate-200 dark:bg-slate-800"
+              }`}
+            >
+              <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-sm transition ${data?.systemSettings?.blockUtilities ? "translate-x-5" : "translate-x-0"}`} />
+            </button>
+          </div>
+
           {/* Vacation Mode */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
             <div>

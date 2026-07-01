@@ -220,6 +220,37 @@ export default function ChatTab({
 
   const botManager = React.useMemo(() => new BotManager(bio, historyLogs, healingActive), [bio, historyLogs, healingActive]);
 
+  // Returns a contextual Vietnamese typing label based on the matched intent or user text keywords.
+  const getTypingLabel = (text, intentId) => {
+    const INTENT_LABELS = {
+      crisis: "Tớ đang lo lắng cho cậu...",
+      sadness: "Tớ đang lắng nghe cậu...",
+      anxiety: "Tớ đang cảm nhận cùng cậu...",
+      burnout: "Tớ đang nghĩ về cậu...",
+      loneliness: "Tớ đang ở đây với cậu...",
+      overthinking: "Để tớ suy nghĩ cùng cậu...",
+      grief: "Tớ đang đồng hành cùng cậu...",
+      anger: "Tớ đang lắng nghe cậu...",
+      emptiness: "Tớ đang ở đây...",
+      low_self_esteem: "Tớ đang nghĩ cho cậu...",
+      social_anxiety: "Tớ đang lắng nghe...",
+      perfectionism: "Tớ đang suy nghĩ...",
+      university_exam: "Tớ đang xem cho cậu...",
+      exercise_request: "Tớ đang chuẩn bị bài tập...",
+      phq9_suggest: "Tớ đang chuẩn bị đánh giá...",
+      positive: "Tớ đang vui cùng cậu... 🎉",
+      gratitude: "Tớ đang cảm nhận điều này...",
+    };
+    if (intentId && INTENT_LABELS[intentId]) return INTENT_LABELS[intentId];
+    const t = text.toLowerCase();
+    if (t.includes("lo") || t.includes("sợ") || t.includes("hoảng")) return "Tớ đang lắng nghe cậu...";
+    if (t.includes("buồn") || t.includes("khóc") || t.includes("chán")) return "Tớ đang đồng hành cùng cậu...";
+    if (t.includes("mệt") || t.includes("kiệt") || t.includes("stress")) return "Tớ đang nghĩ về cậu...";
+    if (t.includes("vui") || t.includes("tốt") || t.includes("ổn")) return "Tớ đang vui cùng cậu... 🌟";
+    if (t.includes("bài tập") || t.includes("thở") || t.includes("thiền")) return "Tớ đang chuẩn bị bài tập...";
+    return "Đang soạn tin...";
+  };
+
   // Fire-and-forget: the moment the local crisis detector fires (real-time,
   // before any network round-trip for the reply itself), tell Admin right
   // away with enough context to call the member back without digging through
@@ -406,6 +437,7 @@ export default function ChatTab({
   const [inputText, setInputText] = useState("");
   const [chatQuickReplies, setChatQuickReplies] = useState([]);
   const [moodCheckinDone, setMoodCheckinDone] = useState(false);
+  const [typingLabel, setTypingLabel] = useState("Đang soạn tin...");
 
   // Server (rate_limit_service) is the source of truth for the daily chat budget —
   // refresh from it instead of guessing locally, so the badge never goes stale.
@@ -425,6 +457,9 @@ export default function ChatTab({
   const lastSavedMessageIdRef = useRef("");
   const inputRef = useRef(null);
   const chatWrapperRef = useRef(null);
+  // RAF batch: commit streaming chunks at most once per animation frame (60fps cap).
+  const _rafRef = useRef(null);
+  const _pendingChunkRef = useRef(null);
 
   // The chat frame follows the visual viewport so the composer stays above the
   // on-screen keyboard. Only the message list scrolls, like a native chat app.
@@ -1502,6 +1537,7 @@ export default function ChatTab({
       setInputText("");
       const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
       setMessages(prev => [...prev, userMsg]);
+      setTypingLabel(getTypingLabel(text, matched.id));
       setLoading(true);
       // Telemetry only — lets us measure real local-match coverage vs. AI/fallback tiers.
       botManager.logLocalMatch(text, matched.id);
@@ -1540,6 +1576,7 @@ export default function ChatTab({
     setInputText("");
     const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
     setMessages(prev => [...prev, userMsg]);
+    setTypingLabel(getTypingLabel(text, null));
     setLoading(true);
 
     // 3. Streaming conversational LLM AI server (costs 3 tokens on success).
@@ -1560,14 +1597,26 @@ export default function ChatTab({
         // while still streaming there's only one live bubble, so just show
         // it as a paragraph break rather than the raw delimiter.
         const displayText = chunkText.split("|||").join("\n\n");
-        setMessages(prev => {
-          if (!prev.some(m => m.id === botMsgId)) {
-            return [...prev, { id: botMsgId, sender: "bot", text: displayText, time: new Date() }];
-          }
-          return prev.map(m => m.id === botMsgId ? { ...m, text: displayText } : m);
+        // Batch setMessages to at most one per animation frame — prevents
+        // a React setState storm on high-frequency SSE chunks (60fps cap).
+        _pendingChunkRef.current = { text: displayText, id: botMsgId };
+        if (_rafRef.current) return;
+        _rafRef.current = requestAnimationFrame(() => {
+          _rafRef.current = null;
+          const pending = _pendingChunkRef.current;
+          if (!pending) return;
+          setMessages(prev => {
+            if (!prev.some(m => m.id === pending.id)) {
+              return [...prev, { id: pending.id, sender: "bot", text: pending.text, time: new Date() }];
+            }
+            return prev.map(m => m.id === pending.id ? { ...m, text: pending.text } : m);
+          });
         });
       },
       (botResponse) => {
+        // Flush any pending RAF before replacing the live bubble with split chunks.
+        if (_rafRef.current) { cancelAnimationFrame(_rafRef.current); _rafRef.current = null; }
+        _pendingChunkRef.current = null;
         // The server only charges (3 tokens, or a bonus token) after a confirmed successful
         // reply — errors never cost anything. Resync from the server instead of guessing locally.
         refreshRemainingTokens();
@@ -1654,7 +1703,7 @@ export default function ChatTab({
             <RenderColoredText text="Hugo" /><span className="text-[#0071e3]">PSY</span>
           </p>
           <p className="text-[9.5px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5">
-            {loading ? "Đang soạn tin..." : "● Trực tuyến"}
+            {loading ? typingLabel : "● Trực tuyến"}
           </p>
         </div>
 
@@ -1766,6 +1815,7 @@ export default function ChatTab({
             onStartTest={handleStartTest}
             onSelectDuration={handleSelectDuration}
             loading={loading}
+            typingLabel={typingLabel}
             onNavigateToTab={onNavigateToTab}
             messagesEndRef={messagesEndRef}
             onUnlockFeature={handleUnlockFeature}

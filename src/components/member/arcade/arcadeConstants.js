@@ -53,5 +53,9 @@ export const HOW_TO_PLAY = {
   snake: {
     rule: "Dùng phím mũi tên/WASD, vuốt trên màn hình, hoặc nút chạm để điều khiển. Ăn mồi để dài ra, tránh đâm vào tường hoặc thân mình.",
     objective: { easy: "Ăn 8 mồi", medium: "Ăn 14 mồi", hard: "Ăn 20 mồi" }
+  },
+  tetris: {
+    rule: "Các khối rơi xuống liên tục — sắp xếp để lấp đầy hàng ngang và xóa hàng. Vuốt trái/phải để di chuyển, vuốt xuống để thả nhanh, chạm màn hình để xoay.",
+    objective: { easy: "Xóa 5 hàng", medium: "Xóa 10 hàng", hard: "Xóa 20 hàng" }
   }
 };

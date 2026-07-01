@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { useData } from "../../context/DataContext";
 
 // Each utility gets a three-stop gradient identity (richer than a flat tint)
 // plus a cluster of secondary icons hinting at what's inside. Card outline,
@@ -27,8 +28,19 @@ const SHAPES = [
 // Three alternating icon-badge shapes — circle, squircle, diamond-ish via rotation.
 const BADGE_SHAPES = ["rounded-full", "rounded-xl", "rounded-2xl rotate-3 group-hover:rotate-0"];
 
-export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
+export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast }) {
   const { t } = useTranslation();
+  const { data } = useData();
+
+  const handleUtilityClick = (utilId) => {
+    if (data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
+      if (showToast) {
+        showToast("Hugo... đang được hệ thống tiến hành nâng cấp lên phiên bản mới nhất, hẹn gặp bạn sau 24 tiếng", "info");
+      }
+      return;
+    }
+    setSelectedUtility(utilId);
+  };
 
   const utilities = [
     {
@@ -146,7 +158,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility }) {
           <div
             id={`utility-card-${util.id}`}
             key={util.id}
-            onClick={() => setSelectedUtility(util.id)}
+            onClick={() => handleUtilityClick(util.id)}
             className={`group relative cursor-pointer overflow-hidden bg-white dark:bg-background ${shape} p-3.5 md:p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-transparent shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 active:scale-[0.98] flex flex-col justify-between h-[124px] md:h-[220px]`}
           >
             {/* Soft gradient wash + glow, intensifies on hover */}

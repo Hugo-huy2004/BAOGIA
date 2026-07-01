@@ -1,16 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useGesture } from "@use-gesture/react";
 import { playGameMerge, playGameWin, playGameLose } from "../../../utils/audio";
-import { hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
+import { hapticMerge, hapticWin, hapticLose, hapticMove } from "../../../utils/haptics";
 
 const GOALS = { easy: 8, medium: 14, hard: 20 };
 const GRID = 18;
-const TICK_MS = { easy: 160, medium: 115, hard: 80 };
+// Milliseconds per cell move — RAF advances only when this elapsed
+const TICK_MS = { easy: 155, medium: 108, hard: 72 };
 
-const DIRS = {
-  up: { x: 0, y: -1 },
-  down: { x: 0, y: 1 },
-  left: { x: -1, y: 0 },
-  right: { x: 1, y: 0 },
+const DIR = {
+  up:    { x: 0,  y: -1 },
+  down:  { x: 0,  y:  1 },
+  left:  { x: -1, y:  0 },
+  right: { x: 1,  y:  0 },
 };
 
 function randomCell(occupied) {
@@ -21,162 +23,231 @@ function randomCell(occupied) {
   return cell;
 }
 
-export default function GameSnake({ difficulty, onGameOver }) {
-  const canvasRef = useRef(null);
-  const [timeLeft, setTimeLeft] = useState(3);
-  const [playing, setPlaying] = useState(false);
-  const tickMs = TICK_MS[difficulty] || TICK_MS.medium;
+// Neon palette cycling along the snake body
+const HEAD_COLOR  = "#ffffff";
+const FOOD_COLOR  = "#f43f5e";
+const BODY_COLORS = ["#22d3ee","#a78bfa","#34d399","#f472b6","#60a5fa","#fb923c"];
 
+export default function GameSnake({ difficulty, onGameOver }) {
+  const canvasRef   = useRef(null);
+  const containerRef = useRef(null);
+  const [countdown, setCountdown] = useState(3);
+  const [playing, setPlaying]     = useState(false);
+  const tickMs = TICK_MS[difficulty] ?? TICK_MS.medium;
+  const reportedRef = useRef(false);
+
+  // All mutable game state lives here so the RAF closure always reads fresh values
   const state = useRef({
-    snake: [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }],
-    dir: DIRS.right,
-    nextDir: DIRS.right,
-    food: { x: 12, y: 9 },
-    score: 0,
+    snake:   [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }],
+    dir:     DIR.right,
+    nextDir: DIR.right,
+    food:    { x: 12, y: 9 },
+    score:   0,
+    lastTick: 0, // timestamp of last grid step
   });
 
-  useEffect(() => {
-    if (timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(t => t - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-    setPlaying(true);
-  }, [timeLeft]);
-
+  // ── RAF game loop ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (!playing) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const size = canvas.offsetWidth;
-    canvas.width = size;
+    const ctx    = canvas.getContext("2d");
+    const s      = state.current;
+    s.lastTick   = 0;
+
+    // Fit canvas to container
+    const size    = canvas.offsetWidth;
+    canvas.width  = size;
     canvas.height = size;
-    const cell = size / GRID;
-    const s = state.current;
+    const cell    = size / GRID;
 
     const draw = () => {
+      // Background + subtle grid
       ctx.fillStyle = "#080a12";
       ctx.fillRect(0, 0, size, size);
+      ctx.strokeStyle = "rgba(255,255,255,0.03)";
+      ctx.lineWidth   = 0.5;
+      for (let i = 0; i <= GRID; i++) {
+        ctx.beginPath(); ctx.moveTo(i * cell, 0);    ctx.lineTo(i * cell, size);  ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i * cell);    ctx.lineTo(size, i * cell);  ctx.stroke();
+      }
 
-      // Food
-      ctx.fillStyle = "#f43f5e";
-      ctx.shadowColor = "#f43f5e";
-      ctx.shadowBlur = 12;
+      // Food with neon glow
+      ctx.shadowColor = FOOD_COLOR;
+      ctx.shadowBlur  = 14;
+      ctx.fillStyle   = FOOD_COLOR;
       ctx.beginPath();
-      ctx.arc((s.food.x + 0.5) * cell, (s.food.y + 0.5) * cell, cell * 0.32, 0, Math.PI * 2);
+      ctx.arc((s.food.x + 0.5) * cell, (s.food.y + 0.5) * cell, cell * 0.33, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // Snake
+      // Snake body — gradient neon segments
       s.snake.forEach((seg, i) => {
-        ctx.fillStyle = i === 0 ? "#fff" : `rgba(34, 211, 238, ${Math.max(0.45, 1 - i * 0.04)})`;
+        const color = i === 0 ? HEAD_COLOR : BODY_COLORS[i % BODY_COLORS.length];
+        const alpha = Math.max(0.38, 1 - i * 0.035);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.shadowColor = color;
+        ctx.shadowBlur  = i === 0 ? 18 : 8;
+        ctx.fillStyle   = color;
         ctx.beginPath();
-        ctx.roundRect(seg.x * cell + 1.5, seg.y * cell + 1.5, cell - 3, cell - 3, 5);
+        ctx.roundRect(seg.x * cell + 1.5, seg.y * cell + 1.5, cell - 3, cell - 3, 6);
         ctx.fill();
+        ctx.restore();
       });
     };
 
-    const step = () => {
-      // Prevent reversing directly into the body in the same tick
-      if (!(s.nextDir.x === -s.dir.x && s.nextDir.y === -s.dir.y)) {
-        s.dir = s.nextDir;
-      }
-      const head = s.snake[0];
-      const next = { x: head.x + s.dir.x, y: head.y + s.dir.y };
+    const step = (ts) => {
+      // Initialise lastTick on first frame
+      if (s.lastTick === 0) s.lastTick = ts;
 
-      const hitWall = next.x < 0 || next.x >= GRID || next.y < 0 || next.y >= GRID;
-      const hitSelf = s.snake.some(seg => seg.x === next.x && seg.y === next.y);
-      if (hitWall || hitSelf) {
-        setPlaying(false);
-        const score = s.score;
-        const won = score >= GOALS[difficulty];
-        if (won) { playGameWin(); hapticWin(); } else { playGameLose(); hapticLose(); }
-        setTimeout(() => onGameOver(score, won ? "win" : "lose"), 600);
-        return false;
+      // Advance the snake only when enough time has elapsed
+      if (ts - s.lastTick >= tickMs) {
+        s.lastTick = ts;
+
+        // Prevent 180° reversal
+        const d = s.nextDir;
+        if (!(d.x === -s.dir.x && d.y === -s.dir.y)) s.dir = d;
+
+        const head = s.snake[0];
+        const next = { x: head.x + s.dir.x, y: head.y + s.dir.y };
+
+        // Collision checks
+        if (next.x < 0 || next.x >= GRID || next.y < 0 || next.y >= GRID ||
+            s.snake.some(seg => seg.x === next.x && seg.y === next.y)) {
+          draw();
+          const won = s.score >= GOALS[difficulty];
+          if (!reportedRef.current) {
+            reportedRef.current = true;
+            if (won) { playGameWin(); hapticWin(); } else { playGameLose(); hapticLose(); }
+            setTimeout(() => onGameOver(s.score, won ? "win" : "lose"), 600);
+          }
+          return; // stop requesting frames
+        }
+
+        s.snake.unshift(next);
+        if (next.x === s.food.x && next.y === s.food.y) {
+          s.score += 1;
+          s.food  = randomCell(s.snake);
+          playGameMerge();
+          hapticMerge();
+          // Win condition
+          if (s.score >= GOALS[difficulty] && !reportedRef.current) {
+            reportedRef.current = true;
+            draw();
+            playGameWin(); hapticWin();
+            setTimeout(() => onGameOver(s.score, "win"), 600);
+            return;
+          }
+        } else {
+          s.snake.pop();
+        }
       }
 
-      s.snake.unshift(next);
-      if (next.x === s.food.x && next.y === s.food.y) {
-        s.score += 1;
-        s.food = randomCell(s.snake);
-        playGameMerge();
-        hapticMerge();
-      } else {
-        s.snake.pop();
-      }
-      return true;
+      draw();
+      rafId = requestAnimationFrame(step);
     };
 
-    draw();
-    const interval = setInterval(() => {
-      if (step()) draw();
-      else clearInterval(interval);
-    }, tickMs);
-
-    return () => clearInterval(interval);
+    let rafId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId);
   }, [playing, difficulty, tickMs, onGameOver]);
 
-  // Keyboard
+  // ── Keyboard controls ──────────────────────────────────────────────────────
   useEffect(() => {
+    if (!playing) return;
+    const map = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
     const onKey = (e) => {
-      const map = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
       const dir = map[e.key];
-      if (dir) { e.preventDefault(); state.current.nextDir = DIRS[dir]; }
+      if (dir) { e.preventDefault(); state.current.nextDir = DIR[dir]; }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [playing]);
 
-  // Swipe-to-turn on the canvas itself, as an alternative to the D-pad
-  const swipeStart = useRef(null);
-  const handlePointerDown = (e) => { swipeStart.current = { x: e.clientX, y: e.clientY }; };
-  const handlePointerUp = (e) => {
-    if (!swipeStart.current) return;
-    const dx = e.clientX - swipeStart.current.x;
-    const dy = e.clientY - swipeStart.current.y;
-    swipeStart.current = null;
-    if (Math.hypot(dx, dy) < 18) return;
-    state.current.nextDir = Math.abs(dx) > Math.abs(dy) ? DIRS[dx > 0 ? "right" : "left"] : DIRS[dy > 0 ? "down" : "up"];
-  };
+  // ── Touch gestures via @use-gesture/react ────────────────────────────────
+  const gestureState = useRef({ startX: 0, startY: 0, fired: false });
+  const bind = useGesture({
+    onDragStart: ({ xy: [x, y] }) => {
+      gestureState.current = { startX: x, startY: y, fired: false };
+    },
+    onDrag: ({ xy: [x, y] }) => {
+      const g = gestureState.current;
+      if (g.fired) return;
+      const dx = x - g.startX, dy = y - g.startY;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 22) return;
+      g.fired = true;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        state.current.nextDir = DIR[dx > 0 ? "right" : "left"];
+      } else {
+        state.current.nextDir = DIR[dy > 0 ? "down" : "up"];
+      }
+      hapticMove?.();
+    },
+  }, { drag: { filterTaps: true } });
 
-  const setDir = (dir) => () => { state.current.nextDir = DIRS[dir]; };
+  // ── D-pad helper ──────────────────────────────────────────────────────────
+  const setDir = useCallback((dir) => () => { state.current.nextDir = DIR[dir]; hapticMove?.(); }, []);
+
+  // ── Countdown ─────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (countdown > 0) {
+      const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+      return () => clearTimeout(t);
+    }
+    setPlaying(true);
+  }, [countdown]);
 
   return (
-    <div className="w-full max-w-lg mx-auto space-y-4">
-      <div className="arcade-game-container relative w-full aspect-square bg-zinc-950 rounded-xl overflow-hidden shadow-2xl border border-white/10 touch-none">
-        {!playing && timeLeft > 0 && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
-            <span className="text-white text-6xl font-bold animate-ping">{timeLeft}</span>
-          </div>
-        )}
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full cursor-crosshair touch-none"
-          onPointerDown={handlePointerDown}
-          onPointerUp={handlePointerUp}
-        />
+    <div className="w-full max-w-lg mx-auto flex flex-col items-center gap-4 select-none">
+      {/* Score strip */}
+      <div className="w-full flex justify-between items-center px-1">
+        <div className="text-center">
+          <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Mồi đã ăn</p>
+          <p className="text-xl font-black text-white tabular-nums leading-tight">
+            {playing ? state.current.score : 0}
+          </p>
+        </div>
+        <div className="text-center">
+          <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Mục tiêu</p>
+          <p className="text-xl font-black text-cyan-400 tabular-nums leading-tight">{GOALS[difficulty]}</p>
+        </div>
       </div>
 
-      {/* Virtual D-pad — tap to turn (grid movement, not a hold-to-move control) */}
+      {/* Canvas */}
+      <div
+        ref={containerRef}
+        className="relative w-full aspect-square bg-[#080a12] rounded-2xl overflow-hidden shadow-2xl border border-white/10 touch-none"
+        {...(playing ? bind() : {})}
+      >
+        {!playing && countdown > 0 && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-10">
+            <span
+              className="text-white text-7xl font-black"
+              style={{ textShadow: "0 0 40px #22d3ee, 0 0 80px #22d3ee" }}
+            >
+              {countdown}
+            </span>
+          </div>
+        )}
+        <canvas ref={canvasRef} className="w-full h-full cursor-crosshair touch-none" />
+      </div>
+
+      {/* D-pad */}
       <div className="arcade-dpad">
         <div />
-        <button className="arcade-dpad-btn" onPointerDown={setDir("up")}>
-          ▲
-        </button>
+        <button className="arcade-dpad-btn" onPointerDown={setDir("up")}>▲</button>
         <div />
-        <button className="arcade-dpad-btn" onPointerDown={setDir("left")}>
-          ◀
-        </button>
+        <button className="arcade-dpad-btn" onPointerDown={setDir("left")}>◀</button>
         <div className="arcade-dpad-center" />
-        <button className="arcade-dpad-btn" onPointerDown={setDir("right")}>
-          ▶
-        </button>
+        <button className="arcade-dpad-btn" onPointerDown={setDir("right")}>▶</button>
         <div />
-        <button className="arcade-dpad-btn" onPointerDown={setDir("down")}>
-          ▼
-        </button>
+        <button className="arcade-dpad-btn" onPointerDown={setDir("down")}>▼</button>
         <div />
       </div>
+
+      <p className="text-[10px] text-zinc-600 text-center">
+        Vuốt trên màn hình · Phím mũi tên · Hoặc nhấn nút D-pad
+      </p>
     </div>
   );
 }

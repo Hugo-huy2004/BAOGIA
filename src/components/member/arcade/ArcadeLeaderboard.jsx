@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { fetchLeaderboard } from "../../../services/arcadeApi";
 
-// Generalized from ChessLobby.jsx's local Leaderboard component (same 8s poll +
-// visibilitychange refetch + manual refresh pattern), parameterized by `game`.
+function AvatarInitials({ name, url }) {
+  if (url) {
+    return <img src={url} alt={name} className="arc-lb-avatar" style={{ objectFit: "cover" }} />;
+  }
+  const initials = (name || "?").split(" ").slice(-2).map(w => w[0]).join("").toUpperCase().slice(0, 2);
+  return <div className="arc-lb-avatar">{initials}</div>;
+}
+
+const RANK_MEDALS = ["🥇", "🥈", "🥉"];
+
 export default function ArcadeLeaderboard({ game, active = true }) {
-  const [lb, setLb] = useState([]);
+  const [lb, setLb]           = useState([]);
   const [loading, setLoading] = useState(true);
   const [spinning, setSpinning] = useState(false);
   const intervalRef = useRef(null);
@@ -34,44 +42,46 @@ export default function ArcadeLeaderboard({ game, active = true }) {
 
   if (loading) {
     return (
-      <div className="py-10 flex justify-center">
-        <div className="w-5 h-5 border-2 border-white/10 border-t-violet-400 rounded-full animate-spin" />
+      <div style={{ padding: "32px 0", display: "flex", justifyContent: "center" }}>
+        <div style={{ width: 18, height: 18, border: "2px solid rgba(255,255,255,.1)", borderTopColor: "var(--g,#7c3aed)", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
       </div>
     );
   }
 
   return (
-    <div className="arcade-leaderboard space-y-3">
-      <div className="arcade-lb-title flex items-center justify-between px-0.5">
-        <div><span>LIVE RANKING</span><h3>Bảng xếp hạng</h3></div>
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", boxShadow: "0 0 8px #34d399", display: "inline-block" }} />
+          <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: ".14em", color: "var(--arc-t3)", textTransform: "uppercase" }}>Live Ranking</span>
+        </div>
         <button
           onClick={() => fetchLb(true)}
           disabled={spinning}
-          className={`arcade-lb-refresh ${spinning ? "animate-spin" : ""}`}
-        >
-          ↻
-        </button>
+          style={{
+            width: 28, height: 28, borderRadius: 8, border: "1px solid var(--arc-b1)",
+            background: "var(--arc-s2)", color: "var(--arc-t2)", fontSize: 13,
+            display: "grid", placeItems: "center",
+            animation: spinning ? "spin 1s linear infinite" : "none",
+          }}
+        >↻</button>
       </div>
 
       {lb.length === 0 ? (
-        <div className="py-10 text-center text-slate-500 text-xs bg-white/[.025] rounded-2xl border border-white/[.06]">
-          Chưa có người chơi nào
-        </div>
+        <div className="arc-lb-empty">Chưa có người chơi nào.<br />Hãy là người đầu tiên! 🏆</div>
       ) : (
-        <div className="arcade-lb-list">
+        <div className="arc-lb">
           {lb.map((p, i) => (
-            <div
-              key={p.email || i}
-              className={`arcade-lb-row ${i < 3 ? `top-${i+1}` : ""}`}
-            >
-              <div className={`arcade-rank-number ${i === 0 ? "is-top" : ""}`}>
-                {i + 1}
+            <div key={p.email || i} className={`arc-lb-row${i < 3 ? ` rank-${i+1}` : ""}`}>
+              <div className="arc-lb-rank">
+                {i < 3 ? RANK_MEDALS[i] : i + 1}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="arcade-lb-name">{p.displayName || "Ẩn danh"}</p>
-                <p className="arcade-lb-games">{p.gamesPlayed} lượt chơi</p>
+              <AvatarInitials name={p.displayName} url={p.avatarUrl} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p className="arc-lb-name">{p.displayName || "Ẩn danh"}</p>
+                <p className="arc-lb-plays">{p.gamesPlayed} lượt chơi</p>
               </div>
-              <p className="arcade-lb-score">{p.bestScore.toLocaleString("vi-VN")}</p>
+              <p className="arc-lb-score">{p.bestScore.toLocaleString("vi-VN")}</p>
             </div>
           ))}
         </div>

@@ -100,8 +100,12 @@ function AppContent() {
 
   const isEmbed = new URLSearchParams(location.search).get("embed") === "true" || window.self !== window.top;
   const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/arcade");
-  const hideNavbar = isEmbed || isFullscreenUtility;
-  const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false;
+  // In standalone PWA mode without an active session, show only the login screen —
+  // no marketing navbar, no HBot, no footer. Mirrors how a native app behaves.
+  const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const isAuthenticated = isMemberAuthenticated();
+  const hideNavbar = isEmbed || isFullscreenUtility || (isPWA && !isAuthenticated);
+  const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false || (isPWA && !isAuthenticated);
 
   return (
     <div className="min-h-screen bg-surface dark:bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
@@ -125,8 +129,16 @@ function AppContent() {
          />
         <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
           <Routes>
-            <Route path="/" element={<Navigate to="/introduction" replace />} />
-            <Route path="/introduction" element={<IntroductionPage />} />
+            <Route path="/" element={
+              isPWA
+                ? (isAuthenticated ? <Navigate to="/member" replace /> : <Navigate to="/login" replace />)
+                : <Navigate to="/introduction" replace />
+            } />
+            <Route path="/introduction" element={
+              isPWA && !isAuthenticated
+                ? <Navigate to="/login" replace />
+                : <IntroductionPage />
+            } />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/student-benefits" element={<StudentBenefitsPage />} />
             <Route path="/templates" element={<TemplatesPage />} />

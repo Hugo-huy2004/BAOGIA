@@ -264,7 +264,7 @@ async def log_local_intent_match(request: LocalIntentLogRequest, req: Request):
 
 @app.post("/api/ai/chat")
 async def chat(request: ChatRequest, req: Request):
-    LLM_WEIGHT = 3
+    LLM_WEIGHT = 1
 
     try:
         client_identifier = _client_id(request.userId, req)
@@ -307,7 +307,7 @@ async def chat(request: ChatRequest, req: Request):
 
 @app.post("/api/ai/chat/stream")
 async def chat_stream(request: ChatRequest, req: Request):
-    LLM_WEIGHT = 3
+    LLM_WEIGHT = 1
     try:
         client_identifier = _client_id(request.userId, req)
         remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)

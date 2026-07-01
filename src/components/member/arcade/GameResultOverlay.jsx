@@ -1,54 +1,72 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { DIFFICULTY_STYLES } from "./arcadeConstants";
 
-const RESULT_TEXT = {
-  win: { label: "Chiến thắng!", glyph: "✓", type: "win" },
-  lose: { label: "Chưa phá đảo", glyph: "↻", type: "lose" },
-  draw: { label: "Bất phân thắng bại", glyph: "=", type: "draw" }
+const RESULTS = {
+  win:  { label: "Chiến thắng!", icon: "✓", symbol: "emoji_events" },
+  lose: { label: "Chưa phá đảo", icon: "↻", symbol: "refresh" },
+  draw: { label: "Bất phân thắng bại", icon: "=", symbol: "handshake" },
 };
 
-export default function GameResultOverlay({ result, score, difficulty, joyDelta, joyAwarded, onReplay, onChangeDifficulty }) {
-  const info = RESULT_TEXT[result] || RESULT_TEXT.draw;
-  const style = DIFFICULTY_STYLES[difficulty];
+const DIFF_LABEL = { easy: "Khởi động 🌱", medium: "Bứt phá ⚡", hard: "Huyền thoại 💀" };
 
-  const joyPillClass =
-    joyDelta > 0 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" :
-    joyDelta < 0 ? "bg-rose-500/10 text-rose-600 dark:text-rose-400" :
-    "bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400";
+export default function GameResultOverlay({ result, score, difficulty, joyDelta, joyAwarded, dailyCapReached, onReplay, onChangeDifficulty }) {
+  const info = RESULTS[result] || RESULTS.draw;
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 8 }}
+      className="arc-result"
+      data-result={result}
+      initial={{ opacity: 0, scale: 0.93, y: 12 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-      className={`arcade-result result-${info.type}`}
+      transition={{ duration: 0.28, ease: [.16,1,.3,1] }}
     >
-      <div className="result-icon">{info.glyph}</div>
-      <span className="result-kicker">KẾT QUẢ THỬ THÁCH</span><h2>{info.label}</h2>
-
-      <div className="flex items-center gap-2.5">
-        <span className="result-difficulty">
-          {difficulty === "easy" ? "Dễ" : difficulty === "medium" ? "Trung Bình" : "Khó"}
+      {/* Icon */}
+      <motion.div
+        className="arc-result-icon"
+        initial={{ scale: 0.5 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: .1, type: "spring", stiffness: 380, damping: 22 }}
+      >
+        <span className="material-symbols-outlined text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+          {info.symbol}
         </span>
-        <span className="result-score">{score.toLocaleString("vi-VN")} điểm</span>
+      </motion.div>
+
+      <p className="arc-result-label">Kết quả thử thách</p>
+      <h2>{info.label}</h2>
+
+      {/* Chips */}
+      <div className="arc-result-chips">
+        <span className="arc-result-chip">{DIFF_LABEL[difficulty]}</span>
+        <span className="arc-result-chip">{score.toLocaleString("vi-VN")} điểm</span>
       </div>
 
-      <div className={`result-reward ${joyPillClass}`}><small>PHẦN THƯỞNG</small>
-        <strong>{joyDelta > 0 ? `+${joyDelta}` : joyDelta} <span>JOY</span></strong>
-      </div>
+      {/* JOY reward */}
+      <motion.div
+        className="arc-result-reward"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: .2 }}
+      >
+        <small>Phần thưởng JOY</small>
+        <strong>
+          {joyDelta > 0 ? `+${joyDelta}` : joyDelta}
+          <em> JOY</em>
+        </strong>
+      </motion.div>
 
-      <div className="result-actions">
-        <button
-          onClick={onReplay}
-          className="result-primary"
-        >
+      {dailyCapReached && (
+        <p className="arc-result-cap">
+          Đã đạt giới hạn JOY hôm nay. Phần thưởng sẽ tiếp tục vào ngày mai!
+        </p>
+      )}
+
+      {/* Actions */}
+      <div className="arc-result-actions">
+        <button className="arc-result-primary" onClick={onReplay}>
           Chơi lại
         </button>
-        <button
-          onClick={onChangeDifficulty}
-          className="result-secondary"
-        >
+        <button className="arc-result-secondary" onClick={onChangeDifficulty}>
           Đổi độ khó
         </button>
       </div>

@@ -323,6 +323,7 @@ function ChatMessages({
   onStartTest,
   onSelectDuration,
   loading,
+  typingLabel = "Đang soạn tin...",
   onNavigateToTab,
   messagesEndRef,
   onUnlockFeature,
@@ -436,11 +437,14 @@ function ChatMessages({
               <div className="w-8 h-8 rounded-2xl shrink-0 bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center shadow-sm">
                 <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
               </div>
-              <div className="px-4 py-3 bg-white dark:bg-[#1e1d2c] rounded-2xl rounded-tl-[4px] border border-zinc-100 dark:border-white/[0.06] shadow-sm flex items-center gap-1.5">
-                {[0, 150, 300].map(delay => (
-                  <span key={delay} className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce"
-                    style={{ animationDelay: `${delay}ms` }} />
-                ))}
+              <div className="px-3.5 py-2.5 bg-white dark:bg-[#1e1d2c] rounded-2xl rounded-tl-[4px] border border-zinc-100 dark:border-white/[0.06] shadow-sm flex items-center gap-2">
+                <span className="text-[11.5px] text-zinc-500 dark:text-zinc-400 font-medium leading-none">{typingLabel}</span>
+                <span className="flex items-center gap-[3px]">
+                  {[0, 150, 300].map(delay => (
+                    <span key={delay} className="w-1 h-1 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce"
+                      style={{ animationDelay: `${delay}ms` }} />
+                  ))}
+                </span>
               </div>
             </motion.div>
           )}

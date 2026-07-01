@@ -57,18 +57,13 @@ const ArcadeGameFrame = forwardRef(function ArcadeGameFrame({ game, bio, onBioUp
   useImperativeHandle(ref, () => ({ quit: handleChangeDifficulty }));
 
   return (
-    <div className="arcade-panel w-full">
+    <div style={{ width: "100%", maxWidth: 640 }}>
       {stage === "select" && (
-        <div className="flex flex-col gap-4">
-          <div className="arcade-instruction">
-            <div><strong>Cách chơi</strong><p>{HOW_TO_PLAY[game]?.rule}</p></div>
-          </div>
-          <DifficultySelector game={game} bio={bio} onBioUpdate={onBioUpdate} onSelect={handleSelectDifficulty} />
-        </div>
+        <DifficultySelector game={game} bio={bio} onBioUpdate={onBioUpdate} onSelect={handleSelectDifficulty} />
       )}
 
       {stage === "playing" && (
-        <div key={playKey} className="flex justify-center min-w-0">
+        <div key={playKey} style={{ display: "flex", justifyContent: "center", minWidth: 0 }}>
           {children(difficulty, handleGameOver)}
         </div>
       )}

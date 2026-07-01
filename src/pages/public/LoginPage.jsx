@@ -33,6 +33,10 @@ export default function LoginPage() {
   const [biometricBusy, setBiometricBusy] = useState(false);
 
   useEffect(() => {
+    // PWAQuickLogin already shows a floating biometric button in standalone mode —
+    // skip here to avoid showing two identical fingerprint/Face ID options.
+    const inPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    if (inPWA) return;
     const lastEmail = localStorage.getItem(LAST_EMAIL_KEY);
     if (lastEmail && webauthnHelper.isSupported() && webauthnHelper.hasSavedDeviceFlag(lastEmail)) {
       setBiometricEmail(lastEmail);
@@ -249,7 +253,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4 py-12 text-foreground">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 text-foreground">
       <style>{`
         @keyframes slideInDown {
           0% { transform: translate(-50%, -120%); opacity: 0; }
