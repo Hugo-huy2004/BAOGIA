@@ -219,6 +219,17 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
         bio={bio}
         item="hugoChess"
         onClose={() => setShowChessInvoice(false)}
+        onConfirm={async () => {
+          const apiBase = import.meta.env.VITE_API_URL || "/api";
+          const res = await fetch(`${apiBase}/joy/subscribe-feature`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: bio.email, featureKey: "hugoChess" }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Lỗi trao đổi JOY.");
+          return data;
+        }}
         onSuccess={(result) => {
           if (bio?.email) fetchJoyBalance(bio.email);
           onBioUpdate?.({ ...bio, featureSubscriptions: { ...bio?.featureSubscriptions, hugoChess: { expiresAt: result.expiresAt, active: true } } });

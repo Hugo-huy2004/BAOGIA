@@ -335,7 +335,8 @@ export default function ChessLobby({
   soundPack, setSoundPack,
   boardBorder, setBoardBorder,
   boardShadow, setBoardShadow,
-  embedded = false
+  embedded = false,
+  onBack,
 }) {
   const navigate = useNavigate();
   const [step,  setStep]  = useState("home");
