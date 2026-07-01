@@ -236,7 +236,7 @@ export default class AIBot extends BaseBot {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let done = false, fullReply = "", buffer = "", serverError = false;
+      let done = false, fullReply = "", buffer = "", serverError = false, outOfTokens = false, outOfTokensMessage = "";
 
       while (!done) {
         const { value, done: rd } = await reader.read();
@@ -279,9 +279,14 @@ export default class AIBot extends BaseBot {
             const p = JSON.parse(rawContent);
             if (p.text) { fullReply += p.text; onChunk?.(fullReply); }
             else if (p.error) {
-              serverError = true;
-              fullReply = "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc gặp sự cố kết nối. Cậu thử lại sau ít phút hoặc thực hành các bài tập tự trị liệu nhé!";
-              onChunk?.(fullReply);
+              if (p.error === "OUT_OF_TOKENS") {
+                outOfTokens = true;
+                outOfTokensMessage = p.message || "Bạn đã sử dụng hết token trò chuyện. Bạn có muốn dùng JOY để đổi thêm token không?";
+              } else {
+                serverError = true;
+                fullReply = p.message || p.error || "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc gặp sự cố kết nối. Cậu thử lại sau ít phút hoặc thực hành các bài tập tự trị liệu nhé!";
+                onChunk?.(fullReply);
+              }
             }
           } catch (_) {
             if (rawContent) {
@@ -300,6 +305,15 @@ export default class AIBot extends BaseBot {
         replyText = replyText.replace(updateRegex, "").trim();
       }
 
+      if (outOfTokens) {
+        onDone?.({
+          outOfTokens: true,
+          reply: outOfTokensMessage,
+          suggestPhq9: false, suggestGad7: false, suggestWho5: false, suggestBigFive: false, bioUpdate: null
+        });
+        return;
+      }
+
       const result = {
         reply: replyText,
         suggestPhq9:    replyText.includes("PHQ-9")    || replyText.includes("Trầm cảm"),
@@ -309,7 +323,7 @@ export default class AIBot extends BaseBot {
         bioUpdate
       };
       // Cache successful streaming replies so identical follow-up messages skip the server.
-      if (replyText && !bioUpdate) {
+      if (replyText && !bioUpdate && !serverError) {
         if (this._replyCache.size > 40) this._replyCache.delete(this._replyCache.keys().next().value);
         this._replyCache.set(key, result);
       }

@@ -68,20 +68,40 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
           </div>
 
           {/* Block Utilities */}
-          <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">
-            <div>
-              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">Khóa Tiện Ích (Bảo trì)</span>
-              <p className="text-[10px] text-slate-400 mt-1">Chặn truy cập tiện ích trên domain hugowishpax.studio</p>
+          <div className="flex flex-col border-t border-slate-100 dark:border-slate-800/60 pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">Khóa Tiện Ích (Bảo trì)</span>
+                <p className="text-[10px] text-slate-400 mt-1">Chặn truy cập một tiện ích trên domain hugowishpax.studio</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => updateSystemSettings({ blockUtilities: data?.systemSettings?.blockUtilities ? false : "psychology" })}
+                className={`relative inline-flex items-center w-[44px] min-w-[44px] h-[24px] min-h-[24px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                  data?.systemSettings?.blockUtilities ? "bg-rose-500" : "bg-slate-200 dark:bg-slate-800"
+                }`}
+              >
+                <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-sm transition ${data?.systemSettings?.blockUtilities ? "translate-x-5" : "translate-x-0"}`} />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => updateSystemSettings({ blockUtilities: !data?.systemSettings?.blockUtilities })}
-              className={`relative inline-flex items-center w-[44px] min-w-[44px] h-[24px] min-h-[24px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
-                data?.systemSettings?.blockUtilities ? "bg-rose-500" : "bg-slate-200 dark:bg-slate-800"
-              }`}
-            >
-              <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-sm transition ${data?.systemSettings?.blockUtilities ? "translate-x-5" : "translate-x-0"}`} />
-            </button>
+            
+            {data?.systemSettings?.blockUtilities && (
+              <div className="mt-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+                <label className="block text-[11px] font-semibold text-slate-500 mb-2 uppercase tracking-wider">Chọn tiện ích cần khóa:</label>
+                <select
+                  value={typeof data.systemSettings.blockUtilities === "string" ? data.systemSettings.blockUtilities : "psychology"}
+                  onChange={(e) => updateSystemSettings({ blockUtilities: e.target.value })}
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/50"
+                >
+                  <option value="psychology">HugoPSY (Tâm lý & Giấc ngủ)</option>
+                  <option value="ide">HugoCoder (Lập trình)</option>
+                  <option value="arcade">HugoArcade (Giải trí)</option>
+                  <option value="helpdesk">HugoHelpdesk (Mã QR/NFC)</option>
+                  <option value="handle">HugoHandle (Bảo mật Link/Ảnh)</option>
+                  <option value="radio">HugoRadio (Radio & Nhạc)</option>
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Vacation Mode */}

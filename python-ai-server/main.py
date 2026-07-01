@@ -244,7 +244,7 @@ async def classify_intent(request: IntentClassifyRequest, req: Request):
                 await intent_insights.set_cached(normalized, intent_id)
 
         if intent_id and intent_id != "fallback":
-            weight = 0 if intent_id in ai_service.FREE_INTENT_IDS else 1
+            weight = 0 if intent_id in ai_service.FREE_INTENT_IDS else 2
             if weight > 0:
                 await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=weight)
         return {"intent": intent_id or "fallback"}
@@ -264,7 +264,7 @@ async def log_local_intent_match(request: LocalIntentLogRequest, req: Request):
 
 @app.post("/api/ai/chat")
 async def chat(request: ChatRequest, req: Request):
-    LLM_WEIGHT = 1
+    LLM_WEIGHT = 3
 
     try:
         client_identifier = _client_id(request.userId, req)
@@ -290,7 +290,7 @@ async def chat(request: ChatRequest, req: Request):
         if remaining < LLM_WEIGHT:
             email = request.userId if request.userId and "@" in request.userId else (request.bio or {}).get("email")
             if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
-                return {"reply": f"Bạn đã sử dụng hết {MAX_CHAT_TOKENS} token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!"}
+                return {"error": "OUT_OF_TOKENS", "message": f"Bạn đã sử dụng hết token trò chuyện. Bạn có muốn dùng JOY để đổi thêm token không?"}
 
         reply = await ai_service.generate_chat_response(
             message=request.message,
@@ -307,7 +307,7 @@ async def chat(request: ChatRequest, req: Request):
 
 @app.post("/api/ai/chat/stream")
 async def chat_stream(request: ChatRequest, req: Request):
-    LLM_WEIGHT = 1
+    LLM_WEIGHT = 3
     try:
         client_identifier = _client_id(request.userId, req)
         remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
@@ -315,7 +315,7 @@ async def chat_stream(request: ChatRequest, req: Request):
             email = request.userId if request.userId and "@" in request.userId else (request.bio or {}).get("email")
             if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
                 async def error_stream():
-                    yield f"data: {json.dumps({'error': f'Bạn đã sử dụng hết {MAX_CHAT_TOKENS} token trong ngày hôm nay để trò chuyện với AI. Vui lòng quay lại vào ngày mai nhé!'}, ensure_ascii=False)}\n\n"
+                    yield f"data: {json.dumps({'error': 'OUT_OF_TOKENS', 'message': 'Bạn đã sử dụng hết token trò chuyện. Bạn có muốn dùng JOY để đổi thêm token không?'}, ensure_ascii=False)}\n\n"
                     await asyncio.sleep(0.1)
                 return StreamingResponse(error_stream(), media_type="text/event-stream")
 

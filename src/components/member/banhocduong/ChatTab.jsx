@@ -7,6 +7,7 @@ import ClinicalTestPanel from "./ClinicalTestPanel";
 import ClinicScanner from "./ClinicScanner";
 import TherapyTab from "./TherapyTab";
 import ChatInputBar from "./ChatInputBar";
+import TokenExchangeModal from "./TokenExchangeModal";
 import { RenderColoredText } from "../../HugoLogo";
 import { webPushHelper } from "../../../utils/webPushHelper";
 
@@ -161,6 +162,7 @@ export default function ChatTab({
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showTestsMenu, setShowTestsMenu] = useState(false);
+  const [showTokenExchangeModal, setShowTokenExchangeModal] = useState(false);
   const [showTherapyOverlay, setShowTherapyOverlay] = useState(false);
   const [therapyInitialMethod, setTherapyInitialMethod] = useState(null);
   const [unlockingMethodId, setUnlockingMethodId] = useState(null);
@@ -1617,6 +1619,14 @@ export default function ChatTab({
         // Flush any pending RAF before replacing the live bubble with split chunks.
         if (_rafRef.current) { cancelAnimationFrame(_rafRef.current); _rafRef.current = null; }
         _pendingChunkRef.current = null;
+        
+        if (botResponse.outOfTokens) {
+          setLoading(false);
+          setMessages(prev => prev.filter(m => m.id !== botMsgId));
+          setShowTokenExchangeModal(true);
+          return;
+        }
+
         // The server only charges (3 tokens, or a bonus token) after a confirmed successful
         // reply — errors never cost anything. Resync from the server instead of guessing locally.
         refreshRemainingTokens();
@@ -1669,6 +1679,16 @@ export default function ChatTab({
             initialMethod={therapyInitialMethod}
           />
         </div>
+        <TokenExchangeModal
+          isOpen={showTokenExchangeModal}
+          onClose={() => setShowTokenExchangeModal(false)}
+          email={bio?.email}
+          onSuccess={() => {
+            // Gửi lại tin nhắn tự động hoặc yêu cầu người dùng thử lại
+            showToast?.("Bạn đã có Token mới, có thể trò chuyện tiếp!", "success");
+          }}
+          showToast={showToast}
+        />
       </div>
     );
   }
@@ -1872,6 +1892,15 @@ export default function ChatTab({
           />
         </div>
       )}
+      <TokenExchangeModal
+        isOpen={showTokenExchangeModal}
+        onClose={() => setShowTokenExchangeModal(false)}
+        email={bio?.email}
+        onSuccess={() => {
+          showToast?.("Bạn đã có Token mới, có thể trò chuyện tiếp!", "success");
+        }}
+        showToast={showToast}
+      />
     </div>
   );
 }

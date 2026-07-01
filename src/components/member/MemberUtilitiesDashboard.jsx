@@ -34,10 +34,16 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
 
   const handleUtilityClick = (utilId) => {
     if (data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
-      if (showToast) {
-        showToast("Hugo... đang được hệ thống tiến hành nâng cấp lên phiên bản mới nhất, hẹn gặp bạn sau 24 tiếng", "info");
+      const isBlocked = typeof data.systemSettings.blockUtilities === "boolean" 
+        ? data.systemSettings.blockUtilities 
+        : data.systemSettings.blockUtilities === utilId;
+
+      if (isBlocked) {
+        if (showToast) {
+          showToast("Hugo... đang được hệ thống tiến hành nâng cấp lên phiên bản mới nhất, hẹn gặp bạn sau 24 tiếng", "info");
+        }
+        return;
       }
-      return;
     }
     setSelectedUtility(utilId);
   };
