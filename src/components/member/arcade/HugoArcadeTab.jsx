@@ -37,7 +37,7 @@ const GAME_COMPONENTS = {
 
 // ─── Sub-components ────────────────────────────────────────────────
 
-function JoyChip({ balance }) {
+const JoyChip = React.memo(function JoyChip({ balance }) {
   return (
     <div className="arc-joy-chip">
       <span className="material-symbols-outlined" style={{ fontSize: 13, fontVariationSettings: "'FILL' 1" }}>toll</span>
@@ -45,9 +45,9 @@ function JoyChip({ balance }) {
       <span className="arc-joy-label">JOY</span>
     </div>
   );
-}
+});
 
-function GameCard({ game, profile, isLocked, onClick }) {
+const GameCard = React.memo(function GameCard({ game, profile, isLocked, onClick }) {
   const best   = profile?.[game.id]?.bestScore   || 0;
   const played = profile?.[game.id]?.gamesPlayed || 0;
   const isChess = game.id === "chess";
@@ -86,7 +86,7 @@ function GameCard({ game, profile, isLocked, onClick }) {
       </div>
     </button>
   );
-}
+});
 
 // ─── Main ──────────────────────────────────────────────────────────
 export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
@@ -137,14 +137,14 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
     return s + Object.values(rec).reduce((a, t) => a + (t?.wins || 0), 0);
   }, 0);
 
-  const setTab  = (t) => setSearchParams(p => { p.set("tab", t); return p; }, { replace: true });
-  const openGame  = (id) => setSearchParams(p => { p.set("game", id); return p; }, { replace: true });
-  const closeGame = () => {
+  const setTab = React.useCallback((t) => setSearchParams(p => { p.set("tab", t); return p; }, { replace: true }), [setSearchParams]);
+  const openGame = React.useCallback((id) => setSearchParams(p => { p.set("game", id); return p; }, { replace: true }), [setSearchParams]);
+  const closeGame = React.useCallback(() => {
     if (isPlaying) gameFrameRef.current?.quit();
     else setSearchParams(p => { p.delete("game"); p.delete("room"); return p; }, { replace: true });
-  };
+  }, [isPlaying, setSearchParams]);
 
-  const handleConfirmCharge = async () => {
+  const handleConfirmCharge = React.useCallback(async () => {
     const res = await fetch(`${API_BASE}/joy/subscribe-feature`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -153,11 +153,11 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Lỗi trao đổi JOY.");
     return data;
-  };
-  const handleSuccess = (data) => {
+  }, [bio?.email]);
+  const handleSuccess = React.useCallback((data) => {
     useJoyStore.getState().setBalance(data.balance);
     onBioUpdate?.({ ...bio, featureSubscriptions: { ...(bio.featureSubscriptions || {}), hugoArcade: { active: true, expiresAt: data.expiresAt } } });
-  };
+  }, [bio, onBioUpdate]);
 
   const gameInfo = activeGame ? GAMES.find(g => g.id === activeGame) : null;
 

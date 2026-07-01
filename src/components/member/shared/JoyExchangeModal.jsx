@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import Confetti from "react-confetti";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 
@@ -206,27 +208,41 @@ export default function JoyExchangeModal({ open, bio, item, onClose, onConfirm, 
       {/* Toast — always rendered so it can animate out even after modal closes */}
       <JoyToast amount={quote?.total} label={quote?.label} visible={toastVisible} />
 
-      {open && (
-        <div
-          onClick={e => { if (e.target === e.currentTarget && phase !== "confirming") onClose(); }}
-          style={{
-            position: "fixed", inset: 0, zIndex: 200,
-            display: "flex", alignItems: "flex-end", justifyContent: "center",
-            padding: "0 0 env(safe-area-inset-bottom,0px)",
-            background: "rgba(0,0,0,.55)",
-            backdropFilter: "blur(6px)",
-            animation: "joyFadeIn .2s ease",
-          }}
-        >
-          <style>{`
-            @keyframes joyFadeIn { from { opacity: 0 } to { opacity: 1 } }
-            @keyframes joySlideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
-          `}</style>
+      {phase === "paid" && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          style={{ position: "fixed", top: 0, left: 0, zIndex: 9999, pointerEvents: "none" }}
+          recycle={false}
+          numberOfPieces={400}
+          gravity={0.15}
+        />
+      )}
 
-          <div style={{
-            width: "100%", maxWidth: 440,
-            animation: "joySlideUp .35s cubic-bezier(.34,1.1,.64,1)",
-          }}>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={e => { if (e.target === e.currentTarget && phase !== "confirming") onClose(); }}
+            style={{
+              position: "fixed", inset: 0, zIndex: 200,
+              display: "flex", alignItems: "flex-end", justifyContent: "center",
+              padding: "0 0 env(safe-area-inset-bottom,0px)",
+              background: "rgba(0,0,0,.55)",
+              backdropFilter: "blur(6px)",
+            }}
+          >
+            <motion.div
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              style={{
+                width: "100%", maxWidth: 440,
+              }}
+            >
 
             {/* ── TICKET CARD ─────────────────────────────── */}
             <div style={{
@@ -435,9 +451,10 @@ export default function JoyExchangeModal({ open, bio, item, onClose, onConfirm, 
                 JOY là đồng tích góp phi lợi nhuận — không thể nạp bằng tiền mặt
               </p>
             </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

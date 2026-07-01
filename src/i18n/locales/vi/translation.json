@@ -465,6 +465,8 @@
       "noGoogle": "Không thể nhận thông tin Google",
       "useGoogleBtn": "Vui lòng nhấn nút Đăng nhập bằng Google bên dưới",
       "adminError": "Tên đăng nhập hoặc mật khẩu không chính xác",
+      "adminNetworkError": "Không thể kết nối máy chủ, vui lòng kiểm tra mạng và thử lại",
+      "adminServerError": "Lỗi máy chủ, vui lòng thử lại sau",
       "codeLength": "Mã đăng nhập phải đúng 6 ký tự"
     },
     "header": {
@@ -503,9 +505,15 @@
       "desc": "Nhập thông tin xác thực nhà phát triển",
       "userLabel": "Tên đăng nhập",
       "userPlaceholder": "Nhập tên đăng nhập...",
+      "userRequired": "Vui lòng nhập tên đăng nhập",
       "passLabel": "Mật khẩu",
       "passPlaceholder": "••••••••",
+      "passRequired": "Vui lòng nhập mật khẩu",
+      "showPassword": "Hiện mật khẩu",
+      "hidePassword": "Ẩn mật khẩu",
+      "remember": "Ghi nhớ đăng nhập trên thiết bị này",
       "btn": "Đăng Nhập",
+      "submitting": "Đang đăng nhập...",
       "https": "Đồng bộ an toàn qua HTTPS"
     }
   },

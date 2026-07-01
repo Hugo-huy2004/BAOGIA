@@ -465,6 +465,8 @@
       "noGoogle": "Could not retrieve Google profile info",
       "useGoogleBtn": "Please click the 'Continue with Google' button below",
       "adminError": "Incorrect admin username or password",
+      "adminNetworkError": "Could not connect to the server, please check your network and try again",
+      "adminServerError": "Server error, please try again later",
       "codeLength": "Login code must be exactly 6 characters"
     },
     "header": {
@@ -503,9 +505,15 @@
       "desc": "Enter developer credentials",
       "userLabel": "Username",
       "userPlaceholder": "Enter username...",
+      "userRequired": "Please enter your username",
       "passLabel": "Password",
       "passPlaceholder": "••••••••",
+      "passRequired": "Please enter your password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "remember": "Remember me on this device",
       "btn": "Login",
+      "submitting": "Signing in...",
       "https": "Secure synchronization via HTTPS"
     }
   },

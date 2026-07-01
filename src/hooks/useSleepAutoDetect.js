@@ -137,7 +137,7 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
       }
       R.current.lastActivityAt = saved.lastActivityAt || Date.now();
     } catch (_) {}
-  }, [enabled, email]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [enabled, email]);  
 
   // ── Core: process one signal ───────────────────────────────────────────
 
@@ -375,7 +375,7 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
         setCaps(c => ({ ...c, periodicSync: true }));
       } catch (_) {}
     })();
-  }, [enabled, email]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [enabled, email]);  
 
   return { state, sleepStart, confidence, recentSignals, caps };
 }

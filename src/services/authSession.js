@@ -23,8 +23,9 @@ const readSession = (key) => {
   }
 };
 
-const writeSession = (key, value) => {
-  localStorage.setItem(key, JSON.stringify(value));
+const writeSession = (key, value, persist = true) => {
+  const target = persist ? localStorage : sessionStorage;
+  target.setItem(key, JSON.stringify(value));
 };
 
 export const getMemberSession = () => readSession(MEMBER_SESSION_KEY);
@@ -49,7 +50,9 @@ export const loginMember = (member) => {
   return session;
 };
 
-export const loginAdmin = async (credentials) => {
+// Returns { session, error } instead of throwing/null so the caller can show
+// a specific message (wrong credentials vs. network/server failure).
+export const loginAdmin = async (credentials, { remember = true } = {}) => {
   try {
     const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
     const response = await fetch(`${API_BASE_URL}/admin/login`, {
@@ -62,14 +65,17 @@ export const loginAdmin = async (credentials) => {
       })
     });
 
+    if (response.status === 401 || response.status === 403) {
+      return { session: null, error: 'invalid_credentials' };
+    }
     if (!response.ok) {
-      return null;
+      return { session: null, error: 'server_error' };
     }
 
     const data = await response.json();
-    
+
     if (!data.success) {
-      return null;
+      return { session: null, error: 'invalid_credentials' };
     }
 
     const expiresAt = new Date();
@@ -83,11 +89,11 @@ export const loginAdmin = async (credentials) => {
       expiresAt: expiresAt.toISOString()
     };
 
-    writeSession(ADMIN_SESSION_KEY, session);
-    return session;
+    writeSession(ADMIN_SESSION_KEY, session, remember);
+    return { session, error: null };
   } catch (error) {
     console.error('Lỗi khi đăng nhập admin:', error);
-    return null;
+    return { session: null, error: 'network' };
   }
 };
 

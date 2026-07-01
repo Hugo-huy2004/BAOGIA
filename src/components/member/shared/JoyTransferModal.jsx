@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { QRCodeSVG } from "qrcode.react";
+import Confetti from "react-confetti";
+import jsQR from "jsqr";
 import { searchJoyUser, getJoyQrPayload, resolveJoyQr, transferJoy } from "../../../services/joyApi";
+import { useArcadeSound } from "../../../hooks/useArcadeSound";
 
 const RECENT_KEY = "joy_recent_contacts";
 const QUICK_AMOUNTS = [50, 100, 200, 500];
@@ -37,7 +39,29 @@ const css = `
   0%,100% { transform: scale(1); }
   50%     { transform: scale(1.12); }
 }
+@keyframes jtRuneRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes jtRuneRotateRev {
+  from { transform: rotate(360deg); }
+  to   { transform: rotate(0deg); }
+}
+@keyframes jtSigilBreathe {
+  0%,100% { opacity: .55; transform: scale(1); }
+  50%     { opacity: 1;   transform: scale(1.05); }
+}
+@keyframes jtStarTwinkle {
+  0%,100% { opacity: .15; transform: scale(.7); }
+  50%     { opacity: 1;   transform: scale(1.15); }
+}
+@keyframes jtShimmerSweep {
+  0%   { transform: translate(-60%, -60%) rotate(0deg); }
+  100% { transform: translate(-60%, -60%) rotate(360deg); }
+}
 `;
+
+const RUNES = ["ᚠ", "ᚱ", "ᚨ", "ᛟ", "ᛝ", "ᛚ", "ᛒ", "ᛗ", "ᚦ", "ᛊ", "ᛖ", "ᚹ"];
 
 /* ─── Utilities ─────────────────────────────────────────────────────────── */
 function getRecent() {
@@ -61,16 +85,232 @@ function Avatar({ name, url, size = 40 }) {
   );
 }
 
-/* ─── Apple Pay Circular QR ──────────────────────────────────────────────── */
+function JoySeal({ payload, displayName, avatarUrl, onOpen, compact = false, interactive = true }) {
+  const code = String(payload || "");
+  const shortCode = code ? `${code.slice(0, 2)} ✦ ${code.slice(-2)}` : "JOY";
+  const size = compact ? 190 : 262;
+  const haloSize = compact ? 196 : 268;
+  const OrbRoot = interactive ? "button" : "div";
+
+  const runeRadius = size / 2 + (compact ? 6 : 8);
+  const sigilRadius = size / 2 - (compact ? 26 : 30);
+
+  return (
+    <OrbRoot
+      type={interactive ? "button" : undefined}
+      onClick={interactive ? onOpen : undefined}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        border: "none",
+        cursor: interactive ? "pointer" : "default",
+        background: "transparent",
+        position: "relative",
+        padding: 0,
+        overflow: "visible",
+      }}
+      aria-label={interactive ? "Mở JOY Seal" : undefined}
+    >
+      <div style={{
+        position: "absolute",
+        inset: -(compact ? 12 : 14),
+        width: haloSize,
+        height: haloSize,
+        borderRadius: "50%",
+        background: "radial-gradient(circle at 50% 50%, rgba(168,85,247,.22) 0%, rgba(217,119,6,.12) 26%, rgba(0,0,0,0) 60%)",
+        filter: "blur(12px)",
+        opacity: .95,
+        animation: "jtSigilBreathe 4.5s ease-in-out infinite",
+        willChange: "transform, opacity, filter",
+      }} />
+
+      {/* Rotating rune ring */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        borderRadius: "50%",
+        animation: "jtRuneRotate 26s linear infinite",
+        willChange: "transform",
+        pointerEvents: "none",
+      }}>
+        {RUNES.map((r, i) => {
+          const angle = (360 / RUNES.length) * i;
+          return (
+            <span key={i} style={{
+              position: "absolute",
+              left: "50%", top: "50%",
+              transform: `rotate(${angle}deg) translateY(-${runeRadius}px) rotate(-${angle}deg)`,
+              fontSize: compact ? 10 : 12,
+              color: "rgba(250,204,21,.55)",
+              textShadow: "0 0 6px rgba(250,204,21,.55)",
+            }}>{r}</span>
+          );
+        })}
+      </div>
+
+      {/* Counter-rotating sigil dots */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        borderRadius: "50%",
+        animation: "jtRuneRotateRev 18s linear infinite",
+        willChange: "transform",
+        pointerEvents: "none",
+      }}>
+        {Array.from({ length: 8 }).map((_, i) => {
+          const angle = (360 / 8) * i;
+          return (
+            <div key={i} style={{
+              position: "absolute",
+              left: "50%", top: "50%",
+              width: 3, height: 3, borderRadius: "50%",
+              background: "#c4b5fd",
+              boxShadow: "0 0 6px 1px rgba(196,181,253,.9)",
+              transform: `rotate(${angle}deg) translateY(-${sigilRadius}px)`,
+              animation: `jtStarTwinkle ${2 + (i % 3)}s ease-in-out ${i * .3}s infinite`,
+              willChange: "transform, opacity",
+            }} />
+          );
+        })}
+      </div>
+
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        borderRadius: "50%",
+        background: "radial-gradient(circle at 50% 46%, #170f2b 0%, #0d0819 34%, #060310 58%, #020103 100%)",
+        boxShadow: "0 0 0 1px rgba(250,204,21,.08), inset 0 0 26px rgba(255,255,255,.03), inset 0 0 60px rgba(76, 29, 149, .55)",
+      }} />
+      <div style={{
+        position: "absolute",
+        inset: compact ? 9 : 10,
+        borderRadius: "50%",
+        background: "conic-gradient(from 200deg, rgba(250,204,21,.14), rgba(168,85,247,.7), rgba(76,29,149,.95), rgba(168,85,247,.75), rgba(250,204,21,.14))",
+        filter: "blur(8px)",
+        opacity: .95,
+        animation: "jtRuneRotate 7s linear infinite",
+      }} />
+      <div style={{
+        position: "absolute",
+        inset: compact ? 14 : 16,
+        borderRadius: "50%",
+        background: "radial-gradient(circle at 50% 40%, rgba(46,16,101,.9), rgba(8,3,18,.98) 58%, rgba(0,0,0,1) 100%)",
+        border: "1px solid rgba(250,204,21,.14)",
+        boxShadow: "inset 0 0 30px rgba(168,85,247,.16), inset 0 -8px 24px rgba(76,29,149,.12)",
+        overflow: "hidden",
+      }}>
+        {/* Continuous shimmer sweep */}
+        <div style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          width: "220%",
+          height: "220%",
+          background: "conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,.22) 12deg, transparent 40deg, transparent 360deg)",
+          animation: "jtShimmerSweep 3.5s linear infinite",
+          pointerEvents: "none",
+        }} />
+        <div style={{
+          position: "absolute",
+          left: "50%",
+          top: "12%",
+          width: compact ? 96 : 114,
+          height: compact ? 96 : 114,
+          transform: "translateX(-50%)",
+          borderRadius: "50%",
+          background: "radial-gradient(circle at 50% 50%, rgba(216,180,254,.72) 0%, rgba(147,51,234,.42) 24%, rgba(88,28,135,.18) 44%, rgba(0,0,0,0) 72%)",
+          filter: "blur(4px)",
+          opacity: .92,
+          animation: "jtSigilBreathe 3.6s ease-in-out infinite",
+          willChange: "transform, opacity, filter",
+        }} />
+        <div style={{
+          position: "absolute",
+          inset: compact ? 22 : 24,
+          borderRadius: "50%",
+          background: "radial-gradient(circle at 42% 38%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.28) 10%, rgba(250,204,21,.2) 18%, rgba(147,51,234,.28) 33%, rgba(23,15,43,.95) 67%, rgba(3,7,18,1) 100%)",
+          transform: "scale(1.02)",
+          boxShadow: "inset -10px -16px 30px rgba(0,0,0,.45), 0 0 30px rgba(196,181,253,.18)",
+        }} />
+        <div style={{
+          position: "absolute",
+          left: "50%",
+          top: "18%",
+          width: compact ? 98 : 118,
+          height: compact ? 98 : 118,
+          transform: "translateX(-50%)",
+          borderRadius: "50%",
+          background: "radial-gradient(circle at 50% 50%, rgba(216,180,254,.22) 0%, rgba(147,51,234,.12) 18%, rgba(147,51,234,.08) 34%, rgba(0,0,0,0) 68%)",
+          filter: "blur(1px)",
+        }} />
+        <div style={{
+          position: "absolute",
+          left: "50%",
+          bottom: compact ? 18 : 20,
+          transform: "translateX(-50%)",
+          width: compact ? 96 : 112,
+          height: compact ? 18 : 20,
+          borderRadius: 999,
+          background: "linear-gradient(180deg, rgba(250,204,21,.18), rgba(255,255,255,0))",
+          filter: "blur(2px)",
+          opacity: .5,
+        }} />
+      </div>
+      <div style={{
+        position: "absolute",
+        inset: compact ? 7 : 10,
+        borderRadius: "50%",
+        border: "1px solid rgba(250,204,21,.1)",
+      }} />
+      <div style={{
+        position: "absolute",
+        left: "50%",
+        bottom: compact ? 12 : 14,
+        transform: "translateX(-50%)",
+        padding: "5px 10px",
+        borderRadius: 999,
+        background: "rgba(10,4,24,.55)",
+        border: "1px solid rgba(250,204,21,.3)",
+        backdropFilter: "blur(8px)",
+        color: "rgba(253,230,138,.95)",
+        fontSize: 9,
+        fontWeight: 800,
+        letterSpacing: ".18em",
+        textShadow: "0 0 8px rgba(250,204,21,.4)",
+      }}>{shortCode}</div>
+    </OrbRoot>
+  );
+}
+
 function CircularQR({ payload, displayName, avatarUrl, onClose }) {
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 500,
-      background: "radial-gradient(ellipse at 50% 40%, #25154d 0%, #070713 56%, #000 100%)",
+      background: "radial-gradient(ellipse at 50% 40%, #2c1352 0%, #0a0616 56%, #000 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       animation: "jtFadeIn .25s ease",
+      overflow: "hidden",
     }}>
       <style>{css}</style>
+
+      {/* Ambient drifting starfield */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        {Array.from({ length: 22 }).map((_, i) => {
+          const left = (i * 37) % 100;
+          const top = (i * 53) % 100;
+          return (
+            <div key={i} style={{
+              position: "absolute", left: `${left}%`, top: `${top}%`,
+              width: 2, height: 2, borderRadius: "50%",
+              background: i % 3 === 0 ? "#fde68a" : "#c4b5fd",
+              boxShadow: `0 0 5px 1px ${i % 3 === 0 ? "rgba(253,230,138,.8)" : "rgba(196,181,253,.8)"}`,
+              animation: `jtStarTwinkle ${2.5 + (i % 4)}s ease-in-out ${(i % 5) * .4}s infinite`,
+            }} />
+          );
+        })}
+      </div>
+
       <button onClick={onClose} style={{
         position: "absolute", top: 20, right: 20,
         background: "rgba(255,255,255,.1)", border: "none", borderRadius: "50%",
@@ -79,8 +319,8 @@ function CircularQR({ payload, displayName, avatarUrl, onClose }) {
         <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
       </button>
 
-      <p style={{ color: "rgba(255,255,255,.62)", fontSize: 11, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 40 }}>
-        QR Nhận JOY
+      <p style={{ color: "rgba(253,230,138,.75)", fontSize: 11, fontWeight: 800, letterSpacing: ".22em", textTransform: "uppercase", marginBottom: 40, textShadow: "0 0 12px rgba(250,204,21,.35)" }}>
+        Mã QR JOY
       </p>
 
       {/* Ring container */}
@@ -89,54 +329,20 @@ function CircularQR({ payload, displayName, avatarUrl, onClose }) {
           <div key={i} style={{
             position: "absolute",
             width: 260, height: 260, borderRadius: "50%",
-            border: "1.5px solid rgba(99,102,241,.28)",
+            border: "1.5px solid rgba(168,85,247,.3)",
             animation: `jtRingPulse 2s ease-out ${delay}s infinite`,
           }} />
         ))}
-        <div style={{
-          position: "absolute",
-          inset: 10,
-          borderRadius: "50%",
-          background: "conic-gradient(from 180deg, #22d3ee, #8b5cf6, #ec4899, #f59e0b, #22c55e, #22d3ee)",
-          filter: "blur(6px)",
-          opacity: .22,
-        }} />
-        {/* QR circle */}
-        <div style={{
-          width: 220, height: 220, borderRadius: "50%",
-          background: "conic-gradient(from 160deg, rgba(34,211,238,.18), rgba(139,92,246,.2), rgba(236,72,153,.2), rgba(245,158,11,.18), rgba(34,197,94,.18), rgba(34,211,238,.18))",
-          padding: 10,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 0 34px rgba(99,102,241,.38), 0 0 84px rgba(236,72,153,.12)",
-          overflow: "hidden",
-          flexShrink: 0,
-        }}>
-          <div style={{
-            width: "100%", height: "100%", borderRadius: "50%",
-            background: "#fff",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            overflow: "hidden",
-            boxShadow: "inset 0 0 0 1px rgba(255,255,255,.8)",
-          }}>
-            <QRCodeSVG
-              value={payload}
-              size={170}
-              bgColor="#ffffff"
-              fgColor="#0f0f1a"
-              level="H"
-              includeMargin={false}
-              style={{ display: "block", borderRadius: "50%" }}
-            />
-          </div>
-        </div>
+        <div style={{ position: "absolute", inset: 10, borderRadius: "50%", background: "radial-gradient(circle at 50% 50%, rgba(250,204,21,.16), rgba(168,85,247,.14) 35%, rgba(0,0,0,0) 70%)", filter: "blur(6px)", opacity: .7 }} />
+        <JoySeal payload={payload} displayName={displayName} avatarUrl={avatarUrl} compact={false} interactive={false} />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 28, gap: 6 }}>
         {avatarUrl
-          ? <img src={avatarUrl} alt={displayName} style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(139,92,246,.6)", marginBottom: 2 }} />
+          ? <img src={avatarUrl} alt={displayName} style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(168,85,247,.6)", marginBottom: 2 }} />
           : null}
         <p style={{ color: "#fff", fontWeight: 900, fontSize: 16, letterSpacing: "-.02em" }}>{displayName}</p>
-        <p style={{ color: "rgba(255,255,255,.45)", fontSize: 11, fontWeight: 600 }}>Quét để gửi JOY cho tôi</p>
+        <p style={{ color: "rgba(255,255,255,.45)", fontSize: 11, fontWeight: 600 }}>Mã nội bộ để gửi JOY</p>
       </div>
 
       <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
@@ -161,11 +367,13 @@ function CircularQR({ payload, displayName, avatarUrl, onClose }) {
 }
 
 /* ─── QR Scanner ─────────────────────────────────────────────────────────── */
+// Decodes frames with jsQR (pure-JS, canvas-based) instead of the native
+// BarcodeDetector API, which iOS Safari does not implement.
 function QRScanner({ onDetected, onClose }) {
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const animRef = useRef(null);
   const streamRef = useRef(null);
-  const detectorRef = useRef(null);
   const [status, setStatus] = useState("init"); // init | active | error | unsupported
 
   const stopStream = () => {
@@ -184,11 +392,10 @@ function QRScanner({ onDetected, onClose }) {
   }, []);
 
   useEffect(() => {
-    if (!('BarcodeDetector' in window)) {
+    if (!navigator.mediaDevices?.getUserMedia) {
       setStatus("unsupported");
       return;
     }
-    detectorRef.current = new window.BarcodeDetector({ formats: ["qr_code"] });
 
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
       .then(stream => {
@@ -209,21 +416,27 @@ function QRScanner({ onDetected, onClose }) {
   useEffect(() => {
     if (status !== "active") return;
     let active = true;
+    if (!canvasRef.current) canvasRef.current = document.createElement("canvas");
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
-    const tick = async () => {
-      if (!active || !videoRef.current || videoRef.current.readyState < 2) {
+    const tick = () => {
+      const video = videoRef.current;
+      if (!active || !video || video.readyState < 2) {
         if (active) animRef.current = requestAnimationFrame(tick);
         return;
       }
-      try {
-        const barcodes = await detectorRef.current.detect(videoRef.current);
-        if (barcodes.length > 0 && active) {
-          active = false;
-          stopStream();
-          onDetected(barcodes[0].rawValue);
-          return;
-        }
-      } catch (_) {}
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(frame.data, frame.width, frame.height, { inversionAttempts: "dontInvert" });
+      if (code?.data && active) {
+        active = false;
+        stopStream();
+        onDetected(code.data);
+        return;
+      }
       if (active) animRef.current = requestAnimationFrame(tick);
     };
 
@@ -249,7 +462,7 @@ function QRScanner({ onDetected, onClose }) {
       </button>
 
       <p style={{ color: "rgba(255,255,255,.5)", fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 40 }}>
-        Quét QR JOY
+        Quét mã JOY nội bộ
       </p>
 
       <div style={{ position: "relative", width: 260, height: 260, borderRadius: "50%", overflow: "hidden", border: "2px solid rgba(139,92,246,.6)", boxShadow: "0 0 40px rgba(139,92,246,.4)" }}>
@@ -293,7 +506,7 @@ function QRScanner({ onDetected, onClose }) {
       </div>
 
       <p style={{ color: "rgba(255,255,255,.4)", fontSize: 12, marginTop: 24, fontWeight: 600 }}>
-        Hướng camera vào mã QR JOY
+        Hướng camera vào mã nội bộ JOY
       </p>
 
       {(status === "error" || status === "unsupported") && (
@@ -349,6 +562,7 @@ function Divider() {
 
 /* ─── Main Modal ─────────────────────────────────────────────────────────── */
 export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
+  const { playWin, playLose, playBeep } = useArcadeSound();
   const [step, setStep] = useState("select"); // select | amount | invoice | sending | success
   const [mode, setMode] = useState("search"); // search | myqr | scan
   const [recipient, setRecipient] = useState(null);
@@ -410,8 +624,10 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
     setScanOpen(false);
     try {
       const data = await resolveJoyQr(rawValue);
+      playBeep();
       selectRecipient(data);
     } catch (e) {
+      playLose();
       setError(e.message);
     } finally {
       setScanResolving(false);
@@ -430,9 +646,11 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
       });
       setResult(data);
       saveRecent({ displayName: recipient.displayName, avatarUrl: recipient.avatarUrl, referralCode: recipient.referralCode });
+      playWin();
       onSuccess?.(data);
       setStep("success");
     } catch (e) {
+      playLose();
       setError(e.message);
       setStep("invoice");
     }
@@ -448,6 +666,18 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
   return createPortal(
     <>
       <style>{css}</style>
+
+      {/* Confetti on success */}
+      {step === "success" && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          style={{ position: "fixed", top: 0, left: 0, zIndex: 9999, pointerEvents: "none" }}
+          recycle={false}
+          numberOfPieces={400}
+          gravity={0.15}
+        />
+      )}
 
       {/* Apple Pay QR fullscreen */}
       {qrFullscreen && myQR && (
@@ -648,22 +878,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                               filter: "blur(5px)",
                               opacity: .18,
                             }} />
-                            <div style={{
-                              width: 164, height: 164, borderRadius: "50%",
-                              background: "conic-gradient(from 160deg, rgba(34,211,238,.18), rgba(139,92,246,.2), rgba(236,72,153,.2), rgba(245,158,11,.18), rgba(34,197,94,.18), rgba(34,211,238,.18))",
-                              padding: 8,
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              overflow: "hidden", boxShadow: "0 4px 24px rgba(99,102,241,.18)",
-                            }}>
-                              <div style={{
-                                width: "100%", height: "100%", borderRadius: "50%",
-                                background: "#fff",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                overflow: "hidden",
-                              }}>
-                                <QRCodeSVG value={myQR.payload} size={130} bgColor="#fff" fgColor="#0f0f1a" level="H" includeMargin={false} />
-                              </div>
-                            </div>
+                            <JoySeal payload={myQR.payload} displayName={myQR.displayName} avatarUrl={myQR.avatarUrl} compact interactive={false} />
                           </div>
                           <p style={{ color: "#0f172a", fontWeight: 900, fontSize: 14, marginTop: 12 }} className="dark:text-white">{myQR.displayName}</p>
                           <p style={{ color: "#94a3b8", fontSize: 11, marginTop: 2 }}>Chạm để phóng to</p>
@@ -671,14 +886,14 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                             onClick={() => setQrFullscreen(true)}
                             style={{
                               marginTop: 14, padding: "10px 24px", borderRadius: 999,
-                              background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none",
+                              background: "linear-gradient(135deg,#0f172a,#2563eb)", border: "none",
                               color: "#fff", fontWeight: 800, fontSize: 13, cursor: "pointer",
                               display: "flex", alignItems: "center", gap: 6,
                               boxShadow: "0 4px 16px rgba(99,102,241,.4)",
                             }}
                           >
                             <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>fullscreen</span>
-                            Hiển thị QR
+                            Hiển thị mã nội bộ
                           </button>
                         </>
                       )}
@@ -703,8 +918,8 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                           }}>
                             <span className="material-symbols-outlined" style={{ fontSize: 44, color: "#6366f1", fontVariationSettings: "'FILL' 1" }}>qr_code_scanner</span>
                           </div>
-                          <p style={{ color: "#0f172a", fontWeight: 800, fontSize: 14, marginBottom: 4 }} className="dark:text-white">Quét QR để gửi JOY</p>
-                          <p style={{ color: "#94a3b8", fontSize: 11, marginBottom: 18, textAlign: "center" }}>Mở QR của người nhận rồi bấm quét</p>
+                          <p style={{ color: "#0f172a", fontWeight: 800, fontSize: 14, marginBottom: 4 }} className="dark:text-white">Quét mã nội bộ để gửi JOY</p>
+                          <p style={{ color: "#94a3b8", fontSize: 11, marginBottom: 18, textAlign: "center" }}>Mở mã của người nhận rồi bấm quét</p>
                           <button
                             onClick={() => setScanOpen(true)}
                             style={{

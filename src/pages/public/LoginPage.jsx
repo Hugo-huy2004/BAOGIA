@@ -23,6 +23,10 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "customer");
   const [adminForm, setAdminForm] = useState({ username: "", password: "" });
+  const [adminFieldErrors, setAdminFieldErrors] = useState({ username: "", password: "" });
+  const [adminSubmitting, setAdminSubmitting] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [rememberAdmin, setRememberAdmin] = useState(true);
   const [customerCode, setCustomerCode] = useState("");
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
@@ -187,13 +191,31 @@ export default function LoginPage() {
     e.preventDefault();
     setToast({ message: "", type: "" });
 
-    const session = await loginAdmin(adminForm);
-    if (!session) {
-      showToast(t("loginPage.toast.adminError"), "error");
-      return;
-    }
+    const fieldErrors = {
+      username: adminForm.username.trim() ? "" : t("loginPage.adminForm.userRequired"),
+      password: adminForm.password ? "" : t("loginPage.adminForm.passRequired")
+    };
+    setAdminFieldErrors(fieldErrors);
+    if (fieldErrors.username || fieldErrors.password) return;
 
-    navigate("/admin");
+    setAdminSubmitting(true);
+    try {
+      const { session, error } = await loginAdmin(adminForm, { remember: rememberAdmin });
+      if (!session) {
+        if (error === "network") {
+          showToast(t("loginPage.toast.adminNetworkError"), "error");
+        } else if (error === "server_error") {
+          showToast(t("loginPage.toast.adminServerError"), "error");
+        } else {
+          setAdminFieldErrors({ username: " ", password: " " });
+          showToast(t("loginPage.toast.adminError"), "error");
+        }
+        return;
+      }
+      navigate("/admin");
+    } finally {
+      setAdminSubmitting(false);
+    }
   };
 
   const handleCustomerLogin = async (e) => {
@@ -464,29 +486,74 @@ export default function LoginPage() {
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1">{t("loginPage.adminForm.userLabel")}</label>
                 <input
                   type="text"
+                  autoComplete="username"
+                  autoFocus
                   value={adminForm.username}
-                  onChange={(e) => setAdminForm((prev) => ({ ...prev, username: e.target.value }))}
+                  onChange={(e) => {
+                    setAdminForm((prev) => ({ ...prev, username: e.target.value }));
+                    setAdminFieldErrors((prev) => ({ ...prev, username: "" }));
+                  }}
                   placeholder={t("loginPage.adminForm.userPlaceholder")}
-                  className="w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary transition-all text-xs"
+                  aria-invalid={Boolean(adminFieldErrors.username)}
+                  className={`w-full px-4 py-3 rounded-xl border bg-muted/50 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 transition-all text-xs ${
+                    adminFieldErrors.username ? "border-destructive focus:ring-destructive" : "border-border/50 focus:ring-primary"
+                  }`}
                 />
+                {adminFieldErrors.username.trim() && (
+                  <p className="text-[10px] text-destructive pl-1">{adminFieldErrors.username}</p>
+                )}
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1">{t("loginPage.adminForm.passLabel")}</label>
-                <input
-                  type="password"
-                  value={adminForm.password}
-                  onChange={(e) => setAdminForm((prev) => ({ ...prev, password: e.target.value }))}
-                  placeholder={t("loginPage.adminForm.passPlaceholder")}
-                  className="w-full px-4 py-3 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary transition-all text-xs"
-                />
+                <div className="relative">
+                  <input
+                    type={showAdminPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    value={adminForm.password}
+                    onChange={(e) => {
+                      setAdminForm((prev) => ({ ...prev, password: e.target.value }));
+                      setAdminFieldErrors((prev) => ({ ...prev, password: "" }));
+                    }}
+                    placeholder={t("loginPage.adminForm.passPlaceholder")}
+                    aria-invalid={Boolean(adminFieldErrors.password)}
+                    className={`w-full pl-4 pr-10 py-3 rounded-xl border bg-muted/50 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 transition-all text-xs ${
+                      adminFieldErrors.password ? "border-destructive focus:ring-destructive" : "border-border/50 focus:ring-primary"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminPassword((prev) => !prev)}
+                    aria-label={showAdminPassword ? t("loginPage.adminForm.hidePassword") : t("loginPage.adminForm.showPassword")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">{showAdminPassword ? "visibility_off" : "visibility"}</span>
+                  </button>
+                </div>
+                {adminFieldErrors.password.trim() && (
+                  <p className="text-[10px] text-destructive pl-1">{adminFieldErrors.password}</p>
+                )}
               </div>
+
+              <label className="flex items-center gap-2 pl-1 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberAdmin}
+                  onChange={(e) => setRememberAdmin(e.target.checked)}
+                  className="w-3.5 h-3.5 rounded accent-primary"
+                />
+                <span className="text-[11px] text-muted-foreground font-medium">{t("loginPage.adminForm.remember")}</span>
+              </label>
 
               <button
                 type="submit"
-                className="w-full bg-foreground hover:bg-foreground/90 dark:bg-white dark:hover:bg-white/90 text-background dark:text-background font-bold py-3.5 rounded-xl hover:scale-[1.01] active:scale-99 transition-all text-xs shadow-md mt-2"
+                disabled={adminSubmitting}
+                className="w-full bg-foreground hover:bg-foreground/90 dark:bg-white dark:hover:bg-white/90 text-background dark:text-background font-bold py-3.5 rounded-xl hover:scale-[1.01] active:scale-99 transition-all text-xs shadow-md mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none"
               >
-                {t("loginPage.adminForm.btn")}
+                {adminSubmitting && (
+                  <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
+                )}
+                {adminSubmitting ? t("loginPage.adminForm.submitting") : t("loginPage.adminForm.btn")}
               </button>
 
               <p className="text-[10px] text-center text-muted-foreground">{t("loginPage.adminForm.https")}</p>
