@@ -85,7 +85,7 @@ export function decodeBits(bits) {
     bytes[byteIdx] = byte;
   }
   const len = bytes[0];
-  if (len > PCC_MAX_PAYLOAD_BYTES) return null;
+  if (len === 0 || len > PCC_MAX_PAYLOAD_BYTES) return null;
   if (crc8(bytes.subarray(0, PCC_TOTAL_BYTES - 1)) !== bytes[PCC_TOTAL_BYTES - 1]) return null;
   try {
     // fatal: true rejects malformed byte sequences instead of inserting U+FFFD,
