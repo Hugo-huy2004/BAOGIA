@@ -36,7 +36,7 @@ const TITLES = {
  */
 export async function awardJoy(email, amount, source, description, opts = {}) {
   if (!email) throw new Error('MISSING_EMAIL');
-  const numAmount = Number(amount);
+  const numAmount = Math.round(Number(amount));
   if (!numAmount) throw new Error('INVALID_AMOUNT');
 
   let bio = opts.bioDoc || (await Bio.findOne({ email }));
@@ -47,7 +47,7 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
     throw new Error('INSUFFICIENT_JOY');
   }
 
-  const newBalance = Math.max(0, bio.joyBalance + numAmount);
+  const newBalance = Math.max(0, Math.round((bio.joyBalance || 0) + numAmount));
 
   // Write the ledger row FIRST, before mutating the real wallet — its schema
   // validation (e.g. the `source` enum) is the cheapest thing to fail on, and

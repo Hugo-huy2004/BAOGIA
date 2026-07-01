@@ -68,45 +68,44 @@ const getBasePackageDetails = (serviceLabel, t) => {
 // opens a bottom sheet with the full benefits instead of expanding in place,
 // which only worked when cards were stacked vertically.
 function PackageCard({ name, duration, durationUnit, benefits, color, startLabel, expiresLabel, isBasePackage = false, t, onOpenDetails }) {
-  const durationLabel = expiresLabel || `+${duration} ${durationUnit === "days" ? t("memberPortal.package.days") : durationUnit === "years" ? t("memberPortal.package.years") : t("memberPortal.package.months")}`;
-  const dark = shadeColor(color, -35);
+  const durationLabel = expiresLabel || `+${duration} ${durationUnit === "days" ? t("memberPortal.package.days", "Ngày") : durationUnit === "years" ? t("memberPortal.package.years", "Năm") : t("memberPortal.package.months", "Tháng")}`;
+  const dark = shadeColor(color, -40);
 
   return (
     <button
       type="button"
       onClick={onOpenDetails}
-      className="relative shrink-0 w-[260px] sm:w-[300px] h-[160px] sm:h-[175px] rounded-[22px] p-4 sm:p-5 text-left overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-1 active:scale-[0.97] snap-center"
+      className="relative w-full h-[140px] sm:h-[150px] rounded-[24px] p-5 text-left overflow-hidden shadow-sm border border-black/5 transition-transform duration-300 hover:-translate-y-1 active:scale-[0.98]"
       style={{ background: `linear-gradient(135deg, ${color} 0%, ${dark} 100%)` }}
     >
-      {/* Embossed watermark icon, bleeding off the edge like a card's brand mark */}
-      <span className="material-symbols-outlined absolute -right-4 -bottom-6 text-white/10 pointer-events-none" style={{ fontSize: 130 }}>workspace_premium</span>
+      {/* Glossy overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
+      
+      {/* Embossed watermark icon */}
+      <span className="material-symbols-outlined absolute -right-3 -bottom-5 text-white/10 pointer-events-none" style={{ fontSize: 110 }}>style</span>
 
       <div className="relative z-10 h-full flex flex-col justify-between text-white">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-1.5 font-black uppercase text-[8px] tracking-[0.18em] opacity-85">
-            <span className="material-symbols-outlined text-[13px]">hexagon</span>
-            HUGO {isBasePackage ? t("memberPortal.package.base") : t("memberPortal.package.promo")}
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[9px] font-black uppercase tracking-widest opacity-80 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              {isBasePackage ? t("memberPortal.package.base", "GÓI CƠ BẢN") : t("memberPortal.package.promo", "GÓI ƯU ĐÃI")}
+            </span>
+            <h3 className="text-lg font-black tracking-tight uppercase leading-none drop-shadow-sm mt-1">{name}</h3>
           </div>
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 text-[7.5px] font-bold uppercase tracking-wider">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            {t("memberPortal.package.activeStatus")}
-          </span>
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/20 shrink-0 shadow-sm">
+            <span className="material-symbols-outlined text-[15px]">workspace_premium</span>
+          </div>
         </div>
 
-        {/* Chip — purely decorative, sells the "membership card" metaphor */}
-        <div className="w-8 h-6 rounded-md bg-white/20 border border-white/30 mt-1" />
-
-        <div>
-          <h3 className="text-base sm:text-lg font-black tracking-tight uppercase leading-tight truncate">{name}</h3>
-          <div className="flex items-end justify-between mt-2 gap-3">
-            <div>
-              <span className="block text-[7px] font-bold uppercase tracking-[0.15em] opacity-70">{t("memberPortal.package.startDate")}</span>
-              <span className="text-[11px] font-mono font-bold">{startLabel}</span>
-            </div>
-            <div className="text-right">
-              <span className="block text-[7px] font-bold uppercase tracking-[0.15em] opacity-70">{expiresLabel ? t("memberPortal.package.bioDuration") : t("memberPortal.package.addedDuration")}</span>
-              <span className="text-[11px] font-mono font-bold">{durationLabel}</span>
-            </div>
+        <div className="flex items-end justify-between mt-2">
+          <div>
+            <span className="block text-[8px] font-bold uppercase tracking-widest opacity-75">{t("memberPortal.package.startDate", "Ngày bắt đầu")}</span>
+            <span className="text-[12px] font-mono font-bold tracking-wide">{startLabel}</span>
+          </div>
+          <div className="text-right">
+            <span className="block text-[8px] font-bold uppercase tracking-widest opacity-75">{expiresLabel ? t("memberPortal.package.bioDuration", "Hạn dùng") : t("memberPortal.package.addedDuration", "Thời hạn")}</span>
+            <span className="text-[12px] font-mono font-bold tracking-wide">{durationLabel}</span>
           </div>
         </div>
       </div>
@@ -188,8 +187,8 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
         <p className="text-[10px] text-zinc-455 dark:text-zinc-400">{t("memberTabs.manage.ownedPackagesDesc")}</p>
       </div>
 
-      {/* Membership-card carousel — swipe horizontally like a wallet instead of scrolling a vertical list */}
-      <div className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
+      {/* Membership-card grid — use a vertical list/grid instead of horizontal scroll to avoid "cut in half" peek on mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <PackageCard t={t}
           name={basePkg.name}
           duration={12}

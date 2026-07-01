@@ -302,24 +302,32 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
                     <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.missions.empty")}</p>
                   ) : (
                     <>
-                      <div className="joy-mission-grid">
+                      <div className="joy-mission-list">
                         {(missionsExpanded ? challenges : challenges.slice(0, MISSION_PREVIEW_COUNT)).map(c => (
-                          <div key={c.id} className={`joy-mission-tile ${c.claimed ? "claimed" : c.completed ? "completed" : ""}`}>
-                            <span className="joy-mission-pill-icon material-symbols-outlined">{c.claimed ? "check_circle" : "flag_circle"}</span>
-                            <p className="joy-mission-pill-name">{c.name}</p>
-                            <p className="joy-mission-pill-sub">
-                              {c.claimed
-                                ? t("memberPortal.joy.missions.claimed")
-                                : c.completed
-                                  ? `+${c.amount} JOY`
-                                  : t("memberPortal.joy.missions.notDoneYet")}
-                            </p>
-                            <button
-                              onClick={() => handleClaimChallenge(c.id)}
-                              disabled={!c.completed || c.claimed || claimingId === c.id}
-                            >
-                              {claimingId === c.id ? "..." : c.claimed ? t("memberPortal.joy.missions.claimed") : t("memberPortal.joy.missions.claimButton")}
-                            </button>
+                          <div key={c.id} className={`joy-mission-item ${c.claimed ? "claimed" : c.completed ? "completed" : ""}`}>
+                            <div className="joy-mission-item-left">
+                              <div className="joy-mission-icon">
+                                <span className="material-symbols-outlined">{c.claimed ? "check_circle" : "flag_circle"}</span>
+                              </div>
+                              <div className="joy-mission-info">
+                                <h4 className="joy-mission-name">{c.name}</h4>
+                                <span className="joy-mission-sub">
+                                  {c.claimed
+                                    ? t("memberPortal.joy.missions.claimed", "Đã hoàn thành")
+                                    : c.completed
+                                      ? `Phần thưởng: +${c.amount} JOY`
+                                      : t("memberPortal.joy.missions.notDoneYet", "Chưa hoàn thành")}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="joy-mission-action">
+                              <button
+                                onClick={() => handleClaimChallenge(c.id)}
+                                disabled={!c.completed || c.claimed || claimingId === c.id}
+                              >
+                                {claimingId === c.id ? "..." : c.claimed ? t("memberPortal.joy.missions.claimed", "Đã nhận") : t("memberPortal.joy.missions.claimButton", "Nhận JOY")}
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>

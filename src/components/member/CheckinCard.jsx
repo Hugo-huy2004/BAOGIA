@@ -53,29 +53,35 @@ export default function CheckinCard({ email, showToast }) {
   }
 
   if (loading || !status) {
-    return <div className="py-8 text-center text-xs text-zinc-400">{t("memberPortal.checkin.loading")}</div>;
+    return <div className="py-8 text-center text-xs text-zinc-400 flex flex-col items-center gap-2">
+      <span className="material-symbols-outlined animate-spin">sync</span>
+      {t("memberPortal.checkin.loading")}
+    </div>;
   }
 
   const rewardTable = status.rewardTable || [150, 240, 240, 240, 240, 240, 450];
 
   return (
-    <div className="bg-white dark:bg-[#15131e] rounded-3xl border border-zinc-200 dark:border-white/10 border-t-4 border-t-warning p-5 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className={`bg-white dark:bg-[#15131e] rounded-3xl border border-zinc-200 dark:border-white/10 border-t-4 p-5 space-y-5 shadow-sm transition-all duration-300 ${
+      status.weekLocked ? 'border-t-destructive ring-1 ring-destructive/10' : 'border-t-warning'
+    }`}>
+      <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-sm font-black text-zinc-900 dark:text-white flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-warning text-base">event_available</span>
+          <h3 className={`text-sm font-black flex items-center gap-1.5 ${status.weekLocked ? 'text-destructive' : 'text-zinc-900 dark:text-white'}`}>
+            <span className={`material-symbols-outlined text-base ${status.weekLocked ? 'text-destructive' : 'text-warning'}`}>
+              {status.weekLocked ? 'lock' : 'event_available'}
+            </span>
             {t("memberPortal.checkin.title")}
           </h3>
-          <p className="text-[10px] text-zinc-500 dark:text-zinc-400">{t("memberPortal.checkin.subtitle")}</p>
+          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
+            {status.weekLocked 
+              ? "Chuỗi điểm danh đã bị huỷ do bạn bỏ lỡ 1 ngày. Vui lòng quay lại vào Thứ Hai tuần sau."
+              : t("memberPortal.checkin.subtitle")}
+          </p>
         </div>
-        {status.weekLocked && (
-          <span className="text-[9px] font-black uppercase px-2 py-1 rounded-full bg-destructive/10 text-destructive dark:bg-destructive/20">
-            {t("memberPortal.checkin.locked")}
-          </span>
-        )}
       </div>
 
-      <div className="grid grid-cols-7 gap-1.5">
+      <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
         {rewardTable.map((amount, idx) => {
           const day = idx + 1;
           const claimed = status.claimedDaysThisWeek.includes(day);
@@ -83,56 +89,80 @@ export default function CheckinCard({ email, showToast }) {
           return (
             <div
               key={day}
-              className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border text-center transition-all ${
+              className={`flex flex-col items-center gap-1 py-2 sm:py-3 rounded-xl border text-center transition-all ${
                 claimed
-                  ? "bg-success/10 border-success/50"
-                  : isToday
-                    ? "bg-warning/10 dark:bg-warning/10 border-warning ring-2 ring-warning/40"
-                    : "bg-white/60 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60 opacity-70"
+                  ? "bg-success/10 border-success/40 shadow-sm shadow-success/10"
+                  : status.weekLocked
+                    ? "bg-zinc-100 dark:bg-zinc-900/50 border-zinc-200/50 dark:border-zinc-800/50 opacity-40 grayscale"
+                    : isToday
+                      ? "bg-warning/10 dark:bg-warning/10 border-warning ring-2 ring-warning/40 shadow-sm shadow-warning/20 transform scale-105"
+                      : "bg-white/60 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60 opacity-80"
               }`}
             >
-              <span className="text-[8px] font-bold uppercase text-zinc-400">{t("memberPortal.checkin.dayLabel", { day })}</span>
+              <span className="text-[8px] sm:text-[9px] font-bold uppercase text-zinc-400">{t("memberPortal.checkin.dayLabel", { day })}</span>
               {claimed ? (
-                <span className="material-symbols-outlined text-success text-base">check_circle</span>
+                <span className="material-symbols-outlined text-success text-sm sm:text-base">check_circle</span>
+              ) : status.weekLocked ? (
+                <span className="material-symbols-outlined text-zinc-400 text-sm sm:text-base">lock</span>
               ) : (
-                <span className="material-symbols-outlined text-warning text-base">paid</span>
+                <span className="material-symbols-outlined text-warning text-sm sm:text-base">paid</span>
               )}
-              <span className="text-[9px] font-mono font-bold text-zinc-700 dark:text-zinc-300">{amount}</span>
+              <span className={`text-[9px] sm:text-[10px] font-mono font-bold ${claimed ? 'text-success' : 'text-zinc-700 dark:text-zinc-300'}`}>
+                {amount}
+              </span>
             </div>
           );
         })}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-center gap-2">
         {[
           { threshold: 14, bonus: 2100, awarded: status.milestone14Awarded },
           { threshold: 30, bonus: 4500, awarded: status.milestone30Awarded },
         ].map(m => (
-          <div key={m.threshold} className={`flex-1 flex items-center justify-between gap-1 px-3 py-2 rounded-xl border text-[10px] ${
-            m.awarded ? "bg-success/10 border-success/40" : "bg-white/60 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60"
+          <div key={m.threshold} className={`w-full flex-1 flex items-center justify-between gap-1 px-3 py-2.5 rounded-xl border text-[10px] transition-all ${
+            m.awarded 
+              ? "bg-success/10 border-success/40 shadow-sm" 
+              : "bg-white/60 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60"
           }`}>
-            <span className="font-bold text-zinc-600 dark:text-zinc-300">{t("memberPortal.checkin.milestone", { days: m.threshold })}</span>
-            <span className="font-mono font-bold text-warning">+{m.bonus}</span>
+            <span className={`font-bold flex items-center ${m.awarded ? 'text-success' : 'text-zinc-600 dark:text-zinc-300'}`}>
+              {m.awarded && <span className="material-symbols-outlined text-[12px] mr-1.5">verified</span>}
+              {t("memberPortal.checkin.milestone", { days: m.threshold })}
+            </span>
+            <span className={`font-mono font-bold ${m.awarded ? 'text-success' : 'text-warning'}`}>+{m.bonus}</span>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
-          {t("memberPortal.checkin.streakLabel", { count: status.consecutiveDays })}
-        </p>
+      <div className="flex items-center justify-between gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800/60">
+        <div className="flex flex-col">
+          <p className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
+            {t("memberPortal.checkin.streakLabel", { count: status.consecutiveDays })}
+          </p>
+          {status.weekLocked && (
+            <span className="text-[9px] text-destructive font-semibold mt-0.5">Mở lại vào thứ Hai</span>
+          )}
+        </div>
         <button
           onClick={handleClaim}
           disabled={!status.canClaimToday || claiming}
-          className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+          className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all active:scale-95 shrink-0 flex items-center justify-center gap-1.5 ${
+            status.weekLocked
+              ? "bg-destructive/10 text-destructive border border-destructive/20 cursor-not-allowed opacity-80"
+              : status.alreadyClaimedToday
+                ? "bg-success/10 text-success border border-success/20 cursor-not-allowed"
+                : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/20"
+          }`}
         >
-          {claiming
-            ? "..."
-            : status.alreadyClaimedToday
-              ? t("memberPortal.checkin.alreadyClaimed")
-              : status.weekLocked
-                ? t("memberPortal.checkin.locked")
-                : t("memberPortal.checkin.claimButton")}
+          {claiming ? (
+            <span className="material-symbols-outlined text-sm animate-spin">hourglass_empty</span>
+          ) : status.weekLocked ? (
+            <><span className="material-symbols-outlined text-sm">lock</span> {t("memberPortal.checkin.locked")}</>
+          ) : status.alreadyClaimedToday ? (
+            <><span className="material-symbols-outlined text-sm">done_all</span> {t("memberPortal.checkin.alreadyClaimed")}</>
+          ) : (
+            <><span className="material-symbols-outlined text-sm animate-bounce">touch_app</span> {t("memberPortal.checkin.claimButton")}</>
+          )}
         </button>
       </div>
     </div>

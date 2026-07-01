@@ -10,7 +10,7 @@ export const useJoyStore = create((set, get) => ({
   referralCode: '',
   loaded: false,
 
-  setBalance: (balance) => set({ balance }),
+  setBalance: (balance) => set({ balance: Math.round(Number(balance)) || 0 }),
 
   fetchBalance: async (email, signal) => {
     if (!email) return;
@@ -33,7 +33,7 @@ export const useJoyStore = create((set, get) => ({
       });
       if (!r.ok) return;
       const data = await r.json();
-      const nextState = { balance: data.balance || 0, referralCode: data.referralCode || '', loaded: true };
+      const nextState = { balance: Math.round(Number(data.balance)) || 0, referralCode: data.referralCode || '', loaded: true };
       set(nextState);
       balanceCache.set(normalizedEmail, {
         ...nextState,

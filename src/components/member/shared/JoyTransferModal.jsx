@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Confetti from "react-confetti";
-import jsQR from "jsqr";
+import ParticleGenerator from "./ParticleGenerator";
+import ParticleScanner from "./ParticleScanner";
 import { searchJoyUser, getJoyQrPayload, resolveJoyQr, transferJoy } from "../../../services/joyApi";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 
 const RECENT_KEY = "joy_recent_contacts";
 const QUICK_AMOUNTS = [50, 100, 200, 500];
-const NOTE_CHIPS = ["Ăn uống", "Chi phí", "Cảm ơn!", "Tặng bạn", "Tiền học", "Game cùng", "Tự trả"];
+const NOTE_CHIPS = ["Cảm ơn!", "Tặng bạn" ];
 const TRANSFER_FEE_RATE = 0.05;
 
 const css = `
@@ -283,6 +284,24 @@ function JoySeal({ payload, displayName, avatarUrl, onOpen, compact = false, int
         borderRadius: "50%",
         border: "1px solid rgba(250,204,21,.1)",
       }} />
+
+      {/* Particle Cloud Code — a custom circular, continuously-spinning dot code
+          (not a QR). Encoding/rendering lives in ParticleGenerator.jsx; the
+          matching decoder lives in ParticleScanner.jsx + utils/particleCloudCode.js. */}
+      {code && (
+        <div style={{
+          position: "absolute",
+          left: "50%",
+          top: "48%",
+          transform: "translate(-50%, -50%)",
+          boxShadow: "0 0 22px rgba(56,189,248,.35), 0 8px 24px rgba(0,0,0,.5)",
+          borderRadius: "50%",
+          animation: "jtSigilBreathe 5s ease-in-out infinite",
+        }}>
+          <ParticleGenerator data={code} size={compact ? 140 : 190} />
+        </div>
+      )}
+
       <div style={{
         position: "absolute",
         left: "50%",
@@ -386,157 +405,11 @@ function CircularQR({ payload, displayName, avatarUrl, onClose }) {
   );
 }
 
-/* ─── QR Scanner ─────────────────────────────────────────────────────────── */
-// Decodes frames with jsQR (pure-JS, canvas-based) instead of the native
-// BarcodeDetector API, which iOS Safari does not implement.
-function QRScanner({ onDetected, onClose }) {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const animRef = useRef(null);
-  const streamRef = useRef(null);
-  const [status, setStatus] = useState("init"); // init | active | error | unsupported
-
-  const stopStream = () => {
-    cancelAnimationFrame(animRef.current);
-    streamRef.current?.getTracks().forEach(t => t.stop());
-  };
-
-  // Callback ref: called by React as soon as <video> is inserted into the DOM.
-  // Guarantees the element exists before we try to assign srcObject.
-  const videoCallbackRef = useCallback((el) => {
-    videoRef.current = el;
-    if (el && streamRef.current) {
-      el.srcObject = streamRef.current;
-      el.play().catch(() => {});
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setStatus("unsupported");
-      return;
-    }
-
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-      .then(stream => {
-        streamRef.current = stream;
-        // If videoRef is already mounted (callback ref already ran), attach now.
-        // Otherwise videoCallbackRef will attach when the element mounts.
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => {});
-        }
-        setStatus("active");
-      })
-      .catch(() => setStatus("error"));
-
-    return stopStream;
-  }, []);
-
-  useEffect(() => {
-    if (status !== "active") return;
-    let active = true;
-    if (!canvasRef.current) canvasRef.current = document.createElement("canvas");
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-
-    const tick = () => {
-      const video = videoRef.current;
-      if (!active || !video || video.readyState < 2) {
-        if (active) animRef.current = requestAnimationFrame(tick);
-        return;
-      }
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(frame.data, frame.width, frame.height, { inversionAttempts: "dontInvert" });
-      if (code?.data && active) {
-        active = false;
-        stopStream();
-        onDetected(code.data);
-        return;
-      }
-      if (active) animRef.current = requestAnimationFrame(tick);
-    };
-
-    animRef.current = requestAnimationFrame(tick);
-    return () => { active = false; cancelAnimationFrame(animRef.current); };
-  }, [status, onDetected]);
-
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 500,
-      background: "#000",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      animation: "jtFadeIn .25s ease",
-    }}>
-      <style>{css}</style>
-      <button onClick={() => { stopStream(); onClose(); }} style={{
-        position: "absolute", top: 20, right: 20,
-        background: "rgba(255,255,255,.1)", border: "none", borderRadius: "50%",
-        width: 36, height: 36, cursor: "pointer", color: "#fff",
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
-      </button>
-
-      <p style={{ color: "rgba(255,255,255,.5)", fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 40 }}>
-        Quét mã JOY nội bộ
-      </p>
-
-      <div style={{ position: "relative", width: 260, height: 260, borderRadius: "50%", overflow: "hidden", border: "2px solid rgba(139,92,246,.6)", boxShadow: "0 0 40px rgba(139,92,246,.4)" }}>
-        {/* Video always in DOM so ref is available when stream arrives */}
-        <video
-          ref={videoCallbackRef}
-          style={{
-            position: "absolute", inset: 0,
-            width: "100%", height: "100%", objectFit: "cover",
-            display: status === "active" ? "block" : "none",
-          }}
-          playsInline
-          muted
-        />
-
-        {/* Scan line — only when actively scanning */}
-        {status === "active" && (
-          <div style={{
-            position: "absolute", left: "5%", right: "5%", height: 2,
-            background: "linear-gradient(90deg,transparent,#8b5cf6,transparent)",
-            animation: "jtScanLine 2s ease-in-out infinite",
-            boxShadow: "0 0 8px #8b5cf6",
-            zIndex: 2,
-          }} />
-        )}
-
-        {/* Overlay states */}
-        {status === "init" && (
-          <div style={{ position: "absolute", inset: 0, background: "#111", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#8b5cf6", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
-          </div>
-        )}
-        {(status === "error" || status === "unsupported") && (
-          <div style={{ position: "absolute", inset: 0, background: "#111", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#ef4444", marginBottom: 8 }}>camera_off</span>
-            <p style={{ color: "#fff", fontSize: 11, fontWeight: 600, lineHeight: 1.5 }}>
-              {status === "unsupported" ? "Trình duyệt chưa hỗ trợ quét QR" : "Không truy cập được camera"}
-            </p>
-          </div>
-        )}
-      </div>
-
-      <p style={{ color: "rgba(255,255,255,.4)", fontSize: 12, marginTop: 24, fontWeight: 600 }}>
-        Hướng camera vào mã nội bộ JOY
-      </p>
-
-      {(status === "error" || status === "unsupported") && (
-        <p style={{ color: "rgba(255,255,255,.35)", fontSize: 11, marginTop: 8 }}>
-          Dùng tính năng Tìm kiếm bên dưới thay thế
-        </p>
-      )}
-    </div>
-  );
-}
+/* ─── Particle Cloud Code Scanner ────────────────────────────────────────── */
+// The camera scanner now lives in its own reusable component
+// (ParticleScanner.jsx): getUserMedia -> center-crop -> getImageData -> custom
+// CV pipeline (threshold, blob detection, anchor/geometry fit) -> CRC + UTF-8
+// decode, with an anti-photo liveness gate. No QR library is involved anymore.
 
 /* ─── Contact Card ───────────────────────────────────────────────────────── */
 function ContactCard({ contact, onSelect }) {
@@ -603,6 +476,14 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
   const numAmount = parseInt(amount, 10) || 0;
   const fee = Math.floor(numAmount * TRANSFER_FEE_RATE);
   const total = numAmount + fee;
+
+  // Match the Particle Cloud Code's disc to the modal card so it blends in
+  // seamlessly (white in light mode, near-black in dark mode). The generator
+  // then auto-picks dark or bright dot colors for contrast against it.
+  const cardBg =
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+      ? "#1a1924"
+      : "#ffffff";
 
   useEffect(() => {
     if (!open) return;
@@ -709,10 +590,10 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
         />
       )}
 
-      {/* QR Scanner fullscreen */}
+      {/* Particle Cloud Code scanner (fullscreen camera) */}
       {scanOpen && (
-        <QRScanner
-          onDetected={handleQRDetected}
+        <ParticleScanner
+          onScanSuccess={handleQRDetected}
           onClose={() => setScanOpen(false)}
         />
       )}
@@ -875,46 +756,12 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                         </div>
                       ) : (
                         <>
-                          {/* Mini circular preview */}
-                          <div
-                            onClick={() => setQrFullscreen(true)}
-                            style={{
-                              position: "relative", width: 200, height: 200,
-                              display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-                            }}
-                          >
-                            {[0, 0.4, 0.8].map((delay, i) => (
-                              <div key={i} style={{
-                                position: "absolute", width: 200, height: 200, borderRadius: "50%",
-                                border: "1.5px solid rgba(99,102,241,.22)",
-                                animation: `jtRingPulse 2s ease-out ${delay}s infinite`,
-                              }} />
-                            ))}
-                            <div style={{
-                              position: "absolute",
-                              inset: 10,
-                              borderRadius: "50%",
-                              background: "conic-gradient(from 180deg, #22d3ee, #8b5cf6, #ec4899, #f59e0b, #22c55e, #22d3ee)",
-                              filter: "blur(5px)",
-                              opacity: .18,
-                            }} />
-                            <JoySeal payload={myQR.payload} displayName={myQR.displayName} avatarUrl={myQR.avatarUrl} compact interactive={false} />
+                          {/* Particle Cloud Code only — the disc is filled with
+                              the card color so it blends in; no decorative orb. */}
+                          <div style={{ borderRadius: "50%", lineHeight: 0 }}>
+                            <ParticleGenerator data={myQR.payload} size={220} background={cardBg} />
                           </div>
                           <p style={{ color: "#0f172a", fontWeight: 900, fontSize: 14, marginTop: 12 }} className="dark:text-white">{myQR.displayName}</p>
-                          <p style={{ color: "#94a3b8", fontSize: 11, marginTop: 2 }}>Chạm để phóng to</p>
-                          <button
-                            onClick={() => setQrFullscreen(true)}
-                            style={{
-                              marginTop: 14, padding: "10px 24px", borderRadius: 999,
-                              background: "linear-gradient(135deg,#0f172a,#2563eb)", border: "none",
-                              color: "#fff", fontWeight: 800, fontSize: 13, cursor: "pointer",
-                              display: "flex", alignItems: "center", gap: 6,
-                              boxShadow: "0 4px 16px rgba(99,102,241,.4)",
-                            }}
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>fullscreen</span>
-                            Hiển thị mã nội bộ
-                          </button>
                         </>
                       )}
                     </div>
