@@ -1,172 +1,49 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { motion, useAnimation, animate } from "framer-motion";
 import Hls from "hls.js";
 import SubUtilityHeader from "./SubUtilityHeader";
 import { fetchStationsByNames, fetchStationByName, registerStationClick } from "../../services/radioBrowserApi";
 import FeatureGate from "./shared/FeatureGate";
 
-// Curated via the Radio Browser API (https://www.radio-browser.info) — exact station
-// names confirmed live against the API, resolved to fresh stream URLs at runtime
-// (so the list survives upstream URL changes without needing a code update).
 const RADIO_CATEGORIES = [
-  {
-    id: "vn_news",
-    icon: "newspaper",
-    labelKey: "utilities.radio.categories.vnNews",
-    names: ["VOV1", "VOV2", "VOV3", "VOV Giao thông Hà Nội", "VOV5 WORLD RADIO", "RFI Tiếng Việt", "VOH FM 87.7"]
-  },
-  {
-    id: "intl_news",
-    icon: "public",
-    labelKey: "utilities.radio.categories.intlNews",
-    names: ["BBC World Service", "NPR 24 Hour Program Stream", "CNN", "Fox News Radio", "RTE1"]
-  },
-  {
-    id: "music",
-    icon: "music_note",
-    labelKey: "utilities.radio.categories.music",
-    names: ["ZING BOLERO", "M Radio Vietnam", "Cherry Radio Music 247", "CHẠM RADIO", "SWR3", "Heart 80s"]
-  }
+  { id: "vn_news", icon: "newspaper", labelKey: "utilities.radio.categories.vnNews", names: ["VOV1", "VOV2", "VOV3", "VOV Giao thông Hà Nội", "VOV5 WORLD RADIO", "RFI Tiếng Việt", "VOH FM 87.7"] },
+  { id: "intl_news", icon: "public", labelKey: "utilities.radio.categories.intlNews", names: ["BBC World Service", "NPR 24 Hour Program Stream", "CNN", "Fox News Radio", "RTE1"] },
+  { id: "music", icon: "music_note", labelKey: "utilities.radio.categories.music", names: ["ZING BOLERO", "M Radio Vietnam", "Cherry Radio Music 247", "CHẠM RADIO", "SWR3", "Heart 80s"] }
 ];
 
 const STATION_FREQUENCIES = {
-  // vn_news
-  "VOV1": 91.0,
-  "VOV2": 96.5,
-  "VOV3": 102.7,
-  "VOV Giao thông Hà Nội": 91.5,
-  "VOV5 WORLD RADIO": 105.5,
-  "RFI Tiếng Việt": 93.3,
-  "VOH FM 87.7": 87.7,
-  // intl_news
-  "BBC World Service": 88.9,
-  "NPR 24 Hour Program Stream": 90.1,
-  "CNN": 92.5,
-  "Fox News Radio": 94.7,
-  "RTE1": 98.1,
-  // music
-  "ZING BOLERO": 95.0,
-  "M Radio Vietnam": 98.9,
-  "Cherry Radio Music 247": 101.5,
-  "CHẠM RADIO": 104.0,
-  "SWR3": 106.2,
-  "Heart 80s": 107.5
+  "VOV1": 91.0, "VOV2": 96.5, "VOV3": 102.7, "VOV Giao thông Hà Nội": 91.5, "VOV5 WORLD RADIO": 105.5, "RFI Tiếng Việt": 93.3, "VOH FM 87.7": 87.7,
+  "BBC World Service": 88.9, "NPR 24 Hour Program Stream": 90.1, "CNN": 92.5, "Fox News Radio": 94.7, "RTE1": 98.1,
+  "ZING BOLERO": 95.0, "M Radio Vietnam": 98.9, "Cherry Radio Music 247": 101.5, "CHẠM RADIO": 104.0, "SWR3": 106.2, "Heart 80s": 107.5
 };
+
+const ALL_FREQS = Object.entries(STATION_FREQUENCIES).map(([name, freq]) => ({ name, freq })).sort((a, b) => a.freq - b.freq);
 
 const FALLBACK_STATIONS = {
   vn_news: [
-    {
-      stationuuid: "vov1",
-      name: "VOV1",
-      url_resolved: "https://vov-radio.akamaized.net/hls/live/2033621/VOV1/index.m3u8",
-      url: "https://vov-radio.akamaized.net/hls/live/2033621/VOV1/index.m3u8",
-    },
-    {
-      stationuuid: "vov2",
-      name: "VOV2",
-      url_resolved: "https://vov-radio.akamaized.net/hls/live/2033622/VOV2/index.m3u8",
-      url: "https://vov-radio.akamaized.net/hls/live/2033622/VOV2/index.m3u8",
-    },
-    {
-      stationuuid: "vov3",
-      name: "VOV3",
-      url_resolved: "https://vov-radio.akamaized.net/hls/live/2033623/VOV3/index.m3u8",
-      url: "https://vov-radio.akamaized.net/hls/live/2033623/VOV3/index.m3u8",
-    },
-    {
-      stationuuid: "vov_gt_hn",
-      name: "VOV Giao thông Hà Nội",
-      url_resolved: "https://vov-radio.akamaized.net/hls/live/2033625/VOVGT/index.m3u8",
-      url: "https://vov-radio.akamaized.net/hls/live/2033625/VOVGT/index.m3u8",
-    },
-    {
-      stationuuid: "vov5",
-      name: "VOV5 WORLD RADIO",
-      url_resolved: "https://vov-radio.akamaized.net/hls/live/2033624/VOV5/index.m3u8",
-      url: "https://vov-radio.akamaized.net/hls/live/2033624/VOV5/index.m3u8",
-    },
-    {
-      stationuuid: "rfi",
-      name: "RFI Tiếng Việt",
-      url_resolved: "http://live02.rfi.fr/rfivietnamien-96k.mp3",
-      url: "http://live02.rfi.fr/rfivietnamien-96k.mp3",
-    },
-    {
-      stationuuid: "voh_87.7",
-      name: "VOH FM 87.7",
-      url_resolved: "https://live.voh.com.vn/voh/fm87.7.stream/playlist.m3u8",
-      url: "https://live.voh.com.vn/voh/fm87.7.stream/playlist.m3u8",
-    }
+    { stationuuid: "374f3747-fa95-46ee-bc90-953e5e492cda", name: "VOV1", url_resolved: "https://str.vov.gov.vn/vovlive/vov1vov5Vietnamese.sdp_aac/playlist.m3u8", url: "https://str.vov.gov.vn/vovlive/vov1vov5Vietnamese.sdp_aac/playlist.m3u8" },
+    { stationuuid: "0e2d2aa5-e68d-4c74-8b1e-d7ce32d87922", name: "VOV2", url_resolved: "https://str.vov.gov.vn/vovlive/vov2.sdp_aac/playlist.m3u8", url: "https://str.vov.gov.vn/vovlive/vov2.sdp_aac/playlist.m3u8" },
+    { stationuuid: "888cd26e-dbfa-4be5-a4ee-5dcab947d1a2", name: "VOV3", url_resolved: "https://str.vov.gov.vn/vovlive/vov3.sdp_aac/playlist.m3u8", url: "https://str.vov.gov.vn/vovlive/vov3.sdp_aac/playlist.m3u8" },
+    { stationuuid: "5e4835a6-ff25-4c6e-8260-eb0df6275815", name: "VOV Giao thông Hà Nội", url_resolved: "https://play.vovgiaothong.vn/live/gthn/playlist.m3u8", url: "https://play.vovgiaothong.vn/live/gthn/playlist.m3u8" },
+    { stationuuid: "be42337a-4299-4c28-bb8d-8a4bf5792d47", name: "VOV5 WORLD RADIO", url_resolved: "https://str.vov.gov.vn/vovlive/vov5.sdp_aac/playlist.m3u8", url: "https://str.vov.gov.vn/vovlive/vov5.sdp_aac/playlist.m3u8" },
+    { stationuuid: "525f2bfa-bc39-44de-9e23-728b783516bd", name: "RFI Tiếng Việt", url_resolved: "https://rfienvietnamien64k.ice.infomaniak.ch/rfienvietnamien-64.mp3", url: "https://rfienvietnamien64k.ice.infomaniak.ch/rfienvietnamien-64.mp3" },
+    { stationuuid: "voh_87.7", name: "VOH FM 87.7", url_resolved: "https://live.voh.com.vn/voh/fm87.7.stream/playlist.m3u8", url: "https://live.voh.com.vn/voh/fm87.7.stream/playlist.m3u8" }
   ],
   intl_news: [
-    {
-      stationuuid: "bbc",
-      name: "BBC World Service",
-      url_resolved: "https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_world_service.m3u8",
-      url: "https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_world_service.m3u8",
-    },
-    {
-      stationuuid: "npr",
-      name: "NPR 24 Hour Program Stream",
-      url_resolved: "https://npr-ice.streamguys1.com/live.mp3",
-      url: "https://npr-ice.streamguys1.com/live.mp3",
-    },
-    {
-      stationuuid: "cnn",
-      name: "CNN",
-      url_resolved: "https://cnn-cnngo.akamaized.net/hls/live/2026857/cnngo/cnn/index.m3u8",
-      url: "https://cnn-cnngo.akamaized.net/hls/live/2026857/cnngo/cnn/index.m3u8",
-    },
-    {
-      stationuuid: "fox",
-      name: "Fox News Radio",
-      url_resolved: "https://foxnews.ice.infomaniak.ch/foxnews.mp3",
-      url: "https://foxnews.ice.infomaniak.ch/foxnews.mp3",
-    },
-    {
-      stationuuid: "rte1",
-      name: "RTE1",
-      url_resolved: "https://rte.live.speedcdn.vn/rte1/index.m3u8",
-      url: "https://rte.live.speedcdn.vn/rte1/index.m3u8",
-    }
+    { stationuuid: "a347209e-6ce6-4c94-81ed-003c1275188f", name: "BBC World Service", url_resolved: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service_east_asia", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service_east_asia" },
+    { stationuuid: "7ba4c184-fc2b-11e9-bbf2-52543be04c81", name: "NPR 24 Hour Program Stream", url_resolved: "https://npr-ice.streamguys1.com/live.mp3", url: "https://npr-ice.streamguys1.com/live.mp3" },
+    { stationuuid: "33178054-56cd-449c-8cf7-412cc7be936a", name: "CNN", url_resolved: "https://tunein.cdnstream1.com/2868_96.mp3", url: "https://tunein.cdnstream1.com/2868_96.mp3" },
+    { stationuuid: "510aeeac-e7a0-41c2-aea2-e572e811ffe7", name: "Fox News Radio", url_resolved: "https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc?source=fnr.web", url: "https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc?source=fnr.web" },
+    { stationuuid: "8643cfcb-a7bb-4c46-8391-fffe266bce16", name: "RTE1", url_resolved: "http://icecast.rte.ie/radio1", url: "http://icecast.rte.ie/radio1" }
   ],
   music: [
-    {
-      stationuuid: "zing_bolero",
-      name: "ZING BOLERO",
-      url_resolved: "https://vnno-ne-3-tf-multi-playlist-zmp3.zmdcdn.me/BJ7DyJjfG_E/zhls/playback-realtime/audio/5bace800d4453d1b6454/audio.m3u8",
-      url: "https://vnno-ne-3-tf-multi-playlist-zmp3.zmdcdn.me/BJ7DyJjfG_E/zhls/playback-realtime/audio/5bace800d4453d1b6454/audio.m3u8",
-    },
-    {
-      stationuuid: "m_radio_vn",
-      name: "M Radio Vietnam",
-      url_resolved: "https://stream-155.zeno.fm/4q7y9hvkp2zuv",
-      url: "https://stream-155.zeno.fm/4q7y9hvkp2zuv",
-    },
-    {
-      stationuuid: "cherry_247",
-      name: "Cherry Radio Music 247",
-      url_resolved: "https://stream-176.zeno.fm/umt5gqmg3reuv",
-      url: "https://stream-176.zeno.fm/umt5gqmg3reuv",
-    },
-    {
-      stationuuid: "cham_radio",
-      name: "CHẠM RADIO",
-      url_resolved: "https://vnno-ne-2-tf-multi-playlist-zmp3.zmdcdn.me/j20SDlO5EQk/zhls/playback-realtime/audio/59a2ee0ed24b3b15625a/audio.m3u8",
-      url: "https://vnno-ne-2-tf-multi-playlist-zmp3.zmdcdn.me/j20SDlO5EQk/zhls/playback-realtime/audio/59a2ee0ed24b3b15625a/audio.m3u8",
-    },
-    {
-      stationuuid: "swr3",
-      name: "SWR3",
-      url_resolved: "https://liveradio.swr.de/sw282p3/swr3/play.mp3",
-      url: "https://liveradio.swr.de/sw282p3/swr3/play.mp3",
-    },
-    {
-      stationuuid: "heart80s",
-      name: "Heart 80s",
-      url_resolved: "https://stream-mz.musicradio.com/Heart80sMP3",
-      url: "https://stream-mz.musicradio.com/Heart80sMP3",
-    }
+    { stationuuid: "afff5851-a5d8-45ed-afe9-bc95915cd3c3", name: "ZING BOLERO", url_resolved: "https://vnno-ne-3-tf-multi-playlist-zmp3.zmdcdn.me/BJ7DyJjfG_E/zhls/playback-realtime/audio/5bace800d4453d1b6454/audio.m3u8", url: "https://vnno-ne-3-tf-multi-playlist-zmp3.zmdcdn.me/BJ7DyJjfG_E/zhls/playback-realtime/audio/5bace800d4453d1b6454/audio.m3u8" },
+    { stationuuid: "204b63f8-6629-4984-bbe0-0773c8220a91", name: "M Radio Vietnam", url_resolved: "https://stream-155.zeno.fm/4q7y9hvkp2zuv", url: "https://stream-155.zeno.fm/4q7y9hvkp2zuv" },
+    { stationuuid: "3d35f6b4-0ade-42ca-a378-e8f3dfd66426", name: "Cherry Radio Music 247", url_resolved: "https://stream-176.zeno.fm/umt5gqmg3reuv", url: "https://stream-176.zeno.fm/umt5gqmg3reuv" },
+    { stationuuid: "fa114bd0-1fef-45ba-b7ac-ebe4d3f22464", name: "CHẠM RADIO", url_resolved: "https://vnno-ne-2-tf-multi-playlist-zmp3.zmdcdn.me/j20SDlO5EQk/zhls/playback-realtime/audio/59a2ee0ed24b3b15625a/audio.m3u8", url: "https://vnno-ne-2-tf-multi-playlist-zmp3.zmdcdn.me/j20SDlO5EQk/zhls/playback-realtime/audio/59a2ee0ed24b3b15625a/audio.m3u8" },
+    { stationuuid: "6c0ac59d-c625-458c-9a50-5fac90a73df9", name: "SWR3", url_resolved: "https://liveradio.swr.de/sw331ch/swr3/play.aac", url: "https://liveradio.swr.de/sw331ch/swr3/play.aac" },
+    { stationuuid: "962e9a46-0601-11e8-ae97-52543be04c81", name: "Heart 80s", url_resolved: "https://media-ice.musicradio.com/Heart80sMP3", url: "https://media-ice.musicradio.com/Heart80sMP3" }
   ]
 };
 
@@ -176,12 +53,16 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   const [stationsByCategory, setStationsByCategory] = useState({});
   const [loadingCategory, setLoadingCategory] = useState(null);
   const [nowPlaying, setNowPlaying] = useState(null);
+  
+  // Robust state management for tuning
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
-  const [volume, setVolume] = useState(80);
-  const [frequency, setFrequency] = useState(91.0); // start at 91.0 MHz (VOV1)
   const [isStatic, setIsStatic] = useState(false);
-
+  const [isDragging, setIsDragging] = useState(false);
+  
+  const [volume, setVolume] = useState(70);
+  const [visualFreq, setVisualFreq] = useState(91.0); // Displayed frequency
+  
   const audioRef = useRef(null);
   const hlsRef = useRef(null);
   const retriedRef = useRef(false);
@@ -192,6 +73,10 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   const noiseGainRef = useRef(null);
   const tuningTimeoutRef = useRef(null);
 
+  // Modern UI Colors
+  const LED_COLOR = "#06b6d4"; // Cyan-500
+  const GLOW = "drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]";
+
   const startStaticNoise = useCallback(() => {
     if (noiseSourceRef.current) return;
     try {
@@ -200,16 +85,18 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
 
       const ctx = audioCtxRef.current || new AudioCtx();
       audioCtxRef.current = ctx;
+      if (ctx.state === "suspended") ctx.resume();
 
-      if (ctx.state === "suspended") {
-        ctx.resume();
-      }
-
+      // Better brown noise generation for premium feel
       const bufferSize = ctx.sampleRate * 2;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
+      let lastOut = 0;
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
+        const white = Math.random() * 2 - 1;
+        data[i] = (lastOut + (0.02 * white)) / 1.02; // Brownish
+        lastOut = data[i];
+        data[i] *= 3.5; 
       }
 
       const source = ctx.createBufferSource();
@@ -217,8 +104,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
       source.loop = true;
 
       const gainNode = ctx.createGain();
-      const targetVol = (volume / 100) * 0.08;
-      gainNode.gain.setValueAtTime(targetVol, ctx.currentTime);
+      gainNode.gain.setValueAtTime((volume / 100) * 0.1, ctx.currentTime);
 
       source.connect(gainNode);
       gainNode.connect(ctx.destination);
@@ -226,9 +112,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
 
       noiseSourceRef.current = source;
       noiseGainRef.current = gainNode;
-    } catch (err) {
-      console.warn("Failed to generate static noise:", err);
-    }
+    } catch (err) {}
   }, [volume]);
 
   const stopStaticNoise = useCallback(() => {
@@ -244,8 +128,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
 
   const findClosestStation = useCallback((freq) => {
     let closest = null;
-    let minDiff = 0.25; // snapping range 0.2 MHz
-
+    let minDiff = 0.25; // snap range
     for (const cat of RADIO_CATEGORIES) {
       const catStations = stationsByCategory[cat.id] || [];
       for (const station of catStations) {
@@ -275,20 +158,15 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
       audio.pause();
       audio.src = "";
       stopStaticNoise();
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close();
-      }
-      if (tuningTimeoutRef.current) {
-        clearTimeout(tuningTimeoutRef.current);
-      }
+      if (audioCtxRef.current) audioCtxRef.current.close();
+      if (tuningTimeoutRef.current) clearTimeout(tuningTimeoutRef.current);
     };
   }, [stopStaticNoise]);
 
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume / 100;
     if (noiseGainRef.current && audioCtxRef.current) {
-      const targetVol = (volume / 100) * 0.08;
-      noiseGainRef.current.gain.setValueAtTime(targetVol, audioCtxRef.current.currentTime);
+      noiseGainRef.current.gain.setValueAtTime((volume / 100) * 0.1, audioCtxRef.current.currentTime);
     }
   }, [volume]);
 
@@ -296,25 +174,31 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     const category = RADIO_CATEGORIES.find((c) => c.id === categoryId);
     const fallbacks = FALLBACK_STATIONS[categoryId] || [];
 
-    // 1. Populates cache immediately with fallback data so presets display instantly in 0ms
     if (!stationsByCategory[categoryId]) {
       setStationsByCategory((prev) => ({ ...prev, [categoryId]: fallbacks }));
     }
 
-    // 2. Fetch fresh stations asynchronously in the background (does not block UI)
     try {
       fetchStationsByNames(category.names).then((stations) => {
         if (stations && stations.length > 0) {
           const loadedNames = new Set(stations.map(s => s.name.toUpperCase()));
-          const missing = fallbacks.filter(f => !loadedNames.has(f.name.toUpperCase()));
+          const loadedUuids = new Set(stations.map(s => s.stationuuid));
+          const missing = fallbacks.filter(f => !loadedNames.has(f.name.toUpperCase()) && !loadedUuids.has(f.stationuuid));
           let combined = [...stations, ...missing];
-
+          
+          // Final deduplication just in case
+          const seen = new Set();
+          combined = combined.filter(s => {
+            if (seen.has(s.stationuuid)) return false;
+            seen.add(s.stationuuid);
+            return true;
+          });
+          
           combined.sort((a, b) => {
             const idxA = category.names.findIndex(n => n.toUpperCase() === a.name.toUpperCase());
             const idxB = category.names.findIndex(n => n.toUpperCase() === b.name.toUpperCase());
             return idxA - idxB;
           });
-
           setStationsByCategory((prev) => ({ ...prev, [categoryId]: combined }));
         }
       }).catch(() => {});
@@ -337,12 +221,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
       audio.src = streamUrl;
       audio.play().catch(onPlayError);
     } else if (isHls && Hls.isSupported()) {
-      const hls = new Hls({
-        maxBufferLength: 4,      // short buffer size for ultra-fast startup
-        maxMaxBufferLength: 8,
-        enableWorker: true,
-        lowLatencyMode: true
-      });
+      const hls = new Hls({ maxBufferLength: 4, enableWorker: true, lowLatencyMode: true });
       hls.loadSource(streamUrl);
       hls.attachMedia(audio);
       hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(onPlayError));
@@ -357,9 +236,10 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   const handlePlaybackFailure = async () => {
     if (!retriedRef.current && nowPlaying) {
       retriedRef.current = true;
-      const fresh = await fetchStationByName(nowPlaying.name);
+      const failedUrl = nowPlaying.url_resolved || nowPlaying.url;
+      const fresh = await fetchStationByName(nowPlaying.name, failedUrl);
       const freshUrl = fresh?.url_resolved || fresh?.url;
-      if (freshUrl) {
+      if (freshUrl && freshUrl !== failedUrl) {
         setIsBuffering(true);
         attachAndPlay(freshUrl);
         return;
@@ -367,12 +247,10 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     }
     setIsBuffering(false);
     setIsPlaying(false);
-    showToast?.(t("utilities.radio.toastPlayError", "Đài này hiện không phát được, vui lòng thử đài khác."), "error");
+    showToast?.(t("utilities.radio.toastPlayError", "Đài này hiện không khả dụng."), "error");
   };
 
-  useEffect(() => {
-    handleFailureRef.current = handlePlaybackFailure;
-  });
+  useEffect(() => { handleFailureRef.current = handlePlaybackFailure; });
 
   const playStation = async (station) => {
     if (!audioRef.current) return;
@@ -382,20 +260,17 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     retriedRef.current = false;
     setNowPlaying(station);
     setIsBuffering(true);
+    setIsDragging(false);
 
     const stationFreq = STATION_FREQUENCIES[station.name];
-    if (stationFreq !== undefined) {
-      setFrequency(stationFreq);
-    }
+    if (stationFreq !== undefined) setVisualFreq(stationFreq);
 
-    // Play IMMEDIATELY from fallback / cached URL (loads in 0ms)
     const streamUrl = station.url_resolved || station.url;
     if (streamUrl) {
       attachAndPlay(streamUrl);
       registerStationClick(station.stationuuid);
     }
 
-    // Silently refresh URL in the background
     try {
       fetchStationByName(station.name).then((fresh) => {
         if (fresh) {
@@ -403,8 +278,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
           if (freshUrl && freshUrl !== streamUrl) {
             setStationsByCategory((prev) => {
               const list = prev[activeCategory] || [];
-              const updated = list.map(s => s.name === station.name ? { ...s, url_resolved: freshUrl, url: freshUrl } : s);
-              return { ...prev, [activeCategory]: updated };
+              return { ...prev, [activeCategory]: list.map(s => s.name === station.name ? { ...s, url_resolved: freshUrl, url: freshUrl } : s) };
             });
           }
         }
@@ -412,300 +286,249 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     } catch (e) {}
   };
 
-  const handleFrequencyTuning = (newFreq) => {
-    const clamped = Math.max(87.5, Math.min(108.0, Math.round(newFreq * 10) / 10));
-    setFrequency(clamped);
+  // Called RAPIDLY when user drags the slider
+  const handleDialDrag = (val) => {
+    setVisualFreq(val);
+    if (!isDragging) setIsDragging(true);
+    
+    if (audioRef.current) audioRef.current.pause();
+    setIsPlaying(false);
+    setIsBuffering(false);
+    startStaticNoise();
+    setIsStatic(true);
+    setNowPlaying(null);
 
-    if (tuningTimeoutRef.current) {
-      clearTimeout(tuningTimeoutRef.current);
+    if (tuningTimeoutRef.current) clearTimeout(tuningTimeoutRef.current);
+    tuningTimeoutRef.current = setTimeout(() => handleDialRelease(val), 500);
+  };
+
+  // Called ONCE when the user STOPS dragging (debounced)
+  const handleDialRelease = (finalFreq) => {
+    setIsDragging(false);
+    const match = findClosestStation(finalFreq);
+    if (match) {
+      // Snapped!
+      setVisualFreq(match.frequency);
+      if (activeCategory !== match.categoryId) setActiveCategory(match.categoryId);
+      playStation(match.station);
+    }
+    // If no match, it stays on static noise
+  };
+
+  const autoScan = (dir) => {
+    if (audioRef.current) audioRef.current.pause();
+    setIsPlaying(false); setIsBuffering(false); startStaticNoise(); setIsStatic(true); setNowPlaying(null);
+    setIsDragging(true); // Treat scan as drag for UI
+
+    let targetFreq = visualFreq;
+    if (dir === "up") {
+      const next = ALL_FREQS.find(f => f.freq > visualFreq);
+      targetFreq = next ? next.freq : ALL_FREQS[0].freq;
+    } else {
+      const prev = [...ALL_FREQS].reverse().find(f => f.freq < visualFreq);
+      targetFreq = prev ? prev.freq : ALL_FREQS[ALL_FREQS.length - 1].freq;
     }
 
-    if (isPlaying || isBuffering || isStatic) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      setIsPlaying(false);
-      setIsBuffering(false);
-      startStaticNoise();
-      setIsStatic(true);
-    }
-
-    tuningTimeoutRef.current = setTimeout(async () => {
-      const match = findClosestStation(clamped);
-      if (match) {
-        stopStaticNoise();
-        setIsStatic(false);
-        setFrequency(match.frequency);
-        if (activeCategory !== match.categoryId) {
-          setActiveCategory(match.categoryId);
-        }
-        playStation(match.station);
-      } else {
-        setNowPlaying(null);
-        if (isPlaying || isBuffering || isStatic) {
-          startStaticNoise();
-          setIsStatic(true);
+    // Animate the frequency numbers
+    animate(visualFreq, targetFreq, {
+      duration: 0.6,
+      ease: "easeInOut",
+      onUpdate: latest => setVisualFreq(latest),
+      onComplete: () => {
+        setIsDragging(false);
+        const match = findClosestStation(targetFreq);
+        if (match) {
+          if (activeCategory !== match.categoryId) setActiveCategory(match.categoryId);
+          playStation(match.station);
         }
       }
-    }, 450);
+    });
   };
 
   const togglePlayPause = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const hasNoise = !!noiseSourceRef.current;
-
-    if (isPlaying || hasNoise) {
-      audio.pause();
-      setIsPlaying(false);
-      setIsBuffering(false);
-      stopStaticNoise();
-      setIsStatic(false);
+    if (!audioRef.current) return;
+    if (isPlaying || isStatic || isBuffering) {
+      audioRef.current.pause();
+      setIsPlaying(false); setIsBuffering(false); stopStaticNoise(); setIsStatic(false);
     } else {
-      const match = findClosestStation(frequency);
-      if (match) {
-        setFrequency(match.frequency);
-        playStation(match.station);
-      } else {
-        startStaticNoise();
-        setIsStatic(true);
-      }
+      const match = findClosestStation(visualFreq);
+      if (match) playStation(match.station);
+      else { startStaticNoise(); setIsStatic(true); }
     }
   };
 
   const stations = stationsByCategory[activeCategory] || [];
   const knobAngle = (volume / 100) * 270 - 135;
-  const needleLeft = `calc(1rem + (100% - 2rem) * ${(frequency - 87.5) / (108.0 - 87.5)})`;
+  const needleLeft = `calc(0.5rem + (100% - 1rem) * ${(visualFreq - 87.5) / (108.0 - 87.5)})`;
 
   return (
-    <FeatureGate
-      bio={bio}
-      featureKey="hugoRadio"
-      priceJoy={150}
-      icon="radio"
-      title="Trao đổi JOY để mở khóa HugoRadio"
-      description="Nghe radio trực tuyến với hàng chục kênh tin tức và âm nhạc."
-      onBioUpdate={onBioUpdate}
-      onBack={onBack}
-      className="max-w-lg mx-auto mt-10"
-    >
-    <div>
-      <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-warning" onBack={onBack} />
+    <FeatureGate bio={bio} featureKey="hugoRadio" priceJoy={150} icon="radio" title="Trao đổi JOY để mở khóa HugoRadio" description="Nghe radio kỹ thuật số với hàng chục kênh chất lượng cao." onBioUpdate={onBioUpdate} onBack={onBack} className="max-w-lg mx-auto mt-10">
+      <div>
+        <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-cyan-500" onBack={onBack} />
 
-      {/* Retro radio face */}
-      <div className="relative mb-5 rounded-3xl bg-gradient-to-br from-zinc-800 via-zinc-850 to-black p-4 md:p-5 shadow-xl border border-warning/30 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.07] pointer-events-none"
-          style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1.4px)", backgroundSize: "10px 10px" }}
-        />
-        <div className="relative z-10 flex flex-col gap-4">
-          <div className="flex items-center gap-3 md:gap-4">
-            {/* Digital display */}
-            <div className="flex-1 min-w-0 bg-black/85 rounded-xl px-4 py-3 border border-warning/25 shadow-inner flex items-center justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${isPlaying ? "bg-success animate-pulse-glow" : isStatic ? "bg-destructive animate-pulse" : "bg-zinc-600"}`} />
-                  <span className="text-[9px] font-black tracking-widest uppercase text-warning/80">
-                    {isBuffering 
-                      ? t("utilities.radio.buffering", "Đang kết nối...") 
-                      : isStatic 
-                        ? t("utilities.radio.tuning", "Đang dò sóng...")
-                        : isPlaying 
-                          ? t("utilities.radio.nowPlaying", "Đang phát") 
-                          : nowPlaying 
-                            ? t("utilities.radio.paused", "Đã tạm dừng") 
-                            : t("utilities.radio.standby", "Chọn một đài để nghe")}
+        {/* ─── Premium Receiver UI ──────────────────────────────────────────────── */}
+        <div className="relative mb-6 rounded-3xl bg-zinc-950 p-5 md:p-6 shadow-2xl overflow-hidden border border-zinc-800">
+          {/* Glass/Glow Effects */}
+          <div className="absolute -top-20 -left-20 w-64 h-64 bg-cyan-600/10 rounded-full blur-[60px] pointer-events-none" />
+          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-600/10 rounded-full blur-[60px] pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col gap-6">
+            
+            {/* Top Display Panel */}
+            <div className="bg-[#050508] rounded-2xl px-5 py-4 border border-zinc-800 shadow-[inset_0_4px_20px_rgba(0,0,0,0.8)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${(isPlaying && !isDragging) ? "bg-cyan-400 text-cyan-400 animate-pulse" : (isStatic || isDragging) ? "bg-cyan-900 text-cyan-900" : "bg-zinc-800 text-transparent"}`} />
+                  <span className="text-[10px] font-black tracking-widest uppercase text-cyan-500/70">
+                    {isDragging ? "TUNING..." : isBuffering ? "CONNECTING..." : isStatic ? "STATIC NOISE" : isPlaying ? "FM STEREO" : nowPlaying ? "PAUSED" : "STANDBY"}
                   </span>
                 </div>
-                <p className="font-mono text-warning text-[12px] md:text-sm font-bold tracking-wide truncate drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">
-                  {isStatic 
-                    ? "SÓNG TẠP • STATIC NOISE" 
-                    : nowPlaying?.name || "HUGO • RECEIVER"}
+                <p className={`font-mono text-[14px] font-bold tracking-wide truncate ${isDragging ? "text-cyan-700 blur-[0.5px]" : "text-cyan-400"} transition-all duration-300`} style={{ textShadow: isDragging ? "none" : "0 0 10px rgba(6,182,212,0.6)" }}>
+                  {nowPlaying && !isDragging && !isStatic ? nowPlaying.name : "HUGO DIGITAL RECEIVER"}
                 </p>
-                {/* VU meter */}
-                <div className="flex items-end gap-1 h-3 mt-1.5">
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <span
-                      key={i}
-                      className="w-1 h-full rounded-full bg-warning origin-bottom"
-                      style={{
-                        animationName: (isPlaying || isStatic) ? "eq-bar" : "none",
-                        animationDuration: isStatic ? `${0.2 + Math.random() * 0.3}s` : `${0.7 + i * 0.12}s`,
-                        animationTimingFunction: "ease-in-out",
-                        animationIterationCount: "infinite",
-                        animationDelay: `${i * 0.08}s`,
-                        transform: (isPlaying || isStatic) ? undefined : "scaleY(0.15)",
-                        opacity: (isPlaying || isStatic) ? 1 : 0.3
-                      }}
-                    />
+                
+                {/* Visualizer bars */}
+                <div className="flex items-end gap-[3px] h-3 mt-3 opacity-80">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <span key={i} className="w-[3px] rounded-full origin-bottom" style={{
+                      backgroundColor: i > 8 ? "#ef4444" : i > 5 ? "#f59e0b" : "#06b6d4",
+                      animationName: (isPlaying && !isDragging) ? "eq-bar" : (isStatic || isDragging) ? "eq-bar" : "none",
+                      animationDuration: (isStatic || isDragging) ? `${0.1 + Math.random()*0.2}s` : `${0.4 + (i%3)*0.15}s`,
+                      animationIterationCount: "infinite",
+                      transform: (isPlaying || isStatic || isDragging) ? "scaleY(1)" : "scaleY(0.2)",
+                      boxShadow: (isPlaying && !isDragging) ? `0 0 6px ${i > 8 ? '#ef4444' : i > 5 ? '#f59e0b' : '#06b6d4'}` : "none",
+                      height: "100%",
+                      transition: "transform 0.2s"
+                    }} />
                   ))}
                 </div>
               </div>
               
-              {/* LED Frequency indicator */}
-              <div className="shrink-0 flex flex-col items-end justify-center font-mono select-none">
-                <span className="text-warning text-lg md:text-2xl font-black tracking-tighter drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]">
-                  {frequency.toFixed(1)}
-                </span>
-                <span className="text-[8px] font-bold text-warning/60 leading-none mt-0.5">MHz</span>
+              <div className="flex flex-row md:flex-col items-center md:items-end justify-between font-mono select-none">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-cyan-400 text-4xl font-black tracking-tighter" style={{ textShadow: "0 0 16px rgba(6,182,212,0.7)" }}>
+                    {visualFreq.toFixed(1)}
+                  </span>
+                  <span className="text-[10px] font-bold text-cyan-600">MHz</span>
+                </div>
               </div>
             </div>
 
-            {/* Play / pause button */}
-            <button
-              onClick={togglePlayPause}
-              className="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-gradient-to-b from-warning to-warning/80 text-black flex items-center justify-center active:scale-95 transition-transform shadow-lg"
-            >
-              <span className="material-symbols-outlined text-2xl">{(isPlaying || isStatic) ? "pause" : "play_arrow"}</span>
-            </button>
+            {/* Dial and Controls */}
+            <div className="flex flex-col gap-4">
+              {/* Dial Track */}
+              <div className="relative h-14 bg-zinc-900 rounded-xl border-y border-zinc-700/50 px-2 overflow-hidden shadow-inner cursor-ew-resize">
+                {/* Ticks */}
+                <div className="absolute inset-x-0 top-0 bottom-0 flex justify-between pointer-events-none px-4">
+                  {Array.from({ length: 42 }).map((_, idx) => {
+                    const f = 87.5 + idx * 0.5;
+                    const isMajor = idx % 2 === 1 || idx === 0 || idx === 41;
+                    return (
+                      <div key={idx} className="flex flex-col items-center h-full justify-start">
+                        <div className={`w-[2px] ${isMajor ? 'h-4 bg-zinc-600' : 'h-2 bg-zinc-700'}`} />
+                        {(idx - 1) % 4 === 0 && (
+                          <span className="text-[8px] font-mono text-zinc-500 font-bold mt-1.5">{Math.round(f)}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* Glowing Needle */}
+                <div className="absolute top-0 bottom-0 w-1 bg-cyan-400 pointer-events-none z-10 rounded-full" style={{ left: needleLeft, boxShadow: "0 0 12px 2px rgba(6,182,212,0.9)" }} />
 
-            {/* Retro volume knob */}
-            <div className="relative w-12 h-12 md:w-14 md:h-14 shrink-0">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-zinc-300 to-zinc-500 dark:from-zinc-400 dark:to-zinc-600 border-2 border-zinc-600/40 shadow-md">
-                <span
-                  className="absolute top-1.5 left-1/2 w-1 h-2.5 -translate-x-1/2 bg-warning rounded-full origin-bottom"
-                  style={{ transform: `rotate(${knobAngle}deg)`, transformOrigin: "50% 18px" }}
-                />
+                <input type="range" min="87.5" max="108.0" step="0.1" value={visualFreq} onChange={(e) => handleDialDrag(Number(e.target.value))}
+                       onPointerDown={() => setIsDragging(true)} onPointerUp={() => { if (isDragging) handleDialRelease(visualFreq); }}
+                       className="w-full h-full opacity-0 absolute inset-0 cursor-ew-resize z-20 touch-none" />
               </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume}
-                onChange={(e) => setVolume(Number(e.target.value))}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                aria-label={t("utilities.radio.volume", "Âm lượng")}
-              />
-            </div>
-          </div>
 
-          {/* Horizontal Tuning Slider Dial */}
-          <div className="mt-1 px-1">
-            <div className="relative h-12 bg-zinc-950/85 rounded-xl border border-warning/20 px-4 flex flex-col justify-end overflow-hidden select-none shadow-inner">
-              {/* Ticks scale */}
-              <div className="absolute inset-x-0 top-1 bottom-4 flex justify-between pointer-events-none px-4">
-                {Array.from({ length: 42 }).map((_, idx) => {
-                  const freq = 87.5 + idx * 0.5;
-                  const isMajor = idx % 2 === 1 || idx === 0 || idx === 41;
-                  const showLabel = (idx - 1) % 4 === 0; // 88.0, 92.0, 96.0, 100.0, 104.0, 108.0
-                  return (
-                    <div key={idx} className="flex flex-col items-center h-full justify-between">
-                      <div className={`w-[1px] ${isMajor ? 'h-3.5 bg-warning/70' : 'h-1.5 bg-warning/30'}`} />
-                      {showLabel && (
-                        <span className="text-[7.5px] font-mono text-warning/60 font-semibold leading-none mt-1">
-                          {Math.round(freq)}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+              {/* Action Toolbar */}
+              <div className="flex items-center justify-between px-2">
+                <button onClick={() => autoScan("down")} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-cyan-500 active:scale-95 transition-all font-bold text-[10px] tracking-wider uppercase border border-zinc-700">
+                  <span className="material-symbols-outlined text-[14px]">skip_previous</span>
+                  <span>Scan</span>
+                </button>
+                
+                {/* Big Play Button */}
+                <button onClick={togglePlayPause} className="w-16 h-16 shrink-0 rounded-full bg-gradient-to-b from-cyan-400 to-blue-500 text-black flex items-center justify-center active:scale-95 transition-transform shadow-[0_8px_30px_rgba(6,182,212,0.5)] border border-cyan-300/50">
+                  <span className="material-symbols-outlined text-3xl">{(isPlaying || isStatic || isBuffering) ? "power_settings_new" : "play_arrow"}</span>
+                </button>
+                
+                <button onClick={() => autoScan("up")} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-cyan-500 active:scale-95 transition-all font-bold text-[10px] tracking-wider uppercase border border-zinc-700">
+                  <span>Scan</span>
+                  <span className="material-symbols-outlined text-[14px]">skip_next</span>
+                </button>
               </div>
-              
-              {/* Draggable needle overlay */}
-              <div
-                className="absolute top-0 bottom-4 w-0.5 bg-primary shadow-[0_0_8px_hsl(var(--primary))] pointer-events-none z-10 transition-all duration-75"
-                style={{ left: needleLeft }}
-              />
-
-              {/* Slider input */}
-              <input
-                type="range"
-                min="87.5"
-                max="108.0"
-                step="0.1"
-                value={frequency}
-                onChange={(e) => handleFrequencyTuning(Number(e.target.value))}
-                className="w-full h-full opacity-0 absolute inset-0 cursor-ew-resize z-20"
-              />
             </div>
             
-            {/* Tuning feedback toolbar */}
-            <div className="flex justify-between items-center mt-2 px-1">
-              <button
-                onClick={() => handleFrequencyTuning(frequency - 0.1)}
-                className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-warning/80 active:scale-95 transition-all font-mono text-[9px] font-bold border border-zinc-700/50"
-              >
-                ◀ -0.1 MHz
-              </button>
-              
-              <div className="flex items-center gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full ${isStatic ? "bg-destructive animate-pulse-glow" : isPlaying ? "bg-success animate-pulse-glow" : "bg-zinc-700"}`} />
-                <span className="font-mono text-[8px] text-zinc-400 font-bold uppercase tracking-wider">
-                  {isStatic ? "STATIC SOUND" : isPlaying ? "STEREO SIGNAL" : "NO SIGNAL"}
-                </span>
-              </div>
-              
-              <button
-                onClick={() => handleFrequencyTuning(frequency + 0.1)}
-                className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-warning/80 active:scale-95 transition-all font-mono text-[9px] font-bold border border-zinc-700/50"
-              >
-                +0.1 MHz ▶
-              </button>
-            </div>
           </div>
         </div>
-      </div>
 
-      {/* Band selector */}
-      <div className="flex mb-4 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
-        {RADIO_CATEGORIES.map((cat, idx) => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[10.5px] font-bold transition-all ${idx > 0 ? "border-l border-zinc-200/60 dark:border-zinc-800/60" : ""} ${
-              activeCategory === cat.id
-                ? "bg-primary text-white"
-                : "bg-white dark:bg-background text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900"
-            }`}
-          >
-            <span className="material-symbols-outlined text-sm">{cat.icon}</span>
-            <span className="hidden sm:inline">{t(cat.labelKey)}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Station presets */}
-      {loadingCategory === activeCategory ? (
-        <div className="flex items-center justify-center py-12 text-slate-400 text-sm">
-          {t("companion.tab.loading", "Đang tải...")}
-        </div>
-      ) : stations.length === 0 ? (
-        <div className="flex items-center justify-center py-12 text-slate-400 text-sm">
-          {t("utilities.radio.noStations", "Không tìm thấy đài nào trong danh mục này.")}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {stations.map((station) => {
-            const active = nowPlaying?.stationuuid === station.stationuuid;
-            const stationFreq = STATION_FREQUENCIES[station.name];
+        {/* ─── Band Navigation ──────────────────────────────────────────────── */}
+        <div className="flex mb-5 p-1 rounded-2xl bg-zinc-200/50 dark:bg-zinc-900">
+          {RADIO_CATEGORIES.map((cat) => {
+            const active = activeCategory === cat.id;
             return (
-              <button
-                key={station.stationuuid}
-                onClick={() => playStation(station)}
-                className={`relative text-left p-3.5 rounded-2xl border transition-all flex items-center gap-3 ${
-                  active
-                    ? "border-primary bg-primary/5 dark:bg-primary/10"
-                    : "border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-background hover:border-zinc-400 dark:hover:border-zinc-600"
-                }`}
-              >
-                <span className={`absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full ${active && isPlaying ? "bg-success animate-pulse-glow" : "bg-zinc-300 dark:bg-zinc-700"}`} />
-                <div className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center ${active ? "bg-primary text-white" : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-300"}`}>
-                  <span className="material-symbols-outlined text-base">
-                    {active && isBuffering ? "sync" : "radio"}
-                  </span>
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-100 line-clamp-1 leading-tight">{station.name}</span>
-                  {stationFreq && (
-                    <span className="text-[8px] font-mono text-zinc-400 dark:text-zinc-500 font-bold mt-0.5">{stationFreq.toFixed(1)} MHz</span>
-                  )}
-                </div>
+              <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[11px] font-bold transition-all ${
+                  active ? "bg-white dark:bg-zinc-800 text-cyan-600 dark:text-cyan-400 shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                }`}>
+                <span className="material-symbols-outlined text-[16px]">{cat.icon}</span>
+                <span className="hidden sm:inline">{t(cat.labelKey)}</span>
               </button>
             );
           })}
         </div>
-      )}
-    </div>
+
+        {/* ─── Station Grid ──────────────────────────────────────────────── */}
+        {loadingCategory === activeCategory ? (
+          <div className="flex items-center justify-center py-12 text-zinc-400 text-sm">
+            <span className="material-symbols-outlined animate-spin mr-2">refresh</span> {t("companion.tab.loading", "Đang tải...")}
+          </div>
+        ) : stations.length === 0 ? (
+          <div className="flex items-center justify-center py-12 text-zinc-400 text-sm">
+            {t("utilities.radio.noStations", "Không tìm thấy đài nào.")}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {stations.map((station) => {
+              const active = nowPlaying?.stationuuid === station.stationuuid;
+              const stationFreq = STATION_FREQUENCIES[station.name];
+              return (
+                <button key={station.stationuuid} onClick={() => playStation(station)}
+                  className={`group text-left p-3.5 rounded-2xl border transition-all flex flex-col gap-3 relative overflow-hidden ${
+                    active ? "border-cyan-500/50 bg-cyan-50 dark:bg-cyan-950/30" : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:border-cyan-300 dark:hover:border-cyan-700"
+                  }`}>
+                  {/* Subtle active glow */}
+                  {active && <div className="absolute -top-10 -right-10 w-24 h-24 bg-cyan-400/20 blur-2xl rounded-full" />}
+                  
+                  <div className="flex items-start justify-between">
+                    <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center transition-colors ${
+                      active ? "bg-gradient-to-br from-cyan-400 to-blue-500 text-white shadow-lg" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 group-hover:text-cyan-500"
+                    }`}>
+                      <span className={`material-symbols-outlined text-[20px] ${active && isPlaying && !isDragging ? "animate-pulse" : ""}`}>
+                        {active && (isBuffering || isDragging) ? "sync" : active && isPlaying ? "graphic_eq" : "radio"}
+                      </span>
+                    </div>
+                    {active && <span className="flex h-2 w-2 relative mt-1 mr-1">
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isPlaying && !isDragging ? "bg-cyan-400 opacity-75" : "bg-zinc-400 opacity-0"}`}></span>
+                      <span className={`relative inline-flex rounded-full h-2 w-2 ${isPlaying && !isDragging ? "bg-cyan-500" : "bg-zinc-400"}`}></span>
+                    </span>}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className={`text-[12px] font-bold line-clamp-1 leading-tight ${active ? "text-cyan-700 dark:text-cyan-400" : "text-zinc-800 dark:text-zinc-200"}`}>{station.name}</span>
+                    {stationFreq && (
+                      <span className={`text-[9px] font-mono font-bold mt-1 ${active ? "text-cyan-600/80 dark:text-cyan-400/80" : "text-zinc-400 dark:text-zinc-500"}`}>
+                        {stationFreq.toFixed(1)} MHz
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </FeatureGate>
   );
 }

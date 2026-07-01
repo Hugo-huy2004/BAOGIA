@@ -1,6 +1,9 @@
 import React, { Suspense, lazy, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { isMemberAuthenticated } from "../../services/authSession";
+import { useFeatureGate } from "../../hooks/useFeatureGate";
+import JoyExchangeModal from "../../components/member/shared/JoyExchangeModal";
+import { useJoyStore } from "../../stores/joyStore";
 
 const ChessLobby = lazy(() => import("../../components/chess/ChessLobby"));
 const ChessGame = lazy(() => import("../../components/chess/ChessGame"));
@@ -10,10 +13,14 @@ const ChessGame = lazy(() => import("../../components/chess/ChessGame"));
 // room deep-links resolve to /member/utilities/arcade?game=chess&room=<id>
 // instead of the old standalone /chess/:roomId path, and "back" returns to
 // the Arcade lobby.
-export default function ChessPage({ embedded = false, initialRoomId = null, onBack: onExitArcade } = {}) {
+export default function ChessPage({ embedded = false, initialRoomId = null, onBack: onExitArcade, bio, onBioUpdate } = {}) {
   const { roomId, psychTab } = useParams();
   const activeRoom = roomId || psychTab || initialRoomId;
   const navigate = useNavigate();
+
+  const { active: chessSubscribed } = useFeatureGate(bio, "hugoChess");
+  const [showChessInvoice, setShowChessInvoice] = useState(false);
+  const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
 
   const [screen, setScreen] = useState(activeRoom ? "game" : "lobby");
   const [boardTheme, setBoardTheme] = useState(() => localStorage.getItem("chess_board_theme") || "blue");
@@ -116,6 +123,108 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
 
   return (
     <div className={`chess-container min-h-screen app-theme-${appTheme}`}>
+      {/* Chess subscription paywall — only shown when launched from Arcade with
+          a logged-in bio that has not yet subscribed to hugoChess. */}
+      {embedded && bio && !chessSubscribed && (
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 120,
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          background: "linear-gradient(160deg, #0f0f1a 0%, #1a1040 100%)",
+          padding: "24px 20px",
+        }}>
+          {/* Decorative glow blobs */}
+          <div style={{ position: "absolute", top: "10%", left: "20%", width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,.18) 0%, transparent 70%)", filter: "blur(30px)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: "15%", right: "15%", width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,.15) 0%, transparent 70%)", filter: "blur(24px)", pointerEvents: "none" }} />
+
+          <div style={{ position: "relative", maxWidth: 420, width: "100%", textAlign: "center" }}>
+            {/* Icon */}
+            <div style={{
+              width: 80, height: 80, borderRadius: 24,
+              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 20px", boxShadow: "0 0 40px rgba(99,102,241,.4)",
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 40, color: "#fff", fontVariationSettings: "'FILL' 1" }}>
+                chess
+              </span>
+            </div>
+
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#8b5cf6", marginBottom: 8 }}>
+              Tính năng cao cấp
+            </p>
+            <h2 style={{ fontSize: 26, fontWeight: 900, color: "#fff", marginBottom: 8, lineHeight: 1.2 }}>
+              HugoChess
+            </h2>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,.55)", marginBottom: 24, lineHeight: 1.6 }}>
+              Cờ vua đỉnh cao — chơi với AI, thách đấu bạn bè theo thời gian thực và leo bảng xếp hạng ELO.
+            </p>
+
+            {/* Feature list */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28, textAlign: "left" }}>
+              {[
+                ["psychology", "Đấu AI nhiều cấp độ — từ mới bắt đầu đến Grandmaster"],
+                ["group", "Phòng đấu online — thách đấu bạn bè qua link"],
+                ["leaderboard", "Bảng xếp hạng ELO — theo dõi tiến bộ thực sự"],
+                ["palette", "Giao diện bàn cờ & quân cờ tuỳ chỉnh đầy đủ"],
+              ].map(([icon, text]) => (
+                <div key={icon} style={{ display: "flex", alignItems: "center", gap: 12,
+                  padding: "10px 14px", borderRadius: 12,
+                  background: "rgba(99,102,241,.08)", border: "1px solid rgba(99,102,241,.15)" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: "#6366f1", fontVariationSettings: "'FILL' 1", flexShrink: 0 }}>
+                    {icon}
+                  </span>
+                  <span style={{ fontSize: 13, color: "rgba(255,255,255,.8)", lineHeight: 1.4 }}>{text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Price + CTA */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 16 }}>
+              <span style={{ fontSize: 32, fontWeight: 900, color: "#f59e0b" }}>299</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#f59e0b" }}>JOY</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)" }}>mỗi tháng</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowChessInvoice(true)}
+              style={{
+                width: "100%", padding: "14px 0", borderRadius: 14, border: "none", cursor: "pointer",
+                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                color: "#fff", fontSize: 14, fontWeight: 800, letterSpacing: ".04em",
+                boxShadow: "0 4px 24px rgba(99,102,241,.4)", transition: "transform .15s, box-shadow .15s",
+              }}
+              onMouseDown={e => e.currentTarget.style.transform = "scale(.97)"}
+              onMouseUp={e => e.currentTarget.style.transform = ""}
+            >
+              Mở khóa HugoChess
+            </button>
+
+            <button
+              onClick={onExitArcade}
+              style={{
+                marginTop: 14, background: "none", border: "none", cursor: "pointer",
+                color: "rgba(255,255,255,.35)", fontSize: 12, fontWeight: 600,
+              }}
+            >
+              ← Về HugoArcade
+            </button>
+          </div>
+        </div>
+      )}
+
+      <JoyExchangeModal
+        open={showChessInvoice}
+        bio={bio}
+        item="hugoChess"
+        onClose={() => setShowChessInvoice(false)}
+        onSuccess={(result) => {
+          if (bio?.email) fetchJoyBalance(bio.email);
+          onBioUpdate?.({ ...bio, featureSubscriptions: { ...bio?.featureSubscriptions, hugoChess: { expiresAt: result.expiresAt, active: true } } });
+        }}
+      />
+
       {/* Always present while embedded — other Arcade games get a permanent
           Quit affordance during play, Chess shouldn't be the one game where
           leaving mid-match takes an extra hop through its own lobby first. */}

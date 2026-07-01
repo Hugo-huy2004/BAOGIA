@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
+import { Blocks, Swords, Castle, Keyboard, Zap, Infinity } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import ArcadeGameFrame from "./ArcadeGameFrame";
-import Game2048 from "./Game2048";
-import GameCaro from "./GameCaro";
-import GameWordGuess from "./GameWordGuess";
-import GameSurvivor from "./GameSurvivor";
-import GameSnake from "./GameSnake";
-import ChessPage from "../../../pages/public/ChessPage";
+
+const Game2048      = React.lazy(() => import("./Game2048"));
+const GameCaro      = React.lazy(() => import("./GameCaro"));
+const GameWordGuess = React.lazy(() => import("./GameWordGuess"));
+const GameSurvivor  = React.lazy(() => import("./GameSurvivor"));
+const GameSnake     = React.lazy(() => import("./GameSnake"));
+const ChessPage     = React.lazy(() => import("../../../pages/public/ChessPage"));
 import { fetchProfile } from "../../../services/arcadeApi";
 import { HOW_TO_PLAY } from "./arcadeConstants";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
@@ -19,160 +21,128 @@ const ARCADE_PRICE_JOY = 199;
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 
 const GAMES = [
-  { id: "2048", name: "2048", tagline: "Gộp số. Phá giới hạn.", accent: "orange", symbol: "2048", detail: "Logic · Chiến thuật" },
-  { id: "caro", name: "Caro AI", tagline: "Năm quân tạo nên chiến thắng.", accent: "violet", symbol: "×○", detail: "Đối kháng · AI" },
-  { id: "chess", name: "HugoChess", tagline: "Đấu Bot hoặc bạn bè, có JOY.", accent: "amber", symbol: "♞", detail: "Cờ vua · Xếp hạng" },
-  { id: "wordguess", name: "Mật Mã Từ", tagline: "Mỗi chữ cái là một manh mối.", accent: "emerald", symbol: "A?", detail: "Ngôn ngữ · Suy luận" },
-  { id: "survivor", name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.", accent: "rose", symbol: "✦", detail: "Hành động · Đạn mạc" },
-  { id: "snake", name: "Hugo Snake", tagline: "Ăn mồi, dài ra, đừng tự đâm mình.", accent: "cyan", symbol: "S", detail: "Cổ điển · Phản xạ" }
+  { id: "2048",      name: "2048",           tagline: "Gộp số. Phá giới hạn.",              label: "Logic · Chiến thuật",  Icon: Blocks   },
+  { id: "caro",      name: "Caro AI",        tagline: "Năm quân tạo nên chiến thắng.",       label: "Đối kháng · AI",       Icon: Swords   },
+  { id: "chess",     name: "HugoChess",      tagline: "Đấu Bot hoặc bạn bè, leo rank.",      label: "Cờ vua · Xếp hạng",   Icon: Castle   },
+  { id: "wordguess", name: "Mật Mã Từ",     tagline: "Mỗi chữ cái là một manh mối.",        label: "Ngôn ngữ · Suy luận", Icon: Keyboard },
+  { id: "survivor",  name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.",             label: "Hành động · Đạn mạc", Icon: Zap      },
+  { id: "snake",     name: "Hugo Snake",     tagline: "Ăn mồi, dài ra, đừng tự đâm mình.",  label: "Cổ điển · Phản xạ",   Icon: Infinity },
 ];
 
-// Chess is a real-time multiplayer room game with its own lobby/leaderboard —
-// it doesn't fit the generic single-player ArcadeGameFrame flow the other
-// games use, so it renders its full existing UI (ChessPage) instead.
-const STANDALONE_GAMES = new Set(["chess"]);
-
+const STANDALONE = new Set(["chess"]);
 const GAME_COMPONENTS = {
-  "2048": Game2048,
-  caro: GameCaro,
-  wordguess: GameWordGuess,
-  survivor: GameSurvivor,
-  snake: GameSnake
+  "2048": Game2048, caro: GameCaro, wordguess: GameWordGuess,
+  survivor: GameSurvivor, snake: GameSnake,
 };
 
-const DEMO_FRAMES = {
-  "2048": [[2, 2, 4, 8], [0, 4, 4, 8], [0, 0, 8, 8], [0, 0, 0, 16]],
-  caro: [
-    ["x", "", "", "", "", "", "o", "", "", "", "", "", "x", "", "", "", "", "", "o", "", "", "", "", "", ""],
-    ["x", "", "", "", "", "", "o", "", "", "", "", "", "x", "", "", "", "", "", "o", "", "", "", "", "", "x"],
-    ["x", "", "", "", "", "", "x", "", "", "", "", "", "x", "", "", "", "", "", "x", "", "", "", "", "", "x"],
-  ],
-  wordguess: [
-    [{ l: "M", s: "absent" }, { l: "A", s: "present" }, { l: "Y", s: "absent" }, { l: "M", s: "absent" }, { l: "O", s: "present" }],
-    [{ l: "H", s: "correct" }, { l: "U", s: "correct" }, { l: "G", s: "correct" }, { l: "O", s: "correct" }, { l: "?", s: "active" }],
-    [{ l: "H", s: "correct" }, { l: "U", s: "correct" }, { l: "G", s: "correct" }, { l: "O", s: "correct" }, { l: "S", s: "correct" }],
-  ],
-  survivor: [1, 2, 3], // Demo loop
-  chess: [1, 2, 3],
-  snake: [1, 2, 3]
-};
+// ─── Sub-components ────────────────────────────────────────────────
 
-function GameArtwork({ game }) {
-  const [frame, setFrame] = useState(0);
-
-  useEffect(() => {
-    setFrame(0);
-    const timer = window.setInterval(() => {
-      setFrame((current) => (current + 1) % DEMO_FRAMES[game].length);
-    }, game === "2048" ? 1050 : 1250);
-    return () => window.clearInterval(timer);
-  }, [game]);
-
-  if (game === "snake") {
-    const frames = [
-      ["", "", "🍎", "", "", "🐍", "🐍", "🐍", ""],
-      ["", "🍎", "", "", "", "", "🐍", "🐍", "🐍"],
-      ["", "", "", "🍎", "", "", "", "🐍", "🐍"],
-    ];
-    return (
-      <div className="arcade-art arcade-art-snake" aria-hidden="true">
-        <div className="demo-stage demo-survivor-grid" key={frame}>
-          {frames[frame % frames.length].map((cell, index) => <span key={index} className={cell === "🍎" ? "bullet" : cell === "🐍" ? "ship" : ""}>{cell}</span>)}
-        </div>
-        <small>Ăn mồi, dài ra, đừng tự đâm mình</small>
-      </div>
-    );
-  }
-  if (game === "2048") {
-    return (
-      <div className="arcade-art arcade-art-2048" aria-hidden="true">
-        <div className="demo-stage demo-2048-stage" key={frame}>
-          {DEMO_FRAMES[game][frame].map((value, index) => <span key={index} className={!value ? "empty" : `tile-${value}`}>{value || ""}</span>)}
-        </div>
-        <small>Vuốt để gộp số giống nhau</small>
-      </div>
-    );
-  }
-  if (game === "caro") {
-    return (
-      <div className="arcade-art arcade-art-caro" aria-hidden="true">
-        <div className={`demo-stage demo-caro-stage ${frame === 2 ? "is-winning" : ""}`} key={frame}>
-          {DEMO_FRAMES[game][frame].map((cell, index) => <span key={index} className={cell}>{cell === "x" ? "×" : cell === "o" ? "○" : ""}</span>)}
-        </div>
-        <small>Nối 5 quân để chiến thắng</small>
-      </div>
-    );
-  }
-  if (game === "survivor") {
-    const cells = [
-       ["", "", "🔴", "", "🚀", "", "🔴", "", ""],
-       ["", "🔴", "", "", "🚀", "🔴", "", "", ""],
-       ["🔴", "", "", "🔴", "🚀", "", "", "", "🔴"]
-    ];
-    return (
-      <div className="arcade-art arcade-art-survivor" aria-hidden="true">
-        <div className="demo-stage demo-survivor-grid" key={frame}>
-          {cells[frame % 3].map((cell, index) => <span key={index} className={cell === "🚀" ? "ship" : cell === "🔴" ? "bullet" : ""}>{cell}</span>)}
-        </div>
-        <small>Lách qua những kẽ hở hẹp nhất</small>
-      </div>
-    );
-  }
-  if (game === "chess") {
-    const board = ["♜","♞","♝","♛","♚","♝","♞","♜"];
-    return (
-      <div className="arcade-art arcade-art-chess" aria-hidden="true">
-        <div className="demo-stage demo-chess-stage">
-          {board.map((p, i) => <span key={i} className={i % 2 === 0 ? "dark" : ""}>{p}</span>)}
-        </div>
-        <small>Đấu Bot hoặc bạn bè, leo rank</small>
-      </div>
-    );
-  }
+function JoyChip({ balance }) {
   return (
-    <div className="arcade-art arcade-art-word" aria-hidden="true">
-      <div className="demo-stage demo-word-stage" key={frame}>
-        {DEMO_FRAMES[game][frame].map(({ l, s }, index) => <span key={`${index}-${l}`} className={s}>{l}</span>)}
-      </div>
-      <small>Đoán từ qua màu gợi ý</small>
+    <div className="arc-joy-chip">
+      <span className="material-symbols-outlined" style={{ fontSize: 11, fontVariationSettings: "'FILL' 1" }}>bolt</span>
+      {(balance ?? 0).toLocaleString("vi-VN")}
+      <span className="arc-joy-label">JOY</span>
     </div>
   );
 }
 
+function GameCard({ game, profile, isLocked, onClick }) {
+  const best   = profile?.[game.id]?.bestScore   || 0;
+  const played = profile?.[game.id]?.gamesPlayed || 0;
+  const isChess = game.id === "chess";
+
+  const badgeLabel = isLocked
+    ? (isChess ? "299 JOY" : "Cần Pro")
+    : (isChess ? "Chơi" : "Chơi");
+
+  return (
+    <button onClick={onClick} className="arc-game-card" data-game={game.id}>
+      <div className="arc-card-artwork">
+        <div className="arc-card-artwork-grid" />
+        <game.Icon size={38} strokeWidth={1.5} className="arc-card-icon" />
+        <div className="arc-card-play-overlay">
+          <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+          CHƠI NGAY
+        </div>
+      </div>
+      <div className="arc-card-body">
+        <span className="arc-card-label">{game.label}</span>
+        <p className="arc-card-name">{game.name}</p>
+        <p className="arc-card-tagline">{game.tagline}</p>
+        <div className="arc-card-footer">
+          <div className="arc-card-stat">
+            <small>Kỷ lục</small>
+            <strong>{best ? best.toLocaleString("vi-VN") : "—"}</strong>
+          </div>
+          <div className="arc-card-stat">
+            <small>Ván</small>
+            <strong>{played || "—"}</strong>
+          </div>
+          <span className={`arc-card-badge${isLocked ? " locked" : ""}${isChess && isLocked ? " chess" : ""}`}>
+            {badgeLabel}
+          </span>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+// ─── Main ──────────────────────────────────────────────────────────
 export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
-  const [searchParams] = useSearchParams();
-  // Deep-link support: /member/utilities/arcade?game=chess&room=<id> (old
-  // /chess/:roomId share links redirect here) opens straight into Chess with
-  // that room joined.
-  const [activeGame, setActiveGame] = useState(() => searchParams.get("game") === "chess" ? "chess" : null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab  = searchParams.get("tab")  || "games";
+  const activeGame = searchParams.get("game") === "chess"
+    ? "chess" : (searchParams.get("game") || null);
   const chessRoomId = searchParams.get("room") || null;
-  const [profile, setProfile] = useState(null);
+
+  const [rankingGame, setRankingGame]  = useState("2048");
+  const [profile, setProfile]         = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
-  const { active: subscribed } = useFeatureGate(bio, "hugoArcade");
-  // True only while a match is actually running — drives the locked
-  // fullscreen layout below (hides leaderboard/intro, blocks page scroll) so
-  // swipe gestures aimed at the game don't drag the page up/down instead.
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying]     = useState(false);
   const gameFrameRef = useRef(null);
 
+  const { active: subscribed }      = useFeatureGate(bio, "hugoArcade");
+  const { active: chessSubscribed } = useFeatureGate(bio, "hugoChess");
+  const joyBalance = useJoyStore(s => s.balance);
+
   useEffect(() => {
-    if (!isPlaying) return;
-    const prevOverflow = document.body.style.overflow;
+    if (!isPlaying && !STANDALONE.has(activeGame)) return;
+    const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prevOverflow; };
-  }, [isPlaying]);
+    return () => { document.body.style.overflow = prev; };
+  }, [isPlaying, activeGame]);
 
   useEffect(() => { setIsPlaying(false); }, [activeGame]);
 
+  // Fullscreen when game overlay opens; exit when closed
   useEffect(() => {
-    if (!activeGame && bio?.email) fetchProfile(bio.email).then(setProfile);
-  }, [activeGame, bio?.email]);
+    if (activeGame) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    }
+    return () => {
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    };
+  }, [activeGame]);
 
-  const totalGames = GAMES.reduce((sum, g) => sum + (profile?.[g.id]?.gamesPlayed || 0), 0);
-  const totalWins = GAMES.reduce((sum, g) => {
-    const record = profile?.[g.id]?.record || {};
-    return sum + Object.values(record).reduce((s, tier) => s + (tier?.wins || 0), 0);
+  useEffect(() => {
+    if (bio?.email) fetchProfile(bio.email).then(setProfile);
+  }, [bio?.email]);
+
+  const totalGames = GAMES.reduce((s, g) => s + (profile?.[g.id]?.gamesPlayed || 0), 0);
+  const totalWins  = GAMES.reduce((s, g) => {
+    const rec = profile?.[g.id]?.record || {};
+    return s + Object.values(rec).reduce((a, t) => a + (t?.wins || 0), 0);
   }, 0);
+
+  const setTab  = (t) => setSearchParams(p => { p.set("tab", t); return p; }, { replace: true });
+  const openGame  = (id) => setSearchParams(p => { p.set("game", id); return p; }, { replace: true });
+  const closeGame = () => {
+    if (isPlaying) gameFrameRef.current?.quit();
+    else setSearchParams(p => { p.delete("game"); p.delete("room"); return p; }, { replace: true });
+  };
 
   const handleConfirmCharge = async () => {
     const res = await fetch(`${API_BASE}/joy/subscribe-feature`, {
@@ -184,132 +154,263 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
     if (!res.ok) throw new Error(data.error || "Lỗi trao đổi JOY.");
     return data;
   };
-
   const handleSuccess = (data) => {
     useJoyStore.getState().setBalance(data.balance);
-    onBioUpdate?.({
-      ...bio,
-      featureSubscriptions: {
-        ...(bio.featureSubscriptions || {}),
-        hugoArcade: { active: true, expiresAt: data.expiresAt }
-      }
-    });
+    onBioUpdate?.({ ...bio, featureSubscriptions: { ...(bio.featureSubscriptions || {}), hugoArcade: { active: true, expiresAt: data.expiresAt } } });
   };
 
-  if (!activeGame) {
-    return (
-      <div className="arcade-app arcade-scroll-shell">
-        <header className="arcade-topbar">
-          <button onClick={onBack} className="arcade-icon-btn" aria-label="Quay lại">←</button>
-          <div className="arcade-brand"><span className="arcade-brand-mark">HA</span><div><strong>HugoArcade</strong><small>Play · Earn · Repeat</small></div></div>
-          <div className="arcade-live"><i /> ONLINE</div>
+  const gameInfo = activeGame ? GAMES.find(g => g.id === activeGame) : null;
+
+  return (
+    <>
+      {/* ── Lobby ─────────────────────────────────────────────────── */}
+      <div className="arc" style={{ visibility: activeGame ? "hidden" : "visible" }}>
+        <header className="arc-topbar">
+          <button onClick={onBack} className="arc-back" aria-label="Quay lại">←</button>
+          <div className="arc-logo">
+            <div className="arc-logo-mark">HA</div>
+            <span className="arc-logo-name">Hugo<span>Arcade</span></span>
+          </div>
+          <div className="arc-topbar-right">
+            <JoyChip balance={joyBalance} />
+            {!subscribed && (
+              <button className="arc-sub-btn" onClick={() => setShowInvoice(true)}>Pro</button>
+            )}
+          </div>
         </header>
 
-        {!subscribed && (
-          <div className="arcade-instruction" style={{ margin: "16px max(18px, env(safe-area-inset-left))", borderColor: "var(--warning, #f59e0b)" }}>
-            <div>
-              <strong>Bứt phá & Huyền thoại đang chờ</strong>
-              <p>
-                Trao đổi {ARCADE_PRICE_JOY} JOY/tháng để mở khóa hai độ khó này ở mọi trò chơi. "Khởi động" luôn miễn phí cho mọi người.
-                {" "}
-                <button onClick={() => setShowInvoice(true)} style={{ fontWeight: 700, textDecoration: "underline" }}>
-                  Trao đổi {ARCADE_PRICE_JOY} JOY ngay
-                </button>
-              </p>
-            </div>
-          </div>
-        )}
+        {/* Tab nav */}
+        <div className="arc-tabs">
+          <button className={`arc-tab-btn${activeTab === "games" ? " active" : ""}`} onClick={() => setTab("games")}>
+            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>sports_esports</span>
+            Trò chơi
+          </button>
+          <button className={`arc-tab-btn${activeTab === "ranking" ? " active" : ""}`} onClick={() => setTab("ranking")}>
+            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>leaderboard</span>
+            Xếp hạng
+          </button>
+        </div>
 
-        <main className="arcade-home">
-          <section className="arcade-hero">
-            <div className="arcade-hero-copy">
-              <span className="arcade-eyebrow">MINI GAME UNIVERSE</span>
-              <h1>Chơi một ván.<br/><em>Vui cả ngày.</em></h1>
-              <p>Ba thế giới, ba kiểu tư duy. Chinh phục thử thách, lập kỷ lục và mang JOY về ví.</p>
-              <div className="arcade-hero-stats">
-                <div><strong>{totalGames}</strong><span>Ván đã chơi</span></div>
-                <div><strong>{totalWins}</strong><span>Chiến thắng</span></div>
-                <div><strong>+75</strong><span>JOY tối đa/ván</span></div>
+        <main className="arc-main">
+          {!subscribed && activeTab === "games" && (
+            <div className="arc-sub-banner" style={{ margin: "16px 24px 0" }}>
+              <div className="arc-sub-banner-icon">
+                <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>bolt</span>
               </div>
+              <div className="arc-sub-banner-text">
+                <strong>Mở khóa Bứt phá &amp; Huyền thoại</strong>
+                <p>Trao đổi {ARCADE_PRICE_JOY} JOY/tháng để chinh phục mọi độ khó và kiếm tối đa 75 JOY/ván.</p>
+              </div>
+              <button className="arc-sub-banner-btn" onClick={() => setShowInvoice(true)}>
+                {ARCADE_PRICE_JOY} JOY
+              </button>
             </div>
-          </section>
-
-          <div className="arcade-section-heading"><div><span>CHỌN TRÒ CHƠI</span><h2>Hôm nay bạn muốn phá đảo gì?</h2></div><span className="arcade-game-count">{GAMES.length < 10 ? `0${GAMES.length}` : GAMES.length} games</span></div>
-
-          <section className="arcade-game-grid">
-            {GAMES.map((g, index) => {
-              const best = profile?.[g.id]?.bestScore || 0;
-              const played = profile?.[g.id]?.gamesPlayed || 0;
-              return (
-                <button key={g.id} onClick={() => setActiveGame(g.id)} className={`arcade-game-card accent-${g.accent}`}>
-                  <div className="arcade-card-top"><span className="arcade-card-index">GAME 0{index + 1}</span><span className="arcade-card-status"><i /> SẴN SÀNG</span></div>
-                  <GameArtwork game={g.id} />
-                  <div className="arcade-card-copy"><span>{g.detail}</span><div className="arcade-card-title"><h3>{g.name}</h3><span className="arcade-card-arrow-glyph">→</span></div><p>{g.tagline}</p></div>
-                  <div className="arcade-card-footer"><div><small>KỶ LỤC</small><strong>{best.toLocaleString("vi-VN")}</strong></div><div><small>ĐÃ CHƠI</small><strong>{played}</strong></div><span className="arcade-play-pill">Chơi ngay</span></div>
-                </button>
-              );
-            })}
-          </section>
-
-          <section className="arcade-reward-banner">
-            <div><span>THỬ THÁCH HUYỀN THOẠI</span><h3>Thắng cấp cao nhất, nhận ngay <b>75 JOY</b></h3><p>Mỗi độ khó là một hành trình riêng. Càng khó, phần thưởng càng đáng giá.</p></div>
-          </section>
-        </main>
-
-        <JoyExchangeModal
-          open={showInvoice}
-          bio={bio}
-          item="hugoArcade"
-          onClose={() => setShowInvoice(false)}
-          onConfirm={handleConfirmCharge}
-          onSuccess={handleSuccess}
-        />
-      </div>
-    );
-  }
-
-  const gameInfo = GAMES.find((g) => g.id === activeGame);
-
-  // Chess brings its own full-screen lobby/board/leaderboard UI — mount it
-  // directly instead of wrapping it in the generic single-player game shell.
-  if (STANDALONE_GAMES.has(activeGame)) {
-    return <ChessPage embedded initialRoomId={chessRoomId} onBack={() => setActiveGame(null)} />;
-  }
-
-  const GameComponent = GAME_COMPONENTS[activeGame];
-  // While playing, the topbar's "back" button becomes "Quit" — it backs out
-  // of the match into difficulty-select instead of leaving the game entirely,
-  // since a stray tap mid-match shouldn't bounce the member back to the lobby.
-  const handleTopbarBack = () => {
-    if (isPlaying) gameFrameRef.current?.quit();
-    else setActiveGame(null);
-  };
-  return (
-    <div className={`arcade-app arcade-scroll-shell accent-${gameInfo.accent} ${isPlaying ? "arcade-fullscreen-play" : ""}`}>
-      <header className="arcade-topbar">
-        <button onClick={handleTopbarBack} className="arcade-icon-btn" aria-label={isPlaying ? "Thoát" : "Về sảnh"}>
-          {isPlaying ? "✕" : "←"}
-        </button>
-        <div className="arcade-brand">{gameInfo.symbol && <span className="arcade-brand-mark">{gameInfo.symbol}</span>}<div><strong>{gameInfo.name}</strong><small>{gameInfo.detail}</small></div></div>
-        {isPlaying
-          ? <button onClick={handleTopbarBack} className="arcade-quit-btn">Quit</button>
-          : <span className="arcade-top-reward">Tối đa 75 JOY</span>}
-      </header>
-      <main className="arcade-play-layout">
-        <section className="arcade-play-main">
-          {!isPlaying && (
-            <div className="arcade-game-intro"><div><span>HUGOARCADE / {gameInfo.name.toUpperCase()}</span><h1>{gameInfo.tagline}</h1></div><p>{HOW_TO_PLAY[activeGame]?.rule}</p></div>
           )}
-          <ArcadeGameFrame ref={gameFrameRef} game={activeGame} bio={bio} onBioUpdate={onBioUpdate} onStageChange={(stage) => setIsPlaying(stage === "playing")}>
-            {(difficulty, onGameOver) => (
-              <Suspense fallback={<div className="flex items-center justify-center py-16 text-zinc-400 text-sm">Đang tải game...</div>}>
-                <GameComponent difficulty={difficulty} onGameOver={onGameOver} />
-              </Suspense>
-            )}
-          </ArcadeGameFrame>
-        </section>
-        {!isPlaying && <aside className="arcade-side-panel"><ArcadeLeaderboard game={activeGame} active={true} /></aside>}
-      </main>
-    </div>
+
+          {activeTab === "games" && !chessSubscribed && (
+            <div className="arc-sub-banner arc-chess-banner" style={{ margin: `${!subscribed ? "8px" : "16px"} 24px 0`, "--g": "#8b5cf6", "--g-glow": "rgba(139,92,246,.12)" }}>
+              <div className="arc-sub-banner-icon" style={{ background: "rgba(139,92,246,.15)", color: "var(--arc-a2)" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>chess</span>
+              </div>
+              <div className="arc-sub-banner-text">
+                <strong>HugoChess — Thuê riêng</strong>
+                <p>Đấu Bot · Phòng online · Leo hạng ELO. 299 JOY/tháng, tách biệt với gói Arcade.</p>
+              </div>
+              <button className="arc-sub-banner-btn" style={{ background: "var(--arc-a2)" }} onClick={() => openGame("chess")}>
+                299 JOY
+              </button>
+            </div>
+          )}
+
+          {activeTab === "games" ? (
+            <>
+              {/* Hero */}
+              <div className="arc-hero">
+                <div className="arc-hero-grid" />
+                <div className="arc-hero-artwork" aria-hidden="true">
+                  <span className="material-symbols-outlined" style={{ fontSize: 110, fontVariationSettings: "'FILL' 0, 'wght' 100" }}>
+                    sports_esports
+                  </span>
+                </div>
+                <div className="arc-hero-content">
+                  <div className="arc-hero-badge"><i />Mini Game Universe</div>
+                  <h1 className="arc-hero-title">Chơi một ván.<br />Vui cả ngày.</h1>
+                  <p className="arc-hero-tagline">Chinh phục thử thách, lập kỷ lục và mang JOY về ví.</p>
+                  <div className="arc-hero-actions">
+                    <button className="arc-play-btn" onClick={() => openGame("2048")}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 17, fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                      Bắt đầu chơi
+                    </button>
+                    <button className="arc-info-btn">
+                      {totalGames} ván · {totalWins} chiến thắng
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="arc-section-hd">
+                <div>
+                  <p className="arc-section-hd-label">Thư viện</p>
+                  <h2 className="arc-section-hd-title">Hôm nay muốn phá đảo gì?</h2>
+                </div>
+                <span className="arc-section-hd-count">{String(GAMES.length).padStart(2, "0")} games</span>
+              </div>
+
+              <div className="arc-game-grid">
+                {GAMES.map(g => (
+                  <GameCard
+                    key={g.id} game={g}
+                    profile={profile}
+                    isLocked={g.id === "chess" ? !chessSubscribed : (g.id !== "2048" && !subscribed)}
+                    onClick={() => openGame(g.id)}
+                  />
+                ))}
+              </div>
+
+              <div className="arc-stats-strip">
+                <div className="arc-stat-box">
+                  <small>Tổng ván</small>
+                  <strong>{totalGames}</strong>
+                  <span>tất cả game</span>
+                </div>
+                <div className="arc-stat-box">
+                  <small>Chiến thắng</small>
+                  <strong>{totalWins}</strong>
+                  <span>lượt thắng</span>
+                </div>
+                <div className="arc-stat-box">
+                  <small>JOY hiện có</small>
+                  <strong style={{ color: "var(--arc-joy)" }}>{(joyBalance ?? 0).toLocaleString("vi-VN")}</strong>
+                  <span>trong ví</span>
+                </div>
+                <div className="arc-stat-box">
+                  <small>JOY tối đa</small>
+                  <strong>75</strong>
+                  <span>mỗi ván thắng</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Ranking tab */
+            <div style={{ padding: "20px 24px 60px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                <div>
+                  <p className="arc-section-hd-label">Bảng vàng</p>
+                  <h2 className="arc-section-hd-title">Thành tích cao nhất</h2>
+                </div>
+                <select
+                  value={rankingGame}
+                  onChange={e => setRankingGame(e.target.value)}
+                  style={{
+                    background: "var(--arc-s2)", color: "var(--arc-t1)",
+                    border: "1px solid var(--arc-b2)", padding: "8px 14px",
+                    borderRadius: 10, fontSize: 12, fontWeight: 700,
+                    fontFamily: "inherit", cursor: "pointer", outline: "none",
+                  }}
+                >
+                  {GAMES.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                </select>
+              </div>
+              <ArcadeLeaderboard game={rankingGame} active={activeTab === "ranking"} />
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* ── Game overlay ───────────────────────────────────────────── */}
+      {activeGame && (
+        <div className="arc-game-overlay">
+          {STANDALONE.has(activeGame) ? (
+            <Suspense fallback={
+              <div style={{ flex: 1, display: "grid", placeItems: "center", color: "var(--arc-t2)", fontSize: 13 }}>
+                Đang tải HugoChess...
+              </div>
+            }>
+              <ChessPage embedded initialRoomId={chessRoomId} onBack={closeGame} bio={bio} onBioUpdate={onBioUpdate} />
+            </Suspense>
+          ) : (
+            <>
+              {/* Game topbar */}
+              <header className="arc-topbar" style={{ background: "var(--arc-s1)", borderBottomColor: "var(--arc-b1)" }}>
+                <button onClick={closeGame} className="arc-back" aria-label={isPlaying ? "Thoát" : "Về sảnh"}>
+                  {isPlaying ? "✕" : "←"}
+                </button>
+                {gameInfo && (
+                  <div className="arc-logo">
+                    <div className="arc-logo-mark">
+                      <gameInfo.Icon size={16} strokeWidth={2} />
+                    </div>
+                    <div>
+                      <span className="arc-logo-name" style={{ fontSize: 13 }}>{gameInfo.name}</span>
+                      <div style={{ fontSize: 9, color: "var(--arc-t3)", letterSpacing: ".1em", textTransform: "uppercase" }}>
+                        {gameInfo.label}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="arc-topbar-right">
+                  {isPlaying
+                    ? <button onClick={closeGame} className="arc-quit-btn">Thoát ván</button>
+                    : <span style={{ fontSize: 11, color: "var(--arc-joy)", fontWeight: 700 }}>Tối đa 75 JOY</span>
+                  }
+                </div>
+              </header>
+
+              {/* Game body */}
+              <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
+                <div className="arc-game-overlay-body">
+                  {!isPlaying && gameInfo && (
+                    <div className="arc-game-intro">
+                      <p className="arc-game-intro-label">{gameInfo.label}</p>
+                      <h1>{gameInfo.tagline}</h1>
+                      <p>{HOW_TO_PLAY[activeGame]?.rule}</p>
+                    </div>
+                  )}
+
+                  <ArcadeGameFrame
+                    ref={gameFrameRef}
+                    game={activeGame} bio={bio} onBioUpdate={onBioUpdate}
+                    onStageChange={(stage) => setIsPlaying(stage === "playing")}
+                    onClose={closeGame}
+                  >
+                    {(difficulty, onGameOver) => {
+                      const GameComponent = GAME_COMPONENTS[activeGame];
+                      return (
+                        <Suspense fallback={
+                          <div style={{ padding: "60px", textAlign: "center", color: "var(--arc-t2)", fontSize: 13 }}>
+                            Đang tải game...
+                          </div>
+                        }>
+                          <GameComponent difficulty={difficulty} onGameOver={onGameOver} />
+                        </Suspense>
+                      );
+                    }}
+                  </ArcadeGameFrame>
+                </div>
+
+                {!isPlaying && (
+                  <aside className="arc-game-side">
+                    <div className="arc-game-side-header">
+                      <h3>Bảng xếp hạng</h3>
+                      <span style={{ fontSize: 9, color: "var(--arc-t3)", fontWeight: 700, letterSpacing: ".1em" }}>LIVE</span>
+                    </div>
+                    <div className="arc-game-side-body">
+                      <ArcadeLeaderboard game={activeGame} active={true} />
+                    </div>
+                  </aside>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      <JoyExchangeModal
+        open={showInvoice} bio={bio} item="hugoArcade"
+        onClose={() => setShowInvoice(false)}
+        onConfirm={handleConfirmCharge}
+        onSuccess={handleSuccess}
+      />
+    </>
   );
 }

@@ -24,6 +24,25 @@ export default defineConfig({
         importScripts: ['/push-sw.js'],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
+          // Arcade leaderboard — StaleWhileRevalidate so UI shows instantly
+          // from cache while fresh data loads in background (matches 8s poll interval)
+          {
+            urlPattern: /\/api\/arcade\/leaderboard/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'arcade-leaderboard',
+              expiration: { maxEntries: 20, maxAgeSeconds: 30 },
+            },
+          },
+          // Arcade profile — NetworkFirst with short TTL so JOY/scores stay fresh
+          {
+            urlPattern: /\/api\/arcade\/profile/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'arcade-profile',
+              expiration: { maxEntries: 10, maxAgeSeconds: 120 },
+            },
+          },
           {
             urlPattern: /^https:\/\/api\.hugowishpax\.studio\/api\//,
             handler: 'NetworkFirst',
@@ -69,6 +88,13 @@ export default defineConfig({
           { src: 'favicon/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
         shortcuts: [
+          {
+            name: 'HugoArcade',
+            short_name: 'Arcade',
+            description: 'Chơi game, chinh phục thử thách, nhận JOY',
+            url: '/portal?tab=arcade',
+            icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
+          },
           {
             name: 'Bạn Học Đường',
             short_name: 'Đồng Hành',
@@ -147,6 +173,7 @@ export default defineConfig({
             if (id.includes('@radix-ui')) return 'radix';
             if (id.includes('i18next') || id.includes('react-i18next')) return 'i18n';
             if (id.includes('zustand') || id.includes('swr')) return 'state';
+            if (id.includes('canvas-confetti')) return 'arcade-fx';
             if (id.includes('react-dom') || id.includes('react-router-dom') || id.includes('/react/')) return 'vendor';
           }
           if (id.includes('src/components/demos/')) return 'demos';

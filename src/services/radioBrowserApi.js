@@ -9,9 +9,11 @@ const getApiUrl = () => {
   return "/api";
 };
 
-export async function fetchStationByName(name) {
+export async function fetchStationByName(name, excludeUrl) {
   try {
-    const res = await fetch(`${getApiUrl()}/radio/station?name=${encodeURIComponent(name)}`);
+    let url = `${getApiUrl()}/radio/station?name=${encodeURIComponent(name)}`;
+    if (excludeUrl) url += `&exclude=${encodeURIComponent(excludeUrl)}`;
+    const res = await fetch(url);
     if (!res.ok) return null;
     return await res.json();
   } catch {

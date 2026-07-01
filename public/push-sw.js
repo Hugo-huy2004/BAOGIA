@@ -91,6 +91,62 @@ async function handleSleepSync() {
   } catch (_) {}
 }
 
+// ── Background Sync — arcade offline score queue ──────────────────────────
+// When submitScore() fails (network down), the client queues the payload in
+// IndexedDB and calls reg.sync.register('arcade-score-sync'). The browser
+// fires this event when connectivity is restored, even if the app is closed.
+
+const QUEUE_DB    = "hugo-arcade-queue";
+const QUEUE_STORE = "pending-scores";
+
+function swOpenQueueDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(QUEUE_DB, 1);
+    req.onupgradeneeded = (e) => {
+      e.target.result.createObjectStore(QUEUE_STORE, { keyPath: "id", autoIncrement: true });
+    };
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror   = (e) => reject(e.target.error);
+  });
+}
+
+async function swFlushArcadeQueue() {
+  let db;
+  try { db = await swOpenQueueDb(); } catch { return; }
+
+  const pending = await new Promise((resolve) => {
+    const tx  = db.transaction(QUEUE_STORE, "readonly");
+    const req = tx.objectStore(QUEUE_STORE).getAll();
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror   = () => resolve([]);
+  });
+
+  const origin = self.registration.scope.replace(/\/$/, "");
+
+  for (const item of pending) {
+    try {
+      const res = await fetch(`${origin}/api/arcade/score`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(item.payload),
+      });
+      if (res.ok) {
+        await new Promise((resolve) => {
+          const tx = db.transaction(QUEUE_STORE, "readwrite");
+          tx.objectStore(QUEUE_STORE).delete(item.id);
+          tx.oncomplete = resolve;
+        });
+      }
+    } catch { break; } // still offline
+  }
+}
+
+self.addEventListener("sync", (event) => {
+  if (event.tag === "arcade-score-sync") {
+    event.waitUntil(swFlushArcadeQueue());
+  }
+});
+
 // Lắng nghe sự kiện nhận thông báo đẩy từ Server (Google Chrome Push Service)
 self.addEventListener('push', function (event) {
   try {

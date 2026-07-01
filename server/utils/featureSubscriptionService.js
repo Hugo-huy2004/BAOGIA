@@ -7,14 +7,16 @@ export const FEATURE_PRICES = {
   hugoCoder: 150,
   hugoAura: 150,
   hugoRadio: 150,
-  hugoArcade: 199
+  hugoArcade: 199,
+  hugoChess: 299
 };
 
 const FEATURE_LABELS = {
   hugoCoder: 'HugoCoder',
   hugoAura: 'HugoAura (Lofi & Cửa hàng giao diện)',
   hugoRadio: 'HugoRadio',
-  hugoArcade: 'HugoArcade (Bứt phá & Huyền thoại)'
+  hugoArcade: 'HugoArcade (Bứt phá & Huyền thoại)',
+  hugoChess: 'HugoChess'
 };
 
 // Same 9% transaction-fee rate already used by the utility store (store_purchase)

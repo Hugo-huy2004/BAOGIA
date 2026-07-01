@@ -112,7 +112,7 @@ router.get('/leaderboard', async (req, res) => {
     const leaderboard = await ArcadeScore.find({ game })
       .sort({ bestScore: -1 })
       .limit(Math.min(Number(limit) || 30, 100))
-      .select('email displayName avatar bestScore gamesPlayed lastPlayedAt')
+      .select('email displayName avatar bestScore gamesPlayed lastPlayedAt record')
       .lean();
     res.json({ leaderboard });
   } catch (error) {

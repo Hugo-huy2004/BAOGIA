@@ -324,6 +324,10 @@ const BioSchema = new mongoose.Schema(
       hugoArcade: {
         expiresAt: { type: Date, default: null },
         active: { type: Boolean, default: false }
+      },
+      hugoChess: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
       }
     },
     // Paid rental backing theme.template when it's 'brutalism'/'flat'

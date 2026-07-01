@@ -7,7 +7,7 @@ const RESULTS = {
   draw: { label: "Bất phân thắng bại", icon: "=", symbol: "handshake" },
 };
 
-const DIFF_LABEL = { easy: "Khởi động 🌱", medium: "Bứt phá ⚡", hard: "Huyền thoại 💀" };
+const DIFF_LABEL = { easy: "Khởi động", medium: "Bứt phá", hard: "Huyền thoại" };
 
 export default function GameResultOverlay({ result, score, difficulty, joyDelta, joyAwarded, dailyCapReached, onReplay, onChangeDifficulty }) {
   const info = RESULTS[result] || RESULTS.draw;
