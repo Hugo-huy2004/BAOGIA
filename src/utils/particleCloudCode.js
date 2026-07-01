@@ -183,9 +183,11 @@ function decodeFromBlobs(blobs, minDotArea, matchToleranceFrac) {
 
   // Sample every slot: bit = 1 iff a data blob sits within tolerance of the
   // expected position. Tolerance is ~half a slot arc so neighbours don't bleed.
-  const tolerance = Math.max(3, scale * ((2 * Math.PI) / PCC_SLOTS_PER_RING) * matchToleranceFrac);
   const bits = new Array(PCC_TOTAL_BITS).fill(0);
   for (let ring = 0; ring < PCC_RINGS; ring++) {
+    const r = PCC_RING_RADIUS_FRACS[ring] * scale;
+    // Tolerance scales with the ring's actual circumference to prevent cross-talk on inner rings
+    const tolerance = Math.max(2, r * ((2 * Math.PI) / PCC_SLOTS_PER_RING) * matchToleranceFrac);
     for (let slot = 0; slot < PCC_SLOTS_PER_RING; slot++) {
       const expected = slotPosition(ring, slot, center.x, center.y, scale, rotationDeg);
       const hit = dataCandidates.some(
