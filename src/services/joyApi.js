@@ -18,11 +18,26 @@ export async function resolvePhone(phone) {
   return parseOrThrow(res);
 }
 
-export async function transferJoy({ fromEmail, toPhone, amount, message }) {
+export async function searchJoyUser(q, email) {
+  const res = await fetch(`${getApiUrl()}/joy/search-user?q=${encodeURIComponent(q)}&email=${encodeURIComponent(email || "")}`);
+  return parseOrThrow(res);
+}
+
+export async function getJoyQrPayload(email) {
+  const res = await fetch(`${getApiUrl()}/joy/qr-payload?email=${encodeURIComponent(email)}`);
+  return parseOrThrow(res);
+}
+
+export async function resolveJoyQr(payload) {
+  const res = await fetch(`${getApiUrl()}/joy/resolve-qr?payload=${encodeURIComponent(payload)}`);
+  return parseOrThrow(res);
+}
+
+export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message }) {
   const res = await fetch(`${getApiUrl()}/joy/transfer`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fromEmail, toPhone, amount, message })
+    body: JSON.stringify({ fromEmail, toPhone, toReferralCode, toEmail, amount, message })
   });
   return parseOrThrow(res);
 }

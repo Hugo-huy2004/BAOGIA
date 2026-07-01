@@ -40,8 +40,8 @@ const GAME_COMPONENTS = {
 function JoyChip({ balance }) {
   return (
     <div className="arc-joy-chip">
-      <span className="material-symbols-outlined" style={{ fontSize: 11, fontVariationSettings: "'FILL' 1" }}>bolt</span>
-      {(balance ?? 0).toLocaleString("vi-VN")}
+      <span className="material-symbols-outlined" style={{ fontSize: 13, fontVariationSettings: "'FILL' 1" }}>toll</span>
+      <span>{(balance ?? 0).toLocaleString("vi-VN")}</span>
       <span className="arc-joy-label">JOY</span>
     </div>
   );
@@ -166,7 +166,9 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
       {/* ── Lobby ─────────────────────────────────────────────────── */}
       <div className="arc" style={{ visibility: activeGame ? "hidden" : "visible" }}>
         <header className="arc-topbar">
-          <button onClick={onBack} className="arc-back" aria-label="Quay lại">←</button>
+          <button onClick={onBack} className="arc-back" aria-label="Quay lại">
+            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_back_ios_new</span>
+          </button>
           <div className="arc-logo">
             <div className="arc-logo-mark">HA</div>
             <span className="arc-logo-name">Hugo<span>Arcade</span></span>

@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 
 const HEARTBEAT_MS = 45_000;
 const apiBase = import.meta.env.VITE_API_URL || "/api";
+const lastHeartbeatAtByEmail = new Map();
 
 export function usePresenceHeartbeat(email) {
   const nextRetryAtRef = useRef(0);
@@ -19,6 +20,11 @@ export function usePresenceHeartbeat(email) {
       if (document.visibilityState !== "visible") return;
       if (!navigator.onLine) return;
       if (Date.now() < nextRetryAtRef.current) return;
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const lastSentAt = lastHeartbeatAtByEmail.get(normalizedEmail) || 0;
+      if (Date.now() - lastSentAt < 10_000) return;
+      lastHeartbeatAtByEmail.set(normalizedEmail, Date.now());
 
       fetch(`${apiBase}/presence/heartbeat`, {
         method: "POST",

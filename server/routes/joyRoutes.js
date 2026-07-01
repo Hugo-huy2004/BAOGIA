@@ -228,7 +228,7 @@ router.post('/award-focus', async (req, res) => {
 // POST /api/joy/rent-theme
 router.post('/rent-theme', async (req, res) => {
   try {
-    const { email, themeId } = req.body;
+    const { email, themeId, duration = 'day' } = req.body;
     if (!email || !themeId) {
       return res.status(400).json({ error: 'Email and themeId are required' });
     }
@@ -237,16 +237,20 @@ router.post('/rent-theme', async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
-    const price = 50;
+    const basePrice = duration === 'month' ? 1200 : 50;
+    const creativeFee = basePrice * 0.09;
+    const price = basePrice + creativeFee;
+
     if (bio.joyBalance < price) {
       return res.status(400).json({ error: `Bạn cần ít nhất ${price} JOY để thuê giao diện này.` });
     }
 
-    // Deduct 50 JOY and create ledger record
-    const result = await awardJoy(bio.email, -price, 'aura_theme_rent', `Thuê giao diện Aura: ${themeId} (1 ngày)`);
+    const durationLabel = duration === 'month' ? '30 ngày' : '1 ngày';
+    // Deduct JOY and create ledger record
+    const result = await awardJoy(bio.email, -price, 'aura_theme_rent', `Thuê giao diện Aura: ${themeId} + 10% Phí sáng tạo (${durationLabel})`);
     
     // Extends or creates theme expiration in rentedThemes
-    const extensionMs = 24 * 60 * 60 * 1000; // 1 day
+    const extensionMs = duration === 'month' ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
     const existingTheme = result.bio.rentedThemes.find(t => t.themeId === themeId);
 
     if (existingTheme) {
@@ -337,14 +341,14 @@ router.post('/subscribe-bio-theme', async (req, res) => {
     if (!alreadyPaidForThisTemplate) {
       const { tax, total } = calcExchangeTotal(BIO_THEME_RENTAL_PRICE);
       if (bio.joyBalance < total) {
-        return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY thuế) để đổi giao diện này.` });
+        return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY phí sáng tạo) để đổi giao diện này.` });
       }
 
       const { balance } = await awardJoy(
         bio.email,
         -total,
         'bio_theme_rental',
-        `Trao đổi JOY diện giao diện Bio: ${template} (1 tháng, gồm ${tax} JOY thuế giao dịch)`,
+        `Trao đổi JOY diện giao diện Bio: ${template} (1 tháng, gồm ${tax} JOY phí sáng tạo)`,
         { bioDoc: bio, skipSave: true }
       );
       bio.bioThemeRental = { template, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) };
@@ -382,12 +386,82 @@ router.get('/resolve-phone', async (req, res) => {
   }
 });
 
-// POST /api/joy/transfer  { fromEmail, toPhone, amount, message }
+// GET /api/joy/search-user?q=&email= — MoMo-style smart search by any field.
+// Returns limited public info only (no email exposed).
+router.get('/search-user', async (req, res) => {
+  try {
+    const { q, email } = req.query;
+    if (!q || !q.trim()) return res.json([]);
+    const term = q.trim();
+    const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    const results = await Bio.find({
+      ...(email ? { email: { $ne: email } } : {}),
+      $or: [
+        { displayName: regex },
+        { phone: term },
+        { referralCode: term.toUpperCase() },
+        { contactEmail: regex }
+      ]
+    })
+      .select('displayName avatarUrl referralCode phone')
+      .limit(6)
+      .lean();
+
+    res.json(results.map(b => ({
+      displayName: b.displayName || 'Người dùng',
+      avatarUrl: b.avatarUrl || '',
+      referralCode: b.referralCode || '',
+      maskedPhone: b.phone ? b.phone.slice(0, -3).replace(/\d/g, '*') + b.phone.slice(-3) : ''
+    })));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/joy/qr-payload?email= — generate user's JOY QR payload.
+router.get('/qr-payload', async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: 'Thiếu email.' });
+    const bio = await Bio.findOne({ email }).select('displayName avatarUrl referralCode joyBalance');
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
+    if (!bio.referralCode) {
+      const { ensureReferralCode } = await import('../utils/referralService.js');
+      await ensureReferralCode(bio);
+    }
+    res.json({
+      payload: `joypay:${bio.referralCode}`,
+      displayName: bio.displayName || 'Hugo Member',
+      avatarUrl: bio.avatarUrl || '',
+      balance: bio.joyBalance
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/joy/resolve-qr?payload= — decode scanned QR to public info.
+router.get('/resolve-qr', async (req, res) => {
+  try {
+    const { payload } = req.query;
+    if (!payload || !payload.startsWith('joypay:')) {
+      return res.status(400).json({ error: 'Mã QR JOY không hợp lệ.' });
+    }
+    const referralCode = payload.replace('joypay:', '').trim().toUpperCase();
+    const bio = await Bio.findOne({ referralCode }).select('displayName avatarUrl referralCode');
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng này.' });
+    res.json({ displayName: bio.displayName || 'Hugo Member', avatarUrl: bio.avatarUrl || '', referralCode: bio.referralCode });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/joy/transfer  { fromEmail, toReferralCode|toEmail|toPhone, amount, message }
 router.post('/transfer', async (req, res) => {
   try {
-    const { fromEmail, toPhone, amount, message } = req.body;
-    if (!fromEmail || !toPhone) {
-      return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc số điện thoại người nhận.' });
+    const { fromEmail, toPhone, toReferralCode, toEmail, amount, message } = req.body;
+    if (!fromEmail || (!toPhone && !toReferralCode && !toEmail)) {
+      return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc người nhận.' });
     }
 
     const numAmount = Number(amount);
@@ -407,8 +481,15 @@ router.post('/transfer', async (req, res) => {
       return res.status(400).json({ error: `Tài khoản cần đủ ${TRANSFER_MIN_ACCOUNT_AGE_DAYS} ngày tuổi mới được gửi JOY.` });
     }
 
-    const recipient = await Bio.findOne({ phone: String(toPhone).trim() });
-    if (!recipient) return res.status(404).json({ error: 'Không tìm thấy người nhận với số điện thoại này.' });
+    let recipient;
+    if (toReferralCode) {
+      recipient = await Bio.findOne({ referralCode: String(toReferralCode).trim().toUpperCase() });
+    } else if (toEmail) {
+      recipient = await Bio.findOne({ $or: [{ email: toEmail }, { contactEmail: toEmail }] });
+    } else {
+      recipient = await Bio.findOne({ phone: String(toPhone).trim() });
+    }
+    if (!recipient) return res.status(404).json({ error: 'Không tìm thấy người nhận.' });
     if (recipient.email === sender.email) {
       return res.status(400).json({ error: 'Không thể tự gửi JOY cho chính mình.' });
     }
@@ -423,7 +504,7 @@ router.post('/transfer', async (req, res) => {
     const totalDeducted = numAmount + feeAmount;
 
     if (sender.joyBalance < totalDeducted) {
-      return res.status(400).json({ error: `Số dư JOY không đủ. Bạn cần ${totalDeducted} JOY (bao gồm ${feeAmount} JOY phí giao dịch).` });
+      return res.status(400).json({ error: `Số dư JOY không đủ. Bạn cần ${totalDeducted} JOY (bao gồm ${feeAmount} JOY phí sáng tạo).` });
     }
 
     const customMsg = message ? ` Lời nhắn: "${message}"` : '';

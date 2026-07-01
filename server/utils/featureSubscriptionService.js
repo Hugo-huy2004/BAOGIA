@@ -19,11 +19,10 @@ const FEATURE_LABELS = {
   hugoChess: 'HugoChess'
 };
 
-// Same 9% transaction-fee rate already used by the utility store (store_purchase)
-// — applied consistently across every new "trao đổi JOY" charge introduced here
-// (feature subscriptions, bio theme rental, file compression) so every invoice
-// in the app breaks down the same way: lệ phí + thuế giao dịch = tổng cộng.
-export const EXCHANGE_TAX_RATE = 0.09;
+// 10% creative fee applied to every JOY exchange — shown as "Phí sáng tạo"
+// in invoices. Flat rate across all charge types (feature subscriptions,
+// bio theme rental, file compression) so every invoice looks identical.
+export const EXCHANGE_TAX_RATE = 0.10;
 
 export function calcExchangeTotal(priceJoy) {
   const tax = Math.floor(priceJoy * EXCHANGE_TAX_RATE);
@@ -57,7 +56,7 @@ export async function chargeFeatureSubscription(email, featureKey, months = 1) {
     bio.email,
     -total,
     'feature_subscription',
-    `Trao đổi JOY mở khóa ${FEATURE_LABELS[featureKey]} (${months} tháng, gồm ${tax} JOY thuế giao dịch)`,
+    `Trao đổi JOY mở khóa ${FEATURE_LABELS[featureKey]} (${months} tháng, gồm ${tax} JOY phí sáng tạo)`,
     { bioDoc: bio, skipSave: true, refId: featureKey }
   );
 

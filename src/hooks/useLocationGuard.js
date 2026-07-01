@@ -10,6 +10,14 @@ import { useEffect, useRef } from "react";
 
 const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 const apiBase = import.meta.env.VITE_API_URL || "/api";
+const locationCheckLocks = new Map();
+const LOCATION_CHECK_COOLDOWN_MS = 15_000;
+
+const getLocationCheckKey = (email, lat, lng) => {
+  const roundedLat = Number(lat).toFixed(3);
+  const roundedLng = Number(lng).toFixed(3);
+  return `${email.trim().toLowerCase()}|${roundedLat}|${roundedLng}`;
+};
 
 export function useLocationGuard({ email, enabled = true, onAnomaly }) {
   const checkingRef = useRef(false);
@@ -26,6 +34,13 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           try {
+            const locationKey = getLocationCheckKey(email, pos.coords.latitude, pos.coords.longitude);
+            const lastRunAt = locationCheckLocks.get(locationKey) || 0;
+            if (Date.now() - lastRunAt < LOCATION_CHECK_COOLDOWN_MS) {
+              return;
+            }
+            locationCheckLocks.set(locationKey, Date.now());
+
             const res = await fetch(`${apiBase}/bios/me/check-location`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },

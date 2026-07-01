@@ -122,7 +122,7 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
   }
 
   return (
-    <div className={`chess-container min-h-screen app-theme-${appTheme}`}>
+    <div className={`chess-container${embedded ? " embedded" : ""} app-theme-${appTheme}`}>
       {/* Chess subscription paywall — only shown when launched from Arcade with
           a logged-in bio that has not yet subscribed to hugoChess. */}
       {embedded && bio && !chessSubscribed && (
@@ -236,16 +236,15 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
         }}
       />
 
-      {/* Always present while embedded — other Arcade games get a permanent
-          Quit affordance during play, Chess shouldn't be the one game where
-          leaving mid-match takes an extra hop through its own lobby first. */}
-      {embedded && (
+      {/* When in game screen (not lobby), show a floating quit button since
+          ChessLobby's header handles the ← HugoArcade affordance on the lobby screen. */}
+      {embedded && screen === "game" && (
         <button
-          onClick={onExitArcade}
+          onClick={handleBack}
           className="fixed top-3 left-3 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-950/70 hover:bg-indigo-900/80 border border-indigo-400/20 text-white text-[11px] font-bold backdrop-blur-md transition-all active:scale-95 shadow-lg"
           style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}
         >
-          {screen === "lobby" ? "← HugoArcade" : "✕ Thoát"}
+          ✕ Thoát
         </button>
       )}
       <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
@@ -255,22 +254,10 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
             onJoinRoom={handleJoinRoom}
             userInfo={userInfo}
             boardTheme={boardTheme}
-            setBoardTheme={setBoardTheme}
             myPieceTheme={myPieceTheme}
-            setMyPieceTheme={setMyPieceTheme}
             oppPieceTheme={oppPieceTheme}
-            setOppPieceTheme={setOppPieceTheme}
-            appTheme={appTheme}
-            setAppTheme={setAppTheme}
-            highlightTheme={highlightTheme}
-            setHighlightTheme={setHighlightTheme}
-            soundPack={soundPack}
-            setSoundPack={setSoundPack}
-            boardBorder={boardBorder}
-            setBoardBorder={setBoardBorder}
-            boardShadow={boardShadow}
-            setBoardShadow={setBoardShadow}
             embedded={embedded}
+            onBack={onExitArcade}
           />
         )}
         {screen === "game" && gameConfig && (
@@ -282,7 +269,14 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
             setUserInfo={setUserInfo}
             onRoomCreated={(id) => {
               setActiveRoomId(id);
-              if (window.location.pathname.includes("/member/utilities/chess")) {
+              if (embedded) {
+                // Only update the search params — navigating to a new path would
+                // trigger the /chess/:roomId → arcade redirect in App.jsx, which
+                // unmounts and remounts ChessGame and severs the WebSocket.
+                const sp = new URLSearchParams(window.location.search);
+                sp.set("room", id);
+                navigate({ search: sp.toString() }, { replace: true });
+              } else if (window.location.pathname.includes("/member/utilities/chess")) {
                 navigate(`/member/utilities/chess/${id}`, { replace: true });
               } else {
                 navigate(`/chess/${id}`, { replace: true });

@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { 
   FolderOpen, Folder, BookOpen, Database, Play, Plus, X, 
-  Terminal, AlertTriangle, Monitor, ArrowLeft, Save, Eye,
+  Terminal, AlertTriangle, ArrowLeft, Save, Eye,
   Edit2, Trash2, ChevronDown, ChevronRight, FileCode, FileText, FileJson,
-  Sparkles, CheckCircle, Award, RefreshCw
+  Sparkles, CheckCircle, Award, RefreshCw, Smartphone, ListChecks
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import confetti from "canvas-confetti";
 import { getMemberSession } from "../../services/authSession";
 import { useJoyStore } from "../../stores/joyStore";
-import { TEMPLATES, INITIAL_WORKSPACE, TUTORIALS, WEB_COURSES } from "./ideData";
+import { TEMPLATES, INITIAL_WORKSPACE, TUTORIALS, WEB_COURSES, MOBILE_GUIDE_EXTRAS, THEORY_LIBRARY } from "./ideData";
 import FeatureGate from "./shared/FeatureGate";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -59,11 +59,453 @@ const getFileIcon = (fileName) => {
   }
 };
 
+const renderMobileIllustration = (type) => {
+  const nodeClass = "rounded-lg border border-border bg-background px-3 py-2 text-[11px] font-black text-foreground shadow-sm";
+
+  if (type === "htmlTree") {
+    return (
+      <div className="relative overflow-hidden rounded-lg border border-border bg-white dark:bg-zinc-900 p-4">
+        <div className="absolute left-9 top-14 bottom-8 w-px bg-primary/25" />
+        <div className="space-y-2">
+          <div className={`${nodeClass} w-max animate-[hugoCodeGlow_2.4s_ease-in-out_infinite]`}>&lt;article&gt;</div>
+          <div className="ml-8 grid grid-cols-2 gap-2">
+            {["img", "h2", "p", "button"].map((tag, index) => (
+              <div key={tag} className={`${nodeClass} text-center animate-[hugoCodeFloat_2.8s_ease-in-out_infinite]`} style={{ animationDelay: `${index * 0.15}s` }}>
+                &lt;{tag}&gt;
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "boxModel") {
+    return (
+      <div className="rounded-lg border border-border bg-white dark:bg-zinc-900 p-4">
+        <div className="rounded-lg bg-amber-100 dark:bg-amber-500/15 p-4 text-center text-[10px] font-black text-amber-700 dark:text-amber-300 animate-[hugoCodeGlow_2.6s_ease-in-out_infinite]">
+          margin
+          <div className="mt-2 rounded-lg bg-sky-100 dark:bg-sky-500/15 p-4 text-sky-700 dark:text-sky-300">
+            border
+            <div className="mt-2 rounded-lg bg-emerald-100 dark:bg-emerald-500/15 p-4 text-emerald-700 dark:text-emerald-300">
+              padding
+              <div className="mt-2 rounded-lg bg-white dark:bg-zinc-950 border border-border p-3 text-foreground">content</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "eventFlow") {
+    return (
+      <div className="rounded-lg border border-border bg-white dark:bg-zinc-900 p-4">
+        <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2 text-center">
+          {["Click", "Listener", "UI đổi"].map((label, index) => (
+            <React.Fragment key={label}>
+              <div className={`${nodeClass} animate-[hugoCodeFloat_2.4s_ease-in-out_infinite]`} style={{ animationDelay: `${index * 0.2}s` }}>{label}</div>
+              {index < 2 && <div className="h-0.5 w-5 bg-primary animate-[hugoCodeSlide_1.4s_ease-in-out_infinite]" />}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "apiFlow") {
+    return (
+      <div className="rounded-lg border border-border bg-white dark:bg-zinc-900 p-4 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className={nodeClass}>Browser</div>
+          <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
+            <div className="h-full w-1/2 bg-primary animate-[hugoCodeSlide_1.2s_ease-in-out_infinite]" />
+          </div>
+          <div className={nodeClass}>API</div>
+        </div>
+        <div className="text-[11px] text-muted-foreground font-semibold">{"request -> JSON response -> render UI"}</div>
+      </div>
+    );
+  }
+
+  if (type === "sqlPipeline") {
+    return (
+      <div className="rounded-lg border border-border bg-white dark:bg-zinc-900 p-4">
+        <div className="flex gap-2 overflow-hidden">
+          {["FROM", "WHERE", "ORDER", "LIMIT"].map((step, index) => (
+            <div key={step} className="min-w-16 flex-1 rounded-lg border border-primary/20 bg-primary/10 px-2 py-3 text-center text-[10px] font-black text-primary animate-[hugoCodeFloat_2.8s_ease-in-out_infinite]" style={{ animationDelay: `${index * 0.18}s` }}>
+              {step}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+const getMobileVisualSet = (type) => {
+  const sets = {
+    htmlTree: {
+      title: "Bộ tranh HTML",
+      panels: [
+        { label: "Khung trang", title: "Article là hộp nội dung", caption: "Một vùng có ý nghĩa riêng, dễ đọc và dễ tái sử dụng.", tone: "sky" },
+        { label: "Nội dung", title: "Heading dẫn mắt", caption: "Tên sản phẩm nên là tiêu đề để người đọc lướt nhanh.", tone: "emerald" },
+        { label: "Hành động", title: "Button thật", caption: "Hành động bấm cần dùng button để truy cập tốt hơn.", tone: "violet" }
+      ],
+      modes: [
+        { id: "story", label: "Truyện", body: "Hãy tưởng tượng HTML là bản phác thảo kiến trúc: tường, cửa, biển tên và lối đi phải rõ trước khi sơn màu." },
+        { id: "diagram", label: "Sơ đồ", body: "Cây DOM đi từ article xuống img, h2, p, button. CSS và JS đều bám vào cây này để làm việc." },
+        { id: "memory", label: "Ghi nhớ", body: "Đọc HTML từ ngoài vào trong: container -> nội dung -> hành động." }
+      ]
+    },
+    boxModel: {
+      title: "Bộ tranh CSS",
+      panels: [
+        { label: "Khoảng thở", title: "Padding", caption: "Đẩy nội dung xa viền để card dễ đọc.", tone: "amber" },
+        { label: "Ranh giới", title: "Border", caption: "Tạo biên nhận diện giữa card và nền.", tone: "sky" },
+        { label: "Nhịp bố cục", title: "Margin", caption: "Tạo khoảng cách giữa card và phần tử xung quanh.", tone: "rose" }
+      ],
+      modes: [
+        { id: "story", label: "Truyện", body: "CSS giống người dàn trang: quyết định khoảng cách, độ nổi, điểm nhấn và cảm giác khi chạm." },
+        { id: "diagram", label: "Sơ đồ", body: "Box Model là 4 lớp. Nếu card quá to, hãy hỏi: do content, padding, border hay margin?" },
+        { id: "memory", label: "Ghi nhớ", body: "Layout trước, màu sắc sau. Khoảng cách nhất quán làm UI chuyên nghiệp hơn." }
+      ]
+    },
+    eventFlow: {
+      title: "Bộ tranh Javascript",
+      panels: [
+        { label: "Tín hiệu", title: "User click", caption: "Người dùng tạo event từ một hành động nhỏ.", tone: "emerald" },
+        { label: "Bộ nghe", title: "Listener", caption: "Code chờ đúng sự kiện để chạy logic.", tone: "violet" },
+        { label: "Phản hồi", title: "UI state", caption: "Giao diện đổi chữ, màu, số lượng hoặc trạng thái.", tone: "sky" }
+      ],
+      modes: [
+        { id: "story", label: "Truyện", body: "Javascript là nhân viên trực quầy: nghe người dùng gọi, kiểm tra yêu cầu, rồi cập nhật màn hình." },
+        { id: "diagram", label: "Sơ đồ", body: "Event đi vào listener, listener chạy function, function đổi DOM hoặc state." },
+        { id: "memory", label: "Ghi nhớ", body: "Query đúng phần tử trước, kiểm tra null, rồi mới gắn event." }
+      ]
+    },
+    apiFlow: {
+      title: "Bộ tranh API",
+      panels: [
+        { label: "Hỏi", title: "Request", caption: "Frontend gửi URL, method và thông tin cần thiết.", tone: "sky" },
+        { label: "Xử lý", title: "Server", caption: "Backend kiểm tra, đọc dữ liệu và tạo response.", tone: "amber" },
+        { label: "Hiển thị", title: "Render", caption: "JSON được chuyển thành nội dung người dùng thấy.", tone: "emerald" }
+      ],
+      modes: [
+        { id: "story", label: "Truyện", body: "API giống quầy thư viện: bạn đưa mã sách, thủ thư tìm dữ liệu, rồi trả đúng thông tin." },
+        { id: "diagram", label: "Sơ đồ", body: "Loading -> request -> parse JSON -> success hoặc error. Đó là khung UI tối thiểu." },
+        { id: "memory", label: "Ghi nhớ", body: "Luôn thiết kế trạng thái lỗi; mạng không bao giờ chắc chắn 100%." }
+      ]
+    },
+    sqlPipeline: {
+      title: "Bộ tranh SQL",
+      panels: [
+        { label: "Nguồn", title: "FROM", caption: "Chọn bảng dữ liệu cần đọc.", tone: "violet" },
+        { label: "Lọc", title: "WHERE", caption: "Giảm dữ liệu về đúng điều kiện.", tone: "rose" },
+        { label: "Gọn", title: "LIMIT", caption: "Trả vừa đủ để giao diện chạy nhanh.", tone: "emerald" }
+      ],
+      modes: [
+        { id: "story", label: "Truyện", body: "SQL giống đặt câu hỏi với kho hàng: lấy từ kệ nào, lọc món nào, xếp ra sao, lấy bao nhiêu." },
+        { id: "diagram", label: "Sơ đồ", body: "FROM tạo nguồn, WHERE lọc dòng, ORDER BY sắp xếp, LIMIT chốt số lượng." },
+        { id: "memory", label: "Ghi nhớ", body: "Đừng update/delete nếu chưa có WHERE rõ ràng." }
+      ]
+    }
+  };
+
+  return sets[type] || sets.htmlTree;
+};
+
+const renderVisualArtwork = (panel, index) => {
+  const toneMap = {
+    sky: "from-sky-50 via-card to-white dark:from-sky-500/15 dark:via-zinc-950 dark:to-zinc-900 border-sky-200 dark:border-sky-500/25 text-sky-700 dark:text-sky-300",
+    emerald: "from-emerald-50 via-card to-white dark:from-emerald-500/15 dark:via-zinc-950 dark:to-zinc-900 border-emerald-200 dark:border-emerald-500/25 text-emerald-700 dark:text-emerald-300",
+    violet: "from-violet-50 via-card to-white dark:from-violet-500/15 dark:via-zinc-950 dark:to-zinc-900 border-violet-200 dark:border-violet-500/25 text-violet-700 dark:text-violet-300",
+    amber: "from-amber-50 via-card to-white dark:from-amber-500/15 dark:via-zinc-950 dark:to-zinc-900 border-amber-200 dark:border-amber-500/25 text-amber-700 dark:text-amber-300",
+    rose: "from-rose-50 via-card to-white dark:from-rose-500/15 dark:via-zinc-950 dark:to-zinc-900 border-rose-200 dark:border-rose-500/25 text-rose-700 dark:text-rose-300"
+  };
+  const tone = toneMap[panel.tone] || toneMap.sky;
+  const artKey = `${panel.label} ${panel.title}`.toLowerCase();
+  const labelClass = "rounded-md border border-current/20 bg-white/85 dark:bg-zinc-950/75 px-2 py-1 text-[8px] font-black uppercase shadow-sm backdrop-blur";
+  const surfaceClass = "bg-white/85 dark:bg-zinc-950/70 border border-current/20 shadow-sm";
+  const softSurfaceClass = "bg-white/60 dark:bg-white/10 border border-current/15";
+
+  const renderArt = () => {
+    if (artKey.includes("article") || artKey.includes("khung")) {
+      return (
+        <>
+          <div className={`absolute inset-x-5 top-5 h-28 rounded-xl ${surfaceClass} animate-[hugoCodeGlow_2.4s_ease-in-out_infinite]`} />
+          <div className="absolute left-9 top-9 right-9 h-5 rounded-md bg-current/15" />
+          <div className={`absolute left-9 top-20 w-24 h-8 rounded-lg ${softSurfaceClass}`} />
+          <div className={`absolute right-9 top-[68px] w-14 h-14 rounded-lg ${softSurfaceClass}`} />
+          <div className="absolute left-9 right-9 bottom-7 grid grid-cols-3 gap-2">
+            {[0, 1, 2].map((item) => <span key={item} className="h-2 rounded-full bg-current/25" />)}
+          </div>
+          <span className={`absolute left-7 top-6 ${labelClass}`}>article</span>
+          <span className={`absolute right-7 bottom-5 ${labelClass}`}>container</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("heading") || artKey.includes("nội dung")) {
+      return (
+        <>
+          <div className={`absolute left-5 right-5 top-5 h-10 rounded-xl ${surfaceClass}`} />
+          <div className="absolute left-9 top-9 w-24 h-4 rounded bg-current/35 animate-[hugoCodePulse_2s_ease-in-out_infinite]" />
+          <div className={`absolute left-5 right-5 top-20 h-20 rounded-xl ${softSurfaceClass}`} />
+          <div className="absolute left-9 top-26 right-14 h-3 rounded bg-current/20" />
+          <div className="absolute left-9 top-34 right-9 h-3 rounded bg-current/15" />
+          <div className="absolute left-9 bottom-5 flex gap-2">
+            <span className="w-12 h-3 rounded-full bg-current/20" />
+            <span className="w-16 h-3 rounded-full bg-current/15" />
+          </div>
+          <span className={`absolute right-7 top-7 ${labelClass}`}>h2</span>
+          <span className={`absolute left-7 bottom-5 ${labelClass}`}>paragraph</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("button") || artKey.includes("hành động")) {
+      return (
+        <>
+          <div className="absolute left-1/2 top-6 w-24 h-24 -translate-x-1/2 rounded-full border-[10px] border-current/15 animate-[hugoCodePulse_2.2s_ease-in-out_infinite]" />
+          <div className="absolute left-1/2 top-14 w-10 h-10 -translate-x-1/2 rounded-full bg-current/25" />
+          <div className="absolute left-9 right-9 bottom-7 h-[52px] rounded-xl bg-current text-white dark:text-zinc-950 flex items-center justify-center text-xs font-black shadow-lg animate-[hugoCodeFloat_2.4s_ease-in-out_infinite]">
+            BUTTON
+          </div>
+          <div className="absolute left-14 right-14 bottom-5 h-px bg-current/35" />
+          <span className={`absolute left-7 top-7 ${labelClass}`}>tap event</span>
+          <span className={`absolute right-7 bottom-5 ${labelClass}`}>action</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("padding")) {
+      return (
+        <>
+          <div className="absolute inset-5 rounded-xl bg-current/10 border-2 border-dashed border-current/35 p-6">
+            <div className={`w-full h-full rounded-lg ${surfaceClass}`} />
+          </div>
+          <div className="absolute left-9 right-9 top-9 h-2 rounded bg-current/40 animate-[hugoCodePulse_2s_ease-in-out_infinite]" />
+          <div className="absolute left-9 right-9 bottom-9 h-2 rounded bg-current/25" />
+          <span className={`absolute left-7 top-6 ${labelClass}`}>padding 20px</span>
+          <span className={`absolute right-7 bottom-6 ${labelClass}`}>content</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("border")) {
+      return (
+        <>
+          <div className={`absolute inset-7 rounded-xl border-4 border-current/70 bg-white/50 dark:bg-white/10 animate-[hugoCodeGlow_2.3s_ease-in-out_infinite]`} />
+          <div className="absolute left-12 right-12 top-15 h-5 rounded bg-current/20" />
+          <div className="absolute left-12 right-20 top-24 h-3 rounded bg-current/15" />
+          <div className="absolute inset-x-12 bottom-8 h-8 rounded-lg bg-current/10 border border-current/20" />
+          <span className={`absolute right-7 top-7 ${labelClass}`}>1px solid</span>
+          <span className={`absolute left-7 bottom-6 ${labelClass}`}>edge</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("margin")) {
+      return (
+        <>
+          <div className="absolute inset-3 rounded-xl border border-dashed border-current/45 bg-current/5" />
+          <div className={`absolute inset-10 rounded-lg ${surfaceClass} animate-[hugoCodeFloat_2.8s_ease-in-out_infinite]`} />
+          <div className="absolute left-4 top-1/2 w-7 h-1 rounded bg-current/45" />
+          <div className="absolute right-4 top-1/2 w-7 h-1 rounded bg-current/45" />
+          <div className="absolute left-1/2 top-4 h-7 w-1 -translate-x-1/2 rounded bg-current/35" />
+          <span className={`absolute left-7 top-6 ${labelClass}`}>outside</span>
+          <span className={`absolute right-7 bottom-6 ${labelClass}`}>margin</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("click") || artKey.includes("tín hiệu")) {
+      return (
+        <>
+          <div className="absolute left-8 top-8 w-24 h-24 rounded-full bg-current/10 border border-current/25 animate-[hugoCodePulse_1.6s_ease-in-out_infinite]" />
+          <div className={`absolute left-16 top-[68px] w-16 h-[52px] rounded-lg ${surfaceClass} rotate-12`} />
+          <div className="absolute left-[88px] top-[88px] w-5 h-5 rounded-full bg-current/45" />
+          <div className="absolute right-7 top-12 w-16 h-px bg-current/35" />
+          <div className="absolute right-8 bottom-8 h-3 w-24 rounded bg-current/25" />
+          <span className={`absolute left-7 top-6 ${labelClass}`}>click</span>
+          <span className={`absolute right-7 bottom-6 ${labelClass}`}>signal</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("listener") || artKey.includes("bộ nghe")) {
+      return (
+        <>
+          <div className="absolute left-6 top-6 bottom-6 w-[72px] rounded-xl bg-zinc-950 text-emerald-300 p-3 text-[9px] font-mono leading-4 shadow-lg">btn<br/>.<br/>addEvent</div>
+          <div className={`absolute right-6 top-7 bottom-7 w-24 rounded-xl ${surfaceClass}`} />
+          <div className="absolute left-[120px] right-11 top-12 h-2 rounded bg-current/25 animate-[hugoCodeSlide_1.5s_ease-in-out_infinite]" />
+          <div className="absolute left-[120px] right-14 top-[88px] h-2 rounded bg-current/20" />
+          <div className="absolute left-[120px] right-[72px] top-32 h-2 rounded bg-current/15" />
+          <span className={`absolute left-7 bottom-6 ${labelClass}`}>listener</span>
+          <span className={`absolute right-8 top-9 ${labelClass}`}>handler</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("state") || artKey.includes("phản hồi")) {
+      return (
+        <>
+          <div className={`absolute left-6 right-6 top-5 h-24 rounded-xl ${surfaceClass}`} />
+          <div className="absolute left-10 top-10 w-12 h-12 rounded-lg bg-current/15" />
+          <div className="absolute left-28 right-10 top-12 h-4 rounded bg-current/30 animate-[hugoCodePulse_1.8s_ease-in-out_infinite]" />
+          <div className="absolute left-28 right-20 top-[88px] h-3 rounded bg-current/20" />
+          <div className="absolute right-10 bottom-5 w-12 h-8 rounded-lg bg-current/30" />
+          <span className={`absolute left-7 bottom-6 ${labelClass}`}>state changed</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("request") || artKey.includes("hỏi")) {
+      return (
+        <>
+          <div className={`absolute left-5 top-14 w-[88px] h-[60px] rounded-lg ${surfaceClass}`} />
+          <div className="absolute left-8 top-[76px] right-[192px] h-2 rounded bg-current/25" />
+          <div className="absolute left-[116px] right-14 top-20 h-2 rounded bg-current/35 animate-[hugoCodeSlide_1.3s_ease-in-out_infinite]" />
+          <div className="absolute right-5 top-14 w-16 h-[60px] rounded-lg bg-current/15 border border-current/25" />
+          <span className={`absolute left-7 top-7 ${labelClass}`}>GET /users</span>
+          <span className={`absolute right-7 bottom-6 ${labelClass}`}>endpoint</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("server") || artKey.includes("xử lý")) {
+      return (
+        <>
+          <div className="absolute left-1/2 top-5 w-[104px] h-[120px] -translate-x-1/2 rounded-xl bg-zinc-950 text-current p-3 space-y-2 shadow-xl">
+            {[0, 1, 2].map((row) => <div key={row} className="h-3 rounded bg-current/50 animate-[hugoCodePulse_2s_ease-in-out_infinite]" style={{ animationDelay: `${row * 0.2}s` }} />)}
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <span className="h-5 rounded bg-current/25" />
+              <span className="h-5 rounded bg-current/15" />
+            </div>
+          </div>
+          <div className="absolute left-8 top-12 w-8 h-8 rounded-full bg-current/15" />
+          <div className="absolute right-8 bottom-8 w-8 h-8 rounded-full bg-current/15" />
+          <span className={`absolute left-7 bottom-6 ${labelClass}`}>validate</span>
+          <span className={`absolute right-7 top-7 ${labelClass}`}>logic</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("render") || artKey.includes("hiển thị")) {
+      return (
+        <>
+          <div className={`absolute inset-x-6 top-5 h-28 rounded-xl ${surfaceClass}`} />
+          <div className="absolute left-10 top-10 w-10 h-10 rounded-lg bg-current/20" />
+          <div className="absolute left-[104px] right-10 top-12 h-3 rounded bg-current/25" />
+          <div className="absolute left-[104px] right-20 top-20 h-3 rounded bg-current/15" />
+          <div className="absolute left-10 right-10 bottom-7 h-7 rounded-lg bg-current/15 border border-current/20" />
+          <span className={`absolute right-7 top-7 ${labelClass}`}>{"JSON -> UI"}</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("from") || artKey.includes("nguồn")) {
+      return (
+        <>
+          <div className={`absolute inset-x-8 top-6 bottom-6 rounded-xl ${surfaceClass} overflow-hidden`}>
+            {[0, 1, 2, 3].map((row) => <div key={row} className="h-7 border-b border-current/15 flex gap-2 px-3 items-center"><span className="w-8 h-2 rounded bg-current/25" /><span className="flex-1 h-2 rounded bg-current/15" /></div>)}
+          </div>
+          <span className={`absolute left-7 top-7 ${labelClass}`}>products table</span>
+          <span className={`absolute right-7 bottom-6 ${labelClass}`}>rows</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("where") || artKey.includes("lọc")) {
+      return (
+        <>
+          <div className={`absolute left-7 right-7 top-6 h-28 rounded-xl ${surfaceClass}`} />
+          <div className="absolute left-12 right-12 top-12 h-4 rounded bg-current/15" />
+          <div className="absolute left-12 right-20 top-20 h-4 rounded bg-current/40 animate-[hugoCodePulse_1.7s_ease-in-out_infinite]" />
+          <div className="absolute left-12 right-28 top-28 h-4 rounded bg-current/15" />
+          <div className="absolute right-11 top-[76px] w-7 h-7 rounded-full border-2 border-current/55" />
+          <span className={`absolute left-7 top-7 ${labelClass}`}>price &gt; 1000</span>
+          <span className={`absolute right-7 bottom-6 ${labelClass}`}>filter</span>
+        </>
+      );
+    }
+
+    if (artKey.includes("limit") || artKey.includes("gọn")) {
+      return (
+        <>
+          {[0, 1, 2].map((row) => (
+            <div key={row} className={`absolute left-8 right-8 h-8 rounded-lg ${surfaceClass} animate-[hugoCodeFloat_2.6s_ease-in-out_infinite]`} style={{ top: `${24 + row * 36}px`, animationDelay: `${row * 0.15}s` }}>
+              <span className="absolute left-3 top-3 w-10 h-2 rounded bg-current/25" />
+              <span className="absolute left-18 right-3 top-3 h-2 rounded bg-current/15" />
+            </div>
+          ))}
+          <div className="absolute right-8 bottom-5 rounded-md bg-current/25 px-3 py-1 text-[10px] font-black">LIMIT 3</div>
+          <span className={`absolute left-7 top-7 ${labelClass}`}>output</span>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <div className="absolute inset-x-4 top-4 h-7 rounded-md bg-white/80 dark:bg-white/10 border border-white/70 dark:border-white/10 animate-[hugoCodePulse_2s_ease-in-out_infinite]" />
+        <div className="absolute left-4 right-16 top-16 h-12 rounded-lg bg-white/70 dark:bg-white/10 border border-white/70 dark:border-white/10" />
+        <div className="absolute right-4 top-16 w-10 h-12 rounded-lg bg-current opacity-20 animate-[hugoCodeFloat_2.4s_ease-in-out_infinite]" style={{ animationDelay: `${index * 0.15}s` }} />
+      </>
+    );
+  };
+
+  return (
+    <div key={`${panel.label}-${panel.title}`} className={`shrink-0 w-[74vw] max-w-[300px] overflow-hidden rounded-lg border bg-gradient-to-br ${tone}`}>
+      <div
+        className="h-44 p-4 relative overflow-hidden"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
+          backgroundSize: "22px 22px",
+          backgroundPosition: "-1px -1px",
+          opacity: 1
+        }}
+      >
+        <div className="absolute inset-0 bg-white/70 dark:bg-zinc-950/80" />
+        <div className="absolute left-4 top-4 text-[9px] font-black uppercase opacity-50">{String(index + 1).padStart(2, "0")}</div>
+        {renderArt()}
+      </div>
+      <div className="border-t border-current/15 bg-white/75 dark:bg-zinc-950/40 p-3">
+        <span className="text-[10px] font-black uppercase opacity-80">{panel.label}</span>
+        <h4 className="text-sm font-black text-foreground mt-0.5">{panel.title}</h4>
+        <p className="text-xs leading-5 text-muted-foreground mt-1">{panel.caption}</p>
+      </div>
+    </div>
+  );
+};
+
+const renderStudyModePanel = (visualSet, activeMode) => {
+  const mode = visualSet.modes.find(item => item.id === activeMode) || visualSet.modes[0];
+  const modeIndex = visualSet.modes.findIndex(item => item.id === mode.id);
+
+  return (
+    <div className="rounded-lg border border-border bg-background p-4 overflow-hidden">
+      <div className="h-24 rounded-lg border border-border bg-white dark:bg-zinc-950 relative overflow-hidden">
+        <div className="absolute left-3 top-3 bottom-3 w-12 rounded-md bg-primary/10 border border-primary/20 animate-[hugoCodeFloat_2.8s_ease-in-out_infinite]" />
+        <div className="absolute left-20 right-3 top-4 h-3 rounded bg-muted" />
+        <div className="absolute left-20 right-8 top-9 h-3 rounded bg-muted" />
+        <div className="absolute left-20 right-16 top-14 h-3 rounded bg-muted" />
+        <div className="absolute bottom-3 left-20 h-6 w-24 rounded-md bg-primary/15 border border-primary/20 animate-[hugoCodePulse_2s_ease-in-out_infinite]" style={{ animationDelay: `${modeIndex * 0.15}s` }} />
+      </div>
+      <h4 className="mt-3 text-sm font-black text-foreground">{mode.label}</h4>
+      <p className="mt-1 text-sm leading-6 text-muted-foreground">{mode.body}</p>
+    </div>
+  );
+};
+
 export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   const [isDesktop, setIsDesktop] = useState(true);
   const [activeSidebarTab, setActiveSidebarTab] = useState("explorer"); // explorer, learn, db
 
   const [activeCourseId, setActiveCourseId] = useState(null);
+  const [mobileStudyMode, setMobileStudyMode] = useState("story");
   const [completedLessons, setCompletedLessons] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("student_ide_progress") || "[]");
@@ -101,17 +543,20 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email: session.email, lessonId: course.id })
             });
-            if (r.ok) {
-              const resData = await r.json();
-              if (resData.success && !resData.alreadyCompleted) {
-                toast.success("Tuyệt vời! Bạn được thưởng +30 JOY!", { icon: "🎉" });
-                useJoyStore.getState().fetchBalance(session.email);
-              } else {
-                toast.success("Chính xác! Bài học đã được xác minh hoàn thành.");
-              }
+            if (!r.ok) {
+              const errorText = await r.text().catch(() => "");
+              throw new Error(errorText || `API award-learning failed with status ${r.status}`);
+            }
+            const resData = await r.json();
+            if (resData.success && !resData.alreadyCompleted) {
+              toast.success("Tuyệt vời! Bạn được thưởng +30 JOY!", { icon: "🎉" });
+              useJoyStore.getState().fetchBalance(session.email);
+            } else {
+              toast.success("Chính xác! Bài học đã được xác minh hoàn thành.");
             }
           } catch (e) {
             console.error("Error awarding joy for learning:", e);
+            toast.error("Không thể ghi nhận phần thưởng JOY, vui lòng thử lại.");
           }
         } else {
           toast.success("Chính xác! Bài học đã được xác minh hoàn thành.");
@@ -157,13 +602,54 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   const [previewMode, setPreviewMode] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [saveStatus, setSaveStatus] = useState("Đã lưu tất cả");
+  const [mobileRunKey, setMobileRunKey] = useState(0);
 
   // Inline inputs state (New File, New Folder, Rename)
   // { type: 'new_file' | 'new_folder' | 'rename', parentPath?: string, targetPath?: string, oldName?: string, value: string }
   const [inlineAction, setInlineAction] = useState(null);
   const inputRef = useRef(null);
 
-  const activeFile = workspaceFiles.find(f => f.path === activeTabPath) || null;
+  const activeFile = useMemo(
+    () => workspaceFiles.find(f => f.path === activeTabPath) || null,
+    [workspaceFiles, activeTabPath]
+  );
+
+  const workspaceTree = useMemo(
+    () => buildTree(workspaceFiles, folders),
+    [workspaceFiles, folders]
+  );
+
+  const mobileCourse = useMemo(
+    () => WEB_COURSES.find(c => c.id === activeCourseId) || WEB_COURSES[0],
+    [activeCourseId]
+  );
+
+  const mobileExtra = useMemo(
+    () => MOBILE_GUIDE_EXTRAS[mobileCourse?.id] || {},
+    [mobileCourse?.id]
+  );
+
+  const mobileVisualSet = useMemo(
+    () => getMobileVisualSet(mobileExtra.visualType),
+    [mobileExtra.visualType]
+  );
+
+  const mobileDemoCode = useMemo(
+    () => mobileExtra.demoCode || mobileCourse?.starterCode || "",
+    [mobileExtra.demoCode, mobileCourse?.starterCode]
+  );
+
+  const mobileCompletedCount = useMemo(
+    () => completedLessons.filter(id => WEB_COURSES.some(course => course.id === id)).length,
+    [completedLessons]
+  );
+
+  const mobileProgress = useMemo(
+    () => Math.round((mobileCompletedCount / WEB_COURSES.length) * 100),
+    [mobileCompletedCount]
+  );
+
+  const canPreviewMobileCourse = mobileCourse?.lang === "html";
 
   // Track desktop size
   useEffect(() => {
@@ -869,7 +1355,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   };
 
   // Build recursive structure for tree display
-  const buildTree = (files, folderPaths) => {
+  function buildTree(files, folderPaths) {
     const root = { name: "Root", path: "", type: "folder", children: [] };
     
     if (Array.isArray(folderPaths)) {
@@ -922,7 +1408,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
     }
 
     return root;
-  };
+  }
 
   // Recursive Tree Rendering function
   const renderTree = (node, level = 0) => {
@@ -1087,29 +1573,306 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
     );
   };
 
-  const workspaceTree = buildTree(workspaceFiles, folders);
-
-  // Desktop check view
+  // Mobile PWA reads like a guidebook, while desktop keeps the full IDE.
   if (!isDesktop) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[500px] p-6 text-center space-y-6 bg-white dark:bg-background rounded-xl border border-border dark:border-border">
-        <div className="w-16 h-16 rounded-full bg-destructive/10 dark:bg-destructive/20 flex items-center justify-center text-destructive">
-          <Monitor className="w-8 h-8 animate-pulse" />
+      <FeatureGate
+        bio={bio}
+        featureKey="hugoCoder"
+        priceJoy={150}
+        icon="terminal"
+        title="Trao đổi JOY để mở khóa HugoCoder"
+        description="Đọc sách hướng dẫn, xem demo chạy code và học lập trình ngay trên điện thoại."
+        onBioUpdate={onBioUpdate}
+        onBack={onBack}
+        className="max-w-lg mx-auto mt-10"
+      >
+        <div className="fixed inset-0 z-50 bg-[#f8fafc] dark:bg-[#09090b] text-foreground overflow-y-auto">
+          <style>{`
+            @keyframes hugoCodeFloat {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-6px); }
+            }
+            @keyframes hugoCodeGlow {
+              0%, 100% { box-shadow: 0 0 0 rgba(79, 70, 229, 0); }
+              50% { box-shadow: 0 16px 35px rgba(79, 70, 229, 0.16); }
+            }
+            @keyframes hugoCodeSlide {
+              0% { transform: translateX(-85%); opacity: .35; }
+              50% { opacity: 1; }
+              100% { transform: translateX(115%); opacity: .35; }
+            }
+            @keyframes hugoCodePulse {
+              0%, 100% { transform: scaleX(.92); opacity: .55; }
+              50% { transform: scaleX(1); opacity: 1; }
+            }
+          `}</style>
+          <header className="sticky top-0 z-20 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-b border-border px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <button
+                onClick={onBack}
+                className="w-9 h-9 rounded-lg border border-border bg-background flex items-center justify-center text-muted-foreground active:scale-95 transition-all"
+                aria-label="Quay lại"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase text-primary">HugoCoder Mobile</p>
+                <h2 className="text-sm font-black truncate">Sách hướng dẫn lập trình</h2>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                <Smartphone className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${mobileProgress}%` }} />
+            </div>
+          </header>
+
+          <main className="px-4 py-5 pb-24 space-y-5">
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-black uppercase text-muted-foreground">Mục lục bài học</h3>
+                <span className="text-[10px] font-bold text-primary">{mobileCompletedCount}/{WEB_COURSES.length} hoàn thành</span>
+              </div>
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1">
+                {WEB_COURSES.map((course, index) => {
+                  const isActive = mobileCourse?.id === course.id;
+                  const isCompleted = completedLessons.includes(course.id);
+                  return (
+                    <button
+                      key={course.id}
+                      onClick={() => {
+                        setActiveCourseId(course.id);
+                        setMobileStudyMode("story");
+                        setVerificationStatus(null);
+                      }}
+                      className={`shrink-0 w-[78vw] max-w-[320px] text-left p-4 rounded-lg border transition-all active:scale-[0.98] ${
+                        isActive
+                          ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                          : "bg-white dark:bg-zinc-900 border-border text-foreground"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <span className={`text-[10px] font-black uppercase ${isActive ? "text-white/70" : "text-muted-foreground"}`}>Bài {index + 1}</span>
+                        {isCompleted && <CheckCircle className={`w-4 h-4 ${isActive ? "text-white" : "text-success"}`} />}
+                      </div>
+                      <p className="mt-2 text-sm font-black leading-snug">{course.title.replace(/^\d+\.\s*/, "")}</p>
+                      <p className={`mt-2 text-[11px] font-semibold ${isActive ? "text-white/75" : "text-muted-foreground"}`}>{course.file}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-black leading-tight">{mobileCourse.title}</h3>
+              </div>
+              <article className="px-4 py-4 text-muted-foreground">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    h3: ({node, ...props}) => <h3 className="text-base font-black text-foreground mt-4 mb-2" {...props} />,
+                    p: ({node, ...props}) => <p className="text-sm leading-7 mb-3" {...props} />,
+                    strong: ({node, ...props}) => <strong className="font-black text-foreground" {...props} />,
+                    pre: ({node, ...props}) => <pre className="bg-zinc-950 text-zinc-100 border border-zinc-800 p-3 rounded-lg text-xs font-mono overflow-x-auto mb-4" {...props} />,
+                    code: ({node, inline, ...props}) => inline
+                      ? <code className="bg-muted px-1.5 py-0.5 rounded text-xs text-primary font-mono" {...props} />
+                      : <code className="font-mono text-xs" {...props} />,
+                    ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-3 space-y-1.5 text-sm leading-7" {...props} />,
+                    ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-3 space-y-1.5 text-sm leading-7" {...props} />,
+                    li: ({node, ...props}) => <li {...props} />
+                  }}
+                >
+                  {mobileCourse.theory}
+                </ReactMarkdown>
+              </article>
+            </section>
+
+            <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-black uppercase text-primary">Đa dạng cách học</span>
+                  <h3 className="text-sm font-black">{mobileVisualSet.title}</h3>
+                </div>
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {mobileVisualSet.modes.map((mode) => (
+                  <button
+                    key={mode.id}
+                    onClick={() => setMobileStudyMode(mode.id)}
+                    className={`h-9 rounded-lg border text-[11px] font-black transition-all active:scale-95 ${
+                      mobileStudyMode === mode.id
+                        ? "bg-primary text-white border-primary"
+                        : "bg-background text-muted-foreground border-border"
+                    }`}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
+              {renderStudyModePanel(mobileVisualSet, mobileStudyMode)}
+            </section>
+
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-black uppercase text-muted-foreground">Hình minh họa sống động</h3>
+                <span className="text-[10px] font-bold text-primary">{mobileVisualSet.panels.length} tranh</span>
+              </div>
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1">
+                {mobileVisualSet.panels.map((panel, index) => renderVisualArtwork(panel, index))}
+              </div>
+            </section>
+
+            <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-black">Mô hình tư duy</h3>
+              </div>
+              {renderMobileIllustration(mobileExtra.visualType)}
+              <p className="text-sm leading-7 text-muted-foreground">{mobileExtra.mentalModel}</p>
+              <div className="grid grid-cols-1 gap-2">
+                {(mobileExtra.keyIdeas || []).map((idea, index) => (
+                  <div key={idea} className="flex items-start gap-3 rounded-lg border border-border bg-background p-3">
+                    <span className="mt-0.5 w-5 h-5 rounded-md bg-primary text-white flex items-center justify-center text-[10px] font-black">{index + 1}</span>
+                    <p className="text-sm leading-6 text-muted-foreground">{idea}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-black">Đào sâu kiến thức</h3>
+              {(mobileExtra.deepDive || []).map((item) => (
+                <div key={item.title} className="rounded-lg border border-border bg-background p-3">
+                  <h4 className="text-xs font-black text-foreground">{item.title}</h4>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.body}</p>
+                </div>
+              ))}
+            </section>
+
+            <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <ListChecks className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-black">Checklist hiểu bài</h3>
+              </div>
+              <ul className="space-y-3">
+                {mobileCourse.tasks.map((task, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm leading-6 text-muted-foreground">
+                    <span className="mt-0.5 w-5 h-5 rounded-md border border-primary/30 bg-primary/10 text-primary flex items-center justify-center text-[10px] font-black">{i + 1}</span>
+                    <span>{task}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="grid grid-cols-1 gap-3">
+              <div className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
+                <h3 className="text-sm font-black">Lỗi hay gặp</h3>
+                <ul className="space-y-2">
+                  {(mobileExtra.commonMistakes || []).map((mistake) => (
+                    <li key={mistake} className="text-sm leading-6 text-muted-foreground border-l-2 border-warning pl-3">{mistake}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
+                <h3 className="text-sm font-black">Tự hỏi nhanh</h3>
+                <ul className="space-y-2">
+                  {(mobileExtra.quiz || []).map((question) => (
+                    <li key={question} className="rounded-lg bg-primary/10 border border-primary/20 p-3 text-sm leading-6 text-primary font-semibold">{question}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
+            <section className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden text-zinc-100">
+              <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase text-emerald-400">Chạy thử để xem</p>
+                  <h3 className="text-sm font-black truncate">{mobileCourse.file}</h3>
+                </div>
+                <button
+                  onClick={() => setMobileRunKey(Date.now())}
+                  className="shrink-0 h-9 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black flex items-center gap-1.5 active:scale-95 transition-all"
+                >
+                  <Play className="w-3.5 h-3.5" />
+                  Chạy
+                </button>
+              </div>
+              <pre className="max-h-56 overflow-auto p-4 text-[11px] leading-5 font-mono text-zinc-300 whitespace-pre-wrap">
+                {mobileDemoCode}
+              </pre>
+              {canPreviewMobileCourse ? (
+                <div className="bg-white border-t border-zinc-800">
+                  <iframe
+                    key={`${mobileCourse.id}-${mobileRunKey}`}
+                    title="Mobile code demo"
+                    srcDoc={mobileDemoCode}
+                    className="w-full h-72 border-0 bg-white"
+                    sandbox="allow-scripts allow-modals"
+                  />
+                </div>
+              ) : (
+                <div className="border-t border-zinc-800 p-4 text-xs leading-6 text-zinc-400">
+                  Bài này là dạng truy vấn hoặc backend nên điện thoại sẽ hiển thị code mẫu và hướng dẫn chạy. Khi mở trên desktop, HugoCoder sẽ chuyển về IDE đầy đủ.
+                </div>
+              )}
+            </section>
+
+            <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-black">Thư viện lý thuyết</h3>
+              <div className="grid grid-cols-1 gap-3">
+                {THEORY_LIBRARY.map((item) => (
+                  <details key={item.title} className="group border border-border rounded-lg p-3 bg-background">
+                    <summary className="cursor-pointer list-none flex items-start justify-between gap-3">
+                      <div>
+                        <span className="text-[10px] font-black uppercase text-primary">{item.level}</span>
+                        <h4 className="text-sm font-black text-foreground">{item.title}</h4>
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground group-open:rotate-180 transition-transform mt-1" />
+                    </summary>
+                    <p className="text-sm leading-6 text-muted-foreground mt-3">{item.summary}</p>
+                    <ul className="mt-3 space-y-1.5">
+                      {item.bullets.map((bullet) => (
+                        <li key={bullet} className="text-xs leading-5 text-muted-foreground flex items-start gap-2">
+                          <span className="mt-2 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          <span>{bullet}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ))}
+              </div>
+            </section>
+
+            <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-black">Nguồn kiến thức nhanh</h3>
+              <div className="space-y-3">
+                {TUTORIALS.map((tutorial) => (
+                  <details key={tutorial.lang} className="group border border-border rounded-lg p-3 bg-background">
+                    <summary className="cursor-pointer list-none flex items-center justify-between gap-3">
+                      <span className="font-black text-sm">{tutorial.lang}</span>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground group-open:rotate-180 transition-transform" />
+                    </summary>
+                    <p className="text-sm leading-6 text-muted-foreground mt-3">{tutorial.intro}</p>
+                    <div className="mt-3 space-y-3">
+                      {tutorial.sections.map((section) => (
+                        <div key={section.title} className="border-t border-border pt-3">
+                          <h4 className="text-xs font-black text-foreground">{section.title}</h4>
+                          <p className="text-xs leading-6 text-muted-foreground mt-1 whitespace-pre-line">{section.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </section>
+          </main>
         </div>
-        <div className="space-y-2 max-w-sm">
-          <h3 className="text-base font-black text-foreground dark:text-foreground uppercase tracking-wide">Yêu cầu thiết bị màn hình lớn</h3>
-          <p className="text-xs text-muted-foreground dark:text-muted-foreground leading-relaxed">
-            Tiện ích **Web-based IDE (Dev)** yêu cầu mở trên máy tính (Desktop/Laptop/Tablet ngang) 
-            để có đủ không gian soạn thảo code và sử dụng quyền đồng bộ dữ liệu file cục bộ từ trình duyệt.
-          </p>
-        </div>
-        <button 
-          onClick={onBack}
-          className="flex items-center gap-1.5 px-4 py-2 text-xs font-black uppercase bg-muted dark:bg-muted rounded hover:bg-accent text-foreground dark:text-foreground transition-all"
-        >
-          <ArrowLeft className="w-4 h-4" /> Quay Lại Dashboard
-        </button>
-      </div>
+      </FeatureGate>
     );
   }
 

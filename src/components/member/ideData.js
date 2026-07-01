@@ -133,6 +133,262 @@ export const TUTORIALS = [
   }
 ];
 
+export const MOBILE_GUIDE_EXTRAS = {
+  html_advanced: {
+    visualType: "htmlTree",
+    mentalModel: "HTML giống bản đồ phân cấp của một màn hình: phần tử lớn ôm phần tử nhỏ, nội dung quan trọng được đặt trong đúng ngữ nghĩa để trình duyệt, công cụ tìm kiếm và trình đọc màn hình đều hiểu.",
+    keyIdeas: [
+      "Một màn hình tốt bắt đầu bằng cấu trúc rõ, chưa cần đẹp ngay.",
+      "Thẻ bao ngoài tạo vùng trách nhiệm: card, header, list, form.",
+      "Tên class nên mô tả vai trò giao diện, không mô tả màu sắc nhất thời."
+    ],
+    deepDive: [
+      {
+        title: "DOM tree",
+        body: "Khi trình duyệt đọc HTML, nó biến các thẻ thành cây DOM. Javascript và CSS đều làm việc với cây này, nên HTML lộn xộn sẽ làm mọi phần sau khó hơn."
+      },
+      {
+        title: "Semantic trước div",
+        body: "Dùng section, article, nav, button, img có alt khi phù hợp. Div vẫn hữu ích, nhưng không nên là câu trả lời duy nhất."
+      }
+    ],
+    commonMistakes: [
+      "Đóng thẻ sai thứ tự khiến layout vỡ khó đoán.",
+      "Dùng quá nhiều div nhưng không có heading, alt hoặc button thật.",
+      "Đặt class như red-box rồi sau này đổi màu xanh sẽ mất nghĩa."
+    ],
+    quiz: [
+      "Vì sao thẻ button tốt hơn div onClick cho hành động bấm?",
+      "Nếu card có ảnh, tên, mô tả, nút, phần tử nào nên là heading?"
+    ],
+    demoCode: `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f8fafc; font-family: system-ui; }
+    article { width: 240px; padding: 18px; border: 1px solid #dbeafe; border-radius: 12px; background: white; box-shadow: 0 18px 45px rgba(15,23,42,.12); }
+    img { width: 100%; height: 130px; object-fit: cover; border-radius: 8px; background: linear-gradient(135deg,#93c5fd,#34d399); }
+    button { width: 100%; border: 0; border-radius: 8px; padding: 11px; background: #4f46e5; color: white; font-weight: 800; }
+  </style>
+</head>
+<body>
+  <article class="product-card">
+    <img alt="Giày thể thao cao cấp">
+    <h2>Giày Thể Thao Cao Cấp</h2>
+    <p>Thoáng khí, êm ái, phong cách.</p>
+    <button>Mua Ngay</button>
+  </article>
+</body>
+</html>`
+  },
+  css_advanced: {
+    visualType: "boxModel",
+    mentalModel: "CSS là hệ thống luật thị giác. Bạn không tô điểm từng chỗ rời rạc, bạn tạo quy tắc để khoảng cách, căn chỉnh và trạng thái lặp lại nhất quán.",
+    keyIdeas: [
+      "Box Model quyết định kích thước thật: content + padding + border + margin.",
+      "Flex/Grid giải quyết bố cục; position chỉ nên dùng khi thật cần lớp nổi.",
+      "Responsive tốt là đổi cấu trúc theo không gian, không chỉ thu nhỏ chữ."
+    ],
+    deepDive: [
+      {
+        title: "Cascade",
+        body: "CSS chọn luật thắng theo độ ưu tiên, vị trí khai báo và trạng thái. Khi style không ăn, hãy kiểm tra selector và rule nào đang ghi đè."
+      },
+      {
+        title: "Spacing system",
+        body: "Dùng một thang khoảng cách cố định giúp giao diện yên mắt hơn: 4, 8, 12, 16, 24, 32px thay vì mỗi chỗ một số ngẫu nhiên."
+      }
+    ],
+    commonMistakes: [
+      "Dùng margin để sửa mọi vấn đề thay vì xem lại bố cục cha.",
+      "Set width cố định làm vỡ màn hình nhỏ.",
+      "Quên trạng thái hover, focus, disabled."
+    ],
+    quiz: [
+      "Padding khác margin ở điểm nào?",
+      "Khi nào nên dùng grid thay vì flex?"
+    ],
+    demoCode: `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #eef2ff; font-family: system-ui; }
+    .product-card { width: 230px; border: 1px solid #111827; padding: 20px; text-align: center; border-radius: 12px; background: white; animation: lift 1.8s ease-in-out infinite alternate; }
+    .product-card img { width: 120px; height: 90px; border-radius: 10px; background: linear-gradient(135deg,#facc15,#fb7185); }
+    button { border: 0; border-radius: 8px; padding: 10px 16px; background: #111827; color: white; }
+    @keyframes lift { from { transform: translateY(0); box-shadow: 0 8px 22px rgba(0,0,0,.08); } to { transform: translateY(-8px); box-shadow: 0 18px 36px rgba(0,0,0,.16); } }
+  </style>
+</head>
+<body>
+  <div class="product-card">
+    <img alt="Sản phẩm">
+    <h2>Giày Thể Thao Cao Cấp</h2>
+    <p>Padding tạo hơi thở, border tạo khung.</p>
+    <button>Mua Ngay</button>
+  </div>
+</body>
+</html>`
+  },
+  js_advanced: {
+    visualType: "eventFlow",
+    mentalModel: "Javascript biến trang tĩnh thành hệ thống phản hồi. Người dùng tạo event, code xử lý event, giao diện đổi trạng thái.",
+    keyIdeas: [
+      "Event listener là cầu nối giữa hành động người dùng và logic.",
+      "DOM query nên rõ ràng, tránh tìm nhầm phần tử.",
+      "State là dữ liệu hiện tại của màn hình; UI nên phản ánh state."
+    ],
+    deepDive: [
+      {
+        title: "Event bubbling",
+        body: "Một click có thể đi từ phần tử con lên phần tử cha. Hiểu bubbling giúp bạn xử lý menu, modal, list item mà không viết quá nhiều listener."
+      },
+      {
+        title: "Tách tìm phần tử và xử lý",
+        body: "Đầu tiên lấy element, sau đó gắn sự kiện, cuối cùng viết hàm xử lý. Ba bước rõ ràng giúp debug nhanh."
+      }
+    ],
+    commonMistakes: [
+      "Chạy script trước khi HTML tồn tại.",
+      "Nhầm id hoặc class nên query trả về null.",
+      "Viết quá nhiều logic trực tiếp trong listener."
+    ],
+    quiz: [
+      "Điều gì xảy ra nếu getElementById trả về null?",
+      "Vì sao nên đặt script cuối body hoặc dùng defer?"
+    ],
+    demoCode: `<!DOCTYPE html>
+<html lang="vi">
+<body style="font-family:system-ui;display:grid;place-items:center;min-height:100vh;background:#f0fdf4">
+  <section style="background:white;border:1px solid #bbf7d0;border-radius:12px;padding:18px;width:250px;text-align:center">
+    <h2>Giỏ hàng</h2>
+    <p id="status">Chưa có sản phẩm.</p>
+    <button id="btn-mua" style="border:0;border-radius:8px;padding:11px 16px;background:#16a34a;color:white;font-weight:800">Mua Ngay</button>
+  </section>
+  <script>
+    const nutBam = document.getElementById("btn-mua");
+    const status = document.getElementById("status");
+    nutBam.addEventListener("click", function() {
+      status.textContent = "Thêm vào giỏ hàng thành công!";
+    });
+  </script>
+</body>
+</html>`
+  },
+  js_api_fetch: {
+    visualType: "apiFlow",
+    mentalModel: "API là hợp đồng trao đổi dữ liệu giữa client và server. Frontend hỏi đúng endpoint, server trả dữ liệu, UI biến dữ liệu đó thành trải nghiệm.",
+    keyIdeas: [
+      "Request gồm URL, method, headers và đôi khi có body.",
+      "Response cần được parse, thường là JSON.",
+      "Luôn nghĩ tới loading, success và error."
+    ],
+    deepDive: [
+      {
+        title: "Bất đồng bộ",
+        body: "Fetch không trả dữ liệu ngay. Nó trả Promise, nghĩa là một lời hứa sẽ hoàn tất sau. UI không nên đứng chờ cứng trong lúc request chạy."
+      },
+      {
+        title: "Network không chắc chắn",
+        body: "Mạng có thể chậm, server có thể lỗi, người dùng có thể offline. Code tốt luôn có đường lui."
+      }
+    ],
+    commonMistakes: [
+      "Quên response.json() nên chỉ nhận object Response.",
+      "Không bắt lỗi nên màn hình im lặng khi request fail.",
+      "Tin dữ liệu API 100% mà không kiểm tra thiếu field."
+    ],
+    quiz: [
+      "Promise giúp UI không bị treo như thế nào?",
+      "Ba trạng thái UI tối thiểu khi gọi API là gì?"
+    ],
+    demoCode: `<!DOCTYPE html>
+<html lang="vi">
+<body style="font-family:system-ui;display:grid;place-items:center;min-height:100vh;background:#eff6ff">
+  <section style="width:260px;background:white;border:1px solid #bfdbfe;border-radius:12px;padding:18px">
+    <h2>API Demo</h2>
+    <p id="result">Đang mô phỏng tải dữ liệu...</p>
+  </section>
+  <script>
+    const result = document.getElementById("result");
+    setTimeout(function() {
+      const data = { name: "Leanne Graham", role: "Frontend learner" };
+      result.textContent = "User: " + data.name + " - " + data.role;
+    }, 900);
+  </script>
+</body>
+</html>`
+  },
+  sql_advanced: {
+    visualType: "sqlPipeline",
+    mentalModel: "SQL là cách đặt câu hỏi chính xác với dữ liệu. Câu query tốt lọc trước, sắp xếp sau, giới hạn cuối cùng để trả đúng thứ cần dùng.",
+    keyIdeas: [
+      "WHERE giảm số dòng trước khi kết quả được dùng.",
+      "ORDER BY tạo thứ tự có ý nghĩa.",
+      "LIMIT bảo vệ giao diện khỏi tải quá nhiều dữ liệu."
+    ],
+    deepDive: [
+      {
+        title: "Tư duy pipeline",
+        body: "Hãy đọc query như một đường ống: lấy bảng, lọc điều kiện, sắp xếp, giới hạn. Khi sai kết quả, kiểm tra từng đoạn."
+      },
+      {
+        title: "Index",
+        body: "Ở dự án thật, cột hay lọc như price, status, email thường cần index để truy vấn nhanh hơn."
+      }
+    ],
+    commonMistakes: [
+      "Quên WHERE khi update hoặc delete.",
+      "Sắp xếp theo text số tiền thay vì kiểu number.",
+      "Dùng SELECT * cho màn hình chỉ cần vài cột."
+    ],
+    quiz: [
+      "Vì sao LIMIT quan trọng với danh sách sản phẩm?",
+      "WHERE và HAVING khác nhau ở mức tư duy nào?"
+    ]
+  }
+};
+
+export const THEORY_LIBRARY = [
+  {
+    title: "Tư duy Client - Server",
+    level: "Nền tảng",
+    summary: "Trình duyệt chịu trách nhiệm hiển thị và tương tác; server chịu trách nhiệm dữ liệu, xác thực và nghiệp vụ quan trọng.",
+    bullets: ["Client gửi request", "Server xử lý và trả response", "Frontend cập nhật UI từ dữ liệu nhận được"]
+  },
+  {
+    title: "Responsive Design",
+    level: "Giao diện",
+    summary: "Một giao diện tốt không chỉ co lại, mà biết ưu tiên nội dung khác nhau theo màn hình.",
+    bullets: ["Mobile đọc và thao tác nhanh", "Tablet cần bố cục thoáng", "Desktop tối ưu năng suất"]
+  },
+  {
+    title: "Accessibility",
+    level: "Chất lượng",
+    summary: "Code dễ tiếp cận giúp nhiều người dùng hơn và thường làm cấu trúc HTML sạch hơn.",
+    bullets: ["Button thật cho hành động", "Alt text cho ảnh có ý nghĩa", "Focus rõ khi dùng bàn phím"]
+  },
+  {
+    title: "State Management",
+    level: "Javascript",
+    summary: "State là sự thật hiện tại của giao diện. Khi state đổi, UI cần đổi theo một cách dự đoán được.",
+    bullets: ["Loading", "Empty", "Error", "Success"]
+  },
+  {
+    title: "Security Cơ Bản",
+    level: "Web",
+    summary: "Frontend không nên giữ bí mật quan trọng. Server phải kiểm tra quyền, dữ liệu đầu vào và phiên đăng nhập.",
+    bullets: ["Không tin input người dùng", "Không lộ secret key", "Kiểm tra quyền ở backend"]
+  },
+  {
+    title: "Performance",
+    level: "Trải nghiệm",
+    summary: "Nhanh không chỉ là tải nhanh, mà còn phản hồi nhanh sau mỗi thao tác.",
+    bullets: ["Giảm bundle lớn", "Lazy load phần nặng", "Tối ưu ảnh và cache"]
+  }
+];
+
 export const WEB_COURSES = [
   {
     id: "html_advanced",

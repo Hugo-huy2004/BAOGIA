@@ -62,7 +62,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com"],
       imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://img.vietqr.io"],
-      connectSrc: ["'self'", "https://api.cloudinary.com", "https://accounts.google.com"],
+      connectSrc: ["'self'", "wss:", "ws:", "https://api.cloudinary.com", "https://accounts.google.com"],
       frameSrc: ["'self'", "https://accounts.google.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
@@ -81,12 +81,16 @@ app.use(mongoSanitize());
 // Response Compression (Significantly reduces payload size)
 app.use(compression());
 
-// Rate Limiting (Queue algorithm to prevent DDoS and spam)
+// Rate Limiting — skipped for localhost (Vite proxy collapses all dev requests
+// to 127.0.0.1/::1, making the shared IP window hit 429 almost immediately in
+// dev with React StrictMode double-invoking effects). Production keeps the cap.
+const LOCALHOST_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limit each IP to 1000 requests per `window`
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  windowMs: 15 * 60 * 1000,
+  max: isDev ? 0 : 1500, // 0 = unlimited in dev; 1500/15 min (1.67 req/s avg) in prod
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => isDev || LOCALHOST_IPS.has(req.ip),
   message: { error: 'Quá nhiều truy cập từ IP này, vui lòng thử lại sau 15 phút.' }
 });
 app.use('/api', globalLimiter);

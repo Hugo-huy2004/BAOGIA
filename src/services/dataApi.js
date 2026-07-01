@@ -59,6 +59,52 @@ const checkAuth = (status) => {
 };
 
 const companionHistoryRequests = new Map();
+const inflightGetRequests = new Map();
+const cachedGetResponses = new Map();
+const GET_CACHE_TTL_MS = 5000;
+
+const getCacheKey = (url, options = {}) => {
+  const headers = options.headers ? JSON.stringify(options.headers) : '';
+  const body = options.body ? String(options.body) : '';
+  return `${url}|${headers}|${body}`;
+};
+
+const fetchJsonWithDedup = async (url, options = {}, { cacheTtlMs = GET_CACHE_TTL_MS } = {}) => {
+  const method = (options.method || 'GET').toUpperCase();
+  if (method !== 'GET') {
+    const response = await safeFetch(url, options);
+    return response;
+  }
+
+  const cacheKey = getCacheKey(url, options);
+  const cached = cachedGetResponses.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.response.clone();
+  }
+
+  if (inflightGetRequests.has(cacheKey)) {
+    return inflightGetRequests.get(cacheKey).then((response) => response.clone());
+  }
+
+  const request = (async () => {
+    const response = await safeFetch(url, options);
+    if (response.ok) {
+      cachedGetResponses.set(cacheKey, {
+        expiresAt: Date.now() + cacheTtlMs,
+        response: response.clone(),
+      });
+    }
+    return response;
+  })();
+
+  inflightGetRequests.set(cacheKey, request);
+
+  try {
+    return await request;
+  } finally {
+    inflightGetRequests.delete(cacheKey);
+  }
+};
 
 const createHttpError = async (response, fallbackMessage) => {
   let responseBody = '';
@@ -80,7 +126,7 @@ export const dataApi = {
   async getData() {
     try {
       const endpoint = isAdminAuthenticated() ? `${API_BASE_URL}/data/admin` : `${API_BASE_URL}/data`;
-      const response = await safeFetch(endpoint, { headers: getAuthHeaders() });
+      const response = await fetchJsonWithDedup(endpoint, { headers: getAuthHeaders() });
       
       checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch data');
@@ -147,7 +193,7 @@ export const dataApi = {
   // Fetch current member bio by email
   async getMemberBio(email, displayName = "", avatarUrl = "") {
     try {
-      const response = await safeFetch(`${API_BASE_URL}/bios/me?email=${encodeURIComponent(email)}&displayName=${encodeURIComponent(displayName)}&avatarUrl=${encodeURIComponent(avatarUrl)}`, { headers: getAuthHeaders() });
+      const response = await fetchJsonWithDedup(`${API_BASE_URL}/bios/me?email=${encodeURIComponent(email)}&displayName=${encodeURIComponent(displayName)}&avatarUrl=${encodeURIComponent(avatarUrl)}`, { headers: getAuthHeaders() });
       
       checkAuth(response.status);
       if (!response.ok) {
@@ -341,7 +387,7 @@ export const dataApi = {
   async getBios(params) {
     try {
       const query = new URLSearchParams(params).toString();
-      const response = await fetch(`${API_BASE_URL}/bio?${query}`, { credentials: 'include', credentials: 'include', headers: getAuthHeaders() });
+      const response = await fetchJsonWithDedup(`${API_BASE_URL}/bio?${query}`, { credentials: 'include', credentials: 'include', headers: getAuthHeaders() });
       
       checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch bios');
@@ -355,7 +401,7 @@ export const dataApi = {
   // Fetch all partners
   async getPartners() {
     try {
-      const response = await fetch(`${API_BASE_URL}/partners`);
+      const response = await fetchJsonWithDedup(`${API_BASE_URL}/partners`);
       
       checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch partners', { credentials: 'include', credentials: 'include' });
@@ -369,7 +415,7 @@ export const dataApi = {
   // Fetch all packages
   async getPackages() {
     try {
-      const response = await fetch(`${API_BASE_URL}/packages`);
+      const response = await fetchJsonWithDedup(`${API_BASE_URL}/packages`);
       
       checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch packages', { credentials: 'include', credentials: 'include' });
@@ -435,7 +481,7 @@ export const dataApi = {
   // Get user packages by email
   async getUserPackages(email) {
     try {
-      const response = await fetch(`${API_BASE_URL}/packages/user?email=${encodeURIComponent(email)}`);
+      const response = await fetchJsonWithDedup(`${API_BASE_URL}/packages/user?email=${encodeURIComponent(email)}`);
       
       checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch user packages', { credentials: 'include', credentials: 'include' });
@@ -575,7 +621,7 @@ export const dataApi = {
 
   // --- In-App Inbox Notifications ---
   async getInbox(email, limit = 20) {
-    const response = await safeFetch(`${API_BASE_URL}/inbox?email=${encodeURIComponent(email)}&limit=${limit}`, {
+    const response = await fetchJsonWithDedup(`${API_BASE_URL}/inbox?email=${encodeURIComponent(email)}&limit=${limit}`, {
       headers: getAuthHeaders()
     });
     checkAuth(response.status);

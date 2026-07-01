@@ -13,9 +13,16 @@
   touch-action: pan-y pinch-zoom;
 }
 
+/* When embedded inside arc-game-overlay (a flex column), fill available space */
+.chess-container.embedded {
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
 /* App-like responsive shell */
 .chess-app-shell {
-  min-height: 100dvh;
+  min-height: 100%;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .chess-app-header {

@@ -744,7 +744,7 @@ function handleDisconnect(ws) {
           if (room.status === 'waiting' && !isWConn && !isBConn) {
             rooms.delete(room.id);
           }
-        }, 15000);
+        }, 300000); // 5 min — enough time for a friend to click the shared link and log in
       }
     }
   }

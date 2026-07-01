@@ -31,7 +31,12 @@ export default function PWARealtimeBridge() {
     let socket;
     let disposed = false;
 
-    const sync = () => useJoyStore.getState().fetchBalance(email);
+    const abortRef = { current: null };
+    const sync = () => {
+      abortRef.current?.abort();
+      abortRef.current = new AbortController();
+      return useJoyStore.getState().fetchBalance(email, abortRef.current.signal).catch(() => {});
+    };
     const connect = () => {
       if (disposed) return;
       socket = new WebSocket(realtimeUrl(email));
@@ -58,9 +63,9 @@ export default function PWARealtimeBridge() {
           if (data.type !== 'joy_update') return;
           useJoyStore.getState().setBalance(Number(data.balance) || 0);
           window.dispatchEvent(new CustomEvent('hugo:notification', { detail: data.notification }));
-          if (data.notification && data.amount > 0) {
-            
-            // Banking-style Custom Toast
+          if (data.notification) {
+            const isCredit = data.amount > 0;
+            // Banking-style toast for both credit (received JOY) and debit (sent JOY)
             toast.custom((t) => (
               <motion.div
                 initial={{ opacity: 0, y: -50, scale: 0.9 }}
@@ -68,24 +73,34 @@ export default function PWARealtimeBridge() {
                 exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                 className={`${
                   t.visible ? 'animate-enter' : 'animate-leave'
-                } max-w-sm w-full glass bg-card/90 shadow-2xl rounded-2xl pointer-events-auto flex items-center p-4 gap-4 border border-emerald-500/30 dark:border-emerald-500/20`}
+                } max-w-sm w-full glass bg-card/90 shadow-2xl rounded-2xl pointer-events-auto flex items-center p-4 gap-4 ${
+                  isCredit
+                    ? 'border border-emerald-500/30 dark:border-emerald-500/20'
+                    : 'border border-indigo-500/30 dark:border-indigo-500/20'
+                }`}
               >
-                <div className="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                <div className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center ${
+                  isCredit
+                    ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+                    : 'bg-gradient-to-br from-indigo-400 to-violet-600 shadow-[0_0_15px_rgba(99,102,241,0.4)]'
+                }`}>
                   <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    account_balance_wallet
+                    {isCredit ? 'account_balance_wallet' : 'send'}
                   </span>
                 </div>
-                
+
                 <div className="flex-1">
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Nhận Thưởng</p>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">
+                    {isCredit ? 'Nhận JOY' : 'Đã gửi JOY'}
+                  </p>
                   <p className="text-sm font-medium text-foreground line-clamp-2 leading-snug">
-                    {data.notification.message || `Tài khoản nhận điểm thưởng mới.`}
+                    {data.notification.message || (isCredit ? 'Tài khoản nhận điểm thưởng mới.' : 'Giao dịch hoàn tất.')}
                   </p>
                 </div>
-                
+
                 <div className="shrink-0 flex flex-col items-end pl-2 border-l border-border/50">
-                  <span className="text-emerald-500 font-bold text-lg leading-none mb-1">
-                    +{data.amount}
+                  <span className={`font-bold text-lg leading-none mb-1 ${isCredit ? 'text-emerald-500' : 'text-indigo-400'}`}>
+                    {isCredit ? '+' : ''}{data.amount}
                   </span>
                   <span className="text-[10px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm">JOY</span>
                 </div>
@@ -95,7 +110,6 @@ export default function PWARealtimeBridge() {
               duration: 5000,
               position: 'top-center'
             });
-
           }
         } catch (_) {}
       });
@@ -181,6 +195,7 @@ export default function PWARealtimeBridge() {
 
     return () => {
       disposed = true;
+      abortRef.current?.abort();
       window.clearTimeout(retryTimer.current);
       if (nudgeTimer) window.clearTimeout(nudgeTimer);
       // Only close if past CONNECTING (readyState 0) to avoid the

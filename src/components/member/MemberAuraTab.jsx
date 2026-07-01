@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useJoyStore } from "../../stores/joyStore";
 import SubUtilityHeader from "./SubUtilityHeader";
 import FeatureGate from "./shared/FeatureGate";
+import { motion, AnimatePresence } from "framer-motion";
+import AuraReceiptModal from "./AuraReceiptModal";
 
 const LOFI_PLAYLIST = [
-  { id: "sunset_breeze", title: "Shinjuku Gyoen", artist: "Cat System Corp.", url: "https://archive.org/download/lofi-plvgkk/%E7%8C%AB%20%E3%82%B7%20Corp.%20-%20lofi%20-%2001%20Shinjuki%20Gyoen.mp3" },
-  { id: "study_focus", title: "Amano", artist: "Cat System Corp.", url: "https://archive.org/download/lofi-plvgkk/%E7%8C%AB%20%E3%82%B7%20Corp.%20-%20lofi%20-%2002%20Amano.mp3" },
-  { id: "rainy_night", title: "Late Breakfast", artist: "Cat System Corp.", url: "https://archive.org/download/lofi-plvgkk/%E7%8C%AB%20%E3%82%B7%20Corp.%20-%20lofi%20-%2004%20Late%20Breakfast.mp3" },
-  { id: "sleepy_cat", title: "Rainy Sunday", artist: "Cat System Corp.", url: "https://archive.org/download/lofi-plvgkk/%E7%8C%AB%20%E3%82%B7%20Corp.%20-%20lofi%20-%2005%20Rainy%20Sunday.mp3" },
-  { id: "coding_cafe", title: "Campus Coffee", artist: "Cat System Corp.", url: "https://archive.org/download/lofi-plvgkk/%E7%8C%AB%20%E3%82%B7%20Corp.%20-%20lofi%20-%2007%20Campus%20Coffee.mp3" }
+  { id: "stream_africa", title: "Lofi Hip Hop Radio", artist: "Stream Africa", url: "https://play.streamafrica.net/lofi" },
+  { id: "epic_lounge", title: "Workday Lounge", artist: "Epic Lounge", url: "https://stream.epic-lounge.com/workday-lounge" },
+  { id: "hotmix_lofi", title: "Hotmix Lofi", artist: "Hotmix Radio", url: "https://streaming.hotmixradio.com/hotmix-lofi-en-mp3" }
 ];
 
 const THEME_SHOP = [
   { id: "default", name: "Classic Cosmic", desc: "Không gian vũ trụ dải sáng tím lam huyền ảo.", price: 0, preview: "from-primary via-accent to-secondary" },
-  { id: "sunset", name: "Sunset Aura", desc: "Sắc cam hoàng hôn ấm áp hòa cùng ánh hồng đào.", price: 50, preview: "from-secondary via-accent to-warning" },
-  { id: "cyberpunk", name: "Cyberpunk Neon", desc: "Dải sáng neon xanh lam, fuchsia và tím rực rỡ.", price: 50, preview: "from-secondary via-accent to-primary" },
-  { id: "emerald", name: "Emerald Healing", desc: "Xanh ngọc bích mát lành điểm thêm tia sáng vàng.", price: 50, preview: "from-success via-success/70 to-warning" },
-  { id: "obsidian", name: "Obsidian Eclipse", desc: "Sắc xám obsidian huyền bí cùng hạt sáng bạc.", price: 50, preview: "from-warning via-muted to-warning/80" }
+  { id: "sunset", name: "Sunset Aura", desc: "Sắc cam hoàng hôn ấm áp hòa cùng ánh hồng đào.", price: 50, preview: "from-secondary via-accent to-warning", exclusiveTrack: { id: "sunset_exclusive", title: "Sunset Dreams", artist: "Aura Exclusives", url: "https://0nlineradio.radioho.st/0r-lo-fi" } },
+  { id: "cyberpunk", name: "Cyberpunk Neon", desc: "Dải sáng neon xanh lam, fuchsia và tím rực rỡ.", price: 50, preview: "from-secondary via-accent to-primary", exclusiveTrack: { id: "cyber_exclusive", title: "Neon City", artist: "Aura Exclusives", url: "https://listen.moe/stream" } },
+  { id: "emerald", name: "Emerald Healing", desc: "Xanh ngọc bích mát lành điểm thêm tia sáng vàng.", price: 50, preview: "from-success via-success/70 to-warning", exclusiveTrack: { id: "emerald_exclusive", title: "Nature's Breath", artist: "Aura Exclusives", url: "https://stream.zeno.fm/tabzverz0fctv" } },
+  { id: "obsidian", name: "Obsidian Eclipse", desc: "Sắc xám obsidian huyền bí cùng hạt sáng bạc.", price: 50, preview: "from-warning via-muted to-warning/80", exclusiveTrack: { id: "obsidian_exclusive", title: "Dark Matter", artist: "Aura Exclusives", url: "https://radio.digitalmalayali.in/listen/stream/radio.mp3" } }
 ];
 
 // Base rewards x3.
@@ -75,20 +75,74 @@ const THEME_ACCENTS = {
   }
 };
 
+const AuraVFX = ({ themeId }) => {
+  if (themeId === "default") return null;
+
+  const particles = Array.from({ length: 15 });
+  
+  let colorClass = "bg-white";
+  let animateProps = {};
+  
+  if (themeId === "sunset") {
+    colorClass = "bg-warning";
+    animateProps = { y: ["100vh", "-10vh"], opacity: [0, 0.8, 0], scale: [0.5, 1.5, 0.5] };
+  } else if (themeId === "cyberpunk") {
+    colorClass = "bg-accent shadow-[0_0_10px_#f0f]";
+    animateProps = { y: ["-10vh", "100vh"], x: [0, 50, -50, 0], opacity: [0, 1, 0] };
+  } else if (themeId === "emerald") {
+    colorClass = "bg-success";
+    animateProps = { y: ["-10vh", "100vh"], x: [0, 30, -30, 0], rotate: [0, 360], opacity: [0, 0.5, 0] };
+  } else if (themeId === "obsidian") {
+    colorClass = "bg-zinc-500 shadow-[0_0_5px_#fff]";
+    animateProps = { opacity: [0, 1, 0], scale: [0, 2, 0] };
+  }
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]">
+      {particles.map((_, i) => {
+        const left = `${Math.random() * 100}%`;
+        const duration = 5 + Math.random() * 10;
+        const delay = Math.random() * 5;
+        const size = Math.random() * (themeId === "cyberpunk" ? 2 : 8) + 2;
+        
+        return (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0 }}
+            animate={animateProps}
+            transition={{ duration, delay, repeat: Infinity, ease: "linear" }}
+            className={`absolute rounded-full ${colorClass} opacity-30`}
+            style={{ left, top: themeId === 'obsidian' ? `${Math.random() * 100}%` : undefined, width: size, height: themeId === "cyberpunk" ? size * 5 : size }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
 export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
   const { t } = useTranslation();
   const fetchJoyBalance = useJoyStore((s) => s.fetchBalance);
 
   // Derive theme aesthetics
   const activeThemeId = bio?.activeAuraTheme || "default";
+  const activeThemeObj = THEME_SHOP.find(t => t.id === activeThemeId) || THEME_SHOP[0];
   const accent = THEME_ACCENTS[activeThemeId] || THEME_ACCENTS.default;
+
+  const currentPlaylist = useMemo(() => {
+    if (activeThemeObj.exclusiveTrack) {
+      return [activeThemeObj.exclusiveTrack, ...LOFI_PLAYLIST];
+    }
+    return LOFI_PLAYLIST;
+  }, [activeThemeObj]);
 
   // --- Pomodoro State ---
   const [selectedMinutes, setSelectedMinutes] = useState(25);
   const [timerMode, setTimerMode] = useState("focus"); // 'focus' or 'break'
   const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [targetTime, setTargetTime] = useState(null);
   const [timerActive, setTimerActive] = useState(false);
-  const timerIntervalRef = useRef(null);
+  const wakeLockRef = useRef(null);
 
   // --- Lofi Audio Player State ---
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -99,8 +153,15 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
   const [visHeights, setVisHeights] = useState([12, 18, 10, 24, 15, 20, 8, 16]);
 
   const audioRef = useRef(null);
-  const [rentingThemeId, setRentingThemeId] = useState(null);
+  const [selectedRentTheme, setSelectedRentTheme] = useState(null);
+  const [isProcessingRent, setIsProcessingRent] = useState(false);
+  const [rentSuccess, setRentSuccess] = useState(false);
   const [timeTick, setTimeTick] = useState(Date.now()); // for countdown labels sync
+
+  useEffect(() => {
+    // Reset to first track (exclusive if available) when theme changes
+    setCurrentTrackIndex(0);
+  }, [currentPlaylist]);
 
   // Track timer interval for relative countdown strings refresh
   useEffect(() => {
@@ -119,12 +180,12 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
   useEffect(() => {
     if (!audioRef.current) return;
     const isPlayingBefore = playing;
-    audioRef.current.src = LOFI_PLAYLIST[currentTrackIndex].url;
+    audioRef.current.src = currentPlaylist[currentTrackIndex].url;
     audioRef.current.load();
     if (isPlayingBefore) {
       audioRef.current.play().catch(() => setPlaying(false));
     }
-  }, [currentTrackIndex]);
+  }, [currentTrackIndex, currentPlaylist]);
 
   // Visualizer bar heights animation loop
   useEffect(() => {
@@ -135,10 +196,40 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
     return () => clearInterval(interval);
   }, [playing, visHeights]);
 
+  // Wake Lock management
+  useEffect(() => {
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator && timerActive) {
+          wakeLockRef.current = await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {
+        console.warn('Wake Lock request failed:', err);
+      }
+    };
+    
+    if (timerActive) {
+      requestWakeLock();
+    } else {
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release().then(() => {
+          wakeLockRef.current = null;
+        }).catch(() => {});
+      }
+    }
+    
+    return () => {
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release().catch(() => {});
+      }
+    };
+  }, [timerActive]);
+
   // Set default initial timer on selected minutes change
   useEffect(() => {
     if (!timerActive) {
       setTimeLeft(timerMode === "focus" ? selectedMinutes * 60 : 5 * 60);
+      setTargetTime(null);
     }
   }, [selectedMinutes, timerMode, timerActive]);
 
@@ -159,11 +250,11 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
   };
 
   const handleNext = () => {
-    setCurrentTrackIndex((prev) => (prev + 1) % LOFI_PLAYLIST.length);
+    setCurrentTrackIndex((prev) => (prev + 1) % currentPlaylist.length);
   };
 
   const handlePrev = () => {
-    setCurrentTrackIndex((prev) => (prev - 1 + LOFI_PLAYLIST.length) % LOFI_PLAYLIST.length);
+    setCurrentTrackIndex((prev) => (prev - 1 + currentPlaylist.length) % currentPlaylist.length);
   };
 
   const handleTimeUpdate = () => {
@@ -180,6 +271,11 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
 
   const handleAudioEnded = () => {
     handleNext();
+  };
+
+  const handleAudioError = () => {
+    console.warn("Lofi stream error, skipping to next track...");
+    handleNext(); // Auto-skip broken streams
   };
 
   const handleProgressChange = (e) => {
@@ -235,31 +331,37 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
     }
   }, [timerMode, bio, showToast, fetchJoyBalance, selectedMinutes]);
 
-  // Pomodoro Interval Tick Effect
+  // Pomodoro Interval Tick Effect using Delta Time
   useEffect(() => {
-    if (timerActive) {
-      timerIntervalRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(timerIntervalRef.current);
-            completeFocusBlock();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
+    let animationFrameId;
+    
+    const tick = () => {
+      if (!timerActive || !targetTime) return;
+      
+      const now = Date.now();
+      const remaining = Math.max(0, Math.ceil((targetTime - now) / 1000));
+      
+      if (remaining !== timeLeft) {
+        setTimeLeft(remaining);
       }
+      
+      if (remaining <= 0) {
+        completeFocusBlock();
+      } else {
+        animationFrameId = requestAnimationFrame(tick);
+      }
+    };
+
+    if (timerActive && targetTime) {
+      animationFrameId = requestAnimationFrame(tick);
     }
 
     return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [timerActive, completeFocusBlock]);
+  }, [timerActive, targetTime, completeFocusBlock, timeLeft]);
 
   // Clean-up loop audio on unmount
   useEffect(() => {
@@ -271,16 +373,26 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
   }, []);
 
   const handleToggleTimer = () => {
-    setTimerActive(!timerActive);
+    if (!timerActive) {
+      // Starting
+      setTargetTime(Date.now() + timeLeft * 1000);
+      setTimerActive(true);
+    } else {
+      // Pausing
+      setTimerActive(false);
+      setTargetTime(null);
+    }
   };
 
   const handleResetTimer = () => {
     setTimerActive(false);
+    setTargetTime(null);
     setTimeLeft(timerMode === "focus" ? selectedMinutes * 60 : 5 * 60);
   };
 
   const handleSwitchMode = (mode) => {
     setTimerActive(false);
+    setTargetTime(null);
     setTimerMode(mode);
     setTimeLeft(mode === "focus" ? selectedMinutes * 60 : 5 * 60);
   };
@@ -309,12 +421,16 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
   };
 
   // Theme Shop APIs
-  const handleRentTheme = async (themeId) => {
+  const handleRentThemeClick = (theme) => {
     if (!bio?.email) {
       showToast?.(t("aura.toastLoginRequired"), "warning");
       return;
     }
-    setRentingThemeId(themeId);
+    setSelectedRentTheme(theme);
+  };
+
+  const handleConfirmRent = async (themeId) => {
+    setIsProcessingRent(true);
     try {
       const apiBase = import.meta.env.VITE_API_URL || "/api";
       const res = await fetch(`${apiBase}/joy/rent-theme`, {
@@ -323,18 +439,31 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
         body: JSON.stringify({ email: bio.email, themeId })
       });
       const data = await res.json();
-      if (!res.ok) {
-        showToast?.(data.error || t("aura.toastRentFailed"), "error");
-        return;
-      }
-      const themeName = t(`aura.theme${themeId.charAt(0).toUpperCase() + themeId.slice(1)}Name`);
-      showToast?.(t("aura.toastRentSuccess", { name: themeName }), "success");
-      onBioUpdate?.(data.bio);
-      fetchJoyBalance(bio.email);
+      
+      setTimeout(() => {
+        if (!res.ok) {
+          showToast?.(data.error || t("aura.toastRentFailed"), "error");
+          setIsProcessingRent(false);
+          // don't close modal on error, allow them to cancel
+          return;
+        }
+        
+        setRentSuccess(true);
+        const themeName = t(`aura.theme${themeId.charAt(0).toUpperCase() + themeId.slice(1)}Name`);
+        showToast?.(t("aura.toastRentSuccess", { name: themeName }), "success");
+        onBioUpdate?.(data.bio);
+        fetchJoyBalance(bio.email);
+        
+        setTimeout(() => {
+          setIsProcessingRent(false);
+          setRentSuccess(false);
+          setSelectedRentTheme(null);
+        }, 2500);
+
+      }, 1500);
     } catch (e) {
       showToast?.(t("aura.toastNetworkError"), "error");
-    } finally {
-      setRentingThemeId(null);
+      setIsProcessingRent(false);
     }
   };
 
@@ -382,8 +511,8 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
 
   // Dial SVG configurations
   const maxTime = timerMode === "focus" ? selectedMinutes * 60 : 5 * 60;
-  const progressRatio = (maxTime - timeLeft) / maxTime;
-  const dashOffset = 439.82 * (1 - progressRatio);
+  const progressRatio = maxTime > 0 ? (maxTime - timeLeft) / maxTime : 0;
+  const dashOffset = 691.15 * (1 - progressRatio);
 
   return (
     <div className="space-y-6">
@@ -392,10 +521,11 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
       {/* Hidden audio element */}
       <audio
         ref={audioRef}
-        src={LOFI_PLAYLIST[currentTrackIndex].url}
+        src={currentPlaylist[currentTrackIndex].url}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleAudioEnded}
+        onError={handleAudioError}
         loop={false}
       />
 
@@ -404,6 +534,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
         {/* Left Column: Pomodoro Board */}
         <div className="lg:col-span-7 flex flex-col items-center justify-between bg-white/40 dark:bg-zinc-950/40 backdrop-blur-3xl border border-white/20 dark:border-zinc-800/30 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden text-center">
           <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-50`} />
+          <AuraVFX themeId={activeThemeId} />
           
           <div className="relative z-10 w-full flex flex-col items-center">
             <h3 className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-wider mb-5 flex items-center gap-1">
@@ -411,83 +542,106 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
               {t("aura.pomodoroDesk")}
             </h3>
 
-            {/* Presets Grid */}
-            <div className="grid grid-cols-3 gap-3.5 w-full max-w-md mb-8">
+            {/* Presets Grid - Premium Glass Cards */}
+            <div className="grid grid-cols-3 gap-3 md:gap-4 w-full max-w-md mb-12">
               {FOCUS_PRESETS.map((preset) => {
                 const isActive = selectedMinutes === preset.minutes;
                 return (
-                  <button
+                  <motion.button
                     key={preset.id}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleSelectPreset(preset.minutes)}
-                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-95 ${isActive ? `bg-white/70 dark:bg-zinc-900/80 border-white dark:border-zinc-700 shadow-md ${accent.glow}` : "bg-white/10 hover:bg-white/20 dark:bg-zinc-900/20 dark:hover:bg-zinc-900/40 border-transparent text-zinc-600 dark:text-zinc-450"}`}
+                    className={`relative flex flex-col items-center justify-center p-3 md:p-4 rounded-[1.25rem] border transition-all duration-300 shadow-sm backdrop-blur-md overflow-hidden ${isActive ? `${accent.accentBg} ${accent.glow} border-transparent text-white ring-2 ring-white/20` : "bg-white/40 hover:bg-white/70 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/60 border-white/60 dark:border-zinc-700/50 text-zinc-600 dark:text-zinc-300"}`}
                   >
-                    <span className={`material-symbols-outlined text-xl mb-1 ${isActive ? accent.accentText : "text-zinc-500"}`}>{preset.icon}</span>
-                    <span className="text-[10px] font-black uppercase tracking-wide leading-none text-zinc-800 dark:text-zinc-200">
-                      {t(`aura.preset${preset.id.charAt(0).toUpperCase() + preset.id.slice(1)}`)}
-                    </span>
-                    <span className={`text-[8.5px] font-bold mt-1.5 px-2 py-0.5 rounded-full border ${isActive ? accent.badge : "bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 border-transparent"}`}>
-                      +{preset.reward} JOY
-                    </span>
-                  </button>
+                    {isActive && (
+                      <motion.div 
+                        layoutId="active-preset-glow"
+                        className="absolute inset-0 bg-white/20 dark:bg-white/10 rounded-[1.25rem]"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    <div className="relative z-10 flex flex-col items-center w-full">
+                      <span className={`material-symbols-outlined text-2xl md:text-3xl mb-2 transition-transform duration-300 ${isActive ? "text-white scale-110" : "text-zinc-500"}`}>{preset.icon}</span>
+                      <span className="text-[8.5px] md:text-[10px] font-black uppercase tracking-widest text-center leading-tight w-full truncate">
+                        {t(`aura.preset${preset.id.charAt(0).toUpperCase() + preset.id.slice(1)}`)}
+                      </span>
+                      <span className={`text-[8.5px] font-bold mt-1.5 px-2 py-0.5 rounded-full ${isActive ? "bg-white/20 text-white" : "bg-zinc-200/50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400"}`}>
+                        +{preset.reward} JOY
+                      </span>
+                    </div>
+                  </motion.button>
                 );
               })}
             </div>
 
             {/* Glowing Timer Circle */}
-            <div className="relative w-56 h-56 flex items-center justify-center mb-8 select-none">
+            <div className="relative w-64 h-64 md:w-72 md:h-72 flex items-center justify-center mb-10 select-none">
               {/* Outer glowing ripple ring when active */}
               {timerActive && (
-                <div className={`absolute inset-4 rounded-full border-2 border-transparent border-t-accent/20 animate-spin`} style={{ animationDuration: "3s" }} />
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: [0.15, 0.4, 0.15], scale: [1, 1.08, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className={`absolute inset-0 rounded-full bg-gradient-to-br ${accent.themeBg} blur-2xl`} 
+                />
               )}
               
-              <svg className="w-full h-full transform -rotate-90">
+              <svg className="w-full h-full transform -rotate-90 relative z-10" viewBox="0 0 256 256">
                 {/* Outer Track Circle */}
                 <circle
-                  cx="112"
-                  cy="112"
-                  r="70"
-                  className="stroke-zinc-200/50 dark:stroke-zinc-800/50 fill-none"
-                  strokeWidth="6"
+                  cx="128"
+                  cy="128"
+                  r="110"
+                  className="stroke-zinc-200/50 dark:stroke-zinc-800/60 fill-none"
+                  strokeWidth="10"
                 />
                 {/* Active Progress Circle */}
-                <circle
-                  cx="112"
-                  cy="112"
-                  r="70"
-                  className={`fill-none transition-all duration-300 ${accent.stroke}`}
-                  strokeWidth="6"
-                  strokeDasharray="439.82"
-                  strokeDashoffset={dashOffset}
+                <motion.circle
+                  cx="128"
+                  cy="128"
+                  r="110"
+                  className={`fill-none ${accent.stroke}`}
+                  strokeWidth="10"
+                  strokeDasharray="691.15"
+                  initial={{ strokeDashoffset: 691.15 }}
+                  animate={{ strokeDashoffset: dashOffset }}
+                  transition={{ type: "tween", ease: "linear", duration: 0.1 }}
                   strokeLinecap="round"
                 />
               </svg>
               
-              <div className="absolute flex flex-col items-center justify-center font-mono">
-                <span className="text-4xl md:text-5xl font-black tracking-tighter text-zinc-900 dark:text-white leading-none">
+              <div className="absolute flex flex-col items-center justify-center z-20">
+                <span className="text-6xl md:text-7xl font-black tracking-tighter text-zinc-900 dark:text-white leading-none mb-1">
                   {formatTime(timeLeft)}
                 </span>
-                <span className="text-[8px] font-black uppercase tracking-widest text-zinc-450 dark:text-zinc-400 mt-2">
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
                   {timerMode === "focus" ? t("aura.focusBlock") : t("aura.breakInterval")}
                 </span>
               </div>
             </div>
 
             {/* Timer Controls */}
-            <div className="flex items-center gap-3 relative z-10 w-full max-w-[280px]">
-              <button
+            <div className="flex items-center gap-4 relative z-10 w-full max-w-[320px]">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleResetTimer}
-                className="flex-1 flex items-center justify-center gap-1 py-3.5 rounded-2xl bg-white/40 dark:bg-zinc-900/40 text-zinc-700 dark:text-zinc-300 hover:bg-white/60 dark:hover:bg-zinc-900/60 active:scale-95 transition-all font-black text-[10px] uppercase tracking-wider border border-white/20 dark:border-zinc-800/50"
+                className="w-14 h-14 shrink-0 rounded-full flex items-center justify-center bg-white/50 dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 hover:bg-white/80 dark:hover:bg-zinc-800 transition-colors border border-white/60 dark:border-zinc-700/50 shadow-sm backdrop-blur-md"
+                title={t("aura.resetBtn")}
               >
-                <span className="material-symbols-outlined text-sm">replay</span>{t("aura.resetBtn")}
-              </button>
+                <span className="material-symbols-outlined text-2xl">replay</span>
+              </motion.button>
               
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleToggleTimer}
-                className={`flex-[1.5] flex items-center justify-center gap-1.5 py-3.5 rounded-2xl text-white shadow-xl active:scale-95 transition-all font-black text-[10px] uppercase tracking-wider ${timerActive ? "bg-destructive hover:bg-destructive/90 shadow-destructive/20" : `${accent.accentBg} ${accent.glow}`}`}
+                className={`flex-1 h-14 rounded-full flex items-center justify-center gap-2 text-white shadow-xl transition-colors font-black text-sm uppercase tracking-wider ${timerActive ? "bg-zinc-800 hover:bg-zinc-900 dark:bg-white dark:text-black dark:hover:bg-zinc-200" : `${accent.accentBg} ${accent.glow}`}`}
               >
-                <span className="material-symbols-outlined text-sm">{timerActive ? "pause" : "play_arrow"}</span>
+                <span className="material-symbols-outlined text-2xl">{timerActive ? "pause" : "play_arrow"}</span>
                 {timerActive ? t("aura.pauseBtn") : t("aura.startBtn")}
-              </button>
+              </motion.button>
             </div>
           </div>
 
@@ -555,10 +709,10 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                 <div className="min-w-0 flex-1 text-left leading-tight">
                   <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-550 block">{t("aura.lofiWaves")}</span>
                   <span className="text-xs font-black text-zinc-800 dark:text-zinc-150 block truncate mt-1">
-                    {LOFI_PLAYLIST[currentTrackIndex].title}
+                    {currentPlaylist[currentTrackIndex].title}
                   </span>
                   <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 block truncate mt-0.5">
-                    {LOFI_PLAYLIST[currentTrackIndex].artist}
+                    {currentPlaylist[currentTrackIndex].artist}
                   </span>
                 </div>
               </div>
@@ -598,20 +752,22 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
 
                 {/* Navigation group */}
                 <div className="flex items-center gap-3">
-                  <button onClick={handlePrev} className="w-9 h-9 rounded-full flex items-center justify-center bg-white/20 dark:bg-zinc-900/30 text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-zinc-900/50 active:scale-90 transition-all">
+                  <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handlePrev} className="w-9 h-9 rounded-full flex items-center justify-center bg-white/20 dark:bg-zinc-900/30 text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-zinc-900/50 transition-colors">
                     <span className="material-symbols-outlined text-base">skip_previous</span>
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={handlePlayPause}
-                    className={`w-11 h-11 rounded-full flex items-center justify-center text-white shadow-md active:scale-90 transition-all ${accent.accentBg}`}
+                    className={`w-11 h-11 rounded-full flex items-center justify-center text-white shadow-md transition-colors ${accent.accentBg}`}
                   >
                     <span className="material-symbols-outlined text-xl">{playing ? "pause" : "play_arrow"}</span>
-                  </button>
+                  </motion.button>
 
-                  <button onClick={handleNext} className="w-9 h-9 rounded-full flex items-center justify-center bg-white/20 dark:bg-zinc-900/30 text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-zinc-900/50 active:scale-90 transition-all">
+                  <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleNext} className="w-9 h-9 rounded-full flex items-center justify-center bg-white/20 dark:bg-zinc-900/30 text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-zinc-900/50 transition-colors">
                     <span className="material-symbols-outlined text-base">skip_next</span>
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </div>
@@ -638,7 +794,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                   const isRented = isThemeRented(theme.id);
                   const isActive = activeThemeId === theme.id;
                   const expiryText = getThemeExpiryText(theme.id);
-                  const isPurchasing = rentingThemeId === theme.id;
+                  const isPurchasing = false;
 
                   return (
                     <div
@@ -682,18 +838,11 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                           )
                         ) : (
                           <button
-                            disabled={isPurchasing}
-                            onClick={() => handleRentTheme(theme.id)}
-                            className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl text-white transition-all active:scale-95 ${accent.accentBg} ${accent.glow} flex items-center gap-1 disabled:opacity-50`}
+                            onClick={() => handleRentThemeClick(theme)}
+                            className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl text-white transition-all active:scale-95 ${accent.accentBg} ${accent.glow} flex items-center gap-1`}
                           >
-                            {isPurchasing ? (
-                              <div className="w-2.5 h-2.5 border border-white border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                              <>
-                                <span className="material-symbols-outlined text-[10px]">paid</span>
-                                {t("aura.themeRentCost", { price: theme.price })}
-                              </>
-                            )}
+                            <span className="material-symbols-outlined text-[10px]">paid</span>
+                            {t("aura.themeRentCost", { price: theme.price })}
                           </button>
                         )}
                       </div>
@@ -707,6 +856,15 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
         </div>
         </FeatureGate>
       </div>
+
+      <AuraReceiptModal
+        isOpen={!!selectedRentTheme}
+        theme={selectedRentTheme}
+        isProcessing={isProcessingRent}
+        isSuccess={rentSuccess}
+        onConfirm={handleConfirmRent}
+        onCancel={() => !isProcessingRent && !rentSuccess && setSelectedRentTheme(null)}
+      />
     </div>
   );
 }
