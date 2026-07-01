@@ -70,6 +70,11 @@ router.post('/logout', (req, res) => {
   res.json({ success: true, message: 'Logged out successfully' });
 });
 
+// Verify session route
+router.get('/verify-session', requireAdmin, (req, res) => {
+  res.json({ success: true, admin: req.admin });
+});
+
 // Verify password route
 router.post('/verify-password', requireAdmin, async (req, res) => {
   try {

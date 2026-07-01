@@ -10,6 +10,7 @@ import GlobalAdBanner from "./components/GlobalAdBanner";
 import OfflineBanner from "./components/ui/OfflineBanner";
 import PWAInstallBanner from "./components/ui/PWAInstallBanner";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import HBot from "./components/HBot";
 import { CursorEffect as Cursor } from "@hwagfu/cursor";
 import { useUIStore } from "./stores/uiStore";
@@ -166,9 +167,21 @@ function AppContent() {
             <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/user-guide" element={<UserGuidePage />} />
-            <Route path="/admin" element={isAdminAuthenticated() ? <AdminPanel /> : <Navigate to="/login" replace />} />
-            <Route path="/admin/projects" element={isAdminAuthenticated() ? <AdminProjectsPage /> : <Navigate to="/login" replace />} />
-            <Route path="/admin/projects/:id" element={isAdminAuthenticated() ? <AdminProjectDetailPage /> : <Navigate to="/login" replace />} />
+            <Route path="/admin" element={
+              <AdminProtectedRoute>
+                <AdminPanel />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/projects" element={
+              <AdminProtectedRoute>
+                <AdminProjectsPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/projects/:id" element={
+              <AdminProtectedRoute>
+                <AdminProjectDetailPage />
+              </AdminProtectedRoute>
+            } />
             <Route path="/support-request" element={<SupportRequestPage />} />
             
             {/* Dynamic Public Utility Route */}
