@@ -19,6 +19,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon/**', 'image/**'],
       workbox: {
+        cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
         importScripts: ['/push-sw.js'],
