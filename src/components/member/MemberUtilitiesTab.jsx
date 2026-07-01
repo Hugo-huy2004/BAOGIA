@@ -1,5 +1,6 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useData } from "../../context/DataContext";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 const HugoHelpdeskTab = lazy(() => import("./HugoHelpdeskTab"));
@@ -13,6 +14,22 @@ const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate }) {
   const { t } = useTranslation();
+  const { data } = useData();
+
+  useEffect(() => {
+    if (selectedUtility && data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
+      const isBlocked = typeof data.systemSettings.blockUtilities === "boolean" 
+        ? data.systemSettings.blockUtilities 
+        : data.systemSettings.blockUtilities === selectedUtility;
+
+      if (isBlocked) {
+        if (showToast) {
+          showToast("Hugo... đang được hệ thống tiến hành nâng cấp lên phiên bản mới nhất, hẹn gặp bạn sau 24 tiếng", "info");
+        }
+        onSelectUtility(null);
+      }
+    }
+  }, [data?.systemSettings?.blockUtilities, selectedUtility, onSelectUtility, showToast]);
 
   const fallback = <div className="flex items-center justify-center py-12 text-slate-400 text-sm">{t("companion.tab.loading", "Đang tải...")}</div>;
 
