@@ -59,6 +59,26 @@ const css = `
   0%   { transform: translate(-60%, -60%) rotate(0deg); }
   100% { transform: translate(-60%, -60%) rotate(360deg); }
 }
+@keyframes jtModalPop {
+  from { transform: scale(.94) translateY(8px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+.joy-modal-overlay {
+  align-items: flex-end;
+  justify-content: center;
+}
+.joy-modal-panel {
+  animation: jtSlideUp .35s cubic-bezier(.34,1.1,.64,1);
+}
+@media (min-width: 640px) {
+  .joy-modal-overlay {
+    align-items: center;
+    padding: 24px;
+  }
+  .joy-modal-panel {
+    animation: jtModalPop .3s cubic-bezier(.34,1.4,.64,1);
+  }
+}
 `;
 
 const RUNES = ["ᚠ", "ᚱ", "ᚨ", "ᛟ", "ᛝ", "ᛚ", "ᛒ", "ᛗ", "ᚦ", "ᛊ", "ᛖ", "ᚹ"];
@@ -701,20 +721,20 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
       {open && (
         <div
           onClick={e => { if (e.target === e.currentTarget) close(); }}
+          className="joy-modal-overlay"
           style={{
             position: "fixed", inset: 0, zIndex: 300,
-            display: "flex", alignItems: "flex-end", justifyContent: "center",
+            display: "flex",
             background: "rgba(0,0,0,.55)", backdropFilter: "blur(6px)",
             animation: "jtFadeIn .2s ease",
           }}
         >
-          <div style={{
+          <div className="joy-modal-panel" style={{
             width: "100%", maxWidth: 440,
-            animation: "jtSlideUp .35s cubic-bezier(.34,1.1,.64,1)",
             "--joy-modal-bg": "#fff",
           }}>
             <div style={{
-              margin: "0 12px 12px",
+              margin: 12,
               background: "#fff",
               borderRadius: 24,
               boxShadow: "0 -4px 40px rgba(0,0,0,.2), 0 2px 12px rgba(0,0,0,.1)",
