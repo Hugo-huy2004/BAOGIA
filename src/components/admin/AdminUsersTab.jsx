@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -29,11 +29,29 @@ const AdminUsersTab = ({
   totalPages,
   searchQuery,
   getExpirationDaysOnly,
-  formatExpiration
+  formatExpiration,
+  loadMoreUsers,
+  hasMoreUsers,
 }) => {
   const { t } = useTranslation();
   const [selectedVerificationUser, setSelectedVerificationUser] = useState(null);
   const [onlineStatuses, setOnlineStatuses] = useState({});
+  const sentinelRef = useRef(null);
+
+  const stableLoadMore = useCallback(() => {
+    if (hasMoreUsers && loadMoreUsers) loadMoreUsers();
+  }, [hasMoreUsers, loadMoreUsers]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) stableLoadMore(); },
+      { rootMargin: "300px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [stableLoadMore]);
 
   useEffect(() => {
     const emails = (users || []).map(u => u.email).filter(Boolean);
@@ -637,6 +655,14 @@ const AdminUsersTab = ({
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Infinite scroll sentinel */}
+      <div ref={sentinelRef} className="h-2" />
+      {hasMoreUsers && (
+        <div className="flex justify-center py-4">
+          <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
     </div>

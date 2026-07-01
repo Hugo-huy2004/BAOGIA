@@ -1,19 +1,19 @@
 /**
  * Local Intent Classifier for "HugoPSY"
- * Computes client-side string similarity using the Sørensen-Dice coefficient (character bigrams)
- * normalized for accented and de-accented Vietnamese text.
- * Integrates user profile (`bio`) and historical test scores (`historyLogs`) to construct dynamic responses.
+ * – Regex fast-path for common patterns (O(n) rules, ~1ms)
+ * – Fuse.js fuzzy match as primary similarity engine (handles typos, missing diacritics)
+ * – Sørensen-Dice coefficient as final fallback
+ * Threshold lowered to 0.72 (from 0.80) for better recall with short/noisy input.
  */
+import Fuse from "fuse.js";
 import { matchTherapyMethod } from "./therapyMethods";
 
-// Helper to isolate user's friendly name (first name)
 function getFriendlyName(bio) {
   if (!bio?.displayName) return "cậu";
   const parts = bio.displayName.trim().split(" ");
-  return parts[parts.length - 1]; // get first name
+  return parts[parts.length - 1];
 }
 
-// Convert scores to Vietnamese clinical severity text
 function getPhq9SeverityVi(score) {
   if (score <= 4) return "tối thiểu (bình thường)";
   if (score <= 9) return "nhẹ";
@@ -29,7 +29,6 @@ function getGad7SeverityVi(score) {
   return "nghiêm trọng";
 }
 
-// Helper to remove accents/diacritics from Vietnamese strings for robust matching
 export function removeVietnameseTones(str) {
   if (!str) return "";
   let result = str.toLowerCase();
@@ -40,38 +39,23 @@ export function removeVietnameseTones(str) {
   result = result.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
   result = result.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
   result = result.replace(/đ/g, "d");
-  
-  // Normalize character composition NFD and strip combining diacritic marks
-  result = result.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  result = result.normalize("NFD").replace(/[̀-ͯ]/g, "");
   return result;
 }
 
-// Single source of truth for self-harm/suicide-risk detection, used by both the
-// regex `rules` fast-path and the redundant safety-net check in findMatchingIntent.
-// Broader than a plain keyword list on purpose: real messages are rarely the
-// textbook phrase "tôi muốn tự tử" — they show up as "tôi sẽ chết", "nếu tôi
-// chết rồi thì sao", etc. We deliberately bias toward over-triggering (a caring
-// message + hotline buttons shown when not strictly needed costs little) over
-// under-triggering (missing a real crisis costs everything). The negative
-// lookahead on "chet" excludes common Vietnamese hyperbole idioms ("chết mất",
-// "đói chết", "chết cười"...) that aren't expressions of suicidal ideation.
+// Single source of truth for crisis detection — used by regex fast-path AND
+// the safety-net check in findMatchingIntent. Biased toward over-triggering
+// (false positive = a caring message + hotline) over under-triggering.
+// Negative lookahead on "chet" excludes Vietnamese hyperbole idioms.
 export function isCrisisText(cleanText) {
   if (!cleanText) return false;
   const explicit = /(tu tu|tu sat|ket lieu|lam hai ban than|tu lam dau|tu tu o dau|khong muon song|khong con muon song|muon ket thuc tat ca|ket thuc cuoc doi|bien mat vinh vien|khong thiet song|song khong co y nghia|the gioi se tot hon khi khong co|khong ai can (toi|minh|to)( nua)?)/;
   if (explicit.test(cleanText)) return true;
-
-  // "tôi/tớ/mình [sẽ/sắp/có lẽ sẽ] chết" or "nếu tôi/tớ/mình chết..." —
-  // a first-person death statement, excluding common hyperbole suffixes.
   const firstPersonDeath = /\b(toi|to|minh)\b[^.!?]{0,12}\bchet\b(?!\s*(mat|doi|met|khat|cuoi|ngat|sieng|thui|qua|di))/;
   const conditionalDeath = /\bneu\b[^.!?]{0,15}\b(toi|to|minh)\b[^.!?]{0,12}\bchet\b/;
   return firstPersonDeath.test(cleanText) || conditionalDeath.test(cleanText);
 }
 
-// ── Dynamic "current metrics" report ────────────────────────────────────────
-// Mirrors EvaluationTab.jsx's own severity thresholds (kept duplicated on
-// purpose — that file is a heavy UI component this lightweight module has no
-// business importing). Used both by the "+" quick action and by free-text
-// requests like "đánh giá hiện tại của tớ thế nào".
 const SEVERITY_LABELS = { normal: "Ổn định", mild: "Nhẹ", moderate: "Trung bình", severe: "Cao", extremely_severe: "Rất cao" };
 function phq9Severity(score) { if (score == null) return null; if (score <= 4) return "normal"; if (score <= 9) return "mild"; if (score <= 14) return "moderate"; if (score <= 19) return "severe"; return "extremely_severe"; }
 function gad7Severity(score) { if (score == null) return null; if (score <= 4) return "normal"; if (score <= 9) return "mild"; if (score <= 14) return "moderate"; return "severe"; }
@@ -87,275 +71,211 @@ export function buildMetricsSummary(historyLogs = []) {
   const latestWho5 = who5Logs[who5Logs.length - 1];
 
   if (!latestPhq9 && !latestGad7 && !latestWho5) {
-    return ["Cậu chưa làm bài test nào để tớ có chỉ số báo cáo cả.", "Cậu muốn làm một bài test ngắn ngay bây giờ không?"];
+    return ["Cậu chưa làm bài test nào để tớ có chỉ số báo cáo cả 📊", "Muốn làm thử ngay không? Chỉ tốn 2 phút thôi!"];
   }
 
-  const lines = ["📊 Đây là chỉ số gần nhất của cậu:"];
+  const lines = ["📊 Chỉ số gần nhất của cậu nè:"];
   if (latestPhq9) lines.push(`• PHQ-9 (trầm cảm): ${latestPhq9.score}/27 — mức ${SEVERITY_LABELS[phq9Severity(latestPhq9.score)]}, đo ngày ${formatVnDate(latestPhq9.date)}.`);
   if (latestGad7) lines.push(`• GAD-7 (lo âu): ${latestGad7.score}/21 — mức ${SEVERITY_LABELS[gad7Severity(latestGad7.score)]}, đo ngày ${formatVnDate(latestGad7.date)}.`);
   if (latestWho5) lines.push(`• WHO-5 (sức khoẻ tinh thần): ${latestWho5.score}/25 — mức ${SEVERITY_LABELS[who5Severity(latestWho5.score)]}, đo ngày ${formatVnDate(latestWho5.date)}.`);
 
   const anySevere = [latestPhq9 && phq9Severity(latestPhq9.score), latestGad7 && gad7Severity(latestGad7.score), latestWho5 && who5Severity(latestWho5.score)]
     .some(s => s === "severe" || s === "extremely_severe");
-  return [lines.join("\n"), anySevere ? "Mấy chỉ số này đang ở mức cao — cậu có muốn tớ mở luôn một liệu pháp phù hợp không?" : "Nhìn chung là ổn, cứ duy trì nhịp chăm sóc bản thân như vậy nhé! 💙"];
+  return [lines.join("\n"), anySevere ? "Mấy chỉ số này đang ở mức cao — cậu muốn tớ mở luôn liệu pháp phù hợp không?" : "Nhìn chung là ổn đó, cứ duy trì nhịp chăm sóc bản thân như vậy nha! 💙"];
 }
 
-// Calculate Sørensen-Dice coefficient similarity between two strings
 export function getDiceSimilarity(str1, str2) {
   const getBigrams = (str) => {
     const bigrams = new Set();
-    for (let i = 0; i < str.length - 1; i++) {
-      bigrams.add(str.substring(i, i + 2));
-    }
+    for (let i = 0; i < str.length - 1; i++) bigrams.add(str.substring(i, i + 2));
     return bigrams;
   };
-
   const clean = (s) => (s || "").toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").replace(/\s+/g, " ").trim();
   const s1 = clean(str1);
   const s2 = clean(str2);
-  
   if (s1 === s2) return 1.0;
   if (s1.length < 2 || s2.length < 2) return 0.0;
-
   const b1 = getBigrams(s1);
   const b2 = getBigrams(s2);
-  
   let intersection = 0;
-  for (const bigram of b1) {
-    if (b2.has(bigram)) intersection++;
-  }
-  
+  for (const bigram of b1) { if (b2.has(bigram)) intersection++; }
   return (2.0 * intersection) / (b1.size + b2.size);
 }
 
-// Get the maximum similarity score considering both accented and unaccented variations
 export function getSimilarityScore(s1, s2) {
-  const scoreAccented = getDiceSimilarity(s1, s2);
-  const scoreUnaccented = getDiceSimilarity(removeVietnameseTones(s1), removeVietnameseTones(s2));
-  return Math.max(scoreAccented, scoreUnaccented);
+  return Math.max(getDiceSimilarity(s1, s2), getDiceSimilarity(removeVietnameseTones(s1), removeVietnameseTones(s2)));
 }
 
-// Database of local intents, patterns, and dynamic response generators
+// ─────────────────────────────────────────────────────────────────────────────
+// RESPONSE ROTATION — prevents same reply repeating for frequently matched intents.
+// Module-level Map persists across all calls within the session (reset on page reload).
+// ─────────────────────────────────────────────────────────────────────────────
+const _counters = new Map();
+function _rotate(id, variants) {
+  const idx = (_counters.get(id) || 0) % variants.length;
+  _counters.set(id, idx + 1);
+  return variants[idx];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INTENT DATABASE
+// ─────────────────────────────────────────────────────────────────────────────
 export const INTENT_DATABASE = [
   {
     id: "greeting",
     tier: "free",
     patterns: [
-      "chào cậu",
-      "chào bạn",
-      "hello",
-      "hi",
-      "xin chào",
-      "chào bot",
-      "chào bạn học đường",
-      "chào hugopsy",
-      "chào chuyên viên",
-      "chào nha",
-      "helo cậu",
-      "helo",
-      "lo cau"
+      "chào cậu", "chào bạn", "hello", "hi", "xin chào", "chào bot",
+      "chào bạn học đường", "chào hugopsy", "chào chuyên viên", "chào nha",
+      "helo cậu", "helo", "lo cau", "hey", "ơi", "hay day"
     ],
     generateResponse: (bio, historyLogs) => {
       const name = getFriendlyName(bio);
       const checkins = (historyLogs || []).filter(l => l.type === "checkin" && l.mood);
-
-      // Calculate active checkin streak (today or yesterday)
       let streak = 0;
       const days = new Set(checkins.map(c => new Date(c.date).toDateString()));
       let dateCursor = new Date();
-      if (!days.has(dateCursor.toDateString())) {
-        dateCursor.setDate(dateCursor.getDate() - 1);
-      }
-      while (days.has(dateCursor.toDateString())) {
-        streak++;
-        dateCursor.setDate(dateCursor.getDate() - 1);
-      }
-
+      if (!days.has(dateCursor.toDateString())) dateCursor.setDate(dateCursor.getDate() - 1);
+      while (days.has(dateCursor.toDateString())) { streak++; dateCursor.setDate(dateCursor.getDate() - 1); }
       if (streak > 1) {
-        return [`Eyy ${name}! 🔥`, `Bền vững ${streak} ngày liền rồi nha, quá nể luôn đó.`, `Hôm nay sao rồi, kể tớ nghe coi?`];
+        return [`Eyy ${name}! 🔥`, `${streak} ngày liên tục rồi nha — quá xịn luôn đó.`, `Hôm nay sao rồi, kể tớ nghe coi?`];
       }
       if (checkins.length > 0) {
         const latest = checkins[checkins.length - 1];
         if (latest.mood <= 2) {
-          return [`Chào ${name} 👋`, `Lần check-in trước thấy cậu hơi xìu xìu á.`, `Giờ đỡ hơn chút nào chưa?`];
+          return [`Chào ${name} 👋`, `Hôm trước thấy cậu hơi xìu xìu á — giờ đỡ hơn chút chưa?`, `Tớ ở đây nghe cậu kể nha.`];
         }
       }
-      return [`Chàoo ${name}! 😊`, `Tớ ở đây nghe cậu kể nè.`, `Hôm nay của cậu vibe sao rồi?`];
+      return [`Chàoo ${name}! 😊`, `Tớ đây rồi nè — hôm nay cậu vibe sao?`];
     }
   },
   {
     id: "goodbye",
     tier: "free",
     patterns: [
-      "tạm biệt",
-      "bye",
-      "bye bye",
-      "hẹn gặp lại",
-      "tớ đi ngủ đây",
-      "tớ đi học đây",
-      "tạm biệt cậu nhé",
-      "tớ offline đây"
+      "tạm biệt", "bye", "bye bye", "hẹn gặp lại", "tớ đi ngủ đây",
+      "tớ đi học đây", "tạm biệt cậu nhé", "tớ offline đây", "tạm biệt nha", "chào nhé"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Bye ${name} ơi 👋`, `Nghỉ ngơi sạc lại pin nha, đừng gồng quá.`, `Cần gì tớ luôn ở đây hết!`];
+      return [`Bye ${name}! 👋`, `Nhớ sạc pin cho bản thân nha, đừng gồng quá 💙`, `Cần gì tớ luôn ở đây!`];
     }
   },
   {
     id: "identity",
     tier: "paid",
     patterns: [
-      "cậu là ai",
-      "bạn là ai",
-      "tên cậu là gì",
-      "bạn học đường là ai",
-      "hugopsy là ai",
-      "đây là bot gì",
-      "giới thiệu bản thân",
-      "cậu tên gì",
-      "bạn tên gì",
-      "cậu là bot hay người"
+      "cậu là ai", "bạn là ai", "tên cậu là gì", "bạn học đường là ai",
+      "hugopsy là ai", "đây là bot gì", "giới thiệu bản thân", "cậu tên gì",
+      "bạn tên gì", "cậu là bot hay người"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Tớ là HugoPSY nè 🌸`, `Chuyên gia tâm lý AI nhỏ, ở đây để nghe ${name} xả hết mọi chuyện.`, `Học hành, cảm xúc, drama gì cũng quăng cho tớ luôn nha!`];
+      return [`Tớ là HugoPSY nè 🌸`, `Bạn đồng hành tâm lý AI — ở đây để nghe ${name} xả hết mọi chuyện.`, `Học hành, cảm xúc, drama, lo lắng gì cũng kể tớ nghe nha!`];
     }
   },
   {
     id: "features",
     tier: "paid",
     patterns: [
-      "cậu có thể làm gì",
-      "tính năng của ứng dụng",
-      "hướng dẫn sử dụng",
-      "giúp tớ thế nào",
-      "tính năng trị liệu là gì",
-      "ứng dụng này giúp gì cho tớ",
-      "bot này làm được gì",
-      "chức năng của cậu là gì",
-      "tính năng của app"
+      "cậu có thể làm gì", "tính năng của ứng dụng", "hướng dẫn sử dụng",
+      "giúp tớ thế nào", "tính năng trị liệu là gì", "ứng dụng này giúp gì cho tớ",
+      "bot này làm được gì", "chức năng của cậu là gì", "tính năng của app"
     ],
     generateResponse: () => {
-      return [`Tớ có cả combo xịn nè:`, `Thở 4-7-8 hết stress liền, thư giãn cơ, âm thanh thiên nhiên dễ ngủ, mấy bài test tâm lý chuẩn xò luôn.`, `Vào tab 'Trị Liệu' hay 'Đánh Giá' là quẹt liền á!`];
+      return [`Tớ có cả combo xịn luôn nè:`, `Thở 4-7-8 hết stress tức thì, thư giãn cơ, âm thanh thiên nhiên dễ ngủ, bài test tâm lý chuẩn lâm sàng 📊`, `Vào tab 'Trị Liệu' hay 'Đánh Giá' là thấy ngay á!`];
     }
   },
   {
     id: "academic_stress",
     tier: "paid",
     patterns: [
-      "áp lực học tập",
-      "học hành mệt mỏi",
-      "sợ thi rớt",
-      "học không vào",
-      "áp lực điểm số",
-      "căng thẳng vì học hành",
-      "áp lực thi cử",
-      "stress học tập",
-      "mệt mỏi vì thi cử"
+      "áp lực học tập", "học hành mệt mỏi", "sợ thi rớt", "học không vào",
+      "áp lực điểm số", "căng thẳng vì học hành", "áp lực thi cử",
+      "stress học tập", "mệt mỏi vì thi cử", "bài tập quá nhiều", "deadline chồng chất"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Áp lực thi cử dễ làm não ${name} quá tải lắm á, hiểu mà.`, `Nhưng điểm số không nói lên cậu là ai đâu nha, thiệt đó.`, `Thử chia nhỏ bài ra + thở sâu xíu. Suy nghĩ nào đang dằn vặt cậu nhất giờ?`];
+      return [`Áp lực học dễ làm não ${name} quá tải thật 😮‍💨`, `Nhưng điểm số không nói lên cậu là ai đâu nha — thiệt đó.`, `Thử chia nhỏ ra từng bước + thở sâu xíu. Phần nào đang dằn vặt cậu nhất hiện tại?`];
     }
   },
   {
     id: "sleep",
     tier: "paid",
     patterns: [
-      "tớ bị mất ngủ",
-      "khó ngủ quá",
-      "làm sao để ngủ ngon",
-      "không ngủ được",
-      "thức khuya quá",
-      "mẹo ngủ ngon",
-      "làm sao ngủ ngon",
-      "mất ngủ kéo dài"
+      "tớ bị mất ngủ", "khó ngủ quá", "làm sao để ngủ ngon", "không ngủ được",
+      "thức khuya quá", "mẹo ngủ ngon", "làm sao ngủ ngon", "mất ngủ kéo dài",
+      "cứ tỉnh giấc giữa đêm", "ngủ không sâu"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Mất ngủ là dấu hiệu não ${name} vẫn còn "chạy ngầm" lo âu đó.`, `Thử tắt điện thoại trước ngủ 30p, phòng tối mát, nghe mưa rơi ở tab Trị Liệu nha.`, `Tối nay ngủ được mấy tiếng rồi?`];
+      return [`Mất ngủ thường là dấu hiệu não ${name} đang "chạy ngầm" lo âu đó 💤`, `Thử: tắt điện thoại trước ngủ 30 phút, phòng tối + mát, bật âm thanh mưa ở tab Trị Liệu nha.`, `Gần đây cậu ngủ được mấy tiếng mỗi đêm?`];
     }
   },
   {
     id: "anxiety",
     tier: "paid",
     patterns: [
-      "tớ thấy lo lắng",
-      "bị lo âu quá",
-      "hoảng sợ",
-      "lo sợ mọi thứ",
-      "cảm thấy bồn chồn",
-      "lo âu nặng",
-      "làm sao hết lo âu",
-      "tớ lo sợ quá"
+      "tớ thấy lo lắng", "bị lo âu quá", "hoảng sợ", "lo sợ mọi thứ",
+      "cảm thấy bồn chồn", "lo âu nặng", "làm sao hết lo âu", "tớ lo sợ quá",
+      "tớ cứ lo vô lý", "tim đập hồi hộp"
     ],
     generateResponse: (bio, historyLogs) => {
       const name = getFriendlyName(bio);
       const gad7Logs = (historyLogs || []).filter(l => l.test === "gad7");
       if (gad7Logs.length > 0) {
         const latest = gad7Logs[gad7Logs.length - 1];
-        const dateStr = new Date(latest.date).toLocaleDateString("vi-VN");
+        const dateStr = formatVnDate(latest.date);
         const severity = getGad7SeverityVi(latest.score);
-        return [`Test GAD-7 hôm ${dateStr} của cậu là ${latest.score}/21, mức ${severity} đó.`, `Lo âu là cơ chế tự bảo vệ thôi, không phải cậu yếu đuối gì hết.`, `Thở sâu 4-7-8 cùng tớ xíu nha?`];
+        return [`Test GAD-7 hôm ${dateStr} của cậu là ${latest.score}/21, mức ${severity} đó.`, `Lo âu là cơ chế tự bảo vệ — không phải cậu yếu đuối gì hết.`, `Thở sâu 4-7-8 cùng tớ xíu nha?`];
       }
-      return [`Lo âu giống một cơn bão lướt qua người ${name} vậy, tim đập nhanh suy nghĩ rối tung.`, `Bình tĩnh lại bằng hơi thở sâu cùng tớ nha.`, `Cơ thể đang gồng/bồn chồn ở đâu nhất vậy?`];
+      return _rotate("anxiety", [
+        [`Ugh, lo âu mệt thật sự — não đang "chạy 100 tab" một lúc phải không ${name} 😮‍💨`, `Thử hít vào mũi 4s, nín 4s, thở ra miệng 6s, lặp vài lần.`, `Điều gì đang làm cậu lo nhất lúc này?`],
+        [`Lo lắng kiểu đó tim đập nhanh, tay bồn chồn phải không ${name}?`, `Não đang "cảnh báo quá mức" thôi — cậu thật sự an toàn lúc này.`, `Thử đặt tay lên ngực, thở chậm lại. Cậu đang lo về điều gì cụ thể?`],
+        [`${name} ơi, khi lo âu cậu cảm thấy nó ở đâu nhất trong người — ngực, dạ dày, hay vai?`, `Nhận diện được rồi thì "giao tiếp" với nó dễ hơn nhiều.`, `Cậu mô tả cảm giác đó thử nha?`],
+      ]);
     }
   },
   {
     id: "sadness",
     tier: "paid",
     patterns: [
-      "tớ buồn quá",
-      "chán nản mọi thứ",
-      "thấy mệt mỏi buồn bã",
-      "muốn khóc",
-      "tâm trạng tồi tệ",
-      "tâm trạng đi xuống",
-      "tớ thấy buồn",
-      "buồn chán quá"
+      "tớ buồn quá", "chán nản mọi thứ", "thấy mệt mỏi buồn bã", "muốn khóc",
+      "tâm trạng tồi tệ", "tâm trạng đi xuống", "tớ thấy buồn", "buồn chán quá",
+      "tớ cảm thấy tệ", "tớ không vui chút nào"
     ],
     generateResponse: (bio, historyLogs) => {
       const name = getFriendlyName(bio);
       const phq9Logs = (historyLogs || []).filter(l => l.test === "phq9");
       if (phq9Logs.length > 0) {
         const latest = phq9Logs[phq9Logs.length - 1];
-        const dateStr = new Date(latest.date).toLocaleDateString("vi-VN");
+        const dateStr = formatVnDate(latest.date);
         const severity = getPhq9SeverityVi(latest.score);
-        return [`Test PHQ-9 ngày ${dateStr} của cậu ${latest.score}/27, mức ${severity}.`, `Buồn không có nghĩa cậu yếu đuối, chỉ là tâm hồn cần được nghỉ thôi.`, `Điều gì đang làm cậu thấy bí nhất hôm nay?`];
+        return [`Test PHQ-9 ngày ${dateStr} của cậu ${latest.score}/27, mức ${severity}.`, `Buồn không có nghĩa cậu yếu — tâm hồn cậu đang cần được nghỉ thôi.`, `Điều gì đang làm cậu nặng nề nhất hôm nay?`];
       }
-      return [`Nỗi buồn không định nghĩa con người cậu đâu, ${name} ơi.`, `Cứ cho phép bản thân buồn một chút, không cần gồng.`, `Cậu muốn viết hết ra ở 'Viết Tự Do' (tab Trị liệu) không?`];
+      return _rotate("sadness", [
+        [`${name} ơi, tớ nghe cậu đây 🥺`, `Cho phép bản thân buồn xíu đi — không cần gồng "ổn" đâu.`, `Muốn kể tớ nghe chuyện gì không?`],
+        [`Buồn thì cứ buồn thôi ${name} ơi — không cần giải thích với ai.`, `Tớ ở đây nghe, không phán xét gì hết 💙`, `Điều gì đang nặng nề nhất với cậu lúc này?`],
+        [`Có những lúc không biết tại sao mà buồn — và điều đó hoàn toàn ổn ${name} ạ.`, `Cậu muốn thử viết hết ra ở 'Viết Tự Do' không?`, `Hay kể tớ nghe trước đi.`],
+      ]);
     }
   },
   {
     id: "crisis",
     tier: "free",
     patterns: [
-      "tớ muốn tự tử",
-      "muốn chết",
-      "không muốn sống nữa",
-      "tự tử ở đâu",
-      "làm hại bản thân",
-      "muốn kết liễu đời mình",
-      "muốn tự sát",
-      "nếu tôi chết rồi thì sao",
-      "tôi sẽ chết",
-      "không ai cần tôi nữa",
-      "biến mất khỏi thế giới này",
-      "sống không có ý nghĩa",
-      "muốn kết thúc tất cả"
+      "tớ muốn tự tử", "muốn chết", "không muốn sống nữa", "tự tử ở đâu",
+      "làm hại bản thân", "muốn kết liễu đời mình", "muốn tự sát",
+      "nếu tôi chết rồi thì sao", "tôi sẽ chết", "không ai cần tôi nữa",
+      "biến mất khỏi thế giới này", "sống không có ý nghĩa", "muốn kết thúc tất cả"
     ],
-    // Kept as a single atomic message on purpose — urgent safety info (hotline,
-    // emergency number) must never be split/delayed across multiple bubbles.
-    // Two-beat structure per product requirement: (1) deep emotional validation
-    // first, so it never reads like a canned/robotic safety notice, THEN (2) the
-    // actionable safety info + tappable quickActions (rendered as tel: buttons
-    // by ChatTab, not just plain text) so the user can reach help in one tap.
+    // Kept as a single atomic message — urgent safety info (hotline, emergency number)
+    // must never be split/delayed. Two-beat: (1) emotional validation first, (2) actionable
+    // safety info with tappable quickActions rendered as tel: buttons by ChatTab.
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return `${name} ơi, tớ đang nghe thấy một nỗi đau rất lớn trong những gì cậu vừa nói, và tớ không xem nhẹ nó một chút nào. Cậu không hề yếu đuối hay sai trái khi cảm thấy như vậy — chỉ là cậu đang phải mang một gánh nặng quá sức một mình ngay lúc này. Tớ thật lòng mong cậu được an toàn, và tớ sẽ ở đây cùng cậu qua khoảnh khắc này. Ngay bây giờ, xin cậu hãy chạm vào một trong các nút gọi khẩn cấp dưới đây hoặc tìm một người cậu tin tưởng để họ ở bên cậu lúc này — cậu xứng đáng được giúp đỡ và không phải một mình chịu đựng điều này.`;
     },
-    // Rendered by ChatTab as one-tap tel: call buttons directly under the message —
-    // not just numbers buried in text — so reaching real help takes a single tap.
     quickActions: [
       { label: "📞 Gọi Cấp Cứu 115", tel: "115" },
       { label: "📞 Đường Dây Nóng Tâm Lý 1800 599 920", tel: "1800599920" }
@@ -365,19 +285,13 @@ export const INTENT_DATABASE = [
     id: "clinical_tests",
     tier: "paid",
     patterns: [
-      "test trầm cảm",
-      "test lo âu",
-      "kiểm tra sức khỏe tinh thần",
-      "bài test phq9",
-      "bài test gad7",
-      "trắc nghiệm tâm lý",
-      "kiểm tra trầm cảm",
-      "làm bài test",
-      "bài trắc nghiệm tâm lý"
+      "test trầm cảm", "test lo âu", "kiểm tra sức khỏe tinh thần",
+      "bài test phq9", "bài test gad7", "trắc nghiệm tâm lý",
+      "kiểm tra trầm cảm", "làm bài test", "bài trắc nghiệm tâm lý"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Làm test chuẩn lâm sàng (PHQ-9, GAD-7) giúp ${name} biết rõ tình trạng thật, đỡ phải lo mơ hồ.`, `Qua tab 'Đánh Giá' làm nha, tớ lưu kết quả theo dõi tiến triển cho cậu luôn.`];
+      return [`Test chuẩn lâm sàng (PHQ-9, GAD-7) giúp ${name} biết rõ tình trạng thật, không cần lo mơ hồ nữa 📋`, `Qua tab 'Đánh Giá' làm nha — tớ lưu kết quả và theo dõi tiến triển cho cậu luôn.`];
     },
     suggestPhq9: true,
     suggestGad7: true
@@ -386,389 +300,574 @@ export const INTENT_DATABASE = [
     id: "gratitude",
     tier: "free",
     patterns: [
-      "cảm ơn cậu",
-      "thank you",
-      "cảm ơn bạn học đường",
-      "bot dễ thương quá",
-      "cảm ơn chuyên viên",
-      "cậu tốt quá",
-      "bot hữu ích quá",
-      "cảm ơn bot"
+      "cảm ơn cậu", "thank you", "cảm ơn bạn học đường", "bot dễ thương quá",
+      "cảm ơn chuyên viên", "cậu tốt quá", "bot hữu ích quá", "cảm ơn bot",
+      "thanks", "cảm ơn nha"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Có gì đâu ${name} ơi 🥹`, `Được cậu tin tưởng chia sẻ là tớ vui muốn xỉu rồi á.`, `Chúc cậu một ngày nhẹ nhàng nha!`];
+      return [`Có gì đâu ${name} ơi 🥹`, `Được cậu tin tưởng chia sẻ là tớ vui muốn xỉu rồi á.`, `Chúc cậu một ngày nhẹ nhàng nha 💙`];
     }
   },
   {
     id: "positive",
     tier: "free",
     patterns: [
-      "tớ thấy vui",
-      "hôm nay rất vui",
-      "mọi thứ tốt",
-      "tớ thấy ổn",
-      "tớ rất khỏe",
-      "tâm trạng tốt",
-      "ngày hôm nay tuyệt vời",
-      "tớ thấy hạnh phúc",
-      "moi thu on"
+      "tớ thấy vui", "hôm nay rất vui", "mọi thứ tốt", "tớ thấy ổn",
+      "tớ rất khỏe", "tâm trạng tốt", "ngày hôm nay tuyệt vời",
+      "tớ thấy hạnh phúc", "moi thu on", "tớ đang ok lắm"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Yass ${name}! Vui dữ vậy nè 🎉`, `Giữ cái vibe này lại nha.`, `Điều gì làm cậu vui dữ vậy, kể tớ nghe đi?`];
+      return _rotate("positive", [
+        [`Yasss ${name}! 🎉`, `Giữ cái vibe này lại nha — vui là quý lắm đó.`, `Điều gì làm cậu vui vậy, kể tớ nghe đi?`],
+        [`Ooh nghe vui quá! ✨ Tớ cũng lây năng lượng đó rồi ${name}.`, `Hôm nay có chuyện gì đặc biệt không?`],
+        [`Tuyệt vời ghê! 🌟 ${name} đang chill thế.`, `Cậu đang làm gì mà vibe tốt vậy — kể tớ học hỏi với?`],
+      ]);
     }
   },
   {
     id: "test_inventory",
     tier: "paid",
     patterns: [
-      "bạn có bao nhiêu bài test",
-      "có những bài test gì",
-      "danh sách bài test",
-      "ứng dụng có mấy bài trắc nghiệm",
-      "các bài kiểm tra tâm lý",
-      "test tâm lý gồm những gì",
-      "có bao nhiêu bài trắc nghiệm"
+      "bạn có bao nhiêu bài test", "có những bài test gì", "danh sách bài test",
+      "ứng dụng có mấy bài trắc nghiệm", "các bài kiểm tra tâm lý",
+      "test tâm lý gồm những gì", "có bao nhiêu bài trắc nghiệm", "có test gì"
     ],
     generateResponse: () => {
-      return [`Hệ thống có 4 bài chuẩn lâm sàng: DASS-21/42, MMPI, PHQ-9 (trầm cảm), GAD-7 (lo âu).`, `Kể tớ nghe tình trạng hiện tại, tớ gợi ý bài hợp nhất, hoặc vào tab 'Đánh Giá' chọn luôn cũng được!`];
+      return [`Hệ thống có 4 bài chuẩn lâm sàng: PHQ-9 (trầm cảm), GAD-7 (lo âu), WHO-5 (hạnh phúc), Big Five (nhân cách).`, `Kể tớ tình trạng hiện tại, tớ gợi ý bài hợp nhất — hoặc vào tab 'Đánh Giá' chọn luôn cũng được!`];
     }
   },
   {
     id: "therapy_catalog",
     tier: "paid",
     patterns: [
-      "có liệu pháp gì",
-      "trị liệu gồm những gì",
-      "các liệu pháp tự chữa lành",
-      "hướng dẫn dùng liệu pháp",
-      "tớ nên dùng liệu pháp nào"
+      "có liệu pháp gì", "trị liệu gồm những gì", "các liệu pháp tự chữa lành",
+      "hướng dẫn dùng liệu pháp", "tớ nên dùng liệu pháp nào",
+      "bài tập tự chữa lành", "phương pháp trị liệu", "các bài trị liệu"
     ],
     generateResponse: () => {
-      return [`Có 4 liệu pháp chính nè: Thở 4-7-8 (lo âu/mất ngủ), Ngồi Tĩnh Tâm (căng thẳng), CBT (suy nghĩ tiêu cực), Đọc sách Trị liệu (chiêm nghiệm).`, `Còn vài món AI cao cấp mở bằng JOY nữa. Ghé tab 'Trị Liệu' khám phá nha!`];
+      return [`Có 4 liệu pháp chính nè: Thở 4-7-8 (lo âu/mất ngủ), Ngồi Tĩnh Tâm (căng thẳng), CBT (suy nghĩ tiêu cực), Đọc sách Trị liệu (chiêm nghiệm).`, `Còn vài món AI cao cấp mở bằng JOY nữa ✨ Ghé tab 'Trị Liệu' khám phá nha!`];
     }
   },
   {
     id: "pricing_package",
     tier: "paid",
     patterns: [
-      "gói cước giá bao nhiêu",
-      "làm sao mua gói",
-      "cách hủy gói",
-      "cách đổi gói",
-      "gói nào phù hợp với tớ",
-      "phí dịch vụ là bao nhiêu",
-      "có mất phí không"
+      "gói cước giá bao nhiêu", "làm sao mua gói", "cách hủy gói",
+      "cách đổi gói", "gói nào phù hợp với tớ", "phí dịch vụ là bao nhiêu",
+      "có mất phí không", "gói premium", "đăng ký gói"
     ],
     generateResponse: () => {
-      return [`Giá và các gói đồng hành xem ở tab 'Quản lý' trong Cổng thành viên nha, đủ info luôn.`, `Kể tớ tình trạng của cậu, tớ gợi ý gói hợp nhất cho!`];
+      return [`Giá và các gói đồng hành xem ở tab 'Quản lý' trong Cổng thành viên nha — đủ info luôn.`, `Kể tớ nghe nhu cầu của cậu, tớ gợi ý gói hợp nhất cho!`];
     }
   },
   {
     id: "joy_currency",
     tier: "paid",
     patterns: [
-      "joy là gì",
-      "làm sao có joy",
-      "joy dùng để làm gì",
-      "kiếm joy thế nào",
-      "joy là tiền gì"
+      "joy là gì", "làm sao có joy", "joy dùng để làm gì",
+      "kiếm joy thế nào", "joy là tiền gì", "đồng joy", "xu joy", "joy coin"
     ],
     generateResponse: () => {
-      return [`JOY là tiền nội bộ hệ thống, kiếm bằng cách giới thiệu bạn bè hoặc đổi quà tặng.`, `Dùng JOY mở liệu pháp AI cao cấp hoặc mua đồ ở Cửa hàng tiện ích. Xem số dư ở tab 'JOY' nha!`];
+      return [`JOY là tiền nội bộ hệ thống — kiếm bằng cách giới thiệu bạn bè hoặc đổi quà tặng 🎁`, `Dùng JOY mở liệu pháp AI cao cấp hoặc mua đồ ở Cửa hàng. Xem số dư ở tab 'JOY' nha!`];
     }
   },
   {
     id: "token_limit",
     tier: "paid",
     patterns: [
-      "mỗi ngày chat được mấy lần",
-      "hết token thì sao",
-      "token chat là gì",
-      "tại sao bị trừ token",
-      "khi nào token được làm mới"
+      "mỗi ngày chat được mấy lần", "hết token thì sao", "token chat là gì",
+      "tại sao bị trừ token", "khi nào token được làm mới", "giới hạn token", "lượt chat"
     ],
     generateResponse: () => {
-      return [`Mỗi ngày cậu có 10 token chat. Chào hỏi/cảm ơn/tâm sự thường thì free hết.`, `Câu hỏi tớ trả lời ngay tốn 1 token, cần suy nghĩ sâu thì 3 token.`, `Reset mỗi ngày mới, hoặc mua thêm bằng JOY nếu cần gấp!`];
+      return [`Mỗi ngày cậu có 10 token chat. Chào hỏi, cảm ơn, tâm sự thường thì miễn phí hết.`, `Câu hỏi tớ trả lời ngay = 1 token, cần suy nghĩ sâu = 3 token.`, `Reset mỗi ngày mới — hoặc mua thêm bằng JOY nếu cần gấp!`];
     }
   },
   {
     id: "about_creator",
     tier: "paid",
     patterns: [
-      "ai tạo ra app này",
-      "hugo studio là gì",
-      "đội ngũ phát triển là ai",
-      "app này của ai"
+      "ai tạo ra app này", "hugo studio là gì", "đội ngũ phát triển là ai",
+      "app này của ai", "ai làm ra hugopsy", "tác giả", "creator"
     ],
     generateResponse: () => {
-      return [`Tớ được Hugo Studio xây và huấn luyện nè.`, `Mục tiêu là làm bạn đồng hành tâm lý học đường cho học sinh, sinh viên Việt Nam — cải tiến liên tục để nghe cậu tốt hơn mỗi ngày!`];
+      return [`Tớ được Hugo Studio xây và huấn luyện nè.`, `Mục tiêu là làm bạn đồng hành tâm lý học đường cho học sinh sinh viên Việt Nam — cải tiến liên tục để nghe cậu tốt hơn mỗi ngày!`];
     }
   },
   {
     id: "data_privacy",
     tier: "paid",
     patterns: [
-      "dữ liệu của tớ có an toàn không",
-      "ai xem được tin nhắn của tớ",
-      "thông tin có bị lộ không",
-      "có ai đọc được tâm sự của tớ không"
+      "dữ liệu của tớ có an toàn không", "ai xem được tin nhắn của tớ",
+      "thông tin có bị lộ không", "có ai đọc được tâm sự của tớ không",
+      "bảo mật", "riêng tư", "dữ liệu cá nhân"
     ],
     generateResponse: () => {
-      return [`Mọi tâm sự + dữ liệu hồ sơ của cậu được bảo mật, chỉ dùng để tớ cá nhân hoá hỗ trợ thôi.`, `Không chia cho bên thứ ba đâu, cứ yên tâm tâm sự thật lòng nha!`];
+      return [`Mọi tâm sự + dữ liệu hồ sơ của cậu được bảo mật hoàn toàn, chỉ dùng để tớ cá nhân hoá hỗ trợ thôi.`, `Không chia cho bên thứ ba đâu — cứ yên tâm tâm sự thật lòng nha! 🔒`];
     }
   },
   {
     id: "support_contact",
     tier: "paid",
     patterns: [
-      "liên hệ hỗ trợ thế nào",
-      "báo lỗi ở đâu",
-      "gặp vấn đề kỹ thuật thì sao",
-      "tớ muốn gặp nhân viên hỗ trợ"
+      "liên hệ hỗ trợ thế nào", "báo lỗi ở đâu", "gặp vấn đề kỹ thuật thì sao",
+      "tớ muốn gặp nhân viên hỗ trợ", "lỗi kỹ thuật", "hỗ trợ", "support"
     ],
     generateResponse: () => {
-      return [`Lỗi kỹ thuật/cần người thật hỗ trợ thì bấm khung chat hỗ trợ ở trang chủ nha, team Hugo Studio sẽ phản hồi sớm.`, `Còn chuyện tâm lý thì cứ kể tớ trước đã!`];
+      return [`Lỗi kỹ thuật hay cần người thật hỗ trợ thì bấm vào khung chat hỗ trợ ở trang chủ nha, team Hugo Studio phản hồi sớm lắm.`, `Còn chuyện tâm lý thì cứ kể tớ trước đã!`];
     }
   },
   {
     id: "loneliness",
     tier: "paid",
     patterns: [
-      "tớ thấy cô đơn",
-      "không ai hiểu tớ",
-      "tớ cảm thấy lạc lõng",
-      "tớ chẳng có ai để nói chuyện",
-      "tớ cô đơn quá",
-      "không ai bên cạnh tớ",
-      "tớ thấy mình bị bỏ rơi"
+      "tớ thấy cô đơn", "không ai hiểu tớ", "tớ cảm thấy lạc lõng",
+      "tớ chẳng có ai để nói chuyện", "tớ cô đơn quá", "không ai bên cạnh tớ",
+      "tớ thấy mình bị bỏ rơi", "không có bạn", "mình đơn độc lắm"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Cô đơn dù xung quanh đầy người là cảm giác rất thật, nhiều bạn cùng tuổi ${name} cũng vậy đó.`, `Thường không phải thiếu người, mà thiếu một kết nối đủ sâu để được hiểu thôi.`, `Cậu bắt đầu thấy lạc lõng từ lúc nào vậy?`];
+      return _rotate("loneliness", [
+        [`Cô đơn dù xung quanh đầy người — cảm giác đó rất thật, không phải cậu "vô lý" đâu ${name} ơi.`, `Thường không phải thiếu người, mà thiếu một kết nối đủ sâu để được thật sự hiểu thôi.`, `Cậu bắt đầu thấy lạc lõng từ lúc nào vậy?`],
+        [`Lạc lõng giữa đám đông đôi khi còn cô đơn hơn một mình ${name} ơi.`, `Không phải cậu "không bình thường" — rất nhiều bạn cùng tuổi cảm giác y chang.`, `Cậu có người nào thật sự lắng nghe cậu chưa?`],
+        [`Tớ đang ở đây ${name}, và tớ muốn nghe cậu kể 💙`, `Đôi khi chỉ cần ai đó thật sự hiểu — không cần fix gì hết, chỉ cần nghe.`, `Cậu đang cảm thấy lạc lõng vì điều gì nhất?`],
+      ]);
     }
   },
   {
     id: "family_conflict",
     tier: "paid",
     patterns: [
-      "cãi nhau với bố mẹ",
-      "gia đình không hiểu tớ",
-      "bố mẹ áp đặt tớ quá",
-      "mâu thuẫn với gia đình",
-      "bố mẹ la mắng tớ",
-      "tớ với gia đình không hợp",
-      "gia đình tớ căng thẳng"
+      "cãi nhau với bố mẹ", "gia đình không hiểu tớ", "bố mẹ áp đặt tớ quá",
+      "mâu thuẫn với gia đình", "bố mẹ la mắng tớ", "tớ với gia đình không hợp",
+      "gia đình tớ căng thẳng", "bố mẹ kỳ vọng quá nhiều"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Mâu thuẫn gia đình nhiều khi chỉ là 2 bên "nói chuyện khác kênh" thôi, không hẳn vì không thương nhau.`, `Cảm giác bị áp đặt của ${name} hoàn toàn hợp lý mà.`, `Kể tớ nghe chuyện vừa xảy ra đi, để tớ gỡ rối cùng cậu.`];
+      return [`Mâu thuẫn gia đình nhiều khi chỉ là 2 bên "nói chuyện khác kênh" — không hẳn không thương nhau.`, `Cảm giác bị áp đặt của ${name} hoàn toàn hợp lý mà.`, `Kể tớ nghe chuyện vừa xảy ra đi, gỡ rối cùng nhau nha.`];
     }
   },
   {
     id: "friendship_conflict",
     tier: "paid",
     patterns: [
-      "bạn bè xa lánh tớ",
-      "tớ bị bắt nạt",
-      "mâu thuẫn với bạn bè",
-      "tớ bị cô lập trong lớp",
-      "bạn thân nói xấu tớ",
-      "tớ bị bạn bè tẩy chay",
-      "tớ bị bully"
+      "bạn bè xa lánh tớ", "tớ bị bắt nạt", "mâu thuẫn với bạn bè",
+      "tớ bị cô lập trong lớp", "bạn thân nói xấu tớ", "tớ bị bạn bè tẩy chay",
+      "tớ bị bully", "bạn bè xấu với tớ", "drama bạn bè"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Bị tẩy chay/bully đau thiệt đó, tuổi này được công nhận quan trọng lắm.`, `Đây không phải lỗi của ${name} đâu, nhớ vậy nha.`, `Cậu đang an toàn không? Có nói với thầy cô/người lớn tin tưởng nào chưa?`];
+      return [`Bị tẩy chay hay bully đau thiệt đó ${name} ơi 💙`, `Đây không phải lỗi của cậu — nhớ vậy nha.`, `Cậu đang an toàn không? Có nói với thầy cô hoặc người lớn tin tưởng chưa?`];
     }
   },
   {
     id: "breakup",
     tier: "paid",
     patterns: [
-      "tớ vừa chia tay",
-      "thất tình",
-      "người yêu chia tay tớ",
-      "tớ buồn vì chia tay",
-      "tình cảm tan vỡ",
-      "tớ bị người yêu bỏ"
+      "tớ vừa chia tay", "thất tình", "người yêu chia tay tớ",
+      "tớ buồn vì chia tay", "tình cảm tan vỡ", "tớ bị người yêu bỏ",
+      "chia tay đau lắm", "hết yêu rồi"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Chia tay giống như mất một phần kỳ vọng đã xây cùng nhau, buồn là chuyện đương nhiên ${name} ơi.`, `Đừng ép bản thân "ổn" liền đâu nha.`, `Điều gì làm cậu day dứt nhất về chuyện này?`];
+      return [`Chia tay giống như mất một phần kỳ vọng đã xây cùng nhau — buồn là chuyện đương nhiên ${name} ơi 🫂`, `Đừng ép bản thân "ổn ngay" đâu nha.`, `Điều gì đang làm cậu day dứt nhất về chuyện này?`];
     }
   },
   {
     id: "low_self_esteem",
     tier: "paid",
     patterns: [
-      "tớ thấy mình vô dụng",
-      "tớ tự ti quá",
-      "tớ thấy mình kém cỏi",
-      "tớ không tin vào bản thân",
-      "tớ ghét bản thân mình",
-      "tớ cảm thấy mình thất bại"
+      "tớ thấy mình vô dụng", "tớ tự ti quá", "tớ thấy mình kém cỏi",
+      "tớ không tin vào bản thân", "tớ ghét bản thân mình", "tớ cảm thấy mình thất bại",
+      "tớ không đủ giỏi", "tớ không làm được gì"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Lúc buồn, não hay "thổi phồng" lỗi sai và hạ giá trị bản thân xuống — không phải sự thật về ${name} đâu.`, `Giá trị một người không nằm ở vài lần vấp ngã hay so sánh với ai khác.`, `Kể tớ nghe 1 điều — dù nhỏ xíu — cậu đã làm tốt gần đây xem?`];
+      return [`Lúc buồn não hay "thổi phồng" lỗi sai và hạ giá trị bản thân — đó không phải sự thật về ${name} đâu.`, `Giá trị một người không nằm ở vài lần vấp ngã hay so sánh với ai.`, `Kể tớ nghe 1 điều — dù nhỏ xíu — cậu đã làm tốt gần đây đi?`];
     }
   },
   {
     id: "procrastination",
     tier: "paid",
     patterns: [
-      "tớ hay trì hoãn",
-      "tớ lười học quá",
-      "tớ không có động lực làm bài",
-      "tớ cứ trì hoãn deadline",
-      "tớ không muốn làm gì cả",
-      "tớ mất động lực học tập"
+      "tớ hay trì hoãn", "tớ lười học quá", "tớ không có động lực làm bài",
+      "tớ cứ trì hoãn deadline", "tớ không muốn làm gì cả",
+      "tớ mất động lực học tập", "chán làm bài quá", "cứ ôm việc không làm"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Trì hoãn thường không phải lười, mà là não đang "trốn" cảm giác sợ thất bại hoặc việc quá to đó ${name}.`, `Mẹo: chia ra bước đầu cực ngắn (2 phút thôi) để lừa cảm giác quá tải.`, `Việc gì đang khiến cậu chần chừ nhất giờ?`];
+      return [`Trì hoãn thường không phải lười — mà là não đang "trốn" cảm giác sợ thất bại hoặc việc quá to đó ${name}.`, `Mẹo: chia ra bước đầu tiên cực ngắn (2 phút thôi) để lừa cảm giác quá tải.`, `Việc gì cậu đang ôm mà chưa chịu bắt đầu?`];
     }
   },
   {
     id: "anger",
     tier: "paid",
     patterns: [
-      "tớ tức giận quá",
-      "tớ đang rất bực bội",
-      "tớ nóng giận",
-      "tớ giận điên lên được",
-      "tớ thấy ấm ức",
-      "tớ khó chịu trong người"
+      "tớ tức giận quá", "tớ đang rất bực bội", "tớ nóng giận",
+      "tớ giận điên lên được", "tớ thấy ấm ức", "tớ khó chịu trong người",
+      "tớ muốn đập phá", "tớ bức xúc lắm"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Giận thường là lớp vỏ ngoài che một cảm giác sâu hơn như bị tổn thương hay bất công, hoàn toàn bình thường ${name} ơi.`, `Trước khi phản ứng, hít sâu vài nhịp cho hệ thần kinh dịu lại đã.`, `Chuyện gì vừa xảy ra vậy?`];
+      return [`Giận thường là lớp vỏ ngoài che một cảm giác sâu hơn — bị tổn thương hay bất công — hoàn toàn bình thường ${name} ơi.`, `Trước khi phản ứng, hít sâu vài nhịp cho hệ thần kinh dịu lại đã nha.`, `Chuyện gì vừa xảy ra vậy?`];
     }
   },
   {
     id: "panic_attack",
     tier: "free",
     patterns: [
-      "tớ bị khó thở",
-      "tim tớ đập nhanh quá",
-      "tớ đang hoảng loạn",
-      "tớ thấy ngộp thở",
-      "tớ run rẩy không kiểm soát được",
-      "tớ sắp ngất rồi"
+      "tớ bị khó thở", "tim tớ đập nhanh quá", "tớ đang hoảng loạn",
+      "tớ thấy ngộp thở", "tớ run rẩy không kiểm soát được", "tớ sắp ngất rồi",
+      "tớ bị panic attack", "tớ đang lên cơn"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`${name} ơi, nghe giống cơn hoảng loạn (panic attack) — đáng sợ thật nhưng KHÔNG nguy hiểm tính mạng, sẽ qua đi.`, `Làm cùng tớ ngay: nhìn quanh gọi tên 5 vật thấy, 3 âm thanh nghe.`, `Rồi hít mũi 4 giây - giữ 4 giây - thở miệng 6 giây, lặp lại vài lần. Cậu đang ở chỗ an toàn không?`];
+      return [`${name} ơi, nghe giống panic attack — đáng sợ thật nhưng KHÔNG nguy hiểm tính mạng, sẽ qua đi 💙`, `Làm cùng tớ ngay: nhìn quanh gọi tên 5 vật thấy, 3 âm thanh nghe được.`, `Rồi hít mũi 4s — nín 4s — thở miệng 6s, lặp vài lần. Cậu đang ở chỗ an toàn không?`];
     }
   },
   {
     id: "grief",
     tier: "paid",
     patterns: [
-      "tớ vừa mất người thân",
-      "tớ đau buồn vì mất mát",
-      "người tớ yêu thương đã qua đời",
-      "tớ không vượt qua được nỗi đau mất người thân",
-      "tớ đang để tang"
+      "tớ vừa mất người thân", "tớ đau buồn vì mất mát", "người tớ yêu thương đã qua đời",
+      "tớ không vượt qua được nỗi đau mất người thân", "tớ đang để tang",
+      "mất đi người quan trọng", "người thân qua đời"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Tớ rất tiếc vì mất mát lớn này, ${name}.`, `Đau buồn không có "đúng tiến độ" — cậu được phép buồn bao lâu cậu cần.`, `Tớ ở đây nếu cậu muốn kể về người đó, hay chỉ cần ai ngồi cạnh im lặng cũng được.`];
+      return [`Tớ rất tiếc vì mất mát lớn này ${name} 🫂`, `Đau buồn không có "đúng tiến độ" — cậu được phép buồn bao lâu cậu cần.`, `Tớ ở đây nếu cậu muốn kể về người đó, hay chỉ cần ai ngồi cạnh im lặng cũng được.`];
     }
   },
   {
     id: "future_anxiety",
     tier: "paid",
     patterns: [
-      "tớ hoang mang về tương lai",
-      "tớ không biết chọn ngành gì",
-      "tớ lo lắng về định hướng nghề nghiệp",
-      "tớ không biết mình muốn gì",
-      "tớ sợ chọn sai ngành"
+      "tớ hoang mang về tương lai", "tớ không biết chọn ngành gì",
+      "tớ lo lắng về định hướng nghề nghiệp", "tớ không biết mình muốn gì",
+      "tớ sợ chọn sai ngành", "tương lai mờ mịt quá", "không biết làm gì sau này"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Hoang mang về tương lai ở tuổi ${name} là cực kỳ bình thường, không ai bắt buộc biết hết ngay từ giờ đâu.`, `Thay vì tìm câu trả lời "đúng tuyệt đối", cứ khám phá dần thôi.`, `Gần đây điều gì làm cậu thấy hứng/tò mò nhất?`];
+      return [`Hoang mang về tương lai ở tuổi cậu là cực kỳ bình thường — không ai bắt buộc phải biết hết ngay đâu ${name}.`, `Thay vì tìm câu trả lời "đúng tuyệt đối", cứ khám phá dần thôi.`, `Gần đây điều gì làm cậu thấy hứng thú hoặc tò mò nhất?`];
     }
   },
   {
     id: "checkin_feature",
     tier: "paid",
     patterns: [
-      "check-in là gì",
-      "điểm danh cảm xúc là gì",
-      "streak là gì",
-      "tại sao phải check-in",
-      "check in cảm xúc để làm gì"
+      "check-in là gì", "điểm danh cảm xúc là gì", "streak là gì",
+      "tại sao phải check-in", "check in cảm xúc để làm gì"
     ],
     generateResponse: () => {
-      return [`Check-in là ghi nhận tâm trạng mỗi ngày, chỉ vài giây thôi.`, `Giúp tớ thấy xu hướng cảm xúc cậu (chuỗi ngày liên tục = "streak"), từ đó gợi ý đúng cái cậu cần. Check-in ngay đầu khung chat nha!`];
+      return [`Check-in là ghi nhận tâm trạng mỗi ngày — chỉ vài giây thôi!`, `Giúp tớ thấy xu hướng cảm xúc của cậu theo thời gian (chuỗi ngày liên tục = "streak"), từ đó gợi ý đúng cái cậu cần. Check-in ngay đầu khung chat nha!`];
     }
   },
   {
     id: "venting_space",
     tier: "paid",
     patterns: [
-      "không gian trút giận là gì",
-      "trút bầu tâm sự là gì",
-      "chế độ trút giận hoạt động sao",
-      "tin nhắn tự hủy là gì"
+      "không gian trút giận là gì", "trút bầu tâm sự là gì",
+      "chế độ trút giận hoạt động sao", "tin nhắn tự hủy là gì"
     ],
     generateResponse: () => {
-      return [`"Trút Bầu Tâm Sự An Toàn" là chế độ tin nhắn tự xoá sau thời gian cậu chọn — KHÔNG lưu lại đâu hết.`, `Trút sạch những điều khó nói mà không lo bị đọc lại. Bật ngay trong khung chat nha!`];
+      return [`"Trút Bầu Tâm Sự An Toàn" là chế độ tin nhắn tự xoá sau thời gian cậu chọn — KHÔNG lưu lại đâu hết 🔒`, `Trút sạch những điều khó nói mà không lo bị đọc lại. Bật ngay trong khung chat nha!`];
     }
   },
   {
     id: "room_organization",
     tier: "paid",
     patterns: [
-      "làm sao bố trí phòng",
-      "sắp xếp phòng cho gọn",
-      "trang trí góc học tập",
-      "phòng tớ bừa quá",
-      "dọn phòng thế nào",
-      "sắp xếp lại phòng ngủ"
+      "làm sao bố trí phòng", "sắp xếp phòng cho gọn", "trang trí góc học tập",
+      "phòng tớ bừa quá", "dọn phòng thế nào", "sắp xếp lại phòng ngủ"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Phòng bừa thường làm đầu óc cũng rối theo đó, ${name}!`, `Mẹo nhỏ: tách 3 khu riêng — học/ngủ/thư giãn — và bỏ hết đồ không dùng tới khỏi mặt bàn học.`, `Ánh sáng tự nhiên + 1 góc cây xanh nhỏ cũng giúp tinh thần nhẹ hẳn. Cậu đang gặp khó ở khu nào nhất?`];
+      return [`Phòng bừa thường làm đầu óc rối theo đó, ${name}!`, `Mẹo: tách 3 khu riêng — học/ngủ/thư giãn — và dọn sạch mặt bàn học trước.`, `Ánh sáng tự nhiên + 1 góc cây xanh nhỏ cũng giúp tinh thần nhẹ hẳn. Cậu đang khó ở khu nào nhất?`];
     }
   },
   {
     id: "mindful_spending",
     tier: "paid",
     patterns: [
-      "tớ muốn mua đồ tớ thích",
-      "có nên mua cây không",
-      "tớ muốn tự thưởng cho mình",
-      "mua sắm để giải tỏa",
-      "tớ hay mua sắm linh tinh",
-      "tớ tiêu xài quá đà"
+      "tớ muốn mua đồ tớ thích", "có nên mua cây không", "tớ muốn tự thưởng cho mình",
+      "mua sắm để giải tỏa", "tớ hay mua sắm linh tinh", "tớ tiêu xài quá đà"
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Tự thưởng cho bản thân — mua cây, món đồ nhỏ mình thích — là cách chăm sóc tinh thần hoàn toàn lành mạnh đó ${name}!`, `Chỉ cần để ý: nếu mua sắm đang là cách DUY NHẤT để né cảm xúc khó chịu, hoặc làm cậu lo về tài chính sau đó, thì nên chững lại xíu.`, `Món cậu đang muốn mua là gì, kể tớ nghe thử?`];
+      return [`Tự thưởng bản thân — mua cây, món đồ nhỏ — là cách chăm sóc tinh thần hoàn toàn lành mạnh đó ${name}!`, `Chỉ cần để ý: nếu mua sắm là cách DUY NHẤT để né cảm xúc khó, hoặc làm cậu lo về tài chính sau đó, thì chững lại xíu.`, `Món cậu đang muốn mua là gì, kể tớ nghe thử?`];
+    }
+  },
+
+  // ─── NEW INTENTS ────────────────────────────────────────────────────────────
+
+  {
+    id: "burnout",
+    tier: "paid",
+    patterns: [
+      "tớ kiệt sức rồi", "tớ không còn sức để làm gì", "mệt mỏi kiệt lực",
+      "burn out rồi", "kiệt sức hoàn toàn", "không còn động lực gì nữa",
+      "hết sức rồi", "tớ gồng quá lâu", "cạn kiệt năng lượng", "xỉu rồi"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return _rotate("burnout", [
+        [`Burnout khác với mệt thường — đây là cơ thể và tâm trí đang đình công luôn đó ${name} 😮‍💨`, `Không phải cậu yếu hay lười — cậu đã gồng quá lâu mà không được nạp lại.`, `Gần đây cậu có khoảng thời gian nào hoàn toàn cho bản thân chưa?`],
+        [`Cơ thể cậu đang gửi tín hiệu "dừng lại" đấy ${name} ơi — không phải yêu cầu, là lệnh.`, `Hỏi thật: gần đây cậu đang chạy bao nhiêu thứ một lúc?`, `Kể tớ nghe cậu đang gồng những gì nha.`],
+        [`Kiệt sức kiểu này khó giải thích với người ngoài lắm ${name} — tớ hiểu.`, `Recovery từ burnout cần thời gian và sự tử tế với bản thân — không phải ý chí mạnh hơn.`, `Cậu nghĩ điều gì đang "hút năng lượng" của cậu nhiều nhất?`],
+      ]);
+    }
+  },
+  {
+    id: "social_comparison",
+    tier: "paid",
+    patterns: [
+      "tớ hay so sánh với người khác", "tại sao người ta giỏi thế",
+      "tớ thua kém mọi người", "nhìn người khác thành công mà tủi",
+      "fomo quá", "tớ thấy mình không bằng ai", "người khác hơn tớ",
+      "instagram làm tớ tủi thân"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Mạng xã hội chỉ "chiếu" highlight của người khác — mình lại so với cả cuộc đời họ, game đó không công bằng chút nào 😅`, `Hành trình của ${name} có nhịp riêng của nó, không cần sync với ai.`, `Gần đây cậu so sánh mình với ai — bạn học hay idol trên mạng?`];
+    }
+  },
+  {
+    id: "perfectionism",
+    tier: "paid",
+    patterns: [
+      "tớ cầu toàn quá", "sợ làm sai", "tớ cứ muốn hoàn hảo",
+      "không dám bắt đầu vì sợ làm không tốt", "tớ hay chỉ trích bản thân",
+      "tớ sợ thất bại nên không dám thử", "phải làm cho hoàn hảo",
+      "không chịu được làm sai"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Cầu toàn thực ra là "trì hoãn được nguỵ trang" khéo lắm ${name}!`, `"Đủ tốt và hoàn thành" thường có giá trị hơn "hoàn hảo nhưng chưa bắt đầu" đó nha.`, `Điều gì đang khiến cậu chưa dám bắt tay vô?`];
+    }
+  },
+  {
+    id: "body_image",
+    tier: "paid",
+    patterns: [
+      "tớ tự ti về ngoại hình", "tớ béo quá", "tớ xấu quá",
+      "tớ ghét cơ thể mình", "tớ không hài lòng với ngoại hình",
+      "người ta xinh hơn tớ nhiều", "tớ tự ti về cân nặng",
+      "tớ muốn giảm cân", "tớ thấy mình không xinh"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Tự ti ngoại hình rất phổ biến ở tuổi cậu — áp lực hình thể từ mạng xã hội và bạn bè nhiều lắm.`, `Nhưng cơ thể cậu đang làm rất nhiều thứ cho ${name} mỗi ngày, kể cả ngày cậu không thích nó.`, `Cảm giác này xuất phát từ đâu — có ai nói gì, hay tự so sánh với ai đó?`];
+    }
+  },
+  {
+    id: "phone_addiction",
+    tier: "paid",
+    patterns: [
+      "tớ nghiện điện thoại", "tớ không thể không dùng tiktok",
+      "tớ lướt mạng xã hội quá nhiều", "nghiện game", "không thể bỏ điện thoại xuống",
+      "tớ dùng điện thoại nhiều quá", "nghiện mạng xã hội", "screen time nhiều quá"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`${name} tự nhận ra điều này là bước đầu rất tỉnh táo rồi đó!`, `Điện thoại được thiết kế để gây nghiện — dopamine mỗi lần scroll là real khoa học luôn.`, `Thử "digital detox" nhỏ: đặt điện thoại sang phòng khác 30 phút. Cậu nghĩ mình chịu được không?`];
+    }
+  },
+  {
+    id: "social_anxiety",
+    tier: "paid",
+    patterns: [
+      "tớ sợ nói trước đám đông", "tớ sợ bị phán xét", "tớ ngại tiếp xúc người lạ",
+      "tớ bị social anxiety", "tớ sợ ra ngoài", "tớ không dám phát biểu",
+      "tớ sợ gặp người", "tớ ngại nói chuyện", "sợ bị mọi người nhìn"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Social anxiety là 1 trong những vấn đề phổ biến nhất ở giới trẻ — ${name} không một mình đâu nha.`, `Não đang "thổi phồng" mức độ người khác chú ý đến cậu — thực tế họ bận với chính họ hơn cậu nghĩ rất nhiều.`, `Tình huống nào đang làm cậu anxious nhất gần đây?`];
+    }
+  },
+  {
+    id: "homesickness",
+    tier: "paid",
+    patterns: [
+      "tớ nhớ nhà quá", "xa nhà cô đơn lắm", "tớ nhớ bố mẹ",
+      "đi học xa nhà", "nhớ quê hương", "xa gia đình buồn lắm",
+      "tớ nhớ nhà ghê lắm", "đi xa nhớ nhà"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Nhớ nhà là cảm giác nặng và thật lắm — không phải cậu yếu đâu ${name} ơi.`, `Xa nhà cũng đồng nghĩa với đang lớn và mở rộng thế giới — nhưng điều đó không làm nỗi nhớ bớt thật chút nào.`, `Gần đây cậu có gọi video về nhà chưa?`];
+    }
+  },
+  {
+    id: "first_love",
+    tier: "paid",
+    patterns: [
+      "tớ thích ai đó", "tớ có crush", "tớ đang yêu", "tình cảm đầu tiên",
+      "tớ thích bạn trong lớp", "làm sao tỏ tình", "tớ thích một người",
+      "tớ đang có tình cảm với ai", "tớ bị crush"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Ôi, tình đầu nè ${name} 🥹 Cảm giác nhột nhột háo hức kiểu đó không có gì thay thế được!`, `Cậu muốn kể tớ nghe về người đó không?`, `Hay đang phân vân chưa biết phải làm gì với tình cảm này?`];
+    }
+  },
+  {
+    id: "jealousy",
+    tier: "paid",
+    patterns: [
+      "tớ ghen với bạn", "tớ hay ghen tuông", "tớ cảm thấy ghen tị",
+      "tớ ganh tị với người khác", "tớ ghét người thành công hơn tớ",
+      "tớ ghen với người yêu cũ", "ghen tị là tốt hay xấu"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Ghen tị là cảm giác cực bình thường — não tự so sánh là bản năng sinh tồn đó ${name} ơi.`, `Cái quan trọng là cảm giác đó đang chỉ cho cậu thấy điều cậu thực sự muốn có là gì.`, `Cậu đang ghen vì điều gì — tình cảm, thành tích, hay ngoại hình?`];
+    }
+  },
+  {
+    id: "concentration",
+    tier: "paid",
+    patterns: [
+      "tớ không tập trung được", "tớ mất focus", "đầu óc cứ lơ đãng",
+      "tớ adhd", "tớ khó tập trung học", "đọc sách không vào đầu",
+      "tớ cứ bị phân tâm", "không giữ được sự tập trung"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Khó tập trung không nhất thiết là ADHD — stress, thiếu ngủ và điện thoại cũng "phá focus" dữ dội lắm ${name}.`, `Thử Pomodoro: học 25 phút, nghỉ 5 phút, lặp lại. Dời điện thoại ra khỏi tầm nhìn trước.`, `Cậu đang học môn gì mà bị phân tâm nhiều nhất?`];
+    }
+  },
+  {
+    id: "university_exam",
+    tier: "paid",
+    patterns: [
+      "thi đại học", "thi thpt quốc gia", "thi thptqg", "đại học rớt thì sao",
+      "lo lắng thi tốt nghiệp", "áp lực thi đại học", "chọn trường đại học",
+      "thi thpt", "điểm chuẩn đại học", "ôn thi đại học", "thi quốc gia"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Kỳ thi THPT là thử thách lớn thật — nhưng đây không phải "chung kết cuộc đời" như nhiều người nói đâu nha ${name}.`, `Dù kết quả thế nào cũng có nhiều con đường dẫn đến ước mơ của cậu — ngách khác thôi, không phải ngõ cụt.`, `Cậu đang ôn môn gì và phần nào làm cậu lo nhất?`];
+    }
+  },
+  {
+    id: "emptiness",
+    tier: "paid",
+    patterns: [
+      "tớ cảm thấy trống rỗng", "tớ không cảm thấy gì cả", "tớ vô cảm",
+      "tớ không biết mình đang cảm gì", "không buồn không vui chỉ trống không",
+      "empty quá", "tớ thấy mọi thứ vô nghĩa", "tớ thấy tê liệt cảm xúc"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Trống rỗng, không cảm gì — nghe có vẻ "ổn" nhưng thực ra là dạng mệt mỏi cảm xúc rất thật đó ${name}.`, `Đôi khi não "tắt cảm xúc" như một cơ chế tự bảo vệ khi đã quá tải rồi.`, `Cảm giác này bắt đầu từ khoảng bao lâu nay vậy?`];
+    }
+  },
+  {
+    id: "overthinking",
+    tier: "paid",
+    patterns: [
+      "tớ nghĩ nhiều quá", "tớ hay overthink", "đầu óc tớ không tắt được",
+      "tớ cứ lo vẩn vơ", "suy nghĩ lặp lại mãi", "không ngừng lo nghĩ",
+      "tớ suy nghĩ lung tung", "não tớ cứ chạy mãi"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Overthink là não đang cố "kiểm soát" tương lai bằng cách dự đoán hết mọi kịch bản tệ — kiệt sức lắm đó ${name}.`, `Khi nhận ra mình đang vòng vòng, thử hỏi: "Điều tớ lo có xảy ra ngay lúc này không?" — nếu không, kéo về hiện tại nha.`, `Cậu hay overthink về chủ đề gì nhất — học hành, tình cảm, hay tương lai?`];
+    }
+  },
+  {
+    id: "exercise_request",
+    tier: "paid",
+    patterns: [
+      "cho tớ bài tập thở", "hướng dẫn tớ thở sâu", "dạy tớ thiền",
+      "cho tớ bài thiền", "bài tập thư giãn", "tớ muốn thở sâu",
+      "cho tớ thư giãn", "bài tập giảm stress", "tập thở cùng tớ"
+    ],
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return [`Tớ mở ngay bài tập thở cho ${name} nha! 🌬️`, `Vào tab 'Trị Liệu' → 'Thở 4-7-8' để tớ hướng dẫn cậu từng bước — hoặc thử ngay: hít mũi 4 giây, nín 4 giây, thở miệng 6 giây, lặp 4 lần.`];
     }
   }
 ];
 
-// Main function to check input against database. Returns matched object with reply if similarity >= 0.8
+// ─────────────────────────────────────────────────────────────────────────────
+// QUICK-REPLY CHIPS — shown below bot messages to short-circuit follow-up typing.
+// Each string is the exact message text sent when user taps the chip.
+// Keeps common follow-ups local (no AI call consumed).
+// ─────────────────────────────────────────────────────────────────────────────
+const INTENT_QUICK_REPLIES = {
+  greeting:          ["Tớ đang ổn 😊", "Tớ có chuyện muốn kể", "Tớ đang lo lắng", "Làm test tâm lý thôi"],
+  sadness:           ["Kể thêm cho tớ nghe", "Cho tớ bài tập thở", "Xem chỉ số tâm lý của tớ"],
+  anxiety:           ["Dạy tớ thở sâu nha", "Tớ muốn tâm sự thêm", "Làm test lo âu đi"],
+  burnout:           ["Kể thêm cho tớ", "Cho tớ bài thư giãn", "Tớ cần nghỉ ngơi"],
+  academic_stress:   ["Cho tớ mẹo học nha", "Tớ đang rất căng thẳng", "Làm test tâm lý đi"],
+  procrastination:   ["Cho tớ mẹo bắt đầu", "Kể thêm nha", "Tớ cần được động viên"],
+  loneliness:        ["Kể thêm cho tớ nghe", "Cho tớ bài tập thư giãn", "Tớ muốn kết nối hơn"],
+  low_self_esteem:   ["Kể thêm cho tớ", "Tớ cần được động viên", "Nhắc tớ điều tớ làm tốt nha"],
+  social_comparison: ["Kể thêm nha", "Tớ muốn thoát FOMO", "Nhắc tớ về giá trị bản thân"],
+  overthinking:      ["Dạy tớ thoát overthink", "Cho tớ bài tập thở", "Kể tớ nghe cậu đang lo gì"],
+  future_anxiety:    ["Kể thêm cho tớ nghe", "Tớ cần lời khuyên", "Làm test tâm lý thôi"],
+  sleep:             ["Cho tớ mẹo ngủ ngon", "Bật nhạc thiên nhiên đi", "Tớ hay thức đến mấy giờ"],
+  anger:             ["Kể thêm cho tớ nghe", "Dạy tớ bình tĩnh lại", "Tớ cần xả hết ra"],
+  breakup:           ["Kể thêm cho tớ nghe", "Tớ đang rất đau", "Cho tớ lời khuyên nha"],
+  family_conflict:   ["Kể thêm nha", "Tớ muốn hòa giải", "Tớ cần không gian"],
+  emptiness:         ["Kể thêm cho tớ", "Tớ muốn cảm giác trở lại", "Làm test tâm lý đi"],
+  positive:          ["Kể thêm đi 😊", "Tớ muốn check-in", "Chia sẻ thêm cho tớ nghe"],
+  perfectionism:     ["Kể thêm cho tớ", "Tớ đang sợ làm sai", "Cho tớ tư duy tích cực hơn"],
+  social_anxiety:    ["Kể thêm nha", "Dạy tớ tự tin hơn", "Tớ cần bài tập nha"],
+  homesickness:      ["Kể thêm cho tớ nghe", "Tớ nhớ nhà lắm", "Tớ sẽ gọi về nhà"],
+  first_love:        ["Kể thêm về người đó", "Tớ đang phân vân", "Tớ muốn tỏ tình"],
+  university_exam:   ["Cho tớ mẹo ôn thi", "Tớ đang rất căng thẳng", "Làm test stress đi"],
+  concentration:     ["Cho tớ mẹo focus", "Kể thêm nha", "Tớ thử Pomodoro thôi"],
+  clinical_tests:    ["Làm PHQ-9 ngay", "Làm GAD-7 ngay", "Cậu gợi ý bài test nào?"],
+  therapy_catalog:   ["Mở bài thở 4-7-8", "Tớ muốn thiền", "Tớ muốn nghe nhạc thư giãn"],
+  exercise_request:  ["Thở 4-7-8 ngay nha", "Tớ muốn thiền", "Bài tập khác nha"],
+  body_image:        ["Kể thêm cho tớ", "Tớ muốn yêu cơ thể hơn", "Cảm giác này từ đâu?"],
+  phone_addiction:   ["Kể thêm nha", "Tớ thử digital detox", "Cho tớ mẹo cai điện thoại"],
+  jealousy:          ["Kể thêm cho tớ", "Tớ đang ghen về điều gì?", "Cho tớ góc nhìn khác nha"],
+  grief:             ["Kể thêm cho tớ", "Tớ chỉ cần ai nghe", "Kể về người đó cho tớ nghe"],
+  panic_attack:      ["Tớ thở sâu nha", "Cậu ở bên tớ nha", "Bài tập 5-4-3-2-1"],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FUSE.JS FUZZY MATCHER (lazy-init after INTENT_DATABASE is defined)
+// Handles: typos, missing diacritics, partial word order.
+// Score: 0 = perfect, 1 = no match — lower is better.
+// ─────────────────────────────────────────────────────────────────────────────
+let _fuseInstance = null;
+function getFuseInstance() {
+  if (_fuseInstance) return _fuseInstance;
+  const items = [];
+  for (const intent of INTENT_DATABASE) {
+    for (const pattern of intent.patterns) {
+      items.push({ p: removeVietnameseTones(pattern), id: intent.id });
+    }
+  }
+  _fuseInstance = new Fuse(items, {
+    keys: ["p"],
+    threshold: 0.42,
+    includeScore: true,
+    ignoreLocation: true,
+    distance: 200,
+    minMatchCharLength: 3,
+  });
+  return _fuseInstance;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN CLASSIFIER
+// Order: crisis → therapy navigation → metrics → regex fast-path → Fuse fuzzy → Dice fallback
+// ─────────────────────────────────────────────────────────────────────────────
 export function findMatchingIntent(userText, bio, historyLogs = []) {
   if (!userText) return null;
   const text = userText.trim();
   if (text.length === 0) return null;
 
-  let bestMatch = null;
-  let highestScore = 0;
-
   const cleanText = removeVietnameseTones(text).toLowerCase();
 
-  // Crisis detection runs before anything else, via isCrisisText() (shared
-  // detector, see definition above) rather than a regex entry in `rules` —
-  // it needs broader logic (negative lookahead, conditional phrasing) than a
-  // single inline pattern can express clearly.
+  // 1. Crisis — must run first, before any similarity check.
   if (isCrisisText(cleanText)) {
     const crisisIntent = INTENT_DATABASE.find(i => i.id === "crisis");
     if (crisisIntent) {
@@ -784,11 +883,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     }
   }
 
-  // Therapy-navigation: "tớ muốn tập thiền" / "cho tớ đọc truyện trị liệu"
-  // etc. opens the method directly in chat (no tab switch) — or, if it's a
-  // JOY-locked method the user hasn't bought, offers a buy-now button right
-  // here instead of just describing it (see `therapy_catalog` above for the
-  // purely informational "what therapies exist" variant).
+  // 2. Therapy navigation — opens method directly or offers JOY unlock button.
   const therapyMethod = matchTherapyMethod(cleanText);
   if (therapyMethod) {
     const unlocked = !therapyMethod.joyLockable || (bio?.unlockedCompanionFeatures || []).includes(therapyMethod.lockKey);
@@ -803,8 +898,8 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     }
     return {
       reply: [
-        `"${therapyMethod.name}" đang là tính năng cần mở khoá bằng JOY (${therapyMethod.cost} JOY) cậu ơi.`,
-        "Cậu có muốn mở khoá luôn không? Tớ có nút mua nhanh ngay dưới đây."
+        `"${therapyMethod.name}" đang cần mở khoá bằng JOY (${therapyMethod.cost} JOY) cậu ơi.`,
+        "Cậu muốn mở khoá luôn không? Tớ có nút mua nhanh ngay dưới nha."
       ],
       id: "therapy_locked",
       tier: "free",
@@ -812,46 +907,63 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     };
   }
 
-  // "đánh giá hiện tại của tớ thế nào", "chỉ số tâm lý của tớ" — answered as
-  // a chat message straight from historyLogs (numeric, no LLM call needed),
-  // same data source as the "+" quick action and the (desktop-only) Evaluation tab.
+  // 3. Metrics report — answered straight from historyLogs, no LLM needed.
   if (/(danh gia hien tai|chi so hien tai|chi so tam ly|ket qua test gan nhat|tinh trang hien tai cua toi|tinh trang tam ly cua toi)/.test(cleanText)) {
     return { reply: buildMetricsSummary(historyLogs), id: "metrics_report", tier: "free", quickActions: null };
   }
 
+  // 4. Regex fast-path — O(n) rules, ~1ms, highest priority for unambiguous patterns.
   const rules = [
-    { id: "panic_attack", regex: /(kho tho|ngop tho|tim dap nhanh|hoang loan|run ray|sap ngat|panic)/ },
-    { id: "checkin_feature", regex: /(check.?in la gi|diem danh cam xuc|streak la gi|tai sao phai check)/ },
-    { id: "venting_space", regex: /(khong gian trut gian|trut bau tam su|tin nhan tu huy|che do trut gian)/ },
-    { id: "loneliness", regex: /(co don|lac long|khong ai hieu|khong ai ben canh|bi bo roi)/ },
-    { id: "family_conflict", regex: /(cai nhau voi bo me|gia dinh khong hieu|bo me ap dat|mau thuan voi gia dinh|bo me la mang)/ },
-    { id: "friendship_conflict", regex: /(ban be xa lanh|bi bat nat|bi co lap|noi xau to|tay chay|bi bully)/ },
-    { id: "breakup", regex: /(chia tay|that tinh|nguoi yeu bo|tinh cam tan vo)/ },
-    { id: "low_self_esteem", regex: /(vo dung|tu ti|kem coi|khong tin vao ban than|ghet ban than|cam thay that bai)/ },
-    { id: "procrastination", regex: /(tri hoan|luoi hoc|mat dong luc|khong co dong luc|chan deadline)/ },
-    { id: "anger", regex: /(tuc gian|buc boi|nong gian|am uc|kho chiu trong nguoi|gian dien len)/ },
-    { id: "grief", regex: /(mat nguoi than|qua doi|de tang|dau buon vi mat mat)/ },
-    { id: "future_anxiety", regex: /(hoang mang ve tuong lai|chon nganh|dinh huong nghe nghiep|khong biet minh muon gi|so chon sai nganh)/ },
-    { id: "room_organization", regex: /(bo tri phong|sap xep phong|trang tri goc hoc tap|phong bua|don phong|sap xep phong ngu)/ },
-    { id: "mindful_spending", regex: /(mua do toi thich|nen mua cay|tu thuong cho minh|mua sam de giai toa|mua sam linh tinh|tieu xai qua da)/ },
-    { id: "test_inventory", regex: /(bao nhieu bai test|nhung bai test|danh sach bai test|may bai trac nghiem|cac bai kiem tra tam ly|test tam ly gom|bao nhieu bai trac nghiem|test gi|cac bai test|co test gi)/ },
-    { id: "clinical_tests", regex: /(lam bai test|lam trac nghiem|lam trac nghiem tam ly|lam test tram cam|lam test lo au|phq9|gad7|who5|bigfive|mmpi|kiem tra tram cam|kiem tra lo au|kiem tra suc khoe tinh thuan)/ },
-    { id: "therapy_catalog", regex: /(co lieu phap gi|tri lieu gom|cac lieu phap tu chua lanh|huong dan dung lieu phap|nen dung lieu phap nao|bai tap tu chua lanh|phuong phap tri lieu|cac bai tri lieu)/ },
-    { id: "pricing_package", regex: /(gia bao nhieu|goi cuoc|mua goi|nap tien|ton phi|mat phi|goi premium|dang ky goi|phi dich vu)/ },
-    { id: "joy_currency", regex: /(joy la gi|kiem joy|dong joy|tien joy|xu joy|doi qua joy|dung joy|joy coin)/ },
-    { id: "token_limit", regex: /(gioi han token|het token|may token|reset token|luot chat|token la gi|token chat)/ },
-    { id: "about_creator", regex: /(ai tao ra|hugo studio|ai phat trien|ai lam ra app|tac gia|creator)/ },
-    { id: "data_privacy", regex: /(dự liệu của tớ có an toàn không|dữ liệu|bao mat|lo tin nhan|an toan du lieu|co ai doc duoc|co bi lo khong|rieng tu)/ },
-    { id: "support_contact", regex: /(bao loi|lien he ho tro|loi ky thuat|gap loi|tro giup|support|nhan vien ho tro)/ },
-    { id: "identity", regex: /(cau la ai|ban la ai|ten cau|chuyen vien ai|ten gi|la bot|la ai)/ },
-    { id: "features", regex: /(lam duoc gi|tinh nang|chuc nang|giup gi|huong dan|dung app|features|co the giup)/ },
-    { id: "sleep", regex: /(mat ngu|kho ngu|ngu ngon|thuc khuya|thieu ngu)/ },
-    { id: "academic_stress", regex: /(ap luc hoc|thi cu|diem so|thi rot|stress hoc|stress thi|bai tap qua tai)/ },
-    { id: "anxiety", regex: /(lo au|lo lang|bon chon|so hai|hoang so|anxiety|lo so)/ },
-    { id: "sadness", regex: /(buon|chan nan|tuyet vong|met moi|khoc|sad)/ },
-    { id: "gratitude", regex: /(cam on|thank|cute|de thuong|huu ich|tot qua)/ },
-    { id: "positive", regex: /(vui|khoe|hanh phuc|tuyet voi|rat tot|on|happy)/ }
+    { id: "panic_attack",        regex: /(kho tho|ngop tho|tim dap nhanh|hoang loan|run ray|sap ngat|panic)/ },
+    { id: "crisis",              regex: /(tu tu|tu sat|ket lieu|khong muon song|muon chet|tu lam dau|muon ket thuc)/ },
+    { id: "university_exam",     regex: /(thi dai hoc|thi thpt|thptqg|thi quoc gia|diem chuan dai hoc|on thi dai hoc)/ },
+    { id: "burnout",             regex: /(kiet suc|burn.?out|het suc roi|can kiet nang luong|gong qua lau|xiu roi)/ },
+    { id: "social_comparison",   regex: /(so sanh voi nguoi|nguoi ta gioi hon|thua kem moi nguoi|fomo|instagram lam|khong bang ai)/ },
+    { id: "perfectionism",       regex: /(cau toan|muon hoan hao|so lam sai|khong dam bat dau|tu chinh minh qua|phai lam cho hoan hao)/ },
+    { id: "body_image",          regex: /(tu ti ngoai hinh|beo qua|xau qua|ghet co the|khong hai long voi ngoai hinh|tu ti can nang)/ },
+    { id: "phone_addiction",     regex: /(nghien dien thoai|nghien tiktok|nghien mxh|luot mang xa hoi nhieu|nghien game|screen time)/ },
+    { id: "social_anxiety",      regex: /(so noi truoc dam dong|so bi phan xet|ngai tiep xuc nguoi la|social anxiety|so ra ngoai|khong dam phat bieu)/ },
+    { id: "homesickness",        regex: /(nho nha|xa nha|nho bo me|di hoc xa|nho que huong|xa gia dinh)/ },
+    { id: "first_love",          regex: /(thich ai do|co crush|dang yeu ai|tinh cam dau tien|thich ban trong lop|to tinh)/ },
+    { id: "jealousy",            regex: /(ghen voi ban|ghen tuong|ghen ti|ganh ti voi|ghet nguoi thanh cong hon)/ },
+    { id: "concentration",       regex: /(khong tap trung duoc|mat focus|lo dang|adhd|kho tap trung|doc sach khong vao)/ },
+    { id: "emptiness",           regex: /(trong rong|khong cam thay gi|vo cam|khong buon khong vui|trong khong|te liet cam xuc)/ },
+    { id: "overthinking",        regex: /(nghi nhieu qua|overthink|dau oc khong tat|lo van vo|suy nghi lap lai|khong ngung lo nghi)/ },
+    { id: "exercise_request",    regex: /(bai tap tho|huong dan tho|day toi thien|bai thien|bai tap thu gian|muon tho sau|tap tho cung toi)/ },
+    { id: "checkin_feature",     regex: /(check.?in la gi|diem danh cam xuc|streak la gi|tai sao phai check)/ },
+    { id: "venting_space",       regex: /(khong gian trut gian|trut bau tam su|tin nhan tu huy|che do trut gian)/ },
+    { id: "loneliness",          regex: /(co don|lac long|khong ai hieu|khong ai ben canh|bi bo roi|khong co ban)/ },
+    { id: "family_conflict",     regex: /(cai nhau voi bo me|gia dinh khong hieu|bo me ap dat|mau thuan voi gia dinh|bo me la mang|ky vong qua nhieu)/ },
+    { id: "friendship_conflict", regex: /(ban be xa lanh|bi bat nat|bi co lap|noi xau to|tay chay|bi bully|drama ban be)/ },
+    { id: "breakup",             regex: /(chia tay|that tinh|nguoi yeu bo|tinh cam tan vo|chia tay dau)/ },
+    { id: "low_self_esteem",     regex: /(vo dung|tu ti|kem coi|khong tin vao ban than|ghet ban than|cam thay that bai|khong du gioi)/ },
+    { id: "procrastination",     regex: /(tri hoan|luoi hoc|mat dong luc|khong co dong luc|chan deadline|om viec khong lam)/ },
+    { id: "anger",               regex: /(tuc gian|buc boi|nong gian|am uc|kho chiu trong nguoi|gian dien len|muon dap pha)/ },
+    { id: "grief",               regex: /(mat nguoi than|qua doi|de tang|dau buon vi mat mat|nguoi than qua doi)/ },
+    { id: "future_anxiety",      regex: /(hoang mang ve tuong lai|chon nganh|dinh huong nghe nghiep|khong biet minh muon gi|so chon sai nganh|tuong lai mo mit)/ },
+    { id: "room_organization",   regex: /(bo tri phong|sap xep phong|trang tri goc hoc tap|phong bua|don phong|sap xep phong ngu)/ },
+    { id: "mindful_spending",    regex: /(mua do toi thich|nen mua cay|tu thuong cho minh|mua sam de giai toa|mua sam linh tinh|tieu xai qua da)/ },
+    { id: "test_inventory",      regex: /(bao nhieu bai test|nhung bai test|danh sach bai test|may bai trac nghiem|cac bai kiem tra tam ly|test tam ly gom|co test gi)/ },
+    { id: "clinical_tests",      regex: /(lam bai test|lam trac nghiem|phq9|gad7|who5|bigfive|mmpi|kiem tra tram cam|kiem tra lo au)/ },
+    { id: "therapy_catalog",     regex: /(co lieu phap gi|tri lieu gom|cac lieu phap tu chua lanh|nen dung lieu phap nao|phuong phap tri lieu)/ },
+    { id: "pricing_package",     regex: /(gia bao nhieu|goi cuoc|mua goi|nap tien|ton phi|mat phi|goi premium|phi dich vu)/ },
+    { id: "joy_currency",        regex: /(joy la gi|kiem joy|dong joy|tien joy|xu joy|joy coin|dung joy)/ },
+    { id: "token_limit",         regex: /(gioi han token|het token|may token|reset token|luot chat|token la gi)/ },
+    { id: "about_creator",       regex: /(ai tao ra|hugo studio|ai phat trien|ai lam ra app|creator)/ },
+    { id: "data_privacy",        regex: /(du lieu cua toi|bao mat|lo tin nhan|an toan du lieu|co ai doc duoc|rieng tu)/ },
+    { id: "support_contact",     regex: /(bao loi|lien he ho tro|loi ky thuat|gap loi|nhan vien ho tro|support)/ },
+    { id: "identity",            regex: /(cau la ai|ban la ai|ten cau|la bot|gioi thieu ban than)/ },
+    { id: "features",            regex: /(lam duoc gi|tinh nang|chuc nang|giup gi|huong dan|features)/ },
+    { id: "sleep",               regex: /(mat ngu|kho ngu|ngu ngon|thuc khuya|thieu ngu|tinh giac giua dem)/ },
+    { id: "academic_stress",     regex: /(ap luc hoc|thi cu|diem so|thi rot|stress hoc|bai tap qua tai|deadline chong chat)/ },
+    { id: "anxiety",             regex: /(lo au|lo lang|bon chon|so hai|hoang so|lo so|tim dap hoi hop)/ },
+    { id: "sadness",             regex: /(buon|chan nan|tuyet vong|met moi|khoc|cam thay te|khong vui)/ },
+    { id: "gratitude",           regex: /(cam on|thank|de thuong|huu ich|tot qua|cau tot)/ },
+    { id: "positive",            regex: /(vui|khoe|hanh phuc|tuyet voi|rat tot|on lam|dang ok)/ },
   ];
+
+  let bestMatch = null;
+  let highestScore = 0;
 
   for (const rule of rules) {
     if (rule.regex.test(cleanText)) {
@@ -864,6 +976,20 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     }
   }
 
+  // 5. Fuse.js fuzzy match — primary similarity engine (handles typos, missing diacritics).
+  if (!bestMatch) {
+    const fuse = getFuseInstance();
+    const results = fuse.search(cleanText);
+    if (results.length > 0 && results[0].score < 0.42) {
+      const intentObj = INTENT_DATABASE.find(i => i.id === results[0].item.id);
+      if (intentObj) {
+        bestMatch = intentObj;
+        highestScore = 1 - results[0].score; // e.g. score 0.2 → similarity 0.8
+      }
+    }
+  }
+
+  // 6. Sørensen-Dice fallback — catches cases Fuse misses on longer pattern strings.
   if (!bestMatch) {
     for (const intent of INTENT_DATABASE) {
       for (const pattern of intent.patterns) {
@@ -876,29 +1002,40 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     }
   }
 
-  // If match similarity is >= 80% (0.8)
-  if (highestScore >= 0.8 && bestMatch) {
+  // Threshold lowered from 0.80 → 0.72 for better recall with noisy/short input.
+  if (highestScore >= 0.72 && bestMatch) {
     const replyText = bestMatch.generateResponse(bio, historyLogs);
-    
-    // Automatically harvest and log user emotional status based on the matched intent
+
     let companionUpdate = null;
-    if (bestMatch.id === "sadness") {
-      companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 2, note: "Local intent: Sadness" } };
-    } else if (bestMatch.id === "anxiety") {
-      companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 2, note: "Local intent: Anxiety" } };
-    } else if (bestMatch.id === "academic_stress") {
-      companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 2, note: "Local intent: Academic Stress" } };
-    } else if (bestMatch.id === "positive") {
-      companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 4, note: "Local intent: Positive" } };
+    const NEGATIVE_IDS = new Set(["sadness", "grief", "emptiness", "breakup", "anxiety", "academic_stress", "panic_attack", "burnout", "social_anxiety", "overthinking", "loneliness", "low_self_esteem", "perfectionism", "body_image", "family_conflict", "friendship_conflict"]);
+    const POSITIVE_IDS = new Set(["positive", "gratitude", "first_love"]);
+    if (NEGATIVE_IDS.has(bestMatch.id)) {
+      companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 2, note: `Local intent: ${bestMatch.id}` } };
+    } else if (POSITIVE_IDS.has(bestMatch.id)) {
+      companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 4, note: `Local intent: ${bestMatch.id}` } };
+    }
+
+    // 3. COMBO ESCALATION — if user has 3+ recent negative moods, gently suggest
+    // a clinical test so they don't spiral without any structured support.
+    // Runs only on high-distress intents to avoid false positives.
+    const HIGH_DISTRESS = new Set(["sadness", "anxiety", "burnout", "emptiness", "loneliness", "grief", "low_self_esteem", "overthinking"]);
+    let suggestPhq9 = bestMatch.suggestPhq9 || false;
+    let suggestGad7 = bestMatch.suggestGad7 || false;
+    if (HIGH_DISTRESS.has(bestMatch.id)) {
+      const recentNeg = (historyLogs || []).slice(-8).filter(l => l.type === "checkin" && l.mood <= 2).length;
+      if (recentNeg >= 3) {
+        suggestPhq9 = true;
+      }
     }
 
     return {
       reply: replyText,
       id: bestMatch.id,
       tier: bestMatch.tier || "paid",
-      suggestPhq9: bestMatch.suggestPhq9 || false,
-      suggestGad7: bestMatch.suggestGad7 || false,
+      suggestPhq9,
+      suggestGad7,
       quickActions: bestMatch.quickActions || null,
+      quickReplies: INTENT_QUICK_REPLIES[bestMatch.id] || [],
       companionUpdate
     };
   }

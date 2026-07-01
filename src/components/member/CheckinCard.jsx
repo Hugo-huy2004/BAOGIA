@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useJoyStore } from "../../stores/joyStore";
 
@@ -9,6 +9,9 @@ export default function CheckinCard({ email, showToast }) {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
+  // Ref-based lock prevents double-submit race where state update hasn't
+  // flushed yet when a second click fires (e.g., rapid tap on mobile).
+  const claimingRef = useRef(false);
   const setBalance = useJoyStore(s => s.setBalance);
 
   const fetchStatus = useCallback(() => {
@@ -23,7 +26,8 @@ export default function CheckinCard({ email, showToast }) {
   useEffect(() => { fetchStatus(); }, [fetchStatus]);
 
   async function handleClaim() {
-    if (!email || claiming) return;
+    if (!email || claimingRef.current) return;
+    claimingRef.current = true;
     setClaiming(true);
     try {
       const r = await fetch(`${apiBase}/checkin/claim`, {
@@ -43,6 +47,7 @@ export default function CheckinCard({ email, showToast }) {
     } catch (err) {
       showToast?.(err.message, "error");
     } finally {
+      claimingRef.current = false;
       setClaiming(false);
     }
   }

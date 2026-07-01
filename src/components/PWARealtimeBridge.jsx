@@ -131,7 +131,14 @@ export default function PWARealtimeBridge() {
     return () => {
       disposed = true;
       window.clearTimeout(retryTimer.current);
-      socket?.close();
+      // Only close if past CONNECTING (readyState 0) to avoid the
+      // "WebSocket is closed before the connection is established" warning
+      // that React StrictMode triggers by double-invoking effects.
+      if (socket && socket.readyState !== WebSocket.CONNECTING) {
+        socket.close();
+      } else if (socket) {
+        socket.addEventListener('open', () => socket.close(), { once: true });
+      }
       document.removeEventListener('visibilitychange', handleResume);
       window.removeEventListener('focus', sync);
       window.removeEventListener('online', handleOnline);

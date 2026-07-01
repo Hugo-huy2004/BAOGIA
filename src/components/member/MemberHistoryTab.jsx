@@ -2,6 +2,7 @@ import { withTranslation } from "react-i18next";
 import React, { useState, useMemo } from 'react';
 import HugoLogo from "../HugoLogo";
 import { toast } from "react-hot-toast";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const getHistoryTypeConfig = (t) => ({
   welcome:         { color: 'hsl(var(--success))', bg: 'bg-success/10 dark:bg-success/15', border: 'border-success/20', label: t("memberTabs.history.labels.welcome"), cat: 'account', icon: 'waving_hand' },
@@ -107,14 +108,14 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
     });
   }, [mergedEntries, activeFilter]);
 
+  const { visibleItems: visibleEntries, sentinelRef, hasMore } = useInfiniteScroll(filteredEntries, { pageSize: 20 });
+
   const groupedEntries = useMemo(() => {
     const groups = {};
-    filteredEntries.forEach(entry => {
+    visibleEntries.forEach(entry => {
       if (!entry.timestamp) return;
       const dateKey = new Date(entry.timestamp).toDateString();
-      if (!groups[dateKey]) {
-        groups[dateKey] = [];
-      }
+      if (!groups[dateKey]) groups[dateKey] = [];
       groups[dateKey].push(entry);
     });
     return Object.entries(groups).map(([dateString, items]) => ({
@@ -122,7 +123,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
       dateHeader: getRelativeDateHeader(dateString, t),
       items
     }));
-  }, [filteredEntries, t]);
+  }, [visibleEntries, t]);
 
   const onCopyVoucher = (code) => {
     navigator.clipboard.writeText(code);
@@ -320,8 +321,14 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
         </div>
       )}
 
-      {/* Footer Note */}
-      {filteredEntries.length >= 50 && (
+      {/* Infinite scroll sentinel */}
+      <div ref={sentinelRef} className="h-1" />
+      {hasMore && (
+        <div className="flex justify-center py-4">
+          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      {!hasMore && filteredEntries.length > 0 && (
         <p className="text-center text-[9px] text-zinc-400 italic pt-3">{t("memberTabs.history.footer_note")}</p>
       )}
     </div>

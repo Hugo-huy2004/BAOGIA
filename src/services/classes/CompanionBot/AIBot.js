@@ -1,4 +1,10 @@
 import BaseBot from "./BaseBot";
+import pLimit from "p-limit";
+
+// Module-level concurrency limiter — shared across all AIBot instances so
+// concurrent streaming calls from the same page queue instead of flooding
+// the server. Max 2 in-flight AI streams at once; extras wait their turn.
+const _streamLimit = pLimit(2);
 
 // The Python AI server has no public subdomain of its own — it's reached
 // same-origin through the main API gateway's /api/ai/* proxy (see
@@ -7,80 +13,73 @@ const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const API_URL = `${API_BASE}/ai`;
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY || "";
 
-async function fetchWithRetry(url, options, retries = 2) {
+// 1 retry (2 total attempts) instead of 2 retries (3 attempts) — when the
+// server is overloaded each extra attempt multiplies the load. Backoff: 800ms.
+async function fetchWithRetry(url, options, retries = 1) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const res = await fetch(url, { ...options, headers: { ...options.headers, "X-Internal-Key": INTERNAL_KEY } });
       if (res.ok) return res;
-      // Client errors (4xx) — don't retry, return as-is so callers can inspect
       if (res.status >= 400 && res.status < 500) return res;
-      // Server errors (5xx incl. 502 Bad Gateway) — retry with exponential backoff,
-      // but swallow silently on final attempt so console stays clean when AI is down.
       if (attempt < retries) {
-        await new Promise(r => setTimeout(r, 600 * Math.pow(2, attempt))); // 600ms, 1.2s
+        await new Promise(r => setTimeout(r, 800));
         continue;
       }
-      return null; // Final attempt — server still down, degrade gracefully
+      return null;
     } catch (err) {
-      if (attempt === retries) return null; // Network error — degrade gracefully
-      await new Promise(r => setTimeout(r, 600 * Math.pow(2, attempt)));
+      if (attempt === retries) return null;
+      await new Promise(r => setTimeout(r, 800));
     }
   }
   return null;
 }
 
+// Greetings served locally — zero server cost, instant display.
+const LOCAL_GREETINGS_ACTIVE = [
+  "Heyyy! Tớ là HugoPSY 🌸 Hôm nay cậu vibe sao rồi?",
+  "Cậu vào rồi nè! Tớ đang chờ mà 😊 Có điều gì đang làm cậu suy nghĩ không?",
+  "Ôi cậu quay lại rồi! 🥹 Dạo này cậu ổn không, hay có gì muốn xả không?",
+  "Hey cậu ơi! Tớ ở đây. Hôm nay cậu cảm thấy thế nào — 1 từ thôi cũng được nha?",
+  "Chào cậu! Tớ luôn sẵn nghe — cậu đang ổn, hay có điều gì đang trăn trở?",
+];
+const LOCAL_GREETINGS_HEALING = [
+  "Cậu đang trên đà phục hồi — tớ tự hào về cậu lắm! 🌱 Hôm nay sao rồi?",
+  "Chào cậu! Hành trình của cậu đang đi rất tốt đó. Hôm nay muốn làm bài tập hay chỉ tâm sự thôi?",
+  "Tớ luôn đồng hành cùng cậu nha — tiếp tục bước tiếp cùng nhau nhé. Hôm nay cậu cảm thấy gì? 💙",
+];
+
 
 export default class AIBot extends BaseBot {
-
-  async getGreeting() {
-    try {
-      const res = await fetchWithRetry(`${API_URL}/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: "Hãy đưa ra một câu chào thân mật bằng tiếng Việt dành cho người dùng quay trở lại không gian đồng hành chữa lành sức khỏe tinh thần.",
-          history: [],
-          bio: this._bioWithSummary(),
-          userId: this.bio?.email || "unknown"
-        })
-      });
-      if (res?.ok) {
-        const data = await res.json();
-        return data.reply;
-      }
-    } catch (_) {}
-
-    const name = this.bio?.displayName || "cậu";
-    return this.healingActive
-      ? `Chào ${name}! Tớ là HugoPSY AI của cậu đây. Cậu đang trong lộ trình phục hồi — hôm nay cậu thấy thế nào?`
-      : `Chào ${name}! Tớ là AI Đồng Hành chuyên biệt. Tớ ở đây để lắng nghe mà không phán xét. Dạo này cậu thế nào?`;
+  constructor(...args) {
+    super(...args);
+    // Session-scoped LRU cache: normalized message → full reply object.
+    // Prevents identical messages from hitting the server repeatedly.
+    this._replyCache = new Map();
+    // Minimum ms between streaming AI calls to protect the server from bursts.
+    this._lastStreamTs = 0;
   }
 
+  // Serve greeting locally — zero server call, instant display.
+  async getGreeting() {
+    const pool = this.healingActive ? LOCAL_GREETINGS_HEALING : LOCAL_GREETINGS_ACTIVE;
+    const base = pool[Math.floor(Math.random() * pool.length)];
+    const name = this.bio?.displayName?.split(" ").at(-1);
+    return name ? base.replace(/cậu/i, name).replace(/Cậu/i, name) : base;
+  }
+
+  // Serve dialogue-tree responses from the pre-written text directly —
+  // AI rewriting every selection was a major source of unnecessary API calls.
   async getResponse(selectedItem, type) {
     const responses = selectedItem[type];
-    const baseText = Array.isArray(responses) ? responses[0] : (responses || "");
-    try {
-      const res = await fetchWithRetry(`${API_URL}/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: `Viết lại câu phản hồi sau đây một cách đồng cảm, ấm áp, sâu sắc và tự nhiên hơn, xưng hô 'tớ' và 'cậu': "${baseText}"`,
-          history: [],
-          bio: this._bioWithSummary(),
-          userId: this.bio?.email || "unknown"
-        })
-      });
-      if (res?.ok) { const data = await res.json(); return data.reply; }
-    } catch (_) {}
-    const name = this.bio?.displayName ? this.bio.displayName.split(" ").at(-1) : "cậu";
-    return `${baseText} (${name} nhé!)`;
+    return Array.isArray(responses) ? responses[0] : (responses || "");
   }
 
   async streamResponse(selectedItem, type, onChunk, onDone) {
     const responses = selectedItem[type];
-    const baseText = Array.isArray(responses) ? responses[0] : (responses || "");
-    const prompt = `Viết lại câu phản hồi sau đây một cách đồng cảm, ấm áp, sâu sắc và tự nhiên hơn, xưng hô 'tớ' và 'cậu': "${baseText}"`;
-    return this.chatStream(prompt, onChunk, onDone);
+    const text = Array.isArray(responses) ? responses.join("\n\n") : (responses || "");
+    // Serve dialogue responses locally (no streaming needed for pre-written text)
+    onChunk?.(text);
+    onDone?.({ reply: text, suggestPhq9: false, suggestGad7: false, suggestWho5: false, suggestBigFive: false, bioUpdate: null });
   }
 
   async chatAudio(audioBlob, isCallMode = false) {
@@ -102,7 +101,7 @@ export default class AIBot extends BaseBot {
   // CHAT_RETENTION_MS) — this was previously mapping over historyLogs (mood/
   // test indicator entries, which have no .sender/.text) and so was silently
   // sending almost no real context to the LLM. Now uses the real chat array.
-  _buildHistory(limit = 8) {
+  _buildHistory(limit = 6) {
     return (this.chatMessages || []).slice(-limit).map(log => ({
       role: log.sender === "bot" ? "model" : "user",
       content: log.text || log.desc || ""
@@ -162,7 +161,13 @@ export default class AIBot extends BaseBot {
     };
   }
 
+  _cacheKey(message) {
+    return message.trim().toLowerCase().slice(0, 120);
+  }
+
   async chat(message) {
+    const key = this._cacheKey(message);
+    if (this._replyCache.has(key)) return this._replyCache.get(key);
     try {
       const res = await fetchWithRetry(`${API_URL}/chat`, {
         method: "POST",
@@ -179,7 +184,7 @@ export default class AIBot extends BaseBot {
           try { bioUpdate = JSON.parse(match[1]); } catch (_) {}
           replyText = replyText.replace(updateRegex, "").trim();
         }
-        return {
+        const result = {
           reply: replyText,
           suggestPhq9:    replyText.includes("PHQ-9")    || replyText.includes("Trầm cảm"),
           suggestGad7:    replyText.includes("GAD-7")    || replyText.includes("Lo âu"),
@@ -187,6 +192,9 @@ export default class AIBot extends BaseBot {
           suggestBigFive: replyText.includes("Big Five") || replyText.includes("MMPI") || replyText.includes("Nhân cách"),
           bioUpdate
         };
+        if (this._replyCache.size > 40) this._replyCache.delete(this._replyCache.keys().next().value);
+        this._replyCache.set(key, result);
+        return result;
       }
     } catch (_) {}
 
@@ -197,12 +205,33 @@ export default class AIBot extends BaseBot {
   }
 
   async chatStream(message, onChunk, onDone) {
+    // Rate-limit: enforce minimum 1.5s between AI streaming calls per instance.
+    const now = Date.now();
+    if (now - this._lastStreamTs < 1500) {
+      const cached = this._replyCache.get(this._cacheKey(message));
+      if (cached) {
+        onChunk?.(cached.reply);
+        onDone?.(cached);
+        return;
+      }
+    }
+    this._lastStreamTs = Date.now();
+
+    // Cache hit: serve immediately without streaming.
+    const key = this._cacheKey(message);
+    if (this._replyCache.has(key)) {
+      const cached = this._replyCache.get(key);
+      onChunk?.(cached.reply);
+      onDone?.(cached);
+      return;
+    }
+
     try {
-      const res = await fetchWithRetry(`${API_URL}/chat/stream`, {
+      const res = await _streamLimit(() => fetchWithRetry(`${API_URL}/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId: this.bio?.email || "unknown" })
-      });
+      }));
       if (!res?.ok) throw new Error("Server error");
 
       const reader = res.body.getReader();
@@ -271,14 +300,20 @@ export default class AIBot extends BaseBot {
         replyText = replyText.replace(updateRegex, "").trim();
       }
 
-      onDone?.({
+      const result = {
         reply: replyText,
         suggestPhq9:    replyText.includes("PHQ-9")    || replyText.includes("Trầm cảm"),
         suggestGad7:    replyText.includes("GAD-7")    || replyText.includes("Lo âu"),
         suggestWho5:    replyText.includes("WHO-5")    || replyText.includes("Hạnh phúc"),
         suggestBigFive: replyText.includes("Big Five") || replyText.includes("MMPI") || replyText.includes("Nhân cách"),
         bioUpdate
-      });
+      };
+      // Cache successful streaming replies so identical follow-up messages skip the server.
+      if (replyText && !bioUpdate) {
+        if (this._replyCache.size > 40) this._replyCache.delete(this._replyCache.keys().next().value);
+        this._replyCache.set(key, result);
+      }
+      onDone?.(result);
     } catch (err) {
       console.warn("AIBot chatStream error:", err);
       onDone?.({
@@ -295,7 +330,7 @@ export default class AIBot extends BaseBot {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
-          history: this._buildHistory(12),
+          history: this._buildHistory(6),
           bio: this._bioWithSummary(),
           userId: this.bio?.email || "unknown"
         })

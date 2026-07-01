@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useData } from "../../context/DataContext";
 import { logoutAuth } from "../../services/authSession";
@@ -79,6 +79,7 @@ export default function AdminPanel() {
   const [userLimit, setUserLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalMatchedUsers, setTotalMatchedUsers] = useState(0);
+  const isScrollAppendRef = useRef(false);
   const [userStats, setUserStats] = useState({ total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0 });
 
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -142,14 +143,16 @@ export default function AdminPanel() {
       });
 
       if (res && res.bios && res.pagination && res.stats) {
-        setUsers(res.bios || []);
+        setUsers(prev => isScrollAppendRef.current ? [...prev, ...res.bios] : (res.bios || []));
+        isScrollAppendRef.current = false;
         setTotalPages(res.pagination.pages || 1);
         setTotalMatchedUsers(res.pagination.totalMatched || 0);
         setUserStats(res.stats || { total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0 });
-        
+
         setCounts(prev => ({ ...prev, users: res.stats.total || 0 }));
       } else if (Array.isArray(res)) {
         setUsers(res);
+        isScrollAppendRef.current = false;
         setTotalPages(1);
         setTotalMatchedUsers(res.length);
         const stats = {
@@ -172,8 +175,22 @@ export default function AdminPanel() {
     handleRefreshUsers();
   }, [searchQuery, statusFilter, expirationFilter, userSortBy, userSortOrder, userPage, userLimit]);
 
+  // Reset append mode whenever a filter/sort changes (not a scroll-triggered page increment)
+  useEffect(() => {
+    isScrollAppendRef.current = false;
+    setUserPage(1);
+  }, [statusFilter, expirationFilter, userSortBy, userSortOrder, userLimit]);
+
+  const loadMoreUsers = () => {
+    if (userPage < totalPages) {
+      isScrollAppendRef.current = true;
+      setUserPage(prev => prev + 1);
+    }
+  };
+
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
+      isScrollAppendRef.current = false;
       setSearchQuery(searchInput);
       setUserPage(1);
     }, 450);
@@ -507,6 +524,7 @@ export default function AdminPanel() {
             triggerConfirm={triggerConfirm} setDeleteTarget={setDeleteTarget}
             userPage={userPage} totalPages={totalPages} searchQuery={searchQuery}
             getExpirationDaysOnly={getExpirationDaysOnly} formatExpiration={formatExpiration}
+            loadMoreUsers={loadMoreUsers} hasMoreUsers={userPage < totalPages}
           />
         )}
         {activeTab === "contactSupport" && (

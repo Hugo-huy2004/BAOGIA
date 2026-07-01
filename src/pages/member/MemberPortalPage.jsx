@@ -17,6 +17,7 @@ import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useKeyboardVisible } from "../../hooks/useKeyboardVisible";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
+import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
@@ -226,6 +227,7 @@ export default function MemberPortalPage() {
   // the member has ANY portal page open — not just while they're sitting in the
   // HugoPSY > Sleep sub-tab, which nobody does while actually asleep.
   const [pendingSleepCycle, setPendingSleepCycle] = useState(null);
+  const [locationAnomaly, setLocationAnomaly] = useState(null);
   const handleSleepAutoDetect = React.useCallback((cycle) => {
     setPendingSleepCycle(cycle);
     showToast("Hệ thống tự động ghi nhận giấc ngủ đêm qua!", "success");
@@ -247,6 +249,9 @@ export default function MemberPortalPage() {
   useLocationGuard({
     email: memberSession?.email,
     enabled: !!memberSession?.email,
+    onAnomaly: ({ distanceKm, lat, lng }) => {
+      setLocationAnomaly({ distanceKm, lat, lng });
+    },
   });
 
   // ── Healing journey hook ──────────────────────────────────────────────────────
@@ -702,6 +707,7 @@ export default function MemberPortalPage() {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
+    <>
     <div className="min-h-screen bg-background dark:bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
 
       <HealingModal
@@ -1199,5 +1205,16 @@ export default function MemberPortalPage() {
         </div>
       )}
     </div>
+
+    {locationAnomaly && (
+      <LocationAnomalyDialog
+        email={memberSession?.email}
+        distanceKm={locationAnomaly.distanceKm}
+        lat={locationAnomaly.lat}
+        lng={locationAnomaly.lng}
+        onDismiss={() => setLocationAnomaly(null)}
+      />
+    )}
+    </>
   );
 }

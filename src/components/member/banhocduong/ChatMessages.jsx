@@ -1,24 +1,19 @@
 import React from "react";
-import TypewriterText from "./TypewriterText";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX, ChevronDown, Stethoscope, Heart } from "lucide-react";
+import TypewriterText from "./TypewriterText";
+
+// ─── Inline interactive widgets (unchanged logic) ────────────────────────────
 
 function InlineBreathingCircle() {
-  const [phase, setPhase] = React.useState("idle"); // idle | inhale | hold | exhale
+  const [phase, setPhase] = React.useState("idle");
   const [sec, setSec] = React.useState(0);
   const [isActive, setIsActive] = React.useState(false);
   const timerRef = React.useRef(null);
 
-  const startBreathing = () => {
-    setIsActive(true);
-    setPhase("inhale");
-    setSec(4);
-  };
-
+  const startBreathing = () => { setIsActive(true); setPhase("inhale"); setSec(4); };
   const stopBreathing = () => {
-    setIsActive(false);
-    setPhase("idle");
-    setSec(0);
+    setIsActive(false); setPhase("idle"); setSec(0);
     if (timerRef.current) clearInterval(timerRef.current);
   };
 
@@ -30,42 +25,32 @@ function InlineBreathingCircle() {
           setPhase(p => {
             if (p === "inhale") { setSec(7); return "hold"; }
             if (p === "hold") { setSec(8); return "exhale"; }
-            setSec(4);
-            return "inhale";
+            setSec(4); return "inhale";
           });
           return 0;
         }
         return s - 1;
       });
     }, 1000);
-
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [isActive]);
 
   const circleScale = phase === "inhale" ? 1.25 : phase === "hold" ? 1.25 : phase === "exhale" ? 0.85 : 1.0;
-  const phaseLabel = phase === "inhale" ? "Hít Vào (4s)" : phase === "hold" ? "Nín Thở (7s)" : phase === "exhale" ? "Thở Ra (8s)" : "Hít thở 4-7-8 làm dịu tức thì";
+  const phaseLabel = phase === "inhale" ? "Hít Vào (4s)" : phase === "hold" ? "Nín Thở (7s)" : phase === "exhale" ? "Thở Ra (8s)" : "Hít thở 4-7-8";
 
   return (
-    <div className="mt-3 p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/20 border border-sky-200/60 dark:border-sky-800/40 flex flex-col items-center gap-3 w-full max-w-[260px] animate-fadeIn text-zinc-800 dark:text-zinc-150">
-      <div className="text-[10px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider">Bài tập Thở 4-7-8 Thích ứng</div>
-      
-      <div className="w-18 h-18 rounded-full flex items-center justify-center bg-sky-500/10 border-2 border-sky-400 relative">
-        <motion.div 
-          className="absolute inset-0.5 rounded-full bg-sky-400/30"
+    <div className="mt-2 p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/25 border border-sky-200/60 dark:border-sky-800/40 flex flex-col items-center gap-3 w-full max-w-[240px] text-zinc-800 dark:text-zinc-100">
+      <div className="text-[9px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider">Bài tập Thở 4-7-8</div>
+      <div className="w-16 h-16 rounded-full flex items-center justify-center bg-sky-500/10 border-2 border-sky-400 relative">
+        <motion.div className="absolute inset-0.5 rounded-full bg-sky-400/30"
           animate={{ scale: circleScale }}
-          transition={{ duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, ease: "linear" }}
-        />
+          transition={{ duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, ease: "linear" }} />
         <span className="text-[12px] font-black text-sky-700 dark:text-sky-300 z-10">{isActive ? sec : "🧘"}</span>
       </div>
-      
-      <p className="text-[10px] font-extrabold text-zinc-700 dark:text-zinc-300 text-center leading-relaxed h-4">{phaseLabel}</p>
-      
-      <button 
-        type="button" 
-        onClick={isActive ? stopBreathing : startBreathing}
-        className={`w-full py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-white transition-all active:scale-95 ${isActive ? "bg-zinc-400 dark:bg-zinc-700" : "bg-sky-500 hover:bg-sky-600"}`}
-      >
-        {isActive ? "Dừng bài tập" : "Bắt đầu tập thở"}
+      <p className="text-[10px] font-extrabold text-zinc-700 dark:text-zinc-300 text-center h-4">{phaseLabel}</p>
+      <button type="button" onClick={isActive ? stopBreathing : startBreathing}
+        className={`w-full py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-white transition-all active:scale-95 ${isActive ? "bg-zinc-400 dark:bg-zinc-700" : "bg-sky-500 hover:bg-sky-600"}`}>
+        {isActive ? "Dừng" : "Bắt đầu"}
       </button>
     </div>
   );
@@ -74,32 +59,22 @@ function InlineBreathingCircle() {
 function InlineCbtCard() {
   const [challenged, setChallenged] = React.useState(false);
   return (
-    <div className="mt-3 p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/15 border border-indigo-200/60 dark:border-indigo-850/40 flex flex-col gap-2.5 w-full max-w-[260px] animate-fadeIn">
-      <div className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Thử thách Suy nghĩ (CBT)</div>
-      
+    <div className="mt-2 p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col gap-2.5 w-full max-w-[240px]">
+      <div className="text-[9px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Thử thách Suy nghĩ (CBT)</div>
       <div className="bg-white/90 dark:bg-zinc-900/80 p-2.5 rounded-xl border border-indigo-100/70 dark:border-zinc-800 shadow-sm">
         <p className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
-        <p className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mt-1">"Tớ cảm thấy mình thật vô dụng và thất bại..."</p>
+        <p className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mt-1">"Tớ cảm thấy mình thật vô dụng..."</p>
       </div>
-
       <AnimatePresence mode="wait">
         {challenged ? (
-          <motion.div 
-            key="reframe"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-emerald-500/10 dark:bg-emerald-500/5 p-2.5 rounded-xl border border-emerald-500/20"
-          >
-            <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng hơn:</p>
-            <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mt-1 leading-relaxed">"Mọi chuyện hiện tại đang khó khăn và tớ có thể phạm lỗi, nhưng điều đó không định nghĩa giá trị của tớ. Tớ vẫn đang học hỏi và cố gắng từng ngày."</p>
+          <motion.div key="reframe" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-emerald-500/10 dark:bg-emerald-500/5 p-2.5 rounded-xl border border-emerald-500/20">
+            <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
+            <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mt-1 leading-relaxed">"Mình đang học và cố gắng từng ngày — điều đó không định nghĩa giá trị của mình."</p>
           </motion.div>
         ) : (
-          <motion.button 
-            key="btn"
-            type="button" 
-            onClick={() => setChallenged(true)}
-            className="w-full py-2 rounded-xl text-[10px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all active:scale-95 shadow-sm"
-          >
+          <motion.button key="btn" type="button" onClick={() => setChallenged(true)}
+            className="w-full py-2 rounded-xl text-[10px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all active:scale-95 shadow-sm">
             Thử thách suy nghĩ này
           </motion.button>
         )}
@@ -108,11 +83,239 @@ function InlineCbtCard() {
   );
 }
 
-// React.memo so a parent re-render (e.g. ChatTab updating on every keystroke
-// in the composer) doesn't also re-render this — potentially long — message
-// list. Only actually skips re-rendering if every prop below keeps a stable
-// reference between renders (see ChatTab.jsx's useCallback wraps on the
-// handlers passed in here).
+// ─── Bold markdown renderer ───────────────────────────────────────────────────
+function FormatText({ text }) {
+  if (!text) return null;
+  return (
+    <>
+      {text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+        part.startsWith("**") && part.endsWith("**")
+          ? <strong key={i} className="font-bold text-primary dark:text-sky-400">{part.slice(2, -2)}</strong>
+          : part
+      )}
+    </>
+  );
+}
+
+// ─── Single message bubble content ────────────────────────────────────────────
+// ─── Inline mood check-in picker ─────────────────────────────────────────────
+const MOOD_OPTS = [
+  { value: 1, emoji: "😣", label: "Kiệt sức" },
+  { value: 2, emoji: "😔", label: "Mỏi mệt" },
+  { value: 3, emoji: "😐", label: "Bình thường" },
+  { value: 4, emoji: "🙂", label: "Ổn" },
+  { value: 5, emoji: "😄", label: "Rất vui" },
+];
+function MoodCheckinCard({ onMoodSelect }) {
+  const [selected, setSelected] = React.useState(null);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+      className="mt-2.5 p-3 rounded-2xl bg-gradient-to-br from-indigo-50/90 to-violet-50/70 dark:from-indigo-950/35 dark:to-violet-950/20 border border-indigo-100/80 dark:border-indigo-800/25 w-full"
+    >
+      <p className="text-[9px] font-black uppercase tracking-widest text-indigo-400 dark:text-indigo-500 mb-2.5">
+        Chạm để check-in hôm nay
+      </p>
+      <div className="flex justify-between gap-1">
+        {MOOD_OPTS.map(opt => (
+          <button
+            key={opt.value}
+            type="button"
+            disabled={selected !== null}
+            onClick={() => { setSelected(opt.value); onMoodSelect?.(opt.value); }}
+            className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-2xl transition-all duration-200 active:scale-90 ${
+              selected === opt.value
+                ? "bg-indigo-500 shadow-lg shadow-indigo-500/25 scale-105"
+                : selected !== null
+                ? "opacity-30"
+                : "hover:bg-white/70 dark:hover:bg-white/[0.08] hover:shadow-sm"
+            }`}
+          >
+            <span className="text-[22px] leading-none select-none">{opt.emoji}</span>
+            <span className={`text-[8px] font-bold leading-none ${
+              selected === opt.value ? "text-white" : "text-zinc-500 dark:text-zinc-400"
+            }`}>{opt.label}</span>
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, playingId, onPlayVoice, onStartTest, onSelectDuration, onNavigateToTab, onUnlockFeature, unlockingMethodId, onMoodSelect, moodCheckinDone }) {
+  return (
+    <div className="flex flex-col gap-1.5 items-start">
+      {/* Main text bubble */}
+      <div className="px-3.5 py-2.5 text-[13.5px] leading-relaxed bg-white dark:bg-[#1e1d2c] text-zinc-800 dark:text-zinc-100 rounded-2xl rounded-tl-[4px] shadow-[0_1px_8px_rgba(0,0,0,0.06)] dark:shadow-[0_1px_8px_rgba(0,0,0,0.3)] border border-zinc-100 dark:border-white/[0.06] max-w-full">
+        {!completedMessageIds.has(msg.id) && msg.id !== "init" ? (
+          <TypewriterText text={msg.text} id={msg.id}
+            onComplete={() => setCompletedMessageIds(prev => { const s = new Set(prev); s.add(msg.id); return s; })} />
+        ) : (
+          <p className="whitespace-pre-wrap font-medium"><FormatText text={msg.text} /></p>
+        )}
+        {msg.showTherapyButton && (
+          <button type="button" onClick={() => onNavigateToTab?.("therapy")}
+            className="mt-2.5 flex items-center gap-1.5 w-full justify-center py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold rounded-xl transition-all active:scale-95">
+            <Heart className="w-3.5 h-3.5" /> Mở Trị Liệu ngay
+          </button>
+        )}
+      </div>
+
+      {/* Interactive widgets */}
+      {msg.showInlineBreathing && <InlineBreathingCircle />}
+      {msg.showInlineCbt && <InlineCbtCard />}
+
+      {/* Mood check-in picker — only shown on the initial greeting message */}
+      {msg.type === "mood_checkin" && !moodCheckinDone && (
+        <MoodCheckinCard onMoodSelect={onMoodSelect} />
+      )}
+
+      {/* Test suggestion card — redesigned: soft pill chips, no pushy full-width buttons */}
+      {(msg.suggestPhq9 || msg.suggestGad7 || msg.suggestWho5 || msg.suggestBigFive) && (
+        <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-50/80 to-indigo-50/60 dark:from-violet-950/20 dark:to-indigo-950/15 border border-violet-100 dark:border-violet-800/25 space-y-2 w-full max-w-[260px]">
+          <div className="flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded-lg bg-violet-500/15 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[12px] text-violet-600 dark:text-violet-400">monitoring</span>
+            </div>
+            <span className="text-[10px] font-extrabold text-violet-700 dark:text-violet-300">Gợi ý nhỏ từ tớ</span>
+          </div>
+          <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-snug">
+            Tớ muốn hiểu cậu sâu hơn — thử đo nhanh nhé? Chỉ 2 phút thôi.
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {msg.suggestPhq9 && (
+              <button type="button" onClick={() => onStartTest("phq9")}
+                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-rose-500/12 hover:bg-rose-500/20 border border-rose-300/40 dark:border-rose-700/30 text-rose-600 dark:text-rose-400 transition-all active:scale-95">
+                PHQ-9 · Trầm cảm
+              </button>
+            )}
+            {msg.suggestGad7 && (
+              <button type="button" onClick={() => onStartTest("gad7")}
+                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-cyan-500/12 hover:bg-cyan-500/20 border border-cyan-300/40 dark:border-cyan-700/30 text-cyan-600 dark:text-cyan-400 transition-all active:scale-95">
+                GAD-7 · Lo âu
+              </button>
+            )}
+            {msg.suggestWho5 && (
+              <button type="button" onClick={() => onStartTest("who5")}
+                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-emerald-500/12 hover:bg-emerald-500/20 border border-emerald-300/40 dark:border-emerald-700/30 text-emerald-600 dark:text-emerald-400 transition-all active:scale-95">
+                WHO-5 · Hạnh phúc
+              </button>
+            )}
+            {msg.suggestBigFive && (
+              <button type="button" onClick={() => onStartTest("bigfive")}
+                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-indigo-500/12 hover:bg-indigo-500/20 border border-indigo-300/40 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 transition-all active:scale-95">
+                Big Five · Nhân cách
+              </button>
+            )}
+          </div>
+          <p className="text-[8.5px] text-zinc-400 dark:text-zinc-600">Không muốn làm ngay cũng ổn — cứ tâm sự tiếp nha!</p>
+        </div>
+      )}
+
+      {/* Crisis call card */}
+      {Array.isArray(msg.quickActions) && msg.quickActions.some(a => a.tel) && (
+        <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/30 border-2 border-red-300 dark:border-red-700/50 space-y-2 w-full max-w-[270px]">
+          <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
+            <span className="material-symbols-outlined text-[15px]">emergency</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider">Gọi ngay để được giúp đỡ</span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {msg.quickActions.filter(a => a.tel).map((action, i) => (
+              <a key={i} href={`tel:${action.tel}`}
+                className="w-full py-2 text-[11px] font-extrabold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5">
+                {action.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* JOY unlock card */}
+      {Array.isArray(msg.quickActions) && msg.quickActions.some(a => a.type === "unlock") && (
+        <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-300 dark:border-amber-700/40 space-y-2 w-full max-w-[270px]">
+          {msg.quickActions.filter(a => a.type === "unlock").map((action, i) => (
+            <button key={i} type="button" disabled={unlockingMethodId === action.methodId}
+              onClick={() => onUnlockFeature?.(action)}
+              className="w-full py-2 text-[11px] font-extrabold bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5">
+              <span className="material-symbols-outlined text-[14px]">paid</span>
+              {unlockingMethodId === action.methodId ? "Đang xử lý..." : action.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Journey duration picker */}
+      {msg.isCompanionSetup && !msg.selectedChoice && (
+        <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/25 border border-indigo-200/60 dark:border-indigo-700/30 space-y-2 w-full max-w-[250px]">
+          <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+            <Heart className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-extrabold uppercase tracking-wider">Chọn lộ trình</span>
+          </div>
+          <button type="button" onClick={() => onSelectDuration(msg.id, msg.recommendedDays)}
+            className="w-full py-2 text-[11px] font-extrabold bg-primary hover:bg-blue-600 text-white rounded-xl transition-all active:scale-95">
+            Đồng ý ({msg.recommendedDays} ngày)
+          </button>
+          <div className="grid grid-cols-3 gap-1">
+            {[7, 14, 30, 50, 90].map(d => (
+              <button key={d} type="button" onClick={() => onSelectDuration(msg.id, d)}
+                className="py-1.5 text-[9px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95">
+                {d}ngày
+              </button>
+            ))}
+          </div>
+          <button type="button" onClick={() => onSelectDuration(msg.id, "cancel")}
+            className="w-full py-1.5 text-[10px] font-medium text-zinc-400 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all">
+            Để sau
+          </button>
+        </div>
+      )}
+      {msg.isCompanionSetup && msg.selectedChoice && (
+        <span className="text-[9px] text-zinc-400 px-1">
+          Đã chọn: {msg.selectedChoice === "cancel" ? "Từ chối" : `${msg.selectedChoice} ngày`}
+        </span>
+      )}
+
+      {/* Meta: time + voice */}
+      <div className="flex items-center gap-1.5 px-1">
+        <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-medium">
+          {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+        </span>
+        {msg.timeLeft !== undefined && (
+          <span className="text-[9px] text-orange-500 font-black animate-pulse flex items-center gap-0.5">
+            🔥 {msg.timeLeft}s
+          </span>
+        )}
+        {completedMessageIds.has(msg.id) && (
+          <button onClick={() => onPlayVoice(msg.id, msg.text)}
+            className="w-5 h-5 rounded-full flex items-center justify-center text-zinc-400 hover:text-indigo-500 transition-colors"
+            title="Nghe">
+            {playingId === msg.id ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function UserBubble({ msg }) {
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <div className="px-3.5 py-2.5 text-[13.5px] leading-relaxed bg-gradient-to-br from-[#3b82f6] to-[#4f46e5] dark:from-[#0071e3] dark:to-[#3843d0] text-white rounded-2xl rounded-tr-[4px] shadow-md shadow-blue-500/20 max-w-full">
+        <p className="whitespace-pre-wrap font-medium">{msg.text}</p>
+      </div>
+      <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-medium px-1">
+        {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+        {msg.timeLeft !== undefined && (
+          <span className="ml-1.5 text-orange-500 font-black animate-pulse">🔥 {msg.timeLeft}s</span>
+        )}
+      </span>
+    </div>
+  );
+}
+
+// ─── Main ChatMessages component ──────────────────────────────────────────────
 function ChatMessages({
   messages,
   completedMessageIds,
@@ -123,7 +326,9 @@ function ChatMessages({
   onNavigateToTab,
   messagesEndRef,
   onUnlockFeature,
-  unlockingMethodId
+  unlockingMethodId,
+  onMoodSelect,
+  moodCheckinDone,
 }) {
   const [playingId, setPlayingId] = React.useState(null);
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
@@ -131,73 +336,50 @@ function ChatMessages({
   const userScrolledUpRef = React.useRef(false);
 
   const handlePlayVoice = (id, text) => {
-    if (playingId === id) {
-      window.speechSynthesis.cancel();
-      setPlayingId(null);
-      return;
-    }
+    if (playingId === id) { window.speechSynthesis.cancel(); setPlayingId(null); return; }
     window.speechSynthesis.cancel();
     setPlayingId(id);
-    const utterance = new SpeechSynthesisUtterance(text.replace(/\*\*/g, ""));
-    utterance.lang = "vi-VN";
-    utterance.onend = () => setPlayingId(null);
-    window.speechSynthesis.speak(utterance);
+    const u = new SpeechSynthesisUtterance(text.replace(/\*\*/g, ""));
+    u.lang = "vi-VN";
+    u.onend = () => setPlayingId(null);
+    window.speechSynthesis.speak(u);
   };
-
   React.useEffect(() => () => window.speechSynthesis.cancel(), []);
 
   const handleScroll = () => {
     const el = containerRef.current;
     if (!el) return;
-    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    const isUp = distFromBottom > 80;
-    userScrolledUpRef.current = isUp;
-    setShowScrollBtn(isUp);
+    const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+    userScrolledUpRef.current = dist > 80;
+    setShowScrollBtn(dist > 80);
   };
-
   const scrollToBottom = (behavior = "auto") => {
     const el = containerRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior });
   };
 
-  // Auto-scroll to bottom on new messages ONLY if user hasn't scrolled up
   React.useEffect(() => {
-    if (!userScrolledUpRef.current) requestAnimationFrame(() => scrollToBottom("auto"));
+    if (!userScrolledUpRef.current) requestAnimationFrame(() => scrollToBottom("smooth"));
   }, [messages, loading]);
 
-  // Always scroll to bottom on mount — useLayoutEffect (not useEffect) so
-  // this happens before the browser paints. With useEffect, the list would
-  // briefly flash at the top, then visibly jump to the bottom; that jump is
-  // exactly the "đẩy xuống gây lag" (push-down lag) reported when entering chat.
-  React.useLayoutEffect(() => {
-    scrollToBottom("auto");
-  }, []);
-
-  const formatText = (txt) => {
-    if (!txt) return "";
-    return txt.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-      part.startsWith("**") && part.endsWith("**")
-        ? <strong key={i} className="font-bold text-primary dark:text-sky-400">{part.slice(2, -2)}</strong>
-        : part
-    );
-  };
+  React.useLayoutEffect(() => { scrollToBottom("auto"); }, []);
 
   return (
     <div className="relative h-full">
+      {/* ─── Scrollable message list ─── */}
       <div
-        id="chat-messages-container"
         ref={containerRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-auto overscroll-contain px-2.5 sm:px-4 py-2.5 sm:py-3 scrollbar-thin scrollbar-thumb-zinc-200/60 dark:scrollbar-thumb-zinc-700/60 scrollbar-track-transparent"
+        className="h-full overflow-y-auto overscroll-contain px-3 sm:px-4 py-4 space-y-1"
+        style={{ scrollbarWidth: "thin" }}
       >
-        <div className="min-h-full flex flex-col justify-end gap-1.5 sm:gap-2">
-        {/* Date separator at top */}
-        <div className="flex items-center gap-3 py-2 px-2">
-          <div className="flex-1 h-px bg-zinc-200/60 dark:bg-zinc-700/40" />
-          <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-600 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800/60">
-            {new Date().toLocaleDateString("vi-VN", { weekday: "long", day: "numeric", month: "numeric" })}
+        {/* Date separator */}
+        <div className="flex items-center gap-3 pb-3">
+          <div className="flex-1 h-px bg-zinc-200/50 dark:bg-white/[0.06]" />
+          <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 px-3 py-1 rounded-full bg-zinc-100 dark:bg-white/[0.05] select-none">
+            {new Date().toLocaleDateString("vi-VN", { weekday: "short", day: "numeric", month: "numeric" })}
           </span>
-          <div className="flex-1 h-px bg-zinc-200/60 dark:bg-zinc-700/40" />
+          <div className="flex-1 h-px bg-zinc-200/50 dark:bg-white/[0.06]" />
         </div>
 
         <AnimatePresence mode="popLayout">
@@ -211,200 +393,36 @@ function ChatMessages({
             return (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, transition: { duration: 0.12 } }}
-                transition={{ duration: 0.16, ease: "easeOut" }}
-                className={`flex items-end gap-2 ${isBot ? "justify-start" : "justify-end"}`}
+                layout
+                initial={{ opacity: 0, y: 10, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.1 } }}
+                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                className={`flex items-end gap-2.5 ${isBot ? "justify-start" : "justify-end"} mb-1`}
               >
                 {/* Bot avatar */}
                 {isBot && (
-                  <div className="w-7 h-7 rounded-2xl overflow-hidden border border-zinc-200/60 dark:border-zinc-700/40 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/40 dark:to-blue-900/40 shrink-0 mb-0.5">
-                    <img src="/image/avt7.png" alt="" className="w-full h-full object-cover" />
+                  <div className="w-8 h-8 rounded-2xl overflow-hidden shrink-0 mb-0.5 shadow-sm bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center">
+                    <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
                   </div>
                 )}
 
-                <div className={`flex flex-col gap-1 max-w-[82%] sm:max-w-[78%] ${isBot ? "items-start" : "items-end"}`}>
-                  {/* Message bubble */}
-                  <div
-                    className={`relative px-3.5 sm:px-4 py-2 sm:py-2.5 text-[13px] leading-[1.5] ${
-                      isBot
-                        ? "bg-zinc-50 dark:bg-[#1c1b26] text-zinc-800 dark:text-zinc-100 rounded-2xl rounded-tl-sm shadow-sm border border-zinc-200/60 dark:border-[#272635]"
-                        : "bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-[#0071e3] dark:to-[#3843d0] text-white rounded-2xl rounded-tr-sm shadow-md shadow-blue-500/20 border border-blue-400/20 dark:border-blue-500/10"
-                    }`}
-                  >
-                    {isBot && !completedMessageIds.has(msg.id) && msg.id !== "init" ? (
-                      <TypewriterText
-                        text={msg.text}
-                        id={msg.id}
-                        onComplete={() => setCompletedMessageIds(prev => {
-                          const next = new Set(prev);
-                          next.add(msg.id);
-                          return next;
-                        })}
-                      />
-                    ) : (
-                      <p className="whitespace-pre-wrap font-medium">{formatText(msg.text)}</p>
-                    )}
-
-                    {/* Therapy navigation button */}
-                    {msg.showTherapyButton && (
-                      <button
-                        type="button"
-                        onClick={() => onNavigateToTab?.("therapy")}
-                        className="mt-2.5 flex items-center gap-1.5 w-full justify-center py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold rounded-xl transition-all active:scale-95"
-                      >
-                        <Heart className="w-3.5 h-3.5" />
-                        Mở Trị Liệu ngay
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Inline interactive therapy exercises */}
-                  {msg.showInlineBreathing && (
-                    <InlineBreathingCircle />
-                  )}
-                  {msg.showInlineCbt && (
-                    <InlineCbtCard />
-                  )}
-
-                  {/* Meta row: time + voice */}
-                  <div className={`flex items-center gap-1.5 px-1 ${isBot ? "flex-row" : "flex-row-reverse"}`}>
-                    <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-medium">
-                      {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                    {msg.timeLeft !== undefined && (
-                      <span className="text-[9px] text-orange-500 font-black animate-pulse flex items-center gap-0.5">
-                        🔥 Tự hủy sau {msg.timeLeft}s
-                      </span>
-                    )}
-                    {isBot && completedMessageIds.has(msg.id) && (
-                      <button
-                        onClick={() => handlePlayVoice(msg.id, msg.text)}
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-zinc-400 hover:text-indigo-500 transition-colors"
-                        title="Nghe"
-                      >
-                        {playingId === msg.id
-                          ? <VolumeX className="w-3 h-3" />
-                          : <Volume2 className="w-3 h-3" />}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Test recommendation card */}
-                  {isBot && (msg.suggestPhq9 || msg.suggestGad7 || msg.suggestWho5 || msg.suggestBigFive) && (
-                    <div className="mt-1 p-3 rounded-2xl rounded-tl-sm bg-amber-50 dark:bg-amber-950/25 border border-amber-200/60 dark:border-amber-700/30 space-y-2 w-full max-w-[260px]">
-                      <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
-                        <Stethoscope className="w-3.5 h-3.5" />
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider">Đề xuất kiểm tra</span>
-                      </div>
-                      <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                        Cậu có muốn làm bài đánh giá nhanh để tớ tư vấn chính xác hơn không?
-                      </p>
-                      <div className="flex flex-col gap-1">
-                        {msg.suggestPhq9 && (
-                          <button type="button" onClick={() => onStartTest("phq9")}
-                            className="w-full py-1.5 text-[10px] font-bold bg-rose-500 hover:bg-rose-600 text-white rounded-lg transition-all active:scale-95">
-                            PHQ-9 — Trầm cảm
-                          </button>
-                        )}
-                        {msg.suggestGad7 && (
-                          <button type="button" onClick={() => onStartTest("gad7")}
-                            className="w-full py-1.5 text-[10px] font-bold bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-all active:scale-95">
-                            GAD-7 — Lo âu
-                          </button>
-                        )}
-                        {msg.suggestWho5 && (
-                          <button type="button" onClick={() => onStartTest("who5")}
-                            className="w-full py-1.5 text-[10px] font-bold bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all active:scale-95">
-                            WHO-5 — Hạnh phúc
-                          </button>
-                        )}
-                        {msg.suggestBigFive && (
-                          <button type="button" onClick={() => onStartTest("bigfive")}
-                            className="w-full py-1.5 text-[10px] font-bold bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-all active:scale-95">
-                            Big Five — Nhân cách
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Crisis quick-call actions — one tap to dial, not just a phone
-                      number buried in text. Rendered prominently (red) and always
-                      visible (not collapsible) since this is a safety affordance. */}
-                  {isBot && Array.isArray(msg.quickActions) && msg.quickActions.some(a => a.tel) && (
-                    <div className="mt-1 p-3 rounded-2xl rounded-tl-sm bg-red-50 dark:bg-red-950/30 border-2 border-red-300 dark:border-red-700/50 space-y-2 w-full max-w-[280px]">
-                      <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
-                        <span className="material-symbols-outlined text-[15px]">emergency</span>
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider">Gọi ngay để được giúp đỡ</span>
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        {msg.quickActions.filter(a => a.tel).map((action, qaIdx) => (
-                          <a
-                            key={qaIdx}
-                            href={`tel:${action.tel}`}
-                            className="w-full py-2 text-[11px] font-extrabold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5"
-                          >
-                            {action.label}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* JOY unlock-now buttons — lets a therapy-navigation request
-                      that hit a paywall be resolved with one tap, right in chat,
-                      instead of sending the member off to the Therapy tab first. */}
-                  {isBot && Array.isArray(msg.quickActions) && msg.quickActions.some(a => a.type === "unlock") && (
-                    <div className="mt-1 p-3 rounded-2xl rounded-tl-sm bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-300 dark:border-amber-700/40 space-y-2 w-full max-w-[280px]">
-                      {msg.quickActions.filter(a => a.type === "unlock").map((action, qaIdx) => (
-                        <button
-                          key={qaIdx}
-                          type="button"
-                          disabled={unlockingMethodId === action.methodId}
-                          onClick={() => onUnlockFeature?.(action)}
-                          className="w-full py-2 text-[11px] font-extrabold bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5"
-                        >
-                          <span className="material-symbols-outlined text-[14px]">paid</span>
-                          {unlockingMethodId === action.methodId ? "Đang xử lý..." : action.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Journey duration picker */}
-                  {isBot && msg.isCompanionSetup && !msg.selectedChoice && (
-                    <div className="mt-1 p-3 rounded-2xl rounded-tl-sm bg-indigo-50 dark:bg-indigo-950/25 border border-indigo-200/60 dark:border-indigo-700/30 space-y-2 w-full max-w-[260px]">
-                      <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
-                        <Heart className="w-3.5 h-3.5" />
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider">Chọn lộ trình</span>
-                      </div>
-                      <button type="button" onClick={() => onSelectDuration(msg.id, msg.recommendedDays)}
-                        className="w-full py-2 text-[11px] font-extrabold bg-primary hover:bg-blue-600 text-white rounded-xl transition-all active:scale-95">
-                        Đồng ý ({msg.recommendedDays} ngày)
-                      </button>
-                      <div className="grid grid-cols-3 gap-1">
-                        {[7, 14, 30, 50, 90].map(d => (
-                          <button key={d} type="button" onClick={() => onSelectDuration(msg.id, d)}
-                            className="py-1.5 text-[9px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95">
-                            {d} ngày
-                          </button>
-                        ))}
-                      </div>
-                      <button type="button" onClick={() => onSelectDuration(msg.id, "cancel")}
-                        className="w-full py-1.5 text-[10px] font-medium text-zinc-400 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all">
-                        Để sau
-                      </button>
-                    </div>
-                  )}
-
-                  {msg.isCompanionSetup && msg.selectedChoice && (
-                    <div className="text-[9px] text-zinc-400 font-medium px-2">
-                      Đã chọn: {msg.selectedChoice === "cancel" ? "Từ chối" : `${msg.selectedChoice} ngày`}
-                    </div>
-                  )}
+                <div className={`flex flex-col max-w-[80%] sm:max-w-[72%] ${isBot ? "items-start" : "items-end"}`}>
+                  {isBot
+                    ? <BotBubble msg={msg} completedMessageIds={completedMessageIds} setCompletedMessageIds={setCompletedMessageIds}
+                        playingId={playingId} onPlayVoice={handlePlayVoice} onStartTest={onStartTest}
+                        onSelectDuration={onSelectDuration} onNavigateToTab={onNavigateToTab}
+                        onUnlockFeature={onUnlockFeature} unlockingMethodId={unlockingMethodId}
+                        onMoodSelect={onMoodSelect} moodCheckinDone={moodCheckinDone} />
+                    : <UserBubble msg={msg} />}
                 </div>
+
+                {/* User avatar */}
+                {!isBot && (
+                  <div className="w-8 h-8 rounded-full shrink-0 mb-0.5 shadow-sm bg-gradient-to-br from-zinc-300 to-zinc-400 dark:from-zinc-600 dark:to-zinc-700 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+                  </div>
+                )}
               </motion.div>
             );
           })}
@@ -413,41 +431,33 @@ function ChatMessages({
         {/* Typing indicator */}
         <AnimatePresence>
           {loading && (
-            <motion.div
-              key="typing"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 12 }}
-              className="flex items-end gap-2 justify-start"
-            >
-              <div className="w-7 h-7 rounded-2xl overflow-hidden border border-zinc-200/60 dark:border-zinc-700/40 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/40 dark:to-blue-900/40 shrink-0">
-                <img src="/image/avt7.png" alt="" className="w-full h-full object-cover" />
+            <motion.div key="typing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="flex items-end gap-2.5 justify-start mb-1">
+              <div className="w-8 h-8 rounded-2xl shrink-0 bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center shadow-sm">
+                <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
               </div>
-              <div className="px-4 py-2.5 bg-zinc-50 dark:bg-[#1c1b26] rounded-2xl rounded-tl-sm border border-zinc-200/60 dark:border-[#272635] shadow-sm flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div className="px-4 py-3 bg-white dark:bg-[#1e1d2c] rounded-2xl rounded-tl-[4px] border border-zinc-100 dark:border-white/[0.06] shadow-sm flex items-center gap-1.5">
+                {[0, 150, 300].map(delay => (
+                  <span key={delay} className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce"
+                    style={{ animationDelay: `${delay}ms` }} />
+                ))}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div ref={messagesEndRef} className="h-1" />
-        </div>
+        <div ref={messagesEndRef} className="h-2" />
       </div>
 
-      {/* Scroll-to-bottom button */}
+      {/* Scroll-to-bottom FAB */}
       <AnimatePresence>
         {showScrollBtn && (
           <motion.button
-            key="scrollbtn"
-            initial={{ opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.7 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            type="button"
-            onClick={() => { userScrolledUpRef.current = false; scrollToBottom(); }}
-            className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-md flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700 active:scale-90 transition-colors z-10"
+            key="fab" type="button"
+            initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }}
+            transition={{ type: "spring", stiffness: 400, damping: 22 }}
+            onClick={() => { userScrolledUpRef.current = false; scrollToBottom("smooth"); }}
+            className="absolute bottom-4 right-4 z-10 w-9 h-9 rounded-full bg-white dark:bg-[#1e1d2c] border border-zinc-200 dark:border-zinc-700 shadow-lg flex items-center justify-center text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 active:scale-90 transition-all"
           >
             <ChevronDown className="w-4 h-4" />
           </motion.button>
