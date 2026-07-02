@@ -128,7 +128,7 @@ export default function PWALoginPage() {
       const width = Math.min(360, Math.max(240, window.innerWidth - 72));
       try {
         googleId.renderButton(googleButtonRef.current, {
-          theme: "outline", // Outline works best on pure black
+          theme: "filled_black", // Sleek dark theme
           size: "large",
           shape: "pill",
           text: "continue_with",
@@ -211,11 +211,13 @@ export default function PWALoginPage() {
             66% { transform: translate(-40%, 20%) scale(1.2); }
             100% { transform: translate(0, 0) scale(1); }
           }
-          @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
         `}</style>
+
+        {/* Ambient Pattern Overlay */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: "radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }} />
 
         {/* Ambient Plasma Background - Fades in dynamically */}
         <div 
@@ -306,37 +308,17 @@ export default function PWALoginPage() {
           transition={{ duration: 1, type: "spring", bounce: 0.3 }}
           className="relative z-10 w-full px-6 pb-12 pt-8"
         >
-          <div className="mx-auto w-full max-w-sm p-6 bg-white/[0.03] backdrop-blur-[40px] border border-white/[0.05] rounded-[32px] shadow-[0_8px_32px_rgba(0,0,0,0.5)] space-y-6">
-            {/* Biometric quick login */}
-            {biometricEmail && (
-              <div className="space-y-4">
-                <button
-                  type="button"
-                  onClick={handleBiometricLogin}
-                  disabled={biometricBusy}
-                  className="flex w-full items-center justify-center gap-3 rounded-2xl bg-white/10 hover:bg-white/15 py-3.5 text-sm font-bold text-white transition-all active:scale-[0.98] disabled:opacity-50 border border-white/5"
-                >
-                  <span className="material-symbols-outlined text-xl">fingerprint</span>
-                  {biometricBusy ? "Đang xác thực..." : "Face ID / Vân tay"}
-                </button>
-                <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-white/30">
-                  <div className="h-px flex-1 bg-white/10" />
-                  HOẶC
-                  <div className="h-px flex-1 bg-white/10" />
-                </div>
-              </div>
-            )}
+          <div className="mx-auto w-full max-w-sm p-8 bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[40px] shadow-[0_0_50px_rgba(0,0,0,0.8)] space-y-8 flex flex-col items-center">
+            
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold text-white tracking-tight">Welcome to Hugo</h2>
+              <p className="text-sm text-white/50">Đăng nhập để trải nghiệm hệ sinh thái</p>
+            </div>
 
-            <div className="space-y-5">
+            <div className="w-full space-y-4">
               {/* Premium Google sign-in wrapper */}
-              <div className="relative group flex justify-center items-center">
-                {/* Animated glowing border effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-30 group-hover:opacity-70 blur-md transition-opacity duration-500" style={{ animation: "spin-slow 4s linear infinite" }} />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-20" />
-                
-                <div className="relative bg-black rounded-full flex justify-center p-[1px] w-full max-w-[360px]">
-                  <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-500 w-full rounded-full overflow-hidden" />
-                </div>
+              <div className="relative w-full flex justify-center items-center">
+                <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-500 w-full [&>div]:w-full rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.05)] border border-white/5" />
                 
                 {!gisReady && !configError && (
                   <div className="absolute inset-0 flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-widest text-white/50 animate-pulse pointer-events-none">
@@ -346,15 +328,29 @@ export default function PWALoginPage() {
                 )}
               </div>
 
-              {configError && (
-                <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-center text-[10px] font-medium text-red-400">
-                  {configError}
-                </div>
+              {/* Quick login / Biometric */}
+              {hasBiometric && (
+                <button
+                  onClick={handleBiometricLogin}
+                  className="w-full flex items-center justify-center gap-3 py-3 px-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white font-semibold transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.02)]"
+                >
+                  <span className="material-symbols-outlined text-xl">face</span>
+                  Xác thực Sinh trắc học
+                </button>
               )}
-              
-              <p className="text-center text-[10px] leading-relaxed text-white/40">
-                Ưu tiên sử dụng email <span className="font-bold text-white/80">.edu</span> để truy cập quyền lợi đặc quyền sinh viên.
+            </div>
+
+            {/* Error Message */}
+            {configError && (
+              <p className="text-xs text-red-400 text-center bg-red-400/10 py-2 px-3 rounded-lg border border-red-400/20 w-full">
+                {configError}
               </p>
+            )}
+
+            {/* Support / Privacy links */}
+            <div className="pt-2 text-center text-[11px] text-white/30 tracking-wide font-medium">
+              Bằng việc tiếp tục, bạn đồng ý với <br />
+              <a href="/privacy-policy" className="underline hover:text-white/80 transition-colors">Chính sách bảo mật</a> của Hugo Studio
             </div>
           </div>
         </m.div>
