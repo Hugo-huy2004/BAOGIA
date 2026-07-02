@@ -61,7 +61,7 @@ const QUESTION_TREE = {
     ]
   },
   view_booking: {
-    text: "Cậu vào mục **Quản lý lịch hẹn** trong Member Portal là thấy ngay danh sách khách đăng ký nha. Ở đó hiển thị sẵn số Zalo và Email của khách để cậu liên hệ hẹn lịch chụp nhanh chóng nè.",
+    text: "Cậu vào mục **Quản lý lịch hẹn trong Member Portal là thấy ngay danh sách khách đăng ký nha. Ở đó hiển thị sẵn số Zalo và Email của khách để cậu liên hệ hẹn lịch chụp nhanh chóng nè.",
     options: [
       { label: "Quay lại Menu chính", next: "main" },
       { label: "Yêu cầu gặp trực tiếp nhân viên hỗ trợ", next: "live_support" }
@@ -249,8 +249,8 @@ const HBot = () => {
     });
   }, [registerOnTourEnd]);
 
-  // Only show H-Bot in MemberPortal
-  const isMemberPage = location.pathname.startsWith('/member');
+  // Only show H-Bot in MemberPortal and Login page
+  const isMemberPage = location.pathname.startsWith('/member') || location.pathname.startsWith('/login') || location.pathname === '/';
 
   useEffect(() => {
     const onVisibilityChange = (e) => setVisible(e.detail.visible);
