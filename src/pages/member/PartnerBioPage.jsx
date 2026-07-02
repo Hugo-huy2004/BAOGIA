@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import dataApi from "../../services/dataApi";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import HugoLogo, { RenderColoredText } from "../../components/HugoLogo";
+import { HugoInlineNotice, HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 const isColorDark = (color) => {
   if (!color) return false;
@@ -394,11 +395,7 @@ export default function PartnerBioPage() {
             </p>
           </div>
 
-          {toast.message && (
-            <div className="text-[10px] font-semibold text-destructive bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 dark:border-destructive/30 rounded-md px-3 py-2">
-              {toast.message}
-            </div>
-          )}
+          <HugoInlineNotice type={toast.type || "error"} message={toast.message} />
 
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <input
@@ -438,19 +435,7 @@ export default function PartnerBioPage() {
     <main className="min-h-screen bg-background dark:bg-background text-foreground transition-colors duration-300">
       <PreviewTypographyStyles />
       
-      {/* Toast alert */}
-      {toast.message && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-lg bg-white/90 dark:bg-card/90 backdrop-blur-xl shadow-2xl border border-border/50 w-[calc(100vw-32px)] max-w-md animate-toast-in">
-          <span className={`material-symbols-outlined shrink-0 text-xl ${
-            toast.type === "success" ? "text-success" : "text-destructive"
-          }`}>
-            {toast.type === "success" ? "check_circle" : "error"}
-          </span>
-          <div className="flex-1 text-[11px] font-semibold leading-relaxed">
-            {toast.message}
-          </div>
-        </div>
-      )}
+      <HugoNoticeToast open={Boolean(toast.message)} type={toast.type || "info"} message={toast.message} />
 
       {/* Embedded editor workspace */}
       <div className="max-w-[1400px] mx-auto p-3 sm:p-6 lg:p-8">

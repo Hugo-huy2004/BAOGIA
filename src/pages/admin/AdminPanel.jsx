@@ -14,6 +14,7 @@ import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import AdminServicesTab from "../../components/admin/AdminServicesTab";
 import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
 import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
+import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
 
@@ -390,17 +391,7 @@ export default function AdminPanel() {
 
       <SosOverlay alerts={crisisAlerts} />
 
-      {/* TOAST NOTIFICATION */}
-      {toastMsg && (
-        <div className={`fixed top-16 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-card border shadow-[0_24px_60px_hsl(var(--shadow)/0.25)] max-w-sm animate-toast-in ${
-          toastType === "success" ? "border-success/40" : "border-destructive/40"
-        }`}>
-          <span className={`material-symbols-outlined shrink-0 text-xl ${toastType === "success" ? "text-success" : "text-destructive"}`}>
-            {toastType === "success" ? "check_circle" : "error"}
-          </span>
-          <span className="text-sm font-semibold text-foreground leading-tight">{toastMsg}</span>
-        </div>
-      )}
+      <HugoNoticeToast open={Boolean(toastMsg)} type={toastType || "info"} message={toastMsg} zIndex={150} />
 
       {/* MODAL XÁC NHẬN */}
       {confirmModal.isOpen && (

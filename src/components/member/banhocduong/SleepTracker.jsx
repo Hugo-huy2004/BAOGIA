@@ -6,6 +6,7 @@ import {
   Smartphone, Eye, Activity, ShieldCheck, Edit3, X,
 } from "lucide-react";
 import dataApi from "../../../services/dataApi";
+import { HugoNoticeToast } from "../../shared/HugoNotice";
 
 // Same fix as AIBot.js: there's no separate "ai.<domain>" host — the Python
 // analyzer is reached same-origin via the Node API's /api/sleep/analyze proxy
@@ -329,20 +330,12 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
   return (
     <div className="flex flex-col md:flex-col-reverse gap-4 animate-fadeIn">
 
-      {/* Toast */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
-            className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold border
-              ${toast.type === "success" ? "bg-success/20 border-success/30 text-success"
-              : toast.type === "error"   ? "bg-destructive/20 border-destructive/30 text-destructive"
-              : "bg-info/20 border-info/30 text-info"}`}
-          >
-            {toast.msg}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <HugoNoticeToast
+        open={Boolean(toast)}
+        type={toast?.type || "info"}
+        message={toast?.msg}
+        zIndex={320}
+      />
 
       {/* ── Live detection status card — prominent on mobile, secondary on desktop ── */}
       <div className={`bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/5

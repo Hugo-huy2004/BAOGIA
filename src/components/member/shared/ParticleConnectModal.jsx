@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import Confetti from "react-confetti";
 import ParticleGenerator from "./ParticleGenerator";
 import ParticleScanner from "./ParticleScanner";
@@ -331,6 +332,7 @@ function JoySeal({ payload, tokenBytes, displayName, avatarUrl, onOpen, compact 
 }
 
 function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
+  const { t } = useTranslation();
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 500,
@@ -367,7 +369,7 @@ function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
       </button>
 
       <p style={{ color: "rgba(253,230,138,.75)", fontSize: 11, fontWeight: 800, letterSpacing: ".22em", textTransform: "uppercase", marginBottom: 40, textShadow: "0 0 12px rgba(250,204,21,.35)" }}>
-        Mã QR JOY
+        {t("joy.particle.qrTitle", "Mã QR JOY")}
       </p>
 
       {/* Ring container */}
@@ -389,7 +391,7 @@ function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
           ? <img src={avatarUrl} alt={displayName} style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(168,85,247,.6)", marginBottom: 2 }} />
           : null}
         <p style={{ color: "#fff", fontWeight: 900, fontSize: 16, letterSpacing: "-.02em" }}>{displayName}</p>
-        <p style={{ color: "rgba(255,255,255,.45)", fontSize: 11, fontWeight: 600 }}>Mã nội bộ để gửi JOY</p>
+        <p style={{ color: "rgba(255,255,255,.45)", fontSize: 11, fontWeight: 600 }}>{t("joy.particle.internalCode", "Mã nội bộ để gửi JOY")}</p>
       </div>
 
       <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
@@ -406,7 +408,7 @@ function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>share</span>
-          Chia sẻ
+          {t("joy.particle.share", "Chia sẻ")}
         </button>
       </div>
     </div>
@@ -462,9 +464,10 @@ function Divider() {
 }
 
 /* ─── Main Modal ─────────────────────────────────────────────────────────── */
-export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
+export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) {
+  const { t } = useTranslation();
   const { playWin, playLose, playBeep } = useArcadeSound();
-  const [step, setStep] = useState("select"); // select | amount | invoice | sending | success
+  const [step, setStep] = useState("select"); // select | contact | amount | invoice | sending | success
   const [mode, setMode] = useState("search"); // search | myqr | scan
   const [recipient, setRecipient] = useState(null);
   const [amount, setAmount] = useState("");
@@ -533,7 +536,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
 
   const selectRecipient = useCallback((contact) => {
     setRecipient(contact);
-    setStep("amount");
+    setStep("contact");
     setError("");
   }, []);
 
@@ -581,6 +584,8 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
     onClose();
   };
 
+
+
   if (!open && !qrFullscreen && !scanOpen) return null;
 
   return createPortal(
@@ -610,13 +615,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
         />
       )}
 
-      {/* Particle Cloud Code scanner (fullscreen camera) */}
-      {scanOpen && (
-        <ParticleScanner
-          onScanSuccess={handleQRDetected}
-          onClose={() => setScanOpen(false)}
-        />
-      )}
+
 
       {/* Main modal */}
       {open && (
@@ -624,7 +623,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
           onClick={e => { if (e.target === e.currentTarget) close(); }}
           className="joy-modal-overlay"
           style={{
-            position: "fixed", inset: 0, zIndex: 300,
+            position: "fixed", inset: 0, zIndex: 9999,
             display: "flex",
             background: "rgba(0,0,0,.55)", backdropFilter: "blur(6px)",
             animation: "jtFadeIn .2s ease",
@@ -650,7 +649,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
               }}>
                 {step !== "select" && (
                   <button
-                    onClick={() => { setStep(step === "amount" ? "select" : step === "invoice" ? "amount" : "select"); setError(""); }}
+                    onClick={() => { setStep(step === "contact" ? "select" : step === "amount" ? "contact" : step === "invoice" ? "amount" : "select"); setError(""); }}
                     style={{ background: "rgba(255,255,255,.15)", border: "none", borderRadius: "50%", width: 30, height: 30, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back_ios_new</span>
@@ -659,11 +658,12 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                 <div style={{ flex: 1 }}>
                   <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.6)", letterSpacing: ".14em", textTransform: "uppercase" }}>HugoStudio</p>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 900, color: "#fff", letterSpacing: "-.02em" }}>
-                    {step === "select" && "Chuyển JOY"}
-                    {step === "amount" && `Gửi → ${recipient?.displayName}`}
-                    {step === "invoice" && "Xác nhận"}
-                    {step === "sending" && "Đang xử lý..."}
-                    {step === "success" && "Thành công!"}
+                    {step === "select" && t("joy.particle.title", "Hugo Studio - Intelligent Connection")}
+                    {step === "contact" && `${t("joy.particle.profile", "Hồ sơ")}: ${recipient?.displayName}`}
+                    {step === "amount" && `${t("joy.particle.sendTo", "Gửi")} → ${recipient?.displayName}`}
+                    {step === "invoice" && t("joy.particle.confirm", "Xác nhận")}
+                    {step === "sending" && t("joy.particle.sending", "Đang xử lý...")}
+                    {step === "success" && t("joy.particle.success", "Thành công!")}
                   </p>
                 </div>
                 <button onClick={close} disabled={step === "sending"} style={{
@@ -681,9 +681,9 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                   {/* Mode tabs */}
                   <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
                     {[
-                      { id: "search", icon: "person_search", label: "Tìm kiếm" },
-                      { id: "myqr", icon: "qr_code_2", label: "Mã QR của tôi" },
-                      { id: "scan", icon: "qr_code_scanner", label: "Quét QR" },
+                      { id: "search", icon: "person_search", label: t("joy.particle.tabSearch", "Tìm kiếm") },
+                      { id: "myqr", icon: "qr_code_2", label: t("joy.particle.tabMyQr", "Mã của tôi") },
+                      { id: "scan", icon: "qr_code_scanner", label: t("joy.particle.tabScanQr", "Quét QR") },
                     ].map(m => (
                       <button key={m.id} onClick={() => setMode(m.id)} style={{
                         flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
@@ -710,7 +710,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                           autoFocus
                           value={searchQ}
                           onChange={e => setSearchQ(e.target.value)}
-                          placeholder="Tên, SĐT, mã giới thiệu..."
+                          placeholder={t("joy.particle.searchPlaceholder", "Tên, SĐT, mã giới thiệu...")}
                           style={{
                             width: "100%", padding: "11px 12px 11px 38px", borderRadius: 12,
                             border: "1.5px solid #e5e7eb", background: "#f8fafc",
@@ -729,7 +729,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                       {/* Results */}
                       {searchQ.trim() && searchResults.length > 0 && (
                         <div style={{ marginBottom: 12 }}>
-                          <p style={{ fontSize: 9, fontWeight: 700, color: "#94a3b8", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 4 }}>Kết quả tìm kiếm</p>
+                          <p style={{ fontSize: 9, fontWeight: 700, color: "#94a3b8", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 4 }}>{t("joy.particle.searchResults", "Kết quả tìm kiếm")}</p>
                           <div style={{ borderTop: "1px solid #f1f5f9" }}>
                             {searchResults.map(c => (
                               <div key={c.referralCode} style={{ borderBottom: "1px solid #f1f5f9" }}>
@@ -741,13 +741,13 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                       )}
 
                       {searchQ.trim() && !searching && searchResults.length === 0 && (
-                        <p style={{ textAlign: "center", color: "#94a3b8", fontSize: 12, padding: "12px 0" }}>Không tìm thấy người dùng</p>
+                        <p style={{ textAlign: "center", color: "#94a3b8", fontSize: 12, padding: "12px 0" }}>{t("joy.particle.noUserFound", "Không tìm thấy người dùng")}</p>
                       )}
 
                       {/* Recent contacts */}
                       {!searchQ.trim() && recentContacts.length > 0 && (
                         <div>
-                          <p style={{ fontSize: 9, fontWeight: 700, color: "#94a3b8", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 4 }}>Gần đây</p>
+                          <p style={{ fontSize: 9, fontWeight: 700, color: "#94a3b8", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 4 }}>{t("joy.particle.recent", "Gần đây")}</p>
                           <div style={{ borderTop: "1px solid #f1f5f9" }}>
                             {recentContacts.map(c => (
                               <div key={c.referralCode} style={{ borderBottom: "1px solid #f1f5f9" }}>
@@ -761,7 +761,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                       {!searchQ.trim() && recentContacts.length === 0 && (
                         <div style={{ textAlign: "center", padding: "24px 0 8px" }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 36, color: "#e5e7eb" }}>person_search</span>
-                          <p style={{ color: "#94a3b8", fontSize: 12, marginTop: 8 }}>Tìm theo tên, SĐT hoặc mã giới thiệu</p>
+                          <p style={{ color: "#94a3b8", fontSize: 12, marginTop: 8 }}>{t("joy.particle.searchHint", "Tìm theo tên, SĐT hoặc mã giới thiệu")}</p>
                         </div>
                       )}
                     </>
@@ -776,8 +776,6 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                         </div>
                       ) : (
                         <>
-                          {/* Particle Cloud Code only — the disc is filled with
-                              the card color so it blends in; no decorative orb. */}
                           <div style={{ borderRadius: "50%", lineHeight: 0 }}>
                             <ParticleGenerator bytes={myTokenBytes} size={240} background={cardBg} />
                           </div>
@@ -787,40 +785,20 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                     </div>
                   )}
 
-                  {/* Scan mode */}
+                  {/* Scan mode - inline camera */}
                   {mode === "scan" && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                       {scanResolving ? (
-                        <div style={{ padding: "20px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
-                          <p style={{ color: "#94a3b8", fontSize: 12 }}>Đang xác minh mã...</p>
+                        <div style={{ padding: "40px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 32, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
+                          <p style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>{t("joy.particle.verifying", "Đang xác minh mã...")}</p>
                         </div>
                       ) : (
-                        <>
-                          <div style={{
-                            width: 120, height: 120, borderRadius: "50%",
-                            background: "linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.1))",
-                            border: "2px dashed rgba(99,102,241,.4)",
-                            display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16,
-                          }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: 44, color: "#6366f1", fontVariationSettings: "'FILL' 1" }}>qr_code_scanner</span>
-                          </div>
-                          <p style={{ color: "#0f172a", fontWeight: 800, fontSize: 14, marginBottom: 4 }} className="dark:text-white">Quét mã nội bộ để gửi JOY</p>
-                          <p style={{ color: "#94a3b8", fontSize: 11, marginBottom: 18, textAlign: "center" }}>Mở mã của người nhận rồi bấm quét</p>
-                          <button
-                            onClick={() => setScanOpen(true)}
-                            style={{
-                              padding: "12px 32px", borderRadius: 999,
-                              background: "linear-gradient(135deg,#6366f1,#8b5cf6)", border: "none",
-                              color: "#fff", fontWeight: 800, fontSize: 13, cursor: "pointer",
-                              display: "flex", alignItems: "center", gap: 8,
-                              boxShadow: "0 4px 16px rgba(99,102,241,.35)",
-                            }}
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>camera_alt</span>
-                            Mở camera quét
-                          </button>
-                        </>
+                        <ParticleScanner
+                          inline
+                          onScanSuccess={handleQRDetected}
+                          scanBoxSize={240}
+                        />
                       )}
                     </div>
                   )}
@@ -838,21 +816,21 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                   }}>
                     <Avatar name={recipient.displayName} url={recipient.avatarUrl} size={38} />
                     <div style={{ flex: 1 }}>
-                      <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>Người nhận</p>
+                      <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("joy.particle.recipientLabel", "Người nhận")}</p>
                       <p style={{ margin: "2px 0 0", fontSize: 13, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{recipient.displayName}</p>
                     </div>
-                    <button onClick={() => { setStep("select"); setError(""); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 11, fontWeight: 700 }}>Đổi</button>
+                    <button onClick={() => { setStep("select"); setError(""); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 11, fontWeight: 700 }}>{t("joy.particle.changeBtn", "Đổi")}</button>
                   </div>
 
                   {/* Amount input */}
                   <div style={{ marginBottom: 12 }}>
-                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>Số JOY gửi</p>
+                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("joy.particle.amountTitle", "Số JOY gửi")}</p>
                     <div style={{ position: "relative" }}>
                       <input
                         type="number" min="10" max="1000"
                         value={amount}
                         onChange={e => setAmount(e.target.value)}
-                        placeholder="Tối thiểu 10 JOY"
+                        placeholder={t("joy.particle.amountPlaceholder", "Tối thiểu 10 JOY")}
                         style={{
                           width: "100%", padding: "13px 56px 13px 14px", borderRadius: 14,
                           border: "1.5px solid #e5e7eb", background: "#f8fafc",
@@ -864,8 +842,8 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                     </div>
                     {numAmount > 0 && (
                       <p style={{ margin: "5px 0 0", fontSize: 11, color: "#94a3b8" }}>
-                        Phí sáng tạo: <strong style={{ color: "#6366f1" }}>{fee} JOY</strong>
-                        {" · "}Tổng: <strong style={{ color: "#0f172a" }}>{total} JOY</strong>
+                        {t("joy.particle.fee", "Phí sáng tạo")}: <strong style={{ color: "#6366f1" }}>{fee} JOY</strong>
+                        {" · "}{t("joy.particle.total", "Tổng")}: <strong style={{ color: "#0f172a" }}>{total} JOY</strong>
                       </p>
                     )}
                   </div>
@@ -885,11 +863,11 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
 
                   {/* Note */}
                   <div style={{ marginBottom: 14 }}>
-                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>Nội dung (tùy chọn)</p>
+                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("joy.particle.noteTitle", "Nội dung (tùy chọn)")}</p>
                     <input
                       value={note}
                       onChange={e => setNote(e.target.value)}
-                      placeholder="Nhập nội dung..."
+                      placeholder={t("joy.particle.notePlaceholder", "Nhập nội dung...")}
                       maxLength={100}
                       style={{
                         width: "100%", padding: "11px 14px", borderRadius: 12,
@@ -899,7 +877,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                     />
                     {/* Suggestion chips */}
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-                      {NOTE_CHIPS.map(chip => (
+                      {[t("joy.particle.chipThanks", "Cảm ơn!"), t("joy.particle.chipGift", "Tặng bạn")].map(chip => (
                         <button key={chip} onClick={() => setNote(chip)} style={{
                           padding: "4px 10px", borderRadius: 999,
                           border: "1px solid #e5e7eb", background: note === chip ? "rgba(99,102,241,.08)" : "#f8fafc",
@@ -920,7 +898,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                       boxShadow: numAmount >= 10 ? "0 4px 20px rgba(99,102,241,.4)" : "none",
                     }}
                   >
-                    Tiếp theo
+                    {t("joy.particle.next", "Tiếp theo")}
                   </button>
                 </div>
               )}
@@ -934,7 +912,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                         <Avatar name={recipient.displayName} url={recipient.avatarUrl} size={42} />
                         <div>
-                          <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>Gửi tới</p>
+                          <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("joy.particle.sendTo", "Gửi tới")}</p>
                           <p style={{ margin: "2px 0 0", fontSize: 14, fontWeight: 900, color: "#0f172a" }} className="dark:text-white">{recipient.displayName}</p>
                         </div>
                       </div>
@@ -949,11 +927,11 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
 
                     <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>Số JOY gửi</span>
+                        <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>{t("joy.particle.amountTitle", "Số JOY gửi")}</span>
                         <span style={{ fontSize: 12, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{numAmount.toLocaleString("vi-VN")} JOY</span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>Phí sáng tạo (5%)</span>
+                        <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>{t("joy.particle.fee", "Phí sáng tạo")} ({TRANSFER_FEE_RATE * 100}%)</span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>{fee.toLocaleString("vi-VN")} JOY</span>
                       </div>
                     </div>
@@ -962,7 +940,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
 
                     <div style={{ padding: "12px 14px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 12, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">Tổng khấu trừ</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{t("joy.particle.totalDeduction", "Tổng khấu trừ")}</span>
                         <span style={{ fontSize: 16, fontWeight: 900, color: "#6366f1" }}>{total.toLocaleString("vi-VN")} JOY</span>
                       </div>
                     </div>
@@ -975,14 +953,14 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                   )}
 
                   <p style={{ textAlign: "center", fontSize: 9, color: "#cbd5e1", marginTop: 10, marginBottom: 14, fontWeight: 600, letterSpacing: ".04em" }}>
-                    Giao dịch JOY không thể hoàn lại — kiểm tra kỹ trước khi xác nhận
+                    {t("joy.particle.warning", "Giao dịch JOY không thể hoàn lại — kiểm tra kỹ trước khi xác nhận")}
                   </p>
 
                   <div style={{ display: "flex", gap: 10 }}>
                     <button onClick={() => setStep("amount")} style={{
                       flex: 1, padding: "13px 0", borderRadius: 14, border: "1px solid #e5e7eb",
                       background: "#f8fafc", color: "#64748b", fontSize: 13, fontWeight: 700, cursor: "pointer",
-                    }}>Quay lại</button>
+                    }}>{t("joy.particle.back", "Quay lại")}</button>
                     <button onClick={handleSend} style={{
                       flex: 2, padding: "13px 0", borderRadius: 14, border: "none",
                       background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff",
@@ -991,7 +969,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                       boxShadow: "0 4px 20px rgba(99,102,241,.4)",
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>send</span>
-                      Chuyển ngay
+                      {t("joy.particle.sendNow", "Chuyển ngay")}
                     </button>
                   </div>
                 </div>

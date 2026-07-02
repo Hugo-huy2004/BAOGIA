@@ -1277,12 +1277,12 @@ export default function ChessGame({
   if (status === "waiting" && mode === "friend") {
     return (
       <div className="min-h-screen text-foreground flex flex-col justify-between py-8">
-        <header className="px-4">
+        <header className="px-4 pb-4 pt-[calc(max(16px,env(safe-area-inset-top))+8px)]">
           <div className="max-w-md mx-auto w-full flex items-center justify-between">
             <button onClick={onBack} className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground flex items-center gap-1.5 text-sm font-semibold">
               <ArrowLeft className="w-4 h-4" /> Quay lại sảnh
             </button>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">HugoCHESS</span>
+            <span className="text-xs font-black uppercase tracking-[0.2em]">HugoCHESS</span>
           </div>
         </header>
         <main className="flex-1 flex items-center justify-center px-4 py-8">
@@ -1360,13 +1360,13 @@ export default function ChessGame({
       {/* ══ MOBILE LAYOUT ══════════════════════════════════════════════════════ */}
       <div className="chess-mobile-game lg:hidden flex flex-col bg-background text-foreground" style={{ height: "100dvh", overflow: "hidden" }}>
 
-        {/* Mobile Header — 44px */}
-        <header className="chess-mobile-header shrink-0 h-11 flex items-center justify-between px-3 border-b border-border bg-background/95 backdrop-blur-xl z-10">
+        {/* Mobile Header — Safe Area Support */}
+        <header className="chess-mobile-header shrink-0 min-h-[52px] flex items-center justify-between px-3 pb-2 pt-[calc(max(8px,env(safe-area-inset-top))+8px)] border-b border-border bg-background/95 backdrop-blur-xl z-10">
           <button onClick={onBack} className="p-1.5 rounded-xl hover:bg-muted transition-colors text-muted-foreground">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex flex-col items-center leading-tight">
-            <span className="text-[11px] font-black text-foreground">
+            <span className="text-sm font-black text-foreground">
               {mode === "bot" ? `Bot Lv${botLevel}` : mode === "friend" ? "Đấu bạn bè" : "Đấu ngẫu nhiên"}
             </span>
             {mode !== "bot" ? (

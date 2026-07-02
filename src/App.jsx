@@ -106,8 +106,10 @@ function AppContent() {
   // no marketing navbar, no HBot, no footer. Mirrors how a native app behaves.
   const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   const isAuthenticated = isMemberAuthenticated();
-  const hideNavbar = isEmbed || isFullscreenUtility || (isPWA && !isAuthenticated);
-  const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false || (isPWA && !isAuthenticated);
+  // In the installed PWA we want a focused, app-like dashboard: never show the
+  // marketing top navbar / tab-bar or the support bot — those are web-only.
+  const hideNavbar = isEmbed || isFullscreenUtility || isPWA;
+  const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false || isPWA;
 
   return (
     <div className="min-h-screen bg-surface dark:bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
@@ -241,7 +243,33 @@ export default function App() {
             <Toaster
               position="top-center"
               reverseOrder={false}
-              containerStyle={{ top: 'calc(env(safe-area-inset-top, 0px) + 2rem)' }}
+              containerStyle={{ top: "calc(env(safe-area-inset-top, 0px) + 14px)" }}
+              toastOptions={{
+                duration: 4000,
+                className: "hugo-hot-toast",
+                style: {
+                  maxWidth: "min(420px, calc(100vw - 24px))",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(255,255,255,.62)",
+                  background: "rgba(255,255,255,.94)",
+                  color: "#0f172a",
+                  boxShadow: "0 22px 58px rgba(15,23,42,.20)",
+                  backdropFilter: "blur(24px)",
+                  WebkitBackdropFilter: "blur(24px)",
+                  padding: "13px 16px",
+                  fontSize: "13px",
+                  fontWeight: 850,
+                },
+                success: {
+                  iconTheme: { primary: "#10b981", secondary: "#ffffff" },
+                },
+                error: {
+                  iconTheme: { primary: "#ef4444", secondary: "#ffffff" },
+                },
+                loading: {
+                  iconTheme: { primary: "#6366f1", secondary: "#ffffff" },
+                },
+              }}
             />
           </TooltipProvider>
         </BrowserRouter>

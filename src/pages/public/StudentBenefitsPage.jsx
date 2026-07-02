@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { loginMember } from "../../services/authSession";
 import { isEduEmail } from "../../utils/eduEmail";
+import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 export default function StudentBenefitsPage() {
   useHeadMeta({
@@ -176,39 +177,12 @@ export default function StudentBenefitsPage() {
       />
       <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] bg-success/5 dark:bg-success/10 rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Toast */}
-      {toast.message && (
-        <div
-          className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-background shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] w-[calc(100vw-32px)] sm:w-auto sm:max-w-md border-2 transition-all animate-fadeIn ${
-            toast.type === "success"
-              ? "border-success"
-              : toast.type === "warning"
-              ? "border-warning"
-              : "border-destructive"
-          }`}
-        >
-          <span
-            className={`material-symbols-outlined shrink-0 text-xl ${
-              toast.type === "success"
-                ? "text-success"
-                : toast.type === "warning"
-                ? "text-warning"
-                : "text-destructive"
-            }`}
-          >
-            {toast.type === "success" ? "check_circle" : toast.type === "warning" ? "warning" : "error"}
-          </span>
-          <div className="flex-1 text-xs sm:text-sm font-semibold leading-snug">
-            {toast.message}
-          </div>
-          <button
-            onClick={() => setToast({ message: "", type: "" })}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <span className="material-symbols-outlined text-lg">close</span>
-          </button>
-        </div>
-      )}
+      <HugoNoticeToast
+        open={Boolean(toast.message)}
+        type={toast.type || "info"}
+        message={toast.message}
+        onClose={() => setToast({ message: "", type: "" })}
+      />
 
       <div className="max-w-6xl w-full grid lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-16 items-center relative z-10">
         {/* Left Column: Hero & Benefits */}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import HugoLogo from "../../components/HugoLogo";
+import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 // Hugo Studio Brand Logo component to match styling exactly
 
@@ -72,40 +73,12 @@ export default function BookingContactPage() {
 
   return (
     <div className="min-h-[calc(100vh-140px)] w-full flex flex-col justify-start lg:justify-center items-center px-4 py-8 md:py-16 text-foreground relative overflow-hidden">
-      <style>{`
-        @keyframes slideInDown {
-          0% { transform: translate(-50%, -120%); opacity: 0; }
-          100% { transform: translate(-50%, 0); opacity: 1; }
-        }
-        .animate-toast-in {
-          animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
-
-      {/* Floating Toast Notification */}
-      {toast.message && (
-        <div className={`fixed top-6 left-1/2 z-50 animate-toast-in flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-background shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] md:max-w-md w-[calc(100vw-32px)] border-2 transition-all ${
-          toast.type === "success" 
-            ? "border-emerald-500 dark:border-emerald-600" 
-            : "border-red-500 dark:border-rose-500"
-        }`}>
-          <span className={`material-symbols-outlined shrink-0 text-xl ${
-            toast.type === "success" ? "text-emerald-500" : "text-red-500 dark:text-rose-500"
-          }`}>
-            {toast.type === "success" ? "check_circle" : "error"}
-          </span>
-          <div className="flex-1 text-xs sm:text-sm font-semibold text-foreground leading-snug">
-            {toast.message}
-          </div>
-          <button 
-            type="button"
-            onClick={() => setToast({ message: "", type: "" })}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-white shrink-0 ml-1 transition-colors"
-          >
-            <span className="material-symbols-outlined text-lg">close</span>
-          </button>
-        </div>
-      )}
+      <HugoNoticeToast
+        open={Boolean(toast.message)}
+        type={toast.type || "info"}
+        message={toast.message}
+        onClose={() => setToast({ message: "", type: "" })}
+      />
 
       {/* Two-column layout in desktop */}
       <section className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start relative">

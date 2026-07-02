@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AdminProjectsTab from '../../components/admin/AdminProjectsTab';
 import { logoutAuth } from '../../services/authSession';
+import { HugoNoticeToast } from '../../components/shared/HugoNotice';
 
 export default function AdminProjectsPage() {
   const { t } = useTranslation();
@@ -36,14 +37,7 @@ export default function AdminProjectsPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8 animate-fadeIn">
-      {/* Toast Notification */}
-      {toastMsg && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-md shadow-lg font-bold text-sm animate-fadeInUp ${
-          toastType === 'error' ? 'bg-destructive text-white' : 'bg-success text-white'
-        }`}>
-          {toastMsg}
-        </div>
-      )}
+      <HugoNoticeToast open={Boolean(toastMsg)} type={toastType || "info"} message={toastMsg} />
 
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8 flex items-center justify-between">

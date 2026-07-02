@@ -57,6 +57,52 @@ const getRelativeDateHeader = (dateString, t) => {
   }
 };
 
+function parseJoyDetail(text) {
+  if (!text) return { raw: text };
+  
+  // Try to find Transaction ID
+  let txId = null;
+  const txMatch = text.match(/Mã GD:\s*([A-Z0-9]+)/);
+  if (txMatch) txId = txMatch[1];
+
+  // Try to find Balance
+  let balance = null;
+  const balMatch = text.match(/Số dư:\s*([\d,.]+)\s*JOY/);
+  if (balMatch) balance = balMatch[1];
+
+  // Try to find Message
+  let message = null;
+  const msgMatch = text.match(/Lời nhắn:\s*"([^"]+)"/);
+  if (msgMatch) message = msgMatch[1];
+
+  // Try to extract amount from specific formats
+  let amount = null;
+  let isPositive = null;
+  
+  // "đã chuyển 20 JOY đến bạn" -> +20
+  const recvMatch = text.match(/chuyển\s*([\d,.]+)\s*JOY đến bạn/);
+  if (recvMatch) {
+    amount = recvMatch[1];
+    isPositive = true;
+  }
+  
+  // "(-200 JOY, phí -10 JOY)" -> -200
+  const sendMatch = text.match(/\(\s*-([\d,.]+)\s*JOY/);
+  if (sendMatch) {
+    amount = sendMatch[1];
+    isPositive = false;
+  }
+  
+  // Clean up the main text to use as "title" or "description"
+  let cleanText = text
+    .replace(/Mã GD:\s*[A-Z0-9]+[.]?\s*/, '')
+    .replace(/Số dư:\s*[\d,.]+\s*JOY[.]?\s*/, '')
+    .replace(/Lời nhắn:\s*"[^"]+"[.]?\s*/, '')
+    .trim();
+
+  return { raw: text, cleanText, txId, balance, message, amount, isPositive };
+}
+
 function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRead, onDismiss }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [claimedCodes, setClaimedCodes] = useState({});
@@ -209,71 +255,102 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
       {groupedEntries.length > 0 && (
         <div className="space-y-6">
           {groupedEntries.map((group) => (
-            <div key={group.dateString} className="space-y-3">
+            <div key={group.dateString} className="space-y-2">
               {/* Day Header */}
-              <h3 className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-2">
+              <h3 className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest pl-2">
                 {group.dateHeader}
               </h3>
 
-              {/* Day Notification Items */}
-              <div className="space-y-2">
+              {/* Day Notification Items - Flat List */}
+              <div className="bg-white/70 dark:bg-zinc-900/50 backdrop-blur-xl rounded-[1.25rem] border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm overflow-hidden divide-y divide-zinc-200/50 dark:divide-zinc-800/40">
                 {group.items.map((entry) => {
                   const cfg = entry.cfg;
                   const isNotif = entry.source === 'notification';
                   const unread = isNotif && !entry.read;
+                  
+                  // Detail Parsing for JOY
+                  let parsedJoy = null;
+                  if (cfg.cat === 'joy') {
+                    parsedJoy = parseJoyDetail(entry.detail);
+                  }
+
                   return (
                     <div
                       key={entry.key}
                       onClick={() => unread && onMarkRead?.(entry.id)}
-                      className={`group flex gap-3.5 p-4 backdrop-blur-xl rounded-2xl border shadow-sm transition-all duration-300 hover:scale-[1.005] hover:shadow-md ${
+                      className={`group flex gap-3.5 p-4 transition-colors duration-200 relative ${
                         unread
-                          ? 'bg-primary/5 dark:bg-primary/10 border-primary/20 cursor-pointer'
-                          : 'bg-white/60 dark:bg-card/60 border-zinc-200/50 dark:border-zinc-800/60'
+                          ? 'bg-primary/5 dark:bg-primary/10 cursor-pointer'
+                          : 'hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30'
                       }`}
                     >
+                      {/* Unread Indicator */}
+                      {unread && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-md" />}
+
                       {/* Left icon wrapper */}
                       <div className="shrink-0">
                         <div
-                          className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm transition-transform duration-300 group-hover:scale-105 ${cfg.bg} ${cfg.border}`}
+                          className={`w-10 h-10 rounded-full flex items-center justify-center border transition-transform duration-300 group-hover:scale-105 ${cfg.bg} ${cfg.border}`}
                         >
-                          <span className="material-symbols-outlined text-[15px]" style={{ color: cfg.color }}>{entry.icon}</span>
+                          <span className="material-symbols-outlined text-[18px]" style={{ color: cfg.color }}>{entry.icon}</span>
                         </div>
                       </div>
 
                       {/* Content column */}
-                      <div className="flex-1 min-w-0 space-y-1.5 text-left">
-                        <div className="flex items-center justify-between gap-4 flex-wrap">
-                          <div className="flex items-center gap-1.5">
-                            {!isNotif && (
-                              <span
-                                className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${cfg.bg} border ${cfg.border}`}
-                                style={{ color: cfg.color }}
-                              >
-                                {typeConfig[entry.raw?.type]?.label || ''}
-                              </span>
-                            )}
-                            {unread && <div className="w-2 h-2 rounded-full bg-primary shrink-0" />}
-                          </div>
-                          <span className="text-[9px] text-zinc-400 font-bold">{formatTime(entry.timestamp, t)}</span>
+                      <div className="flex-1 min-w-0 space-y-1 text-left pt-0.5">
+                        <div className="flex items-center justify-between gap-4">
+                          <p className="text-[12px] font-bold text-zinc-900 dark:text-zinc-100 leading-snug truncate">
+                            {entry.title}
+                          </p>
+                          <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium shrink-0">
+                            {formatTime(entry.timestamp, t)}
+                          </span>
                         </div>
 
-                        {entry.raw?.type === 'birthday_wish' && (
-                          <div className="flex items-center gap-1.5 py-1 border-b border-accent/20 dark:border-accent/30 w-fit">
-                            <HugoLogo className="text-[12px] font-black" />
-                            <span className="text-[8px] font-black text-accent uppercase tracking-widest">Official Wish</span>
+                        {/* Parsed JOY Details */}
+                        {parsedJoy && parsedJoy.amount ? (
+                          <div className="mt-1 space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <p className="text-[11px] text-zinc-600 dark:text-zinc-300 line-clamp-2 leading-relaxed">
+                                {parsedJoy.cleanText}
+                              </p>
+                              <div className="shrink-0 text-right">
+                                <span className={`text-[13px] font-black tracking-tight ${parsedJoy.isPositive ? 'text-success' : 'text-zinc-900 dark:text-white'}`}>
+                                  {parsedJoy.isPositive ? '+' : '-'}{parsedJoy.amount} JOY
+                                </span>
+                              </div>
+                            </div>
+                            
+                            {/* Receipt Metadata Row */}
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {parsedJoy.txId && (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-[8px] font-mono font-bold uppercase">
+                                  <span className="material-symbols-outlined text-[10px]">receipt_long</span>
+                                  {parsedJoy.txId}
+                                </span>
+                              )}
+                              {parsedJoy.balance && (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-[8px] font-bold uppercase">
+                                  <span className="material-symbols-outlined text-[10px]">account_balance_wallet</span>
+                                  Dư: {parsedJoy.balance}
+                                </span>
+                              )}
+                            </div>
+                            
+                            {parsedJoy.message && (
+                              <div className="mt-2 text-[10px] font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 p-2.5 rounded-lg border border-zinc-100 dark:border-zinc-800 italic flex gap-2">
+                                <span className="material-symbols-outlined text-[12px] text-zinc-400">format_quote</span>
+                                "{parsedJoy.message}"
+                              </div>
+                            )}
                           </div>
-                        )}
-
-                        {entry.raw?.type === 'birthday_voucher' && (
-                          <div className="flex items-center gap-1.5 py-1 border-b border-warning/20 dark:border-warning/30 w-fit">
-                            <HugoLogo className="text-[12px] font-black" />
-                            <span className="text-[8px] font-black text-warning uppercase tracking-widest">Official Gift</span>
-                          </div>
-                        )}
-
-                        <p className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 leading-snug">{entry.title}</p>
-                        {entry.detail && (
-                          <p className="text-[10px] text-zinc-550 dark:text-zinc-400 leading-relaxed whitespace-pre-wrap">{entry.detail}</p>
+                        ) : (
+                          /* Standard Details */
+                          entry.detail && (
+                            <p className="text-[11px] text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                              {entry.detail}
+                            </p>
+                          )
                         )}
 
                         {entry.raw?.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
@@ -306,10 +383,10 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); onDismiss?.(entry.id); }}
-                          className="text-zinc-400 hover:text-destructive transition-colors shrink-0 self-start p-1 active:scale-90"
+                          className="text-zinc-300 hover:text-destructive transition-colors shrink-0 self-start p-1 ml-1 active:scale-90"
                           aria-label="Xóa"
                         >
-                          <span className="material-symbols-outlined text-sm">close</span>
+                          <span className="material-symbols-outlined text-[16px]">close</span>
                         </button>
                       )}
                     </div>

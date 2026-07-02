@@ -19,12 +19,16 @@ import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
 import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog";
 import WeatherAlertWatcher from "../../components/weather/WeatherAlertWatcher";
+import WeatherLayer from "../../components/weather/WeatherLayer";
+import { isWeatherBgEnabled } from "../../utils/weatherPrefs";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
+import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 import AuraBackground from "../../components/member/portal/AuraBackground";
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
+import ParticleConnectModal from "../../components/member/shared/ParticleConnectModal";
 
 // Maps a raw Bio document onto the editable formData shape — pulled out so
 // both the lazy-cache hydrate (instant paint) and the real fetch (revalidate)
@@ -96,6 +100,7 @@ export default function MemberPortalPage() {
   const [saving, setSaving]   = useState(false);
   const [showBirthdaySurprise, setShowBirthdaySurprise] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [particleOpen, setParticleOpen] = useState(false);
   const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
   const joyBalance = useJoyStore(s => s.balance);
   usePresenceHeartbeat(memberSession?.email);
@@ -650,25 +655,13 @@ export default function MemberPortalPage() {
     return (
       <div className="fixed inset-0 z-[120] w-screen bg-background dark:bg-background overflow-hidden flex flex-col font-body" style={{ height: '100dvh' }}>
 
-        {/* Toast */}
-        <AnimatePresence>
-          {toast.message && (
-            <motion.div key="toast"
-              initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }}
-              transition={{ type:"spring", stiffness:400, damping:28 }}
-              className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-card/95 backdrop-blur-xl shadow-2xl border border-border/50 max-w-md mx-auto"
-              style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}
-            >
-              <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-success":toast.type==="warning"?"text-warning":"text-destructive"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
-                {toast.type==="success"?"check_circle":toast.type==="warning"?"warning":"error"}
-              </span>
-              <p className="flex-1 text-[11px] sm:text-xs font-semibold text-foreground leading-relaxed">{toast.message}</p>
-              <button type="button" onClick={()=>setToast({message:"",type:""})} className="text-zinc-400 hover:text-zinc-600 shrink-0 transition-colors">
-                <span className="material-symbols-outlined text-base">close</span>
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <HugoNoticeToast
+          open={Boolean(toast.message)}
+          type={toast.type || "info"}
+          message={toast.message}
+          onClose={() => setToast({ message: "", type: "" })}
+          zIndex={300}
+        />
         
         <div className="flex-1 w-full h-full overflow-hidden">
           <ErrorBoundary>
@@ -707,10 +700,15 @@ export default function MemberPortalPage() {
   }
 
   // ── Render ────────────────────────────────────────────────────────────────────
+  const weatherOn = isWeatherBgEnabled();
   return (
     <>
     <WeatherAlertWatcher />
-    <div className="min-h-screen bg-background dark:bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
+    <div className="relative isolate min-h-screen bg-background dark:bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
+      {/* Weather sky as a top "hero" band that fades into the clean dashboard
+          background — vivid & visible up top, without washing out the content
+          below. Sits at z:-1 behind the cards; glass cards reveal it. */}
+      <WeatherLayer enabled={weatherOn} immersive mode="hero" />
 
       <HealingModal
         showModal={healing.showModal} subStep={healing.subStep} state={healing.state}
@@ -723,25 +721,13 @@ export default function MemberPortalPage() {
         showToast={showToast}
       />
 
-      {/* Toast */}
-      <AnimatePresence>
-        {toast.message && (
-          <motion.div key="toast"
-            initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }}
-            transition={{ type:"spring", stiffness:400, damping:28 }}
-            className="fixed inset-x-4 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-card/95 backdrop-blur-xl shadow-2xl border border-border/50 max-w-md mx-auto"
-            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}
-          >
-            <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type==="success"?"text-success":toast.type==="warning"?"text-warning":"text-destructive"}`} style={{ fontVariationSettings:"'FILL' 1" }}>
-              {toast.type==="success"?"check_circle":toast.type==="warning"?"warning":"error"}
-            </span>
-            <p className="flex-1 text-[11px] sm:text-xs font-semibold text-foreground leading-relaxed">{toast.message}</p>
-            <button type="button" onClick={()=>setToast({message:"",type:""})} className="text-zinc-400 hover:text-zinc-600 shrink-0 transition-colors">
-              <span className="material-symbols-outlined text-base">close</span>
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <HugoNoticeToast
+        open={Boolean(toast.message)}
+        type={toast.type || "info"}
+        message={toast.message}
+        onClose={() => setToast({ message: "", type: "" })}
+        zIndex={300}
+      />
 
       {/* Animated Aura Background Backdrop */}
       <AuraBackground theme={bio?.activeAuraTheme || 'default'} />
@@ -749,19 +735,19 @@ export default function MemberPortalPage() {
       <div className="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 md:pt-8 pb-28 md:pb-12 space-y-5 sm:space-y-6 relative z-10">
 
         {/* ── Portal Header ─────────────────────────────────────────────────── */}
-        <header className={`${activeTab === "utilities" && mobileSubSection ? "hidden md:block" : ""} bg-white/60 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-200 border border-white/30 dark:border-zinc-800/40 rounded-2xl px-4 sm:px-5 py-3.5 shadow-sm`}>
-          <div className="flex items-center justify-between gap-3">
+        <header className={`${(activeTab === "utilities" && mobileSubSection) || (activeTab === 'account' && !mobileSubSection) ? "hidden md:block" : ""} bg-white/60 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-200 border border-white/30 dark:border-zinc-800/40 rounded-2xl px-3 sm:px-4 py-2.5 shadow-sm`}>
+          <div className="flex items-center justify-between gap-2">
             {/* Left */}
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
               {mobileSubSection && (
                 <button type="button" onClick={() => navigate("/member/account")}
-                  className="md:hidden w-8 h-8 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 active:scale-90 transition-transform">
-                  <span className="material-symbols-outlined text-sm text-zinc-600 dark:text-zinc-300">arrow_back_ios_new</span>
+                  className="md:hidden w-7 h-7 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 active:scale-90 transition-transform">
+                  <span className="material-symbols-outlined text-xs text-zinc-600 dark:text-zinc-300">arrow_back_ios_new</span>
                 </button>
               )}
-              <div className={`relative shrink-0 ${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''}`}>
+              <div className={`relative shrink-0 flex items-center ${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''}`}>
                 {formData.avatarUrl ? (
-                  <img src={formData.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-white dark:ring-zinc-800 shadow-sm" />
+                  <img src={formData.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-white/50 dark:ring-zinc-800/50 shadow-sm" />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0071e3] to-[#5856d6] flex items-center justify-center text-white font-black text-sm shadow-sm">
                     {(formData.displayName||"?")[0]?.toUpperCase()}
@@ -774,55 +760,51 @@ export default function MemberPortalPage() {
               <div className="min-w-0">
                 {mobileSubSection ? (
                   <div className="md:hidden">
-                    <p className="text-xs font-black text-zinc-800 dark:text-white truncate">{activeSectionInfo?.label}</p>
+                    <p className="text-[11px] font-black text-zinc-800 dark:text-white truncate">{activeSectionInfo?.label}</p>
                     <p className="text-[9px] text-zinc-400 truncate">{activeSectionInfo?.sub}</p>
                   </div>
                 ) : null}
                 {activeTab === 'account' && !mobileSubSection && (
                   <div className="md:hidden flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-primary dark:text-primary text-base" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
-                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-zinc-800 dark:text-zinc-200">{t("memberPortal.tabs.bio").toUpperCase()}</span>
+                    <span className="material-symbols-outlined text-primary dark:text-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.1em] text-zinc-800 dark:text-zinc-200">{t("memberPortal.tabs.bio").toUpperCase()}</span>
                   </div>
                 )}
-                <div className={`${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''}`}>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-primary dark:text-primary">
-                      {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
-                    </span>
+                <div className={`${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''} flex flex-col justify-center`}>
+                  <div className="flex items-center gap-1.5">
+                    <h1 className="text-[13px] sm:text-sm font-bold tracking-tight text-zinc-900 dark:text-white truncate">
+                      {isGuestMode ? t("memberPortal.designYourBio") : memberSession?.displayName || t("memberPortal.student")}
+                    </h1>
                     {bio?.status && !isGuestMode && <StatusBadge status={bio.status} isEduVerified={bio.isEduVerified} />}
                   </div>
-                  <h1 className="text-sm sm:text-base font-bold tracking-tight text-black dark:text-white truncate">
-                    {isGuestMode ? t("memberPortal.designYourBio") : `${t("memberPortal.greeting")}, ${memberSession?.displayName || t("memberPortal.student")}`}
-                  </h1>
-                  <p className="text-[9px] sm:text-[10px] text-zinc-400 truncate hidden sm:block">{memberSession?.email}</p>
+                  <span className="text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.1em] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
+                    {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Right */}
-            <div className={`flex items-center gap-3 shrink-0 ${activeTab === 'account' && !mobileSubSection ? 'hidden md:flex' : ''}`}>
+            {/* Right: Particle QR + Logout */}
+            <div className={`flex items-center gap-2 shrink-0 ${activeTab === 'account' && !mobileSubSection ? 'hidden md:flex' : ''}`}>
+              {!isGuestMode && (
+                <button type="button" onClick={() => setParticleOpen(true)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shadow-sm ring-1 ring-black/5 dark:ring-white/10 active:scale-95">
+                  <span className="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+                </button>
+              )}
               {isGuestMode ? (
                 <button type="button" onClick={() => window.location.href = "/login"}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-primary/20 dark:border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
-                  <span className="material-symbols-outlined text-sm">login</span>
-                  <span className="hidden sm:inline">{t("navbar.login", "Đăng Nhập")}</span>
+                  className="w-[32px] h-[32px] rounded-full flex items-center justify-center bg-primary/10 text-primary border border-primary/20 shadow-sm active:scale-95 transition-all">
+                  <span className="material-symbols-outlined text-[16px]">login</span>
                 </button>
               ) : (
-                <button type="button" onClick={() => onTabClick({ id: "joy" })}
-                  className="hidden sm:flex items-center px-2.5 py-1.5 rounded-full border border-warning/20 dark:border-warning/30 bg-warning/5 hover:bg-warning/10 transition-all duration-200">
-                  <JoyCoinBadge size="sm" />
+                <button type="button" onClick={handleLogout}
+                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-destructive/20 dark:border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-destructive text-[9px] font-bold uppercase tracking-wider transition-all duration-200 shrink-0">
+                  <span className="material-symbols-outlined text-sm">logout</span>
+                  <span className="hidden sm:inline">{t("memberPortal.logout")}</span>
                 </button>
               )}
             </div>
-            {/* Logout — no longer a dedicated mobile tab-bar slot; on mobile it only
-                shows on the Hồ Sơ Bio (account) tab, always visible on desktop. */}
-            {!isGuestMode && (
-              <button type="button" onClick={handleLogout}
-                className={`${activeTab === 'account' && !mobileSubSection ? 'flex' : 'hidden'} md:flex items-center gap-1.5 px-3 py-2 rounded-full border border-destructive/20 dark:border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-destructive text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200 shrink-0`}>
-                <span className="material-symbols-outlined text-sm">logout</span>
-                <span className="hidden sm:inline">{t("memberPortal.logout")}</span>
-              </button>
-            )}
           </div>
 
           {/* Desktop tab navigation */}
@@ -933,31 +915,29 @@ export default function MemberPortalPage() {
                         /* ── Section overview ── */
                         <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
                           {/* Profile hero card */}
-                          <div className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-zinc-50 dark:from-[#13121f] dark:via-[#1e1c2a] dark:to-[#13121f] border border-border/50 shadow-xl">
+                          <div className="relative overflow-hidden rounded-[20px] p-4 sm:p-5 bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-zinc-50 dark:from-[#13121f] dark:via-[#1e1c2a] dark:to-[#13121f] border border-border/50 shadow-lg">
                             {/* Mesh background glows for dark mode */}
                             <div className="absolute -top-16 -right-16 w-36 h-36 bg-gradient-to-br from-[#0071e3]/10 to-transparent rounded-full filter blur-2xl pointer-events-none opacity-0 dark:opacity-100" />
                             <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-gradient-to-br from-[#af52de]/10 to-transparent rounded-full filter blur-2xl pointer-events-none opacity-0 dark:opacity-100" />
                             
-                            <div className="relative flex items-start gap-4 text-left">
-                              {/* Avatar — tap to change directly from the hero card, no need to
-                                  open "Thông tin cá nhân" first (that section no longer shows
-                                  its own duplicate avatar editor on mobile) */}
+                            <div className="relative flex items-start gap-3.5 text-left">
+                              {/* Avatar */}
                               <button
                                 type="button"
                                 onClick={() => !isGuestMode && !saving && heroAvatarInputRef.current?.click()}
-                                className="relative w-16 h-16 rounded-2xl shrink-0 group"
+                                className="relative w-[52px] h-[52px] rounded-2xl shrink-0 group mt-0.5"
                                 disabled={isGuestMode || saving}
                               >
                                 {formData.avatarUrl ? (
-                                  <img src={formData.avatarUrl} alt="avatar" className="w-16 h-16 rounded-2xl object-cover ring-2 ring-zinc-200 dark:ring-zinc-800 shadow-md" />
+                                  <img src={formData.avatarUrl} alt="avatar" className="w-[52px] h-[52px] rounded-2xl object-cover ring-1 ring-zinc-200 dark:ring-zinc-800 shadow-sm" />
                                 ) : (
-                                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0071e3] to-[#5856d6] flex items-center justify-center text-white font-black text-xl shadow-md">
+                                  <div className="w-[52px] h-[52px] rounded-2xl bg-gradient-to-br from-[#0071e3] to-[#5856d6] flex items-center justify-center text-white font-black text-lg shadow-sm">
                                     {(formData.displayName||'?')[0]?.toUpperCase()}
                                   </div>
                                 )}
                                 {!isGuestMode && (
-                                  <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md ring-2 ring-white dark:ring-[#13121f]">
-                                    <span className="material-symbols-outlined text-[13px]">photo_camera</span>
+                                  <span className="absolute -bottom-1 -right-1 w-[22px] h-[22px] rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-sm ring-2 ring-white dark:ring-[#13121f]">
+                                    <span className="material-symbols-outlined text-[11px]">photo_camera</span>
                                   </span>
                                 )}
                               </button>
@@ -968,28 +948,50 @@ export default function MemberPortalPage() {
                                   {bio?.status && !isGuestMode && <StatusBadge status={bio.status} isEduVerified={bio.isEduVerified} />}
                                   {!isGuestMode && (
                                     <button type="button" onClick={() => onTabClick({ id: "joy" })}
-                                      className="inline-flex items-center px-2 py-1 rounded-full border border-warning/20 dark:border-warning/30 bg-warning/5 active:scale-95 transition-all">
+                                      className="inline-flex items-center px-1.5 py-0.5 rounded-full border border-warning/20 dark:border-warning/30 bg-warning/5 active:scale-95 transition-all">
                                       <JoyCoinBadge size="sm" />
                                     </button>
                                   )}
                                 </div>
-                                <h2 className="font-black text-base text-zinc-900 dark:text-white leading-tight mt-1 truncate">
+                                <h2 className="font-black text-[15px] text-zinc-900 dark:text-white leading-tight mt-1 truncate">
                                   {formData.displayName || t("memberPortal.bio.noName")}
                                 </h2>
-                                <p className="text-zinc-500 dark:text-zinc-400 text-[10.5px] mt-0.5 line-clamp-1">
+                                <p className="text-zinc-500 dark:text-zinc-400 text-[10px] mt-0.5 line-clamp-1">
                                   {formData.headline || t("memberPortal.bio.noHeadline")}
                                 </p>
                                 
-                                <div className="mt-2.5">
+                                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                                  {/* View Bio Button */}
                                   {publicLink ? (
                                     <a href={publicLink} target="_blank" rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-1.5 text-zinc-700 dark:text-white bg-zinc-100 hover:bg-zinc-200 dark:bg-white/5 dark:hover:bg-white/10 border border-zinc-200 dark:border-white/10 px-3.5 py-1.5 rounded-full active:scale-95 transition-all text-[9.5px] font-black uppercase tracking-wider shadow-sm">
+                                      className="flex-1 min-w-[100px] flex items-center justify-center gap-1 text-zinc-700 dark:text-white bg-zinc-100 hover:bg-zinc-200 dark:bg-white/5 dark:hover:bg-white/10 border border-zinc-200 dark:border-white/10 px-3 py-1.5 rounded-full active:scale-95 transition-all text-[9.5px] font-black uppercase tracking-wider shadow-sm">
                                       {t("memberPortal.bio.viewBio")} <span className="material-symbols-outlined text-[10px]">open_in_new</span>
                                     </a>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1 text-zinc-450 dark:text-zinc-500 text-[9px] font-semibold">
+                                    <span className="flex-1 min-w-[100px] flex items-center justify-center gap-1 text-zinc-450 dark:text-zinc-500 text-[9.5px] font-semibold bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-full px-3 py-1.5">
                                       <span className="material-symbols-outlined text-[10px]">link_off</span>{t("memberPortal.bio.inactive")}
                                     </span>
+                                  )}
+
+                                  {/* Particle Connect Button */}
+                                  {!isGuestMode && (
+                                    <button type="button" onClick={() => setParticleOpen(true)}
+                                      className="w-[30px] h-[30px] rounded-full flex items-center justify-center bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shadow-sm active:scale-95 transition-all">
+                                      <span className="material-symbols-outlined text-[14px]">qr_code_2</span>
+                                    </button>
+                                  )}
+
+                                  {/* Logout / Login Icon Button */}
+                                  {isGuestMode ? (
+                                    <button type="button" onClick={() => window.location.href = "/login"}
+                                      className="w-[30px] h-[30px] rounded-full flex items-center justify-center bg-primary/10 text-primary border border-primary/20 shadow-sm active:scale-95 transition-all">
+                                      <span className="material-symbols-outlined text-[14px]">login</span>
+                                    </button>
+                                  ) : (
+                                    <button type="button" onClick={handleLogout}
+                                      className="w-[30px] h-[30px] rounded-full flex items-center justify-center bg-destructive/5 hover:bg-destructive/10 text-destructive border border-destructive/20 shadow-sm active:scale-95 transition-all">
+                                      <span className="material-symbols-outlined text-[14px]">logout</span>
+                                    </button>
                                   )}
                                 </div>
                               </div>
@@ -1075,7 +1077,7 @@ export default function MemberPortalPage() {
 
                 {visitedTabs.has("joy") && (
                   <div style={{ display: activeTab === "joy" ? undefined : "none" }}>
-                    <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} />
+                    <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={() => setParticleOpen(true)} />
                   </div>
                 )}
                 {visitedTabs.has("partner") && (
@@ -1217,6 +1219,15 @@ export default function MemberPortalPage() {
         onDismiss={() => setLocationAnomaly(null)}
       />
     )}
+
+    <ParticleConnectModal
+      open={particleOpen}
+      bio={bio}
+      onClose={() => setParticleOpen(false)}
+      onSuccess={(data) => {
+        if (bio?.email) fetchJoyBalance(bio.email);
+      }}
+    />
     </>
   );
 }

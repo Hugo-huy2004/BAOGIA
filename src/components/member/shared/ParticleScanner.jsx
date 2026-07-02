@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { analyzeParticleCloudFrame, bytesToBase64Url } from "../../../utils/particleCloudCode";
 
 // <ParticleScanner onScanSuccess={(decoded) => ...} /> — a self-contained,
@@ -53,7 +54,9 @@ export default function ParticleScanner({
   onError,
   facingMode = "environment",
   scanBoxSize = 360,
+  inline = false,
 }) {
+  const { t } = useTranslation();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const animRef = useRef(null);
@@ -233,20 +236,26 @@ export default function ParticleScanner({
   };
 
   return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 500, background: "#000",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-    }}>
-      <button onClick={handleClose} style={{
-        position: "absolute", top: 20, right: 20,
-        background: "rgba(255,255,255,.1)", border: "none", borderRadius: "50%",
-        width: 36, height: 36, cursor: "pointer", color: "#fff",
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
-      </button>
+    <div style={
+      inline
+      ? { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", padding: "16px 0" }
+      : {
+          position: "fixed", inset: 0, zIndex: 500, background: "#000",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        }
+    }>
+      {!inline && (
+        <button onClick={handleClose} style={{
+          position: "absolute", top: 20, right: 20,
+          background: "rgba(255,255,255,.1)", border: "none", borderRadius: "50%",
+          width: 36, height: 36, cursor: "pointer", color: "#fff",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+        </button>
+      )}
 
-      {torchSupported && status === "active" && (
+      {torchSupported && status === "active" && !inline && (
         <button onClick={toggleTorch} style={{
           position: "absolute", top: 20, left: 20,
           background: torchOn ? "rgba(125,211,252,.9)" : "rgba(255,255,255,.1)",
@@ -260,17 +269,19 @@ export default function ParticleScanner({
         </button>
       )}
 
-      <p style={{
-        color: "rgba(255,255,255,.5)", fontSize: 11, fontWeight: 700,
-        letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 40,
-      }}>
-        Quét mã đám mây hạt
-      </p>
+      {!inline && (
+        <p style={{
+          color: "rgba(255,255,255,.5)", fontSize: 11, fontWeight: 700,
+          letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 40,
+        }}>
+          {t("joy.particle.scanCloudCode", "Quét mã đám mây hạt")}
+        </p>
+      )}
 
       <div style={{
-        position: "relative", width: 260, height: 260, borderRadius: "50%",
-        overflow: "hidden", border: "2px solid rgba(56,189,248,.6)",
-        boxShadow: "0 0 40px rgba(56,189,248,.4)",
+        position: "relative", width: inline ? 200 : 260, height: inline ? 200 : 260, borderRadius: "50%",
+        overflow: "hidden", border: inline ? "3px dashed rgba(99,102,241,.4)" : "2px solid rgba(56,189,248,.6)",
+        boxShadow: inline ? "0 0 20px rgba(99,102,241,.1)" : "0 0 40px rgba(56,189,248,.4)",
       }}>
         <video
           ref={videoCallbackRef}
@@ -284,31 +295,37 @@ export default function ParticleScanner({
 
         {status === "active" && (
           <div style={{
-            position: "absolute", left: "5%", right: "5%", height: 2, top: "10%",
-            background: "linear-gradient(90deg,transparent,#38bdf8,transparent)",
-            boxShadow: "0 0 8px #38bdf8", zIndex: 2,
-            animation: "pccScanLine 2s ease-in-out infinite",
+            position: "absolute", left: "5%", right: "5%", height: inline ? 3 : 2, top: "10%",
+            background: inline ? "linear-gradient(90deg,transparent,#6366f1,transparent)" : "linear-gradient(90deg,transparent,#38bdf8,transparent)",
+            boxShadow: inline ? "0 0 8px #6366f1" : "0 0 8px #38bdf8", zIndex: 2,
+            animation: "pccScanLine 2.5s ease-in-out infinite",
           }} />
         )}
 
         {status === "init" && (
-          <div style={{ position: "absolute", inset: 0, background: "#111", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#38bdf8", animation: "pccSpin 1s linear infinite" }}>progress_activity</span>
+          <div style={{ position: "absolute", inset: 0, background: inline ? "rgba(99,102,241,.05)" : "#111", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 28, color: inline ? "#6366f1" : "#38bdf8", animation: "pccSpin 1s linear infinite" }}>progress_activity</span>
           </div>
         )}
         {(status === "error" || status === "unsupported") && (
-          <div style={{ position: "absolute", inset: 0, background: "#111", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
+          <div style={{ position: "absolute", inset: 0, background: inline ? "rgba(239,68,68,.05)" : "#111", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
             <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#ef4444", marginBottom: 8 }}>camera_off</span>
-            <p style={{ color: "#fff", fontSize: 11, fontWeight: 600, lineHeight: 1.5 }}>
-              {status === "unsupported" ? "Trình duyệt chưa hỗ trợ camera" : "Không truy cập được camera"}
+            <p style={{ color: inline ? "#ef4444" : "#fff", fontSize: 11, fontWeight: 600, lineHeight: 1.5 }}>
+              {status === "unsupported" ? t("joy.particle.cameraUnsupported", "Chưa hỗ trợ camera") : t("joy.particle.cameraError", "Lỗi camera")}
             </p>
           </div>
         )}
       </div>
 
-      <p style={{ color: "rgba(255,255,255,.4)", fontSize: 12, marginTop: 24, fontWeight: 600 }}>
-        Hướng camera vào mã đám mây hạt
-      </p>
+      {inline ? (
+        <p style={{ color: "#64748b", fontSize: 12, marginTop: 16, textAlign: "center", maxWidth: 260 }}>
+          {t("joy.particle.cameraHintInline", "Hướng camera vào mã Particle Cloud Code của người khác để kết nối.")}
+        </p>
+      ) : (
+        <p style={{ color: "rgba(255,255,255,.4)", fontSize: 12, marginTop: 24, fontWeight: 600 }}>
+          {t("joy.particle.cameraHint", "Hướng camera vào mã đám mây hạt")}
+        </p>
+      )}
 
       {/* Keyframes are scoped here so the component is fully standalone. */}
       <style>{`

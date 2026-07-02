@@ -381,7 +381,7 @@ router.get('/resolve-phone', async (req, res) => {
     const bio = await Bio.findOne({ phone: String(phone).trim() });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng với số điện thoại này.' });
 
-    res.json({ displayName: bio.displayName || 'Người dùng Hugo Studio', avatar: bio.avatarUrl || '' });
+    res.json({ displayName: bio.displayName || 'Người dùng Hugo Studio', avatar: bio.avatarUrl || '', slug: bio.slug || '' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -404,7 +404,7 @@ router.get('/search-user', async (req, res) => {
         { contactEmail: regex }
       ]
     })
-      .select('displayName avatarUrl referralCode phone')
+      .select('displayName avatarUrl referralCode phone slug')
       .limit(6)
       .lean();
 
@@ -412,6 +412,7 @@ router.get('/search-user', async (req, res) => {
       displayName: b.displayName || 'Người dùng',
       avatarUrl: b.avatarUrl || '',
       referralCode: b.referralCode || '',
+      slug: b.slug || '',
       maskedPhone: b.phone ? b.phone.slice(0, -3).replace(/\d/g, '*') + b.phone.slice(-3) : ''
     })));
   } catch (err) {
@@ -454,9 +455,9 @@ router.get('/resolve-qr', async (req, res) => {
     if (!referralCode) {
       return res.status(400).json({ error: 'Mã JOY không hợp lệ hoặc đã hết hạn.' });
     }
-    const bio = await Bio.findOne({ referralCode }).select('displayName avatarUrl referralCode');
+    const bio = await Bio.findOne({ referralCode }).select('displayName avatarUrl referralCode slug');
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng này.' });
-    res.json({ displayName: bio.displayName || 'Hugo Member', avatarUrl: bio.avatarUrl || '', referralCode: bio.referralCode });
+    res.json({ displayName: bio.displayName || 'Hugo Member', avatarUrl: bio.avatarUrl || '', referralCode: bio.referralCode, slug: bio.slug || '' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

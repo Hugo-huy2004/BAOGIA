@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
 import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
+import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
 
@@ -276,46 +277,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 text-foreground">
-      <style>{`
-        @keyframes slideInDown {
-          0% { transform: translate(-50%, -120%); opacity: 0; }
-          100% { transform: translate(-50%, 0); opacity: 1; }
-        }
-        .animate-toast-in {
-          animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
-
-      {/* Floating Toast Notification */}
-      {toast.message && (
-        <div className={`fixed top-6 left-1/2 z-50 animate-toast-in flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white dark:bg-background shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35)] md:max-w-md w-[calc(100vw-32px)] border-2 transition-all ${
-          toast.type === "success"
-            ? "border-success"
-            : toast.type === "warning"
-            ? "border-warning"
-            : "border-destructive"
-        }`}>
-          <span className={`material-symbols-outlined shrink-0 text-xl ${
-            toast.type === "success"
-              ? "text-success"
-              : toast.type === "warning"
-              ? "text-warning"
-              : "text-destructive"
-          }`}>
-            {toast.type === "success" ? "check_circle" : toast.type === "warning" ? "warning" : "error"}
-          </span>
-          <div className="flex-1 text-xs sm:text-sm font-semibold text-foreground leading-snug">
-            {toast.message}
-          </div>
-          <button 
-            type="button"
-            onClick={() => setToast({ message: "", type: "" })}
-            className="text-muted-foreground hover:text-foreground dark:hover:text-white shrink-0 ml-1 transition-colors"
-          >
-            <span className="material-symbols-outlined text-lg">close</span>
-          </button>
-        </div>
-      )}
+      <HugoNoticeToast
+        open={Boolean(toast.message)}
+        type={toast.type || "info"}
+        message={toast.message}
+        onClose={() => setToast({ message: "", type: "" })}
+      />
 
       <section className="w-full max-w-md space-y-6 relative">
         {/* Decorative background glows */}

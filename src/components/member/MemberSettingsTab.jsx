@@ -24,7 +24,7 @@ function SettingsGroup({ label, children }) {
   return (
     <div className="space-y-2">
       {label && <p className="px-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{label}</p>}
-      <div className="bg-white dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm divide-y divide-zinc-100 dark:divide-zinc-800/60 overflow-hidden">
+      <div className="hg-glass rounded-xl divide-y divide-zinc-100 dark:divide-zinc-800/60 overflow-hidden">
         {children}
       </div>
     </div>

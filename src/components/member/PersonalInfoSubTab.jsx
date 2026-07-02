@@ -30,7 +30,7 @@ export default function PersonalInfoSubTab({
       {/* Section: Avatar Editor — hidden on mobile since the hero card above
           already shows the avatar with its own tap-to-change overlay; the
           hidden file input still renders so that ref keeps working either way. */}
-      <div className={`space-y-2 text-center py-4 bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm ${hideAvatarSection ? 'hidden' : ''}`}>
+      <div className={`space-y-2 text-center py-4 hg-glass rounded-lg ${hideAvatarSection ? 'hidden' : ''}`}>
         <div
           className={`relative w-20 h-20 rounded-full border shadow-md bg-zinc-100 dark:bg-zinc-900 mx-auto flex items-center justify-center overflow-hidden group cursor-pointer transition-all duration-200 ${
             isDragOver
@@ -94,15 +94,15 @@ export default function PersonalInfoSubTab({
       {/* Section A: Basic settings */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.basicInfo")}</h3>
-        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="hg-glass rounded-lg overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-primary">
               <span className="material-symbols-outlined text-base">person</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.fullName")}</label>
             {identityLocked
-              ? <span className="flex-1 text-xs sm:text-sm font-semibold text-zinc-500 dark:text-zinc-400">{formData.displayName || "-"}</span>
-              : <OptimizedInput type="text" name="displayName" value={formData.displayName} onChange={handleFieldChange} required placeholder={t("memberPortal.bio.placeholderName")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />}
+              ? <span className="flex-1 text-[13px] font-semibold text-zinc-500 dark:text-zinc-400">{formData.displayName || "-"}</span>
+              : <OptimizedInput type="text" name="displayName" value={formData.displayName} onChange={handleFieldChange} required placeholder={t("memberPortal.bio.placeholderName")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />}
             {identityLocked && <span className="material-symbols-outlined text-sm text-zinc-350 dark:text-zinc-600" title="Đã xác minh, không thể chỉnh sửa">lock</span>}
           </div>
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
@@ -110,7 +110,7 @@ export default function PersonalInfoSubTab({
               <span className="material-symbols-outlined text-base">badge</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.nickname")}</label>
-            <OptimizedInput type="text" name="headline" value={formData.headline} onChange={handleFieldChange} placeholder="Designer, Web Architect, Developer..." className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />
+            <OptimizedInput type="text" name="headline" value={formData.headline} onChange={handleFieldChange} placeholder="Designer, Web Architect, Developer..." className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />
           </div>
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#ff2d55]">
@@ -118,8 +118,8 @@ export default function PersonalInfoSubTab({
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.birthday")}</label>
             {identityLocked
-              ? <span className="flex-1 text-xs sm:text-sm font-semibold text-zinc-500 dark:text-zinc-400">{formData.birthday || "-"}</span>
-              : <OptimizedInput type="text" name="birthday" value={formData.birthday} onChange={handleFieldChange} placeholder={t("memberPortal.bio.placeholderBirthday")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />}
+              ? <span className="flex-1 text-[13px] font-semibold text-zinc-500 dark:text-zinc-400">{formData.birthday || "-"}</span>
+              : <OptimizedInput type="text" name="birthday" value={formData.birthday} onChange={handleFieldChange} placeholder={t("memberPortal.bio.placeholderBirthday")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />}
             {identityLocked && <span className="material-symbols-outlined text-sm text-zinc-350 dark:text-zinc-600" title="Đã xác minh, không thể chỉnh sửa">lock</span>}
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function PersonalInfoSubTab({
       {/* Section B: Contact settings */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.contactInfo")}</h3>
-        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="hg-glass rounded-lg overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px] bg-zinc-50/50 dark:bg-zinc-900/10">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#34c759]">
               <span className="material-symbols-outlined text-base">mail</span>
@@ -155,8 +155,8 @@ export default function PersonalInfoSubTab({
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.phone")}</label>
             {identityLocked
-              ? <span className="flex-1 text-xs sm:text-sm font-semibold text-zinc-500 dark:text-zinc-400">{formData.phone || "-"}</span>
-              : <OptimizedInput type="tel" name="phone" value={formData.phone} onChange={handleFieldChange} placeholder={t("memberPortal.bio.placeholderPhone")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />}
+              ? <span className="flex-1 text-[13px] font-semibold text-zinc-500 dark:text-zinc-400">{formData.phone || "-"}</span>
+              : <OptimizedInput type="tel" name="phone" value={formData.phone} onChange={handleFieldChange} placeholder={t("memberPortal.bio.placeholderPhone")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />}
             {identityLocked && <span className="material-symbols-outlined text-sm text-zinc-350 dark:text-zinc-600" title="Đã xác minh, không thể chỉnh sửa">lock</span>}
           </div>
         </div>
@@ -165,13 +165,13 @@ export default function PersonalInfoSubTab({
       {/* Section C: Career */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.career.title")}</h3>
-        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="hg-glass rounded-lg overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#af52de]">
               <span className="material-symbols-outlined text-base">work</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.role")}</label>
-            <OptimizedInput type="text" name="jobTitle" value={formData.jobTitle} onChange={handleFieldChange} placeholder={t("memberPortal.career.placeholderRole")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />
+            <OptimizedInput type="text" name="jobTitle" value={formData.jobTitle} onChange={handleFieldChange} placeholder={t("memberPortal.career.placeholderRole")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />
           </div>
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#ff9500]">
@@ -179,8 +179,8 @@ export default function PersonalInfoSubTab({
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.education")}</label>
             {identityLocked
-              ? <span className="flex-1 text-xs sm:text-sm font-semibold text-zinc-500 dark:text-zinc-400">{formData.education || "-"}</span>
-              : <OptimizedInput type="text" name="education" value={formData.education} onChange={handleFieldChange} placeholder={t("memberPortal.career.placeholderEdu")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />}
+              ? <span className="flex-1 text-[13px] font-semibold text-zinc-500 dark:text-zinc-400">{formData.education || "-"}</span>
+              : <OptimizedInput type="text" name="education" value={formData.education} onChange={handleFieldChange} placeholder={t("memberPortal.career.placeholderEdu")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />}
             {identityLocked && <span className="material-symbols-outlined text-sm text-zinc-350 dark:text-zinc-600" title="Đã xác minh, không thể chỉnh sửa">lock</span>}
           </div>
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
@@ -188,7 +188,7 @@ export default function PersonalInfoSubTab({
               <span className="material-symbols-outlined text-base">psychology</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.skills")}</label>
-            <OptimizedInput type="text" name="skills" value={formData.skills} onChange={handleFieldChange} placeholder={t("memberPortal.career.placeholderSkills")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />
+            <OptimizedInput type="text" name="skills" value={formData.skills} onChange={handleFieldChange} placeholder={t("memberPortal.career.placeholderSkills")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />
           </div>
         </div>
       </div>
@@ -196,34 +196,34 @@ export default function PersonalInfoSubTab({
       {/* Section D: Body Measurements & Location */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.physical.title")}</h3>
-        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <div className="hg-glass rounded-lg overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
               <span className="material-symbols-outlined text-base">height</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.height")}</label>
-            <OptimizedInput type="text" name="height" value={formData.height} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderHeight")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />
+            <OptimizedInput type="text" name="height" value={formData.height} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderHeight")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />
           </div>
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#4cd964]">
               <span className="material-symbols-outlined text-base">monitor_weight</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-450 dark:text-zinc-550 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.weight")}</label>
-            <OptimizedInput type="text" name="weight" value={formData.weight} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderWeight")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />
+            <OptimizedInput type="text" name="weight" value={formData.weight} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderWeight")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />
           </div>
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
               <span className="material-symbols-outlined text-base">straighten</span>
             </div>
             <label className="text-[11px] font-semibold text-[#8e8e93] dark:text-[#8e8e93] uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.measurements")}</label>
-            <OptimizedInput type="text" name="measurements" value={formData.measurements} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderMeasure")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />
+            <OptimizedInput type="text" name="measurements" value={formData.measurements} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderMeasure")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />
           </div>
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-primary">
               <span className="material-symbols-outlined text-base">distance</span>
             </div>
             <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-550 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.location")}</label>
-            <OptimizedInput type="text" name="address" value={formData.address} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderLocation")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold" />
+            <OptimizedInput type="text" name="address" value={formData.address} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderLocation")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-semibold" />
           </div>
         </div>
       </div>

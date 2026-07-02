@@ -78,16 +78,18 @@ export default function JoyCoinBadge({ amount: propAmount, size = "md", classNam
         animate={controls}
         className={`${s.coin} rounded-full shrink-0 relative overflow-hidden`}
         style={{
-          background: "radial-gradient(circle at 35% 22%, #fef3c7 0%, #fcd34d 38%, #f59e0b 68%, #b45309 100%)",
-          boxShadow: "inset 0 -3px 5px rgba(120,53,15,.55), inset 0 2px 2px rgba(255,255,255,.65), 0 2px 4px rgba(0,0,0,.35)",
-          border: "1px solid #92400e"
+          background: "radial-gradient(circle at 35% 22%, #ffffff 0%, #ffdf00 25%, #ffb800 65%, #d97706 100%)",
+          boxShadow: "inset 0 -3px 5px rgba(180,83,9,.55), inset 0 3px 4px rgba(255,255,255,.85), 0 2px 6px rgba(255,184,0,.45)",
+          border: "1px solid #d97706"
         }}
       >
         {/* Top sheen — the highlight that sells the spherical/3D read */}
-        <span className="absolute top-[8%] left-[18%] w-[55%] h-[40%] rounded-full bg-white/55 blur-[2px]" />
+        <span className="absolute top-[8%] left-[18%] w-[55%] h-[40%] rounded-full bg-white/70 blur-[1.5px]" />
+        {/* Bottom rim reflection */}
+        <span className="absolute bottom-[8%] right-[15%] w-[45%] h-[25%] rounded-full bg-[#fef08a]/40 blur-[2px]" />
         <span
           className={`${s.coinText} font-black text-amber-900 leading-none relative z-10 flex items-center justify-center w-full h-full`}
-          style={{ textShadow: "0 1px 0 rgba(255,255,255,.5), 0 -1px 0 rgba(120,53,15,.5)" }}
+          style={{ textShadow: "0 1px 0 rgba(255,255,255,.75), 0 -1px 0 rgba(180,83,9,.55)" }}
         >
           JOY
         </span>

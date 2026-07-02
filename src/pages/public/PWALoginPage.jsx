@@ -4,6 +4,7 @@ import { loginMember, isMemberAuthenticated } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
+import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
 
@@ -161,7 +162,6 @@ export default function PWALoginPage() {
       }}
     >
       <style>{`
-        @keyframes pwaToastIn { 0% { transform: translate(-50%, -120%); opacity: 0; } 100% { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes pwaFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
       `}</style>
 
@@ -170,23 +170,13 @@ export default function PWALoginPage() {
       <div className="pointer-events-none absolute top-1/3 -right-24 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
 
-      {/* Toast */}
-      {toast.message && (
-        <div
-          className={`fixed top-4 left-1/2 z-50 flex w-[calc(100vw-32px)] max-w-md items-center gap-3 rounded-2xl border-2 bg-white px-4 py-3 shadow-2xl dark:bg-[#15151f] ${
-            toast.type === "warning" ? "border-warning" : toast.type === "success" ? "border-success" : "border-destructive"
-          }`}
-          style={{ animation: "pwaToastIn .4s cubic-bezier(0.16,1,0.3,1) both", top: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
-        >
-          <span className={`material-symbols-outlined shrink-0 text-xl ${toast.type === "warning" ? "text-warning" : toast.type === "success" ? "text-success" : "text-destructive"}`}>
-            {toast.type === "warning" ? "warning" : toast.type === "success" ? "check_circle" : "error"}
-          </span>
-          <p className="flex-1 text-xs font-semibold leading-snug">{toast.message}</p>
-          <button type="button" onClick={() => setToast({ message: "", type: "" })} className="shrink-0 text-muted-foreground">
-            <span className="material-symbols-outlined text-lg">close</span>
-          </button>
-        </div>
-      )}
+      <HugoNoticeToast
+        open={Boolean(toast.message)}
+        type={toast.type || "info"}
+        message={toast.message}
+        onClose={() => setToast({ message: "", type: "" })}
+        zIndex={260}
+      />
 
       {/* Hero */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 text-center">

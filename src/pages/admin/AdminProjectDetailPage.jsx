@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { logoutAuth } from '../../services/authSession';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { HugoNoticeToast } from '../../components/shared/HugoNotice';
 
 export default function AdminProjectDetailPage() {
   const { t } = useTranslation();
@@ -342,14 +343,7 @@ export default function AdminProjectDetailPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8 animate-fadeIn">
-      {/* Toast Notification */}
-      {toastMsg && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-md shadow-lg font-bold text-sm animate-fadeInUp ${
-          toastType === 'error' ? 'bg-destructive text-white' : 'bg-success text-white'
-        }`}>
-          {toastMsg}
-        </div>
-      )}
+      <HugoNoticeToast open={Boolean(toastMsg)} type={toastType || "info"} message={toastMsg} />
 
       {/* Header */}
       <div className="max-w-4xl mx-auto mb-8 flex items-center justify-between">

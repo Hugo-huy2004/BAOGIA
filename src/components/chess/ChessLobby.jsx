@@ -96,13 +96,13 @@ export default function ChessLobby({
   if (step === "config" && mode) {
     return (
       <div className="chess-app-shell text-foreground">
-        <header className="chess-app-header sticky top-0 z-20 flex items-center px-4 border-b border-border bg-background/95 backdrop-blur-xl">
+        <header className="chess-app-header sticky top-0 z-20 flex items-center px-4 pb-4 pt-[calc(max(16px,env(safe-area-inset-top))+8px)] border-b border-border bg-background/95 backdrop-blur-xl">
           <div className="w-full flex items-center justify-between gap-3">
             <button onClick={goBack} className="flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors active:scale-95">
               <ArrowLeft className="w-3.5 h-3.5" />
               Quay lại
             </button>
-            <span className="font-black text-sm absolute left-1/2 -translate-x-1/2">
+            <span className="font-black text-base absolute left-1/2 -translate-x-1/2">
               {MODES.find(m2 => m2.id === mode)?.title}
             </span>
             <div className="w-14" />
@@ -219,7 +219,7 @@ export default function ChessLobby({
   return (
     <div className="chess-app-shell text-foreground">
       {/* Header */}
-      <header className="chess-app-header sticky top-0 z-20 flex items-center px-4 border-b border-border bg-background/95 backdrop-blur-xl">
+      <header className="chess-app-header sticky top-0 z-20 flex items-center px-4 pb-4 pt-[calc(max(16px,env(safe-area-inset-top))+8px)] border-b border-border bg-background/95 backdrop-blur-xl">
         <div className="w-full flex items-center justify-between gap-3">
 
           {/* Left: back */}
@@ -239,7 +239,7 @@ export default function ChessLobby({
           )}
 
           {/* Center: title */}
-          <span className="font-black text-sm tracking-tight absolute left-1/2 -translate-x-1/2">
+          <span className="font-black text-base tracking-tight absolute left-1/2 -translate-x-1/2">
             ♟ HugoChess
           </span>
 

@@ -5,7 +5,6 @@ import MemberUtilityStoreTab from "./MemberUtilityStoreTab";
 import CheckinCard from "./CheckinCard";
 import { useJoyStore } from "../../stores/joyStore";
 import { fetchChallengeStatus, claimChallenge } from "../../services/joyApi";
-import JoyTransferModal from "./shared/JoyTransferModal";
 import "./member-joy.css";
 import { WalletCards, Store } from "lucide-react";
 import JoyCoinBadge from "../shared/JoyCoinBadge";
@@ -23,7 +22,7 @@ const apiBase = import.meta.env.VITE_API_URL || "/api";
 const MISSION_PREVIEW_COUNT = 10;
 
 
-export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, handleCopyLink, handleDeleteBio, saving }) {
+export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, handleCopyLink, handleDeleteBio, saving, onOpenParticleModal }) {
   const { t } = useTranslation();
   const SECTIONS = [
     { id: "wallet", label: t("memberPortal.joyWallet.sectionWallet"), Icon: WalletCards },
@@ -42,8 +41,6 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
   const [referrerCodeInput, setReferrerCodeInput] = useState("");
   const [applyingReferral, setApplyingReferral] = useState(false);
   const [offerTab, setOfferTab] = useState("coupon"); // coupon | referral — purely presentational
-
-  const [transferOpen, setTransferOpen] = useState(false);
 
   // Daily missions
   const [challenges, setChallenges] = useState([]);
@@ -197,7 +194,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
 
       {/* Circular quick actions — the "home screen" of any e-wallet app */}
       <div className="joy-actions-row">
-        <button className="joy-action-circle" onClick={() => setTransferOpen(true)}>
+        <button className="joy-action-circle" onClick={() => onOpenParticleModal?.()}>
           <span className="joy-action-icon material-symbols-outlined">send</span>
           <span>{t("memberPortal.joyWallet.actionSend")}</span>
         </button>
@@ -371,18 +368,6 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
 
         </AnimatePresence>
       </div>
-
-      {/* JoyTransferModal — MoMo-style with search / My QR / Scan QR */}
-      <JoyTransferModal
-        open={transferOpen}
-        bio={bio}
-        onClose={() => setTransferOpen(false)}
-        onSuccess={(data) => {
-          setBalance(data.balance);
-          fetchBalance(email);
-        }}
-      />
-
     </div>
   );
 }
