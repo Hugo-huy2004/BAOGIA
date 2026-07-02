@@ -58,7 +58,7 @@ export default function PWALoginPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIntroFinished(true);
-    }, 2800); // 2.8s intro sequence
+    }, 400); // 0.4s fast intro instead of 2.8s
     return () => clearTimeout(timer);
   }, []);
 

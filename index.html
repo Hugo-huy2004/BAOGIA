@@ -69,6 +69,13 @@
     <meta name="robots" content="index, follow" />
     <meta name="language" content="Vietnamese" />
 
+    <script>
+      // Immediately detect PWA mode to prevent white flash in light mode
+      if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) {
+        document.documentElement.classList.add("standalone-pwa", "dark");
+      }
+    </script>
+
     <!-- Google Fonts & Resource Hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -190,9 +197,10 @@
           z-index: 99999;
         }
         @media (prefers-color-scheme: light) {
-          .hugo-splash { background-color: #ffffff; }
-          .hugo-splash .hugo-splash-text { color: #0f172a !important; }
-          .hugo-splash .hugo-splash-spinner { border-color: rgba(0,0,0,0.1) !important; border-top-color: #3b82f6 !important; }
+          /* Fallback for light mode, but overridden for PWA */
+          html:not(.standalone-pwa) .hugo-splash { background-color: #ffffff; }
+          html:not(.standalone-pwa) .hugo-splash .hugo-splash-text { color: #0f172a !important; }
+          html:not(.standalone-pwa) .hugo-splash .hugo-splash-spinner { border-color: rgba(0,0,0,0.1) !important; border-top-color: #3b82f6 !important; }
         }
         .hugo-splash-spinner {
           width: 48px; height: 48px;
