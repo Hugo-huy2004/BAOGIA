@@ -3,8 +3,10 @@ import { useParams, useLocation } from "react-router-dom";
 import dataApi from "../services/dataApi";
 import HugoLogo from "../components/HugoLogo";
 import { useUIStore } from "../stores/uiStore";
+import { usePayOS } from "@payos/payos-checkout";
 import { isAdminAuthenticated } from "../services/authSession";
 import { toast } from "react-hot-toast";
+import { HugoConfirmNotice } from "../components/shared/HugoNotice";
 
 const BANKS = [
   { name: 'Vietcombank', code: 'vcb', bin: '970436', logo: 'https://cdn.vietqr.io/img/VCB.png' },
@@ -90,11 +92,8 @@ export default function PaymentGatewayPage() {
           setPaymentInfo(paymentData);
           setError(null);
           
-          // AUTOMATIC REDIRECT TO PAYOS CHECKOUT
-          if (paymentData.status === 'PENDING' && !payosStatus && paymentData.checkoutUrl) {
-            window.location.href = paymentData.checkoutUrl;
-            return;
-          }
+          // AUTOMATIC REDIRECT TO PAYOS CHECKOUT (REMOVED)
+          // We no longer automatically redirect so the user can see our beautiful custom UI first.
 
           if (paymentData.status !== 'PENDING' && intervalId) {
             clearInterval(intervalId);
@@ -127,14 +126,7 @@ export default function PaymentGatewayPage() {
     navigator.clipboard.writeText(text);
     setCopiedField(fieldName);
     const label = fieldName === 'accountNumber' ? 'Đã sao chép số tài khoản!' : 'Đã sao chép nội dung!';
-    toast.success(label, {
-      style: {
-        background: document.documentElement.classList.contains('dark') ? 'hsl(var(--card))' : 'hsl(var(--card))',
-        color: document.documentElement.classList.contains('dark') ? 'hsl(var(--card-foreground))' : 'hsl(var(--card-foreground))',
-        borderRadius: '12px',
-        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-      }
-    });
+    toast.success(label);
     setTimeout(() => setCopiedField(''), 2000);
   };
 
@@ -154,14 +146,7 @@ export default function PaymentGatewayPage() {
     if (!paymentInfo) return;
     const qrImageUrl = `https://img.vietqr.io/image/${paymentInfo.bin}-${paymentInfo.accountNumber}-compact2.png?amount=${paymentInfo.amount}&addInfo=${encodeURIComponent(paymentInfo.reason)}&accountName=${encodeURIComponent(paymentInfo.accountName)}`;
     
-    const loadId = toast.loading('Đang chuẩn bị tải ảnh QR...', {
-      style: {
-        background: document.documentElement.classList.contains('dark') ? 'hsl(var(--card))' : 'hsl(var(--card))',
-        color: document.documentElement.classList.contains('dark') ? 'hsl(var(--card-foreground))' : 'hsl(var(--card-foreground))',
-        borderRadius: '12px',
-        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-      }
-    });
+    const loadId = toast.loading('Đang chuẩn bị tải ảnh QR...');
 
     try {
       const response = await fetch(qrImageUrl);
@@ -176,15 +161,7 @@ export default function PaymentGatewayPage() {
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
 
-      toast.success('Mã QR đã được tải về máy của bạn!', {
-        id: loadId,
-        style: {
-          background: document.documentElement.classList.contains('dark') ? 'hsl(var(--card))' : 'hsl(var(--card))',
-          color: document.documentElement.classList.contains('dark') ? 'hsl(var(--card-foreground))' : 'hsl(var(--card-foreground))',
-          borderRadius: '12px',
-          border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-        }
-      });
+      toast.success('Mã QR đã được tải về máy của bạn!', { id: loadId });
     } catch (error) {
       console.error('Download QR Error:', error);
       window.open(qrImageUrl, '_blank');
@@ -195,52 +172,21 @@ export default function PaymentGatewayPage() {
   const executeCancelPayment = async () => {
     setCancelling(true);
     setCancelError('');
-    const loadId = toast.loading('Đang xử lý hủy giao dịch...', {
-      style: {
-        background: document.documentElement.classList.contains('dark') ? 'hsl(var(--card))' : 'hsl(var(--card))',
-        color: document.documentElement.classList.contains('dark') ? 'hsl(var(--card-foreground))' : 'hsl(var(--card-foreground))',
-        borderRadius: '12px',
-        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-      }
-    });
+    const loadId = toast.loading('Đang xử lý hủy giao dịch...');
     try {
       const res = await dataApi.post(`/api/payos/cancel/${id}`);
       if (res.data.success) {
-        toast.success('Hủy giao dịch chuyển khoản thành công!', {
-          id: loadId,
-          style: {
-            background: document.documentElement.classList.contains('dark') ? 'hsl(var(--card))' : 'hsl(var(--card))',
-            color: document.documentElement.classList.contains('dark') ? 'hsl(var(--card-foreground))' : 'hsl(var(--card-foreground))',
-            borderRadius: '12px',
-            border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-          }
-        });
+        toast.success('Hủy giao dịch chuyển khoản thành công!', { id: loadId });
         setPaymentInfo(prev => ({ ...prev, status: 'CANCELLED' }));
       } else {
         const errMsg = res.data.error || 'Hủy giao dịch thất bại.';
         setCancelError(errMsg);
-        toast.error(errMsg, {
-          id: loadId,
-          style: {
-            background: document.documentElement.classList.contains('dark') ? 'hsl(var(--card))' : 'hsl(var(--card))',
-            color: document.documentElement.classList.contains('dark') ? 'hsl(var(--card-foreground))' : 'hsl(var(--card-foreground))',
-            borderRadius: '12px',
-            border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-          }
-        });
+        toast.error(errMsg, { id: loadId });
       }
     } catch (err) {
       const errMsg = err.response?.data?.error || 'Lỗi kết nối khi hủy giao dịch.';
       setCancelError(errMsg);
-      toast.error(errMsg, {
-        id: loadId,
-        style: {
-          background: document.documentElement.classList.contains('dark') ? 'hsl(var(--card))' : 'hsl(var(--card))',
-          color: document.documentElement.classList.contains('dark') ? 'hsl(var(--card-foreground))' : 'hsl(var(--card-foreground))',
-          borderRadius: '12px',
-          border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-        }
-      });
+      toast.error(errMsg, { id: loadId });
     } finally {
       setCancelling(false);
     }
@@ -248,47 +194,38 @@ export default function PaymentGatewayPage() {
 
   const handleCancelPayment = () => {
     toast((t) => (
-      <div className="flex flex-col gap-3 p-1">
-        <div className="flex items-start gap-2.5">
-          <span className="material-symbols-outlined text-destructive text-lg mt-0.5 animate-pulse">warning</span>
-          <div>
-            <h4 className="text-xs font-black text-foreground uppercase tracking-wider">Xác Nhận Hủy</h4>
-            <p className="text-[10.5px] font-semibold text-muted-foreground mt-0.5 leading-relaxed whitespace-normal">
-              Bạn có chắc chắn muốn hủy giao dịch chuyển khoản này không? Bản ghi sẽ được xóa khỏi hệ thống.
-            </p>
-          </div>
-        </div>
-        <div className="flex justify-end gap-2 border-t border-border pt-2.5">
-          <button 
-            onClick={() => toast.dismiss(t.id)}
-            className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-muted-foreground hover:bg-muted transition-colors"
-          >
-            Bỏ qua
-          </button>
-          <button 
-            onClick={() => {
-              toast.dismiss(t.id);
-              executeCancelPayment();
-            }}
-            className="px-3 py-1.5 bg-destructive hover:bg-destructive/90 active:scale-95 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all"
-          >
-            Xác nhận Hủy
-          </button>
-        </div>
-      </div>
+      <HugoConfirmNotice
+        type="error"
+        title="Xác nhận hủy"
+        message="Bạn có chắc chắn muốn hủy giao dịch chuyển khoản này không? Bản ghi sẽ được xóa khỏi hệ thống."
+        confirmLabel="Xác nhận hủy"
+        onCancel={() => toast.dismiss(t.id)}
+        onConfirm={() => {
+          toast.dismiss(t.id);
+          executeCancelPayment();
+        }}
+      />
     ), {
       duration: 10000,
       position: 'top-center',
-      style: {
-        background: document.documentElement.classList.contains('dark') ? 'hsl(var(--card))' : 'hsl(var(--card))',
-        color: document.documentElement.classList.contains('dark') ? 'hsl(var(--card-foreground))' : 'hsl(var(--card-foreground))',
-        borderRadius: '16px',
-        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-        boxShadow: '0 20px 40px -15px rgba(0,0,0,0.15)',
-        maxWidth: '350px',
-        padding: '12px'
-      }
+      style: { padding: 0, background: 'transparent', boxShadow: 'none' }
     });
+  };
+
+  const handleOpenPayOS = () => {
+    if (!paymentInfo?.checkoutUrl) return;
+
+    const { open } = usePayOS({
+      RETURN_URL: window.location.href.split('?')[0],
+      ELEMENT_ID: "payos-checkout-iframe-container",
+      CHECKOUT_URL: paymentInfo.checkoutUrl,
+      embedded: false,
+      onSuccess: () => {},
+      onCancel: () => {},
+      onExit: () => {}
+    });
+
+    open();
   };
 
   if (loading) {
@@ -764,7 +701,7 @@ export default function PaymentGatewayPage() {
 
                   {/* Primary checkout button */}
                   <button 
-                    onClick={() => window.location.href = paymentInfo.checkoutUrl}
+                    onClick={handleOpenPayOS}
                     className="w-full relative group overflow-hidden bg-success hover:bg-success/90 rounded-2xl p-3.5 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-[0_10px_30px_-10px_rgba(16,185,129,0.3)]"
                   >
                     <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
@@ -877,6 +814,7 @@ export default function PaymentGatewayPage() {
       <footer className="py-6 text-center text-muted-foreground text-xs font-semibold relative z-10 mt-auto">
         &copy; {new Date().getFullYear()} Hugo Studio. All rights reserved.
       </footer>
+      <div id="payos-checkout-iframe-container" className="fixed top-0 left-0 w-full h-full z-[9999] pointer-events-none empty:hidden"></div>
     </div>
   );
 }

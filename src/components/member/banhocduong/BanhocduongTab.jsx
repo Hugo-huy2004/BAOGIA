@@ -12,6 +12,7 @@ import { webPushHelper } from "../../../utils/webPushHelper";
 import { useTranslation } from "react-i18next";
 import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTimer";
 import { useIsMobile } from "../../../hooks/useIsMobile";
+import { HugoConfirmNotice } from "../../shared/HugoNotice";
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
@@ -218,56 +219,25 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
 
   const handleClearChat = () => {
     toast((tToast) => (
-      <div className="flex flex-col gap-3 p-1">
-        <div className="flex items-start gap-2.5">
-          <span className="material-symbols-outlined text-rose-555 dark:text-rose-400 text-lg mt-0.5 animate-pulse">warning</span>
-          <div>
-            <h4 className="text-xs font-black text-slate-800 dark:text-zinc-100 uppercase tracking-wider">{t("companion.tab.confirmDeleteTitle", "Xác Nhận Xóa")}</h4>
-            <p className="text-[10.5px] font-semibold text-slate-500 dark:text-zinc-450 mt-0.5 leading-relaxed whitespace-normal">
-              {t("companion.tab.confirmDeleteDesc", "Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?")}
-            </p>
-          </div>
-        </div>
-        <div className="flex justify-end gap-2 border-t border-slate-100 dark:border-zinc-800/80 pt-2.5">
-          <button 
-            onClick={() => toast.dismiss(tToast.id)}
-            className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
-          >
-            {t("companion.tab.skip", "Bỏ qua")}
-          </button>
-          <button 
-            onClick={() => {
-              toast.dismiss(tToast.id);
-              localStorage.removeItem('banhocduong_chat_messages');
-              onClearMessages?.();
-              toast.success(t('companion.tab.deleteChatSuccess', 'Đã xóa lịch sử trò chuyện.'), {
-                style: {
-                  background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
-                  color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
-                  borderRadius: '12px',
-                  border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-                }
-              });
-              onClose();
-            }}
-            className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all"
-          >
-            {t("companion.tab.confirmDeleteBtn", "Xác nhận Xóa")}
-          </button>
-        </div>
-      </div>
+      <HugoConfirmNotice
+        type="error"
+        title={t("companion.tab.confirmDeleteTitle", "Xác Nhận Xóa")}
+        message={t("companion.tab.confirmDeleteDesc", "Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?")}
+        cancelLabel={t("companion.tab.skip", "Bỏ qua")}
+        confirmLabel={t("companion.tab.confirmDeleteBtn", "Xác nhận Xóa")}
+        onCancel={() => toast.dismiss(tToast.id)}
+        onConfirm={() => {
+          toast.dismiss(tToast.id);
+          localStorage.removeItem('banhocduong_chat_messages');
+          onClearMessages?.();
+          toast.success(t('companion.tab.deleteChatSuccess', 'Đã xóa lịch sử trò chuyện.'));
+          onClose();
+        }}
+      />
     ), {
       duration: 10000,
       position: 'top-center',
-      style: {
-        background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
-        color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
-        borderRadius: '16px',
-        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-        boxShadow: '0 20px 40px -15px rgba(0,0,0,0.15)',
-        maxWidth: '350px',
-        padding: '12px'
-      }
+      style: { padding: 0, background: 'transparent', boxShadow: 'none' }
     });
   };
 

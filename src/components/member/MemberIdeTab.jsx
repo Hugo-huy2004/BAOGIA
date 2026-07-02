@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import confetti from "canvas-confetti";
+import { HugoConfirmNotice } from "../shared/HugoNotice";
 import { getMemberSession } from "../../services/authSession";
 import { useJoyStore } from "../../stores/joyStore";
 import { TEMPLATES, INITIAL_WORKSPACE, TUTORIALS, WEB_COURSES, MOBILE_GUIDE_EXTRAS, THEORY_LIBRARY } from "./ideData";
@@ -1107,82 +1108,42 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   // Delete workspace file / folder
   const handleDeleteEntry = (targetPath, type) => {
     toast((t) => (
-      <div className="flex flex-col gap-3 p-1">
-        <div className="flex items-start gap-2.5">
-          <span className="material-symbols-outlined text-destructive text-lg mt-0.5 animate-pulse">warning</span>
-          <div>
-            <h4 className="text-xs font-black text-slate-800 dark:text-foreground uppercase tracking-wider">Xác Nhận Xóa</h4>
-            <p className="text-[10.5px] font-semibold text-slate-500 dark:text-muted-foreground mt-0.5 leading-relaxed whitespace-normal">
-              Bạn có chắc chắn muốn xóa {type === "folder" ? "thư mục" : "file"} <span className="font-mono font-bold text-destructive">"{targetPath.split('/').pop()}"</span> không? Hành động này không thể hoàn tác.
-            </p>
-          </div>
-        </div>
-        <div className="flex justify-end gap-2 border-t border-slate-100 dark:border-border pt-2.5">
-          <button 
-            onClick={() => toast.dismiss(t.id)}
-            className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 dark:text-muted-foreground hover:bg-slate-50 dark:hover:bg-muted/50 transition-colors"
-          >
-            Bỏ qua
-          </button>
-          <button 
-            onClick={async () => {
-              toast.dismiss(t.id);
-              if (dirHandle) {
-                await localDeleteEntry(targetPath, type);
-              } else {
-                if (type === "file") {
-                  setWorkspaceFiles(prev => prev.filter(f => f.path !== targetPath));
-                  setOpenTabs(prev => prev.filter(t => t !== targetPath));
-                  if (activeTabPath === targetPath) {
-                    setActiveTabPath(prev => {
-                      const nextTabs = openTabs.filter(t => t !== targetPath);
-                      return nextTabs.length > 0 ? nextTabs[0] : null;
-                    });
-                  }
-                  toast.success(`Đã xóa file ảo: ${targetPath}`, {
-                    style: {
-                      background: 'hsl(var(--card))',
-                      color: 'hsl(var(--card-foreground))',
-                      borderRadius: '12px',
-                      border: '1px solid hsl(var(--border))',
-                    }
-                  });
-                } else {
-                  setFolders(prev => prev.filter(d => d !== targetPath && !d.startsWith(`${targetPath}/`)));
-                  setWorkspaceFiles(prev => prev.filter(f => !f.path.startsWith(`${targetPath}/`)));
-                  setOpenTabs(prev => prev.filter(t => !t.startsWith(`${targetPath}/`)));
-                  if (activeTabPath && activeTabPath.startsWith(`${targetPath}/`)) {
-                    setActiveTabPath(null);
-                  }
-                  toast.success(`Đã xóa thư mục ảo: ${targetPath}`, {
-                    style: {
-                      background: 'hsl(var(--card))',
-                      color: 'hsl(var(--card-foreground))',
-                      borderRadius: '12px',
-                      border: '1px solid hsl(var(--border))',
-                    }
-                  });
-                }
+      <HugoConfirmNotice
+        type="error"
+        title="Xác nhận xóa"
+        message={<>Bạn có chắc chắn muốn xóa {type === "folder" ? "thư mục" : "file"} "{targetPath.split('/').pop()}" không? Hành động này không thể hoàn tác.</>}
+        onCancel={() => toast.dismiss(t.id)}
+        onConfirm={async () => {
+          toast.dismiss(t.id);
+          if (dirHandle) {
+            await localDeleteEntry(targetPath, type);
+          } else {
+            if (type === "file") {
+              setWorkspaceFiles(prev => prev.filter(f => f.path !== targetPath));
+              setOpenTabs(prev => prev.filter(t => t !== targetPath));
+              if (activeTabPath === targetPath) {
+                setActiveTabPath(prev => {
+                  const nextTabs = openTabs.filter(t => t !== targetPath);
+                  return nextTabs.length > 0 ? nextTabs[0] : null;
+                });
               }
-            }}
-            className="px-3 py-1.5 bg-destructive hover:bg-destructive/90 active:scale-95 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all"
-          >
-            Xác nhận
-          </button>
-        </div>
-      </div>
+              toast.success(`Đã xóa file ảo: ${targetPath}`);
+            } else {
+              setFolders(prev => prev.filter(d => d !== targetPath && !d.startsWith(`${targetPath}/`)));
+              setWorkspaceFiles(prev => prev.filter(f => !f.path.startsWith(`${targetPath}/`)));
+              setOpenTabs(prev => prev.filter(t => !t.startsWith(`${targetPath}/`)));
+              if (activeTabPath && activeTabPath.startsWith(`${targetPath}/`)) {
+                setActiveTabPath(null);
+              }
+              toast.success(`Đã xóa thư mục ảo: ${targetPath}`);
+            }
+          }
+        }}
+      />
     ), {
       duration: 10000,
       position: 'top-center',
-      style: {
-        background: 'hsl(var(--card))',
-        color: 'hsl(var(--card-foreground))',
-        borderRadius: '16px',
-        border: '1px solid hsl(var(--border))',
-        boxShadow: '0 20px 40px -15px rgba(0,0,0,0.15)',
-        maxWidth: '350px',
-        padding: '12px'
-      }
+      style: { padding: 0, background: 'transparent', boxShadow: 'none' }
     });
   };
 

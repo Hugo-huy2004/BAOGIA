@@ -4,7 +4,6 @@ import { useLocation } from 'react-router-dom';
 import { getMemberSession } from '../services/authSession';
 import { useJoyStore } from '../stores/joyStore';
 import { webPushHelper } from '../utils/webPushHelper';
-import { motion, AnimatePresence } from 'framer-motion';
 import { playNotificationSound } from '../utils/audio';
 import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
 
@@ -65,47 +64,7 @@ export default function PWARealtimeBridge() {
           window.dispatchEvent(new CustomEvent('hugo:notification', { detail: data.notification }));
           if (data.notification) {
             const isCredit = data.amount > 0;
-            // Banking-style toast for both credit (received JOY) and debit (sent JOY)
-            toast.custom((t) => (
-              <motion.div
-                initial={{ opacity: 0, y: -50, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                className={`${
-                  t.visible ? 'animate-enter' : 'animate-leave'
-                } max-w-sm w-full glass bg-card/90 shadow-2xl rounded-2xl pointer-events-auto flex items-center p-4 gap-4 ${
-                  isCredit
-                    ? 'border border-emerald-500/30 dark:border-emerald-500/20'
-                    : 'border border-indigo-500/30 dark:border-indigo-500/20'
-                }`}
-              >
-                <div className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center ${
-                  isCredit
-                    ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.4)]'
-                    : 'bg-gradient-to-br from-indigo-400 to-violet-600 shadow-[0_0_15px_rgba(99,102,241,0.4)]'
-                }`}>
-                  <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    {isCredit ? 'account_balance_wallet' : 'send'}
-                  </span>
-                </div>
-
-                <div className="flex-1">
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">
-                    {isCredit ? 'Nhận JOY' : 'Đã gửi JOY'}
-                  </p>
-                  <p className="text-sm font-medium text-foreground line-clamp-2 leading-snug">
-                    {data.notification.message || (isCredit ? 'Tài khoản nhận điểm thưởng mới.' : 'Giao dịch hoàn tất.')}
-                  </p>
-                </div>
-
-                <div className="shrink-0 flex flex-col items-end pl-2 border-l border-border/50">
-                  <span className={`font-bold text-lg leading-none mb-1 ${isCredit ? 'text-emerald-500' : 'text-indigo-400'}`}>
-                    {isCredit ? '+' : ''}{data.amount}
-                  </span>
-                  <span className="text-[10px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm">JOY</span>
-                </div>
-              </motion.div>
-            ), {
+            toast.success(`${isCredit ? 'Nhận JOY' : 'Đã gửi JOY'}: ${isCredit ? '+' : ''}${data.amount} JOY - ${data.notification.message || (isCredit ? 'Tài khoản nhận điểm thưởng mới.' : 'Giao dịch hoàn tất.')}`, {
               id: `joy-${data.notification._id || data.createdAt}`,
               duration: 5000,
               position: 'top-center'
@@ -160,35 +119,12 @@ export default function PWARealtimeBridge() {
           return;
         }
         if (perm === 'default') {
-          toast.custom((t) => (
-            <motion.div
-              initial={{ opacity: 0, y: -40, scale: 0.92 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.18 } }}
-              className={`${t.visible ? '' : 'pointer-events-none opacity-0'} max-w-sm w-full bg-white dark:bg-[#16151f] shadow-2xl rounded-2xl pointer-events-auto flex items-center p-3 gap-3 border border-blue-200/70 dark:border-blue-900/40`}
-            >
-              <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
-                <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>notifications</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12.5px] font-bold text-zinc-900 dark:text-white leading-tight">Bật thông báo?</p>
-                <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-snug mt-0.5">Nhận cập nhật JOY, xác minh tài khoản và tin nhắn quan trọng</p>
-              </div>
-              <button
-                onClick={async () => {
-                  toast.dismiss(t.id);
-                  const result = await webPushHelper.requestPermission();
-                  if (result === 'granted') {
-                    await webPushHelper.registerAndSubscribe(email).catch(() => {});
-                    toast.success('Đã bật thông báo! 🎉', { duration: 3000 });
-                  }
-                }}
-                className="shrink-0 px-3 py-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-[11px] font-bold rounded-xl transition-all shadow-sm"
-              >
-                Bật ngay
-              </button>
-            </motion.div>
-          ), { id: 'push-nudge', duration: 14000, position: 'top-center' });
+          toast('Bật thông báo trình duyệt để nhận cập nhật JOY, xác minh tài khoản và tin nhắn quan trọng.', {
+            id: 'push-nudge',
+            icon: 'notifications',
+            duration: 7000,
+            position: 'top-center',
+          });
         }
       }, 4000);
     }

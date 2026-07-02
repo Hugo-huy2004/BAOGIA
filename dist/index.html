@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=1, viewport-fit=cover"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -77,6 +77,11 @@
     
     <link rel="canonical" href="https://www.hugowishpax.studio" />
 
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap"
+      as="style"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap"
       rel="stylesheet"
@@ -171,24 +176,59 @@
         user-select: none;
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-SEDMM5tJ.js"></script>
+    <script type="module" crossorigin src="/assets/index-DWimrr2j.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-CNC7AqOf.js">
     <link rel="modulepreload" crossorigin href="/assets/arcade-fx-Dmax3TfS.js">
-    <link rel="modulepreload" crossorigin href="/assets/banhocduong-DiW6PjWY.js">
-    <link rel="modulepreload" crossorigin href="/assets/quill-OMjVhduc.js">
-    <link rel="modulepreload" crossorigin href="/assets/vendor-JDzLmVw9.js">
-    <link rel="modulepreload" crossorigin href="/assets/i18n-CItG_XMe.js">
-    <link rel="modulepreload" crossorigin href="/assets/state-BzDjDGma.js">
-    <link rel="modulepreload" crossorigin href="/assets/framer-DI3_O_AW.js">
-    <link rel="modulepreload" crossorigin href="/assets/radix-D5UW9S64.js">
-    <link rel="stylesheet" crossorigin href="/assets/quill-CTQaZtmg.css">
-    <link rel="stylesheet" crossorigin href="/assets/index-BtI2j3bY.css">
+    <link rel="modulepreload" crossorigin href="/assets/banhocduong-CHLDI0N5.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-BQcJvyoz.js">
+    <link rel="modulepreload" crossorigin href="/assets/i18n-D5kqslxH.js">
+    <link rel="modulepreload" crossorigin href="/assets/state-CQbOLvK1.js">
+    <link rel="modulepreload" crossorigin href="/assets/framer-BgJDrWk_.js">
+    <link rel="modulepreload" crossorigin href="/assets/radix-Cyh1NOgy.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DUWG1ufP.css">
   <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
   <body
     class="bg-background dark:bg-[#0b0a0f] text-on-background dark:text-[#f8f5fa] font-body min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative"
   >
-    <!-- React Main Root Container -->
-    <div id="root"></div>
+    <!-- React Main Root Container with Splash Screen -->
+    <div id="root">
+      <style>
+        .hugo-splash {
+          position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+          background-color: #0b0a0f;
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          z-index: 99999;
+        }
+        @media (prefers-color-scheme: light) {
+          .hugo-splash { background-color: #ffffff; }
+          .hugo-splash .hugo-splash-text { color: #0f172a !important; }
+          .hugo-splash .hugo-splash-spinner { border-color: rgba(0,0,0,0.1) !important; border-top-color: #3b82f6 !important; }
+        }
+        .hugo-splash-spinner {
+          width: 48px; height: 48px;
+          border: 3px solid rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          border-top-color: #f59e0b;
+          animation: hugo-splash-spin 1s ease-in-out infinite;
+        }
+        @keyframes hugo-splash-spin {
+          to { transform: rotate(360deg); }
+        }
+        .hugo-splash-text {
+          margin-top: 24px; color: #f8f5fa; font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 800; font-size: 16px; letter-spacing: 0.15em; text-transform: uppercase;
+          opacity: 0.8; animation: hugo-splash-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes hugo-splash-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: .4; }
+        }
+      </style>
+      <div class="hugo-splash">
+        <div class="hugo-splash-spinner"></div>
+        <div class="hugo-splash-text">Hugo Studio</div>
+      </div>
+    </div>
 
     <!-- Main Module script entry point -->
 

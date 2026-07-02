@@ -177,14 +177,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
     setTimeout(() => {
       setClaimedCodes(prev => ({ ...prev, [code]: false }));
     }, 2000);
-    toast.success(t("memberTabs.history.copy_success_msg"), {
-      style: {
-        background: document.documentElement.classList.contains('dark') ? '#12111a' : '#ffffff',
-        color: document.documentElement.classList.contains('dark') ? '#e4e4e7' : '#1f2937',
-        borderRadius: '12px',
-        border: '1px solid ' + (document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
-      }
-    });
+    toast.success(t("memberTabs.history.copy_success_msg"));
   };
 
   return (

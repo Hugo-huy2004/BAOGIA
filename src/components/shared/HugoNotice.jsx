@@ -115,3 +115,46 @@ export function HugoInlineNotice({ type = "info", title, message, children, clas
     </div>
   );
 }
+
+export function HugoConfirmNotice({
+  type = "warning",
+  title = "Xác nhận",
+  message,
+  confirmLabel = "Xác nhận",
+  cancelLabel = "Bỏ qua",
+  onConfirm,
+  onCancel,
+}) {
+  const meta = getNoticeMeta(type);
+
+  return (
+    <div className="relative overflow-hidden rounded-[20px] border border-white/60 bg-white/94 p-3.5 text-slate-900 shadow-[0_22px_58px_rgba(15,23,42,.20)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-950/92 dark:text-white">
+      <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${meta.line}`} />
+      <div className="flex items-start gap-3">
+        <span className={`material-symbols-outlined grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-[21px] shadow-lg ${meta.accent}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+          {meta.icon}
+        </span>
+        <div className="min-w-0 flex-1 pt-0.5">
+          <p className="m-0 text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-white/40">{title}</p>
+          <p className="m-0 mt-1 text-xs font-bold leading-relaxed text-slate-600 dark:text-white/64">{message}</p>
+        </div>
+      </div>
+      <div className="mt-3 flex justify-end gap-2 border-t border-slate-200/70 pt-3 dark:border-white/10">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-xl px-3 py-2 text-[11px] font-black text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 dark:text-white/48 dark:hover:bg-white/10 dark:hover:text-white"
+        >
+          {cancelLabel}
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          className="rounded-xl bg-slate-950 px-3 py-2 text-[11px] font-black text-white shadow-lg transition hover:opacity-90 active:scale-95 dark:bg-white dark:text-slate-950"
+        >
+          {confirmLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
