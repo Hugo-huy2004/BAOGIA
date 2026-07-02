@@ -329,9 +329,10 @@ export default function PWALoginPage() {
               </div>
 
               {/* Quick login / Biometric */}
-              {hasBiometric && (
+              {!!biometricEmail && (
                 <button
                   onClick={handleBiometricLogin}
+                  disabled={biometricBusy}
                   className="w-full flex items-center justify-center gap-3 py-3 px-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white font-semibold transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.02)]"
                 >
                   <span className="material-symbols-outlined text-xl">face</span>
