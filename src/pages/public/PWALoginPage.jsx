@@ -5,6 +5,7 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
+import HugoLogo from "../../components/HugoLogo";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
 
@@ -179,66 +180,73 @@ export default function PWALoginPage() {
       />
 
       {/* Hero */}
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 text-center">
-        <div
-          className="mb-6 flex h-24 w-24 items-center justify-center rounded-[28px] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-[0_20px_50px_-12px_rgba(139,92,246,0.6)]"
-          style={{ animation: "pwaFloat 5s ease-in-out infinite" }}
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 text-center space-y-8 mt-12">
+        {/* Glow behind the logo */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-24 bg-primary/20 blur-[60px] pointer-events-none" />
+
+        {/* The core text logo, large and beautiful */}
+        <div 
+          className="relative group cursor-default"
+          style={{ animation: "pwaFloat 6s ease-in-out infinite" }}
         >
-          <span className="font-display text-4xl font-black text-white">H</span>
+          <HugoLogo className="text-5xl sm:text-6xl tracking-[0.2em] md:tracking-[0.25em]" />
+          {/* Subtle reflection under the text */}
+          <div className="absolute -bottom-6 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent opacity-80" />
         </div>
 
-        <div className="mb-2 flex select-none items-center justify-center gap-[1px] font-display text-sm font-black uppercase tracking-[0.22em]">
-          {[["H", "#EF4444"], ["u", "#F97316"], ["g", "#EAB308"], ["o", "#22C55E"]].map(([c, col], i) => (
-            <span key={i} style={{ color: col }}>{c}</span>
-          ))}
-          <span className="mx-1" />
-          {[["S", "#3B82F6"], ["t", "#6366F1"], ["u", "#A855F7"], ["d", "#EC4899"], ["i", "#06B6D4"], ["o", "#0EA5E9"]].map(([c, col], i) => (
-            <span key={i} style={{ color: col }}>{c}</span>
-          ))}
+        <div className="space-y-4 max-w-[280px] mx-auto animate-fadeIn" style={{ animationDelay: "300ms" }}>
+          <div className="h-px w-12 bg-gradient-to-r from-transparent via-border/60 to-transparent mx-auto" />
+          <p className="text-[13px] font-medium leading-relaxed text-muted-foreground/90 tracking-wide">
+            Không gian dành riêng cho thành viên, JOY và các tiện ích nội bộ của bạn.
+          </p>
         </div>
-        <p className="max-w-xs text-[13px] font-medium leading-relaxed text-muted-foreground">
-          Đăng nhập để vào không gian thành viên, JOY và các tiện ích của bạn.
-        </p>
       </div>
 
       {/* Actions */}
-      <div className="relative z-10 w-full px-6 pb-8">
-        <div className="mx-auto w-full max-w-sm space-y-4">
+      <div className="relative z-10 w-full px-6 pb-12">
+        <div className="mx-auto w-full max-w-sm p-6 bg-card/40 backdrop-blur-3xl border border-white/10 dark:border-white/5 rounded-[32px] shadow-[0_8px_32px_rgba(0,0,0,0.08)] space-y-6">
           {/* Biometric quick login */}
           {biometricEmail && (
-            <>
+            <div className="space-y-4">
               <button
                 type="button"
                 onClick={handleBiometricLogin}
                 disabled={biometricBusy}
-                className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-foreground py-4 text-sm font-bold text-background shadow-lg transition-all active:scale-[0.98] disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-foreground py-3.5 text-sm font-bold text-background shadow-lg transition-all active:scale-[0.98] disabled:opacity-60"
               >
                 <span className="material-symbols-outlined text-xl">fingerprint</span>
-                {biometricBusy ? "Đang xác thực..." : "Đăng nhập nhanh bằng Face ID / vân tay"}
+                {biometricBusy ? "Đang xác thực..." : "Face ID / Vân tay"}
               </button>
-              <div className="flex items-center gap-3 text-[11px] font-medium text-muted-foreground">
-                <div className="h-px flex-1 bg-border/70" /> hoặc <div className="h-px flex-1 bg-border/70" />
+              <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                <div className="h-px flex-1 bg-border/50" />
+                HOẶC TIẾP TỤC BẰNG
+                <div className="h-px flex-1 bg-border/50" />
               </div>
-            </>
-          )}
-
-          {/* Google sign-in */}
-          <div className="flex min-h-[48px] justify-center">
-            <div ref={googleButtonRef} className="flex justify-center" />
-          </div>
-
-          {!gisReady && !configError && (
-            <p className="text-center text-[11px] font-medium text-muted-foreground">Đang tải Google Sign-In...</p>
-          )}
-          {configError && (
-            <div className="rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-center text-[11px] font-medium text-warning dark:text-amber-300">
-              {configError}
             </div>
           )}
 
-          <p className="px-2 text-center text-[11px] leading-relaxed text-muted-foreground">
-            Ưu tiên email <span className="font-semibold text-foreground">.edu</span> để mở khóa đầy đủ quyền lợi sinh viên.
-          </p>
+          <div className="space-y-4">
+            {/* Google sign-in */}
+            <div className="flex min-h-[48px] justify-center items-center">
+              <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-500" />
+              {!gisReady && !configError && (
+                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground animate-pulse">
+                  <span className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  Đang tải Google...
+                </div>
+              )}
+            </div>
+
+            {configError && (
+              <div className="rounded-xl border border-warning/20 bg-warning/10 px-4 py-3 text-center text-[10px] font-medium text-warning">
+                {configError}
+              </div>
+            )}
+            
+            <p className="text-center text-[10px] leading-relaxed text-muted-foreground">
+              Vui lòng sử dụng tài khoản email <span className="font-bold text-foreground">.edu</span> để được ưu tiên truy cập đầy đủ tiện ích sinh viên.
+            </p>
+          </div>
         </div>
       </div>
     </div>
