@@ -78,6 +78,11 @@
     <link rel="canonical" href="https://www.hugowishpax.studio" />
 
     <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap"
+      as="style"
+    />
+    <link
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
@@ -175,8 +180,45 @@
   <body
     class="bg-background dark:bg-[#0b0a0f] text-on-background dark:text-[#f8f5fa] font-body min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative"
   >
-    <!-- React Main Root Container -->
-    <div id="root"></div>
+    <!-- React Main Root Container with Splash Screen -->
+    <div id="root">
+      <style>
+        .hugo-splash {
+          position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+          background-color: #0b0a0f;
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          z-index: 99999;
+        }
+        @media (prefers-color-scheme: light) {
+          .hugo-splash { background-color: #ffffff; }
+          .hugo-splash .hugo-splash-text { color: #0f172a !important; }
+          .hugo-splash .hugo-splash-spinner { border-color: rgba(0,0,0,0.1) !important; border-top-color: #3b82f6 !important; }
+        }
+        .hugo-splash-spinner {
+          width: 48px; height: 48px;
+          border: 3px solid rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          border-top-color: #f59e0b;
+          animation: hugo-splash-spin 1s ease-in-out infinite;
+        }
+        @keyframes hugo-splash-spin {
+          to { transform: rotate(360deg); }
+        }
+        .hugo-splash-text {
+          margin-top: 24px; color: #f8f5fa; font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 800; font-size: 16px; letter-spacing: 0.15em; text-transform: uppercase;
+          opacity: 0.8; animation: hugo-splash-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes hugo-splash-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: .4; }
+        }
+      </style>
+      <div class="hugo-splash">
+        <div class="hugo-splash-spinner"></div>
+        <div class="hugo-splash-text">Hugo Studio</div>
+      </div>
+    </div>
 
     <!-- Main Module script entry point -->
     <script type="module" src="/src/main.jsx"></script>

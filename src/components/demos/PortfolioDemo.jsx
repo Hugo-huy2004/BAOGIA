@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { HugoNoticeToast } from "../shared/HugoNotice";
 
 export default function PortfolioDemo({ isMobile = false }) {
   const [dark, setDark] = useState(true);
@@ -449,13 +450,7 @@ export default function PortfolioDemo({ isMobile = false }) {
         </div>
       )}
 
-      {/* Floating Toast */}
-      {toast.show && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-max max-w-[90%] bg-indigo-600/95 backdrop-blur-md text-white border border-indigo-500/20 text-[11px] px-4 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2 animate-fadeIn">
-          <span className="material-symbols-outlined text-white text-[18px] font-black">download_done</span>
-          <span className="font-bold tracking-wider text-center">{toast.message}</span>
-        </div>
-      )}
+      <HugoNoticeToast open={toast.show} type="success" message={toast.message} zIndex={80} />
 
     </div>
   );

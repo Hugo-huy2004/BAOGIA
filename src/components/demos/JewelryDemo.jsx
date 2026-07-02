@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { HugoNoticeToast } from "../shared/HugoNotice";
 
 export default function JewelryDemo({ isMobile = false }) {
   const [activePage, setActivePage] = useState("home");
@@ -332,13 +333,7 @@ export default function JewelryDemo({ isMobile = false }) {
         </div>
       )}
 
-      {/* Floating Toast */}
-      {toast.show && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-max max-w-[90%] bg-[#2C3E29]/95 backdrop-blur-md text-[#FAF9F6] border border-[#B89855]/50 text-[11px] px-4 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2 animate-fadeIn">
-          <span className="material-symbols-outlined text-[#B89855] text-[18px] font-black">verified</span>
-          <span className="font-bold tracking-wider text-center">{toast.message}</span>
-        </div>
-      )}
+      <HugoNoticeToast open={toast.show} type="success" message={toast.message} zIndex={80} />
 
       {/* Checkout VietQR Payment popup */}
       {showCheckoutQR && (

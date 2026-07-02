@@ -19,6 +19,7 @@ import { Toaster } from "react-hot-toast";
 import PWARealtimeBridge from "./components/PWARealtimeBridge";
 import PWAQuickLogin from "./components/PWAQuickLogin";
 import DonationModal from "./components/ui/DonationModal";
+import { LazyMotion, domAnimation } from "framer-motion";
 import { initGlobalHaptics } from "./utils/haptics";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
@@ -231,49 +232,51 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <DataProvider>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <TooltipProvider>
-            <PWARealtimeBridge />
-            <PWAQuickLogin />
-            <OfflineBanner />
-            <AppContent />
-            <PWAInstallBanner />
-            <DonationModal />
-            <Toaster
-              position="top-center"
-              reverseOrder={false}
-              containerStyle={{ top: "calc(env(safe-area-inset-top, 0px) + 14px)" }}
-              toastOptions={{
-                duration: 4000,
-                className: "hugo-hot-toast",
-                style: {
-                  maxWidth: "min(420px, calc(100vw - 24px))",
-                  borderRadius: "20px",
-                  border: "1px solid rgba(255,255,255,.62)",
-                  background: "rgba(255,255,255,.94)",
-                  color: "#0f172a",
-                  boxShadow: "0 22px 58px rgba(15,23,42,.20)",
-                  backdropFilter: "blur(24px)",
-                  WebkitBackdropFilter: "blur(24px)",
-                  padding: "13px 16px",
-                  fontSize: "13px",
-                  fontWeight: 850,
-                },
-                success: {
-                  iconTheme: { primary: "#10b981", secondary: "#ffffff" },
-                },
-                error: {
-                  iconTheme: { primary: "#ef4444", secondary: "#ffffff" },
-                },
-                loading: {
-                  iconTheme: { primary: "#6366f1", secondary: "#ffffff" },
-                },
-              }}
-            />
-          </TooltipProvider>
-        </BrowserRouter>
-      </DataProvider>
+      <LazyMotion features={domAnimation}>
+        <DataProvider>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <TooltipProvider>
+              <PWARealtimeBridge />
+              <PWAQuickLogin />
+              <OfflineBanner />
+              <AppContent />
+              <PWAInstallBanner />
+              <DonationModal />
+              <Toaster
+                position="top-center"
+                reverseOrder={false}
+                containerStyle={{ top: "calc(env(safe-area-inset-top, 0px) + 14px)" }}
+                toastOptions={{
+                  duration: 4000,
+                  className: "hugo-hot-toast",
+                  style: {
+                    maxWidth: "min(420px, calc(100vw - 24px))",
+                    borderRadius: "20px",
+                    border: "1px solid rgba(255,255,255,.62)",
+                    background: "rgba(255,255,255,.94)",
+                    color: "#0f172a",
+                    boxShadow: "0 22px 58px rgba(15,23,42,.20)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    padding: "13px 16px",
+                    fontSize: "13px",
+                    fontWeight: 850,
+                  },
+                  success: {
+                    iconTheme: { primary: "#10b981", secondary: "#ffffff" },
+                  },
+                  error: {
+                    iconTheme: { primary: "#ef4444", secondary: "#ffffff" },
+                  },
+                  loading: {
+                    iconTheme: { primary: "#6366f1", secondary: "#ffffff" },
+                  },
+                }}
+              />
+            </TooltipProvider>
+          </BrowserRouter>
+        </DataProvider>
+      </LazyMotion>
     </ErrorBoundary>
   );
 }

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import viteCompression from 'vite-plugin-compression'
 import { VitePWA } from 'vite-plugin-pwa'
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,6 +15,13 @@ export default defineConfig({
     viteCompression({
       algorithm: 'brotliCompress',
       ext: '.br',
+    }),
+    ViteImageOptimizer({
+      png: { quality: 80 },
+      jpeg: { quality: 80 },
+      jpg: { quality: 80 },
+      webp: { lossless: true },
+      avif: { lossless: true },
     }),
     VitePWA({
       registerType: 'autoUpdate',
