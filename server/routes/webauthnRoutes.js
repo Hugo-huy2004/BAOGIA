@@ -11,17 +11,21 @@ import { saveChallenge, consumeChallenge } from '../utils/webauthnChallengeStore
 
 const router = express.Router();
 
-// RP_ID must be a bare registrable domain (no scheme/port) and a suffix of
-// the origin host — e.g. "hugowishpax.studio" covers both the apex and the
-// "www." subdomain in production. Falls back to localhost for dev.
+// Default RP_NAME
 const RP_NAME = 'Hugo Studio';
-const RP_ID = process.env.WEBAUTHN_RP_ID || (process.env.NODE_ENV === 'production' ? 'hugowishpax.studio' : 'localhost');
-const ORIGINS = (process.env.CLIENT_URLS || '').split(',').filter(Boolean).concat([
-  'https://www.hugowishpax.studio',
-  'https://hugowishpax.studio',
-  'http://localhost:5173',
-  'http://localhost:5174',
-]);
+
+// Helper to get dynamic RP_ID and Origin based on the request
+// This allows WebAuthn to work seamlessly on localhost, Ngrok, Vercel, Railway, etc.
+function getDynamicOriginAndRPID(req) {
+  const origin = req.get('origin') || (process.env.NODE_ENV === 'production' ? 'https://hugowishpax.studio' : 'http://localhost:5173');
+  let rpID = 'localhost';
+  try {
+    rpID = new URL(origin).hostname;
+  } catch (e) {
+    console.warn("Invalid origin URL:", origin);
+  }
+  return { expectedOrigin: origin, rpID };
+}
 
 function bufToB64Url(buf) {
   return Buffer.from(buf).toString('base64url');
@@ -38,10 +42,11 @@ router.post('/register-options', async (req, res) => {
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
 
     const existingCreds = await WebAuthnCredential.find({ email });
+    const { rpID } = getDynamicOriginAndRPID(req);
 
     const options = await generateRegistrationOptions({
       rpName: RP_NAME,
-      rpID: RP_ID,
+      rpID: rpID,
       userName: email,
       userDisplayName: bio.displayName || email,
       attestationType: 'none',
@@ -69,11 +74,13 @@ router.post('/register-verify', async (req, res) => {
     const expectedChallenge = consumeChallenge(`reg_${email}`);
     if (!expectedChallenge) return res.status(400).json({ error: 'Challenge expired, please try again' });
 
+    const { expectedOrigin, rpID } = getDynamicOriginAndRPID(req);
+
     const verification = await verifyRegistrationResponse({
       response,
       expectedChallenge,
-      expectedOrigin: ORIGINS,
-      expectedRPID: RP_ID,
+      expectedOrigin,
+      expectedRPID: rpID,
     });
 
     if (!verification.verified || !verification.registrationInfo) {
@@ -107,8 +114,10 @@ router.post('/login-options', async (req, res) => {
     const creds = await WebAuthnCredential.find({ email });
     if (!creds.length) return res.status(404).json({ error: 'NO_CREDENTIALS' });
 
+    const { rpID } = getDynamicOriginAndRPID(req);
+
     const options = await generateAuthenticationOptions({
-      rpID: RP_ID,
+      rpID: rpID,
       allowCredentials: creds.map(c => ({ id: c.credentialID, transports: c.transports })),
       userVerification: 'required',
     });
@@ -134,11 +143,13 @@ router.post('/login-verify', async (req, res) => {
     const cred = await WebAuthnCredential.findOne({ email, credentialID: response.id });
     if (!cred) return res.status(404).json({ error: 'Credential not found' });
 
+    const { expectedOrigin, rpID } = getDynamicOriginAndRPID(req);
+
     const verification = await verifyAuthenticationResponse({
       response,
       expectedChallenge,
-      expectedOrigin: ORIGINS,
-      expectedRPID: RP_ID,
+      expectedOrigin,
+      expectedRPID: rpID,
       authenticator: {
         credentialID: cred.credentialID,
         credentialPublicKey: Buffer.from(cred.publicKey, 'base64url'),

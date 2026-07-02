@@ -108,9 +108,9 @@ function AppContent() {
   const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   const isAuthenticated = isMemberAuthenticated();
   // In the installed PWA we want a focused, app-like dashboard: never show the
-  // marketing top navbar / tab-bar or the support bot — those are web-only.
+  // marketing top navbar / tab-bar — those are web-only. But keep HBot for support.
   const hideNavbar = isEmbed || isFullscreenUtility || isPWA;
-  const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false || isPWA;
+  const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false;
 
   return (
     <div className="min-h-screen bg-surface dark:bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">

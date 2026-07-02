@@ -25,6 +25,7 @@ export default function PWALoginPage() {
   const googleButtonRef = useRef(null);
   const initedRef = useRef(false);
   const [gisReady, setGisReady] = useState(false);
+  const [introFinished, setIntroFinished] = useState(false);
   const [configError, setConfigError] = useState(() =>
     import.meta.env.VITE_GOOGLE_CLIENT_ID ? "" : "Thiếu VITE_GOOGLE_CLIENT_ID."
   );
@@ -52,6 +53,14 @@ export default function PWALoginPage() {
     const timer = setTimeout(() => setToast({ message: "", type: "" }), 4500);
     return () => clearTimeout(timer);
   }, [toast.message]);
+
+  // Cinematic Intro Timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIntroFinished(true);
+    }, 2800); // 2.8s intro sequence
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleGoogleCredential = async (response) => {
     if (!response?.credential) {
@@ -119,7 +128,7 @@ export default function PWALoginPage() {
       const width = Math.min(360, Math.max(240, window.innerWidth - 72));
       try {
         googleId.renderButton(googleButtonRef.current, {
-          theme: isDark ? "filled_black" : "outline",
+          theme: "outline", // Outline works best on pure black
           size: "large",
           shape: "pill",
           text: "continue_with",
@@ -131,6 +140,12 @@ export default function PWALoginPage() {
         return;
       }
       setGisReady(true);
+      
+      // SMART ONE-TAP: Automatically prompt after intro if not on mobile standalone, or always prompt
+      if (introFinished) {
+        googleId.prompt();
+      }
+
       if (timer) window.clearInterval(timer);
       if (timeout) window.clearTimeout(timeout);
     };
@@ -153,7 +168,7 @@ export default function PWALoginPage() {
       window.clearTimeout(timeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [introFinished]); // Re-run when intro finishes to trigger prompt
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -164,8 +179,8 @@ export default function PWALoginPage() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20, filter: "blur(10px)" },
-    show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+    hidden: { opacity: 0, y: 30, filter: "blur(20px)", scale: 0.8 },
+    show: { opacity: 1, y: 0, filter: "blur(0px)", scale: 1, transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] } }
   };
 
   return (
@@ -178,25 +193,54 @@ export default function PWALoginPage() {
         }}
       >
         <style>{`
-          @keyframes aurora {
-            0% { background-position: 50% 50%, 50% 50%; }
-            50% { background-position: 100% 50%, 0% 50%; }
-            100% { background-position: 50% 50%, 50% 50%; }
+          @keyframes float1 {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30%, 20%) scale(1.2); }
+            66% { transform: translate(-20%, 40%) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
           }
-          .aurora-bg {
-            background-image: 
-              radial-gradient(circle at top left, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
-            background-size: 200% 200%;
-            animation: aurora 15s ease infinite;
+          @keyframes float2 {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-30%, -20%) scale(1.1); }
+            66% { transform: translate(20%, -40%) scale(1.3); }
+            100% { transform: translate(0, 0) scale(1); }
+          }
+          @keyframes float3 {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(40%, -30%) scale(0.8); }
+            66% { transform: translate(-40%, 20%) scale(1.2); }
+            100% { transform: translate(0, 0) scale(1); }
+          }
+          @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
           }
         `}</style>
 
-        {/* Ambient brand glows */}
-        <div className="absolute inset-0 aurora-bg pointer-events-none" />
-        <div className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-blue-600/10 blur-[100px]" />
-        <div className="pointer-events-none absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-purple-600/10 blur-[100px]" />
-        <div className="pointer-events-none absolute -bottom-24 left-1/4 h-96 w-96 rounded-full bg-pink-600/10 blur-[100px]" />
+        {/* Ambient Plasma Background - Fades in dynamically */}
+        <div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.6 }}
+          transition={{ duration: 3, delay: 0.5 }}
+          className="absolute inset-0 overflow-hidden pointer-events-none mix-blend-screen"
+        >
+          <div 
+            className="absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-blue-600/30 blur-[80px]"
+            style={{ animation: 'float1 12s ease-in-out infinite' }}
+          />
+          <div 
+            className="absolute top-[20%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-purple-600/30 blur-[100px]"
+            style={{ animation: 'float2 15s ease-in-out infinite' }}
+          />
+          <div 
+            className="absolute -bottom-[10%] left-[20%] w-[80vw] h-[80vw] rounded-full bg-pink-600/30 blur-[120px]"
+            style={{ animation: 'float3 18s ease-in-out infinite' }}
+          />
+          <div 
+            className="absolute top-[40%] left-[10%] w-[50vw] h-[50vw] rounded-full bg-indigo-500/20 blur-[90px]"
+            style={{ animation: 'float1 20s ease-in-out infinite reverse' }}
+          />
+        </div>
 
         <HugoNoticeToast
           open={Boolean(toast.message)}
@@ -215,29 +259,29 @@ export default function PWALoginPage() {
             className="flex flex-col items-center justify-center w-full max-w-sm mx-auto"
           >
             {/* Split "HUGO STUDIO" into animated characters */}
-            <div className="mb-8 flex flex-col items-center justify-center font-display font-black uppercase tracking-[0.25em] sm:tracking-[0.3em]">
-              <div className="flex gap-1 mb-2 text-5xl sm:text-6xl md:text-7xl">
+            <div className="mb-10 flex flex-col items-center justify-center font-display font-black uppercase tracking-[0.2em] sm:tracking-[0.25em]">
+              <div className="flex gap-1.5 mb-1 text-6xl sm:text-7xl md:text-8xl">
                 {[["H", "#EF4444"], ["u", "#F97316"], ["g", "#EAB308"], ["o", "#22C55E"]].map(([c, col], i) => (
                   <m.span 
                     key={i} 
                     variants={itemVariants}
                     style={{ 
                       color: `${col}EE`,
-                      textShadow: `0 0 40px ${col}80, 0 4px 12px rgba(0,0,0,0.5)`,
+                      textShadow: `0 0 50px ${col}80, 0 8px 16px rgba(0,0,0,0.6)`,
                     }}
                   >
                     {c}
                   </m.span>
                 ))}
               </div>
-              <div className="flex gap-0.5 text-3xl sm:text-4xl md:text-5xl mt-2 opacity-90">
+              <div className="flex gap-1 text-6xl sm:text-7xl md:text-8xl mt-1">
                 {[["S", "#3B82F6"], ["t", "#6366F1"], ["u", "#A855F7"], ["d", "#EC4899"], ["i", "#06B6D4"], ["o", "#0EA5E9"]].map(([c, col], i) => (
                   <m.span 
                     key={i} 
                     variants={itemVariants}
                     style={{ 
                       color: `${col}DD`,
-                      textShadow: `0 0 30px ${col}60`,
+                      textShadow: `0 0 50px ${col}70, 0 8px 16px rgba(0,0,0,0.6)`,
                     }}
                   >
                     {c}
@@ -257,9 +301,9 @@ export default function PWALoginPage() {
 
         {/* Actions - Bottom Sheet */}
         <m.div 
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: 100, filter: "blur(20px)" }}
+          animate={introFinished ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
+          transition={{ duration: 1, type: "spring", bounce: 0.3 }}
           className="relative z-10 w-full px-6 pb-12 pt-8"
         >
           <div className="mx-auto w-full max-w-sm p-6 bg-white/[0.03] backdrop-blur-[40px] border border-white/[0.05] rounded-[32px] shadow-[0_8px_32px_rgba(0,0,0,0.5)] space-y-6">
@@ -284,13 +328,20 @@ export default function PWALoginPage() {
             )}
 
             <div className="space-y-5">
-              {/* Google sign-in */}
-              <div className="flex min-h-[48px] justify-center items-center">
-                <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-500 w-full [&>div]:w-full" />
+              {/* Premium Google sign-in wrapper */}
+              <div className="relative group flex justify-center items-center">
+                {/* Animated glowing border effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-30 group-hover:opacity-70 blur-md transition-opacity duration-500" style={{ animation: "spin-slow 4s linear infinite" }} />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-20" />
+                
+                <div className="relative bg-black rounded-full flex justify-center p-[1px] w-full max-w-[360px]">
+                  <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-500 w-full rounded-full overflow-hidden" />
+                </div>
+                
                 {!gisReady && !configError && (
-                  <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-white/50 animate-pulse">
+                  <div className="absolute inset-0 flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-widest text-white/50 animate-pulse pointer-events-none">
                     <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                    Đang kết nối...
+                    Đang thiết lập...
                   </div>
                 )}
               </div>
