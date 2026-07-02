@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { analyzeParticleCloudFrame } from "../../../utils/particleCloudCode";
+import { analyzeParticleCloudFrame, bytesToBase64Url } from "../../../utils/particleCloudCode";
 
 // <ParticleScanner onScanSuccess={(decoded) => ...} /> — a self-contained,
 // fullscreen camera scanner for particle cloud codes.
@@ -169,13 +169,16 @@ export default function ParticleScanner({
       const frame = ctx.getImageData(0, 0, scanBoxSize, scanBoxSize);
 
       const result = analyzeParticleCloudFrame(frame, DECODE_OPTS);
+      // The payload is opaque bytes (the server token); key the agreement window
+      // on its base64url form and hand that to onScanSuccess for the server.
+      const token = result ? bytesToBase64Url(result.bytes) : null;
 
       if (result) {
         const now = performance.now();
-        if (!win || win.payload !== result.payload) {
+        if (!win || win.payload !== token) {
           // Start a fresh window for this payload.
           win = {
-            payload: result.payload,
+            payload: token,
             frames: 1,
             startMs: now,
             unwrapped: 0,
@@ -204,7 +207,7 @@ export default function ParticleScanner({
             active = false;
             stopStream();
             navigator.vibrate?.(60);
-            onScanSuccess?.(result.payload);
+            onScanSuccess?.(token);
             return;
           }
         }

@@ -3,7 +3,8 @@ import {
   PCC_SLOT_SITES,
   PCC_MARKER_ANGLES,
   PCC_MARKER_RADIUS_FRAC,
-  PCC_MAX_PAYLOAD_BYTES,
+  PCC_DATA_BYTES,
+  encodeBytes,
   encodePayload,
 } from "../../../utils/particleCloudCode";
 
@@ -62,25 +63,27 @@ function colorLuminance(color) {
   return 0.299 * r + 0.587 * g + 0.114 * b;
 }
 
-export default function ParticleGenerator({ data = "", size = 190, background, onEncodeError }) {
+// Accepts EITHER `bytes` (Uint8Array — the opaque server token, preferred for
+// the secure JOY flow) or `data` (a plain string, generic use). `bytes` wins.
+export default function ParticleGenerator({ bytes = null, data = "", size = 190, background, onEncodeError }) {
   const canvasRef = useRef(null);
   const rotationRef = useRef(0);
   const animRef = useRef(null);
   const bitsRef = useRef(null);
 
-  // Encode the string -> bit layout whenever `data` changes. Kept in a ref so
-  // the draw loop reads the latest value without being torn down/restarted.
+  // Encode -> bit layout whenever the input changes. Kept in a ref so the draw
+  // loop reads the latest value without being torn down/restarted.
   useEffect(() => {
     try {
-      bitsRef.current = encodePayload(data ?? "");
+      bitsRef.current = bytes ? encodeBytes(bytes) : encodePayload(data ?? "");
     } catch (err) {
       bitsRef.current = null;
       onEncodeError?.(err);
       if (import.meta.env.DEV) {
-        console.warn(`[ParticleGenerator] ${err.message} — payload cap is ${PCC_MAX_PAYLOAD_BYTES} bytes.`);
+        console.warn(`[ParticleGenerator] ${err.message} — data capacity is ${PCC_DATA_BYTES} bytes.`);
       }
     }
-  }, [data, onEncodeError]);
+  }, [bytes, data, onEncodeError]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

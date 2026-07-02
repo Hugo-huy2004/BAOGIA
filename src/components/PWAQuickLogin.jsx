@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, loginMember } from "../services/authSession";
 import { webauthnHelper } from "../utils/webauthnHelper";
 
@@ -18,6 +18,7 @@ function isStandalonePWA() {
 // WebAuthn supported, a credential already saved for this device).
 export default function PWAQuickLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState(null);
   const [busy, setBusy] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -30,7 +31,9 @@ export default function PWAQuickLogin() {
     }
   }, []);
 
-  if (!email || dismissed) return null;
+  // The PWA login page already offers a full-size biometric button, so don't
+  // float this one on top of it.
+  if (!email || dismissed || location.pathname === "/login") return null;
 
   const handleLogin = async () => {
     setBusy(true);

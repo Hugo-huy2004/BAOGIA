@@ -10,6 +10,8 @@ const apiBase = import.meta.env.VITE_API_URL || "/api";
 import DefaultTheme from "../../components/themes/DefaultTheme";
 import BrutalismTheme from "../../components/themes/BrutalismTheme";
 import FlatTheme from "../../components/themes/FlatTheme";
+import WeatherLayer from "../../components/weather/WeatherLayer";
+import { isWeatherBgEnabled } from "../../utils/weatherPrefs";
 
 export default function BioPublicPage() {
   const { slug } = useParams();
@@ -100,8 +102,20 @@ export default function BioPublicPage() {
   }
 
   // Render chosen template
-  if (template === "flat") return <FlatTheme bio={bio} isOnline={isOnline} />;
-  if (template === "brutalism") return <BrutalismTheme bio={bio} isOnline={isOnline} />;
+  const themeEl =
+    template === "flat" ? <FlatTheme bio={bio} isOnline={isOnline} /> :
+    template === "brutalism" ? <BrutalismTheme bio={bio} isOnline={isOnline} /> :
+    <DefaultTheme bio={bio} isOnline={isOnline} />;
 
-  return <DefaultTheme bio={bio} isOnline={isOnline} />;
+  // Live, location-aware weather atmosphere over the bio — on by default, unless
+  // the bio opts out (theme.weatherBackground === false) or the viewer turned it
+  // off on their device. Uses silent IP-level location (no GPS prompt).
+  const weatherEnabled = isWeatherBgEnabled() && bio?.theme?.weatherBackground !== false;
+
+  return (
+    <>
+      {themeEl}
+      <WeatherLayer enabled={weatherEnabled} opacity={0.9} />
+    </>
+  );
 }

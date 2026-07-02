@@ -18,6 +18,7 @@ import { useKeyboardVisible } from "../../hooks/useKeyboardVisible";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
 import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog";
+import WeatherAlertWatcher from "../../components/weather/WeatherAlertWatcher";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
@@ -708,6 +709,7 @@ export default function MemberPortalPage() {
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <>
+    <WeatherAlertWatcher />
     <div className="min-h-screen bg-background dark:bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
 
       <HealingModal

@@ -4,6 +4,7 @@ import { awardJoy, getJoyHistory } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
+import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToken.js';
 
 const BIO_THEME_RENTAL_PRICE = 150;
 const COMPRESS_CHARGE = 50;
@@ -430,7 +431,10 @@ router.get('/qr-payload', async (req, res) => {
       await ensureReferralCode(bio);
     }
     res.json({
-      payload: `joypay:${bio.referralCode}`,
+      // Signed, time-bound token (rotates ~every 2 min). Only this server can
+      // mint one; only this server accepts it back at /resolve-qr.
+      payload: signQrToken(bio.referralCode),
+      refreshMs: JOY_QR_BUCKET_MS, // hint: client should refetch before this elapses
       displayName: bio.displayName || 'Hugo Member',
       avatarUrl: bio.avatarUrl || '',
       balance: bio.joyBalance
@@ -444,10 +448,12 @@ router.get('/qr-payload', async (req, res) => {
 router.get('/resolve-qr', async (req, res) => {
   try {
     const { payload } = req.query;
-    if (!payload || !payload.startsWith('joypay:')) {
-      return res.status(400).json({ error: 'Mã QR JOY không hợp lệ.' });
+    // Reject anything not signed by us (forged codes, expired codes, plain
+    // referral strings). Only a token this server minted verifies.
+    const referralCode = verifyQrToken(payload);
+    if (!referralCode) {
+      return res.status(400).json({ error: 'Mã JOY không hợp lệ hoặc đã hết hạn.' });
     }
-    const referralCode = payload.replace('joypay:', '').trim().toUpperCase();
     const bio = await Bio.findOne({ referralCode }).select('displayName avatarUrl referralCode');
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng này.' });
     res.json({ displayName: bio.displayName || 'Hugo Member', avatarUrl: bio.avatarUrl || '', referralCode: bio.referralCode });

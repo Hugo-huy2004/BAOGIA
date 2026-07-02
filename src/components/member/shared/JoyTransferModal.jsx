@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import Confetti from "react-confetti";
 import ParticleGenerator from "./ParticleGenerator";
 import ParticleScanner from "./ParticleScanner";
+import { base64UrlToBytes } from "../../../utils/particleCloudCode";
 import { searchJoyUser, getJoyQrPayload, resolveJoyQr, transferJoy } from "../../../services/joyApi";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 
@@ -11,11 +12,12 @@ const QUICK_AMOUNTS = [50, 100, 200, 500];
 const NOTE_CHIPS = ["Cảm ơn!", "Tặng bạn" ];
 const TRANSFER_FEE_RATE = 0.05;
 
-// The JOY QR payload is always `joypay:<referralCode>`. The particle code has a
-// deliberately small capacity (for reliable camera decoding), so we encode only
-// the referral code and re-add this constant prefix when resolving a scan.
-const JOY_PREFIX = "joypay:";
-const encodeForParticle = (p) => String(p || "").replace(/^joypay:/, "");
+// The particle code carries an opaque, server-signed token (base64url). The
+// client never interprets it — it just decodes base64url to the raw bytes the
+// generator draws, and hands the scanned token straight back to the server.
+const tokenToBytes = (b64) => {
+  try { return b64 ? base64UrlToBytes(b64) : null; } catch { return null; }
+};
 
 const css = `
 @keyframes jtRingPulse {
@@ -112,7 +114,7 @@ function Avatar({ name, url, size = 40 }) {
   );
 }
 
-function JoySeal({ payload, displayName, avatarUrl, onOpen, compact = false, interactive = true }) {
+function JoySeal({ payload, tokenBytes, displayName, avatarUrl, onOpen, compact = false, interactive = true }) {
   const code = String(payload || "");
   const shortCode = code ? `${code.slice(0, 2)} ✦ ${code.slice(-2)}` : "JOY";
   const size = compact ? 190 : 262;
@@ -294,7 +296,7 @@ function JoySeal({ payload, displayName, avatarUrl, onOpen, compact = false, int
       {/* Particle Cloud Code — a custom circular, continuously-spinning dot code
           (not a QR). Encoding/rendering lives in ParticleGenerator.jsx; the
           matching decoder lives in ParticleScanner.jsx + utils/particleCloudCode.js. */}
-      {code && (
+      {tokenBytes && (
         <div style={{
           position: "absolute",
           left: "50%",
@@ -304,7 +306,7 @@ function JoySeal({ payload, displayName, avatarUrl, onOpen, compact = false, int
           borderRadius: "50%",
           animation: "jtSigilBreathe 5s ease-in-out infinite",
         }}>
-          <ParticleGenerator data={encodeForParticle(code)} size={compact ? 140 : 190} />
+          <ParticleGenerator bytes={tokenBytes} size={compact ? 140 : 190} />
         </div>
       )}
 
@@ -328,7 +330,7 @@ function JoySeal({ payload, displayName, avatarUrl, onOpen, compact = false, int
   );
 }
 
-function CircularQR({ payload, displayName, avatarUrl, onClose }) {
+function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 500,
@@ -379,7 +381,7 @@ function CircularQR({ payload, displayName, avatarUrl, onClose }) {
           }} />
         ))}
         <div style={{ position: "absolute", inset: 10, borderRadius: "50%", background: "radial-gradient(circle at 50% 50%, rgba(250,204,21,.16), rgba(168,85,247,.14) 35%, rgba(0,0,0,0) 70%)", filter: "blur(6px)", opacity: .7 }} />
-        <JoySeal payload={payload} displayName={displayName} avatarUrl={avatarUrl} compact={false} interactive={false} />
+        <JoySeal payload={payload} tokenBytes={tokenBytes} displayName={displayName} avatarUrl={avatarUrl} compact={false} interactive={false} />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 28, gap: 6 }}>
@@ -514,11 +516,20 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
     return () => clearTimeout(debounceRef.current);
   }, [searchQ, bio?.email]);
 
-  // Load My QR when mode changes
+  // Load My QR when "my code" is shown, and refresh it periodically so the
+  // signed, time-bound token never expires while on screen (server rotates it
+  // ~every 2 min; we refetch at 90s to stay comfortably inside the window).
   useEffect(() => {
-    if (mode !== "myqr" || !bio?.email || myQR) return;
-    getJoyQrPayload(bio.email).then(setMyQR).catch(() => {});
-  }, [mode, bio?.email, myQR]);
+    if (mode !== "myqr" || !bio?.email) return;
+    let active = true;
+    const load = () => getJoyQrPayload(bio.email).then(d => { if (active) setMyQR(d); }).catch(() => {});
+    load();
+    const id = setInterval(load, 90000);
+    return () => { active = false; clearInterval(id); };
+  }, [mode, bio?.email]);
+
+  // Opaque token bytes for the generator; recomputed only when the token changes.
+  const myTokenBytes = useMemo(() => tokenToBytes(myQR?.payload), [myQR?.payload]);
 
   const selectRecipient = useCallback((contact) => {
     setRecipient(contact);
@@ -530,10 +541,9 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
     setScanResolving(true);
     setScanOpen(false);
     try {
-      // The particle code carries only the referral code; re-add the prefix the
-      // server expects (unless a full payload was somehow scanned).
-      const full = rawValue.startsWith(JOY_PREFIX) ? rawValue : JOY_PREFIX + rawValue;
-      const data = await resolveJoyQr(full);
+      // rawValue is the opaque server token (base64url) read off the code; the
+      // server verifies its HMAC before returning the recipient.
+      const data = await resolveJoyQr(rawValue);
       playBeep();
       selectRecipient(data);
     } catch (e) {
@@ -593,6 +603,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
       {qrFullscreen && myQR && (
         <CircularQR
           payload={myQR.payload}
+          tokenBytes={myTokenBytes}
           displayName={myQR.displayName}
           avatarUrl={myQR.avatarUrl}
           onClose={() => setQrFullscreen(false)}
@@ -768,7 +779,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                           {/* Particle Cloud Code only — the disc is filled with
                               the card color so it blends in; no decorative orb. */}
                           <div style={{ borderRadius: "50%", lineHeight: 0 }}>
-                            <ParticleGenerator data={encodeForParticle(myQR.payload)} size={240} background={cardBg} />
+                            <ParticleGenerator bytes={myTokenBytes} size={240} background={cardBg} />
                           </div>
                           <p style={{ color: "#0f172a", fontWeight: 900, fontSize: 14, marginTop: 12 }} className="dark:text-white">{myQR.displayName}</p>
                         </>

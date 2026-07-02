@@ -50,7 +50,8 @@ export const PCC_SLOT_SITES = (() => {
 
 export const PCC_TOTAL_BITS = PCC_SLOT_SITES.length;      // 88
 export const PCC_TOTAL_BYTES = PCC_TOTAL_BITS / 8;        // 11
-export const PCC_MAX_PAYLOAD_BYTES = PCC_TOTAL_BYTES - 3; // 8 (length byte + 2 CRC-16 bytes reserved)
+export const PCC_DATA_BYTES = PCC_TOTAL_BYTES - 1;        // 10 opaque payload bytes (+1 CRC-8)
+export const PCC_MAX_PAYLOAD_BYTES = PCC_DATA_BYTES - 1;  // 9 (string mode: 1 length byte)
 
 // Anchor angles are intentionally asymmetric so orientation is unambiguous no
 // matter how the phone is rotated. They sit at the outermost radius, clearly
@@ -62,72 +63,123 @@ export const PCC_MAX_PAYLOAD_BYTES = PCC_TOTAL_BYTES - 3; // 8 (length byte + 2 
 export const PCC_MARKER_ANGLES = [0, 200, 260]; // degrees
 export const PCC_MARKER_RADIUS_FRAC = 1.0;
 
-// ─── Integrity ──────────────────────────────────────────────────────────────
-// CRC-16/CCITT-FALSE. A 16-bit checksum makes a random bit pattern pass with
-// probability ~1/65536 (vs 1/256 for CRC-8), so a single decoded frame is
-// already trustworthy — which lets the scanner accept faster.
-function crc16(bytes) {
-  let crc = 0xffff;
+// ─── Integrity + obfuscation ─────────────────────────────────────────────────
+// SECURITY MODEL: real authenticity ("only our system issues valid codes") is
+// enforced by an HMAC the SERVER computes with a secret key and verifies on
+// scan — see server/utils/joyQrToken.js. This codec only TRANSPORTS the opaque
+// bytes the server produced. The two things here are:
+//   • CRC-8  — a cheap "did I read all 88 dots cleanly?" check so the scanner
+//              doesn't act on a half-read frame.
+//   • scramble — a fixed permutation + keystream over the 88 bits so the raw
+//              bytes aren't legible in the dot pattern. This is client-side, so
+//              it's obfuscation (not a secret), but it stops casual copying and
+//              spreads read errors so no single byte concentrates them.
+function crc8(bytes) {
+  let crc = 0x00;
   for (let i = 0; i < bytes.length; i++) {
-    crc ^= bytes[i] << 8;
-    for (let b = 0; b < 8; b++) {
-      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
-    }
+    crc ^= bytes[i];
+    for (let b = 0; b < 8; b++) crc = (crc & 0x80) ? ((crc << 1) ^ 0x07) & 0xff : (crc << 1) & 0xff;
   }
-  return crc & 0xffff;
+  return crc;
 }
 
-// ─── Encode: string -> bit array ─────────────────────────────────────────────
-// Turns any input string into the 288-bit layout described above. Throws a
-// clear error if the UTF-8 payload exceeds capacity so callers can surface it.
+// Deterministic xorshift32 seeded by a constant -> fixed bit permutation +
+// keystream. Identical on encode/decode, therefore invertible.
+function makeScramble(seed) {
+  let s = seed >>> 0;
+  const next = () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return s >>> 0; };
+  const perm = Array.from({ length: PCC_TOTAL_BITS }, (_, i) => i);
+  for (let i = perm.length - 1; i > 0; i--) {
+    const j = next() % (i + 1);
+    const t = perm[i]; perm[i] = perm[j]; perm[j] = t;
+  }
+  const key = new Uint8Array(PCC_TOTAL_BITS);
+  for (let i = 0; i < key.length; i++) key[i] = next() & 1;
+  return { perm, key };
+}
+const SCRAMBLE = makeScramble(0x9e3779b1);
+
+function bytesToBits(bytes) {
+  const bits = new Array(PCC_TOTAL_BITS).fill(0);
+  for (let i = 0; i < PCC_TOTAL_BYTES; i++)
+    for (let b = 0; b < 8; b++) bits[i * 8 + b] = (bytes[i] >> (7 - b)) & 1;
+  return bits;
+}
+function bitsToBytes(bits) {
+  const bytes = new Uint8Array(PCC_TOTAL_BYTES);
+  for (let i = 0; i < PCC_TOTAL_BYTES; i++) {
+    let v = 0;
+    for (let b = 0; b < 8; b++) v = (v << 1) | (bits[i * 8 + b] ? 1 : 0);
+    bytes[i] = v;
+  }
+  return bytes;
+}
+
+// ─── Encode: raw bytes -> scrambled bit array ────────────────────────────────
+// `data` is ≤ PCC_DATA_BYTES (10), zero-padded; a CRC-8 over the 10 data bytes
+// is appended, and the resulting 88 bits are scrambled.
+export function encodeBytes(data) {
+  const u8 = data instanceof Uint8Array ? data : Uint8Array.from(data || []);
+  if (u8.length > PCC_DATA_BYTES) {
+    throw new Error(`Particle Cloud Code payload too long (${u8.length} bytes, max ${PCC_DATA_BYTES})`);
+  }
+  const bytes = new Uint8Array(PCC_TOTAL_BYTES);
+  bytes.set(u8, 0);
+  bytes[PCC_TOTAL_BYTES - 1] = crc8(bytes.subarray(0, PCC_DATA_BYTES));
+  const raw = bytesToBits(bytes);
+  const out = new Array(PCC_TOTAL_BITS).fill(0);
+  for (let i = 0; i < PCC_TOTAL_BITS; i++) out[SCRAMBLE.perm[i]] = raw[i] ^ SCRAMBLE.key[i];
+  return out;
+}
+
+// ─── Decode: scrambled bit array -> raw bytes (Uint8Array(10)) | null ────────
+export function decodeToBytes(bits) {
+  if (!bits || bits.length !== PCC_TOTAL_BITS) return null;
+  const raw = new Array(PCC_TOTAL_BITS).fill(0);
+  for (let i = 0; i < PCC_TOTAL_BITS; i++) raw[i] = (bits[SCRAMBLE.perm[i]] ? 1 : 0) ^ SCRAMBLE.key[i];
+  const bytes = bitsToBytes(raw);
+  if (crc8(bytes.subarray(0, PCC_DATA_BYTES)) !== bytes[PCC_TOTAL_BYTES - 1]) return null;
+  return bytes.slice(0, PCC_DATA_BYTES);
+}
+
+// ─── String convenience (generic use / tests) ────────────────────────────────
+// Inside the 10 data bytes: [len][utf8 … zero-padded]. Cap = 9 bytes.
 export function encodePayload(text) {
   const utf8 = new TextEncoder().encode(text == null ? "" : String(text));
   if (utf8.length > PCC_MAX_PAYLOAD_BYTES) {
-    throw new Error(
-      `Particle Cloud Code payload too long (${utf8.length} bytes, max ${PCC_MAX_PAYLOAD_BYTES})`
-    );
+    throw new Error(`Particle Cloud Code payload too long (${utf8.length} bytes, max ${PCC_MAX_PAYLOAD_BYTES})`);
   }
-  const bytes = new Uint8Array(PCC_TOTAL_BYTES);
-  bytes[0] = utf8.length;
-  bytes.set(utf8, 1);
-  const crc = crc16(bytes.subarray(0, PCC_TOTAL_BYTES - 2));
-  bytes[PCC_TOTAL_BYTES - 2] = (crc >> 8) & 0xff;
-  bytes[PCC_TOTAL_BYTES - 1] = crc & 0xff;
-
-  const bits = new Array(PCC_TOTAL_BITS).fill(0);
-  for (let byteIdx = 0; byteIdx < PCC_TOTAL_BYTES; byteIdx++) {
-    const byte = bytes[byteIdx];
-    for (let bitIdx = 0; bitIdx < 8; bitIdx++) {
-      bits[byteIdx * 8 + bitIdx] = (byte >> (7 - bitIdx)) & 1;
-    }
-  }
-  return bits;
+  const data = new Uint8Array(PCC_DATA_BYTES);
+  data[0] = utf8.length;
+  data.set(utf8, 1);
+  return encodeBytes(data);
 }
-
-// ─── Decode: bit array -> string | null ──────────────────────────────────────
-// Returns null on any structural failure (wrong length, bad CRC, invalid
-// UTF-8), which is exactly what we want when reading noisy camera frames.
 export function decodeBits(bits) {
-  if (!bits || bits.length !== PCC_TOTAL_BITS) return null;
-  const bytes = new Uint8Array(PCC_TOTAL_BYTES);
-  for (let byteIdx = 0; byteIdx < PCC_TOTAL_BYTES; byteIdx++) {
-    let byte = 0;
-    for (let bitIdx = 0; bitIdx < 8; bitIdx++) {
-      byte = (byte << 1) | (bits[byteIdx * 8 + bitIdx] ? 1 : 0);
-    }
-    bytes[byteIdx] = byte;
-  }
-  const len = bytes[0];
+  const data = decodeToBytes(bits);
+  if (!data) return null;
+  const len = data[0];
   if (len === 0 || len > PCC_MAX_PAYLOAD_BYTES) return null;
-  const stored = (bytes[PCC_TOTAL_BYTES - 2] << 8) | bytes[PCC_TOTAL_BYTES - 1];
-  if (crc16(bytes.subarray(0, PCC_TOTAL_BYTES - 2)) !== stored) return null;
   try {
-    // fatal: true rejects malformed byte sequences instead of inserting U+FFFD,
-    // giving us another cheap false-positive filter.
-    return new TextDecoder("utf-8", { fatal: true }).decode(bytes.subarray(1, 1 + len));
+    return new TextDecoder("utf-8", { fatal: true }).decode(data.subarray(1, 1 + len));
   } catch {
     return null;
   }
+}
+
+// ─── base64url <-> bytes (how the server token rides in/out of this codec) ────
+export function bytesToBase64Url(bytes) {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  const b64 = typeof btoa !== "undefined" ? btoa(bin) : Buffer.from(bytes).toString("base64");
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+export function base64UrlToBytes(str) {
+  let b64 = String(str).replace(/-/g, "+").replace(/_/g, "/");
+  while (b64.length % 4) b64 += "=";
+  const bin = typeof atob !== "undefined" ? atob(b64) : Buffer.from(b64, "base64").toString("binary");
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
 
 // ─── Geometry helpers ─────────────────────────────────────────────────────────
@@ -239,15 +291,15 @@ function decodeFromBlobs(blobs, minDotArea, matchToleranceFrac) {
     bits[k] = hit ? 1 : 0;
   }
 
-  const payload = decodeBits(bits);
-  if (payload == null) return null;
-  return { payload, rotationDeg, center, scale };
+  const bytes = decodeToBytes(bits);
+  if (bytes == null) return null;
+  return { bytes, rotationDeg, center, scale };
 }
 
 // ─── Frame analysis (full CV pipeline) ───────────────────────────────────────
 // Decodes one camera frame (a canvas ImageData). Returns a rich result:
-//   { payload, rotationDeg, center: {x,y}, scale }   on success
-//   null                                             if nothing valid this frame
+//   { bytes: Uint8Array(10), rotationDeg, center: {x,y}, scale }   on success
+//   null                                                           if nothing valid
 //
 // Polarity- AND exposure-agnostic. The dots may be BRIGHT on a dark background
 // (the fullscreen "seal") or DARK on a light background (the card preview), and
@@ -308,9 +360,9 @@ export function analyzeParticleCloudFrame(imageData, opts = {}) {
   return null;
 }
 
-// Back-compat convenience: same pipeline, but returns just the string (or null).
-// Existing callers (e.g. the inline scanner in JoyTransferModal) keep working.
+// Convenience: same pipeline, but returns the payload as a base64url string
+// (the opaque server token) or null.
 export function decodeParticleCloudFrame(imageData, opts = {}) {
   const result = analyzeParticleCloudFrame(imageData, opts);
-  return result ? result.payload : null;
+  return result ? bytesToBase64Url(result.bytes) : null;
 }

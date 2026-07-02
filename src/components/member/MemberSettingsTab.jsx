@@ -7,6 +7,9 @@ import { webauthnHelper } from "../../utils/webauthnHelper";
 import { playNotificationSound } from "../../utils/audio";
 import { isNotificationSoundEnabled, setNotificationSoundEnabled } from "../../utils/notificationSoundPref";
 import { isHBotVisible, setHBotVisible, isDonationWidgetVisible, setDonationWidgetVisible } from "../../utils/floatingWidgetPref";
+import { isWeatherBgEnabled, setWeatherBgEnabled, isWeatherAlertEnabled, setWeatherAlertEnabled } from "../../utils/weatherPrefs";
+import { useWeather } from "../../hooks/useWeather";
+import { describeCondition } from "../../utils/weather";
 
 const LANGUAGES = [
   { code: "vi", label: "Tiếng Việt" },
@@ -57,6 +60,9 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
   const [hbotVisible, setHbotVisibleState] = useState(() => isHBotVisible());
   const [donationVisible, setDonationVisibleState] = useState(() => isDonationWidgetVisible());
   const [biometricSupported, setBiometricSupported] = useState(false);
+  const [weatherBg, setWeatherBgState] = useState(() => isWeatherBgEnabled());
+  const [weatherAlert, setWeatherAlertState] = useState(() => isWeatherAlertEnabled());
+  const { weather: liveWeather } = useWeather({ enabled: true });
   const email = memberSession?.email;
 
   useEffect(() => {
@@ -103,6 +109,21 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
   const handleToggleDonation = (next) => {
     setDonationVisibleState(next);
     setDonationWidgetVisible(next);
+  };
+
+  const handleToggleWeatherBg = (next) => {
+    setWeatherBgState(next);
+    setWeatherBgEnabled(next);
+  };
+
+  const handleToggleWeatherAlert = async (next) => {
+    if (next) {
+      // Alerts need location (to know YOUR weather) and notification permission.
+      try { await Notification?.requestPermission?.(); } catch { /* ignore */ }
+      try { navigator.geolocation?.getCurrentPosition(() => {}, () => {}, { timeout: 8000 }); } catch { /* ignore */ }
+    }
+    setWeatherAlertState(next);
+    setWeatherAlertEnabled(next);
   };
 
   const currentLang = i18n.language?.startsWith("en") ? "en" : "vi";
@@ -196,6 +217,41 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
           title={t("memberPortal.settings.donationTitle")}
           desc={t("memberPortal.settings.donationDesc")}
           control={<ToggleSwitch checked={donationVisible} onChange={handleToggleDonation} label={t("memberPortal.settings.donationTitle")} />}
+        />
+      </SettingsGroup>
+
+      <SettingsGroup label="Thời tiết">
+        {liveWeather && (
+          <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-sky-500/10 to-indigo-500/10">
+            <span className="material-symbols-outlined text-sky-500 text-2xl">
+              {describeCondition(liveWeather.condition, liveWeather.isDay).icon}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
+                {describeCondition(liveWeather.condition, liveWeather.isDay).label} · {liveWeather.tempC}°C
+              </p>
+              <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400">
+                Cảm giác {liveWeather.feelsC}° · Gió {liveWeather.windKph} km/h · Ẩm {liveWeather.humidity}%
+              </p>
+            </div>
+          </div>
+        )}
+        <SettingsRow
+          icon="wb_sunny"
+          iconColor="text-amber-500"
+          iconBg="bg-amber-500/10"
+          title="Nền động theo thời tiết"
+          desc="Trang Bio hiển thị hiệu ứng nền sống động theo thời tiết thực (nắng, mây, mưa, đêm trăng…)."
+          control={<ToggleSwitch checked={weatherBg} onChange={handleToggleWeatherBg} label="Nền động theo thời tiết" />}
+        />
+        <SettingsRow
+          icon="storm"
+          iconColor="text-indigo-500"
+          iconBg="bg-indigo-500/10"
+          title="Cảnh báo thời tiết bất thường"
+          desc="Dựa vào vị trí của bạn, Hugo Studio nhắc bạn chuẩn bị khi thời tiết trở xấu (giông, mưa lớn, nắng nóng…)."
+          warn={weatherAlert ? "Cần cho phép Vị trí & Thông báo để hoạt động." : undefined}
+          control={<ToggleSwitch checked={weatherAlert} onChange={handleToggleWeatherAlert} label="Cảnh báo thời tiết bất thường" />}
         />
       </SettingsGroup>
 

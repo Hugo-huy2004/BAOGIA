@@ -26,6 +26,7 @@ const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
 const TemplatesPage = lazy(() => import("./pages/public/TemplatesPage"));
 const BookingContactPage = lazy(() => import("./pages/public/BookingContactPage"));
 const LoginPage = lazy(() => import("./pages/public/LoginPage"));
+const PWALoginPage = lazy(() => import("./pages/public/PWALoginPage"));
 const MemberPortalPage = lazy(() => import("./pages/member/MemberPortalPage"));
 const BioPublicPage = lazy(() => import("./pages/public/BioPublicPage"));
 const AdminPanel = lazy(() => import("./pages/admin/AdminPanel"));
@@ -145,7 +146,9 @@ function AppContent() {
             <Route path="/templates" element={<TemplatesPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/booking" element={<BookingContactPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            {/* Installed PWA (standalone) gets the app-style, member-only Google
+                login; the web keeps the full 3-tab LoginPage. */}
+            <Route path="/login" element={isPWA ? <PWALoginPage /> : <LoginPage />} />
             <Route path="/member" element={<Navigate to="/member/account" replace />} />
             <Route path="/member/:tab" element={
               (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
