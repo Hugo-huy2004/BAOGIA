@@ -27,9 +27,17 @@ import { analyzeParticleCloudFrame } from "../../../utils/particleCloudCode";
 // Liveness / agreement tuning. The generator spins ~0.9°/frame (~54°/s), so a
 // live code sweeps well past ROT_MIN_DEG within the time window, while camera
 // angle noise on a static photo stays near zero net displacement.
+// CRC-16 makes a single decoded frame already trustworthy (~1/65536 false
+// positive), so we accept fast: just 2 agreeing frames over a short window with
+// a hint of rotation (proves it's a live spinning code, not a still photo).
 const AGREE_MIN_FRAMES = 2;    // consecutive frames that must decode identically
-const AGREE_MIN_MS = 100;      // ...spanning at least this long
-const ROT_MIN_DEG = 2;         // ...with at least this much net rotation (liveness)
+const AGREE_MIN_MS = 60;       // ...spanning at least this long
+const ROT_MIN_DEG = 0.8;       // ...with at least this much net rotation (liveness)
+
+// Blob-detection tuning passed to the decoder. Dots are rendered large; ignore
+// single-pixel specks but allow generous blur growth. Thresholding is adaptive
+// inside the decoder, so no fixed light levels here.
+const DECODE_OPTS = { minDotArea: 3, maxDotArea: 2500, matchToleranceFrac: 0.5 };
 
 function shortestAngleDelta(from, to) {
   // Smallest signed difference in degrees, wrapped into (-180, 180].
@@ -160,7 +168,7 @@ export default function ParticleScanner({
       ctx.drawImage(video, sx, sy, side, side, 0, 0, scanBoxSize, scanBoxSize);
       const frame = ctx.getImageData(0, 0, scanBoxSize, scanBoxSize);
 
-      const result = analyzeParticleCloudFrame(frame);
+      const result = analyzeParticleCloudFrame(frame, DECODE_OPTS);
 
       if (result) {
         const now = performance.now();

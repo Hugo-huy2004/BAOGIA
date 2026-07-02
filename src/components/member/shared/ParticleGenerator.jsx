@@ -1,8 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import {
-  PCC_RINGS,
-  PCC_SLOTS_PER_RING,
-  PCC_RING_RADIUS_FRACS,
+  PCC_SLOT_SITES,
   PCC_MARKER_ANGLES,
   PCC_MARKER_RADIUS_FRAC,
   PCC_MAX_PAYLOAD_BYTES,
@@ -117,14 +115,20 @@ export default function ParticleGenerator({ data = "", size = 190, background, o
     const draw = () => {
       if (!active) return;
       frame++;
-      // ~0.9°/frame ≈ a full turn every ~6.7s at 60fps. Fast enough that the
-      // scanner can measure real angular advance for its liveness check, slow
-      // enough to look elegant.
-      rotationRef.current = (rotationRef.current + 0.9) % 360;
+      // ~0.35°/frame ≈ a full turn every ~17s at 60fps. Slow enough to keep
+      // motion blur low for the camera (blur was killing decodes), but still
+      // advancing so the scanner's liveness check sees real rotation.
+      rotationRef.current = (rotationRef.current + 0.35) % 360;
       const rotation = rotationRef.current;
 
       // Global "breathing" pulse (anti-spoof flavor) — modulates glow/size only.
-      const pulse = 0.85 + 0.15 * Math.sin(frame * 0.05);
+      const pulse = 0.9 + 0.1 * Math.sin(frame * 0.05);
+
+      // Dots sized relative to scale so they stay large & well-separated at any
+      // render size; anchors are clearly bigger (≈3.5× area) so the decoder can
+      // always pick them as the 3 biggest blobs.
+      const dotR = Math.max(2.5, scale * 0.04) * pulse;
+      const markerR = Math.max(5, scale * 0.075) * pulse;
 
       ctx.clearRect(0, 0, size, size);
 
@@ -161,27 +165,25 @@ export default function ParticleGenerator({ data = "", size = 190, background, o
         ctx.fill();
       }
 
-      // Data dots — present iff the corresponding bit is 1.
+      // Data dots — present iff the corresponding bit is 1. Sites carry their
+      // own ring index & slot count (variable density) so we iterate the flat list.
       const bits = bitsRef.current;
       if (bits) {
-        for (let ring = 0; ring < PCC_RINGS; ring++) {
-          const r = PCC_RING_RADIUS_FRACS[ring] * scale;
-          const core = lightBg ? DARK_RING_CORE[ring % DARK_RING_CORE.length] : BRIGHT_CORE;
-          const glow = lightBg
-            ? DARK_RING_GLOW[ring % DARK_RING_GLOW.length]
-            : BRIGHT_RING_GLOW[ring % BRIGHT_RING_GLOW.length];
-          for (let slot = 0; slot < PCC_SLOTS_PER_RING; slot++) {
-            if (!bits[ring * PCC_SLOTS_PER_RING + slot]) continue;
-            const a = (((360 / PCC_SLOTS_PER_RING) * slot + rotation) * Math.PI) / 180;
-            const x = center + r * Math.cos(a);
-            const y = center + r * Math.sin(a);
-            ctx.beginPath();
-            ctx.arc(x, y, 2.6 * pulse, 0, Math.PI * 2);
-            ctx.fillStyle = core;
-            ctx.shadowColor = glow;
-            ctx.shadowBlur = lightBg ? 4 : 6;
-            ctx.fill();
-          }
+        for (let k = 0; k < PCC_SLOT_SITES.length; k++) {
+          if (!bits[k]) continue;
+          const site = PCC_SLOT_SITES[k];
+          const r = site.frac * scale;
+          const a = (((360 / site.slots) * site.slot + rotation) * Math.PI) / 180;
+          const x = center + r * Math.cos(a);
+          const y = center + r * Math.sin(a);
+          ctx.beginPath();
+          ctx.arc(x, y, dotR, 0, Math.PI * 2);
+          ctx.fillStyle = lightBg ? DARK_RING_CORE[site.ring % DARK_RING_CORE.length] : BRIGHT_CORE;
+          ctx.shadowColor = lightBg
+            ? DARK_RING_GLOW[site.ring % DARK_RING_GLOW.length]
+            : BRIGHT_RING_GLOW[site.ring % BRIGHT_RING_GLOW.length];
+          ctx.shadowBlur = lightBg ? 4 : 6;
+          ctx.fill();
         }
       }
 
@@ -193,7 +195,9 @@ export default function ParticleGenerator({ data = "", size = 190, background, o
         const x = center + r * Math.cos(a);
         const y = center + r * Math.sin(a);
         ctx.beginPath();
-        ctx.arc(x, y, (idx === 0 ? 6 : 4.6) * pulse, 0, Math.PI * 2);
+        // All anchors the same (big) size — the decoder tells them apart by
+        // their asymmetric angular spacing, not by size (blur-robust).
+        ctx.arc(x, y, markerR, 0, Math.PI * 2);
         if (lightBg) {
           ctx.fillStyle = idx === 0 ? "#312e81" : "#6d28d9"; // deep indigo / violet
           ctx.shadowColor = idx === 0 ? "rgba(49,46,129,.5)" : "rgba(109,40,217,.5)";

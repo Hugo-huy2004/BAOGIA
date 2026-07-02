@@ -11,6 +11,12 @@ const QUICK_AMOUNTS = [50, 100, 200, 500];
 const NOTE_CHIPS = ["Cảm ơn!", "Tặng bạn" ];
 const TRANSFER_FEE_RATE = 0.05;
 
+// The JOY QR payload is always `joypay:<referralCode>`. The particle code has a
+// deliberately small capacity (for reliable camera decoding), so we encode only
+// the referral code and re-add this constant prefix when resolving a scan.
+const JOY_PREFIX = "joypay:";
+const encodeForParticle = (p) => String(p || "").replace(/^joypay:/, "");
+
 const css = `
 @keyframes jtRingPulse {
   0%   { transform: scale(1);   opacity: .35; }
@@ -298,7 +304,7 @@ function JoySeal({ payload, displayName, avatarUrl, onOpen, compact = false, int
           borderRadius: "50%",
           animation: "jtSigilBreathe 5s ease-in-out infinite",
         }}>
-          <ParticleGenerator data={code} size={compact ? 140 : 190} />
+          <ParticleGenerator data={encodeForParticle(code)} size={compact ? 140 : 190} />
         </div>
       )}
 
@@ -524,7 +530,10 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
     setScanResolving(true);
     setScanOpen(false);
     try {
-      const data = await resolveJoyQr(rawValue);
+      // The particle code carries only the referral code; re-add the prefix the
+      // server expects (unless a full payload was somehow scanned).
+      const full = rawValue.startsWith(JOY_PREFIX) ? rawValue : JOY_PREFIX + rawValue;
+      const data = await resolveJoyQr(full);
       playBeep();
       selectRecipient(data);
     } catch (e) {
@@ -759,7 +768,7 @@ export default function JoyTransferModal({ open, bio, onClose, onSuccess }) {
                           {/* Particle Cloud Code only — the disc is filled with
                               the card color so it blends in; no decorative orb. */}
                           <div style={{ borderRadius: "50%", lineHeight: 0 }}>
-                            <ParticleGenerator data={myQR.payload} size={220} background={cardBg} />
+                            <ParticleGenerator data={encodeForParticle(myQR.payload)} size={240} background={cardBg} />
                           </div>
                           <p style={{ color: "#0f172a", fontWeight: 900, fontSize: 14, marginTop: 12 }} className="dark:text-white">{myQR.displayName}</p>
                         </>
