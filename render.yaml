@@ -39,6 +39,9 @@ services:
       - key: JWT_SECRET
         sync: false
 
+      - key: JOY_QR_SECRET
+        sync: false
+
       - key: INTERNAL_API_KEY
         sync: false
 

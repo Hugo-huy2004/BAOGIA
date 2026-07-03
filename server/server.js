@@ -205,10 +205,13 @@ app.get('/api/auth/verify-edu', async (req, res) => {
   }
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
+// Health checks. Render's web-service healthCheckPath uses /health, while the
+// frontend/dev proxy can still call /api/health.
+const healthHandler = (req, res) => {
   res.json({ status: 'Server is running', timestamp: new Date() });
-});
+};
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
 
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
 import { initCompanionScheduler } from './utils/companionScheduler.js';
