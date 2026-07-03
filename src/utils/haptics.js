@@ -7,7 +7,7 @@ export function triggerHaptic(durationMs = 10) {
   try {
     if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
     navigator.vibrate?.(durationMs);
-  } catch (_) {}
+  } catch (_) { /* ignore */ }
 }
 
 // Game-interaction haptics — paired 1:1 with the playGameX() sound effects in

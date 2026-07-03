@@ -536,7 +536,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
 
   const selectRecipient = useCallback((contact) => {
     setRecipient(contact);
-    setStep("contact");
+    setStep("amount");
     setError("");
   }, []);
 
@@ -649,7 +649,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
               }}>
                 {step !== "select" && (
                   <button
-                    onClick={() => { setStep(step === "contact" ? "select" : step === "amount" ? "contact" : step === "invoice" ? "amount" : "select"); setError(""); }}
+                    onClick={() => { setStep(step === "amount" ? "select" : step === "invoice" ? "amount" : "select"); setError(""); }}
                     style={{ background: "rgba(255,255,255,.15)", border: "none", borderRadius: "50%", width: 30, height: 30, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back_ios_new</span>
@@ -659,7 +659,6 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
                   <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.6)", letterSpacing: ".14em", textTransform: "uppercase" }}>HugoStudio</p>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 900, color: "#fff", letterSpacing: "-.02em" }}>
                     {step === "select" && t("joy.particle.title", "Hugo Studio - Intelligent Connection")}
-                    {step === "contact" && `${t("joy.particle.profile", "Hồ sơ")}: ${recipient?.displayName}`}
                     {step === "amount" && `${t("joy.particle.sendTo", "Gửi")} → ${recipient?.displayName}`}
                     {step === "invoice" && t("joy.particle.confirm", "Xác nhận")}
                     {step === "sending" && t("joy.particle.sending", "Đang xử lý...")}
@@ -707,16 +706,10 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
                           fontSize: 18, color: "#94a3b8",
                         }}>search</span>
                         <input
-                          autoFocus
                           value={searchQ}
                           onChange={e => setSearchQ(e.target.value)}
                           placeholder={t("joy.particle.searchPlaceholder", "Tên, SĐT, mã giới thiệu...")}
-                          style={{
-                            width: "100%", padding: "11px 12px 11px 38px", borderRadius: 12,
-                            border: "1.5px solid #e5e7eb", background: "#f8fafc",
-                            fontSize: 13, fontWeight: 600, outline: "none",
-                            boxSizing: "border-box",
-                          }}
+                          className="w-full py-2.5 pl-10 pr-10 rounded-xl border-2 border-slate-200/70 bg-slate-50 text-[13px] font-bold text-slate-800 outline-none transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-indigo-500 dark:focus:bg-white/10"
                         />
                         {searching && (
                           <span className="material-symbols-outlined" style={{

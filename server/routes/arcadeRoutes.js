@@ -3,6 +3,7 @@ import ArcadeScore from '../models/ArcadeScore.js';
 import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { isFeatureActive } from '../utils/featureSubscriptionService.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -23,10 +24,11 @@ const REWARD_TABLE = {
   hard:   { win: 75, lose: -10 },
 };
 
-// POST /api/arcade/score — body: { email, game, score, difficulty, result, displayName, avatarUrl }
-router.post('/score', async (req, res) => {
+// POST /api/arcade/score — body: { game, score, difficulty, result, displayName, avatarUrl }
+router.post('/score', requireMember, async (req, res) => {
   try {
-    const { email, game, score, difficulty, result, displayName, avatarUrl } = req.body;
+    const { game, score, difficulty, result, displayName, avatarUrl } = req.body;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email is required' });
     if (!Object.keys(SCORE_CEILINGS).includes(game)) {
       return res.status(400).json({ error: 'invalid game' });
@@ -122,9 +124,9 @@ router.get('/leaderboard', async (req, res) => {
 
 // GET /api/arcade/profile?email= — all 3 games' record/bestScore/gamesPlayed in
 // one call, used by the lobby + achievement computation (read-only, no abuse surface).
-router.get('/profile', async (req, res) => {
+router.get('/profile', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email is required' });
 
     const docs = await ArcadeScore.find({ email }).lean();
@@ -145,9 +147,10 @@ router.get('/profile', async (req, res) => {
 });
 
 // GET /api/arcade/me?email=&game=
-router.get('/me', async (req, res) => {
+router.get('/me', requireMember, async (req, res) => {
   try {
-    const { email, game } = req.query;
+    const { game } = req.query;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email is required' });
     if (!Object.keys(SCORE_CEILINGS).includes(game)) {
       return res.status(400).json({ error: 'invalid game' });

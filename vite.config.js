@@ -3,11 +3,18 @@ import react from '@vitejs/plugin-react'
 import viteCompression from 'vite-plugin-compression'
 import { VitePWA } from 'vite-plugin-pwa'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.js'],
+  },
   plugins: [
     react(),
+    // npm run build:analyze → dist/stats.html (treemap of bundle composition)
+    process.env.ANALYZE ? visualizer({ filename: 'dist/stats.html', gzipSize: true, brotliSize: true }) : null,
     viteCompression({
       algorithm: 'gzip',
       ext: '.gz',
@@ -24,12 +31,12 @@ export default defineConfig({
       avif: { lossless: true },
     }),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon/**', 'image/**'],
       workbox: {
         cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
+        skipWaiting: false,
+        clientsClaim: false,
         importScripts: ['/push-sw.js'],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
@@ -176,6 +183,8 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            if (id.includes('firebase')) return 'firebase';
+            if (id.includes('@chatscope')) return 'chat-ui';
             if (id.includes('framer-motion')) return 'framer';
             if (id.includes('react-quill') || id.includes('/quill/')) return 'quill';
             if (id.includes('lucide-react')) return 'icons';

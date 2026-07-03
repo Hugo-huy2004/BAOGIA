@@ -13,11 +13,7 @@
 // then expires (anti-replay). The displayed code rotates as the bucket advances.
 
 import crypto from 'crypto';
-
-const SECRET = process.env.JOY_QR_SECRET || 'dev-insecure-joy-qr-secret-change-me';
-if (!process.env.JOY_QR_SECRET) {
-  console.warn('[joyQrToken] JOY_QR_SECRET is not set — using an insecure dev default. Set it in production.');
-}
+import { JOY_QR_SECRET as SECRET } from './secrets.js';
 
 // 2-minute buckets; accepting current + previous gives a ~2–4 minute lifetime.
 export const JOY_QR_BUCKET_MS = 120000;

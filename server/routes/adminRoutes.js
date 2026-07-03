@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'hugo-wishpax-super-secret-key-2024';
+import { JWT_SECRET } from '../utils/secrets.js';
 
 // Helper for SHA-256 (to match the existing MongoDB hashed credentials)
 const sha256 = (message) => {

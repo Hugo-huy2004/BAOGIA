@@ -183,11 +183,11 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
   return (
     <div className="max-w-xl mx-auto space-y-5 px-3 sm:px-0 animate-fadeIn text-left">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
+      <div className="flex items-center justify-between bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-xl p-4 border border-white/50 dark:border-white/10 shadow-sm">
+        <div className="space-y-1">
           <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
             <span className="material-symbols-outlined text-base text-primary">notifications</span>{t("memberTabs.history.title")}</h2>
-          <p className="text-[10px] text-zinc-450">
+          <p className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
             {filteredEntries.length > 0
               ? t("memberTabs.history.notification_count", { count: filteredEntries.length })
               : t("memberTabs.history.no_events")}
@@ -221,7 +221,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all duration-200 shrink-0 ${
                 active
                   ? "bg-primary border-primary text-white shadow-sm"
-                  : "bg-white dark:bg-card/60 border-border/50 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-250"
+                  : "bg-white/80 dark:bg-card/60 border-border/50 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 backdrop-blur-sm"
               }`}
             >
               <span className="material-symbols-outlined text-xs">{filter.icon}</span>
@@ -250,9 +250,11 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
           {groupedEntries.map((group) => (
             <div key={group.dateString} className="space-y-2">
               {/* Day Header */}
-              <h3 className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest pl-2">
-                {group.dateHeader}
-              </h3>
+              <div className="pl-2">
+                <span className="inline-block px-2.5 py-1 rounded-lg bg-white/70 dark:bg-black/40 backdrop-blur-md text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm">
+                  {group.dateHeader}
+                </span>
+              </div>
 
               {/* Day Notification Items - Flat List */}
               <div className="bg-white/70 dark:bg-zinc-900/50 backdrop-blur-xl rounded-[1.25rem] border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm overflow-hidden divide-y divide-zinc-200/50 dark:divide-zinc-800/40">

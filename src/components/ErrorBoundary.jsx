@@ -1,4 +1,5 @@
 import React from 'react';
+import { reportClientEvent } from '../utils/clientMonitoring';
 
 const CHUNK_ERROR_PATTERN = /failed to fetch dynamically imported module|importing a module script failed|error loading dynamically imported module/i;
 const RELOAD_FLAG = 'chunk_reload_attempted';
@@ -19,6 +20,12 @@ export class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
+    reportClientEvent({
+      type: 'react-error-boundary',
+      name: error?.name || 'ReactError',
+      message: error?.message,
+      stack: `${error?.stack || ''}\n${errorInfo?.componentStack || ''}`,
+    });
 
     // A new deploy replaced the hashed JS chunk files, but this tab is still
     // running an older index.html that references the old filenames. A single

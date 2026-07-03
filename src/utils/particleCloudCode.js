@@ -170,12 +170,14 @@ export function decodeBits(bits) {
 export function bytesToBase64Url(bytes) {
   let bin = "";
   for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  // eslint-disable-next-line no-undef
   const b64 = typeof btoa !== "undefined" ? btoa(bin) : Buffer.from(bytes).toString("base64");
   return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 export function base64UrlToBytes(str) {
   let b64 = String(str).replace(/-/g, "+").replace(/_/g, "/");
   while (b64.length % 4) b64 += "=";
+  // eslint-disable-next-line no-undef
   const bin = typeof atob !== "undefined" ? atob(b64) : Buffer.from(b64, "base64").toString("binary");
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);

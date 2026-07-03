@@ -8,6 +8,7 @@ import {
 import Bio from '../models/Bio.js';
 import WebAuthnCredential from '../models/WebAuthnCredential.js';
 import { saveChallenge, consumeChallenge } from '../utils/webauthnChallengeStore.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -33,9 +34,12 @@ function bufToB64Url(buf) {
 
 // POST /api/webauthn/register-options — start registering a new authenticator
 // (fingerprint/Face ID) for an already-logged-in member.
-router.post('/register-options', async (req, res) => {
+// Registration is bound to the logged-in session — otherwise anyone could
+// register THEIR fingerprint against someone else's email and then biometric-
+// login as that victim.
+router.post('/register-options', requireMember, async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
     const bio = await Bio.findOne({ email });
@@ -66,9 +70,10 @@ router.post('/register-options', async (req, res) => {
 });
 
 // POST /api/webauthn/register-verify — finish registering the authenticator.
-router.post('/register-verify', async (req, res) => {
+router.post('/register-verify', requireMember, async (req, res) => {
   try {
-    const { email, response, deviceName } = req.body;
+    const { response, deviceName, baseDeviceName } = req.body;
+    const email = req.memberEmail;
     if (!email || !response) return res.status(400).json({ error: 'Missing fields' });
 
     const expectedChallenge = consumeChallenge(`reg_${email}`);
@@ -88,6 +93,12 @@ router.post('/register-verify', async (req, res) => {
     }
 
     const { credentialID, credentialPublicKey, counter } = verification.registrationInfo;
+
+    // Delete existing duplicate devices with the same OS/browser for this user
+    if (baseDeviceName) {
+      const regex = new RegExp(`^${baseDeviceName.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}`);
+      await WebAuthnCredential.deleteMany({ email, deviceName: { $regex: regex } });
+    }
 
     await WebAuthnCredential.create({
       email,
@@ -167,13 +178,25 @@ router.post('/login-verify', async (req, res) => {
     await cred.save();
 
     const bio = await Bio.findOne({ email });
+    // A verified WebAuthn assertion is a full login — issue the same member
+    // session token the Google flow gets, so API calls authenticate.
+    const { signMemberToken } = await import('../middleware/authMiddleware.js');
+    const token = signMemberToken(email);
+    res.cookie('member_jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+    });
     res.json({
       verified: true,
+      token,
       member: {
         email,
         displayName: bio?.displayName || email,
         avatarUrl: bio?.avatarUrl || '',
         provider: 'webauthn',
+        token,
       },
     });
   } catch (err) {

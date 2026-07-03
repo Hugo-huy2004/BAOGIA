@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTimer";
 import { useIsMobile } from "../../../hooks/useIsMobile";
 import { HugoConfirmNotice } from "../../shared/HugoNotice";
+import { DEFAULT_HOTLINES } from "./constants/hotlines";
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
@@ -37,16 +38,26 @@ function countQualifiedActivities(logs = []) {
   }).length;
 }
 
+function cacheCompanionSnapshot(db = {}) {
+  localStorage.setItem("banhocduong_healing_mode", db.healingActive ? "active" : "");
+  localStorage.setItem("banhocduong_healing_duration", String(db.healingDuration || 30));
+  localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
+  localStorage.setItem("banhocduong_history", JSON.stringify(db.historyLogs || []));
+  localStorage.setItem("banhocduong_chat_messages", JSON.stringify(db.chatMessages || []));
+  localStorage.setItem("banhocduong_last_checkin_date", db.lastCheckinDate || "");
+  localStorage.setItem("banhocduong_last_test_date", db.lastTestDate || "");
+  localStorage.setItem("banhocduong_chat_distress_count", String(db.chatDistressCount || 0));
+}
+
 // ── Journey Progress Card ──────────────────────────────────────────────────────
 // ── Crisis Escalation Banner ────────────────────────────────────────────────────
 // Shown when the system detects a high-severity crisis flag (chatDistressCount
-// spike). Defaults to universally-safe guidance (115 emergency line, trusted
-// contacts) — only shows a dedicated psychological hotline if one is actually
-// configured via VITE_CRISIS_HOTLINE, since guessing a wrong specialized number
-// would be worse than not showing one at all.
+// spike). Always lists the national free hotlines (see hotlines.js) — these are
+// established and universally correct, so unlike a site-specific number they're
+// safe to show unconditionally. An admin-set VITE_CRISIS_HOTLINE is added on top.
 function CrisisBanner({ flag, onResolve, onTalkNow }) {
   const { t } = useTranslation();
-  const hotline = import.meta.env.VITE_CRISIS_HOTLINE || "";
+  const adminHotline = import.meta.env.VITE_CRISIS_HOTLINE || "";
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
@@ -57,14 +68,24 @@ function CrisisBanner({ flag, onResolve, onTalkNow }) {
         <div className="min-w-0">
           <p className="text-xs font-black text-rose-700 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
           <p className="text-[11px] text-rose-600/90 dark:text-rose-400/80 leading-relaxed mt-0.5">
-            {t("companion.crisis.desc", "Hệ thống nhận thấy cậu đang trải qua giai đoạn khó khăn. Nếu đang gặp nguy hiểm tức thời, hãy gọi 115 (Cấp cứu) hoặc đến cơ sở y tế gần nhất ngay. Hãy liên hệ người thân, bạn bè đáng tin cậy để được ở bên cạnh.")}
+            {t("companion.crisis.desc", "Hệ thống nhận thấy cậu đang trải qua giai đoạn khó khăn. Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc đến cơ sở y tế gần nhất. Hãy liên hệ người thân, bạn bè đáng tin cậy để được ở bên cạnh.")}
           </p>
-          {hotline && (
-            <a href={`tel:${hotline}`} className="inline-flex items-center gap-1 mt-2 text-[11px] font-bold text-rose-700 dark:text-rose-400 underline">
-              <span className="material-symbols-outlined text-[14px]">call</span>
-              {t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}: {hotline}
-            </a>
-          )}
+          <div className="mt-2 space-y-1.5">
+            {DEFAULT_HOTLINES.map((h) => (
+              <a key={h.number} href={`tel:${h.number}`}
+                className="flex items-center gap-1.5 text-[11px] font-bold text-rose-700 dark:text-rose-400">
+                <span className="material-symbols-outlined text-[14px]">call</span>
+                <span>{h.label}: <span className="underline">{h.display || h.number}</span></span>
+                {h.note && <span className="text-[10px] font-medium text-rose-500/70">({h.note})</span>}
+              </a>
+            ))}
+            {adminHotline && (
+              <a href={`tel:${adminHotline}`} className="flex items-center gap-1.5 text-[11px] font-bold text-rose-700 dark:text-rose-400">
+                <span className="material-symbols-outlined text-[14px]">call</span>
+                <span>{t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}: <span className="underline">{adminHotline}</span></span>
+              </a>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex gap-2">
@@ -378,85 +399,54 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
   const [adaptationAlert, setAdaptationAlert]     = useState(null);
   const [crisisFlags, setCrisisFlags]             = useState([]);
   const [claimedChallengesToday, setClaimedChallengesToday] = useState([]);
+  const memberEmail = bio?.email || "";
 
   // ── Sync from DB ──────────────────────────────────────────────────────────────
+  const applyCompanionSnapshot = useCallback((db) => {
+    setHealingActive(Boolean(db.healingActive));
+    setHealingDuration(db.healingDuration || 30);
+    setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
+    setHistoryLogs(db.historyLogs || []);
+    setChatMessages(db.chatMessages || []);
+    setCrisisFlags(db.crisisFlags || []);
+    setClaimedChallengesToday(db.claimedChallengesToday || []);
+    cacheCompanionSnapshot(db);
+  }, []);
+
   const syncWithDb = useCallback(async () => {
-    if (!bio?.email) return;
+    if (!memberEmail) return;
     try {
-      const db = await dataApi.getCompanionHistory(bio.email);
+      const db = await dataApi.getCompanionHistory(memberEmail);
       if (!db) return;
-
-      let shouldReset = false;
-      if (db.healingStartDate && db.healingActive) {
-        const start     = new Date(db.healingStartDate);
-        const now       = new Date();
-        const elapsed   = Math.floor((now - start) / 86_400_000) + 1;
-        const newMonth  = now.getMonth() !== start.getMonth() || now.getFullYear() !== start.getFullYear();
-        if (newMonth && elapsed > db.healingDuration) shouldReset = true;
-      }
-
-      if (shouldReset) {
-        const payload = { email: bio.email, healingActive: false, healingDuration: 30, healingStartDate: "", historyLogs: [], chatMessages: [], lastCheckinDate: "", lastTestDate: "", chatDistressCount: 0 };
-        await dataApi.saveCompanionHistory(payload);
-        ['healing_mode','healing_duration','healing_start_date','history','last_checkin_date','last_test_date','chat_distress_count','chat_messages']
-          .forEach(k => localStorage.removeItem(`banhocduong_${k}`));
-        setHealingActive(false); setHealingDuration(30); setHealingStartDate(""); setHistoryLogs([]); setChatMessages([]);
-        setClaimedChallengesToday([]);
-      } else {
-        setHealingActive(db.healingActive);
-        setHealingDuration(db.healingDuration);
-        setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
-        setHistoryLogs(db.historyLogs || []);
-        setChatMessages(db.chatMessages || []);
-        setCrisisFlags(db.crisisFlags || []);
-        setClaimedChallengesToday(db.claimedChallengesToday || []);
-        localStorage.setItem("banhocduong_healing_mode",       db.healingActive ? "active" : "");
-        localStorage.setItem("banhocduong_healing_duration",   db.healingDuration.toString());
-        localStorage.setItem("banhocduong_healing_start_date", db.healingStartDate || "");
-        localStorage.setItem("banhocduong_history",            JSON.stringify(db.historyLogs  || []));
-        localStorage.setItem("banhocduong_chat_messages",      JSON.stringify(db.chatMessages || []));
-        localStorage.setItem("banhocduong_last_checkin_date",  db.lastCheckinDate || "");
-        localStorage.setItem("banhocduong_last_test_date",     db.lastTestDate    || "");
-        localStorage.setItem("banhocduong_chat_distress_count",(db.chatDistressCount || 0).toString());
-      }
+      applyCompanionSnapshot(db);
     } catch (e) { console.error("BHD syncWithDb:", e); }
-  }, [bio?.email]);
+  }, [memberEmail, applyCompanionSnapshot]);
 
   useEffect(() => { syncWithDb(); }, [syncWithDb]);
 
   // ── Unified state updater ─────────────────────────────────────────────────────
   const handleUpdateCompanionState = useCallback(async (updates) => {
-    if (!bio?.email) return;
+    if (!memberEmail) return;
     try {
-      if (updates.healingActive  !== undefined) { localStorage.setItem("banhocduong_healing_mode",       updates.healingActive ? "active" : ""); setHealingActive(updates.healingActive); }
-      if (updates.healingDuration !== undefined){ localStorage.setItem("banhocduong_healing_duration",   updates.healingDuration.toString());     setHealingDuration(updates.healingDuration); }
-      if (updates.healingStartDate!== undefined){ localStorage.setItem("banhocduong_healing_start_date", updates.healingStartDate || "");          setHealingStartDate(updates.healingStartDate ? new Date(updates.healingStartDate).toISOString() : ""); }
-      if (updates.historyLogs    !== undefined) { localStorage.setItem("banhocduong_history",            JSON.stringify(updates.historyLogs));      setHistoryLogs(updates.historyLogs); }
-      if (updates.chatMessages   !== undefined) { localStorage.setItem("banhocduong_chat_messages",      JSON.stringify(updates.chatMessages));     setChatMessages(updates.chatMessages); }
-
-      const isActive   = localStorage.getItem("banhocduong_healing_mode") === "active";
-      const dur        = Math.max(1, parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10));
-      const start      = localStorage.getItem("banhocduong_healing_start_date") || "";
-      const logs       = JSON.parse(localStorage.getItem("banhocduong_history") || "[]");
-      const msgs       = JSON.parse(localStorage.getItem("banhocduong_chat_messages") || "[]");
+      const isActive   = updates.healingActive ?? healingActive;
+      const dur        = Math.max(1, Number(updates.healingDuration ?? healingDuration) || 30);
+      const start      = updates.healingStartDate ?? healingStartDate;
+      const logs       = updates.historyLogs ?? historyLogs;
+      const msgs       = updates.chatMessages ?? chatMessages;
       const distress   = Number(localStorage.getItem("banhocduong_chat_distress_count") || 0);
 
       const res = await dataApi.saveCompanionHistory({
-        email: bio.email, healingActive: isActive, healingDuration: dur, healingStartDate: start,
+        email: memberEmail, healingActive: isActive, healingDuration: dur, healingStartDate: start,
         lastCheckinDate:    updates.lastCheckinDate  ?? (localStorage.getItem("banhocduong_last_checkin_date") || ""),
         lastTestDate:       updates.lastTestDate     ?? (localStorage.getItem("banhocduong_last_test_date")    || ""),
         chatDistressCount:  updates.chatDistressCount ?? distress,
         historyLogs: logs, chatMessages: msgs,
       });
       if (res?.companionHistory) {
-        const db = res.companionHistory;
-        setHealingActive(db.healingActive); setHealingDuration(db.healingDuration);
-        setHealingStartDate(db.healingStartDate ? new Date(db.healingStartDate).toISOString() : "");
-        setHistoryLogs(db.historyLogs || []); setChatMessages(db.chatMessages || []);
-        setClaimedChallengesToday(db.claimedChallengesToday || []);
+        applyCompanionSnapshot(res.companionHistory);
       }
     } catch (e) { console.error("BHD handleUpdateCompanionState:", e); }
-  }, [bio?.email]);
+  }, [memberEmail, healingActive, healingDuration, healingStartDate, historyLogs, chatMessages, applyCompanionSnapshot]);
 
   // ── Adaptation alert ──────────────────────────────────────────────────────────
   useEffect(() => {

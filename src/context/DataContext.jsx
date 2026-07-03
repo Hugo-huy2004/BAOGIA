@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import dataApi from "../services/dataApi";
 
 const DataContext = createContext();
@@ -89,99 +90,51 @@ export const DataProvider = ({ children }) => {
     fetchData();
   }, []);
 
-  const updateProfile = async (profileUpdates) => {
-    const newData = {
-      ...data,
-      profile: { ...data.profile, ...profileUpdates }
-    };
+  // Optimistic update with rollback: apply locally first (instant UI), then
+  // persist; if the server rejects, restore the previous state and tell the
+  // user — silently swallowing the error made people believe unsaved data was saved.
+  const applyAndPersist = async (field, newData) => {
+    const previousData = data;
     setData(newData);
     try {
-      await dataApi.updateField('profile', newData.profile);
+      await dataApi.updateField(field, newData[field]);
     } catch (err) {
-      console.error("Error updating profile:", err);
+      console.error(`Error updating ${field}:`, err);
+      setData(previousData);
+      toast.error("Lưu thay đổi thất bại — dữ liệu đã được khôi phục. Kiểm tra kết nối và thử lại nhé.");
     }
   };
 
-  const updateHobbies = async (hobbiesList) => {
-    const newData = { ...data, hobbies: hobbiesList };
-    setData(newData);
-    try {
-      await dataApi.updateField('hobbies', hobbiesList);
-    } catch (err) {
-      console.error("Error updating hobbies:", err);
-    }
-  };
+  const updateProfile = (profileUpdates) =>
+    applyAndPersist('profile', { ...data, profile: { ...data.profile, ...profileUpdates } });
 
-  const updateGallery = async (galleryList) => {
-    const newData = { ...data, gallery: galleryList };
-    setData(newData);
-    try {
-      await dataApi.updateField('gallery', galleryList);
-    } catch (err) {
-      console.error("Error updating gallery:", err);
-    }
-  };
+  const updateHobbies = (hobbiesList) =>
+    applyAndPersist('hobbies', { ...data, hobbies: hobbiesList });
 
+  const updateGallery = (galleryList) =>
+    applyAndPersist('gallery', { ...data, gallery: galleryList });
 
+  const updatePricing = (pricingUpdates) =>
+    applyAndPersist('pricing', { ...data, pricing: { ...data.pricing, ...pricingUpdates } });
 
-  const updatePricing = async (pricingUpdates) => {
-    const newData = {
-      ...data,
-      pricing: { ...data.pricing, ...pricingUpdates }
-    };
-    setData(newData);
-    try {
-      await dataApi.updateField('pricing', newData.pricing);
-    } catch (err) {
-      console.error("Error updating pricing:", err);
-    }
-  };
+  const updatePartnerIframe = (iframeValue) =>
+    applyAndPersist('partnerIframe', { ...data, partnerIframe: iframeValue });
 
-  const updatePartnerIframe = async (iframeValue) => {
-    const newData = {
-      ...data,
-      partnerIframe: iframeValue
-    };
-    setData(newData);
-    try {
-      await dataApi.updateField('partnerIframe', iframeValue);
-    } catch (err) {
-      console.error("Error updating partnerIframe:", err);
-    }
-  };
+  const updateAdvertisement = (adUpdates) =>
+    applyAndPersist('advertisement', { ...data, advertisement: { ...(data.advertisement || {}), ...adUpdates } });
 
-  const updateAdvertisement = async (adUpdates) => {
-    const newData = {
-      ...data,
-      advertisement: { ...(data.advertisement || {}), ...adUpdates }
-    };
-    setData(newData);
-    try {
-      await dataApi.updateField('advertisement', newData.advertisement);
-    } catch (err) {
-      console.error("Error updating advertisement:", err);
-    }
-  };
-
-  const updateSystemSettings = async (settingsUpdates) => {
-    const newData = {
-      ...data,
-      systemSettings: { ...(data.systemSettings || {}), ...settingsUpdates }
-    };
-    setData(newData);
-    try {
-      await dataApi.updateField('systemSettings', newData.systemSettings);
-    } catch (err) {
-      console.error("Error updating system settings:", err);
-    }
-  };
+  const updateSystemSettings = (settingsUpdates) =>
+    applyAndPersist('systemSettings', { ...data, systemSettings: { ...(data.systemSettings || {}), ...settingsUpdates } });
 
   const resetToDefaults = async () => {
+    const previousData = data;
     setData(initialData);
     try {
       await dataApi.resetData();
     } catch (err) {
       console.error("Error resetting data:", err);
+      setData(previousData);
+      toast.error("Không thể khôi phục dữ liệu mặc định. Thử lại nhé.");
     }
   };
 

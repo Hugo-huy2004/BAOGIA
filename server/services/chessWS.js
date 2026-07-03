@@ -330,7 +330,17 @@ function createRoom({ white, black, timeControl, friendRoomId = null, mode = 'fr
 async function handleAuth(ws, msg) {
   const client = clientMap.get(ws);
   if (!client) return;
-  client.email = msg.email || null;
+  // Member identity must be proven with the session JWT — a bare email would
+  // let anyone play (and lose JOY/ELO) as any member. No/invalid token → guest.
+  client.email = null;
+  if (msg.token) {
+    try {
+      const { default: jwt } = await import('jsonwebtoken');
+      const { JWT_SECRET } = await import('../utils/secrets.js');
+      const decoded = jwt.verify(msg.token, JWT_SECRET);
+      if (decoded.role === 'member' && decoded.email) client.email = decoded.email;
+    } catch (_) { /* fall through as guest */ }
+  }
   client.displayName = msg.displayName || 'Guest';
   client.guestId = msg.guestId || client.guestId;
   client.avatarUrl = msg.avatarUrl || '';

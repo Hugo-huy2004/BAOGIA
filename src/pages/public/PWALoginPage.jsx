@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginMember, isMemberAuthenticated } from "../../services/authSession";
+import { loginMember, loginMemberWithGoogle, isMemberAuthenticated } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
@@ -68,19 +68,15 @@ export default function PWALoginPage() {
       return;
     }
     try {
-      const payloadJson = atob(response.credential.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"));
-      const profile = JSON.parse(payloadJson);
-      const email = profile.email || "";
-      if (!(await isEduEmail(email))) {
+      const { session } = await loginMemberWithGoogle(response.credential);
+      if (!session) {
+        showToast("Đăng nhập Google thất bại. Thử lại nhé.", "error");
+        return;
+      }
+      if (!(await isEduEmail(session.email))) {
         showToast("Tài khoản nên dùng email .edu để mở khóa đầy đủ quyền lợi sinh viên.", "warning");
       }
-      loginMember({
-        email: profile.email,
-        displayName: profile.name,
-        provider: "google",
-        avatarUrl: profile.picture,
-      });
-      localStorage.setItem(LAST_EMAIL_KEY, profile.email);
+      localStorage.setItem(LAST_EMAIL_KEY, session.email);
       navigate("/member");
     } catch {
       showToast("Đăng nhập Google thất bại. Thử lại nhé.", "error");

@@ -9,6 +9,7 @@ import MaintenancePage from "./components/MaintenancePage";
 import GlobalAdBanner from "./components/GlobalAdBanner";
 import OfflineBanner from "./components/ui/OfflineBanner";
 import PWAInstallBanner from "./components/ui/PWAInstallBanner";
+import PWAUpdatePrompt from "./components/ui/PWAUpdatePrompt";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import HBot from "./components/HBot";
@@ -241,11 +242,12 @@ export default function App() {
               <OfflineBanner />
               <AppContent />
               <PWAInstallBanner />
+              <PWAUpdatePrompt />
               <DonationModal />
               <Toaster
                 position="top-center"
                 reverseOrder={false}
-                containerStyle={{ top: "calc(env(safe-area-inset-top, 0px) + 14px)" }}
+                containerStyle={{ top: "calc(env(safe-area-inset-top, 24px) + 24px)" }}
                 toastOptions={{
                   duration: 4000,
                   className: "hugo-hot-toast",

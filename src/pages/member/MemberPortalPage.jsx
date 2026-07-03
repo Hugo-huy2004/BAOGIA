@@ -712,8 +712,7 @@ export default function MemberPortalPage() {
 
       <HealingModal
         showModal={healing.showModal} subStep={healing.subStep} state={healing.state}
-        mood={healing.mood} setMood={healing.setMood} note={healing.note} setNote={healing.setNote}
-        consecutiveLow={healing.consecutiveLow} wheelRatings={healing.wheelRatings} setWheelRatings={healing.setWheelRatings}
+        consecutiveLow={healing.consecutiveLow}
         historyLogs={healing.historyLogs} onSubmit={healing.handleSubmit} onWheelSubmit={healing.handleWheelSubmit}
         onGraduation={healing.handleGraduation} onGoToTest={healing.goToTest} onGoToBreath={healing.goToBreath}
         onGoToChat={healing.goToChat}
@@ -998,7 +997,7 @@ export default function MemberPortalPage() {
                             </div>
 
                             {/* ID-Card bottom stats row */}
-                            <div className="mt-5 pt-3.5 border-t border-zinc-200/80 dark:border-zinc-800/60 flex items-center justify-between text-[9px] font-bold text-zinc-400 dark:text-zinc-500 font-mono tracking-wider">
+                            <div className="mt-5 pt-3.5 border-t border-zinc-200/80 dark:border-zinc-800/60 flex items-center justify-between text-[9px] font-bold text-zinc-600 dark:text-zinc-300 font-mono tracking-wider">
                               <span className="flex items-center gap-1">
                                 <span className="material-symbols-outlined text-[10px] text-primary">link</span>
                                 {t("memberPortal.bio.linksCount", { count: formData.links?.length || 0 }).toUpperCase()}

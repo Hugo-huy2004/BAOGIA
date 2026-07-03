@@ -28,8 +28,21 @@ const writeSession = (key, value, persist = true) => {
   target.setItem(key, JSON.stringify(value));
 };
 
-export const getMemberSession = () => readSession(MEMBER_SESSION_KEY);
+export const getMemberSession = () => {
+  const session = readSession(MEMBER_SESSION_KEY);
+  // Sessions minted before server-side auth existed carry no token — the API
+  // would reject every call, so treat them as expired and force a clean re-login.
+  if (session && !session.token) {
+    localStorage.removeItem(MEMBER_SESSION_KEY);
+    sessionStorage.removeItem(MEMBER_SESSION_KEY);
+    return null;
+  }
+  return session;
+};
 export const getAdminSession = () => readSession(ADMIN_SESSION_KEY);
+
+// Bearer token attached to member API calls (see apiAuthInterceptor.js).
+export const getMemberToken = () => getMemberSession()?.token || null;
 
 export const loginMember = (member) => {
   const expiresAt = new Date();
@@ -42,12 +55,37 @@ export const loginMember = (member) => {
     displayName: member.displayName || member.email,
     provider: member.provider || "google",
     avatarUrl: member.avatarUrl || "",
+    token: member.token || "",
     loginAt: new Date().toISOString(),
     expiresAt: expiresAt.toISOString()
   };
 
   writeSession(MEMBER_SESSION_KEY, session);
   return session;
+};
+
+// Server-verified Google login: exchanges the Google ID token for our own
+// member session token. Returns { session, error } — never trusts a
+// client-side-decoded Google payload for identity.
+export const loginMemberWithGoogle = async (credential) => {
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+    const response = await fetch(`${API_BASE_URL}/auth/member/google`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'invalid_credential' };
+    }
+    const session = loginMember({ ...data.member, token: data.token });
+    return { session, error: null };
+  } catch (error) {
+    console.error('Lỗi khi đăng nhập Google:', error);
+    return { session: null, error: 'network' };
+  }
 };
 
 // Returns { session, error } instead of throwing/null so the caller can show
@@ -103,14 +141,21 @@ export const logoutAuth = async () => {
   sessionStorage.removeItem(MEMBER_SESSION_KEY);
   sessionStorage.removeItem(ADMIN_SESSION_KEY);
 
-  // Gọi API để xóa HttpOnly Cookie
+  // Gọi API để xóa HttpOnly Cookie (admin + member)
   try {
     const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-    await fetch(`${API_BASE_URL}/admin/logout`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' }
-    });
+    await Promise.allSettled([
+      fetch(`${API_BASE_URL}/admin/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      }),
+      fetch(`${API_BASE_URL}/auth/member/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      })
+    ]);
   } catch (error) {
     console.error('Logout error:', error);
   }

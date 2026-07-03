@@ -180,7 +180,7 @@ export default function PrivacyPolicyPage() {
                       <br />
                       &nbsp;&nbsp;+ Căn cứ <em>Article 17 (Right to erasure - 'Right to be forgotten')</em>: Quyền yêu cầu xóa bỏ hoàn toàn dữ liệu cá nhân vĩnh viễn khỏi mọi cơ sở dữ liệu vật lý và đám mây của nhà cung cấp.
                       <br />
-                      &nbsp;&nbsp;+ Căn cứ <em>Article 32 (Security of processing)</em>: Nghĩa vụ áp dụng các biện pháp kỹ thuật như mã hóa mật khẩu, tường lửa, cô lập dữ liệu để đảm bảo an toàn tuyệt đối trước các đợt tấn công từ hacker.
+                      &nbsp;&nbsp;+ Căn cứ <em>Article 32 (Security of processing)</em>: Nghĩa vụ áp dụng các biện pháp kỹ thuật như mã hóa mật khẩu, tường lửa, cô lập dữ liệu và giám sát sự cố để giảm thiểu rủi ro trước các đợt tấn công từ hacker.
                     </p>
 
                     <p>
@@ -280,7 +280,7 @@ export default function PrivacyPolicyPage() {
                   </p>
 
                   <p>
-                    <strong>17. HugoPSY (Trợ lý Đồng hành Sức khỏe Tinh thần bằng AI):</strong> Là tính năng chatbot trò chuyện được vận hành bởi mô hình ngôn ngữ lớn của bên thứ ba (Google Gemini, dự phòng bởi OpenRouter), nhằm mục đích lắng nghe, đồng hành, gợi ý các bài kiểm tra sàng lọc tâm lý phổ biến (PHQ-9, GAD-7, WHO-5, Big Five) và đưa ra phản hồi mang tính hỗ trợ tinh thần. HugoPSY <strong>không phải là dịch vụ y tế, không phải bác sĩ tâm lý hay chuyên gia trị liệu được cấp phép</strong> và không thay thế cho việc thăm khám, chẩn đoán, điều trị y khoa chính thức.
+                    <strong>17. HugoPSY (Trợ lý Đồng hành Sức khỏe Tinh thần bằng AI):</strong> Là tính năng chatbot trò chuyện được vận hành theo hướng local-first: ưu tiên bộ phản hồi và phân loại ý định nội bộ, chỉ chuyển dữ liệu tối giản tới Google Gemini khi cần sinh phản hồi mở rộng. Khi nhà cung cấp AI gặp lỗi hoặc quá tải, HugoPSY chuyển về phản hồi cục bộ an toàn thay vì gửi chat trị liệu sang nhà cung cấp dự phòng chưa kiểm soát lâm sàng. HugoPSY <strong>không phải là dịch vụ y tế, không phải bác sĩ tâm lý hay chuyên gia trị liệu được cấp phép</strong> và không thay thế cho việc thăm khám, chẩn đoán, điều trị y khoa chính thức.
                   </p>
 
                   <p>
@@ -296,7 +296,7 @@ export default function PrivacyPolicyPage() {
                   </p>
 
                   <p>
-                    <strong>21. Bên xử lý dữ liệu AI bên thứ ba (Third-Party AI Data Processor):</strong> Là các nhà cung cấp dịch vụ mô hình ngôn ngữ lớn nằm ngoài hạ tầng của Hugo Studio (cụ thể là Google Gemini API và OpenRouter) được sử dụng để xử lý nội dung trò chuyện văn bản của Thành viên với HugoPSY nhằm sinh ra phản hồi tự động, được quy định chi tiết về phạm vi dữ liệu được phép gửi đi tại Chương XIV.
+                    <strong>21. Bên xử lý dữ liệu AI bên thứ ba (Third-Party AI Data Processor):</strong> Là nhà cung cấp dịch vụ mô hình ngôn ngữ lớn nằm ngoài hạ tầng của Hugo Studio (hiện dùng Google Gemini API cho các lượt chat mở rộng của HugoPSY) được sử dụng để xử lý phiên bản dữ liệu đã tối giản nhằm sinh phản hồi tự động, được quy định chi tiết về phạm vi dữ liệu được phép gửi đi tại Chương XIV.
                   </p>
                 </div>
               </div>
@@ -584,7 +584,7 @@ export default function PrivacyPolicyPage() {
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                       - Để cân bằng giữa tính tiện dụng (tránh bắt buộc người dùng đăng nhập lại quá thường xuyên) và tính bảo mật an toàn tài khoản (phòng ngừa rò rỉ mã token khi đăng nhập trên thiết bị công cộng hoặc thiết bị của người khác), hệ thống Hugo Studio áp dụng chính sách giới hạn thời gian phiên đăng nhập tối đa là <strong>14 ngày</strong> (tương đương 336 giờ đồng hồ).
                       <br />
-                      - Đúng vào mốc 00:00:00 của ngày thứ 14 kể từ thời điểm đăng nhập thành công gần nhất, Session Token được lưu trong cơ sở dữ liệu sẽ tự động chuyển sang trạng thái vô hiệu hóa (Expired). Hệ thống sẽ tự động đăng xuất tài khoản trên trình duyệt của Thành viên và yêu cầu thực hiện lại quy trình xác thực đăng nhập nhằm đảm bảo an toàn tuyệt đối.
+                      - Đúng vào mốc 00:00:00 của ngày thứ 14 kể từ thời điểm đăng nhập thành công gần nhất, Session Token được lưu trong cơ sở dữ liệu sẽ tự động chuyển sang trạng thái vô hiệu hóa (Expired). Hệ thống sẽ tự động đăng xuất tài khoản trên trình duyệt của Thành viên và yêu cầu thực hiện lại quy trình xác thực đăng nhập nhằm giảm rủi ro bị chiếm dụng phiên đăng nhập.
                     </p>
                   </div>
 
@@ -695,7 +695,7 @@ export default function PrivacyPolicyPage() {
               </h2>
               <div className="space-y-4">
                 <p>
-                  Quyền riêng tư của người sử dụng là tài sản vô giá và là nguyên tắc đạo đức nghề nghiệp cao nhất trong quá trình vận hành hệ thống Hugo Studio. Chúng tôi cam kết bảo mật dữ liệu của bạn thông qua các tuyên bố pháp lý đanh thép sau:
+                  Quyền riêng tư của người sử dụng là nguyên tắc đạo đức cao nhất trong quá trình vận hành Hugo Studio. Không hệ thống trực tuyến nào có thể được tuyên bố an toàn tuyệt đối 100%, vì vậy chúng tôi áp dụng nguyên tắc giảm thiểu dữ liệu, mã hóa, giám sát lỗi và quy trình ứng phó sự cố rõ ràng để giảm rủi ro ở mức cao nhất có thể:
                 </p>
 
                 <div className="space-y-4 pl-4 border-l-2 border-rose-500 text-xs">
@@ -714,7 +714,7 @@ export default function PrivacyPolicyPage() {
                   <p>
                     <strong>b.1) Trường hợp ngoại lệ duy nhất khác — Chuyển giao tối giản dữ liệu cho AI bên thứ ba phục vụ HugoPSY:</strong>
                     <br />
-                    Để vận hành tính năng trò chuyện AI của HugoPSY, một phần nội dung tương tác buộc phải được gửi tới máy chủ của nhà cung cấp mô hình ngôn ngữ lớn bên thứ ba (Google Gemini API, dự phòng OpenRouter). Đây là ngoại lệ chuyển giao dữ liệu duy nhất ngoài trường hợp yêu cầu của cơ quan nhà nước, và được kiểm soát bằng nguyên tắc tối giản hóa nghiêm ngặt: hệ thống <strong>tuyệt đối không</strong> gửi đi email, số điện thoại, địa chỉ, ngày sinh đầy đủ, số đo hình thể, học vấn, kỹ năng hay bất kỳ định danh cá nhân trực tiếp nào khác trong bio hồ sơ của Thành viên tới các nhà cung cấp này. Chỉ duy nhất tên hiển thị, một số tuổi được suy ra (không kèm ngày sinh) và một đoạn tóm tắt chỉ số sức khỏe tinh thần đã được tổng hợp ẩn danh mới được phép xuất hiện trong dữ liệu gửi đi. Quy chế đầy đủ về việc này được quy định chi tiết, không thể sửa đổi đơn phương, tại <em>Chương XIV</em> của văn bản này.
+                    Để vận hành các lượt trò chuyện mở rộng của HugoPSY, một phần nội dung tương tác có thể được gửi tới máy chủ Google Gemini API sau khi đã tối giản hóa. Chat trị liệu không dùng OpenRouter làm fallback; khi AI chính gặp lỗi hoặc quá tải, hệ thống ưu tiên phản hồi cục bộ an toàn. Ngoại lệ chuyển giao dữ liệu này được kiểm soát bằng nguyên tắc tối giản hóa nghiêm ngặt: hệ thống <strong>không</strong> gửi đi email, số điện thoại, địa chỉ, ngày sinh đầy đủ, số đo hình thể, học vấn, kỹ năng hay bất kỳ định danh cá nhân trực tiếp nào khác trong bio hồ sơ của Thành viên tới nhà cung cấp AI. Chỉ tên hiển thị, một số tuổi được suy ra (không kèm ngày sinh), mã người dùng đã được giả danh hóa nếu cần cho telemetry, và một đoạn tóm tắt chỉ số sức khỏe tinh thần đã được tổng hợp mới được phép xuất hiện trong dữ liệu gửi đi. Quy chế đầy đủ về việc này được quy định chi tiết tại <em>Chương XIV</em> của văn bản này.
                   </p>
 
                   <p>
@@ -1008,7 +1008,7 @@ export default function PrivacyPolicyPage() {
                       <br />
                       &nbsp;&nbsp;<strong>Bước 2a — Khớp chủ đề cục bộ (đa số trường hợp):</strong> Nếu khớp, hệ thống trả lời ngay bằng nội dung đã biên soạn trước, được lập trình hiển thị thành 2-3 tin nhắn ngắn gửi liên tiếp có độ trễ ngẫu nhiên (giả lập cảm giác đang gõ chữ thật) nhằm tạo trải nghiệm gần gũi, tự nhiên hơn một khối văn bản dài. Toàn bộ quá trình này không phát sinh bất kỳ kết nối nào tới máy chủ AI bên thứ ba.
                       <br />
-                      &nbsp;&nbsp;<strong>Bước 2b — Chuyển tiếp AI bên thứ ba (khi không khớp chủ đề cục bộ):</strong> Hệ thống dựng gói dữ liệu tối giản (xem điểm b), kèm tối đa 8 lượt trao đổi gần nhất và bản tóm tắt sức khỏe tinh thần, rồi gửi yêu cầu tới Google Gemini API. Phản hồi được truyền ngược về theo cơ chế truyền trực tuyến (streaming) — Thành viên thấy chữ xuất hiện dần thay vì chờ toàn bộ câu trả lời. Nếu Gemini gặp lỗi, hết hạn ngạch hoặc quá tải, hệ thống tự động chuyển sang gọi OpenRouter làm phương án dự phòng mà Thành viên không cần thực hiện thêm hành động nào.
+                      &nbsp;&nbsp;<strong>Bước 2b — Chuyển tiếp AI bên thứ ba (khi không khớp chủ đề cục bộ):</strong> Hệ thống dựng gói dữ liệu tối giản (xem điểm b), kèm tối đa 8 lượt trao đổi gần nhất và bản tóm tắt sức khỏe tinh thần, rồi gửi yêu cầu tới Google Gemini API. Phản hồi được truyền ngược về theo cơ chế truyền trực tuyến (streaming) — Thành viên thấy chữ xuất hiện dần thay vì chờ toàn bộ câu trả lời. Nếu Gemini gặp lỗi, hết hạn ngạch hoặc quá tải, hệ thống không chuyển chat trị liệu sang OpenRouter; thay vào đó HugoPSY trả lời bằng phản hồi cục bộ an toàn và không hiển thị lỗi kỹ thuật thô cho Thành viên.
                       <br />
                       &nbsp;&nbsp;<strong>Bước 3 — Hạn ngạch token cá nhân hóa:</strong> Mỗi tài khoản được cấp một hạn ngạch số lượt gọi AI bên thứ ba theo ngày/theo phiên (do Admin tự nguyện chi trả toàn bộ chi phí vận hành). Khi vượt hạn ngạch, hệ thống ưu tiên trả lời bằng các chủ đề cục bộ đã biên soạn sẵn hoặc thông báo Thành viên thử lại sau, không khóa tài khoản, không thu phí bổ sung.
                       <br />
@@ -1021,7 +1021,7 @@ export default function PrivacyPolicyPage() {
                       b) Danh sách Bên xử lý AI bên thứ ba & Nguyên tắc tối giản dữ liệu tuyệt đối (Strict Allow-List):
                     </h5>
                     <p className="text-slate-600 dark:text-slate-400 text-justify">
-                      - Hugo Studio sử dụng <strong>Google Gemini API</strong> làm nhà cung cấp AI chính, và <strong>OpenRouter</strong> làm phương án dự phòng khi Gemini gặp sự cố hoặc vượt hạn ngạch. Cả hai đều là bên xử lý dữ liệu (Data Processor) độc lập, vận hành theo chính sách bảo mật riêng của họ đối với dữ liệu được gửi tới.
+                      - Hugo Studio sử dụng <strong>Google Gemini API</strong> làm nhà cung cấp AI bên thứ ba cho các lượt HugoPSY cần sinh phản hồi mở rộng. Chat trị liệu không dùng OpenRouter làm fallback; khi Gemini gặp sự cố hoặc vượt hạn ngạch, hệ thống chuyển về phản hồi cục bộ an toàn.
                       <br />
                       - Hệ thống tuyệt đối <strong>không gửi đi nguyên trạng hồ sơ (Bio) của Thành viên</strong>. Trước khi gửi bất kỳ yêu cầu nào tới AI bên thứ ba, hệ thống luôn dựng lại một gói dữ liệu tối giản theo cơ chế danh sách cho phép nghiêm ngặt (allow-list), chỉ chứa đúng ba (03) loại thông tin sau và không gì khác:
                       <br />
@@ -1074,7 +1074,7 @@ export default function PrivacyPolicyPage() {
                     </p>
                     <ol className="list-decimal pl-5 space-y-2 text-slate-600 dark:text-slate-400 text-justify">
                       <li>
-                        <strong>HugoPSY không phải là dịch vụ y tế, không phải là bác sĩ, không phải là chuyên gia tâm lý được cấp phép hành nghề.</strong> Toàn bộ nội dung trả lời, lời khuyên, bài tập gợi ý, kết quả phân tích bài kiểm tra sàng lọc (PHQ-9, GAD-7, WHO-5, Big Five) do HugoPSY cung cấp — bất kể được tạo ra từ bộ phân loại ý định cục bộ hay từ mô hình AI bên thứ ba (Google Gemini/OpenRouter) — chỉ mang tính chất <strong>tham khảo, hỗ trợ tinh thần ban đầu và mang tính giải trí/đồng hành</strong>, hoàn toàn <strong>không cấu thành, không thay thế và không được hiểu là chẩn đoán y khoa, kết luận tâm thần học, kê đơn điều trị hay tư vấn chuyên môn chính thức</strong> dưới bất kỳ hình thức nào.
+                        <strong>HugoPSY không phải là dịch vụ y tế, không phải là bác sĩ, không phải là chuyên gia tâm lý được cấp phép hành nghề.</strong> Toàn bộ nội dung trả lời, lời khuyên, bài tập gợi ý, kết quả phân tích bài kiểm tra sàng lọc (PHQ-9, GAD-7, WHO-5, Big Five, Sàng lọc nhân cách 30 câu) do HugoPSY cung cấp — bất kể được tạo ra từ bộ phân loại ý định cục bộ hay từ mô hình AI bên thứ ba — chỉ mang tính chất <strong>tham khảo, hỗ trợ tinh thần ban đầu và mang tính giải trí/đồng hành</strong>, hoàn toàn <strong>không cấu thành, không thay thế và không được hiểu là chẩn đoán y khoa, kết luận tâm thần học, kê đơn điều trị hay tư vấn chuyên môn chính thức</strong> dưới bất kỳ hình thức nào.
                       </li>
                       <li>
                         <strong>Bản chất xác suất của công nghệ trí tuệ nhân tạo:</strong> Thành viên hiểu và chấp nhận rằng mô hình ngôn ngữ lớn (Large Language Model) có thể đưa ra phản hồi không chính xác, lỗi thời, thiếu ngữ cảnh hoặc không phù hợp với tình huống cá nhân cụ thể (hiện tượng "ảo giác AI" - AI hallucination) do đặc tính kỹ thuật vốn có của công nghệ sinh văn bản dựa trên xác suất, không phải sự thấu hiểu y khoa thực sự của con người.

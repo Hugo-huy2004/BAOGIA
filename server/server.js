@@ -17,6 +17,8 @@ import aiProxyRoutes from './routes/aiProxyRoutes.js';
 import iotRoutes from './routes/iotRoutes.js';
 import { isEduEmail } from './utils/eduEmail.js';
 import helmet from 'helmet';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from './utils/secrets.js';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
@@ -104,25 +106,36 @@ mongoose.connect(MONGODB_URI, {
   .then(async () => {
     console.log('✅ MongoDB connected successfully');
     
-    // Khởi chạy Bloom Filter (Tập hợp các slug hợp lệ để chặn O(1))
+    // In-memory valid-slug set: O(1) rejection of bogus /bio/:slug hits before
+    // they reach MongoDB. Kept in sync by bioRoutes on create/rename/delete.
+    // NOTE: per-process — if the API ever runs multiple instances, move this
+    // to Redis (redisClient.js already exists).
     try {
       const Bio = (await import('./models/Bio.js')).default;
       const bios = await Bio.find({}, 'slug');
       global.validSlugs = new Set(bios.map(b => b.slug));
-      console.log(`🛡️ Bloom Filter initialized with ${global.validSlugs.size} slugs`);
+      console.log(`🛡️ Valid-slug set initialized with ${global.validSlugs.size} slugs`);
     } catch(err) {
-      console.error('Bloom filter error:', err);
+      console.error('Valid-slug set error:', err);
     }
 
     try {
       const Admin = (await import('./models/Admin.js')).default;
       const count = await Admin.countDocuments();
       if (count === 0) {
-        await Admin.create({
-          username: 'fff54767e0dfd8c560629c4be9bd186ea0682d509128989eccda5c166f295258', // Hashed "HugoStudioAdmin"
-          password: 'ac5828f24a8a65e366395faa1d58abe1e2dda05853e45bdb0ae696712e3f1bb3'  // Hashed "Hugo123@"
-        });
-        console.log('👥 Default admin account seeded successfully in MongoDB');
+        // Seed the first admin from env only — never hardcode credentials in a
+        // public repo. Set ADMIN_SEED_USERNAME / ADMIN_SEED_PASSWORD once,
+        // start the server, then remove them from the env.
+        const seedUser = process.env.ADMIN_SEED_USERNAME;
+        const seedPass = process.env.ADMIN_SEED_PASSWORD;
+        if (seedUser && seedPass) {
+          const cryptoMod = await import('crypto');
+          const hash = (m) => cryptoMod.createHash('sha256').update(m).digest('hex');
+          await Admin.create({ username: hash(seedUser), password: hash(seedPass) });
+          console.log('👥 Admin account seeded from ADMIN_SEED_* env vars');
+        } else {
+          console.warn('⚠️  No admin account exists and ADMIN_SEED_USERNAME/ADMIN_SEED_PASSWORD are not set — admin login unavailable until seeded.');
+        }
       }
     } catch (err) {
       console.error('Error seeding admin account:', err);
@@ -145,8 +158,12 @@ import presenceRoutes from './routes/presenceRoutes.js';
 import radioRoutes from './routes/radioRoutes.js';
 import arcadeRoutes from './routes/arcadeRoutes.js';
 import webauthnRoutes from './routes/webauthnRoutes.js';
+import memberAuthRoutes from './routes/memberAuthRoutes.js';
+import opsRoutes from './routes/opsRoutes.js';
 
 // Routes
+app.use('/api/ops', opsRoutes);
+app.use('/api/auth/member', memberAuthRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/bios', bioRoutes);
 app.use('/api/bookings', bookingRoutes);
@@ -231,15 +248,25 @@ global.wsClients = {};
 
 wss.on('connection', (ws, req) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const token = url.searchParams.get('token'); // email-based auth token
+  const token = url.searchParams.get('token');
 
   if (!token) {
     ws.close(4001, 'Authentication required');
     return;
   }
 
-  // token is the user's email (simple email-based auth)
-  const email = token;
+  // The channel carries private wallet/notification events, so the subscriber
+  // must prove identity: token is a member JWT and the email comes from it —
+  // a bare email here would let anyone stream any member's balance updates.
+  let email;
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'member' || !decoded.email) throw new Error('not a member token');
+    email = decoded.email;
+  } catch {
+    ws.close(4001, 'Invalid or expired token');
+    return;
+  }
 
   if (!global.wsClients[email]) {
     global.wsClients[email] = new Set();

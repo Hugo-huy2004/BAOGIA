@@ -23,7 +23,11 @@ const LANGUAGES = [
 function SettingsGroup({ label, children }) {
   return (
     <div className="space-y-2">
-      {label && <p className="px-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{label}</p>}
+      {label && (
+        <span className="inline-block px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-700 dark:text-zinc-200 bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-md border border-white/50 dark:border-white/10 shadow-sm">
+          {label}
+        </span>
+      )}
       <div className="hg-glass rounded-xl divide-y divide-zinc-100 dark:divide-zinc-800/60 overflow-hidden">
         {children}
       </div>
@@ -39,7 +43,7 @@ function SettingsRow({ icon, iconColor = "text-primary", iconBg = "bg-primary/10
       </span>
       <div className="min-w-0 flex-1 space-y-0.5">
         <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{title}</p>
-        {desc && <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-relaxed">{desc}</p>}
+        {desc && <p className="text-[10.5px] font-medium text-zinc-600 dark:text-zinc-400 leading-relaxed">{desc}</p>}
         {warn && <p className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold pt-0.5">{warn}</p>}
       </div>
       {control && <div className="shrink-0 self-center">{control}</div>}
@@ -134,12 +138,12 @@ export default function MemberSettingsTab({ memberSession, showToast, handleLogo
 
   return (
     <div className="max-w-xl mx-auto space-y-5 animate-fadeIn">
-      <div className="space-y-1 text-left px-1">
+      <div className="mb-5 space-y-1 bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-xl p-4 border border-white/50 dark:border-white/10 shadow-sm">
         <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
           <span className="material-symbols-outlined text-base text-primary">settings</span>
           {t("memberPortal.settings.title")}
         </h2>
-        <p className="text-[10px] text-zinc-455 dark:text-zinc-400">{t("memberPortal.settings.desc")}</p>
+        <p className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">{t("memberPortal.settings.desc")}</p>
       </div>
 
       <SettingsGroup label={t("memberPortal.settings.groupNotifications")}>

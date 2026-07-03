@@ -210,15 +210,18 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
           )}
 
           {activeTab === "games" && !chessSubscribed && (
-            <div className="arc-sub-banner arc-chess-banner" style={{ margin: `${!subscribed ? "8px" : "16px"} 24px 0`, "--g": "#8b5cf6", "--g-glow": "rgba(139,92,246,.12)" }}>
-              <div className="arc-sub-banner-icon" style={{ background: "rgba(139,92,246,.15)", color: "var(--arc-a2)" }}>
+            <div className="arc-sub-banner arc-chess-banner" style={{ margin: `${!subscribed ? "8px" : "16px"} 24px 0`, "--g": "#f59e0b", "--g-glow": "rgba(245, 158, 11, .15)", border: "1px solid rgba(245, 158, 11, .3)" }}>
+              <div className="arc-sub-banner-icon" style={{ background: "rgba(245, 158, 11, .15)", color: "#f59e0b" }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>chess</span>
               </div>
               <div className="arc-sub-banner-text">
-                <strong>HugoChess — Thuê riêng</strong>
+                <strong style={{ color: "#f59e0b", display: "flex", alignItems: "center", gap: "6px" }}>
+                  HugoChess — Thuê riêng
+                  <span style={{ fontSize: 9, background: "linear-gradient(135deg, #f59e0b, #fbbf24)", color: "#000", padding: "2px 6px", borderRadius: 4, textTransform: "uppercase", letterSpacing: 1, fontWeight: 900 }}>PREMIUM</span>
+                </strong>
                 <p>Đấu Bot · Phòng online · Leo hạng ELO. 299 JOY/tháng, tách biệt với gói Arcade.</p>
               </div>
-              <button className="arc-sub-banner-btn" style={{ background: "var(--arc-a2)" }} onClick={() => openGame("chess")}>
+              <button className="arc-sub-banner-btn" style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)", color: "#000", fontWeight: 900, boxShadow: "0 4px 16px rgba(245, 158, 11, .3)" }} onClick={() => openGame("chess")}>
                 299 JOY
               </button>
             </div>

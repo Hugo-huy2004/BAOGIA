@@ -8,7 +8,7 @@ export const getAiUrl = () => {
         url.hostname = url.hostname.replace("api.", "ai.");
         return `${url.protocol}//${url.hostname}`;
       }
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
   }
   if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
     if (window.location.hostname.includes("hugowishpax.studio")) {
@@ -36,7 +36,7 @@ export async function apiFetch(path, options = {}) {
     try {
       const session = JSON.parse(localStorage.getItem('price-doc-member-session') || '{}')
       if (session.token) headers['Authorization'] = `Bearer ${session.token}`
-    } catch {}
+    } catch (e) { /* ignore */ }
   }
 
   const res = await fetch(`${BASE_URL}${path}`, { ...rest, headers })

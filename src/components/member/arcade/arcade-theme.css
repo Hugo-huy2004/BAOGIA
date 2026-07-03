@@ -154,10 +154,6 @@
   background: linear-gradient(160deg, rgba(99,102,241,.14) 0%, rgba(139,92,246,.08) 40%, var(--arc-s1) 70%);
   border-bottom: 1px solid var(--arc-b1);
 }
-.arc-hero::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--arc-a), var(--arc-a2), #06b6d4);
-}
 .arc-hero-grid {
   position: absolute; inset: 0; opacity: .025;
   background-image:

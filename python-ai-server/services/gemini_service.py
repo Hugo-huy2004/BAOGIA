@@ -1,17 +1,19 @@
 import os
 import json
 import random
+import time
+import unicodedata
 # pyrefly: ignore [missing-import]
-import httpx
+import httpx  # type: ignore[import-not-found]
 from datetime import datetime
 
 # pyrefly: ignore [missing-import]
-from google import genai
+from google import genai  # type: ignore[attr-defined]
 # pyrefly: ignore [missing-import]
-from google.genai import types
-from typing import AsyncGenerator
+from google.genai import types  # type: ignore[import-not-found]
+from typing import Any, AsyncGenerator, Optional
 # pyrefly: ignore [missing-import]
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # type: ignore[import-not-found]
 
 # Tải biến môi trường
 load_dotenv()
@@ -131,10 +133,24 @@ OPENROUTER_FREE_MODELS = [
     "meta-llama/llama-3.3-70b-instruct:free",
 ]
 
+GROQ_DEFAULT_MODELS = [
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
+]
+
+CRISIS_TERMS = [
+    "tu tu", "tu sat", "khong muon song", "muon chet", "chet di",
+    "ket lieu", "tu lam hai", "tu hai", "rach tay", "nhay lau",
+    "uoc gi minh bien mat", "khong con ly do song",
+]
+
 class GeminiService:
     def __init__(self):
         # Cập nhật sang gemini-2.5-flash
         self.model_name = "gemini-2.5-flash"
+        self.provider_cooldowns: dict[str, float] = {}
+        self.provider_cooldown_seconds = int(os.getenv("AI_PROVIDER_COOLDOWN_SECONDS", "90"))
+        self.allow_free_ai_fallback = os.getenv("HUGOPSY_ALLOW_FREE_AI_FALLBACK", "true").lower() in ("1", "true", "yes", "on")
 
         # Tải danh sách API Keys
         self.api_keys = []
@@ -151,7 +167,7 @@ class GeminiService:
                 self.api_keys.append(value.strip())
 
         self.current_key_index = 0
-        self.client = None
+        self.client: Any = None
 
         if self.api_keys:
             self.client = genai.Client(api_key=self.api_keys[self.current_key_index])
@@ -159,7 +175,12 @@ class GeminiService:
         else:
             print("⚠️ CẢNH BÁO: Chưa cấu hình GEMINI_API_KEY nào trong file .env!")
 
-    def _get_next_client(self):
+        groq_models = os.getenv("GROQ_MODELS", "")
+        self.groq_models = [m.strip() for m in groq_models.split(",") if m.strip()] or GROQ_DEFAULT_MODELS
+        if os.getenv("GROQ_API_KEY"):
+            print(f"Đã bật Groq fallback với {len(self.groq_models)} model.")
+
+    def _get_next_client(self) -> Any:
         if not self.api_keys:
             return None
         self.current_key_index = (self.current_key_index + 1) % len(self.api_keys)
@@ -168,12 +189,30 @@ class GeminiService:
         self.client = genai.Client(api_key=new_key)
         return self.client
 
-    def _ensure_client(self):
+    def _ensure_client(self) -> Any:
         if not self.client and self.api_keys:
             self.client = genai.Client(api_key=self.api_keys[self.current_key_index])
         return self.client
 
-    def _extract_name_and_age(self, bio: dict) -> tuple:
+    def _provider_available(self, provider: str) -> bool:
+        return time.time() >= self.provider_cooldowns.get(provider, 0)
+
+    def _mark_provider_failure(self, provider: str, seconds: Optional[int] = None):
+        self.provider_cooldowns[provider] = time.time() + (seconds or self.provider_cooldown_seconds)
+
+    def _mark_provider_success(self, provider: str):
+        self.provider_cooldowns.pop(provider, None)
+
+    def _normalize_text(self, text: str) -> str:
+        normalized = unicodedata.normalize("NFD", str(text or ""))
+        without_marks = "".join(ch for ch in normalized if unicodedata.category(ch) != "Mn")
+        return without_marks.replace("đ", "d").replace("Đ", "D").lower()
+
+    def _is_crisis_text(self, text: str) -> bool:
+        clean = self._normalize_text(text)
+        return any(term in clean for term in CRISIS_TERMS)
+
+    def _extract_name_and_age(self, bio: Optional[dict]) -> tuple:
         """
         Trích xuất tên hiển thị và ngữ cảnh tuổi từ bio.
         Trả về (name, age_context, missing_fields).
@@ -213,7 +252,7 @@ class GeminiService:
 
         return name, age_context, missing_fields
 
-    def _build_user_context(self, bio: dict) -> str:
+    def _build_user_context(self, bio: Optional[dict]) -> str:
         """
         Xây dựng chuỗi ngữ cảnh phong phú từ hồ sơ người dùng để cá nhân hóa AI.
         Bao gồm: tên, tuổi, cấp học, lịch sử tâm trạng, điểm test, liệu pháp đang dùng.
@@ -274,7 +313,7 @@ class GeminiService:
 
         return "\n".join(parts) if parts else "Thông tin hồ sơ còn hạn chế."
 
-    def _build_wellness_system_instruction(self, bio: dict, mode: str = 'chat') -> str:
+    def _build_wellness_system_instruction(self, bio: Optional[dict], mode: str = 'chat') -> str:
         """
         Xây dựng system instruction cho Người bạn đồng hành sức khỏe tâm lý (Bạn Học Đường).
         Được dùng chung cho generate_chat_response và generate_chat_response_stream.
@@ -352,7 +391,7 @@ class GeminiService:
         {SYSTEM_PSYCHOLOGY_CONTEXT}
         """
 
-    def _build_site_guide_system_instruction(self, bio: dict) -> str:
+    def _build_site_guide_system_instruction(self, bio: Optional[dict]) -> str:
         """
         System instruction cho Culi - trợ lý hướng dẫn sử dụng nền tảng Hugo Studio
         (KHÔNG phải người bạn đồng hành tâm lý - đó là _build_wellness_system_instruction,
@@ -386,7 +425,118 @@ class GeminiService:
           Chỉ chèn khi thực sự liên quan, không chèn ở mọi câu trả lời.
         """
 
-    async def generate_chat_response(self, message: str, history: list = None, bio: dict = None, persona: str = 'companion') -> str:
+    async def _openrouter_from(self, system_instruction: str, history: Optional[list], message: str):
+        """Build OpenRouter messages from history + call it. Returns reply or None
+        if no key configured / call failed. Used only for the 'guide' persona."""
+        if not os.getenv("OPENROUTER_API_KEY", ""):
+            return None
+        print("🔄 Falling back to OpenRouter (guide persona)...")
+        messages = [{"role": "system", "content": system_instruction}]
+        if history:
+            for h in history:
+                role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
+                text = h.get("text") or h.get("content") or ""
+                if text:
+                    messages.append({"role": role, "content": text})
+        messages.append({"role": "user", "content": message})
+        return await self._call_openrouter(messages)
+
+    def _build_openai_messages(self, system_instruction: str, history: Optional[list], message: str) -> list:
+        messages = [{"role": "system", "content": system_instruction}]
+        if history:
+            for h in history[-8:]:
+                role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
+                text = h.get("text") or h.get("content") or ""
+                if text:
+                    messages.append({"role": role, "content": text})
+        messages.append({"role": "user", "content": message})
+        return messages
+
+    async def _call_groq(self, messages: list, temperature: float = 0.7) -> str:
+        api_key = os.getenv("GROQ_API_KEY", "")
+        if not api_key or not self.allow_free_ai_fallback or not self._provider_available("groq"):
+            return ""
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        url = "https://api.groq.com/openai/v1/chat/completions"
+
+        for model in self.groq_models:
+            payload = {
+                "model": model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": 650,
+            }
+            try:
+                async with httpx.AsyncClient(timeout=22.0) as client:
+                    res = await client.post(url, headers=headers, json=payload)
+                    if res.status_code == 200:
+                        self._mark_provider_success("groq")
+                        data = res.json()
+                        return data["choices"][0]["message"]["content"]
+                    if res.status_code in (429, 500, 502, 503, 504):
+                        print(f"Groq temporary error ({model}) {res.status_code}: {res.text[:240]}")
+                        continue
+                    print(f"Groq error ({model}) {res.status_code}: {res.text[:240]}")
+            except Exception as e:
+                print(f"Groq exception ({model}): {e}")
+
+        self._mark_provider_failure("groq")
+        return ""
+
+    async def _call_groq_stream(self, messages: list, temperature: float = 0.7) -> AsyncGenerator[str, None]:
+        api_key = os.getenv("GROQ_API_KEY", "")
+        if not api_key or not self.allow_free_ai_fallback or not self._provider_available("groq"):
+            return
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        url = "https://api.groq.com/openai/v1/chat/completions"
+
+        for model in self.groq_models:
+            payload = {
+                "model": model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": 650,
+                "stream": True,
+            }
+            try:
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    async with client.stream("POST", url, headers=headers, json=payload) as response:
+                        if response.status_code != 200:
+                            err_text = (await response.aread()).decode("utf-8", "ignore")[:240]
+                            print(f"Groq stream error ({model}) {response.status_code}: {err_text}")
+                            continue
+
+                        self._mark_provider_success("groq")
+                        async for line in response.aiter_lines():
+                            line = line.strip()
+                            if not line or not line.startswith("data: "):
+                                continue
+                            data_str = line[6:]
+                            if data_str == "[DONE]":
+                                return
+                            try:
+                                data = json.loads(data_str)
+                                chunk_text = data["choices"][0]["delta"].get("content", "")
+                                if chunk_text:
+                                    yield f"data: {json.dumps({'text': chunk_text}, ensure_ascii=False)}\n\n"
+                            except Exception:
+                                continue
+                        return
+            except Exception as e:
+                print(f"Groq stream exception ({model}): {e}")
+
+        self._mark_provider_failure("groq")
+        return
+
+    async def generate_chat_response(self, message: str, history: Optional[list] = None, bio: Optional[dict] = None, persona: str = 'companion') -> str:
         """
         Trò chuyện đồng hành cùng học sinh và sinh viên (persona='companion', mặc định)
         hoặc hướng dẫn sử dụng nền tảng (persona='guide', dùng cho HBot).
@@ -400,7 +550,14 @@ class GeminiService:
 
         client = self._ensure_client()
         if not client:
-            return f"Chào {name}! Hiện tại server chưa được cấu hình GEMINI_API_KEY. Tớ rất muốn tâm sự với cậu, cậu hãy nhắc admin cấu hình API Key nhé!"
+            if not self._is_crisis_text(message):
+                groq_reply = await self._call_groq(
+                    self._build_openai_messages(system_instruction, history, message),
+                    temperature=0.7
+                )
+                if groq_reply:
+                    return groq_reply
+            raise RuntimeError("AI_UNAVAILABLE")
 
         # Chuyển đổi lịch sử trò chuyện sang định nghĩa của Gemini
         contents = []
@@ -431,47 +588,44 @@ class GeminiService:
                     client = self._get_next_client()
                     continue
                 print(f"Lỗi gọi Gemini API (generate_chat_response): {err_str}")
-                
-                # OpenRouter fallback
-                openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-                if openrouter_key:
-                    print("🔄 Gemini failed. Falling back to OpenRouter...")
-                    messages = [{"role": "system", "content": system_instruction}]
-                    if history:
-                        for h in history:
-                            role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
-                            text = h.get("text") or h.get("content") or ""
-                            if text:
-                                messages.append({"role": role, "content": text})
-                    messages.append({"role": "user", "content": message})
-                    
-                    openrouter_reply = await self._call_openrouter(messages)
+
+                # OpenRouter fallback is ONLY safe for the non-clinical 'guide'
+                # persona (HBot site help). For wellness/therapy chat we never
+                # route a vulnerable user to an unvetted free model — the client
+                # (AIBot.buildLocalReply) provides a safe local reply instead.
+                if persona == 'guide':
+                    openrouter_reply = await self._openrouter_from(system_instruction, history, message)
                     if openrouter_reply:
                         return openrouter_reply
 
-                raise RuntimeError("Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha.")
+                if not self._is_crisis_text(message):
+                    groq_reply = await self._call_groq(
+                        self._build_openai_messages(system_instruction, history, message),
+                        temperature=0.7
+                    )
+                    if groq_reply:
+                        return groq_reply
 
-        # OpenRouter fallback if loop finished without success
-        openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-        if openrouter_key:
-            print("🔄 Gemini keys loop ended. Falling back to OpenRouter...")
-            messages = [{"role": "system", "content": system_instruction}]
-            if history:
-                for h in history:
-                    role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
-                    text = h.get("text") or h.get("content") or ""
-                    if text:
-                        messages.append({"role": role, "content": text})
-            messages.append({"role": "user", "content": message})
+                raise RuntimeError("AI_UNAVAILABLE")
 
-            openrouter_reply = await self._call_openrouter(messages)
+        # Keys loop ended without success — same persona gating as above.
+        if persona == 'guide':
+            openrouter_reply = await self._openrouter_from(system_instruction, history, message)
             if openrouter_reply:
                 return openrouter_reply
 
-        raise RuntimeError("Tớ đang không thể kết nối đến máy chủ AI do sự cố mạng hoặc hạn mức. Cậu thử lại sau nha.")
+        if not self._is_crisis_text(message):
+            groq_reply = await self._call_groq(
+                self._build_openai_messages(system_instruction, history, message),
+                temperature=0.7
+            )
+            if groq_reply:
+                return groq_reply
+
+        raise RuntimeError("AI_UNAVAILABLE")
 
 
-    async def generate_chat_response_stream(self, message: str, history: list = None, bio: dict = None) -> AsyncGenerator[str, None]:
+    async def generate_chat_response_stream(self, message: str, history: Optional[list] = None, bio: Optional[dict] = None) -> AsyncGenerator[str, None]:
         """
         Tạo phản hồi chat dưới dạng stream (Generator).
         """
@@ -480,7 +634,17 @@ class GeminiService:
 
         client = self._ensure_client()
         if not client:
-            yield f"data: Chào {name}! Hiện tại server chưa được cấu hình GEMINI_API_KEY. Tớ rất muốn tâm sự với cậu, cậu hãy nhắc admin cấu hình API Key nhé!\n\n"
+            if not self._is_crisis_text(message):
+                sent = False
+                async for chunk in self._call_groq_stream(
+                    self._build_openai_messages(system_instruction, history, message),
+                    temperature=0.7
+                ):
+                    sent = True
+                    yield chunk
+                if sent:
+                    return
+            yield f"data: {json.dumps({'error': 'AI_UNAVAILABLE'}, ensure_ascii=False)}\n\n"
             return
 
         contents = []
@@ -514,52 +678,40 @@ class GeminiService:
                     client = self._get_next_client()
                     continue
                 print(f"Lỗi gọi Gemini API stream: {err_str}")
-                
-                # OpenRouter fallback
-                openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-                if openrouter_key:
-                    print("🔄 Gemini stream failed. Falling back to OpenRouter stream...")
-                    messages = [{"role": "system", "content": system_instruction}]
-                    if history:
-                        for h in history:
-                            role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
-                            text = h.get("text") or h.get("content") or ""
-                            if text:
-                                messages.append({"role": role, "content": text})
-                    messages.append({"role": "user", "content": message})
-                    
-                    async for chunk in self._call_openrouter_stream(messages):
-                        yield chunk
-                    return
 
-                yield f"data: {json.dumps({'error': 'Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc đạt giới hạn truy cập. Cậu đợi vài phút rồi nhắn lại cho tớ nha.'}, ensure_ascii=False)}\n\n"
+                if not self._is_crisis_text(message):
+                    sent = False
+                    async for chunk in self._call_groq_stream(
+                        self._build_openai_messages(system_instruction, history, message),
+                        temperature=0.7
+                    ):
+                        sent = True
+                        yield chunk
+                    if sent:
+                        return
+
+                yield f"data: {json.dumps({'error': 'AI_UNAVAILABLE'}, ensure_ascii=False)}\n\n"
                 import asyncio
                 await asyncio.sleep(0.1)
                 return
-        
-        # OpenRouter fallback if loop finished without success
-        openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-        if openrouter_key:
-            print("🔄 Gemini stream keys loop ended. Falling back to OpenRouter stream...")
-            messages = [{"role": "system", "content": system_instruction}]
-            if history:
-                for h in history:
-                    role = "user" if h.get("sender") == "user" or h.get("role") == "user" else "assistant"
-                    text = h.get("text") or h.get("content") or ""
-                    if text:
-                        messages.append({"role": role, "content": text})
-            messages.append({"role": "user", "content": message})
-            
-            async for chunk in self._call_openrouter_stream(messages):
-                yield chunk
-            return
 
-        yield f"data: {json.dumps({'error': 'Tớ đang không thể kết nối đến máy chủ AI. Cậu thử lại sau nha.'}, ensure_ascii=False)}\n\n"
+        if not self._is_crisis_text(message):
+            sent = False
+            async for chunk in self._call_groq_stream(
+                self._build_openai_messages(system_instruction, history, message),
+                temperature=0.7
+            ):
+                sent = True
+                yield chunk
+            if sent:
+                return
+
+        yield f"data: {json.dumps({'error': 'AI_UNAVAILABLE'}, ensure_ascii=False)}\n\n"
         import asyncio
         await asyncio.sleep(0.1)
 
 
-    async def analyze_test_results(self, test_name: str, scores: dict = None, validity: dict = None, clinical: list = None, lang_detected: str = "vi", bio: dict = None) -> str:
+    async def analyze_test_results(self, test_name: str, scores: Optional[dict] = None, validity: Optional[dict] = None, clinical: Optional[list] = None, lang_detected: str = "vi", bio: Optional[dict] = None) -> Optional[str]:
         """
         Phân tích kết quả trắc nghiệm tâm lý (Async).
         """
@@ -721,7 +873,7 @@ class GeminiService:
             "error": "Tất cả API Key đã bị quá tải (429)."
         }
 
-    async def generate_proactive_push(self, logs: list, bio: dict = None) -> dict:
+    async def generate_proactive_push(self, logs: list, bio: Optional[dict] = None) -> dict:
         """
         Phân tích lịch sử hoạt động để gửi push notification chủ động hoặc thực hiện phân tích admin.
         """
@@ -856,7 +1008,7 @@ class GeminiService:
 
         return {"should_send": False, "reason": "All keys failed"}
 
-    async def analyze_sleep_health(self, sleep_logs: list, bio: dict = None) -> dict:
+    async def analyze_sleep_health(self, sleep_logs: list, bio: Optional[dict] = None) -> dict:
         """
         Phân tích chất lượng giấc ngủ theo khoa học.
         Dựa trên khuyến nghị NSF (National Sleep Foundation) và AASM.
@@ -1048,7 +1200,7 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
 
         return {"should_send": False, "reason": "All keys failed"}
 
-    async def generate_audio_response(self, audio_bytes: bytes, mime_type: str, history: list = None, bio: dict = None, is_call_mode: bool = False) -> dict:
+    async def generate_audio_response(self, audio_bytes: bytes, mime_type: str, history: Optional[list] = None, bio: Optional[dict] = None, is_call_mode: bool = False) -> dict:
         """
         Nhận âm thanh từ người dùng, gửi cho Gemini để nhận lại Âm thanh Native (giọng nói) và Text.
         """
@@ -1135,7 +1287,7 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
                 return {"text": "Chào bạn! Chuyên viên AI đang có lịch bận, vui lòng gọi lại tớ sau vài phút.", "audio_base64": None, "is_error": True}
         return {"text": "Chào bạn! Chuyên viên AI đang có lịch bận, vui lòng gọi lại tớ sau vài phút.", "audio_base64": None, "is_error": True}
 
-    async def analyze_iot_vitals(self, vitals_history: list, bio: dict = None) -> dict:
+    async def analyze_iot_vitals(self, vitals_history: list, bio: Optional[dict] = None) -> dict:
         """
         Phân tích dữ liệu sinh trắc học từ thiết bị IoT.
         vitals_history: list of {timestamp, heartRate, steps, sleepMinutes, bloodPressureSys, bloodPressureDia, oxygenSat}
@@ -1187,7 +1339,7 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
         except Exception as e:
             return {"wellnessScore": 50, "insights": f"Lỗi phân tích: {str(e)}", "alerts": [], "recommendations": []}
 
-    async def generate_weekly_report(self, history_logs: list, chat_messages: list, bio: dict = None) -> dict:
+    async def generate_weekly_report(self, history_logs: list, chat_messages: list, bio: Optional[dict] = None) -> dict:
         """
         Tạo báo cáo sức khỏe tâm lý hàng tuần dựa trên lịch sử hoạt động.
         Returns: {summary: str, moodTrend: str, topConcerns: list, achievements: list, nextSteps: list}
@@ -1263,7 +1415,7 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
     # free tier: real AI-generated content personalised to the user's actual
     # mood/history, instead of static scripted text.
 
-    async def generate_therapeutic_story(self, mood: str = None, context: str = "", bio: dict = None) -> dict:
+    async def generate_therapeutic_story(self, mood: Optional[str] = None, context: str = "", bio: Optional[dict] = None) -> dict:
         """"Đọc Truyện AI Trị Liệu" — sinh một truyện ngắn trị liệu cá nhân hoá theo mood thực."""
         name, age_context, _ = self._extract_name_and_age(bio)
 
@@ -1327,7 +1479,7 @@ Trả về JSON CHÍNH XÁC:
             return fallback
         raise RuntimeError("Tất cả API Key đã bị quá tải, tớ chưa thể kể chuyện ngay lúc này. Cậu thử lại sau nhé!")
 
-    async def generate_meditation_script(self, mood: str = None, context: str = "", bio: dict = None) -> dict:
+    async def generate_meditation_script(self, mood: Optional[str] = None, context: str = "", bio: Optional[dict] = None) -> dict:
         """"Thiền Dẫn AI Cá Nhân Hoá" — sinh 6-8 câu giọng dẫn thiền theo mood/dữ liệu lâm sàng thực."""
         name, age_context, _ = self._extract_name_and_age(bio)
 
@@ -1385,7 +1537,7 @@ Trả về JSON CHÍNH XÁC:
             return fallback
         raise RuntimeError("Tất cả API Key đã bị quá tải, tớ chưa thể soạn bài thiền ngay lúc này. Cậu thử lại sau nhé!")
 
-    async def generate_cbt_worksheet(self, history_logs: list, chat_messages: list, bio: dict = None) -> dict:
+    async def generate_cbt_worksheet(self, history_logs: list, chat_messages: list, bio: Optional[dict] = None) -> dict:
         """"CBT Worksheet Cá Nhân Hoá" — sinh bảng ghi nhận suy nghĩ CBT thật từ lịch sử chat/checkin."""
         name, age_context, _ = self._extract_name_and_age(bio)
 
@@ -1449,7 +1601,7 @@ Trả về JSON CHÍNH XÁC:
                 raise RuntimeError("Tớ chưa thể soạn bảng CBT lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!")
         raise RuntimeError("Tất cả API Key đã bị quá tải, tớ chưa thể soạn bảng CBT ngay lúc này. Cậu thử lại sau nhé!")
 
-    async def generate_action_plan(self, history_logs: list, bio: dict = None) -> dict:
+    async def generate_action_plan(self, history_logs: list, bio: Optional[dict] = None) -> dict:
         """"Lộ Trình Hoạt Động Cá Nhân Hoá" — gộp viết/vận động/kết nối thành 1 kế hoạch 7 ngày."""
         name, age_context, _ = self._extract_name_and_age(bio)
 
@@ -1507,7 +1659,7 @@ Trả về JSON CHÍNH XÁC:
                 return {"error": "Tớ chưa thể tạo lộ trình lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!"}
         return {"error": "Tất cả API Key đã bị quá tải, tớ chưa thể tạo lộ trình ngay lúc này. Cậu thử lại sau nhé!"}
 
-    async def generate_deep_report(self, history_logs: list, chat_messages: list, bio: dict = None) -> dict:
+    async def generate_deep_report(self, history_logs: list, chat_messages: list, bio: Optional[dict] = None) -> dict:
         """"Báo Cáo Tâm Lý Chuyên Sâu" — báo cáo dạng chia sẻ được cho chuyên viên thật (không chỉ tóm tắt tuần)."""
         name, age_context, _ = self._extract_name_and_age(bio)
 
@@ -1571,7 +1723,7 @@ Trả về JSON CHÍNH XÁC:
     # src/components/member/banhocduong/constants/intentClassifier.js
     FREE_INTENT_IDS = {"greeting", "goodbye", "gratitude", "positive", "crisis"}
 
-    async def classify_intent(self, message: str, history: list | None = None, bio: dict | None = None) -> dict:
+    async def classify_intent(self, message: str, history: Optional[list] = None, bio: Optional[dict] = None) -> dict:
         """
         Classify user message into one of the local intent IDs or "fallback".
         Tries OpenRouter FIRST (cheap, doesn't burn the scarce Gemini free-tier quota
@@ -1706,7 +1858,7 @@ Trả về JSON CHÍNH XÁC:
 
         return {"intent": "fallback"}
 
-    async def _try_openrouter_json(self, system_instruction: str, user_prompt: str, temperature: float = 0.7) -> dict:
+    async def _try_openrouter_json(self, system_instruction: str, user_prompt: str, temperature: float = 0.7) -> Optional[dict]:
         """Best-effort OpenRouter fallback for the JSON-structured premium therapy
         endpoints (story/meditation/CBT/action-plan/deep-report), used when Gemini's
         free-tier quota is exhausted. Returns None if unavailable/failed."""
@@ -1725,7 +1877,7 @@ Trả về JSON CHÍNH XÁC:
             print(f"Lỗi parse JSON OpenRouter fallback: {e}")
             return None
 
-    async def _call_openrouter(self, messages: list, temperature: float = 0.7, response_format: dict = None) -> str:
+    async def _call_openrouter(self, messages: list, temperature: float = 0.7, response_format: Optional[dict] = None) -> str:
         api_key = os.getenv("OPENROUTER_API_KEY", "")
         if not api_key:
             return ""

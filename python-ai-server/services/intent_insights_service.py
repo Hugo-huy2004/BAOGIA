@@ -1,8 +1,23 @@
 import re
+import os
+import hashlib
+import hmac
 from datetime import datetime
 from collections import defaultdict
 
 from services.rate_limit_service import rate_limiter
+
+# Salt for pseudonymizing user identifiers in analytics. The intent telemetry
+# only needs a STABLE per-user token (to measure per-user match coverage), not
+# the real email — so we store an HMAC digest instead. Analytics can still
+# group by user without the collection ever holding a real address.
+_PSEUDONYM_SALT = (os.getenv("TELEMETRY_SALT") or os.getenv("INTERNAL_API_KEY") or "hugopsy-telemetry-salt").encode()
+
+
+def pseudonymize(user_id: str) -> str:
+    if not user_id or user_id == "unknown":
+        return "unknown"
+    return "u_" + hmac.new(_PSEUDONYM_SALT, user_id.encode(), hashlib.sha256).hexdigest()[:16]
 
 # In-memory fallback for the classify cache (analytics log has no in-memory
 # fallback — losing a log entry during rare Mongo downtime is fine).
@@ -66,7 +81,7 @@ class IntentInsightsService:
                 "message": message,
                 "matched_via": matched_via,  # "local" | "ai" | "cache" | "fallback"
                 "intent": intent_id,
-                "user_id": user_id,
+                "user_id": pseudonymize(user_id),  # HMAC digest, never the raw email
                 "created_at": datetime.now()
             })
         except Exception as e:

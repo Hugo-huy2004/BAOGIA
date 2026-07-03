@@ -15,28 +15,23 @@ const SupportRequestPage = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [issue, setIssue] = useState('');
+  const [issue, setIssue] = useState(location.state?.prefilledMessage || '');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [isValidAccess, setIsValidAccess] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
+  const session = getMemberSession();
+  const isValidAccess = session && location.state?.fromBot;
+
   useEffect(() => {
     // Check if the user is logged in AND request is routed from the Bot. If not, redirect immediately.
-    const session = getMemberSession();
-    if (!session || !location.state || !location.state.fromBot) {
+    if (!isValidAccess) {
       navigate('/', { replace: true });
       return;
-    }
-    setIsValidAccess(true);
-
-    // 1. Prefill issue details if passed from state
-    if (location.state?.prefilledMessage) {
-      setIssue(location.state.prefilledMessage);
     }
 
     // 2. Prefill info from session
@@ -64,7 +59,8 @@ const SupportRequestPage = () => {
           console.error("Failed to load bio details for prefill:", err);
         });
     }
-  }, [location.state, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!isValidAccess) {
     return null;

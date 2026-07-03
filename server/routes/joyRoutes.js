@@ -1,8 +1,9 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
+import JoyLedger from '../models/JoyLedger.js';
 import { awardJoy, getJoyHistory } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
 import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToken.js';
 
@@ -45,9 +46,10 @@ function todayStr() {
 // same price/tax/total math the actual charge endpoints enforce, plus the
 // member's current balance and display info, so the UI never has to
 // duplicate (and risk drifting from) the server's pricing.
-router.get('/exchange-quote', async (req, res) => {
+router.get('/exchange-quote', requireMember, async (req, res) => {
   try {
-    const { email, item } = req.query;
+    const { item } = req.query;
+    const email = req.memberEmail;
     if (!email || !item) return res.status(400).json({ error: 'email and item are required' });
 
     const def = EXCHANGE_ITEMS[item];
@@ -72,9 +74,9 @@ router.get('/exchange-quote', async (req, res) => {
 });
 
 // GET /api/joy/balance?email=
-router.get('/balance', async (req, res) => {
+router.get('/balance', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Email query param is required' });
 
     let bio = await Bio.findOne({ email });
@@ -89,9 +91,10 @@ router.get('/balance', async (req, res) => {
 });
 
 // GET /api/joy/history?email=&limit=20
-router.get('/history', async (req, res) => {
+router.get('/history', requireMember, async (req, res) => {
   try {
-    const { email, limit } = req.query;
+    const { limit } = req.query;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Email query param is required' });
 
     const transactions = await getJoyHistory(email, limit);
@@ -146,9 +149,10 @@ router.post('/reset-to-zero', requireAdmin, async (req, res) => {
 });
 
 // POST /api/joy/award-learning
-router.post('/award-learning', async (req, res) => {
+router.post('/award-learning', requireMember, async (req, res) => {
   try {
-    const { email, lessonId } = req.body;
+    const { lessonId } = req.body;
+    const email = req.memberEmail;
     if (!email || !lessonId) return res.status(400).json({ error: 'Email and lessonId are required' });
 
     let bio = await Bio.findOne({ email });
@@ -163,7 +167,25 @@ router.post('/award-learning', async (req, res) => {
       return res.json({ success: true, alreadyCompleted: true, balance: bio.joyBalance });
     }
 
-    const result = await awardJoy(email, 30, 'ide_learning', `Hoàn thành bài học IDE: ${lessonId}`); // base x3
+    // Daily cap validation: max 2 lessons completed per calendar day in ICT (GMT+7)
+    const now = new Date();
+    const ictOffset = 7 * 60 * 60 * 1000;
+    const ictNow = new Date(now.getTime() + ictOffset);
+    const ictTodayStart = new Date(ictNow.getUTCFullYear(), ictNow.getUTCMonth(), ictNow.getUTCDate());
+    const utcTodayStart = new Date(ictTodayStart.getTime() - ictOffset);
+
+    const count = await JoyLedger.countDocuments({
+      email: bio.email,
+      source: 'ide_learning',
+      createdAt: { $gte: utcTodayStart }
+    });
+
+    if (count >= 2) {
+      return res.status(400).json({ error: 'Mỗi ngày chỉ được hoàn thành tối đa 2 bài học.' });
+    }
+
+    const awardAmount = lessonId === 'lesson10' ? 450 : 100;
+    const result = await awardJoy(email, awardAmount, 'ide_learning', `Hoàn thành bài học IDE: ${lessonId}`);
     bio.completedLessons.push(lessonId);
     bio.markModified('completedLessons');
     await bio.save();
@@ -175,9 +197,9 @@ router.post('/award-learning', async (req, res) => {
 });
 
 // POST /api/joy/claim-info-bonus — one-time bonus for opening Info & Version
-router.post('/claim-info-bonus', async (req, res) => {
+router.post('/claim-info-bonus', requireMember, async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
     let bio = await Bio.findOne({ email });
@@ -199,9 +221,10 @@ router.post('/claim-info-bonus', async (req, res) => {
 });
 
 // POST /api/joy/award-focus
-router.post('/award-focus', async (req, res) => {
+router.post('/award-focus', requireMember, async (req, res) => {
   try {
-    const { email, minutes } = req.body;
+    const { minutes } = req.body;
+    const email = req.memberEmail;
     if (!email || !minutes) return res.status(400).json({ error: 'Email and minutes are required' });
 
     let bio = await Bio.findOne({ email });
@@ -227,9 +250,10 @@ router.post('/award-focus', async (req, res) => {
 });
 
 // POST /api/joy/rent-theme
-router.post('/rent-theme', async (req, res) => {
+router.post('/rent-theme', requireMember, async (req, res) => {
   try {
-    const { email, themeId, duration = 'day' } = req.body;
+    const { themeId, duration = 'day' } = req.body;
+    const email = req.memberEmail;
     if (!email || !themeId) {
       return res.status(400).json({ error: 'Email and themeId are required' });
     }
@@ -278,9 +302,10 @@ router.post('/rent-theme', async (req, res) => {
 });
 
 // POST /api/joy/set-theme
-router.post('/set-theme', async (req, res) => {
+router.post('/set-theme', requireMember, async (req, res) => {
   try {
-    const { email, themeId } = req.body;
+    const { themeId } = req.body;
+    const email = req.memberEmail;
     if (!email || !themeId) {
       return res.status(400).json({ error: 'Email and themeId are required' });
     }
@@ -308,9 +333,10 @@ router.post('/set-theme', async (req, res) => {
 // POST /api/joy/subscribe-feature  { email, featureKey, months? }
 // Monthly JOY subscription gating HugoCoder / HugoAura (Lofi+Shop only) /
 // HugoRadio / HugoArcade (Bứt phá+Huyền thoại tiers). See featureSubscriptionService.js.
-router.post('/subscribe-feature', async (req, res) => {
+router.post('/subscribe-feature', requireMember, async (req, res) => {
   try {
-    const { email, featureKey, months } = req.body;
+    const { featureKey, months } = req.body;
+    const email = req.memberEmail;
     if (!email || !featureKey) return res.status(400).json({ error: 'email and featureKey are required' });
     if (!FEATURE_PRICES[featureKey]) return res.status(400).json({ error: 'Tính năng không hợp lệ.' });
 
@@ -323,9 +349,10 @@ router.post('/subscribe-feature', async (req, res) => {
 
 // POST /api/joy/subscribe-bio-theme  { email, template: 'brutalism'|'flat' }
 // 'default' is always free and goes through the normal bio PUT — not this route.
-router.post('/subscribe-bio-theme', async (req, res) => {
+router.post('/subscribe-bio-theme', requireMember, async (req, res) => {
   try {
-    const { email, template } = req.body;
+    const { template } = req.body;
+    const email = req.memberEmail;
     if (!email || !['brutalism', 'flat'].includes(template)) {
       return res.status(400).json({ error: 'Giao diện không hợp lệ.' });
     }
@@ -421,9 +448,9 @@ router.get('/search-user', async (req, res) => {
 });
 
 // GET /api/joy/qr-payload?email= — generate user's JOY QR payload.
-router.get('/qr-payload', async (req, res) => {
+router.get('/qr-payload', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Thiếu email.' });
     const bio = await Bio.findOne({ email }).select('displayName avatarUrl referralCode joyBalance');
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
@@ -464,9 +491,11 @@ router.get('/resolve-qr', async (req, res) => {
 });
 
 // POST /api/joy/transfer  { fromEmail, toReferralCode|toEmail|toPhone, amount, message }
-router.post('/transfer', async (req, res) => {
+router.post('/transfer', requireMember, async (req, res) => {
   try {
-    const { fromEmail, toPhone, toReferralCode, toEmail, amount, message } = req.body;
+    const { toPhone, toReferralCode, toEmail, amount, message } = req.body;
+    // Sender identity comes from the verified session token — never the body.
+    const fromEmail = req.memberEmail;
     if (!fromEmail || (!toPhone && !toReferralCode && !toEmail)) {
       return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc người nhận.' });
     }
@@ -502,7 +531,7 @@ router.post('/transfer', async (req, res) => {
     }
 
     const today = todayStr();
-    const sentTodaySoFar = sender.joySentDate === today ? sender.joySentToday : 0;
+    const sentTodaySoFar = sender.joySentDate === today ? (sender.joySentToday || 0) : 0;
     if (sentTodaySoFar + numAmount > TRANSFER_DAILY_CAP) {
       return res.status(400).json({ error: `Vượt giới hạn gửi ${TRANSFER_DAILY_CAP} JOY/ngày. Cậu đã gửi ${sentTodaySoFar} JOY hôm nay.` });
     }
@@ -514,6 +543,9 @@ router.post('/transfer', async (req, res) => {
       return res.status(400).json({ error: `Số dư JOY không đủ. Bạn cần ${totalDeducted} JOY (bao gồm ${feeAmount} JOY phí sáng tạo).` });
     }
 
+    sender.joySentDate = today;
+    sender.joySentToday = sentTodaySoFar + numAmount;
+
     const customMsg = message ? ` Lời nhắn: "${message}"` : '';
     const recipientName = recipient.displayName || 'bạn bè';
     const senderName = sender.displayName || 'Một người bạn';
@@ -522,33 +554,29 @@ router.post('/transfer', async (req, res) => {
     // lets the receipt/notification on either side reference the same transfer.
     const txCode = `JOY${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
 
-    const senderResult = await awardJoy(
-      sender.email, -totalDeducted, 'joy_gift_sent',
-      `Gửi JOY cho ${recipientName} (-${numAmount} JOY, phí -${feeAmount} JOY). Mã GD: ${txCode}.${customMsg}`,
-      { refId: txCode }
-    );
-    await awardJoy(
-      recipient.email, numAmount, 'joy_gift_received',
-      `${senderName} đã chuyển ${numAmount} JOY đến bạn. Mã GD: ${txCode}.${customMsg}`,
-      {
-        refId: txCode,
-        notificationTitle: 'Bạn vừa nhận được JOY',
-        notificationMessage: `${senderName} đã chuyển ${numAmount} JOY đến bạn. Mã GD: ${txCode}.${customMsg} Số dư: ${Math.max(0, recipient.joyBalance + numAmount)} JOY.`,
-        pushNotify: true,
-        pushTitle: 'Bạn vừa nhận được JOY',
-        pushBody: `${senderName} đã chuyển ${numAmount} JOY đến bạn.${customMsg}`,
-        actionUrl: '/member/joy'
-      }
-    );
-
-    // Atomic increment — avoids overwriting the balance awardJoy() just wrote
-    // by saving a stale in-memory `sender` document.
-    await Bio.updateOne(
-      { email: sender.email },
-      sender.joySentDate !== today
-        ? { $set: { joySentDate: today, joySentToday: numAmount } }
-        : { $set: { joySentDate: today }, $inc: { joySentToday: numAmount } }
-    );
+    // Execute concurrently for instant real-time websocket delivery.
+    // Pass bioDoc to skip redundant DB reads inside awardJoy.
+    const [senderResult] = await Promise.all([
+      awardJoy(
+        sender.email, -totalDeducted, 'joy_gift_sent',
+        `Gửi JOY cho ${recipientName} (-${numAmount} JOY, phí -${feeAmount} JOY). Mã GD: ${txCode}.${customMsg}`,
+        { refId: txCode, bioDoc: sender }
+      ),
+      awardJoy(
+        recipient.email, numAmount, 'joy_gift_received',
+        `${senderName} đã chuyển ${numAmount} JOY đến bạn. Mã GD: ${txCode}.${customMsg}`,
+        {
+          refId: txCode,
+          bioDoc: recipient,
+          notificationTitle: 'Bạn vừa nhận được JOY',
+          notificationMessage: `${senderName} đã chuyển ${numAmount} JOY đến bạn. Mã GD: ${txCode}.${customMsg} Số dư: ${Math.max(0, recipient.joyBalance + numAmount)} JOY.`,
+          pushNotify: true,
+          pushTitle: 'Bạn vừa nhận được JOY',
+          pushBody: `${senderName} đã chuyển ${numAmount} JOY đến bạn.${customMsg}`,
+          actionUrl: '/member/joy'
+        }
+      )
+    ]);
 
     res.json({
       success: true,
@@ -568,9 +596,10 @@ router.post('/transfer', async (req, res) => {
 });
 
 // POST /api/joy/exchange-chat-tokens
-router.post('/exchange-chat-tokens', async (req, res) => {
+router.post('/exchange-chat-tokens', requireMember, async (req, res) => {
   try {
-    const { email, tokenAmount } = req.body;
+    const { tokenAmount } = req.body;
+    const email = req.memberEmail;
     if (!email || !tokenAmount) return res.status(400).json({ error: 'Thiếu thông tin người dùng hoặc số token.' });
 
     const tokens = Number(tokenAmount);

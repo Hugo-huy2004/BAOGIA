@@ -12,6 +12,7 @@ import {
   Frown, Trophy, Crown, Clock, Settings, Eye, EyeOff
 } from "lucide-react";
 import { useJoyStore } from "../../stores/joyStore";
+import { getMemberToken } from "../../services/authSession";
 
 // ── Captured-piece utilities ──────────────────────────────────────────────────
 const PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9 };
@@ -1038,7 +1039,7 @@ export default function ChessGame({
       localStorage.setItem("chess_guest_id", gid);
       ws.send(JSON.stringify({
         type: "auth",
-        email: userInfo?.email || null,
+        token: getMemberToken(),
         displayName: userInfo?.displayName || "Khách",
         rating: userInfo?.rating ?? 1500,
         guestId: gid,

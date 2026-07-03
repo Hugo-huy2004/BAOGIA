@@ -43,11 +43,11 @@ export default function AdminProjectDetailPage() {
   const [toastMsg, setToastMsg] = useState('');
   const [toastType, setToastType] = useState('success');
 
-  const showNotification = (msg, type = 'success') => {
+  const showNotification = React.useCallback((msg, type = 'success') => {
     setToastMsg(msg);
     setToastType(type);
     setTimeout(() => setToastMsg(''), 3000);
-  };
+  }, []);
 
   const lastGeneratedTemplateRef = React.useRef('');
   const prevStatusRef = React.useRef('');
@@ -144,13 +144,7 @@ export default function AdminProjectDetailPage() {
     }
   }, [statusUpdate, project, startDateStr, endDateStr, warrantyDays, developerName]);
 
-  useEffect(() => {
-    fetchProjectDetail();
-    fetchMessages();
-    markMessagesAsRead();
-  }, [id]);
-
-  const markMessagesAsRead = async () => {
+  const markMessagesAsRead = React.useCallback(async () => {
     try {
       await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${id}/messages/read`, {
         method: 'PUT',
@@ -161,9 +155,9 @@ export default function AdminProjectDetailPage() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [id]);
 
-  const fetchProjectDetail = async () => {
+  const fetchProjectDetail = React.useCallback(async () => {
     try {
       // First verify admin
       const adminRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/data/admin`, {
@@ -200,9 +194,9 @@ export default function AdminProjectDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate, t, showNotification]);
 
-  const fetchMessages = async () => {
+  const fetchMessages = React.useCallback(async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${id}/messages`, {
         headers: { 'Content-Type': 'application/json' },
@@ -213,7 +207,14 @@ export default function AdminProjectDetailPage() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [id]);
+
+   
+  useEffect(() => {
+    fetchProjectDetail();
+    fetchMessages();
+    markMessagesAsRead();
+  }, [fetchProjectDetail, fetchMessages, markMessagesAsRead]);
 
   const handleNoteChange = (content) => {
     setNoteUpdate(content);

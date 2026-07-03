@@ -17,10 +17,10 @@ export const webauthnHelper = {
   isSupported: () => browserSupportsWebAuthn(),
 
   // Registers the current device's fingerprint/Face ID as a new login method.
-  async registerDevice(email, deviceName) {
+  async registerDevice(email, deviceName, baseDeviceName) {
     const options = await postJSON('/webauthn/register-options', { email });
     const response = await startRegistration(options);
-    return postJSON('/webauthn/register-verify', { email, response, deviceName });
+    return postJSON('/webauthn/register-verify', { email, response, deviceName, baseDeviceName });
   },
 
   // Returns the member profile to feed into loginMember() on success.

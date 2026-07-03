@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -370,7 +370,6 @@ const AdminUsersTab = ({
             <div className="md:hidden divide-y divide-slate-200 dark:divide-slate-800/60 px-4">
               {users.map((user) => {
                 const bioUrl = `${window.location.origin}/bio/${user.slug}`;
-                const isLocked = user.status === 'locked';
                 const expDays = getExpirationDaysOnly(user.expiresAt);
                 return (
                   <div key={user._id} className="py-4 space-y-3 first:pt-2 last:pb-2">

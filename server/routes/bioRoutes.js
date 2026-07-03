@@ -1,7 +1,7 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 import { encryptText, decryptText, hashPassword, comparePassword } from '../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation.js';
@@ -13,6 +13,13 @@ import { broadcastToEmail } from '../utils/realtime.js';
 const router = express.Router();
 
 const TWELVE_MONTHS_MS = 1000 * 60 * 60 * 24 * 365;
+
+// Ownership guard for /:id routes — the bio's login or contact email must
+// match the verified member token (admins may act on any bio).
+const ownsBio = (req, bioDoc) =>
+  req.isAdminActor ||
+  (req.memberEmail &&
+    (bioDoc.email === req.memberEmail || bioDoc.contactEmail === req.memberEmail));
 
 // ─── Helper: Append a history entry (capped at 50) ───────────────────────────
 const HISTORY_LABELS = {
@@ -312,9 +319,10 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
-router.get('/me', async (req, res) => {
+router.get('/me', requireMember, async (req, res) => {
   try {
-    const { email, displayName, avatarUrl } = req.query;
+    const { displayName, avatarUrl } = req.query;
+    const email = req.memberEmail;
 
     if (!email) {
       return res.status(400).json({ error: 'Missing email' });
@@ -410,9 +418,10 @@ function stripSchoolLevelPrefix(name) {
 // queues for admin review (see PATCH /:id/status). Phone is just a plain
 // field here — no SMS OTP requirement, since members change numbers often
 // and forcing OTP just to submit this form was too much friction.
-router.post('/me/verification', async (req, res) => {
+router.post('/me/verification', requireMember, async (req, res) => {
   try {
-    const { email, fullName, birthday, schoolLevel, schoolName, schoolIdCode, phoneZalo, avatarUrl } = req.body;
+    const { fullName, birthday, schoolLevel, schoolName, schoolIdCode, phoneZalo, avatarUrl } = req.body;
+    const email = req.memberEmail;
 
     if (!email) {
       return res.status(400).json({ error: 'Missing email' });
@@ -465,9 +474,10 @@ router.post('/me/verification', async (req, res) => {
 
 // POST /me/onboarding - One-time post-signup step: collect phone (so referral
 // codes can be phone-derived) and optionally apply a referrer's code.
-router.post('/me/onboarding', async (req, res) => {
+router.post('/me/onboarding', requireMember, async (req, res) => {
   try {
-    const { email, phone, referrerCode } = req.body;
+    const { phone, referrerCode } = req.body;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Missing email' });
 
     let bio = await Bio.findOne({ email });
@@ -506,9 +516,9 @@ router.post('/me/onboarding', async (req, res) => {
 });
 
 // POST /me/dismiss-notification - Dismiss approval/rejection banner state
-router.post('/me/dismiss-notification', async (req, res) => {
+router.post('/me/dismiss-notification', requireMember, async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.memberEmail;
 
     if (!email) {
       return res.status(400).json({ error: 'Missing email' });
@@ -550,9 +560,10 @@ const ANOMALY_RADIUS_KM = 50;
 // server-side — enforcement (logout + redirect) happens client-side in
 // useLocationGuard.js, consistent with how this codebase has no session-
 // revocation list for its stateless JWTs.
-router.post('/me/check-location', async (req, res) => {
+router.post('/me/check-location', requireMember, async (req, res) => {
   try {
-    const { email, lat, lng } = req.body;
+    const { lat, lng } = req.body;
+    const email = req.memberEmail;
     if (!email || typeof lat !== 'number' || typeof lng !== 'number') {
       return res.status(400).json({ error: 'email, lat and lng are required' });
     }
@@ -580,9 +591,10 @@ router.post('/me/check-location', async (req, res) => {
 // POST /me/reset-trusted-location  { email, lat, lng } — member confirms
 // "yes this is really me, this is my new normal location" after a forced
 // re-login from an anomaly, so they aren't logged out again immediately.
-router.post('/me/reset-trusted-location', async (req, res) => {
+router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
   try {
-    const { email, lat, lng } = req.body;
+    const { lat, lng } = req.body;
+    const email = req.memberEmail;
     if (!email || typeof lat !== 'number' || typeof lng !== 'number') {
       return res.status(400).json({ error: 'email, lat and lng are required' });
     }
@@ -666,11 +678,11 @@ router.post('/slug/:slug/secret-link/:linkId/unlock', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', requireMember, async (req, res) => {
   try {
-    const { 
-      email, 
-      displayName, 
+    const email = req.memberEmail;
+    const {
+      displayName,
       headline = '', 
       bio = '',
       birthday = '',
@@ -754,13 +766,19 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireMember, async (req, res) => {
   try {
     const existing = await Bio.findById(req.params.id);
     if (!existing) {
       return res.status(404).json({ error: 'Bio not found' });
     }
-    
+    // _id is exposed on the public bio page — without this check anyone could
+    // overwrite any member's bio.
+    if (!ownsBio(req, existing)) {
+      return res.status(403).json({ error: 'Bạn không có quyền chỉnh sửa Bio này.' });
+    }
+    const previousSlug = existing.slug;
+
     // Xóa Cache nếu bio bị chỉnh sửa
     clearCache(`bio_slug_${existing.slug}`);
     
@@ -917,6 +935,13 @@ router.put('/:id', async (req, res) => {
 
     await existing.save();
 
+    // Keep the in-memory valid-slug set consistent on rename — otherwise the
+    // new slug 404s (not in set) while the old one stays "valid" forever.
+    if (global.validSlugs && previousSlug !== existing.slug) {
+      global.validSlugs.delete(previousSlug);
+      global.validSlugs.add(existing.slug);
+    }
+
     return res.json({ bio: existing });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -946,11 +971,14 @@ router.delete('/:id', requireAdmin, async (req, res) => {
 });
 
 // POST /contacts/sync/:id - Batch synchronize contacts from mobile
-router.post('/contacts/sync/:id', async (req, res) => {
+router.post('/contacts/sync/:id', requireMember, async (req, res) => {
   try {
     const bio = await Bio.findById(req.params.id);
     if (!bio) {
       return res.status(404).json({ error: 'Bio not found' });
+    }
+    if (!ownsBio(req, bio)) {
+      return res.status(403).json({ error: 'Bạn không có quyền thao tác trên Bio này.' });
     }
 
     const incoming = req.body.contacts || [];
@@ -987,11 +1015,14 @@ router.post('/contacts/sync/:id', async (req, res) => {
 });
 
 // DELETE /contacts/:id/:contactId - Delete a single backed up contact
-router.delete('/contacts/:id/:contactId', async (req, res) => {
+router.delete('/contacts/:id/:contactId', requireMember, async (req, res) => {
   try {
     const bio = await Bio.findById(req.params.id);
     if (!bio) {
       return res.status(404).json({ error: 'Bio not found' });
+    }
+    if (!ownsBio(req, bio)) {
+      return res.status(403).json({ error: 'Bạn không có quyền thao tác trên Bio này.' });
     }
 
     bio.backedUpContacts = bio.backedUpContacts.filter(c => c._id.toString() !== req.params.contactId);

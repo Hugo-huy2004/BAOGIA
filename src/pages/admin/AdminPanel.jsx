@@ -177,6 +177,7 @@ export default function AdminPanel() {
   }, [searchQuery, statusFilter, expirationFilter, userSortBy, userSortOrder, userPage, userLimit]);
 
   // Reset append mode whenever a filter/sort changes (not a scroll-triggered page increment)
+   
   useEffect(() => {
     isScrollAppendRef.current = false;
     setUserPage(1);

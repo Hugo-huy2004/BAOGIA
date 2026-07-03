@@ -29,5 +29,5 @@ export function setCachedBio(email, bio) {
 
 export function clearCachedBio(email) {
   if (!email) return;
-  try { localStorage.removeItem(PREFIX + email); } catch (_) {}
+  try { localStorage.removeItem(PREFIX + email); } catch (_) { /* ignore */ }
 }

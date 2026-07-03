@@ -1,5 +1,6 @@
 import express from 'express';
 import SleepLog from '../models/SleepLog.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -34,10 +35,11 @@ function computeDuration(bedtime, wakeTime) {
   return Math.round((mins / 60) * 10) / 10; // round to 1 decimal
 }
 
-// GET /api/sleep?email=&limit=30
-router.get('/', async (req, res) => {
+// GET /api/sleep?limit=30 — identity from the verified member token
+router.get('/', requireMember, async (req, res) => {
   try {
-    const { email, limit = 30 } = req.query;
+    const { limit = 30 } = req.query;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email required' });
 
     const logs = await SleepLog.find({ email })
@@ -61,9 +63,10 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/sleep — log tonight's sleep
-router.post('/', async (req, res) => {
+router.post('/', requireMember, async (req, res) => {
   try {
-    const { email, date, bedtime, wakeTime, quality, notes, mood, dreamNotes } = req.body;
+    const { date, bedtime, wakeTime, quality, notes, mood, dreamNotes } = req.body;
+    const email = req.memberEmail;
     if (!email || !date) return res.status(400).json({ error: 'email and date required' });
 
     const duration = computeDuration(bedtime, wakeTime);
@@ -90,9 +93,10 @@ router.post('/', async (req, res) => {
  *   hidden       — legacy Page Visibility "tab hidden" fallback
  *   visible      — legacy Page Visibility "tab visible" fallback
  */
-router.patch('/passive', async (req, res) => {
+router.patch('/passive', requireMember, async (req, res) => {
   try {
-    const { email, event, bedtime, wakeTime, date, confidence, signals } = req.body;
+    const { event, bedtime, wakeTime, date, confidence, signals } = req.body;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email required' });
 
     const now   = new Date();
@@ -186,9 +190,9 @@ router.patch('/passive', async (req, res) => {
 });
 
 // DELETE /api/sleep/:date
-router.delete('/:date', async (req, res) => {
+router.delete('/:date', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email required' });
     await SleepLog.deleteOne({ email, date: req.params.date });
     res.json({ ok: true });

@@ -1,13 +1,13 @@
 import express from 'express';
 import { recordHeartbeat, getOnlineStatuses, isOnline, getDailyActiveCount, todayStr } from '../utils/presenceService.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// POST /api/presence/heartbeat  { email }
-router.post('/heartbeat', async (req, res) => {
+// POST /api/presence/heartbeat — identity from the verified member token
+router.post('/heartbeat', requireMember, async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email is required' });
     await recordHeartbeat(email);
     res.json({ success: true });

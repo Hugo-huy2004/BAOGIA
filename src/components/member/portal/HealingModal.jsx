@@ -51,12 +51,23 @@ function CompanionHistoryReportPanel({ historyLogs }) {
 }
 
 export default function HealingModal({
-  showModal, subStep, state, mood, setMood, note, setNote,
-  consecutiveLow, wheelRatings, setWheelRatings, historyLogs,
+  showModal, subStep, state,
+  consecutiveLow, historyLogs,
   onSubmit, onWheelSubmit, onGraduation,
   onGoToTest, onGoToBreath, onGoToChat,
   onDismiss, showToast,
 }) {
+  const [mood, setMood] = React.useState(3);
+  const [note, setNote] = React.useState('');
+  const [wheelRatings, setWheelRatings] = React.useState([5, 5, 5, 5, 5]);
+
+  React.useEffect(() => {
+    if (showModal) {
+      setMood(3);
+      setNote('');
+      setWheelRatings([5, 5, 5, 5, 5]);
+    }
+  }, [showModal]);
   return (
     <AnimatePresence>
       {showModal && (
@@ -117,7 +128,7 @@ export default function HealingModal({
                       className="w-full h-20 px-3 py-2.5 rounded-xl border border-zinc-250 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/20 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-zinc-400 font-semibold resize-none"
                     />
                   </div>
-                  <button type="button" onClick={onSubmit}
+                  <button type="button" onClick={() => onSubmit(mood, note)}
                     className="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-[0.98]">
                     Tiếp tục
                   </button>
@@ -176,7 +187,7 @@ export default function HealingModal({
                       </div>
                     </div>
                   </div>
-                  <button type="button" onClick={onWheelSubmit}
+                  <button type="button" onClick={() => onWheelSubmit(mood, note, wheelRatings)}
                     className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-[0.98]">
                     Gửi cảm xúc & Bắt đầu ngày mới
                   </button>

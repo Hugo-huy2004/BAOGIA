@@ -215,7 +215,7 @@ export const dataApi = {
       checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
-        throw new Error(payload.error || 'Bio not found', { credentials: 'include', credentials: 'include' });
+        throw new Error(payload.error || 'Bio not found');
       }
       return await response.json();
     } catch (error) {
@@ -374,7 +374,7 @@ export const dataApi = {
       checkAuth(response.status);
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
-        throw new Error(payload.error || 'Partner access denied', { credentials: 'include', credentials: 'include' });
+        throw new Error(payload.error || 'Partner access denied');
       }
       return await response.json();
     } catch (error) {
@@ -387,7 +387,7 @@ export const dataApi = {
   async getBios(params) {
     try {
       const query = new URLSearchParams(params).toString();
-      const response = await fetchJsonWithDedup(`${API_BASE_URL}/bio?${query}`, { credentials: 'include', credentials: 'include', headers: getAuthHeaders() });
+      const response = await fetchJsonWithDedup(`${API_BASE_URL}/bio?${query}`, { credentials: 'include', headers: getAuthHeaders() });
       
       checkAuth(response.status);
       if (!response.ok) throw new Error('Failed to fetch bios');
@@ -404,7 +404,7 @@ export const dataApi = {
       const response = await fetchJsonWithDedup(`${API_BASE_URL}/partners`);
       
       checkAuth(response.status);
-      if (!response.ok) throw new Error('Failed to fetch partners', { credentials: 'include', credentials: 'include' });
+      if (!response.ok) throw new Error('Failed to fetch partners');
       return await response.json();
     } catch (error) {
       console.error('Error fetching partners:', error);
@@ -418,7 +418,7 @@ export const dataApi = {
       const response = await fetchJsonWithDedup(`${API_BASE_URL}/packages`);
       
       checkAuth(response.status);
-      if (!response.ok) throw new Error('Failed to fetch packages', { credentials: 'include', credentials: 'include' });
+      if (!response.ok) throw new Error('Failed to fetch packages');
       return await response.json();
     } catch (error) {
       console.error(error);
@@ -484,7 +484,7 @@ export const dataApi = {
       const response = await fetchJsonWithDedup(`${API_BASE_URL}/packages/user?email=${encodeURIComponent(email)}`);
       
       checkAuth(response.status);
-      if (!response.ok) throw new Error('Failed to fetch user packages', { credentials: 'include', credentials: 'include' });
+      if (!response.ok) throw new Error('Failed to fetch user packages');
       return await response.json();
     } catch (error) {
       console.error(error);

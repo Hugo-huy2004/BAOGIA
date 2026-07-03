@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff } from "lucide-react";
 
 /**
  * Modern iMessage-style composer.
@@ -13,8 +12,6 @@ function ChatInputBar({
   onSend,
   disabled,
   placeholder,
-  isListening,
-  onVoice,
   quickReplies = [],
   onQuickReply,
 }) {
@@ -48,7 +45,7 @@ function ChatInputBar({
                 key={i}
                 type="button"
                 onClick={() => onQuickReply?.(qr)}
-                className="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold bg-white dark:bg-[#1e1d2c] border border-zinc-200 dark:border-white/[0.1] text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-[#27263a] active:scale-95 transition-all shadow-sm whitespace-nowrap"
+                className="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold bg-white/60 dark:bg-zinc-900/40 backdrop-blur-md border border-white/80 dark:border-white/[0.08] text-zinc-700 dark:text-zinc-300 hover:bg-white/80 dark:hover:bg-zinc-800/60 active:scale-95 transition-all shadow-sm whitespace-nowrap"
               >
                 {qr.label || qr}
               </button>
@@ -58,28 +55,12 @@ function ChatInputBar({
       </AnimatePresence>
 
       {/* Composer pill */}
-      <div className={`flex items-end gap-2 px-2 py-2 rounded-[22px] bg-white dark:bg-[#1a1928] border transition-all duration-200 shadow-sm ${
+      <div className={`flex items-end gap-1.5 pl-3.5 pr-1.5 py-1.5 rounded-[22px] bg-white/80 dark:bg-black/20 backdrop-blur-xl border transition-all duration-200 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2)] ${
         disabled
-          ? "border-zinc-100 dark:border-zinc-800/50 opacity-60"
-          : "border-zinc-200 dark:border-white/[0.09] focus-within:border-blue-500/50 dark:focus-within:border-blue-500/30 focus-within:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
+          ? "border-zinc-200/50 dark:border-white/[0.04] opacity-60"
+          : "border-white/60 dark:border-white/[0.1] focus-within:border-blue-500/50 dark:focus-within:border-blue-500/30 focus-within:shadow-[0_4px_20px_rgba(59,130,246,0.15)]"
       }`}>
 
-        {/* Voice button */}
-        <button
-          type="button"
-          onClick={onVoice}
-          disabled={disabled}
-          title="Nhận diện giọng nói"
-          className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center transition-all active:scale-90 ${
-            isListening
-              ? "bg-rose-500/15 text-rose-500 border border-rose-500/30 animate-pulse"
-              : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
-          }`}
-        >
-          {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-        </button>
-
-        {/* Auto-grow textarea */}
         <textarea
           ref={inputRef}
           value={value}
@@ -88,8 +69,8 @@ function ChatInputBar({
           placeholder={placeholder}
           disabled={disabled}
           rows={1}
-          className="flex-1 bg-transparent text-[13.5px] text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 outline-none resize-none leading-snug py-1 max-h-[88px] overflow-y-auto"
-          style={{ height: "24px" }}
+          className="flex-1 bg-transparent text-[13px] text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 outline-none resize-none leading-snug py-1.5 max-h-[80px] overflow-y-auto"
+          style={{ height: "30px" }}
         />
 
         {/* Send / pulse button */}
@@ -104,9 +85,9 @@ function ChatInputBar({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 28 }}
-              className="w-8 h-8 shrink-0 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-90 text-white flex items-center justify-center shadow-md shadow-blue-500/30 transition-colors disabled:opacity-40"
+              className="w-[30px] h-[30px] shrink-0 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-90 text-white flex items-center justify-center shadow-md shadow-blue-500/30 transition-colors disabled:opacity-40"
             >
-              <span className="material-symbols-outlined text-[16px] font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_upward</span>
+              <span className="material-symbols-outlined text-[15px] font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_upward</span>
             </motion.button>
           ) : (
             <motion.div
@@ -115,9 +96,9 @@ function ChatInputBar({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 28 }}
-              className="w-8 h-8 shrink-0 rounded-full bg-zinc-100 dark:bg-white/[0.06] flex items-center justify-center"
+              className="w-[30px] h-[30px] shrink-0 rounded-full bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 flex items-center justify-center border border-indigo-500/20 dark:border-indigo-400/20"
             >
-              <span className="material-symbols-outlined text-[15px] text-zinc-400">edit</span>
+              <span className="material-symbols-outlined text-[15px] text-indigo-500 dark:text-indigo-400 animate-pulse">auto_awesome</span>
             </motion.div>
           )}
         </AnimatePresence>

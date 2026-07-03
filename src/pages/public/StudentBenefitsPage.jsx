@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
-import { loginMember } from "../../services/authSession";
+import { loginMemberWithGoogle } from "../../services/authSession";
 import { isEduEmail } from "../../utils/eduEmail";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
@@ -40,27 +40,19 @@ export default function StudentBenefitsPage() {
       return;
     }
 
-    const payloadBase64 = response.credential.split(".")[1];
-    const payloadJson = atob(
-      payloadBase64.replace(/-/g, "+").replace(/_/g, "/"),
-    );
-    const profile = JSON.parse(payloadJson);
+    const { session, error } = await loginMemberWithGoogle(response.credential);
+    if (!session) {
+      showToast(error === "network" ? "Không kết nối được máy chủ. Thử lại nhé." : "Không thể xác thực với Google.", "error");
+      return;
+    }
 
-    const email = profile.email || "";
-    const isEdu = await isEduEmail(email);
+    const isEdu = await isEduEmail(session.email);
     if (!isEdu) {
       showToast(
         "Tài khoản của bạn sẽ ở trạng thái chờ duyệt vì đây không phải email .edu. Đang chuyển hướng...",
         "warning",
       );
     }
-
-    loginMember({
-      email: profile.email,
-      displayName: profile.name,
-      provider: "google",
-      avatarUrl: profile.picture,
-    });
 
     navigate("/member");
   };

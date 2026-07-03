@@ -15,5 +15,5 @@ export function isNotificationSoundEnabled() {
 export function setNotificationSoundEnabled(enabled) {
   try {
     localStorage.setItem(KEY, enabled ? "1" : "0");
-  } catch (_) {}
+  } catch (_) { /* ignore */ }
 }

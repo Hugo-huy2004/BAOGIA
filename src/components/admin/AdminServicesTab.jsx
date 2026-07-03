@@ -78,6 +78,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     }
   };
 
+   
   useEffect(() => {
     setPayosForm(prev => ({ ...prev, reason: generateRandomCode() }));
     fetchLinks();
@@ -249,7 +250,6 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     }
   }
 
-  // Package Handlers
   const handleCreatePackage = async (e) => {
     e.preventDefault();
     if (!newPkg.name || !newPkg.duration) return toast.error("Vui lòng nhập tên và thời hạn");
@@ -272,7 +272,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         await packageApi.deletePackage(id);
         toast.success("Đã xoá gói");
         fetchPackageTemplates();
-      } catch (e) { toast.error("Lỗi xoá gói"); }
+      } catch (err) { toast.error("Lỗi xoá gói"); }
       return;
     }
     triggerConfirm("Bạn chắc chắn muốn xoá gói này?", async () => {
@@ -280,7 +280,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         await packageApi.deletePackage(id);
         toast.success("Đã xoá gói");
         fetchPackageTemplates();
-      } catch (e) { toast.error("Lỗi xoá gói"); }
+      } catch (err) { toast.error("Lỗi xoá gói"); }
     });
   };
 
@@ -290,7 +290,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         const data = await packageApi.regenerateCode(packageId);
         toast.success("Tạo mã mới thành công");
         setPackageTemplates(prev => prev.map(pkg => pkg._id === packageId ? data.package : pkg));
-      } catch (e) { toast.error("Lỗi tạo mã"); }
+      } catch (err) { toast.error("Lỗi tạo mã"); }
       return;
     }
     triggerConfirm("Tạo lại mã Gift Code?", async () => {
@@ -298,7 +298,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         const data = await packageApi.regenerateCode(packageId);
         toast.success("Tạo mã mới thành công");
         setPackageTemplates(prev => prev.map(pkg => pkg._id === packageId ? data.package : pkg));
-      } catch (e) { toast.error("Lỗi tạo mã"); }
+      } catch (err) { toast.error("Lỗi tạo mã"); }
     });
   };
 
@@ -320,7 +320,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       const data = await userApi.getBioByEmail(email);
       if (data && data.bio) setSearchedMemberBio(data.bio);
       else toast.error("Không tìm thấy");
-    } catch (e) { toast.error("Lỗi tìm kiếm"); }
+    } catch (err) { toast.error("Lỗi tìm kiếm"); }
   };
 
   const formatExpiration = (expiresAt) => {
@@ -332,6 +332,8 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     if (diffDays <= 0) return <span className="text-destructive font-bold">Hết hạn ({formattedDate})</span>;
     return <span className="text-foreground font-bold">{formattedDate} <span className="text-[10px] text-success ml-1">(Còn {diffDays} ngày)</span></span>;
   };
+
+  const renderTimeNow = Date.now();
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -445,35 +447,36 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
 
           <div className="lg:col-span-7 space-y-6">
             {/* List Templates */}
-            <div className="bg-white dark:bg-background rounded-xl border border-border dark:border-border/80 shadow-sm overflow-hidden min-h-[300px]">
-              <div className="px-6 py-4 border-b border-border dark:border-border/80 bg-slate-50/50 dark:bg-card/40 flex items-center justify-between">
-                <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+            <div className="bg-white dark:bg-background rounded-xl border border-border dark:border-border/80 shadow-[0_4px_30px_-5px_rgba(0,0,0,0.05)] dark:shadow-none overflow-hidden min-h-[300px]">
+              <div className="px-6 py-4 border-b border-border dark:border-border/80 bg-gradient-to-r from-emerald-500/10 to-transparent flex items-center justify-between">
+                <h3 className="font-black text-xs uppercase tracking-widest text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-base">view_list</span>
-                  Danh Sách Gói Cước ({packageTemplates.length})
+                  Danh Sách Gói Cước VIP ({packageTemplates.length})
                 </h3>
               </div>
-              <div className="divide-y divide-border dark:divide-border/60">
+              <div className="flex flex-col">
                 {packageTemplates.map((pkg) => (
-                  <div key={pkg._id} className="p-5 hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors flex justify-between items-start gap-4">
-                    <div className="min-w-0">
-                      <h4 className="font-bold text-foreground text-sm flex items-center gap-2">
+                  <div key={pkg._id} className="group relative p-6 bg-gradient-to-br from-white to-emerald-50/20 dark:from-background dark:to-emerald-950/10 border-b border-border/60 hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.15)] transition-all overflow-hidden flex justify-between items-start gap-4">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition-transform group-hover:scale-150"></div>
+                    <div className="relative min-w-0 flex-1">
+                      <h4 className="font-black text-foreground text-base flex items-center gap-2">
                         {pkg.name}
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-primary/10 text-primary border border-primary/20">{pkg.duration} {pkg.durationUnit}</span>
+                        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 shadow-sm">{pkg.duration} {pkg.durationUnit}</span>
                       </h4>
                       <div className="mt-3 flex items-center gap-2">
-                        <code className="text-xs font-mono font-bold text-accent bg-muted px-2 py-1 rounded select-all">{pkg.giftCode || "N/A"}</code>
-                        <button onClick={() => copyToClipboard(pkg.giftCode, 'code')} className="p-1 text-slate-400 hover:text-primary"><span className="material-symbols-outlined text-[16px]">content_copy</span></button>
-                        <button onClick={() => handleRegenerateGiftCode(pkg._id)} className="p-1 text-slate-400 hover:text-primary"><span className="material-symbols-outlined text-[16px]">autorenew</span></button>
+                        <code className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded select-all">{pkg.giftCode || "N/A"}</code>
+                        <button onClick={() => copyToClipboard(pkg.giftCode, 'code')} className="p-1 text-slate-400 hover:text-emerald-500 transition-colors"><span className="material-symbols-outlined text-[16px]">content_copy</span></button>
+                        <button onClick={() => handleRegenerateGiftCode(pkg._id)} className="p-1 text-slate-400 hover:text-emerald-500 transition-colors"><span className="material-symbols-outlined text-[16px]">autorenew</span></button>
                       </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {pkg.benefits.map((benefit, i) => (
-                          <span key={i} className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-white dark:bg-slate-800 border border-border/60 px-2 py-0.5 rounded-md">
-                            <span className="material-symbols-outlined text-[10px] text-success">check</span> {benefit}
+                          <span key={i} className="flex items-start gap-2 text-[11px] font-bold text-muted-foreground bg-white/60 dark:bg-black/20 border border-emerald-100 dark:border-emerald-900/30 px-3 py-2 rounded-lg">
+                            <span className="material-symbols-outlined text-[14px] text-emerald-500 shrink-0">verified</span> {benefit}
                           </span>
                         ))}
                       </div>
                     </div>
-                    <button onClick={() => handleDeletePackageTemplate(pkg._id)} className="text-destructive hover:bg-destructive/10 p-2 rounded-full transition-colors"><span className="material-symbols-outlined">delete</span></button>
+                    <button onClick={() => handleDeletePackageTemplate(pkg._id)} className="relative z-10 text-destructive/70 hover:text-destructive hover:bg-destructive/10 p-2 rounded-full transition-colors"><span className="material-symbols-outlined">delete</span></button>
                   </div>
                 ))}
               </div>
@@ -716,7 +719,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
                         </td>
                         <td className="p-4 text-[11px]">
                           {c.expiresAt ? (
-                            new Date(c.expiresAt).getTime() < Date.now() && !c.redeemed
+                            new Date(c.expiresAt).getTime() < renderTimeNow && !c.redeemed
                               ? <span className="text-rose-500 font-bold">Đã hết hạn</span>
                               : <span className="text-slate-500">{new Date(c.expiresAt).toLocaleDateString('vi-VN')}</span>
                           ) : '-'}

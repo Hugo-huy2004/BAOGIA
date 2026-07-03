@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useLocation } from 'react-router-dom';
-import { getMemberSession } from '../services/authSession';
+import { getMemberSession, getMemberToken } from '../services/authSession';
 import { useJoyStore } from '../stores/joyStore';
 import { webPushHelper } from '../utils/webPushHelper';
 import { playNotificationSound } from '../utils/audio';
@@ -9,11 +9,13 @@ import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
-function realtimeUrl(email) {
+function realtimeUrl() {
   const apiUrl = new URL(apiBase, window.location.origin);
   const protocol = apiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
   const basePath = apiUrl.pathname.replace(/\/api\/?$/, '').replace(/\/$/, '');
-  return `${protocol}//${apiUrl.host}${basePath}/ws?token=${encodeURIComponent(email)}`;
+  // token is the member JWT — the server derives the email from it after
+  // verifying; sending a bare email would let anyone subscribe to any wallet.
+  return `${protocol}//${apiUrl.host}${basePath}/ws?token=${encodeURIComponent(getMemberToken() || '')}`;
 }
 
 export default function PWARealtimeBridge() {
@@ -38,7 +40,7 @@ export default function PWARealtimeBridge() {
     };
     const connect = () => {
       if (disposed) return;
-      socket = new WebSocket(realtimeUrl(email));
+      socket = new WebSocket(realtimeUrl());
       socket.addEventListener('open', () => {
         retryCount.current = 0;
         sync();
@@ -64,11 +66,15 @@ export default function PWARealtimeBridge() {
           window.dispatchEvent(new CustomEvent('hugo:notification', { detail: data.notification }));
           if (data.notification) {
             const isCredit = data.amount > 0;
-            toast.success(`${isCredit ? 'Nhận JOY' : 'Đã gửi JOY'}: ${isCredit ? '+' : ''}${data.amount} JOY - ${data.notification.message || (isCredit ? 'Tài khoản nhận điểm thưởng mới.' : 'Giao dịch hoàn tất.')}`, {
-              id: `joy-${data.notification._id || data.createdAt}`,
-              duration: 5000,
-              position: 'top-center'
-            });
+            // Suppress redundant toast for the sender of a P2P transfer
+            // since ParticleConnectModal already shows a full-screen success state.
+            if (isCredit || data.source !== 'joy_gift_sent') {
+              toast.success(`${isCredit ? 'Nhận JOY' : 'Đã dùng JOY'}: ${isCredit ? '+' : ''}${data.amount} JOY - ${data.notification.message || (isCredit ? 'Tài khoản nhận điểm thưởng mới.' : 'Giao dịch hoàn tất.')}`, {
+                id: `joy-${data.notification._id || data.createdAt}`,
+                duration: 5000,
+                position: 'top-center'
+              });
+            }
           }
         } catch (_) {}
       });

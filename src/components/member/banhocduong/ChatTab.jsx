@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Volume2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { CLINICAL_TESTS } from "./clinicalTests";
@@ -10,6 +11,7 @@ import ChatInputBar from "./ChatInputBar";
 import TokenExchangeModal from "./TokenExchangeModal";
 import { RenderColoredText } from "../../HugoLogo";
 import { webPushHelper } from "../../../utils/webPushHelper";
+import { useChatEngine } from "./hooks/useChatEngine";
 
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
 import { findMatchingIntent, removeVietnameseTones } from "./constants/intentClassifier";
@@ -19,7 +21,6 @@ import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogue
 // Falls back to the full `a.text` from the tree if a key is missing.
 const ASPECT_LABELS = {};
 import { THERAPY_METHODS } from "./constants/therapyMethods";
-import WellnessRecommendationEngine from "../../../services/classes/CompanionBot/WellnessRecommendationEngine";
 import { useJoyStore } from "../../../stores/joyStore";
 
 // Raw chat text is only kept for 7 days — older messages are permanently
@@ -35,113 +36,6 @@ function pruneOldMessages(msgs) {
     const t = m.time instanceof Date ? m.time.getTime() : new Date(m.time).getTime();
     return Number.isNaN(t) || t >= cutoff;
   });
-}
-
-const MOOD_META = {
-  5: { emoji: "😄", label: "Rất tốt" },
-  4: { emoji: "🙂", label: "Tốt" },
-  3: { emoji: "😐", label: "Bình thường" },
-  2: { emoji: "😔", label: "Mỏi mệt" },
-  1: { emoji: "😣", label: "Kiệt sức" },
-};
-
-
-
-function WellnessInsightStrip({ bio, historyLogs, chatMessages, onNavigateToTab }) {
-  // Collapsed by default — this strip used to always show the full suggestion
-  // list (icon + label + reason per card) pinned above the chat, which on a
-  // phone ate most of the screen before any actual conversation was visible.
-  // Now it's a single compact teaser pill that expands on tap.
-  const [expanded, setExpanded] = useState(false);
-  const { latestMood, streak, trend, latestClinical, recommendations } = React.useMemo(() => {
-    return WellnessRecommendationEngine.generateSuggestions(bio, historyLogs, chatMessages);
-  }, [bio, historyLogs, chatMessages]);
-
-  const moodMeta = latestMood ? MOOD_META[latestMood] : null;
-
-  const trendMeta = {
-    up: { icon: "trending_up", label: "Cải thiện", cls: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10" },
-    down: { icon: "trending_down", label: "Cần chú ý", cls: "text-rose-600 dark:text-rose-400 bg-rose-500/10" },
-    stable: { icon: "trending_flat", label: "Ổn định", cls: "text-zinc-500 dark:text-zinc-400 bg-zinc-500/10" },
-  }[trend || "stable"];
-
-  return (
-    <div className="space-y-2 py-2">
-      {/* Mini Stats Row */}
-      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide px-4">
-        <span className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/70 text-[10px] font-bold text-zinc-600 dark:text-zinc-300 whitespace-nowrap">
-          {moodMeta ? <>{moodMeta.emoji} {moodMeta.label}</> : <>— Chưa check-in</>}
-        </span>
-        <span className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-orange-500/10 text-[10px] font-bold text-orange-600 dark:text-orange-400 whitespace-nowrap">
-          <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
-          {streak} ngày
-        </span>
-        <span className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${trendMeta.cls}`}>
-          <span className="material-symbols-outlined text-[12px]">{trendMeta.icon}</span>
-          {trendMeta.label}
-        </span>
-        {latestClinical && (
-          <button
-            type="button"
-            onClick={() => onNavigateToTab?.("evaluation")}
-            className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-indigo-500/10 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap active:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined text-[12px]">monitoring</span>
-            {(latestClinical.test || "test").toUpperCase()} · Xem đánh giá
-          </button>
-        )}
-      </div>
-
-      {/* Smart Suggestions — collapsed teaser by default, expands on tap */}
-      {recommendations && recommendations.length > 0 && (
-        <div className="px-4 pb-1 space-y-1.5">
-          <button
-            type="button"
-            onClick={() => setExpanded(v => !v)}
-            className="w-full flex items-center justify-between gap-2 text-left"
-          >
-            <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">
-              💡 {recommendations.length} gợi ý dành riêng cho cậu hôm nay
-            </p>
-            <span className="material-symbols-outlined text-[14px] text-zinc-400 transition-transform" style={{ transform: expanded ? "rotate(180deg)" : "none" }}>
-              expand_more
-            </span>
-          </button>
-          {expanded && (
-          <div className="flex flex-col gap-2">
-            {recommendations.map((suggestion, idx) => (
-              <button
-                key={`${suggestion.id}-${idx}`}
-                type="button"
-                onClick={() => {
-                  if (suggestion.type === "therapy") {
-                    onNavigateToTab?.("therapy", suggestion.id);
-                  } else if (suggestion.type === "test") {
-                    onNavigateToTab?.("evaluation");
-                  } else if (suggestion.type === "unlock") {
-                    onNavigateToTab?.("therapy");
-                  }
-                }}
-                className="w-full flex items-center gap-3 p-2.5 rounded-2xl bg-gradient-to-r from-indigo-500/5 to-violet-500/5 hover:from-indigo-500/10 hover:to-violet-500/10 border border-zinc-100 dark:border-zinc-800/80 text-left active:scale-[0.99] transition-all"
-              >
-                <span className="shrink-0 w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[16px]">
-                    {suggestion.icon === "air" ? "wind_power" : suggestion.icon === "lock" ? "lock" : suggestion.icon === "spa" ? "spa" : "psychology"}
-                  </span>
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[10.5px] font-black text-indigo-700 dark:text-indigo-450 leading-tight">{suggestion.label}</span>
-                  <span className="block text-[9px] text-zinc-500 dark:text-zinc-400 mt-0.5 leading-snug">{suggestion.reason}</span>
-                </span>
-                <span className="material-symbols-outlined text-[16px] text-indigo-400 shrink-0">chevron_right</span>
-              </button>
-            ))}
-          </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
 }
 
 export default function ChatTab({ 
@@ -168,6 +62,7 @@ export default function ChatTab({
   const [unlockingMethodId, setUnlockingMethodId] = useState(null);
   const joyBalance = useJoyStore(s => s.balance);
   const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
+  const { createLocalSafetyReply, shouldAnswerLocally, sanitizeStreamChunk, normalizeFinalResponse } = useChatEngine();
 
   const [isVentingMode, setIsVentingMode] = useState(false);
   const [ventingTimerMinutes, setVentingTimerMinutes] = useState(1);
@@ -432,8 +327,6 @@ export default function ChatTab({
   // state) so the very first synchronous line of the function can check it
   // without waiting for a re-render.
   const testCompletingRef = useRef(false);
-  const [isListening, setIsListening] = useState(false);
-
   const [remainingChatTokens, setRemainingChatTokens] = useState(10);
   const [tokenLockMinutes, setTokenLockMinutes] = useState(0);
   const [inputText, setInputText] = useState("");
@@ -463,80 +356,9 @@ export default function ChatTab({
   const _rafRef = useRef(null);
   const _pendingChunkRef = useRef(null);
 
-  // The chat frame follows the visual viewport so the composer stays above the
-  // on-screen keyboard. Only the message list scrolls, like a native chat app.
-  useLayoutEffect(() => {
-    const el = chatWrapperRef.current;
-    if (!el) return;
-    let raf = 0;
-    let lastHeight = 0;
-    const setH = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const vv = window.visualViewport;
-        const viewportHeight = vv?.height ?? window.innerHeight;
-        const isMobile = window.innerWidth < 768;
-        const top = Math.max(0, el.getBoundingClientRect().top);
-        let nextHeight;
-
-        if (isMobile && onExitFullscreen) {
-          el.style.position = "relative";
-          el.style.left = "0";
-          el.style.right = "0";
-          el.style.top = "";
-          el.style.width = "100%";
-          el.style.zIndex = "";
-          nextHeight = viewportHeight;
-        } else if (!isMobile) {
-          el.style.position = "relative";
-          el.style.left = "";
-          el.style.right = "";
-          el.style.top = "";
-          el.style.width = "";
-          el.style.zIndex = "";
-          nextHeight = Math.min(760, Math.max(520, viewportHeight - top - 24));
-        } else {
-          el.style.position = "relative";
-          el.style.left = "";
-          el.style.right = "";
-          el.style.top = "";
-          el.style.width = "";
-          el.style.zIndex = "";
-          nextHeight = viewportHeight - top;
-        }
-
-        nextHeight = Math.floor(nextHeight);
-        if (nextHeight > 240 && Math.abs(nextHeight - lastHeight) > 1) {
-          lastHeight = nextHeight;
-          el.style.height = `${nextHeight}px`;
-          el.style.maxHeight = `${nextHeight}px`;
-        }
-        el.style.minHeight = "0";
-        el.style.overflow = "hidden";
-      });
-    };
-    setH();
-    // Re-measure after entry animation (200ms) and again after layout settles
-    const t1 = setTimeout(setH, 220);
-    const t2 = setTimeout(setH, 500);
-    window.addEventListener("resize", setH);
-    window.visualViewport?.addEventListener("resize", setH);
-    window.visualViewport?.addEventListener("scroll", setH);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", setH);
-      window.visualViewport?.removeEventListener("resize", setH);
-      window.visualViewport?.removeEventListener("scroll", setH);
-      el.style.position = "";
-      el.style.left = "";
-      el.style.right = "";
-      el.style.top = "";
-      el.style.width = "";
-      el.style.zIndex = "";
-    };
-  }, [onExitFullscreen]);
+  // The chat frame is configured purely via CSS flexbox. Manual layout updates
+  // based on visualViewport were removed because they conflict with native
+  // mobile safe-areas and virtual keyboards, causing severe jumping (jitter).
 
   // Sync messages state when chatMessages prop updates from DB
   useEffect(() => {
@@ -626,60 +448,7 @@ export default function ChatTab({
 
 
 
-  const startListening = () => {
-    if (isListening && window.activeRecognition) {
-      try {
-        window.activeRecognition.stop();
-      } catch (_) {}
-      setIsListening(false);
-      return;
-    }
 
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      showToast && showToast("Trình duyệt không hỗ trợ nhận diện giọng nói.", "error");
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'vi-VN';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.continuous = false;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      window.activeRecognition = recognition;
-    };
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setInputText(prev => prev ? prev + " " + transcript : transcript);
-      if (inputRef.current) {
-        setTimeout(() => {
-          inputRef.current.style.height = 'auto';
-          inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 96) + 'px';
-        }, 50);
-      }
-    };
-
-    recognition.onerror = () => {
-      setIsListening(false);
-      window.activeRecognition = null;
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-      window.activeRecognition = null;
-    };
-
-    try {
-      recognition.start();
-    } catch (e) {
-      console.error(e);
-      setIsListening(false);
-    }
-  };
 
 
   // Duration adjustments agreement option
@@ -820,7 +589,7 @@ export default function ChatTab({
   };
 
   const handleTestCompleteInner = async (testId, score, answers) => {
-    // If DASS-42 or MMPI-30, calculate scores and route to handleScanComplete
+    // If DASS-42 or the 30-item personality screener, calculate scores and route to handleScanComplete
     if (testId === "dass42") {
       let d = 0, a = 0, s = 0;
       const types = ["S","A","D","A","S","S","A","D","A","D","S","S","A","A","D","D","S","S","A","D","D"];
@@ -1268,7 +1037,7 @@ export default function ChatTab({
           solutions.push(`Các chỉ số nhân cách thích ứng tốt. Đề xuất thực hành **Đọc sách Trị liệu**.`);
         }
 
-        responseMsgText = `Tớ đã hoàn tất trích xuất và phân tích 13 chỉ số nhân cách Mini-MMPI từ bệnh án phòng khám của cậu:\n\n` +
+        responseMsgText = `Tớ đã hoàn tất trích xuất và phân tích 13 chỉ số nhân cách tham khảo từ bệnh án phòng khám của cậu:\n\n` +
           `🔍 **Chỉ số kiểm định độ tin cậy (L-F-K):**\n` +
           `• L (Lie/Nói dối): **${validity.L} T-score** (${validity.L >= 70 ? "Vượt ngưỡng" : "Bình thường"})\n` +
           `• F (Infrequency/Dị biệt): **${validity.F} T-score** (${validity.F >= 80 ? "Cảnh báo" : "Bình thường"})\n` +
@@ -1574,14 +1343,34 @@ export default function ChatTab({
       return;
     }
 
-    // 2. Full conversational LLM — only reached when no local intent matched.
+    // 2. Low-risk local-first reply — reduces AI/server cost and keeps common
+    // student support chats instant even during traffic spikes.
+    if (shouldAnswerLocally(text)) {
+      setInputText("");
+      const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
+      const localReply = createLocalSafetyReply(text);
+      setMessages(prev => [...prev, userMsg]);
+      setTypingLabel(getTypingLabel(text, null));
+      setLoading(true);
+      setTimeout(() => {
+        pushBotMessageChunks(localReply.reply, {
+          suggestPhq9: localReply.suggestPhq9,
+          suggestGad7: localReply.suggestGad7,
+          suggestWho5: localReply.suggestWho5,
+          suggestBigFive: localReply.suggestBigFive,
+        }).then(() => setLoading(false));
+      }, 500);
+      return;
+    }
+
+    // 3. Full conversational LLM — only reached when no local path fits.
     setInputText("");
     const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setTypingLabel(getTypingLabel(text, null));
     setLoading(true);
 
-    // 3. Streaming conversational LLM AI server (costs 3 tokens on success).
+    // 4. Streaming conversational LLM AI server (costs 3 tokens on success).
     const bonusTokens = bio?.bonusChatTokens || 0;
     if (remainingChatTokens + bonusTokens <= 0) {
       showToast?.("Hết token chat hôm nay. Quay lại vào ngày mai nhé!", "warning");
@@ -1591,14 +1380,16 @@ export default function ChatTab({
 
     setDialogStage(0);
     const botMsgId = `bot-text-${Date.now()}`;
+    const localSafetyReply = createLocalSafetyReply(text);
     await botManager.chatStream(
       text,
       (chunkText) => {
         setLoading(false);
+        const safeChunkText = sanitizeStreamChunk(chunkText, localSafetyReply);
         // The LLM may emit "|||" mid-stream as its multi-bubble separator —
         // while still streaming there's only one live bubble, so just show
         // it as a paragraph break rather than the raw delimiter.
-        const displayText = chunkText.split("|||").join("\n\n");
+        const displayText = safeChunkText.split("|||").join("\n\n");
         // Batch setMessages to at most one per animation frame — prevents
         // a React setState storm on high-frequency SSE chunks (60fps cap).
         _pendingChunkRef.current = { text: displayText, id: botMsgId };
@@ -1634,15 +1425,16 @@ export default function ChatTab({
           onProfileUpdate(botResponse.bioUpdate);
           showToast?.("Đã lưu thông tin mới vào hồ sơ!", "success");
         }
+        const finalBotResponse = normalizeFinalResponse(botResponse, localSafetyReply);
         // Now that streaming is done, replace the single live bubble with the
         // real split bubbles (the LLM was asked to separate them with "|||").
-        const chunks = botResponse.reply.split("|||").map(c => c.trim()).filter(Boolean);
+        const chunks = finalBotResponse.reply.split("|||").map(c => c.trim()).filter(Boolean);
         setMessages(prev => prev.filter(m => m.id !== botMsgId));
-        pushBotMessageChunks(chunks.length ? chunks : [botResponse.reply], {
-          suggestPhq9: botResponse.suggestPhq9,
-          suggestGad7: botResponse.suggestGad7,
-          suggestWho5: botResponse.suggestWho5,
-          suggestBigFive: botResponse.suggestBigFive,
+        pushBotMessageChunks(chunks.length ? chunks : [finalBotResponse.reply], {
+          suggestPhq9: finalBotResponse.suggestPhq9,
+          suggestGad7: finalBotResponse.suggestGad7,
+          suggestWho5: finalBotResponse.suggestWho5,
+          suggestBigFive: finalBotResponse.suggestBigFive,
         }).then(() => setLoading(false));
       }
     );
@@ -1694,11 +1486,30 @@ export default function ChatTab({
   }
 
   return (
-    <div ref={chatWrapperRef} className="flex flex-col flex-1 h-full min-h-0 bg-[#f5f5f7] dark:bg-[#08080d] animate-fadeIn relative overflow-hidden md:rounded-3xl">
+    <div ref={chatWrapperRef} className="flex flex-col flex-1 h-full min-h-0 bg-zinc-50/50 dark:bg-[#060609] animate-fadeIn relative overflow-hidden md:rounded-3xl shadow-sm dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]">
+      
+      {/* Ambient background glow (Dynamic Aura) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <motion.div
+          animate={{ x: [0, 20, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-32 -right-32 w-[500px] h-[500px] bg-blue-400/20 dark:bg-blue-600/20 blur-[100px] rounded-full"
+        />
+        <motion.div
+          animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute top-1/4 -left-32 w-[400px] h-[400px] bg-purple-400/20 dark:bg-purple-600/20 blur-[120px] rounded-full"
+        />
+        <motion.div
+          animate={{ x: [0, 40, 0], y: [0, 20, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+          className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-emerald-400/10 dark:bg-emerald-600/10 blur-[100px] rounded-full"
+        />
+      </div>
 
       {/* ── Header — redesigned ────────────────────────────────────────────────── */}
       <div
-        className="shrink-0 flex items-center gap-3 px-3 sm:px-4 py-2.5 bg-white/90 dark:bg-[#0d0c16]/95 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.05] shadow-[0_1px_0_rgba(0,0,0,0.05)]"
+        className="shrink-0 z-20 flex items-center gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-white/90 via-white/50 to-transparent dark:from-[#060609]/90 dark:via-[#060609]/50 dark:to-transparent pb-8"
         style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}
       >
         {/* Back button (mobile fullscreen only) */}
@@ -1736,17 +1547,17 @@ export default function ChatTab({
         )}
 
         {/* Right actions */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Token counter */}
-          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black border transition-colors ${
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black transition-all ${
             tokenLockMinutes > 0
-              ? "bg-red-500/10 border-red-400/20 text-red-500 dark:text-red-400"
+              ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
               : (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 2
-              ? "bg-orange-500/10 border-orange-400/20 text-orange-600 dark:text-orange-400"
-              : "bg-blue-500/10 border-blue-400/20 text-blue-600 dark:text-blue-400"
+              ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+              : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
           }`}
             title={tokenLockMinutes > 0 ? `Khóa ~${tokenLockMinutes} phút` : `Token: ${remainingChatTokens + (bio?.bonusChatTokens || 0)}/10`}>
-            <span className="material-symbols-outlined text-[11px]">{tokenLockMinutes > 0 ? "lock" : "bolt"}</span>
+            <span className="material-symbols-outlined text-[11px] drop-shadow-sm">{tokenLockMinutes > 0 ? "lock" : "bolt"}</span>
             {tokenLockMinutes > 0 ? "Khóa" : `${remainingChatTokens + (bio?.bonusChatTokens || 0)}/10`}
           </div>
 
@@ -1782,17 +1593,6 @@ export default function ChatTab({
         </div>
       </div>
 
-      {/* ── Smart wellness insight strip ──────────────────────────────────────────
-          Only shown in normal chat mode — hidden during an active test/scan so that
-          flow gets the full available height instead of being squeezed below it
-          (this was the main cramped-on-mobile complaint: the strip ate space that
-          the test panel needed, especially on short viewports). */}
-      {false && chatMode === "normal" && (
-        <div className="shrink-0 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50">
-          <WellnessInsightStrip bio={bio} historyLogs={historyLogs} chatMessages={messages} onNavigateToTab={onNavigateToTab} />
-        </div>
-      )}
-
       {/* ── Tests bottom sheet ──────────────────────────────────────────────────── */}
       {showTestsMenu && (
         <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/50 backdrop-blur-sm"
@@ -1826,7 +1626,7 @@ export default function ChatTab({
       )}
 
       {/* ── Messages area ─────────────────────────────────────────────────────── */}
-      <div className="flex-1 min-h-0 overflow-hidden relative bg-[#f5f5f7] dark:bg-[#08080d]">
+      <div className="flex-1 min-h-0 overflow-hidden relative bg-transparent z-10">
         {chatMode === "normal" && (
           <ChatMessages
             messages={messages}
@@ -1859,37 +1659,37 @@ export default function ChatTab({
         )}
       </div>
 
-      {/* ── Input section ─────────────────────────────────────────────────────── */}
+      {/* ── Input section (Floating Dynamic Island) ─────────────────────────────────────────────────────── */}
       {chatMode === "normal" && (
         <div
-          className="shrink-0 bg-white/95 dark:bg-[#0d0c16]/98 border-t border-black/[0.05] dark:border-white/[0.05] backdrop-blur-xl shadow-[0_-1px_0_rgba(0,0,0,0.04)]"
-          style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
+          className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none pb-4 px-3 sm:px-6"
+          style={{ paddingBottom: "max(16px, env(safe-area-inset-bottom))" }}
         >
-          <ChatInputBar
-            inputRef={inputRef}
-            value={inputText}
-            onChange={setInputText}
-            onSend={handleSendFreeText}
-            disabled={tokenLockMinutes > 0 || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 || loading}
-            placeholder={
-              tokenLockMinutes > 0
-                ? `Token PSY bị khóa ~${tokenLockMinutes} phút...`
-                : (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0
-                ? "Hết token hôm nay..."
-                : isVentingMode
-                ? "Trút bỏ mọi muộn phiền tại đây (riêng tư)..."
-                : "Nhắn tin với HugoPSY..."
-            }
-            isListening={isListening}
-            onVoice={startListening}
-            quickReplies={chatQuickReplies}
-            onQuickReply={(qr) => {
-              const msgText = typeof qr === "string" ? qr : (qr.text || qr.label || "");
-              if (!msgText || loading) return;
-              setInputText("");
-              handleSendFreeText(msgText);
-            }}
-          />
+          <div className="pointer-events-auto max-w-3xl mx-auto bg-white/60 dark:bg-[#060609]/60 backdrop-blur-3xl rounded-[32px] border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-1.5 transition-all">
+            <ChatInputBar
+              inputRef={inputRef}
+              value={inputText}
+              onChange={setInputText}
+              onSend={handleSendFreeText}
+              disabled={tokenLockMinutes > 0 || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 || loading}
+              placeholder={
+                tokenLockMinutes > 0
+                  ? `Token PSY bị khóa ~${tokenLockMinutes} phút...`
+                  : (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0
+                  ? "Hết token hôm nay..."
+                  : isVentingMode
+                  ? "Trút bỏ mọi muộn phiền tại đây (riêng tư)..."
+                  : "Nhắn tin với HugoPSY..."
+              }
+              quickReplies={chatQuickReplies}
+              onQuickReply={(qr) => {
+                const msgText = typeof qr === "string" ? qr : (qr.text || qr.label || "");
+                if (!msgText || loading) return;
+                setInputText("");
+                handleSendFreeText(msgText);
+              }}
+            />
+          </div>
         </div>
       )}
       <TokenExchangeModal

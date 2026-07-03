@@ -266,7 +266,7 @@ export const COMPANION_DIALOGUE_TREE = {
         `AI hiểu mà, thương bạn quá. Hành trình phục hồi tâm hồn luôn có những ngày nắng ấm áp và cả những ngày giông bão bất chợt. Đừng tự trách mình nhé bạn ơi, bạn đã nỗ lực nhiều rồi. Dạo này bạn có bị mất ngủ hay gặp khó khăn gì khi thực hành thiền tĩnh tâm và thở chánh niệm không?`
       ],
           severityOptions: [
-            { id: "progress_struggling_test", text: "Tớ muốn làm bài test để cậu chẩn đoán lại chỉ số cho tớ nhé", nextAction: "recommend_test", test: "phq9", testLabel: "[PHQ-9] Tầm soát Trầm cảm" },
+            { id: "progress_struggling_test", text: "Tớ muốn làm bài test để cậu sàng lọc lại chỉ số cho tớ nhé", nextAction: "recommend_test", test: "phq9", testLabel: "[PHQ-9] Tầm soát Trầm cảm" },
             { id: "progress_struggling_talk", text: "Tớ chỉ cần cậu lắng nghe và cho tớ lời khuyên xoa dịu thôi", nextAction: "direct_advice", advice: [
         `Nếu mỏi mệt quá, cậu hãy cho phép mình được dừng lại và nghỉ ngơi trọn vẹn nhé cậu yêu. Hãy nhắm mắt lại, thực hiện bài tập thở 4-7-8 mà tớ đã hướng dẫn và thả lỏng hoàn toàn cơ thể. Tớ và mọi người luôn bên cạnh che chở cho cậu.`,
         `Nếu mỏi mệt quá, bạn hãy cho phép mình được dừng lại và nghỉ ngơi trọn vẹn nhé bạn nhé. Hãy nhắm mắt lại, thực hiện bài tập thở 4-7-8 mà tớ đã hướng dẫn và thả lỏng hoàn toàn cơ thể. Mình và mọi người luôn bên cạnh che chở cho bạn.`,

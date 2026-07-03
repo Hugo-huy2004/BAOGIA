@@ -11,11 +11,8 @@ import dataApi from '../services/dataApi';
 export function useHealingJourney({ email, onNavigate, showToast, sendNotification }) {
   const [showModal, setShowModal] = useState(false);
   const [state, setState] = useState({ active: false, day: 1, duration: 30, isExpired: false });
-  const [mood, setMood] = useState(3);
-  const [note, setNote] = useState('');
   const [subStep, setSubStep] = useState('checkin'); // 'checkin' | 'wheel' | 'reminder' | 'graduation'
   const [consecutiveLow, setConsecutiveLow] = useState(false);
-  const [wheelRatings, setWheelRatings] = useState([5, 5, 5, 5, 5]);
   const [historyLogs, setHistoryLogs] = useState([]);
 
   // Confetti on graduation step
@@ -136,14 +133,14 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
     }
   }, [email, state, showToast, sendNotification]);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback((currentMood, currentNote) => {
     const isWheelDay = state.day === 1 || state.day % 3 === 0;
-    isWheelDay ? setSubStep('wheel') : finalizeCheckIn(mood, note, null);
-  }, [state.day, mood, note, finalizeCheckIn]);
+    isWheelDay ? setSubStep('wheel') : finalizeCheckIn(currentMood, currentNote, null);
+  }, [state.day, finalizeCheckIn]);
 
-  const handleWheelSubmit = useCallback(() => {
-    finalizeCheckIn(mood, note, wheelRatings);
-  }, [mood, note, wheelRatings, finalizeCheckIn]);
+  const handleWheelSubmit = useCallback((currentMood, currentNote, currentWheelRatings) => {
+    finalizeCheckIn(currentMood, currentNote, currentWheelRatings);
+  }, [finalizeCheckIn]);
 
   const handleGraduation = useCallback(async () => {
     if (email) {
@@ -189,11 +186,8 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
   return {
     showModal, setShowModal,
     state, setState,
-    mood, setMood,
-    note, setNote,
     subStep, setSubStep,
     consecutiveLow,
-    wheelRatings, setWheelRatings,
     historyLogs, setHistoryLogs,
     syncFromStorage,
     handleSubmit, handleWheelSubmit, handleGraduation,

@@ -27,10 +27,32 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
   const handleRegister = async () => {
     setBusy(true);
     try {
-      const deviceName = /iphone|ipad/i.test(navigator.userAgent) ? 'iPhone/iPad'
-        : /android/i.test(navigator.userAgent) ? 'Android'
-        : /mac/i.test(navigator.userAgent) ? 'Mac' : t("memberPortal.settings.biometric.deviceComputer");
-      await webauthnHelper.registerDevice(email, deviceName);
+      const ua = navigator.userAgent;
+      const isIOS = /iphone|ipad|ipod/i.test(ua);
+      const isAndroid = /android/i.test(ua);
+      const isMac = /macintosh|mac os x/i.test(ua);
+      const isWindows = /windows/i.test(ua);
+      
+      let os = isIOS ? 'iPhone/iPad' : isAndroid ? 'Android' : isMac ? 'Mac' : isWindows ? 'Windows' : t("memberPortal.settings.biometric.deviceComputer");
+      
+      let browser = '';
+      if (/edg/i.test(ua)) browser = 'Edge';
+      else if (/crios|chrome/i.test(ua)) browser = 'Chrome';
+      else if (/fxios|firefox/i.test(ua)) browser = 'Firefox';
+      else if (/safari/i.test(ua) && !/chrome|crios/i.test(ua)) browser = 'Safari';
+      
+      const baseDevice = browser ? `${os} (${browser})` : os;
+      
+      let city = "";
+      try {
+        const { resolveCoords } = await import("../../utils/weather");
+        const coords = await resolveCoords({ preferGeo: false, timeoutMs: 3000 });
+        if (coords && coords.city) city = coords.city;
+      } catch (e) {}
+
+      const deviceName = city ? `${baseDevice} - ${city}` : baseDevice;
+
+      await webauthnHelper.registerDevice(email, deviceName, baseDevice);
       webauthnHelper.markDeviceFlag(email);
       const updated = await webauthnHelper.listDevices(email);
       setDevices(updated);
@@ -65,12 +87,18 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
 
       {devices.length > 0 && (
         <div className="space-y-1.5">
-          {devices.map(d => (
-            <div key={d._id} className="flex items-center justify-between text-[11px] px-2.5 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800">
-              <span className="text-zinc-600 dark:text-zinc-300 font-medium">{d.deviceName}</span>
-              <button onClick={() => handleRemove(d._id)} className="text-rose-500 hover:text-rose-600 font-bold">{t("memberPortal.settings.biometric.removeBtn")}</button>
-            </div>
-          ))}
+          {devices.map(d => {
+            const addedDate = d.createdAt ? new Date(d.createdAt).toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit', year: 'numeric' }) : "";
+            return (
+              <div key={d._id} className="flex items-center justify-between text-[11px] px-2.5 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800">
+                <div className="flex flex-col">
+                  <span className="text-zinc-700 dark:text-zinc-200 font-bold">{d.deviceName}</span>
+                  {addedDate && <span className="text-[9px] text-zinc-400 font-medium">Thêm: {addedDate}</span>}
+                </div>
+                <button onClick={() => handleRemove(d._id)} className="text-rose-500 hover:text-rose-600 font-bold px-2 py-1">{t("memberPortal.settings.biometric.removeBtn")}</button>
+              </div>
+            );
+          })}
         </div>
       )}
 

@@ -3,8 +3,15 @@ import ChessRating from '../models/ChessRating.js';
 import ChessGame from '../models/ChessGame.js';
 import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+// Reward bounds mirror the arcade table (win max 75, flat -10 loss stake).
+// The client computes the reward for bot games, so without a server-side cap
+// a single crafted request could mint any amount of JOY.
+const CHESS_JOY_MIN = -10;
+const CHESS_JOY_MAX = 75;
 
 // GET /api/chess/leaderboard?limit=20
 router.get('/leaderboard', async (req, res) => {
@@ -68,9 +75,10 @@ router.get('/stats', async (req, res) => {
 });
 
 // POST /api/chess/rating/init — body: { email, displayName, avatar, avatarUrl }
-router.post('/rating/init', async (req, res) => {
+router.post('/rating/init', requireMember, async (req, res) => {
   try {
-    const { email, displayName, avatar, avatarUrl } = req.body;
+    const { displayName, avatar, avatarUrl } = req.body;
+    const email = req.memberEmail;
     if (!email || !displayName) {
       return res.status(400).json({ error: 'email and displayName are required' });
     }
@@ -103,9 +111,10 @@ router.post('/rating/init', async (req, res) => {
 // JOY is the single source of truth for the chess rating: ratingChange/joyReward
 // is applied directly to the real spendable wallet (can be negative on a loss),
 // and ChessRating.rating is kept in sync automatically by awardJoy().
-router.post('/rating/update', async (req, res) => {
+router.post('/rating/update', requireMember, async (req, res) => {
   try {
-    const { email, win, loss, draw, avatar, avatarUrl, joyReward, gameId } = req.body;
+    const { win, loss, draw, avatar, avatarUrl, joyReward, gameId } = req.body;
+    const email = req.memberEmail;
     if (!email) {
       return res.status(400).json({ error: 'email is required' });
     }
@@ -129,7 +138,7 @@ router.post('/rating/update', async (req, res) => {
       { upsert: true }
     );
 
-    const delta = Number(joyReward) || 0;
+    const delta = Math.max(CHESS_JOY_MIN, Math.min(CHESS_JOY_MAX, Math.trunc(Number(joyReward) || 0)));
     if (delta !== 0) {
       try {
         await awardJoy(

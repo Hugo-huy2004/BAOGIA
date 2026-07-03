@@ -17,7 +17,7 @@ function getFlag(key) {
 function setFlag(key, visible, eventName) {
   try {
     localStorage.setItem(key, visible ? "1" : "0");
-  } catch (_) {}
+  } catch (_) { /* ignore */ }
   // Same-tab listeners (the widget itself + the Settings toggle) can't rely on
   // the native "storage" event — that only fires in *other* tabs — so we
   // broadcast a custom event too.

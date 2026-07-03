@@ -34,9 +34,9 @@
 /* ── Quick actions ───────────────────────────────────────────── */
 .joy-actions-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .joy-action-circle{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;cursor:pointer}
-.joy-action-circle .joy-action-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:21px;transition:.15s;background:hsl(var(--primary)/0.1);color:hsl(var(--primary))}
-.joy-action-circle:hover .joy-action-icon{background:hsl(var(--primary)/0.16)}
-.joy-action-circle span:last-child{font-size:9.5px;font-weight:700;color:var(--joy-muted);text-transform:uppercase;letter-spacing:.03em}
+.joy-action-circle .joy-action-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:21px;transition:.2s;background:hsl(var(--background));color:hsl(var(--primary));box-shadow:0 4px 12px hsl(var(--shadow)/0.08);border:1px solid hsl(var(--border))}
+.joy-action-circle:hover .joy-action-icon{background:hsl(var(--muted));border-color:hsl(var(--primary)/0.4);transform:translateY(-2px);box-shadow:0 6px 16px hsl(var(--primary)/0.12)}
+.joy-action-circle span:last-child{font-size:9.5px;font-weight:800;color:hsl(var(--foreground)/0.75);text-transform:uppercase;letter-spacing:.03em}
 
 /* ── Segmented switch ────────────────────────────────────────── */
 .joy-segment{display:flex;gap:4px;padding:4px;border-radius:14px;background:hsl(var(--muted));position:sticky;top:8px;z-index:15}

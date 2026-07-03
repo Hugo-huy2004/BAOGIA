@@ -57,7 +57,7 @@ export function HugoNoticeToast({
         <motion.div
           key="hugo-notice-toast"
           className="fixed inset-x-3 mx-auto w-[min(420px,calc(100vw-24px))] pointer-events-auto"
-          style={{ top: "calc(env(safe-area-inset-top, 0px) + 14px)", zIndex }}
+          style={{ top: "calc(env(safe-area-inset-top, 24px) + 24px)", zIndex }}
           initial={{ opacity: 0, y: -18, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -14, scale: 0.98 }}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginAdmin, loginMember } from "../../services/authSession";
+import { loginAdmin, loginMember, loginMemberWithGoogle } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
@@ -75,12 +75,15 @@ export default function LoginPage() {
       return;
     }
 
-    const payloadBase64 = response.credential.split(".")[1];
-    const payloadJson = atob(payloadBase64.replace(/-/g, "+").replace(/_/g, "/"));
-    const profile = JSON.parse(payloadJson);
+    // Server verifies the Google ID token and issues our session token —
+    // the client never decides identity from a decoded payload.
+    const { session, error } = await loginMemberWithGoogle(response.credential);
+    if (!session) {
+      showToast(error === "network" ? "Không kết nối được máy chủ. Thử lại nhé." : t("loginPage.toast.noGoogle"), "error");
+      return;
+    }
 
-    const email = profile.email || "";
-    const isEdu = await isEduEmail(email);
+    const isEdu = await isEduEmail(session.email);
     if (!isEdu) {
       showToast(
         t("loginPage.toast.eduRedirect"),
@@ -88,13 +91,7 @@ export default function LoginPage() {
       );
     }
 
-    loginMember({
-      email: profile.email,
-      displayName: profile.name,
-      provider: "google",
-      avatarUrl: profile.picture
-    });
-    localStorage.setItem(LAST_EMAIL_KEY, profile.email);
+    localStorage.setItem(LAST_EMAIL_KEY, session.email);
 
     navigate("/member");
   };

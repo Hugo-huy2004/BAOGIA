@@ -437,7 +437,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
       delta: null,
     },
     {
-      name: "Mini-MMPI",
+      name: "Sàng lọc nhân cách 30 câu",
       date: latestMmpi?.date,
       score: latestMmpi ? `${latestMmpi.clinical ? latestMmpi.clinical.filter(c => c.score >= 70).length : 0} ${t("companion.evaluation.scales", "thang")}` : null,
       range: "0–1",
@@ -1059,7 +1059,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
                   )}
                   {mmpiComp && (
                     <tr className="hover:bg-muted/40">
-                      <td className="py-3 font-black text-foreground/90">Mini-MMPI: {t("companion.evaluation.thresholdExceeded", "Vượt ngưỡng")}</td>
+                      <td className="py-3 font-black text-foreground/90">Sàng lọc nhân cách 30 câu: {t("companion.evaluation.thresholdExceeded", "Vượt ngưỡng")}</td>
                       <td className="py-3 text-muted-foreground">{mmpiComp.initialElev} {t("companion.evaluation.scales", "thang")}</td>
                       <td className="py-3 text-foreground/90">{mmpiComp.currentElev} {t("companion.evaluation.scales", "thang")}</td>
                       <td className={`py-3 ${mmpiComp.currentElev - mmpiComp.initialElev < 0 ? "text-success" : mmpiComp.currentElev - mmpiComp.initialElev > 0 ? "text-destructive" : "text-muted-foreground"}`}>
@@ -1152,7 +1152,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
                   desc = `${t("companion.evaluation.result", "Kết quả")}: ${t("companion.profile.dassDepression", "Trầm cảm")} ${log.scores?.D ?? 0}/42, ${t("companion.profile.dassAnxiety", "Lo âu")} ${log.scores?.A ?? 0}/42, ${t("companion.profile.dassStress", "Căng thẳng")} ${log.scores?.S ?? 0}/42. ${t("companion.evaluation.tableColAlert", "Đánh giá")}: ${getSeverityName(log.severities?.D)}`;
                 } else if (log.test === "mmpi30") {
                   const elev = log.clinical ? log.clinical.filter(c => c.score >= 70).length : 0;
-                  desc = t("companion.evaluation.mmpiResultDesc", { count: elev }, "Kiểm tra Mini-MMPI: {{count}}/10 thang đo vượt ngưỡng thích ứng lâm sàng.");
+                  desc = t("companion.evaluation.mmpiResultDesc", { count: elev }, "Sàng lọc nhân cách 30 câu: {{count}}/10 thang đo vượt ngưỡng tham khảo.");
                 } else {
                   desc = `${t("companion.evaluation.assessmentScore", "Điểm số đánh giá")}: ${log.score} ${t("companion.evaluation.points", "điểm")}.`;
                 }

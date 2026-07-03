@@ -301,7 +301,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                   onClick={() => handleStartScan("mmpi")}
                   className="px-3 py-1.5 bg-primary text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-primary/90"
                 >
-                  MMPI-30
+                  Sàng lọc nhân cách 30 câu
                 </button>
                 <button
                   type="button"

@@ -9,6 +9,13 @@ const TherapyTab = lazy(() => import("../../components/member/banhocduong/Therap
 const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab"));
 const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
 const MemberIdeTab = lazy(() => import("../../components/member/MemberIdeTab"));
+const TITLES = {
+  "banhocduong": "Bạn Học Đường - AI Trợ Lý Học Tập | Hugo Studio",
+  "therapy": "Trị Liệu Tâm Lý Cùng AI - Hugo PSY | Hugo Studio",
+  "radio": "Hugo Radio - Trạm Phát Sóng Cảm Xúc",
+  "aura": "Aura AI - Hình Nền Năng Lượng Độc Bản",
+  "ide": "Web IDE Cùng AI - Hugo Studio"
+};
 
 export default function UtilityPublicPage() {
   const { tool } = useParams();
@@ -102,18 +109,9 @@ export default function UtilityPublicPage() {
     </Suspense>
   );
 
-  // Maps for SEO titles
-  const titles = {
-    "banhocduong": "Bạn Học Đường - AI Trợ Lý Học Tập | Hugo Studio",
-    "therapy": "Trị Liệu Tâm Lý Cùng AI - Hugo PSY | Hugo Studio",
-    "radio": "Hugo Radio - Trạm Phát Sóng Cảm Xúc",
-    "aura": "Aura AI - Hình Nền Năng Lượng Độc Bản",
-    "ide": "Web IDE Cùng AI - Hugo Studio"
-  };
-
   useEffect(() => {
-    if (titles[tool]) {
-      document.title = titles[tool];
+    if (TITLES[tool]) {
+      document.title = TITLES[tool];
     }
   }, [tool]);
 

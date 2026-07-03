@@ -1,5 +1,29 @@
 import BaseBot from "./BaseBot";
 import pLimit from "p-limit";
+import { buildLocalReply } from "./localFallback";
+
+// Detect structured test-suggestion markers the server is asked to emit, e.g.
+// "[[SUGGEST:phq9,gad7]]". Falls back to the old keyword scan for older server
+// builds that haven't adopted the marker yet.
+const SUGGEST_MARKER = /\[\[SUGGEST:\s*([a-z0-9,\s]+)\]\]/i;
+function extractSuggestions(text) {
+  const flags = { suggestPhq9: false, suggestGad7: false, suggestWho5: false, suggestBigFive: false };
+  const m = text.match(SUGGEST_MARKER);
+  if (m) {
+    const ids = m[1].toLowerCase().split(",").map((s) => s.trim());
+    flags.suggestPhq9 = ids.includes("phq9");
+    flags.suggestGad7 = ids.includes("gad7");
+    flags.suggestWho5 = ids.includes("who5");
+    flags.suggestBigFive = ids.includes("bigfive") || ids.includes("mmpi");
+    return { flags, cleanText: text.replace(SUGGEST_MARKER, "").trim() };
+  }
+  // Legacy fallback: infer from mentioned test names in the reply prose.
+  flags.suggestPhq9 = text.includes("PHQ-9");
+  flags.suggestGad7 = text.includes("GAD-7");
+  flags.suggestWho5 = text.includes("WHO-5");
+  flags.suggestBigFive = text.includes("Big Five") || text.includes("Nhân cách");
+  return { flags, cleanText: text };
+}
 
 // Module-level concurrency limiter — shared across all AIBot instances so
 // concurrent streaming calls from the same page queue instead of flooding
@@ -12,6 +36,35 @@ const _streamLimit = pLimit(2);
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const API_URL = `${API_BASE}/ai`;
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY || "";
+const AI_USER_ID_SALT = import.meta.env.VITE_AI_USER_ID_SALT || "hugopsy-ai-user-v1";
+
+function fallbackHash(input) {
+  let h1 = 0x811c9dc5;
+  let h2 = 0x01000193;
+  for (let i = 0; i < input.length; i += 1) {
+    h1 ^= input.charCodeAt(i);
+    h1 = Math.imul(h1, 0x01000193);
+    h2 = Math.imul(h2 ^ input.charCodeAt(i), 0x85ebca6b);
+  }
+  return `${(h1 >>> 0).toString(16).padStart(8, "0")}${(h2 >>> 0).toString(16).padStart(8, "0")}`;
+}
+
+async function pseudonymizeUserId(rawUserId) {
+  const normalized = String(rawUserId || "").trim().toLowerCase();
+  if (!normalized || normalized === "unknown") return "unknown";
+  const input = `${AI_USER_ID_SALT}:${normalized}`;
+  try {
+    if (globalThis.crypto?.subtle) {
+      const bytes = new TextEncoder().encode(input);
+      const digest = await globalThis.crypto.subtle.digest("SHA-256", bytes);
+      const hex = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+      return `u_${hex.slice(0, 32)}`;
+    }
+  } catch (_) {
+    /* fall through to non-PII deterministic fallback */
+  }
+  return `u_${fallbackHash(input)}`;
+}
 
 // 1 retry (2 total attempts) instead of 2 retries (3 attempts) — when the
 // server is overloaded each extra attempt multiplies the load. Backoff: 800ms.
@@ -57,6 +110,7 @@ export default class AIBot extends BaseBot {
     this._replyCache = new Map();
     // Minimum ms between streaming AI calls to protect the server from bursts.
     this._lastStreamTs = 0;
+    this._aiUserIdPromise = null;
   }
 
   // Serve greeting locally — zero server call, instant display.
@@ -90,10 +144,10 @@ export default class AIBot extends BaseBot {
       formData.append("history", JSON.stringify(mappedHistory));
       formData.append("bio", JSON.stringify(this._bioWithSummary() || {}));
       formData.append("isCallMode", isCallMode);
-      formData.append("userId", this.bio?.email || "unknown");
+      formData.append("userId", await this._aiUserId());
       const res = await fetchWithRetry(`${API_URL}/chat/audio`, { method: "POST", body: formData });
       if (res?.ok) return await res.json();
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
     return null;
   }
 
@@ -165,6 +219,13 @@ export default class AIBot extends BaseBot {
     return message.trim().toLowerCase().slice(0, 120);
   }
 
+  _aiUserId() {
+    if (!this._aiUserIdPromise) {
+      this._aiUserIdPromise = pseudonymizeUserId(this.bio?.email || this.bio?.id || "unknown");
+    }
+    return this._aiUserIdPromise;
+  }
+
   async chat(message) {
     const key = this._cacheKey(message);
     if (this._replyCache.has(key)) return this._replyCache.get(key);
@@ -172,7 +233,7 @@ export default class AIBot extends BaseBot {
       const res = await fetchWithRetry(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId: this.bio?.email || "unknown" })
+        body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId: await this._aiUserId() })
       });
       if (res?.ok) {
         const data = await res.json();
@@ -181,27 +242,19 @@ export default class AIBot extends BaseBot {
         const updateRegex = /\[UPDATE_PROFILE:\s*({.*?})\]/i;
         const match = replyText.match(updateRegex);
         if (match?.[1]) {
-          try { bioUpdate = JSON.parse(match[1]); } catch (_) {}
+          try { bioUpdate = JSON.parse(match[1]); } catch (_) { /* ignore */ }
           replyText = replyText.replace(updateRegex, "").trim();
         }
-        const result = {
-          reply: replyText,
-          suggestPhq9:    replyText.includes("PHQ-9")    || replyText.includes("Trầm cảm"),
-          suggestGad7:    replyText.includes("GAD-7")    || replyText.includes("Lo âu"),
-          suggestWho5:    replyText.includes("WHO-5")    || replyText.includes("Hạnh phúc"),
-          suggestBigFive: replyText.includes("Big Five") || replyText.includes("MMPI") || replyText.includes("Nhân cách"),
-          bioUpdate
-        };
+        const { flags, cleanText } = extractSuggestions(replyText);
+        const result = { reply: cleanText, ...flags, bioUpdate };
         if (this._replyCache.size > 40) this._replyCache.delete(this._replyCache.keys().next().value);
         this._replyCache.set(key, result);
         return result;
       }
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
 
-    return {
-      reply: `Tớ ghi nhận chia sẻ của cậu: "${message}". Hiện tớ đang offline tạm thời, nhưng tớ vẫn luôn bên cậu nhé!`,
-      suggestPhq9: false, suggestGad7: false, suggestWho5: false, suggestBigFive: false, bioUpdate: null
-    };
+    // Server unreachable → smart local reply. The user never sees a raw error.
+    return buildLocalReply(message);
   }
 
   async chatStream(message, onChunk, onDone) {
@@ -227,10 +280,11 @@ export default class AIBot extends BaseBot {
     }
 
     try {
+      const userId = await this._aiUserId();
       const res = await _streamLimit(() => fetchWithRetry(`${API_URL}/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId: this.bio?.email || "unknown" })
+        body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId })
       }));
       if (!res?.ok) throw new Error("Server error");
 
@@ -254,9 +308,9 @@ export default class AIBot extends BaseBot {
                 const p = JSON.parse(rawContent);
                 if (p.text) { fullReply += p.text; onChunk?.(fullReply); }
                 else if (p.error) {
+                  // Flag only — never stream the raw error text to the user.
+                  // The local fallback below produces a natural reply instead.
                   serverError = true;
-                  fullReply = "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc gặp sự cố kết nối. Cậu thử lại sau ít phút hoặc thực hành các bài tập tự trị liệu nhé!";
-                  onChunk?.(fullReply);
                 }
               } catch (_) {
                 if (rawContent) {
@@ -264,13 +318,9 @@ export default class AIBot extends BaseBot {
                   onChunk?.(fullReply);
                 }
               }
-            } catch (_) {}
+            } catch (_) { /* ignore */ }
           }
         }
-      }
-      if (serverError && !fullReply.trim()) {
-        fullReply = "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc gặp sự cố kết nối. Cậu thử lại sau ít phút hoặc thực hành các bài tập tự trị liệu nhé!";
-        onChunk?.(fullReply);
       }
       if (buffer.trim().startsWith("data: ")) {
         try {
@@ -284,8 +334,6 @@ export default class AIBot extends BaseBot {
                 outOfTokensMessage = p.message || "Bạn đã sử dụng hết token trò chuyện. Bạn có muốn dùng JOY để đổi thêm token không?";
               } else {
                 serverError = true;
-                fullReply = p.message || p.error || "Tớ rất tiếc, máy chủ AI đang bị quá tải hoặc gặp sự cố kết nối. Cậu thử lại sau ít phút hoặc thực hành các bài tập tự trị liệu nhé!";
-                onChunk?.(fullReply);
               }
             }
           } catch (_) {
@@ -294,14 +342,14 @@ export default class AIBot extends BaseBot {
               onChunk?.(fullReply);
             }
           }
-        } catch (_) {}
+        } catch (_) { /* ignore */ }
       }
 
       let replyText = fullReply, bioUpdate = null;
       const updateRegex = /\[UPDATE_PROFILE:\s*({.*?})\]/i;
       const match = replyText.match(updateRegex);
       if (match?.[1]) {
-        try { bioUpdate = JSON.parse(match[1]); } catch (_) {}
+        try { bioUpdate = JSON.parse(match[1]); } catch (_) { /* ignore */ }
         replyText = replyText.replace(updateRegex, "").trim();
       }
 
@@ -314,26 +362,29 @@ export default class AIBot extends BaseBot {
         return;
       }
 
-      const result = {
-        reply: replyText,
-        suggestPhq9:    replyText.includes("PHQ-9")    || replyText.includes("Trầm cảm"),
-        suggestGad7:    replyText.includes("GAD-7")    || replyText.includes("Lo âu"),
-        suggestWho5:    replyText.includes("WHO-5")    || replyText.includes("Hạnh phúc"),
-        suggestBigFive: replyText.includes("Big Five") || replyText.includes("MMPI") || replyText.includes("Nhân cách"),
-        bioUpdate
-      };
+      // Server errored (or streamed nothing usable) → compose a warm local
+      // reply and stream it in, so the user always gets a real answer.
+      if (serverError || !replyText.trim()) {
+        const local = buildLocalReply(message);
+        onChunk?.(local.reply);
+        onDone?.(local);
+        return;
+      }
+
+      const { flags, cleanText } = extractSuggestions(replyText);
+      const result = { reply: cleanText, ...flags, bioUpdate };
       // Cache successful streaming replies so identical follow-up messages skip the server.
-      if (replyText && !bioUpdate && !serverError) {
+      if (cleanText && !bioUpdate) {
         if (this._replyCache.size > 40) this._replyCache.delete(this._replyCache.keys().next().value);
         this._replyCache.set(key, result);
       }
       onDone?.(result);
     } catch (err) {
       console.warn("AIBot chatStream error:", err);
-      onDone?.({
-        reply: "Tớ đang gặp sự cố kết nối. Cậu hãy thử lại sau nhé!",
-        suggestPhq9: false, suggestGad7: false, suggestWho5: false, suggestBigFive: false, bioUpdate: null
-      });
+      // Network/parse failure → local fallback, never a bare error message.
+      const local = buildLocalReply(message);
+      onChunk?.(local.reply);
+      onDone?.(local);
     }
   }
 
@@ -346,34 +397,36 @@ export default class AIBot extends BaseBot {
           message,
           history: this._buildHistory(6),
           bio: this._bioWithSummary(),
-          userId: this.bio?.email || "unknown"
+          userId: await this._aiUserId()
         })
       });
       if (res?.ok) {
         return await res.json();
       }
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
     return { intent: "fallback" };
   }
 
   logLocalMatch(message, intentId) {
     // Fire-and-forget telemetry — never await, never let a failure affect the chat UI.
-    fetchWithRetry(`${API_URL}/intent/log-local`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, intentId, userId: this.bio?.email || "unknown" })
-    }).catch(() => {});
+    this._aiUserId()
+      .then((userId) => fetchWithRetry(`${API_URL}/intent/log-local`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, intentId, userId })
+      }))
+      .catch(() => { /* ignore */ });
   }
 
   async getRemainingTokens() {
     try {
-      const res = await fetchWithRetry(`${API_URL}/chat/remaining?userId=${encodeURIComponent(this.bio?.email || "unknown")}`, {
+      const res = await fetchWithRetry(`${API_URL}/chat/remaining?userId=${encodeURIComponent(await this._aiUserId())}`, {
         method: "GET"
       });
       if (res?.ok) {
         return await res.json();
       }
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
     return null;
   }
 
@@ -385,7 +438,7 @@ export default class AIBot extends BaseBot {
         body: JSON.stringify({ testName, scores, validity, clinical, lang, bio: this._bioWithSummary() })
       });
       if (res?.ok) { const data = await res.json(); return data.analysis; }
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
     return null;
   }
 }

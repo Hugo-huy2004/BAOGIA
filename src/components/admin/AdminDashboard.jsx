@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { StatCard, Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
 import { Badge, StatusDot } from "../ui/Badge";
@@ -6,7 +6,7 @@ import { Progress } from "../ui/Progress";
 import { Spinner } from "../ui/Spinner";
 import { getAiUrl } from "../../services/api";
 
-const VITE_API = import.meta.env.VITE_API_URL;
+const VITE_API = import.meta.env.VITE_API_URL || "/api";
 
 // Resolved the same way aiFetch() resolves it: explicit VITE_AI_URL, else
 // derived from VITE_API_URL (api. → ai.), else from the current hostname.
@@ -124,6 +124,94 @@ function StorageBar({ label, sizeInBytes, maxInBytes = 2 * 1024 * 1024 * 1024 })
       </div>
       <Progress value={percent} color={percent > 80 ? "destructive" : percent > 60 ? "warning" : "primary"} />
     </div>
+  );
+}
+
+function OpsEventsCard() {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    apiFetch(`${VITE_API}/ops/client-events?limit=20`)
+      .then(res => setEvents(Array.isArray(res.events) ? res.events : []))
+      .catch(() => setEvents([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    load();
+    const interval = window.setInterval(load, 60_000);
+    return () => window.clearInterval(interval);
+  }, [load]);
+
+  const badCount = events.filter(e => ["runtime-error", "unhandled-rejection", "react-error-boundary", "api-error", "api-network-error"].includes(e.type)).length;
+  const slowCount = events.filter(e => e.type === "slow-api" || (e.type === "web-vital" && e.rating === "poor")).length;
+
+  return (
+    <Card>
+      <CardHeader className="flex-row items-center justify-between pb-2">
+        <CardTitle className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary text-base">monitoring</span>
+          Giám sát lỗi & độ trễ
+        </CardTitle>
+        <button
+          type="button"
+          onClick={load}
+          className="w-8 h-8 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+          aria-label="Tải lại sự kiện lỗi"
+        >
+          <span className="material-symbols-outlined text-[17px]">refresh</span>
+        </button>
+      </CardHeader>
+      <CardContent className="pt-0 space-y-3">
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-destructive/10 px-3 py-2">
+            <p className="text-[9px] font-bold text-muted-foreground uppercase">Lỗi</p>
+            <p className="text-lg font-black text-destructive leading-tight">{badCount}</p>
+          </div>
+          <div className="rounded-xl bg-warning/10 px-3 py-2">
+            <p className="text-[9px] font-bold text-muted-foreground uppercase">Chậm</p>
+            <p className="text-lg font-black text-warning leading-tight">{slowCount}</p>
+          </div>
+          <div className="rounded-xl bg-primary/10 px-3 py-2">
+            <p className="text-[9px] font-bold text-muted-foreground uppercase">Tổng</p>
+            <p className="text-lg font-black text-primary leading-tight">{events.length}</p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="py-5 flex justify-center"><Spinner size="sm" /></div>
+        ) : events.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-5">Chưa ghi nhận lỗi client gần đây.</p>
+        ) : (
+          <div className="divide-y divide-border/50 max-h-72 overflow-y-auto">
+            {events.slice(0, 8).map(event => (
+              <div key={event.id} className="py-2.5 space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`text-[10px] font-black rounded-md px-2 py-0.5 ${
+                    event.type.includes("error") || event.type.includes("rejection")
+                      ? "bg-destructive/10 text-destructive"
+                      : event.type === "slow-api"
+                        ? "bg-warning/10 text-warning"
+                        : "bg-primary/10 text-primary"
+                  }`}>
+                    {event.type}
+                  </span>
+                  <span className="text-[9px] text-muted-foreground whitespace-nowrap">{new Date(event.createdAt).toLocaleTimeString("vi-VN")}</span>
+                </div>
+                <p className="text-[11px] font-semibold text-foreground truncate">
+                  {event.path || event.page || event.name || "Sự kiện client"}
+                  {event.durationMs ? ` · ${event.durationMs}ms` : ""}
+                  {event.status ? ` · HTTP ${event.status}` : ""}
+                </p>
+                {event.message && <p className="text-[10px] text-muted-foreground line-clamp-2">{event.message}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -291,6 +379,8 @@ export default function AdminDashboard({ stats, bookings, totalProjects, totalPa
               </div>
             </CardContent>
           </Card>
+
+          <OpsEventsCard />
         </div>
       </div>
 

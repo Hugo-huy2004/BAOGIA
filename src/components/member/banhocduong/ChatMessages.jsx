@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, VolumeX, ChevronDown, Stethoscope, Heart } from "lucide-react";
+import { ChevronDown, Stethoscope, Heart } from "lucide-react";
 import TypewriterText from "./TypewriterText";
 
 // ─── Inline interactive widgets (unchanged logic) ────────────────────────────
@@ -144,11 +144,11 @@ function MoodCheckinCard({ onMoodSelect }) {
   );
 }
 
-function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, playingId, onPlayVoice, onStartTest, onSelectDuration, onNavigateToTab, onUnlockFeature, unlockingMethodId, onMoodSelect, moodCheckinDone }) {
+function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTest, onSelectDuration, onNavigateToTab, onUnlockFeature, unlockingMethodId, onMoodSelect, moodCheckinDone }) {
   return (
     <div className="flex flex-col gap-1.5 items-start">
       {/* Main text bubble */}
-      <div className="px-3.5 py-2.5 text-[13.5px] leading-relaxed bg-white dark:bg-[#1e1d2c] text-zinc-800 dark:text-zinc-100 rounded-2xl rounded-tl-[4px] shadow-[0_1px_8px_rgba(0,0,0,0.06)] dark:shadow-[0_1px_8px_rgba(0,0,0,0.3)] border border-zinc-100 dark:border-white/[0.06] max-w-full">
+      <div className="px-5 py-3.5 text-[12.5px] md:text-[14px] leading-relaxed bg-white/70 dark:bg-[#1a1a24]/60 backdrop-blur-3xl text-zinc-900 dark:text-zinc-100 rounded-[24px] rounded-tl-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.08)] border border-white/80 dark:border-white/[0.12] max-w-full">
         {!completedMessageIds.has(msg.id) && msg.id !== "init" ? (
           <TypewriterText text={msg.text} id={msg.id}
             onComplete={() => setCompletedMessageIds(prev => { const s = new Set(prev); s.add(msg.id); return s; })} />
@@ -277,40 +277,14 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, playingId
         </span>
       )}
 
-      {/* Meta: time + voice */}
-      <div className="flex items-center gap-1.5 px-1">
-        <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-medium">
-          {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
-        </span>
-        {msg.timeLeft !== undefined && (
-          <span className="text-[9px] text-orange-500 font-black animate-pulse flex items-center gap-0.5">
-            🔥 {msg.timeLeft}s
-          </span>
-        )}
-        {completedMessageIds.has(msg.id) && (
-          <button onClick={() => onPlayVoice(msg.id, msg.text)}
-            className="w-5 h-5 rounded-full flex items-center justify-center text-zinc-400 hover:text-indigo-500 transition-colors"
-            title="Nghe">
-            {playingId === msg.id ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
-          </button>
-        )}
-      </div>
     </div>
   );
 }
 
 function UserBubble({ msg }) {
   return (
-    <div className="flex flex-col items-end gap-1">
-      <div className="px-3.5 py-2.5 text-[13.5px] leading-relaxed bg-gradient-to-br from-[#3b82f6] to-[#4f46e5] dark:from-[#0071e3] dark:to-[#3843d0] text-white rounded-2xl rounded-tr-[4px] shadow-md shadow-blue-500/20 max-w-full">
-        <p className="whitespace-pre-wrap font-medium">{msg.text}</p>
-      </div>
-      <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-medium px-1">
-        {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
-        {msg.timeLeft !== undefined && (
-          <span className="ml-1.5 text-orange-500 font-black animate-pulse">🔥 {msg.timeLeft}s</span>
-        )}
-      </span>
+    <div className="px-5 py-3.5 text-[12.5px] md:text-[14px] leading-relaxed bg-gradient-to-br from-[#0071e3] to-[#5856d6] text-white rounded-[24px] rounded-tr-[8px] shadow-[0_8px_32px_rgba(0,113,227,0.3),inset_0_2px_6px_rgba(255,255,255,0.25)] border border-white/20 dark:border-white/[0.15] max-w-full">
+      <p className="whitespace-pre-wrap font-medium">{msg.text}</p>
     </div>
   );
 }
@@ -331,21 +305,9 @@ function ChatMessages({
   onMoodSelect,
   moodCheckinDone,
 }) {
-  const [playingId, setPlayingId] = React.useState(null);
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
   const containerRef = React.useRef(null);
   const userScrolledUpRef = React.useRef(false);
-
-  const handlePlayVoice = (id, text) => {
-    if (playingId === id) { window.speechSynthesis.cancel(); setPlayingId(null); return; }
-    window.speechSynthesis.cancel();
-    setPlayingId(id);
-    const u = new SpeechSynthesisUtterance(text.replace(/\*\*/g, ""));
-    u.lang = "vi-VN";
-    u.onend = () => setPlayingId(null);
-    window.speechSynthesis.speak(u);
-  };
-  React.useEffect(() => () => window.speechSynthesis.cancel(), []);
 
   const handleScroll = () => {
     const el = containerRef.current;
@@ -399,31 +361,38 @@ function ChatMessages({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.1 } }}
                 transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-                className={`flex items-end gap-2.5 ${isBot ? "justify-start" : "justify-end"} mb-1`}
+                className={`flex flex-col ${isBot ? "items-start" : "items-end"} mb-4`}
               >
-                {/* Bot avatar */}
-                {isBot && (
-                  <div className="w-8 h-8 rounded-2xl overflow-hidden shrink-0 mb-0.5 shadow-sm bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
-                  </div>
-                )}
+                <div className={`flex items-end gap-2.5 w-full ${isBot ? "justify-start" : "justify-end"}`}>
+                  {/* Bot avatar */}
+                  {isBot && (
+                    <div className="w-8 h-8 rounded-2xl overflow-hidden shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.4)] bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center relative z-10">
+                      <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+                    </div>
+                  )}
 
-                <div className={`flex flex-col max-w-[80%] sm:max-w-[72%] ${isBot ? "items-start" : "items-end"}`}>
-                  {isBot
-                    ? <BotBubble msg={msg} completedMessageIds={completedMessageIds} setCompletedMessageIds={setCompletedMessageIds}
-                        playingId={playingId} onPlayVoice={handlePlayVoice} onStartTest={onStartTest}
-                        onSelectDuration={onSelectDuration} onNavigateToTab={onNavigateToTab}
-                        onUnlockFeature={onUnlockFeature} unlockingMethodId={unlockingMethodId}
-                        onMoodSelect={onMoodSelect} moodCheckinDone={moodCheckinDone} />
-                    : <UserBubble msg={msg} />}
+                  <div className={`flex flex-col max-w-[80%] sm:max-w-[72%] ${isBot ? "items-start" : "items-end"}`}>
+                    {isBot
+                      ? <BotBubble msg={msg} completedMessageIds={completedMessageIds} setCompletedMessageIds={setCompletedMessageIds}
+                          onStartTest={onStartTest}
+                          onSelectDuration={onSelectDuration} onNavigateToTab={onNavigateToTab}
+                          onUnlockFeature={onUnlockFeature} unlockingMethodId={unlockingMethodId}
+                          onMoodSelect={onMoodSelect} moodCheckinDone={moodCheckinDone} />
+                      : <UserBubble msg={msg} />}
+                  </div>
                 </div>
 
-                {/* User avatar */}
-                {!isBot && (
-                  <div className="w-8 h-8 rounded-full shrink-0 mb-0.5 shadow-sm bg-gradient-to-br from-zinc-300 to-zinc-400 dark:from-zinc-600 dark:to-zinc-700 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
-                  </div>
-                )}
+                {/* Timestamp */}
+                <div className={`flex items-center gap-1.5 mt-1.5 ${isBot ? "ml-11" : "mr-1"}`}>
+                  <span className="text-[9.5px] text-zinc-400 dark:text-zinc-500 font-medium">
+                    {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                  {msg.timeLeft !== undefined && (
+                    <span className="text-[9.5px] text-orange-500 font-black animate-pulse flex items-center gap-0.5">
+                      🔥 {msg.timeLeft}s
+                    </span>
+                  )}
+                </div>
               </motion.div>
             );
           })}
@@ -434,14 +403,16 @@ function ChatMessages({
           {loading && (
             <motion.div key="typing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="flex items-end gap-2.5 justify-start mb-1">
-              <div className="w-8 h-8 rounded-2xl shrink-0 bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center shadow-sm">
-                <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+              <div className="relative">
+                <div className="w-8 h-8 rounded-2xl shrink-0 bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center shadow-sm relative z-10">
+                  <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+                </div>
+                <div className="absolute inset-0 bg-blue-500 rounded-2xl animate-ping opacity-20" />
               </div>
-              <div className="px-3.5 py-2.5 bg-white dark:bg-[#1e1d2c] rounded-2xl rounded-tl-[4px] border border-zinc-100 dark:border-white/[0.06] shadow-sm flex items-center gap-2">
-                <span className="text-[11.5px] text-zinc-500 dark:text-zinc-400 font-medium leading-none">{typingLabel}</span>
+              <div className="px-4 py-3 bg-white/80 dark:bg-zinc-900/60 backdrop-blur-md rounded-[20px] rounded-tl-[6px] border border-white/60 dark:border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.2)] flex items-center gap-2.5">
                 <span className="flex items-center gap-[3px]">
-                  {[0, 150, 300].map(delay => (
-                    <span key={delay} className="w-1 h-1 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce"
+                  {[0, 150, 300].map((delay, i) => (
+                    <span key={delay} className={`w-1.5 h-1.5 rounded-full animate-bounce ${i === 0 ? "bg-blue-500" : i === 1 ? "bg-indigo-500" : "bg-purple-500"}`}
                       style={{ animationDelay: `${delay}ms` }} />
                   ))}
                 </span>
@@ -450,7 +421,7 @@ function ChatMessages({
           )}
         </AnimatePresence>
 
-        <div ref={messagesEndRef} className="h-2" />
+        <div ref={messagesEndRef} className="h-32" />
       </div>
 
       {/* Scroll-to-bottom FAB */}

@@ -1,14 +1,14 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
 import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// GET /api/referral/me?email=
-router.get('/me', async (req, res) => {
+// GET /api/referral/me — identity from the verified member token
+router.get('/me', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
-    if (!email) return res.status(400).json({ error: 'Email query param is required' });
+    const email = req.memberEmail;
 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
@@ -26,12 +26,13 @@ router.get('/me', async (req, res) => {
   }
 });
 
-// POST /api/referral/apply  { email, referrerCode }
-router.post('/apply', async (req, res) => {
+// POST /api/referral/apply  { referrerCode }
+router.post('/apply', requireMember, async (req, res) => {
   try {
-    const { email, referrerCode } = req.body;
-    if (!email || !referrerCode) {
-      return res.status(400).json({ error: 'email and referrerCode are required' });
+    const { referrerCode } = req.body;
+    const email = req.memberEmail;
+    if (!referrerCode) {
+      return res.status(400).json({ error: 'referrerCode is required' });
     }
 
     let bio = await Bio.findOne({ email });

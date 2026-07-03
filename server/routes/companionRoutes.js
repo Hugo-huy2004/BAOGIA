@@ -6,11 +6,40 @@ import Bio from '../models/Bio.js';
 import SleepLog from '../models/SleepLog.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import { awardJoy } from '../utils/joyService.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { encryptText, decryptText } from '../utils/cryptoUtils.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Therapy chat is the most sensitive data in the app (a student's private
+// mental-health disclosures, sometimes self-harm ideation). We encrypt the
+// message body at rest so a DB dump never exposes readable conversations.
+// Only the free-text `.text` is encrypted; structural flags stay queryable.
+function encryptChatMessages(messages) {
+  if (!Array.isArray(messages)) return messages;
+  return messages.map((m) => (m && typeof m.text === 'string' && m.text)
+    ? { ...m, text: encryptText(m.text) }
+    : m);
+}
+function decryptChatMessages(messages) {
+  if (!Array.isArray(messages)) return messages;
+  return messages.map((m) => {
+    const plain = m?.toObject ? m.toObject() : m;
+    return (plain && typeof plain.text === 'string')
+      ? { ...plain, text: decryptText(plain.text) }
+      : plain;
+  });
+}
+// Returns a plain JSON-safe history object with chatMessages decrypted for the
+// client. decryptText is a no-op on already-plaintext legacy rows, so this is
+// safe during the migration window before every row has been re-saved.
+function historyForClient(doc) {
+  const obj = doc?.toObject ? doc.toObject() : { ...doc };
+  if (obj.chatMessages) obj.chatMessages = decryptChatMessages(obj.chatMessages);
+  return obj;
+}
 
 // JOY cap: 180 JOY/day = 3600 awarded-seconds/day (30 JOY per 600s interval, base x3)
 const COMPANION_JOY_CAP_SECONDS = 3600;
@@ -31,9 +60,10 @@ const UNLOCKABLE_FEATURES = {
 };
 
 // POST: Unlock a therapy sub-feature for 150 JOY (one-time, permanent per account)
-router.post('/unlock-feature', async (req, res) => {
+router.post('/unlock-feature', requireMember, async (req, res) => {
   try {
-    const { email, feature } = req.body;
+    const { feature } = req.body;
+    const email = req.memberEmail;
     if (!email || !feature) return res.status(400).json({ error: 'email and feature are required' });
 
     const def = UNLOCKABLE_FEATURES[feature];
@@ -70,9 +100,9 @@ router.post('/unlock-feature', async (req, res) => {
 
 // POST: Active-session heartbeat — awards +30 JOY per confirmed 10 minutes
 // of active companion usage, capped at 180 JOY/day.
-router.post('/heartbeat', async (req, res) => {
+router.post('/heartbeat', requireMember, async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
     // Atomic operators only below — no fetch-mutate-save — so concurrent
@@ -130,9 +160,9 @@ router.post('/heartbeat', async (req, res) => {
 });
 
 // GET: Fetch or initialize companion history for a specific email
-router.get('/history', async (req, res) => {
+router.get('/history', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    const email = req.memberEmail;
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
     }
@@ -205,7 +235,7 @@ router.get('/history', async (req, res) => {
       }
     }
 
-    res.json(historyDoc);
+    res.json(historyForClient(historyDoc));
   } catch (error) {
     import('fs').then(fs => {
       fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
@@ -215,10 +245,10 @@ router.get('/history', async (req, res) => {
 });
 
 // POST: Save or update companion history for a specific email
-router.post('/history', async (req, res) => {
+router.post('/history', requireMember, async (req, res) => {
   try {
+    const email = req.memberEmail;
     const {
-      email,
       healingActive,
       healingDuration,
       healingStartDate,
@@ -248,7 +278,7 @@ router.post('/history', async (req, res) => {
     }
     if (lastTestDate !== undefined) $set.lastTestDate = lastTestDate;
     if (historyLogs !== undefined) $set.historyLogs = historyLogs;
-    if (chatMessages !== undefined) $set.chatMessages = chatMessages;
+    if (chatMessages !== undefined) $set.chatMessages = encryptChatMessages(chatMessages);
 
     let historyDoc = await CompanionHistory.findOneAndUpdate(
       { email },
@@ -430,7 +460,7 @@ router.post('/history', async (req, res) => {
       console.error('Failed to sync companion log to Bio history:', bioError);
     }
 
-    res.json({ success: true, companionHistory: historyDoc });
+    res.json({ success: true, companionHistory: historyForClient(historyDoc) });
   } catch (error) {
     import('fs').then(fs => {
       fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
@@ -445,9 +475,10 @@ router.post('/history', async (req, res) => {
 // above, this bypasses any accumulation threshold so Admin is alerted on the
 // very first message, with enough context (phone, recent messages) to call
 // the member back immediately without having to dig through their history.
-router.post('/crisis-alert', async (req, res) => {
+router.post('/crisis-alert', requireMember, async (req, res) => {
   try {
-    const { email, trigger, conversationSummary } = req.body;
+    const { trigger, conversationSummary } = req.body;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email is required' });
 
     const bioDoc = await Bio.findOne({ email }).select('phone').lean();
@@ -476,9 +507,10 @@ router.post('/crisis-alert', async (req, res) => {
 });
 
 // POST: Mark a crisis flag as resolved once the member confirms they've sought help
-router.post('/crisis/resolve', async (req, res) => {
+router.post('/crisis/resolve', requireMember, async (req, res) => {
   try {
-    const { email, flagId } = req.body;
+    const { flagId } = req.body;
+    const email = req.memberEmail;
     if (!email || !flagId) return res.status(400).json({ error: 'email and flagId are required' });
 
     const doc = await CompanionHistory.findOneAndUpdate(
@@ -528,9 +560,9 @@ router.get('/admin/crisis-alerts', requireAdmin, async (req, res) => {
 });
 
 // POST: Block user IP/Session for 15 minutes due to anomaly detection
-router.post('/history/block', async (req, res) => {
+router.post('/history/block', requireMember, async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.memberEmail;
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
     }
@@ -551,9 +583,10 @@ router.post('/history/block', async (req, res) => {
 });
 
 // POST: Generate and save weekly wellness report
-router.post('/report/weekly', async (req, res) => {
+router.post('/report/weekly', requireMember, async (req, res) => {
   try {
-    const { email, bio } = req.body;
+    const { bio } = req.body;
+    const email = req.memberEmail;
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
     }
@@ -672,9 +705,9 @@ async function isChallengeCompletedToday(historyDoc, challengeId, todayStr, emai
 
 // GET: status of today's daily challenges (completed / already claimed),
 // powers the "Nhiệm vụ" tab in the JOY wallet without guessing client-side.
-router.get('/challenges-status', async (req, res) => {
+router.get('/challenges-status', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
     const historyDoc = await CompanionHistory.findOne({ email });
@@ -698,9 +731,10 @@ router.get('/challenges-status', async (req, res) => {
 });
 
 // POST: Claim daily challenge reward
-router.post('/claim-challenge', async (req, res) => {
+router.post('/claim-challenge', requireMember, async (req, res) => {
   try {
-    const { email, challengeId } = req.body;
+    const { challengeId } = req.body;
+    const email = req.memberEmail;
     if (!email || !challengeId) {
       return res.status(400).json({ error: 'Email and challengeId are required' });
     }

@@ -49,9 +49,9 @@ export function removeVietnameseTones(str) {
 // Negative lookahead on "chet" excludes Vietnamese hyperbole idioms.
 export function isCrisisText(cleanText) {
   if (!cleanText) return false;
-  const explicit = /(tu tu|tu sat|ket lieu|lam hai ban than|tu lam dau|tu tu o dau|khong muon song|khong con muon song|muon ket thuc tat ca|ket thuc cuoc doi|bien mat vinh vien|khong thiet song|song khong co y nghia|the gioi se tot hon khi khong co|khong ai can (toi|minh|to)( nua)?)/;
+  const explicit = /(tu tu|tu sat|ket lieu|lam hai ban than|tu lam dau|tu tu o dau|khong muon song|khong con muon song|chang con muon song|muon ket thuc tat ca|ket thuc cuoc doi|bien mat vinh vien|khong thiet song|song khong co y nghia|cuoc song (nay )?khong con y nghia|the gioi se tot hon khi khong co|khong ai can (toi|minh|to)( nua)?)/;
   if (explicit.test(cleanText)) return true;
-  const firstPersonDeath = /\b(toi|to|minh)\b[^.!?]{0,12}\bchet\b(?!\s*(mat|doi|met|khat|cuoi|ngat|sieng|thui|qua|di))/;
+  const firstPersonDeath = /\b(toi|to|minh|tao)\b[^.!?]{0,18}\b(muon|can|se|sap)?\s*chet\b(?!\s*(mat|doi|met|khat|cuoi|ngat|sieng|thui|di))/;
   const conditionalDeath = /\bneu\b[^.!?]{0,15}\b(toi|to|minh)\b[^.!?]{0,12}\bchet\b/;
   return firstPersonDeath.test(cleanText) || conditionalDeath.test(cleanText);
 }
@@ -90,7 +90,7 @@ export function getDiceSimilarity(str1, str2) {
     for (let i = 0; i < str.length - 1; i++) bigrams.add(str.substring(i, i + 2));
     return bigrams;
   };
-  const clean = (s) => (s || "").toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").replace(/\s+/g, " ").trim();
+  const clean = (s) => (s || "").toLowerCase().replace(/[.,/#!$%^&*;:{}=_`~()?-]/g, "").replace(/\s+/g, " ").trim();
   const s1 = clean(str1);
   const s2 = clean(str2);
   if (s1 === s2) return 1.0;
