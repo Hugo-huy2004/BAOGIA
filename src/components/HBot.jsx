@@ -259,6 +259,18 @@ const HBot = () => {
   }, []);
 
   useEffect(() => {
+    const onPwaUpdate = (e) => {
+      setNudge({
+        text: "Tèn tén ten! Hệ thống vừa được cập nhật thêm tính năng xịn xò. Cậu làm mới trang để tớ chạy mượt mà hơn nha (´｡• ᵕ •｡`) ♡",
+        action: e.detail.updateServiceWorker,
+        actionLabel: "🔄 Cập nhật ngay"
+      });
+    };
+    window.addEventListener('pwa-update-available', onPwaUpdate);
+    return () => window.removeEventListener('pwa-update-available', onPwaUpdate);
+  }, []);
+
+  useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -634,20 +646,33 @@ const HBot = () => {
 
       {/* Proactive companion nudge — never forces the chat open, just an inviting bubble */}
       {!isOpen && nudge && (
-        <div className="relative mb-2 max-w-[220px] animate-fadeIn">
-          <button
-            type="button"
-            onClick={handleNudgeClick}
-            className="text-left bg-white dark:bg-card border border-border rounded-2xl rounded-br-sm shadow-lg p-3 pr-7 text-xs text-foreground font-medium leading-relaxed"
+        <div className="relative mb-2 max-w-[240px] animate-fadeIn">
+          <div
+            className="bg-white dark:bg-card border border-border rounded-2xl rounded-br-sm shadow-lg p-3.5 pr-8 text-xs text-foreground font-medium leading-relaxed"
           >
-            {nudge.text}
-          </button>
+            <button
+              type="button"
+              onClick={!nudge.action ? handleNudgeClick : undefined}
+              className={`text-left w-full block ${!nudge.action ? "cursor-pointer" : "cursor-default text-[13px]"}`}
+            >
+              {nudge.text}
+            </button>
+            {nudge.action && (
+              <button
+                type="button"
+                onClick={() => nudge.action(true)}
+                className="mt-3 w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all shadow-md flex justify-center items-center"
+              >
+                {nudge.actionLabel}
+              </button>
+            )}
+          </div>
           <button
             type="button"
             onClick={handleDismissNudge}
-            className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-muted-foreground"
+            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-muted hover:bg-muted/80 active:scale-95 flex items-center justify-center text-muted-foreground transition-all"
           >
-            <span className="material-symbols-outlined text-[12px]">close</span>
+            <span className="material-symbols-outlined text-[14px]">close</span>
           </button>
         </div>
       )}

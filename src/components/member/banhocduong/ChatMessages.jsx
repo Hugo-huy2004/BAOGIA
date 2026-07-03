@@ -304,6 +304,7 @@ function ChatMessages({
   unlockingMethodId,
   onMoodSelect,
   moodCheckinDone,
+  keyboardInset = 0,
 }) {
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
   const containerRef = React.useRef(null);
@@ -325,6 +326,14 @@ function ChatMessages({
     if (!userScrolledUpRef.current) requestAnimationFrame(() => scrollToBottom("smooth"));
   }, [messages, loading]);
 
+  // When the keyboard opens (inset grows), keep the latest message in view above
+  // the lifted input bar — mirrors how native chat apps stay pinned to bottom.
+  React.useEffect(() => {
+    if (keyboardInset > 0 && !userScrolledUpRef.current) {
+      requestAnimationFrame(() => scrollToBottom("smooth"));
+    }
+  }, [keyboardInset]); // eslint-disable-line react-hooks/exhaustive-deps
+
   React.useLayoutEffect(() => { scrollToBottom("auto"); }, []);
 
   return (
@@ -334,7 +343,11 @@ function ChatMessages({
         ref={containerRef}
         onScroll={handleScroll}
         className="h-full overflow-y-auto overscroll-contain px-3 sm:px-4 py-4 space-y-1"
-        style={{ scrollbarWidth: "thin" }}
+        style={{
+          scrollbarWidth: "thin",
+          // Extra clearance so the last message clears the keyboard-lifted input.
+          paddingBottom: keyboardInset > 0 ? `${keyboardInset}px` : undefined,
+        }}
       >
         {/* Date separator */}
         <div className="flex items-center gap-3 pb-3">

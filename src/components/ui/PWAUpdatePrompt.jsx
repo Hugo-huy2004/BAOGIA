@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
+import { isHBotVisible, HBOT_VISIBILITY_EVENT } from "../../utils/floatingWidgetPref";
 
 export default function PWAUpdatePrompt() {
   const {
@@ -11,12 +13,27 @@ export default function PWAUpdatePrompt() {
     },
   });
 
-  if (!needRefresh) return null;
+  const [hbotVisible, setHbotVisible] = useState(() => isHBotVisible());
+
+  useEffect(() => {
+    const onVisibilityChange = (e) => setHbotVisible(e.detail.visible);
+    window.addEventListener(HBOT_VISIBILITY_EVENT, onVisibilityChange);
+    return () => window.removeEventListener(HBOT_VISIBILITY_EVENT, onVisibilityChange);
+  }, []);
+
+  useEffect(() => {
+    if (needRefresh) {
+      window.dispatchEvent(new CustomEvent('pwa-update-available', { 
+        detail: { updateServiceWorker } 
+      }));
+    }
+  }, [needRefresh, updateServiceWorker]);
+
+  if (!needRefresh || hbotVisible) return null;
 
   return (
     <div
-      className="fixed z-[180] left-3 right-3 md:left-auto md:right-6 md:w-[360px]"
-      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
+      className="fixed z-[180] top-4 md:top-6 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[360px]"
       role="status"
       aria-live="polite"
     >

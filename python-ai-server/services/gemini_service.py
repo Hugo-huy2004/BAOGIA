@@ -349,6 +349,13 @@ class GeminiService:
         4. Đề xuất các liệu pháp tự chữa lành có trong hệ thống
         5. Động viên, cổ vũ khi người dùng đang cố gắng
 
+        ĐỀ XUẤT TEST (định dạng máy đọc): khi — và CHỈ khi — bạn thật sự muốn
+        gợi ý người dùng làm một bài test, hãy thêm MỘT marker duy nhất ở CUỐI câu
+        trả lời theo đúng cú pháp: [[SUGGEST:phq9]] hoặc [[SUGGEST:gad7,who5]].
+        Mã hợp lệ: phq9, gad7, who5, mmpi. Marker này sẽ bị ẩn khỏi người dùng và
+        chỉ dùng để hiện nút bài test tương ứng — TUYỆT ĐỐI không thêm marker nếu
+        bạn không chủ đích đề xuất (tránh hiện nút test sai ngữ cảnh).
+
         Khung phân tích bắt buộc nhưng phải diễn đạt tự nhiên, không máy móc:
         - Cảm xúc hiện tại: người dùng đang buồn, lo, giận, xấu hổ, cô đơn, kiệt sức, rối, hay đang cần được công nhận?
         - Bối cảnh/kích hoạt: chuyện học tập, gia đình, bạn bè, tình cảm, cơ thể, giấc ngủ, tài chính, tương lai, hay áp lực thành tích?

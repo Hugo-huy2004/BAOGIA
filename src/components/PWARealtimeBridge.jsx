@@ -38,11 +38,19 @@ export default function PWARealtimeBridge() {
       abortRef.current = new AbortController();
       return useJoyStore.getState().fetchBalance(email, abortRef.current.signal).catch(() => {});
     };
+    let stableTimer = null;
     const connect = () => {
       if (disposed) return;
       socket = new WebSocket(realtimeUrl());
       socket.addEventListener('open', () => {
-        retryCount.current = 0;
+        // Do NOT reset the retry counter here. The WS handshake succeeds first,
+        // THEN the server may immediately close it (e.g. 4001 for an invalid/
+        // expired token). Resetting on 'open' kept the backoff pinned at ~1s,
+        // so a rejected token reconnected ~once/second and fired a balance
+        // fetch each time — a request storm that tripped the 429 limiter.
+        // Only treat the connection as healthy after it has stayed open a few
+        // seconds, then reset the backoff.
+        stableTimer = window.setTimeout(() => { retryCount.current = 0; }, 4000);
         sync();
       });
       socket.addEventListener('message', (event) => {
@@ -78,8 +86,16 @@ export default function PWARealtimeBridge() {
           }
         } catch (_) {}
       });
-      socket.addEventListener('close', () => {
+      socket.addEventListener('close', (event) => {
+        if (stableTimer) { window.clearTimeout(stableTimer); stableTimer = null; }
         if (disposed) return;
+        // 4001 = auth rejected (missing/expired token). Retrying with the same
+        // token is futile and only burns the rate limit, so back off long and
+        // let a fresh login / token refresh re-establish the channel.
+        if (event.code === 4001) {
+          retryTimer.current = window.setTimeout(connect, 5 * 60_000);
+          return;
+        }
         const delay = Math.min(30000, 1000 * (2 ** retryCount.current++));
         retryTimer.current = window.setTimeout(connect, delay);
       });
@@ -139,6 +155,7 @@ export default function PWARealtimeBridge() {
       disposed = true;
       abortRef.current?.abort();
       window.clearTimeout(retryTimer.current);
+      if (stableTimer) window.clearTimeout(stableTimer);
       if (nudgeTimer) window.clearTimeout(nudgeTimer);
       // Only close if past CONNECTING (readyState 0) to avoid the
       // "WebSocket is closed before the connection is established" warning

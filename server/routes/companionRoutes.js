@@ -603,7 +603,9 @@ router.post('/report/weekly', requireMember, async (req, res) => {
       bio: {
         ...(bio || {}),
         historyLogs: historyDoc.historyLogs || [],
-        chatMessages: historyDoc.chatMessages || []
+        // Decrypt before sending to the AI report generator — messages are
+        // stored encrypted at rest, so the raw docs are ciphertext.
+        chatMessages: decryptChatMessages(historyDoc.chatMessages || [])
       }
     };
 

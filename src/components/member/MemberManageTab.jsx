@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Darkens a #rrggbb color by a percentage — used to build a two-tone gradient
 // for the membership-card look from a single package accent color.
 function shadeColor(hex, percent) {
+  if (!hex) return "#000000";
   const num = parseInt(hex.replace('#', ''), 16);
   const amt = Math.round(2.55 * percent);
   const r = Math.max(0, Math.min(255, (num >> 16) + amt));

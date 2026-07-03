@@ -90,16 +90,53 @@ export async function resolveCoords({ preferGeo = false, timeoutMs = 8000 } = {}
 
 // Fetch current weather for coordinates. Returns a normalized object or throws.
 export async function fetchWeather(lat, lon) {
+  const cacheKey = `weather_${Math.round(lat * 100)}_${Math.round(lon * 100)}`;
+  
+  try {
+    const cachedStr = sessionStorage.getItem(cacheKey);
+    if (cachedStr) {
+      const cached = JSON.parse(cachedStr);
+      // Cache for 15 minutes to prevent 429 Too Many Requests
+      if (cached && Date.now() - cached.at < 15 * 60 * 1000) {
+        if (cached.rateLimited) {
+          throw new Error(`Open-Meteo 429 (Cached)`);
+        }
+        if (cached.data) {
+          return cached.data;
+        }
+      }
+    }
+  } catch (e) {
+    // Ignore sessionStorage errors
+  }
+
   const url =
     `${FORECAST_URL}?latitude=${lat}&longitude=${lon}` +
     `&current=temperature_2m,weather_code,is_day,wind_speed_10m,relative_humidity_2m,apparent_temperature` +
     `&wind_speed_unit=kmh&timezone=auto`;
-  const res = await fetch(url, { signal: AbortSignal.timeout?.(8000) });
-  if (!res.ok) throw new Error(`Open-Meteo ${res.status}`);
+    
+  let res;
+  try {
+    res = await fetch(url, { signal: AbortSignal.timeout?.(8000) });
+  } catch (e) {
+    throw e;
+  }
+  
+  if (!res.ok) {
+    if (res.status === 429) {
+      // Cache the rate limit for 15 minutes so we don't spam them
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), rateLimited: true }));
+      } catch (e) {}
+    }
+    throw new Error(`Open-Meteo ${res.status}`);
+  }
+  
   const data = await res.json();
   const cur = data.current || {};
   const code = Number(cur.weather_code ?? 3);
-  return {
+  
+  const result = {
     code,
     condition: codeToCondition(code),
     isDay: cur.is_day === 1,
@@ -109,4 +146,12 @@ export async function fetchWeather(lat, lon) {
     humidity: Math.round(cur.relative_humidity_2m ?? 0),
     at: Date.now(),
   };
+
+  try {
+    sessionStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), data: result }));
+  } catch (e) {
+    // Ignore sessionStorage errors
+  }
+  
+  return result;
 }

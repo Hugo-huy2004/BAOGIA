@@ -46,7 +46,10 @@ export function installApiAuthInterceptor() {
         return originalFetch(input, { credentials: "include", ...init, headers })
           .then((res) => {
             const durationMs = performance.now() - startedAt;
-            if (!res.ok || durationMs >= SLOW_API_MS) {
+            // Never report 429s: they're expected backpressure, not actionable
+            // errors, and each report is itself a request that would amplify the
+            // rate-limit storm it's reacting to.
+            if (res.status !== 429 && (!res.ok || durationMs >= SLOW_API_MS)) {
               record({
                 type: res.ok ? "slow-api" : "api-error",
                 status: res.status,

@@ -27,6 +27,16 @@ import mongoSanitize from 'express-mongo-sanitize';
 dotenv.config();
 
 const app = express();
+
+// Trust the first proxy in front of the app (Railway/Render/Vercel/Nginx all
+// put exactly one). Without this, req.ip is the PROXY's IP, so express-rate-
+// limit keys EVERY user into a single shared bucket — the whole userbase then
+// blows the 1500/15min cap almost instantly and everyone gets 429. Trusting
+// one hop makes req.ip the real client (from X-Forwarded-For) so each user gets
+// their own bucket. We trust exactly 1 (not `true`) so clients can't spoof
+// X-Forwarded-For to dodge the limiter.
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 8081;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
 
@@ -92,7 +102,12 @@ const globalLimiter = rateLimit({
   max: isDev ? 0 : 1500, // 0 = unlimited in dev; 1500/15 min (1.67 req/s avg) in prod
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => isDev || LOCALHOST_IPS.has(req.ip),
+  // Telemetry (/api/ops/client-event) must NOT count against a user's API
+  // budget: it fires on web-vitals + every slow/failed request, so counting it
+  // would (a) burn the quota faster and (b) once a 429 storm starts, each 429
+  // gets reported as another /api hit — a self-amplifying loop that keeps the
+  // user rate-limited. Excluding it breaks that feedback loop.
+  skip: (req) => isDev || LOCALHOST_IPS.has(req.ip) || req.originalUrl.startsWith('/api/ops'),
   message: { error: 'Quá nhiều truy cập từ IP này, vui lòng thử lại sau 15 phút.' }
 });
 app.use('/api', globalLimiter);

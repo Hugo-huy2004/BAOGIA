@@ -15,7 +15,10 @@ export default function CheckinCard({ email, showToast }) {
   const setBalance = useJoyStore(s => s.setBalance);
 
   const fetchStatus = useCallback(() => {
-    if (!email) return;
+    if (!email) {
+      setLoading(false);
+      return;
+    }
     fetch(`${apiBase}/checkin/status?email=${encodeURIComponent(email)}`, { credentials: "include" })
       .then(r => r.json())
       .then(setStatus)
@@ -59,7 +62,17 @@ export default function CheckinCard({ email, showToast }) {
     </div>;
   }
 
+  if (status.error) {
+    return (
+      <div className="py-8 text-center text-xs text-destructive flex flex-col items-center gap-2 bg-destructive/5 rounded-3xl border border-destructive/20 p-5">
+        <span className="material-symbols-outlined">error</span>
+        <span>{status.error}</span>
+      </div>
+    );
+  }
+
   const rewardTable = status.rewardTable || [150, 240, 240, 240, 240, 240, 450];
+  const claimedDays = status.claimedDaysThisWeek || [];
 
   return (
     <div className={`bg-white dark:bg-[#15131e] rounded-3xl border border-zinc-200 dark:border-white/10 border-t-4 p-5 space-y-5 shadow-sm transition-all duration-300 ${
@@ -84,7 +97,7 @@ export default function CheckinCard({ email, showToast }) {
       <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
         {rewardTable.map((amount, idx) => {
           const day = idx + 1;
-          const claimed = status.claimedDaysThisWeek.includes(day);
+          const claimed = claimedDays.includes(day);
           const isToday = status.todayDayOfWeek === day;
           return (
             <div

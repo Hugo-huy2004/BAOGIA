@@ -11,6 +11,7 @@ import ChatInputBar from "./ChatInputBar";
 import TokenExchangeModal from "./TokenExchangeModal";
 import { RenderColoredText } from "../../HugoLogo";
 import { webPushHelper } from "../../../utils/webPushHelper";
+import { useKeyboardInset } from "../../../hooks/useKeyboardVisible";
 import { useChatEngine } from "./hooks/useChatEngine";
 
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
@@ -63,6 +64,9 @@ export default function ChatTab({
   const joyBalance = useJoyStore(s => s.balance);
   const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
   const { createLocalSafetyReply, shouldAnswerLocally, sanitizeStreamChunk, normalizeFinalResponse } = useChatEngine();
+  // Pixel height the mobile keyboard overlaps the viewport — lifts the input
+  // bar to sit flush above the keyboard (Viber-style) instead of being covered.
+  const keyboardInset = useKeyboardInset();
 
   const [isVentingMode, setIsVentingMode] = useState(false);
   const [ventingTimerMinutes, setVentingTimerMinutes] = useState(1);
@@ -1642,6 +1646,7 @@ export default function ChatTab({
             unlockingMethodId={unlockingMethodId}
             onMoodSelect={handleMoodSelect}
             moodCheckinDone={moodCheckinDone}
+            keyboardInset={keyboardInset}
           />
         )}
         {chatMode === "test" && activeTest && (
@@ -1662,8 +1667,15 @@ export default function ChatTab({
       {/* ── Input section (Floating Dynamic Island) ─────────────────────────────────────────────────────── */}
       {chatMode === "normal" && (
         <div
-          className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none pb-4 px-3 sm:px-6"
-          style={{ paddingBottom: "max(16px, env(safe-area-inset-bottom))" }}
+          className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none pb-4 px-3 sm:px-6 will-change-transform"
+          style={{
+            // Lift by the keyboard height with a GPU transform (never a layout
+            // change) so the rise is smooth and jitter-free. When the keyboard
+            // is up there's no home-indicator gap, so drop the safe-area pad.
+            transform: keyboardInset > 0 ? `translateY(-${keyboardInset}px)` : "none",
+            transition: "transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)",
+            paddingBottom: keyboardInset > 0 ? "8px" : "max(16px, env(safe-area-inset-bottom))",
+          }}
         >
           <div className="pointer-events-auto max-w-3xl mx-auto bg-white/60 dark:bg-[#060609]/60 backdrop-blur-3xl rounded-[32px] border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-1.5 transition-all">
             <ChatInputBar

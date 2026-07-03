@@ -546,9 +546,23 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
   }, [healingActive, healingDuration, historyLogs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isMobileChat = effectiveSubTab === "chat" && isMobileView;
+  // On mobile the chat is a fullscreen takeover (parent gives a fixed 100dvh),
+  // so h-full fills it. On DESKTOP psychology stays in the page-scroll portal
+  // (never fullscreen — see MemberPortalPage), so there's no fixed-height
+  // ancestor for h-full to resolve against: it collapsed to content height and
+  // the message list grew the whole page downward. Give desktop chat an
+  // explicit viewport-bounded height (dvh unit is parent-independent) so the
+  // messages scroll INSIDE the panel instead of stretching the page.
+  const isDesktopChat = effectiveSubTab === "chat" && !isMobileView;
+
+  const rootClassName = isMobileChat
+    ? "flex flex-col h-full min-h-0 overflow-hidden"
+    : isDesktopChat
+      ? "flex flex-col h-[calc(100dvh-160px)] min-h-0 overflow-hidden"
+      : "flex flex-col min-h-[calc(100svh-160px)] md:min-h-0 space-y-3 md:space-y-2.5 animate-fadeIn";
 
   return (
-    <div className={isMobileChat ? "flex flex-col h-full min-h-0 overflow-hidden" : "flex flex-col min-h-[calc(100svh-160px)] md:min-h-0 space-y-3 md:space-y-2.5 animate-fadeIn"}>
+    <div className={rootClassName}>
 
       {/* ── Header ───────────────────────────────────────────────────────────────
           Hidden on mobile while the Chat tab is the fullscreen takeover below —
