@@ -341,6 +341,9 @@ const BioSchema = new mongoose.Schema(
     },
       decoRoom: {
       enabled: { type: Boolean, default: false },
+      expiresAt: { type: Date, default: null },
+      visitedRooms: { type: [String], default: [] },
+      lastCleanedAt: { type: Date, default: () => new Date(Date.now() - 12 * 60 * 60 * 1000) },
       wallColor: { type: String, default: '#f4f4f5' },
       floorStyle: { type: String, default: 'wood_basic' },
       items: {

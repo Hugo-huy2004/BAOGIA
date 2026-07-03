@@ -9,9 +9,10 @@ import ClinicScanner from "./ClinicScanner";
 import TherapyTab from "./TherapyTab";
 import ChatInputBar from "./ChatInputBar";
 import TokenExchangeModal from "./TokenExchangeModal";
+import { CrisisSosCountdown } from "./EmergencySiren";
 import { RenderColoredText } from "../../HugoLogo";
 import { webPushHelper } from "../../../utils/webPushHelper";
-import { useKeyboardInset } from "../../../hooks/useKeyboardVisible";
+import { useKeyboardInset, useVirtualKeyboardOptIn } from "../../../hooks/useKeyboardVisible";
 import { useChatEngine } from "./hooks/useChatEngine";
 
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
@@ -66,7 +67,14 @@ export default function ChatTab({
   const { createLocalSafetyReply, shouldAnswerLocally, sanitizeStreamChunk, normalizeFinalResponse } = useChatEngine();
   // Pixel height the mobile keyboard overlaps the viewport — lifts the input
   // bar to sit flush above the keyboard (Viber-style) instead of being covered.
+  // Standards-track PWA keyboard handling (VirtualKeyboard API): when the
+  // browser supports it, the input bar is positioned with the compositor-
+  // driven env(keyboard-inset-height) — perfectly smooth, no JS per frame.
+  // Elsewhere (iOS Safari) we fall back to the visualViewport transform.
+  const hasNativeKeyboard = useVirtualKeyboardOptIn();
   const keyboardInset = useKeyboardInset();
+  // Auto-armed SOS countdown, triggered by the local self-harm detector.
+  const [sosPromptOpen, setSosPromptOpen] = useState(false);
 
   const [isVentingMode, setIsVentingMode] = useState(false);
   const [ventingTimerMinutes, setVentingTimerMinutes] = useState(1);
@@ -1324,6 +1332,9 @@ export default function ChatTab({
 
       if (matched.id === "crisis") {
         reportCrisisToAdmin(text, [...messages, userMsg]);
+        // Arm the SOS beacon immediately: a cancellable 15s countdown, then
+        // the phone sirens so people nearby can step in (see EmergencySiren).
+        setSosPromptOpen(true);
       }
 
       // Natural typing delay simulation, then drip the reply chunk(s) in
@@ -1667,11 +1678,18 @@ export default function ChatTab({
       {/* ── Input section (Floating Dynamic Island) ─────────────────────────────────────────────────────── */}
       {chatMode === "normal" && (
         <div
-          className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none pb-4 px-3 sm:px-6 will-change-transform"
-          style={{
-            // Lift by the keyboard height with a GPU transform (never a layout
-            // change) so the rise is smooth and jitter-free. When the keyboard
-            // is up there's no home-indicator gap, so drop the safe-area pad.
+          className="absolute left-0 right-0 z-20 pointer-events-none pb-4 px-3 sm:px-6 will-change-transform"
+          style={hasNativeKeyboard ? {
+            // VirtualKeyboard API path: the browser updates this env() on the
+            // compositor thread, so the bar rides the keyboard animation 1:1
+            // with zero jank — no JS transform, no transition needed.
+            bottom: "env(keyboard-inset-height, 0px)",
+            paddingBottom: keyboardInset > 0 ? "8px" : "max(16px, env(safe-area-inset-bottom))",
+          } : {
+            // iOS Safari fallback: lift with a GPU transform. iOS fires a
+            // single late viewport resize (not per-frame), so a short ease
+            // makes the jump feel animated instead of teleporting.
+            bottom: 0,
             transform: keyboardInset > 0 ? `translateY(-${keyboardInset}px)` : "none",
             transition: "transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)",
             paddingBottom: keyboardInset > 0 ? "8px" : "max(16px, env(safe-area-inset-bottom))",
@@ -1713,6 +1731,8 @@ export default function ChatTab({
         }}
         showToast={showToast}
       />
+      {/* Auto-armed SOS beacon: cancellable countdown fired by the crisis detector */}
+      <CrisisSosCountdown open={sosPromptOpen} onClose={() => setSosPromptOpen(false)} />
     </div>
   );
 }

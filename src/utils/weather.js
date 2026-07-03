@@ -76,16 +76,43 @@ export async function resolveCoords({ preferGeo = false, timeoutMs = 8000 } = {}
       /* fall through to IP */
     }
   }
+  // ipwho.is is a free service with a strict per-IP rate limit, and an IP's
+  // location is effectively static — cache the lookup for 24h in localStorage
+  // (NOT sessionStorage: that dies with the tab, so every new tab re-fetched).
+  // A 429 is also remembered (1h) so we fully stop calling while limited, and
+  // an in-flight guard collapses simultaneous mounts into one request.
+  const IP_CACHE_KEY = "ipgeo_cache_v1";
   try {
-    const res = await fetch(IP_GEO_URL, { signal: AbortSignal.timeout?.(6000) });
-    const data = await res.json();
-    if (data && data.success !== false && typeof data.latitude === "number") {
-      return { lat: data.latitude, lon: data.longitude, city: data.city || "", source: "ip" };
+    const cached = JSON.parse(localStorage.getItem(IP_CACHE_KEY) || "null");
+    if (cached && Date.now() - cached.at < (cached.limited ? 60 * 60_000 : 24 * 60 * 60_000)) {
+      if (cached.coords) return { ...cached.coords, source: "ip" };
+      if (cached.limited) return { ...DEFAULT_COORDS, source: "default" };
     }
-  } catch {
-    /* fall through to default */
+  } catch { /* ignore cache errors */ }
+  if (resolveCoords._inflight) return resolveCoords._inflight;
+  resolveCoords._inflight = (async () => {
+    try {
+      const res = await fetch(IP_GEO_URL, { signal: AbortSignal.timeout?.(6000) });
+      if (res.status === 429) {
+        try { localStorage.setItem(IP_CACHE_KEY, JSON.stringify({ at: Date.now(), limited: true })); } catch { /* ignore */ }
+        return { ...DEFAULT_COORDS, source: "default" };
+      }
+      const data = await res.json();
+      if (data && data.success !== false && typeof data.latitude === "number") {
+        const coords = { lat: data.latitude, lon: data.longitude, city: data.city || "" };
+        try { localStorage.setItem(IP_CACHE_KEY, JSON.stringify({ at: Date.now(), coords })); } catch { /* ignore */ }
+        return { ...coords, source: "ip" };
+      }
+    } catch {
+      /* fall through to default */
+    }
+    return { ...DEFAULT_COORDS, source: "default" };
+  })();
+  try {
+    return await resolveCoords._inflight;
+  } finally {
+    resolveCoords._inflight = null;
   }
-  return { ...DEFAULT_COORDS, source: "default" };
 }
 
 // Fetch current weather for coordinates. Returns a normalized object or throws.
@@ -115,19 +142,14 @@ export async function fetchWeather(lat, lon) {
     `&current=temperature_2m,weather_code,is_day,wind_speed_10m,relative_humidity_2m,apparent_temperature` +
     `&wind_speed_unit=kmh&timezone=auto`;
     
-  let res;
-  try {
-    res = await fetch(url, { signal: AbortSignal.timeout?.(8000) });
-  } catch (e) {
-    throw e;
-  }
-  
+  const res = await fetch(url, { signal: AbortSignal.timeout?.(8000) });
+
   if (!res.ok) {
     if (res.status === 429) {
       // Cache the rate limit for 15 minutes so we don't spam them
       try {
         sessionStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), rateLimited: true }));
-      } catch (e) {}
+      } catch { /* ignore storage errors */ }
     }
     throw new Error(`Open-Meteo ${res.status}`);
   }

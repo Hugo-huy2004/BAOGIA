@@ -236,44 +236,141 @@ const ChairOffice = () => (
 const Laptop = ({ on = true }) => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <ellipse cx="50" cy="95" rx="42" ry="4" fill="#000" opacity=".12" />
+    {/* Lid/Screen Back */}
     <rect x="24" y="30" width="52" height="52" rx="4" fill="#3a3f47" />
-    <rect x="27" y="33" width="46" height="43" rx="2" fill={on ? "#6ee7ff" : "#1c2530"}>
-      {on && <animate attributeName="fill" values="#6ee7ff;#a7f0ff;#6ee7ff" dur="4s" repeatCount="indefinite" />}
-    </rect>
-    {on && <rect x="31" y="37" width="20" height="3" rx="1.5" fill="#fff" opacity=".5" />}
-    <path d="M14 82 h72 l7 12 H7 z" fill="#c8cdd6" />
-    <path d="M14 82 h72 l2 3 H12 z" fill="#e4e8ee" />
-    <rect x="40" y="86" width="20" height="3" rx="1.5" fill="#9aa1ac" />
+    
+    {/* Screen Display */}
+    <rect x="27" y="33" width="46" height="43" rx="2" fill={on ? "#0f172a" : "#1c2530"} />
+    
+    {on && (
+      <>
+        {/* Abstract desktop wallpaper / coding lines */}
+        <rect x="31" y="37" width="22" height="2" rx="1" fill="#38bdf8" opacity="0.8" />
+        <rect x="31" y="41" width="16" height="2" rx="1" fill="#818cf8" opacity="0.8" />
+        <rect x="31" y="45" width="28" height="2" rx="1" fill="#34d399" opacity="0.8" />
+        <circle cx="64" cy="40" r="4" fill="#f43f5e" opacity="0.9" />
+        
+        {/* Specular Diagonal Sheen (Reflection) */}
+        <path d="M 27 33 L 55 33 L 27 65 Z" fill="#ffffff" opacity="0.08" />
+        <path d="M 45 33 L 73 33 L 45 65 Z" fill="#ffffff" opacity="0.04" />
+      </>
+    )}
+    
+    {/* Keyboard Base & Tray */}
+    <path d="M14 82 h72 l7 12 H7 z" fill="#cbd5e1" />
+    <path d="M14 82 h72 l2 3 H12 z" fill="#f1f5f9" />
+    {/* Keyboard Keys Details */}
+    <rect x="20" y="84" width="60" height="4" fill="#64748b" opacity="0.6" rx="1" />
+    <rect x="18" y="89" width="64" height="3" fill="#64748b" opacity="0.6" rx="1" />
+    {/* Trackpad */}
+    <rect x="42" y="92" width="16" height="2" rx="0.5" fill="#94a3b8" />
   </svg>
 );
+
 const PcMasterRace = ({ on = true }) => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
-    <ellipse cx="54" cy="95" rx="46" ry="4" fill="#000" opacity=".12" />
+    <ellipse cx="54" cy="95" rx="46" ry="4" fill="#000" opacity=".15" />
+    
+    {/* RGB Underglow Behind Monitors */}
+    {on && (
+      <ellipse cx="50" cy="35" rx="42" ry="12" fill="#ec4899" opacity="0.15" filter="blur(6px)">
+        <animate attributeName="opacity" values="0.1;0.25;0.1" dur="3s" repeatCount="indefinite" />
+      </ellipse>
+    )}
+
+    {/* Triple Monitor Screens */}
     {[10, 38, 66].map((x, i) => (
       <g key={i}>
-        <rect x={x} y={26 + (i === 1 ? -4 : 0)} width="26" height="20" rx="2.5" fill="#1d2027" />
-        <rect x={x + 2} y={28 + (i === 1 ? -4 : 0)} width="22" height="16" rx="1.5" fill={on ? "#7c3aed" : "#161820"}>
-          {on && <animate attributeName="opacity" values=".8;1;.8" dur={`${2 + i}s`} repeatCount="indefinite" />}
-        </rect>
+        {/* Monitor Frame */}
+        <rect x={x} y={26 + (i === 1 ? -4 : 0)} width="26" height="20" rx="3" fill="#1e293b" stroke="#334155" strokeWidth="0.5" />
+        {/* Monitor Screen */}
+        <rect x={x + 1} y={27 + (i === 1 ? -4 : 0)} width="24" height="18" rx="2" fill={on ? "#0b0f19" : "#020617"} />
+        
+        {/* Cyberpunk workspace UI lines */}
+        {on && (
+          <>
+            <path d={`M ${x + 3} ${35 + (i === 1 ? -4 : 0)} L ${x + 15} ${35 + (i === 1 ? -4 : 0)}`} stroke={i === 1 ? "#22d3ee" : "#a855f7"} strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
+            <path d={`M ${x + 3} ${40 + (i === 1 ? -4 : 0)} L ${x + 10} ${40 + (i === 1 ? -4 : 0)}`} stroke="#f43f5e" strokeWidth="1" strokeLinecap="round" />
+            <circle cx={x + 20} cy={33 + (i === 1 ? -4 : 0)} r="2" fill="#22d3ee" />
+            <circle cx={x + 20} cy={39 + (i === 1 ? -4 : 0)} r="1.5" fill="#eab308" />
+            {/* Gloss sheen */}
+            <path d={`M ${x + 1} ${27 + (i === 1 ? -4 : 0)} L ${x + 12} ${27 + (i === 1 ? -4 : 0)} L ${x + 1} ${38 + (i === 1 ? -4 : 0)} Z`} fill="#ffffff" opacity="0.08" />
+          </>
+        )}
       </g>
     ))}
-    <rect x="34" y="46" width="40" height="4" rx="2" fill="#2b2f36" />
-    <rect x="50" y="50" width="8" height="34" rx="2" fill="#2b2f36" />
-    <rect x="40" y="84" width="28" height="6" rx="3" fill="#33383f" />
-    <rect x="2" y="60" width="15" height="34" rx="3" fill="#14161c" />
-    <rect x="5" y="64" width="9" height="3" rx="1" fill="#22d3ee"><animate attributeName="opacity" values=".4;1;.4" dur="1.6s" repeatCount="indefinite" /></rect>
-    <rect x="5" y="69" width="9" height="3" rx="1" fill="#f0abfc"><animate attributeName="opacity" values=".4;1;.4" dur="2.1s" repeatCount="indefinite" /></rect>
+    
+    {/* Monitor Stands */}
+    <rect x="34" y="46" width="40" height="4" rx="2" fill="#1e293b" />
+    <rect x="50" y="50" width="8" height="34" rx="2" fill="#334155" />
+    <rect x="40" y="84" width="28" height="6" rx="3" fill="#1e293b" />
+    
+    {/* PC Case Tower (Glass side panel & glowing RGB fans) */}
+    <rect x="2" y="56" width="16" height="38" rx="3" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+    {/* Front panel grill */}
+    <rect x="15" y="58" width="2" height="34" fill="#334155" />
+    
+    {/* Interior Glass Showcase */}
+    <rect x="4" y="60" width="10" height="32" rx="1.5" fill="#1e293b" />
+    {on ? (
+      <>
+        {/* Glowing CPU cooler / RGB RAM sticks */}
+        <rect x="10" y="65" width="2" height="6" fill="#a855f7" />
+        <rect x="11.5" y="65" width="1" height="6" fill="#ec4899" />
+        
+        {/* Glowing dual cooling fans */}
+        <circle cx="8" cy="68" r="4.5" fill="none" stroke="#22d3ee" strokeWidth="1.2" opacity="0.8">
+          <animate attributeName="stroke" values="#22d3ee;#f43f5e;#22d3ee" dur="3s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="8" cy="80" r="4.5" fill="none" stroke="#ec4899" strokeWidth="1.2" opacity="0.8">
+          <animate attributeName="stroke" values="#ec4899;#a855f7;#ec4899" dur="3s" repeatCount="indefinite" />
+        </circle>
+        
+        {/* Light emission overlay */}
+        <rect x="4" y="60" width="10" height="32" rx="1.5" fill="#22d3ee" opacity="0.1" />
+      </>
+    ) : (
+      <rect x="4" y="60" width="10" height="32" rx="1.5" fill="#090d16" />
+    )}
   </svg>
 );
+
 const Macbook = ({ on = true }) => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <ellipse cx="50" cy="95" rx="40" ry="4" fill="#000" opacity=".12" />
-    <rect x="26" y="32" width="48" height="48" rx="4" fill="#d9dce1" />
-    <rect x="29" y="35" width="42" height="40" rx="2" fill={on ? "#0f1626" : "#0b0e16"} />
-    {on && <rect x="33" y="39" width="18" height="3" rx="1.5" fill="#e5e7eb" opacity=".55" />}
-    <circle cx="50" cy="57" r="3" fill={on ? "#c7ccd6" : "#3a3f4a"} opacity=".8" />
-    <path d="M18 80 h64 l6 12 H12 z" fill="#e6e9ee" />
-    <path d="M44 80 h12 l1 3 H43 z" fill="#c9cdd5" />
+    {/* Sleek Aluminum Space Gray Lid */}
+    <rect x="25" y="30" width="50" height="50" rx="5" fill="#64748b" />
+    
+    {/* Screen */}
+    <rect x="28" y="33" width="44" height="42" rx="2.5" fill={on ? "#111827" : "#030712"} />
+    
+    {on && (
+      <>
+        {/* Premium gradient wallpaper */}
+        <defs>
+          <linearGradient id="mb_wp" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#ec4899" />
+            <stop offset="50%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#3b82f6" />
+          </linearGradient>
+        </defs>
+        <rect x="29" y="34" width="42" height="40" rx="1.5" fill="url(#mb_wp)" opacity="0.9" />
+        {/* Specular highlight sheen */}
+        <path d="M 29 34 L 56 34 L 29 65 Z" fill="#ffffff" opacity="0.12" />
+        <path d="M 45 34 L 71 34 L 45 65 Z" fill="#ffffff" opacity="0.06" />
+        {/* Tiny camera notch / dot */}
+        <circle cx="50" cy="35" r="0.75" fill="#fff" />
+      </>
+    )}
+    
+    {/* Base keyboard assembly */}
+    <path d="M16 80 h68 l6 12 H10 z" fill="#94a3b8" />
+    <path d="M16 80 h68 l1.5 3 H14.5 z" fill="#cbd5e1" />
+    
+    {/* Keyboard key tray */}
+    <rect x="22" y="82" width="56" height="5" rx="1" fill="#1e293b" opacity="0.85" />
+    {/* Trackpad */}
+    <rect x="42" y="88" width="16" height="3" rx="0.5" fill="#64748b" opacity="0.5" />
   </svg>
 );
 
@@ -293,6 +390,11 @@ const CatOrange = () => (
     <rect x="42" y="100" width="6" height="12" rx="3" fill="#fdba74" />
     <rect x="52" y="100" width="6" height="12" rx="3" fill="#fdba74" />
 
+    {/* Collar & Gold Tag */}
+    <rect x="35" y="70" width="30" height="4.5" rx="2" fill="#ef4444" />
+    <circle cx="50" cy="74.5" r="3.2" fill="#f59e0b" />
+    <circle cx="50" cy="74.5" r="1.5" fill="#fef08a" />
+
     <path d="M 25 35 L 35 15 L 45 30 Z" fill="#ea580c" />
     <path d="M 28 32 L 34 20 L 40 30 Z" fill="#ffedd5" />
     <path d="M 75 35 L 65 15 L 55 30 Z" fill="#ea580c" />
@@ -302,8 +404,19 @@ const CatOrange = () => (
     <circle cx="50" cy="45" r="24" fill="#f97316" />
     
     <ellipse cx="50" cy="55" rx="12" ry="8" fill="#ffedd5" />
-    <ellipse className="deco-blink" cx="38" cy="42" rx="4" ry="5" fill="#431407" />
-    <ellipse className="deco-blink" cx="62" cy="42" rx="4" ry="5" fill="#431407" />
+    
+    {/* Eyes & Blinks with speculation points */}
+    <g className="deco-blink">
+      <ellipse cx="38" cy="42" rx="4.5" ry="5.5" fill="#431407" />
+      <circle cx="36.5" cy="40.5" r="1.2" fill="#fff" />
+      <ellipse cx="62" cy="42" rx="4.5" ry="5.5" fill="#431407" />
+      <circle cx="60.5" cy="40.5" r="1.2" fill="#fff" />
+    </g>
+    
+    {/* Rosy Cheeks */}
+    <circle cx="28" cy="48" r="3.2" fill="#fda4af" opacity="0.65" />
+    <circle cx="72" cy="48" r="3.2" fill="#fda4af" opacity="0.65" />
+
     <circle cx="50" cy="52" r="2.5" fill="#f43f5e" />
     <path d="M 45 56 Q 50 60 50 56 Q 50 60 55 56" stroke="#431407" strokeWidth="1.5" fill="none" strokeLinecap="round" />
     
@@ -311,6 +424,7 @@ const CatOrange = () => (
     <path d="M 85 45 L 70 48 M 88 52 L 72 52 M 85 59 L 70 56" stroke="#fdba74" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
   </svg>
 );
+
 const CatBlack = () => (
   <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-xl" preserveAspectRatio="xMidYMax meet">
     <ellipse cx="50" cy="115" rx="35" ry="6" fill="#000" opacity="0.3" filter="blur(2px)" />
@@ -326,6 +440,11 @@ const CatBlack = () => (
     <rect x="42" y="100" width="6" height="12" rx="3" fill="#475569" />
     <rect x="52" y="100" width="6" height="12" rx="3" fill="#475569" />
 
+    {/* Collar & Gold Tag */}
+    <rect x="35" y="70" width="30" height="4.5" rx="2" fill="#10b981" />
+    <circle cx="50" cy="74.5" r="3.2" fill="#f59e0b" />
+    <circle cx="50" cy="74.5" r="1.5" fill="#fef08a" />
+
     <path d="M 25 35 L 35 15 L 45 30 Z" fill="#0f172a" />
     <path d="M 28 32 L 34 20 L 40 30 Z" fill="#334155" />
     <path d="M 75 35 L 65 15 L 55 30 Z" fill="#0f172a" />
@@ -335,8 +454,22 @@ const CatBlack = () => (
     <circle cx="50" cy="45" r="24" fill="#1e293b" />
     
     <ellipse cx="50" cy="55" rx="12" ry="8" fill="#334155" />
-    <ellipse className="deco-blink" cx="38" cy="42" rx="5" ry="6" fill="#fde047" />
-    <ellipse className="deco-blink" cx="62" cy="42" rx="5" ry="6" fill="#fde047" />
+    
+    {/* Eyes & Blinks with speculation points */}
+    <g className="deco-blink">
+      <ellipse cx="38" cy="42" rx="5.5" ry="6.5" fill="#eab308" />
+      <circle cx="36" cy="40" r="1.5" fill="#0f172a" />
+      <circle cx="37.5" cy="38.5" r="0.8" fill="#fff" />
+      
+      <ellipse cx="62" cy="42" rx="5.5" ry="6.5" fill="#eab308" />
+      <circle cx="64" cy="40" r="1.5" fill="#0f172a" />
+      <circle cx="63.5" cy="38.5" r="0.8" fill="#fff" />
+    </g>
+    
+    {/* Rosy Cheeks */}
+    <circle cx="28" cy="48" r="3.2" fill="#fda4af" opacity="0.45" />
+    <circle cx="72" cy="48" r="3.2" fill="#fda4af" opacity="0.45" />
+
     <circle cx="50" cy="52" r="2.5" fill="#f43f5e" />
     <path d="M 45 56 Q 50 60 50 56 Q 50 60 55 56" stroke="#0f172a" strokeWidth="1.5" fill="none" strokeLinecap="round" />
     
@@ -344,6 +477,7 @@ const CatBlack = () => (
     <path d="M 85 45 L 70 48 M 88 52 L 72 52 M 85 59 L 70 56" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
   </svg>
 );
+
 const DogCorgi = () => (
   <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-xl" preserveAspectRatio="xMidYMax meet">
     <ellipse cx="50" cy="115" rx="35" ry="6" fill="#000" opacity="0.3" filter="blur(2px)" />
@@ -358,6 +492,11 @@ const DogCorgi = () => (
     <rect x="40" y="100" width="8" height="12" rx="4" fill="#fef3c7" />
     <rect x="52" y="100" width="8" height="12" rx="4" fill="#fef3c7" />
 
+    {/* Collar & Gold Tag */}
+    <rect x="34" y="72" width="32" height="4.5" rx="2" fill="#3b82f6" />
+    <circle cx="50" cy="76.5" r="3" fill="#f59e0b" />
+    <circle cx="50" cy="76.5" r="1.2" fill="#fef08a" />
+
     <path d="M 25 35 L 20 15 L 45 35 Z" fill="#d97706" />
     <path d="M 28 32 L 25 20 L 40 32 Z" fill="#fef3c7" />
     <path d="M 75 35 L 80 15 L 55 35 Z" fill="#d97706" />
@@ -367,8 +506,17 @@ const DogCorgi = () => (
     <circle cx="50" cy="45" r="24" fill="#f59e0b" />
     <path d="M 30 45 Q 50 70 70 45 Z" fill="#fff" />
     
-    <ellipse className="deco-blink" cx="40" cy="40" rx="4" ry="5" fill="#431407" />
-    <ellipse className="deco-blink" cx="60" cy="40" rx="4" ry="5" fill="#431407" />
+    {/* Eyes & Blinks with speculation points */}
+    <g className="deco-blink">
+      <ellipse cx="40" cy="40" rx="4.5" ry="5.5" fill="#431407" />
+      <circle cx="38.5" cy="38.5" r="1.2" fill="#fff" />
+      <ellipse cx="60" cy="40" rx="4.5" ry="5.5" fill="#431407" />
+      <circle cx="58.5" cy="38.5" r="1.2" fill="#fff" />
+    </g>
+
+    {/* Rosy Cheeks */}
+    <circle cx="30" cy="48" r="3.2" fill="#fda4af" opacity="0.6" />
+    <circle cx="70" cy="48" r="3.2" fill="#fda4af" opacity="0.6" />
     
     <ellipse cx="50" cy="52" rx="5" ry="3" fill="#1c1917" />
     <path d="M 45 56 Q 50 62 55 56" stroke="#431407" strokeWidth="2" fill="none" strokeLinecap="round" />
@@ -487,11 +635,29 @@ const RugRound = () => (
 );
 const RugPersian = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none">
-    <ellipse cx="50" cy="50" rx="48" ry="30" fill="#7f1d1d" />
-    <ellipse cx="50" cy="50" rx="42" ry="25" fill="none" stroke="#fbbf24" strokeWidth="2" />
-    <ellipse cx="50" cy="50" rx="24" ry="14" fill="#1e3a8a" />
-    <path d="M50 40 l6 10 -6 10 -6 -10 z" fill="#fbbf24" />
-    {[20, 80].map((x, i) => <path key={i} d={`M${x} 44 l4 6 -4 6 -4 -6 z`} fill="#fbbf24" />)}
+    {/* Base fringe (tassels) */}
+    <path d="M 2 50 L 5 50 M 95 50 L 98 50" stroke="#fef08a" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+    <path d="M 3 45 L 6 55 M 94 45 L 97 55" stroke="#fde047" strokeWidth="2" />
+    
+    {/* Main Outer Layer */}
+    <ellipse cx="50" cy="50" rx="47" ry="29" fill="#991b1b" />
+    {/* Ornate Gold Border */}
+    <ellipse cx="50" cy="50" rx="43" ry="25" fill="none" stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="3 2" />
+    
+    {/* Inside Blue Medallion Frame */}
+    <ellipse cx="50" cy="50" rx="34" ry="19" fill="#1e3a8a" />
+    
+    {/* Center Gold Crest */}
+    <ellipse cx="50" cy="50" rx="20" ry="10" fill="#dc2626" />
+    <path d="M 50 43 L 55 50 L 50 57 L 45 50 Z" fill="#fbbf24" />
+    
+    {/* Side Corner Accents */}
+    <circle cx="24" cy="50" r="3.5" fill="#f59e0b" />
+    <circle cx="76" cy="50" r="3.5" fill="#f59e0b" />
+    <circle cx="34" cy="42" r="1.5" fill="#fff" opacity="0.7" />
+    <circle cx="66" cy="42" r="1.5" fill="#fff" opacity="0.7" />
+    <circle cx="34" cy="58" r="1.5" fill="#fff" opacity="0.7" />
+    <circle cx="66" cy="58" r="1.5" fill="#fff" opacity="0.7" />
   </svg>
 );
 
@@ -499,35 +665,69 @@ const RugPersian = () => (
 const PlantFern = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <ellipse cx="50" cy="96" rx="20" ry="3.5" fill="#000" opacity=".12" />
+    
+    {/* Green Fronds with details */}
     {[-42, -21, 0, 21, 42].map((r, i) => (
-      <path key={i} d="M50 72 Q50 28 50 18" stroke={i % 2 ? "#2f9e44" : "#37b24d"} strokeWidth="7" fill="none" strokeLinecap="round" transform={`rotate(${r} 50 72)`} />
+      <g key={i} transform={`rotate(${r} 50 72)`}>
+        <path d="M50 72 Q50 28 50 18" stroke={i % 2 ? "#15803d" : "#166534"} strokeWidth="7" fill="none" strokeLinecap="round" />
+        {/* Leaf stems / ridges */}
+        <path d="M50 22 Q46 25 45 28 M50 30 Q54 33 55 36 M50 38 Q45 42 44 46 M50 48 Q55 52 56 56" stroke="#22c55e" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+      </g>
     ))}
-    <path d="M35 70 h30 l-4 26 h-22 z" fill="#c97f2c" />
-    <path d="M35 70 h30 l-1 5 h-28 z" fill="#e0a458" />
+    
+    {/* Ceramic Pot with Gold Rim Accent */}
+    <path d="M34 68 h32 l-4 28 h-24 z" fill="#eae8e6" />
+    <path d="M34 68 h32 l-1 5 h-30 z" fill="#d97706" /> {/* Terracotta gold band */}
+    <rect x="37" y="77" width="26" height="1.5" fill="#fbbf24" /> {/* Gold line details */}
   </svg>
 );
+
 const PlantMonstera = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <ellipse cx="50" cy="96" rx="22" ry="3.5" fill="#000" opacity=".12" />
+    
+    {/* Detailed Monstera Leaves */}
     {[[-24, .82], [0, 1], [24, .82]].map(([r, s], i) => (
       <g key={i} transform={`rotate(${r} 50 70) scale(${s})`} style={{ transformOrigin: "50px 70px" }}>
-        <ellipse cx="50" cy="38" rx="16" ry="22" fill="#2f9e44" />
-        <path d="M50 22 v34 M42 32 h8 M50 44 h8 M42 48 h8" stroke="#166534" strokeWidth="2" />
+        <ellipse cx="50" cy="38" rx="16" ry="22" fill="#166534" />
+        {/* Monstera leaf slits (punched holes) */}
+        <path d="M 38 28 Q 50 38 42 38 M 62 28 Q 50 38 58 38 M 36 44 Q 50 48 42 48 M 64 44 Q 50 48 58 48" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" />
+        <ellipse cx="50" cy="38" rx="15" ry="21" fill="#15803d" />
+        {/* Veins */}
+        <path d="M50 22 v34 M42 32 Q48 34 50 35 M50 44 Q54 46 58 48 M42 48 Q48 50 50 51" stroke="#22c55e" strokeWidth="1.5" />
       </g>
     ))}
-    <path d="M37 68 h26 l-4 28 h-18 z" fill="#d97706" />
-    <path d="M37 68 h26 l-1 5 h-24 z" fill="#f59e0b" />
+    
+    {/* Ceramic Pot */}
+    <path d="M37 68 h26 l-4 28 h-18 z" fill="#f8fafc" />
+    <path d="M37 68 h26 l-1 5 h-24 z" fill="#64748b" />
+    <circle cx="50" cy="80" r="3.5" fill="#3b82f6" opacity="0.3" /> {/* Brand icon on pot */}
   </svg>
 );
+
 const PlantCactus = () => (
   <svg viewBox="0 0 100 100" className="w-full h-full">
     <ellipse cx="50" cy="96" rx="18" ry="3.5" fill="#000" opacity=".12" />
-    <rect x="40" y="32" width="20" height="44" rx="10" fill="#40a02b" />
-    <rect x="24" y="46" width="12" height="20" rx="6" fill="#40a02b" />
-    <rect x="64" y="40" width="12" height="24" rx="6" fill="#40a02b" />
-    <circle cx="50" cy="34" r="4" fill="#f9a8d4" />
-    <path d="M34 76 h32 l-3 20 h-26 z" fill="#ea580c" />
-    <path d="M34 76 h32 l-1 5 h-30 z" fill="#fb923c" />
+    
+    {/* Main Cactus Body */}
+    <rect x="40" y="32" width="20" height="44" rx="10" fill="#15803d" />
+    <rect x="24" y="46" width="12" height="20" rx="6" fill="#166534" />
+    <rect x="64" y="40" width="12" height="24" rx="6" fill="#166534" />
+    
+    {/* Cactus Needles / Ribs */}
+    <path d="M 45 38 L 45 70 M 50 36 L 50 72 M 55 38 L 55 70" stroke="#22c55e" strokeWidth="1" strokeLinecap="round" strokeDasharray="1 3" />
+    <path d="M 28 50 L 28 62" stroke="#4ade80" strokeWidth="1" strokeDasharray="1 2" />
+    <path d="M 70 44 L 70 60" stroke="#4ade80" strokeWidth="1" strokeDasharray="1 2" />
+    
+    {/* Pink Flowers */}
+    <circle cx="50" cy="32" r="4.5" fill="#f43f5e" />
+    <circle cx="50" cy="32" r="2.5" fill="#fda4af" />
+    <circle cx="28" cy="45" r="2.5" fill="#f43f5e" />
+    <circle cx="70" cy="39" r="3" fill="#f43f5e" />
+    
+    {/* Clay Terracotta Pot */}
+    <path d="M34 74 h32 l-3 22 h-26 z" fill="#c2410c" />
+    <path d="M32 74 h36 l-1 5 h-34 z" fill="#ea580c" />
   </svg>
 );
 
@@ -623,6 +823,26 @@ const SCENE_CSS = `
 @keyframes decoBlink { 0%,92%,100%{transform:scaleY(1)} 96%{transform:scaleY(.1)} }
 @keyframes decoGlow { 0%,100%{opacity:.35} 50%{opacity:.7} }
 .deco-blink{transform-box:fill-box;transform-origin:center;animation:decoBlink 4.5s infinite}
+
+@keyframes driftUp {
+  0% { transform: translateY(0) scale(0.85); opacity: 0; }
+  15% { opacity: 0.6; }
+  85% { opacity: 0.2; }
+  100% { transform: translateY(-28px) scale(1.1); opacity: 0; }
+}
+@keyframes sway {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+@keyframes sweepBroom {
+  0%, 100% { transform: rotate(-22deg) translate(0, 0); }
+  50% { transform: rotate(18deg) translate(-14px, 5px); }
+}
+@keyframes sparkleScale {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+  100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
 `;
 
 const FLOOR_TOP = 60;
@@ -652,6 +872,10 @@ function Draggable({ slot, itemId, left, bottom, width, height, zIndex, position
     const startY = e.clientY;
     let hasMoved = false;
 
+    if (elementRef.current) {
+      elementRef.current.style.animation = 'none';
+    }
+
     const onPointerMove = (moveEvent) => {
       const mx = moveEvent.clientX - startX;
       const my = moveEvent.clientY - startY;
@@ -664,6 +888,7 @@ function Draggable({ slot, itemId, left, bottom, width, height, zIndex, position
         elementRef.current.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
         elementRef.current.style.zIndex = '999';
         elementRef.current.style.transition = 'none';
+        elementRef.current.style.animation = 'none';
       }
     };
 
@@ -688,9 +913,26 @@ function Draggable({ slot, itemId, left, bottom, width, height, zIndex, position
           const rect = parent.getBoundingClientRect();
           const dxPct = (mx / rect.width) * 100;
           const dyPct = (my / rect.height) * 100;
+          
+          let nextLeft = currentLeft + dxPct;
+          let nextBottom = currentBottom + dyPct;
+          
+          // Clamp horizontally (allowing small overhang, e.g. 5%)
+          const aspect = width / height;
+          const pxWidth = rect.height * (height / 100) * aspect;
+          const pctWidth = (pxWidth / rect.width) * 100;
+          const minL = -5;
+          const maxL = 105 - pctWidth;
+          nextLeft = Math.max(minL, Math.min(maxL, nextLeft));
+          
+          // Clamp vertically
+          const minB = height - 5;
+          const maxB = 105;
+          nextBottom = Math.max(minB, Math.min(maxB, nextBottom));
+          
           onPositionChange?.(slot, {
-            left: currentLeft + dxPct,
-            bottom: currentBottom + dyPct
+            left: nextLeft,
+            bottom: nextBottom
           });
         }
       } else {
@@ -711,8 +953,9 @@ function Draggable({ slot, itemId, left, bottom, width, height, zIndex, position
       style={{
         left: `${currentLeft}%`,
         bottom: `${100 - currentBottom}%`,
-        width: `${width}%`,
         height: `${height}%`,
+        width: 'auto',
+        aspectRatio: `${width} / ${height}`,
         zIndex,
         filter,
         touchAction: interactive ? 'none' : 'auto',
@@ -724,10 +967,49 @@ function Draggable({ slot, itemId, left, bottom, width, height, zIndex, position
   );
 }
 
-export function DecoRoomScene({ room = {}, interactive = false, onItemClick, onPositionChange, className = "" }) {
+export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, onCleanSuccess, onItemClick, onPositionChange, className = "", zoom }) {
   const items = room.items || {};
   const positions = room.positions || {};
   const night = isNightRoom(items);
+
+  const isDirty = React.useMemo(() => {
+    if (!lastCleanedAt) return false;
+    const last = new Date(lastCleanedAt).getTime();
+    return Date.now() - last >= 12 * 60 * 60 * 1000;
+  }, [lastCleanedAt]);
+
+  const [cleanState, setCleanState] = React.useState('clean'); // 'dirty', 'sweeping', 'sparkling', 'clean'
+  const [isCleaning, setIsCleaning] = React.useState(false);
+
+  React.useEffect(() => {
+    setCleanState(isDirty ? 'dirty' : 'clean');
+  }, [isDirty]);
+
+  const startCleaning = async (e) => {
+    e.stopPropagation();
+    if (cleanState !== 'dirty' || isCleaning || !interactive || !onCleanSuccess) return;
+    setIsCleaning(true);
+    setCleanState('sweeping');
+
+    try {
+      const res = await fetch('/api/deco/clean', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setTimeout(() => {
+        setCleanState('sparkling');
+        onCleanSuccess?.(data.balance, data.lastCleanedAt);
+        setIsCleaning(false);
+      }, 1500);
+    } catch (err) {
+      alert(err.message || 'Lỗi quét dọn rác');
+      setCleanState('dirty');
+      setIsCleaning(false);
+    }
+  };
   
   const wallKey = room.wallColor || (night ? "#2a2440" : "#f4f4f5");
   const wallMap = {
@@ -765,42 +1047,162 @@ export function DecoRoomScene({ room = {}, interactive = false, onItemClick, onP
     <div id="room-scene-container" className={`relative w-full h-full overflow-hidden select-none ${className}`}>
       <style>{SCENE_CSS}</style>
 
-      <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${wall}, ${shade(wall, night ? -8 : -6)})` }}>
-        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
-      </div>
+      <div 
+        className="w-full h-full relative" 
+        style={zoom ? {
+          transform: `scale(${zoom})`,
+          transformOrigin: 'top left',
+          width: `${100 / zoom}%`,
+          height: `${100 / zoom}%`
+        } : undefined}
+      >
+        <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${wall}, ${shade(wall, night ? -8 : -6)})` }}>
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
+        </div>
 
-      {items.window && <Draggable slot="window" itemId={items.window} left={66} width={26} bottom={52} height={44} className="drop-shadow-md" {...dragProps} />}
-      {items.poster && <Draggable slot="poster" itemId={items.poster} left={7} width={14} bottom={50} height={40} className="drop-shadow-md" {...dragProps} />}
+        {items.window && <Draggable slot="window" itemId={items.window} left={66} width={26} bottom={52} height={44} className="drop-shadow-md" {...dragProps} />}
+        {items.poster && <Draggable slot="poster" itemId={items.poster} left={7} width={14} bottom={50} height={40} className="drop-shadow-md" {...dragProps} />}
 
-      {items.lamp && (
-        <div className="absolute pointer-events-none" style={{ bottom: "16%", left: "2%", width: "42%", height: "56%", background: "radial-gradient(circle at 28% 55%, rgba(255,224,150,.5), transparent 62%)", animation: "decoGlow 3.5s ease-in-out infinite" }} />
-      )}
-
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: `${100 - FLOOR_TOP}%`, backgroundImage: floorTint, backgroundSize: room.floorStyle === "tile_checker" ? "44px 44px" : undefined }}>
-        <div className="absolute top-0 left-0 right-0 h-[5px] bg-black/15" />
-        {!room.floorStyle?.startsWith("tile") && (
-          <div className="absolute inset-0 opacity-[0.13]" style={{ backgroundImage: "linear-gradient(90deg,transparent 48%,#000 50%,transparent 52%)", backgroundSize: "46px 100%" }} />
+        {items.lamp && (
+          <div className="absolute pointer-events-none" style={{ bottom: "16%", left: "2%", width: "42%", height: "56%", background: "radial-gradient(circle at 28% 55%, rgba(255,224,150,.5), transparent 62%)", animation: "decoGlow 3.5s ease-in-out infinite" }} />
         )}
+
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: `${100 - FLOOR_TOP}%`, backgroundImage: floorTint, backgroundSize: room.floorStyle === "tile_checker" ? "44px 44px" : undefined }}>
+          <div className="absolute top-0 left-0 right-0 h-[5px] bg-black/15" />
+          {!room.floorStyle?.startsWith("tile") && (
+            <div className="absolute inset-0 opacity-[0.13]" style={{ backgroundImage: "linear-gradient(90deg,transparent 48%,#000 50%,transparent 52%)", backgroundSize: "46px 100%" }} />
+          )}
+        </div>
+
+        {items.rug && <Draggable slot="rug" itemId={items.rug} left={18} width={64} bottom={88} height={20} zIndex={1} filter="drop-shadow(0 4px 6px rgba(0,0,0,.15))" {...dragProps} />}
+        {items.lamp && <Draggable slot="lamp" itemId={items.lamp} left={28} width={12} bottom={63} height={25} extra={{ animation: "decoFloat 6s ease-in-out infinite" }} zIndex={6} filter="drop-shadow(0 15px 15px rgba(0,0,0,.3))" {...dragProps} />}
+        {items.plant && <Draggable slot="plant" itemId={items.plant} left={76} width={22} bottom={92} height={36} zIndex={8} filter="drop-shadow(0 12px 10px rgba(0,0,0,.25))" {...dragProps} />}
+        {items.desk && <Draggable slot="desk" itemId={items.desk} left={DESK_LEFT} width={DESK_WIDTH} bottom={DESK_BOTTOM} height={DESK_HEIGHT} zIndex={10} filter="drop-shadow(0 15px 12px rgba(0,0,0,.4))" {...dragProps} />}
+
+        {items.computer && (
+          <Draggable slot="computer" itemId={items.computer} left={DESK_CX - 12} width={24} bottom={SURFACE_Y + 1} height={22} zIndex={12} filter="drop-shadow(0 8px 8px rgba(0,0,0,.2))" onClick={() => interactive && onItemClick?.("computer")} {...dragProps} />
+        )}
+
+        {items.chair && (
+          <Draggable slot="chair" itemId={items.chair} left={18} width={28} bottom={96} height={46} zIndex={20} filter="drop-shadow(0 18px 15px rgba(0,0,0,.5))" className="transition-transform hover:-translate-y-1 hover:scale-105 duration-300" {...dragProps} />
+        )}
+
+        {items.pet && (
+          <Draggable slot="pet" itemId={items.pet} left={68} width={20} bottom={97} height={30} zIndex={30} filter="drop-shadow(0 12px 10px rgba(0,0,0,.3))" extra={{ animation: petHop ? "decoHop .7s ease" : "decoFloat 4s ease-in-out infinite" }} onClick={clickPet} {...dragProps} />
+        )}
+
+        {/* Trash & Cleaning Elements */}
+        {cleanState !== 'clean' && (
+          <div 
+            onClick={startCleaning}
+            className={`absolute z-[25] group transition-all duration-300 ${interactive && cleanState === 'dirty' ? 'cursor-pointer hover:scale-105' : 'pointer-events-none'}`}
+            style={{
+              bottom: '8%',
+              left: '52%',
+              width: '85px',
+              height: '80px',
+            }}
+          >
+            {/* Smelly green fumes (only when dirty) */}
+            {cleanState === 'dirty' && (
+              <div className="absolute inset-0 pointer-events-none overflow-visible">
+                <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+                  {/* Fume 1 */}
+                  <path d="M 30,50 Q 20,30 30,10" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" opacity="0.6"
+                    style={{ animation: 'driftUp 2.8s ease-in-out infinite, sway 1.8s ease-in-out infinite' }} />
+                  {/* Fume 2 */}
+                  <path d="M 50,55 Q 60,35 45,15" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" opacity="0.5"
+                    style={{ animation: 'driftUp 3.2s ease-in-out infinite 0.6s, sway 2.2s ease-in-out infinite 0.3s' }} />
+                  {/* Fume 3 */}
+                  <path d="M 70,50 Q 60,32 75,12" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" opacity="0.65"
+                    style={{ animation: 'driftUp 2.5s ease-in-out infinite 1.2s, sway 1.5s ease-in-out infinite 0.8s' }} />
+                </svg>
+              </div>
+            )}
+
+            {/* Trash Pile SVG (fades out when sweeping/clean) */}
+            {(cleanState === 'dirty' || cleanState === 'sweeping') && (
+              <div className={`w-full h-full transition-opacity duration-500 ${cleanState === 'sweeping' ? 'opacity-40 scale-90' : 'opacity-100'}`}>
+                <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-md">
+                  {/* Crumpled paper balls */}
+                  <path d="M 25,65 Q 18,52 32,54 Z" fill="#e4e4e7" stroke="#a1a1aa" strokeWidth="1" />
+                  <path d="M 55,68 Q 62,56 70,62 Z" fill="#d4d4d8" stroke="#71717a" strokeWidth="1" />
+                  {/* Banana peel */}
+                  <path d="M 35,62 C 30,64 22,60 18,65 C 28,68 35,65 35,62 Z" fill="#facc15" />
+                  <path d="M 35,62 C 38,58 42,55 50,60 C 45,63 38,64 35,62 Z" fill="#eab308" />
+                  <path d="M 38,58 C 30,55 35,50 36,46 C 40,49 42,54 38,58 Z" fill="#facc15" />
+                  <circle cx="28" cy="61" r="1" fill="#713f12" />
+                  <circle cx="43" cy="57" r="1.2" fill="#713f12" />
+                  {/* Apple core */}
+                  <path d="M 46,65 L 52,65 Q 49,60 49,54 L 47,54 Q 47,60 46,65 Z" fill="#fafafa" stroke="#d4d4d8" strokeWidth="0.5" />
+                  <path d="M 45,54 Q 49,51 53,54 L 45,54" fill="#b91c1c" />
+                  <path d="M 45,65 Q 49,68 53,65 L 45,65" fill="#b91c1c" />
+                  <path d="M 49,51 Q 50,45 52,43" fill="none" stroke="#78350f" strokeWidth="1.5" />
+                  {/* Dust dots */}
+                  <circle cx="15" cy="70" r="1.5" fill="#71717a" />
+                  <circle cx="75" cy="68" r="2.2" fill="#52525b" />
+                  <circle cx="82" cy="72" r="1" fill="#3f3f46" />
+                </svg>
+              </div>
+            )}
+
+            {/* Sweep Broom SVG (only when sweeping) */}
+            {cleanState === 'sweeping' && (
+              <div 
+                className="absolute inset-0 pointer-events-none origin-bottom-right"
+                style={{
+                  width: '80px',
+                  height: '110px',
+                  bottom: '15px',
+                  right: '-15px',
+                  animation: 'sweepBroom 0.5s ease-in-out infinite'
+                }}
+              >
+                <svg viewBox="0 0 80 120" className="w-full h-full drop-shadow-lg">
+                  {/* Wood Handle */}
+                  <rect x="36" y="5" width="6" height="75" rx="3" fill="#b45309" stroke="#78350f" strokeWidth="1" />
+                  {/* Handle Grip tip */}
+                  <path d="M 36,15 L 42,15 L 42,5 A 3,3 0 0,0 36,5 Z" fill="#78350f" />
+                  {/* Gold bristle holder */}
+                  <path d="M 24,80 L 54,80 L 58,95 L 20,95 Z" fill="#eab308" stroke="#ca8a04" strokeWidth="1.2" />
+                  {/* Bristles */}
+                  <path d="M 20,95 Q 6,118 12,120 Q 39,112 70,118 Q 72,114 58,95 Z" fill="#fef08a" stroke="#ca8a04" strokeWidth="1" />
+                  {/* Bristle texture lines */}
+                  <path d="M 28,95 L 22,112" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
+                  <path d="M 38,95 L 39,114" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
+                  <path d="M 48,95 L 56,112" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
+                </svg>
+              </div>
+            )}
+
+            {/* Sparkle Clean Effect (only when sparkling) */}
+            {cleanState === 'sparkling' && (
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+                  {/* Sparkle Star 1 */}
+                  <path d="M 50,20 Q 50,40 30,40 Q 50,40 50,60 Q 50,40 70,40 Q 50,40 50,20" fill="#facc15"
+                    style={{ transformOrigin: 'center', animation: 'sparkleScale 1s ease-in-out forwards' }} />
+                  {/* Sparkle Star 2 */}
+                  <path d="M 25,45 Q 25,55 15,55 Q 25,55 25,65 Q 25,55 35,55 Q 25,55 25,45" fill="#facc15"
+                    style={{ transformOrigin: 'center', animation: 'sparkleScale 0.8s ease-in-out forwards 0.2s' }} />
+                  {/* Sparkle Star 3 */}
+                  <path d="M 75,55 Q 75,65 65,65 Q 75,65 75,75 Q 75,65 85,65 Q 75,65 75,55" fill="#facc15"
+                    style={{ transformOrigin: 'center', animation: 'sparkleScale 0.9s ease-in-out forwards 0.1s' }} />
+                </svg>
+              </div>
+            )}
+
+            {/* Tooltip text when dirty and interactive */}
+            {interactive && cleanState === 'dirty' && (
+              <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-zinc-950/85 backdrop-blur-sm text-white px-2.5 py-1 rounded-xl text-[9px] font-black tracking-wide whitespace-nowrap border border-zinc-800 shadow-xl opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity pointer-events-none">
+                🧹 Quét rác dọn phòng (+5 JOY)
+              </div>
+            )}
+          </div>
+        )}
+
+        {night && <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 70% 22%, rgba(120,120,255,.10), rgba(10,8,30,.42) 92%)" }} />}
       </div>
-
-      {items.rug && <Draggable slot="rug" itemId={items.rug} left={18} width={64} bottom={88} height={20} zIndex={1} filter="drop-shadow(0 4px 6px rgba(0,0,0,.15))" {...dragProps} />}
-      {items.lamp && <Draggable slot="lamp" itemId={items.lamp} left={2} width={18} bottom={92} height={48} extra={{ animation: "decoFloat 6s ease-in-out infinite" }} zIndex={6} filter="drop-shadow(0 15px 15px rgba(0,0,0,.3))" {...dragProps} />}
-      {items.plant && <Draggable slot="plant" itemId={items.plant} left={76} width={22} bottom={92} height={36} zIndex={8} filter="drop-shadow(0 12px 10px rgba(0,0,0,.25))" {...dragProps} />}
-      {items.desk && <Draggable slot="desk" itemId={items.desk} left={DESK_LEFT} width={DESK_WIDTH} bottom={DESK_BOTTOM} height={DESK_HEIGHT} zIndex={10} filter="drop-shadow(0 15px 12px rgba(0,0,0,.4))" {...dragProps} />}
-
-      {items.computer && (
-        <Draggable slot="computer" itemId={items.computer} left={DESK_CX - 12} width={24} bottom={SURFACE_Y + 1} height={22} zIndex={12} filter="drop-shadow(0 8px 8px rgba(0,0,0,.2))" onClick={() => interactive && onItemClick?.("computer")} {...dragProps} />
-      )}
-
-      {items.chair && (
-        <Draggable slot="chair" itemId={items.chair} left={18} width={28} bottom={96} height={46} zIndex={20} filter="drop-shadow(0 18px 15px rgba(0,0,0,.5))" className="transition-transform hover:-translate-y-1 hover:scale-105 duration-300" {...dragProps} />
-      )}
-
-      {items.pet && (
-        <Draggable slot="pet" itemId={items.pet} left={68} width={20} bottom={97} height={30} zIndex={30} filter="drop-shadow(0 12px 10px rgba(0,0,0,.3))" extra={{ animation: petHop ? "decoHop .7s ease" : "decoFloat 4s ease-in-out infinite" }} onClick={clickPet} {...dragProps} />
-      )}
-
-      {night && <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 70% 22%, rgba(120,120,255,.10), rgba(10,8,30,.42) 92%)" }} />}
     </div>
   );
 }

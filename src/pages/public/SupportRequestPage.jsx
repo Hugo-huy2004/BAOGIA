@@ -12,17 +12,20 @@ const SupportRequestPage = () => {
     canonicalUrl: "https://www.hugowishpax.studio/support-request"
   });
 
+  // Hooks that other initializers read from MUST come first — `issue`'s
+  // useState below reads location.state, so declaring location after it was a
+  // TDZ crash in the production bundle ("Cannot access 'S' before initialization").
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [issue, setIssue] = useState(location.state?.prefilledMessage || '');
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const session = getMemberSession();
   const isValidAccess = session && location.state?.fromBot;

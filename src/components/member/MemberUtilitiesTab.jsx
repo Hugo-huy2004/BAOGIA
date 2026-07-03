@@ -35,7 +35,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <TabFallbackSkeleton />;
 
-  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "ide" || selectedUtility === "arcade";
+  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "ide" || selectedUtility === "arcade" || selectedUtility === "deco";
 
   return (
     <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden" : "space-y-6 animate-fadeIn"}>

@@ -2,6 +2,7 @@ import express from 'express';
 import Bio from '../models/Bio.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 import { awardJoy } from '../utils/joyService.js';
+import { checkAndResetDecoRoom } from '../utils/decoHelper.js';
 
 const router = express.Router();
 
@@ -72,10 +73,16 @@ router.get('/store', requireMember, async (req, res) => {
     
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
 
+    await checkAndResetDecoRoom(bio);
+
     res.json({
       store: DECO_STORE,
       unlockedItems: bio.decoRoom?.unlockedItems || [],
-      balance: bio.joyBalance || 0
+      expiresAt: bio.decoRoom?.expiresAt || null,
+      visitedRooms: bio.decoRoom?.visitedRooms || [],
+      lastCleanedAt: bio.decoRoom?.lastCleanedAt || null,
+      balance: bio.joyBalance || 0,
+      email: bio.email
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -162,8 +169,28 @@ router.post('/save', requireMember, async (req, res) => {
     }
 
     bio.decoRoom.enabled = !!enabled;
-    if (wallColor) bio.decoRoom.wallColor = wallColor;
-    if (floorStyle) bio.decoRoom.floorStyle = floorStyle;
+    if (wallColor) {
+      if (wallColor.startsWith('#')) {
+        bio.decoRoom.wallColor = wallColor;
+      } else {
+        const wallDef = DECO_STORE[wallColor];
+        if (wallDef && (wallDef.price === 0 || unlocked.includes(wallColor))) {
+          bio.decoRoom.wallColor = wallColor;
+        } else {
+          return res.status(400).json({ error: 'Bạn chưa sở hữu màu tường này.' });
+        }
+      }
+    }
+    if (floorStyle) {
+      const floorDef = DECO_STORE[floorStyle];
+      if (floorDef && (floorDef.price === 0 || unlocked.includes(floorStyle))) {
+        bio.decoRoom.floorStyle = floorStyle;
+      } else if (['wood_basic', 'wood_dark', 'tile_white', 'tile_checker'].includes(floorStyle)) {
+        bio.decoRoom.floorStyle = floorStyle;
+      } else {
+        return res.status(400).json({ error: 'Bạn chưa sở hữu kiểu sàn này.' });
+      }
+    }
     
     // Merge cleanItems properly without spreading mongoose subdocument
     if (cleanItems) {
@@ -192,9 +219,18 @@ router.post('/save', requireMember, async (req, res) => {
 // GET /api/deco/neighborhood - Fetch a random list of enabled Deco Rooms
 router.get('/neighborhood', requireMember, async (req, res) => {
   try {
-    // Fetch users with decoRoom.enabled = true
+    // 7-day grace period from the time of expiration
+    const graceDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    // Fetch users with decoRoom.enabled = true AND active subscription (including grace period)
     const neighbors = await Bio.aggregate([
-      { $match: { "decoRoom.enabled": true, status: "active" } },
+      { 
+        $match: { 
+          "decoRoom.enabled": true, 
+          status: "active",
+          "decoRoom.expiresAt": { $gte: graceDate }
+        } 
+      },
       { $sample: { size: 20 } },
       { $project: { slug: 1, displayName: 1, avatarUrl: 1, decoRoom: 1 } }
     ]);
@@ -236,8 +272,8 @@ router.post('/tip', requireMember, async (req, res) => {
     }
 
     const numAmount = Number(amount);
-    if (!Number.isInteger(numAmount) || numAmount < 10) {
-      return res.status(400).json({ error: 'Số tiền Tip tối thiểu là 10 JOY.' });
+    if (!Number.isInteger(numAmount) || numAmount < 10 || numAmount > 100) {
+      return res.status(400).json({ error: 'Số tiền Tip (bonus) phải nằm trong khoảng từ 10 - 100 JOY.' });
     }
 
     const sender = await Bio.findOne({ email: fromEmail });
@@ -281,6 +317,181 @@ router.post('/tip', requireMember, async (req, res) => {
     ]);
 
     res.json({ success: true, balance: senderResult.balance });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// POST /api/deco/rent - Rent or extend subscription for HugoHome (with flexible schemes)
+router.post('/rent', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
+
+    let { plan, days } = req.body || {};
+    if (!plan) plan = 'monthly'; // default to monthly for legacy requests
+
+    let durationDays = 30;
+    let basePrice = 299;
+    let creatorFee = 30;
+
+    if (plan === 'daily') {
+      const numDays = Math.floor(Number(days));
+      if (isNaN(numDays) || numDays < 1) {
+        return res.status(400).json({ error: 'Số ngày thuê không hợp lệ.' });
+      }
+      durationDays = numDays;
+      basePrice = durationDays * 15;
+      creatorFee = Math.ceil(basePrice * 0.1);
+    } else if (plan === 'monthly') {
+      durationDays = 30;
+      basePrice = 299;
+      creatorFee = 30;
+    } else if (plan === 'long') {
+      durationDays = 180;
+      basePrice = 1500;
+      creatorFee = 150;
+    } else {
+      return res.status(400).json({ error: 'Gói thuê bao không hợp lệ.' });
+    }
+
+    const totalPrice = basePrice + creatorFee;
+
+    if (bio.joyBalance < totalPrice) {
+      return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${totalPrice} JOY để thanh toán gói thuê bao.` });
+    }
+
+    // Deduct total JOY
+    const { balance } = await awardJoy(
+      bio.email,
+      -totalPrice,
+      'deco_rent',
+      `Thuê bao/Gia hạn KTX HugoHome: ${plan === 'daily' ? `${durationDays} ngày` : plan === 'monthly' ? '1 tháng' : '6 tháng'} (Giá: ${basePrice} JOY, Phí sáng tạo: ${creatorFee} JOY)`,
+      { bioDoc: bio, skipSave: true }
+    );
+
+    // Update expiresAt
+    const now = new Date();
+    let currentExpires = bio.decoRoom?.expiresAt ? new Date(bio.decoRoom.expiresAt) : null;
+    const durationMs = durationDays * 24 * 60 * 60 * 1000;
+
+    if (!currentExpires || currentExpires < now) {
+      bio.decoRoom.expiresAt = new Date(now.getTime() + durationMs);
+    } else {
+      bio.decoRoom.expiresAt = new Date(currentExpires.getTime() + durationMs);
+    }
+
+    bio.markModified('decoRoom.expiresAt');
+    await bio.save();
+
+    res.json({ success: true, balance: bio.joyBalance, expiresAt: bio.decoRoom.expiresAt });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// POST /api/deco/visit - Buy entrance ticket to visit another user's room (10 JOY)
+router.post('/visit', requireMember, async (req, res) => {
+  try {
+    const { targetSlug } = req.body;
+    const visitorEmail = req.memberEmail;
+
+    if (!targetSlug) return res.status(400).json({ error: 'Thiếu mã phòng (targetSlug).' });
+
+    const visitor = await Bio.findOne({ email: visitorEmail });
+    if (!visitor) return res.status(404).json({ error: 'Không tìm thấy tài khoản người viếng thăm.' });
+
+    const host = await Bio.findOne({ slug: targetSlug });
+    if (!host) return res.status(404).json({ error: 'Không tìm thấy phòng ký túc xá.' });
+
+    if (visitor.email === host.email) {
+      return res.status(400).json({ error: 'Bạn không cần mua vé vào phòng của chính mình.' });
+    }
+
+    // Make sure visitedRooms array exists
+    if (!visitor.decoRoom) visitor.decoRoom = {};
+    if (!visitor.decoRoom.visitedRooms) visitor.decoRoom.visitedRooms = [];
+
+    // If already paid to visit, return success immediately
+    if (visitor.decoRoom.visitedRooms.includes(targetSlug)) {
+      return res.json({ success: true, balance: visitor.joyBalance, visitedRooms: visitor.decoRoom.visitedRooms });
+    }
+
+    const ticketPrice = 10;
+    if (visitor.joyBalance < ticketPrice) {
+      return res.status(400).json({ error: `Số dư JOY không đủ mua vé. Vé vào cổng là ${ticketPrice} JOY.` });
+    }
+
+    const txCode = `VST${Date.now().toString(36).toUpperCase()}`;
+
+    // Execute transfer: visitor -> host
+    const [visitorResult] = await Promise.all([
+      awardJoy(
+        visitor.email, -ticketPrice, 'deco_visit_sent',
+        `Mua vé tham quan KTX của ${host.displayName} (-${ticketPrice} JOY). Mã GD: ${txCode}.`,
+        { refId: txCode, bioDoc: visitor, skipSave: true }
+      ),
+      awardJoy(
+        host.email, ticketPrice, 'deco_visit_received',
+        `${visitor.displayName || 'Một người bạn'} đã mua vé ghé thăm phòng của bạn (+${ticketPrice} JOY). Mã GD: ${txCode}.`,
+        {
+          refId: txCode,
+          bioDoc: host,
+          notificationTitle: 'Khách mua vé tham quan',
+          notificationMessage: `${visitor.displayName || 'Một người bạn'} đã mua vé 10 JOY để tham quan phòng bạn!`,
+          pushNotify: true,
+          pushTitle: 'Khách mua vé tham quan',
+          pushBody: `${visitor.displayName || 'Một người bạn'} đã ghé thăm phòng bạn!`,
+          actionUrl: '/member/joy'
+        }
+      )
+    ]);
+
+    visitor.decoRoom.visitedRooms.push(targetSlug);
+    visitor.markModified('decoRoom.visitedRooms');
+    await visitor.save();
+
+    res.json({ success: true, balance: visitorResult.balance, visitedRooms: visitor.decoRoom.visitedRooms });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// POST /api/deco/clean - Sweep trash and get 5 JOY reward (12h cooldown)
+router.post('/clean', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
+
+    const now = new Date();
+    const lastCleaned = bio.decoRoom?.lastCleanedAt ? new Date(bio.decoRoom.lastCleanedAt) : new Date(0);
+
+    const minInterval = 12 * 60 * 60 * 1000; // 12 hours
+    if (now.getTime() - lastCleaned.getTime() < minInterval) {
+      const waitMs = minInterval - (now.getTime() - lastCleaned.getTime());
+      const waitHours = Math.ceil(waitMs / (60 * 60 * 1000));
+      return res.status(400).json({ error: `Phòng KTX đã sạch sẽ! Hãy quay lại quét rác sau ${waitHours} giờ nữa.` });
+    }
+
+    // Award 5 JOY
+    const cleanReward = 5;
+    const { balance } = await awardJoy(
+      bio.email,
+      cleanReward,
+      'deco_clean',
+      'Phần thưởng quét dọn rác KTX HugoHome (+5 JOY)',
+      { bioDoc: bio, skipSave: true }
+    );
+
+    bio.decoRoom.lastCleanedAt = now;
+    bio.markModified('decoRoom.lastCleanedAt');
+    await bio.save();
+
+    res.json({ success: true, balance: bio.joyBalance, lastCleanedAt: bio.decoRoom.lastCleanedAt });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

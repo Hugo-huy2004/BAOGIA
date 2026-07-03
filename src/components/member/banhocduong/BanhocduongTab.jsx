@@ -14,6 +14,7 @@ import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTime
 import { useIsMobile } from "../../../hooks/useIsMobile";
 import { HugoConfirmNotice } from "../../shared/HugoNotice";
 import { DEFAULT_HOTLINES } from "./constants/hotlines";
+import EmergencySiren from "./EmergencySiren";
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
@@ -55,9 +56,69 @@ function cacheCompanionSnapshot(db = {}) {
 // spike). Always lists the national free hotlines (see hotlines.js) — these are
 // established and universally correct, so unlike a site-specific number they're
 // safe to show unconditionally. An admin-set VITE_CRISIS_HOTLINE is added on top.
-function CrisisBanner({ flag, onResolve, onTalkNow }) {
+function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }) {
   const { t } = useTranslation();
   const adminHotline = import.meta.env.VITE_CRISIS_HOTLINE || "";
+
+  // Popup mode for the fullscreen mobile chat: a centered modal over a dimmed
+  // backdrop — never clipped by the notch/Dynamic Island, doesn't eat chat
+  // space, and can be temporarily dismissed (X) without resolving the flag.
+  if (compact) {
+    return (
+      <div className="fixed inset-0 z-[300] flex items-center justify-center p-5 bg-black/55 backdrop-blur-sm animate-fadeIn">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="relative w-full max-w-sm rounded-3xl border border-rose-300/60 dark:border-rose-800/50 bg-white dark:bg-zinc-950 shadow-2xl p-5 space-y-4"
+        >
+          <button type="button" onClick={onDismiss}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 flex items-center justify-center active:scale-95 transition-transform"
+            aria-label="Đóng tạm thời">
+            <span className="material-symbols-outlined text-[18px]">close</span>
+          </button>
+
+          <div className="flex flex-col items-center text-center gap-2 pt-1">
+            <span className="w-14 h-14 rounded-full bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center">
+              <span className="material-symbols-outlined text-rose-500 text-[30px]" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
+            </span>
+            <p className="text-base font-black text-rose-700 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
+            <p className="text-[12px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              {t("companion.crisis.descShort", "Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc liên hệ người thân đáng tin cậy.")}
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            {DEFAULT_HOTLINES.map((h) => (
+              <a key={h.number} href={`tel:${h.number}`}
+                className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 active:scale-[0.98] transition-transform">
+                <span className="text-[11px] font-bold text-rose-700 dark:text-rose-300">{h.label}</span>
+                <span className="flex items-center gap-1 text-[12px] font-black text-rose-600 dark:text-rose-400">
+                  <span className="material-symbols-outlined text-[14px]">call</span>{h.display || h.number}
+                </span>
+              </a>
+            ))}
+            {adminHotline && (
+              <a href={`tel:${adminHotline}`}
+                className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 active:scale-[0.98] transition-transform">
+                <span className="text-[11px] font-bold text-rose-700 dark:text-rose-300">{t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}</span>
+                <span className="flex items-center gap-1 text-[12px] font-black text-rose-600 dark:text-rose-400">
+                  <span className="material-symbols-outlined text-[14px]">call</span>{adminHotline}
+                </span>
+              </a>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <EmergencySiren />
+            <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
+              className="flex-1 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[11px] font-bold transition-all active:scale-[0.98]">
+              {t("companion.crisis.imSafeShort", "Tớ đã an toàn")}
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
@@ -89,6 +150,7 @@ function CrisisBanner({ flag, onResolve, onTalkNow }) {
         </div>
       </div>
       <div className="flex gap-2">
+        <EmergencySiren />
         <button type="button" onClick={onTalkNow}
           className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition-all active:scale-[0.98]">
           {t("companion.crisis.talkNow", "Tớ cần nói chuyện ngay")}
@@ -495,6 +557,12 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
 
   const activeHighCrisisFlag = crisisFlags.find(f => f.severity === 'high' && !f.resolved);
 
+  // Temporary dismissal of the crisis popup (X button) — hides it for this
+  // session without resolving the flag; a NEW flag id shows it again.
+  const [crisisPopupDismissed, setCrisisPopupDismissed] = useState(false);
+  const activeCrisisFlagId = activeHighCrisisFlag?.flagId || activeHighCrisisFlag?._id || null;
+  useEffect(() => { setCrisisPopupDismissed(false); }, [activeCrisisFlagId]);
+
   const handleResolveCrisis = async (flagId) => {
     try {
       const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -585,12 +653,17 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         </button>
       </div>
 
-      {/* ── Crisis escalation banner ──────────────────────────────────────────── */}
-      {activeHighCrisisFlag && (
+      {/* ── Crisis escalation banner ──────────────────────────────────────────
+          Inside the fullscreen mobile chat it must not eat a third of the
+          screen — render the compact strip (hotline call chips + resolve)
+          instead of the full card. */}
+      {activeHighCrisisFlag && !crisisPopupDismissed && (
         <CrisisBanner
           flag={activeHighCrisisFlag}
+          compact={isMobileChat}
           onResolve={handleResolveCrisis}
           onTalkNow={() => setActiveSubTab("chat")}
+          onDismiss={() => setCrisisPopupDismissed(true)}
         />
       )}
 

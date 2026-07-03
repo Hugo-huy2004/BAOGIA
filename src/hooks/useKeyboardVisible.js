@@ -38,6 +38,23 @@ export function useKeyboardVisible(threshold = 150) {
 //   • iOS Safari (ignores interactive-widget): layout stays full-height, only
 //     the visualViewport shrinks → inset = keyboard height → we lift the input.
 //
+// The standards-track PWA way: the VirtualKeyboard API. When available
+// (Chrome/Edge on Android), the browser exposes the keyboard as a CSS
+// environment variable — env(keyboard-inset-height) — updated on the
+// COMPOSITOR thread, so a bar positioned with it rides the keyboard animation
+// with zero JS and zero jank. We opt in once here; callers then position with
+// CSS env() instead of a JS transform.
+export const hasVirtualKeyboardAPI =
+  typeof navigator !== "undefined" && "virtualKeyboard" in navigator;
+
+export function useVirtualKeyboardOptIn() {
+  useEffect(() => {
+    if (!hasVirtualKeyboardAPI) return;
+    try { navigator.virtualKeyboard.overlaysContent = true; } catch { /* ignore */ }
+  }, []);
+  return hasVirtualKeyboardAPI;
+}
+
 // Updates are rAF-batched and sub-pixel noise is ignored so the value doesn't
 // jitter (the flaw that sank earlier attempts). Callers should animate the
 // offset with a CSS transform + transition, never by changing layout height.

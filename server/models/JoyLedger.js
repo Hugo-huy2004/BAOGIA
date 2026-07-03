@@ -41,7 +41,11 @@ const JoyLedgerSchema = new mongoose.Schema({
       'info_bonus',
       'deco_buy',
       'deco_tip_sent',
-      'deco_tip_received'
+      'deco_tip_received',
+      'deco_rent',
+      'deco_visit_sent',
+      'deco_visit_received',
+      'deco_clean'
     ],
     required: true
   },

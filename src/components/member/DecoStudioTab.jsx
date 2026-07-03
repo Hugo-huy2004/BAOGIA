@@ -11,19 +11,35 @@ const SLOT_ORDER = ['desk', 'chair', 'computer', 'window', 'rug', 'plant', 'lamp
 const CLEARABLE = new Set(['pet', 'poster', 'rug', 'plant', 'lamp']); // optional slots
 
 const FLOOR_STYLES = [
-  { id: 'wood_basic', label: 'Gỗ ấm', swatch: 'linear-gradient(180deg,#c98a4e,#a9713a)' },
-  { id: 'wood_dark', label: 'Gỗ óc chó', swatch: 'linear-gradient(180deg,#6b4423,#4a2e17)' },
-  { id: 'tile_white', label: 'Gạch trắng', swatch: 'linear-gradient(180deg,#e9ecf2,#cfd4de)' },
-  { id: 'tile_checker', label: 'Caro', swatch: 'repeating-conic-gradient(#e5e7eb 0deg 90deg,#9ca3af 90deg 180deg)' },
+  { id: 'wood_basic', label: 'Gỗ ấm', swatch: 'linear-gradient(180deg,#c98a4e,#a9713a)', price: 0 },
+  { id: 'floor_wood_dark', label: 'Gỗ óc chó', swatch: 'linear-gradient(180deg,#6b4423,#4a2e17)', price: 200 },
+  { id: 'floor_tile_white', label: 'Gạch trắng', swatch: 'linear-gradient(180deg,#e9ecf2,#cfd4de)', price: 100 },
+  { id: 'floor_tile_checker', label: 'Caro', swatch: 'repeating-conic-gradient(#e5e7eb 0deg 90deg,#9ca3af 90deg 180deg)', price: 150 },
+];
+
+const WALL_COLORS = [
+  { id: 'wall_white', label: 'Trắng kem', color: '#f4f4f5', price: 0 },
+  { id: 'wall_pink', label: 'Hồng Pastel', color: '#fbcfe8', price: 100 },
+  { id: 'wall_blue', label: 'Xanh Mint', color: '#ccfbf1', price: 120 },
+  { id: 'wall_dark', label: 'Indigo Tối', color: '#1e1b4b', price: 200 },
+  { id: 'wall_yellow', label: 'Vàng Chanh', color: '#fef08a', price: 150 },
 ];
 
 export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
   const [activeTab, setActiveTab] = useState('my_room'); // 'my_room' | 'neighborhood'
   const [storeData, setStoreData] = useState(null);
+  const [expiresAt, setExpiresAt] = useState(null);
+  const [visitedRooms, setVisitedRooms] = useState([]);
+  const [lastCleanedAt, setLastCleanedAt] = useState(null);
+  const [isRenting, setIsRenting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [buyTarget, setBuyTarget] = useState(null);   // { id, def } pending purchase
   const [reaction, setReaction] = useState('');       // ephemeral emoji on item click
   const [receipt, setReceipt] = useState(null);       // invoice for purchase
+  const [selectedPlan, setSelectedPlan] = useState('monthly'); // 'daily' | 'monthly' | 'long'
+  const [dailyDays, setDailyDays] = useState(7);       // default to 7 days
+  const [showInvoice, setShowInvoice] = useState(null); // null or { plan, days, base, fee, total }
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   // Neighborhood states
   const [neighbors, setNeighbors] = useState([]);
@@ -34,7 +50,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
 
   const [roomState, setRoomState] = useState({
     enabled: false,
-    wallColor: '#f4f4f5',
+    wallColor: 'wall_white',
     floorStyle: 'wood_basic',
     items: { desk: 'desk_basic', chair: 'chair_basic', computer: 'laptop', window: 'window_day', poster: null, pet: null, rug: null, plant: null, lamp: null },
     positions: {},
@@ -116,11 +132,14 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Không tải được cửa hàng');
       setStoreData(data);
+      setExpiresAt(data.expiresAt);
+      setVisitedRooms(data.visitedRooms || []);
+      setLastCleanedAt(data.lastCleanedAt || null);
       if (bio?.decoRoom) {
         setRoomState((prev) => ({
           ...prev,
           enabled: bio.decoRoom.enabled ?? false,
-          wallColor: bio.decoRoom.wallColor || '#f4f4f5',
+          wallColor: bio.decoRoom.wallColor === '#f4f4f5' ? 'wall_white' : (bio.decoRoom.wallColor || 'wall_white'),
           floorStyle: bio.decoRoom.floorStyle || 'wood_basic',
           items: { ...prev.items, ...(bio.decoRoom.items || {}) },
           positions: bio.decoRoom.positions || {},
@@ -131,6 +150,99 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRentClick = (planOverride) => {
+    const targetPlan = typeof planOverride === 'string' ? planOverride : selectedPlan;
+    let days = 30;
+    let base = 299;
+    let fee = 30;
+
+    if (targetPlan === 'daily') {
+      const numDays = Math.floor(Number(dailyDays));
+      if (isNaN(numDays) || numDays < 1) {
+        showToast?.('Vui lòng nhập số ngày thuê hợp lệ (tối thiểu 1 ngày)', 'error');
+        return;
+      }
+      days = numDays;
+      base = days * 15;
+      fee = Math.ceil(base * 0.1);
+    } else if (targetPlan === 'monthly') {
+      days = 30;
+      base = 299;
+      fee = 30;
+    } else if (targetPlan === 'long') {
+      days = 180;
+      base = 1500;
+      fee = 150;
+    }
+
+    setShowInvoice({
+      plan: targetPlan,
+      days,
+      base,
+      fee,
+      total: base + fee
+    });
+  };
+
+  const confirmPayment = async () => {
+    if (!showInvoice || isRenting) return;
+    setIsRenting(true);
+    try {
+      const res = await fetch(`${API}/deco/rent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: showInvoice.plan,
+          days: showInvoice.days
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setExpiresAt(data.expiresAt);
+      setStoreData((prev) => ({ ...prev, balance: data.balance }));
+
+      onBioUpdate?.({
+        joyBalance: data.balance,
+        decoRoom: {
+          ...(bio?.decoRoom || {}),
+          expiresAt: data.expiresAt
+        }
+      });
+
+      setShowInvoice(null);
+      setShowSuccessModal(true);
+    } catch (err) {
+      showToast?.(err.message || 'Thanh toán thuê bao thất bại.', 'error');
+    } finally {
+      setIsRenting(false);
+    }
+  };
+
+  const getSubscriptionInfo = () => {
+    if (!expiresAt) return { text: 'Chưa kích hoạt', status: 'none' };
+    const diff = new Date(expiresAt).getTime() - Date.now();
+    const days = Math.ceil(diff / (24 * 60 * 60 * 1000));
+    if (days > 0) {
+      return { text: `Còn ${days} ngày thuê`, status: 'active', days };
+    }
+    const graceDiff = (new Date(expiresAt).getTime() + 7 * 24 * 60 * 60 * 1000) - Date.now();
+    const graceDays = Math.ceil(graceDiff / (24 * 60 * 60 * 1000));
+    if (graceDays > 0) {
+      return { text: `Chờ gia hạn (${graceDays} ngày)`, status: 'grace', days: graceDays };
+    }
+    return { text: 'Hết hạn', status: 'expired' };
+  };
+
+  const handleEnabledChange = (checked) => {
+    const sub = getSubscriptionInfo();
+    if (checked && (sub.status === 'expired' || sub.status === 'none')) {
+      showToast?.('Vui lòng thuê hoặc gia hạn tiện ích HugoHome (299 JOY) trước khi hiển thị trên Bio.', 'error');
+      return;
+    }
+    setRoomState((p) => ({ ...p, enabled: checked }));
   };
 
   const fetchNeighbors = async () => {
@@ -163,7 +275,15 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       if (!res.ok) throw new Error(data.error);
       showToast?.(`Đã mua ${def.name}! 🎉`, 'success');
       setStoreData((prev) => ({ ...prev, balance: data.balance, unlockedItems: data.unlockedItems }));
-      setItem(def.type, id); // auto-equip
+      
+      if (def.type === 'wallColor') {
+        setRoomState((prev) => ({ ...prev, wallColor: id }));
+      } else if (def.type === 'floorStyle') {
+        setRoomState((prev) => ({ ...prev, floorStyle: id }));
+      } else {
+        setItem(def.type, id); // auto-equip furniture
+      }
+      
       setReceipt({
         id,
         name: def.name,
@@ -213,6 +333,9 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
     return <DecoStudioSkeleton />;
   }
 
+  const sub = getSubscriptionInfo();
+  const isLocked = sub.status !== 'active';
+
   return (
     <div className="flex flex-col h-full bg-white dark:bg-zinc-950 rounded-2xl overflow-hidden shadow-sm border border-zinc-200 dark:border-zinc-800 animate-fadeIn">
       {/* ── Custom Header: HugoHome ─────────────────────────────────────────── */}
@@ -227,7 +350,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
               <span className="material-symbols-outlined text-[18px]">arrow_back</span>
             </button>
             <h2 className="text-lg md:text-xl font-black text-zinc-900 dark:text-white flex items-center gap-1.5 tracking-tight">
-              <span className="material-symbols-outlined text-indigo-500 text-[22px]">roofing</span>
+              <span className="material-symbols-outlined text-zinc-500 text-[22px]">roofing</span>
               HugoHome
               {activeTab === 'my_room' && (
                 <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500">
@@ -281,14 +404,88 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        {activeTab === 'my_room' ? (
+      <div className="flex-1 overflow-y-auto flex flex-col">
+        {isLocked ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-950/40 text-center overflow-y-auto">
+            <div className="w-full max-w-md p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-xl space-y-6">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <span className="material-symbols-outlined text-4xl animate-pulse">lock</span>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-100">Kích hoạt tiện ích HugoHome 🔑</h3>
+                {sub.status === 'grace' ? (
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-400 rounded-xl border border-amber-100 dark:border-amber-900/50 text-xs font-semibold">
+                    ⚠️ Tiện ích đã hết hạn! Căn phòng của bạn được giữ trong <span className="font-black text-rose-500">{sub.days} ngày</span> nữa. Sau thời hạn này, toàn bộ thiết kế phòng sẽ bị xóa vĩnh viễn!
+                  </div>
+                ) : sub.status === 'expired' ? (
+                  <div className="p-3 bg-rose-50 dark:bg-rose-950/30 text-rose-800 dark:text-rose-400 rounded-xl border border-rose-100 dark:border-rose-900/50 text-xs font-semibold">
+                    🚨 Hạn gia hạn 7 ngày đã kết thúc! Toàn bộ nội thất phòng của bạn đã bị dọn dẹp. Hãy thuê gói mới để bắt đầu thiết kế lại phòng.
+                  </div>
+                ) : (
+                  <p className="text-xs text-zinc-500">Thuê phòng Ký Túc Xá ảo để bắt đầu tùy biến không gian sống, mở khóa cửa hàng và nhận Joy tham quan từ bạn bè!</p>
+                )}
+              </div>
+
+              {/* Plan selector grid */}
+              <div className="grid grid-cols-3 gap-2.5">
+                {[
+                  { id: 'daily', title: 'Theo ngày', desc: '15 JOY / ngày' },
+                  { id: 'monthly', title: '1 tháng', desc: '299 JOY' },
+                  { id: 'long', title: '6 tháng', desc: '1500 JOY' },
+                ].map(plan => (
+                  <button 
+                    key={plan.id}
+                    onClick={() => setSelectedPlan(plan.id)}
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all ${
+                      selectedPlan === plan.id 
+                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-bold shadow-sm' 
+                        : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-indigo-300'
+                    }`}
+                  >
+                    <span className="text-xs font-black">{plan.title}</span>
+                    <span className="text-[10px] opacity-80 mt-1">{plan.desc}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Plan dynamic input for daily */}
+              {selectedPlan === 'daily' && (
+                <div className="space-y-1.5 text-left p-3.5 bg-zinc-50 dark:bg-zinc-900/60 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Nhập số ngày muốn thuê:</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="number" 
+                      min="1" 
+                      value={dailyDays} 
+                      onChange={e => setDailyDays(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="flex-1 px-3 py-2 text-sm font-bold bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl outline-none text-zinc-800 dark:text-zinc-100"
+                    />
+                    <div className="flex items-center text-xs font-bold text-zinc-500 px-3">ngày</div>
+                  </div>
+                </div>
+              )}
+
+              <button 
+                onClick={() => handleRentClick(selectedPlan)}
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-indigo-600/10 transition-colors"
+              >
+                Thuê KTX ngay
+              </button>
+            </div>
+          </div>
+        ) : activeTab === 'my_room' ? (
           <>
             {/* ── Live room preview ─────────────────────────────────────────────── */}
-            <div className="relative w-full h-[260px] md:h-[360px] shrink-0 border-b border-zinc-200 dark:border-zinc-800">
+            <div className="relative w-full h-[280px] md:h-[420px] shrink-0 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950">
               <DecoRoomScene 
                 room={roomState} 
                 interactive 
+                lastCleanedAt={lastCleanedAt}
+                onCleanSuccess={(newBalance, newCleanedAt) => {
+                  setStoreData(prev => ({ ...prev, balance: newBalance }));
+                  setLastCleanedAt(newCleanedAt);
+                }}
                 onItemClick={onSceneItemClick} 
                 onPositionChange={(slot, pos) => setRoomState(p => ({ ...p, positions: { ...(p.positions || {}), [slot]: pos } }))}
               />
@@ -296,62 +493,135 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
               {reaction && (
                 <div className="absolute left-1/2 top-1/3 -translate-x-1/2 text-3xl pointer-events-none animate-bounce">{reaction}</div>
               )}
-
-              {/* Top-left: display toggle + wall color */}
-              <div className="absolute top-3 left-3 p-2.5 bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md rounded-xl border border-black/5 flex flex-col gap-2 z-40 shadow-sm">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-600"
-                    checked={roomState.enabled} onChange={(e) => setRoomState((p) => ({ ...p, enabled: e.target.checked }))} />
-                  <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">Hiện trên Bio</span>
-                </label>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold text-zinc-500">Tường</span>
-                  <input type="color" value={roomState.wallColor}
-                    onChange={(e) => setRoomState((p) => ({ ...p, wallColor: e.target.value }))}
-                    className="w-6 h-6 p-0 border-0 rounded cursor-pointer bg-transparent" />
-                </div>
-              </div>
-
-              {/* Top-right: coziness meter + day/night badge */}
-              <div className="absolute top-3 right-3 z-40 flex flex-col items-end gap-2">
-                <div className="px-2.5 py-1.5 bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md rounded-xl border border-black/5 shadow-sm w-[132px]">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-black uppercase tracking-wide text-pink-500">Độ ấm cúng</span>
-                    <span className="text-[10px] font-black text-zinc-700 dark:text-zinc-200">{cozy}%</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
-                    <div className="h-full rounded-full bg-gradient-to-r from-pink-400 to-rose-500 transition-all duration-500" style={{ width: `${cozy}%` }} />
-                  </div>
-                </div>
-                <span className="px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md border border-black/5">
-                  <span className="material-symbols-outlined text-[13px]">{night ? 'dark_mode' : 'light_mode'}</span>
-                  {night ? 'Ban đêm' : 'Ban ngày'}
-                </span>
-              </div>
             </div>
 
-            {/* ── Floor picker ──────────────────────────────────────────────────── */}
-            <div className="px-4 md:px-6 pt-4">
-              <h3 className="text-[11px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Sàn nhà</h3>
-              <div className="flex gap-2 flex-wrap">
-                {FLOOR_STYLES.map((f) => (
-                  <button key={f.id} onClick={() => setRoomState((p) => ({ ...p, floorStyle: f.id }))}
-                    className={`flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-xl border-2 transition-all ${roomState.floorStyle === f.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300'}`}>
-                    <span className="w-6 h-6 rounded-lg border border-black/10" style={{ backgroundImage: f.swatch, backgroundSize: f.id === 'tile_checker' ? '10px 10px' : undefined }} />
-                    <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300">{f.label}</span>
-                  </button>
-                ))}
+            {/* ── Room Control & Info Bar ─────────────────────────────────────────── */}
+            <div className="px-4 md:px-6 py-3 bg-zinc-50 dark:bg-zinc-900/40 border-b border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-zinc-500">HugoHome:</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                    getSubscriptionInfo().status === 'active' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400' :
+                    getSubscriptionInfo().status === 'grace' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400' :
+                    'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400'
+                  }`}>
+                    {getSubscriptionInfo().text}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {/* Coziness indicator */}
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-zinc-500 uppercase tracking-wider text-[10px]">Độ ấm cúng:</span>
+                  <div className="flex items-center gap-1.5 bg-pink-50 dark:bg-pink-950/30 px-2.5 py-1 rounded-full border border-pink-100 dark:border-pink-900/50">
+                    <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse" />
+                    <span className="font-black text-pink-600 dark:text-pink-400">{cozy}%</span>
+                  </div>
+                </div>
+
+                {/* Day/Night indicator */}
+                <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400">
+                  <span className="material-symbols-outlined text-[13px]">{night ? 'dark_mode' : 'light_mode'}</span>
+                  <span className="font-bold text-[10px]">{night ? 'Ban đêm' : 'Ban ngày'}</span>
+                </div>
               </div>
             </div>
 
             {/* ── Store / customizer grouped by slot ────────────────────────────── */}
             <div className="p-4 md:p-6 space-y-7">
+              {/* Màu Tường (Wall Color) Customizer */}
+              <div className="space-y-3">
+                <h3 className="flex items-center gap-1.5 text-sm font-black text-zinc-800 dark:text-zinc-100">
+                  <span className="material-symbols-outlined text-[16px] text-zinc-500">palette</span>
+                  Màu tường
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  {WALL_COLORS.map((w) => {
+                    const isOwned = w.price === 0 || storeData?.unlockedItems?.includes(w.id);
+                    const isEquipped = roomState.wallColor === w.id;
+                    return (
+                      <div key={w.id}
+                        onClick={() => isOwned && setRoomState(p => ({ ...p, wallColor: w.id }))}
+                        className={`relative flex flex-col p-3 rounded-xl border-2 transition-all ${isEquipped ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 shadow-sm' : isOwned ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-indigo-300 cursor-pointer' : 'border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/60 dark:bg-zinc-900/40'}`}
+                      >
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-full border border-black/10 flex items-center justify-center relative overflow-hidden" style={{ backgroundColor: w.color }}>
+                          {!isOwned && (
+                            <div className="absolute inset-0 bg-black/35 flex items-center justify-center text-white">
+                              <span className="material-symbols-outlined text-[16px]">lock</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-center mt-auto">
+                          <div className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 line-clamp-1">{w.label}</div>
+                          <div className="mt-1.5 flex justify-center">
+                            {isOwned ? (
+                              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${isEquipped ? 'bg-indigo-500 text-white' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`}>
+                                {isEquipped ? 'Đang dùng' : 'Đã có'}
+                              </span>
+                            ) : (
+                              <button onClick={(e) => { e.stopPropagation(); setBuyTarget({ id: w.id, def: { type: 'wallColor', price: w.price, name: w.label } }); }}
+                                className="flex items-center gap-1 text-[10px] font-black uppercase px-3 py-1 rounded-full bg-yellow-400 hover:bg-yellow-500 text-yellow-950 transition-colors">
+                                <JoyCoinBadge hideAmount size="sm" />{w.price}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Sàn Nhà (Floor Style) Customizer */}
+              <div className="space-y-3">
+                <h3 className="flex items-center gap-1.5 text-sm font-black text-zinc-800 dark:text-zinc-100">
+                  <span className="material-symbols-outlined text-[16px] text-zinc-500">grid_on</span>
+                  Sàn nhà
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {FLOOR_STYLES.map((f) => {
+                    const isOwned = f.price === 0 || storeData?.unlockedItems?.includes(f.id);
+                    const isEquipped = roomState.floorStyle === f.id;
+                    return (
+                      <div key={f.id}
+                        onClick={() => isOwned && setRoomState(p => ({ ...p, floorStyle: f.id }))}
+                        className={`relative flex flex-col p-3 rounded-xl border-2 transition-all ${isEquipped ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 shadow-sm' : isOwned ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-indigo-300 cursor-pointer' : 'border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/60 dark:bg-zinc-900/40'}`}
+                      >
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-lg border border-black/10 flex items-center justify-center relative overflow-hidden" style={{ backgroundImage: f.swatch, backgroundSize: f.id.includes('checker') ? '10px 10px' : undefined }}>
+                          {!isOwned && (
+                            <div className="absolute inset-0 bg-black/35 flex items-center justify-center text-white">
+                              <span className="material-symbols-outlined text-[16px]">lock</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-center mt-auto">
+                          <div className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 line-clamp-1">{f.label}</div>
+                          <div className="mt-1.5 flex justify-center">
+                            {isOwned ? (
+                              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${isEquipped ? 'bg-indigo-500 text-white' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`}>
+                                {isEquipped ? 'Đang dùng' : 'Đã có'}
+                              </span>
+                            ) : (
+                              <button onClick={(e) => { e.stopPropagation(); setBuyTarget({ id: f.id, def: { type: 'floorStyle', price: f.price, name: f.label } }); }}
+                                className="flex items-center gap-1 text-[10px] font-black uppercase px-3 py-1 rounded-full bg-yellow-400 hover:bg-yellow-500 text-yellow-950 transition-colors">
+                                <JoyCoinBadge hideAmount size="sm" />{f.price}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               {SLOT_ORDER.filter((t) => itemsByType[t]?.length).map((type) => {
                 const meta = DECO_TYPE_META[type] || { label: type, icon: 'category' };
                 return (
                   <div key={type} className="space-y-3">
                     <h3 className="flex items-center gap-1.5 text-sm font-black text-zinc-800 dark:text-zinc-100">
-                      <span className="material-symbols-outlined text-[16px] text-indigo-500">{meta.icon}</span>
+                      <span className="material-symbols-outlined text-[16px] text-zinc-500">{meta.icon}</span>
                       {meta.label}
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -370,7 +640,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                           <div key={item.id}
                             onClick={() => isOwned && setItem(type, item.id)}
                             className={`relative flex flex-col p-3 rounded-xl border-2 transition-all ${isEquipped ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 shadow-sm' : isOwned ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-indigo-300 cursor-pointer' : 'border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/60 dark:bg-zinc-900/40'}`}>
-                            <div className={`w-16 h-16 mx-auto mb-1.5 ${isOwned ? '' : 'opacity-40 grayscale'}`}>{Art && <Art />}</div>
+                            <div className="w-16 h-16 mx-auto mb-1.5">{Art && <Art />}</div>
                             <div className="text-center mt-auto">
                               <div className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 line-clamp-1">{item.name}</div>
                               <div className="mt-1.5 flex justify-center">
@@ -567,6 +837,104 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
           </div>
         )}
       </AnimatePresence>
+
+      {/* ── Rent Invoice Modal ────────────────────────────────────────────── */}
+      {showInvoice && (
+        <div className="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={() => setShowInvoice(null)}>
+          <div className="bg-[#faf9f6] dark:bg-zinc-900 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 animate-scaleIn" onClick={(e) => e.stopPropagation()}
+            style={{
+              clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), 95% 100%, 90% calc(100% - 10px), 85% 100%, 80% calc(100% - 10px), 75% 100%, 70% calc(100% - 10px), 65% 100%, 60% calc(100% - 10px), 55% 100%, 50% calc(100% - 10px), 45% 100%, 40% calc(100% - 10px), 35% 100%, 30% calc(100% - 10px), 25% 100%, 20% calc(100% - 10px), 15% 100%, 10% calc(100% - 10px), 5% 100%, 0 calc(100% - 10px))"
+            }}
+          >
+            {/* Header */}
+            <div className="pt-8 pb-4 px-6 text-center border-b border-zinc-200 dark:border-zinc-800 border-dashed">
+              <h2 className="font-black text-2xl tracking-tighter uppercase mb-1">HUGO STUDIO</h2>
+              <p className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Hóa Đơn Thuê Tiện Ích KTX</p>
+              <div className="mt-4 text-left">
+                <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
+                  <span>DỊCH VỤ:</span> <span className="font-bold text-zinc-800 dark:text-zinc-200">HugoHome Virtual Dorm</span>
+                </p>
+                <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
+                  <span>THỜI HẠN:</span> <span className="font-bold text-zinc-800 dark:text-zinc-200">{showInvoice.days} ngày</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Price breakdown */}
+            <div className="py-5 px-6 font-mono text-xs space-y-3.5">
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-500">Giá thuê gốc:</span>
+                <span className="font-bold text-zinc-800 dark:text-zinc-200">{showInvoice.base} JOY</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-500">Phí Sáng Tạo (10%):</span>
+                <span className="font-bold text-indigo-600 dark:text-indigo-400">+{showInvoice.fee} JOY</span>
+              </div>
+              <div className="h-px bg-zinc-200 dark:bg-zinc-800 border-dashed border-b" />
+              <div className="flex justify-between items-center text-sm font-black">
+                <span>TỔNG CỘNG:</span>
+                <span className="text-pink-500">{showInvoice.total} JOY</span>
+              </div>
+            </div>
+
+            {/* Balance check */}
+            <div className="px-6 py-3 bg-zinc-100 dark:bg-zinc-800/40 text-center text-[10px] font-mono text-zinc-500">
+              <div className="flex justify-between">
+                <span>SỐ DƯ HIỆN CÓ:</span>
+                <span className="font-bold">{storeData.balance} JOY</span>
+              </div>
+              {storeData.balance < showInvoice.total ? (
+                <p className="text-rose-500 font-bold mt-1 text-[9px] uppercase">🚨 Không đủ JOY để thanh toán</p>
+              ) : (
+                <div className="flex justify-between mt-1 text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">
+                  <span>SỐ DƯ SAU THUÊ:</span>
+                  <span>{storeData.balance - showInvoice.total} JOY</span>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="p-6 bg-zinc-100 dark:bg-zinc-800/60 pb-10 flex gap-2">
+              <button 
+                onClick={() => setShowInvoice(null)} 
+                className="flex-1 py-3 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
+              >
+                Hủy
+              </button>
+              <button 
+                onClick={confirmPayment} 
+                disabled={storeData.balance < showInvoice.total || isRenting}
+                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50"
+              >
+                {isRenting ? 'Đang thanh toán...' : 'Xác nhận & Thuê'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Success Modal ────────────────────────────────────────────────── */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-[220] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-zinc-200 dark:border-zinc-800 text-center space-y-4 animate-scaleIn">
+            <div className="w-16 h-16 mx-auto rounded-full bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <span className="material-symbols-outlined text-4xl animate-bounce">check_circle</span>
+            </div>
+            
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-100">Kích hoạt KTX thành công! 🎉</h3>
+              <p className="text-xs text-zinc-500">Cảm ơn bạn đã đồng hành cùng Hugo Studio. Tiện ích HugoHome của bạn đã hoạt động trở lại!</p>
+            </div>
+
+            <button 
+              onClick={() => setShowSuccessModal(false)}
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black transition-colors"
+            >
+              Vào Ký Túc Xá 🚪
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
