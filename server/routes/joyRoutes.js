@@ -507,18 +507,23 @@ router.get('/qr-payload', requireMember, async (req, res) => {
   }
 });
 
+const isBase64UrlJoyPayload = (payload) => typeof payload === 'string' && /^[A-Za-z0-9_-]{14}$/.test(payload);
+
 // GET /api/joy/resolve-qr?payload= — decode scanned QR to public info.
 router.get('/resolve-qr', async (req, res) => {
   try {
-    const { payload } = req.query;
+    const payload = String(req.query.payload || '').trim();
+    if (!isBase64UrlJoyPayload(payload)) {
+      return res.status(400).json({ success: false, error: 'Mã JOY không hợp lệ hoặc đã hết hạn.' });
+    }
     // Reject anything not signed by us (forged codes, expired codes, plain
     // referral strings). Only a token this server minted verifies.
     const referralCode = verifyQrToken(payload);
     if (!referralCode) {
-      return res.json({ success: false, error: 'Mã JOY không hợp lệ hoặc đã hết hạn.' });
+      return res.status(400).json({ success: false, error: 'Mã JOY không hợp lệ hoặc đã hết hạn.' });
     }
     const bio = await Bio.findOne({ referralCode }).select('displayName avatarUrl referralCode slug');
-    if (!bio) return res.json({ success: false, error: 'Không tìm thấy người dùng này.' });
+    if (!bio) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng này.' });
     res.json({ success: true, displayName: bio.displayName || 'Hugo Member', avatarUrl: bio.avatarUrl || '', referralCode: bio.referralCode, slug: bio.slug || '' });
   } catch (err) {
     res.status(500).json({ error: err.message });
