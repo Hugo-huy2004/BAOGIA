@@ -375,6 +375,50 @@ const Macbook = ({ on = true }) => (
 );
 
 // ── PETS (feet ~y96; interactive) ──
+const PetTombstone = () => (
+  <div className="w-full h-full relative overflow-visible">
+    {/* Floating Ghost Cat */}
+    <div 
+      className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+      style={{
+        top: '-55%',
+        width: '80%',
+        height: '80%',
+        animation: 'ghostFloat 3s ease-in-out infinite',
+        opacity: 0.75
+      }}
+    >
+      <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+        {/* Ghost body */}
+        <path d="M 50 15 A 25 25 0 0 1 75 40 L 75 75 Q 75 85 68 80 Q 60 75 50 80 Q 40 75 32 80 Q 25 85 25 75 L 25 40 A 25 25 0 0 1 50 15 Z" fill="#e2e8f0" opacity="0.8" />
+        {/* Ghost cat ears */}
+        <path d="M 32 20 L 22 8 L 38 23 Z" fill="#cbd5e1" opacity="0.8" />
+        <path d="M 68 20 L 78 8 L 62 23 Z" fill="#cbd5e1" opacity="0.8" />
+        {/* Ghost eyes */}
+        <path d="M 38 38 L 46 44 M 46 38 L 38 44" stroke="#475569" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 54 38 L 62 44 M 62 38 L 54 44" stroke="#475569" strokeWidth="2.5" strokeLinecap="round" />
+        {/* Sad mouth */}
+        <path d="M 47 52 Q 50 49 53 52" stroke="#475569" strokeWidth="2" fill="none" strokeLinecap="round" />
+      </svg>
+    </div>
+
+    {/* Tombstone */}
+    <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-xl" preserveAspectRatio="xMidYMax meet">
+      <ellipse cx="50" cy="115" rx="35" ry="6" fill="#000" opacity="0.3" filter="blur(2px)" />
+      {/* Tombstone body */}
+      <path d="M 22 112 L 22 45 A 28 28 0 0 1 78 45 L 78 112 Z" fill="#94a3b8" stroke="#475569" strokeWidth="2" />
+      <path d="M 25 110 L 25 47 A 25 25 0 0 1 75 47 L 75 110 Z" fill="#cbd5e1" />
+      {/* RIP */}
+      <text x="50" y="70" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#475569" opacity="0.8">R.I.P</text>
+      {/* Small cross */}
+      <path d="M 50 78 L 50 96 M 44 84 L 56 84" stroke="#475569" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
+      {/* Cat ears carved on tombstone */}
+      <path d="M 26 42 L 36 49 L 30 55 Z" fill="#94a3b8" />
+      <path d="M 74 42 L 64 49 L 70 55 Z" fill="#94a3b8" />
+    </svg>
+  </div>
+);
+
 const CatOrange = () => (
   <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-xl" preserveAspectRatio="xMidYMax meet">
     <ellipse cx="50" cy="115" rx="35" ry="6" fill="#000" opacity="0.3" filter="blur(2px)" />
@@ -843,6 +887,10 @@ const SCENE_CSS = `
   50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
   100% { transform: scale(0) rotate(360deg); opacity: 0; }
 }
+@keyframes ghostFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
 `;
 
 const FLOOR_TOP = 60;
@@ -972,24 +1020,16 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
   const positions = room.positions || {};
   const night = isNightRoom(items);
 
-  const isDirty = React.useMemo(() => {
-    if (!lastCleanedAt) return false;
-    const last = new Date(lastCleanedAt).getTime();
-    return Date.now() - last >= 12 * 60 * 60 * 1000;
-  }, [lastCleanedAt]);
+  const trashCount = room.trashCount ?? 6;
+  const petStatus = room.petStatus || 'alive';
 
-  const [cleanState, setCleanState] = React.useState('clean'); // 'dirty', 'sweeping', 'sparkling', 'clean'
-  const [isCleaning, setIsCleaning] = React.useState(false);
+  const [sweepingId, setSweepingId] = React.useState(null);
+  const [sparklingId, setSparklingId] = React.useState(null);
 
-  React.useEffect(() => {
-    setCleanState(isDirty ? 'dirty' : 'clean');
-  }, [isDirty]);
-
-  const startCleaning = async (e) => {
-    e.stopPropagation();
-    if (cleanState !== 'dirty' || isCleaning || !interactive || !onCleanSuccess) return;
-    setIsCleaning(true);
-    setCleanState('sweeping');
+  const startCleaning = async (id, e) => {
+    if (e) e.stopPropagation();
+    if (sweepingId != null || sparklingId != null || !interactive || !onCleanSuccess) return;
+    setSweepingId(id);
 
     try {
       const res = await fetch('/api/deco/clean', {
@@ -1000,14 +1040,17 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
       if (!res.ok) throw new Error(data.error);
 
       setTimeout(() => {
-        setCleanState('sparkling');
-        onCleanSuccess?.(data.balance, data.lastCleanedAt);
-        setIsCleaning(false);
+        setSweepingId(null);
+        setSparklingId(id);
+        onCleanSuccess?.(data.balance, data.trashCount);
+
+        setTimeout(() => {
+          setSparklingId(null);
+        }, 1200);
       }, 1500);
     } catch (err) {
       alert(err.message || 'Lỗi quét dọn rác');
-      setCleanState('dirty');
-      setIsCleaning(false);
+      setSweepingId(null);
     }
   };
   
@@ -1075,131 +1118,140 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
         </div>
 
         {items.rug && <Draggable slot="rug" itemId={items.rug} left={18} width={64} bottom={88} height={20} zIndex={1} filter="drop-shadow(0 4px 6px rgba(0,0,0,.15))" {...dragProps} />}
-        {items.lamp && <Draggable slot="lamp" itemId={items.lamp} left={28} width={12} bottom={63} height={25} extra={{ animation: "decoFloat 6s ease-in-out infinite" }} zIndex={6} filter="drop-shadow(0 15px 15px rgba(0,0,0,.3))" {...dragProps} />}
-        {items.plant && <Draggable slot="plant" itemId={items.plant} left={76} width={22} bottom={92} height={36} zIndex={8} filter="drop-shadow(0 12px 10px rgba(0,0,0,.25))" {...dragProps} />}
-        {items.desk && <Draggable slot="desk" itemId={items.desk} left={DESK_LEFT} width={DESK_WIDTH} bottom={DESK_BOTTOM} height={DESK_HEIGHT} zIndex={10} filter="drop-shadow(0 15px 12px rgba(0,0,0,.4))" {...dragProps} />}
+        {items.lamp && <Draggable slot="lamp" itemId={items.lamp} left={28} width={12} bottom={63} height={25} extra={{ animation: "decoFloat 6s ease-in-out infinite" }} zIndex={12} filter="drop-shadow(0 15px 15px rgba(0,0,0,.3))" {...dragProps} />}
+        {items.plant && <Draggable slot="plant" itemId={items.plant} left={76} width={22} bottom={92} height={36} zIndex={11} filter="drop-shadow(0 12px 10px rgba(0,0,0,.25))" {...dragProps} />}
+        {items.desk && <Draggable slot="desk" itemId={items.desk} left={DESK_LEFT} width={DESK_WIDTH} bottom={DESK_BOTTOM} height={DESK_HEIGHT} zIndex={5} filter="drop-shadow(0 15px 12px rgba(0,0,0,.4))" {...dragProps} />}
 
         {items.computer && (
-          <Draggable slot="computer" itemId={items.computer} left={DESK_CX - 12} width={24} bottom={SURFACE_Y + 1} height={22} zIndex={12} filter="drop-shadow(0 8px 8px rgba(0,0,0,.2))" onClick={() => interactive && onItemClick?.("computer")} {...dragProps} />
+          <Draggable slot="computer" itemId={items.computer} left={DESK_CX - 12} width={24} bottom={SURFACE_Y + 1} height={22} zIndex={15} filter="drop-shadow(0 8px 8px rgba(0,0,0,.2))" onClick={() => interactive && onItemClick?.("computer")} {...dragProps} />
         )}
 
         {items.chair && (
-          <Draggable slot="chair" itemId={items.chair} left={18} width={28} bottom={96} height={46} zIndex={20} filter="drop-shadow(0 18px 15px rgba(0,0,0,.5))" className="transition-transform hover:-translate-y-1 hover:scale-105 duration-300" {...dragProps} />
+          <Draggable slot="chair" itemId={items.chair} left={18} width={28} bottom={96} height={46} zIndex={10} filter="drop-shadow(0 18px 15px rgba(0,0,0,.5))" className="transition-transform hover:-translate-y-1 hover:scale-105 duration-300" {...dragProps} />
         )}
 
         {items.pet && (
-          <Draggable slot="pet" itemId={items.pet} left={68} width={20} bottom={97} height={30} zIndex={30} filter="drop-shadow(0 12px 10px rgba(0,0,0,.3))" extra={{ animation: petHop ? "decoHop .7s ease" : "decoFloat 4s ease-in-out infinite" }} onClick={clickPet} {...dragProps} />
-        )}
-
-        {/* Trash & Cleaning Elements */}
-        {cleanState !== 'clean' && (
-          <div 
-            onClick={startCleaning}
-            className={`absolute z-[25] group transition-all duration-300 ${interactive && cleanState === 'dirty' ? 'cursor-pointer hover:scale-105' : 'pointer-events-none'}`}
-            style={{
-              bottom: '8%',
-              left: '52%',
-              width: '85px',
-              height: '80px',
-            }}
+          <Draggable 
+            slot="pet" 
+            itemId={items.pet} 
+            left={68} 
+            width={20} 
+            bottom={97} 
+            height={30} 
+            zIndex={30} 
+            filter="drop-shadow(0 12px 10px rgba(0,0,0,.3))" 
+            extra={{ animation: petStatus === 'dead' ? "ghostFloat 3s ease-in-out infinite" : petHop ? "decoHop .7s ease" : "decoFloat 4s ease-in-out infinite" }} 
+            onClick={clickPet} 
+            {...dragProps}
           >
-            {/* Smelly green fumes (only when dirty) */}
-            {cleanState === 'dirty' && (
-              <div className="absolute inset-0 pointer-events-none overflow-visible">
-                <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-                  {/* Fume 1 */}
-                  <path d="M 30,50 Q 20,30 30,10" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" opacity="0.6"
-                    style={{ animation: 'driftUp 2.8s ease-in-out infinite, sway 1.8s ease-in-out infinite' }} />
-                  {/* Fume 2 */}
-                  <path d="M 50,55 Q 60,35 45,15" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" opacity="0.5"
-                    style={{ animation: 'driftUp 3.2s ease-in-out infinite 0.6s, sway 2.2s ease-in-out infinite 0.3s' }} />
-                  {/* Fume 3 */}
-                  <path d="M 70,50 Q 60,32 75,12" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" opacity="0.65"
-                    style={{ animation: 'driftUp 2.5s ease-in-out infinite 1.2s, sway 1.5s ease-in-out infinite 0.8s' }} />
-                </svg>
-              </div>
-            )}
-
-            {/* Trash Pile SVG (fades out when sweeping/clean) */}
-            {(cleanState === 'dirty' || cleanState === 'sweeping') && (
-              <div className={`w-full h-full transition-opacity duration-500 ${cleanState === 'sweeping' ? 'opacity-40 scale-90' : 'opacity-100'}`}>
-                <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-md">
-                  {/* Crumpled paper balls */}
-                  <path d="M 25,65 Q 18,52 32,54 Z" fill="#e4e4e7" stroke="#a1a1aa" strokeWidth="1" />
-                  <path d="M 55,68 Q 62,56 70,62 Z" fill="#d4d4d8" stroke="#71717a" strokeWidth="1" />
-                  {/* Banana peel */}
-                  <path d="M 35,62 C 30,64 22,60 18,65 C 28,68 35,65 35,62 Z" fill="#facc15" />
-                  <path d="M 35,62 C 38,58 42,55 50,60 C 45,63 38,64 35,62 Z" fill="#eab308" />
-                  <path d="M 38,58 C 30,55 35,50 36,46 C 40,49 42,54 38,58 Z" fill="#facc15" />
-                  <circle cx="28" cy="61" r="1" fill="#713f12" />
-                  <circle cx="43" cy="57" r="1.2" fill="#713f12" />
-                  {/* Apple core */}
-                  <path d="M 46,65 L 52,65 Q 49,60 49,54 L 47,54 Q 47,60 46,65 Z" fill="#fafafa" stroke="#d4d4d8" strokeWidth="0.5" />
-                  <path d="M 45,54 Q 49,51 53,54 L 45,54" fill="#b91c1c" />
-                  <path d="M 45,65 Q 49,68 53,65 L 45,65" fill="#b91c1c" />
-                  <path d="M 49,51 Q 50,45 52,43" fill="none" stroke="#78350f" strokeWidth="1.5" />
-                  {/* Dust dots */}
-                  <circle cx="15" cy="70" r="1.5" fill="#71717a" />
-                  <circle cx="75" cy="68" r="2.2" fill="#52525b" />
-                  <circle cx="82" cy="72" r="1" fill="#3f3f46" />
-                </svg>
-              </div>
-            )}
-
-            {/* Sweep Broom SVG (only when sweeping) */}
-            {cleanState === 'sweeping' && (
-              <div 
-                className="absolute inset-0 pointer-events-none origin-bottom-right"
-                style={{
-                  width: '80px',
-                  height: '110px',
-                  bottom: '15px',
-                  right: '-15px',
-                  animation: 'sweepBroom 0.5s ease-in-out infinite'
-                }}
-              >
-                <svg viewBox="0 0 80 120" className="w-full h-full drop-shadow-lg">
-                  {/* Wood Handle */}
-                  <rect x="36" y="5" width="6" height="75" rx="3" fill="#b45309" stroke="#78350f" strokeWidth="1" />
-                  {/* Handle Grip tip */}
-                  <path d="M 36,15 L 42,15 L 42,5 A 3,3 0 0,0 36,5 Z" fill="#78350f" />
-                  {/* Gold bristle holder */}
-                  <path d="M 24,80 L 54,80 L 58,95 L 20,95 Z" fill="#eab308" stroke="#ca8a04" strokeWidth="1.2" />
-                  {/* Bristles */}
-                  <path d="M 20,95 Q 6,118 12,120 Q 39,112 70,118 Q 72,114 58,95 Z" fill="#fef08a" stroke="#ca8a04" strokeWidth="1" />
-                  {/* Bristle texture lines */}
-                  <path d="M 28,95 L 22,112" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
-                  <path d="M 38,95 L 39,114" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
-                  <path d="M 48,95 L 56,112" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
-                </svg>
-              </div>
-            )}
-
-            {/* Sparkle Clean Effect (only when sparkling) */}
-            {cleanState === 'sparkling' && (
-              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-                  {/* Sparkle Star 1 */}
-                  <path d="M 50,20 Q 50,40 30,40 Q 50,40 50,60 Q 50,40 70,40 Q 50,40 50,20" fill="#facc15"
-                    style={{ transformOrigin: 'center', animation: 'sparkleScale 1s ease-in-out forwards' }} />
-                  {/* Sparkle Star 2 */}
-                  <path d="M 25,45 Q 25,55 15,55 Q 25,55 25,65 Q 25,55 35,55 Q 25,55 25,45" fill="#facc15"
-                    style={{ transformOrigin: 'center', animation: 'sparkleScale 0.8s ease-in-out forwards 0.2s' }} />
-                  {/* Sparkle Star 3 */}
-                  <path d="M 75,55 Q 75,65 65,65 Q 75,65 75,75 Q 75,65 85,65 Q 75,65 75,55" fill="#facc15"
-                    style={{ transformOrigin: 'center', animation: 'sparkleScale 0.9s ease-in-out forwards 0.1s' }} />
-                </svg>
-              </div>
-            )}
-
-            {/* Tooltip text when dirty and interactive */}
-            {interactive && cleanState === 'dirty' && (
-              <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-zinc-950/85 backdrop-blur-sm text-white px-2.5 py-1 rounded-xl text-[9px] font-black tracking-wide whitespace-nowrap border border-zinc-800 shadow-xl opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity pointer-events-none">
-                🧹 Quét rác dọn phòng (+5 JOY)
-              </div>
-            )}
-          </div>
+            {petStatus === 'dead' ? <PetTombstone /> : null}
+          </Draggable>
         )}
+
+        {/* Multi-Trash Rendering */}
+        {[
+          { id: 1, bottom: '8%', left: '52%', width: '85px', height: '80px' },   // center-left
+          { id: 2, bottom: '6%', left: '25%', width: '80px', height: '75px' },   // left-rug area
+          { id: 3, bottom: '10%', left: '74%', width: '75px', height: '70px' },  // right-corner
+          { id: 4, bottom: '5%', left: '12%', width: '85px', height: '80px' },   // far left
+          { id: 5, bottom: '9%', left: '38%', width: '80px', height: '75px' },   // center-right rug
+          { id: 6, bottom: '7%', left: '63%', width: '78px', height: '73px' },   // middle-right
+        ].filter(t => t.id <= trashCount).map(t => {
+          const isSweeping = sweepingId === t.id;
+          const isSparkling = sparklingId === t.id;
+          return (
+            <div 
+              key={t.id}
+              onClick={(e) => startCleaning(t.id, e)}
+              className={`absolute z-[25] group transition-all duration-300 ${interactive && onCleanSuccess && sweepingId == null && sparklingId == null ? 'cursor-pointer hover:scale-105' : 'pointer-events-none'}`}
+              style={{
+                bottom: t.bottom,
+                left: t.left,
+                width: t.width,
+                height: t.height,
+              }}
+            >
+              {/* Smelly green fumes (only when dirty) */}
+              {!isSweeping && !isSparkling && (
+                <div className="absolute inset-0 pointer-events-none overflow-visible">
+                  <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+                    <path d="M 30,50 Q 20,30 30,10" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" opacity="0.6"
+                      style={{ animation: 'driftUp 2.8s ease-in-out infinite, sway 1.8s ease-in-out infinite' }} />
+                    <path d="M 50,55 Q 60,35 45,15" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" opacity="0.5"
+                      style={{ animation: 'driftUp 3.2s ease-in-out infinite 0.6s, sway 2.2s ease-in-out infinite 0.3s' }} />
+                  </svg>
+                </div>
+              )}
+
+              {/* Trash Pile SVG (fades out when sweeping/sparkling) */}
+              {!isSparkling && (
+                <div className={`w-full h-full transition-opacity duration-500 ${isSweeping ? 'opacity-40 scale-90' : 'opacity-100'}`}>
+                  <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-md">
+                    <path d="M 25,65 Q 18,52 32,54 Z" fill="#e4e4e7" stroke="#a1a1aa" strokeWidth="1" />
+                    <path d="M 55,68 Q 62,56 70,62 Z" fill="#d4d4d8" stroke="#71717a" strokeWidth="1" />
+                    <path d="M 35,62 C 30,64 22,60 18,65 C 28,68 35,65 35,62 Z" fill="#facc15" />
+                    <path d="M 35,62 C 38,58 42,55 50,60 C 45,63 38,64 35,62 Z" fill="#eab308" />
+                    <path d="M 38,58 C 30,55 35,50 36,46 C 40,49 42,54 38,58 Z" fill="#facc15" />
+                    <circle cx="28" cy="61" r="1" fill="#713f12" />
+                    <circle cx="43" cy="57" r="1.2" fill="#713f12" />
+                    <path d="M 46,65 L 52,65 Q 49,60 49,54 L 47,54 Q 47,60 46,65 Z" fill="#fafafa" stroke="#d4d4d8" strokeWidth="0.5" />
+                    <path d="M 45,54 Q 49,51 53,54 L 45,54" fill="#b91c1c" />
+                    <path d="M 45,65 Q 49,68 53,65 L 45,65" fill="#b91c1c" />
+                    <path d="M 49,51 Q 50,45 52,43" fill="none" stroke="#78350f" strokeWidth="1.5" />
+                    <circle cx="15" cy="70" r="1.5" fill="#71717a" />
+                    <circle cx="75" cy="68" r="2.2" fill="#52525b" />
+                    <circle cx="82" cy="72" r="1" fill="#3f3f46" />
+                  </svg>
+                </div>
+              )}
+
+              {/* Sweep Broom SVG (only when sweeping) */}
+              {isSweeping && (
+                <div 
+                  className="absolute inset-0 pointer-events-none origin-bottom-right"
+                  style={{
+                    width: '80px',
+                    height: '110px',
+                    bottom: '15px',
+                    right: '-15px',
+                    animation: 'sweepBroom 0.5s ease-in-out infinite'
+                  }}
+                >
+                  <svg viewBox="0 0 80 120" className="w-full h-full drop-shadow-lg">
+                    <rect x="36" y="5" width="6" height="75" rx="3" fill="#b45309" stroke="#78350f" strokeWidth="1" />
+                    <path d="M 36,15 L 42,15 L 42,5 A 3,3 0 0,0 36,5 Z" fill="#78350f" />
+                    <path d="M 24,80 L 54,80 L 58,95 L 20,95 Z" fill="#eab308" stroke="#ca8a04" strokeWidth="1.2" />
+                    <path d="M 20,95 Q 6,118 12,120 Q 39,112 70,118 Q 72,114 58,95 Z" fill="#fef08a" stroke="#ca8a04" strokeWidth="1" />
+                    <path d="M 28,95 L 22,112" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
+                    <path d="M 38,95 L 39,114" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
+                    <path d="M 48,95 L 56,112" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
+                  </svg>
+                </div>
+              )}
+
+              {/* Sparkle Clean Effect (only when sparkling) */}
+              {isSparkling && (
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+                    <path d="M 50,20 Q 50,40 30,40 Q 50,40 50,60 Q 50,40 70,40 Q 50,40 50,20" fill="#facc15"
+                      style={{ transformOrigin: 'center', animation: 'sparkleScale 1s ease-in-out forwards' }} />
+                    <path d="M 25,45 Q 25,55 15,55 Q 25,55 25,65 Q 25,55 35,55 Q 25,55 25,45" fill="#facc15"
+                      style={{ transformOrigin: 'center', animation: 'sparkleScale 0.8s ease-in-out forwards 0.2s' }} />
+                    <path d="M 75,55 Q 75,65 65,65 Q 75,65 75,75 Q 75,65 85,65 Q 75,65 75,55" fill="#facc15"
+                      style={{ transformOrigin: 'center', animation: 'sparkleScale 0.9s ease-in-out forwards 0.1s' }} />
+                  </svg>
+                </div>
+              )}
+
+              {/* Tooltip text when dirty and interactive */}
+              {interactive && sweepingId == null && sparklingId == null && (
+                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-zinc-950/85 backdrop-blur-sm text-white px-2.5 py-1 rounded-xl text-[9px] font-black tracking-wide whitespace-nowrap border border-zinc-800 shadow-xl opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity pointer-events-none">
+                  Mở rộng dọn dẹp (+5 JOY)
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {night && <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 70% 22%, rgba(120,120,255,.10), rgba(10,8,30,.42) 92%)" }} />}
       </div>

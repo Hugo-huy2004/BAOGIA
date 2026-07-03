@@ -36,6 +36,8 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
   const [buyTarget, setBuyTarget] = useState(null);   // { id, def } pending purchase
   const [reaction, setReaction] = useState('');       // ephemeral emoji on item click
   const [receipt, setReceipt] = useState(null);       // invoice for purchase
+  const [petAction, setPetAction] = useState(null);   // null | 'feed' | 'revive'
+  const [isPetInteracting, setIsPetInteracting] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('monthly'); // 'daily' | 'monthly' | 'long'
   const [dailyDays, setDailyDays] = useState(7);       // default to 7 days
   const [showInvoice, setShowInvoice] = useState(null); // null or { plan, days, base, fee, total }
@@ -143,6 +145,9 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
           floorStyle: bio.decoRoom.floorStyle || 'wood_basic',
           items: { ...prev.items, ...(bio.decoRoom.items || {}) },
           positions: bio.decoRoom.positions || {},
+          trashCount: data.trashCount ?? bio.decoRoom.trashCount ?? 6,
+          petStatus: data.petStatus || bio.decoRoom.petStatus || 'alive',
+          petFedAt: data.petFedAt || bio.decoRoom.petFedAt || null,
         }));
       }
     } catch (err) {
@@ -311,9 +316,77 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
   const owns = (id, def) => def.price === 0 || storeData?.unlockedItems?.includes(id);
 
   const onSceneItemClick = (slot) => {
+    if (slot === 'pet') {
+      if (roomState.petStatus === 'dead') {
+        setPetAction('revive');
+      } else {
+        setPetAction('feed');
+      }
+      return;
+    }
     const emoji = slot === 'pet' ? ['🐾', '❤️', '😻'][Math.floor(Math.random() * 3)] : '💻';
     setReaction(emoji);
     setTimeout(() => setReaction(''), 900);
+  };
+
+  const handleFeedPet = async () => {
+    if (isPetInteracting) return;
+    setIsPetInteracting(true);
+    try {
+      const res = await fetch(`${API}/deco/feed-pet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      showToast?.('Cho thú cưng ăn thành công! 🥛🍖', 'success');
+      setRoomState(prev => ({
+        ...prev,
+        petFedAt: data.petFedAt
+      }));
+      setReaction('❤️');
+      setTimeout(() => setReaction(''), 900);
+      setPetAction(null);
+    } catch (err) {
+      showToast?.(err.message, 'error');
+    } finally {
+      setIsPetInteracting(false);
+    }
+  };
+
+  const handleRevivePet = async () => {
+    if (isPetInteracting) return;
+    setIsPetInteracting(true);
+    try {
+      const res = await fetch(`${API}/deco/revive-pet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      showToast?.('Hồi sinh thú cưng thành công! 🎉🐾', 'success');
+      setStoreData(prev => ({ ...prev, balance: data.balance }));
+      setRoomState(prev => ({
+        ...prev,
+        petStatus: data.petStatus,
+        petFedAt: data.petFedAt
+      }));
+      onBioUpdate?.({ 
+        joyBalance: data.balance, 
+        decoRoom: { 
+          ...(bio?.decoRoom || {}), 
+          petStatus: data.petStatus,
+          petFedAt: data.petFedAt
+        } 
+      });
+      setPetAction(null);
+    } catch (err) {
+      showToast?.(err.message, 'error');
+    } finally {
+      setIsPetInteracting(false);
+    }
   };
 
   const cozy = useMemo(() => cozinessScore(roomState.items), [roomState.items]);
@@ -482,9 +555,16 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                 room={roomState} 
                 interactive 
                 lastCleanedAt={lastCleanedAt}
-                onCleanSuccess={(newBalance, newCleanedAt) => {
+                onCleanSuccess={(newBalance, nextTrashCount) => {
                   setStoreData(prev => ({ ...prev, balance: newBalance }));
-                  setLastCleanedAt(newCleanedAt);
+                  setRoomState(prev => ({ ...prev, trashCount: nextTrashCount }));
+                  onBioUpdate?.({ 
+                    joyBalance: newBalance, 
+                    decoRoom: { 
+                      ...(bio?.decoRoom || {}), 
+                      trashCount: nextTrashCount 
+                    } 
+                  });
                 }}
                 onItemClick={onSceneItemClick} 
                 onPositionChange={(slot, pos) => setRoomState(p => ({ ...p, positions: { ...(p.positions || {}), [slot]: pos } }))}
@@ -739,6 +819,47 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                 className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">
                 {isBuying ? 'Đang xử lý...' : 'Mua ngay'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Pet Action confirm modal ────────────────────────────────────────── */}
+      {petAction && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn" onClick={() => setPetAction(null)}>
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-zinc-200 dark:border-zinc-800 text-center" onClick={(e) => e.stopPropagation()}>
+            <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+              <span className="material-symbols-outlined text-4xl text-zinc-500">
+                {petAction === 'revive' ? 'heart_broken' : 'restaurant'}
+              </span>
+            </div>
+            {petAction === 'revive' ? (
+              <>
+                <p className="text-sm font-black text-zinc-800 dark:text-zinc-100">Hồi sinh thú cưng 🐾</p>
+                <p className="mt-1.5 text-xs text-zinc-500">Thú cưng đã qua đời vì đói. Bạn có muốn hồi sinh thú cưng với giá <span className="font-black text-yellow-600 dark:text-yellow-400">99 JOY</span>?</p>
+                {storeData.balance < 99 && (
+                  <p className="mt-2 text-xs font-semibold text-rose-500">Không đủ JOY (bạn có {storeData.balance}).</p>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-black text-zinc-800 dark:text-zinc-100">Cho thú cưng ăn 🍖</p>
+                <p className="mt-1.5 text-xs text-zinc-500">Đặt lại thời gian đói của thú cưng thêm 24 giờ (Hoàn toàn miễn phí!).</p>
+              </>
+            )}
+            <div className="mt-4 flex gap-2">
+              <button onClick={() => setPetAction(null)} className="flex-1 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-bold">Huỷ</button>
+              {petAction === 'revive' ? (
+                <button onClick={handleRevivePet} disabled={storeData.balance < 99 || isPetInteracting}
+                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">
+                  {isPetInteracting ? 'Đang xử lý...' : 'Hồi sinh'}
+                </button>
+              ) : (
+                <button onClick={handleFeedPet} disabled={isPetInteracting}
+                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">
+                  {isPetInteracting ? 'Đang xử lý...' : 'Cho ăn'}
+                </button>
+              )}
             </div>
           </div>
         </div>

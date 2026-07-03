@@ -2,7 +2,7 @@ import express from 'express';
 import Bio from '../models/Bio.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 import { awardJoy } from '../utils/joyService.js';
-import { checkAndResetDecoRoom } from '../utils/decoHelper.js';
+import { checkAndResetDecoRoom, updateTrashAndPetStatus } from '../utils/decoHelper.js';
 
 const router = express.Router();
 
@@ -74,6 +74,7 @@ router.get('/store', requireMember, async (req, res) => {
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
 
     await checkAndResetDecoRoom(bio);
+    await updateTrashAndPetStatus(bio);
 
     res.json({
       store: DECO_STORE,
@@ -81,6 +82,9 @@ router.get('/store', requireMember, async (req, res) => {
       expiresAt: bio.decoRoom?.expiresAt || null,
       visitedRooms: bio.decoRoom?.visitedRooms || [],
       lastCleanedAt: bio.decoRoom?.lastCleanedAt || null,
+      trashCount: bio.decoRoom?.trashCount ?? 6,
+      petStatus: bio.decoRoom?.petStatus || 'alive',
+      petFedAt: bio.decoRoom?.petFedAt || null,
       balance: bio.joyBalance || 0,
       email: bio.email
     });
@@ -459,7 +463,7 @@ router.post('/visit', requireMember, async (req, res) => {
   }
 });
 
-// POST /api/deco/clean - Sweep trash and get 5 JOY reward (12h cooldown)
+// POST /api/deco/clean - Sweep 1 trash pile and get 5 JOY reward (max 6 piles, 1h spawn interval)
 router.post('/clean', requireMember, async (req, res) => {
   try {
     const email = req.memberEmail;
@@ -467,15 +471,27 @@ router.post('/clean', requireMember, async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
 
-    const now = new Date();
-    const lastCleaned = bio.decoRoom?.lastCleanedAt ? new Date(bio.decoRoom.lastCleanedAt) : new Date(0);
+    // Sync trashCount first
+    await updateTrashAndPetStatus(bio);
 
-    const minInterval = 12 * 60 * 60 * 1000; // 12 hours
-    if (now.getTime() - lastCleaned.getTime() < minInterval) {
-      const waitMs = minInterval - (now.getTime() - lastCleaned.getTime());
-      const waitHours = Math.ceil(waitMs / (60 * 60 * 1000));
-      return res.status(400).json({ error: `Phòng KTX đã sạch sẽ! Hãy quay lại quét rác sau ${waitHours} giờ nữa.` });
+    const currentTrash = bio.decoRoom?.trashCount ?? 0;
+    if (currentTrash <= 0) {
+      return res.status(400).json({ error: 'Phòng KTX đang rất sạch sẽ, không có rác để dọn dẹp! ✨' });
     }
+
+    // Decrement trash count
+    const nextTrash = currentTrash - 1;
+    bio.decoRoom.trashCount = nextTrash;
+    bio.markModified('decoRoom.trashCount');
+
+    const now = new Date();
+    // If we just cleaned the last piece, reset spawn anchor
+    if (nextTrash === 0) {
+      bio.decoRoom.lastTrashSpawnedAt = now;
+      bio.markModified('decoRoom.lastTrashSpawnedAt');
+    }
+    bio.decoRoom.lastCleanedAt = now;
+    bio.markModified('decoRoom.lastCleanedAt');
 
     // Award 5 JOY
     const cleanReward = 5;
@@ -487,11 +503,92 @@ router.post('/clean', requireMember, async (req, res) => {
       { bioDoc: bio, skipSave: true }
     );
 
-    bio.decoRoom.lastCleanedAt = now;
-    bio.markModified('decoRoom.lastCleanedAt');
     await bio.save();
 
-    res.json({ success: true, balance: bio.joyBalance, lastCleanedAt: bio.decoRoom.lastCleanedAt });
+    res.json({ 
+      success: true, 
+      balance: bio.joyBalance, 
+      trashCount: bio.decoRoom.trashCount,
+      lastCleanedAt: bio.decoRoom.lastCleanedAt
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// POST /api/deco/feed-pet - Feed equipped pet for free to reset 24h hunger timer
+router.post('/feed-pet', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
+
+    await updateTrashAndPetStatus(bio);
+
+    if (!bio.decoRoom?.items?.pet) {
+      return res.status(400).json({ error: 'Bạn chưa nuôi thú cưng trong phòng KTX!' });
+    }
+
+    if (bio.decoRoom.petStatus === 'dead') {
+      return res.status(400).json({ error: 'Thú cưng đã qua đời, bạn cần hồi sinh trước khi cho ăn.' });
+    }
+
+    const now = new Date();
+    bio.decoRoom.petFedAt = now;
+    bio.markModified('decoRoom.petFedAt');
+    await bio.save();
+
+    res.json({ success: true, petFedAt: bio.decoRoom.petFedAt });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// POST /api/deco/revive-pet - Revive pet for 99 JOY
+router.post('/revive-pet', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
+
+    await updateTrashAndPetStatus(bio);
+
+    if (!bio.decoRoom?.items?.pet) {
+      return res.status(400).json({ error: 'Bạn chưa nuôi thú cưng trong phòng KTX!' });
+    }
+
+    if (bio.decoRoom.petStatus !== 'dead') {
+      return res.status(400).json({ error: 'Thú cưng vẫn đang sống khỏe mạnh! 🐾' });
+    }
+
+    const price = 99;
+    if (bio.joyBalance < price) {
+      return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${price} JOY để hồi sinh thú cưng.` });
+    }
+
+    const { balance } = await awardJoy(
+      bio.email,
+      -price,
+      'store_purchase',
+      'Chi phí hồi sinh thú cưng KTX HugoHome',
+      { bioDoc: bio, skipSave: true }
+    );
+
+    const now = new Date();
+    bio.decoRoom.petStatus = 'alive';
+    bio.decoRoom.petFedAt = now;
+    bio.markModified('decoRoom.petStatus');
+    bio.markModified('decoRoom.petFedAt');
+    await bio.save();
+
+    res.json({ 
+      success: true, 
+      balance: bio.joyBalance, 
+      petStatus: bio.decoRoom.petStatus, 
+      petFedAt: bio.decoRoom.petFedAt 
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

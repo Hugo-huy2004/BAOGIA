@@ -340,10 +340,14 @@ const BioSchema = new mongoose.Schema(
       expiresAt: { type: Date, default: null }
     },
       decoRoom: {
-      enabled: { type: Boolean, default: false },
+       enabled: { type: Boolean, default: false },
       expiresAt: { type: Date, default: null },
       visitedRooms: { type: [String], default: [] },
       lastCleanedAt: { type: Date, default: () => new Date(Date.now() - 12 * 60 * 60 * 1000) },
+      trashCount: { type: Number, default: 6 },
+      lastTrashSpawnedAt: { type: Date, default: Date.now },
+      petFedAt: { type: Date, default: Date.now },
+      petStatus: { type: String, default: 'alive' },
       wallColor: { type: String, default: '#f4f4f5' },
       floorStyle: { type: String, default: 'wood_basic' },
       items: {

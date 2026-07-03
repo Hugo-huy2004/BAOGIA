@@ -9,7 +9,7 @@ import { sendPushNotification } from '../utils/pushNotifier.js';
 import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
 import { isEduEmail } from '../utils/eduEmail.js';
 import { broadcastToEmail } from '../utils/realtime.js';
-import { checkAndResetDecoRoom } from '../utils/decoHelper.js';
+import { checkAndResetDecoRoom, updateTrashAndPetStatus } from '../utils/decoHelper.js';
 
 const router = express.Router();
 
@@ -625,7 +625,10 @@ router.get('/slug/:slug', async (req, res) => {
     // Kích hoạt Single-flight & Stale-while-revalidate (giữ fresh trong 60 giây)
     const bio = await fetchWithCache(cacheKey, 60000, async () => {
       const found = await Bio.findOne({ slug });
-      if (found) await checkAndResetDecoRoom(found);
+      if (found) {
+        await checkAndResetDecoRoom(found);
+        await updateTrashAndPetStatus(found);
+      }
       const bioDoc = await removeExpiredBioIfNeeded(found);
       if (bioDoc) {
         const doc = bioDoc.toObject();
