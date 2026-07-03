@@ -11,6 +11,8 @@ import DefaultTheme from "../../components/themes/DefaultTheme";
 import BrutalismTheme from "../../components/themes/BrutalismTheme";
 import FlatTheme from "../../components/themes/FlatTheme";
 
+import { BioProfileSkeleton } from "../../components/ui/SkeletonLayouts";
+
 export default function BioPublicPage() {
   const { slug } = useParams();
   const { data: bio, error, isLoading } = useSWR(
@@ -57,14 +59,7 @@ export default function BioPublicPage() {
   });
 
   if (loading) {
-    return (
-      <main className="min-h-[100dvh] flex items-center justify-center bg-background">
-        <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto" />
-          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Loading...</p>
-        </div>
-      </main>
-    );
+    return <BioProfileSkeleton />;
   }
 
   if (!bio || expired || bio.status === 'locked' || bio.status === 'pending') {

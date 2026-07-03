@@ -127,7 +127,9 @@ mongoose.connect(MONGODB_URI, {
     // to Redis (redisClient.js already exists).
     try {
       const Bio = (await import('./models/Bio.js')).default;
-      const bios = await Bio.find({}, 'slug');
+      // .lean() → plain objects, no Mongoose document hydration for a
+      // throwaway boot scan of every slug.
+      const bios = await Bio.find({}, 'slug').lean();
       global.validSlugs = new Set(bios.map(b => b.slug));
       console.log(`🛡️ Valid-slug set initialized with ${global.validSlugs.size} slugs`);
     } catch(err) {
@@ -175,6 +177,7 @@ import arcadeRoutes from './routes/arcadeRoutes.js';
 import webauthnRoutes from './routes/webauthnRoutes.js';
 import memberAuthRoutes from './routes/memberAuthRoutes.js';
 import opsRoutes from './routes/opsRoutes.js';
+import joyDecoRoutes from './routes/joyDecoRoutes.js';
 
 // Routes
 app.use('/api/ops', opsRoutes);
@@ -205,6 +208,7 @@ app.use('/api/webauthn', webauthnRoutes);
 app.use('/api/presence', presenceRoutes);
 app.use('/api/radio', radioRoutes);
 app.use('/api/arcade', arcadeRoutes);
+app.use('/api/deco', joyDecoRoutes);
 
 // Educational Email Validation
 app.get('/api/auth/verify-edu', async (req, res) => {

@@ -4,6 +4,7 @@ import ChessGame from '../models/ChessGame.js';
 import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
+import { fetchWithCache } from '../utils/cacheHelper.js';
 
 const router = express.Router();
 
@@ -17,11 +18,15 @@ const CHESS_JOY_MAX = 75;
 router.get('/leaderboard', async (req, res) => {
   try {
     const limit = Math.min(Number(req.query.limit) || 20, 100);
-    const players = await ChessRating.find({})
-      .sort({ rating: -1 })
-      .limit(limit)
-      .select('-__v')
-      .lean();
+    // Shared 5s cache + single-flight so many concurrent viewers collapse to
+    // one DB read (same rationale as the arcade leaderboard).
+    const players = await fetchWithCache(`chess_lb_${limit}`, 5000, () =>
+      ChessRating.find({})
+        .sort({ rating: -1 })
+        .limit(limit)
+        .select('-__v')
+        .lean()
+    );
 
     const leaderboard = players.map((p, idx) => ({ rank: idx + 1, ...p }));
     res.json({ success: true, leaderboard });

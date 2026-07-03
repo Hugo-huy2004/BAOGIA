@@ -2,6 +2,7 @@ import React from "react";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import { motion } from "framer-motion";
 import { RenderColoredText } from "../HugoLogo";
+import BioDecoRoom from "../bio/BioDecoRoom";
 
 const BRAND_COLORS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#3B82F6", "#A855F7"];
 
@@ -241,6 +242,34 @@ export default React.memo(function DefaultTheme({ bio, isPreview = false, isOnli
                 </motion.div>
               )}
             </div>
+          </motion.div>
+        </section>
+      )}
+
+      {/* SLIDE 1.5: DECO ROOM */}
+      {bio.decoRoom?.enabled && (
+        <section className={`${isPreview ? 'min-h-full' : 'min-h-[100dvh]'} w-full snap-start relative z-10 flex flex-col items-center justify-center p-6 py-20`}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-lg pointer-events-none" />
+          <motion.div 
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={containerVariants}
+            className="relative z-20 w-full max-w-md mx-auto flex flex-col items-center text-center"
+          >
+             <motion.div variants={itemVariants} className="space-y-1.5 text-center drop-shadow-md mb-6">
+              <div className="inline-flex items-center gap-1.5 text-[9px] sm:text-[10px] tracking-[0.25em] sm:tracking-[0.3em] uppercase font-bold text-white/50">
+                <span className="material-symbols-outlined text-[11px] sm:text-xs text-white/40">chair</span>
+                VIRTUAL ROOM
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black uppercase tracking-[0.1em] font-serif we-bare-bears hugo-studio-gradient">
+                Ký Túc Xá Ảo
+              </h3>
+            </motion.div>
+            
+            <motion.div variants={itemVariants} className="w-full">
+               <BioDecoRoom bio={bio} />
+            </motion.div>
           </motion.div>
         </section>
       )}

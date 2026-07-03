@@ -29,6 +29,7 @@ import AuraBackground from "../../components/member/portal/AuraBackground";
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
 import ParticleConnectModal from "../../components/member/shared/ParticleConnectModal";
+import { DashboardSkeleton } from "../../components/ui/SkeletonLayouts";
 
 // Maps a raw Bio document onto the editable formData shape — pulled out so
 // both the lazy-cache hydrate (instant paint) and the real fetch (revalidate)
@@ -619,14 +620,7 @@ export default function MemberPortalPage() {
 
   // ── Loading screen ────────────────────────────────────────────────────────────
   if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-background dark:bg-background">
-        <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-[10px] text-zinc-450 font-bold uppercase tracking-widest">{t("memberPortal.loadingConfig")}</p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   // ── Active section info (mobile) ──────────────────────────────────────────────

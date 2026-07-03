@@ -338,6 +338,24 @@ const BioSchema = new mongoose.Schema(
     bioThemeRental: {
       template: { type: String, default: 'default' },
       expiresAt: { type: Date, default: null }
+    },
+    decoRoom: {
+      enabled: { type: Boolean, default: false },
+      wallColor: { type: String, default: '#f4f4f5' },
+      floorStyle: { type: String, default: 'wood_basic' },
+      items: {
+        desk: { type: String, default: 'desk_basic' },
+        chair: { type: String, default: 'chair_basic' },
+        computer: { type: String, default: 'laptop' },
+        pet: { type: String, default: null },
+        poster: { type: String, default: null },
+        window: { type: String, default: 'window_day' },
+        // Decorative slots added for richer 2D room-building.
+        rug: { type: String, default: null },
+        plant: { type: String, default: null },
+        lamp: { type: String, default: null }
+      },
+      unlockedItems: { type: [String], default: [] }
     }
   },
   { timestamps: true }
@@ -353,6 +371,23 @@ const BioSchema = new mongoose.Schema(
 BioSchema.index(
   { phone: 1 },
   { unique: true, partialFilterExpression: { phone: { $gt: '' } } }
+);
+
+// contactEmail is the fallback identity on ~29 hot query paths (every JOY /
+// companion / bio route does `findOne({email})` then `findOne({contactEmail})`).
+// Without an index each fallback was a full collection scan — O(n) per request,
+// catastrophic at 1000+ users. Partial index (only rows with a real value)
+// keeps it tiny since most bios leave contactEmail empty.
+BioSchema.index(
+  { contactEmail: 1 },
+  { partialFilterExpression: { contactEmail: { $gt: '' } } }
+);
+
+// Birthday voucher redemption looks up by code — index so it's O(log n), not a
+// scan. Partial: only bios that actually have an active voucher.
+BioSchema.index(
+  { birthdayVoucherCode: 1 },
+  { partialFilterExpression: { birthdayVoucherCode: { $gt: '' } } }
 );
 
 const Bio = mongoose.model('Bio', BioSchema);

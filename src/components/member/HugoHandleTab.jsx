@@ -1,6 +1,7 @@
 import React, { useState, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import SubUtilityHeader from "./SubUtilityHeader";
+import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 
 const MemberSecretLinkTab = lazy(() => import("./MemberSecretLinkTab"));
 const MemberFileToolsTab = lazy(() => import("./MemberFileToolsTab"));
@@ -17,7 +18,7 @@ const SECTIONS = [
 export default function HugoHandleTab({ bio, publicLink, showToast, onBack, setFormData, handleSave }) {
   const { t } = useTranslation();
   const [section, setSection] = useState("secret_link");
-  const fallback = <div className="flex items-center justify-center py-12 text-slate-400 text-sm">{t("companion.tab.loading", "Đang tải...")}</div>;
+  const fallback = <TabFallbackSkeleton />;
 
   return (
     <div className="animate-fadeIn max-w-4xl mx-auto bg-white dark:bg-background rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 lg:p-8 space-y-6">

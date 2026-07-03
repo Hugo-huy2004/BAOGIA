@@ -8,6 +8,7 @@ import { fetchChallengeStatus, claimChallenge } from "../../services/joyApi";
 import "./member-joy.css";
 import { WalletCards, Store } from "lucide-react";
 import JoyCoinBadge from "../shared/JoyCoinBadge";
+import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 
 const MemberManageTab = React.lazy(() => import("./MemberManageTab"));
 
@@ -346,7 +347,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
               <div className="joy-feed joy-feed-span">
                 <div className="joy-feed-card">
                   <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">workspace_premium</span>Gói dịch vụ &amp; Trang Bio</h3>
-                  <React.Suspense fallback={<div className="py-8 text-center text-xs text-zinc-400">Đang tải...</div>}>
+                  <React.Suspense fallback={<TabFallbackSkeleton />}>
                     <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} />
                   </React.Suspense>
                 </div>

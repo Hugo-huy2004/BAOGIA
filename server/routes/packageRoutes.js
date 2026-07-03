@@ -4,6 +4,7 @@ import Bio from '../models/Bio.js';
 import JoyGiftCard from '../models/JoyGiftCard.js';
 import { parseBirthday } from '../utils/birthdayAutomation.js';
 import { sendPushNotification } from '../utils/pushNotifier.js';
+import { fetchWithCache } from '../utils/cacheHelper.js';
 
 const router = express.Router();
 
@@ -39,10 +40,15 @@ const getRandomLogoColor = () => {
 // PACKAGE TEMPLATE ENDPOINTS (CRUD)
 // ----------------------------------------------------
 
-// GET all packages
+// GET all packages — public catalog, rarely changes. Cache 60s (SWR + single-
+// flight) so a burst of visitors collapses to one DB read; admin edits appear
+// within ~60s via background revalidation. Also set a CDN edge-cache header.
 router.get('/', async (req, res) => {
   try {
-    const packages = await Package.find().sort({ createdAt: -1 });
+    const packages = await fetchWithCache('all_packages', 60000, () =>
+      Package.find().sort({ createdAt: -1 }).lean()
+    );
+    res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
     res.json(packages);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -4,6 +4,7 @@ import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { isFeatureActive } from '../utils/featureSubscriptionService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
+import { fetchWithCache } from '../utils/cacheHelper.js';
 
 const router = express.Router();
 
@@ -111,11 +112,18 @@ router.get('/leaderboard', async (req, res) => {
     if (!Object.keys(SCORE_CEILINGS).includes(game)) {
       return res.status(400).json({ error: 'invalid game' });
     }
-    const leaderboard = await ArcadeScore.find({ game })
-      .sort({ bestScore: -1 })
-      .limit(Math.min(Number(limit) || 30, 100))
-      .select('email displayName avatar bestScore gamesPlayed lastPlayedAt record')
-      .lean();
+    const cap = Math.min(Number(limit) || 30, 100);
+    // The client polls this every ~8s; at 1000 users that's ~125 identical
+    // queries/sec. fetchWithCache serves a 5s-fresh copy and coalesces all
+    // concurrent misses into ONE DB read (single-flight), so Mongo sees ~1
+    // query per 5s per game regardless of how many users are watching.
+    const leaderboard = await fetchWithCache(`arcade_lb_${game}_${cap}`, 5000, () =>
+      ArcadeScore.find({ game })
+        .sort({ bestScore: -1 })
+        .limit(cap)
+        .select('email displayName avatar bestScore gamesPlayed lastPlayedAt record')
+        .lean()
+    );
     res.json({ leaderboard });
   } catch (error) {
     res.status(500).json({ error: error.message });

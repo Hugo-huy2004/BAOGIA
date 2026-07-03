@@ -128,6 +128,16 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
       desc: t("memberPortal.infoVersion.desc"),
       shortDesc: t("memberPortal.infoVersion.desc"),
       btnText: t("memberPortal.infoVersion.title")
+    },
+    {
+      id: "deco",
+      icon: "chair",
+      glyphs: ["pets", "desk"],
+      tint: "pink",
+      title: "Deco Studio",
+      desc: "Trang trí không gian Ký Túc Xá Ảo của bạn bằng các vật phẩm nội thất độc đáo và trưng bày trên trang Bio.",
+      shortDesc: "Trang trí Ký Túc Xá Ảo của bạn.",
+      btnText: "Mở Deco Studio"
     }
   ];
 

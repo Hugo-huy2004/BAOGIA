@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
+import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 const HugoHelpdeskTab = lazy(() => import("./HugoHelpdeskTab"));
@@ -11,6 +12,7 @@ const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
 const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
 const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
 const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
+const DecoStudioTab = lazy(() => import("./DecoStudioTab"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate }) {
   const { t } = useTranslation();
@@ -31,7 +33,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
     }
   }, [data?.systemSettings?.blockUtilities, selectedUtility, onSelectUtility, showToast]);
 
-  const fallback = <div className="flex items-center justify-center py-12 text-slate-400 text-sm">{t("companion.tab.loading", "Đang tải...")}</div>;
+  const fallback = <TabFallbackSkeleton />;
 
   const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "ide" || selectedUtility === "arcade";
 
@@ -103,6 +105,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* Info & Version */}
       {selectedUtility === "info" && (
         <MemberInfoVersionTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+      )}
+
+      {/* Deco Studio */}
+      {selectedUtility === "deco" && (
+        <DecoStudioTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
       )}
       </Suspense>
     </div>
