@@ -38,7 +38,10 @@ export default defineConfig({
         skipWaiting: false,
         clientsClaim: false,
         importScripts: ['/push-sw.js'],
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Avoid including PNGs here because `includeAssets` already adds
+        // favicon/** and image/** — listing PNGs in both places caused
+        // duplicate precache entries (conflicting revisions).
+        globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
         runtimeCaching: [
           // Arcade leaderboard — StaleWhileRevalidate so UI shows instantly
           // from cache while fresh data loads in background (matches 8s poll interval)

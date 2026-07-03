@@ -37,10 +37,10 @@ services:
         sync: false
 
       - key: JWT_SECRET
-        sync: false
+        generateValue: true
 
       - key: JOY_QR_SECRET
-        sync: false
+        generateValue: true
 
       - key: INTERNAL_API_KEY
         sync: false

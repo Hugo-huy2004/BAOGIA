@@ -1,6 +1,15 @@
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from "web-vitals";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
+// Toggle client-side event reporting in environments where the ops endpoint
+// isn't available. Set `VITE_ENABLE_CLIENT_MONITORING=false` to disable.
+const ENABLE_CLIENT_MONITORING = String(import.meta.env.VITE_ENABLE_CLIENT_MONITORING || "true") !== "false";
+// Runtime toggle persisted short-term when the ops endpoint is absent/404ing.
+let runtimeEnabled = ENABLE_CLIENT_MONITORING;
+try {
+  const until = Number(sessionStorage.getItem('clientMonitoringDisabledUntil') || '0');
+  if (until && Date.now() < until) runtimeEnabled = false;
+} catch (_) {}
 const EVENT_URL = `${API_BASE}/ops/client-event`;
 const SLOW_API_MS = Number(import.meta.env.VITE_SLOW_API_MS || 3000);
 const SLOW_VITAL_RATINGS = new Set(["needs-improvement", "poor"]);
@@ -43,6 +52,7 @@ function safePayload(event) {
 
 export function reportClientEvent(event) {
   if (typeof window === "undefined") return;
+  if (!runtimeEnabled) return;
   const payload = JSON.stringify(safePayload(event));
 
   try {
@@ -60,7 +70,18 @@ export function reportClientEvent(event) {
     body: payload,
     keepalive: true,
     credentials: "include",
-  }).catch(() => {});
+  })
+    .then((res) => {
+      if (!res.ok && (res.status === 404 || res.status === 410)) {
+        // Ops endpoint missing — disable reporting for 10 minutes to avoid spam.
+        runtimeEnabled = false;
+        try { sessionStorage.setItem('clientMonitoringDisabledUntil', String(Date.now() + 10 * 60 * 1000)); } catch (_) {}
+      }
+    })
+    .catch(() => {
+      runtimeEnabled = false;
+      try { sessionStorage.setItem('clientMonitoringDisabledUntil', String(Date.now() + 10 * 60 * 1000)); } catch (_) {}
+    });
 }
 
 function installWebVitals() {
