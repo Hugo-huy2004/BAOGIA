@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DecoStudioSkeleton } from '../ui/SkeletonLayouts';
 import JoyCoinBadge from '../shared/JoyCoinBadge';
 import { DECO_ART, DECO_TYPE_META, DecoRoomScene, cozinessScore, isNightRoom } from './deco/decoAssets';
@@ -20,19 +21,23 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
   const [activeTab, setActiveTab] = useState('my_room'); // 'my_room' | 'neighborhood'
   const [storeData, setStoreData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [buyTarget, setBuyTarget] = useState(null);   // { id, def } pending purchase
   const [reaction, setReaction] = useState('');       // ephemeral emoji on item click
+  const [receipt, setReceipt] = useState(null);       // invoice for purchase
   
   // Neighborhood states
   const [neighbors, setNeighbors] = useState([]);
   const [loadingNeighbors, setLoadingNeighbors] = useState(false);
+
+  const [saveStatus, setSaveStatus] = useState('saved'); // 'saved' | 'saving' | 'error'
+  const isInitialized = useRef(false);
 
   const [roomState, setRoomState] = useState({
     enabled: false,
     wallColor: '#f4f4f5',
     floorStyle: 'wood_basic',
     items: { desk: 'desk_basic', chair: 'chair_basic', computer: 'laptop', window: 'window_day', poster: null, pet: null, rug: null, plant: null, lamp: null },
+    positions: {},
   });
 
   useEffect(() => { fetchStore(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -42,6 +47,66 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       fetchNeighbors();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    if (!loading && storeData) {
+      const timer = setTimeout(() => {
+        isInitialized.current = true;
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, storeData]);
+
+  useEffect(() => {
+    if (!isInitialized.current) return;
+
+    setSaveStatus('saving');
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const res = await fetch(`${API}/deco/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(roomState),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        onBioUpdate?.({ decoRoom: data.decoRoom });
+        setSaveStatus('saved');
+      } catch (err) {
+        console.error('Autosave failed:', err);
+        setSaveStatus('error');
+      }
+    }, 1000);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [roomState]);
+
+  const [stampVisible, setStampVisible] = useState(false);
+
+  useEffect(() => {
+    if (receipt) {
+      const audio = new Audio("https://www.soundjay.com/misc/sounds/cash-register-01.mp3");
+      audio.volume = 0.4;
+      audio.play().catch(() => {});
+      
+      const timer1 = setTimeout(() => {
+        const bell = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+        bell.volume = 0.5;
+        bell.play().catch(() => {});
+      }, 300);
+
+      const timer2 = setTimeout(() => {
+        setStampVisible(true);
+      }, 500);
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+      };
+    } else {
+      setStampVisible(false);
+    }
+  }, [receipt]);
 
   async function fetchStore() {
     try {
@@ -58,6 +123,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
           wallColor: bio.decoRoom.wallColor || '#f4f4f5',
           floorStyle: bio.decoRoom.floorStyle || 'wood_basic',
           items: { ...prev.items, ...(bio.decoRoom.items || {}) },
+          positions: bio.decoRoom.positions || {},
         }));
       }
     } catch (err) {
@@ -81,9 +147,12 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
     }
   };
 
+  const [isBuying, setIsBuying] = useState(false);
+
   const confirmBuy = async () => {
+    if (isBuying) return;
+    setIsBuying(true);
     const { id, def } = buyTarget;
-    setBuyTarget(null);
     try {
       const res = await fetch(`${API}/deco/buy`, {
         method: 'POST',
@@ -95,30 +164,28 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       showToast?.(`Đã mua ${def.name}! 🎉`, 'success');
       setStoreData((prev) => ({ ...prev, balance: data.balance, unlockedItems: data.unlockedItems }));
       setItem(def.type, id); // auto-equip
-      onBioUpdate?.();
-    } catch (err) {
-      showToast?.(err.message, 'error');
-    }
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const res = await fetch(`${API}/deco/save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(roomState),
+      setReceipt({
+        id,
+        name: def.name,
+        price: def.price,
+        date: new Date().toLocaleString('vi-VN'),
+        txCode: `INV-${Date.now().toString(36).toUpperCase()}`
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      showToast?.('Đã lưu Ký Túc Xá Ảo! 🏠', 'success');
-      onBioUpdate?.();
+      setBuyTarget(null);
+      onBioUpdate?.({ 
+        joyBalance: data.balance, 
+        decoRoom: { 
+          ...(bio?.decoRoom || {}), 
+          unlockedItems: data.unlockedItems 
+        } 
+      });
     } catch (err) {
       showToast?.(err.message, 'error');
     } finally {
-      setSaving(false);
+      setIsBuying(false);
     }
   };
+
 
   const setItem = (type, id) => setRoomState((p) => ({ ...p, items: { ...p.items, [type]: id } }));
   const owns = (id, def) => def.price === 0 || storeData?.unlockedItems?.includes(id);
@@ -162,6 +229,28 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             <h2 className="text-lg md:text-xl font-black text-zinc-900 dark:text-white flex items-center gap-1.5 tracking-tight">
               <span className="material-symbols-outlined text-indigo-500 text-[22px]">roofing</span>
               HugoHome
+              {activeTab === 'my_room' && (
+                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500">
+                  {saveStatus === 'saving' && (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                      <span>Đang lưu...</span>
+                    </>
+                  )}
+                  {saveStatus === 'saved' && (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span>Đã lưu</span>
+                    </>
+                  )}
+                  {saveStatus === 'error' && (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                      <span className="text-rose-500">Lỗi lưu</span>
+                    </>
+                  )}
+                </span>
+              )}
             </h2>
           </div>
 
@@ -170,12 +259,6 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
               <JoyCoinBadge hideAmount size="sm" />
               {storeData.balance.toLocaleString()}
             </div>
-            {activeTab === 'my_room' && (
-              <button onClick={handleSave} disabled={saving}
-                className="px-4 py-1.5 bg-indigo-600 text-white rounded-full text-[11px] font-black hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-sm hidden sm:block">
-                {saving ? 'ĐANG LƯU…' : 'LƯU PHÒNG'}
-              </button>
-            )}
           </div>
         </div>
 
@@ -203,7 +286,12 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
           <>
             {/* ── Live room preview ─────────────────────────────────────────────── */}
             <div className="relative w-full h-[260px] md:h-[360px] shrink-0 border-b border-zinc-200 dark:border-zinc-800">
-              <DecoRoomScene room={roomState} interactive onItemClick={onSceneItemClick} />
+              <DecoRoomScene 
+                room={roomState} 
+                interactive 
+                onItemClick={onSceneItemClick} 
+                onPositionChange={(slot, pos) => setRoomState(p => ({ ...p, positions: { ...(p.positions || {}), [slot]: pos } }))}
+              />
 
               {reaction && (
                 <div className="absolute left-1/2 top-1/3 -translate-x-1/2 text-3xl pointer-events-none animate-bounce">{reaction}</div>
@@ -377,12 +465,109 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             )}
             <div className="mt-4 flex gap-2">
               <button onClick={() => setBuyTarget(null)} className="flex-1 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-bold">Huỷ</button>
-              <button onClick={confirmBuy} disabled={storeData.balance < buyTarget.def.price}
-                className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">Mua ngay</button>
+              <button onClick={confirmBuy} disabled={storeData.balance < buyTarget.def.price || isBuying}
+                className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">
+                {isBuying ? 'Đang xử lý...' : 'Mua ngay'}
+              </button>
             </div>
           </div>
         </div>
       )}
+      
+      {/* ── Receipt Modal ──────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {receipt && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setReceipt(null)}
+              className="absolute inset-0 bg-zinc-900/40 dark:bg-black/60 backdrop-blur-sm"
+            />
+
+            {/* Receipt Paper */}
+            <motion.div
+              initial={{ y: 50, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 20, opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-sm bg-[#faf9f6] dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 shadow-2xl overflow-hidden"
+              style={{
+                clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), 95% 100%, 90% calc(100% - 10px), 85% 100%, 80% calc(100% - 10px), 75% 100%, 70% calc(100% - 10px), 65% 100%, 60% calc(100% - 10px), 55% 100%, 50% calc(100% - 10px), 45% 100%, 40% calc(100% - 10px), 35% 100%, 30% calc(100% - 10px), 25% 100%, 20% calc(100% - 10px), 15% 100%, 10% calc(100% - 10px), 5% 100%, 0 calc(100% - 10px))"
+              }}
+            >
+              {/* Header */}
+              <div className="pt-8 pb-4 px-6 text-center border-b border-zinc-200 dark:border-zinc-800 border-dashed">
+                <h2 className="font-black text-2xl tracking-tighter uppercase mb-1">Hugo Studio</h2>
+                <p className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Hóa Đơn Mua Sắm Nội Thất</p>
+                <div className="mt-4 text-left">
+                  <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
+                    <span>NGÀY:</span> <span>{receipt.date.split(' ')[1] || new Date().toLocaleDateString('vi-VN')}</span>
+                  </p>
+                  <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
+                    <span>GIỜ:</span> <span>{receipt.date.split(' ')[0] || new Date().toLocaleTimeString('vi-VN')}</span>
+                  </p>
+                  <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
+                    <span>MÃ GD:</span> <span className="font-bold">#{receipt.txCode}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Items */}
+              <div className="py-6 px-6 font-mono text-sm space-y-4 min-h-[120px]">
+                <div className="flex justify-between items-start">
+                  <div className="max-w-[70%]">
+                    <span className="font-bold block uppercase">{receipt.name}</span>
+                    <span className="text-[10px] text-zinc-500 block">Nội thất HugoHome Virtual Diorama</span>
+                  </div>
+                  <span className="font-bold">{receipt.price} JOY</span>
+                </div>
+                
+                <div className="flex justify-between items-start pt-2">
+                  <div className="max-w-[70%]">
+                    <span className="font-bold block text-xs">Thuế & Phí (Cố định)</span>
+                    <span className="text-[10px] text-zinc-500 block">Miễn phí dịch vụ Hugo Studio</span>
+                  </div>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">FREE</span>
+                </div>
+              </div>
+
+              {/* Total */}
+              <div className="py-4 px-6 border-t border-zinc-200 dark:border-zinc-800 border-dashed font-mono bg-zinc-50 dark:bg-zinc-800/20">
+                <div className="flex justify-between items-center text-lg font-black">
+                  <span>TỔNG CỘNG</span>
+                  <span className="text-pink-500">{receipt.price} JOY</span>
+                </div>
+              </div>
+
+              {/* PAID STAMP */}
+              {stampVisible && (
+                <motion.div 
+                  initial={{ scale: 3, opacity: 0, rotate: -15 }}
+                  animate={{ scale: 1, opacity: 1, rotate: -15 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-red-500 text-red-500 font-black text-4xl px-6 py-2 uppercase tracking-widest rounded-lg"
+                  style={{ textShadow: "0 0 4px rgba(239,68,68,0.5)", pointerEvents: "none" }}
+                >
+                  ĐÃ THU
+                </motion.div>
+              )}
+
+              {/* Actions */}
+              <div className="p-6 bg-zinc-100 dark:bg-zinc-800/60 pb-10">
+                <button
+                  onClick={() => setReceipt(null)}
+                  className="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-colors shadow-lg"
+                >
+                  Xác nhận
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

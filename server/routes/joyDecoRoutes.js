@@ -47,7 +47,20 @@ const DECO_STORE = {
 
   // Lamps (mood lighting)
   lamp_floor: { type: 'lamp', price: 250, name: 'Đèn cây góc phòng' },
-  lamp_neon: { type: 'lamp', price: 500, name: 'Đèn Neon LED' }
+  lamp_neon: { type: 'lamp', price: 500, name: 'Đèn Neon LED' },
+
+  // Wall Colors
+  wall_white: { type: 'wallColor', price: 0, name: 'Tường Trắng Kem' },
+  wall_pink: { type: 'wallColor', price: 100, name: 'Tường Hồng Pastel' },
+  wall_blue: { type: 'wallColor', price: 120, name: 'Tường Xanh Mint' },
+  wall_dark: { type: 'wallColor', price: 200, name: 'Tường Indigo Tối' },
+  wall_yellow: { type: 'wallColor', price: 150, name: 'Tường Vàng Chanh' },
+
+  // Floor Styles
+  wood_basic: { type: 'floorStyle', price: 0, name: 'Sàn Gỗ Ấm' },
+  floor_wood_dark: { type: 'floorStyle', price: 200, name: 'Sàn Gỗ Óc Chó' },
+  floor_tile_white: { type: 'floorStyle', price: 100, name: 'Sàn Gạch Trắng' },
+  floor_tile_checker: { type: 'floorStyle', price: 150, name: 'Sàn Gạch Caro' }
 };
 
 // GET /api/deco/store - Returns the catalog of items
@@ -121,14 +134,14 @@ router.post('/buy', requireMember, async (req, res) => {
 // POST /api/deco/save - Save room configuration
 router.post('/save', requireMember, async (req, res) => {
   try {
-    const { enabled, wallColor, floorStyle, items } = req.body;
+    const { enabled, wallColor, floorStyle, items, positions } = req.body;
     const email = req.memberEmail;
 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
 
-    if (!bio.decoRoom) bio.decoRoom = { unlockedItems: [] };
+    if (!bio.decoRoom) bio.decoRoom = { unlockedItems: [], positions: {} };
     const unlocked = bio.decoRoom.unlockedItems || [];
 
     // Security: ensure users only place items they have unlocked or are free
@@ -152,10 +165,22 @@ router.post('/save', requireMember, async (req, res) => {
     if (wallColor) bio.decoRoom.wallColor = wallColor;
     if (floorStyle) bio.decoRoom.floorStyle = floorStyle;
     
-    // Merge cleanItems
-    bio.decoRoom.items = { ...bio.decoRoom.items, ...cleanItems };
+    // Merge cleanItems properly without spreading mongoose subdocument
+    if (cleanItems) {
+      for (const [k, v] of Object.entries(cleanItems)) {
+        bio.decoRoom.items[k] = v;
+      }
+    }
 
-    bio.markModified('decoRoom');
+    // Merge positions
+    if (positions) {
+      // Need to stringify/parse to strip mongoose internals if any, though positions is Mixed.
+      const oldPos = bio.decoRoom.positions ? JSON.parse(JSON.stringify(bio.decoRoom.positions)) : {};
+      bio.decoRoom.positions = { ...oldPos, ...positions };
+      bio.markModified('decoRoom.positions');
+    }
+
+    bio.markModified('decoRoom.items');
     await bio.save();
 
     res.json({ success: true, decoRoom: bio.decoRoom });

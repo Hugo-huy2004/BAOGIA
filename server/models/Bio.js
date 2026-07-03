@@ -339,7 +339,7 @@ const BioSchema = new mongoose.Schema(
       template: { type: String, default: 'default' },
       expiresAt: { type: Date, default: null }
     },
-    decoRoom: {
+      decoRoom: {
       enabled: { type: Boolean, default: false },
       wallColor: { type: String, default: '#f4f4f5' },
       floorStyle: { type: String, default: 'wood_basic' },
@@ -350,11 +350,11 @@ const BioSchema = new mongoose.Schema(
         pet: { type: String, default: null },
         poster: { type: String, default: null },
         window: { type: String, default: 'window_day' },
-        // Decorative slots added for richer 2D room-building.
         rug: { type: String, default: null },
         plant: { type: String, default: null },
         lamp: { type: String, default: null }
       },
+      positions: { type: mongoose.Schema.Types.Mixed, default: {} },
       unlockedItems: { type: [String], default: [] }
     }
   },

@@ -26,7 +26,10 @@ const TITLES = {
   feature_subscription: 'Trao đổi JOY mở khóa tính năng',
   bio_theme_rental: 'Trao đổi JOY diện giao diện Bio',
   file_compression: 'Trao đổi JOY nén file HugoTractare',
-  admin_direct_add: 'Nhận JOY từ Admin'
+  admin_direct_add: 'Nhận JOY từ Admin',
+  deco_buy: 'Mua sắm nội thất KTX',
+  deco_tip_sent: 'Tip KTX cho bạn bè',
+  deco_tip_received: 'Nhận Tip KTX'
 };
 
 /**
