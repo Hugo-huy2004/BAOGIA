@@ -9,6 +9,10 @@ import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToke
 
 const BIO_THEME_RENTAL_PRICE = 150;
 const COMPRESS_CHARGE = 50;
+const CODER_LESSON_IDS = Array.from({ length: 10 }, (_, index) => `lesson${index + 1}`);
+const CODER_MIN_STUDY_MS = 10 * 60 * 1000;
+const CODER_QUIZ_LESSONS = new Set(['lesson4', 'lesson10']);
+const CODER_SCREENSHOT_LESSONS = new Set(['lesson8', 'lesson9']);
 
 // Item labels shown on the invoice modal, keyed the same way the frontend
 // calls /exchange-quote — kept here (not duplicated client-side) so price
@@ -151,9 +155,14 @@ router.post('/reset-to-zero', requireAdmin, async (req, res) => {
 // POST /api/joy/award-learning
 router.post('/award-learning', requireMember, async (req, res) => {
   try {
-    const { lessonId } = req.body;
+    const { lessonId, evidence = {} } = req.body;
     const email = req.memberEmail;
     if (!email || !lessonId) return res.status(400).json({ error: 'Email and lessonId are required' });
+
+    const lessonIndex = CODER_LESSON_IDS.indexOf(lessonId);
+    if (lessonIndex === -1) {
+      return res.status(400).json({ error: 'Bài học HugoCoder không hợp lệ.' });
+    }
 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
@@ -165,6 +174,26 @@ router.post('/award-learning', requireMember, async (req, res) => {
 
     if (bio.completedLessons.includes(lessonId)) {
       return res.json({ success: true, alreadyCompleted: true, balance: bio.joyBalance });
+    }
+
+    if (lessonIndex > 0) {
+      const requiredPreviousLesson = CODER_LESSON_IDS[lessonIndex - 1];
+      if (!bio.completedLessons.includes(requiredPreviousLesson)) {
+        return res.status(400).json({
+          error: `Bạn cần hoàn thành ${requiredPreviousLesson} trước khi nhận thưởng bài này.`,
+          requiredPreviousLesson
+        });
+      }
+    }
+
+    const timeSpentMs = Number(evidence.timeSpentMs);
+    if (!Number.isFinite(timeSpentMs) || timeSpentMs < CODER_MIN_STUDY_MS) {
+      return res.status(400).json({ error: 'Cần học tối thiểu 10 phút trước khi nhận thưởng bài học.' });
+    }
+
+    const score = Number(evidence.score);
+    if ((CODER_QUIZ_LESSONS.has(lessonId) || CODER_SCREENSHOT_LESSONS.has(lessonId)) && (!Number.isFinite(score) || score < 60)) {
+      return res.status(400).json({ error: 'Bài nộp cần đạt tối thiểu 60% để nhận thưởng JOY.' });
     }
 
     // Daily cap validation: max 2 lessons completed per calendar day in ICT (GMT+7)
@@ -185,7 +214,13 @@ router.post('/award-learning', requireMember, async (req, res) => {
     }
 
     const awardAmount = lessonId === 'lesson10' ? 450 : 100;
-    const result = await awardJoy(email, awardAmount, 'ide_learning', `Hoàn thành bài học IDE: ${lessonId}`);
+    const result = await awardJoy(
+      email,
+      awardAmount,
+      'ide_learning',
+      `Hoàn thành bài học HugoCoder: ${lessonId}${Number.isFinite(score) ? ` (${score}%)` : ''}`,
+      { bioDoc: bio, refId: lessonId }
+    );
     bio.completedLessons.push(lessonId);
     bio.markModified('completedLessons');
     await bio.save();
@@ -480,11 +515,11 @@ router.get('/resolve-qr', async (req, res) => {
     // referral strings). Only a token this server minted verifies.
     const referralCode = verifyQrToken(payload);
     if (!referralCode) {
-      return res.status(400).json({ error: 'Mã JOY không hợp lệ hoặc đã hết hạn.' });
+      return res.json({ success: false, error: 'Mã JOY không hợp lệ hoặc đã hết hạn.' });
     }
     const bio = await Bio.findOne({ referralCode }).select('displayName avatarUrl referralCode slug');
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng này.' });
-    res.json({ displayName: bio.displayName || 'Hugo Member', avatarUrl: bio.avatarUrl || '', referralCode: bio.referralCode, slug: bio.slug || '' });
+    if (!bio) return res.json({ success: false, error: 'Không tìm thấy người dùng này.' });
+    res.json({ success: true, displayName: bio.displayName || 'Hugo Member', avatarUrl: bio.avatarUrl || '', referralCode: bio.referralCode, slug: bio.slug || '' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

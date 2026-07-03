@@ -482,7 +482,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
   const [scanResolving, setScanResolving] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [ignoredScanPayloads, setIgnoredScanPayloads] = useState(() => new Set());
   const debounceRef = useRef(null);
+  const scanResolvingRef = useRef(false);
 
   const numAmount = parseInt(amount, 10) || 0;
   const fee = Math.floor(numAmount * TRANSFER_FEE_RATE);
@@ -500,7 +502,8 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
     if (!open) return;
     setStep("select"); setMode("search"); setRecipient(null);
     setAmount(""); setNote(""); setSearchQ(""); setSearchResults([]);
-    setError(""); setResult(null);
+    setError(""); setResult(null); setIgnoredScanPayloads(new Set());
+    scanResolvingRef.current = false;
     setRecentContacts(getRecent());
   }, [open]);
 
@@ -541,21 +544,37 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
   }, []);
 
   const handleQRDetected = useCallback(async (rawValue) => {
+    if (!rawValue || scanResolvingRef.current || ignoredScanPayloads.has(rawValue)) return;
+    scanResolvingRef.current = true;
     setScanResolving(true);
-    setScanOpen(false);
     try {
       // rawValue is the opaque server token (base64url) read off the code; the
       // server verifies its HMAC before returning the recipient.
       const data = await resolveJoyQr(rawValue);
       playBeep();
+      setIgnoredScanPayloads(new Set());
       selectRecipient(data);
     } catch (e) {
       playLose();
-      setError(e.message);
+      setIgnoredScanPayloads(prev => {
+        const next = new Set(prev);
+        next.add(rawValue);
+        return next;
+      });
+      window.setTimeout(() => {
+        setIgnoredScanPayloads(prev => {
+          if (!prev.has(rawValue)) return prev;
+          const next = new Set(prev);
+          next.delete(rawValue);
+          return next;
+        });
+      }, 30000);
+      setError(e.message || t("joy.particle.invalidQr", "Mã JOY không hợp lệ hoặc đã hết hạn. Hãy quét mã mới hơn."));
     } finally {
+      scanResolvingRef.current = false;
       setScanResolving(false);
     }
-  }, [selectRecipient]);
+  }, [ignoredScanPayloads, playBeep, playLose, selectRecipient, t]);
 
   const handleSend = async () => {
     setStep("sending");
@@ -790,6 +809,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
                         <ParticleScanner
                           inline
                           onScanSuccess={handleQRDetected}
+                          ignoredPayloads={ignoredScanPayloads}
                           scanBoxSize={240}
                         />
                       )}

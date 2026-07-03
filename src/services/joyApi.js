@@ -30,7 +30,9 @@ export async function getJoyQrPayload(email) {
 
 export async function resolveJoyQr(payload) {
   const res = await fetch(`${getApiUrl()}/joy/resolve-qr?payload=${encodeURIComponent(payload)}`);
-  return parseOrThrow(res);
+  const data = await parseOrThrow(res);
+  if (data.success === false) throw new Error(data.error || "Mã JOY không hợp lệ hoặc đã hết hạn.");
+  return data;
 }
 
 export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message }) {

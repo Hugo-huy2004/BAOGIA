@@ -4,7 +4,7 @@ import {
   FolderOpen, Folder, BookOpen, Database, Play, Plus, X, 
   Terminal, AlertTriangle, ArrowLeft, Save, Eye,
   Edit2, Trash2, ChevronDown, ChevronRight, FileCode, FileText, FileJson,
-  Sparkles, CheckCircle, Award, RefreshCw, Smartphone, ListChecks, Globe
+  Sparkles, CheckCircle, Award, RefreshCw, Smartphone, ListChecks, Globe, Archive
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import confetti from "canvas-confetti";
@@ -15,6 +15,17 @@ import { TEMPLATES, INITIAL_WORKSPACE, TUTORIALS, WEB_COURSES, MOBILE_GUIDE_EXTR
 import FeatureGate from "./shared/FeatureGate";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import {
+  CODER_STORAGE_KEYS,
+  MIN_LESSON_STUDY_MS,
+  buildLessonEvidence,
+  buildPreviewHtml,
+  createWorkspaceZipBlob,
+  downloadBlob,
+  makeSerializableWorkspace,
+  recordCoderLessonEvent,
+  scoreScreenshotSubmission
+} from "./hugoCoder/workspaceUtils";
 
 // Helper to resolve language from file extension
 const getLanguageFromExt = (ext) => {
@@ -673,7 +684,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
 
     const checkTime = () => {
       const elapsed = Date.now() - startTime;
-      const totalTime = 10 * 60 * 1000; // 10 minutes
+      const totalTime = MIN_LESSON_STUDY_MS;
       const remaining = Math.max(0, totalTime - elapsed);
       setTimeLeft(Math.ceil(remaining / 1000));
     };
@@ -714,7 +725,11 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
             const r = await fetch(`${apiBase}/joy/award-learning`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: session.email, lessonId: course.id })
+              body: JSON.stringify({
+                email: session.email,
+                lessonId: course.id,
+                evidence: buildLessonEvidence(course, { channel: "desktop", score: 100 })
+              })
             });
             const resData = await r.json().catch(() => ({}));
             if (!r.ok) {
@@ -727,8 +742,10 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
             } else {
               toast.success("Chính xác! Bài học đã được xác minh hoàn thành.");
             }
+            recordCoderLessonEvent({ lessonId: course.id, type: "desktop_award", status: "accepted" });
           } catch (e) {
             console.error("Error awarding joy for learning:", e);
+            recordCoderLessonEvent({ lessonId: course.id, type: "desktop_award", status: "failed", message: e.message });
             toast.error(e.message || "Không thể ghi nhận phần thưởng JOY, vui lòng thử lại.");
           }
         } else {
@@ -850,16 +867,17 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   // Update HTML Live Preview
   useEffect(() => {
     if (activeFile && activeFile.language === "html" && previewMode) {
-      const blob = new Blob([activeFile.content], { type: "text/html" });
+      const html = buildPreviewHtml(activeFile, workspaceFiles);
+      const blob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
       return () => URL.revokeObjectURL(url);
     }
-  }, [activeFile?.content, previewMode, activeFile?.language]);
+  }, [activeFile, previewMode, workspaceFiles]);
   // Load workspace from localStorage on mount (for virtual files)
   useEffect(() => {
-    const savedWorkspace = localStorage.getItem("student_ide_workspace");
-    const savedFolders = localStorage.getItem("student_ide_folders");
+    const savedWorkspace = localStorage.getItem(CODER_STORAGE_KEYS.workspace);
+    const savedFolders = localStorage.getItem(CODER_STORAGE_KEYS.folders);
     if (savedWorkspace) {
       try {
         const parsed = JSON.parse(savedWorkspace);
@@ -882,7 +900,9 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
                 if (Array.isArray(parsedFolders)) {
                   setFolders(parsedFolders.filter(f => typeof f === "string"));
                 }
-              } catch (_) {}
+              } catch (_) {
+                // Ignore corrupt folder cache and keep the recovered files.
+              }
             }
             
             const readme = cleaned.find(f => f.name.toLowerCase() === "readme.md");
@@ -907,9 +927,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (dirHandle) return;
-      const serializableFiles = workspaceFiles.map(({ handle, ...rest }) => rest);
-      localStorage.setItem("student_ide_workspace", JSON.stringify(serializableFiles));
-      localStorage.setItem("student_ide_folders", JSON.stringify(folders));
+      localStorage.setItem(CODER_STORAGE_KEYS.workspace, JSON.stringify(makeSerializableWorkspace(workspaceFiles)));
+      localStorage.setItem(CODER_STORAGE_KEYS.folders, JSON.stringify(folders));
     }, 1000);
 
     return () => clearTimeout(delayDebounceFn);
@@ -1267,13 +1286,24 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
     } else {
       // Download fallback
       const blob = new Blob([activeFile.content], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = activeFile.name;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(blob, activeFile.name);
       toast.success(`Đã tải xuống file "${activeFile.name}"!`);
+    }
+  };
+
+  const handleExportProjectZip = async () => {
+    try {
+      if (!workspaceFiles.length) {
+        toast.error("Workspace hiện chưa có file để xuất.");
+        return;
+      }
+      const blob = await createWorkspaceZipBlob(workspaceFiles);
+      downloadBlob(blob, "hugo-coder-project.zip");
+      recordCoderLessonEvent({ type: "export_zip", fileCount: workspaceFiles.length });
+      toast.success("Đã xuất toàn bộ workspace thành file ZIP.");
+    } catch (err) {
+      console.error("Export ZIP error:", err);
+      toast.error("Không thể xuất ZIP: " + err.message);
     }
   };
 
@@ -1753,13 +1783,13 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       setIsScanning(true);
       setScanProgress(0);
       setScanScore(0);
+      const finalScore = scoreScreenshotSubmission(file);
       
       const interval = setInterval(() => {
         setScanProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
             setIsScanning(false);
-            const finalScore = Math.floor(Math.random() * 21) + 75; // 75 to 95
             setScanScore(finalScore);
             return 100;
           }
@@ -1777,6 +1807,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
 
     const course = WEB_COURSES.find(c => c.id === activeCourseId) || WEB_COURSES[0];
     let isCorrect = false;
+    let verifiedScore = 100;
 
     if (course.practiceType === "drag_drop_html") {
       const currentOrder = htmlBlocks.map(b => b.id);
@@ -1798,6 +1829,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
                   blankAnswers.blank2.trim().toLowerCase() === course.correctBlanks.blank2.toLowerCase();
     } else if (course.practiceType === "screenshot_upload") {
       isCorrect = screenshotFile && !isScanning && scanScore >= 60;
+      verifiedScore = scanScore;
     } else if (course.practiceType === "quiz") {
       let correct = 0;
       quizQuestions.forEach((q, idx) => {
@@ -1807,17 +1839,31 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       setQuizScore(score);
       setQuizCompleted(true);
       isCorrect = score >= 60;
+      verifiedScore = score;
     }
 
     if (isCorrect) {
+      recordCoderLessonEvent({
+        lessonId: course.id,
+        type: "practice_verify",
+        practiceType: course.practiceType,
+        score: verifiedScore,
+        status: "passed"
+      });
       if (course.miniQuiz && !interactivePassed) {
         setInteractivePassed(true);
         toast.success("Thực hành thành công! Hãy hoàn thành 3 câu trắc nghiệm để qua bài.");
         return;
       }
-      await handleRewardMobileLesson(course);
+      await handleRewardMobileLesson(course, verifiedScore);
     } else {
       setVerificationStatus("failed");
+      recordCoderLessonEvent({
+        lessonId: course.id,
+        type: "practice_verify",
+        practiceType: course.practiceType,
+        status: "failed"
+      });
       if (course.practiceType === "quiz") {
         toast.error(`Bài thi chưa đạt yêu cầu! Điểm của bạn: ${Math.round((quizQuestions.filter((q, idx) => quizAnswers[idx] === q.a).length / quizQuestions.length) * 100)}% (Yêu cầu >60%)`);
       } else {
@@ -1826,7 +1872,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
     }
   };
 
-  const handleRewardMobileLesson = async (course) => {
+  const handleRewardMobileLesson = async (course, verifiedScore = 100) => {
     setVerificationStatus("success");
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     
@@ -1838,7 +1884,14 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
           const r = await fetch(`${apiBase}/joy/award-learning`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: session.email, lessonId: course.id })
+            body: JSON.stringify({
+              email: session.email,
+              lessonId: course.id,
+              evidence: buildLessonEvidence(course, {
+                channel: "mobile",
+                score: verifiedScore
+              })
+            })
           });
           const resData = await r.json().catch(() => ({}));
           if (!r.ok) {
@@ -1853,6 +1906,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
           }
         } catch (e) {
           console.error("Error awarding joy:", e);
+          recordCoderLessonEvent({ lessonId: course.id, type: "mobile_award", status: "failed", message: e.message });
           toast.error(e.message || "Lỗi lưu phần thưởng, vui lòng thử lại.");
         }
       } else {
@@ -2196,7 +2250,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       return (
         <div className="space-y-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Viết code trên IDE Máy tính (Desktop). Sau khi chạy thành công kết quả ra trình duyệt, bạn chụp ảnh màn hình và tải lên đây để AI của hệ thống quét và chấm điểm.
+            Viết code trên IDE Máy tính (Desktop). Sau khi chạy thành công kết quả ra trình duyệt, bạn chụp ảnh màn hình và tải lên đây để hệ thống tự kiểm tra định dạng ảnh nộp.
           </p>
 
           <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-zinc-50 dark:bg-zinc-950/20 relative overflow-hidden flex flex-col items-center justify-center min-h-36">
@@ -2227,8 +2281,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
                   <span className="text-[9px] font-black">{scanProgress}%</span>
                 </div>
                 <div>
-                  <p className="text-xs font-black animate-pulse">Hệ thống AI đang quét ảnh...</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Xác minh cấu trúc HTML/CSS và console log.</p>
+                  <p className="text-xs font-black animate-pulse">Đang kiểm tra ảnh nộp...</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Kiểm tra định dạng, kích thước và độ đầy đủ của ảnh.</p>
                 </div>
               </div>
             )}
@@ -2237,11 +2291,11 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
           {screenshotFile && !isScanning && scanScore > 0 && (
             <div className="bg-success/10 border border-success/20 p-3.5 rounded-xl space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-success uppercase">Chấm điểm tự động hoàn tất</span>
+                <span className="text-xs font-black text-success uppercase">Tự kiểm tra ảnh hoàn tất</span>
                 <span className="text-sm font-black text-success">{scanScore}/100</span>
               </div>
               <p className="text-[10.5px] text-muted-foreground leading-relaxed">
-                Độ hiểu bài đạt {scanScore}%. AI nhận dạng cấu trúc thẻ đầy đủ, style khoảng cách đẹp mắt, các sự kiện click hoạt động đúng yêu cầu.
+                Điểm này chỉ phản ánh độ phù hợp của ảnh nộp để mở khóa bước học tiếp theo; không thay thế việc giáo viên hoặc quản trị viên xem lại bài thật.
               </p>
             </div>
           )}
@@ -2251,7 +2305,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
             disabled={!screenshotFile || isScanning}
             className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none mt-2"
           >
-            {screenshotFile && !isScanning ? "Nộp bài quét AI" : "Vui lòng chọn ảnh chụp màn hình"}
+            {screenshotFile && !isScanning ? "Nộp ảnh đã kiểm tra" : "Vui lòng chọn ảnh chụp màn hình"}
           </button>
         </div>
       );
@@ -2788,6 +2842,14 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
             </button>
           )}
 
+          <button
+            onClick={handleExportProjectZip}
+            className="flex items-center gap-1.5 bg-muted hover:bg-muted-foreground text-foreground font-bold px-3 py-1.5 rounded transition-all border border-border"
+            title="Xuất toàn bộ workspace hiện tại thành file ZIP"
+          >
+            <Archive className="w-3.5 h-3.5" /> Xuất ZIP
+          </button>
+
           <button 
             onClick={handleOpenFolder}
             className="flex items-center gap-1.5 bg-muted hover:bg-muted-foreground text-foreground font-bold px-3 py-1.5 rounded transition-all border border-border"
@@ -3066,8 +3128,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
             <div className="p-4 flex-1 flex flex-col overflow-y-auto space-y-4 font-sans">
               <span className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">PHP & phpMyAdmin Local</span>
               <p className="text-[10.5px] text-muted-foreground leading-relaxed">
-                Để chạy PHP và quản lý cơ sở dữ liệu qua phpMyAdmin 100% trên máy tính cá nhân (localhost), 
-                sử dụng Docker Compose là phương án tối ưu, siêu nhẹ và bảo mật nhất.
+                Để chạy PHP và quản lý cơ sở dữ liệu qua phpMyAdmin trên máy tính cá nhân (localhost), 
+                sử dụng Docker Compose là phương án gọn nhẹ và dễ tách khỏi dữ liệu thật.
               </p>
 
               <div className="space-y-3">
@@ -3114,7 +3176,7 @@ services:
                   <p className="text-[9.5px] text-muted-foreground">
                     Mở trình duyệt truy cập:
                     <a href="http://localhost:8080" target="_blank" rel="noreferrer" className="block text-primary font-bold mt-1">http://localhost:8080</a>
-                    Tài khoản: root / Mật khẩu: root. Toàn bộ cơ sở dữ liệu được host cục bộ nên cực kỳ an toàn.
+                    Tài khoản: root / Mật khẩu: root. Đây là môi trường học tập cục bộ; không dùng mật khẩu mẫu này cho hệ thống thật.
                   </p>
                 </div>
               </div>

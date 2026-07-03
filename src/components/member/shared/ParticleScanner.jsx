@@ -22,6 +22,7 @@ import { analyzeParticleCloudFrame, bytesToBase64Url } from "../../../utils/part
 //   onScanSuccess(decodedString)  required — called once, then the camera stops
 //   onClose()                     optional — user tapped the close button
 //   onError(errorLike)            optional — camera unavailable / permission denied
+//   ignoredPayloads               optional Set/array of decoded payloads to skip
 //   facingMode                    optional — default "environment" (rear camera)
 //   scanBoxSize                   optional — offscreen decode resolution (px)
 
@@ -52,6 +53,7 @@ export default function ParticleScanner({
   onScanSuccess,
   onClose,
   onError,
+  ignoredPayloads,
   facingMode = "environment",
   scanBoxSize = 360,
   inline = false,
@@ -175,8 +177,13 @@ export default function ParticleScanner({
       // The payload is opaque bytes (the server token); key the agreement window
       // on its base64url form and hand that to onScanSuccess for the server.
       const token = result ? bytesToBase64Url(result.bytes) : null;
+      const isIgnored = token && (
+        typeof ignoredPayloads?.has === "function"
+          ? ignoredPayloads.has(token)
+          : Array.isArray(ignoredPayloads) && ignoredPayloads.includes(token)
+      );
 
-      if (result) {
+      if (result && !isIgnored) {
         const now = performance.now();
         if (!win || win.payload !== token) {
           // Start a fresh window for this payload.
@@ -217,7 +224,8 @@ export default function ParticleScanner({
       } else {
         // Lost the code this frame — don't reset immediately (a single dropped
         // frame is common); only reset if it's clearly gone.
-        if (win) win.frames = Math.max(1, win.frames - 1);
+        if (isIgnored) win = null;
+        else if (win) win.frames = Math.max(1, win.frames - 1);
       }
 
       if (active) animRef.current = requestAnimationFrame(tick);
@@ -228,7 +236,7 @@ export default function ParticleScanner({
       active = false;
       cancelAnimationFrame(animRef.current);
     };
-  }, [status, scanBoxSize, onScanSuccess, stopStream]);
+  }, [status, scanBoxSize, onScanSuccess, ignoredPayloads, stopStream]);
 
   const handleClose = () => {
     stopStream();
