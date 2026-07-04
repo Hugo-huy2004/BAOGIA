@@ -1,35 +1,62 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useArcadeSound } from "../../hooks/useArcadeSound";
 import { useKeyboardInset } from "../../hooks/useKeyboardVisible";
+
+// HugoCommunication — student community feed.
+// Members post under one of two tags: "Chia sẻ" (share) or "Câu hỏi" (question),
+// so the space works both as a place to broadcast and a place to ask & answer.
+// Styling follows the rest of the portal (brand CSS vars, neon cards, material
+// symbols) rather than the old Instagram-clone black screen.
+
+const OWNER_EMAIL = "huylggcs230377@fpt.edu.vn";
+
+// Tag identities — one accent each, kept consistent across composer/badge/filter.
+const TAGS = {
+  "chia sẻ": {
+    key: "chia sẻ",
+    label: "Chia sẻ",
+    icon: "tips_and_updates",
+    dot: "bg-indigo-500",
+    badge: "border-indigo-500/25 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300",
+    solid: "linear-gradient(135deg,#6366f1,#a855f7)",
+  },
+  "câu hỏi": {
+    key: "câu hỏi",
+    label: "Câu hỏi",
+    icon: "help",
+    dot: "bg-amber-500",
+    badge: "border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-300",
+    solid: "linear-gradient(135deg,#f59e0b,#f43f5e)",
+  },
+};
+const tagOf = (c) => TAGS[c] || TAGS["chia sẻ"];
 
 export default function CommunityTab({ memberSession, bio }) {
   const { playBeep, playMove } = useArcadeSound();
   const keyboardInset = useKeyboardInset();
 
-  // State
   const [posts, setPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [coords, setCoords] = useState({ lat: null, lng: null });
   const [locationStatus, setLocationStatus] = useState("checking");
+  const [filter, setFilter] = useState("all"); // all | chia sẻ | câu hỏi
 
-  // Create Post Modal
+  // Composer
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [newPostText, setNewPostText] = useState("");
+  const [newPostTag, setNewPostTag] = useState("chia sẻ");
   const [composerSubmitting, setComposerSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const postInputRef = useRef(null);
 
-  // Comments Bottom Sheet
+  // Comments sheet
   const [activeCommentPostId, setActiveCommentPostId] = useState(null);
   const [commentInput, setCommentInput] = useState("");
-  const commentInputRef = useRef(null);
 
-  // Editing states
-  const [editingPost, setEditingPost] = useState(null);
   const [activeMenu, setActiveMenu] = useState(null);
 
-  // 1. Geolocation & Fetch
+  // ── Geolocation (only needed for the POST payload) + initial fetch ──
   useEffect(() => {
     if (!navigator.geolocation) {
       setLocationStatus("fallback");
@@ -42,7 +69,7 @@ export default function CommunityTab({ memberSession, bio }) {
         setLocationStatus("active");
         fetchPosts(pos.coords.latitude, pos.coords.longitude);
       },
-      (err) => {
+      () => {
         setLocationStatus("fallback");
         fetchPosts(null, null);
       },
@@ -52,7 +79,7 @@ export default function CommunityTab({ memberSession, bio }) {
 
   useEffect(() => {
     if (locationStatus === "checking") return;
-    const interval = setInterval(() => fetchPosts(coords.lat, coords.lng, false), 7000);
+    const interval = setInterval(() => fetchPosts(coords.lat, coords.lng, false), 8000);
     return () => clearInterval(interval);
   }, [locationStatus, coords]);
 
@@ -75,15 +102,15 @@ export default function CommunityTab({ memberSession, bio }) {
     if (!text) return "";
     const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const formatted = escaped
-      .replace(/&lt;b&gt;([\s\S]*?)&lt;\/b&gt;/gi, '<strong>$1</strong>')
-      .replace(/&lt;i&gt;([\s\S]*?)&lt;\/i&gt;/gi, '<em>$1</em>')
+      .replace(/&lt;b&gt;([\s\S]*?)&lt;\/b&gt;/gi, "<strong>$1</strong>")
+      .replace(/&lt;i&gt;([\s\S]*?)&lt;\/i&gt;/gi, "<em>$1</em>")
       .replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/gi, '<span style="text-decoration: underline;">$1</span>')
-      .replace(/&lt;s&gt;([\s\S]*?)&lt;\/s&gt;/gi, '<del>$1</del>')
-      .replace(/&lt;code&gt;([\s\S]*?)&lt;\/code&gt;/gi, '<code class="bg-zinc-100 dark:bg-zinc-800 px-1 py-0.5 rounded text-[12px] font-mono text-pink-600">$1</code>');
+      .replace(/&lt;s&gt;([\s\S]*?)&lt;\/s&gt;/gi, "<del>$1</del>")
+      .replace(/&lt;code&gt;([\s\S]*?)&lt;\/code&gt;/gi, '<code class="bg-foreground/[0.07] px-1 py-0.5 rounded text-[12px] font-mono text-pink-600 dark:text-pink-400">$1</code>');
     return <span className="whitespace-pre-wrap break-words" dangerouslySetInnerHTML={{ __html: formatted }} />;
   };
 
-  const getWordCount = str => str.trim() ? str.trim().split(/\s+/).length : 0;
+  const getWordCount = (str) => (str.trim() ? str.trim().split(/\s+/).length : 0);
 
   const insertFormat = (tag) => {
     const input = postInputRef.current;
@@ -99,6 +126,13 @@ export default function CommunityTab({ memberSession, bio }) {
     }, 50);
   };
 
+  const openComposer = (tag = "chia sẻ") => {
+    playBeep();
+    setNewPostTag(tag);
+    setErrorMsg("");
+    setIsComposerOpen(true);
+  };
+
   const handlePublishPost = async () => {
     if (!newPostText.trim()) return;
     if (getWordCount(newPostText) > 350) return setErrorMsg("Quá dài (tối đa 350 từ)");
@@ -109,17 +143,25 @@ export default function CommunityTab({ memberSession, bio }) {
       const res = await fetch("/api/bios/community/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: newPostText.trim(), lat: coords.lat || 10.8, lng: coords.lng || 106.6 })
+        body: JSON.stringify({
+          message: newPostText.trim(),
+          category: newPostTag,
+          lat: coords.lat || 10.8,
+          lng: coords.lng || 106.6,
+        }),
       });
       const data = await res.json();
       if (data.success) {
-        setPosts(prev => [data.message, ...prev]);
+        setPosts((prev) => [data.message, ...prev]);
         setNewPostText("");
         setIsComposerOpen(false);
         playMove();
       } else setErrorMsg(data.error || "Lỗi đăng bài");
-    } catch (err) { setErrorMsg("Lỗi kết nối"); }
-    finally { setComposerSubmitting(false); }
+    } catch (err) {
+      setErrorMsg("Lỗi kết nối");
+    } finally {
+      setComposerSubmitting(false);
+    }
   };
 
   const handleToggleLike = async (postId) => {
@@ -127,7 +169,7 @@ export default function CommunityTab({ memberSession, bio }) {
     try {
       const res = await fetch(`/api/bios/community/chat/${postId}/like`, { method: "POST" });
       const data = await res.json();
-      if (data.success) setPosts(prev => prev.map(p => p._id === postId ? { ...p, likes: data.likes } : p));
+      if (data.success) setPosts((prev) => prev.map((p) => (p._id === postId ? { ...p, likes: data.likes } : p)));
     } catch (err) {}
   };
 
@@ -138,11 +180,11 @@ export default function CommunityTab({ memberSession, bio }) {
       const res = await fetch(`/api/bios/community/chat/${activeCommentPostId}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: commentInput.trim() })
+        body: JSON.stringify({ message: commentInput.trim() }),
       });
       const data = await res.json();
       if (data.success) {
-        setPosts(prev => prev.map(p => p._id === activeCommentPostId ? { ...p, comments: data.comments } : p));
+        setPosts((prev) => prev.map((p) => (p._id === activeCommentPostId ? { ...p, comments: data.comments } : p)));
         setCommentInput("");
         playMove();
       }
@@ -152,9 +194,10 @@ export default function CommunityTab({ memberSession, bio }) {
   const handleDeletePost = async (postId) => {
     if (!window.confirm("Xóa bài viết này?")) return;
     playBeep();
+    setActiveMenu(null);
     try {
       const res = await fetch(`/api/bios/community/chat/${postId}`, { method: "DELETE" });
-      if (res.ok) setPosts(prev => prev.filter(p => p._id !== postId));
+      if (res.ok) setPosts((prev) => prev.filter((p) => p._id !== postId));
     } catch (err) {}
   };
 
@@ -169,217 +212,315 @@ export default function CommunityTab({ memberSession, bio }) {
     return new Date(dateStr).toLocaleDateString("vi-VN");
   };
 
-  const activePost = posts.find(p => p._id === activeCommentPostId);
+  const filteredPosts = useMemo(
+    () => (filter === "all" ? posts : posts.filter((p) => p.category === filter)),
+    [posts, filter]
+  );
+  const counts = useMemo(
+    () => ({
+      all: posts.length,
+      "chia sẻ": posts.filter((p) => p.category === "chia sẻ").length,
+      "câu hỏi": posts.filter((p) => p.category === "câu hỏi").length,
+    }),
+    [posts]
+  );
+  const activePost = posts.find((p) => p._id === activeCommentPostId);
 
   return (
-    <div className="w-full h-full flex flex-col bg-white dark:bg-black text-zinc-900 dark:text-zinc-50 relative pb-16 sm:pb-0 font-['Inter',sans-serif]">
-      
-      {/* 1. Header (Instagram Style) */}
-      <div className="sticky top-0 z-30 w-full px-4 h-[52px] flex items-center justify-between bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-900">
-        <h1 className="text-[22px] font-bold font-serif italic tracking-tighter">
-          Cộng đồng
-        </h1>
-        <div className="flex items-center gap-5">
-          <button onClick={() => { playBeep(); setIsComposerOpen(true); }} className="hover:opacity-60 transition-opacity">
-            <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'wght' 300" }}>add_box</span>
-          </button>
-          <button className="hover:opacity-60 transition-opacity relative">
-            <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'wght' 300" }}>favorite</span>
-            <div className="absolute top-1 right-0 w-2 h-2 rounded-full bg-[#ff3040] border border-white dark:border-black" />
-          </button>
+    <div className="space-y-5 animate-fadeIn md:space-y-6">
+      {/* ── Quick composer prompt + filter ── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <button
+          type="button"
+          onClick={() => openComposer("chia sẻ")}
+          className="flex flex-1 items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-left shadow-sm transition-colors hover:bg-foreground/[0.03]"
+        >
+          <img src={bio?.avatarUrl || "/image/avt7.png"} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+          <span className="text-[13px] font-medium text-muted-foreground">Bạn muốn chia sẻ hay hỏi điều gì?</span>
+          <span className="material-symbols-outlined ml-auto text-[20px] text-indigo-500">add_circle</span>
+        </button>
+
+        <div className="grid grid-cols-3 gap-1 rounded-2xl border border-border bg-foreground/[0.03] p-1 sm:w-auto">
+          {[
+            { k: "all", label: "Tất cả", icon: "forum" },
+            { k: "chia sẻ", label: "Chia sẻ", icon: TAGS["chia sẻ"].icon },
+            { k: "câu hỏi", label: "Câu hỏi", icon: TAGS["câu hỏi"].icon },
+          ].map((f) => {
+            const active = filter === f.k;
+            return (
+              <button
+                key={f.k}
+                type="button"
+                onClick={() => { playBeep(); setFilter(f.k); }}
+                className={`flex items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-[11px] font-black transition-all active:scale-95 ${
+                  active ? "text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
+                }`}
+                style={active ? { background: f.k === "câu hỏi" ? TAGS["câu hỏi"].solid : "linear-gradient(135deg,#6366f1,#a855f7)" } : undefined}
+              >
+                <span className="material-symbols-outlined text-[14px]">{f.icon}</span>
+                <span className="hidden xs:inline sm:inline">{f.label}</span>
+                <span className={`ml-0.5 text-[9px] font-bold ${active ? "text-white/80" : "text-muted-foreground/70"}`}>{counts[f.k]}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* 2. Feed */}
-      <div className="flex-1 overflow-y-auto scrollbar-none w-full" style={{ paddingBottom: keyboardInset > 0 ? keyboardInset : 0 }}>
-        {postsLoading && posts.length === 0 ? (
-          <div className="p-4 space-y-6">
-            {[1,2,3].map(i => (
-              <div key={i} className="flex flex-col gap-3">
-                <div className="flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-zinc-200 animate-pulse" /><div className="w-32 h-3 bg-zinc-200 animate-pulse rounded" /></div>
-                <div className="w-full h-24 bg-zinc-100 animate-pulse rounded" />
+      {/* ── Feed ── */}
+      {postsLoading && posts.length === 0 ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-2xl border border-border bg-card p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 animate-pulse rounded-full bg-foreground/10" />
+                <div className="space-y-1.5">
+                  <div className="h-3 w-28 animate-pulse rounded bg-foreground/10" />
+                  <div className="h-2 w-16 animate-pulse rounded bg-foreground/10" />
+                </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="divide-y divide-zinc-200 dark:divide-zinc-900 w-full">
-            {posts.map((post) => {
-              const hasLiked = post.likes?.includes(memberSession?.email);
-              const repliesCount = post.comments?.length || 0;
-
-              return (
-                <div key={post._id} className="pt-3 pb-4 w-full">
-                  {/* Post Header */}
-                  <div className="flex items-center justify-between px-3.5 mb-2.5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-[36px] h-[36px] shrink-0 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 p-[1.5px]">
-                        <div className="w-full h-full rounded-full bg-white dark:bg-black p-[1.5px]">
-                          <img src={post.senderAvatar || "/image/avt1.png"} className="w-full h-full rounded-full object-cover" alt="" />
-                        </div>
-                      </div>
-                      <div className="flex flex-col justify-center">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-[13px] leading-none tracking-tight">{post.senderName}</span>
-                          {post.senderEmail === "huylggcs230377@fpt.edu.vn" && (
-                            <span className="material-symbols-outlined text-[12px] text-[#0095f6]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                          )}
-                        </div>
-                        {post.category && (
-                          <span className="text-[11px] text-zinc-500 mt-0.5 tracking-wide">
-                            {post.category} • {post.sentiment}
-                          </span>
+              <div className="mt-4 h-16 w-full animate-pulse rounded bg-foreground/[0.06]" />
+            </div>
+          ))}
+        </div>
+      ) : filteredPosts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card py-16 text-center">
+          <span className="material-symbols-outlined text-4xl text-muted-foreground/50">forum</span>
+          <p className="mt-3 text-sm font-black text-foreground">Chưa có bài viết nào</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">Hãy là người đầu tiên khởi đầu cuộc trò chuyện!</p>
+          <button
+            type="button"
+            onClick={() => openComposer("chia sẻ")}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-indigo-500 px-4 py-2 text-[12px] font-black text-white transition hover:bg-indigo-600"
+          >
+            <span className="material-symbols-outlined text-[16px]">edit_square</span>Đăng bài
+          </button>
+        </div>
+      ) : (
+        <div className="grid items-start gap-4 md:grid-cols-2">
+          {filteredPosts.map((post) => {
+            const hasLiked = post.likes?.includes(memberSession?.email);
+            const repliesCount = post.comments?.length || 0;
+            const tag = tagOf(post.category);
+            const isOwn = post.senderEmail === memberSession?.email;
+            return (
+              <div key={post._id} className="relative flex flex-col rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-tr from-indigo-400 via-fuchsia-500 to-amber-400 p-[1.5px]">
+                      <img src={post.senderAvatar || "/image/avt1.png"} className="h-full w-full rounded-full border-2 border-card object-cover" alt="" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1">
+                        <span className="truncate text-[13px] font-black text-foreground">{post.senderName}</span>
+                        {post.senderEmail === OWNER_EMAIL && (
+                          <span className="material-symbols-outlined text-[13px] text-[#0095f6]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                         )}
                       </div>
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{getIgTime(post.createdAt)}</span>
                     </div>
-                    
-                    {/* More options */}
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wide ${tag.badge}`}>
+                      <span className="material-symbols-outlined text-[11px]">{tag.icon}</span>
+                      {tag.label}
+                    </span>
                     <div className="relative">
-                      <button onClick={() => { playBeep(); setActiveMenu(activeMenu === post._id ? null : post._id); }} className="p-1">
-                        <span className="material-symbols-outlined text-[20px]">more_horiz</span>
+                      <button onClick={() => { playBeep(); setActiveMenu(activeMenu === post._id ? null : post._id); }} className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-foreground/[0.06]">
+                        <span className="material-symbols-outlined text-[18px]">more_horiz</span>
                       </button>
                       {activeMenu === post._id && (
-                        <div className="absolute right-0 top-8 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 shadow-xl rounded-xl py-1 w-32">
-                          {post.senderEmail === memberSession?.email ? (
-                            <button onClick={() => handleDeletePost(post._id)} className="w-full px-4 py-2 text-[13px] text-rose-500 font-bold text-left">Xóa bài</button>
-                          ) : (
-                            <button onClick={() => setActiveMenu(null)} className="w-full px-4 py-2 text-[13px] text-rose-500 font-bold text-left">Báo cáo</button>
-                          )}
-                        </div>
+                        <>
+                          <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
+                          <div className="absolute right-0 top-8 z-20 w-32 overflow-hidden rounded-xl border border-border bg-card py-1 shadow-xl">
+                            {isOwn ? (
+                              <button onClick={() => handleDeletePost(post._id)} className="w-full px-4 py-2 text-left text-[13px] font-bold text-rose-500 hover:bg-rose-500/10">Xóa bài</button>
+                            ) : (
+                              <button onClick={() => setActiveMenu(null)} className="w-full px-4 py-2 text-left text-[13px] font-bold text-rose-500 hover:bg-rose-500/10">Báo cáo</button>
+                            )}
+                          </div>
+                        </>
                       )}
                     </div>
                   </div>
-
-                  {/* Body Text */}
-                  <div className="px-4 text-[14px] leading-[1.4] tracking-normal mb-1">
-                    {formatText(post.message)}
-                  </div>
-
-                  {/* Action Bar */}
-                  <div className="flex items-center justify-between px-3.5 mt-2 mb-2">
-                    <div className="flex items-center gap-4">
-                      <button onClick={() => handleToggleLike(post._id)} className="active:scale-90 transition-transform">
-                        <span className="material-symbols-outlined text-[26px]" style={{ fontVariationSettings: hasLiked ? "'FILL' 1" : "'FILL' 0, 'wght' 300", color: hasLiked ? "#ff3040" : "inherit" }}>
-                          favorite
-                        </span>
-                      </button>
-                      <button onClick={() => { playBeep(); setActiveCommentPostId(post._id); }} className="active:opacity-50">
-                        <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 300", transform: "scaleX(-1)" }}>chat_bubble</span>
-                      </button>
-                      <button className="active:opacity-50">
-                        <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 300", transform: "rotate(-25deg)" }}>send</span>
-                      </button>
-                    </div>
-                    <button className="active:opacity-50">
-                      <span className="material-symbols-outlined text-[26px]" style={{ fontVariationSettings: "'wght' 300" }}>bookmark</span>
-                    </button>
-                  </div>
-
-                  {/* Stats & Comments */}
-                  <div className="px-4">
-                    {post.likes?.length > 0 && (
-                      <div className="text-[13px] font-semibold mb-1">{post.likes.length} lượt thích</div>
-                    )}
-                    
-                    {/* View all comments prompt */}
-                    {repliesCount > 0 && (
-                      <div className="mb-1">
-                        {repliesCount > 1 && (
-                          <button onClick={() => setActiveCommentPostId(post._id)} className="text-[13px] text-zinc-500 mb-0.5">
-                            Xem tất cả {repliesCount} bình luận
-                          </button>
-                        )}
-                        {/* Show 1 comment inline */}
-                        <div className="text-[13px] leading-[1.3] line-clamp-2">
-                          <span className="font-semibold mr-1.5">{post.comments[post.comments.length - 1].senderName}</span>
-                          <span>{post.comments[post.comments.length - 1].message}</span>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="text-[10px] text-zinc-500 uppercase mt-1.5 tracking-wide">
-                      {getIgTime(post.createdAt)}
-                    </div>
-                  </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
 
-      {/* 3. Create Post Composer */}
+                {/* Body */}
+                <div className="mt-3 text-[14px] leading-relaxed text-foreground/90">{formatText(post.message)}</div>
+
+                {/* Action bar */}
+                <div className="mt-4 flex items-center gap-1 border-t border-border pt-2.5">
+                  <button
+                    onClick={() => handleToggleLike(post._id)}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-bold transition active:scale-95 ${hasLiked ? "text-rose-500" : "text-muted-foreground hover:bg-foreground/[0.05]"}`}
+                  >
+                    <span className="material-symbols-outlined text-[19px]" style={{ fontVariationSettings: hasLiked ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
+                    {post.likes?.length || 0}
+                  </button>
+                  <button
+                    onClick={() => { playBeep(); setActiveCommentPostId(post._id); }}
+                    className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-bold text-muted-foreground transition hover:bg-foreground/[0.05] active:scale-95"
+                  >
+                    <span className="material-symbols-outlined text-[19px]">mode_comment</span>
+                    {repliesCount}
+                  </button>
+                  <button className="ml-auto inline-flex items-center rounded-lg px-2 py-1.5 text-muted-foreground transition hover:bg-foreground/[0.05] active:scale-95">
+                    <span className="material-symbols-outlined text-[19px]">bookmark</span>
+                  </button>
+                </div>
+
+                {/* Latest comment preview */}
+                {repliesCount > 0 && (
+                  <button onClick={() => setActiveCommentPostId(post._id)} className="mt-1 rounded-xl bg-foreground/[0.03] p-2.5 text-left transition hover:bg-foreground/[0.06]">
+                    {repliesCount > 1 && <p className="mb-1 text-[11px] font-bold text-indigo-500">Xem tất cả {repliesCount} bình luận</p>}
+                    <p className="line-clamp-2 text-[12px] leading-snug text-foreground/80">
+                      <span className="font-black">{post.comments[repliesCount - 1].senderName}</span>{" "}
+                      {post.comments[repliesCount - 1].message}
+                    </p>
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Composer modal ── */}
       <AnimatePresence>
         {isComposerOpen && (
-          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="fixed inset-0 z-50 bg-white dark:bg-black flex flex-col">
-            <div className="h-[52px] px-4 flex items-center justify-between border-b border-zinc-200">
-              <button onClick={() => setIsComposerOpen(false)} className="text-[15px]">Hủy</button>
-              <h2 className="text-[16px] font-semibold">Bài viết mới</h2>
-              <button onClick={handlePublishPost} disabled={composerSubmitting || !newPostText.trim()} className={`text-[15px] font-semibold ${newPostText.trim() ? "text-[#0095f6]" : "text-blue-300"}`}>
-                Chia sẻ
-              </button>
-            </div>
-            <div className="flex-1 p-4 flex gap-3">
-              <img src={bio?.avatarUrl || "/image/avt7.png"} className="w-9 h-9 rounded-full object-cover shrink-0" alt="" />
-              <div className="flex-1 flex flex-col">
-                <textarea ref={postInputRef} value={newPostText} onChange={e => setNewPostText(e.target.value)} autoFocus placeholder="Bạn đang nghĩ gì?" className="w-full flex-1 bg-transparent text-[15px] outline-none resize-none leading-relaxed" />
-                {errorMsg && <p className="text-[12px] text-rose-500 mb-2">{errorMsg}</p>}
-                <div className="border-t border-zinc-200 py-3 flex items-center justify-between">
-                  <div className="flex gap-3">
-                    {[{ tag: "b", icon: "format_bold" }, { tag: "i", icon: "format_italic" }, { tag: "code", icon: "code" }].map(btn => (
-                      <button key={btn.tag} type="button" onClick={() => insertFormat(btn.tag)} className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-800">
-                        <span className="material-symbols-outlined text-[18px]">{btn.icon}</span>
+          <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsComposerOpen(false)} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+            <motion.div
+              initial={{ y: "100%", opacity: 0.5 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 26, stiffness: 240 }}
+              className="relative z-10 flex w-full max-w-lg flex-col rounded-t-3xl border border-border bg-card shadow-2xl sm:rounded-3xl"
+            >
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <button onClick={() => setIsComposerOpen(false)} className="text-[13px] font-bold text-muted-foreground">Hủy</button>
+                <h2 className="text-[14px] font-black text-foreground">Bài viết mới</h2>
+                <button
+                  onClick={handlePublishPost}
+                  disabled={composerSubmitting || !newPostText.trim()}
+                  className="rounded-lg px-3 py-1.5 text-[12px] font-black text-white transition disabled:opacity-40"
+                  style={{ background: tagOf(newPostTag).solid }}
+                >
+                  {composerSubmitting ? "Đang đăng..." : "Đăng"}
+                </button>
+              </div>
+
+              {/* Tag picker */}
+              <div className="px-4 pt-3">
+                <p className="mb-1.5 text-[9px] font-black uppercase tracking-widest text-muted-foreground">Loại bài viết</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.values(TAGS).map((tg) => {
+                    const active = newPostTag === tg.key;
+                    return (
+                      <button
+                        key={tg.key}
+                        type="button"
+                        onClick={() => { playBeep(); setNewPostTag(tg.key); }}
+                        className={`flex items-center gap-2 rounded-xl border p-2.5 text-left transition-all ${
+                          active ? "border-transparent text-white shadow-md" : "border-border bg-foreground/[0.02] text-foreground hover:bg-foreground/[0.05]"
+                        }`}
+                        style={active ? { background: tg.solid } : undefined}
+                      >
+                        <span className="material-symbols-outlined text-[20px]">{tg.icon}</span>
+                        <div className="min-w-0">
+                          <p className="text-[12px] font-black leading-none">{tg.label}</p>
+                          <p className={`mt-0.5 text-[9px] leading-tight ${active ? "text-white/80" : "text-muted-foreground"}`}>
+                            {tg.key === "câu hỏi" ? "Nhờ cộng đồng giải đáp" : "Lan tỏa điều hay"}
+                          </p>
+                        </div>
                       </button>
-                    ))}
-                  </div>
-                  <span className={`text-[12px] ${getWordCount(newPostText) > 350 ? "text-rose-500" : "text-zinc-400"}`}>{getWordCount(newPostText)}/350</span>
+                    );
+                  })}
                 </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* 4. Comments Bottom Sheet */}
-      <AnimatePresence>
-        {activeCommentPostId && (
-          <div className="fixed inset-0 z-50 flex flex-col justify-end">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActiveCommentPostId(null)} className="absolute inset-0 bg-black/50" />
-            
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="relative z-10 w-full h-[75vh] bg-white dark:bg-black rounded-t-2xl flex flex-col shadow-2xl">
-              {/* Handle Bar */}
-              <div className="w-full flex justify-center pt-3 pb-2"><div className="w-10 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700" /></div>
-              <div className="text-center font-semibold text-[15px] pb-3 border-b border-zinc-200 dark:border-zinc-800">Bình luận</div>
-              
-              {/* Comment List */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {activePost?.comments?.length > 0 ? activePost.comments.map(cmt => (
-                  <div key={cmt._id} className="flex gap-3">
-                    <img src={cmt.senderAvatar || "/image/avt1.png"} className="w-[32px] h-[32px] rounded-full object-cover shrink-0" alt="" />
-                    <div className="flex-1 text-[13px] leading-[1.3]">
-                      <span className="font-semibold mr-1.5">{cmt.senderName}</span>
-                      <span className="text-zinc-800 dark:text-zinc-200">{cmt.message}</span>
-                      <div className="text-[11px] text-zinc-500 mt-1">{getIgTime(cmt.createdAt)}</div>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="text-center text-zinc-500 text-[14px] mt-10">Chưa có bình luận nào.</div>
-                )}
+              {/* Text area */}
+              <div className="flex gap-3 px-4 pt-3">
+                <img src={bio?.avatarUrl || "/image/avt7.png"} className="h-9 w-9 shrink-0 rounded-full object-cover" alt="" />
+                <textarea
+                  ref={postInputRef}
+                  value={newPostText}
+                  onChange={(e) => setNewPostText(e.target.value)}
+                  autoFocus
+                  rows={5}
+                  placeholder={newPostTag === "câu hỏi" ? "Bạn đang thắc mắc điều gì?" : "Bạn muốn chia sẻ điều gì?"}
+                  className="w-full resize-none bg-transparent text-[15px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
+                />
               </div>
 
-              {/* Input Area */}
-              <div className="border-t border-zinc-200 dark:border-zinc-800 p-3 bg-white dark:bg-black flex items-center gap-3" style={{ paddingBottom: keyboardInset > 0 ? keyboardInset + 12 : 24 }}>
-                <img src={bio?.avatarUrl || "/image/avt7.png"} className="w-[36px] h-[36px] rounded-full object-cover shrink-0" alt="" />
-                <input ref={commentInputRef} value={commentInput} onChange={e => setCommentInput(e.target.value)} onKeyDown={e => e.key === "Enter" && handleAddComment()} placeholder="Thêm bình luận..." className="flex-1 bg-transparent text-[14px] outline-none" autoFocus />
-                {commentInput.trim() && (
-                  <button onClick={handleAddComment} className="text-[#0095f6] font-semibold text-[14px]">Đăng</button>
-                )}
+              {errorMsg && <p className="px-4 pt-1 text-[12px] font-semibold text-rose-500">{errorMsg}</p>}
+
+              <div className="flex items-center justify-between border-t border-border px-4 py-3">
+                <div className="flex gap-2">
+                  {[{ tag: "b", icon: "format_bold" }, { tag: "i", icon: "format_italic" }, { tag: "code", icon: "code" }].map((btn) => (
+                    <button key={btn.tag} type="button" onClick={() => insertFormat(btn.tag)} className="grid h-8 w-8 place-items-center rounded-full bg-foreground/[0.06] text-foreground transition hover:bg-foreground/10">
+                      <span className="material-symbols-outlined text-[17px]">{btn.icon}</span>
+                    </button>
+                  ))}
+                </div>
+                <span className={`text-[12px] font-bold ${getWordCount(newPostText) > 350 ? "text-rose-500" : "text-muted-foreground"}`}>{getWordCount(newPostText)}/350</span>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
+      {/* ── Comments bottom sheet ── */}
+      <AnimatePresence>
+        {activeCommentPostId && (
+          <div className="fixed inset-0 z-50 flex flex-col justify-end">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActiveCommentPostId(null)} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 26, stiffness: 240 }}
+              className="relative z-10 flex h-[75vh] w-full flex-col rounded-t-3xl border border-border bg-card shadow-2xl sm:mx-auto sm:max-w-lg"
+            >
+              <div className="flex w-full justify-center pb-2 pt-3"><div className="h-1 w-10 rounded-full bg-foreground/20" /></div>
+              <div className="border-b border-border pb-3 text-center text-[14px] font-black text-foreground">
+                Bình luận {activePost?.comments?.length ? `· ${activePost.comments.length}` : ""}
+              </div>
+
+              <div className="flex-1 space-y-4 overflow-y-auto p-4">
+                {activePost?.comments?.length > 0 ? (
+                  activePost.comments.map((cmt) => (
+                    <div key={cmt._id} className="flex gap-3">
+                      <img src={cmt.senderAvatar || "/image/avt1.png"} className="h-8 w-8 shrink-0 rounded-full object-cover" alt="" />
+                      <div className="min-w-0 flex-1 rounded-2xl bg-foreground/[0.04] px-3 py-2 text-[13px] leading-snug">
+                        <span className="mr-1.5 font-black text-foreground">{cmt.senderName}</span>
+                        <span className="text-foreground/85">{cmt.message}</span>
+                        <div className="mt-1 text-[10px] text-muted-foreground">{getIgTime(cmt.createdAt)}</div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="mt-10 text-center text-[13px] text-muted-foreground">Chưa có bình luận nào.</div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 border-t border-border bg-card p-3" style={{ paddingBottom: keyboardInset > 0 ? keyboardInset + 12 : 20 }}>
+                <img src={bio?.avatarUrl || "/image/avt7.png"} className="h-9 w-9 shrink-0 rounded-full object-cover" alt="" />
+                <input
+                  value={commentInput}
+                  onChange={(e) => setCommentInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddComment()}
+                  placeholder="Thêm bình luận..."
+                  className="flex-1 rounded-full bg-foreground/[0.06] px-4 py-2 text-[14px] text-foreground outline-none placeholder:text-muted-foreground"
+                  autoFocus
+                />
+                <button onClick={handleAddComment} disabled={!commentInput.trim()} className="text-[14px] font-black text-indigo-500 disabled:opacity-40">Đăng</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-

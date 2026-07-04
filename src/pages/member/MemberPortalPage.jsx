@@ -649,7 +649,7 @@ export default function MemberPortalPage() {
 
   const desktopTabs = useMemo(() => {
     return [
-      { id: "account",   label: t("memberPortal.tabs.community", "HugoComm"), icon: "groups",          partner: false },
+      { id: "account",   label: t("memberPortal.tabs.community", "Cộng đồng"), icon: "groups",          partner: false },
       ...(!isGuestMode ? [
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "paid",            partner: false },
       ] : []),
