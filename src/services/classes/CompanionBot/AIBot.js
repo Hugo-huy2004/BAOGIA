@@ -281,12 +281,23 @@ export default class AIBot extends BaseBot {
 
     try {
       const userId = await this._aiUserId();
-      const res = await _streamLimit(() => fetchWithRetry(`${API_URL}/chat/stream`, {
+      
+      // Use AbortController to prevent long hangs or server offline messages.
+      // Falls back to local matching response instantly if connection hangs for 3.5 seconds.
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+      const res = await _streamLimit(() => fetch(`${API_URL}/chat/stream`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId })
-      }));
-      if (!res?.ok) throw new Error("Server error");
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Internal-Key": INTERNAL_KEY
+        },
+        body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId }),
+        signal: controller.signal
+      })).finally(() => clearTimeout(timeoutId));
+
+      if (!res || !res.ok) throw new Error("Server error");
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();

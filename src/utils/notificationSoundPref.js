@@ -1,19 +1,12 @@
-// Whether incoming notifications should play a sound — checked by
-// useNotifications.js before playing the chime, set by MemberSettingsTab.jsx.
-// Defaults to on (most members expect sound unless they turn it off).
-const KEY = "hugo_notification_sound";
+// Notification sound — delegated to the tri-state autoPrefs brain. "auto" mutes
+// during quiet night hours (22:00–07:00) automatically; users can force on/off.
+// Same getter/setter names so useNotifications.js needs no change.
+import { resolvePref, setPref } from "./autoPrefs";
 
 export function isNotificationSoundEnabled() {
-  try {
-    const v = localStorage.getItem(KEY);
-    return v === null ? true : v === "1";
-  } catch (_) {
-    return true;
-  }
+  return resolvePref("sound");
 }
 
 export function setNotificationSoundEnabled(enabled) {
-  try {
-    localStorage.setItem(KEY, enabled ? "1" : "0");
-  } catch (_) { /* ignore */ }
+  setPref("sound", enabled ? "on" : "off");
 }

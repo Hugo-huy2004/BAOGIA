@@ -129,22 +129,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
             {t("adminTabs.settings.advanced")}
           </h3>
 
-          {/* HBot */}
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="font-semibold text-sm text-slate-800 dark:text-slate-300">{t("adminTabs.settings.aiBot")}</span>
-              <p className="text-[10px] text-slate-400 mt-1">{t("adminTabs.settings.aiBotDesc")}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => updateSystemSettings({ enableHBot: !data?.systemSettings?.enableHBot })}
-              className={`relative inline-flex items-center w-[44px] min-w-[44px] h-[24px] min-h-[24px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
-                data?.systemSettings?.enableHBot !== false ? "bg-primary" : "bg-slate-200 dark:bg-slate-800"
-              }`}
-            >
-              <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-sm transition ${data?.systemSettings?.enableHBot !== false ? "translate-x-5" : "translate-x-0"}`} />
-            </button>
-          </div>
+
 
           {/* Allow Registration */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 pt-4">

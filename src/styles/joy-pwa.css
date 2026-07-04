@@ -1,0 +1,47 @@
+:root{ --bg:#0f172a; --surface:#0b1220; --card:#0e1624; --muted:#94a3b8; --accent:#7c5cff; }
+
+body{ margin:0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: linear-gradient(180deg,#061021 0%, #07162a 100%); color:#e6eef8; }
+
+.joy-pwa-app{ max-width:920px; margin:20px auto; padding:16px; }
+.joy-header{ background:linear-gradient(90deg,var(--accent),#5ec8ff); border-radius:14px; padding:12px; box-shadow:0 8px 30px rgba(7,10,20,.45); }
+.joy-header-inner{ display:flex; align-items:center; justify-content:space-between; }
+.joy-brand{ display:flex; gap:12px; align-items:center; }
+.joy-logo{ background:rgba(255,255,255,.12); padding:8px 12px; border-radius:8px; font-weight:900; }
+.joy-title{ font-weight:800; }
+.joy-menu{ background:transparent; border:0; color:inherit; font-size:18px; }
+
+/* subtle animated gradient */
+.joy-header{ position:relative; overflow:hidden; }
+.joy-header::before{ content:""; position:absolute; inset:0; background:linear-gradient(120deg, rgba(255,255,255,.04), transparent 30%); mix-blend-mode:overlay; pointer-events:none; animation: headerShift 6s linear infinite; opacity:.9; }
+@keyframes headerShift{ 0%{ transform:translateX(-12%);} 50%{ transform:translateX(12%);} 100%{ transform:translateX(-12%);} }
+
+.joy-pwa-main{ display:grid; gap:16px; margin-top:16px; }
+.joy-balance-card{ background:rgba(255,255,255,.03); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,.04); }
+.balance-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.balance-label{ font-size:12px; color:var(--muted); font-weight:800; }
+.balance-value{ font-size:22px; font-weight:900; margin-top:6px; }
+.balance-actions{ display:flex; gap:8px; }
+.btn-outline{ background:linear-gradient(90deg,var(--accent),#5ec8ff); color:#041022; border:0; padding:10px 14px; border-radius:10px; font-weight:800; transition:transform .16s ease, box-shadow .16s ease; box-shadow:0 8px 20px rgba(124,92,255,.12); }
+.btn-outline:hover{ transform:translateY(-3px); box-shadow:0 20px 40px rgba(124,92,255,.14); }
+.btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,.06); color:var(--muted); padding:10px 12px; border-radius:10px; transition:background .14s ease, transform .12s ease; }
+.btn-ghost:hover{ background:rgba(255,255,255,.02); transform:translateY(-2px); }
+.balance-note{ margin-top:10px; font-size:12px; color:var(--muted); }
+
+.joy-pwa-panel{ background:rgba(255,255,255,.02); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.03); }
+.panel-title{ margin:0 0 8px 0; font-weight:900; }
+.joy-tx-list{ list-style:none; padding:0; margin:0; display:grid; gap:8px; }
+.joy-tx{ display:flex; align-items:center; justify-content:space-between; padding:10px; border-radius:10px; background:rgba(0,0,0,.18); }
+.joy-tx.debit{ border-left:4px solid rgba(240,90,80,.9); }
+.joy-tx.credit{ border-left:4px solid rgba(100,220,140,.9); }
+.tx-label{ font-weight:800; }
+.tx-date{ font-size:12px; color:var(--muted); }
+.tx-right{ font-weight:900; }
+
+.joy-pwa-footer{ margin-top:18px; text-align:center; color:var(--muted); font-size:13px; }
+
+/* animated balance number (small pop) */
+.balance-value{ transition: transform .28s cubic-bezier(.2,.9,.28,1); }
+.balance-value[data-pop] { transform: scale(1.02); }
+
+@media (min-width:900px){ .joy-pwa-main{ grid-template-columns: 1fr 420px; align-items:start; } }
+@media (max-width:520px){ .joy-pwa-app{ padding:12px; margin:10px; } }

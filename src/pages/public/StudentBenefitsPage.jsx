@@ -182,7 +182,7 @@ export default function StudentBenefitsPage() {
           <div className="space-y-4 text-center lg:text-left">
             <Link
               to="/services"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-border/50 text-[10px] font-bold text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-white/10 transition-all uppercase tracking-widest w-max mx-auto lg:mx-0"
+              className="brand-chip w-max mx-auto lg:mx-0 hover:border-primary/25 hover:text-primary"
             >
               <span className="material-symbols-outlined text-sm">
                 arrow_back
@@ -199,11 +199,11 @@ export default function StudentBenefitsPage() {
               </div>
               <h1 className="font-display text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-[1.1]">
                 Xây Dựng <br className="hidden lg:block" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 drop-shadow-sm">
+                <span className="text-gradient drop-shadow-sm">
                   Thương Hiệu Số
                 </span>
               </h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-lg mx-auto lg:mx-0">
+              <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground lg:mx-0">
                 Hugo Studio dành tặng đặc quyền{" "}
                 <strong>miễn phí 12 tháng</strong> cho sinh viên. Sở hữu Bio
                 Link cá nhân chuẩn Premium, không quảng cáo và thiết kế độc bản.
@@ -212,38 +212,37 @@ export default function StudentBenefitsPage() {
           </div>
 
           {/* Value Comparison */}
-          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6 p-4 rounded-3xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border border-indigo-100 dark:border-indigo-500/20">
+          <div className="flex flex-col items-center justify-center gap-4 border-y border-border/60 py-4 sm:flex-row sm:gap-6 lg:justify-start">
             <div className="text-center sm:text-left">
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-0.5">
                 Giá gốc dịch vụ
               </p>
-              <p className="text-lg font-bold text-slate-400 dark:text-slate-500 line-through decoration-slate-400/50">
+              <p className="text-lg font-bold text-muted-foreground/70 line-through decoration-muted-foreground/40">
                 500.000đ<span className="text-xs font-normal">/năm</span>
               </p>
             </div>
-            <div className="hidden sm:block w-px h-8 bg-indigo-200 dark:bg-indigo-500/20"></div>
+            <div className="hidden h-8 w-px bg-border sm:block"></div>
             <div className="text-center sm:text-left">
-              <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider mb-0.5 flex items-center justify-center sm:justify-start gap-1">
+              <p className="mb-0.5 flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary sm:justify-start">
                 <span className="material-symbols-outlined text-[14px]">
                   school
                 </span>{" "}
                 Đặc quyền Sinh Viên
               </p>
-              <p className="text-2xl font-black text-indigo-700 dark:text-indigo-300">
+              <p className="text-2xl font-black text-foreground">
                 0đ<span className="text-sm font-medium">/năm</span>
               </p>
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-3 lg:gap-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:gap-4">
             {benefits.map((benefit, idx) => (
               <div
                 key={idx}
-                className="group relative bg-white/50 dark:bg-background/50 backdrop-blur-md border border-border/50 p-4 rounded-2xl hover:bg-white dark:hover:bg-[#1c1a27] hover:border-indigo-300 dark:hover:border-indigo-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10"
+                className="group relative border-b border-border/50 pb-4 transition-all duration-300 last:border-b-0 sm:pb-5"
               >
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
                 <div
-                  className={`w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-border/50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ${benefit.color} shadow-sm`}
+                  className={`mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-muted/50 transition-transform group-hover:scale-105 ${benefit.color}`}
                 >
                   <span className="material-symbols-outlined text-xl">
                     {benefit.icon}
@@ -261,18 +260,11 @@ export default function StudentBenefitsPage() {
         </div>
 
         {/* Right Column: Authentication Card */}
-        <div className="relative flex justify-center lg:justify-end mt-4 lg:mt-0">
-          {/* Decorative elements behind card */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 blur-3xl rounded-full pointer-events-none" />
-
-          <div className="w-full max-w-[380px] bg-white/80 dark:bg-background/90 backdrop-blur-2xl border border-border/50 p-6 sm:p-8 rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] relative overflow-hidden group">
-            {/* Animated Gradient Border Top */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-
+        <div className="relative mt-4 flex justify-center lg:justify-end lg:mt-0">
+          <div className="relative w-full max-w-[380px] border-t border-border/60 pt-6 sm:pt-8">
             <div className="text-center space-y-3 mb-8">
-              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 border border-indigo-100 dark:border-indigo-500/30 rounded-full flex items-center justify-center shadow-inner relative">
-                <div className="absolute inset-0 rounded-full bg-indigo-500/20 animate-ping opacity-20" />
-                <span className="material-symbols-outlined text-3xl text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+              <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-md bg-muted/50">
+                <span className="material-symbols-outlined text-3xl text-primary">
                   school
                 </span>
               </div>
@@ -282,11 +274,11 @@ export default function StudentBenefitsPage() {
                 </h2>
                 <p className="text-[11px] text-muted-foreground leading-relaxed px-2">
                   Chỉ áp dụng cho tài khoản Google giáo dục (
-                  <strong className="text-indigo-600 dark:text-indigo-400">
+                  <strong className="text-primary">
                     .edu
                   </strong>{" "}
                   hoặc{" "}
-                  <strong className="text-indigo-600 dark:text-indigo-400">
+                  <strong className="text-primary">
                     .edu.vn
                   </strong>
                   )
@@ -301,10 +293,10 @@ export default function StudentBenefitsPage() {
                   className="flex justify-center min-h-[44px]"
                 />
 
-                <div className="w-full flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
-                  <div className="flex-1 h-px bg-slate-200 dark:bg-white/10"></div>
+                <div className="flex w-full items-center gap-3 text-xs text-muted-foreground">
+                  <div className="h-px flex-1 bg-border"></div>
                   <span>hoặc nếu không tự hiện</span>
-                  <div className="flex-1 h-px bg-slate-200 dark:bg-white/10"></div>
+                  <div className="h-px flex-1 bg-border"></div>
                 </div>
 
                 <button
@@ -316,7 +308,7 @@ export default function StudentBenefitsPage() {
                       setTimeout(() => googleId.prompt(), 100);
                     }
                   }}
-                  className="w-full py-2.5 px-4 rounded-full border border-indigo-300 dark:border-indigo-500/40 text-indigo-600 dark:text-indigo-400 text-xs font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all"
+                  className="w-full border-b border-primary/30 px-1 py-2.5 text-xs font-semibold text-primary transition-all hover:bg-primary/5"
                 >
                   Bấm để chọn tài khoản Google
                 </button>
@@ -329,7 +321,7 @@ export default function StudentBenefitsPage() {
               )}
 
               {googleConfigError && (
-                <div className="w-full rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-left text-[10px] text-warning dark:text-amber-300">
+                <div className="w-full border-l-2 border-warning/40 bg-warning/8 px-4 py-3 text-left text-[10px] text-warning dark:text-amber-300">
                   <p className="font-semibold">{googleConfigError}</p>
                   <p className="mt-1 text-muted-foreground">Authorized JavaScript origins cần chứa origin hiện tại và domain production.</p>
                 </div>
@@ -339,8 +331,8 @@ export default function StudentBenefitsPage() {
                 {googleConfigError ? "Google Sign-In đang bị chặn bởi cấu hình OAuth." : gisReady ? "Google Sign-In đã sẵn sàng." : "Đang tải Google Sign-In..."}
               </p>
 
-              <div className="w-full p-3.5 rounded-2xl bg-muted/50 border border-border/50 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 flex gap-2.5 text-left leading-relaxed">
-                <span className="material-symbols-outlined text-indigo-500 shrink-0 text-lg mt-0.5">
+              <div className="flex w-full gap-2.5 border-t border-border/50 pt-3.5 text-left text-[10px] leading-relaxed text-muted-foreground sm:text-[11px]">
+                <span className="material-symbols-outlined mt-0.5 shrink-0 text-lg text-primary">
                   shield_person
                 </span>
                 <p>

@@ -164,7 +164,7 @@ const SupportRequestPage = () => {
               
               <button
                 onClick={() => navigate('/member')}
-                className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-2xl flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95"
+                className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card/80 px-6 py-2.5 text-xs font-semibold text-muted-foreground transition-all hover:scale-[1.02] hover:bg-muted/80 active:scale-95"
                 style={{ minHeight: 0, minWidth: 0 }}
               >
                 <span className="material-symbols-outlined text-sm">person</span>
@@ -179,7 +179,7 @@ const SupportRequestPage = () => {
               <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
                 Yêu Cầu Hỗ Trợ 1:1
               </h1>
-              <p className="text-xs text-slate-400 dark:text-slate-400 leading-relaxed">
+              <p className="text-xs leading-relaxed text-muted-foreground">
                 Điền đầy đủ thông tin bên dưới để kết nối nhanh với nhân viên hỗ trợ thông qua Zalo chat. Chúng tôi sẽ giải quyết vấn đề của bạn ngay lập tức.
               </p>
             </div>
@@ -194,8 +194,8 @@ const SupportRequestPage = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Full Name */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400 tracking-wide flex items-center gap-1">
-                  <span className="material-symbols-outlined text-base text-slate-400">badge</span>
+                <label className="flex items-center gap-1 text-xs font-semibold tracking-wide text-muted-foreground">
+                  <span className="material-symbols-outlined text-base text-muted-foreground">badge</span>
                   Họ và tên
                 </label>
                 <input
@@ -204,15 +204,15 @@ const SupportRequestPage = () => {
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
                   placeholder="Nhập họ và tên của bạn"
-                  className="w-full px-4 py-3 bg-slate-50/50 dark:bg-black/40 border border-border/50 rounded-2xl text-xs focus:outline-none focus:border-primary dark:focus:border-primary focus:ring-2 focus:ring-[#007aff]/15 transition-all text-foreground font-medium"
+                  className="w-full rounded-2xl border border-border/60 bg-card/75 px-4 py-3 text-xs font-medium text-foreground shadow-inner-soft backdrop-blur-sm transition-all focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Email */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-400 tracking-wide flex items-center gap-1">
-                    <span className="material-symbols-outlined text-base text-slate-400">mail</span>
+                  <label className="flex items-center gap-1 text-xs font-semibold tracking-wide text-muted-foreground">
+                    <span className="material-symbols-outlined text-base text-muted-foreground">mail</span>
                     Email liên hệ
                   </label>
                   <input
@@ -221,14 +221,14 @@ const SupportRequestPage = () => {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="example@mail.com"
-                    className="w-full px-4 py-3 bg-slate-50/50 dark:bg-black/40 border border-border/50 rounded-2xl text-xs focus:outline-none focus:border-primary dark:focus:border-primary focus:ring-2 focus:ring-[#007aff]/15 transition-all text-foreground font-medium"
+                    className="w-full rounded-2xl border border-border/60 bg-card/75 px-4 py-3 text-xs font-medium text-foreground shadow-inner-soft backdrop-blur-sm transition-all focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                   />
                 </div>
 
                 {/* Phone Number (Zalo) */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-400 tracking-wide flex items-center gap-1">
-                    <span className="material-symbols-outlined text-base text-slate-400">call</span>
+                  <label className="flex items-center gap-1 text-xs font-semibold tracking-wide text-muted-foreground">
+                    <span className="material-symbols-outlined text-base text-muted-foreground">call</span>
                     Số Zalo liên hệ
                   </label>
                   <input
@@ -237,15 +237,15 @@ const SupportRequestPage = () => {
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     placeholder="Ví dụ: 0901234567"
-                    className="w-full px-4 py-3 bg-slate-50/50 dark:bg-black/40 border border-border/50 rounded-2xl text-xs focus:outline-none focus:border-primary dark:focus:border-primary focus:ring-2 focus:ring-[#007aff]/15 transition-all text-foreground font-medium"
+                    className="w-full rounded-2xl border border-border/60 bg-card/75 px-4 py-3 text-xs font-medium text-foreground shadow-inner-soft backdrop-blur-sm transition-all focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                   />
                 </div>
               </div>
 
               {/* Description */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400 tracking-wide flex items-center gap-1">
-                  <span className="material-symbols-outlined text-base text-slate-400">description</span>
+                <label className="flex items-center gap-1 text-xs font-semibold tracking-wide text-muted-foreground">
+                  <span className="material-symbols-outlined text-base text-muted-foreground">description</span>
                   Mô tả vấn đề bạn gặp phải
                 </label>
                 <textarea
@@ -254,7 +254,7 @@ const SupportRequestPage = () => {
                   value={issue}
                   onChange={e => setIssue(e.target.value)}
                   placeholder="Hãy mô tả chi tiết lỗi, thắc mắc hoặc yêu cầu nâng cấp gói dịch vụ của bạn tại đây..."
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl text-xs focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500/80 transition-colors text-foreground resize-none"
+                  className="w-full resize-none rounded-2xl border border-border/60 bg-card/75 px-4 py-3 text-xs text-foreground shadow-inner-soft backdrop-blur-sm transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 />
               </div>
 
@@ -263,7 +263,7 @@ const SupportRequestPage = () => {
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-muted-foreground font-semibold text-xs rounded-2xl border border-slate-200/40 dark:border-slate-800/40 transition-colors"
+                  className="flex-1 rounded-2xl border border-border/60 bg-card/80 px-4 py-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted/80"
                   style={{ minHeight: 0, minWidth: 0 }}
                 >
                   Quay lại

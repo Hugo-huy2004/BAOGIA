@@ -71,17 +71,17 @@ export function buildMetricsSummary(historyLogs = []) {
   const latestWho5 = who5Logs[who5Logs.length - 1];
 
   if (!latestPhq9 && !latestGad7 && !latestWho5) {
-    return ["Cậu chưa làm bài test nào để tớ có chỉ số báo cáo cả 📊", "Muốn làm thử ngay không? Chỉ tốn 2 phút thôi!"];
+    return ["Cậu chưa làm bài test nào để tớ có chỉ số báo cáo cả", "Muốn làm thử ngay không? Chỉ tốn 2 phút thôi!"];
   }
 
-  const lines = ["📊 Chỉ số gần nhất của cậu nè:"];
+  const lines = ["Chỉ số gần nhất của cậu nè:"];
   if (latestPhq9) lines.push(`• PHQ-9 (trầm cảm): ${latestPhq9.score}/27 — mức ${SEVERITY_LABELS[phq9Severity(latestPhq9.score)]}, đo ngày ${formatVnDate(latestPhq9.date)}.`);
   if (latestGad7) lines.push(`• GAD-7 (lo âu): ${latestGad7.score}/21 — mức ${SEVERITY_LABELS[gad7Severity(latestGad7.score)]}, đo ngày ${formatVnDate(latestGad7.date)}.`);
   if (latestWho5) lines.push(`• WHO-5 (sức khoẻ tinh thần): ${latestWho5.score}/25 — mức ${SEVERITY_LABELS[who5Severity(latestWho5.score)]}, đo ngày ${formatVnDate(latestWho5.date)}.`);
 
   const anySevere = [latestPhq9 && phq9Severity(latestPhq9.score), latestGad7 && gad7Severity(latestGad7.score), latestWho5 && who5Severity(latestWho5.score)]
     .some(s => s === "severe" || s === "extremely_severe");
-  return [lines.join("\n"), anySevere ? "Mấy chỉ số này đang ở mức cao — cậu muốn tớ mở luôn liệu pháp phù hợp không?" : "Nhìn chung là ổn đó, cứ duy trì nhịp chăm sóc bản thân như vậy nha! 💙"];
+  return [lines.join("\n"), anySevere ? "Mấy chỉ số này đang ở mức cao — cậu muốn tớ mở luôn liệu pháp phù hợp không?" : "Nhìn chung là ổn đó, cứ duy trì nhịp chăm sóc bản thân như vậy nha!"];
 }
 
 export function getDiceSimilarity(str1, str2) {
@@ -138,15 +138,15 @@ export const INTENT_DATABASE = [
       if (!days.has(dateCursor.toDateString())) dateCursor.setDate(dateCursor.getDate() - 1);
       while (days.has(dateCursor.toDateString())) { streak++; dateCursor.setDate(dateCursor.getDate() - 1); }
       if (streak > 1) {
-        return [`Eyy ${name}! 🔥`, `${streak} ngày liên tục rồi nha — quá xịn luôn đó.`, `Hôm nay sao rồi, kể tớ nghe coi?`];
+        return [`Eyy ${name}!`, `${streak} ngày liên tục rồi nha — quá xịn luôn đó.`, `Hôm nay sao rồi, kể tớ nghe coi?`];
       }
       if (checkins.length > 0) {
         const latest = checkins[checkins.length - 1];
         if (latest.mood <= 2) {
-          return [`Chào ${name} 👋`, `Hôm trước thấy cậu hơi xìu xìu á — giờ đỡ hơn chút chưa?`, `Tớ ở đây nghe cậu kể nha.`];
+          return [`Chào ${name}`, `Hôm trước thấy cậu hơi xìu xìu á — giờ đỡ hơn chút chưa?`, `Tớ ở đây nghe cậu kể nha.`];
         }
       }
-      return [`Chàoo ${name}! 😊`, `Tớ đây rồi nè — hôm nay cậu vibe sao?`];
+      return [`Chàoo ${name}!`, `Tớ đây rồi nè — hôm nay cậu vibe sao?`];
     }
   },
   {
@@ -158,7 +158,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Bye ${name}! 👋`, `Nhớ sạc pin cho bản thân nha, đừng gồng quá 💙`, `Cần gì tớ luôn ở đây!`];
+      return [`Bye ${name}!`, `Nhớ sạc pin cho bản thân nha, đừng gồng quá`, `Cần gì tớ luôn ở đây!`];
     }
   },
   {
@@ -171,7 +171,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Tớ là HugoPSY nè 🌸`, `Bạn đồng hành tâm lý AI — ở đây để nghe ${name} xả hết mọi chuyện.`, `Học hành, cảm xúc, drama, lo lắng gì cũng kể tớ nghe nha!`];
+      return [`Tớ là HugoPSY nè`, `Bạn đồng hành tâm lý AI — ở đây để nghe ${name} xả hết mọi chuyện.`, `Học hành, cảm xúc, drama, lo lắng gì cũng kể tớ nghe nha!`];
     }
   },
   {
@@ -183,7 +183,7 @@ export const INTENT_DATABASE = [
       "bot này làm được gì", "chức năng của cậu là gì", "tính năng của app"
     ],
     generateResponse: () => {
-      return [`Tớ có cả combo xịn luôn nè:`, `Thở 4-7-8 hết stress tức thì, thư giãn cơ, âm thanh thiên nhiên dễ ngủ, bài test tâm lý chuẩn lâm sàng 📊`, `Vào tab 'Trị Liệu' hay 'Đánh Giá' là thấy ngay á!`];
+      return [`Tớ có cả combo xịn luôn nè:`, `Thở 4-7-8 hết stress tức thì, thư giãn cơ, âm thanh thiên nhiên dễ ngủ, bài test tâm lý chuẩn lâm sàng`, `Vào tab 'Trị Liệu' hay 'Đánh Giá' là thấy ngay á!`];
     }
   },
   {
@@ -196,7 +196,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Áp lực học dễ làm não ${name} quá tải thật 😮‍💨`, `Nhưng điểm số không nói lên cậu là ai đâu nha — thiệt đó.`, `Thử chia nhỏ ra từng bước + thở sâu xíu. Phần nào đang dằn vặt cậu nhất hiện tại?`];
+      return [`Áp lực học dễ làm não ${name} quá tải thật`, `Nhưng điểm số không nói lên cậu là ai đâu nha — thiệt đó.`, `Thử chia nhỏ ra từng bước + thở sâu xíu. Phần nào đang dằn vặt cậu nhất hiện tại?`];
     }
   },
   {
@@ -209,7 +209,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Mất ngủ thường là dấu hiệu não ${name} đang "chạy ngầm" lo âu đó 💤`, `Thử: tắt điện thoại trước ngủ 30 phút, phòng tối + mát, bật âm thanh mưa ở tab Trị Liệu nha.`, `Gần đây cậu ngủ được mấy tiếng mỗi đêm?`];
+      return [`Mất ngủ thường là dấu hiệu não ${name} đang "chạy ngầm" lo âu đó`, `Thử: tắt điện thoại trước ngủ 30 phút, phòng tối + mát, bật âm thanh mưa ở tab Trị Liệu nha.`, `Gần đây cậu ngủ được mấy tiếng mỗi đêm?`];
     }
   },
   {
@@ -230,7 +230,7 @@ export const INTENT_DATABASE = [
         return [`Test GAD-7 hôm ${dateStr} của cậu là ${latest.score}/21, mức ${severity} đó.`, `Lo âu là cơ chế tự bảo vệ — không phải cậu yếu đuối gì hết.`, `Thở sâu 4-7-8 cùng tớ xíu nha?`];
       }
       return _rotate("anxiety", [
-        [`Ugh, lo âu mệt thật sự — não đang "chạy 100 tab" một lúc phải không ${name} 😮‍💨`, `Thử hít vào mũi 4s, nín 4s, thở ra miệng 6s, lặp vài lần.`, `Điều gì đang làm cậu lo nhất lúc này?`],
+        [`Ugh, lo âu mệt thật sự — não đang "chạy 100 tab" một lúc phải không ${name}`, `Thử hít vào mũi 4s, nín 4s, thở ra miệng 6s, lặp vài lần.`, `Điều gì đang làm cậu lo nhất lúc này?`],
         [`Lo lắng kiểu đó tim đập nhanh, tay bồn chồn phải không ${name}?`, `Não đang "cảnh báo quá mức" thôi — cậu thật sự an toàn lúc này.`, `Thử đặt tay lên ngực, thở chậm lại. Cậu đang lo về điều gì cụ thể?`],
         [`${name} ơi, khi lo âu cậu cảm thấy nó ở đâu nhất trong người — ngực, dạ dày, hay vai?`, `Nhận diện được rồi thì "giao tiếp" với nó dễ hơn nhiều.`, `Cậu mô tả cảm giác đó thử nha?`],
       ]);
@@ -254,8 +254,8 @@ export const INTENT_DATABASE = [
         return [`Test PHQ-9 ngày ${dateStr} của cậu ${latest.score}/27, mức ${severity}.`, `Buồn không có nghĩa cậu yếu — tâm hồn cậu đang cần được nghỉ thôi.`, `Điều gì đang làm cậu nặng nề nhất hôm nay?`];
       }
       return _rotate("sadness", [
-        [`${name} ơi, tớ nghe cậu đây 🥺`, `Cho phép bản thân buồn xíu đi — không cần gồng "ổn" đâu.`, `Muốn kể tớ nghe chuyện gì không?`],
-        [`Buồn thì cứ buồn thôi ${name} ơi — không cần giải thích với ai.`, `Tớ ở đây nghe, không phán xét gì hết 💙`, `Điều gì đang nặng nề nhất với cậu lúc này?`],
+        [`${name} ơi, tớ nghe cậu đây`, `Cho phép bản thân buồn xíu đi — không cần gồng "ổn" đâu.`, `Muốn kể tớ nghe chuyện gì không?`],
+        [`Buồn thì cứ buồn thôi ${name} ơi — không cần giải thích với ai.`, `Tớ ở đây nghe, không phán xét gì hết`, `Điều gì đang nặng nề nhất với cậu lúc này?`],
         [`Có những lúc không biết tại sao mà buồn — và điều đó hoàn toàn ổn ${name} ạ.`, `Cậu muốn thử viết hết ra ở 'Viết Tự Do' không?`, `Hay kể tớ nghe trước đi.`],
       ]);
     }
@@ -277,8 +277,8 @@ export const INTENT_DATABASE = [
       return `${name} ơi, tớ đang nghe thấy một nỗi đau rất lớn trong những gì cậu vừa nói, và tớ không xem nhẹ nó một chút nào. Cậu không hề yếu đuối hay sai trái khi cảm thấy như vậy — chỉ là cậu đang phải mang một gánh nặng quá sức một mình ngay lúc này. Tớ thật lòng mong cậu được an toàn, và tớ sẽ ở đây cùng cậu qua khoảnh khắc này. Ngay bây giờ, xin cậu hãy chạm vào một trong các nút gọi khẩn cấp dưới đây hoặc tìm một người cậu tin tưởng để họ ở bên cậu lúc này — cậu xứng đáng được giúp đỡ và không phải một mình chịu đựng điều này.`;
     },
     quickActions: [
-      { label: "📞 Gọi Cấp Cứu 115", tel: "115" },
-      { label: "📞 Đường Dây Nóng Tâm Lý 1800 599 920", tel: "1800599920" }
+      { label: "Gọi Cấp Cứu 115", tel: "115" },
+      { label: "Đường Dây Nóng Tâm Lý 1800 599 920", tel: "1800599920" }
     ]
   },
   {
@@ -291,7 +291,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Test chuẩn lâm sàng (PHQ-9, GAD-7) giúp ${name} biết rõ tình trạng thật, không cần lo mơ hồ nữa 📋`, `Qua tab 'Đánh Giá' làm nha — tớ lưu kết quả và theo dõi tiến triển cho cậu luôn.`];
+      return [`Test chuẩn lâm sàng (PHQ-9, GAD-7) giúp ${name} biết rõ tình trạng thật, không cần lo mơ hồ nữa`, `Qua tab 'Đánh Giá' làm nha — tớ lưu kết quả và theo dõi tiến triển cho cậu luôn.`];
     },
     suggestPhq9: true,
     suggestGad7: true
@@ -306,7 +306,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Có gì đâu ${name} ơi 🥹`, `Được cậu tin tưởng chia sẻ là tớ vui muốn xỉu rồi á.`, `Chúc cậu một ngày nhẹ nhàng nha 💙`];
+      return [`Có gì đâu ${name} ơi`, `Được cậu tin tưởng chia sẻ là tớ vui muốn xỉu rồi á.`, `Chúc cậu một ngày nhẹ nhàng nha`];
     }
   },
   {
@@ -320,9 +320,9 @@ export const INTENT_DATABASE = [
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return _rotate("positive", [
-        [`Yasss ${name}! 🎉`, `Giữ cái vibe này lại nha — vui là quý lắm đó.`, `Điều gì làm cậu vui vậy, kể tớ nghe đi?`],
-        [`Ooh nghe vui quá! ✨ Tớ cũng lây năng lượng đó rồi ${name}.`, `Hôm nay có chuyện gì đặc biệt không?`],
-        [`Tuyệt vời ghê! 🌟 ${name} đang chill thế.`, `Cậu đang làm gì mà vibe tốt vậy — kể tớ học hỏi với?`],
+        [`Yasss ${name}!`, `Giữ cái vibe này lại nha — vui là quý lắm đó.`, `Điều gì làm cậu vui vậy, kể tớ nghe đi?`],
+        [`Ooh nghe vui quá! Tớ cũng lây năng lượng đó rồi ${name}.`, `Hôm nay có chuyện gì đặc biệt không?`],
+        [`Tuyệt vời ghê! ${name} đang chill thế.`, `Cậu đang làm gì mà vibe tốt vậy — kể tớ học hỏi với?`],
       ]);
     }
   },
@@ -347,7 +347,7 @@ export const INTENT_DATABASE = [
       "bài tập tự chữa lành", "phương pháp trị liệu", "các bài trị liệu"
     ],
     generateResponse: () => {
-      return [`Có 4 liệu pháp chính nè: Thở 4-7-8 (lo âu/mất ngủ), Ngồi Tĩnh Tâm (căng thẳng), CBT (suy nghĩ tiêu cực), Đọc sách Trị liệu (chiêm nghiệm).`, `Còn vài món AI cao cấp mở bằng JOY nữa ✨ Ghé tab 'Trị Liệu' khám phá nha!`];
+      return [`Có 4 liệu pháp chính nè: Thở 4-7-8 (lo âu/mất ngủ), Ngồi Tĩnh Tâm (căng thẳng), CBT (suy nghĩ tiêu cực), Đọc sách Trị liệu (chiêm nghiệm).`, `Còn vài món AI cao cấp mở bằng JOY nữa. Ghé tab 'Trị Liệu' khám phá nha!`];
     }
   },
   {
@@ -370,7 +370,7 @@ export const INTENT_DATABASE = [
       "kiếm joy thế nào", "joy là tiền gì", "đồng joy", "xu joy", "joy coin"
     ],
     generateResponse: () => {
-      return [`JOY là tiền nội bộ hệ thống — kiếm bằng cách giới thiệu bạn bè hoặc đổi quà tặng 🎁`, `Dùng JOY mở liệu pháp AI cao cấp hoặc mua đồ ở Cửa hàng. Xem số dư ở tab 'JOY' nha!`];
+      return [`JOY là tiền nội bộ hệ thống — kiếm bằng cách giới thiệu bạn bè hoặc đổi quà tặng`, `Dùng JOY mở liệu pháp AI cao cấp hoặc mua đồ ở Cửa hàng. Xem số dư ở tab 'JOY' nha!`];
     }
   },
   {
@@ -404,7 +404,7 @@ export const INTENT_DATABASE = [
       "bảo mật", "riêng tư", "dữ liệu cá nhân"
     ],
     generateResponse: () => {
-      return [`Mọi tâm sự + dữ liệu hồ sơ của cậu được bảo mật hoàn toàn, chỉ dùng để tớ cá nhân hoá hỗ trợ thôi.`, `Không chia cho bên thứ ba đâu — cứ yên tâm tâm sự thật lòng nha! 🔒`];
+      return [`Mọi tâm sự + dữ liệu hồ sơ của cậu được bảo mật hoàn toàn, chỉ dùng để tớ cá nhân hoá hỗ trợ thôi.`, `Không chia cho bên thứ ba đâu — cứ yên tâm tâm sự thật lòng nha!`];
     }
   },
   {
@@ -787,7 +787,102 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Tớ mở ngay bài tập thở cho ${name} nha! 🌬️`, `Vào tab 'Trị Liệu' → 'Thở 4-7-8' để tớ hướng dẫn cậu từng bước — hoặc thử ngay: hít mũi 4 giây, nín 4 giây, thở miệng 6 giây, lặp 4 lần.`];
+      return [`Tớ mở ngay bài tập thở cho ${name} nha!`, `Vào tab 'Trị Liệu' → 'Thở 4-7-8' để tớ hướng dẫn cậu từng bước — hoặc thử ngay: hít mũi 4 giây, nín 4 giây, thở miệng 6 giây, lặp 4 lần.`];
+    }
+  },
+  {
+    id: "guide_bio_link",
+    tier: "free",
+    patterns: [
+      "huong dan tao bio link", "thiet ke trang bio link", "chinh sua bio", "them lien ket",
+      "theme bio", "theme editor", "cach chinh bio", "chinh theme", "chinh nut", "chinh bo goc",
+      "chieu cao", "can nang", "so do", "nguc eo", "mong"
+    ],
+    generateResponse: () => {
+      return [
+        "Để làm một trang Bio Link siêu chất, cậu hãy vào mục Bio Editor trong Member Portal nha.",
+        "Ở đó cậu tha hồ chỉnh sửa thông tin cá nhân (hoặc thông số chiều cao, cân nặng, ba vòng) và chỉnh giao diện trong tab Theme theo style của riêng cậu.",
+        "Cậu có thể chọn các mẫu theme cực xịn gồm Flat, Brutalism, Neo-brutalism, Glassmorphism, thay đổi màu nền, bo góc nút từ 0px đến 24px, viền nút và bóng đổ nữa đó nha."
+      ];
+    }
+  },
+  {
+    id: "guide_booking",
+    tier: "free",
+    patterns: [
+      "huong dan dat lich", "quan ly lich hen", "booking", "lich chup",
+      "lam sao de khach dat lich", "xem lich khach dat", "lich dat hen"
+    ],
+    generateResponse: () => {
+      return [
+        "Khách hàng khi ghé thăm Bio Link của cậu chỉ cần bấm vào nút Đăng ký lịch chụp/hẹn là điền được thông tin đặt lịch.",
+        "Lịch đặt của khách sẽ tự động đồng bộ ngay lập tức về tab Quản lý lịch hẹn trong Member Portal của cậu luôn đó.",
+        "Ở đó hiển thị sẵn số Zalo và Email của khách để cậu liên hệ hẹn lịch chụp nhanh chóng."
+      ];
+    }
+  },
+  {
+    id: "guide_qr",
+    tier: "free",
+    patterns: [
+      "ma qr", "wifi qr", "qr wifi", "tao ma qr", "danh ba qr", "vcard qr", "vcard", "wifi"
+    ],
+    generateResponse: () => {
+      return [
+        "Trình tạo QR (trong HugoHelpdesk ở thẻ Tiện ích) cho phép cậu tạo mã QR cho Wi-Fi, URL, Văn bản, hoặc cả Danh bạ (vCard).",
+        "Chỉ cần quét là điện thoại tự động bật popup lưu danh bạ mà không cần Internet!",
+        "Cậu có thể tải về file ảnh siêu nét (PNG) hoặc in ra quét offline mượt mà."
+      ];
+    }
+  },
+  {
+    id: "guide_signature",
+    tier: "free",
+    patterns: [
+      "chu ky email", "signature", "hugosmail", "tao chu ky"
+    ],
+    generateResponse: () => {
+      return [
+        "Tab HugoSMail giúp cậu tạo chữ ký email thương hiệu.",
+        "Cậu có thể chọn Font, màu sắc, tích hợp icon mạng xã hội tự động, rồi tải file HTML về hoặc Copy chèn thẳng vào Gmail/Outlook nha."
+      ];
+    }
+  },
+  {
+    id: "guide_ide",
+    tier: "free",
+    patterns: [
+      "code", "lap trinh", "viet code", "ide", "hugocoder", "hoc lap trinh", "hoc code"
+    ],
+    generateResponse: () => {
+      return [
+        "Trình Web-based IDE (HugoCoder ở Tab Utilities) là trình soạn thảo lập trình trực quan (C, C++, C#, Python, Web, PHP) chạy ngay trên trình duyệt.",
+        "Trình IDE đi kèm các bài học lập trình cơ bản và hỗ trợ tải code về máy."
+      ];
+    }
+  },
+  {
+    id: "guide_chess",
+    tier: "free",
+    patterns: [
+      "co vua", "chess", "hugochess", "dau co", "game co"
+    ],
+    generateResponse: () => {
+      return [
+        "HugoChess (ở Tab Utilities) là không gian sảnh cờ vua mini giúp cậu thi đấu với Stockfish AI, ghép đôi ngẫu nhiên hoặc tạo phòng đấu giao hữu cùng bạn bè để tích điểm xếp hạng JOY."
+      ];
+    }
+  },
+  {
+    id: "guide_partners",
+    tier: "free",
+    patterns: [
+      "iframe", "nhung iframe", "doi tac", "nhung bio link", "partner", "khoa bao mat"
+    ],
+    generateResponse: () => {
+      return [
+        "Các đối tác liên kết muốn nhúng trình chỉnh sửa Bio Link của Hugo Studio lên trang web riêng của họ thì có thể sử dụng Iframe URL cùng khóa bảo mật do Admin cấp riêng trong Admin Panel nha."
+      ];
     }
   }
 ];
@@ -798,7 +893,7 @@ export const INTENT_DATABASE = [
 // Keeps common follow-ups local (no AI call consumed).
 // ─────────────────────────────────────────────────────────────────────────────
 const INTENT_QUICK_REPLIES = {
-  greeting:          ["Tớ đang ổn 😊", "Tớ có chuyện muốn kể", "Tớ đang lo lắng", "Làm test tâm lý thôi"],
+  greeting:          ["Tớ đang ổn", "Tớ có chuyện muốn kể", "Tớ đang lo lắng", "Làm test tâm lý thôi"],
   sadness:           ["Kể thêm cho tớ nghe", "Cho tớ bài tập thở", "Xem chỉ số tâm lý của tớ"],
   anxiety:           ["Dạy tớ thở sâu nha", "Tớ muốn tâm sự thêm", "Làm test lo âu đi"],
   burnout:           ["Kể thêm cho tớ", "Cho tớ bài thư giãn", "Tớ cần nghỉ ngơi"],
@@ -814,7 +909,7 @@ const INTENT_QUICK_REPLIES = {
   breakup:           ["Kể thêm cho tớ nghe", "Tớ đang rất đau", "Cho tớ lời khuyên nha"],
   family_conflict:   ["Kể thêm nha", "Tớ muốn hòa giải", "Tớ cần không gian"],
   emptiness:         ["Kể thêm cho tớ", "Tớ muốn cảm giác trở lại", "Làm test tâm lý đi"],
-  positive:          ["Kể thêm đi 😊", "Tớ muốn check-in", "Chia sẻ thêm cho tớ nghe"],
+  positive:          ["Kể thêm đi", "Tớ muốn check-in", "Chia sẻ thêm cho tớ nghe"],
   perfectionism:     ["Kể thêm cho tớ", "Tớ đang sợ làm sai", "Cho tớ tư duy tích cực hơn"],
   social_anxiety:    ["Kể thêm nha", "Dạy tớ tự tin hơn", "Tớ cần bài tập nha"],
   homesickness:      ["Kể thêm cho tớ nghe", "Tớ nhớ nhà lắm", "Tớ sẽ gọi về nhà"],
@@ -829,6 +924,13 @@ const INTENT_QUICK_REPLIES = {
   jealousy:          ["Kể thêm cho tớ", "Tớ đang ghen về điều gì?", "Cho tớ góc nhìn khác nha"],
   grief:             ["Kể thêm cho tớ", "Tớ chỉ cần ai nghe", "Kể về người đó cho tớ nghe"],
   panic_attack:      ["Tớ thở sâu nha", "Cậu ở bên tớ nha", "Bài tập 5-4-3-2-1"],
+  guide_bio_link:    ["Chỉnh theme thế nào", "Hướng dẫn đặt lịch", "Vào Bio Editor"],
+  guide_booking:     ["Xem lịch ở đâu", "Chỉnh theme thế nào", "Vào Quản lý lịch"],
+  guide_qr:          ["Tạo QR danh bạ", "Tạo QR Wi-Fi", "Vào thẻ Tiện ích"],
+  guide_signature:   ["Tạo chữ ký thế nào", "Vào HugoSMail"],
+  guide_ide:         ["Học lập trình", "Vào HugoCoder"],
+  guide_chess:       ["Đấu với AI", "Vào HugoChess"],
+  guide_partners:    ["Nhúng Iframe thế nào", "Khóa bảo mật ở đâu"],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -889,7 +991,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     const unlocked = !therapyMethod.joyLockable || (bio?.unlockedCompanionFeatures || []).includes(therapyMethod.lockKey);
     if (unlocked) {
       return {
-        reply: [`Mở ngay "${therapyMethod.name}" cho cậu nè 💙`],
+        reply: [`Mở ngay "${therapyMethod.name}" cho cậu nè.`],
         id: "therapy_open",
         tier: "free",
         quickActions: null,
@@ -914,6 +1016,13 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
 
   // 4. Regex fast-path — O(n) rules, ~1ms, highest priority for unambiguous patterns.
   const rules = [
+    { id: "guide_bio_link",      regex: /(tao bio|chinh bio|sua bio|trang ca nhan|thong tin lien he|link bio|bio link|chinh theme|theme editor|giao dien bio|brutalism|glassmorphism|bo goc|do bong|vien nut|mau nen|background bio|chieu cao|can nang|so do|ba vong|vong nguc|vong eo|vong mong|thong so co ban|ky nang|portfolio)/ },
+    { id: "guide_booking",       regex: /(dat lich|hen lich|lich hen|hen chup|book|booking|khach dat|khach hen|khach book|quan ly lich|xem lich|zalo khach|email khach)/ },
+    { id: "guide_qr",            regex: /(ma qr|tao qr|qr wifi|wifi qr|qr vcard|vcard|qr danh ba|danh ba qr|quet wifi|quet qr|quet offline|in qr|tai qr|download qr|helpdesk|nfc)/ },
+    { id: "guide_signature",     regex: /(chu ky|signature|hugosmail|font chu ky|mau chu ky|tao chu ky|outlook|gmail)/ },
+    { id: "guide_ide",           regex: /(code|lap trinh|viet code|ide|hugocoder|hoc lap trinh|compiler|chay code|download code|tai code|python|cpp)/ },
+    { id: "guide_chess",         regex: /(co vua|chess|hugochess|dau co|choi co|phong co|giao huu|stockfish|dau co vua|choi co vua)/ },
+    { id: "guide_partners",      regex: /(iframe|nhung iframe|nhung link|nhung bio|doi tac|partner|security key|khoa bao mat|ma bao mat)/ },
     { id: "panic_attack",        regex: /(kho tho|ngop tho|tim dap nhanh|hoang loan|run ray|sap ngat|panic)/ },
     { id: "crisis",              regex: /(tu tu|tu sat|ket lieu|khong muon song|muon chet|tu lam dau|muon ket thuc)/ },
     { id: "university_exam",     regex: /(thi dai hoc|thi thpt|thptqg|thi quoc gia|diem chuan dai hoc|on thi dai hoc)/ },

@@ -37,8 +37,8 @@ export default function PWAUpdatePrompt() {
       role="status"
       aria-live="polite"
     >
-      <div className="rounded-2xl border border-emerald-200/80 dark:border-emerald-500/20 bg-white dark:bg-[#16151f] shadow-2xl p-3.5 flex items-center gap-3">
-        <div className="w-11 h-11 shrink-0 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#16151f] shadow-2xl p-3.5 flex items-center gap-3">
+        <div className="w-11 h-11 shrink-0 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 flex items-center justify-center">
           <span className="material-symbols-outlined text-[22px]">system_update_alt</span>
         </div>
         <div className="min-w-0 flex-1">
@@ -53,7 +53,7 @@ export default function PWAUpdatePrompt() {
           <button
             type="button"
             onClick={() => updateServiceWorker(true)}
-            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-[11px] font-bold transition-all"
+            className="px-3 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-[11px] font-bold transition-all"
           >
             Cập nhật
           </button>

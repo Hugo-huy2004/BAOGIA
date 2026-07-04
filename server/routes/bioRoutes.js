@@ -1,5 +1,6 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
+import CommunityMessage from '../models/CommunityMessage.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
@@ -10,6 +11,7 @@ import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
 import { isEduEmail } from '../utils/eduEmail.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 import { checkAndResetDecoRoom, updateTrashAndPetStatus } from '../utils/decoHelper.js';
+import { awardJoy } from '../utils/joyService.js';
 
 const router = express.Router();
 
@@ -1035,6 +1037,432 @@ router.delete('/contacts/:id/:contactId', requireMember, async (req, res) => {
     clearCache(`bio_slug_${bio.slug}`);
 
     res.json({ success: true, contacts: bio.backedUpContacts });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── AI Content Moderation Helper for Community Posts/Comments ────────────────
+async function auditContent(text) {
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  if (!geminiApiKey) {
+    // Basic fallback if no key is configured
+    const hasQuestion = text.includes('?') || text.toLowerCase().includes('hỏi') || text.toLowerCase().includes('sao') || text.toLowerCase().includes('thế nào');
+    return {
+      sentiment: 'tích cực',
+      category: hasQuestion ? 'câu hỏi' : 'chia sẻ',
+      status: 'approved'
+    };
+  }
+
+  try {
+    const prompt = `Bạn là hệ thống kiểm duyệt và phân loại nội dung tự động cho mạng xã hội của học sinh, sinh viên.
+Hãy phân tích bài viết dưới đây và trả về duy nhất một chuỗi JSON hợp lệ chứa 3 trường: "sentiment" (giá trị là "tích cực" hoặc "tiêu cực"), "category" (giá trị là "chia sẻ" hoặc "câu hỏi"), và "status" (giá trị là "approved" hoặc "rejected" - hãy trả về "rejected" nếu nội dung chứa từ ngữ tục tĩu thô tục, quấy rối, ngôn từ kích động thù địch, hoặc vi phạm pháp luật).
+
+Bài viết: "${text.replace(/"/g, '\\"')}"
+
+LƯU Ý: Chỉ trả về chuỗi JSON thô dạng { "sentiment": "...", "category": "...", "status": "..." }, không viết thêm bất kỳ lời giải thích nào.`;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${geminiApiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [{
+            role: 'user',
+            parts: [{ text: prompt }]
+          }]
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Gemini status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    // Clean codeblock markers from markdown response
+    const cleanJson = botText.replace(/```json/g, '').replace(/```/g, '').trim();
+    const parsed = JSON.parse(cleanJson);
+    
+    return {
+      sentiment: parsed.sentiment === 'tiêu cực' ? 'tiêu cực' : 'tích cực',
+      category: parsed.category === 'câu hỏi' ? 'câu hỏi' : 'chia sẻ',
+      status: parsed.status === 'rejected' ? 'rejected' : 'approved'
+    };
+  } catch (err) {
+    console.error('[Gemini Audit] Failed:', err);
+    const hasQuestion = text.includes('?') || text.toLowerCase().includes('hỏi') || text.toLowerCase().includes('sao') || text.toLowerCase().includes('thế nào');
+    return {
+      sentiment: 'tích cực',
+      category: hasQuestion ? 'câu hỏi' : 'chia sẻ',
+      status: 'approved'
+    };
+  }
+}
+
+// GET /community/chat - Fetch approved posts (and current user's pending/rejected ones)
+router.get('/community/chat', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    // Return approved posts OR posts written by the requester
+    const messages = await CommunityMessage.find({
+      $or: [
+        { status: 'approved' },
+        { senderEmail: email }
+      ]
+    }).sort({ createdAt: -1 }).limit(300);
+
+    res.json({ success: true, messages });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /community/chat - Send a new community post
+router.post('/community/chat', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { message, lat, lng, category } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'Nội dung bài viết không được trống' });
+    }
+
+    // Enforce word limit (350 words)
+    const wordCount = message.trim().split(/\s+/).length;
+    if (wordCount > 350) {
+      return res.status(400).json({ error: `Bài viết quá dài (${wordCount}/350 từ). Vui lòng rút ngắn lại.` });
+    }
+
+    if (lat === null || lng === null || typeof lat !== 'number' || typeof lng !== 'number') {
+      return res.status(400).json({ error: 'Cần có tọa độ địa lý để đăng bài viết.' });
+    }
+
+    const bio = await Bio.findOne({ email });
+    if (!bio) {
+      return res.status(404).json({ error: 'Bio not found' });
+    }
+
+    // Perform AI pre-moderation
+    const audit = await auditContent(message.trim());
+    if (audit.status === 'rejected') {
+      return res.status(400).json({ error: 'Bài viết không được phê duyệt bởi hệ thống kiểm duyệt AI do chứa nội dung không phù hợp.' });
+    }
+
+    const newMsg = new CommunityMessage({
+      senderEmail: email,
+      senderName: bio.displayName || email.split('@')[0],
+      senderAvatar: bio.avatarUrl || '',
+      message: message.trim(),
+      location: { lat, lng },
+      sentiment: audit.sentiment,
+      // Respect the tag the author explicitly picked (Chia sẻ / Câu hỏi);
+      // fall back to the AI's classification only when none was provided.
+      category: (category === 'câu hỏi' || category === 'chia sẻ') ? category : audit.category,
+      status: audit.status,
+      createdAt: new Date()
+    });
+
+    await newMsg.save();
+
+    // Reward: +15 JOY for creating a post
+    await awardJoy(email, 15, 'community_post', 'Đăng bài viết mới lên cộng đồng');
+
+    // Broadcast push notifications asynchronously to nearby neighbors within 50km
+    (async () => {
+      try {
+        const title = `[Cộng đồng] Bài viết mới từ ${newMsg.senderName}`;
+        const body = message.trim().substring(0, 80);
+        const url = '/member/account';
+
+        const candidates = await Bio.find(
+          { email: { $ne: email } },
+          "email slug displayName trustedLocation lastLocationCheck address"
+        ).lean();
+
+        for (const cand of candidates) {
+          let cLat = null;
+          let cLng = null;
+          if (cand.lastLocationCheck && cand.lastLocationCheck.lat !== null) {
+            cLat = cand.lastLocationCheck.lat;
+            cLng = cand.lastLocationCheck.lng;
+          } else if (cand.trustedLocation && cand.trustedLocation.lat !== null) {
+            cLat = cand.trustedLocation.lat;
+            cLng = cand.trustedLocation.lng;
+          }
+
+          let isNear = false;
+          if (cLat !== null && cLng !== null) {
+            const dist = distanceKm(lat, lng, cLat, cLng);
+            if (dist !== null && dist <= 50) {
+              isNear = true;
+            }
+          } else {
+            if (bio.address && cand.address) {
+              const clean = str => str.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/);
+              const reqWords = clean(bio.address).filter(w => w.length >= 3);
+              const candWords = clean(cand.address).filter(w => w.length >= 3);
+              if (reqWords.some(w => candWords.includes(w))) {
+                isNear = true;
+              }
+            }
+          }
+
+          if (isNear) {
+            sendPushNotification(cand.email, title, body, url).catch(() => {});
+          }
+        }
+      } catch (err) {
+        console.error('[Community Chat Push] Broadcast failed:', err);
+      }
+    })();
+
+    res.json({ success: true, message: newMsg });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT /community/chat/:id - Edit an existing post
+router.put('/community/chat/:id', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { message } = req.body;
+    const { id } = req.params;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'Nội dung bài viết không được trống' });
+    }
+
+    const wordCount = message.trim().split(/\s+/).length;
+    if (wordCount > 350) {
+      return res.status(400).json({ error: `Bài viết quá dài (${wordCount}/350 từ). Vui lòng rút ngắn lại.` });
+    }
+
+    const post = await CommunityMessage.findById(id);
+    if (!post) {
+      return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    }
+
+    if (post.senderEmail !== email) {
+      return res.status(403).json({ error: 'Bạn không có quyền sửa bài viết của người khác' });
+    }
+
+    // Perform AI pre-moderation on edit
+    const audit = await auditContent(message.trim());
+    if (audit.status === 'rejected') {
+      return res.status(400).json({ error: 'Nội dung chỉnh sửa bị từ chối phê duyệt do không phù hợp.' });
+    }
+
+    post.message = message.trim();
+    post.sentiment = audit.sentiment;
+    post.category = audit.category;
+    post.status = audit.status;
+    post.updatedAt = new Date();
+
+    await post.save();
+    res.json({ success: true, message: post });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /community/chat/:id - Delete a post
+router.delete('/community/chat/:id', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { id } = req.params;
+
+    const post = await CommunityMessage.findById(id);
+    if (!post) {
+      return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    }
+
+    if (post.senderEmail !== email) {
+      return res.status(403).json({ error: 'Bạn không có quyền xóa bài viết này' });
+    }
+
+    await CommunityMessage.deleteOne({ _id: id });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /community/chat/:id/like - Toggle liking a post (+5 JOY reward)
+router.post('/community/chat/:id/like', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { id } = req.params;
+
+    const post = await CommunityMessage.findById(id);
+    if (!post) {
+      return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    }
+
+    const bio = await Bio.findOne({ email });
+    const displayName = bio?.displayName || email.split('@')[0];
+
+    const hasLiked = post.likes.includes(email);
+    if (hasLiked) {
+      // Unlike
+      post.likes = post.likes.filter(e => e !== email);
+      await post.save();
+
+      // Deduct author -5 JOY for un-like
+      try {
+        await awardJoy(post.senderEmail, -5, 'community_like_received', `Bài viết bị bỏ thả tim bởi ${displayName}`);
+      } catch (err) {
+        console.warn('[Like Deduct] Balance update warning:', err.message);
+      }
+    } else {
+      // Like
+      post.likes.push(email);
+      await post.save();
+
+      // Award author +5 JOY
+      try {
+        await awardJoy(post.senderEmail, 5, 'community_like_received', `Bài viết được thả tim bởi ${displayName}`);
+      } catch (err) {
+        console.warn('[Like Reward] Balance update warning:', err.message);
+      }
+    }
+
+    res.json({ success: true, likes: post.likes });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /community/chat/:id/comments - Add a reply comment (+7 JOY reward)
+router.post('/community/chat/:id/comments', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { id } = req.params;
+    const { message } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'Bình luận không được trống' });
+    }
+
+    const wordCount = message.trim().split(/\s+/).length;
+    if (wordCount > 350) {
+      return res.status(400).json({ error: `Bình luận quá dài (${wordCount}/350 từ). Vui lòng rút ngắn lại.` });
+    }
+
+    const post = await CommunityMessage.findById(id);
+    if (!post) {
+      return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    }
+
+    const bio = await Bio.findOne({ email });
+    if (!bio) {
+      return res.status(404).json({ error: 'Bio not found' });
+    }
+
+    // Perform AI pre-moderation on comment
+    const audit = await auditContent(message.trim());
+    if (audit.status === 'rejected') {
+      return res.status(400).json({ error: 'Bình luận bị từ chối phê duyệt do không phù hợp.' });
+    }
+
+    const newComment = {
+      _id: new mongoose.Types.ObjectId(),
+      senderEmail: email,
+      senderName: bio.displayName || email.split('@')[0],
+      senderAvatar: bio.avatarUrl || '',
+      message: message.trim(),
+      createdAt: new Date()
+    };
+
+    post.comments.push(newComment);
+    await post.save();
+
+    // Reward commenter: +7 JOY
+    await awardJoy(email, 7, 'community_comment', 'Bình luận bài viết cộng đồng');
+
+    res.json({ success: true, comments: post.comments });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT /community/chat/:id/comments/:commentId - Edit a reply comment
+router.put('/community/chat/:id/comments/:commentId', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { id, commentId } = req.params;
+    const { message } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'Bình luận không được trống' });
+    }
+
+    const wordCount = message.trim().split(/\s+/).length;
+    if (wordCount > 350) {
+      return res.status(400).json({ error: `Bình luận quá dài (${wordCount}/350 từ). Vui lòng rút ngắn lại.` });
+    }
+
+    const post = await CommunityMessage.findById(id);
+    if (!post) {
+      return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    }
+
+    const comment = post.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Không tìm thấy bình luận' });
+    }
+
+    if (comment.senderEmail !== email) {
+      return res.status(403).json({ error: 'Bạn không có quyền sửa bình luận này' });
+    }
+
+    // Perform AI pre-moderation on edit
+    const audit = await auditContent(message.trim());
+    if (audit.status === 'rejected') {
+      return res.status(400).json({ error: 'Nội dung chỉnh sửa bị từ chối phê duyệt do không phù hợp.' });
+    }
+
+    comment.message = message.trim();
+    comment.updatedAt = new Date();
+
+    await post.save();
+    res.json({ success: true, comments: post.comments });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /community/chat/:id/comments/:commentId - Delete a reply comment
+router.delete('/community/chat/:id/comments/:commentId', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { id, commentId } = req.params;
+
+    const post = await CommunityMessage.findById(id);
+    if (!post) {
+      return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    }
+
+    const comment = post.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Không tìm thấy bình luận' });
+    }
+
+    if (comment.senderEmail !== email) {
+      return res.status(403).json({ error: 'Bạn không có quyền xóa bình luận này' });
+    }
+
+    post.comments.pull(commentId);
+    await post.save();
+
+    res.json({ success: true, comments: post.comments });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

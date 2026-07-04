@@ -68,23 +68,23 @@ export default function CustomerPortalPage() {
   if (!project) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-background text-foreground">
+    <div className="brand-shell min-h-screen text-foreground">
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-background/80 backdrop-blur-xl border-b border-border/50">
+      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/72 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ef4444] via-[#6366f1] to-[#06b6d4] flex items-center justify-center text-white font-bold text-lg shadow-[0_14px_24px_-18px_rgba(59,130,246,0.55)]">
               {project.fullName.charAt(0).toUpperCase()}
             </div>
             <div>
               <h1 className="font-bold text-sm">{project.fullName}</h1>
-              <p className="text-[10px] text-slate-500 uppercase tracking-wider">{project.servicePackage}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.16em]">{project.servicePackage}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-xs font-bold transition-colors"
+            className="rounded-2xl border border-border/70 bg-card/80 px-4 py-2 text-xs font-bold transition-colors hover:bg-muted/80"
           >
             Đăng xuất
           </button>
@@ -96,38 +96,29 @@ export default function CustomerPortalPage() {
         <div className="flex space-x-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'profile'
-                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
-                : 'bg-white text-slate-500 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
-            }`}
+            className="brand-tab flex items-center gap-2"
+            data-active={activeTab === 'profile'}
           >
             <span className="material-symbols-outlined text-[18px]">person</span>
             {t("customerPortal.tabs.profile")}
           </button>
           <button
             onClick={() => setActiveTab('service')}
-            className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'service'
-                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
-                : 'bg-white text-slate-500 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
-            }`}
+            className="brand-tab flex items-center gap-2"
+            data-active={activeTab === 'service'}
           >
             <span className="material-symbols-outlined text-[18px]">view_timeline</span>
             {t("customerPortal.tabs.service")}
           </button>
           <button
             onClick={() => setActiveTab('requests')}
-            className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 relative ${
-              activeTab === 'requests'
-                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
-                : 'bg-white text-slate-500 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
-            }`}
+            className="brand-tab relative flex items-center gap-2"
+            data-active={activeTab === 'requests'}
           >
             <span className="material-symbols-outlined text-[18px]">forum</span>
             {t("customerPortal.tabs.requests")}
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-background animate-pulse">
+              <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-destructive text-[10px] font-bold text-white animate-pulse">
                 {unreadCount}
               </span>
             )}

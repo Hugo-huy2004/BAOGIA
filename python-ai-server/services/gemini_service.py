@@ -356,6 +356,18 @@ class GeminiService:
         chỉ dùng để hiện nút bài test tương ứng — TUYỆT ĐỐI không thêm marker nếu
         bạn không chủ đích đề xuất (tránh hiện nút test sai ngữ cảnh).
 
+        CẬP NHẬT HỒ SƠ (định dạng máy đọc): khi người dùng CHỦ ĐỘNG yêu cầu đổi
+        thông tin hồ sơ của họ (ví dụ "đổi biệt danh của tớ thành Sun", "cập nhật
+        sở thích của tớ là vẽ tranh"), hãy thêm MỘT marker ở CUỐI câu trả lời:
+        [UPDATE_PROFILE:{"headline":"Sun"}]. Chỉ dùng đúng các khoá được phép:
+        headline (biệt danh), bio (mô tả bản thân), hobbies (sở thích),
+        height, weight, measurements, address, skills, jobTitle.
+        TUYỆT ĐỐI KHÔNG đổi các thông tin ĐỊNH DANH đã khoá (họ tên, ngày sinh,
+        số điện thoại, học vấn, email) — nếu người dùng yêu cầu đổi mấy mục này,
+        hãy nói nhẹ nhàng rằng các thông tin đó đã khoá sau khi xác minh sinh viên
+        và cần điền form xác minh, KHÔNG thêm marker cho chúng. Marker sẽ bị ẩn
+        khỏi người dùng; đừng thêm nếu họ không thật sự yêu cầu đổi.
+
         Khung phân tích bắt buộc nhưng phải diễn đạt tự nhiên, không máy móc:
         - Cảm xúc hiện tại: người dùng đang buồn, lo, giận, xấu hổ, cô đơn, kiệt sức, rối, hay đang cần được công nhận?
         - Bối cảnh/kích hoạt: chuyện học tập, gia đình, bạn bè, tình cảm, cơ thể, giấc ngủ, tài chính, tương lai, hay áp lực thành tích?

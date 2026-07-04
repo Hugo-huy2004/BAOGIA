@@ -49,10 +49,10 @@ export default function WeatherAlertWatcher() {
       className="fixed left-1/2 z-[200] w-[calc(100vw-24px)] max-w-md -translate-x-1/2"
       style={{ top: "calc(env(safe-area-inset-top, 0px) + 10px)" }}
     >
-      <div className="flex items-start gap-3 rounded-2xl border border-indigo-300/40 bg-white/95 px-4 py-3 shadow-2xl backdrop-blur dark:bg-[#15151f]/95">
-        <span className="material-symbols-outlined shrink-0 text-2xl text-indigo-500">storm</span>
-        <p className="flex-1 text-xs font-semibold leading-snug text-zinc-800 dark:text-zinc-100">{banner}</p>
-        <button onClick={() => setBanner(null)} aria-label="Đóng" className="shrink-0 text-zinc-400 hover:text-zinc-600">
+      <div className="brand-panel flex items-start gap-3 rounded-[24px] px-4 py-3 shadow-2xl">
+        <span className="material-symbols-outlined shrink-0 text-2xl text-primary">storm</span>
+        <p className="flex-1 text-xs font-semibold leading-snug text-foreground">{banner}</p>
+        <button onClick={() => setBanner(null)} aria-label="Đóng" className="shrink-0 text-muted-foreground hover:text-foreground">
           <span className="material-symbols-outlined text-lg">close</span>
         </button>
       </div>

@@ -1026,10 +1026,70 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
   const [sweepingId, setSweepingId] = React.useState(null);
   const [sparklingId, setSparklingId] = React.useState(null);
 
+  const playSweepSound = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch (_) {}
+  };
+
+  const playSparkleSound = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      const playTing = (time, freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, time);
+        gain.gain.setValueAtTime(0.03, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(time);
+        osc.stop(time + 0.15);
+      };
+      playTing(ctx.currentTime, 1200);
+      playTing(ctx.currentTime + 0.1, 1600);
+    } catch (_) {}
+  };
+
+  const playBoingSound = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.quadraticRampToValueAtTime(350, ctx.currentTime + 0.15);
+      osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.06, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch (_) {}
+  };
+
   const startCleaning = async (id, e) => {
     if (e) e.stopPropagation();
     if (sweepingId != null || sparklingId != null || !interactive || !onCleanSuccess) return;
     setSweepingId(id);
+    playSweepSound();
+    const intervalId = setInterval(playSweepSound, 400);
 
     try {
       const res = await fetch('/api/deco/clean', {
@@ -1040,8 +1100,10 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
       if (!res.ok) throw new Error(data.error);
 
       setTimeout(() => {
+        clearInterval(intervalId);
         setSweepingId(null);
         setSparklingId(id);
+        playSparkleSound();
         onCleanSuccess?.(data.balance, data.trashCount);
 
         setTimeout(() => {
@@ -1049,6 +1111,7 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
         }, 1200);
       }, 1500);
     } catch (err) {
+      clearInterval(intervalId);
       alert(err.message || 'Lỗi quét dọn rác');
       setSweepingId(null);
     }
@@ -1069,6 +1132,7 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
   const clickPet = () => {
     if (!interactive) return;
     setPetHop(true);
+    playBoingSound();
     setTimeout(() => setPetHop(false), 700);
     onItemClick?.("pet");
   };

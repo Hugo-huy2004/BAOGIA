@@ -220,25 +220,89 @@ router.post('/save', requireMember, async (req, res) => {
   }
 });
 
-// GET /api/deco/neighborhood - Fetch a random list of enabled Deco Rooms
+function distanceKm(lat1, lon1, lat2, lon2) {
+  if (lat1 === null || lon1 === null || lat2 === null || lon2 === null) return null;
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// GET /api/deco/neighborhood - Fetch Deco Rooms within 50km radius (both online/offline)
 router.get('/neighborhood', requireMember, async (req, res) => {
   try {
-    // 7-day grace period from the time of expiration
-    const graceDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const fromEmail = req.memberEmail;
+    const requesterBio = await Bio.findOne({ email: fromEmail });
+    if (!requesterBio) {
+      return res.status(404).json({ error: 'Bio not found' });
+    }
 
-    // Fetch users with decoRoom.enabled = true AND active subscription (including grace period)
-    const neighbors = await Bio.aggregate([
-      { 
-        $match: { 
-          "decoRoom.enabled": true, 
-          status: "active",
-          "decoRoom.expiresAt": { $gte: graceDate }
-        } 
-      },
-      { $sample: { size: 20 } },
-      { $project: { slug: 1, displayName: 1, avatarUrl: 1, decoRoom: 1 } }
-    ]);
+    let lat = req.query.lat ? parseFloat(req.query.lat) : null;
+    let lng = req.query.lng ? parseFloat(req.query.lng) : null;
+
+    if (lat === null || lng === null) {
+      if (requesterBio.lastLocationCheck && requesterBio.lastLocationCheck.lat !== null) {
+        lat = requesterBio.lastLocationCheck.lat;
+        lng = requesterBio.lastLocationCheck.lng;
+      } else if (requesterBio.trustedLocation && requesterBio.trustedLocation.lat !== null) {
+        lat = requesterBio.trustedLocation.lat;
+        lng = requesterBio.trustedLocation.lng;
+      }
+    }
     
+    // Fetch all bios (both online and offline)
+    const candidates = await Bio.find(
+      {},
+      "slug displayName avatarUrl decoRoom trustedLocation lastLocationCheck address"
+    ).lean();
+
+    // Filter within 50km
+    const filtered = candidates
+      .filter(c => {
+        // Skip self
+        if (c.slug === requesterBio.slug) return false;
+        
+        let cLat = null;
+        let cLng = null;
+        if (c.lastLocationCheck && c.lastLocationCheck.lat !== null) {
+          cLat = c.lastLocationCheck.lat;
+          cLng = c.lastLocationCheck.lng;
+        } else if (c.trustedLocation && c.trustedLocation.lat !== null) {
+          cLat = c.trustedLocation.lat;
+          cLng = c.trustedLocation.lng;
+        }
+        
+        if (cLat === null || cLng === null) {
+          // Address keyword fallback
+          if (requesterBio.address && c.address) {
+            const clean = str => str.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/);
+            const reqWords = clean(requesterBio.address).filter(w => w.length >= 3);
+            const candWords = clean(c.address).filter(w => w.length >= 3);
+            const matches = reqWords.some(w => candWords.includes(w));
+            if (matches) return true;
+          }
+          return false;
+        }
+        
+        const dist = distanceKm(lat, lng, cLat, cLng);
+        return dist !== null && dist <= 50;
+      })
+      .map(c => ({
+        _id: c._id,
+        slug: c.slug,
+        displayName: c.displayName,
+        avatarUrl: c.avatarUrl,
+        decoRoom: c.decoRoom
+      }));
+
+    // Sample up to 20
+    const neighbors = filtered.sort(() => 0.5 - Math.random()).slice(0, 20);
+
     res.json({ success: true, neighbors });
   } catch (err) {
     res.status(500).json({ error: err.message });

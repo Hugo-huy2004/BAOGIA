@@ -144,7 +144,7 @@ function MoodCheckinCard({ onMoodSelect }) {
   );
 }
 
-function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTest, onSelectDuration, onNavigateToTab, onUnlockFeature, unlockingMethodId, onMoodSelect, moodCheckinDone }) {
+function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTest, onSelectDuration, onNavigateToTab, onUnlockFeature, unlockingMethodId, onMoodSelect, moodCheckinDone, onOpenVerification }) {
   return (
     <div className="flex flex-col gap-1.5 items-start">
       {/* Main text bubble */}
@@ -246,6 +246,19 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
         </div>
       )}
 
+      {/* Locked-field → verification form redirect */}
+      {Array.isArray(msg.quickActions) && msg.quickActions.some(a => a.type === "verify_form") && (
+        <div className="w-full max-w-[270px]">
+          {msg.quickActions.filter(a => a.type === "verify_form").map((action, i) => (
+            <button key={i} type="button" onClick={() => onOpenVerification?.()}
+              className="w-full py-2.5 text-[11px] font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all active:scale-95 flex items-center justify-center gap-1.5">
+              <span className="material-symbols-outlined text-[14px]">verified_user</span>
+              {action.label || "Mở form xác minh"}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Journey duration picker */}
       {msg.isCompanionSetup && !msg.selectedChoice && (
         <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/25 border border-indigo-200/60 dark:border-indigo-700/30 space-y-2 w-full max-w-[250px]">
@@ -304,6 +317,7 @@ function ChatMessages({
   unlockingMethodId,
   onMoodSelect,
   moodCheckinDone,
+  onOpenVerification,
   keyboardInset = 0,
 }) {
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
@@ -390,7 +404,7 @@ function ChatMessages({
                           onStartTest={onStartTest}
                           onSelectDuration={onSelectDuration} onNavigateToTab={onNavigateToTab}
                           onUnlockFeature={onUnlockFeature} unlockingMethodId={unlockingMethodId}
-                          onMoodSelect={onMoodSelect} moodCheckinDone={moodCheckinDone} />
+                          onMoodSelect={onMoodSelect} moodCheckinDone={moodCheckinDone} onOpenVerification={onOpenVerification} />
                       : <UserBubble msg={msg} />}
                   </div>
                 </div>

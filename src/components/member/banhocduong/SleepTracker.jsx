@@ -20,11 +20,11 @@ const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 // ── Static data ────────────────────────────────────────────────────────────
 
 const MOODS = [
-  { value: "great",    label: "Rất tốt",   emoji: "😄" },
-  { value: "good",     label: "Tốt",       emoji: "🙂" },
-  { value: "okay",     label: "Bình thường", emoji: "😐" },
-  { value: "bad",      label: "Không tốt", emoji: "😔" },
-  { value: "terrible", label: "Rất tệ",    emoji: "😞" },
+  { value: "great",    label: "Rất tốt" },
+  { value: "good",     label: "Tốt" },
+  { value: "okay",     label: "Bình thường" },
+  { value: "bad",      label: "Không tốt" },
+  { value: "terrible", label: "Rất tệ" },
 ];
 
 const QUALITY_LABELS = ["", "Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
@@ -81,6 +81,7 @@ function todayStr() { return new Date().toISOString().slice(0, 10); }
 
 export default function SleepTracker({ bio, sleepAutoDetect }) {
   const email = bio?.email;
+  const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 
   const [logs, setLogs]           = useState([]);
   const [stats, setStats]         = useState(null);
@@ -96,6 +97,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
   const [toast, setToast]           = useState(null);
 
   const [sensorsConnected, setSensorsConnected] = useState(() => {
+    if (isPWA) return true;
     return localStorage.getItem("device_sensors_connected") === "true";
   });
   const [motionVal, setMotionVal] = useState(0);
@@ -104,6 +106,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
   const [tabVisibility, setTabVisibility] = useState(document.hidden ? "Ẩn" : "Hiện");
 
   const handleConnectSensors = async () => {
+    if (isPWA) return;
     try {
       if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
         const result = await DeviceMotionEvent.requestPermission();
@@ -350,19 +353,27 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${sensorsConnected ? "bg-success" : "bg-destructive"}`}></span>
               <span className={`relative inline-flex rounded-full h-2 w-2 ${sensorsConnected ? "bg-success" : "bg-destructive"}`}></span>
             </span>
-            <span className="text-[11px] font-bold text-foreground">Bộ cảm biến: {sensorsConnected ? "Đang kết nối" : "Chưa liên kết"}</span>
+            <span className="text-[11px] font-bold text-foreground">
+              Bộ cảm biến: {isPWA ? "Tự động kích hoạt (PWA)" : sensorsConnected ? "Đang kết nối" : "Chưa liên kết"}
+            </span>
           </div>
-          <button
-            type="button"
-            onClick={handleConnectSensors}
-            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-200 active:scale-95 border ${
-              sensorsConnected
-                ? "bg-success/10 text-success border-success/20"
-                : "bg-primary hover:bg-primary/90 text-white border-transparent"
-            }`}
-          >
-            {sensorsConnected ? "Đã liên kết" : "Liên kết thiết bị"}
-          </button>
+          {isPWA ? (
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-success/15 text-success border border-success/30">
+              Tự động
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleConnectSensors}
+              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-200 active:scale-95 border ${
+                sensorsConnected
+                  ? "bg-success/10 text-success border-success/20"
+                  : "bg-primary hover:bg-primary/90 text-white border-transparent"
+              }`}
+            >
+              {sensorsConnected ? "Đã liên kết" : "Liên kết thiết bị"}
+            </button>
+          )}
         </div>
 
         {/* Real-time monitor grid */}
@@ -563,7 +574,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                               ? "bg-primary/20 border-primary/40 text-primary"
                               : "bg-muted/20 border-border text-muted-foreground"}`}
                         >
-                          {m.emoji} {m.label}
+                          {m.label}
                         </button>
                       ))}
                     </div>
@@ -663,7 +674,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                         ${form.mood === m.value
                           ? "bg-primary/20 border-primary/40 text-primary"
                           : "bg-muted/20 border-border text-muted-foreground"}`}
-                    >{m.emoji} {m.label}</button>
+                    >{m.label}</button>
                   ))}
                 </div>
               </div>

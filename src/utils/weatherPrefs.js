@@ -1,24 +1,11 @@
-// Viewer-side preferences for the weather experience (localStorage, per device).
-// Both default ON for the background (so bios get the upgrade out of the box) and
-// OFF for alerts (which need a GPS permission the user should opt into).
+// Weather preferences — now delegated to the tri-state autoPrefs brain so the
+// same on/off getters transparently honour "auto" (Hugo decides by context).
+// Kept as thin wrappers so existing consumers (WeatherLayer, alert watcher)
+// don't need to change.
+import { resolvePref, setPref } from "./autoPrefs";
 
-const BG_KEY = "hugo_weather_bg";       // animated weather background on/off
-const ALERT_KEY = "hugo_weather_alert"; // abnormal-weather alerts on/off
+export const isWeatherBgEnabled = () => resolvePref("weatherBg");
+export const setWeatherBgEnabled = (on) => setPref("weatherBg", on ? "on" : "off");
 
-const read = (key, dflt) => {
-  try {
-    const v = localStorage.getItem(key);
-    return v === null ? dflt : v === "1";
-  } catch {
-    return dflt;
-  }
-};
-const write = (key, on) => {
-  try { localStorage.setItem(key, on ? "1" : "0"); } catch { /* ignore */ }
-};
-
-export const isWeatherBgEnabled = () => read(BG_KEY, true);
-export const setWeatherBgEnabled = (on) => write(BG_KEY, on);
-
-export const isWeatherAlertEnabled = () => read(ALERT_KEY, false);
-export const setWeatherAlertEnabled = (on) => write(ALERT_KEY, on);
+export const isWeatherAlertEnabled = () => resolvePref("weatherAlert");
+export const setWeatherAlertEnabled = (on) => setPref("weatherAlert", on ? "on" : "off");

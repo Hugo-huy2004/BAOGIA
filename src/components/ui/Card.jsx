@@ -4,7 +4,7 @@ export function Card({ className, children, hover, glass, ...props }) {
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border bg-card text-card-foreground shadow-card",
+        "brand-panel rounded-3xl text-card-foreground",
         hover && "card-hover cursor-pointer",
         glass && "glass-card",
         className
@@ -78,7 +78,7 @@ export function StatCard({ icon, label, value, trend, color = "primary", loading
 
   return (
     <Card className={cn("p-3.5 sm:p-5 group", className)} hover>
-      <div className={cn("inline-flex items-center justify-center w-8 h-8 rounded-lg sm:w-10 sm:h-10 sm:rounded-xl mb-2 sm:mb-3", colors[color])}>
+      <div className={cn("inline-flex items-center justify-center w-8 h-8 rounded-xl sm:w-10 sm:h-10 sm:rounded-2xl mb-2 sm:mb-3", colors[color])}>
         <span className="material-symbols-outlined text-lg sm:text-xl">{icon}</span>
       </div>
       <div className="text-xl sm:text-2xl font-black text-foreground leading-tight">{value}</div>

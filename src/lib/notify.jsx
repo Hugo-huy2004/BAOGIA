@@ -21,8 +21,8 @@ const META = {
   success: { icon: "verified",           label: "Thành công",       accent: "bg-emerald-500 text-white shadow-emerald-500/25", line: "from-emerald-500 to-teal-400" },
   warning: { icon: "warning",            label: "Cần chú ý",        accent: "bg-amber-500 text-white shadow-amber-500/25",     line: "from-amber-500 to-orange-400" },
   error:   { icon: "error",              label: "Không thành công", accent: "bg-rose-500 text-white shadow-rose-500/25",       line: "from-rose-500 to-red-500" },
-  info:    { icon: "info",               label: "Thông báo",        accent: "bg-indigo-500 text-white shadow-indigo-500/25",   line: "from-indigo-500 to-violet-500" },
-  loading: { icon: "progress_activity",  label: "Đang xử lý",       accent: "bg-indigo-500 text-white shadow-indigo-500/25",   line: "from-indigo-500 to-violet-500" },
+  info:    { icon: "info",               label: "Thông báo",        accent: "bg-primary text-white shadow-primary/25",   line: "from-primary to-secondary" },
+  loading: { icon: "progress_activity",  label: "Đang xử lý",       accent: "bg-primary text-white shadow-primary/25",   line: "from-primary to-secondary" },
 };
 
 // Small stable hash so the same message reuses one toast id → no stacking.
@@ -36,7 +36,7 @@ function Card({ t, type, message, title }) {
   const meta = META[type] || META.info;
   return (
     <div
-      className={`pointer-events-auto relative w-[min(420px,calc(100vw-24px))] overflow-hidden rounded-[20px] border border-white/60 bg-white/95 px-4 py-3 text-slate-900 shadow-[0_22px_58px_rgba(15,23,42,.20)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-950/92 dark:text-white ${t.visible ? "animate-enter" : "animate-leave"}`}
+      className={`brand-panel pointer-events-auto relative w-[min(420px,calc(100vw-24px))] overflow-hidden rounded-[28px] px-4 py-3 text-foreground ${t.visible ? "animate-enter" : "animate-leave"}`}
       role="status"
       aria-live={type === "error" ? "assertive" : "polite"}
     >
@@ -49,14 +49,14 @@ function Card({ t, type, message, title }) {
           {meta.icon}
         </span>
         <div className="min-w-0 flex-1 pt-0.5">
-          <p className="m-0 text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-white/40">{title || meta.label}</p>
-          <p className="m-0 mt-0.5 text-sm font-black leading-snug text-slate-950 dark:text-white break-words">{message}</p>
+          <p className="m-0 text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">{title || meta.label}</p>
+          <p className="m-0 mt-0.5 text-sm font-black leading-snug text-foreground break-words">{message}</p>
         </div>
         {type !== "loading" && (
           <button
             type="button"
             onClick={() => toast.dismiss(t.id)}
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-muted/70"
             aria-label="Đóng"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
@@ -91,16 +91,16 @@ export const notify = {
       const done = (v) => { toast.dismiss(id); resolve(v); };
       toast.custom(
         (t) => (
-          <div className={`pointer-events-auto w-[min(420px,calc(100vw-24px))] overflow-hidden rounded-[20px] border border-white/60 bg-white/95 p-4 shadow-[0_22px_58px_rgba(15,23,42,.22)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-950/94 ${t.visible ? "animate-enter" : "animate-leave"}`}>
-            <p className="text-sm font-black text-slate-900 dark:text-white">{title}</p>
-            {message && <p className="mt-1 text-[13px] text-slate-600 dark:text-white/70 leading-relaxed">{message}</p>}
+          <div className={`brand-panel pointer-events-auto w-[min(420px,calc(100vw-24px))] overflow-hidden rounded-[28px] p-4 ${t.visible ? "animate-enter" : "animate-leave"}`}>
+            <p className="text-sm font-black text-foreground">{title}</p>
+            {message && <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">{message}</p>}
             <div className="mt-3 flex gap-2">
               <button type="button" onClick={() => done(false)}
-                className="flex-1 rounded-xl bg-slate-100 dark:bg-white/10 py-2.5 text-xs font-bold text-slate-600 dark:text-white/80 active:scale-[0.98] transition-transform">
+                className="flex-1 rounded-2xl border border-border/70 bg-muted/75 py-2.5 text-xs font-bold text-muted-foreground active:scale-[0.98] transition-transform hover:bg-muted">
                 {cancelText}
               </button>
               <button type="button" onClick={() => done(true)}
-                className={`flex-1 rounded-xl py-2.5 text-xs font-black text-white active:scale-[0.98] transition-transform ${danger ? "bg-rose-600 hover:bg-rose-700" : "bg-indigo-600 hover:bg-indigo-700"}`}>
+                className={`flex-1 rounded-2xl py-2.5 text-xs font-black text-white active:scale-[0.98] transition-transform ${danger ? "bg-rose-600 hover:bg-rose-700" : "bg-primary hover:bg-primary/90"}`}>
                 {confirmText}
               </button>
             </div>

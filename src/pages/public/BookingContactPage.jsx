@@ -108,8 +108,8 @@ export default function BookingContactPage() {
               <div key={idx} className="flex items-start gap-4">
                 <span className={`material-symbols-outlined ${f.color} text-lg mt-0.5`}>{f.icon}</span>
                 <div>
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">{t(`bookingPage.features.${idx}.title`)}</h4>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">{t(`bookingPage.features.${idx}.desc`)}</p>
+                  <h4 className="text-xs font-bold text-foreground">{t(`bookingPage.features.${idx}.title`)}</h4>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{t(`bookingPage.features.${idx}.desc`)}</p>
                 </div>
               </div>
             ))}
@@ -118,15 +118,15 @@ export default function BookingContactPage() {
 
         {/* Right Column: Form (Apple style segmented cards) */}
         <div className="lg:col-span-7 relative z-10 w-full">
-          <div className="bg-white/70 dark:bg-background/80 backdrop-blur-2xl border border-border/50 p-5 sm:p-8 rounded-3xl shadow-xl">
+          <div className="p-2 sm:p-0">
             <form onSubmit={handleSubmit} className="space-y-6">
               
               {/* Unified iOS List Panel */}
-              <div className="bg-slate-50 dark:bg-card border border-slate-200/60 dark:border-white/5 rounded-2xl overflow-hidden divide-y divide-slate-200/50 dark:divide-white/5">
+              <div className="divide-y divide-border/50 border-y border-border/60">
                 
                 {/* Full Name */}
-                <div className="px-4 py-3.5 flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 min-h-[56px]">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full md:w-44 shrink-0">{t("bookingPage.form.nameLabel")}</label>
+                <div className="flex min-h-[56px] flex-col gap-1.5 px-0 py-3.5 md:flex-row md:items-center md:gap-4">
+                  <label className="w-full shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground md:w-44">{t("bookingPage.form.nameLabel")}</label>
                   <input
                     type="text"
                     name="fullName"
@@ -134,13 +134,13 @@ export default function BookingContactPage() {
                     onChange={handleChange}
                     required
                     placeholder={t("bookingPage.form.namePlaceholder")}
-                    className="w-full bg-transparent text-foreground placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-semibold"
+                    className="w-full bg-transparent text-xs font-semibold text-foreground placeholder:text-muted-foreground/70 focus:outline-none sm:text-sm"
                   />
                 </div>
 
                 {/* Email */}
-                <div className="px-4 py-3.5 flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 min-h-[56px]">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full md:w-44 shrink-0">{t("bookingPage.form.emailLabel")}</label>
+                <div className="flex min-h-[56px] flex-col gap-1.5 px-0 py-3.5 md:flex-row md:items-center md:gap-4">
+                  <label className="w-full shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground md:w-44">{t("bookingPage.form.emailLabel")}</label>
                   <input
                     type="email"
                     name="email"
@@ -148,13 +148,13 @@ export default function BookingContactPage() {
                     onChange={handleChange}
                     required
                     placeholder={t("bookingPage.form.emailPlaceholder")}
-                    className="w-full bg-transparent text-foreground placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-semibold"
+                    className="w-full bg-transparent text-xs font-semibold text-foreground placeholder:text-muted-foreground/70 focus:outline-none sm:text-sm"
                   />
                 </div>
 
                 {/* Phone */}
-                <div className="px-4 py-3.5 flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 min-h-[56px]">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full md:w-44 shrink-0">{t("bookingPage.form.phoneLabel")}</label>
+                <div className="flex min-h-[56px] flex-col gap-1.5 px-0 py-3.5 md:flex-row md:items-center md:gap-4">
+                  <label className="w-full shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground md:w-44">{t("bookingPage.form.phoneLabel")}</label>
                   <input
                     type="tel"
                     name="phone"
@@ -162,20 +162,20 @@ export default function BookingContactPage() {
                     onChange={handleChange}
                     required
                     placeholder={t("bookingPage.form.phonePlaceholder")}
-                    className="w-full bg-transparent text-foreground placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-semibold"
+                    className="w-full bg-transparent text-xs font-semibold text-foreground placeholder:text-muted-foreground/70 focus:outline-none sm:text-sm"
                   />
                 </div>
 
                 {/* Message */}
-                <div className="px-4 py-4 flex flex-col gap-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-full shrink-0">{t("bookingPage.form.messageLabel")}</label>
+                <div className="flex flex-col gap-2 px-0 py-4">
+                  <label className="w-full shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{t("bookingPage.form.messageLabel")}</label>
                   <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
                     placeholder={t("bookingPage.form.messagePlaceholder")}
                     rows="4"
-                    className="w-full bg-transparent text-foreground placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed"
+                    className="w-full resize-none bg-transparent text-xs font-semibold leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none sm:text-sm"
                   />
                 </div>
 
@@ -184,11 +184,11 @@ export default function BookingContactPage() {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 font-bold py-4 rounded-xl hover:scale-[1.01] active:scale-99 transition-all text-xs sm:text-sm shadow-md"
+                className="w-full bg-primary py-4 text-xs font-bold text-white transition-all hover:bg-primary/92 active:scale-99 sm:text-sm"
               >{t("bookingPage.form.submitBtn")}</button>
 
               {/* Apple-style Educational Disclaimer Card */}
-              <div className="p-4 rounded-xl bg-muted/50 border border-border/50 text-[10px] text-slate-400 dark:text-slate-400 flex gap-2.5 text-left leading-relaxed">
+              <div className="flex gap-2.5 border-t border-border/50 pt-4 text-left text-[10px] leading-relaxed text-muted-foreground">
                 <span className="material-symbols-outlined text-accent shrink-0 text-base mt-0.5">info</span>
                 <span>{t("bookingPage.form.disclaimer")}</span>
               </div>

@@ -69,6 +69,10 @@ function nightDate(d = new Date()) {
  * @param {boolean}  [opts.enabled]    Master switch (default true)
  */
 export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
+  const isPWA = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true);
+  if (isPWA) {
+    enabled = true;
+  }
   const [state, setState]           = useState("monitoring"); // monitoring | sleeping | awake
   const [sleepStart, setSleepStart] = useState(null);         // { time: "22:15", date: "2026-06-12" }
   const [confidence, setConfidence] = useState(0);            // 0-100 sleep-onset progress

@@ -182,7 +182,7 @@ export default function PWALoginPage() {
   return (
     <LazyMotion features={domAnimation}>
       <div
-        className="fixed inset-0 z-[200] flex flex-col overflow-hidden bg-black text-white"
+        className="fixed inset-0 z-[200] flex flex-col overflow-hidden bg-background text-white"
         style={{
           paddingTop: "env(safe-area-inset-top, 0px)",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
@@ -223,19 +223,19 @@ export default function PWALoginPage() {
           className="absolute inset-0 overflow-hidden pointer-events-none mix-blend-screen"
         >
           <div 
-            className="absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-blue-600/30 blur-[80px]"
+            className="absolute -top-[10%] -left-[10%] h-[60vw] w-[60vw] rounded-full bg-[#ef4444]/18 blur-[80px]"
             style={{ animation: 'float1 12s ease-in-out infinite' }}
           />
           <div 
-            className="absolute top-[20%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-purple-600/30 blur-[100px]"
+            className="absolute top-[20%] -right-[10%] h-[70vw] w-[70vw] rounded-full bg-[#3b82f6]/18 blur-[100px]"
             style={{ animation: 'float2 15s ease-in-out infinite' }}
           />
           <div 
-            className="absolute -bottom-[10%] left-[20%] w-[80vw] h-[80vw] rounded-full bg-pink-600/30 blur-[120px]"
+            className="absolute -bottom-[10%] left-[20%] h-[80vw] w-[80vw] rounded-full bg-[#ec4899]/14 blur-[120px]"
             style={{ animation: 'float3 18s ease-in-out infinite' }}
           />
           <div 
-            className="absolute top-[40%] left-[10%] w-[50vw] h-[50vw] rounded-full bg-indigo-500/20 blur-[90px]"
+            className="absolute top-[40%] left-[10%] h-[50vw] w-[50vw] rounded-full bg-[#22c55e]/12 blur-[90px]"
             style={{ animation: 'float1 20s ease-in-out infinite reverse' }}
           />
         </div>
@@ -304,7 +304,7 @@ export default function PWALoginPage() {
           transition={{ duration: 1, type: "spring", bounce: 0.3 }}
           className="relative z-10 w-full px-6 pb-12 pt-8"
         >
-          <div className="mx-auto w-full max-w-sm p-8 bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[40px] shadow-[0_0_50px_rgba(0,0,0,0.8)] space-y-8 flex flex-col items-center">
+          <div className="brand-panel mx-auto flex w-full max-w-sm flex-col items-center space-y-8 rounded-[32px] p-8">
             
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-white tracking-tight">Welcome to Hugo</h2>
@@ -314,7 +314,7 @@ export default function PWALoginPage() {
             <div className="w-full space-y-4">
               {/* Premium Google sign-in wrapper */}
               <div className="relative w-full flex justify-center items-center">
-                <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-500 w-full [&>div]:w-full rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.05)] border border-white/5" />
+                <div ref={googleButtonRef} className="flex w-full justify-center overflow-hidden rounded-full border border-white/8 transition-opacity duration-500 [&>div]:w-full" />
                 
                 {!gisReady && !configError && (
                   <div className="absolute inset-0 flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-widest text-white/50 animate-pulse pointer-events-none">
@@ -329,7 +329,7 @@ export default function PWALoginPage() {
                 <button
                   onClick={handleBiometricLogin}
                   disabled={biometricBusy}
-                  className="w-full flex items-center justify-center gap-3 py-3 px-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white font-semibold transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.02)]"
+                  className="w-full flex items-center justify-center gap-3 rounded-full border border-white/10 bg-white/5 px-6 py-3 font-semibold text-white transition-all active:scale-95 hover:border-primary/30 hover:bg-white/8"
                 >
                   <span className="material-symbols-outlined text-xl">face</span>
                   Xác thực Sinh trắc học
@@ -339,7 +339,7 @@ export default function PWALoginPage() {
 
             {/* Error Message */}
             {configError && (
-              <p className="text-xs text-red-400 text-center bg-red-400/10 py-2 px-3 rounded-lg border border-red-400/20 w-full">
+              <p className="w-full rounded-2xl border border-red-400/20 bg-red-400/10 px-3 py-2 text-center text-xs text-red-300">
                 {configError}
               </p>
             )}

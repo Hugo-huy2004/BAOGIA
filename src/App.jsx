@@ -50,6 +50,7 @@ const MemberIdeTab = lazy(() => import("./components/member/MemberIdeTab"));
 const ChessPage = lazy(() => import("./pages/public/ChessPage"));
 const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
 const UtilityPublicPage = lazy(() => import("./pages/public/UtilityPublicPage"));
+const JoyPWA = lazy(() => import("./pages/JoyPWA"));
 
 function AppContent() {
   const location = useLocation();
@@ -84,7 +85,7 @@ function AppContent() {
 
   if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
     return (
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
         <Routes>
           <Route path="/bio/:slug" element={<BioPublicPage />} />
           <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
@@ -115,7 +116,7 @@ function AppContent() {
   const hideNavbar = isEmbed || isFullscreenUtility || isPWA;
 
   return (
-    <div className="min-h-screen bg-surface dark:bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
       
       {/* Static Top-Navigation Header bar */}
       {!hideNavbar && <Navbar />}
@@ -134,7 +135,7 @@ function AppContent() {
           ringHoverBackground="rgba(59, 130, 246, 0.4)"
           dotColor="#3b82f6"
          />
-        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
           <Routes>
             <Route path="/" element={
               isPWA
@@ -147,6 +148,7 @@ function AppContent() {
                 : <IntroductionPage />
             } />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/joy" element={<JoyPWA />} />
             <Route path="/student-benefits" element={<StudentBenefitsPage />} />
             <Route path="/templates" element={<TemplatesPage />} />
             <Route path="/faq" element={<FAQPage />} />

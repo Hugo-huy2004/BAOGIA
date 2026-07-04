@@ -45,12 +45,12 @@ export default function CustomerProfileTab({ project, setProject }) {
   };
 
   return (
-    <div className="bg-white dark:bg-background rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800/80 shadow-sm max-w-2xl mx-auto">
+    <div className="brand-panel max-w-2xl mx-auto rounded-[28px] p-6 md:p-8">
       <div className="mb-6 space-y-1">
         <h2 className="text-lg font-bold text-foreground">{t("customerPortal.profile.title")}</h2>
-        <p className="text-xs text-slate-500">{t("customerPortal.profile.subtitle")}</p>
+        <p className="text-xs text-muted-foreground">{t("customerPortal.profile.subtitle")}</p>
         {isCompleted && (
-          <div className="mt-2 text-[11px] text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg font-medium">
+          <div className="mt-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] font-medium text-amber-600 dark:text-amber-400">
             {t("customerPortal.profile.completedWarn")}
           </div>
         )}
@@ -59,63 +59,63 @@ export default function CustomerProfileTab({ project, setProject }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.fullName")}</label>
+            <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-[0.16em]">{t("customerPortal.profile.fullName")}</label>
             <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
               disabled={isCompleted}
-              className="w-full px-4 py-3 rounded-xl border border-border/50 bg-slate-50/50 dark:bg-black/25 text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+              className="w-full rounded-2xl border border-border/60 bg-card/75 px-4 py-3 text-xs text-foreground shadow-inner-soft backdrop-blur-sm transition-all focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.phone")}</label>
+            <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-[0.16em]">{t("customerPortal.profile.phone")}</label>
             <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               disabled={isCompleted}
-              className="w-full px-4 py-3 rounded-xl border border-border/50 bg-slate-50/50 dark:bg-black/25 text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+              className="w-full rounded-2xl border border-border/60 bg-card/75 px-4 py-3 text-xs text-foreground shadow-inner-soft backdrop-blur-sm transition-all focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.email")}</label>
+            <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-[0.16em]">{t("customerPortal.profile.email")}</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               disabled={isCompleted}
-              className="w-full px-4 py-3 rounded-xl border border-border/50 bg-slate-50/50 dark:bg-black/25 text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+              className="w-full rounded-2xl border border-border/60 bg-card/75 px-4 py-3 text-xs text-foreground shadow-inner-soft backdrop-blur-sm transition-all focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.birthday")}</label>
+            <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-[0.16em]">{t("customerPortal.profile.birthday")}</label>
             <input
               type="date"
               name="birthday"
               value={formData.birthday}
               onChange={handleChange}
               disabled={isCompleted}
-              className="w-full px-4 py-3 rounded-xl border border-border/50 bg-slate-50/50 dark:bg-black/25 text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+              className="w-full rounded-2xl border border-border/60 bg-card/75 px-4 py-3 text-xs text-foreground shadow-inner-soft backdrop-blur-sm transition-all focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
             />
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("customerPortal.profile.address")}</label>
+          <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-[0.16em]">{t("customerPortal.profile.address")}</label>
           <input
             type="text"
             name="address"
             value={formData.address}
             onChange={handleChange}
             disabled={isCompleted}
-            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-slate-50/50 dark:bg-black/25 text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs disabled:opacity-50"
+            className="w-full rounded-2xl border border-border/60 bg-card/75 px-4 py-3 text-xs text-foreground shadow-inner-soft backdrop-blur-sm transition-all focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
           />
         </div>
 
@@ -125,7 +125,7 @@ export default function CustomerProfileTab({ project, setProject }) {
             <button
               type="submit"
               disabled={loading}
-              className="ml-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs flex items-center gap-2"
+              className="ml-auto flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-bold text-white shadow-[0_12px_30px_-16px_hsl(var(--primary)/0.75)] transition-all hover:bg-primary/90 active:scale-95 disabled:bg-primary/55"
             >
               {loading ? t("customerPortal.profile.savingBtn") : (
                 <>

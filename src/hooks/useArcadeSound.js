@@ -71,8 +71,39 @@ export function useArcadeSound() {
     } catch (e) {}
   }, []);
 
-  const playBeep = useCallback(() => playTone(600, "sine", 0.1, 0.05), []);
-  const playMove = useCallback(() => playTone(300, "sine", 0.1, 0.05), []);
+  const playBeep = useCallback(() => {
+    try {
+      const ctx = initCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.08);
+    } catch (_) {}
+  }, []);
+
+  const playMove = useCallback(() => {
+    try {
+      const ctx = initCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(320, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.06);
+      gain.gain.setValueAtTime(0.06, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.06);
+    } catch (_) {}
+  }, []);
 
   return { playWin, playLose, playBeep, playMove };
 }

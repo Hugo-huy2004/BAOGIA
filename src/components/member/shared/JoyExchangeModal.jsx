@@ -63,6 +63,10 @@ const ticketStyles = `
   border: 1px solid var(--ticket-line);
   box-shadow: var(--ticket-shadow);
 }
+/* micro animations for confirm / error */
+.joy-ticket-card.animate-confirm { transform: translateY(-6px) scale(1.006); transition: transform .22s cubic-bezier(.2,.9,.28,1); box-shadow: 0 36px 86px rgba(15,23,42,.36); }
+.joy-ticket-card.animate-error { animation: ticketShake .48s cubic-bezier(.2,.9,.28,1); }
+@keyframes ticketShake { 0%{ transform: translateX(0);} 20%{ transform: translateX(-6px);} 40%{ transform: translateX(6px);} 60%{ transform: translateX(-4px);} 80%{ transform: translateX(4px);} 100%{ transform: translateX(0);} }
 .joy-ticket-card::before {
   content: "";
   position: absolute;
@@ -458,7 +462,7 @@ export default function JoyExchangeModal({ open, bio, item, onClose, onConfirm, 
     setPhase("confirming");
     setError("");
     try {
-      const result = await onConfirm();
+      const result = await onConfirm?.(quote);
       setPhase("paid");
       triggerToast();
       setTimeout(() => {
@@ -519,7 +523,7 @@ export default function JoyExchangeModal({ open, bio, item, onClose, onConfirm, 
                 exit={{ y: 34, opacity: 0, scale: .97 }}
                 transition={{ type: "spring", damping: 28, stiffness: 360 }}
               >
-                <div className="joy-ticket-card">
+                <div className={`joy-ticket-card ${phase === "confirming" ? "animate-confirm" : ""} ${phase === "error" ? "animate-error" : ""}`}>
                   <SuccessStamp show={phase === "paid"} />
 
                   <header className="joy-ticket-header">
@@ -615,7 +619,7 @@ export default function JoyExchangeModal({ open, bio, item, onClose, onConfirm, 
                       <HugoInlineNotice
                         type="error"
                         title="Không thể trao đổi"
-                        message={error}
+                        message={`${error || "Lỗi giao dịch"}. Nhấn 'Thử lại' để thử lại.`}
                         className="mt-3.5"
                       />
                     )}
@@ -623,32 +627,55 @@ export default function JoyExchangeModal({ open, bio, item, onClose, onConfirm, 
 
                   {phase !== "paid" && (
                     <footer className="joy-ticket-footer">
-                      <button
-                        type="button"
-                        className="joy-ticket-button cancel"
-                        onClick={onClose}
-                        disabled={phase === "confirming"}
-                      >
-                        Hủy
-                      </button>
-                      <button
-                        type="button"
-                        className="joy-ticket-button confirm"
-                        onClick={handleConfirm}
-                        disabled={loading || phase === "confirming" || !quote || insufficientBalance}
-                      >
-                        {phase === "confirming" ? (
-                          <>
-                            <span className="material-symbols-outlined text-[18px]" style={{ animation: "joyTicketSpin 1s linear infinite" }}>progress_activity</span>
-                            Đang xử lý
-                          </>
-                        ) : (
-                          <>
-                            <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                            Xác nhận
-                          </>
-                        )}
-                      </button>
+                      {phase === "error" ? (
+                        <>
+                          <button
+                            type="button"
+                            className="joy-ticket-button cancel"
+                            onClick={onClose}
+                            disabled={phase === "confirming"}
+                          >
+                            Hủy
+                          </button>
+                          <button
+                            type="button"
+                            className="joy-ticket-button confirm"
+                            onClick={handleConfirm}
+                            disabled={loading || phase === "confirming" || !quote || insufficientBalance}
+                          >
+                            Thử lại
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className="joy-ticket-button cancel"
+                            onClick={onClose}
+                            disabled={phase === "confirming"}
+                          >
+                            Hủy
+                          </button>
+                          <button
+                            type="button"
+                            className="joy-ticket-button confirm"
+                            onClick={handleConfirm}
+                            disabled={loading || phase === "confirming" || !quote || insufficientBalance}
+                          >
+                            {phase === "confirming" ? (
+                              <>
+                                <span className="material-symbols-outlined text-[18px]" style={{ animation: "joyTicketSpin 1s linear infinite" }}>progress_activity</span>
+                                Đang xử lý
+                              </>
+                            ) : (
+                              <>
+                                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                                Xác nhận
+                              </>
+                            )}
+                          </button>
+                        </>
+                      )}
                     </footer>
                   )}
 

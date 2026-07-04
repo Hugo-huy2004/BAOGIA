@@ -278,7 +278,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      showToast?.(`Đã mua ${def.name}! 🎉`, 'success');
+      showToast?.(`Đã mua ${def.name}!`, 'success');
       setStoreData((prev) => ({ ...prev, balance: data.balance, unlockedItems: data.unlockedItems }));
       
       if (def.type === 'wallColor') {
@@ -324,7 +324,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       }
       return;
     }
-    const emoji = slot === 'pet' ? ['🐾', '❤️', '😻'][Math.floor(Math.random() * 3)] : '💻';
+    const emoji = '';
     setReaction(emoji);
     setTimeout(() => setReaction(''), 900);
   };
@@ -340,12 +340,12 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      showToast?.('Cho thú cưng ăn thành công! 🥛🍖', 'success');
+      showToast?.('Cho thú cưng ăn thành công!', 'success');
       setRoomState(prev => ({
         ...prev,
         petFedAt: data.petFedAt
       }));
-      setReaction('❤️');
+      setReaction('');
       setTimeout(() => setReaction(''), 900);
       setPetAction(null);
     } catch (err) {
@@ -366,7 +366,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      showToast?.('Hồi sinh thú cưng thành công! 🎉🐾', 'success');
+      showToast?.('Hồi sinh thú cưng thành công!', 'success');
       setStoreData(prev => ({ ...prev, balance: data.balance }));
       setRoomState(prev => ({
         ...prev,

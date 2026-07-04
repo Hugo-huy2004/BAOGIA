@@ -144,14 +144,31 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
   const [loadingSleep, setLoadingSleep] = useState(false);
 
   useEffect(() => {
-    if (!bio?.email) return;
+    if (!bio?.email) {
+      setSleepLogs([]);
+      setLoadingSleep(false);
+      return;
+    }
+
+    let isActive = true;
     setLoadingSleep(true);
+
     dataApi.get(`/api/sleep?email=${encodeURIComponent(bio.email)}&limit=30`)
       .then(res => {
+        if (!isActive) return;
         setSleepLogs(res.data.logs || []);
       })
-      .catch(() => {})
-      .finally(() => setLoadingSleep(false));
+      .catch(() => {
+        if (!isActive) return;
+        setSleepLogs([]);
+      })
+      .finally(() => {
+        if (isActive) setLoadingSleep(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
   }, [bio?.email]);
 
   const formatDateTime = (isoString) => {

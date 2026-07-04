@@ -29,7 +29,10 @@ const TITLES = {
   admin_direct_add: 'Nhận JOY từ Admin',
   deco_buy: 'Mua sắm nội thất KTX',
   deco_tip_sent: 'Tip KTX cho bạn bè',
-  deco_tip_received: 'Nhận Tip KTX'
+  deco_tip_received: 'Nhận Tip KTX',
+  community_post: 'Đăng bài cộng đồng',
+  community_comment: 'Bình luận bài viết',
+  community_like_received: 'Bài viết được thả tim'
 };
 
 /**

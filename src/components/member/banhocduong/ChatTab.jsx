@@ -10,6 +10,7 @@ import TherapyTab from "./TherapyTab";
 import ChatInputBar from "./ChatInputBar";
 import TokenExchangeModal from "./TokenExchangeModal";
 import { CrisisSosCountdown } from "./EmergencySiren";
+import { getLockedFields, fieldLabel } from "./constants/bioFields";
 import { RenderColoredText } from "../../HugoLogo";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useKeyboardInset, useVirtualKeyboardOptIn } from "../../../hooks/useKeyboardVisible";
@@ -201,6 +202,37 @@ export default function ChatTab({
     });
   }, []);
 
+  // HugoPSY can edit the user's Bio in the DB when they ask ("đổi biệt danh
+  // thành X"). Fields locked after edu-verification (name/birthday/phone/
+  // education/contactEmail) can't be changed silently — those requests are
+  // routed to the verification form instead of falsely reporting success.
+  const openVerificationForm = useCallback(() => {
+    window.dispatchEvent(new CustomEvent("hugo:open-verification"));
+  }, []);
+
+  const applyBioUpdate = useCallback((bioUpdate) => {
+    const locked = getLockedFields(bio);
+    const allowed = {};
+    const blocked = [];
+    for (const [k, v] of Object.entries(bioUpdate || {})) {
+      if (locked.has(k)) blocked.push(k);
+      else allowed[k] = v;
+    }
+    if (Object.keys(allowed).length) {
+      onProfileUpdate?.(allowed);
+    }
+    if (blocked.length) {
+      const names = blocked.map(fieldLabel).join(", ");
+      const okNote = Object.keys(allowed).length ? "Tớ đã cập nhật những mục còn lại giúp cậu rồi nha. " : "";
+      pushBotMessageChunks(
+        [`${okNote}Riêng ${names} đã được khoá sau khi tài khoản xác minh sinh viên, nên tớ không tự đổi được. Cậu điền form xác minh để cập nhật nhé 📝`],
+        { quickActions: [{ type: "verify_form", label: "Mở form xác minh" }] }
+      );
+    } else if (Object.keys(allowed).length) {
+      showToast?.("Đã cập nhật hồ sơ của cậu! ✨", "success");
+    }
+  }, [bio, onProfileUpdate, pushBotMessageChunks, showToast]);
+
   // Mood check-in handler — instant local response, no AI call, contextual therapy chips.
   const handleMoodSelect = useCallback((moodValue) => {
     setMoodCheckinDone(true);
@@ -266,7 +298,7 @@ export default function ChatTab({
       onProfileUpdate?.({ unlockedCompanionFeatures: data.unlockedFeatures || [] });
       fetchJoyBalance(bio.email);
       const method = THERAPY_METHODS.find(m => m.id === action.methodId);
-      pushBotMessageChunks([`Đã mở khoá xong rồi nè! 🎉 Mở "${method?.name || action.label}" cho cậu luôn đây.`]);
+      pushBotMessageChunks([`Đã mở khoá xong rồi nè! Mở "${method?.name || action.label}" cho cậu luôn đây.`]);
       setTherapyInitialMethod(action.methodId);
       setShowTherapyOverlay(true);
     } catch (err) {
@@ -1436,8 +1468,7 @@ export default function ChatTab({
         // reply — errors never cost anything. Resync from the server instead of guessing locally.
         refreshRemainingTokens();
         if (botResponse.bioUpdate && onProfileUpdate) {
-          onProfileUpdate(botResponse.bioUpdate);
-          showToast?.("Đã lưu thông tin mới vào hồ sơ!", "success");
+          applyBioUpdate(botResponse.bioUpdate);
         }
         const finalBotResponse = normalizeFinalResponse(botResponse, localSafetyReply);
         // Now that streaming is done, replace the single live bubble with the
@@ -1657,6 +1688,7 @@ export default function ChatTab({
             onMoodSelect={handleMoodSelect}
             moodCheckinDone={moodCheckinDone}
             keyboardInset={keyboardInset}
+            onOpenVerification={openVerificationForm}
           />
         )}
         {chatMode === "test" && activeTest && (
