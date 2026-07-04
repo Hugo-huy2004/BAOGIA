@@ -126,7 +126,7 @@ export default function PaymentGatewayPage() {
     navigator.clipboard.writeText(text);
     setCopiedField(fieldName);
     const label = fieldName === 'accountNumber' ? 'Đã sao chép số tài khoản!' : 'Đã sao chép nội dung!';
-    toast.success(label);
+    notify.success(label);
     setTimeout(() => setCopiedField(''), 2000);
   };
 
@@ -146,7 +146,7 @@ export default function PaymentGatewayPage() {
     if (!paymentInfo) return;
     const qrImageUrl = `https://img.vietqr.io/image/${paymentInfo.bin}-${paymentInfo.accountNumber}-compact2.png?amount=${paymentInfo.amount}&addInfo=${encodeURIComponent(paymentInfo.reason)}&accountName=${encodeURIComponent(paymentInfo.accountName)}`;
     
-    const loadId = toast.loading('Đang chuẩn bị tải ảnh QR...');
+    const loadId = notify.loading('Đang chuẩn bị tải ảnh QR...');
 
     try {
       const response = await fetch(qrImageUrl);
@@ -161,47 +161,47 @@ export default function PaymentGatewayPage() {
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
 
-      toast.success('Mã QR đã được tải về máy của bạn!', { id: loadId });
+      notify.success('Mã QR đã được tải về máy của bạn!', { id: loadId });
     } catch (error) {
       console.error('Download QR Error:', error);
       window.open(qrImageUrl, '_blank');
-      toast.dismiss(loadId);
+      notify.dismiss(loadId);
     }
   };
 
   const executeCancelPayment = async () => {
     setCancelling(true);
     setCancelError('');
-    const loadId = toast.loading('Đang xử lý hủy giao dịch...');
+    const loadId = notify.loading('Đang xử lý hủy giao dịch...');
     try {
       const res = await dataApi.post(`/api/payos/cancel/${id}`);
       if (res.data.success) {
-        toast.success('Hủy giao dịch chuyển khoản thành công!', { id: loadId });
+        notify.success('Hủy giao dịch chuyển khoản thành công!', { id: loadId });
         setPaymentInfo(prev => ({ ...prev, status: 'CANCELLED' }));
       } else {
         const errMsg = res.data.error || 'Hủy giao dịch thất bại.';
         setCancelError(errMsg);
-        toast.error(errMsg, { id: loadId });
+        notify.error(errMsg, { id: loadId });
       }
     } catch (err) {
       const errMsg = err.response?.data?.error || 'Lỗi kết nối khi hủy giao dịch.';
       setCancelError(errMsg);
-      toast.error(errMsg, { id: loadId });
+      notify.error(errMsg, { id: loadId });
     } finally {
       setCancelling(false);
     }
   };
 
   const handleCancelPayment = () => {
-    toast((t) => (
+    notify.info((t) => (
       <HugoConfirmNotice
         type="error"
         title="Xác nhận hủy"
         message="Bạn có chắc chắn muốn hủy giao dịch chuyển khoản này không? Bản ghi sẽ được xóa khỏi hệ thống."
         confirmLabel="Xác nhận hủy"
-        onCancel={() => toast.dismiss(t.id)}
+        onCancel={() => notify.dismiss(t.id)}
         onConfirm={() => {
-          toast.dismiss(t.id);
+          notify.dismiss(t.id);
           executeCancelPayment();
         }}
       />

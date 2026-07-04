@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import toast from "react-hot-toast";
+import { notify } from "../lib/notify";
 import dataApi from "../services/dataApi";
 
 const DataContext = createContext();
@@ -101,7 +101,7 @@ export const DataProvider = ({ children }) => {
     } catch (err) {
       console.error(`Error updating ${field}:`, err);
       setData(previousData);
-      toast.error("Lưu thay đổi thất bại — dữ liệu đã được khôi phục. Kiểm tra kết nối và thử lại nhé.");
+      notify.error("Lưu thay đổi thất bại — dữ liệu đã được khôi phục. Kiểm tra kết nối và thử lại nhé.");
     }
   };
 
@@ -134,7 +134,7 @@ export const DataProvider = ({ children }) => {
     } catch (err) {
       console.error("Error resetting data:", err);
       setData(previousData);
-      toast.error("Không thể khôi phục dữ liệu mặc định. Thử lại nhé.");
+      notify.error("Không thể khôi phục dữ liệu mặc định. Thử lại nhé.");
     }
   };
 

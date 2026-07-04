@@ -1,6 +1,5 @@
 import React from "react";
-import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { notify } from "../../lib/notify";
 
 const NOTICE_META = {
   success: {
@@ -39,60 +38,22 @@ function getNoticeMeta(type) {
   return NOTICE_META[type] || NOTICE_META.info;
 }
 
-export function HugoNoticeToast({
-  open,
-  type = "info",
-  title,
-  message,
-  detail,
-  onClose,
-  zIndex = 10000,
-}) {
-  if (typeof document === "undefined") return null;
-  const meta = getNoticeMeta(type);
-
-  return createPortal(
-    <AnimatePresence>
-      {open && message && (
-        <motion.div
-          key="hugo-notice-toast"
-          className="fixed inset-x-3 mx-auto w-[min(420px,calc(100vw-24px))] pointer-events-auto"
-          style={{ top: "calc(env(safe-area-inset-top, 24px) + 24px)", zIndex }}
-          initial={{ opacity: 0, y: -18, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -14, scale: 0.98 }}
-          transition={{ type: "spring", stiffness: 430, damping: 32 }}
-          role="status"
-          aria-live={type === "error" ? "assertive" : "polite"}
-        >
-          <div className="relative overflow-hidden rounded-[20px] border border-white/60 bg-white/94 px-4 py-3 text-slate-900 shadow-[0_22px_58px_rgba(15,23,42,.20)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-950/92 dark:text-white">
-            <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${meta.line}`} />
-            <div className="flex items-start gap-3">
-              <span className={`material-symbols-outlined grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-[21px] shadow-lg ${meta.accent} ${type === "loading" ? "animate-spin" : ""}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                {meta.icon}
-              </span>
-              <div className="min-w-0 flex-1 pt-0.5">
-                <p className="m-0 text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-white/40">{title || meta.label}</p>
-                <p className="m-0 mt-0.5 text-sm font-black leading-snug text-slate-950 dark:text-white">{message}</p>
-                {detail && <p className="m-0 mt-1 truncate text-[11px] font-semibold text-slate-500 dark:text-white/48">{detail}</p>}
-              </div>
-              {onClose && (
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-white"
-                  aria-label="Đóng thông báo"
-                >
-                  <span className="material-symbols-outlined text-[17px]">close</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>,
-    document.body
-  );
+// Thin compatibility shim: the old floating portal toast now DELEGATES to the
+// single `notify` system, so the ~14 components that still render
+// <HugoNoticeToast open .../> converge onto one queue, one look, with dedup —
+// without any of them having to change. It renders nothing itself; when `open`
+// flips to a truthy message it fires the matching notify() call.
+export function HugoNoticeToast({ open, type = "info", title, message }) {
+  const lastRef = React.useRef("");
+  React.useEffect(() => {
+    if (!open || !message) { if (!open) lastRef.current = ""; return; }
+    const key = `${type}|${message}`;
+    if (lastRef.current === key) return; // don't re-fire on unrelated re-renders
+    lastRef.current = key;
+    const fn = notify[type] ? type : "info";
+    notify[fn](message, title ? { title } : undefined);
+  }, [open, message, type, title]);
+  return null;
 }
 
 export function HugoInlineNotice({ type = "info", title, message, children, className = "" }) {

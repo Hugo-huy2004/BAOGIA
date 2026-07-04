@@ -42,7 +42,7 @@ export default function SmartUserSearch({ onSelect, placeholder = "Tìm theo Tê
         if (response.status === 401 || response.status === 403) {
           setResults([]);
           setIsOpen(false);
-          toast.error('Phiên quản trị đã hết hạn. Vui lòng đăng nhập lại.');
+          notify.error('Phiên quản trị đã hết hạn. Vui lòng đăng nhập lại.');
           return;
         }
 

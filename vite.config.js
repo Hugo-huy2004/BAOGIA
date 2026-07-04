@@ -186,19 +186,24 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('firebase')) return 'firebase';
-            if (id.includes('@chatscope')) return 'chat-ui';
-            if (id.includes('framer-motion')) return 'framer';
-            if (id.includes('react-quill') || id.includes('/quill/')) return 'quill';
-            if (id.includes('lucide-react')) return 'icons';
-            if (id.includes('@radix-ui')) return 'radix';
+            // Only manually chunk libraries used ACROSS many routes (shared —
+            // deduping them helps). Route-SPECIFIC heavy libs (react-quill =
+            // admin editor only, canvas-confetti = arcade/member only) are left
+            // to auto-split INTO their lazy route chunk — naming them forced
+            // rolldown to preload them on the landing page.
+            // Truly-global libs only. @radix-ui and lucide-react are NOT
+            // grouped: grouping @radix-ui dragged Dialog/Dropdown/Tabs (lazy
+            // routes) onto the landing page just because Tooltip is eager.
+            // Per-component auto-split keeps only what each route needs.
             if (id.includes('i18next') || id.includes('react-i18next')) return 'i18n';
             if (id.includes('zustand') || id.includes('swr')) return 'state';
-            if (id.includes('canvas-confetti')) return 'arcade-fx';
             if (id.includes('react-dom') || id.includes('react-router-dom') || id.includes('/react/')) return 'vendor';
           }
-          if (id.includes('src/components/demos/')) return 'demos';
-          if (id.includes('src/components/member/banhocduong/')) return 'banhocduong';
+          // Do NOT manually chunk app-source folders (demos, banhocduong):
+          // forcing a whole folder into one named chunk made rolldown hoist it
+          // into the ENTRY's static graph, so the landing page preloaded
+          // ~600KB of HugoPSY it never needed. Letting Vite auto-split keeps
+          // each lazy route's code in its own on-demand chunk.
         }
       }
     }

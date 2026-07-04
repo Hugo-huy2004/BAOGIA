@@ -44,12 +44,19 @@ function useSiren() {
     try {
       const Ctx = window.AudioContext || window.webkitAudioContext;
       const ctx = new Ctx();
+      // Some browsers hand us a suspended context — resume explicitly (allowed
+      // thanks to sticky user activation from the message-send gesture).
+      if (ctx.state === "suspended") { try { await ctx.resume(); } catch { /* ignore */ } }
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      // Full output: unity gain + a compressor stage so the square wave hits
+      // max loudness without clipping distortion. (The web CANNOT raise the
+      // device's system volume — 1.0 here is the loudest the platform allows.)
+      const comp = ctx.createDynamicsCompressor();
       osc.type = "square";
       osc.frequency.value = 660;
-      gain.gain.value = 0.9; // near max — this is meant to be LOUD
-      osc.connect(gain).connect(ctx.destination);
+      gain.gain.value = 1.0;
+      osc.connect(gain).connect(comp).connect(ctx.destination);
       osc.start();
       let hi = false;
       const sweep = setInterval(() => {
@@ -94,7 +101,9 @@ function useSiren() {
 }
 
 // Full-screen flashing SOS beacon shown while the siren is running.
-function SirenOverlay({ onStop }) {
+// `onStop` renders a stop button (manual mode); `secondsLeft` renders a
+// non-dismissable auto-off countdown instead (medical auto mode).
+function SirenOverlay({ onStop, secondsLeft }) {
   return (
     <div
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-6 px-6 text-center"
@@ -114,13 +123,19 @@ function SirenOverlay({ onStop }) {
           <br />Hãy ở bên cạnh và gọi <a className="underline" href="tel:115">115</a> hoặc <a className="underline" href="tel:111">111</a>.
         </p>
       </div>
-      <button
-        type="button"
-        onClick={onStop}
-        className="mt-4 px-10 py-4 rounded-2xl bg-rose-950 text-white text-base font-black shadow-2xl active:scale-95 transition-transform"
-      >
-        DỪNG BÁO ĐỘNG
-      </button>
+      {onStop ? (
+        <button
+          type="button"
+          onClick={onStop}
+          className="mt-4 px-10 py-4 rounded-2xl bg-rose-950 text-white text-base font-black shadow-2xl active:scale-95 transition-transform"
+        >
+          DỪNG BÁO ĐỘNG
+        </button>
+      ) : (
+        <p className="mt-4 px-6 py-3 rounded-2xl bg-rose-950/80 text-white text-sm font-black tracking-wider">
+          Báo động y tế tự động — tự tắt sau {secondsLeft}s
+        </p>
+      )}
     </div>
   );
 }
@@ -146,75 +161,28 @@ export default function EmergencySiren({ compact = false }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CrisisSosCountdown — auto-trigger flow fired the moment the local crisis
-// detector matches a self-harm message. Modeled on Apple Emergency SOS: the
-// alarm arms with a LOUD-labeled 15s countdown the user can cancel with one
-// tap. Auto-sounding instantly would out a student's most private moment to a
-// classroom (or punish a false positive), so the countdown balances "help
-// arrives even if they freeze" against consent — cancel is always one tap.
+// CrisisSosCountdown — MEDICAL AUTO ALARM. Fires the instant the local crisis
+// detector matches a self-harm message: the siren sounds immediately at full
+// output, runs for exactly AUTO_SOS_SECONDS, then shuts itself off. There is
+// deliberately NO stop control (product decision: the beacon must not be
+// silenceable by the person in crisis) — the strict 10s auto-cutoff is the
+// safety valve for false positives.
 // ─────────────────────────────────────────────────────────────────────────────
-const AUTO_SOS_SECONDS = 15;
+const AUTO_SOS_SECONDS = 10;
 
 export function CrisisSosCountdown({ open, onClose }) {
   const { active, start, stop } = useSiren();
   const [secondsLeft, setSecondsLeft] = useState(AUTO_SOS_SECONDS);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) return undefined;
     setSecondsLeft(AUTO_SOS_SECONDS);
-    const tick = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          clearInterval(tick);
-          start(); // countdown elapsed → sound the beacon
-          return 0;
-        }
-        // Heartbeat vibration each second so the user FEELS the countdown
-        // even if they're not looking at the screen.
-        safelyVibrate(120);
-        return s - 1;
-      });
-    }, 1000);
-    return () => {
-      clearInterval(tick);
-      safelyVibrate(0);
-    };
+    start(); // sound the beacon IMMEDIATELY — no arming delay
+    const tick = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
+    const cutoff = setTimeout(() => { stop(); onClose?.(); }, AUTO_SOS_SECONDS * 1000);
+    return () => { clearInterval(tick); clearTimeout(cutoff); stop(); };
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!open) return null;
-
-  if (active) {
-    return <SirenOverlay onStop={() => { stop(); onClose?.(); }} />;
-  }
-
-  return (
-    <div className="fixed inset-0 z-[9998] flex items-center justify-center p-5 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <style>{SIREN_CSS}</style>
-      <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-950 border border-rose-300/60 dark:border-rose-800/50 shadow-2xl p-6 text-center space-y-4">
-        <span
-          className="material-symbols-outlined mx-auto text-rose-500 text-[56px]"
-          style={{ fontVariationSettings: "'FILL' 1", animation: "sosPulse 1s ease-in-out infinite" }}
-        >
-          sos
-        </span>
-        <p className="text-lg font-black text-rose-700 dark:text-rose-400">
-          Báo động SOS sẽ phát sau {secondsLeft}s
-        </p>
-        <p className="text-[12px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-          Tớ rất lo cho cậu. Điện thoại sẽ hú còi thật to để người xung quanh
-          đến giúp ngay. Nếu cậu vẫn an toàn và muốn riêng tư, bấm huỷ nhé.
-        </p>
-        <div className="flex flex-col gap-2">
-          <button type="button" onClick={start}
-            className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-black active:scale-[0.98] transition-all">
-            🚨 PHÁT BÁO ĐỘNG NGAY
-          </button>
-          <button type="button" onClick={onClose}
-            className="w-full py-3 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-sm font-bold active:scale-[0.98] transition-all">
-            Huỷ — tớ vẫn an toàn
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  if (!open || !active) return null;
+  return <SirenOverlay secondsLeft={secondsLeft} />;
 }

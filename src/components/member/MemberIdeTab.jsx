@@ -698,13 +698,13 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
 
   const handleVerifyLesson = async (course) => {
     if (timeLeft > 0) {
-      toast.error(`Bạn cần tìm hiểu bài học tối thiểu 10 phút. Còn lại: ${Math.floor(timeLeft / 60)} phút ${timeLeft % 60} giây.`);
+      notify.error(`Bạn cần tìm hiểu bài học tối thiểu 10 phút. Còn lại: ${Math.floor(timeLeft / 60)} phút ${timeLeft % 60} giây.`);
       return;
     }
 
     const fileObj = workspaceFiles.find(f => f.path === course.file);
     if (!fileObj) {
-      toast.error(`Vui lòng nạp bài học để tạo file ${course.file} trước!`);
+      notify.error(`Vui lòng nạp bài học để tạo file ${course.file} trước!`);
       return;
     }
     
@@ -737,22 +737,22 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
             }
             if (resData.success && !resData.alreadyCompleted) {
               const awardAmount = course.id === 'lesson10' ? 450 : 100;
-              toast.success(`Tuyệt vời! Bạn được thưởng +${awardAmount} JOY!`);
+              notify.success(`Tuyệt vời! Bạn được thưởng +${awardAmount} JOY!`);
               useJoyStore.getState().fetchBalance(session.email);
             } else {
-              toast.success("Chính xác! Bài học đã được xác minh hoàn thành.");
+              notify.success("Chính xác! Bài học đã được xác minh hoàn thành.");
             }
             recordCoderLessonEvent({ lessonId: course.id, type: "desktop_award", status: "accepted" });
           } catch (e) {
             console.error("Error awarding joy for learning:", e);
             recordCoderLessonEvent({ lessonId: course.id, type: "desktop_award", status: "failed", message: e.message });
-            toast.error(e.message || "Không thể ghi nhận phần thưởng JOY, vui lòng thử lại.");
+            notify.error(e.message || "Không thể ghi nhận phần thưởng JOY, vui lòng thử lại.");
           }
         } else {
-          toast.success("Chính xác! Bài học đã được xác minh hoàn thành.");
+          notify.success("Chính xác! Bài học đã được xác minh hoàn thành.");
         }
       } else {
-        toast.success("Chính xác! Đăng nhập để nhận thưởng JOY.");
+        notify.success("Chính xác! Đăng nhập để nhận thưởng JOY.");
       }
       
       if (!completedLessons.includes(course.id)) {
@@ -762,7 +762,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       }
     } else {
       setVerificationStatus("failed");
-      toast.error("Mã nguồn chưa chính xác, hãy kiểm tra lại yêu cầu đề bài!");
+      notify.error("Mã nguồn chưa chính xác, hãy kiểm tra lại yêu cầu đề bài!");
     }
   };
 
@@ -1082,10 +1082,10 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       
       setOpenTabs(prev => !prev.includes(fullPath) ? [...prev, fullPath] : prev);
       setActiveTabPath(fullPath);
-      toast.success(`Đã tạo file: ${fullPath}`);
+      notify.success(`Đã tạo file: ${fullPath}`);
     } catch (e) {
       console.error(e);
-      toast.error("Lỗi khi tạo file: " + e.message);
+      notify.error("Lỗi khi tạo file: " + e.message);
     }
   };
 
@@ -1098,10 +1098,10 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       
       await refreshLocalDirectory();
       setExpandedFolders(prev => ({ ...prev, [fullPath]: true }));
-      toast.success(`Đã tạo thư mục: ${fullPath}`);
+      notify.success(`Đã tạo thư mục: ${fullPath}`);
     } catch (e) {
       console.error(e);
-      toast.error("Lỗi khi tạo thư mục: " + e.message);
+      notify.error("Lỗi khi tạo thư mục: " + e.message);
     }
   };
 
@@ -1119,10 +1119,10 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       }
       
       await refreshLocalDirectory();
-      toast.success(`Đã xóa: ${fullPath}`);
+      notify.success(`Đã xóa: ${fullPath}`);
     } catch (e) {
       console.error(e);
-      toast.error("Lỗi khi xóa: " + e.message);
+      notify.error("Lỗi khi xóa: " + e.message);
     }
   };
 
@@ -1169,10 +1169,10 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       }
       
       await refreshLocalDirectory();
-      toast.success(`Đã đổi tên thành: ${newFullPath}`);
+      notify.success(`Đã đổi tên thành: ${newFullPath}`);
     } catch (e) {
       console.error(e);
-      toast.error("Lỗi khi đổi tên: " + e.message);
+      notify.error("Lỗi khi đổi tên: " + e.message);
     }
   };
 
@@ -1180,7 +1180,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   const handleOpenFolder = async () => {
     try {
       if (!window.showDirectoryPicker) {
-        toast.error("Trình duyệt không hỗ trợ File System Access API. Dùng chế độ lưu ảo thay thế.");
+        notify.error("Trình duyệt không hỗ trợ File System Access API. Dùng chế độ lưu ảo thay thế.");
         return;
       }
       
@@ -1228,17 +1228,17 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
         setOpenTabs([defaultTab]);
         setActiveTabPath(defaultTab);
         
-        toast.success(`Đã tải ${loadedFiles.length} file từ thư mục cục bộ!`);
+        notify.success(`Đã tải ${loadedFiles.length} file từ thư mục cục bộ!`);
       } else {
-        toast.error("Không tìm thấy file code được hỗ trợ trong thư mục này.");
+        notify.error("Không tìm thấy file code được hỗ trợ trong thư mục này.");
       }
     } catch (err) {
       if (err.name !== "AbortError") {
         console.error(err);
         if (err.message.includes("sensitive") || err.message.includes("system") || err.name === "SecurityError") {
-          toast.error("Lỗi bảo mật: Vui lòng chọn một thư mục con (ví dụ: tạo thư mục 'Dự án' trên Desktop). Trình duyệt không cho phép chọn trực tiếp Desktop gốc.");
+          notify.error("Lỗi bảo mật: Vui lòng chọn một thư mục con (ví dụ: tạo thư mục 'Dự án' trên Desktop). Trình duyệt không cho phép chọn trực tiếp Desktop gốc.");
         } else {
-          toast.error("Lỗi khi mở thư mục: " + err.message);
+          notify.error("Lỗi khi mở thư mục: " + err.message);
         }
       }
     }
@@ -1278,45 +1278,45 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
         const writable = await activeFile.handle.createWritable();
         await writable.write(activeFile.content);
         await writable.close();
-        toast.success(`Đã lưu "${activeFile.name}" thành công vào máy tính!`);
+        notify.success(`Đã lưu "${activeFile.name}" thành công vào máy tính!`);
       } catch (err) {
         console.error(err);
-        toast.error("Lỗi lưu file: " + err.message);
+        notify.error("Lỗi lưu file: " + err.message);
       }
     } else {
       // Download fallback
       const blob = new Blob([activeFile.content], { type: "text/plain" });
       downloadBlob(blob, activeFile.name);
-      toast.success(`Đã tải xuống file "${activeFile.name}"!`);
+      notify.success(`Đã tải xuống file "${activeFile.name}"!`);
     }
   };
 
   const handleExportProjectZip = async () => {
     try {
       if (!workspaceFiles.length) {
-        toast.error("Workspace hiện chưa có file để xuất.");
+        notify.error("Workspace hiện chưa có file để xuất.");
         return;
       }
       const blob = await createWorkspaceZipBlob(workspaceFiles);
       downloadBlob(blob, "hugo-coder-project.zip");
       recordCoderLessonEvent({ type: "export_zip", fileCount: workspaceFiles.length });
-      toast.success("Đã xuất toàn bộ workspace thành file ZIP.");
+      notify.success("Đã xuất toàn bộ workspace thành file ZIP.");
     } catch (err) {
       console.error("Export ZIP error:", err);
-      toast.error("Không thể xuất ZIP: " + err.message);
+      notify.error("Không thể xuất ZIP: " + err.message);
     }
   };
 
   // Delete workspace file / folder
   const handleDeleteEntry = (targetPath, type) => {
-    toast((t) => (
+    notify.info((t) => (
       <HugoConfirmNotice
         type="error"
         title="Xác nhận xóa"
         message={<>Bạn có chắc chắn muốn xóa {type === "folder" ? "thư mục" : "file"} "{targetPath.split('/').pop()}" không? Hành động này không thể hoàn tác.</>}
-        onCancel={() => toast.dismiss(t.id)}
+        onCancel={() => notify.dismiss(t.id)}
         onConfirm={async () => {
-          toast.dismiss(t.id);
+          notify.dismiss(t.id);
           if (dirHandle) {
             await localDeleteEntry(targetPath, type);
           } else {
@@ -1329,7 +1329,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
                   return nextTabs.length > 0 ? nextTabs[0] : null;
                 });
               }
-              toast.success(`Đã xóa file ảo: ${targetPath}`);
+              notify.success(`Đã xóa file ảo: ${targetPath}`);
             } else {
               setFolders(prev => prev.filter(d => d !== targetPath && !d.startsWith(`${targetPath}/`)));
               setWorkspaceFiles(prev => prev.filter(f => !f.path.startsWith(`${targetPath}/`)));
@@ -1337,7 +1337,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
               if (activeTabPath && activeTabPath.startsWith(`${targetPath}/`)) {
                 setActiveTabPath(null);
               }
-              toast.success(`Đã xóa thư mục ảo: ${targetPath}`);
+              notify.success(`Đã xóa thư mục ảo: ${targetPath}`);
             }
           }
         }}
@@ -1384,7 +1384,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
         await localCreateFile(fullPath);
       } else {
         if (workspaceFiles.some(f => f.path.toLowerCase() === fullPath.toLowerCase())) {
-          toast.error("File đã tồn tại!");
+          notify.error("File đã tồn tại!");
           return;
         }
         const ext = name.split(".").pop().toLowerCase();
@@ -1397,7 +1397,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
         setWorkspaceFiles(prev => [...prev, newFile]);
         setOpenTabs(prev => [...prev, fullPath]);
         setActiveTabPath(fullPath);
-        toast.success(`Đã tạo file ảo: ${fullPath}`);
+        notify.success(`Đã tạo file ảo: ${fullPath}`);
       }
     } else if (action.type === "new_folder") {
       const fullPath = action.parentPath ? `${action.parentPath}/${name}` : name;
@@ -1405,12 +1405,12 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
         await localCreateFolder(fullPath);
       } else {
         if (folders.includes(fullPath)) {
-          toast.error("Thư mục đã tồn tại!");
+          notify.error("Thư mục đã tồn tại!");
           return;
         }
         setFolders(prev => [...prev, fullPath]);
         setExpandedFolders(prev => ({ ...prev, [fullPath]: true }));
-        toast.success(`Đã tạo thư mục ảo: ${fullPath}`);
+        notify.success(`Đã tạo thư mục ảo: ${fullPath}`);
       }
     } else if (action.type === "rename") {
       if (name === action.oldName) return;
@@ -1425,7 +1425,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
         const isFolder = folders.includes(action.targetPath);
         if (isFolder) {
           if (folders.includes(newFullPath)) {
-            toast.error("Thư mục đã tồn tại!");
+            notify.error("Thư mục đã tồn tại!");
             return;
           }
           setFolders(prev => prev.map(d => {
@@ -1453,10 +1453,10 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
           if (activeTabPath && activeTabPath.startsWith(`${action.targetPath}/`)) {
             setActiveTabPath(activeTabPath.replace(action.targetPath, newFullPath));
           }
-          toast.success(`Đã đổi tên thư mục ảo thành: ${newFullPath}`);
+          notify.success(`Đã đổi tên thư mục ảo thành: ${newFullPath}`);
         } else {
           if (workspaceFiles.some(f => f.path.toLowerCase() === newFullPath.toLowerCase())) {
-            toast.error("File đã tồn tại!");
+            notify.error("File đã tồn tại!");
             return;
           }
           setWorkspaceFiles(prev => prev.map(f => {
@@ -1473,7 +1473,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
           if (activeTabPath === action.targetPath) {
             setActiveTabPath(newFullPath);
           }
-          toast.success(`Đã đổi tên file ảo thành: ${newFullPath}`);
+          notify.success(`Đã đổi tên file ảo thành: ${newFullPath}`);
         }
       }
     }
@@ -1495,7 +1495,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
     // Check if template tab is already open
     if (openTabs.includes(targetPath)) {
       setActiveTabPath(targetPath);
-      toast.success(`Đã mở bài học ${langKey.toUpperCase()}`);
+      notify.success(`Đã mở bài học ${langKey.toUpperCase()}`);
       return;
     }
 
@@ -1514,7 +1514,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
 
     setOpenTabs(prev => [...prev, targetPath]);
     setActiveTabPath(targetPath);
-    toast.success(`Đã nạp bài học & code mẫu ${langKey.toUpperCase()}`);
+    notify.success(`Đã nạp bài học & code mẫu ${langKey.toUpperCase()}`);
   };
 
   // Build recursive structure for tree display
@@ -1763,9 +1763,9 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
             delete next.activeLeft;
             return next;
           });
-          toast.success("Nối chính xác!", { id: "pair-toast" });
+          notify.success("Nối chính xác!", { id: "pair-toast" });
         } else {
-          toast.error("Nối chưa chính xác, hãy chọn lại!", { id: "pair-toast" });
+          notify.error("Nối chưa chính xác, hãy chọn lại!", { id: "pair-toast" });
           setMatchedPairs(prev => {
             const next = { ...prev };
             delete next.activeLeft;
@@ -1801,7 +1801,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
 
   const verifyInteractivePractice = async () => {
     if (timeLeft > 0) {
-      toast.error(`Bạn cần tìm hiểu bài học tối thiểu 10 phút. Còn lại: ${Math.floor(timeLeft / 60)} phút ${timeLeft % 60} giây.`);
+      notify.error(`Bạn cần tìm hiểu bài học tối thiểu 10 phút. Còn lại: ${Math.floor(timeLeft / 60)} phút ${timeLeft % 60} giây.`);
       return;
     }
 
@@ -1852,7 +1852,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       });
       if (course.miniQuiz && !interactivePassed) {
         setInteractivePassed(true);
-        toast.success("Thực hành thành công! Hãy hoàn thành 3 câu trắc nghiệm để qua bài.");
+        notify.success("Thực hành thành công! Hãy hoàn thành 3 câu trắc nghiệm để qua bài.");
         return;
       }
       await handleRewardMobileLesson(course, verifiedScore);
@@ -1865,9 +1865,9 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
         status: "failed"
       });
       if (course.practiceType === "quiz") {
-        toast.error(`Bài thi chưa đạt yêu cầu! Điểm của bạn: ${Math.round((quizQuestions.filter((q, idx) => quizAnswers[idx] === q.a).length / quizQuestions.length) * 100)}% (Yêu cầu >60%)`);
+        notify.error(`Bài thi chưa đạt yêu cầu! Điểm của bạn: ${Math.round((quizQuestions.filter((q, idx) => quizAnswers[idx] === q.a).length / quizQuestions.length) * 100)}% (Yêu cầu >60%)`);
       } else {
-        toast.error("Yêu cầu thực hành chưa chính xác, hãy xem lại đề bài!");
+        notify.error("Yêu cầu thực hành chưa chính xác, hãy xem lại đề bài!");
       }
     }
   };
@@ -1899,21 +1899,21 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
           }
           if (resData.success && !resData.alreadyCompleted) {
             const awardAmount = course.id === 'lesson10' ? 450 : 100;
-            toast.success(`Chúc mừng! Bạn vượt qua bài học và nhận +${awardAmount} JOY!`);
+            notify.success(`Chúc mừng! Bạn vượt qua bài học và nhận +${awardAmount} JOY!`);
             useJoyStore.getState().fetchBalance(session.email);
           } else {
-            toast.success("Chính xác! Bạn đã hoàn thành bài học.");
+            notify.success("Chính xác! Bạn đã hoàn thành bài học.");
           }
         } catch (e) {
           console.error("Error awarding joy:", e);
           recordCoderLessonEvent({ lessonId: course.id, type: "mobile_award", status: "failed", message: e.message });
-          toast.error(e.message || "Lỗi lưu phần thưởng, vui lòng thử lại.");
+          notify.error(e.message || "Lỗi lưu phần thưởng, vui lòng thử lại.");
         }
       } else {
-        toast.success("Chính xác! Bạn đã hoàn thành bài học.");
+        notify.success("Chính xác! Bạn đã hoàn thành bài học.");
       }
     } else {
-      toast.success("Chính xác! Hãy đăng nhập để nhận thưởng JOY.");
+      notify.success("Chính xác! Hãy đăng nhập để nhận thưởng JOY.");
     }
 
     if (!completedLessons.includes(course.id)) {
@@ -1935,7 +1935,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, course.quizSize);
       setQuizQuestions(shuffled);
     }
-    toast.success("Đã đổi đề thi mới! Hãy làm lại bài thi.");
+    notify.success("Đã đổi đề thi mới! Hãy làm lại bài thi.");
   };
 
   const renderInteractivePractice = (course) => {
@@ -1948,7 +1948,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
           setMiniQuizPassed(true);
           handleRewardMobileLesson(course);
         } else {
-          toast.error("Một số câu chưa đúng, hãy kiểm tra lại nhé!");
+          notify.error("Một số câu chưa đúng, hãy kiểm tra lại nhé!");
         }
       };
 
@@ -2434,7 +2434,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       const isCurrentCompleted = completedLessons.includes(mobileCourse?.id);
       
       if (!isCurrentCompleted) {
-        toast.error("Vui lòng hoàn thành bài học hiện tại để mở khóa bài tiếp theo!");
+        notify.error("Vui lòng hoàn thành bài học hiện tại để mở khóa bài tiếp theo!");
         return;
       }
       
@@ -2517,7 +2517,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
                       key={course.id}
                       onClick={() => {
                         if (isLocked) {
-                          toast.error("Vui lòng hoàn thành bài học trước để mở khóa bài này!");
+                          notify.error("Vui lòng hoàn thành bài học trước để mở khóa bài này!");
                           return;
                         }
                         setActiveCourseId(course.id);
@@ -3023,7 +3023,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
                             setOpenTabs(prev => [...prev, course.file]);
                           }
                           setActiveTabPath(course.file);
-                          toast.success(`Đã nạp file bài học: ${course.file}`);
+                          notify.success(`Đã nạp file bài học: ${course.file}`);
                         }}
                         className="w-full py-2 bg-muted hover:bg-accent text-foreground rounded-xl border border-border text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 active:scale-98"
                       >
@@ -3075,7 +3075,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
                           }`}
                           onClick={() => {
                             if (isLocked) {
-                              toast.error("Vui lòng hoàn thành bài học trước để mở khóa bài này!");
+                              notify.error("Vui lòng hoàn thành bài học trước để mở khóa bài này!");
                               return;
                             }
                             setActiveCourseId(course.id);

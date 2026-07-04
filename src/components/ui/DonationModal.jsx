@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { dataApi } from "../../services/dataApi";
 import { getMemberSession } from "../../services/authSession";
-import toast from "react-hot-toast";
+import { notify } from "../../lib/notify";
 import { isDonationWidgetVisible, setDonationWidgetVisible, DONATION_VISIBILITY_EVENT } from "../../utils/floatingWidgetPref";
 
 const DONATION_PACKS = [
@@ -54,12 +54,12 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
       };
       const res = await dataApi.createDonationLink(payload);
       if (res.success && res.data?.customLinkId) {
-        toast.success("Đang tạo mã thanh toán...");
+        notify.success("Đang tạo mã thanh toán...");
         onClose();
         navigate(`/pay/${res.data.customLinkId}`);
       }
     } catch (err) {
-      toast.error(err.message || "Không thể tạo mã, vui lòng thử lại sau.");
+      notify.error(err.message || "Không thể tạo mã, vui lòng thử lại sau.");
       setLoading(false);
     }
   };

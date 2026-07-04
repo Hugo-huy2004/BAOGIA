@@ -75,7 +75,6 @@ export default function ChatTab({
   const keyboardInset = useKeyboardInset();
   // Auto-armed SOS countdown, triggered by the local self-harm detector.
   const [sosPromptOpen, setSosPromptOpen] = useState(false);
-
   const [isVentingMode, setIsVentingMode] = useState(false);
   const [ventingTimerMinutes, setVentingTimerMinutes] = useState(1);
   const [normalMessagesBackup, setNormalMessagesBackup] = useState([]);

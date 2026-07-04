@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import toast from 'react-hot-toast';
+import { notify } from "../lib/notify";
 import { useLocation } from 'react-router-dom';
 import { getMemberSession, getMemberToken } from '../services/authSession';
 import { useJoyStore } from '../stores/joyStore';
@@ -64,7 +64,7 @@ export default function PWARealtimeBridge() {
             window.dispatchEvent(new CustomEvent('hugo:bio-update', { detail: data }));
             if (data.isEduVerified) {
               if (isNotificationSoundEnabled()) playNotificationSound();
-              toast.success('Tài khoản của bạn đã được xác minh sinh viên! Hạn dùng đã được nâng lên 365 ngày.', { duration: 6000 });
+              notify.success('Tài khoản của bạn đã được xác minh sinh viên! Hạn dùng đã được nâng lên 365 ngày.', { duration: 6000 });
             }
             return;
           }
@@ -77,7 +77,7 @@ export default function PWARealtimeBridge() {
             // Suppress redundant toast for the sender of a P2P transfer
             // since ParticleConnectModal already shows a full-screen success state.
             if (isCredit || data.source !== 'joy_gift_sent') {
-              toast.success(`${isCredit ? 'Nhận JOY' : 'Đã dùng JOY'}: ${isCredit ? '+' : ''}${data.amount} JOY - ${data.notification.message || (isCredit ? 'Tài khoản nhận điểm thưởng mới.' : 'Giao dịch hoàn tất.')}`, {
+              notify.success(`${isCredit ? 'Nhận JOY' : 'Đã dùng JOY'}: ${isCredit ? '+' : ''}${data.amount} JOY - ${data.notification.message || (isCredit ? 'Tài khoản nhận điểm thưởng mới.' : 'Giao dịch hoàn tất.')}`, {
                 id: `joy-${data.notification._id || data.createdAt}`,
                 duration: 5000,
                 position: 'top-center'
@@ -134,14 +134,14 @@ export default function PWARealtimeBridge() {
       nudgeTimer = window.setTimeout(() => {
         const perm = Notification.permission;
         if (perm === 'denied') {
-          toast('Thông báo đang bị tắt. Vào cài đặt trình duyệt để bật lại nhé!', {
+          notify.info('Thông báo đang bị tắt. Vào cài đặt trình duyệt để bật lại nhé!', {
             icon: '🔕',
             duration: 5000,
           });
           return;
         }
         if (perm === 'default') {
-          toast('Bật thông báo trình duyệt để nhận cập nhật JOY, xác minh tài khoản và tin nhắn quan trọng.', {
+          notify.info('Bật thông báo trình duyệt để nhận cập nhật JOY, xác minh tài khoản và tin nhắn quan trọng.', {
             id: 'push-nudge',
             icon: 'notifications',
             duration: 7000,

@@ -77,11 +77,11 @@ export default function AdminUtilityStoreTab() {
       } else {
         setProducts(prev => [data, ...prev]);
       }
-      toast.success(t('adminTabs.utilityStore.saveSuccess'));
+      notify.success(t('adminTabs.utilityStore.saveSuccess'));
       setForm(EMPTY_FORM);
       setEditingId(null);
     } catch (err) {
-      toast.error(err.message);
+      notify.error(err.message);
     } finally {
       setSaving(false);
     }
@@ -103,7 +103,7 @@ export default function AdminUtilityStoreTab() {
   async function handleImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) return toast.error(t('adminTabs.settings.adImage') + ' không hợp lệ');
+    if (!file.type.startsWith('image/')) return notify.error(t('adminTabs.settings.adImage') + ' không hợp lệ');
 
     setUploadingImage(true);
     const reader = new FileReader();
@@ -119,7 +119,7 @@ export default function AdminUtilityStoreTab() {
         if (!r.ok) throw new Error(data.error || 'Lỗi tải ảnh');
         setForm(p => ({ ...p, imageUrl: data.url }));
       } catch (err) {
-        toast.error(err.message);
+        notify.error(err.message);
       } finally {
         setUploadingImage(false);
         e.target.value = '';
@@ -144,9 +144,9 @@ export default function AdminUtilityStoreTab() {
       const r = await fetch(`${API_BASE_URL}/utility-store/admin/products/${id}`, { method: 'DELETE', headers: getHeaders(), credentials: 'include' });
       if (!r.ok) throw new Error('Lỗi xoá sản phẩm');
       setProducts(prev => prev.filter(p => p._id !== id));
-      toast.success(t('adminTabs.utilityStore.deleteSuccess'));
+      notify.success(t('adminTabs.utilityStore.deleteSuccess'));
     } catch (err) {
-      toast.error(err.message);
+      notify.error(err.message);
     }
   }
 

@@ -12,7 +12,9 @@ import PWAInstallBanner from "./components/ui/PWAInstallBanner";
 import PWAUpdatePrompt from "./components/ui/PWAUpdatePrompt";
 import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
-import HBot from "./components/HBot";
+// HBot retired (product decision 2026-07: focus the support surface on
+// HugoPSY). The component file stays on disk for reference but is no longer
+// imported, so it and its dialogue trees drop out of the main bundle.
 import { CursorEffect as Cursor } from "@hwagfu/cursor";
 import { useUIStore } from "./stores/uiStore";
 import { TooltipProvider } from "./components/ui/Tooltip";
@@ -111,7 +113,6 @@ function AppContent() {
   // In the installed PWA we want a focused, app-like dashboard: never show the
   // marketing top navbar / tab-bar — those are web-only. But keep HBot for support.
   const hideNavbar = isEmbed || isFullscreenUtility || isPWA;
-  const hideHBot = isEmbed || isFullscreenUtility || data?.systemSettings?.enableHBot === false;
 
   return (
     <div className="min-h-screen bg-surface dark:bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
@@ -202,8 +203,6 @@ function AppContent() {
       {/* Global Brand footer bar */}
       {!isEmbed && showFooter && <Footer />}
 
-      {/* Floating AI chatbot support assistant */}
-      {!hideHBot && <HBot />}
     </div>
   );
 }

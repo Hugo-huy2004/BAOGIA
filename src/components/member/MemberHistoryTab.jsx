@@ -177,7 +177,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
     setTimeout(() => {
       setClaimedCodes(prev => ({ ...prev, [code]: false }));
     }, 2000);
-    toast.success(t("memberTabs.history.copy_success_msg"));
+    notify.success(t("memberTabs.history.copy_success_msg"));
   };
 
   return (

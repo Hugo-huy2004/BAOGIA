@@ -4,7 +4,7 @@ import { Chessground } from "chessground";
 import "chessground/assets/chessground.base.css";
 import "./chess-theme.css";
 import confetti from "canvas-confetti";
-import toast from "react-hot-toast";
+import { notify } from "../../lib/notify";
 import {
   ArrowLeft, Flag, Handshake, Volume2, VolumeX,
   Copy, Check, Wifi, WifiOff, Lightbulb, ChevronDown,
@@ -1113,7 +1113,7 @@ export default function ChessGame({
         case "opponent_disconnected": setWsStatus("disconnected"); break;
         case "opponent_reconnected":  setWsStatus("connected");    break;
         case "error":
-          toast.error(msg.message || "Đã xảy ra lỗi kết nối");
+          notify.error(msg.message || "Đã xảy ra lỗi kết nối");
           setTimeout(() => onBack(), 1500);
           break;
         case "reconnected": {

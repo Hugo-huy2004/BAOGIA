@@ -616,3 +616,9 @@
   .hg-glass { background: rgba(255, 255, 255, 0.92); }
   .dark .hg-glass { background: rgba(22, 22, 30, 0.92); }
 }
+
+/* react-hot-toast custom-toast enter/leave (used by src/lib/notify.jsx) */
+@keyframes hotToastEnter { from { opacity: 0; transform: translate3d(0,-18px,0) scale(.96); } to { opacity: 1; transform: translate3d(0,0,0) scale(1); } }
+@keyframes hotToastLeave { from { opacity: 1; transform: translate3d(0,0,0) scale(1); } to { opacity: 0; transform: translate3d(0,-14px,0) scale(.98); } }
+.animate-enter { animation: hotToastEnter .28s cubic-bezier(.21,1.02,.73,1) both; }
+.animate-leave { animation: hotToastLeave .22s ease-in forwards; }

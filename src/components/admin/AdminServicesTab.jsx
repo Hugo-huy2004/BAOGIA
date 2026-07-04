@@ -106,7 +106,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     setPayosLoading(true);
     const numericAmount = Number(payosForm.amount);
     if (!numericAmount || numericAmount < 2000) {
-      toast.error('Số tiền tối thiểu phải là 2.000 đ');
+      notify.error('Số tiền tối thiểu phải là 2.000 đ');
       setPayosLoading(false);
       return;
     }
@@ -127,16 +127,16 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        toast.success(payosUser ? `Đã gửi yêu cầu thanh toán đến ${payosUser.displayName}!` : 'Tạo link thành công!');
+        notify.success(payosUser ? `Đã gửi yêu cầu thanh toán đến ${payosUser.displayName}!` : 'Tạo link thành công!');
         setPayosForm({ amount: '', reason: generateRandomCode() });
         setDisplayAmount('');
         setPayosUser(null);
         fetchLinks();
       } else {
-        toast.error(data.error || 'Lỗi khi tạo link');
+        notify.error(data.error || 'Lỗi khi tạo link');
       }
     } catch (err) {
-      toast.error('Lỗi kết nối server');
+      notify.error('Lỗi kết nối server');
     } finally {
       setPayosLoading(false);
     }
@@ -145,24 +145,24 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
   const copyToClipboard = (text, type = 'link') => {
     const url = type === 'link' ? `${window.location.origin}/pay/${text}` : text;
     navigator.clipboard.writeText(url);
-    toast.success('Đã copy!');
+    notify.success('Đã copy!');
   };
 
   const handleDeleteLink = async (customLinkId) => {
-    const loadId = toast.loading('Đang xử lý hủy giao dịch...');
+    const loadId = notify.loading('Đang xử lý hủy giao dịch...');
     try {
       const response = await fetch(`${API_BASE_URL}/payos/cancel/${customLinkId}`, {
         method: 'POST', headers: getHeaders(), credentials: 'include'
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        toast.success('Hủy và xóa giao dịch thành công!', { id: loadId });
+        notify.success('Hủy và xóa giao dịch thành công!', { id: loadId });
         fetchLinks();
       } else {
-        toast.error(data.error || 'Lỗi khi hủy giao dịch', { id: loadId });
+        notify.error(data.error || 'Lỗi khi hủy giao dịch', { id: loadId });
       }
     } catch (err) {
-      toast.error('Lỗi kết nối khi hủy giao dịch', { id: loadId });
+      notify.error('Lỗi kết nối khi hủy giao dịch', { id: loadId });
     }
   };
 
@@ -174,7 +174,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     try {
       if (joyMode === 'direct') {
         if (!joyUser) {
-          toast.error('Vui lòng chọn người dùng để nạp trực tiếp');
+          notify.error('Vui lòng chọn người dùng để nạp trực tiếp');
           setCreatingJoy(false);
           return;
         }
@@ -186,7 +186,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         });
         const data = await r.json();
         if (!r.ok) throw new Error(data.error || 'Lỗi nạp điểm');
-        toast.success(`Đã nạp ${joyForm.amount} JOY cho ${joyUser.displayName}`);
+        notify.success(`Đã nạp ${joyForm.amount} JOY cho ${joyUser.displayName}`);
         setJoyUser(null);
         setJoyForm({ amount: '', note: '', count: 1 });
       } else {
@@ -199,11 +199,11 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         const data = await r.json();
         if (!r.ok) throw new Error(data.error || 'Lỗi tạo mã');
         setCards(prev => [...data, ...prev]);
-        toast.success(`Đã tạo thành công ${data.length} mã JOY`);
+        notify.success(`Đã tạo thành công ${data.length} mã JOY`);
         setJoyForm({ amount: '', note: '', count: 1 });
       }
     } catch (err) {
-      toast.error(err.message);
+      notify.error(err.message);
     } finally {
       setCreatingJoy(false);
     }
@@ -228,9 +228,9 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
           });
           const data = await r.json();
           if (!r.ok) throw new Error(data.error || 'Lỗi thu hồi JOY');
-          toast.success(`Đã thu hồi toàn bộ JOY của ${joyUser.displayName} về 0`);
+          notify.success(`Đã thu hồi toàn bộ JOY của ${joyUser.displayName} về 0`);
         } catch (err) {
-          toast.error(err.message);
+          notify.error(err.message);
         } finally {
           setResettingJoy(false);
         }
@@ -244,15 +244,15 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'Lỗi xoá mã');
       setCards(prev => prev.filter(c => c._id !== id));
-      toast.success('Đã xoá mã JOY');
+      notify.success('Đã xoá mã JOY');
     } catch (err) {
-      toast.error(err.message);
+      notify.error(err.message);
     }
   }
 
   const handleCreatePackage = async (e) => {
     e.preventDefault();
-    if (!newPkg.name || !newPkg.duration) return toast.error("Vui lòng nhập tên và thời hạn");
+    if (!newPkg.name || !newPkg.duration) return notify.error("Vui lòng nhập tên và thời hạn");
     try {
       await packageApi.createPackage({
         name: newPkg.name,
@@ -260,27 +260,27 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         durationUnit: newPkg.durationUnit,
         benefits: newPkg.benefits.split("\n").map(b => b.trim()).filter(Boolean)
       });
-      toast.success("Tạo gói thành công");
+      notify.success("Tạo gói thành công");
       setNewPkg({ name: "", duration: "", durationUnit: "months", benefits: "" });
       fetchPackageTemplates();
-    } catch (e) { toast.error(e.message || "Lỗi tạo gói"); }
+    } catch (e) { notify.error(e.message || "Lỗi tạo gói"); }
   };
 
   const handleDeletePackageTemplate = async (id) => {
     if(!triggerConfirm) {
       try {
         await packageApi.deletePackage(id);
-        toast.success("Đã xoá gói");
+        notify.success("Đã xoá gói");
         fetchPackageTemplates();
-      } catch (err) { toast.error("Lỗi xoá gói"); }
+      } catch (err) { notify.error("Lỗi xoá gói"); }
       return;
     }
     triggerConfirm("Bạn chắc chắn muốn xoá gói này?", async () => {
       try {
         await packageApi.deletePackage(id);
-        toast.success("Đã xoá gói");
+        notify.success("Đã xoá gói");
         fetchPackageTemplates();
-      } catch (err) { toast.error("Lỗi xoá gói"); }
+      } catch (err) { notify.error("Lỗi xoá gói"); }
     });
   };
 
@@ -288,39 +288,39 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     if(!triggerConfirm) {
       try {
         const data = await packageApi.regenerateCode(packageId);
-        toast.success("Tạo mã mới thành công");
+        notify.success("Tạo mã mới thành công");
         setPackageTemplates(prev => prev.map(pkg => pkg._id === packageId ? data.package : pkg));
-      } catch (err) { toast.error("Lỗi tạo mã"); }
+      } catch (err) { notify.error("Lỗi tạo mã"); }
       return;
     }
     triggerConfirm("Tạo lại mã Gift Code?", async () => {
       try {
         const data = await packageApi.regenerateCode(packageId);
-        toast.success("Tạo mã mới thành công");
+        notify.success("Tạo mã mới thành công");
         setPackageTemplates(prev => prev.map(pkg => pkg._id === packageId ? data.package : pkg));
-      } catch (err) { toast.error("Lỗi tạo mã"); }
+      } catch (err) { notify.error("Lỗi tạo mã"); }
     });
   };
 
   const handleAssignPackageToUser = async (e) => {
     e.preventDefault();
-    if (!assignUser || !assignForm.packageId) return toast.error("Vui lòng chọn người dùng và gói cước");
+    if (!assignUser || !assignForm.packageId) return notify.error("Vui lòng chọn người dùng và gói cước");
     try {
       await packageApi.assignToUser({ email: assignUser.email, packageId: assignForm.packageId, customDuration: assignForm.customDuration });
-      toast.success(`Đã cấp gói cho ${assignUser.email}`);
+      notify.success(`Đã cấp gói cho ${assignUser.email}`);
       setAssignForm({ packageId: "", customDuration: "" });
       setAssignUser(null);
-    } catch (e) { toast.error(e.message || "Lỗi cấp gói"); }
+    } catch (e) { notify.error(e.message || "Lỗi cấp gói"); }
   };
 
   const handleSearchUserPackages = async (emailToSearch) => {
     const email = emailToSearch || memberPkgSearchEmail;
-    if (!email) return toast.error("Nhập email cần tìm");
+    if (!email) return notify.error("Nhập email cần tìm");
     try {
       const data = await userApi.getBioByEmail(email);
       if (data && data.bio) setSearchedMemberBio(data.bio);
-      else toast.error("Không tìm thấy");
-    } catch (err) { toast.error("Lỗi tìm kiếm"); }
+      else notify.error("Không tìm thấy");
+    } catch (err) { notify.error("Lỗi tìm kiếm"); }
   };
 
   const formatExpiration = (expiresAt) => {
