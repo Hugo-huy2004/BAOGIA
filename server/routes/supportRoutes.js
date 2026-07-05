@@ -1,5 +1,6 @@
 import express from 'express';
 import SupportTicket from '../models/SupportTicket.js';
+import { generateRaw as aiGenerateRaw } from '../services/aiGateway.js';
 
 const router = express.Router();
 
@@ -150,29 +151,12 @@ router.post('/chat', async (req, res) => {
         parts: [{ text: message }]
       });
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents,
-            systemInstruction: {
-              parts: [{ text: SYSTEM_INSTRUCTION }]
-            }
-          })
-        }
-      );
+      const botText = await aiGenerateRaw({
+        contents,
+        systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+      });
+      if (botText == null) throw new Error('Gemini unavailable (no key / quota / error)');
 
-      if (!response.ok) {
-        throw new Error(`Gemini API returned status ${response.status}`);
-      }
-
-      const data = await response.json();
-      const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      
       return res.json({ reply: botText.trim() });
     } catch (err) {
       console.error('Error calling Gemini API, falling back to local FAQ engine:', err);

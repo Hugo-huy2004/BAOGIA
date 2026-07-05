@@ -207,6 +207,27 @@ router.get('/users/search', requireAdmin, async (req, res) => {
 import CommunityMessage from '../models/CommunityMessage.js';
 import InAppNotification from '../models/InAppNotification.js';
 import { sendPushNotification } from '../utils/pushNotifier.js';
+import { getQuotaStatus } from '../services/aiGateway.js';
+import { setBotEnabled, isBotEnabled } from '../utils/communityBot.js';
+
+// GET /admin/ai-status - Gemini quota/health + auto-poster switch (the "đèn cảnh báo").
+router.get('/ai-status', requireAdmin, async (req, res) => {
+  try {
+    res.json({ success: true, quota: getQuotaStatus(), botEnabled: isBotEnabled() });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /admin/community-bot { enabled: bool } - runtime kill-switch for the bot.
+router.post('/community-bot', requireAdmin, async (req, res) => {
+  try {
+    setBotEnabled(!!req.body?.enabled);
+    res.json({ success: true, botEnabled: isBotEnabled() });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 const ADMIN_POST_EMAIL = process.env.ADMIN_BOT_EMAIL || 'huylggcs230377@fpt.edu.vn';
 

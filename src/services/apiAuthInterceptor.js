@@ -17,12 +17,27 @@ const API_PREFIXES = (() => {
 
 const isApiRequest = (url) => API_PREFIXES.some((p) => url.startsWith(p));
 
+const shouldBypassInterception = (url) => {
+  if (!url || typeof url !== "string") return false;
+  if (url.startsWith("/")) return false;
+  if (/^(chrome-extension|moz-extension|safari-extension|edge-extension|data|blob|file):/i.test(url)) {
+    return true;
+  }
+  if (/^[a-z][a-z\d+.-]*:/i.test(url) && !/^https?:/i.test(url)) {
+    return true;
+  }
+  return false;
+};
+
 export function installApiAuthInterceptor() {
   const originalFetch = window.fetch.bind(window);
 
   window.fetch = (input, init = {}) => {
     const startedAt = performance.now();
     const url = typeof input === "string" ? input : input?.url || "";
+    if (shouldBypassInterception(url)) {
+      return originalFetch(input, init);
+    }
     const method = (init.method || (typeof input !== "string" ? input.method : "") || "GET").toUpperCase();
     const shouldTrack = isApiRequest(url) && !url.includes("/api/ops/client-event");
 

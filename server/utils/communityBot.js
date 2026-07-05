@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import CommunityMessage from '../models/CommunityMessage.js';
 import { getPopularTopics } from '../services/userUnderstanding.js';
+import { generate, getQuotaStatus } from '../services/aiGateway.js';
 
 // Bot topic labels aligned to the community's aggregate interest topics, so the
 // auto-poster leans toward what the majority actually engages with.
@@ -61,27 +62,10 @@ const SURVEY_THEMES = [
 ];
 
 async function callGemini(prompt) {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) return null;
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] }),
-      }
-    );
-    if (!res.ok) throw new Error('gemini ' + res.status);
-    const data = await res.json();
-    return (data.candidates?.[0]?.content?.parts?.[0]?.text || '')
-      .replace(/```/g, '')
-      .replace(/^["'#\s]+|["'\s]+$/g, '')
-      .trim();
-  } catch (e) {
-    console.error('[CommunityBot] gemini failed:', e.message);
-    return null;
-  }
+  // Routed through the central AI Gateway (quota, cache, retry, downgrade).
+  const raw = await generate(prompt, { model: MODEL, temperature: 1 });
+  if (!raw) return null;
+  return raw.replace(/```/g, '').replace(/^["'#\s]+|["'\s]+$/g, '').trim();
 }
 
 // Realistic modern Vietnamese names + Gen Z nicknames for the "làm quen" bot
@@ -168,9 +152,19 @@ async function generateBotPost() {
   return true;
 }
 
+// Runtime on/off switch (admin dashboard can flip it without a redeploy).
+let botEnabled = process.env.COMMUNITY_BOT_ENABLED !== 'false';
+export function setBotEnabled(v) { botEnabled = !!v; }
+export function isBotEnabled() { return botEnabled; }
+
 async function tick() {
   try {
-    if (!process.env.GEMINI_API_KEY) return;
+    if (!process.env.GEMINI_API_KEY || !botEnabled) return;
+    // Don't compete with real users for scarce quota — pause when AI is hot.
+    if (!getQuotaStatus().healthy) {
+      console.log('[CommunityBot] skipped tick — AI quota not healthy.');
+      return;
+    }
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     const todayCount = await CommunityMessage.countDocuments({ isBot: true, createdAt: { $gte: startOfDay } });

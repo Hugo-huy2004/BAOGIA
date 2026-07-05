@@ -1,5 +1,6 @@
 import express from 'express';
 import Data from '../models/Data.js';
+import { generateRaw as aiGenerateRaw } from '../services/aiGateway.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 import webpush from 'web-push';
@@ -495,36 +496,17 @@ router.post('/psychology-chat', async (req, res) => {
           parts: [{ text: message }]
         });
 
-        // Call Gemini 3.5 Flash
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              contents,
-              systemInstruction: {
-                parts: [{ text: PSYCHOLOGY_SYSTEM_INSTRUCTION }]
-              },
-              generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 800
-              }
-            })
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          if (botText.trim()) {
-            return res.json({ reply: botText.trim() });
-          }
+        // Route through the central AI Gateway (quota / cache / retry / downgrade)
+        const botText = await aiGenerateRaw({
+          contents,
+          systemInstruction: { parts: [{ text: PSYCHOLOGY_SYSTEM_INSTRUCTION }] },
+          generationConfig: { temperature: 0.7, maxOutputTokens: 800 },
+        });
+        if (botText && botText.trim()) {
+          return res.json({ reply: botText.trim() });
         }
-        
-        console.warn('Gemini API call was not ok or returned empty, falling back to rule-based engine');
+
+        console.warn('Gemini returned empty/unavailable, falling back to rule-based engine');
       } catch (geminiErr) {
         console.error('Error calling Gemini API for psychology chat:', geminiErr);
       }

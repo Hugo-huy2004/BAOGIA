@@ -11,6 +11,7 @@ import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
 import { isEduEmail } from '../utils/eduEmail.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 import { embedText, cosine } from '../services/embeddingService.js';
+import { generate as aiGenerate } from '../services/aiGateway.js';
 import { recordSignal, getTopInterests, getPeakHour, getInterestEmbedding, refreshInterestEmbedding } from '../services/userUnderstanding.js';
 import { checkAndResetDecoRoom, updateTrashAndPetStatus } from '../utils/decoHelper.js';
 import { awardJoy } from '../utils/joyService.js';
@@ -1075,19 +1076,8 @@ Bài viết: "${text.replace(/"/g, '\\"')}"
 
 LƯU Ý: Chỉ trả về JSON thô, không markdown, không giải thích thêm.`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODERATION_MODEL}:generateContent?key=${geminiApiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
-      }
-    );
-
-    if (!response.ok) throw new Error(`Gemini status ${response.status}`);
-
-    const data = await response.json();
-    const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const botText = await aiGenerate(prompt, { model: MODERATION_MODEL });
+    if (!botText) return heuristicAudit(text);
     const cleanJson = botText.replace(/```json/gi, '').replace(/```/g, '').trim();
     const parsed = JSON.parse(cleanJson);
 

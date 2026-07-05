@@ -240,6 +240,13 @@ import { initChessWS } from './services/chessWS.js';
 import { initCronJobs } from './utils/cronJobs.js';
 import { initCommunityBot } from './utils/communityBot.js';
 import { initKeepAlive } from './utils/keepAlive.js';
+import { sendAlert } from './utils/alert.js';
+
+// Safety net: a stray promise rejection (e.g. a background fire-and-forget task)
+// must not crash the whole server — log + alert instead.
+process.on('unhandledRejection', (reason) => {
+  sendAlert('unhandledRejection', { reason: String(reason?.stack || reason?.message || reason).slice(0, 500) });
+});
 
 // Create HTTP server so WebSocket can share the same port
 const server = http.createServer(app);

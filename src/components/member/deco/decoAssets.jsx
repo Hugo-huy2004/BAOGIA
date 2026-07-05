@@ -6,6 +6,8 @@ import React from "react";
 
 const DESK_SURFACE_FRAC = 0.34;
 
+const API = import.meta.env.VITE_API_URL || '/api';
+
 const g = (id, stops) => (
   <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
     {stops.map(([o, c], i) => <stop key={i} offset={o} stopColor={c} />)}
@@ -1092,7 +1094,7 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
     const intervalId = setInterval(playSweepSound, 400);
 
     try {
-      const res = await fetch('/api/deco/clean', {
+      const res = await fetch(`${API}/deco/clean`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
