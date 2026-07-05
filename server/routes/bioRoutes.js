@@ -1055,8 +1055,7 @@ function heuristicAudit(text) {
     sentiment: 'tích cực',
     category: hasQuestion ? 'câu hỏi' : 'chia sẻ',
     status: 'approved',
-    rejectReason: '',
-    glossary: []
+    rejectReason: ''
   };
 }
 
@@ -1065,13 +1064,12 @@ async function auditContent(text) {
   if (!geminiApiKey) return heuristicAudit(text);
 
   try {
-    const prompt = `Bạn là hệ thống kiểm duyệt, phân loại và chú giải nội dung tự động cho mạng xã hội học sinh - sinh viên (HSSV).
+    const prompt = `Bạn là hệ thống kiểm duyệt và phân loại nội dung tự động cho mạng xã hội học sinh - sinh viên (HSSV).
 Phân tích bài viết và trả về DUY NHẤT một chuỗi JSON hợp lệ với các trường:
 - "sentiment": "tích cực" hoặc "tiêu cực".
 - "category": "câu hỏi" nếu bài viết đang hỏi/nhờ giải đáp; "chia sẻ" nếu đang chia sẻ thông tin/kinh nghiệm.
 - "status": "approved" hoặc "rejected". Trả "rejected" nếu: chứa từ ngữ tục tĩu, quấy rối, kích động thù địch, vi phạm pháp luật; HOẶC ngôn ngữ KHÔNG phải tiếng Việt và cũng KHÔNG phải tiếng Anh (chỉ chấp nhận VI/EN).
 - "rejectReason": nếu rejected, giải thích ngắn gọn lý do (tiếng Việt); nếu approved để chuỗi rỗng "".
-- "glossary": MẢNG các thuật ngữ chuyên ngành/từ khó trong bài mà HSSV có thể chưa hiểu, mỗi phần tử là { "term": "<thuật ngữ>", "definition": "<giải thích ngắn gọn, dễ hiểu>" }. Giải thích bằng ĐÚNG ngôn ngữ của bài viết (Việt hoặc Anh). Nếu không có thuật ngữ nào, trả về mảng rỗng []. Tối đa 5 thuật ngữ.
 
 Bài viết: "${text.replace(/"/g, '\\"')}"
 
@@ -1093,19 +1091,11 @@ LƯU Ý: Chỉ trả về JSON thô, không markdown, không giải thích thêm
     const cleanJson = botText.replace(/```json/gi, '').replace(/```/g, '').trim();
     const parsed = JSON.parse(cleanJson);
 
-    const glossary = Array.isArray(parsed.glossary)
-      ? parsed.glossary
-          .filter(g => g && g.term && g.definition)
-          .slice(0, 5)
-          .map(g => ({ term: String(g.term).slice(0, 120), definition: String(g.definition).slice(0, 400) }))
-      : [];
-
     return {
       sentiment: parsed.sentiment === 'tiêu cực' ? 'tiêu cực' : 'tích cực',
       category: parsed.category === 'câu hỏi' ? 'câu hỏi' : 'chia sẻ',
       status: parsed.status === 'rejected' ? 'rejected' : 'approved',
-      rejectReason: parsed.status === 'rejected' ? String(parsed.rejectReason || 'Nội dung không phù hợp').slice(0, 300) : '',
-      glossary
+      rejectReason: parsed.status === 'rejected' ? String(parsed.rejectReason || 'Nội dung không phù hợp').slice(0, 300) : ''
     };
   } catch (err) {
     console.error('[Gemini Audit] Failed:', err);
@@ -1135,7 +1125,6 @@ async function moderateOnePost(postId) {
 
   post.sentiment = audit.sentiment;
   post.category = audit.category;      // AI decides the tag, not the author
-  post.glossary = audit.glossary || [];
   post.status = 'approved';
   post.rejectReason = '';
   post.moderatedAt = new Date();
@@ -1220,6 +1209,17 @@ async function broadcastCommunityPush(post) {
   }
 })();
 
+// Hugo Studio accent palette for the anonymous avatar disc (picked at post time).
+const ANON_COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6'];
+
+// Anonymous posts keep the real senderEmail in the DB (ownership checks) but it
+// must never reach other readers' clients.
+const maskAnonPost = (doc, viewerEmail) => {
+  const p = typeof doc.toObject === 'function' ? doc.toObject() : doc;
+  if (p.anonymous && p.senderEmail !== viewerEmail) p.senderEmail = 'anon';
+  return p;
+};
+
 // GET /community/chat - Fetch approved posts (and current user's pending/rejected ones)
 // ?rank=smart → personalise order by the requester's interest embedding.
 router.get('/community/chat', requireMember, async (req, res) => {
@@ -1231,7 +1231,7 @@ router.get('/community/chat', requireMember, async (req, res) => {
 
     if (!smart) {
       const messages = await CommunityMessage.find(query).sort({ createdAt: -1 }).limit(300);
-      return res.json({ success: true, messages });
+      return res.json({ success: true, messages: messages.map((m) => maskAnonPost(m, email)) });
     }
 
     // Smart ranking: blend semantic relevance (cosine to interest vector) with
@@ -1257,7 +1257,7 @@ router.get('/community/chat', requireMember, async (req, res) => {
       docs.sort((a, b) => (b._score || 0) - (a._score || 0));
     }
     // Never ship the big vectors / internal score to the client.
-    for (const d of docs) { delete d.embedding; delete d._score; }
+    for (const d of docs) { delete d.embedding; delete d._score; maskAnonPost(d, email); }
 
     res.json({ success: true, messages: docs, personalized: !!interestVec });
   } catch (error) {
@@ -1284,7 +1284,7 @@ router.get('/community/search', requireMember, async (req, res) => {
       hit.length && (docs.length = 0, docs.push(...hit));
     }
     const top = docs.slice(0, 40);
-    for (const d of top) { delete d.embedding; delete d._score; }
+    for (const d of top) { delete d.embedding; delete d._score; maskAnonPost(d, req.memberEmail); }
     res.json({ success: true, messages: top, semantic: !!qVec });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1306,7 +1306,7 @@ router.get('/community/insights', requireMember, async (req, res) => {
 router.post('/community/chat', requireMember, async (req, res) => {
   try {
     const email = req.memberEmail;
-    const { message, lat, lng } = req.body;
+    const { message, lat, lng, anonymous } = req.body;
 
     if (!message || !message.trim()) {
       return res.status(400).json({ error: 'Nội dung bài viết không được trống' });
@@ -1327,15 +1327,22 @@ router.post('/community/chat', requireMember, async (req, res) => {
       return res.status(404).json({ error: 'Bio not found' });
     }
 
+    // Anonymous posting is a paid option: fail fast before saving anything.
+    if (anonymous && (bio.joyBalance || 0) < 20) {
+      return res.status(400).json({ error: `Bạn cần 20 JOY để đăng bài ẩn danh (hiện có ${bio.joyBalance || 0} JOY).` });
+    }
+
     // Create the post as 'pending' and hand it to the sequential AI queue.
-    // Tag/sentiment/glossary are filled in by the queue on approval; the author
-    // does not choose the tag. The response returns immediately so the client
-    // can show a "đang xét duyệt" state without waiting on the AI call.
+    // Tag/sentiment are filled in by the queue on approval; the author does not
+    // choose the tag. The response returns immediately so the client can show
+    // a "đang xét duyệt" state without waiting on the AI call.
     const newMsg = new CommunityMessage({
       senderEmail: email,
-      senderName: bio.displayName || email.split('@')[0],
-      senderAvatar: bio.avatarUrl || '',
-      senderSlug: bio.slug || '',
+      senderName: anonymous ? 'Người ẩn danh' : (bio.displayName || email.split('@')[0]),
+      senderAvatar: anonymous ? '' : (bio.avatarUrl || ''),
+      senderSlug: anonymous ? '' : (bio.slug || ''),
+      anonymous: !!anonymous,
+      anonColor: anonymous ? ANON_COLORS[Math.floor(Math.random() * ANON_COLORS.length)] : '',
       message: message.trim(),
       location: { lat, lng },
       status: 'pending',
@@ -1343,9 +1350,31 @@ router.post('/community/chat', requireMember, async (req, res) => {
     });
 
     await newMsg.save();
+
+    // Charge AFTER the post exists so the ledger receipt can reference it
+    // (refId = post id → a proper invoice row in the JOY history). If the
+    // charge fails the post is rolled back — never post anonymously for free.
+    let joyBalance;
+    if (anonymous) {
+      try {
+        const receipt = await awardJoy(email, -20, 'community_anon_post', 'Đăng bài ẩn danh trên cộng đồng (-20 JOY)', {
+          refId: String(newMsg._id),
+          notificationTitle: 'Hóa đơn: Đăng bài ẩn danh',
+          notificationMessage: `Đã trừ 20 JOY cho bài đăng ẩn danh #${String(newMsg._id).slice(-6).toUpperCase()}.`
+        });
+        joyBalance = receipt.balance;
+      } catch (err) {
+        await CommunityMessage.deleteOne({ _id: newMsg._id });
+        if (err.message === 'INSUFFICIENT_JOY') {
+          return res.status(400).json({ error: 'Bạn cần 20 JOY để đăng bài ẩn danh.' });
+        }
+        throw err;
+      }
+    }
+
     enqueueModeration(newMsg._id);
 
-    res.json({ success: true, message: newMsg });
+    res.json({ success: true, message: newMsg, ...(anonymous ? { joyCharged: 20, joyBalance } : {}) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1377,10 +1406,13 @@ router.put('/community/chat/:id', requireMember, async (req, res) => {
     }
 
     // Edits are re-moderated through the same queue: reset to pending, then
-    // the AI re-checks language, re-tags and rebuilds the glossary.
+    // the AI re-checks language and re-tags. The cached on-demand glossary is
+    // invalidated because the content changed.
     post.message = message.trim();
     post.status = 'pending';
     post.rejectReason = '';
+    post.glossary = [];
+    post.glossaryAt = null;
     post.updatedAt = new Date();
 
     await post.save();
@@ -1435,6 +1467,60 @@ router.post('/community/chat/:id/resolve', requireMember, async (req, res) => {
     await post.save();
 
     res.json({ success: true, resolved: post.resolved });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /community/chat/:id/glossary - Build the term glossary on demand.
+// Generated once per post (cached via glossaryAt) and only when a reader asks,
+// so we never spend tokens explaining posts nobody needs explained.
+router.post('/community/chat/:id/glossary', requireMember, async (req, res) => {
+  try {
+    const post = await CommunityMessage.findById(req.params.id);
+    if (!post || post.status !== 'approved') {
+      return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    }
+    if (post.glossaryAt) {
+      return res.json({ success: true, glossary: post.glossary });
+    }
+
+    let glossary = [];
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (geminiApiKey) {
+      try {
+        const prompt = `Tìm TỐI ĐA 3 thuật ngữ HỌC THUẬT / chuyên ngành thật sự khó trong bài viết dưới đây mà học sinh - sinh viên có thể chưa hiểu. BỎ QUA từ viết tắt thông dụng, teencode, tiếng lóng, tên riêng phổ biến — chỉ giữ thuật ngữ học thuật. Trả về DUY NHẤT JSON dạng [{"term":"...","definition":"..."}], mỗi định nghĩa đúng 1 câu ngắn gọn, cùng ngôn ngữ với bài viết. Nếu không có thuật ngữ nào, trả về [].
+
+Bài viết: "${post.message.replace(/"/g, '\\"')}"`;
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${MODERATION_MODEL}:generateContent?key=${geminiApiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          const raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            glossary = parsed
+              .filter(g => g && g.term && g.definition)
+              .slice(0, 3)
+              .map(g => ({ term: String(g.term).slice(0, 120), definition: String(g.definition).slice(0, 300) }));
+          }
+        }
+      } catch (err) {
+        console.error('[Glossary] generation failed:', err.message);
+      }
+    }
+
+    post.glossary = glossary;
+    post.glossaryAt = new Date();
+    await post.save();
+
+    res.json({ success: true, glossary });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -84,6 +84,19 @@ async function callGemini(prompt) {
   }
 }
 
+// Realistic modern Vietnamese names + Gen Z nicknames for the "làm quen" bot
+// persona, so the character reads like a real 2k*-gen student, not an AI.
+const DATING_NAMES = ['Gia Bảo', 'Minh Khang', 'Nhật Minh', 'Đức Anh', 'Hoàng Phúc', 'Quang Huy', 'Hải Đăng', 'Tuấn Kiệt', 'Khánh Vy', 'Bảo Ngọc', 'Gia Hân', 'Tuệ Nhi', 'Thảo Vy', 'Phương Anh', 'Thiên An', 'Trúc Linh'];
+const DATING_NICKS = ['Bin', 'Su', 'Na', 'Sam', 'Ken', 'Mèo', 'Bơ', 'Tôm', 'Miu', 'Đậu', 'Xu', 'Sóc', 'Cam', 'Nấm', 'Jerry', 'Bư'];
+// Real community identity slang (how people actually self-describe in feeds).
+const DATING_IDENTITIES = ['top', 'bot', 'cent', 'les', 'les fem', 'les sb', 'gay', 'bi', 'nam thẳng', 'nữ thẳng'];
+// Interests that actually match the 2k10-and-later crowd.
+const GENZ_INTERESTS = 'Liên Quân, Free Fire, Roblox, Genshin, TikTok, edit CapCut, nghe tlinh / HIEUTHUHAI / Wren Evans, cày phim, anime, sưu tầm blindbox / Labubu, pickleball, cầu lông, chụp ảnh gu, Discord';
+
+// Shared voice guide — appended to every anonymous prompt. Short, dry, modern;
+// the old bot read "sến" (cheesy) so this deliberately caps emotion & length.
+const GENZ_STYLE = ` Văn phong: Gen Z đời 2k10 nhắn tin thật — câu NGẮN, tự nhiên, hơi lười viết hoa cũng được, chêm nhẹ teencode khi hợp ("ib", "khum", "hong", "z", "vv", "real"). TUYỆT ĐỐI không sến, không "các bạn ơi", không giọng văn mẫu; hạn chế dấu chấm than và từ cảm thán; tối đa 1 emoji hoặc không dùng. Được phép xuống dòng giữa các ý cho dễ đọc.`;
+
 async function generateBotPost() {
   const r = Math.random();
   // 12% admin · 15% làm quen/hẹn hò · 20% khảo sát · 53% chủ đề — xen kẽ cho đa dạng.
@@ -94,19 +107,21 @@ async function generateBotPost() {
     category = 'chia sẻ';
     senderName = 'Hugo Studio';
     senderEmail = ADMIN_EMAIL;
-    prompt = `Bạn là Hugo Studio — nền tảng cộng đồng dành cho học sinh, sinh viên. Viết MỘT bài đăng NGẮN (2-3 câu, tiếng Việt, thân thiện, mời gọi) giới thiệu ngẫu nhiên MỘT tính năng của nền tảng (chọn 1: thưởng JOY khi tương tác, trợ lý tâm lý HugoPSY, trang trí Deco Studio, trang Bio cá nhân, tiện ích HugoCoder/HugoRadio/HugoArcade, cộng đồng HugoCommunication). Chỉ trả về nội dung bài viết, không tiêu đề, không markdown, không hashtag.`;
+    prompt = `Bạn là Hugo Studio — nền tảng cộng đồng dành cho học sinh, sinh viên. Viết MỘT bài đăng NGẮN (tối đa 2 câu, tiếng Việt, tự nhiên, không sáo rỗng) giới thiệu ngẫu nhiên MỘT tính năng của nền tảng (chọn 1: thưởng JOY khi tương tác, trợ lý tâm lý HugoPSY, trang trí Deco Studio, trang Bio cá nhân, tiện ích HugoCoder/HugoRadio/HugoArcade, cộng đồng HugoCommunication). Hạn chế dấu chấm than, tối đa 1 emoji. Chỉ trả về nội dung bài viết, không tiêu đề, không markdown, không hashtag.`;
   } else if (mode === 'dating') {
-    const lgbt = Math.random() < 0.6; // 60% LGBT+ · 40% khác giới
+    const name = DATING_NAMES[Math.floor(Math.random() * DATING_NAMES.length)];
+    const nick = DATING_NICKS[Math.floor(Math.random() * DATING_NICKS.length)];
+    const identity = DATING_IDENTITIES[Math.floor(Math.random() * DATING_IDENTITIES.length)];
     category = 'chia sẻ';
     senderName = 'Người ẩn danh';
     senderEmail = ANON_EMAIL;
-    prompt = `Bạn là một bạn sinh viên (18-24 tuổi) vui vẻ, dễ thương trên mạng xã hội sinh viên. Viết MỘT bài tự giới thiệu NGẮN để LÀM QUEN / KẾT BẠN (3-5 câu, tiếng Việt, phong cách gen Z thân thiện, có thể mở đầu kiểu "Chào mọi người, tớ là ..."). ${lgbt ? 'Nhân vật thuộc cộng đồng LGBT+ và muốn tìm người hợp gu để trò chuyện, hẹn hò lành mạnh.' : 'Nhân vật muốn tìm một người bạn khác giới hợp gu để trò chuyện, hẹn hò lành mạnh.'} Hãy đặt một tên gọi dễ thương, nêu vài sở thích và kiểu người muốn làm quen. YÊU CẦU BẮT BUỘC: nội dung TRONG SÁNG, lịch sự, KHÔNG gợi dục / khiêu gợi / thô tục, nhân vật phải TỪ 18 TUỔI trở lên (tuyệt đối không nhắc tuổi vị thành niên). Chỉ trả về nội dung bài viết, không tiêu đề, không markdown, không hashtag.`;
+    prompt = `Bạn là một bạn trẻ 18-22 tuổi đăng bài LÀM QUEN trên feed cộng đồng học sinh - sinh viên. Viết MỘT bài tự giới thiệu NGẮN (2-4 câu ngắn, tiếng Việt) theo đúng kiểu bài "tìm ny/tìm bạn" thật trên mạng hiện nay. Thông tin nhân vật: tên ${name}, biệt danh ${nick}, tự nhận là "${identity}" (dùng đúng từ này một cách tự nhiên như cách cộng đồng vẫn viết, KHÔNG dùng chữ "LGBT"). Nêu 2-3 sở thích chọn từ: ${GENZ_INTERESTS}. Nói ngắn gọn kiểu người muốn làm quen, kết bằng "ib mình nhé" hoặc tương tự. YÊU CẦU BẮT BUỘC: nội dung TRONG SÁNG, lịch sự, KHÔNG gợi dục / khiêu gợi / thô tục, nhân vật TỪ 18 TUỔI trở lên. Chỉ trả về nội dung bài viết, không tiêu đề, không markdown, không hashtag.`;
   } else if (mode === 'survey') {
     const theme = SURVEY_THEMES[Math.floor(Math.random() * SURVEY_THEMES.length)];
     category = 'câu hỏi';
     senderName = 'Người ẩn danh';
     senderEmail = ANON_EMAIL;
-    prompt = `Bạn là một người dùng ẩn danh vui vẻ trên mạng xã hội sinh viên. Viết MỘT bài khảo sát NGẮN (1-2 câu, tiếng Việt, vui, thân thiện) hỏi cộng đồng về: ${theme}. Mời mọi người bình luận lựa chọn của họ và lý do. Chỉ trả về nội dung bài viết, không tiêu đề, không markdown, không hashtag.`;
+    prompt = `Bạn là một người dùng ẩn danh trên mạng xã hội học sinh - sinh viên. Viết MỘT bài khảo sát RẤT NGẮN (1-2 câu, tiếng Việt) hỏi cộng đồng về: ${theme}. Hỏi thẳng, tự nhiên như hỏi bạn bè, mời mọi người rep lựa chọn của họ. Chỉ trả về nội dung bài viết, không tiêu đề, không markdown, không hashtag.`;
   } else {
     // Learning loop: 55% of the time steer toward the community's popular topics.
     let t = null;
@@ -119,23 +134,27 @@ async function generateBotPost() {
     category = t.category;
     senderName = 'Người ẩn danh';
     senderEmail = ANON_EMAIL;
-    prompt = `Bạn là một người dùng ẩn danh thân thiện trên mạng xã hội sinh viên. Viết MỘT bài đăng NGẮN (2-4 câu, tiếng Việt, tích cực, dễ hiểu, có thể hài hước, tuyệt đối không tục tĩu / sai lệch / chính trị nhạy cảm) về: ${t.label}.${t.category === 'câu hỏi' ? ' Kết thúc bằng một câu hỏi mở mời mọi người trả lời.' : ''} Chỉ trả về nội dung bài viết, không tiêu đề, không markdown, không hashtag.`;
+    prompt = `Bạn là một người dùng ẩn danh trên mạng xã hội học sinh - sinh viên. Viết MỘT bài đăng NGẮN (2-3 câu ngắn, tiếng Việt, dễ hiểu, có thể hài khô, tuyệt đối không tục tĩu / sai lệch / chính trị nhạy cảm) về: ${t.label}.${t.category === 'câu hỏi' ? ' Kết thúc bằng một câu hỏi mở mời mọi người trả lời.' : ''} Chỉ trả về nội dung bài viết, không tiêu đề, không markdown, không hashtag.`;
   }
 
-  // Anonymous (non-Admin) posts get a fun Gen Z / teencode voice.
-  if (senderEmail === ANON_EMAIL) {
-    prompt += ' Viết theo văn phong Gen Z, chèn một chút teencode / tiếng lóng phổ biến cho tự nhiên và vui (ví dụ: "ib", "u là trời", "gét gô", "chằm zn", "khum", "dzậy", "j z tr", "hong"), nhưng vẫn dễ hiểu, không lạm dụng quá đà.';
-  }
+  // Anonymous (non-Admin) posts share the same Gen Z voice guide.
+  if (senderEmail === ANON_EMAIL) prompt += GENZ_STYLE;
 
   const text = await callGemini(prompt);
   if (!text || text.length < 12) return false;
 
   const now = new Date();
+  const isAnon = senderEmail === ANON_EMAIL;
+  // Hugo Studio accents — anonymous posts (bot or human) share the same look,
+  // so bot posts are indistinguishable from real anonymous members.
+  const ANON_COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6'];
   await CommunityMessage.create({
     senderEmail,
     senderName,
     senderAvatar: '',
     senderSlug: '',
+    anonymous: isAnon,
+    anonColor: isAnon ? ANON_COLORS[Math.floor(Math.random() * ANON_COLORS.length)] : '',
     message: text.slice(0, 2000),
     location: { lat: 10.8, lng: 106.6 },
     sentiment: 'tích cực',
@@ -145,7 +164,7 @@ async function generateBotPost() {
     expiresAt: new Date(now.getTime() + EXPIRE_DAYS * 24 * 60 * 60 * 1000),
     createdAt: now,
   });
-  console.log(`[CommunityBot] Posted (${isAdmin ? 'admin' : 'anon'} / ${category}).`);
+  console.log(`[CommunityBot] Posted (${mode} / ${category}).`);
   return true;
 }
 

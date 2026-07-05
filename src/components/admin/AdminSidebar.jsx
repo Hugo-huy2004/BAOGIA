@@ -17,6 +17,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
       title: "Khách Hàng & Liên Hệ",
       items: [
         { id: "users", label: t("adminPanel.sidebar.users", "Thành viên"), icon: "group", count: counts.users },
+        { id: "community", label: "Cộng đồng", icon: "forum" },
         { id: "contactSupport", label: "Liên Hệ & Hỗ Trợ", icon: "support_agent", count: counts.contactSupport, alert: true },
       ]
     },

@@ -32,7 +32,8 @@ const TITLES = {
   deco_tip_received: 'Nhận Tip KTX',
   community_post: 'Đăng bài cộng đồng',
   community_comment: 'Bình luận bài viết',
-  community_like_received: 'Bài viết được thả tim'
+  community_like_received: 'Bài viết được thả tim',
+  community_anon_post: 'Đăng bài ẩn danh'
 };
 
 /**

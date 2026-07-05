@@ -26,8 +26,17 @@ const CommunityMessageSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   rejectReason: { type: String, default: '' },
   // AI-generated glossary explaining jargon/terms found in the post (for HSSV).
+  // Built lazily: only when a reader taps "Giải thích thuật ngữ" (saves tokens).
   glossary: { type: [{ term: String, definition: String }], default: [] },
+  // Set once the on-demand glossary has been generated (even if empty) so we
+  // never pay for the same post twice.
+  glossaryAt: { type: Date },
   moderatedAt: { type: Date },
+  // Author chose to post anonymously (costs JOY). senderEmail stays in the DB
+  // for ownership checks but is masked in feed responses for other readers.
+  anonymous: { type: Boolean, default: false },
+  // Random Hugo Studio accent colour for the anonymous avatar disc.
+  anonColor: { type: String, default: '' },
   // For "câu hỏi" posts: author can flag the thread as answered.
   resolved: { type: Boolean, default: false },
   // AI auto-posted promo/engagement content (posts as "Người ẩn danh" / "Hugo Studio").

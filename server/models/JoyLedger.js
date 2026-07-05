@@ -45,7 +45,11 @@ const JoyLedgerSchema = new mongoose.Schema({
       'deco_rent',
       'deco_visit_sent',
       'deco_visit_received',
-      'deco_clean'
+      'deco_clean',
+      'community_post',
+      'community_comment',
+      'community_like_received',
+      'community_anon_post'
     ],
     required: true
   },

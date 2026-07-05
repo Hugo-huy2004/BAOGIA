@@ -203,4 +203,90 @@ router.get('/users/search', requireAdmin, async (req, res) => {
   }
 });
 
+// ─── Community moderation (admin) ────────────────────────────────────────────
+import CommunityMessage from '../models/CommunityMessage.js';
+import InAppNotification from '../models/InAppNotification.js';
+import { sendPushNotification } from '../utils/pushNotifier.js';
+
+const ADMIN_POST_EMAIL = process.env.ADMIN_BOT_EMAIL || 'huylggcs230377@fpt.edu.vn';
+
+// GET /admin/community/posts - every post, any status. Lean + trimmed fields
+// so the admin feed stays light even with hundreds of posts.
+router.get('/community/posts', requireAdmin, async (req, res) => {
+  try {
+    const posts = await CommunityMessage.find({})
+      .select('-embedding -location')
+      .sort({ createdAt: -1 })
+      .limit(300)
+      .lean();
+    res.json({ success: true, posts });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /admin/community/posts - publish immediately as the verified admin
+// identity (no moderation queue; the admin IS the moderator).
+router.post('/community/posts', requireAdmin, async (req, res) => {
+  try {
+    const message = String(req.body?.message || '').trim();
+    if (!message) return res.status(400).json({ error: 'Nội dung không được trống' });
+    if (message.length > 2000) return res.status(400).json({ error: 'Bài viết quá dài' });
+
+    const post = await CommunityMessage.create({
+      senderEmail: ADMIN_POST_EMAIL,
+      senderName: 'Hugo Studio',
+      senderAvatar: '',
+      senderSlug: '',
+      message,
+      location: { lat: 10.8, lng: 106.6 },
+      sentiment: 'tích cực',
+      category: req.body?.category === 'câu hỏi' ? 'câu hỏi' : 'chia sẻ',
+      status: 'approved',
+      moderatedAt: new Date(),
+      createdAt: new Date()
+    });
+    res.json({ success: true, post });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /admin/community/posts/:id - remove any post; the optional reason is
+// delivered to the author as an in-app notification + web push.
+router.delete('/community/posts/:id', requireAdmin, async (req, res) => {
+  try {
+    const post = await CommunityMessage.findById(req.params.id);
+    if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+
+    const reason = String(req.body?.reason || '').trim().slice(0, 300);
+    await CommunityMessage.deleteOne({ _id: post._id });
+
+    // Notify the author (skip bots — they have no inbox).
+    if (!post.isBot && post.senderEmail) {
+      const preview = (post.message || '').slice(0, 60);
+      const body = reason
+        ? `Bài viết "${preview}..." đã bị quản trị viên gỡ. Lý do: ${reason}`
+        : `Bài viết "${preview}..." đã bị quản trị viên gỡ do không phù hợp tiêu chuẩn cộng đồng.`;
+      try {
+        await InAppNotification.create({
+          email: post.senderEmail,
+          type: 'warning',
+          category: 'system',
+          title: 'Bài viết cộng đồng đã bị gỡ',
+          message: body,
+          actionUrl: '/member/account'
+        });
+        sendPushNotification(post.senderEmail, 'Bài viết cộng đồng đã bị gỡ', body, '/member/account').catch(() => {});
+      } catch (notifyErr) {
+        console.warn('[AdminCommunity] notify failed:', notifyErr.message);
+      }
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

@@ -41,6 +41,14 @@ const COMPLEX_REQUEST_TERMS = [
   "dass", "phq", "gad", "who", "mmpi", "big five", "pdf", "anh", "benh an",
 ];
 
+// Requests/questions must reach the real LLM — a canned empathy line answering
+// "tôi muốn liên kết với chế độ ngủ" is exactly what makes the bot feel dumb.
+const REQUEST_TERMS = [
+  "?", "muon", "lam sao", "the nao", "cach nao", "cach ", "giup", "huong dan",
+  "vi sao", "tai sao", "la gi", "o dau", "lien ket", "che do", "ket noi",
+  "mo ", "bat ", "tat ", "cai dat", "thiet lap", "co the",
+];
+
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -58,10 +66,14 @@ export function shouldUseLocalFirstReply(userText = "") {
   if (!raw) return false;
   const clean = removeVietnameseTones(raw).toLowerCase();
   if (isCrisisText(clean)) return true;
-  if (raw.length > 180) return false;
+  if (raw.length > 120) return false;
   if (COMPLEX_REQUEST_TERMS.some(term => clean.includes(term))) return false;
-  if (LOCAL_FIRST_TERMS.some(term => clean.includes(term))) return true;
-  return raw.length <= 70 && /[.!?…]?$/.test(raw);
+  // Anything phrased as a question or request goes to the real LLM.
+  if (REQUEST_TERMS.some(term => clean.includes(term))) return false;
+  // Only short, plain emotional shares are answered locally. Everything else
+  // (the old "≤70 chars" catch-all is gone) reaches the AI so replies actually
+  // match what the user said.
+  return LOCAL_FIRST_TERMS.some(term => clean.includes(term));
 }
 
 // Returns the full reply object shape ChatTab's onDone expects, so a local
@@ -83,11 +95,15 @@ export function buildLocalReply(userText = "", { aspectId = null } = {}) {
   // Topic-matched empathy from the curated banks (stress/sad/sleep/…).
   let reply = getRandomResponse(userText, aspectId);
 
-  // For longer, open-ended shares, add a reflective layer so it doesn't feel
-  // like a canned line — mirror their theme back plus a gentle follow-up.
+  // Reflective layer ONLY when no topic bank matched (i.e. the reply came from
+  // the generic default pool) — and it now mirrors the user's own words so it
+  // stays about what they actually said, instead of replacing a good topical
+  // reply with a random canned opener (the old behaviour that felt off-topic).
+  const toned = (userText || "").toLowerCase();
+  const hasTopicMatch = /căng thẳng|stress|áp lực|quá tải|kiệt sức|lo âu|lo lắng|sợ|buồn|khóc|đau|chán|tệ|ngủ|bạn bè|người yêu|yêu|chia tay|học|thi|điểm|trường|gia đình|bố|mẹ|ba|má|cô đơn|một mình|vui|hạnh phúc|ổn|khỏe|tuyệt|động lực|lười/.test(toned);
   const theme = extractTheme(userText);
-  if (theme && userText.length >= 24 && Math.random() < 0.75) {
-    reply = `${pick(REFLECTIVE_OPENERS)}. ${pick(REFLECTIVE_QUESTIONS)}`;
+  if (!hasTopicMatch && theme && userText.length >= 12) {
+    reply = `${pick(REFLECTIVE_OPENERS)} — "${theme}". ${pick(REFLECTIVE_QUESTIONS)}`;
   }
 
   return {

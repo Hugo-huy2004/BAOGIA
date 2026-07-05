@@ -42,6 +42,20 @@ const tagOf = (c) => TAGS[c] || TAGS["chia sẻ"];
 // Single-colour (đơn sắc) brand accent for primary action buttons.
 const BRAND = "#6366f1";
 
+// Anonymous authors get a coloured disc (server picks the colour from the
+// Hugo Studio palette at post time) with a person icon inside.
+const AnonAvatar = ({ color, size = "h-9 w-9", icon = "text-[20px]" }) => (
+  <div className={`grid ${size} shrink-0 place-items-center rounded-full shadow-sm`} style={{ background: color || BRAND }}>
+    <span className={`material-symbols-outlined ${icon} text-white`} style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+  </div>
+);
+
+const isAnonPost = (p) => p.anonymous || (!p.senderAvatar && !p.senderSlug && p.senderName === "Người ẩn danh");
+
+// Reading font for post/comment content — the system UI stack (what Facebook
+// itself renders with): crisper at small sizes than the app's Jakarta Sans.
+const READ_FONT = { fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" };
+
 // Diacritic-insensitive normalize so search matches "cau hoi" ↔ "câu hỏi" etc.
 const normalize = (s) =>
   (s || "")
@@ -67,6 +81,7 @@ export default function CommunityTab({ memberSession, bio }) {
   // Composer (AI assigns the tag after moderation — the author no longer picks)
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [newPostText, setNewPostText] = useState("");
+  const [postAnon, setPostAnon] = useState(false);
   const [editingPostId, setEditingPostId] = useState(null);
   const [composerSubmitting, setComposerSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -75,8 +90,13 @@ export default function CommunityTab({ memberSession, bio }) {
   // Comments sheet
   const [activeCommentPostId, setActiveCommentPostId] = useState(null);
   const [commentInput, setCommentInput] = useState("");
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
 
   const [activeMenu, setActiveMenu] = useState(null);
+
+  // On-demand AI glossary: postId being fetched + which posts have theirs open.
+  const [glossaryLoadingId, setGlossaryLoadingId] = useState(null);
+  const [glossaryOpen, setGlossaryOpen] = useState({});
 
   // Tell the portal to hide the bottom tab-bar while a full sheet is open.
   useEffect(() => {
@@ -161,17 +181,54 @@ export default function CommunityTab({ memberSession, bio }) {
     setErrorMsg("");
     setEditingPostId(post?._id || null);
     setNewPostText(post?.message || "");
+    setPostAnon(false);
     setActiveMenu(null);
     setIsComposerOpen(true);
+  };
+
+  // Fetch (or reveal, when already cached) the AI glossary for one post.
+  const handleExplainTerms = async (postId) => {
+    playBeep();
+    const post = posts.find((p) => p._id === postId);
+    if (post?.glossaryAt || post?.glossary?.length) {
+      setGlossaryOpen((prev) => ({ ...prev, [postId]: true }));
+      if (post.glossaryAt && !post.glossary?.length) notify.success("Bài này không có thuật ngữ khó cần giải thích");
+      return;
+    }
+    setGlossaryLoadingId(postId);
+    try {
+      const res = await fetch(`${CHAT_API}/${postId}/glossary`, { method: "POST", credentials: "include" });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      setPosts((prev) => prev.map((p) => (p._id === postId ? { ...p, glossary: data.glossary, glossaryAt: new Date().toISOString() } : p)));
+      setGlossaryOpen((prev) => ({ ...prev, [postId]: true }));
+      if (!data.glossary?.length) notify.success("Bài này không có thuật ngữ khó cần giải thích");
+    } catch (err) {
+      notify.error("Không giải thích được, thử lại nhé");
+    } finally {
+      setGlossaryLoadingId(null);
+    }
   };
 
   const handlePublishPost = async () => {
     if (!newPostText.trim()) return;
     if (getWordCount(newPostText) > 350) return setErrorMsg("Quá dài (tối đa 350 từ)");
+    const editing = !!editingPostId;
+
+    // Paid option → explicit confirmation before any JOY leaves the wallet.
+    if (!editing && postAnon) {
+      const ok = await notify.confirm({
+        title: "Đăng bài ẩn danh?",
+        message: "Bạn sẽ bị trừ 20 JOY cho bài đăng này. Hóa đơn sẽ được lưu vào lịch sử JOY của bạn.",
+        confirmText: "Đồng ý trừ 20 JOY",
+        cancelText: "Hủy",
+      });
+      if (!ok) return;
+    }
+
     setComposerSubmitting(true);
     setErrorMsg("");
     playBeep();
-    const editing = !!editingPostId;
     try {
       const res = await fetch(editing ? `${CHAT_API}/${editingPostId}` : CHAT_API, {
         method: editing ? "PUT" : "POST",
@@ -181,6 +238,7 @@ export default function CommunityTab({ memberSession, bio }) {
           message: newPostText.trim(),
           lat: coords.lat || 10.8,
           lng: coords.lng || 106.6,
+          anonymous: !editing && postAnon,
         }),
       });
       const data = await res.json();
@@ -189,9 +247,14 @@ export default function CommunityTab({ memberSession, bio }) {
         setPosts((prev) => (editing ? prev.map((p) => (p._id === editingPostId ? data.message : p)) : [data.message, ...prev]));
         setNewPostText("");
         setEditingPostId(null);
+        setPostAnon(false);
         setIsComposerOpen(false);
         playMove();
-        notify.success(editing ? "Đã cập nhật — AI đang kiểm duyệt lại" : "Đã gửi — AI đang kiểm duyệt bài của bạn");
+        if (data.joyCharged) {
+          notify.success(`Đã trừ ${data.joyCharged} JOY (còn ${data.joyBalance} JOY) — hóa đơn đã lưu vào lịch sử JOY. AI đang kiểm duyệt bài của bạn.`);
+        } else {
+          notify.success(editing ? "Đã cập nhật — AI đang kiểm duyệt lại" : "Đã gửi — AI đang kiểm duyệt bài của bạn");
+        }
       } else {
         setErrorMsg(data.error || "Lỗi đăng bài");
         notify.error(data.error || "Không thể đăng bài");
@@ -204,18 +267,35 @@ export default function CommunityTab({ memberSession, bio }) {
     }
   };
 
+  // Optimistic like: flip the heart instantly, reconcile with the server
+  // response, and revert if the request fails.
+  const flipLike = (postId, email) => (prev) =>
+    prev.map((p) => {
+      if (p._id !== postId) return p;
+      const liked = p.likes?.includes(email);
+      return { ...p, likes: liked ? p.likes.filter((e) => e !== email) : [...(p.likes || []), email] };
+    });
+
   const handleToggleLike = async (postId) => {
+    const email = memberSession?.email;
+    if (!email) return;
     playBeep();
+    setPosts(flipLike(postId, email));
     try {
       const res = await fetch(`${CHAT_API}/${postId}/like`, { method: "POST", credentials: "include" });
       const data = await res.json();
-      if (data.success) setPosts((prev) => prev.map((p) => (p._id === postId ? { ...p, likes: data.likes } : p)));
-    } catch (err) {}
+      if (!data.success) throw new Error(data.error);
+      setPosts((prev) => prev.map((p) => (p._id === postId ? { ...p, likes: data.likes } : p)));
+    } catch (err) {
+      setPosts(flipLike(postId, email));
+      notify.error("Không thể thả tim, thử lại nhé");
+    }
   };
 
   const handleAddComment = async () => {
-    if (!activeCommentPostId || !commentInput.trim()) return;
+    if (!activeCommentPostId || !commentInput.trim() || commentSubmitting) return;
     playBeep();
+    setCommentSubmitting(true);
     try {
       const res = await fetch(`${CHAT_API}/${activeCommentPostId}/comments`, {
         method: "POST",
@@ -224,12 +304,15 @@ export default function CommunityTab({ memberSession, bio }) {
         body: JSON.stringify({ message: commentInput.trim() }),
       });
       const data = await res.json();
-      if (data.success) {
-        setPosts((prev) => prev.map((p) => (p._id === activeCommentPostId ? { ...p, comments: data.comments } : p)));
-        setCommentInput("");
-        playMove();
-      }
-    } catch (err) {}
+      if (!data.success) throw new Error(data.error);
+      setPosts((prev) => prev.map((p) => (p._id === activeCommentPostId ? { ...p, comments: data.comments } : p)));
+      setCommentInput("");
+      playMove();
+    } catch (err) {
+      notify.error(err?.message || "Không gửi được bình luận, thử lại nhé");
+    } finally {
+      setCommentSubmitting(false);
+    }
   };
 
   const handleDeletePost = async (postId) => {
@@ -300,31 +383,44 @@ export default function CommunityTab({ memberSession, bio }) {
 
   return (
     <div className="space-y-2.5 animate-fadeIn">
-      {/* ── Search + compose (sticky, follows scroll) ── */}
-      <div className="sticky top-1 z-30 -mx-1 flex items-center gap-2 rounded-xl border border-white/40 bg-white/60 px-1.5 py-1.5 shadow-sm backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-zinc-900/55">
-        <div className="flex h-9 flex-1 items-center gap-1.5 rounded-lg border border-border bg-card/70 px-2.5">
-          <span className="material-symbols-outlined text-[15px] text-muted-foreground">search</span>
+      {/* ── Search (sticky, follows scroll) ── */}
+      <div className="sticky top-1 z-30 -mx-1 rounded-full bg-white px-1 py-1 shadow-[0_1px_4px_rgba(0,0,0,0.1)] dark:bg-zinc-900 dark:shadow-black/40">
+        <div className="flex h-9 items-center gap-2 rounded-full bg-slate-100 px-3.5 dark:bg-zinc-800">
+          <span className="material-symbols-outlined text-[17px] text-slate-400">search</span>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm kiếm..."
-            className="w-full bg-transparent text-[11.5px] text-foreground outline-none placeholder:text-muted-foreground"
+            placeholder="Tìm kiếm trong cộng đồng..."
+            className="w-full bg-transparent text-[12.5px] text-foreground outline-none placeholder:text-slate-400"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="grid h-4 w-4 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-foreground/10">
-              <span className="material-symbols-outlined text-[14px]">close</span>
+            <button onClick={() => setSearch("")} className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-zinc-700">
+              <span className="material-symbols-outlined text-[15px]">close</span>
             </button>
           )}
         </div>
-        <button
-          type="button"
-          onClick={() => openComposer()}
-          aria-label="Đăng bài"
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white shadow-md shadow-black/20 transition active:scale-90"
-          style={{ background: BRAND }}
-        >
-          <span className="material-symbols-outlined text-[18px]">edit_square</span>
-        </button>
+      </div>
+
+      {/* ── Composer trigger — Facebook-style "what's on your mind" card ── */}
+      <div className="-mx-1 bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.08)] dark:bg-zinc-900 dark:shadow-black/40">
+        <div className="flex items-center gap-2.5">
+          <img src={av(bio?.avatarUrl, "/image/avt7.png")} loading="lazy" className="h-10 w-10 shrink-0 rounded-full object-cover" alt="" />
+          <button
+            type="button"
+            onClick={() => openComposer()}
+            className="h-10 flex-1 rounded-full bg-slate-100 px-4 text-left text-[13px] text-slate-500 transition hover:bg-slate-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+          >
+            Bạn muốn chia sẻ hay hỏi điều gì?
+          </button>
+        </div>
+        <div className="mt-2.5 flex items-center justify-around border-t border-slate-100 pt-2 dark:border-zinc-800">
+          <button type="button" onClick={() => openComposer()} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold text-indigo-500 transition hover:bg-slate-100 dark:hover:bg-zinc-800">
+            <span className="material-symbols-outlined text-[19px]">tips_and_updates</span>Chia sẻ
+          </button>
+          <button type="button" onClick={() => openComposer()} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold text-amber-500 transition hover:bg-slate-100 dark:hover:bg-zinc-800">
+            <span className="material-symbols-outlined text-[19px]">help</span>Đặt câu hỏi
+          </button>
+        </div>
       </div>
 
       {/* AI moderation notice for the author's own in-review posts */}
@@ -339,9 +435,9 @@ export default function CommunityTab({ memberSession, bio }) {
 
       {/* ── Feed ── */}
       {postsLoading && posts.length === 0 ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="-mx-1 flex flex-col gap-px">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="rounded-2xl border border-border bg-card p-4">
+            <div key={i} className="bg-white p-4 dark:bg-zinc-900">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 animate-pulse rounded-full bg-foreground/10" />
                 <div className="space-y-1.5">
@@ -354,7 +450,7 @@ export default function CommunityTab({ memberSession, bio }) {
           ))}
         </div>
       ) : filteredPosts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card py-16 text-center">
+        <div className="-mx-1 flex flex-col items-center justify-center bg-white py-16 text-center shadow-[0_1px_2px_rgba(0,0,0,0.08)] dark:bg-zinc-900 dark:shadow-black/40">
           <span className="material-symbols-outlined text-4xl text-muted-foreground/50">forum</span>
           <p className="mt-3 text-sm font-black text-foreground">Chưa có bài viết nào</p>
           <p className="mt-1 text-[11px] text-muted-foreground">Hãy là người đầu tiên khởi đầu cuộc trò chuyện!</p>
@@ -367,7 +463,7 @@ export default function CommunityTab({ memberSession, bio }) {
           </button>
         </div>
       ) : (
-        <div className="grid items-start gap-2.5 md:grid-cols-2">
+        <div className="-mx-1 flex flex-col gap-px">
           {filteredPosts.map((post) => {
             const hasLiked = post.likes?.includes(memberSession?.email);
             const repliesCount = post.comments?.length || 0;
@@ -377,19 +473,23 @@ export default function CommunityTab({ memberSession, bio }) {
             const isRejected = post.status === "rejected";
             const isLive = !isPending && !isRejected;
             return (
-              <div key={post._id} className={`relative flex flex-col rounded-2xl border bg-white/55 p-3 shadow-sm backdrop-blur-xl backdrop-saturate-150 transition-shadow hover:shadow-md dark:bg-zinc-900/45 ${isPending ? "border-indigo-500/30" : isRejected ? "border-rose-500/30" : "border-white/40 dark:border-white/10"}`}>
+              <div key={post._id} className={`relative flex flex-col bg-white p-3.5 dark:bg-zinc-900 ${isPending ? "ring-1 ring-inset ring-indigo-500/30" : isRejected ? "ring-1 ring-inset ring-rose-500/30" : ""}`}>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-1.5">
                   <div className="flex min-w-0 items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => openBio(post.senderSlug)}
-                      disabled={!post.senderSlug}
-                      className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-tr from-indigo-400 via-fuchsia-500 to-amber-400 p-[1.5px] transition active:scale-90 disabled:cursor-default"
-                      aria-label={`Xem trang bio của ${post.senderName}`}
-                    >
-                      <img src={av(post.senderAvatar)} loading="lazy" className="h-full w-full rounded-full border-2 border-card object-cover" alt="" />
-                    </button>
+                    {isAnonPost(post) ? (
+                      <AnonAvatar color={post.anonColor} size="h-8 w-8" icon="text-[18px]" />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => openBio(post.senderSlug)}
+                        disabled={!post.senderSlug}
+                        className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-tr from-indigo-400 via-fuchsia-500 to-amber-400 p-[1.5px] transition active:scale-90 disabled:cursor-default"
+                        aria-label={`Xem trang bio của ${post.senderName}`}
+                      >
+                        <img src={av(post.senderAvatar)} loading="lazy" className="h-full w-full rounded-full border-2 border-card object-cover" alt="" />
+                      </button>
+                    )}
                     <div className="min-w-0">
                       <button
                         type="button"
@@ -471,23 +571,37 @@ export default function CommunityTab({ memberSession, bio }) {
                   </div>
                 )}
 
-                {/* Body */}
-                <div className={`mt-2 leading-snug ${post.isBot ? "font-display text-[14.5px] font-semibold tracking-tight" : "text-[13.5px]"} ${isLive ? "text-foreground/90" : "text-foreground/60"}`}>{formatText(post.message)}</div>
+                {/* Body — one uniform size for every author (bot posts look like anyone else's) */}
+                <div style={READ_FONT} className={`mt-2 text-[13px] leading-relaxed ${isLive ? "text-foreground/95" : "text-foreground/60"}`}>{formatText(post.message)}</div>
 
-                {/* AI glossary — explains jargon for HSSV */}
-                {isLive && post.glossary?.length > 0 && (
-                  <div className="mt-3 rounded-xl border border-indigo-500/15 bg-indigo-500/[0.05] p-2.5">
-                    <p className="mb-1.5 flex items-center gap-1 text-[9.5px] font-black uppercase tracking-wide text-indigo-500 dark:text-indigo-300">
-                      <span className="material-symbols-outlined text-[13px]">menu_book</span>Giải thích thuật ngữ (AI)
-                    </p>
-                    <div className="space-y-1">
-                      {post.glossary.map((g, i) => (
-                        <p key={i} className="text-[11.5px] leading-snug text-foreground/80">
-                          <b className="text-foreground">{g.term}:</b> {g.definition}
-                        </p>
-                      ))}
+                {/* AI glossary — generated on demand when the reader taps the button */}
+                {isLive && (
+                  glossaryOpen[post._id] && post.glossary?.length > 0 ? (
+                    <div className="mt-2.5 rounded-xl border border-indigo-500/15 bg-indigo-500/[0.05] p-2.5">
+                      <p className="mb-1.5 flex items-center gap-1 text-[9.5px] font-black uppercase tracking-wide text-indigo-500 dark:text-indigo-300">
+                        <span className="material-symbols-outlined text-[13px]">menu_book</span>Giải thích thuật ngữ (AI)
+                      </p>
+                      <div className="space-y-1">
+                        {post.glossary.map((g, i) => (
+                          <p key={i} className="text-[11px] leading-snug text-foreground/80">
+                            <b className="text-foreground">{g.term}:</b> {g.definition}
+                          </p>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  ) : !glossaryOpen[post._id] ? (
+                    <button
+                      type="button"
+                      onClick={() => handleExplainTerms(post._id)}
+                      disabled={glossaryLoadingId === post._id}
+                      className="mt-2 inline-flex items-center gap-1 self-start text-[10.5px] font-bold text-indigo-500 hover:underline disabled:opacity-60 dark:text-indigo-400"
+                    >
+                      <span className={`material-symbols-outlined text-[13px] ${glossaryLoadingId === post._id ? "animate-spin" : ""}`}>
+                        {glossaryLoadingId === post._id ? "progress_activity" : "menu_book"}
+                      </span>
+                      {glossaryLoadingId === post._id ? "AI đang giải thích..." : "Giải thích thuật ngữ"}
+                    </button>
+                  ) : null
                 )}
 
                 {/* Pending / rejected states */}
@@ -503,31 +617,62 @@ export default function CommunityTab({ memberSession, bio }) {
                   </div>
                 )}
 
-                {/* Action bar (only for published posts) */}
+                {/* Action bar (only for published posts) — Facebook-style */}
                 {isLive && (
                   <>
-                    <div className="mt-2 flex items-center gap-1 border-t border-border pt-1.5">
-                      <button
+                    {/* Reaction summary row */}
+                    {((post.likes?.length || 0) > 0 || repliesCount > 0) && (
+                      <div className="mt-2.5 flex items-center justify-between text-[11.5px] text-slate-500 dark:text-zinc-400">
+                        <span className="inline-flex items-center gap-1">
+                          {(post.likes?.length || 0) > 0 && (
+                            <>
+                              <span className="grid h-[17px] w-[17px] place-items-center rounded-full bg-gradient-to-br from-rose-500 to-pink-500 shadow-sm">
+                                <span className="material-symbols-outlined text-[11px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                              </span>
+                              {post.likes.length}
+                            </>
+                          )}
+                        </span>
+                        {repliesCount > 0 && (
+                          <button onClick={() => setActiveCommentPostId(post._id)} className="hover:underline">{repliesCount} bình luận</button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Big split action buttons */}
+                    <div className="mt-1.5 grid grid-cols-2 gap-1 border-t border-slate-100 pt-1 dark:border-zinc-800">
+                      <motion.button
+                        whileTap={{ scale: 0.94 }}
                         onClick={() => handleToggleLike(post._id)}
-                        className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11.5px] font-bold transition active:scale-95 ${hasLiked ? "text-rose-500" : "text-muted-foreground hover:bg-foreground/[0.05]"}`}
+                        className={`flex h-9 items-center justify-center gap-1.5 rounded-lg text-[12.5px] font-bold transition-colors ${hasLiked ? "text-rose-500 bg-rose-500/[0.06]" : "text-slate-500 hover:bg-slate-100 dark:text-zinc-400 dark:hover:bg-zinc-800"}`}
                       >
-                        <span className="material-symbols-outlined text-[17px]" style={{ fontVariationSettings: hasLiked ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
-                        {post.likes?.length || 0}
-                      </button>
-                      <button
+                        <motion.span
+                          key={hasLiked ? "liked" : "unliked"}
+                          initial={{ scale: hasLiked ? 0.4 : 1 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                          className="material-symbols-outlined text-[19px]"
+                          style={{ fontVariationSettings: hasLiked ? "'FILL' 1" : "'FILL' 0" }}
+                        >
+                          favorite
+                        </motion.span>
+                        Thích
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.94 }}
                         onClick={() => { playBeep(); setActiveCommentPostId(post._id); }}
-                        className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11.5px] font-bold text-muted-foreground transition hover:bg-foreground/[0.05] active:scale-95"
+                        className="flex h-9 items-center justify-center gap-1.5 rounded-lg text-[12.5px] font-bold text-slate-500 transition-colors hover:bg-slate-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
                       >
-                        <span className="material-symbols-outlined text-[17px]">mode_comment</span>
-                        {repliesCount}
-                      </button>
+                        <span className="material-symbols-outlined text-[19px]">mode_comment</span>
+                        Bình luận
+                      </motion.button>
                     </div>
 
                     {repliesCount > 0 && (
-                      <button onClick={() => setActiveCommentPostId(post._id)} className="mt-1 rounded-xl bg-foreground/[0.03] p-2.5 text-left transition hover:bg-foreground/[0.06]">
+                      <button onClick={() => setActiveCommentPostId(post._id)} className="mt-1 rounded-xl bg-slate-50 p-2.5 text-left transition hover:bg-slate-100 dark:bg-zinc-800/60 dark:hover:bg-zinc-800">
                         {repliesCount > 1 && <p className="mb-1 text-[11px] font-bold text-indigo-500">Xem tất cả {repliesCount} bình luận</p>}
-                        <p className="line-clamp-2 text-[12px] leading-snug text-foreground/80">
-                          <span className="font-black">{post.comments[repliesCount - 1].senderName}</span>{" "}
+                        <p style={READ_FONT} className="line-clamp-2 text-[12px] leading-snug text-foreground/80">
+                          <span className="font-bold">{post.comments[repliesCount - 1].senderName}</span>{" "}
                           {post.comments[repliesCount - 1].message}
                         </p>
                       </button>
@@ -591,9 +736,24 @@ export default function CommunityTab({ memberSession, bio }) {
                     autoFocus
                     rows={4}
                     placeholder="Bạn muốn chia sẻ hay hỏi điều gì?"
+                    style={READ_FONT}
                     className="min-h-[100px] w-full resize-none bg-transparent text-[15px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
                   />
                 </div>
+
+                {/* Anonymous option — paid (20 JOY), new posts only */}
+                {!editingPostId && (
+                  <button
+                    type="button"
+                    onClick={() => { playBeep(); setPostAnon((v) => !v); }}
+                    className={`mx-4 mb-3 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold transition ${postAnon ? "border-indigo-500/60 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300" : "border-border text-muted-foreground hover:bg-foreground/[0.04]"}`}
+                  >
+                    <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: postAnon ? "'FILL' 1" : "'FILL' 0" }}>
+                      {postAnon ? "check_circle" : "visibility_off"}
+                    </span>
+                    Đăng ẩn danh · −20 JOY
+                  </button>
+                )}
 
                 {errorMsg && <p className="px-4 pb-2 text-[12px] font-semibold text-rose-500">{errorMsg}</p>}
               </div>
@@ -649,7 +809,11 @@ export default function CommunityTab({ memberSession, bio }) {
               {/* Original post context */}
               {activePost && (
                 <div className="flex shrink-0 items-start gap-2.5 border-y border-border bg-foreground/[0.02] px-4 py-2.5">
-                  <img src={av(activePost.senderAvatar)} loading="lazy" className="h-8 w-8 shrink-0 rounded-full object-cover" alt="" />
+                  {isAnonPost(activePost) ? (
+                    <AnonAvatar color={activePost.anonColor} size="h-8 w-8" icon="text-[18px]" />
+                  ) : (
+                    <img src={av(activePost.senderAvatar)} loading="lazy" className="h-8 w-8 shrink-0 rounded-full object-cover" alt="" />
+                  )}
                   <div className="min-w-0 flex-1">
                     <p className="text-[12px] font-black text-foreground">{activePost.senderName}</p>
                     <p className="line-clamp-2 text-[12px] leading-snug text-muted-foreground">{activePost.message}</p>
@@ -666,7 +830,7 @@ export default function CommunityTab({ memberSession, bio }) {
                       <div className="min-w-0 flex-1">
                         <div className="inline-block max-w-full rounded-2xl rounded-tl-md bg-foreground/[0.05] px-3.5 py-2">
                           <p className="text-[12px] font-black text-foreground">{cmt.senderName}</p>
-                          <p className="mt-0.5 break-words text-[13.5px] leading-snug text-foreground/85">{cmt.message}</p>
+                          <p style={READ_FONT} className="mt-0.5 break-words text-[13px] leading-snug text-foreground/90">{cmt.message}</p>
                         </div>
                         <p className="ml-1 mt-1 text-[10px] text-muted-foreground">{getIgTime(cmt.createdAt)}</p>
                       </div>
@@ -697,12 +861,12 @@ export default function CommunityTab({ memberSession, bio }) {
                 />
                 <button
                   onClick={handleAddComment}
-                  disabled={!commentInput.trim()}
+                  disabled={!commentInput.trim() || commentSubmitting}
                   className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white shadow-lg shadow-indigo-500/30 transition active:scale-90 disabled:opacity-30 disabled:shadow-none"
                   style={{ background: BRAND }}
                   aria-label="Gửi bình luận"
                 >
-                  <span className="material-symbols-outlined text-[20px]">arrow_upward</span>
+                  <span className={`material-symbols-outlined text-[20px] ${commentSubmitting ? "animate-spin" : ""}`}>{commentSubmitting ? "progress_activity" : "arrow_upward"}</span>
                 </button>
               </div>
             </motion.div>
