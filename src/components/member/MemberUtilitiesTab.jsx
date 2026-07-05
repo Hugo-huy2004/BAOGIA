@@ -13,6 +13,7 @@ const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
 const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
 const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
 const DecoStudioTab = lazy(() => import("./DecoStudioTab"));
+const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate }) {
   const { t } = useTranslation();
@@ -110,6 +111,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* Deco Studio */}
       {selectedUtility === "deco" && (
         <DecoStudioTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+      )}
+
+      {/* Trang Bio — public bio preview (edit via Settings) */}
+      {selectedUtility === "bio" && (
+        <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} />
       )}
       </Suspense>
     </div>

@@ -1043,68 +1043,170 @@ router.delete('/contacts/:id/:contactId', requireMember, async (req, res) => {
 });
 
 // ─── AI Content Moderation Helper for Community Posts/Comments ────────────────
+// A super-fast flash model is used so the sequential queue drains quickly.
+const MODERATION_MODEL = process.env.GEMINI_MODERATION_MODEL || 'gemini-2.5-flash';
+
+function heuristicAudit(text) {
+  const t = (text || '').toLowerCase();
+  const hasQuestion = text.includes('?') || t.includes('hỏi') || t.includes('sao') || t.includes('thế nào') || t.includes('how') || t.includes('what') || t.includes('why');
+  return {
+    sentiment: 'tích cực',
+    category: hasQuestion ? 'câu hỏi' : 'chia sẻ',
+    status: 'approved',
+    rejectReason: '',
+    glossary: []
+  };
+}
+
 async function auditContent(text) {
   const geminiApiKey = process.env.GEMINI_API_KEY;
-  if (!geminiApiKey) {
-    // Basic fallback if no key is configured
-    const hasQuestion = text.includes('?') || text.toLowerCase().includes('hỏi') || text.toLowerCase().includes('sao') || text.toLowerCase().includes('thế nào');
-    return {
-      sentiment: 'tích cực',
-      category: hasQuestion ? 'câu hỏi' : 'chia sẻ',
-      status: 'approved'
-    };
-  }
+  if (!geminiApiKey) return heuristicAudit(text);
 
   try {
-    const prompt = `Bạn là hệ thống kiểm duyệt và phân loại nội dung tự động cho mạng xã hội của học sinh, sinh viên.
-Hãy phân tích bài viết dưới đây và trả về duy nhất một chuỗi JSON hợp lệ chứa 3 trường: "sentiment" (giá trị là "tích cực" hoặc "tiêu cực"), "category" (giá trị là "chia sẻ" hoặc "câu hỏi"), và "status" (giá trị là "approved" hoặc "rejected" - hãy trả về "rejected" nếu nội dung chứa từ ngữ tục tĩu thô tục, quấy rối, ngôn từ kích động thù địch, hoặc vi phạm pháp luật).
+    const prompt = `Bạn là hệ thống kiểm duyệt, phân loại và chú giải nội dung tự động cho mạng xã hội học sinh - sinh viên (HSSV).
+Phân tích bài viết và trả về DUY NHẤT một chuỗi JSON hợp lệ với các trường:
+- "sentiment": "tích cực" hoặc "tiêu cực".
+- "category": "câu hỏi" nếu bài viết đang hỏi/nhờ giải đáp; "chia sẻ" nếu đang chia sẻ thông tin/kinh nghiệm.
+- "status": "approved" hoặc "rejected". Trả "rejected" nếu: chứa từ ngữ tục tĩu, quấy rối, kích động thù địch, vi phạm pháp luật; HOẶC ngôn ngữ KHÔNG phải tiếng Việt và cũng KHÔNG phải tiếng Anh (chỉ chấp nhận VI/EN).
+- "rejectReason": nếu rejected, giải thích ngắn gọn lý do (tiếng Việt); nếu approved để chuỗi rỗng "".
+- "glossary": MẢNG các thuật ngữ chuyên ngành/từ khó trong bài mà HSSV có thể chưa hiểu, mỗi phần tử là { "term": "<thuật ngữ>", "definition": "<giải thích ngắn gọn, dễ hiểu>" }. Giải thích bằng ĐÚNG ngôn ngữ của bài viết (Việt hoặc Anh). Nếu không có thuật ngữ nào, trả về mảng rỗng []. Tối đa 5 thuật ngữ.
 
 Bài viết: "${text.replace(/"/g, '\\"')}"
 
-LƯU Ý: Chỉ trả về chuỗi JSON thô dạng { "sentiment": "...", "category": "...", "status": "..." }, không viết thêm bất kỳ lời giải thích nào.`;
+LƯU Ý: Chỉ trả về JSON thô, không markdown, không giải thích thêm.`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${geminiApiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODERATION_MODEL}:generateContent?key=${geminiApiKey}`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [{
-            role: 'user',
-            parts: [{ text: prompt }]
-          }]
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
       }
     );
 
-    if (!response.ok) {
-      throw new Error(`Gemini status ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Gemini status ${response.status}`);
 
     const data = await response.json();
     const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
-    // Clean codeblock markers from markdown response
-    const cleanJson = botText.replace(/```json/g, '').replace(/```/g, '').trim();
+    const cleanJson = botText.replace(/```json/gi, '').replace(/```/g, '').trim();
     const parsed = JSON.parse(cleanJson);
-    
+
+    const glossary = Array.isArray(parsed.glossary)
+      ? parsed.glossary
+          .filter(g => g && g.term && g.definition)
+          .slice(0, 5)
+          .map(g => ({ term: String(g.term).slice(0, 120), definition: String(g.definition).slice(0, 400) }))
+      : [];
+
     return {
       sentiment: parsed.sentiment === 'tiêu cực' ? 'tiêu cực' : 'tích cực',
       category: parsed.category === 'câu hỏi' ? 'câu hỏi' : 'chia sẻ',
-      status: parsed.status === 'rejected' ? 'rejected' : 'approved'
+      status: parsed.status === 'rejected' ? 'rejected' : 'approved',
+      rejectReason: parsed.status === 'rejected' ? String(parsed.rejectReason || 'Nội dung không phù hợp').slice(0, 300) : '',
+      glossary
     };
   } catch (err) {
     console.error('[Gemini Audit] Failed:', err);
-    const hasQuestion = text.includes('?') || text.toLowerCase().includes('hỏi') || text.toLowerCase().includes('sao') || text.toLowerCase().includes('thế nào');
-    return {
-      sentiment: 'tích cực',
-      category: hasQuestion ? 'câu hỏi' : 'chia sẻ',
-      status: 'approved'
-    };
+    return heuristicAudit(text);
   }
 }
+
+// ─── Sequential AI moderation queue ──────────────────────────────────────────
+// Posts are created as 'pending' and drained ONE AT A TIME here, so a burst of
+// simultaneous posts never fires many concurrent AI calls (avoids rate limits /
+// slow responses). Each job re-reads the post, moderates, then publishes.
+let moderationChain = Promise.resolve();
+
+async function moderateOnePost(postId) {
+  const post = await CommunityMessage.findById(postId);
+  if (!post || post.status !== 'pending') return;
+
+  const audit = await auditContent(post.message);
+
+  if (audit.status === 'rejected') {
+    post.status = 'rejected';
+    post.rejectReason = audit.rejectReason || 'Nội dung không phù hợp';
+    post.moderatedAt = new Date();
+    await post.save();
+    return;
+  }
+
+  post.sentiment = audit.sentiment;
+  post.category = audit.category;      // AI decides the tag, not the author
+  post.glossary = audit.glossary || [];
+  post.status = 'approved';
+  post.rejectReason = '';
+  post.moderatedAt = new Date();
+  await post.save();
+
+  // Reward the author only once the post is actually published
+  try {
+    await awardJoy(post.senderEmail, 15, 'community_post', 'Đăng bài viết mới lên cộng đồng');
+  } catch (err) {
+    console.warn('[Community JOY] award warning:', err.message);
+  }
+
+  // Broadcast push notifications to nearby neighbors (best-effort, non-blocking)
+  broadcastCommunityPush(post).catch(err => console.error('[Community Push]', err));
+}
+
+function enqueueModeration(postId) {
+  moderationChain = moderationChain
+    .then(() => moderateOnePost(postId))
+    .catch(err => console.error('[Moderation Queue] job failed:', err));
+  return moderationChain;
+}
+
+// Push helper extracted so both the queue and startup requeue can reuse it.
+async function broadcastCommunityPush(post) {
+  try {
+    const email = post.senderEmail;
+    const lat = post.location?.lat;
+    const lng = post.location?.lng;
+    const senderBio = await Bio.findOne({ email }, 'address').lean();
+    const title = `[Cộng đồng] Bài viết mới từ ${post.senderName}`;
+    const body = (post.message || '').substring(0, 80);
+    const url = '/member/account';
+
+    const candidates = await Bio.find(
+      { email: { $ne: email } },
+      'email slug displayName trustedLocation lastLocationCheck address'
+    ).lean();
+
+    for (const cand of candidates) {
+      let cLat = null, cLng = null;
+      if (cand.lastLocationCheck && cand.lastLocationCheck.lat !== null) {
+        cLat = cand.lastLocationCheck.lat; cLng = cand.lastLocationCheck.lng;
+      } else if (cand.trustedLocation && cand.trustedLocation.lat !== null) {
+        cLat = cand.trustedLocation.lat; cLng = cand.trustedLocation.lng;
+      }
+      let isNear = false;
+      if (cLat !== null && cLng !== null && lat != null && lng != null) {
+        const dist = distanceKm(lat, lng, cLat, cLng);
+        if (dist !== null && dist <= 50) isNear = true;
+      } else if (senderBio?.address && cand.address) {
+        const clean = str => str.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
+        const reqWords = clean(senderBio.address).filter(w => w.length >= 3);
+        const candWords = clean(cand.address).filter(w => w.length >= 3);
+        if (reqWords.some(w => candWords.includes(w))) isNear = true;
+      }
+      if (isNear) sendPushNotification(cand.email, title, body, url).catch(() => {});
+    }
+  } catch (err) {
+    console.error('[Community Chat Push] Broadcast failed:', err);
+  }
+}
+
+// On boot, resume moderating any posts left 'pending' from a previous run.
+(async () => {
+  try {
+    const pending = await CommunityMessage.find({ status: 'pending' }, '_id').sort({ createdAt: 1 }).lean();
+    pending.forEach(p => enqueueModeration(p._id));
+    if (pending.length) console.log(`[Moderation Queue] Requeued ${pending.length} pending post(s).`);
+  } catch (err) {
+    console.warn('[Moderation Queue] Requeue skipped:', err.message);
+  }
+})();
 
 // GET /community/chat - Fetch approved posts (and current user's pending/rejected ones)
 router.get('/community/chat', requireMember, async (req, res) => {
@@ -1128,7 +1230,7 @@ router.get('/community/chat', requireMember, async (req, res) => {
 router.post('/community/chat', requireMember, async (req, res) => {
   try {
     const email = req.memberEmail;
-    const { message, lat, lng, category } = req.body;
+    const { message, lat, lng } = req.body;
 
     if (!message || !message.trim()) {
       return res.status(400).json({ error: 'Nội dung bài viết không được trống' });
@@ -1149,79 +1251,23 @@ router.post('/community/chat', requireMember, async (req, res) => {
       return res.status(404).json({ error: 'Bio not found' });
     }
 
-    // Perform AI pre-moderation
-    const audit = await auditContent(message.trim());
-    if (audit.status === 'rejected') {
-      return res.status(400).json({ error: 'Bài viết không được phê duyệt bởi hệ thống kiểm duyệt AI do chứa nội dung không phù hợp.' });
-    }
-
+    // Create the post as 'pending' and hand it to the sequential AI queue.
+    // Tag/sentiment/glossary are filled in by the queue on approval; the author
+    // does not choose the tag. The response returns immediately so the client
+    // can show a "đang xét duyệt" state without waiting on the AI call.
     const newMsg = new CommunityMessage({
       senderEmail: email,
       senderName: bio.displayName || email.split('@')[0],
       senderAvatar: bio.avatarUrl || '',
+      senderSlug: bio.slug || '',
       message: message.trim(),
       location: { lat, lng },
-      sentiment: audit.sentiment,
-      // Respect the tag the author explicitly picked (Chia sẻ / Câu hỏi);
-      // fall back to the AI's classification only when none was provided.
-      category: (category === 'câu hỏi' || category === 'chia sẻ') ? category : audit.category,
-      status: audit.status,
+      status: 'pending',
       createdAt: new Date()
     });
 
     await newMsg.save();
-
-    // Reward: +15 JOY for creating a post
-    await awardJoy(email, 15, 'community_post', 'Đăng bài viết mới lên cộng đồng');
-
-    // Broadcast push notifications asynchronously to nearby neighbors within 50km
-    (async () => {
-      try {
-        const title = `[Cộng đồng] Bài viết mới từ ${newMsg.senderName}`;
-        const body = message.trim().substring(0, 80);
-        const url = '/member/account';
-
-        const candidates = await Bio.find(
-          { email: { $ne: email } },
-          "email slug displayName trustedLocation lastLocationCheck address"
-        ).lean();
-
-        for (const cand of candidates) {
-          let cLat = null;
-          let cLng = null;
-          if (cand.lastLocationCheck && cand.lastLocationCheck.lat !== null) {
-            cLat = cand.lastLocationCheck.lat;
-            cLng = cand.lastLocationCheck.lng;
-          } else if (cand.trustedLocation && cand.trustedLocation.lat !== null) {
-            cLat = cand.trustedLocation.lat;
-            cLng = cand.trustedLocation.lng;
-          }
-
-          let isNear = false;
-          if (cLat !== null && cLng !== null) {
-            const dist = distanceKm(lat, lng, cLat, cLng);
-            if (dist !== null && dist <= 50) {
-              isNear = true;
-            }
-          } else {
-            if (bio.address && cand.address) {
-              const clean = str => str.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/);
-              const reqWords = clean(bio.address).filter(w => w.length >= 3);
-              const candWords = clean(cand.address).filter(w => w.length >= 3);
-              if (reqWords.some(w => candWords.includes(w))) {
-                isNear = true;
-              }
-            }
-          }
-
-          if (isNear) {
-            sendPushNotification(cand.email, title, body, url).catch(() => {});
-          }
-        }
-      } catch (err) {
-        console.error('[Community Chat Push] Broadcast failed:', err);
-      }
-    })();
+    enqueueModeration(newMsg._id);
 
     res.json({ success: true, message: newMsg });
   } catch (error) {
@@ -1254,19 +1300,15 @@ router.put('/community/chat/:id', requireMember, async (req, res) => {
       return res.status(403).json({ error: 'Bạn không có quyền sửa bài viết của người khác' });
     }
 
-    // Perform AI pre-moderation on edit
-    const audit = await auditContent(message.trim());
-    if (audit.status === 'rejected') {
-      return res.status(400).json({ error: 'Nội dung chỉnh sửa bị từ chối phê duyệt do không phù hợp.' });
-    }
-
+    // Edits are re-moderated through the same queue: reset to pending, then
+    // the AI re-checks language, re-tags and rebuilds the glossary.
     post.message = message.trim();
-    post.sentiment = audit.sentiment;
-    post.category = audit.category;
-    post.status = audit.status;
+    post.status = 'pending';
+    post.rejectReason = '';
     post.updatedAt = new Date();
 
     await post.save();
+    enqueueModeration(post._id);
     res.json({ success: true, message: post });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1295,6 +1337,33 @@ router.delete('/community/chat/:id', requireMember, async (req, res) => {
   }
 });
 
+// POST /community/chat/:id/resolve - Author marks their question thread answered
+router.post('/community/chat/:id/resolve', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { id } = req.params;
+
+    const post = await CommunityMessage.findById(id);
+    if (!post) {
+      return res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    }
+    if (post.senderEmail !== email) {
+      return res.status(403).json({ error: 'Chỉ tác giả mới có thể đánh dấu' });
+    }
+    if (post.category !== 'câu hỏi') {
+      return res.status(400).json({ error: 'Chỉ áp dụng cho bài Câu hỏi' });
+    }
+
+    post.resolved = !post.resolved;
+    post.updatedAt = new Date();
+    await post.save();
+
+    res.json({ success: true, resolved: post.resolved });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST /community/chat/:id/like - Toggle liking a post (+5 JOY reward)
 router.post('/community/chat/:id/like', requireMember, async (req, res) => {
   try {
@@ -1311,30 +1380,37 @@ router.post('/community/chat/:id/like', requireMember, async (req, res) => {
 
     const hasLiked = post.likes.includes(email);
     if (hasLiked) {
-      // Unlike
       post.likes = post.likes.filter(e => e !== email);
-      await post.save();
-
-      // Deduct author -5 JOY for un-like
-      try {
-        await awardJoy(post.senderEmail, -5, 'community_like_received', `Bài viết bị bỏ thả tim bởi ${displayName}`);
-      } catch (err) {
-        console.warn('[Like Deduct] Balance update warning:', err.message);
-      }
     } else {
-      // Like
       post.likes.push(email);
-      await post.save();
+    }
+    await post.save();
 
-      // Award author +5 JOY
+    // Respond immediately; JOY reward + push happen in the background so the
+    // like feels instant.
+    res.json({ success: true, likes: post.likes });
+
+    (async () => {
       try {
-        await awardJoy(post.senderEmail, 5, 'community_like_received', `Bài viết được thả tim bởi ${displayName}`);
+        await awardJoy(
+          post.senderEmail,
+          hasLiked ? -5 : 5,
+          'community_like_received',
+          hasLiked ? `Bài viết bị bỏ thả tim bởi ${displayName}` : `Bài viết được thả tim bởi ${displayName}`
+        );
       } catch (err) {
         console.warn('[Like Reward] Balance update warning:', err.message);
       }
-    }
-
-    res.json({ success: true, likes: post.likes });
+      if (!hasLiked && post.senderEmail !== email && !post.isBot) {
+        sendPushNotification(
+          post.senderEmail,
+          '❤️ Bài viết được thả tim',
+          `${displayName} đã thích bài viết của bạn`,
+          '/member/account'
+        ).catch(() => {});
+      }
+    })();
+    return;
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1384,10 +1460,25 @@ router.post('/community/chat/:id/comments', requireMember, async (req, res) => {
     post.comments.push(newComment);
     await post.save();
 
-    // Reward commenter: +7 JOY
-    await awardJoy(email, 7, 'community_comment', 'Bình luận bài viết cộng đồng');
-
+    // Respond immediately; JOY reward + push run in the background.
     res.json({ success: true, comments: post.comments });
+
+    (async () => {
+      try {
+        await awardJoy(email, 7, 'community_comment', 'Bình luận bài viết cộng đồng');
+      } catch (err) {
+        console.warn('[Comment Reward] warning:', err.message);
+      }
+      if (post.senderEmail !== email && !post.isBot) {
+        sendPushNotification(
+          post.senderEmail,
+          '💬 Bình luận mới về bài của bạn',
+          `${newComment.senderName}: ${message.trim().slice(0, 60)}`,
+          '/member/account'
+        ).catch(() => {});
+      }
+    })();
+    return;
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

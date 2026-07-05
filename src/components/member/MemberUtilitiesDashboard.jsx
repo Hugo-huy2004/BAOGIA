@@ -50,6 +50,16 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
 
   const utilities = [
     {
+      id: "bio",
+      icon: "badge",
+      glyphs: ["visibility", "link"],
+      tint: "purple",
+      title: "Trang Bio",
+      desc: "Xem trước trang Bio cá nhân công khai của bạn. Chỉnh sửa nội dung tại Cài đặt › Thông tin.",
+      shortDesc: "Xem trước trang Bio của bạn.",
+      btnText: "Xem trang Bio"
+    },
+    {
       id: "helpdesk",
       icon: "support_agent",
       glyphs: ["qr_code_2", "mail"],

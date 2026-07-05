@@ -31,12 +31,12 @@ export default defineConfig({
       avif: { lossless: true },
     }),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       includeAssets: ['favicon/**', 'image/**'],
       workbox: {
         cleanupOutdatedCaches: true,
-        skipWaiting: false,
-        clientsClaim: false,
+        skipWaiting: true,
+        clientsClaim: true,
         importScripts: ['/push-sw.js'],
         // Avoid including PNGs here because `includeAssets` already adds
         // favicon/** and image/** — listing PNGs in both places caused

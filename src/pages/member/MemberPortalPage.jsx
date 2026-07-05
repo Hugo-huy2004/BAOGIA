@@ -112,6 +112,16 @@ export default function MemberPortalPage() {
   // because it's fixed against a viewport that's actively resizing.
   const isKeyboardVisible = useKeyboardVisible();
   const isMobileView = useIsMobile();
+  // A full-screen sheet (e.g. community composer/comments) asks to hide the
+  // bottom tab-bar so it doesn't peek out from under the sheet. Fixed z-index
+  // alone can fail when an ancestor creates a stacking context, so we truly
+  // unmount the bar via this signal.
+  const [fullSheetOpen, setFullSheetOpen] = useState(false);
+  useEffect(() => {
+    const h = (e) => setFullSheetOpen(!!e.detail?.open);
+    window.addEventListener("hugo:fullsheet", h);
+    return () => window.removeEventListener("hugo:fullsheet", h);
+  }, []);
   const [verificationForm, setVerificationForm] = useState({
     fullName: memberSession?.displayName || "", birthday: "", schoolLevel: "",
     schoolName: "", schoolIdCode: "", phoneZalo: "", acceptTerms: false, acceptContact: false,
@@ -1075,7 +1085,7 @@ export default function MemberPortalPage() {
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
       {bio?.status !== 'pending' && !isKeyboardVisible && (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] md:hidden glass border-t border-zinc-200/40 dark:border-zinc-800/30 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
+        <div className={`fixed bottom-0 left-0 right-0 z-[100] md:hidden glass border-t border-zinc-200/40 dark:border-zinc-800/30 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)', paddingTop: '10px' }}>
           <div className="flex justify-around px-2">
             {mobileTabs.map(tab => {

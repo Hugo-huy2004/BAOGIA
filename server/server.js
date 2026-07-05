@@ -238,6 +238,8 @@ import { initProactivePushService } from './services/proactivePushService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
 import { initChessWS } from './services/chessWS.js';
 import { initCronJobs } from './utils/cronJobs.js';
+import { initCommunityBot } from './utils/communityBot.js';
+import { initKeepAlive } from './utils/keepAlive.js';
 
 // Create HTTP server so WebSocket can share the same port
 const server = http.createServer(app);
@@ -354,5 +356,11 @@ server.listen(PORT, () => {
 
   // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
   initCronJobs();
+
+  // Initialize the HugoCommunication AI auto-poster (every 15m, max 20/day, 7-day TTL)
+  initCommunityBot();
+
+  // Keep the free-tier instance warm (self-ping /api/health every 10 min)
+  initKeepAlive();
 });
 // Nodemon watch trigger

@@ -83,12 +83,23 @@ router.get('/balance', requireMember, async (req, res) => {
     const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Email query param is required' });
 
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    // Fast path: a lean, projected read of just the two fields we return.
+    // Avoids hydrating the whole Bio doc (history/projects/comments arrays) which
+    // made this hot endpoint slow. Only the rare "no referral code yet" case
+    // falls back to loading a full mongoose doc to generate + save one.
+    let bio = await Bio.findOne({ email }, 'joyBalance referralCode').lean();
+    if (!bio) bio = await Bio.findOne({ contactEmail: email }, 'joyBalance referralCode').lean();
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
-    const referralCode = await ensureReferralCode(bio);
-    res.json({ balance: bio.joyBalance, referralCode });
+    if (bio.referralCode) {
+      return res.json({ balance: bio.joyBalance || 0, referralCode: bio.referralCode });
+    }
+
+    // First-time only: generate & persist a referral code.
+    let full = await Bio.findOne({ email });
+    if (!full) full = await Bio.findOne({ contactEmail: email });
+    const referralCode = await ensureReferralCode(full);
+    res.json({ balance: full.joyBalance || 0, referralCode });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
