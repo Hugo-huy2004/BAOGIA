@@ -35,6 +35,9 @@ const CommunityMessageSchema = new mongoose.Schema({
   // When set (bot posts only), MongoDB TTL auto-removes the doc at this time (~7 days).
   // User posts leave this unset so they are never auto-deleted.
   expiresAt: { type: Date },
+  // Semantic embedding of the post body (for personalised feed + semantic search).
+  // select:false so the big vector is never shipped to clients unless asked.
+  embedding: { type: [Number], default: [], select: false },
   likes: { type: [String], default: [] }, // Array of emails who liked
   comments: { type: [CommentSchema], default: [] },
   createdAt: { type: Date, default: Date.now },

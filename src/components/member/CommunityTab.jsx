@@ -17,6 +17,9 @@ const av = (url, fallback = "/image/avt1.png") => optimizeCloudinaryUrl(url || f
 
 const OWNER_EMAIL = "huylggcs230377@fpt.edu.vn";
 
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
+const CHAT_API = `${API_BASE}/bios/community/chat`;
+
 // Tag identities — one accent each, kept consistent across composer/badge/filter.
 const TAGS = {
   "chia sẻ": {
@@ -112,9 +115,10 @@ export default function CommunityTab({ memberSession, bio }) {
   const fetchPosts = async (lat, lng, showLoading = true) => {
     try {
       if (showLoading) setPostsLoading(true);
-      let url = "/api/bios/community/chat";
-      if (lat !== null && lng !== null) url += `?lat=${lat}&lng=${lng}`;
-      const res = await fetch(url);
+      // rank=smart → server personalises the order by the user's interests.
+      let url = `${CHAT_API}?rank=smart`;
+      if (lat !== null && lng !== null) url += `&lat=${lat}&lng=${lng}`;
+      const res = await fetch(url, { credentials: "include" });
       const data = await res.json();
       if (data.success && data.messages) setPosts(data.messages);
     } catch (e) {
@@ -169,8 +173,9 @@ export default function CommunityTab({ memberSession, bio }) {
     playBeep();
     const editing = !!editingPostId;
     try {
-      const res = await fetch(editing ? `/api/bios/community/chat/${editingPostId}` : "/api/bios/community/chat", {
+      const res = await fetch(editing ? `${CHAT_API}/${editingPostId}` : CHAT_API, {
         method: editing ? "PUT" : "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: newPostText.trim(),
@@ -202,7 +207,7 @@ export default function CommunityTab({ memberSession, bio }) {
   const handleToggleLike = async (postId) => {
     playBeep();
     try {
-      const res = await fetch(`/api/bios/community/chat/${postId}/like`, { method: "POST" });
+      const res = await fetch(`${CHAT_API}/${postId}/like`, { method: "POST", credentials: "include" });
       const data = await res.json();
       if (data.success) setPosts((prev) => prev.map((p) => (p._id === postId ? { ...p, likes: data.likes } : p)));
     } catch (err) {}
@@ -212,8 +217,9 @@ export default function CommunityTab({ memberSession, bio }) {
     if (!activeCommentPostId || !commentInput.trim()) return;
     playBeep();
     try {
-      const res = await fetch(`/api/bios/community/chat/${activeCommentPostId}/comments`, {
+      const res = await fetch(`${CHAT_API}/${activeCommentPostId}/comments`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: commentInput.trim() }),
       });
@@ -232,7 +238,7 @@ export default function CommunityTab({ memberSession, bio }) {
     if (!ok) return;
     playBeep();
     try {
-      const res = await fetch(`/api/bios/community/chat/${postId}`, { method: "DELETE" });
+      const res = await fetch(`${CHAT_API}/${postId}`, { method: "DELETE", credentials: "include" });
       if (res.ok) {
         setPosts((prev) => prev.filter((p) => p._id !== postId));
         notify.success("Đã xóa bài viết");
@@ -269,10 +275,13 @@ export default function CommunityTab({ memberSession, bio }) {
         return tokens.every((tk) => hay.includes(tk));
       });
     }
-    // Everything mixed together, newest first. Filtering is done via search.
-    list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    return list;
-  }, [posts, search]);
+    // Keep the server's personalised order; only float the user's own pending
+    // posts to the very top so they can see them being reviewed.
+    const isOwnPending = (p) => p.senderEmail === memberSession?.email && p.status === "pending";
+    const pending = list.filter(isOwnPending);
+    const rest = list.filter((p) => !isOwnPending(p));
+    return [...pending, ...rest];
+  }, [posts, search, memberSession?.email]);
 
   const activePost = posts.find((p) => p._id === activeCommentPostId);
 
@@ -280,7 +289,7 @@ export default function CommunityTab({ memberSession, bio }) {
     playBeep();
     setActiveMenu(null);
     try {
-      const res = await fetch(`/api/bios/community/chat/${postId}/resolve`, { method: "POST" });
+      const res = await fetch(`${CHAT_API}/${postId}/resolve`, { method: "POST", credentials: "include" });
       const data = await res.json();
       if (data.success) {
         setPosts((prev) => prev.map((p) => (p._id === postId ? { ...p, resolved: data.resolved } : p)));

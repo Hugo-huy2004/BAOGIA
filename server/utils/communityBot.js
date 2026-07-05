@@ -1,5 +1,20 @@
 import cron from 'node-cron';
 import CommunityMessage from '../models/CommunityMessage.js';
+import { getPopularTopics } from '../services/userUnderstanding.js';
+
+// Bot topic labels aligned to the community's aggregate interest topics, so the
+// auto-poster leans toward what the majority actually engages with.
+const POPULAR_LABEL = {
+  game: 'một câu chuyện hoặc tin thú vị về thế giới game',
+  anime: 'một fun fact thú vị về một nhân vật anime nổi tiếng',
+  pokemon: 'một điều bất ngờ, thú vị về thế giới Pokémon',
+  study: 'một tip học tập / ôn thi hiệu quả cho sinh viên',
+  tech: 'một tin công nghệ hoặc lập trình mới lạ, hữu ích',
+  health: 'một mẹo giữ sức khỏe cho sinh viên bận rộn',
+  mental: 'một lời khuyên nhẹ nhàng về sức khỏe tinh thần cho sinh viên',
+  science: 'một hiện tượng khoa học / vật lý bí ẩn thú vị',
+  news: 'một tin tức đời sống mới lạ, hữu ích cho sinh viên',
+};
 
 // ─── HugoCommunication AI auto-poster ────────────────────────────────────────
 // Uses the existing Gemini (HugoPSY) model to auto-publish light "advertising"/
@@ -93,7 +108,14 @@ async function generateBotPost() {
     senderEmail = ANON_EMAIL;
     prompt = `Bạn là một người dùng ẩn danh vui vẻ trên mạng xã hội sinh viên. Viết MỘT bài khảo sát NGẮN (1-2 câu, tiếng Việt, vui, thân thiện) hỏi cộng đồng về: ${theme}. Mời mọi người bình luận lựa chọn của họ và lý do. Chỉ trả về nội dung bài viết, không tiêu đề, không markdown, không hashtag.`;
   } else {
-    const t = TOPICS[Math.floor(Math.random() * TOPICS.length)];
+    // Learning loop: 55% of the time steer toward the community's popular topics.
+    let t = null;
+    if (Math.random() < 0.55) {
+      const pop = await getPopularTopics(4);
+      const labels = pop.map((k) => POPULAR_LABEL[k]).filter(Boolean);
+      if (labels.length) t = { label: labels[Math.floor(Math.random() * labels.length)], category: 'chia sẻ' };
+    }
+    if (!t) t = TOPICS[Math.floor(Math.random() * TOPICS.length)];
     category = t.category;
     senderName = 'Người ẩn danh';
     senderEmail = ANON_EMAIL;

@@ -10,6 +10,8 @@ import { sendPushNotification } from '../utils/pushNotifier.js';
 import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
 import { isEduEmail } from '../utils/eduEmail.js';
 import { broadcastToEmail } from '../utils/realtime.js';
+import { embedText, cosine } from '../services/embeddingService.js';
+import { recordSignal, getTopInterests, getPeakHour, getInterestEmbedding, refreshInterestEmbedding } from '../services/userUnderstanding.js';
 import { checkAndResetDecoRoom, updateTrashAndPetStatus } from '../utils/decoHelper.js';
 import { awardJoy } from '../utils/joyService.js';
 
@@ -1137,7 +1139,17 @@ async function moderateOnePost(postId) {
   post.status = 'approved';
   post.rejectReason = '';
   post.moderatedAt = new Date();
+  // Semantic embedding for personalised feed + semantic search (null if no API key).
+  try {
+    const vec = await embedText(post.message);
+    if (vec) post.embedding = vec;
+  } catch { /* non-fatal */ }
   await post.save();
+
+  // Learn the author's interests from what they publish (real user posts only).
+  if (!post.isBot) {
+    recordSignal(post.senderEmail, { text: post.message, category: post.category, weight: 2 });
+  }
 
   // Reward the author only once the post is actually published
   try {
@@ -1209,18 +1221,82 @@ async function broadcastCommunityPush(post) {
 })();
 
 // GET /community/chat - Fetch approved posts (and current user's pending/rejected ones)
+// ?rank=smart → personalise order by the requester's interest embedding.
 router.get('/community/chat', requireMember, async (req, res) => {
   try {
     const email = req.memberEmail;
-    // Return approved posts OR posts written by the requester
-    const messages = await CommunityMessage.find({
-      $or: [
-        { status: 'approved' },
-        { senderEmail: email }
-      ]
-    }).sort({ createdAt: -1 }).limit(300);
+    const smart = req.query.rank === 'smart';
 
-    res.json({ success: true, messages });
+    const query = { $or: [{ status: 'approved' }, { senderEmail: email }] };
+
+    if (!smart) {
+      const messages = await CommunityMessage.find(query).sort({ createdAt: -1 }).limit(300);
+      return res.json({ success: true, messages });
+    }
+
+    // Smart ranking: blend semantic relevance (cosine to interest vector) with
+    // recency. Falls back to chronological when embeddings aren't available.
+    const { vec: interestVec, at } = await getInterestEmbedding(email);
+
+    // Refresh a stale/missing interest embedding in the background for next time.
+    if (!at || Date.now() - new Date(at).getTime() > 6 * 60 * 60 * 1000) {
+      refreshInterestEmbedding(email).catch(() => {});
+    }
+
+    const docs = await CommunityMessage.find(query).select('+embedding').sort({ createdAt: -1 }).limit(300).lean();
+
+    if (interestVec) {
+      const now = Date.now();
+      const HALF_LIFE = 48 * 60 * 60 * 1000; // recency half-life ~2 days
+      for (const d of docs) {
+        const rel = d.embedding?.length ? cosine(interestVec, d.embedding) : 0; // -1..1
+        const ageMs = now - new Date(d.createdAt).getTime();
+        const recency = Math.pow(0.5, ageMs / HALF_LIFE); // 0..1
+        d._score = 0.62 * ((rel + 1) / 2) + 0.38 * recency;
+      }
+      docs.sort((a, b) => (b._score || 0) - (a._score || 0));
+    }
+    // Never ship the big vectors / internal score to the client.
+    for (const d of docs) { delete d.embedding; delete d._score; }
+
+    res.json({ success: true, messages: docs, personalized: !!interestVec });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /community/search?q= - Semantic search over approved posts.
+router.get('/community/search', requireMember, async (req, res) => {
+  try {
+    const q = String(req.query.q || '').trim();
+    if (!q) return res.json({ success: true, messages: [] });
+
+    const qVec = await embedText(q);
+    const docs = await CommunityMessage.find({ status: 'approved' }).select('+embedding').sort({ createdAt: -1 }).limit(300).lean();
+
+    if (qVec) {
+      for (const d of docs) d._score = d.embedding?.length ? cosine(qVec, d.embedding) : 0;
+      docs.sort((a, b) => (b._score || 0) - (a._score || 0));
+    } else {
+      // No embeddings → keyword fallback.
+      const nq = q.toLowerCase();
+      const hit = docs.filter((d) => (d.message || '').toLowerCase().includes(nq) || (d.senderName || '').toLowerCase().includes(nq));
+      hit.length && (docs.length = 0, docs.push(...hit));
+    }
+    const top = docs.slice(0, 40);
+    for (const d of top) { delete d.embedding; delete d._score; }
+    res.json({ success: true, messages: top, semantic: !!qVec });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /community/insights - the requester's "chân dung số" (transparency + UI).
+router.get('/community/insights', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const [interests, peakHour] = await Promise.all([getTopInterests(email, 8), getPeakHour(email)]);
+    res.json({ success: true, interests, peakHour });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1409,6 +1485,8 @@ router.post('/community/chat/:id/like', requireMember, async (req, res) => {
           '/member/account'
         ).catch(() => {});
       }
+      // Liking something signals interest in that topic.
+      if (!hasLiked) recordSignal(email, { text: post.message, category: post.category, weight: 1 });
     })();
     return;
   } catch (error) {
@@ -1477,6 +1555,8 @@ router.post('/community/chat/:id/comments', requireMember, async (req, res) => {
           '/member/account'
         ).catch(() => {});
       }
+      // Commenting is a strong interest signal (they engaged deeply).
+      recordSignal(email, { text: `${message} ${post.message}`, category: post.category, weight: 1.5 });
     })();
     return;
   } catch (error) {
