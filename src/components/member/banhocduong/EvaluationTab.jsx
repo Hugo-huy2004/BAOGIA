@@ -176,7 +176,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
       const d = new Date(isoString);
       const pad = (n) => n.toString().padStart(2, "0");
       return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    } catch (e) {
+    } catch {
       return t("companion.evaluation.notSet", "Không xác định");
     }
   };

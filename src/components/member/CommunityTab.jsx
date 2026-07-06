@@ -141,8 +141,8 @@ export default function CommunityTab({ memberSession, bio }) {
       const res = await fetch(url, { credentials: "include" });
       const data = await res.json();
       if (data.success && data.messages) setPosts(data.messages);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // Transient (backend restarting / offline) — the 8s poll will recover.
     } finally {
       setPostsLoading(false);
     }

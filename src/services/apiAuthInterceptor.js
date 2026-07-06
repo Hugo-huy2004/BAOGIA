@@ -61,10 +61,11 @@ export function installApiAuthInterceptor() {
         return originalFetch(input, { credentials: "include", ...init, headers })
           .then((res) => {
             const durationMs = performance.now() - startedAt;
-            // Never report 429s: they're expected backpressure, not actionable
-            // errors, and each report is itself a request that would amplify the
-            // rate-limit storm it's reacting to.
-            if (res.status !== 429 && (!res.ok || durationMs >= SLOW_API_MS)) {
+            // Don't report transient/non-actionable statuses: 429 (backpressure)
+            // and 502/503/504 (gateway — backend restarting). Each report is
+            // itself a request that would fail the same way and amplify the noise.
+            const transient = res.status === 429 || res.status === 502 || res.status === 503 || res.status === 504;
+            if (!transient && (!res.ok || durationMs >= SLOW_API_MS)) {
               record({
                 type: res.ok ? "slow-api" : "api-error",
                 status: res.status,
@@ -74,11 +75,10 @@ export function installApiAuthInterceptor() {
             return res;
           })
           .catch((error) => {
-            record({
-              type: "api-network-error",
-              message: error?.message || error,
-              stack: error?.stack,
-            });
+            // Network errors (backend down / restarting / offline) are transient
+            // connectivity, not actionable app bugs — reporting them just fires
+            // another doomed request. Swallow the report; still reject so the
+            // caller's own retry/fallback logic runs.
             throw error;
           });
       }

@@ -122,7 +122,7 @@ class MemberPartnerTab extends Component {
                         if (match) url = match[1];
                       }
                       domain = new URL(url).hostname;
-                    } catch (e) {
+                    } catch {
                       // Ignore url parse errors
                     }
                     const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;

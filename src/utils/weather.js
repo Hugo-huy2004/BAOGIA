@@ -133,7 +133,7 @@ export async function fetchWeather(lat, lon) {
         }
       }
     }
-  } catch (e) {
+  } catch {
     // Ignore sessionStorage errors
   }
 
@@ -171,7 +171,7 @@ export async function fetchWeather(lat, lon) {
 
   try {
     sessionStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), data: result }));
-  } catch (e) {
+  } catch {
     // Ignore sessionStorage errors
   }
   

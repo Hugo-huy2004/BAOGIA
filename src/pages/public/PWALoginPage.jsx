@@ -216,7 +216,7 @@ export default function PWALoginPage() {
         }} />
 
         {/* Ambient Plasma Background - Fades in dynamically */}
-        <div 
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.6 }}
           transition={{ duration: 3, delay: 0.5 }}
@@ -238,7 +238,7 @@ export default function PWALoginPage() {
             className="absolute top-[40%] left-[10%] h-[50vw] w-[50vw] rounded-full bg-[#22c55e]/12 blur-[90px]"
             style={{ animation: 'float1 20s ease-in-out infinite reverse' }}
           />
-        </div>
+        </m.div>
 
         <HugoNoticeToast
           open={Boolean(toast.message)}

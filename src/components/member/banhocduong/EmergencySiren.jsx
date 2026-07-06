@@ -95,7 +95,7 @@ function useSiren() {
   };
 
   // Safety net: tear everything down if the component unmounts mid-alarm.
-  useEffect(() => stop, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => stop, []);  
 
   return { active, start, stop };
 }

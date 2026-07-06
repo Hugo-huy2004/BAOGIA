@@ -69,9 +69,9 @@ export default function AchievementsSubTab({ formData, setFormData, showToast, i
   };
 
   const FILTERS = [
-    { id: "all",     label: "Tất cả",  icon: "apps",           count: merged.length },
-    { id: "project", label: "Dự án",   icon: "folder_special", count: projects.length },
-    { id: "service", label: "Dịch vụ", icon: "storefront",     count: services.length },
+    { id: "all",     label: t("memberTabs.achievements.all"),  icon: "apps",           count: merged.length },
+    { id: "project", label: t("memberTabs.achievements.project"),   icon: "folder_special", count: projects.length },
+    { id: "service", label: t("memberTabs.achievements.service"), icon: "storefront",     count: services.length },
   ];
 
   return (
@@ -79,18 +79,18 @@ export default function AchievementsSubTab({ formData, setFormData, showToast, i
       <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 p-5 sm:p-6 shadow-sm space-y-5">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <h3 className="font-black text-sm uppercase tracking-wider text-foreground flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-lg">military_tech</span>Thành tích
+            <span className="material-symbols-outlined text-primary text-lg">military_tech</span>{t("memberTabs.achievements.title")}
           </h3>
           <button
             onClick={() => setShowForm(v => !v)}
             className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-[11px] font-bold uppercase tracking-wider transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
           >
             <span className="material-symbols-outlined text-sm">{showForm ? "close" : "add_circle"}</span>
-            {showForm ? "Đóng" : "Thêm mới"}
+            {showForm ? t("memberTabs.achievements.close") : t("memberTabs.achievements.addNew")}
           </button>
         </div>
 
-        <p className="text-xs text-muted-foreground -mt-2">Liệt kê dự án bạn từng làm và dịch vụ bạn cung cấp — hiển thị công khai trên trang Bio của bạn.</p>
+        <p className="text-xs text-muted-foreground -mt-2">{t("memberTabs.achievements.desc")}</p>
 
         {/* Filter pills */}
         <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
@@ -112,7 +112,7 @@ export default function AchievementsSubTab({ formData, setFormData, showToast, i
         {showForm && (
           <div className="bg-slate-50 dark:bg-slate-900/30 p-4 rounded-lg border border-slate-100 dark:border-slate-800/60 space-y-4 animate-fadeIn">
             <div className="flex gap-1.5">
-              {[{ id: "project", label: "Dự án" }, { id: "service", label: "Dịch vụ" }].map(o => (
+              {[{ id: "project", label: t("memberTabs.achievements.project") }, { id: "service", label: t("memberTabs.achievements.service") }].map(o => (
                 <button
                   key={o.id}
                   onClick={() => setAddType(o.id)}
@@ -177,7 +177,7 @@ export default function AchievementsSubTab({ formData, setFormData, showToast, i
         {filtered.length === 0 ? (
           <div className="py-10 text-center bg-slate-50/50 dark:bg-[#0c0b11]/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-800/60">
             <span className="material-symbols-outlined text-3xl text-slate-300 dark:text-slate-700 mb-2">military_tech</span>
-            <p className="text-[10px] text-slate-400 font-medium">Chưa có thành tích nào — nhấn "Thêm mới" để bắt đầu.</p>
+            <p className="text-[10px] text-slate-400 font-medium">{t("memberTabs.achievements.empty")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -192,7 +192,7 @@ export default function AchievementsSubTab({ formData, setFormData, showToast, i
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full ${
                       item._type === "project" ? "bg-primary/10 text-primary" : "bg-success/10 text-success"
-                    }`}>{item._type === "project" ? "Dự án" : "Dịch vụ"}</span>
+                    }`}>{item._type === "project" ? t("memberTabs.achievements.project") : t("memberTabs.achievements.service")}</span>
                     {item._type === "service" && <span className="font-mono text-success font-bold text-[10px]">{item.price}</span>}
                   </div>
                   <h5 className="font-bold text-foreground text-xs truncate">{item._type === "project" ? item.title : item.name}</h5>

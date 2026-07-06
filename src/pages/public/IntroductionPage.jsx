@@ -5,6 +5,16 @@ import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { motion } from "framer-motion";
 import { useTranslation, Trans } from "react-i18next";
+
+// Decorative rain drops — randomised ONCE at module load (not during render),
+// so it stays pure and the drops don't reshuffle on every re-render.
+const RAIN_DROPS = Array.from({ length: 30 }, () => ({
+  left: `${Math.random() * 100}%`,
+  top: `-${Math.random() * 20 + 10}%`,
+  animationDelay: `${Math.random() * 2}s`,
+  animationDuration: `${Math.random() * 0.5 + 0.5}s`,
+}));
+
 export default function IntroductionPage() {
   const { data } = useData();
   const { t } = useTranslation();
@@ -65,7 +75,7 @@ export default function IntroductionPage() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.08);
-    } catch (e) {
+    } catch {
       // Ignore audio context errors if user hasn't interacted
     }
   };
@@ -977,16 +987,11 @@ export default function IntroductionPage() {
         <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
           {/* RAIN EFFECT BACKGROUND */}
           <div className="absolute inset-0 pointer-events-none z-0 opacity-50">
-            {[...Array(30)].map((_, i) => (
-              <div 
+            {RAIN_DROPS.map((drop, i) => (
+              <div
                 key={`rain-${i}`}
                 className="absolute w-[1px] h-[80px] bg-gradient-to-b from-transparent via-emerald-200 to-transparent animate-rain-drop"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `-${Math.random() * 20 + 10}%`,
-                  animationDelay: `${Math.random() * 2}s`,
-                  animationDuration: `${Math.random() * 0.5 + 0.5}s`
-                }}
+                style={drop}
               />
             ))}
           </div>

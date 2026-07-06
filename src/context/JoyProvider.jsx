@@ -19,7 +19,7 @@ export function JoyProvider({ children, email = "user@example.com" }) {
       if (!res.ok) throw new Error("Failed to load balance");
       const d = await res.json();
       setBalance(d.balance ?? d?.data?.balance ?? 0);
-    } catch (e) {
+    } catch {
       // fallback
       setBalance((b) => (b == null ? 1250 : b));
     }
@@ -31,7 +31,7 @@ export function JoyProvider({ children, email = "user@example.com" }) {
       if (!res.ok) throw new Error("Failed to load transactions");
       const d = await res.json();
       setTransactions(d.transactions ?? d ?? []);
-    } catch (e) {
+    } catch {
       setTransactions((txs) => (txs.length ? txs : [
         { id: "TX1", label: "Mua theme", amount: -120, when: "2026-06-01" },
         { id: "TX2", label: "Thưởng cộng tác", amount: 400, when: "2026-06-03" },
@@ -59,7 +59,7 @@ export function JoyProvider({ children, email = "user@example.com" }) {
       // refresh data after success
       await refreshAll();
       return d;
-    } catch (e) {
+    } catch {
       throw e;
     }
   }
@@ -93,7 +93,7 @@ export function JoyProvider({ children, email = "user@example.com" }) {
       // refresh balance/transactions to ensure canonical state
       await refreshAll();
       return d;
-    } catch (e) {
+    } catch {
       // rollback optimistic change
       setTransactions((t) => t.filter((x) => x.id !== tempId));
       if (prevBalance != null) setBalance(prevBalance);

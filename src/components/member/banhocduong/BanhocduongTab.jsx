@@ -481,7 +481,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       const db = await dataApi.getCompanionHistory(memberEmail);
       if (!db) return;
       applyCompanionSnapshot(db);
-    } catch (e) { console.error("BHD syncWithDb:", e); }
+    } catch { console.error("BHD syncWithDb:", e); }
   }, [memberEmail, applyCompanionSnapshot]);
 
   useEffect(() => { syncWithDb(); }, [syncWithDb]);
@@ -507,7 +507,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       if (res?.companionHistory) {
         applyCompanionSnapshot(res.companionHistory);
       }
-    } catch (e) { console.error("BHD handleUpdateCompanionState:", e); }
+    } catch { console.error("BHD handleUpdateCompanionState:", e); }
   }, [memberEmail, healingActive, healingDuration, healingStartDate, historyLogs, chatMessages, applyCompanionSnapshot]);
 
   // ── Adaptation alert ──────────────────────────────────────────────────────────
@@ -574,7 +574,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       });
       const data = await r.json();
       if (r.ok) setCrisisFlags(data.crisisFlags || []);
-    } catch (e) { console.error("BHD crisis resolve:", e); }
+    } catch { console.error("BHD crisis resolve:", e); }
   };
 
   const handleClaimChallenge = async (challengeId) => {

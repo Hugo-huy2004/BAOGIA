@@ -450,7 +450,7 @@ export default function ChatTab({
             // fall through to the fresh greeting below instead of showing an
             // empty chat.
           }
-        } catch (e) {
+        } catch {
           console.error("Failed to parse local chat messages", e);
         }
       }

@@ -111,7 +111,7 @@ export default function AdminPanel() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.15);
-    } catch (e) {
+    } catch {
       console.warn("Audio pop effect failed:", e);
     }
   };
@@ -169,7 +169,7 @@ export default function AdminPanel() {
         setUserStats(stats);
         setCounts(prev => ({ ...prev, users: stats.total }));
       }
-    } catch (e) {
+    } catch {
       console.error("Error fetching users:", e);
     }
   };
@@ -261,7 +261,7 @@ export default function AdminPanel() {
       showNotification(nextStatus === 'locked' ? t("admin.texts.txt_143") : t("admin.texts.txt_144"));
       setUsers(prev => prev.map(u => u._id === bioId ? { ...u, status: nextStatus } : u));
       handleRefreshUsers();
-    } catch (e) {
+    } catch {
       showNotification(t("admin.texts.txt_146"), "error");
     }
   };

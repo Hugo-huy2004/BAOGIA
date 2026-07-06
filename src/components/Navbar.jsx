@@ -1,10 +1,8 @@
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSession";
 import { useData } from "../context/DataContext";
 import MobileDrawer from "./MobileDrawer";
 import { useTranslation } from "react-i18next";
-import { useUIStore } from "../stores/uiStore";
 
 function playPop() {
   try {
@@ -20,7 +18,9 @@ function playPop() {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.15);
-  } catch (e) { /* silent */ }
+  } catch {
+    /* silent */
+  }
 }
 
 function NavLink({ to, active, onClick, children }) {
@@ -42,7 +42,6 @@ export default function Navbar() {
   const { t, i18n } = useTranslation();
   const allowBooking = data?.systemSettings?.allowBooking !== false;
 
-  const isLoggedIn = isMemberAuthenticated() || isAdminAuthenticated();
   const accountPath = isAdminAuthenticated() ? "/admin" : (isMemberAuthenticated() ? "/member" : "/login");
 
   const toggleLanguage = () => {
@@ -84,9 +83,6 @@ export default function Navbar() {
           </NavLink>
           <NavLink to="/services" active={isAt("/services")} onClick={playPop}>
             {t("navbar.services", "Dịch vụ")}
-          </NavLink>
-          <NavLink to="/templates" active={isAt("/templates")} onClick={playPop}>
-            {t("navbar.templates", "Tác Phẩm")}
           </NavLink>
           <NavLink to="/faq" active={isAt("/faq")} onClick={playPop}>
             {t("navbar.faq", "Hỏi đáp")}

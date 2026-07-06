@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Blocks, Swords, Castle, Keyboard, Zap, Infinity } from "lucide-react";
+import { Blocks, Swords, Castle, Keyboard, Zap, Infinity as InfinityIcon } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import ArcadeGameFrame from "./ArcadeGameFrame";
 

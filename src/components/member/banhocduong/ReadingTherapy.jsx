@@ -161,7 +161,7 @@ export default function ReadingTherapy({ onBack, onCompleteActivity, showToast, 
         setReadingSeconds(s => s + 1);
       }, 1000);
       
-    } catch (e) {
+    } catch {
       showToast?.(e.message || "Lỗi tạo truyện trị liệu.", "error");
       setStep("setup");
     }

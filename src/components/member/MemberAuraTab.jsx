@@ -295,7 +295,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
       const bell = new Audio("https://www.soundjay.com/clock/sounds/bell-ringing-05.mp3");
       bell.volume = 0.25;
       bell.play().catch(() => {});
-    } catch(e) {}
+    } catch {}
 
     if (timerMode === "focus") {
       showToast?.(t("aura.toastFocusCompleted", { minutes: selectedMinutes }), "success");
@@ -316,7 +316,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
           } else {
             showToast?.(data.error || t("aura.toastJoyFailed"), "error");
           }
-        } catch (e) {
+        } catch {
           console.error("Failed to award focus points:", e);
         }
       }
@@ -461,7 +461,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
         }, 2500);
 
       }, 1500);
-    } catch (e) {
+    } catch {
       showToast?.(t("aura.toastNetworkError"), "error");
       setIsProcessingRent(false);
     }
@@ -484,7 +484,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
       onBioUpdate?.(data.bio);
       const themeName = t(`aura.theme${themeId.charAt(0).toUpperCase() + themeId.slice(1)}Name`);
       showToast?.(t("aura.toastSelectSuccess", { name: themeName }), "success");
-    } catch (e) {
+    } catch {
       showToast?.(t("aura.toastNetworkError"), "error");
     }
   };

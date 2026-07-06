@@ -25,8 +25,7 @@ export default function LivePreviewPage() {
         if (host.includes("imgix.net") || host.includes("cloudfront.net")) {
           return url.split("?")[0] + "?auto=format,compress&w=800";
         }
-      } catch (e) {
-      }
+      } catch { /* ignore */ }
       return url;
     };
 
@@ -54,7 +53,7 @@ export default function LivePreviewPage() {
         try {
           const optimized = optimizeMedia(event.data.payload);
           setBio(optimized);
-        } catch (e) {
+        } catch {
           setBio(event.data.payload);
         }
       }

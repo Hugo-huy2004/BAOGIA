@@ -554,7 +554,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
       playBeep();
       setIgnoredScanPayloads(new Set());
       selectRecipient(data);
-    } catch (e) {
+    } catch {
       playLose();
       setIgnoredScanPayloads(prev => {
         const next = new Set(prev);
@@ -591,7 +591,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
       playWin();
       onSuccess?.(data);
       setStep("success");
-    } catch (e) {
+    } catch {
       playLose();
       setError(e.message);
       setStep("invoice");

@@ -513,7 +513,7 @@ export default function MemberPortalPage() {
             }
           }
         }
-      } catch (_) {}
+      } catch { /* ignore */ }
     }, 5000);
     return () => clearInterval(interval);
   }, [bio?.status, bio?.verificationRequest?.submitted, isGuestMode, memberSession]); // eslint-disable-line
@@ -552,7 +552,7 @@ export default function MemberPortalPage() {
   }, []);
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
-  const handleLogout = () => { if (memberSession?.email) clearCachedBio(memberSession.email); logoutAuth(); window.location.href = "/login"; };
+  const handleLogout = () => { if (memberSession?.email) clearCachedBio(memberSession.email); logoutAuth(); window.location.assign("/login"); };
 
   const handleVerificationSubmit = async (e) => {
     e.preventDefault();
@@ -672,7 +672,7 @@ export default function MemberPortalPage() {
         { id: "verify",    label: t("memberPortal.tabs.verifyEduPending"), icon: "school",          partner: false, alert: !bio?.verificationRequest?.submitted }
       ] : []),
       ...(!isGuestMode ? [
-        { id: "settings",  label: t("memberPortal.tabs.settings"),  icon: "settings",        partner: false }
+        { id: "settings",  label: t("memberPortal.tabs.settings"),  icon: "person",        partner: false }
       ] : []),
     ];
   }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);
@@ -694,7 +694,7 @@ export default function MemberPortalPage() {
         ...(needsEduVerification ? [
           { id: "verify",  label: t("memberPortal.tabs.verify"),    icon: "school", alert: !bio?.verificationRequest?.submitted }
         ] : []),
-        { id: "settings",  label: t("memberPortal.tabs.settings"),  icon: "settings" },
+        { id: "settings",  label: t("memberPortal.tabs.settings"),  icon: "person" },
       ];
     }
   }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);
@@ -712,7 +712,7 @@ export default function MemberPortalPage() {
 
   const onTabClick = (tab) => {
     if (tab.id === "login") {
-      window.location.href = "/login";
+      window.location.assign("/login");
       return;
     }
     if (tab.partner) {

@@ -9,7 +9,7 @@ let runtimeEnabled = ENABLE_CLIENT_MONITORING;
 try {
   const until = Number(sessionStorage.getItem('clientMonitoringDisabledUntil') || '0');
   if (until && Date.now() < until) runtimeEnabled = false;
-} catch (_) {}
+} catch { /* ignore */ }
 const EVENT_URL = `${API_BASE}/ops/client-event`;
 const SLOW_API_MS = Number(import.meta.env.VITE_SLOW_API_MS || 3000);
 const SLOW_VITAL_RATINGS = new Set(["needs-improvement", "poor"]);
@@ -75,12 +75,12 @@ export function reportClientEvent(event) {
       if (!res.ok && (res.status === 404 || res.status === 410)) {
         // Ops endpoint missing — disable reporting for 10 minutes to avoid spam.
         runtimeEnabled = false;
-        try { sessionStorage.setItem('clientMonitoringDisabledUntil', String(Date.now() + 10 * 60 * 1000)); } catch (_) {}
+        try { sessionStorage.setItem('clientMonitoringDisabledUntil', String(Date.now() + 10 * 60 * 1000)); } catch { /* ignore */ }
       }
     })
     .catch(() => {
       runtimeEnabled = false;
-      try { sessionStorage.setItem('clientMonitoringDisabledUntil', String(Date.now() + 10 * 60 * 1000)); } catch (_) {}
+      try { sessionStorage.setItem('clientMonitoringDisabledUntil', String(Date.now() + 10 * 60 * 1000)); } catch { /* ignore */ }
     });
 }
 

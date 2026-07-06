@@ -59,7 +59,7 @@ export class BaseApi {
     // some deletes return empty body
     try {
       return await res.json();
-    } catch (e) {
+    } catch {
       return true;
     }
   }

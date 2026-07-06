@@ -56,7 +56,7 @@ export const useJoyStore = create((set, get) => ({
         expiresAt: Date.now() + BALANCE_CACHE_TTL_MS,
       });
       writePersisted(normalizedEmail, nextState);
-    } catch (e) {
+    } catch {
       // AbortError is expected when a newer sync() call cancels this one — silence it.
       if (e?.name !== 'AbortError') {
         // Swallow other network/CORS errors silently — balance will sync via WebSocket.

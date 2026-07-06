@@ -26,7 +26,7 @@ export function useArcadeSound() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + duration);
-    } catch (e) {
+    } catch {
       // Ignore audio errors if context is blocked
     }
   };
@@ -49,7 +49,7 @@ export function useArcadeSound() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.5);
-    } catch (e) {}
+    } catch {}
   }, []);
 
   const playLose = useCallback(() => {
@@ -68,7 +68,7 @@ export function useArcadeSound() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.5);
-    } catch (e) {}
+    } catch {}
   }, []);
 
   const playBeep = useCallback(() => {

@@ -346,7 +346,7 @@ function ChatMessages({
     if (keyboardInset > 0 && !userScrolledUpRef.current) {
       requestAnimationFrame(() => scrollToBottom("smooth"));
     }
-  }, [keyboardInset]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [keyboardInset]);  
 
   React.useLayoutEffect(() => { scrollToBottom("auto"); }, []);
 

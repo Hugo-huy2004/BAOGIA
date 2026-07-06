@@ -71,7 +71,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     try {
       const data = await packageApi.getPackages();
       setPackageTemplates(data || []);
-    } catch (e) {
+    } catch {
       console.error(e);
     } finally {
       setPkgLoading(false);
@@ -263,7 +263,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       notify.success("Tạo gói thành công");
       setNewPkg({ name: "", duration: "", durationUnit: "months", benefits: "" });
       fetchPackageTemplates();
-    } catch (e) { notify.error(e.message || "Lỗi tạo gói"); }
+    } catch { notify.error(e.message || "Lỗi tạo gói"); }
   };
 
   const handleDeletePackageTemplate = async (id) => {
@@ -310,7 +310,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       notify.success(`Đã cấp gói cho ${assignUser.email}`);
       setAssignForm({ packageId: "", customDuration: "" });
       setAssignUser(null);
-    } catch (e) { notify.error(e.message || "Lỗi cấp gói"); }
+    } catch { notify.error(e.message || "Lỗi cấp gói"); }
   };
 
   const handleSearchUserPackages = async (emailToSearch) => {

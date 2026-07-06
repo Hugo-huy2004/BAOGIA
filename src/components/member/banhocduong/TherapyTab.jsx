@@ -21,6 +21,48 @@ const AI_BASE = getAiUrl();
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 const UNLOCK_COST = 150;
 
+function ExpressiveWritingPanel({ onBack, onComplete }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-zinc-600 dark:text-zinc-300">
+        Bài viết tự do giúp bạn ghi lại cảm xúc trong vài phút để hạ nhịp căng thẳng.
+      </p>
+      <div className="flex items-center gap-3">
+        <button onClick={onBack} className="px-4 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm font-semibold">Quay lại</button>
+        <button onClick={onComplete} className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold">Hoàn thành</button>
+      </div>
+    </div>
+  );
+}
+
+function LightExercisePanel({ onBack, onComplete }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-zinc-600 dark:text-zinc-300">
+        Vận động nhẹ trong một vài phút để cơ thể bớt căng và đầu óc tỉnh hơn.
+      </p>
+      <div className="flex items-center gap-3">
+        <button onClick={onBack} className="px-4 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm font-semibold">Quay lại</button>
+        <button onClick={onComplete} className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold">Hoàn thành</button>
+      </div>
+    </div>
+  );
+}
+
+function SocialConnectionPanel({ onBack, onComplete }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-zinc-600 dark:text-zinc-300">
+        Kết nối với người thân hoặc bạn bè để giảm cảm giác một mình.
+      </p>
+      <div className="flex items-center gap-3">
+        <button onClick={onBack} className="px-4 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm font-semibold">Quay lại</button>
+        <button onClick={onComplete} className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold">Hoàn thành</button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Inline mini-panels ──────────────────────────────────────────────────────
 
 function SoundscapePanel({ onBack, onComplete }) {
@@ -289,7 +331,7 @@ function ActionPlanPanel({ bio, historyLogs, onBack, onComplete }) {
         if (cancelled) return;
         if (data.error || !data.days) throw new Error(data.error || "Không thể tạo lộ trình lúc này.");
         setPlan(data);
-      } catch (e) {
+      } catch {
         if (!cancelled) setError(e.message);
       } finally {
         if (!cancelled) setLoading(false);
@@ -379,7 +421,7 @@ function DeepReportPanel({ bio, historyLogs, chatMessages, onBack }) {
         if (cancelled) return;
         if (data.error) throw new Error(data.error);
         setReport(data);
-      } catch (e) {
+      } catch {
         if (!cancelled) setError(e.message);
       } finally {
         if (!cancelled) setLoading(false);

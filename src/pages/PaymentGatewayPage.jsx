@@ -75,7 +75,7 @@ export default function PaymentGatewayPage() {
       if (window.ApplePaySession && window.ApplePaySession.canMakePayments()) {
         setIsApplePaySupported(true);
       }
-    } catch (e) {
+    } catch {
       // Safe fallback
     }
   }, []);

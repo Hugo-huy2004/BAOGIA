@@ -38,7 +38,7 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
       } else {
         showToast?.(data.error || "Giao dịch thất bại", "error");
       }
-    } catch (e) {
+    } catch {
       showToast?.("Giao dịch thất bại do lỗi mạng", "error");
     } finally {
       setExchanging(false);

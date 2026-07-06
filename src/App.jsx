@@ -27,7 +27,6 @@ import { initGlobalHaptics } from "./utils/haptics";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
-const TemplatesPage = lazy(() => import("./pages/public/TemplatesPage"));
 const BookingContactPage = lazy(() => import("./pages/public/BookingContactPage"));
 const LoginPage = lazy(() => import("./pages/public/LoginPage"));
 const PWALoginPage = lazy(() => import("./pages/public/PWALoginPage"));
@@ -150,7 +149,7 @@ function AppContent() {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/joy" element={<JoyPWA />} />
             <Route path="/student-benefits" element={<StudentBenefitsPage />} />
-            <Route path="/templates" element={<TemplatesPage />} />
+            <Route path="/templates" element={<Navigate to="/services#templates" replace />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/booking" element={<BookingContactPage />} />
             {/* Installed PWA (standalone) gets the app-style, member-only Google

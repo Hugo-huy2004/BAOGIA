@@ -917,7 +917,8 @@
       "utilities": "Utilities",
       "history": "Notifications",
       "joy": "Services",
-      "settings": "Settings",
+      "community": "Communication",
+      "settings": "Profile",
       "verify": "Verify",
       "verifyEduPending": "Student not verified"
     },
@@ -962,6 +963,7 @@
       "placeholderEmail": "Cooperation/work email...",
       "viewBio": "View Bio",
       "noName": "Unnamed",
+      "lockedTooltip": "Verified — cannot be edited",
       "noHeadline": "No headline yet",
       "inactive": "Inactive",
       "linksCount": "{{count}} LINKS",
@@ -1481,6 +1483,30 @@
       "comingSoonTitle": "Coming soon",
       "comingSoonDesc": "More fun stuff (like themes and privacy) is on its way!",
       "logout": "Log out",
+      "page": {
+        "profileSettings": "Profile settings",
+        "showBio": "Show Bio page",
+        "openBioPublic": "Open public Bio page",
+        "systemSettings": "System settings",
+        "appearance": "Appearance & Theme",
+        "linkCards": "Link cards",
+        "projectsWorks": "Projects & Works",
+        "prefsNotifs": "Preferences & notifications",
+        "quickLogin": "Quick login",
+        "smartPrefs": "Smart preferences",
+        "language": "Language",
+        "changeAvatar": "Change avatar",
+        "pushStatusOn": "Push notifications on",
+        "pushStatusPrompt": "Get important alerts",
+        "save": "Save changes",
+        "saving": "Saving...",
+        "weatherBgTitle": "Live weather background",
+        "weatherBgDesc": "Lively by day & in storms, auto-off on clear nights to save battery.",
+        "weatherAlertTitle": "Severe weather alerts",
+        "weatherAlertDesc": "Reminds you to prepare when weather turns bad — auto-on once Location & Notifications are granted.",
+        "soundDescShort": "Auto-mute late night (22:00–07:00), back on by day.",
+        "donationDescShort": "Tucked away so it won't bother you; enable when you want to support Hugo."
+      },
       "biometric": {
         "title": "Fingerprint or Face login",
         "desc": "Use your fingerprint or face instead of logging in with Google every time.",
@@ -1528,6 +1554,16 @@
     }
   },
   "memberTabs": {
+    "achievements": {
+      "title": "Achievements",
+      "desc": "List projects you've done and services you offer — shown publicly on your Bio page.",
+      "addNew": "Add new",
+      "close": "Close",
+      "all": "All",
+      "project": "Project",
+      "service": "Service",
+      "empty": "No achievements yet — tap \"Add new\" to start."
+    },
     "services": {
       "toastEmpty": "Please enter name, description and price of the service.",
       "toastAddedTemp": "Added temporary service (click Save Info to update).",

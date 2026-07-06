@@ -120,7 +120,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
       try {
         noiseSourceRef.current.stop();
         noiseSourceRef.current.disconnect();
-      } catch (e) {}
+      } catch {}
       noiseSourceRef.current = null;
     }
     noiseGainRef.current = null;
@@ -202,7 +202,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
           setStationsByCategory((prev) => ({ ...prev, [categoryId]: combined }));
         }
       }).catch(() => {});
-    } catch (e) {}
+    } catch {}
   }, [stationsByCategory]);
 
   useEffect(() => {
@@ -283,7 +283,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
           }
         }
       }).catch(() => {});
-    } catch (e) {}
+    } catch {}
   };
 
   // Called RAPIDLY when user drags the slider

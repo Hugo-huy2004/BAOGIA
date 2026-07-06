@@ -743,7 +743,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
               notify.success("Chính xác! Bài học đã được xác minh hoàn thành.");
             }
             recordCoderLessonEvent({ lessonId: course.id, type: "desktop_award", status: "accepted" });
-          } catch (e) {
+          } catch {
             console.error("Error awarding joy for learning:", e);
             recordCoderLessonEvent({ lessonId: course.id, type: "desktop_award", status: "failed", message: e.message });
             notify.error(e.message || "Không thể ghi nhận phần thưởng JOY, vui lòng thử lại.");
@@ -912,7 +912,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
             return;
           }
         }
-      } catch (e) {
+      } catch {
         console.error("Failed to load saved workspace", e);
       }
     }
@@ -1083,7 +1083,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       setOpenTabs(prev => !prev.includes(fullPath) ? [...prev, fullPath] : prev);
       setActiveTabPath(fullPath);
       notify.success(`Đã tạo file: ${fullPath}`);
-    } catch (e) {
+    } catch {
       console.error(e);
       notify.error("Lỗi khi tạo file: " + e.message);
     }
@@ -1099,7 +1099,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       await refreshLocalDirectory();
       setExpandedFolders(prev => ({ ...prev, [fullPath]: true }));
       notify.success(`Đã tạo thư mục: ${fullPath}`);
-    } catch (e) {
+    } catch {
       console.error(e);
       notify.error("Lỗi khi tạo thư mục: " + e.message);
     }
@@ -1120,7 +1120,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       
       await refreshLocalDirectory();
       notify.success(`Đã xóa: ${fullPath}`);
-    } catch (e) {
+    } catch {
       console.error(e);
       notify.error("Lỗi khi xóa: " + e.message);
     }
@@ -1170,7 +1170,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       
       await refreshLocalDirectory();
       notify.success(`Đã đổi tên thành: ${newFullPath}`);
-    } catch (e) {
+    } catch {
       console.error(e);
       notify.error("Lỗi khi đổi tên: " + e.message);
     }
@@ -1904,7 +1904,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
           } else {
             notify.success("Chính xác! Bạn đã hoàn thành bài học.");
           }
-        } catch (e) {
+        } catch {
           console.error("Error awarding joy:", e);
           recordCoderLessonEvent({ lessonId: course.id, type: "mobile_award", status: "failed", message: e.message });
           notify.error(e.message || "Lỗi lưu phần thưởng, vui lòng thử lại.");

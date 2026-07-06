@@ -24,22 +24,32 @@ const LANGUAGES = [
 
 // Collapsible section ("option xổ xuống"): a header button toggles a smoothly
 // animated body (grid-rows 1fr/0fr trick). First section opens by default.
-function SettingsGroup({ label, children, defaultOpen = false }) {
+// Small uppercase section label (iOS Settings style).
+function SectionLabel({ children }) {
+  return <p className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{children}</p>;
+}
+
+// iOS-style settings row that expands to reveal its editor. Icon in a tinted
+// rounded square, label, optional value, chevron.
+function SettingsGroup({ label, icon = "tune", iconTint = "bg-indigo-500/10 text-indigo-500", value, children, defaultOpen = false }) {
   const [open, setOpen] = React.useState(defaultOpen);
   return (
-    <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-white/70 shadow-[0_12px_30px_-20px_rgba(99,102,241,0.35)] backdrop-blur-md transition-all duration-300 dark:bg-zinc-900/40 dark:shadow-[0_0_26px_-14px_rgba(129,140,248,0.4)]">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       <button
         type="button"
         onClick={() => { hapticSelect(); setOpen((o) => !o); }}
-        className="flex w-full items-center gap-2.5 px-4 py-3.5 text-left transition-colors hover:bg-foreground/[0.03]"
+        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-foreground/[0.03]"
       >
-        <span className="h-2 w-2 shrink-0 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" />
-        <span className="flex-1 text-[11px] font-black uppercase tracking-[0.16em] text-foreground">{label}</span>
-        <span className={`material-symbols-outlined text-[20px] text-muted-foreground transition-transform duration-300 ${open ? "rotate-180" : ""}`}>expand_more</span>
+        <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-[10px] ${iconTint}`}>
+          <span className="material-symbols-outlined text-[17px]">{icon}</span>
+        </span>
+        <span className="flex-1 text-[13px] font-semibold text-foreground">{label}</span>
+        {value != null && <span className="text-[11.5px] font-medium text-muted-foreground">{value}</span>}
+        <span className={`material-symbols-outlined text-[19px] text-muted-foreground/60 transition-transform duration-300 ${open ? "rotate-90" : ""}`}>chevron_right</span>
       </button>
       <div className={`grid transition-all duration-300 ease-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
         <div className="overflow-hidden">
-          <div className="border-t border-foreground/[0.06]">{children}</div>
+          <div className="border-t border-border">{children}</div>
         </div>
       </div>
     </div>
@@ -293,200 +303,46 @@ export default function MemberSettingsTab({
   const activeThemeName = (formData?.theme?.template || "Classic").toUpperCase();
 
   return (
-    <div className="space-y-5 animate-fadeIn md:space-y-6">
-      {/* Hero — matches the Utilities page: spectrum accent bar + badge + big title */}
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm md:p-8">
-        <span className="absolute left-0 right-0 top-0 h-1.5 bg-[linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#06b6d4,#6366f1,#a855f7)]" />
-        <div className="space-y-2 md:space-y-2.5">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[linear-gradient(90deg,#6366f122,#a855f722)] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-foreground">
-            <span className="material-symbols-outlined text-[12px]">tune</span>
-            Hồ sơ &amp; Cài đặt
-          </span>
-          <h2 className="text-base font-black tracking-tight text-foreground md:text-2xl">Trung tâm cá nhân hóa</h2>
-          <p className="max-w-2xl text-[10.5px] leading-relaxed text-muted-foreground md:text-xs">
-            Quản lý thẻ Member Pass, thông tin cá nhân và tùy chỉnh trải nghiệm Hugo Studio theo đúng phong cách của bạn.
-            <span className="hidden md:inline"> Hugo tự động thông minh theo ngữ cảnh — bạn chỉ cần chỉnh khi thật sự muốn.</span>
-          </p>
-        </div>
-      </div>
-
-      <div className="relative mx-auto grid w-full max-w-md grid-cols-2 gap-1 rounded-xl bg-foreground/[0.05] p-0.5 ring-1 ring-inset ring-foreground/10">
-        <span
-          className="pointer-events-none absolute inset-y-0.5 w-[calc(50%-1px)] rounded-lg shadow-[0_2px_14px_-2px_rgba(99,102,241,0.55)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={{ transform: `translateX(calc(${settingsTab === "system" ? 1 : 0} * (100% + 2px)))`, background: "linear-gradient(135deg,#6366f1,#a855f7)" }}
-        />
-        {[{ id: "personal", label: settingsTabLabels.personal, icon: "badge" }, { id: "system", label: settingsTabLabels.system, icon: "tune" }].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => { hapticSelect(); setSettingsTab(tab.id); }}
-            className={`relative z-10 flex items-center justify-center gap-1.5 rounded-lg py-2 font-display text-[12px] font-black tracking-wide transition-colors active:scale-[0.98] ${
-              settingsTab === tab.id ? "text-white" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <span className="material-symbols-outlined text-[15px]">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {settingsTab === "personal" && (
-        <div className="lg:flex lg:items-start lg:gap-5">
-      {/* ── Left column: Member Pass card (sticky on desktop/ipad) ── */}
-      <div className="space-y-3 lg:w-[340px] lg:shrink-0 lg:sticky lg:top-4 lg:self-start">
-      {/* Member Pass — full neon glowing card (fill glows, not just the border) */}
-      <div className="relative overflow-hidden rounded-[24px] border border-indigo-400/30 bg-gradient-to-br from-indigo-50 via-white to-violet-50 p-4 shadow-[0_20px_50px_-24px_rgba(99,102,241,0.55)] dark:border-indigo-400/25 dark:from-indigo-950/70 dark:via-zinc-950 dark:to-violet-950/50 dark:shadow-[0_0_44px_-8px_rgba(129,140,248,0.55)]"
-        style={{ animation: "settingsRise .5s cubic-bezier(.22,1,.36,1) both" }}>
-        {/* neon light filling the whole card */}
-        <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-indigo-400/25 blur-3xl dark:bg-indigo-500/30" style={{ animation: "settingsPulse 6s ease-in-out infinite" }} />
-        <div className="pointer-events-none absolute -bottom-12 -left-8 h-36 w-36 rounded-full bg-violet-400/20 blur-3xl dark:bg-violet-500/25" />
-
-        <div className="relative">
-          {/* Header: avatar (no ring, tap to edit) + identity */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => !saving && avatarInputRef.current?.click()}
-              title="Đổi ảnh đại diện"
-              className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-lg"
-            >
-              {formData.avatarUrl ? (
-                <img src={formData.avatarUrl} alt="avatar" className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-foreground/10 text-2xl font-black text-foreground">
-                  {(formData.displayName || "?")[0]?.toUpperCase()}
-                </div>
-              )}
-              {saving ? (
-                <span className="absolute inset-0 grid place-items-center bg-black/55">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                </span>
-              ) : (
-                <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                  <span className="material-symbols-outlined text-[18px] text-white">photo_camera</span>
-                </span>
-              )}
-              {/* always-visible edit badge */}
-              <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-indigo-500 text-white shadow-md ring-2 ring-white dark:ring-zinc-950">
-                <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: "'FILL' 1" }}>photo_camera</span>
-              </span>
-            </button>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <p className="text-[8.5px] font-black uppercase tracking-[0.2em] text-indigo-500 dark:text-indigo-300">Hugo Member Pass</p>
-                {bio?.status && (
-                  <span className="rounded-full border border-foreground/15 bg-foreground/[0.04] px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.12em] text-foreground/70">
-                    {bio.isEduVerified ? "Đã xác minh" : "Đang hoạt động"}
-                  </span>
-                )}
-              </div>
-              <h2 className="mt-0.5 truncate font-display text-lg font-black leading-tight text-foreground">
-                {formData.displayName || t("memberPortal.bio.noName")}
-              </h2>
-              <p className="truncate text-[11px] font-bold text-muted-foreground">
-                {formData.headline || "Biệt danh chưa được thiết lập"}
-              </p>
+    <div className="mx-auto max-w-2xl space-y-4 animate-fadeIn pb-2">
+      <style>{SETTINGS_CSS}</style>
+      {/* Profile header — avatar (no camera icon) + name + email, JOY chip */}
+      <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm">
+        <button
+          type="button"
+          onClick={() => !saving && avatarInputRef.current?.click()}
+          title={t("memberPortal.settings.page.changeAvatar")}
+          className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-muted shadow-sm"
+        >
+          {formData.avatarUrl ? (
+            <img src={formData.avatarUrl} alt="avatar" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-foreground/10 text-xl font-black text-foreground">
+              {(formData.displayName || "?")[0]?.toUpperCase()}
             </div>
-          </div>
-
-          {/* Avatar edit actions — monochrome */}
-          <div className="mt-2.5 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => !saving && avatarInputRef.current?.click()}
-              disabled={saving}
-              className="inline-flex items-center gap-1 rounded-lg bg-foreground/[0.06] px-2.5 py-1 text-[10px] font-black text-foreground/80 transition hover:bg-foreground/10 disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-[13px]">photo_camera</span>
-              Đổi ảnh đại diện
-            </button>
-            {formData.avatarUrl && (
-              <button
-                type="button"
-                onClick={handleRemoveAvatar}
-                disabled={saving}
-                className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold text-muted-foreground transition hover:text-foreground disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined text-[13px]">delete</span>
-                Gỡ
-              </button>
-            )}
-          </div>
-
-          {/* JOY highlight */}
-          <div className="mt-3 flex items-center justify-between rounded-2xl border border-amber-500/20 bg-amber-500/[0.07] px-3 py-2">
-            <span className="flex items-center gap-1.5 text-[10.5px] font-bold text-amber-600 dark:text-amber-300">
-              <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>Số dư JOY
+          )}
+          {saving && (
+            <span className="absolute inset-0 grid place-items-center bg-black/55">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             </span>
-            <span className="font-display text-base font-black text-foreground">{(joyBalance ?? 0).toLocaleString()}</span>
+          )}
+        </button>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1">
+            <h2 className="truncate text-[15px] font-black leading-tight text-foreground">{formData.displayName || t("memberPortal.bio.noName")}</h2>
+            {bio?.isEduVerified && <span className="material-symbols-outlined text-[14px] text-[#0095f6]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>}
           </div>
-
-          {/* Contact rows — monochrome icons */}
-          <div className="mt-2.5 space-y-1">
-            {[
-              { icon: "call", val: formData.phone || memberSession?.phone || "Chưa có số điện thoại" },
-              { icon: "location_on", val: formData.address || "Chưa có vị trí" },
-              { icon: "link", val: publicLink || "Bio chưa sẵn sàng" },
-            ].map((r, i) => (
-              <div key={i} className="flex items-center gap-2 text-[11px]">
-                <span className="material-symbols-outlined text-[16px] text-muted-foreground">{r.icon}</span>
-                <span className="truncate font-semibold text-foreground/85">{r.val}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Stat pills */}
-          <div className="mt-3 grid grid-cols-3 gap-1.5">
-            {[
-              { label: "Liên kết", val: formData.links?.length || 0 },
-              { label: "Thành tích", val: formData.projects?.length || 0 },
-              { label: "Giao diện", val: activeThemeName },
-            ].map((s, i) => (
-              <div key={i} className="rounded-xl border border-foreground/10 bg-foreground/[0.03] px-2.5 py-1.5 text-center">
-                <p className="text-[8px] font-black uppercase tracking-[0.12em] text-muted-foreground">{s.label}</p>
-                <p className="mt-0.5 truncate text-[12px] font-black text-foreground">{s.val}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Open Bio — monochrome solid button */}
-          <a
-            href={publicLink || "#"}
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => hapticSelect()}
-            className={`mt-3 flex items-center justify-center gap-1.5 rounded-2xl bg-indigo-500 px-4 py-2.5 text-[12px] font-black text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-600 active:scale-[0.98] ${publicLink ? "" : "pointer-events-none opacity-50"}`}
-          >
-            <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-            Mở link Bio của bạn
-          </a>
+          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{memberSession?.email || formData.headline || "—"}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1">
+          <span className="material-symbols-outlined text-[14px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+          <span className="text-[12px] font-black text-foreground">{(joyBalance ?? 0).toLocaleString()}</span>
         </div>
       </div>
 
-      {/* Save — sticky with the card on desktop, moves to bottom on mobile via order */}
-      <button
-        type="button"
-        disabled={saving}
-        onClick={() => handleSave()}
-        className="hidden w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-3 text-[11px] font-black uppercase tracking-widest text-background shadow-md transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 lg:flex"
-      >
-        {saving ? (
-          <>
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-            <span>Đang lưu...</span>
-          </>
-        ) : (
-          <>
-            <span className="material-symbols-outlined text-base">save</span>
-            <span>Lưu thay đổi</span>
-          </>
-        )}
-      </button>
-      </div>
-
-      {/* ── Right column: editable form sections ── */}
-      <div className="mt-4 space-y-4 lg:mt-0 lg:flex-1 lg:min-w-0">
-      <SettingsGroup label="1. Thông tin cơ bản" defaultOpen>
+      {/* CÀI ĐẶT HỒ SƠ */}
+      <div className="space-y-2">
+      <SectionLabel>{t("memberPortal.settings.page.profileSettings")}</SectionLabel>
+      <SettingsGroup icon="person" iconTint="bg-indigo-500/10 text-indigo-500" label={t("memberPortal.bio.basicInfo")} defaultOpen>
         <div className="p-4 text-left sm:p-5">
           <PersonalInfoSubTab
             formData={formData}
@@ -506,7 +362,7 @@ export default function MemberSettingsTab({
         </div>
       </SettingsGroup>
 
-      <SettingsGroup label="2. Giao diện & Theme">
+      <SettingsGroup icon="palette" iconTint="bg-violet-500/10 text-violet-500" label={t("memberPortal.settings.page.appearance")} value={activeThemeName}>
         <div className="p-4 text-left sm:p-5">
           <DesignSubTab
             formData={formData}
@@ -519,7 +375,7 @@ export default function MemberSettingsTab({
         </div>
       </SettingsGroup>
 
-      <SettingsGroup label="3. Danh thiếp liên kết">
+      <SettingsGroup icon="link" iconTint="bg-sky-500/10 text-sky-500" label={t("memberPortal.settings.page.linkCards")} value={formData.links?.length || 0}>
         <div className="p-4 text-left sm:p-5">
           <LinksSubTab
             formData={formData}
@@ -537,7 +393,7 @@ export default function MemberSettingsTab({
         </div>
       </SettingsGroup>
 
-      <SettingsGroup label="4. Dự án & Tác phẩm">
+      <SettingsGroup icon="workspace_premium" iconTint="bg-amber-500/10 text-amber-500" label={t("memberPortal.settings.page.projectsWorks")} value={formData.projects?.length || 0}>
         <div className="p-4 text-left sm:p-5">
           <AchievementsSubTab
             formData={formData}
@@ -549,36 +405,31 @@ export default function MemberSettingsTab({
           />
         </div>
       </SettingsGroup>
+      </div>
 
-      {/* Save (mobile/tablet — hidden on desktop where the sticky one shows) */}
-      <div className="pt-2 lg:hidden">
-        <button
-          type="button"
-          disabled={saving}
-          onClick={() => handleSave()}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-3.5 text-xs font-black uppercase tracking-widest text-background shadow-md transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+      {/* HIỂN THỊ TRANG BIO */}
+      <div className="space-y-2">
+        <SectionLabel>{t("memberPortal.settings.page.showBio")}</SectionLabel>
+        <a
+          href={publicLink || "#"}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => hapticSelect()}
+          className={`flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 shadow-sm transition-colors hover:bg-foreground/[0.03] ${publicLink ? "" : "pointer-events-none opacity-50"}`}
         >
-          {saving ? (
-            <>
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-              <span>Đang lưu toàn bộ cấu hình...</span>
-            </>
-          ) : (
-            <>
-              <span className="material-symbols-outlined text-base">save</span>
-              <span>Lưu thay đổi trang cá nhân</span>
-            </>
-          )}
-        </button>
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-sky-500/10 text-sky-500">
+            <span className="material-symbols-outlined text-[18px]">public</span>
+          </span>
+          <span className="flex-1 text-[13.5px] font-semibold text-foreground">{t("memberPortal.settings.page.openBioPublic")}</span>
+          <span className="material-symbols-outlined text-[20px] text-muted-foreground/60">chevron_right</span>
+        </a>
       </div>
-      </div>
-        </div>
-      )}
 
-      {settingsTab === "system" && (
-        <div className="space-y-3.5 py-0.5">
-          <style>{SETTINGS_CSS}</style>
-
+      {/* CÀI ĐẶT HỆ THỐNG */}
+      <div className="space-y-2">
+        <SectionLabel>{t("memberPortal.settings.page.systemSettings")}</SectionLabel>
+        <SettingsGroup icon="tune" iconTint="bg-slate-500/10 text-slate-600 dark:text-slate-300" label={t("memberPortal.settings.page.prefsNotifs")}>
+          <div className="space-y-3 p-3">
           <SettingsHero autoCount={Object.values(prefs).filter((v) => v === "auto").length} total={Object.keys(prefs).length} />
 
           {/* Live weather strip — drives the "auto" decisions above */}
@@ -595,7 +446,7 @@ export default function MemberSettingsTab({
 
           {/* Preferences — automation-first */}
           <div className="space-y-2">
-            <p className="px-1 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground">Tuỳ chọn thông minh</p>
+            <p className="px-1 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.settings.page.smartPrefs")}</p>
 
             <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {pushSupported && (
@@ -604,7 +455,7 @@ export default function MemberSettingsTab({
                 desc={t("memberPortal.settings.pushDesc")}
                 control={
                   <div className="flex items-center justify-between rounded-xl bg-foreground/[0.05] px-3 py-1.5 ring-1 ring-inset ring-foreground/10">
-                    <span className="text-[10px] font-bold text-muted-foreground">{pushEnabled ? "Đang bật thông báo đẩy" : "Nhận thông báo quan trọng"}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground">{pushEnabled ? t("memberPortal.settings.page.pushStatusOn") : t("memberPortal.settings.page.pushStatusPrompt")}</span>
                     <ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={t("memberPortal.settings.pushTitle")} />
                   </div>
                 }
@@ -612,31 +463,43 @@ export default function MemberSettingsTab({
             )}
             <PrefCard index={1} icon="graphic_eq" accent="violet"
               title={t("memberPortal.settings.soundTitle")}
-              desc="Tự động im lặng giờ khuya (22:00–07:00), tự bật lại ban ngày."
+              desc={t("memberPortal.settings.page.soundDescShort")}
               control={<AutoControl value={prefs.sound} effective={effective("sound")} onChange={(v) => changePref("sound", v)} />}
             />
             <PrefCard index={2} icon="partly_cloudy_day" accent="amber"
-              title="Nền động theo thời tiết"
-              desc="Sống động ban ngày & khi mưa bão, tự tắt đêm quang để tiết kiệm pin."
+              title={t("memberPortal.settings.page.weatherBgTitle")}
+              desc={t("memberPortal.settings.page.weatherBgDesc")}
               control={<AutoControl value={prefs.weatherBg} effective={effective("weatherBg")} onChange={(v) => changePref("weatherBg", v)} />}
             />
             <PrefCard index={3} icon="crisis_alert" accent="rose"
-              title="Cảnh báo thời tiết bất thường"
-              desc="Nhắc bạn chuẩn bị khi trời trở xấu — tự bật khi đã có quyền Vị trí & Thông báo."
+              title={t("memberPortal.settings.page.weatherAlertTitle")}
+              desc={t("memberPortal.settings.page.weatherAlertDesc")}
               control={<AutoControl value={prefs.weatherAlert} effective={effective("weatherAlert")} onChange={(v) => changePref("weatherAlert", v)} />}
             />
             <PrefCard index={4} icon="favorite" accent="emerald"
               title={t("memberPortal.settings.donationTitle")}
-              desc="Ẩn gọn để không làm phiền; bật khi bạn muốn ủng hộ Hugo."
+              desc={t("memberPortal.settings.page.donationDescShort")}
               control={<AutoControl value={prefs.donation} effective={effective("donation")} onChange={(v) => changePref("donation", v)} />}
             />
             </div>
           </div>
 
-          <div className="grid gap-3.5 lg:grid-cols-2">
-          {/* Language segmented */}
-          <div className="space-y-2">
-            <p className="px-1 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground">Ngôn ngữ</p>
+          {/* Quick login */}
+          {biometricSupported && email && (
+            <div className="rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-3">
+              <p className="mb-2 px-1 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.settings.page.quickLogin")}</p>
+              <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
+            </div>
+          )}
+          </div>
+        </SettingsGroup>
+      </div>
+
+      {/* NGÔN NGỮ */}
+      <div className="space-y-2">
+        <SectionLabel>{t("memberPortal.settings.page.language")}</SectionLabel>
+        <SettingsGroup icon="translate" iconTint="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" label={t("memberPortal.settings.page.language")} value={currentLang === "vi" ? "Tiếng Việt" : "English"}>
+          <div className="p-3">
             <div className="grid grid-cols-2 gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-1.5">
               {LANGUAGES.map((lng) => {
                 const active = currentLang === lng.code;
@@ -654,19 +517,28 @@ export default function MemberSettingsTab({
               })}
             </div>
           </div>
+        </SettingsGroup>
+      </div>
 
-          {/* Quick login */}
-          {biometricSupported && email && (
-            <div className="space-y-2">
-              <p className="px-1 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground">Đăng nhập nhanh</p>
-              <div className="rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-3">
-                <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
-              </div>
-            </div>
-          )}
-          </div>
-        </div>
-      )}
+      {/* Save */}
+      <button
+        type="button"
+        disabled={saving}
+        onClick={() => handleSave()}
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-3.5 text-xs font-black uppercase tracking-widest text-background shadow-md transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+      >
+        {saving ? (
+          <>
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+            <span>{t("memberPortal.settings.page.saving")}</span>
+          </>
+        ) : (
+          <>
+            <span className="material-symbols-outlined text-base">save</span>
+            <span>{t("memberPortal.settings.page.save")}</span>
+          </>
+        )}
+      </button>
 
       {/* Logout Button */}
       <button

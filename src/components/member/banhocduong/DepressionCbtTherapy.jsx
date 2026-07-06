@@ -50,7 +50,7 @@ export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showT
       setStep("worksheet");
       setActionStepChecked(false);
       setShowReRating(false);
-    } catch (e) {
+    } catch {
       showToast?.(e.message || "Lỗi tạo bảng CBT.", "error");
       setStep("intro");
     }

@@ -1,6 +1,24 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+function SocialIcons({ socialLinks, signatureColor }) {
+  if (socialLinks.length === 0) return null;
+  return (
+    <div style={{ marginTop: '12px' }}>
+      {socialLinks.map((s, i) => (
+        <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', marginRight: '8px', display: 'inline-block' }}>
+          <img
+            src={`https://api.iconify.design/simple-icons/${s.platform}.svg?color=${encodeURIComponent(signatureColor)}`}
+            alt={s.platform}
+            style={{ width: '20px', height: '20px', display: 'block', border: 'none' }}
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export default function MemberSignatureTab({ bio, publicLink, showToast }) {
   const { t } = useTranslation();
   
@@ -95,24 +113,6 @@ export default function MemberSignatureTab({ bio, publicLink, showToast }) {
   };
 
   const socialLinks = getSocialLinks();
-
-  const SocialIcons = () => {
-    if (socialLinks.length === 0) return null;
-    return (
-      <div style={{ marginTop: '12px' }}>
-        {socialLinks.map((s, i) => (
-          <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', marginRight: '8px', display: 'inline-block' }}>
-            <img 
-              src={`https://api.iconify.design/simple-icons/${s.platform}.svg?color=${encodeURIComponent(signatureColor)}`} 
-              alt={s.platform} 
-              style={{ width: '20px', height: '20px', display: 'block', border: 'none' }} 
-              onError={(e) => { e.target.style.display = 'none'; }}
-            />
-          </a>
-        ))}
-      </div>
-    );
-  };
 
   return (
     <div className="space-y-8">

@@ -137,6 +137,11 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
+    // Match production (vercel.json): lets the Google Sign-In popup postMessage
+    // back without the "Cross-Origin-Opener-Policy would block" console warning.
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+    },
     proxy: {
       // AI endpoints → Python server (must be listed BEFORE generic /api rule)
       '/api/ai': {

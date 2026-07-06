@@ -121,7 +121,7 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
       const updated = await bookingApi.toggleContacted(bookingId, nextContacted);
       showNotification(nextContacted ? t("admin.texts.txt_147") : t("admin.texts.txt_148"));
       setBookings(prev => prev.map(b => b._id === bookingId ? updated : b));
-    } catch (e) {
+    } catch {
       showNotification(t("admin.texts.txt_150"), "error");
     }
   };
@@ -133,7 +133,7 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
         showNotification(t("admin.texts.txt_152"));
         setBookings(prev => prev.filter(b => b._id !== bookingId));
         if (selectedItem?.id === bookingId) setSelectedItem(null);
-      } catch (e) {
+      } catch {
         showNotification(t("admin.texts.txt_154"), "error");
       }
     });

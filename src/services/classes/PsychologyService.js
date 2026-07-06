@@ -608,7 +608,7 @@ class PsychologyService {
         localStorage.setItem("banhocduong_history", JSON.stringify(logs));
         return adaptation;
       }
-    } catch (e) {
+    } catch {
       console.error("Failed to adapt duration", e);
     }
     return null;

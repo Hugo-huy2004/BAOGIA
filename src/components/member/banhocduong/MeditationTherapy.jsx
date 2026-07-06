@@ -160,7 +160,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
       // Start loops
       startSessionLoop(data.phrases);
       
-    } catch (e) {
+    } catch {
       showToast?.(e.message || "Lỗi tạo script thiền.", "error");
       setStep("setup");
     }

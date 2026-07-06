@@ -127,7 +127,7 @@ class MemberService {
         projects: [],
         services: []
       };
-    } catch (e) {
+    } catch {
       console.error("MemberService: Failed to load local guest bio", e);
       return null;
     }
@@ -137,7 +137,7 @@ class MemberService {
     try {
       localStorage.setItem("hugo_guest_bio", JSON.stringify(data));
       return true;
-    } catch (e) {
+    } catch {
       console.error("MemberService: Failed to save guest bio", e);
       return false;
     }
@@ -147,7 +147,7 @@ class MemberService {
     try {
       localStorage.removeItem("hugo_guest_bio");
       return true;
-    } catch (e) {
+    } catch {
       console.error("MemberService: Failed to delete guest bio", e);
       return false;
     }

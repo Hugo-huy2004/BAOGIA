@@ -27,7 +27,7 @@ export const playPopSound = () => {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.15);
-  } catch (e) {
+  } catch {
     console.warn("Audio pop effect failed:", e);
   }
 };
@@ -52,7 +52,7 @@ export const playNotificationSound = () => {
       osc.start(ctx.currentTime + at);
       osc.stop(ctx.currentTime + at + 0.32);
     });
-  } catch (e) {
+  } catch {
     console.warn("Notification sound failed:", e);
   }
 };
@@ -77,7 +77,7 @@ export const playGameMove = () => {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.1);
-  } catch (e) { /* ignore */ }
+  } catch { /* ignore */ }
 };
 
 export const playGameSelect = () => {
@@ -93,7 +93,7 @@ export const playGameSelect = () => {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.06);
-  } catch (e) { /* ignore */ }
+  } catch { /* ignore */ }
 };
 
 export const playGameMerge = () => {
@@ -112,7 +112,7 @@ export const playGameMerge = () => {
       osc.start(at);
       osc.stop(at + 0.15);
     });
-  } catch (e) { /* ignore */ }
+  } catch { /* ignore */ }
 };
 
 export const playGameWin = () => {
@@ -132,7 +132,7 @@ export const playGameWin = () => {
       osc.start(at);
       osc.stop(at + 0.3);
     });
-  } catch (e) { /* ignore */ }
+  } catch { /* ignore */ }
 };
 
 export const playGameLose = () => {
@@ -149,7 +149,7 @@ export const playGameLose = () => {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.42);
-  } catch (e) { /* ignore */ }
+  } catch { /* ignore */ }
 };
 
 export const playTick = () => {
@@ -165,7 +165,7 @@ export const playTick = () => {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.08);
-  } catch (e) {
+  } catch {
     console.warn("Audio tick effect failed:", e);
   }
 };

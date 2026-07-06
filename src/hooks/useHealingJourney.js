@@ -127,7 +127,7 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
           : 'Đã ghi nhận cảm xúc hôm nay! Chúc cậu một ngày tốt lành 🌟',
           'success');
       }
-    } catch (e) {
+    } catch {
       console.error(e);
       setShowModal(false);
     }

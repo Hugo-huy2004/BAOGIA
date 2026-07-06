@@ -78,7 +78,7 @@ export default function ChessPage({ embedded = false, initialRoomId = null, onBa
             })
             .catch(() => {});
         }
-      } catch (_) {}
+      } catch { /* ignore */ }
     } else {
       const gid = localStorage.getItem("chess_guest_id") || crypto.randomUUID();
       localStorage.setItem("chess_guest_id", gid);
