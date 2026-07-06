@@ -1,0 +1,27 @@
+{
+  "name": "HugoRoom - Hugo Studio",
+  "short_name": "HugoRoom",
+  "description": "Phòng ký túc xá ảo của bạn — trang trí, nuôi thú cưng và ghé thăm khu phố ảo.",
+  "start_url": "/member/utilities/deco",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#18181b",
+  "theme_color": "#6366f1",
+  "icons": [
+    { "src": "/favicon/web-app-manifest-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/favicon/web-app-manifest-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Phòng của tôi",
+      "url": "/member/utilities/deco",
+      "icons": [{ "src": "/favicon/web-app-manifest-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ví JOY",
+      "url": "/joy",
+      "icons": [{ "src": "/favicon/web-app-manifest-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

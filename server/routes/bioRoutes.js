@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Bio from '../models/Bio.js';
 import CommunityMessage from '../models/CommunityMessage.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
@@ -1093,6 +1094,18 @@ LƯU Ý: Chỉ trả về JSON thô, không markdown, không giải thích thêm
   }
 }
 
+// Lightweight comment moderation — a profanity/harassment blocklist, no AI.
+// Comments are short (emoji, teencode, "gg wp", "cảm ơn nha"); running them
+// through the post-oriented AI audit (which enforces VI/EN + flags jargon) was
+// falsely rejecting normal replies. Only block clear toxicity here.
+const COMMENT_BAD_WORDS = ['địt', 'đụ ', 'đụ,', 'lồn', 'cặc', 'buồi', 'đĩ', 'đmm', ' đm ', 'vcl', 'vãi lồn', 'thằng chó', 'đồ chó', 'óc chó', 'súc vật', 'hiếp dâm', 'fuck', 'bitch', 'asshole', 'nigger', 'rape'];
+function moderateComment(text) {
+  const t = ` ${(text || '').toLowerCase()} `;
+  return COMMENT_BAD_WORDS.some((w) => t.includes(w))
+    ? { status: 'rejected', rejectReason: 'Bình luận chứa nội dung không phù hợp' }
+    : { status: 'approved' };
+}
+
 // ─── Sequential AI moderation queue ──────────────────────────────────────────
 // Posts are created as 'pending' and drained ONE AT A TIME here, so a burst of
 // simultaneous posts never fires many concurrent AI calls (avoids rate limits /
@@ -1596,10 +1609,10 @@ router.post('/community/chat/:id/comments', requireMember, async (req, res) => {
       return res.status(404).json({ error: 'Bio not found' });
     }
 
-    // Perform AI pre-moderation on comment
-    const audit = await auditContent(message.trim());
+    // Fast, lenient comment moderation (blocklist only — no AI, no VI/EN gate).
+    const audit = moderateComment(message.trim());
     if (audit.status === 'rejected') {
-      return res.status(400).json({ error: 'Bình luận bị từ chối phê duyệt do không phù hợp.' });
+      return res.status(400).json({ error: 'Bình luận chứa nội dung không phù hợp.' });
     }
 
     const newComment = {

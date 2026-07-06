@@ -402,7 +402,7 @@ export default function CommunityTab({ memberSession, bio }) {
       </div>
 
       {/* ── Composer trigger — Facebook-style "what's on your mind" card ── */}
-      <div className="-mx-1 bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.08)] dark:bg-zinc-900 dark:shadow-black/40">
+      <div className="-mx-1 bg-white/10 backdrop-blur-2xl mb-3 border-1 border-white/70 rounded-xl mx-3 p-3 shadow-[0_1px_2px_rgba(0,0,0,0.08)] dark:bg-zinc-600/10 dark:shadow-black/40">
         <div className="flex items-center gap-2.5">
           <img src={av(bio?.avatarUrl, "/image/avt7.png")} loading="lazy" className="h-10 w-10 shrink-0 rounded-full object-cover" alt="" />
           <button
@@ -473,7 +473,7 @@ export default function CommunityTab({ memberSession, bio }) {
             const isRejected = post.status === "rejected";
             const isLive = !isPending && !isRejected;
             return (
-              <div key={post._id} className={`relative flex flex-col bg-white p-3.5 dark:bg-zinc-900 ${isPending ? "ring-1 ring-inset ring-indigo-500/30" : isRejected ? "ring-1 ring-inset ring-rose-500/30" : ""}`}>
+              <div key={post._id} className={`relative flex flex-col bg-white/10 p-3.5 dark:bg-zinc-900/10 ${isPending ? "ring-1 ring-inset ring-indigo-500/30" : isRejected ? "ring-1 ring-inset ring-rose-500/30" : ""}`}>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-1.5">
                   <div className="flex min-w-0 items-center gap-2">

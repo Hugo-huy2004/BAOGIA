@@ -18,6 +18,7 @@ import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
 import AdminCommunityTab from "../../components/admin/AdminCommunityTab";
+import AdminSystemTab from "../../components/admin/AdminSystemTab";
 
 const api = new BaseApi();
 
@@ -484,6 +485,7 @@ export default function AdminPanel() {
                 {activeTab === "community" && "Quản lý Cộng đồng"}
                 {activeTab === "contactSupport" && "Liên Hệ & Hỗ Trợ"}
                 {activeTab === "projects" && t("adminProjects.page.title", "Dự Án Khách Hàng")}
+                {activeTab === "system" && "Giám sát hệ thống"}
                 {activeTab === "settings" && t("admin.texts.txt_207", "Cài Đặt Hệ Thống")}
               </h2>
             </div>
@@ -523,6 +525,9 @@ export default function AdminPanel() {
         )}
         {activeTab === "community" && (
           <AdminCommunityTab showNotification={showNotification} />
+        )}
+        {activeTab === "system" && (
+          <AdminSystemTab showNotification={showNotification} />
         )}
         {activeTab === "contactSupport" && (
           <AdminContactSupportTab showNotification={showNotification} triggerConfirm={triggerConfirm} />

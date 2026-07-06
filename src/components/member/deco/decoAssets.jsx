@@ -818,14 +818,252 @@ const LampNeon = () => (
   </svg>
 );
 
+// ── SHELVES (wall-mounted) ───────────────────────────────────────────────────
+const ShelfWood = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
+    <defs>
+      {g("shw_wood", [["0%", "#d9a15e"], ["100%", "#a9713a"]])}
+      {g("shw_book1", [["0%", "#f87171"], ["100%", "#dc2626"]])}
+      {g("shw_book2", [["0%", "#60a5fa"], ["100%", "#2563eb"]])}
+      {g("shw_book3", [["0%", "#4ade80"], ["100%", "#16a34a"]])}
+    </defs>
+    {/* Shelf boards with 3D edge */}
+    <rect x="6" y="44" width="88" height="7" rx="2" fill="url(#shw_wood)" />
+    <rect x="6" y="51" width="88" height="3" rx="1" fill="#6b4423" />
+    <rect x="6" y="86" width="88" height="7" rx="2" fill="url(#shw_wood)" />
+    <rect x="6" y="93" width="88" height="3" rx="1" fill="#6b4423" />
+    {/* Brackets */}
+    <path d="M 14 54 L 14 66 L 24 54 Z" fill="#8a5a2b" />
+    <path d="M 86 54 L 86 66 L 76 54 Z" fill="#8a5a2b" />
+    {/* Books row (top shelf) */}
+    <rect x="12" y="20" width="9" height="24" rx="1.5" fill="url(#shw_book1)" />
+    <rect x="23" y="16" width="9" height="28" rx="1.5" fill="url(#shw_book2)" />
+    <rect x="34" y="22" width="8" height="22" rx="1.5" fill="url(#shw_book3)" />
+    <rect x="44" y="18" width="9" height="26" rx="1.5" fill="#facc15" />
+    {/* Leaning book */}
+    <rect x="56" y="20" width="9" height="25" rx="1.5" fill="#c084fc" transform="rotate(12 60 44)" />
+    {/* Tiny succulent on top shelf */}
+    <path d="M 78 36 h10 l-1.5 8 h-7 z" fill="#c2410c" />
+    <circle cx="83" cy="32" r="4.5" fill="#22c55e" />
+    <circle cx="79.5" cy="34.5" r="3" fill="#4ade80" />
+    <circle cx="86.5" cy="34.5" r="3" fill="#16a34a" />
+    {/* Trinkets (bottom shelf) */}
+    <rect x="16" y="70" width="14" height="16" rx="2" fill="#e2e8f0" />
+    <circle cx="23" cy="76" r="3.5" fill="#38bdf8" />
+    <rect x="40" y="66" width="10" height="20" rx="1.5" fill="url(#shw_book1)" />
+    <rect x="52" y="70" width="10" height="16" rx="1.5" fill="url(#shw_book2)" />
+    {/* Photo frame */}
+    <rect x="70" y="68" width="16" height="18" rx="2" fill="#8a5a2b" />
+    <rect x="72.5" y="70.5" width="11" height="13" rx="1" fill="#fef3c7" />
+    <circle cx="78" cy="75" r="2.5" fill="#fb923c" />
+    <path d="M 73 82 L 77 77 L 80 80 L 83 76 L 83 83 L 73 83 Z" fill="#65a30d" />
+  </svg>
+);
+const ShelfNeon = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
+    <defs>
+      {g("shn_metal", [["0%", "#334155"], ["100%", "#0f172a"]])}
+    </defs>
+    {/* Glow */}
+    <rect x="4" y="40" width="92" height="10" rx="4" fill="#22d3ee" opacity="0.25" filter="blur(4px)">
+      <animate attributeName="opacity" values=".15;.4;.15" dur="3s" repeatCount="indefinite" />
+    </rect>
+    <rect x="4" y="82" width="92" height="10" rx="4" fill="#a855f7" opacity="0.25" filter="blur(4px)">
+      <animate attributeName="opacity" values=".15;.4;.15" dur="3s" repeatCount="indefinite" begin="1.5s" />
+    </rect>
+    {/* Boards */}
+    <rect x="8" y="42" width="84" height="6" rx="3" fill="url(#shn_metal)" />
+    <rect x="8" y="48" width="84" height="2" rx="1" fill="#22d3ee" />
+    <rect x="8" y="84" width="84" height="6" rx="3" fill="url(#shn_metal)" />
+    <rect x="8" y="90" width="84" height="2" rx="1" fill="#a855f7" />
+    {/* Collectibles: mini figure */}
+    <rect x="16" y="26" width="12" height="16" rx="3" fill="#f43f5e" />
+    <circle cx="22" cy="22" r="5" fill="#fda4af" />
+    {/* Headset on stand */}
+    <path d="M 42 26 A 9 9 0 0 1 60 26 L 60 36 L 56 36 L 56 28 A 5 5 0 0 0 46 28 L 46 36 L 42 36 Z" fill="#22d3ee" />
+    <rect x="48" y="36" width="6" height="6" fill="#334155" />
+    {/* Trophy */}
+    <path d="M 74 24 h12 l-2 10 a4 4 0 0 1 -8 0 Z" fill="#facc15" />
+    <rect x="78" y="34" width="4" height="5" fill="#eab308" />
+    <rect x="74" y="39" width="12" height="3" rx="1" fill="#a16207" />
+    {/* Bottom row: game boxes */}
+    <rect x="20" y="66" width="9" height="18" rx="1.5" fill="#6366f1" />
+    <rect x="31" y="66" width="9" height="18" rx="1.5" fill="#ec4899" />
+    <rect x="42" y="66" width="9" height="18" rx="1.5" fill="#14b8a6" />
+    {/* Mini console */}
+    <rect x="60" y="74" width="24" height="10" rx="3" fill="#1e293b" />
+    <circle cx="66" cy="79" r="2" fill="#22d3ee">
+      <animate attributeName="fill" values="#22d3ee;#f43f5e;#22d3ee" dur="2s" repeatCount="indefinite" />
+    </circle>
+  </svg>
+);
+
+// ── WALL CLOCKS ──────────────────────────────────────────────────────────────
+const ClockWall = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
+    <defs>
+      {g("clw_rim", [["0%", "#d9a15e"], ["100%", "#8a5a2b"]])}
+    </defs>
+    <style>{`@keyframes decoSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    <circle cx="50" cy="50" r="44" fill="url(#clw_rim)" />
+    <circle cx="50" cy="50" r="37" fill="#fefce8" />
+    <circle cx="50" cy="50" r="37" fill="none" stroke="#eab308" strokeWidth="1.5" />
+    {/* Hour marks */}
+    {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((r, i) => (
+      <line key={i} x1="50" y1="17" x2="50" y2={i % 3 === 0 ? "24" : "21"} stroke="#78350f" strokeWidth={i % 3 === 0 ? "3" : "1.5"} strokeLinecap="round" transform={`rotate(${r} 50 50)`} />
+    ))}
+    {/* Hands — slow sweep animation */}
+    <g style={{ transformOrigin: "50px 50px", animation: "decoSpin 720s linear infinite" }}>
+      <line x1="50" y1="50" x2="50" y2="30" stroke="#78350f" strokeWidth="4" strokeLinecap="round" />
+    </g>
+    <g style={{ transformOrigin: "50px 50px", animation: "decoSpin 60s linear infinite" }}>
+      <line x1="50" y1="52" x2="50" y2="24" stroke="#b45309" strokeWidth="2.5" strokeLinecap="round" />
+    </g>
+    <g style={{ transformOrigin: "50px 50px", animation: "decoSpin 6s linear infinite" }}>
+      <line x1="50" y1="55" x2="50" y2="22" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" />
+    </g>
+    <circle cx="50" cy="50" r="3.5" fill="#78350f" />
+    <circle cx="50" cy="50" r="1.5" fill="#fbbf24" />
+  </svg>
+);
+const ClockNeon = () => (
+  <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
+    {/* Glow backdrop */}
+    <rect x="4" y="8" width="92" height="44" rx="10" fill="#22d3ee" opacity="0.2" filter="blur(5px)">
+      <animate attributeName="opacity" values=".12;.3;.12" dur="4s" repeatCount="indefinite" />
+    </rect>
+    <rect x="8" y="10" width="84" height="40" rx="8" fill="#0f172a" stroke="#22d3ee" strokeWidth="2" />
+    {/* Digital digits 20:26 */}
+    <text x="50" y="38" textAnchor="middle" fontSize="20" fontWeight="900" fontFamily="monospace" fill="#22d3ee" style={{ letterSpacing: "2px" }}>
+      20:26
+      <animate attributeName="fill" values="#22d3ee;#a855f7;#22d3ee" dur="6s" repeatCount="indefinite" />
+    </text>
+    {/* Blinking colon dots */}
+    <circle cx="50" cy="27" r="1.4" fill="#f43f5e"><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" /></circle>
+    <circle cx="50" cy="33" r="1.4" fill="#f43f5e"><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" /></circle>
+  </svg>
+);
+
+// ── EXTRA AMBIANCE ───────────────────────────────────────────────────────────
+const WindowSunset = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full">
+    <defs>{g("ws", [["0%", "#fbbf24"], ["45%", "#fb7185"], ["100%", "#7c3aed"]])}</defs>
+    <rect x="6" y="6" width="88" height="88" rx="9" fill="#f5e6d3" />
+    <rect x="10" y="10" width="80" height="80" rx="6" fill="url(#ws)" />
+    {/* Sun half-set on horizon */}
+    <circle cx="50" cy="62" r="13" fill="#fef08a">
+      <animate attributeName="opacity" values=".85;1;.85" dur="4s" repeatCount="indefinite" />
+    </circle>
+    <rect x="10" y="62" width="80" height="28" fill="#4c1d95" opacity="0.85" />
+    {/* Sun reflection on water */}
+    <path d="M 44 66 h12 M 46 71 h8 M 47 76 h6" stroke="#fde047" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
+    {/* Birds */}
+    <path d="M 26 28 q 3 -3 6 0 q 3 -3 6 0 M 62 22 q 2.5 -2.5 5 0 q 2.5 -2.5 5 0" stroke="#4c1d95" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    <line x1="50" y1="10" x2="50" y2="90" stroke="#f5e6d3" strokeWidth="5" />
+    <line x1="10" y1="50" x2="90" y2="50" stroke="#f5e6d3" strokeWidth="5" />
+  </svg>
+);
+const PosterGalaxy = () => (
+  <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
+    <rect x="5" y="5" width="90" height="110" rx="4" fill="#020617" />
+    <defs>
+      <radialGradient id="pg_neb" cx="40%" cy="40%" r="70%">
+        <stop offset="0%" stopColor="#a855f7" />
+        <stop offset="45%" stopColor="#4c1d95" />
+        <stop offset="100%" stopColor="#020617" />
+      </radialGradient>
+    </defs>
+    <rect x="9" y="9" width="82" height="102" rx="2" fill="url(#pg_neb)" />
+    <style>{`@keyframes decoSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    {/* Spiral galaxy */}
+    <g style={{ transformOrigin: "50px 55px", animation: "decoSpin 60s linear infinite" }}>
+      <ellipse cx="50" cy="55" rx="26" ry="9" fill="none" stroke="#e879f9" strokeWidth="2" opacity="0.8" transform="rotate(-25 50 55)" />
+      <ellipse cx="50" cy="55" rx="17" ry="6" fill="none" stroke="#22d3ee" strokeWidth="1.5" opacity="0.7" transform="rotate(-25 50 55)" />
+    </g>
+    <circle cx="50" cy="55" r="5" fill="#fef08a" />
+    <circle cx="50" cy="55" r="8" fill="#fde047" opacity="0.4" />
+    {/* Twinkling stars */}
+    {[[20, 22], [76, 18], [82, 70], [18, 92], [64, 96], [30, 44], [72, 42]].map(([x, y], i) => (
+      <circle key={i} cx={x} cy={y} r="1.4" fill="#fff">
+        <animate attributeName="opacity" values=".2;1;.2" dur={`${1.8 + (i % 3) * 0.7}s`} repeatCount="indefinite" />
+      </circle>
+    ))}
+    {/* Shooting star */}
+    <path d="M 70 24 L 84 12" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity="0.7" />
+  </svg>
+);
+const RugCloud = () => (
+  <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none">
+    <defs>{g("rc_body", [["0%", "#ffffff"], ["100%", "#c7d2fe"]])}</defs>
+    {/* Fluffy cloud silhouette flattened into rug perspective */}
+    <ellipse cx="50" cy="55" rx="47" ry="26" fill="url(#rc_body)" />
+    <ellipse cx="26" cy="46" rx="16" ry="12" fill="#fff" />
+    <ellipse cx="50" cy="40" rx="20" ry="14" fill="#fff" />
+    <ellipse cx="74" cy="47" rx="14" ry="11" fill="#fff" />
+    <ellipse cx="50" cy="60" rx="38" ry="16" fill="#eef2ff" />
+    {/* Pastel rainbow arc woven in */}
+    <path d="M 26 62 Q 50 46 74 62" stroke="#f9a8d4" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+    <path d="M 29 66 Q 50 51 71 66" stroke="#fcd34d" strokeWidth="3" fill="none" strokeLinecap="round" />
+    <path d="M 32 70 Q 50 56 68 70" stroke="#93c5fd" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+    {/* Sleepy face */}
+    <path d="M 42 57 q 2 2 4 0 M 54 57 q 2 2 4 0" stroke="#818cf8" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+    <circle cx="38" cy="60" r="1.8" fill="#fda4af" opacity="0.7" />
+    <circle cx="62" cy="60" r="1.8" fill="#fda4af" opacity="0.7" />
+  </svg>
+);
+const PetBunny = () => (
+  <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-xl" preserveAspectRatio="xMidYMax meet">
+    <ellipse cx="50" cy="115" rx="32" ry="6" fill="#000" opacity="0.3" filter="blur(2px)" />
+    {/* Lop ears (folded down) */}
+    <path d="M 28 30 Q 14 34 16 56 Q 17 66 26 62 Q 32 58 34 40 Z" fill="#f1f5f9" />
+    <path d="M 30 36 Q 21 40 22 54 Q 23 60 27 57 Q 31 53 32 42 Z" fill="#fda4af" />
+    <path d="M 72 30 Q 86 34 84 56 Q 83 66 74 62 Q 68 58 66 40 Z" fill="#f1f5f9" />
+    <path d="M 70 36 Q 79 40 78 54 Q 77 60 73 57 Q 69 53 68 42 Z" fill="#fda4af" />
+    {/* Body */}
+    <ellipse cx="50" cy="88" rx="27" ry="23" fill="#e2e8f0" />
+    <ellipse cx="50" cy="86" rx="25" ry="21" fill="#f8fafc" />
+    <ellipse cx="50" cy="96" rx="13" ry="8" fill="#fff" />
+    {/* Feet */}
+    <ellipse cx="36" cy="108" rx="9" ry="5" fill="#e2e8f0" />
+    <ellipse cx="64" cy="108" rx="9" ry="5" fill="#e2e8f0" />
+    {/* Head */}
+    <circle cx="50" cy="48" r="26" fill="#e2e8f0" />
+    <circle cx="50" cy="47" r="24" fill="#f8fafc" />
+    {/* Eyes & blink */}
+    <g className="deco-blink">
+      <ellipse cx="39" cy="45" rx="4" ry="5" fill="#334155" />
+      <circle cx="37.7" cy="43.5" r="1.1" fill="#fff" />
+      <ellipse cx="61" cy="45" rx="4" ry="5" fill="#334155" />
+      <circle cx="59.7" cy="43.5" r="1.1" fill="#fff" />
+    </g>
+    {/* Rosy cheeks */}
+    <circle cx="29" cy="52" r="3.5" fill="#fda4af" opacity="0.7" />
+    <circle cx="71" cy="52" r="3.5" fill="#fda4af" opacity="0.7" />
+    {/* Nose + mouth + teeth */}
+    <path d="M 47 54 L 53 54 L 50 58 Z" fill="#fb7185" />
+    <path d="M 50 58 Q 50 62 46 62 M 50 58 Q 50 62 54 62" stroke="#94a3b8" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    <rect x="47" y="61" width="6" height="5" rx="1.5" fill="#fff" stroke="#cbd5e1" strokeWidth="0.8" />
+    <line x1="50" y1="61" x2="50" y2="66" stroke="#cbd5e1" strokeWidth="0.8" />
+    {/* Whiskers */}
+    <path d="M 18 50 L 32 52 M 17 57 L 31 56 M 82 50 L 68 52 M 83 57 L 69 56" stroke="#cbd5e1" strokeWidth="1.3" strokeLinecap="round" />
+    {/* Carrot */}
+    <g transform="rotate(18 78 96)">
+      <path d="M 74 92 L 84 92 L 79 110 Z" fill="#fb923c" />
+      <path d="M 76 92 Q 74 86 71 84 M 79 92 Q 79 85 79 82 M 82 92 Q 84 86 87 84" stroke="#22c55e" strokeWidth="2" fill="none" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
 export const DECO_ART = {
   desk_basic: DeskBasic, desk_cyber: DeskCyber, desk_minimal: DeskMinimal,
   chair_basic: ChairBasic, chair_gaming: ChairGaming, chair_office: ChairOffice,
   laptop: Laptop, pc_master_race: PcMasterRace, macbook: Macbook,
-  cat_orange: CatOrange, cat_black: CatBlack, dog_corgi: DogCorgi,
-  poster_hugo: PosterHugo, poster_anime: PosterAnime, poster_cyberpunk: PosterCyber,
-  window_day: WindowDay, window_night: WindowNight,
-  rug_round: RugRound, rug_persian: RugPersian,
+  cat_orange: CatOrange, cat_black: CatBlack, dog_corgi: DogCorgi, pet_bunny: PetBunny,
+  poster_hugo: PosterHugo, poster_anime: PosterAnime, poster_cyberpunk: PosterCyber, poster_galaxy: PosterGalaxy,
+  window_day: WindowDay, window_night: WindowNight, window_sunset: WindowSunset,
+  rug_round: RugRound, rug_persian: RugPersian, rug_cloud: RugCloud,
+  shelf_wood: ShelfWood, shelf_neon: ShelfNeon,
+  clock_wall: ClockWall, clock_neon: ClockNeon,
   plant_fern: PlantFern, plant_monstera: PlantMonstera, plant_cactus: PlantCactus,
   lamp_floor: LampFloor, lamp_neon: LampNeon,
 };
@@ -839,6 +1077,8 @@ export const DECO_TYPE_META = {
   rug: { label: "Thảm", icon: "crop_square" },
   plant: { label: "Cây cảnh", icon: "potted_plant" },
   lamp: { label: "Đèn", icon: "light" },
+  shelf: { label: "Kệ treo tường", icon: "shelves" },
+  clock: { label: "Đồng hồ", icon: "schedule" },
   pet: { label: "Thú cưng", icon: "pets" },
 };
 
@@ -856,11 +1096,11 @@ function RoomItem({ id }) {
 export const isNightRoom = (items) => items?.window === "window_night";
 
 export function cozinessScore(items = {}) {
-  const filled = ["desk", "chair", "computer", "window", "poster", "rug", "plant", "lamp", "pet"]
+  const filled = ["desk", "chair", "computer", "window", "poster", "rug", "plant", "lamp", "shelf", "clock", "pet"]
     .filter((slot) => items[slot]).length;
   const petBonus = items.pet ? 12 : 0;
   const greenBonus = items.plant ? 8 : 0;
-  return Math.min(100, Math.round((filled / 9) * 80) + petBonus + greenBonus);
+  return Math.min(100, Math.round((filled / 11) * 80) + petBonus + greenBonus);
 }
 
 const SCENE_CSS = `
@@ -880,9 +1120,15 @@ const SCENE_CSS = `
   0%, 100% { transform: translateX(0); }
   50% { transform: translateX(4px); }
 }
-@keyframes sweepBroom {
-  0%, 100% { transform: rotate(-22deg) translate(0, 0); }
-  50% { transform: rotate(18deg) translate(-14px, 5px); }
+@keyframes trashVanish {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  55% { transform: scale(.8) rotate(-7deg); opacity: .85; }
+  100% { transform: scale(.08) rotate(16deg); opacity: 0; }
+}
+@keyframes dustPuff {
+  0% { transform: translate(-50%, 0) scale(.3); opacity: 0; }
+  20% { opacity: .7; }
+  100% { transform: translate(calc(-50% + var(--dx)), var(--dy)) scale(1.6); opacity: 0; }
 }
 @keyframes sparkleScale {
   0% { transform: scale(0) rotate(0deg); opacity: 0; }
@@ -892,6 +1138,10 @@ const SCENE_CSS = `
 @keyframes ghostFloat {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-7px); }
+}
+@keyframes roomSway3d {
+  0%, 100% { transform: rotateY(-2.6deg) rotateX(1.6deg) scale(1.035); }
+  50% { transform: rotateY(2.6deg) rotateX(0.6deg) scale(1.035); }
 }
 `;
 
@@ -905,10 +1155,12 @@ const DESK_CX = DESK_LEFT + DESK_WIDTH / 2;
 const SURFACE_Y = DESK_TOP + DESK_HEIGHT * DESK_SURFACE_FRAC;
 
 
-function Draggable({ slot, itemId, left, bottom, width, height, zIndex, positions, onPositionChange, interactive, filter, className="", children, extra={}, onClick }) {
+function Draggable({ slot, itemId, left, bottom, width, height, zIndex, positions, onPositionChange, interactive, filter, className="", children, extra={}, onClick, onSelect }) {
   const customPos = positions?.[slot];
   const currentLeft = customPos?.left ?? left;
   const currentBottom = customPos?.bottom ?? bottom;
+  const itemScale = customPos?.scale ?? 1;
+  const itemFlip = !!customPos?.flipX;
 
   const elementRef = React.useRef(null);
 
@@ -986,6 +1238,7 @@ function Draggable({ slot, itemId, left, bottom, width, height, zIndex, position
           });
         }
       } else {
+        onSelect?.(slot);
         onClick?.();
       }
     };
@@ -1007,15 +1260,45 @@ function Draggable({ slot, itemId, left, bottom, width, height, zIndex, position
         width: 'auto',
         aspectRatio: `${width} / ${height}`,
         zIndex,
-        filter,
         touchAction: interactive ? 'none' : 'auto',
+        transformStyle: 'preserve-3d',
         ...extra
       }}
     >
-      {children || <RoomItem id={itemId} />}
+      <div
+        className="w-full h-full"
+        style={{
+          // translateZ lifts each item off the wall proportionally to its
+          // stacking layer, so the always-on room tilt produces real parallax.
+          // NOTE: the drop-shadow filter must live HERE (same element as the
+          // 3D transform) — a filter on the parent would flatten preserve-3d.
+          transform: `translateZ(${8 + (zIndex || 0) * 1.3}px) scale(${itemScale}) scaleX(${itemFlip ? -1 : 1})`,
+          transformOrigin: 'center bottom',
+          transition: 'transform .2s ease',
+          filter,
+        }}
+      >
+        {children || <RoomItem id={itemId} />}
+      </div>
     </div>
   );
 }
+
+// Default placement per slot — the layout toolbar merges scale/flip edits on
+// top of these when the item has never been dragged (no custom position yet).
+const DEFAULT_POS = {
+  window: { left: 66, bottom: 52 },
+  poster: { left: 7, bottom: 50 },
+  shelf: { left: 42, bottom: 44 },
+  clock: { left: 24, bottom: 24 },
+  rug: { left: 18, bottom: 88 },
+  lamp: { left: 28, bottom: 63 },
+  plant: { left: 76, bottom: 92 },
+  desk: { left: 30, bottom: 90 },
+  computer: { left: 41, bottom: 63.28 },
+  chair: { left: 18, bottom: 96 },
+  pet: { left: 68, bottom: 97 },
+};
 
 export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, onCleanSuccess, onItemClick, onPositionChange, className = "", zoom }) {
   const items = room.items || {};
@@ -1027,6 +1310,50 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
 
   const [sweepingId, setSweepingId] = React.useState(null);
   const [sparklingId, setSparklingId] = React.useState(null);
+
+  // Free-layout selection + always-on hybrid 2D/3D depth.
+  // The room is one unified interface: items sit at different translateZ
+  // depths, the whole scene sways gently when idle and tilts toward the
+  // pointer/finger when the user interacts — no separate 2D/3D mode.
+  const [selectedSlot, setSelectedSlot] = React.useState(null);
+  const tiltRef = React.useRef(null);
+
+  const handleTiltMove = (e) => {
+    if (!tiltRef.current) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    tiltRef.current.style.animation = 'none';
+    tiltRef.current.style.transform = `rotateY(${px * 9}deg) rotateX(${-py * 6}deg) scale(1.04)`;
+  };
+  const handleTiltLeave = () => {
+    if (!tiltRef.current) return;
+    tiltRef.current.style.transform = '';
+    tiltRef.current.style.animation = '';
+  };
+
+  const selectSlot = (slot) => {
+    if (!interactive || !onPositionChange) return;
+    setSelectedSlot((s) => (s === slot ? null : slot));
+  };
+
+  const getPos = (slot) => ({
+    ...(DEFAULT_POS[slot] || { left: 40, bottom: 60 }),
+    ...(positions?.[slot] || {}),
+  });
+
+  const adjustSelected = (patch) => {
+    if (!selectedSlot) return;
+    const cur = getPos(selectedSlot);
+    const next = { ...cur, ...patch };
+    if (next.scale != null) next.scale = Math.max(0.5, Math.min(1.8, Math.round(next.scale * 100) / 100));
+    onPositionChange?.(selectedSlot, next);
+  };
+
+  const resetSelected = () => {
+    if (!selectedSlot) return;
+    onPositionChange?.(selectedSlot, { ...DEFAULT_POS[selectedSlot], scale: 1, flipX: false });
+  };
 
   const playSweepSound = () => {
     try {
@@ -1150,27 +1477,47 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
     floor_tile_checker: "repeating-conic-gradient(#e5e7eb 0deg 90deg,#9ca3af 90deg 180deg)",
   }[floorStyleKey] || "linear-gradient(180deg,#d29a5e,#a9713a)";
 
-  const dragProps = { positions, onPositionChange, interactive };
+  const dragProps = { positions, onPositionChange, interactive, onSelect: selectSlot };
 
   return (
-    <div id="room-scene-container" className={`relative w-full h-full overflow-hidden select-none ${className}`}>
+    <div
+      id="room-scene-container"
+      className={`relative w-full h-full overflow-hidden select-none ${className}`}
+      style={{ perspective: '1100px' }}
+      onPointerMove={handleTiltMove}
+      onPointerLeave={handleTiltLeave}
+    >
       <style>{SCENE_CSS}</style>
 
-      <div 
-        className="w-full h-full relative" 
-        style={zoom ? {
-          transform: `scale(${zoom})`,
-          transformOrigin: 'top left',
-          width: `${100 / zoom}%`,
-          height: `${100 / zoom}%`
-        } : undefined}
+      <div
+        ref={tiltRef}
+        className="w-full h-full relative"
+        style={{
+          transition: 'transform .18s ease-out',
+          transformStyle: 'preserve-3d',
+          animation: 'roomSway3d 14s ease-in-out infinite',
+        }}
+      >
+      <div
+        className="w-full h-full relative"
+        style={{
+          transformStyle: 'preserve-3d',
+          ...(zoom ? {
+            transform: `scale(${zoom})`,
+            transformOrigin: 'top left',
+            width: `${100 / zoom}%`,
+            height: `${100 / zoom}%`
+          } : {})
+        }}
       >
         <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${wall}, ${shade(wall, night ? -8 : -6)})` }}>
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
         </div>
 
-        {items.window && <Draggable slot="window" itemId={items.window} left={66} width={26} bottom={52} height={44} className="drop-shadow-md" {...dragProps} />}
-        {items.poster && <Draggable slot="poster" itemId={items.poster} left={7} width={14} bottom={50} height={40} className="drop-shadow-md" {...dragProps} />}
+        {items.window && <Draggable slot="window" itemId={items.window} left={66} width={26} bottom={52} height={44} zIndex={2} filter="drop-shadow(0 4px 3px rgba(0,0,0,.14))" {...dragProps} />}
+        {items.poster && <Draggable slot="poster" itemId={items.poster} left={7} width={14} bottom={50} height={40} zIndex={2} filter="drop-shadow(0 4px 3px rgba(0,0,0,.14))" {...dragProps} />}
+        {items.shelf && <Draggable slot="shelf" itemId={items.shelf} left={42} width={18} bottom={44} height={30} zIndex={3} filter="drop-shadow(0 4px 3px rgba(0,0,0,.14))" {...dragProps} />}
+        {items.clock && <Draggable slot="clock" itemId={items.clock} left={24} width={9} bottom={24} height={15} zIndex={3} filter="drop-shadow(0 4px 3px rgba(0,0,0,.14))" {...dragProps} />}
 
         {items.lamp && (
           <div className="absolute pointer-events-none" style={{ bottom: "16%", left: "2%", width: "42%", height: "56%", background: "radial-gradient(circle at 28% 55%, rgba(255,224,150,.5), transparent 62%)", animation: "decoGlow 3.5s ease-in-out infinite" }} />
@@ -1237,61 +1584,67 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
                 height: t.height,
               }}
             >
-              {/* Smelly green fumes (only when dirty) */}
+              {/* Subtle gray stink wisps (only when dirty) */}
               {!isSweeping && !isSparkling && (
                 <div className="absolute inset-0 pointer-events-none overflow-visible">
                   <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-                    <path d="M 30,50 Q 20,30 30,10" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" opacity="0.6"
-                      style={{ animation: 'driftUp 2.8s ease-in-out infinite, sway 1.8s ease-in-out infinite' }} />
-                    <path d="M 50,55 Q 60,35 45,15" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" opacity="0.5"
-                      style={{ animation: 'driftUp 3.2s ease-in-out infinite 0.6s, sway 2.2s ease-in-out infinite 0.3s' }} />
+                    <path d="M 38 48 q -3 -7 0 -13 q 3 -6 0 -12" fill="none" stroke="#94a3b8" strokeWidth="1.6" strokeLinecap="round" opacity="0.4"
+                      style={{ animation: 'driftUp 3s ease-in-out infinite' }} />
+                    <path d="M 58 52 q 3 -7 0 -13 q -3 -6 0 -12" fill="none" stroke="#a8b0bd" strokeWidth="1.3" strokeLinecap="round" opacity="0.3"
+                      style={{ animation: 'driftUp 3.6s ease-in-out infinite 0.8s' }} />
                   </svg>
                 </div>
               )}
 
-              {/* Trash Pile SVG (fades out when sweeping/sparkling) */}
+              {/* Trash pile — crumpled paper + soda can + banana peel */}
               {!isSparkling && (
-                <div className={`w-full h-full transition-opacity duration-500 ${isSweeping ? 'opacity-40 scale-90' : 'opacity-100'}`}>
-                  <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-md">
-                    <path d="M 25,65 Q 18,52 32,54 Z" fill="#e4e4e7" stroke="#a1a1aa" strokeWidth="1" />
-                    <path d="M 55,68 Q 62,56 70,62 Z" fill="#d4d4d8" stroke="#71717a" strokeWidth="1" />
-                    <path d="M 35,62 C 30,64 22,60 18,65 C 28,68 35,65 35,62 Z" fill="#facc15" />
-                    <path d="M 35,62 C 38,58 42,55 50,60 C 45,63 38,64 35,62 Z" fill="#eab308" />
-                    <path d="M 38,58 C 30,55 35,50 36,46 C 40,49 42,54 38,58 Z" fill="#facc15" />
-                    <circle cx="28" cy="61" r="1" fill="#713f12" />
-                    <circle cx="43" cy="57" r="1.2" fill="#713f12" />
-                    <path d="M 46,65 L 52,65 Q 49,60 49,54 L 47,54 Q 47,60 46,65 Z" fill="#fafafa" stroke="#d4d4d8" strokeWidth="0.5" />
-                    <path d="M 45,54 Q 49,51 53,54 L 45,54" fill="#b91c1c" />
-                    <path d="M 45,65 Q 49,68 53,65 L 45,65" fill="#b91c1c" />
-                    <path d="M 49,51 Q 50,45 52,43" fill="none" stroke="#78350f" strokeWidth="1.5" />
-                    <circle cx="15" cy="70" r="1.5" fill="#71717a" />
-                    <circle cx="75" cy="68" r="2.2" fill="#52525b" />
-                    <circle cx="82" cy="72" r="1" fill="#3f3f46" />
+                <div
+                  className="w-full h-full"
+                  style={isSweeping ? { animation: 'trashVanish 1.5s ease-in forwards', transformOrigin: 'center bottom' } : undefined}
+                >
+                  <svg viewBox="0 0 100 80" className="w-full h-full drop-shadow-sm">
+                    <ellipse cx="50" cy="72" rx="30" ry="4.5" fill="#000" opacity="0.1" />
+                    {/* Crumpled paper ball */}
+                    <circle cx="34" cy="60" r="11" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
+                    <path d="M 27 55 L 34 60 L 30 67 M 34 60 L 42 55 M 34 60 L 38 67 M 29 61 L 34 60" stroke="#cbd5e1" strokeWidth="1" fill="none" strokeLinecap="round" />
+                    {/* Soda can (tilted) */}
+                    <g transform="rotate(-16 58 58)">
+                      <rect x="52" y="46" width="13" height="21" rx="3" fill="#e2e8f0" />
+                      <rect x="52" y="51" width="13" height="9" fill="#f472b6" />
+                      <circle cx="58.5" cy="55.5" r="2.6" fill="#fff" opacity="0.85" />
+                      <ellipse cx="58.5" cy="46.5" rx="6.5" ry="2.2" fill="#94a3b8" />
+                      <ellipse cx="58.5" cy="46.5" rx="4.5" ry="1.4" fill="#cbd5e1" />
+                    </g>
+                    {/* Banana peel */}
+                    <path d="M 66 68 Q 72 56 84 62 Q 76 61 72 69 Z" fill="#fde047" stroke="#eab308" strokeWidth="0.8" strokeLinejoin="round" />
+                    <path d="M 66 68 Q 70 62 68 57 Q 72 61 72 67 Z" fill="#facc15" />
+                    {/* Crumbs */}
+                    <circle cx="22" cy="68" r="1.5" fill="#cbd5e1" />
+                    <circle cx="79" cy="71" r="1.3" fill="#cbd5e1" />
+                    <circle cx="48" cy="70" r="1.1" fill="#d4d4d8" />
                   </svg>
                 </div>
               )}
 
-              {/* Sweep Broom SVG (only when sweeping) */}
+              {/* Soft dust puffs while cleaning */}
               {isSweeping && (
-                <div 
-                  className="absolute inset-0 pointer-events-none origin-bottom-right"
-                  style={{
-                    width: '80px',
-                    height: '110px',
-                    bottom: '15px',
-                    right: '-15px',
-                    animation: 'sweepBroom 0.5s ease-in-out infinite'
-                  }}
-                >
-                  <svg viewBox="0 0 80 120" className="w-full h-full drop-shadow-lg">
-                    <rect x="36" y="5" width="6" height="75" rx="3" fill="#b45309" stroke="#78350f" strokeWidth="1" />
-                    <path d="M 36,15 L 42,15 L 42,5 A 3,3 0 0,0 36,5 Z" fill="#78350f" />
-                    <path d="M 24,80 L 54,80 L 58,95 L 20,95 Z" fill="#eab308" stroke="#ca8a04" strokeWidth="1.2" />
-                    <path d="M 20,95 Q 6,118 12,120 Q 39,112 70,118 Q 72,114 58,95 Z" fill="#fef08a" stroke="#ca8a04" strokeWidth="1" />
-                    <path d="M 28,95 L 22,112" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
-                    <path d="M 38,95 L 39,114" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
-                    <path d="M 48,95 L 56,112" stroke="#ca8a04" strokeWidth="1" strokeLinecap="round" />
-                  </svg>
+                <div className="absolute inset-0 pointer-events-none">
+                  {[
+                    { dx: '-20px', dy: '-12px', delay: '0s', size: 10 },
+                    { dx: '16px', dy: '-18px', delay: '.15s', size: 8 },
+                    { dx: '-4px', dy: '-24px', delay: '.3s', size: 12 },
+                    { dx: '22px', dy: '-6px', delay: '.45s', size: 7 },
+                  ].map((p, i) => (
+                    <span
+                      key={i}
+                      className="absolute left-1/2 bottom-2 rounded-full bg-zinc-300/80 dark:bg-zinc-400/50"
+                      style={{
+                        width: p.size, height: p.size,
+                        '--dx': p.dx, '--dy': p.dy,
+                        animation: `dustPuff 1s ease-out ${p.delay} infinite`,
+                      }}
+                    />
+                  ))}
                 </div>
               )}
 
@@ -1311,8 +1664,9 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
 
               {/* Tooltip text when dirty and interactive */}
               {interactive && sweepingId == null && sparklingId == null && (
-                <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-zinc-950/85 backdrop-blur-sm text-white px-2.5 py-1 rounded-xl text-[9px] font-black tracking-wide whitespace-nowrap border border-zinc-800 shadow-xl opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity pointer-events-none">
-                  Mở rộng dọn dẹp (+5 JOY)
+                <div className="absolute -top-7 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm text-zinc-700 dark:text-zinc-200 px-2.5 py-1 rounded-full text-[9px] font-black tracking-wide whitespace-nowrap border border-zinc-200 dark:border-zinc-700 shadow-lg opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity pointer-events-none">
+                  <span className="material-symbols-outlined text-[11px] text-emerald-500">cleaning_services</span>
+                  Dọn rác · +5 JOY
                 </div>
               )}
             </div>
@@ -1321,6 +1675,29 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
 
         {night && <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 70% 22%, rgba(120,120,255,.10), rgba(10,8,30,.42) 92%)" }} />}
       </div>
+      </div>
+
+      {/* ── Free-layout toolbar for the selected item ── */}
+      {interactive && selectedSlot && items[selectedSlot] && (
+        <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-white/92 dark:bg-zinc-900/92 backdrop-blur-md border border-zinc-200 dark:border-zinc-700 shadow-xl animate-fadeIn">
+          <span className="px-1.5 text-[10px] font-black text-zinc-500 uppercase tracking-wider">{DECO_TYPE_META[selectedSlot]?.label || selectedSlot}</span>
+          <button onClick={() => adjustSelected({ scale: getPos(selectedSlot).scale != null ? getPos(selectedSlot).scale - 0.1 : 0.9 })} className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700" title="Thu nhỏ">
+            <span className="material-symbols-outlined text-[15px]">zoom_out</span>
+          </button>
+          <button onClick={() => adjustSelected({ scale: getPos(selectedSlot).scale != null ? getPos(selectedSlot).scale + 0.1 : 1.1 })} className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700" title="Phóng to">
+            <span className="material-symbols-outlined text-[15px]">zoom_in</span>
+          </button>
+          <button onClick={() => adjustSelected({ flipX: !getPos(selectedSlot).flipX })} className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700" title="Lật ngang">
+            <span className="material-symbols-outlined text-[15px]">flip</span>
+          </button>
+          <button onClick={resetSelected} className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700" title="Về mặc định">
+            <span className="material-symbols-outlined text-[15px]">restart_alt</span>
+          </button>
+          <button onClick={() => setSelectedSlot(null)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-700" title="Xong">
+            <span className="material-symbols-outlined text-[15px]">check</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

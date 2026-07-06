@@ -359,7 +359,9 @@ const BioSchema = new mongoose.Schema(
         window: { type: String, default: 'window_day' },
         rug: { type: String, default: null },
         plant: { type: String, default: null },
-        lamp: { type: String, default: null }
+        lamp: { type: String, default: null },
+        shelf: { type: String, default: null },
+        clock: { type: String, default: null }
       },
       positions: { type: mongoose.Schema.Types.Mixed, default: {} },
       unlockedItems: { type: [String], default: [] }

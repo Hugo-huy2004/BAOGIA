@@ -209,6 +209,9 @@ app.use('/api/presence', presenceRoutes);
 app.use('/api/radio', radioRoutes);
 app.use('/api/arcade', arcadeRoutes);
 app.use('/api/deco', joyDecoRoutes);
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'Server is running', message: "ok", timestamp: new Date() });
+});
 
 // Educational Email Validation
 app.get('/api/auth/verify-edu', async (req, res) => {
@@ -232,6 +235,15 @@ const healthHandler = (req, res) => {
 app.get('/health', healthHandler);
 app.get('/api/health', healthHandler);
 
+// Global error handler — persists any uncaught route error to the admin
+// System dashboard, then returns a clean 500. Must be after all routes.
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  logError({ level: 'error', source: 'route', message: err?.message || 'Unhandled route error', stack: err?.stack, path: req?.originalUrl, email: req?.memberEmail || '' });
+  console.error('[Route Error]', req?.originalUrl, err?.message);
+  res.status(err?.status || 500).json({ error: 'Đã xảy ra lỗi máy chủ.' });
+});
+
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
 import { initCompanionScheduler } from './utils/companionScheduler.js';
 import { initProactivePushService } from './services/proactivePushService.js';
@@ -240,7 +252,7 @@ import { initChessWS } from './services/chessWS.js';
 import { initCronJobs } from './utils/cronJobs.js';
 import { initCommunityBot } from './utils/communityBot.js';
 import { initKeepAlive } from './utils/keepAlive.js';
-import { sendAlert } from './utils/alert.js';
+import { sendAlert, logError } from './utils/alert.js';
 
 // Safety net: a stray promise rejection (e.g. a background fire-and-forget task)
 // must not crash the whole server — log + alert instead.

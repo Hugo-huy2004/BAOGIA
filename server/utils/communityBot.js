@@ -63,7 +63,8 @@ const SURVEY_THEMES = [
 
 async function callGemini(prompt) {
   // Routed through the central AI Gateway (quota, cache, retry, downgrade).
-  const raw = await generate(prompt, { model: MODEL, temperature: 1 });
+  // lowPriority → the bot yields quota to real users when the API is hot.
+  const raw = await generate(prompt, { model: MODEL, temperature: 1, lowPriority: true });
   if (!raw) return null;
   return raw.replace(/```/g, '').replace(/^["'#\s]+|["'\s]+$/g, '').trim();
 }
@@ -80,6 +81,19 @@ const GENZ_INTERESTS = 'Liên Quân, Free Fire, Roblox, Genshin, TikTok, edit Ca
 // Shared voice guide — appended to every anonymous prompt. Short, dry, modern;
 // the old bot read "sến" (cheesy) so this deliberately caps emotion & length.
 const GENZ_STYLE = ` Văn phong: Gen Z đời 2k10 nhắn tin thật — câu NGẮN, tự nhiên, hơi lười viết hoa cũng được, chêm nhẹ teencode khi hợp ("ib", "khum", "hong", "z", "vv", "real"). TUYỆT ĐỐI không sến, không "các bạn ơi", không giọng văn mẫu; hạn chế dấu chấm than và từ cảm thán; tối đa 1 emoji hoặc không dùng. Được phép xuống dòng giữa các ý cho dễ đọc.`;
+
+// Random "angle" so bot posts don't all read like the same tidy AI paragraph —
+// this is what makes them feel like real, spontaneous human posts.
+const VIBES = [
+  'một suy nghĩ bâng quơ lúc nửa đêm',
+  'kể một chuyện nhỏ vừa xảy ra hôm nay',
+  'một "hot take" gây tranh luận nhẹ nhàng',
+  'than thở đời sinh viên kiểu relatable',
+  'khoe một điều mới học/khám phá được, kiểu hào hứng khoe bạn',
+  'đố vui, thách mọi người rep đáp án',
+  'một điều bản thân thấy lạ và tò mò muốn hỏi mọi người',
+  'rủ rê mọi người cùng bàn về chủ đề đó',
+];
 
 async function generateBotPost() {
   const r = Math.random();
@@ -123,6 +137,10 @@ async function generateBotPost() {
 
   // Anonymous (non-Admin) posts share the same Gen Z voice guide.
   if (senderEmail === ANON_EMAIL) prompt += GENZ_STYLE;
+  // Topic & survey posts get a random human "angle" so the feed isn't uniform.
+  if ((mode === 'topic' || mode === 'survey')) {
+    prompt += ` Kiểu bài: ${VIBES[Math.floor(Math.random() * VIBES.length)]}. Đừng mở đầu bằng câu chào công thức.`;
+  }
 
   const text = await callGemini(prompt);
   if (!text || text.length < 12) return false;

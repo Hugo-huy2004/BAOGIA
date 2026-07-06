@@ -50,6 +50,20 @@ const DECO_STORE = {
   lamp_floor: { type: 'lamp', price: 250, name: 'Đèn cây góc phòng' },
   lamp_neon: { type: 'lamp', price: 500, name: 'Đèn Neon LED' },
 
+  // Shelves (wall-mounted accessory)
+  shelf_wood: { type: 'shelf', price: 220, name: 'Kệ sách gỗ treo tường' },
+  shelf_neon: { type: 'shelf', price: 450, name: 'Kệ Neon RGB' },
+
+  // Wall Clocks (accessory)
+  clock_wall: { type: 'clock', price: 150, name: 'Đồng hồ tròn cổ điển' },
+  clock_neon: { type: 'clock', price: 380, name: 'Đồng hồ Neon Digital' },
+
+  // Extra ambiance & accessories
+  window_sunset: { type: 'window', price: 300, name: 'Cửa sổ hoàng hôn' },
+  poster_galaxy: { type: 'poster', price: 280, name: 'Poster Dải Ngân Hà' },
+  rug_cloud: { type: 'rug', price: 260, name: 'Thảm Mây bồng bềnh' },
+  pet_bunny: { type: 'pet', price: 500, name: 'Thỏ Trắng tai cụp' },
+
   // Wall Colors
   wall_white: { type: 'wallColor', price: 0, name: 'Tường Trắng Kem' },
   wall_pink: { type: 'wallColor', price: 100, name: 'Tường Hồng Pastel' },
@@ -197,10 +211,22 @@ router.post('/save', requireMember, async (req, res) => {
     }
     
     // Merge cleanItems properly without spreading mongoose subdocument
+    const prevPet = bio.decoRoom.items?.pet || null;
     if (cleanItems) {
       for (const [k, v] of Object.entries(cleanItems)) {
         bio.decoRoom.items[k] = v;
       }
+    }
+
+    // Pet lifecycle: a dead pet can only be revived or removed. Whenever the
+    // pet slot changes (removed, or a new pet equipped), the old death state
+    // must not carry over — reset status and restart the hunger clock.
+    const nextPet = bio.decoRoom.items?.pet || null;
+    if (nextPet !== prevPet) {
+      bio.decoRoom.petStatus = 'alive';
+      bio.decoRoom.petFedAt = new Date();
+      bio.markModified('decoRoom.petStatus');
+      bio.markModified('decoRoom.petFedAt');
     }
 
     // Merge positions

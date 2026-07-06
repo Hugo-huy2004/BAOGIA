@@ -78,14 +78,22 @@ describe('aiGateway', () => {
     expect(lastUrl).toContain('flash-lite');
   });
 
-  it('stops issuing calls when saturated (>= daily limit)', async () => {
+  it('drops low-priority calls when saturated, but lets interactive calls through', async () => {
     global.fetch = vi.fn().mockResolvedValue(mockGenOk('x'));
     for (let i = 0; i < 20; i++) await generate('fill ' + i); // hit RPD limit (20)
     expect(getQuotaStatus().saturated).toBe(true);
-    const callsBefore = global.fetch.mock.calls.length;
-    const out = await generate('should be blocked');
-    expect(out).toBeNull();
-    expect(global.fetch.mock.calls.length).toBe(callsBefore); // no new network call
+
+    // Low-priority (bot) call is dropped — no network hit.
+    let calls = global.fetch.mock.calls.length;
+    const low = await generate('bot post', { lowPriority: true });
+    expect(low).toBeNull();
+    expect(global.fetch.mock.calls.length).toBe(calls);
+
+    // Interactive call (default) still attempts even when saturated.
+    calls = global.fetch.mock.calls.length;
+    const high = await generate('user is chatting with HugoPSY');
+    expect(high).toBe('x');
+    expect(global.fetch.mock.calls.length).toBe(calls + 1);
   });
 
   it('embed returns a vector and caches it', async () => {

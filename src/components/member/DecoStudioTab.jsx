@@ -7,8 +7,8 @@ import { DECO_ART, DECO_TYPE_META, DecoRoomScene, cozinessScore, isNightRoom } f
 const API = import.meta.env.VITE_API_URL || '/api';
 
 // Slot order shown in the customizer + which slots the room understands.
-const SLOT_ORDER = ['desk', 'chair', 'computer', 'window', 'rug', 'plant', 'lamp', 'poster', 'pet'];
-const CLEARABLE = new Set(['pet', 'poster', 'rug', 'plant', 'lamp']); // optional slots
+const SLOT_ORDER = ['desk', 'chair', 'computer', 'window', 'rug', 'plant', 'lamp', 'shelf', 'clock', 'poster', 'pet'];
+const CLEARABLE = new Set(['pet', 'poster', 'rug', 'plant', 'lamp', 'shelf', 'clock']); // optional slots
 
 const FLOOR_STYLES = [
   { id: 'wood_basic', label: 'Gỗ ấm', swatch: 'linear-gradient(180deg,#c98a4e,#a9713a)', price: 0 },
@@ -54,9 +54,73 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
     enabled: false,
     wallColor: 'wall_white',
     floorStyle: 'wood_basic',
-    items: { desk: 'desk_basic', chair: 'chair_basic', computer: 'laptop', window: 'window_day', poster: null, pet: null, rug: null, plant: null, lamp: null },
+    items: { desk: 'desk_basic', chair: 'chair_basic', computer: 'laptop', window: 'window_day', poster: null, pet: null, rug: null, plant: null, lamp: null, shelf: null, clock: null },
     positions: {},
   });
+
+  // Store category filter chips ('all' | 'wall' | 'floor' | slot type)
+  const [storeFilter, setStoreFilter] = useState('all');
+
+  // PWA install prompt (captured from the browser when installable)
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    // Swap the page manifest to the HugoRoom one while this tab is open so
+    // "Add to Home Screen" installs HugoRoom as its own PWA.
+    const link = document.querySelector('link[rel="manifest"]');
+    const prevHref = link?.getAttribute('href');
+    if (link) link.setAttribute('href', '/hugoroom-manifest.json');
+
+    const onBeforeInstall = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    return () => {
+      if (link && prevHref) link.setAttribute('href', prevHref);
+      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+    };
+  }, []);
+
+  const handleInstallPWA = async () => {
+    if (!installPrompt) {
+      showToast?.('Mở menu trình duyệt và chọn "Thêm vào màn hình chính" để cài HugoRoom.', 'info');
+      return;
+    }
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') showToast?.('Đã cài HugoRoom vào màn hình chính! 🎉', 'success');
+    setInstallPrompt(null);
+  };
+
+  const handleShareRoom = async () => {
+    const slug = bio?.slug;
+    if (!slug) {
+      showToast?.('Bạn cần có Bio công khai để chia sẻ phòng.', 'error');
+      return;
+    }
+    const url = `${window.location.origin}/bio/${slug}`;
+    const shareData = {
+      title: 'HugoRoom của tôi 🏠',
+      text: 'Ghé thăm căn phòng ký túc xá ảo của mình trên Hugo Studio nhé!',
+      url,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(url);
+        showToast?.('Đã sao chép liên kết phòng!', 'success');
+      }
+    } catch (err) {
+      if (err?.name !== 'AbortError') {
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast?.('Đã sao chép liên kết phòng!', 'success');
+        } catch { showToast?.('Không thể chia sẻ liên kết.', 'error'); }
+      }
+    }
+  };
 
   useEffect(() => { fetchStore(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -312,8 +376,13 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
   };
 
 
-  const setItem = (type, id) => setRoomState((p) => ({ ...p, items: { ...p.items, [type]: id } }));
-  const owns = (id, def) => def.price === 0 || storeData?.unlockedItems?.includes(id);
+  const setItem = (type, id) => setRoomState((p) => ({
+    ...p,
+    items: { ...p.items, [type]: id },
+    // Swapping/removing the pet always starts the new one alive & fed —
+    // mirrors the server reset in /deco/save.
+    ...(type === 'pet' ? { petStatus: 'alive', petFedAt: new Date().toISOString() } : {}),
+  }));
 
   const onSceneItemClick = (slot) => {
     if (slot === 'pet') {
@@ -353,6 +422,19 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
     } finally {
       setIsPetInteracting(false);
     }
+  };
+
+  // Dead pet: the only two options are revive (99 JOY) or remove it entirely
+  // and buy/equip a new one from scratch. Removing clears the slot; the server
+  // resets petStatus/petFedAt whenever the pet slot changes.
+  const handleDeletePet = () => {
+    setRoomState((p) => ({
+      ...p,
+      items: { ...p.items, pet: null },
+      petStatus: 'alive',
+    }));
+    setPetAction(null);
+    showToast?.('Đã tiễn thú cưng về trời. Bạn có thể nuôi bé mới từ cửa hàng. 🕊️', 'success');
   };
 
   const handleRevivePet = async () => {
@@ -451,6 +533,21 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleShareRoom}
+              title="Chia sẻ phòng"
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[16px]">share</span>
+            </button>
+            <button
+              onClick={handleInstallPWA}
+              title="Cài HugoRoom vào màn hình chính"
+              className="hidden sm:flex items-center gap-1 px-2.5 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors text-[10px] font-black uppercase"
+            >
+              <span className="material-symbols-outlined text-[15px]">install_mobile</span>
+              App
+            </button>
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-100/80 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400 rounded-full text-[11px] font-black tracking-wide shadow-sm">
               <JoyCoinBadge hideAmount size="sm" />
               {storeData.balance.toLocaleString()}
@@ -608,139 +705,129 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
               </div>
             </div>
 
-            {/* ── Store / customizer grouped by slot ────────────────────────────── */}
-            <div className="p-4 md:p-6 space-y-7">
-              {/* Màu Tường (Wall Color) Customizer */}
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-1.5 text-sm font-black text-zinc-800 dark:text-zinc-100">
-                  <span className="material-symbols-outlined text-[16px] text-zinc-500">palette</span>
-                  Màu tường
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                  {WALL_COLORS.map((w) => {
-                    const isOwned = w.price === 0 || storeData?.unlockedItems?.includes(w.id);
-                    const isEquipped = roomState.wallColor === w.id;
-                    return (
-                      <div key={w.id}
-                        onClick={() => isOwned && setRoomState(p => ({ ...p, wallColor: w.id }))}
-                        className={`relative flex flex-col p-3 rounded-xl border-2 transition-all ${isEquipped ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 shadow-sm' : isOwned ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-indigo-300 cursor-pointer' : 'border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/60 dark:bg-zinc-900/40'}`}
-                      >
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-full border border-black/10 flex items-center justify-center relative overflow-hidden" style={{ backgroundColor: w.color }}>
-                          {!isOwned && (
-                            <div className="absolute inset-0 bg-black/35 flex items-center justify-center text-white">
-                              <span className="material-symbols-outlined text-[16px]">lock</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-center mt-auto">
-                          <div className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 line-clamp-1">{w.label}</div>
-                          <div className="mt-1.5 flex justify-center">
-                            {isOwned ? (
-                              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${isEquipped ? 'bg-indigo-500 text-white' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`}>
-                                {isEquipped ? 'Đang dùng' : 'Đã có'}
-                              </span>
-                            ) : (
-                              <button onClick={(e) => { e.stopPropagation(); setBuyTarget({ id: w.id, def: { type: 'wallColor', price: w.price, name: w.label } }); }}
-                                className="flex items-center gap-1 text-[10px] font-black uppercase px-3 py-1 rounded-full bg-yellow-400 hover:bg-yellow-500 text-yellow-950 transition-colors">
-                                <JoyCoinBadge hideAmount size="sm" />{w.price}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+            {/* ── Compact category chip bar ─────────────────────────────────────── */}
+            <div className="sticky top-0 z-40 px-4 md:px-6 py-2.5 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 flex gap-1.5 overflow-x-auto scrollbar-hide">
+              {[
+                { id: 'all', label: 'Tất cả', icon: 'apps' },
+                { id: 'wall', label: 'Tường', icon: 'palette' },
+                { id: 'floor', label: 'Sàn', icon: 'grid_on' },
+                ...SLOT_ORDER.filter((t) => itemsByType[t]?.length).map((t) => ({
+                  id: t,
+                  label: (DECO_TYPE_META[t] || { label: t }).label,
+                  icon: (DECO_TYPE_META[t] || { icon: 'category' }).icon,
+                })),
+              ].map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setStoreFilter(c.id)}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap transition-colors ${
+                    storeFilter === c.id
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[13px]">{c.icon}</span>
+                  {c.label}
+                </button>
+              ))}
+            </div>
 
-              {/* Sàn Nhà (Floor Style) Customizer */}
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-1.5 text-sm font-black text-zinc-800 dark:text-zinc-100">
-                  <span className="material-symbols-outlined text-[16px] text-zinc-500">grid_on</span>
-                  Sàn nhà
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {FLOOR_STYLES.map((f) => {
-                    const isOwned = f.price === 0 || storeData?.unlockedItems?.includes(f.id);
-                    const isEquipped = roomState.floorStyle === f.id;
-                    return (
-                      <div key={f.id}
-                        onClick={() => isOwned && setRoomState(p => ({ ...p, floorStyle: f.id }))}
-                        className={`relative flex flex-col p-3 rounded-xl border-2 transition-all ${isEquipped ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 shadow-sm' : isOwned ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-indigo-300 cursor-pointer' : 'border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/60 dark:bg-zinc-900/40'}`}
-                      >
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-lg border border-black/10 flex items-center justify-center relative overflow-hidden" style={{ backgroundImage: f.swatch, backgroundSize: f.id.includes('checker') ? '10px 10px' : undefined }}>
-                          {!isOwned && (
-                            <div className="absolute inset-0 bg-black/35 flex items-center justify-center text-white">
-                              <span className="material-symbols-outlined text-[16px]">lock</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-center mt-auto">
-                          <div className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 line-clamp-1">{f.label}</div>
-                          <div className="mt-1.5 flex justify-center">
-                            {isOwned ? (
-                              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${isEquipped ? 'bg-indigo-500 text-white' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`}>
-                                {isEquipped ? 'Đang dùng' : 'Đã có'}
-                              </span>
-                            ) : (
-                              <button onClick={(e) => { e.stopPropagation(); setBuyTarget({ id: f.id, def: { type: 'floorStyle', price: f.price, name: f.label } }); }}
-                                className="flex items-center gap-1 text-[10px] font-black uppercase px-3 py-1 rounded-full bg-yellow-400 hover:bg-yellow-500 text-yellow-950 transition-colors">
-                                <JoyCoinBadge hideAmount size="sm" />{f.price}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {SLOT_ORDER.filter((t) => itemsByType[t]?.length).map((type) => {
-                const meta = DECO_TYPE_META[type] || { label: type, icon: 'category' };
+            {/* ── Cửa hàng nội thất — unified marketplace ───────────────────────── */}
+            <div className="p-3 md:p-5 space-y-6">
+              {[
+                { id: 'wall', label: 'Màu tường', icon: 'palette', kind: 'wall', clearable: false, entries: WALL_COLORS },
+                { id: 'floor', label: 'Sàn nhà', icon: 'grid_on', kind: 'floor', clearable: false, entries: FLOOR_STYLES },
+                ...SLOT_ORDER.filter((t) => itemsByType[t]?.length).map((t) => {
+                  const meta = DECO_TYPE_META[t] || { label: t, icon: 'category' };
+                  return { id: t, label: meta.label, icon: meta.icon, kind: 'item', clearable: CLEARABLE.has(t), entries: itemsByType[t] };
+                }),
+              ].filter((sec) => storeFilter === 'all' || storeFilter === sec.id).map((sec) => {
+                const isRow = storeFilter === 'all';
+                const cardW = isRow ? 'w-[104px] md:w-[116px] shrink-0 snap-start' : '';
                 return (
-                  <div key={type} className="space-y-3">
-                    <h3 className="flex items-center gap-1.5 text-sm font-black text-zinc-800 dark:text-zinc-100">
-                      <span className="material-symbols-outlined text-[16px] text-zinc-500">{meta.icon}</span>
-                      {meta.label}
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {CLEARABLE.has(type) && (
-                        <button onClick={() => setItem(type, null)}
-                          className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${roomState.items[type] == null ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 opacity-60 hover:opacity-100'}`}>
-                          <span className="material-symbols-outlined text-zinc-400 mb-1">block</span>
-                          <span className="text-[11px] font-semibold text-zinc-500">Bỏ trống</span>
+                  <section key={sec.id} className="space-y-2.5">
+                    {/* Section header */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="flex items-center gap-2 text-[13px] font-black text-zinc-800 dark:text-zinc-100">
+                        <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 dark:text-indigo-400 flex items-center justify-center">
+                          <span className="material-symbols-outlined text-[14px]">{sec.icon}</span>
+                        </span>
+                        {sec.label}
+                        <span className="text-[10px] font-bold text-zinc-400">· {sec.entries.length} món</span>
+                      </h3>
+                      {isRow && (
+                        <button onClick={() => setStoreFilter(sec.id)} className="text-[10px] font-black text-indigo-500 hover:text-indigo-600 uppercase tracking-wide">
+                          Xem hết ›
                         </button>
                       )}
-                      {itemsByType[type].map((item) => {
-                        const isOwned = owns(item.id, item);
-                        const isEquipped = roomState.items[type] === item.id;
-                        const Art = DECO_ART[item.id];
+                    </div>
+
+                    {/* Cards: horizontal snap row on "Tất cả", grid when filtered */}
+                    <div className={isRow ? 'flex gap-2.5 overflow-x-auto scrollbar-hide snap-x pb-1' : 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5'}>
+                      {sec.clearable && (
+                        <button onClick={() => setItem(sec.id, null)}
+                          className={`${cardW} flex flex-col items-center justify-center gap-1 p-2 rounded-2xl border border-dashed transition-all ${roomState.items[sec.id] == null ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-500/10 text-indigo-500' : 'border-zinc-300 dark:border-zinc-700 text-zinc-400 hover:border-indigo-300 hover:text-indigo-400'}`}>
+                          <span className="material-symbols-outlined text-[20px]">block</span>
+                          <span className="text-[10px] font-bold">Bỏ trống</span>
+                        </button>
+                      )}
+                      {sec.entries.map((en) => {
+                        const id = en.id;
+                        const name = en.name || en.label;
+                        const price = en.price;
+                        const isOwned = price === 0 || storeData?.unlockedItems?.includes(id);
+                        const isEquipped = sec.kind === 'wall' ? roomState.wallColor === id
+                          : sec.kind === 'floor' ? roomState.floorStyle === id
+                          : roomState.items[sec.id] === id;
+                        const equip = () => {
+                          if (sec.kind === 'wall') setRoomState((p) => ({ ...p, wallColor: id }));
+                          else if (sec.kind === 'floor') setRoomState((p) => ({ ...p, floorStyle: id }));
+                          else setItem(sec.id, id);
+                        };
+                        const buyDef = sec.kind === 'wall' ? { type: 'wallColor', price, name }
+                          : sec.kind === 'floor' ? { type: 'floorStyle', price, name }
+                          : en;
+                        const Art = sec.kind === 'item' ? DECO_ART[id] : null;
                         return (
-                          <div key={item.id}
-                            onClick={() => isOwned && setItem(type, item.id)}
-                            className={`relative flex flex-col p-3 rounded-xl border-2 transition-all ${isEquipped ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 shadow-sm' : isOwned ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-indigo-300 cursor-pointer' : 'border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/60 dark:bg-zinc-900/40'}`}>
-                            <div className="w-16 h-16 mx-auto mb-1.5">{Art && <Art />}</div>
-                            <div className="text-center mt-auto">
-                              <div className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 line-clamp-1">{item.name}</div>
-                              <div className="mt-1.5 flex justify-center">
-                                {isOwned ? (
-                                  <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${isEquipped ? 'bg-indigo-500 text-white' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`}>
-                                    {isEquipped ? 'Đang dùng' : 'Đã có'}
-                                  </span>
-                                ) : (
-                                  <button onClick={(e) => { e.stopPropagation(); setBuyTarget({ id: item.id, def: item }); }}
-                                    className="flex items-center gap-1 text-[10px] font-black uppercase px-3 py-1 rounded-full bg-yellow-400 hover:bg-yellow-500 text-yellow-950 transition-colors">
-                                    <JoyCoinBadge hideAmount size="sm" />{item.price}
-                                  </button>
-                                )}
-                              </div>
+                          <div key={id}
+                            onClick={() => isOwned && !isEquipped && equip()}
+                            className={`${cardW} relative flex flex-col p-2 rounded-2xl border transition-all duration-200 ${isEquipped ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/60 dark:bg-indigo-500/10' : isOwned ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-indigo-300 hover:-translate-y-0.5 cursor-pointer' : 'border-zinc-200/70 dark:border-zinc-800/70 bg-zinc-50 dark:bg-zinc-900/40'}`}>
+                            {/* Art / swatch */}
+                            <div className="relative w-full aspect-square rounded-xl bg-gradient-to-br from-zinc-100 to-white dark:from-zinc-900 dark:to-zinc-800/60 mb-1.5 p-1.5 flex items-center justify-center overflow-hidden">
+                              {sec.kind === 'wall' && <div className="w-3/4 h-3/4 rounded-full border border-black/10 shadow-inner" style={{ backgroundColor: en.color }} />}
+                              {sec.kind === 'floor' && <div className="w-3/4 h-3/4 rounded-lg border border-black/10 shadow-inner" style={{ backgroundImage: en.swatch, backgroundSize: id.includes('checker') ? '10px 10px' : undefined }} />}
+                              {sec.kind === 'item' && Art && <Art />}
+                              {!isOwned && (
+                                <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center text-white rounded-xl">
+                                  <span className="material-symbols-outlined text-[18px]">lock</span>
+                                </div>
+                              )}
+                              {isEquipped && (
+                                <span className="absolute top-1 right-1 w-4.5 h-4.5 min-w-[18px] min-h-[18px] rounded-full bg-indigo-600 text-white flex items-center justify-center shadow">
+                                  <span className="material-symbols-outlined text-[12px]">check</span>
+                                </span>
+                              )}
+                            </div>
+                            {/* Name */}
+                            <div className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300 line-clamp-2 leading-tight min-h-[26px]">{name}</div>
+                            {/* Footer */}
+                            <div className="mt-1">
+                              {isOwned ? (
+                                <span className={`block text-center text-[9px] font-black uppercase px-1.5 py-1 rounded-lg ${isEquipped ? 'bg-indigo-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'}`}>
+                                  {isEquipped ? 'Đang dùng' : 'Dùng ngay'}
+                                </span>
+                              ) : (
+                                <button onClick={(e) => { e.stopPropagation(); setBuyTarget({ id, def: buyDef }); }}
+                                  className="w-full flex items-center justify-center gap-1 text-[9px] font-black uppercase px-1.5 py-1 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-yellow-950 transition-colors">
+                                  <JoyCoinBadge hideAmount size="sm" />{price}
+                                </button>
+                              )}
                             </div>
                           </div>
                         );
                       })}
                     </div>
-                  </div>
+                  </section>
                 );
               })}
             </div>
@@ -835,10 +922,10 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             </div>
             {petAction === 'revive' ? (
               <>
-                <p className="text-sm font-black text-zinc-800 dark:text-zinc-100">Hồi sinh thú cưng 🐾</p>
-                <p className="mt-1.5 text-xs text-zinc-500">Thú cưng đã qua đời vì đói. Bạn có muốn hồi sinh thú cưng với giá <span className="font-black text-yellow-600 dark:text-yellow-400">99 JOY</span>?</p>
+                <p className="text-sm font-black text-zinc-800 dark:text-zinc-100">Thú cưng đã qua đời 🐾</p>
+                <p className="mt-1.5 text-xs text-zinc-500">Bé đã qua đời vì đói. Bạn có thể <span className="font-bold text-indigo-600 dark:text-indigo-400">hồi sinh</span> với giá <span className="font-black text-yellow-600 dark:text-yellow-400">99 JOY</span>, hoặc <span className="font-bold text-rose-500">xóa luôn</span> và nuôi bé mới từ đầu.</p>
                 {storeData.balance < 99 && (
-                  <p className="mt-2 text-xs font-semibold text-rose-500">Không đủ JOY (bạn có {storeData.balance}).</p>
+                  <p className="mt-2 text-xs font-semibold text-rose-500">Không đủ JOY để hồi sinh (bạn có {storeData.balance}).</p>
                 )}
               </>
             ) : (
@@ -850,10 +937,16 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             <div className="mt-4 flex gap-2">
               <button onClick={() => setPetAction(null)} className="flex-1 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-bold">Huỷ</button>
               {petAction === 'revive' ? (
-                <button onClick={handleRevivePet} disabled={storeData.balance < 99 || isPetInteracting}
-                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">
-                  {isPetInteracting ? 'Đang xử lý...' : 'Hồi sinh'}
-                </button>
+                <>
+                  <button onClick={handleDeletePet} disabled={isPetInteracting}
+                    className="flex-1 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-xs font-bold disabled:opacity-40">
+                    Xóa luôn
+                  </button>
+                  <button onClick={handleRevivePet} disabled={storeData.balance < 99 || isPetInteracting}
+                    className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">
+                    {isPetInteracting ? 'Đang xử lý...' : 'Hồi sinh'}
+                  </button>
+                </>
               ) : (
                 <button onClick={handleFeedPet} disabled={isPetInteracting}
                   className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">

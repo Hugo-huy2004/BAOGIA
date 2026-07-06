@@ -835,9 +835,9 @@ export default function MemberPortalPage() {
       {/* Animated Aura Background Backdrop */}
       <AuraBackground theme={bio?.activeAuraTheme || 'default'} />
 
-      <div className={`max-w-6xl mx-auto px-3 sm:px-4 ${activeTab === 'account' ? 'pt-2 pb-20 md:pb-12' : 'pt-4 sm:pt-6 md:pt-8 pb-28 md:pb-12'} space-y-5 sm:space-y-6 relative z-10`}>
+      <div className={`max-w-6xl mx-auto sm:px-4 ${activeTab === 'account' ? 'pt-2 pb-20 md:pb-12' : 'pt-4 sm:pt-6 md:pt-8 pb-28 md:pb-12'} space-y-5 sm:space-y-6 relative z-10`}>
         {/* ── Portal Header ─────────────────────────────────────────────────── */}
-        <header className={`${(activeTab === "utilities" && mobileSubSection) || (activeTab === 'account' && !mobileSubSection) ? "hidden md:block" : ""} bg-white/60 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-200 border border-white/30 dark:border-zinc-800/40 rounded-2xl px-3 sm:px-4 py-2.5 shadow-sm`}>
+        <header style={{ padding: ""}} className={`${(activeTab === "utilities" && mobileSubSection) || (activeTab === 'account' && !mobileSubSection) ? "hidden md:block" : ""} bg-white/60 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-200 border border-white/30 dark:border-zinc-800/40 rounded-2xl px-3 sm:px-3 py-2.5 shadow-sm`}>
           <div className="flex items-center justify-between gap-2">
             {/* Left */}
             <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -961,27 +961,27 @@ export default function MemberPortalPage() {
                 )}
 
                 {visitedTabs.has("joy") && (
-                  <div style={{ display: activeTab === "joy" ? undefined : "none" }}>
+                  <div style={{ display: activeTab === "joy" ? undefined : "none", padding: "0 12px" }}>
                     <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={() => setParticleOpen(true)} />
                   </div>
                 )}
                 {visitedTabs.has("partner") && (
-                  <div style={{ display: activeTab === "partner" ? undefined : "none" }}>
+                  <div style={{ display: activeTab === "partner" ? undefined : "none", padding: "0 12px"  }}>
                     <MemberPartnerTab />
                   </div>
                 )}
                 {visitedTabs.has("utilities") && (
-                  <div style={{ display: activeTab === "utilities" ? undefined : "none" }}>
+                  <div style={{ display: activeTab === "utilities" ? undefined : "none", padding: "0 12px"  }}>
                     <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />
                   </div>
                 )}
                 {visitedTabs.has("history") && (
-                  <div style={{ display: activeTab === "history" ? undefined : "none" }}>
+                  <div style={{ display: activeTab === "history" ? undefined : "none", padding: "0 12px"  }}>
                     <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
                   </div>
                 )}
                 {visitedTabs.has("settings") && (
-                  <div style={{ display: activeTab === "settings" ? undefined : "none" }}>
+                  <div style={{ display: activeTab === "settings" ? undefined : "none", padding: "0 12px"  }}>
                     <MemberSettingsTab
                       memberSession={memberSession}
                       showToast={showToast}

@@ -64,13 +64,16 @@ async function rawFetch(url, body) {
 }
 
 // Core generate — accepts a full Gemini request (multi-turn contents supported).
-export async function generateRaw({ contents, systemInstruction, generationConfig, model, cacheKey, cacheTtlMs = 0 } = {}) {
+// `lowPriority:true` (bot / bulk jobs) is dropped when quota is saturated, but
+// interactive calls (HugoPSY, support, moderation) always attempt so background
+// work can never starve a user talking to the AI.
+export async function generateRaw({ contents, systemInstruction, generationConfig, model, cacheKey, cacheTtlMs = 0, lowPriority = false } = {}) {
   const key = KEY();
   if (!key) return null;
   if (cacheKey) { const c = cacheGet(cacheKey); if (c != null) return c; }
 
   const q = getQuotaStatus();
-  if (q.saturated) { sendAlert('Gemini quota saturated', q); return null; }
+  if (lowPriority && q.saturated) { sendAlert('Gemini quota saturated (dropped low-priority call)', q); return null; }
   // Auto-downgrade to the lite model once we cross 60% of a limit.
   const chosen = model || (q.level >= 0.6 ? GEN_MODEL_LITE : GEN_MODEL);
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${chosen}:generateContent?key=${key}`;

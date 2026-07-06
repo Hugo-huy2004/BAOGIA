@@ -31,6 +31,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
     {
       title: "Hệ Thống",
       items: [
+        { id: "system", label: "Giám sát hệ thống", icon: "monitoring" },
         { id: "projects", label: t("adminPanel.sidebar.projects", "Dự án"), icon: "assignment", count: counts.projects },
         { id: "settings", label: t("adminPanel.sidebar.settings", "Cài đặt"), icon: "settings" },
       ]

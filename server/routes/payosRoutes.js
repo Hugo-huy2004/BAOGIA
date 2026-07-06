@@ -5,6 +5,7 @@ const PayOS = pkg.PayOS || pkg;
 import crypto from 'crypto';
 import PaymentLink from '../models/PaymentLink.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
+import { logError } from '../utils/alert.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -48,6 +49,7 @@ router.post('/create', requireAdmin, async (req, res) => {
       paymentData = await payos.paymentRequests.create(requestData);
     } catch (payosError) {
       console.error("PayOS Error:", payosError);
+      logError({ source: 'payos', message: 'Tạo link chuyển khoản lỗi: ' + (payosError.message || 'Unknown'), stack: payosError?.stack, meta: { amount, reason } });
       return res.status(500).json({ error: 'Lỗi khi gọi PayOS: ' + (payosError.message || 'Unknown') });
     }
 

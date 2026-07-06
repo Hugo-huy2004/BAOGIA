@@ -23,7 +23,9 @@ export const checkAndResetDecoRoom = async (bio) => {
       window: 'window_day',
       rug: null,
       plant: null,
-      lamp: null
+      lamp: null,
+      shelf: null,
+      clock: null
     };
     bio.decoRoom.positions = {};
     bio.decoRoom.enabled = false;
