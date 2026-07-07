@@ -21,18 +21,18 @@ export default function HugoHandleTab({ bio, publicLink, showToast, onBack, setF
   const fallback = <TabFallbackSkeleton />;
 
   return (
-    <div className="animate-fadeIn max-w-4xl mx-auto bg-white dark:bg-background rounded-[2rem] border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 lg:p-8 space-y-6">
+    <div className="animate-fadeIn max-w-4xl mx-auto bg-white dark:bg-background rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 space-y-6">
       <SubUtilityHeader title="HugoHandle" icon="handyman" colorClass="text-rose-500" onBack={onBack} />
 
-      <div className="flex bg-zinc-100 dark:bg-zinc-800/50 p-1 rounded-md gap-1">
+      <div className="flex bg-muted p-1 rounded-md gap-1">
         {SECTIONS.map((s) => (
           <button
             key={s.id}
             onClick={() => setSection(s.id)}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[6px] text-[11px] font-bold uppercase tracking-wider transition-all active:scale-[0.98] ${
               section === s.id
-                ? "bg-white dark:bg-zinc-900 shadow-sm text-rose-600 dark:text-rose-400"
-                : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+                ? "bg-card shadow-sm text-rose-600 dark:text-rose-400"
+                : "text-muted-foreground hover:text-zinc-700 dark:hover:text-zinc-300"
             }`}
           >
             <span className="material-symbols-outlined text-[16px]">{s.icon}</span>

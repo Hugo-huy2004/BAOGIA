@@ -76,7 +76,7 @@ function StatusBadge({ status, isEduVerified }) {
   const { t } = useTranslation();
   const cfg = {
     active:   { label: t("memberPortal.status.active") || 'Đã xác minh', color: 'bg-success/10 text-success border-success/20', icon: 'verified' },
-    trial:    { label: 'Đang dùng thử', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20', icon: 'hourglass_top' },
+    trial:    { label: 'Đang dùng thử', color: 'bg-warning/10 text-warning border-warning/20', icon: 'hourglass_top' },
     pending:  { label: t("memberPortal.status.pending") || 'Đang chờ',    color: 'bg-warning/10 text-warning border-warning/20',   icon: 'pending' },
     rejected: { label: t("memberPortal.status.rejected") || 'Bị từ chối',  color: 'bg-destructive/10 text-destructive border-destructive/20',           icon: 'cancel' },
   };
@@ -318,14 +318,14 @@ export default function MemberPortalPage() {
 
   const renderBasicInfoCard = () => {
     return (
-      <div className="relative overflow-hidden rounded-[24px] p-5 sm:p-6 bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-zinc-50 dark:from-[#13121f] dark:via-[#1e1c2a] dark:to-[#13121f] border border-white/25 dark:border-zinc-800/40 shadow-xl">
+      <div className="relative overflow-hidden rounded-[24px] p-5 sm:p-6 bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-zinc-50 dark:from-[#13121f] dark:via-[#1e1c2a] dark:to-[#13121f] border border-border/25 shadow-xl">
         {/* Glow Effects */}
         <div className="absolute -top-16 -right-16 w-36 h-36 bg-gradient-to-br from-[#0071e3]/15 to-transparent rounded-full filter blur-2xl pointer-events-none opacity-0 dark:opacity-100" />
         <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-gradient-to-br from-[#af52de]/15 to-transparent rounded-full filter blur-2xl pointer-events-none opacity-0 dark:opacity-100" />
 
         <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
           {/* Avatar Area */}
-          <div className="relative w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-2xl shrink-0 shadow-md border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+          <div className="relative w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-2xl shrink-0 shadow-md border border-border overflow-hidden">
             {formData.avatarUrl ? (
               <img src={formData.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
             ) : (
@@ -338,17 +338,17 @@ export default function MemberPortalPage() {
           {/* User Details */}
           <div className="flex-1 min-w-0 w-full space-y-1.5">
             <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2">
-              <h2 className="font-black text-lg text-zinc-900 dark:text-white leading-tight">
+              <h2 className="font-black text-lg text-foreground leading-tight">
                 {formData.displayName || t("memberPortal.bio.noName")}
               </h2>
               {bio?.status && !isGuestMode && <StatusBadge status={bio.status} isEduVerified={bio.isEduVerified} />}
             </div>
             
-            <p className="text-zinc-500 dark:text-zinc-400 text-xs font-semibold">
+            <p className="text-muted-foreground text-xs font-semibold">
               {formData.headline || "Chưa thiết lập tiêu đề tiểu sử"}
             </p>
 
-            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2.5 pt-1 text-[11px] font-medium text-zinc-650 dark:text-zinc-400">
+            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2.5 pt-1 text-[11px] font-medium text-muted-foreground dark:text-zinc-400">
               {formData.birthday && (
                 <span className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[13px]">cake</span>
@@ -365,7 +365,7 @@ export default function MemberPortalPage() {
                 <button
                   type="button"
                   onClick={() => onTabClick({ id: "joy" })}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-warning/20 dark:border-warning/30 bg-warning/5 text-amber-600 dark:text-amber-400 font-bold active:scale-95 transition-all text-[10px]"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-warning/20 dark:border-warning/30 bg-warning/5 text-warning font-bold active:scale-95 transition-all text-[10px]"
                 >
                   <JoyCoinBadge size="sm" />
                 </button>
@@ -378,7 +378,7 @@ export default function MemberPortalPage() {
             <button
               type="button"
               onClick={() => onTabClick({ id: "settings" })}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 bg-white/40 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl hover:bg-zinc-150 dark:hover:bg-white/10 active:scale-95 transition-all shadow-sm"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-foreground/80 bg-white/40 dark:bg-white/5 border border-border rounded-xl hover:bg-muted dark:hover:bg-white/10 active:scale-95 transition-all shadow-sm"
             >
               <span className="material-symbols-outlined text-sm">tune</span>
               Cài đặt Bio
@@ -387,18 +387,18 @@ export default function MemberPortalPage() {
         </div>
 
         {/* Info stats row */}
-        <div className="mt-5 pt-4 border-t border-zinc-200/80 dark:border-zinc-800/60 grid grid-cols-3 gap-2 text-center text-[10px] font-bold text-zinc-500 dark:text-zinc-450 font-mono tracking-wider">
+        <div className="mt-5 pt-4 border-t border-border/80 grid grid-cols-3 gap-2 text-center text-[10px] font-bold text-muted-foreground font-mono tracking-wider">
           <div className="flex flex-col items-center gap-0.5">
-            <span className="text-zinc-850 dark:text-zinc-200 text-xs font-black">{formData.links?.length || 0}</span>
-            <span className="uppercase text-[8px] tracking-widest text-zinc-450">Liên kết</span>
+            <span className="text-foreground text-xs font-black">{formData.links?.length || 0}</span>
+            <span className="uppercase text-[8px] tracking-widest text-muted-foreground">Liên kết</span>
           </div>
-          <div className="flex flex-col items-center gap-0.5 border-x border-zinc-200/80 dark:border-zinc-800/60">
-            <span className="text-zinc-850 dark:text-zinc-200 text-xs font-black">{formData.projects?.length || 0}</span>
-            <span className="uppercase text-[8px] tracking-widest text-zinc-450">Thành tích</span>
+          <div className="flex flex-col items-center gap-0.5 border-x border-border/80">
+            <span className="text-foreground text-xs font-black">{formData.projects?.length || 0}</span>
+            <span className="uppercase text-[8px] tracking-widest text-muted-foreground">Thành tích</span>
           </div>
           <div className="flex flex-col items-center gap-0.5">
-            <span className="text-zinc-850 dark:text-zinc-200 text-xs font-black">{(formData.theme?.template || "Classic").toUpperCase()}</span>
-            <span className="uppercase text-[8px] tracking-widest text-zinc-450">Theme</span>
+            <span className="text-foreground text-xs font-black">{(formData.theme?.template || "Classic").toUpperCase()}</span>
+            <span className="uppercase text-[8px] tracking-widest text-muted-foreground">Theme</span>
           </div>
         </div>
       </div>
@@ -757,7 +757,7 @@ export default function MemberPortalPage() {
     // on-screen keyboard on iOS/Android instead of staying pinned to the
     // full layout viewport while content underneath gets covered.
     return (
-      <div className="fixed inset-0 z-[120] w-screen bg-background dark:bg-background overflow-hidden flex flex-col font-body" style={{ height: '100dvh' }}>
+      <div className="fixed inset-0 z-[120] w-screen bg-background overflow-hidden flex flex-col font-body" style={{ height: '100dvh' }}>
 
         <HugoNoticeToast
           open={Boolean(toast.message)}
@@ -808,7 +808,7 @@ export default function MemberPortalPage() {
   return (
     <>
     <WeatherAlertWatcher />
-    <div className="relative isolate min-h-screen bg-background dark:bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
+    <div className="relative isolate min-h-screen bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
       {/* Weather sky as a top "hero" band that fades into the clean dashboard
           background — vivid & visible up top, without washing out the content
           below. Sits at z:-1 behind the cards; glass cards reveal it. */}
@@ -837,49 +837,49 @@ export default function MemberPortalPage() {
 
       <div className={`max-w-6xl mx-auto sm:px-4 ${activeTab === 'account' ? 'pt-2 pb-20 md:pb-12' : 'pt-4 sm:pt-6 md:pt-8 pb-28 md:pb-12'} space-y-5 sm:space-y-6 relative z-10`}>
         {/* ── Portal Header ─────────────────────────────────────────────────── */}
-        <header style={{ padding: ""}} className={`${(activeTab === "utilities" && mobileSubSection) || (activeTab === 'account' && !mobileSubSection) ? "hidden md:block" : ""} bg-white/60 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-200 border border-white/30 dark:border-zinc-800/40 rounded-2xl px-3 sm:px-3 py-2.5 shadow-sm`}>
+        <header style={{ padding: ""}} className={`${(activeTab === "utilities" && mobileSubSection) || (activeTab === 'account' && !mobileSubSection) ? "hidden md:block" : ""} bg-card/60 backdrop-blur-2xl backdrop-saturate-200 border border-border/30 rounded-2xl px-3 sm:px-3 py-2.5 shadow-sm`}>
           <div className="flex items-center justify-between gap-2">
             {/* Left */}
             <div className="flex items-center gap-2.5 flex-1 min-w-0">
               {mobileSubSection && (
                 <button type="button" onClick={() => navigate("/member/account")}
-                  className="md:hidden w-7 h-7 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 active:scale-90 transition-transform">
-                  <span className="material-symbols-outlined text-xs text-zinc-600 dark:text-zinc-300">arrow_back_ios_new</span>
+                  className="md:hidden w-7 h-7 rounded-xl bg-muted flex items-center justify-center shrink-0 active:scale-90 transition-transform">
+                  <span className="material-symbols-outlined text-xs text-muted-foreground">arrow_back_ios_new</span>
                 </button>
               )}
               <div className={`relative shrink-0 flex items-center ${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''}`}>
                 {formData.avatarUrl ? (
-                  <img src={formData.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-white/50 dark:ring-zinc-800/50 shadow-sm" />
+                  <img src={formData.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-border shadow-sm" />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0071e3] to-[#5856d6] flex items-center justify-center text-white font-black text-sm shadow-sm">
                     {(formData.displayName||"?")[0]?.toUpperCase()}
                   </div>
                 )}
                 {bio?.status === 'active' && (
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white dark:border-zinc-900" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-border/60" />
                 )}
               </div>
               <div className="min-w-0">
                 {mobileSubSection ? (
                   <div className="md:hidden">
-                    <p className="text-[11px] font-black text-zinc-800 dark:text-white truncate">{activeSectionInfo?.label}</p>
+                    <p className="text-[11px] font-black text-foreground truncate">{activeSectionInfo?.label}</p>
                     <p className="text-[9px] text-zinc-400 truncate">{activeSectionInfo?.sub}</p>
                   </div>
                 ) : null}
                 {activeTab === 'account' && !mobileSubSection && (
                   <div className="md:hidden flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-primary dark:text-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
-                    <span className="text-[10px] font-black uppercase tracking-[0.1em] text-zinc-800 dark:text-zinc-200">{t("memberPortal.tabs.bio").toUpperCase()}</span>
+                    <span className="material-symbols-outlined text-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.1em] text-foreground">{t("memberPortal.tabs.bio").toUpperCase()}</span>
                   </div>
                 )}
                 <div className={`${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''} flex flex-col justify-center`}>
                   <div className="flex items-center gap-1.5">
-                    <h1 className="text-[13px] sm:text-sm font-bold tracking-tight text-zinc-900 dark:text-white truncate">
+                    <h1 className="text-[13px] sm:text-sm font-bold tracking-tight text-foreground truncate">
                       {isGuestMode ? t("memberPortal.designYourBio") : memberSession?.displayName || t("memberPortal.student")}
                     </h1>
                     {bio?.status && !isGuestMode && <StatusBadge status={bio.status} isEduVerified={bio.isEduVerified} />}
                   </div>
-                  <span className="text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.1em] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
+                  <span className="text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground truncate mt-0.5">
                     {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
                   </span>
                 </div>
@@ -890,7 +890,7 @@ export default function MemberPortalPage() {
             <div className={`flex items-center gap-2 shrink-0 ${activeTab === 'account' && !mobileSubSection ? 'hidden md:flex' : ''}`}>
               {!isGuestMode && (
                 <button type="button" onClick={() => setParticleOpen(true)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shadow-sm ring-1 ring-black/5 dark:ring-white/10 active:scale-95">
+                  className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-foreground/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shadow-sm ring-1 ring-black/5 dark:ring-white/10 active:scale-95">
                   <span className="material-symbols-outlined text-[18px]">qr_code_scanner</span>
                 </button>
               )}
@@ -911,13 +911,13 @@ export default function MemberPortalPage() {
 
           {/* Desktop tab navigation */}
           {bio?.status !== 'pending' && (
-            <div className="hidden md:flex items-center gap-1 mt-3 pt-3 border-t border-zinc-200/50 dark:border-zinc-800/30">
+            <div className="hidden md:flex items-center gap-1 mt-3 pt-3 border-t border-border/50">
               {desktopTabs.map(tab => {
                 const isActive = !tab.partner && activeTab === tab.id;
                 return (
                   <button id={`portal-tab-${tab.id}`} key={tab.id} type="button" onClick={() => onTabClick(tab)}
                     className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all duration-200 relative ${
-                      isActive ? 'bg-black/8 dark:bg-white/10 text-black dark:text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40'
+                      isActive ? 'bg-foreground/8 text-foreground shadow-sm' : 'text-muted-foreground hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40'
                     }`}>
                     <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
                     <span>{tab.label}</span>
@@ -928,7 +928,7 @@ export default function MemberPortalPage() {
                       </span>
                     )}
                     {tab.alert && (
-                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-white dark:ring-[#0c0b11]" />
+                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-warning ring-2 ring-white dark:ring-[#0c0b11]" />
                     )}
                   </button>
                 );
@@ -1048,15 +1048,15 @@ export default function MemberPortalPage() {
 
         {confirmModal.isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+            <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
               <div className="flex items-center gap-2 text-destructive">
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings:"'FILL' 1" }}>warning</span>
-                <h3 className="font-extrabold text-sm uppercase tracking-wider text-zinc-900 dark:text-white">{t("memberPortal.confirm.title")}</h3>
+                <h3 className="font-extrabold text-sm uppercase tracking-wider text-foreground">{t("memberPortal.confirm.title")}</h3>
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{confirmModal.message}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{confirmModal.message}</p>
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button type="button" onClick={() => setConfirmModal({ isOpen:false, message:"", onConfirm:null })}
-                  className="py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors">
+                  className="py-2.5 rounded-xl border border-border text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-muted transition-colors">
                   {t("memberPortal.confirm.cancel")}
                 </button>
                 <button type="button" onClick={() => { confirmModal.onConfirm?.(); setConfirmModal({ isOpen:false, message:"", onConfirm:null }); }}
@@ -1085,7 +1085,7 @@ export default function MemberPortalPage() {
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
       {bio?.status !== 'pending' && !isKeyboardVisible && (
-        <div className={`fixed bottom-0 left-0 right-0 z-[100] md:hidden glass border-t border-zinc-200/40 dark:border-zinc-800/30 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
+        <div className={`fixed bottom-0 left-0 right-0 z-[100] md:hidden glass border-t border-border/40 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)', paddingTop: '10px' }}>
           <div className="flex justify-around px-2">
             {mobileTabs.map(tab => {
@@ -1095,15 +1095,15 @@ export default function MemberPortalPage() {
                   className="flex flex-col items-center justify-center gap-0.5 flex-1 relative py-1 px-1 transition-colors duration-200">
                   {/* Active pill indicator */}
                   {isActive && (
-                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary dark:bg-primary rounded-full" />
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" />
                   )}
                   <span
-                    className={`material-symbols-outlined transition-all duration-200 ${isActive ? 'text-primary dark:text-primary text-2xl' : 'text-zinc-400 dark:text-zinc-500 text-[22px]'}`}
+                    className={`material-symbols-outlined transition-all duration-200 ${isActive ? 'text-primary text-2xl' : 'text-muted-foreground/70 text-[22px]'}`}
                     style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 500" : "'FILL' 0, 'wght' 400" }}
                   >
                     {tab.icon}
                   </span>
-                  <span className={`text-[9px] font-bold tracking-wide truncate max-w-full transition-colors duration-200 ${isActive ? 'text-primary dark:text-primary' : 'text-zinc-400 dark:text-zinc-500'}`}>
+                  <span className={`text-[9px] font-bold tracking-wide truncate max-w-full transition-colors duration-200 ${isActive ? 'text-primary' : 'text-muted-foreground/70'}`}>
                     {tab.label}
                   </span>
                   {tab.id === "history" && unreadHistoryCount > 0 && (
@@ -1112,7 +1112,7 @@ export default function MemberPortalPage() {
                     </span>
                   )}
                   {tab.alert && (
-                    <span className="absolute top-0.5 right-[22%] w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-[#0c0b11]" />
+                    <span className="absolute top-0.5 right-[22%] w-2 h-2 rounded-full bg-warning ring-2 ring-white dark:ring-[#0c0b11]" />
                   )}
                 </button>
               );

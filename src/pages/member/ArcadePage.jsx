@@ -23,7 +23,7 @@ export default function ArcadePage() {
   }, [session?.email]);
 
   return (
-    <div className="fixed inset-0 w-screen h-[100dvh] overflow-hidden bg-background dark:bg-background">
+    <div className="fixed inset-0 w-screen h-[100dvh] overflow-hidden bg-background">
       <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
         <HugoArcadeTab bio={bio} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} onBack={() => navigate("/member/utilities")} />
       </Suspense>

@@ -17,13 +17,13 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
   const getThemeAuraGlow = () => {
     switch (activeThemeName) {
       case "BRUTALISM":
-        return "from-[#ff2d55] to-[#ff9500] shadow-md shadow-red-500/10";
+        return "from-[#ff2d55] to-[#ff9500] shadow-md shadow-destructive/10";
       case "LUXURY":
-        return "from-[#d97706] to-[#f59e0b] shadow-md shadow-amber-500/10";
+        return "from-[#d97706] to-[#f59e0b] shadow-md shadow-warning/10";
       case "NEO":
         return "from-[#af52de] to-[#ff2d55] shadow-md shadow-purple-500/10";
       default:
-        return "from-[#0071e3] to-[#5856d6] shadow-md shadow-blue-500/10";
+        return "from-[#0071e3] to-[#5856d6] shadow-md shadow-primary/10";
     }
   };
 
@@ -31,7 +31,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-[10.5px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+        <h3 className="text-[10.5px] font-black uppercase tracking-widest text-muted-foreground">
           Tổng quan Hồ sơ Bio
         </h3>
       </div>
@@ -40,7 +40,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
       <div className="grid grid-cols-2 gap-4.5">
         
         {/* Card 1: Giao diện & Aura (col-span-1) */}
-        <div className="relative overflow-hidden rounded-[24px] p-5 bg-[#0d0e1a]/95 dark:bg-[#0c0d14]/95 border border-white/10 dark:border-zinc-800/60 shadow-lg flex flex-col justify-between items-start min-h-[140px] hover:scale-[1.01] transition-transform duration-300">
+        <div className="relative overflow-hidden rounded-[24px] p-5 bg-[#0d0e1a]/95 dark:bg-[#0c0d14]/95 border border-border/10 shadow-lg flex flex-col justify-between items-start min-h-[140px] hover:scale-[1.01] transition-transform duration-300">
           {/* Accent glow */}
           <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-purple-500/10 rounded-full filter blur-2xl pointer-events-none" />
           
@@ -58,7 +58,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
               {/* Dynamic glowing aura bulb */}
               <div className={`w-6 h-6 rounded-full bg-gradient-to-tr ${getThemeAuraGlow()} animate-pulse shrink-0 border border-white/10`} />
               <div>
-                <p className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 font-mono tracking-wider">AURA ACTIVE</p>
+                <p className="text-[10px] font-bold text-muted-foreground/70 font-mono tracking-wider">AURA ACTIVE</p>
                 <h4 className="text-[13px] font-black text-white leading-none tracking-tight">{activeThemeName}</h4>
               </div>
             </div>
@@ -67,15 +67,15 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
         </div>
 
         {/* Card 2: Quét Bio / QR Code (col-span-1) */}
-        <div className="relative overflow-hidden rounded-[24px] p-5 bg-[#0d0e1a]/95 dark:bg-[#0c0d14]/95 border border-white/10 dark:border-zinc-800/60 shadow-lg flex flex-col justify-between items-start min-h-[140px] hover:scale-[1.01] transition-transform duration-300">
+        <div className="relative overflow-hidden rounded-[24px] p-5 bg-[#0d0e1a]/95 dark:bg-[#0c0d14]/95 border border-border/10 shadow-lg flex flex-col justify-between items-start min-h-[140px] hover:scale-[1.01] transition-transform duration-300">
           {/* Accent glow */}
-          <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-cyan-500/10 rounded-full filter blur-2xl pointer-events-none" />
+          <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-info/10 rounded-full filter blur-2xl pointer-events-none" />
 
           <div className="w-full flex justify-between items-center z-10">
             <span className="inline-block text-[8px] font-black tracking-wider px-2.5 py-0.5 rounded bg-white/10 text-white/90 border border-white/10 uppercase">
               Chia sẻ
             </span>
-            <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+            <div className="w-8 h-8 rounded-full bg-info/10 flex items-center justify-center text-info">
               <span className="material-symbols-outlined text-[17px]">qr_code_2</span>
             </div>
           </div>
@@ -97,16 +97,16 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
               </div>
             ) : (
               <div className="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-sm text-zinc-650">link_off</span>
+                <span className="material-symbols-outlined text-sm text-muted-foreground">link_off</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Card 3: Danh sách Liên kết (col-span-2) */}
-        <div className="relative overflow-hidden rounded-[24px] p-5 bg-[#0d0e1a]/95 dark:bg-[#0c0d14]/95 border border-white/10 dark:border-zinc-800/60 shadow-lg flex flex-col justify-between items-start min-h-[120px] col-span-2">
+        <div className="relative overflow-hidden rounded-[24px] p-5 bg-[#0d0e1a]/95 dark:bg-[#0c0d14]/95 border border-border/10 shadow-lg flex flex-col justify-between items-start min-h-[120px] col-span-2">
           {/* Accent glow */}
-          <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-indigo-500/10 rounded-full filter blur-2xl pointer-events-none" />
+          <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-primary/10 rounded-full filter blur-2xl pointer-events-none" />
 
           <div className="w-full flex justify-between items-center z-10 border-b border-white/5 pb-2.5">
             <div className="flex items-center gap-2">
@@ -115,7 +115,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
               </span>
               <h4 className="text-[12px] font-black text-white leading-tight">Danh sách mạng xã hội</h4>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+            <div className="w-7.5 h-7.5 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <span className="material-symbols-outlined text-[16px]">link</span>
             </div>
           </div>
@@ -144,9 +144,9 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
         </div>
 
         {/* Card 4: Dự án tiêu biểu (col-span-2) */}
-        <div className="relative overflow-hidden rounded-[24px] p-5 bg-[#0d0e1a]/95 dark:bg-[#0c0d14]/95 border border-white/10 dark:border-zinc-800/60 shadow-lg flex flex-col justify-between items-start min-h-[120px] col-span-2">
+        <div className="relative overflow-hidden rounded-[24px] p-5 bg-[#0d0e1a]/95 dark:bg-[#0c0d14]/95 border border-border/10 shadow-lg flex flex-col justify-between items-start min-h-[120px] col-span-2">
           {/* Accent glow */}
-          <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-emerald-500/10 rounded-full filter blur-2xl pointer-events-none" />
+          <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-success/10 rounded-full filter blur-2xl pointer-events-none" />
 
           <div className="w-full flex justify-between items-center z-10 border-b border-white/5 pb-2.5">
             <div className="flex items-center gap-2">
@@ -155,7 +155,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
               </span>
               <h4 className="text-[12px] font-black text-white leading-tight">Dự án & Tác phẩm nổi bật</h4>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <div className="w-7.5 h-7.5 rounded-full bg-success/10 flex items-center justify-center text-success">
               <span className="material-symbols-outlined text-[16px]">folder_special</span>
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
                     key={idx}
                     className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/5 text-left"
                   >
-                    <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
+                    <div className="w-7 h-7 rounded-lg bg-success/10 flex items-center justify-center text-success shrink-0">
                       <span className="material-symbols-outlined text-sm">folder</span>
                     </div>
                     <div className="min-w-0">

@@ -14,7 +14,7 @@ function MenuItem({ id, icon, label, active, onClick }){
     <button
       onClick={() => onClick(id)}
       aria-current={active ? "true" : "false"}
-      className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/3 transition-colors ${active ? 'bg-gradient-to-r from-indigo-600 to-violet-500 text-white shadow-md' : 'text-zinc-300'}`}
+      className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/3 transition-colors ${active ? 'bg-gradient-to-r from-primary to-violet-500 text-white shadow-md' : 'text-zinc-300'}`}
     >
       <span className="w-9 h-9 rounded-lg bg-white/6 grid place-items-center text-sm">
         <span className="material-symbols-outlined">{icon}</span>
@@ -93,7 +93,7 @@ export default function MemberSettingsTabNew(props){
             {formData.avatarUrl ? (
               <img src={formData.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-indigo-600 to-violet-500 flex items-center justify-center text-white font-black text-3xl">{(formData.displayName||'?')[0]?.toUpperCase()}</div>
+              <div className="w-full h-full bg-gradient-to-br from-primary to-violet-500 flex items-center justify-center text-white font-black text-3xl">{(formData.displayName||'?')[0]?.toUpperCase()}</div>
             )}
           </div>
 
@@ -104,7 +104,7 @@ export default function MemberSettingsTabNew(props){
 
           <div className="w-full mt-2 flex gap-2">
             <button onClick={() => setActive('profile')} className="flex-1 px-3 py-2 rounded-xl bg-white/6 text-white font-semibold">Chỉnh sửa</button>
-            <button onClick={() => handleSave()} disabled={saving} className="px-3 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-500 text-white font-black">{saving? 'Đang lưu...' : 'Lưu'}</button>
+            <button onClick={() => handleSave()} disabled={saving} className="px-3 py-2 rounded-xl bg-gradient-to-r from-primary to-violet-500 text-white font-black">{saving? 'Đang lưu...' : 'Lưu'}</button>
           </div>
 
           <div className="w-full mt-3 bg-white/3 rounded-xl p-3 border border-white/6">
@@ -119,7 +119,7 @@ export default function MemberSettingsTabNew(props){
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button className="px-2 py-2 rounded-lg bg-white/6">Nạp</button>
-              <button className="px-2 py-2 rounded-lg bg-gradient-to-r from-amber-400 to-red-400 text-white">Trao đổi</button>
+              <button className="px-2 py-2 rounded-lg bg-gradient-to-r from-warning to-destructive text-white">Trao đổi</button>
             </div>
           </div>
 

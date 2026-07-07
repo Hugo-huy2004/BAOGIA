@@ -492,32 +492,32 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
   const isLocked = sub.status !== 'active';
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-950 rounded-2xl overflow-hidden shadow-sm border border-zinc-200 dark:border-zinc-800 animate-fadeIn">
+    <div className="flex flex-col h-full bg-card rounded-2xl overflow-hidden shadow-sm border border-border animate-fadeIn">
       {/* ── Custom Header: HugoHome ─────────────────────────────────────────── */}
-      <div className="flex flex-col border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shrink-0">
+      <div className="flex flex-col border-b border-border bg-card shrink-0">
         {/* Top Bar */}
         <div className="flex items-center justify-between px-4 md:px-6 py-4">
           <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={onBack}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-muted-foreground hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">arrow_back</span>
             </button>
-            <h2 className="text-lg md:text-xl font-black text-zinc-900 dark:text-white flex items-center gap-1.5 tracking-tight">
+            <h2 className="text-lg md:text-xl font-black text-foreground flex items-center gap-1.5 tracking-tight">
               <span className="material-symbols-outlined text-zinc-500 text-[22px]">roofing</span>
               HugoHome
               {activeTab === 'my_room' && (
-                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500">
+                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-muted/50 border border-border text-zinc-500">
                   {saveStatus === 'saving' && (
                     <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                       <span>Đang lưu...</span>
                     </>
                   )}
                   {saveStatus === 'saved' && (
                     <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-success" />
                       <span>Đã lưu</span>
                     </>
                   )}
@@ -536,14 +536,14 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             <button
               onClick={handleShareRoom}
               title="Chia sẻ phòng"
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-muted-foreground hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
             >
               <span className="material-symbols-outlined text-[16px]">share</span>
             </button>
             <button
               onClick={handleInstallPWA}
               title="Cài HugoRoom vào màn hình chính"
-              className="hidden sm:flex items-center gap-1 px-2.5 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors text-[10px] font-black uppercase"
+              className="hidden sm:flex items-center gap-1 px-2.5 h-8 rounded-full bg-primary/10 dark:bg-primary/40 text-primary hover:bg-primary/15 dark:hover:bg-primary/50 transition-colors text-[10px] font-black uppercase"
             >
               <span className="material-symbols-outlined text-[15px]">install_mobile</span>
               App
@@ -559,14 +559,14 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
         <div className="flex items-center px-4 md:px-6 gap-4">
           <button 
             onClick={() => setActiveTab('my_room')}
-            className={`flex items-center gap-1.5 pb-2.5 border-b-2 text-[13px] font-bold transition-all ${activeTab === 'my_room' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300'}`}
+            className={`flex items-center gap-1.5 pb-2.5 border-b-2 text-[13px] font-bold transition-all ${activeTab === 'my_room' ? 'border-primary text-primary' : 'border-transparent text-zinc-500 hover:text-foreground/80 dark:hover:text-zinc-300'}`}
           >
             <span className="material-symbols-outlined text-[16px]">room_preferences</span>
             Phòng Của Tôi
           </button>
           <button 
             onClick={() => setActiveTab('neighborhood')}
-            className={`flex items-center gap-1.5 pb-2.5 border-b-2 text-[13px] font-bold transition-all ${activeTab === 'neighborhood' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300'}`}
+            className={`flex items-center gap-1.5 pb-2.5 border-b-2 text-[13px] font-bold transition-all ${activeTab === 'neighborhood' ? 'border-primary text-primary' : 'border-transparent text-zinc-500 hover:text-foreground/80 dark:hover:text-zinc-300'}`}
           >
             <span className="material-symbols-outlined text-[16px]">holiday_village</span>
             Khu Phố Ảo
@@ -576,16 +576,16 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
 
       <div className="flex-1 overflow-y-auto flex flex-col">
         {isLocked ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-6 bg-zinc-50 dark:bg-zinc-950/40 text-center overflow-y-auto">
-            <div className="w-full max-w-md p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-xl space-y-6">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+          <div className="flex-1 flex flex-col items-center justify-center p-6 bg-muted/50 text-center overflow-y-auto">
+            <div className="w-full max-w-md p-6 bg-card border border-border rounded-3xl shadow-xl space-y-6">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 dark:bg-primary/40 flex items-center justify-center text-primary">
                 <span className="material-symbols-outlined text-4xl animate-pulse">lock</span>
               </div>
               
               <div className="space-y-2">
-                <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-100">Kích hoạt tiện ích HugoHome 🔑</h3>
+                <h3 className="text-lg font-black text-foreground">Kích hoạt tiện ích HugoHome 🔑</h3>
                 {sub.status === 'grace' ? (
-                  <div className="p-3 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-400 rounded-xl border border-amber-100 dark:border-amber-900/50 text-xs font-semibold">
+                  <div className="p-3 bg-warning/10 dark:bg-warning/30 text-warning/20 dark:text-warning rounded-xl border border-warning/15 dark:border-warning/50 text-xs font-semibold">
                     ⚠️ Tiện ích đã hết hạn! Căn phòng của bạn được giữ trong <span className="font-black text-rose-500">{sub.days} ngày</span> nữa. Sau thời hạn này, toàn bộ thiết kế phòng sẽ bị xóa vĩnh viễn!
                   </div>
                 ) : sub.status === 'expired' ? (
@@ -609,8 +609,8 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                     onClick={() => setSelectedPlan(plan.id)}
                     className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all ${
                       selectedPlan === plan.id 
-                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-bold shadow-sm' 
-                        : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-indigo-300'
+                        ? 'border-primary bg-primary/10 dark:bg-primary/40 text-primary/90 dark:text-primary font-bold shadow-sm' 
+                        : 'border-border bg-muted/50 text-muted-foreground hover:border-primary/40'
                     }`}
                   >
                     <span className="text-xs font-black">{plan.title}</span>
@@ -621,7 +621,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
 
               {/* Plan dynamic input for daily */}
               {selectedPlan === 'daily' && (
-                <div className="space-y-1.5 text-left p-3.5 bg-zinc-50 dark:bg-zinc-900/60 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                <div className="space-y-1.5 text-left p-3.5 bg-muted/50 rounded-2xl border border-border">
                   <label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Nhập số ngày muốn thuê:</label>
                   <div className="flex gap-2">
                     <input 
@@ -629,7 +629,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                       min="1" 
                       value={dailyDays} 
                       onChange={e => setDailyDays(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="flex-1 px-3 py-2 text-sm font-bold bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl outline-none text-zinc-800 dark:text-zinc-100"
+                      className="flex-1 px-3 py-2 text-sm font-bold bg-card border border-border rounded-xl outline-none text-foreground"
                     />
                     <div className="flex items-center text-xs font-bold text-zinc-500 px-3">ngày</div>
                   </div>
@@ -638,7 +638,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
 
               <button 
                 onClick={() => handleRentClick(selectedPlan)}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-indigo-600/10 transition-colors"
+                className="w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-2xl text-xs font-black shadow-lg shadow-primary/10 transition-colors"
               >
                 Thuê KTX ngay
               </button>
@@ -647,7 +647,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
         ) : activeTab === 'my_room' ? (
           <>
             {/* ── Live room preview ─────────────────────────────────────────────── */}
-            <div className="relative w-full h-[280px] md:h-[420px] shrink-0 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950">
+            <div className="relative w-full h-[280px] md:h-[420px] shrink-0 border-b border-border bg-muted/50">
               <DecoRoomScene 
                 room={roomState} 
                 interactive 
@@ -673,13 +673,13 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             </div>
 
             {/* ── Room Control & Info Bar ─────────────────────────────────────────── */}
-            <div className="px-4 md:px-6 py-3 bg-zinc-50 dark:bg-zinc-900/40 border-b border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="px-4 md:px-6 py-3 bg-muted/50 border-b border-border flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-zinc-500">HugoHome:</span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                    getSubscriptionInfo().status === 'active' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400' :
-                    getSubscriptionInfo().status === 'grace' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400' :
+                    getSubscriptionInfo().status === 'active' ? 'bg-success/15 text-success/20 dark:bg-success/40 dark:text-success' :
+                    getSubscriptionInfo().status === 'grace' ? 'bg-warning/15 text-warning/20 dark:bg-warning/40 dark:text-warning' :
                     'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400'
                   }`}>
                     {getSubscriptionInfo().text}
@@ -698,7 +698,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                 </div>
 
                 {/* Day/Night indicator */}
-                <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400">
+                <div className="flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-full border border-border text-muted-foreground">
                   <span className="material-symbols-outlined text-[13px]">{night ? 'dark_mode' : 'light_mode'}</span>
                   <span className="font-bold text-[10px]">{night ? 'Ban đêm' : 'Ban ngày'}</span>
                 </div>
@@ -706,7 +706,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             </div>
 
             {/* ── Compact category chip bar ─────────────────────────────────────── */}
-            <div className="sticky top-0 z-40 px-4 md:px-6 py-2.5 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 flex gap-1.5 overflow-x-auto scrollbar-hide">
+            <div className="sticky top-0 z-40 px-4 md:px-6 py-2.5 bg-card/90 backdrop-blur-md border-b border-border flex gap-1.5 overflow-x-auto scrollbar-hide">
               {[
                 { id: 'all', label: 'Tất cả', icon: 'apps' },
                 { id: 'wall', label: 'Tường', icon: 'palette' },
@@ -722,8 +722,8 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                   onClick={() => setStoreFilter(c.id)}
                   className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap transition-colors ${
                     storeFilter === c.id
-                      ? 'bg-indigo-600 text-white shadow-sm'
-                      : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-muted text-muted-foreground hover:bg-zinc-200 dark:hover:bg-zinc-800'
                   }`}
                 >
                   <span className="material-symbols-outlined text-[13px]">{c.icon}</span>
@@ -748,15 +748,15 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                   <section key={sec.id} className="space-y-2.5">
                     {/* Section header */}
                     <div className="flex items-center justify-between">
-                      <h3 className="flex items-center gap-2 text-[13px] font-black text-zinc-800 dark:text-zinc-100">
-                        <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 dark:text-indigo-400 flex items-center justify-center">
+                      <h3 className="flex items-center gap-2 text-[13px] font-black text-foreground">
+                        <span className="w-6 h-6 rounded-lg bg-primary/10 dark:bg-primary/40 text-primary flex items-center justify-center">
                           <span className="material-symbols-outlined text-[14px]">{sec.icon}</span>
                         </span>
                         {sec.label}
                         <span className="text-[10px] font-bold text-zinc-400">· {sec.entries.length} món</span>
                       </h3>
                       {isRow && (
-                        <button onClick={() => setStoreFilter(sec.id)} className="text-[10px] font-black text-indigo-500 hover:text-indigo-600 uppercase tracking-wide">
+                        <button onClick={() => setStoreFilter(sec.id)} className="text-[10px] font-black text-primary hover:text-primary uppercase tracking-wide">
                           Xem hết ›
                         </button>
                       )}
@@ -766,7 +766,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                     <div className={isRow ? 'flex gap-2.5 overflow-x-auto scrollbar-hide snap-x pb-1' : 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5'}>
                       {sec.clearable && (
                         <button onClick={() => setItem(sec.id, null)}
-                          className={`${cardW} flex flex-col items-center justify-center gap-1 p-2 rounded-2xl border border-dashed transition-all ${roomState.items[sec.id] == null ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-500/10 text-indigo-500' : 'border-zinc-300 dark:border-zinc-700 text-zinc-400 hover:border-indigo-300 hover:text-indigo-400'}`}>
+                          className={`${cardW} flex flex-col items-center justify-center gap-1 p-2 rounded-2xl border border-dashed transition-all ${roomState.items[sec.id] == null ? 'border-primary bg-primary/60 dark:bg-primary/10 text-primary' : 'border-border text-zinc-400 hover:border-primary/40 hover:text-primary'}`}>
                           <span className="material-symbols-outlined text-[20px]">block</span>
                           <span className="text-[10px] font-bold">Bỏ trống</span>
                         </button>
@@ -791,7 +791,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                         return (
                           <div key={id}
                             onClick={() => isOwned && !isEquipped && equip()}
-                            className={`${cardW} relative flex flex-col p-2 rounded-2xl border transition-all duration-200 ${isEquipped ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/60 dark:bg-indigo-500/10' : isOwned ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-indigo-300 hover:-translate-y-0.5 cursor-pointer' : 'border-zinc-200/70 dark:border-zinc-800/70 bg-zinc-50 dark:bg-zinc-900/40'}`}>
+                            className={`${cardW} relative flex flex-col p-2 rounded-2xl border transition-all duration-200 ${isEquipped ? 'border-primary ring-2 ring-primary/20 bg-primary/60 dark:bg-primary/10' : isOwned ? 'border-border bg-card hover:border-primary/40 hover:-translate-y-0.5 cursor-pointer' : 'border-border/70 bg-muted/50'}`}>
                             {/* Art / swatch */}
                             <div className="relative w-full aspect-square rounded-xl bg-gradient-to-br from-zinc-100 to-white dark:from-zinc-900 dark:to-zinc-800/60 mb-1.5 p-1.5 flex items-center justify-center overflow-hidden">
                               {sec.kind === 'wall' && <div className="w-3/4 h-3/4 rounded-full border border-black/10 shadow-inner" style={{ backgroundColor: en.color }} />}
@@ -803,17 +803,17 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                                 </div>
                               )}
                               {isEquipped && (
-                                <span className="absolute top-1 right-1 w-4.5 h-4.5 min-w-[18px] min-h-[18px] rounded-full bg-indigo-600 text-white flex items-center justify-center shadow">
+                                <span className="absolute top-1 right-1 w-4.5 h-4.5 min-w-[18px] min-h-[18px] rounded-full bg-primary text-white flex items-center justify-center shadow">
                                   <span className="material-symbols-outlined text-[12px]">check</span>
                                 </span>
                               )}
                             </div>
                             {/* Name */}
-                            <div className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300 line-clamp-2 leading-tight min-h-[26px]">{name}</div>
+                            <div className="text-[10px] font-bold text-foreground/80 line-clamp-2 leading-tight min-h-[26px]">{name}</div>
                             {/* Footer */}
                             <div className="mt-1">
                               {isOwned ? (
-                                <span className={`block text-center text-[9px] font-black uppercase px-1.5 py-1 rounded-lg ${isEquipped ? 'bg-indigo-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'}`}>
+                                <span className={`block text-center text-[9px] font-black uppercase px-1.5 py-1 rounded-lg ${isEquipped ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
                                   {isEquipped ? 'Đang dùng' : 'Dùng ngay'}
                                 </span>
                               ) : (
@@ -837,14 +837,14 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             {loadingNeighbors ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                  {[1,2,3,4,5,6].map(i => (
-                   <div key={i} className="flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
-                      <div className="w-full h-[150px] bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+                   <div key={i} className="flex flex-col bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+                      <div className="w-full h-[150px] bg-muted animate-pulse" />
                       <div className="p-3 flex items-center justify-between">
                          <div className="flex items-center gap-2">
-                           <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+                           <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
                            <div className="space-y-1">
-                             <div className="w-20 h-3 bg-zinc-200 dark:bg-zinc-700 animate-pulse rounded" />
-                             <div className="w-12 h-2 bg-zinc-200 dark:bg-zinc-700 animate-pulse rounded" />
+                             <div className="w-20 h-3 bg-muted animate-pulse rounded" />
+                             <div className="w-12 h-2 bg-muted animate-pulse rounded" />
                            </div>
                          </div>
                       </div>
@@ -858,9 +858,9 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                 {neighbors.map(neighbor => {
                   const room = neighbor.decoRoom;
                   return (
-                    <div key={neighbor.slug} className="flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <div key={neighbor.slug} className="flex flex-col bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                       {/* Mini Preview */}
-                      <div className="relative w-full h-[150px] overflow-hidden shrink-0 border-b border-zinc-100 dark:border-zinc-800">
+                      <div className="relative w-full h-[150px] overflow-hidden shrink-0 border-b border-border/60">
                         <DecoRoomScene room={room} zoom={0.4} />
                       </div>
                       
@@ -869,13 +869,13 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                         <div className="flex items-center gap-2 min-w-0">
                           <img src={neighbor.avatarUrl || '/image/avt-default.png'} alt="avatar" className="w-8 h-8 rounded-full object-cover shrink-0 bg-zinc-100" />
                           <div className="truncate">
-                            <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">{neighbor.displayName}</h4>
-                            <p className="text-[10px] text-zinc-500 dark:text-zinc-400">@{neighbor.slug}</p>
+                            <h4 className="text-xs font-bold text-foreground truncate">{neighbor.displayName}</h4>
+                            <p className="text-[10px] text-muted-foreground">@{neighbor.slug}</p>
                           </div>
                         </div>
                         <button 
                           onClick={() => window.open(`/bio/${neighbor.slug}`, '_blank')}
-                          className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[10px] font-bold rounded-lg whitespace-nowrap transition-colors"
+                          className="px-3 py-1.5 bg-zinc-100 hover:bg-muted dark:hover:bg-zinc-700 text-foreground/80 text-[10px] font-bold rounded-lg whitespace-nowrap transition-colors"
                         >
                           Ghé thăm
                         </button>
@@ -892,18 +892,18 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       {/* ── Buy confirm modal ──────────────────────────────────────────────── */}
       {buyTarget && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn" onClick={() => setBuyTarget(null)}>
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-zinc-200 dark:border-zinc-800 text-center" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-border text-center" onClick={(e) => e.stopPropagation()}>
             <div className="w-20 h-20 mx-auto mb-3">{DECO_ART[buyTarget.id] && React.createElement(DECO_ART[buyTarget.id])}</div>
-            <p className="text-sm font-black text-zinc-800 dark:text-zinc-100">{buyTarget.def.name}</p>
+            <p className="text-sm font-black text-foreground">{buyTarget.def.name}</p>
             {storeData.balance < buyTarget.def.price ? (
               <p className="mt-2 text-xs font-semibold text-rose-500">Không đủ JOY (cần {buyTarget.def.price}, bạn có {storeData.balance}).</p>
             ) : (
               <p className="mt-1.5 text-xs text-zinc-500">Mua với giá <span className="font-black text-yellow-600 dark:text-yellow-400">{buyTarget.def.price} JOY</span>?</p>
             )}
             <div className="mt-4 flex gap-2">
-              <button onClick={() => setBuyTarget(null)} className="flex-1 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-bold">Huỷ</button>
+              <button onClick={() => setBuyTarget(null)} className="flex-1 py-2.5 rounded-xl bg-muted text-muted-foreground text-xs font-bold">Huỷ</button>
               <button onClick={confirmBuy} disabled={storeData.balance < buyTarget.def.price || isBuying}
-                className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">
+                className="flex-1 py-2.5 rounded-xl bg-primary text-white text-xs font-bold disabled:opacity-40">
                 {isBuying ? 'Đang xử lý...' : 'Mua ngay'}
               </button>
             </div>
@@ -914,7 +914,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       {/* ── Pet Action confirm modal ────────────────────────────────────────── */}
       {petAction && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn" onClick={() => setPetAction(null)}>
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-zinc-200 dark:border-zinc-800 text-center" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-2xl p-5 w-full max-w-xs shadow-2xl border border-border text-center" onClick={(e) => e.stopPropagation()}>
             <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
               <span className="material-symbols-outlined text-4xl text-zinc-500">
                 {petAction === 'revive' ? 'heart_broken' : 'restaurant'}
@@ -922,20 +922,20 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             </div>
             {petAction === 'revive' ? (
               <>
-                <p className="text-sm font-black text-zinc-800 dark:text-zinc-100">Thú cưng đã qua đời 🐾</p>
-                <p className="mt-1.5 text-xs text-zinc-500">Bé đã qua đời vì đói. Bạn có thể <span className="font-bold text-indigo-600 dark:text-indigo-400">hồi sinh</span> với giá <span className="font-black text-yellow-600 dark:text-yellow-400">99 JOY</span>, hoặc <span className="font-bold text-rose-500">xóa luôn</span> và nuôi bé mới từ đầu.</p>
+                <p className="text-sm font-black text-foreground">Thú cưng đã qua đời 🐾</p>
+                <p className="mt-1.5 text-xs text-zinc-500">Bé đã qua đời vì đói. Bạn có thể <span className="font-bold text-primary">hồi sinh</span> với giá <span className="font-black text-yellow-600 dark:text-yellow-400">99 JOY</span>, hoặc <span className="font-bold text-rose-500">xóa luôn</span> và nuôi bé mới từ đầu.</p>
                 {storeData.balance < 99 && (
                   <p className="mt-2 text-xs font-semibold text-rose-500">Không đủ JOY để hồi sinh (bạn có {storeData.balance}).</p>
                 )}
               </>
             ) : (
               <>
-                <p className="text-sm font-black text-zinc-800 dark:text-zinc-100">Cho thú cưng ăn 🍖</p>
+                <p className="text-sm font-black text-foreground">Cho thú cưng ăn 🍖</p>
                 <p className="mt-1.5 text-xs text-zinc-500">Đặt lại thời gian đói của thú cưng thêm 24 giờ (Hoàn toàn miễn phí!).</p>
               </>
             )}
             <div className="mt-4 flex gap-2">
-              <button onClick={() => setPetAction(null)} className="flex-1 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-bold">Huỷ</button>
+              <button onClick={() => setPetAction(null)} className="flex-1 py-2.5 rounded-xl bg-muted text-muted-foreground text-xs font-bold">Huỷ</button>
               {petAction === 'revive' ? (
                 <>
                   <button onClick={handleDeletePet} disabled={isPetInteracting}
@@ -943,13 +943,13 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                     Xóa luôn
                   </button>
                   <button onClick={handleRevivePet} disabled={storeData.balance < 99 || isPetInteracting}
-                    className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">
+                    className="flex-1 py-2.5 rounded-xl bg-primary text-white text-xs font-bold disabled:opacity-40">
                     {isPetInteracting ? 'Đang xử lý...' : 'Hồi sinh'}
                   </button>
                 </>
               ) : (
                 <button onClick={handleFeedPet} disabled={isPetInteracting}
-                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">
+                  className="flex-1 py-2.5 rounded-xl bg-primary text-white text-xs font-bold disabled:opacity-40">
                   {isPetInteracting ? 'Đang xử lý...' : 'Cho ăn'}
                 </button>
               )}
@@ -976,13 +976,13 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
               initial={{ y: 50, opacity: 0, scale: 0.95 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 20, opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-sm bg-[#faf9f6] dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 shadow-2xl overflow-hidden"
+              className="relative w-full max-w-sm bg-[#faf9f6] dark:bg-zinc-900 text-foreground shadow-2xl overflow-hidden"
               style={{
                 clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), 95% 100%, 90% calc(100% - 10px), 85% 100%, 80% calc(100% - 10px), 75% 100%, 70% calc(100% - 10px), 65% 100%, 60% calc(100% - 10px), 55% 100%, 50% calc(100% - 10px), 45% 100%, 40% calc(100% - 10px), 35% 100%, 30% calc(100% - 10px), 25% 100%, 20% calc(100% - 10px), 15% 100%, 10% calc(100% - 10px), 5% 100%, 0 calc(100% - 10px))"
               }}
             >
               {/* Header */}
-              <div className="pt-8 pb-4 px-6 text-center border-b border-zinc-200 dark:border-zinc-800 border-dashed">
+              <div className="pt-8 pb-4 px-6 text-center border-b border-border border-dashed">
                 <h2 className="font-black text-2xl tracking-tighter uppercase mb-1">Hugo Studio</h2>
                 <p className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Hóa Đơn Mua Sắm Nội Thất</p>
                 <div className="mt-4 text-left">
@@ -1013,12 +1013,12 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                     <span className="font-bold block text-xs">Thuế & Phí (Cố định)</span>
                     <span className="text-[10px] text-zinc-500 block">Miễn phí dịch vụ Hugo Studio</span>
                   </div>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">FREE</span>
+                  <span className="font-bold text-success">FREE</span>
                 </div>
               </div>
 
               {/* Total */}
-              <div className="py-4 px-6 border-t border-zinc-200 dark:border-zinc-800 border-dashed font-mono bg-zinc-50 dark:bg-zinc-800/20">
+              <div className="py-4 px-6 border-t border-border border-dashed font-mono bg-muted/50">
                 <div className="flex justify-between items-center text-lg font-black">
                   <span>TỔNG CỘNG</span>
                   <span className="text-pink-500">{receipt.price} JOY</span>
@@ -1031,7 +1031,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                   initial={{ scale: 3, opacity: 0, rotate: -15 }}
                   animate={{ scale: 1, opacity: 1, rotate: -15 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-red-500 text-red-500 font-black text-4xl px-6 py-2 uppercase tracking-widest rounded-lg"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-destructive text-destructive font-black text-4xl px-6 py-2 uppercase tracking-widest rounded-lg"
                   style={{ textShadow: "0 0 4px rgba(239,68,68,0.5)", pointerEvents: "none" }}
                 >
                   ĐÃ THU
@@ -1039,10 +1039,10 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
               )}
 
               {/* Actions */}
-              <div className="p-6 bg-zinc-100 dark:bg-zinc-800/60 pb-10">
+              <div className="p-6 bg-muted pb-10">
                 <button
                   onClick={() => setReceipt(null)}
-                  className="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-colors shadow-lg"
+                  className="w-full py-3.5 bg-zinc-900 hover:bg-foreground dark:text-black dark:hover:bg-zinc-200 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-colors shadow-lg"
                 >
                   Xác nhận
                 </button>
@@ -1055,21 +1055,21 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       {/* ── Rent Invoice Modal ────────────────────────────────────────────── */}
       {showInvoice && (
         <div className="fixed inset-0 z-[210] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={() => setShowInvoice(null)}>
-          <div className="bg-[#faf9f6] dark:bg-zinc-900 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 animate-scaleIn" onClick={(e) => e.stopPropagation()}
+          <div className="bg-[#faf9f6] dark:bg-zinc-900 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border border-border text-foreground animate-scaleIn" onClick={(e) => e.stopPropagation()}
             style={{
               clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), 95% 100%, 90% calc(100% - 10px), 85% 100%, 80% calc(100% - 10px), 75% 100%, 70% calc(100% - 10px), 65% 100%, 60% calc(100% - 10px), 55% 100%, 50% calc(100% - 10px), 45% 100%, 40% calc(100% - 10px), 35% 100%, 30% calc(100% - 10px), 25% 100%, 20% calc(100% - 10px), 15% 100%, 10% calc(100% - 10px), 5% 100%, 0 calc(100% - 10px))"
             }}
           >
             {/* Header */}
-            <div className="pt-8 pb-4 px-6 text-center border-b border-zinc-200 dark:border-zinc-800 border-dashed">
+            <div className="pt-8 pb-4 px-6 text-center border-b border-border border-dashed">
               <h2 className="font-black text-2xl tracking-tighter uppercase mb-1">HUGO STUDIO</h2>
               <p className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Hóa Đơn Thuê Tiện Ích KTX</p>
               <div className="mt-4 text-left">
                 <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
-                  <span>DỊCH VỤ:</span> <span className="font-bold text-zinc-800 dark:text-zinc-200">HugoHome Virtual Dorm</span>
+                  <span>DỊCH VỤ:</span> <span className="font-bold text-foreground">HugoHome Virtual Dorm</span>
                 </p>
                 <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
-                  <span>THỜI HẠN:</span> <span className="font-bold text-zinc-800 dark:text-zinc-200">{showInvoice.days} ngày</span>
+                  <span>THỜI HẠN:</span> <span className="font-bold text-foreground">{showInvoice.days} ngày</span>
                 </p>
               </div>
             </div>
@@ -1078,13 +1078,13 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             <div className="py-5 px-6 font-mono text-xs space-y-3.5">
               <div className="flex justify-between items-center">
                 <span className="text-zinc-500">Giá thuê gốc:</span>
-                <span className="font-bold text-zinc-800 dark:text-zinc-200">{showInvoice.base} JOY</span>
+                <span className="font-bold text-foreground">{showInvoice.base} JOY</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-zinc-500">Phí Sáng Tạo (10%):</span>
-                <span className="font-bold text-indigo-600 dark:text-indigo-400">+{showInvoice.fee} JOY</span>
+                <span className="font-bold text-primary">+{showInvoice.fee} JOY</span>
               </div>
-              <div className="h-px bg-zinc-200 dark:bg-zinc-800 border-dashed border-b" />
+              <div className="h-px bg-muted border-dashed border-b" />
               <div className="flex justify-between items-center text-sm font-black">
                 <span>TỔNG CỘNG:</span>
                 <span className="text-pink-500">{showInvoice.total} JOY</span>
@@ -1092,7 +1092,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             </div>
 
             {/* Balance check */}
-            <div className="px-6 py-3 bg-zinc-100 dark:bg-zinc-800/40 text-center text-[10px] font-mono text-zinc-500">
+            <div className="px-6 py-3 bg-muted text-center text-[10px] font-mono text-zinc-500">
               <div className="flex justify-between">
                 <span>SỐ DƯ HIỆN CÓ:</span>
                 <span className="font-bold">{storeData.balance} JOY</span>
@@ -1100,7 +1100,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
               {storeData.balance < showInvoice.total ? (
                 <p className="text-rose-500 font-bold mt-1 text-[9px] uppercase">🚨 Không đủ JOY để thanh toán</p>
               ) : (
-                <div className="flex justify-between mt-1 text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">
+                <div className="flex justify-between mt-1 text-[9px] text-success font-bold">
                   <span>SỐ DƯ SAU THUÊ:</span>
                   <span>{storeData.balance - showInvoice.total} JOY</span>
                 </div>
@@ -1108,17 +1108,17 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             </div>
 
             {/* Actions */}
-            <div className="p-6 bg-zinc-100 dark:bg-zinc-800/60 pb-10 flex gap-2">
+            <div className="p-6 bg-muted pb-10 flex gap-2">
               <button 
                 onClick={() => setShowInvoice(null)} 
-                className="flex-1 py-3 bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
+                className="flex-1 py-3 bg-muted text-foreground/80 rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
               >
                 Hủy
               </button>
               <button 
                 onClick={confirmPayment} 
                 disabled={storeData.balance < showInvoice.total || isRenting}
-                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50"
+                className="flex-1 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50"
               >
                 {isRenting ? 'Đang thanh toán...' : 'Xác nhận & Thuê'}
               </button>
@@ -1130,19 +1130,19 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       {/* ── Success Modal ────────────────────────────────────────────────── */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-[220] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-zinc-200 dark:border-zinc-800 text-center space-y-4 animate-scaleIn">
-            <div className="w-16 h-16 mx-auto rounded-full bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+          <div className="bg-card rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-border text-center space-y-4 animate-scaleIn">
+            <div className="w-16 h-16 mx-auto rounded-full bg-success/10 dark:bg-success/40 flex items-center justify-center text-success">
               <span className="material-symbols-outlined text-4xl animate-bounce">check_circle</span>
             </div>
             
             <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-100">Kích hoạt KTX thành công! 🎉</h3>
+              <h3 className="text-lg font-black text-foreground">Kích hoạt KTX thành công! 🎉</h3>
               <p className="text-xs text-zinc-500">Cảm ơn bạn đã đồng hành cùng Hugo Studio. Tiện ích HugoHome của bạn đã hoạt động trở lại!</p>
             </div>
 
             <button 
               onClick={() => setShowSuccessModal(false)}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black transition-colors"
+              className="w-full py-3 bg-success hover:bg-success/90 text-white rounded-2xl text-xs font-black transition-colors"
             >
               Vào Ký Túc Xá 🚪
             </button>

@@ -8,13 +8,13 @@ import { useData } from "../../context/DataContext";
 // reads as a mosaic of different pieces — "đa sắc, đa hình dạng" — rather
 // than identical tiles with swapped colors.
 const GRADIENTS = {
-  indigo:  "from-indigo-500 via-violet-500 to-purple-500",
+  indigo:  "from-primary via-violet-500 to-purple-500",
   rose:    "from-rose-500 via-fuchsia-500 to-pink-500",
-  cyan:    "from-cyan-400 via-sky-500 to-blue-500",
-  blue:    "from-blue-500 via-indigo-500 to-violet-500",
-  teal:    "from-teal-400 via-emerald-500 to-green-500",
-  orange:  "from-amber-400 via-orange-500 to-red-500",
-  purple:  "from-fuchsia-500 via-purple-500 to-indigo-500",
+  cyan:    "from-info via-info to-primary",
+  blue:    "from-primary via-primary to-violet-500",
+  teal:    "from-teal-400 via-success to-success",
+  orange:  "from-warning via-orange-500 to-destructive",
+  purple:  "from-fuchsia-500 via-purple-500 to-primary",
   slate:   "from-slate-500 via-zinc-500 to-stone-500",
 };
 
@@ -185,7 +185,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
             id={`utility-card-${util.id}`}
             key={util.id}
             onClick={() => handleUtilityClick(util.id)}
-            className={`group relative cursor-pointer overflow-hidden bg-white dark:bg-background ${shape} p-3.5 md:p-6 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-transparent shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 active:scale-[0.98] flex flex-col justify-between h-[124px] md:h-[220px]`}
+            className={`group relative cursor-pointer overflow-hidden bg-white dark:bg-background ${shape} p-3.5 md:p-6 border border-border/50 hover:border-transparent shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 active:scale-[0.98] flex flex-col justify-between h-[124px] md:h-[220px]`}
           >
             {/* Soft gradient wash + glow, intensifies on hover */}
             <span className={`absolute inset-0 opacity-[0.05] dark:opacity-[0.09] bg-gradient-to-br ${gradient} pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.12] dark:group-hover:opacity-[0.18]`} />
@@ -195,7 +195,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
             {/* Decorative glyph cluster — secondary icons hinting at what's inside, low-key in the corner */}
             <div className="absolute bottom-3 right-3 flex -space-x-1.5 opacity-25 dark:opacity-20 pointer-events-none transition-transform duration-300 group-hover:scale-110">
               {util.glyphs.map((g, i) => (
-                <span key={i} className="material-symbols-outlined text-zinc-400 dark:text-zinc-500" style={{ fontSize: i === 0 ? 26 : 20 }}>{g}</span>
+                <span key={i} className="material-symbols-outlined text-muted-foreground/70" style={{ fontSize: i === 0 ? 26 : 20 }}>{g}</span>
               ))}
             </div>
 
@@ -204,13 +204,13 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
                 <span className="material-symbols-outlined text-[22px] md:text-2xl text-white" style={{ fontVariationSettings: "'FILL' 1" }}>{util.icon}</span>
               </div>
               <div className="min-w-0 flex-1 md:space-y-1 md:mt-4">
-                <h3 className="text-[11.5px] md:text-sm font-black text-zinc-800 dark:text-zinc-100 line-clamp-1 md:line-clamp-none">
+                <h3 className="text-[11.5px] md:text-sm font-black text-foreground line-clamp-1 md:line-clamp-none">
                   {util.title}
                 </h3>
-                <p className="md:hidden text-[9.5px] text-zinc-450 dark:text-zinc-400 leading-snug">
+                <p className="md:hidden text-[9.5px] text-muted-foreground/70 leading-snug">
                   {util.shortDesc}
                 </p>
-                <p className="hidden md:block text-[10.5px] text-zinc-450 dark:text-zinc-400 leading-relaxed">
+                <p className="hidden md:block text-[10.5px] text-muted-foreground/70 leading-relaxed">
                   {util.desc}
                 </p>
               </div>

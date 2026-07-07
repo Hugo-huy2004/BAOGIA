@@ -5,7 +5,7 @@ import HugoLogo from "../components/HugoLogo";
 import { useUIStore } from "../stores/uiStore";
 import { usePayOS } from "@payos/payos-checkout";
 import { isAdminAuthenticated } from "../services/authSession";
-import { toast } from "react-hot-toast";
+import { notify } from "../lib/notify";
 import { HugoConfirmNotice } from "../components/shared/HugoNotice";
 
 const BANKS = [

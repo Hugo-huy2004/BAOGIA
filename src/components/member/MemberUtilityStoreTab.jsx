@@ -69,11 +69,11 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
     return (
       <div className="grid grid-cols-2 gap-3">
         {[0, 1, 2, 3].map(i => (
-          <div key={i} className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800/80 animate-pulse">
-            <div className="aspect-[4/3] bg-zinc-100 dark:bg-zinc-800/60" />
+          <div key={i} className="rounded-2xl overflow-hidden border border-border animate-pulse">
+            <div className="aspect-[4/3] bg-muted" />
             <div className="p-3 space-y-2">
-              <div className="h-2.5 w-3/4 rounded bg-zinc-100 dark:bg-zinc-800/60" />
-              <div className="h-2 w-1/2 rounded bg-zinc-100 dark:bg-zinc-800/60" />
+              <div className="h-2.5 w-3/4 rounded bg-muted" />
+              <div className="h-2 w-1/2 rounded bg-muted" />
             </div>
           </div>
         ))}
@@ -83,8 +83,8 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
 
   if (products.length === 0) {
     return (
-      <div className="py-12 text-center bg-zinc-50/50 dark:bg-zinc-900/30 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
-        <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-700 mb-2">storefront</span>
+      <div className="py-12 text-center bg-muted/50 rounded-2xl border border-dashed border-border">
+        <span className="material-symbols-outlined text-3xl text-muted-foreground/70 mb-2">storefront</span>
         <p className="text-xs text-zinc-400">{t("memberPortal.joy.store.empty")}</p>
       </div>
     );
@@ -111,7 +111,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Tìm sản phẩm..."
-            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#181622] text-xs text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-border bg-white dark:bg-[#181622] text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-warning/40"
           />
         </div>
         <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
@@ -120,7 +120,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
               key={c}
               onClick={() => setCategory(c)}
               className={`px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border whitespace-nowrap shrink-0 transition-all ${
-                category === c ? "bg-amber-500 border-amber-500 text-white shadow-sm" : "bg-white dark:bg-[#181622] border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400"
+                category === c ? "bg-warning border-warning text-white shadow-sm" : "bg-white dark:bg-[#181622] border-border text-muted-foreground"
               }`}
             >
               {CATEGORY_LABELS[c] || c}
@@ -130,8 +130,8 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
       </div>
 
       {filteredProducts.length === 0 ? (
-        <div className="py-12 text-center bg-zinc-50/50 dark:bg-zinc-900/30 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800">
-          <span className="material-symbols-outlined text-3xl text-zinc-300 dark:text-zinc-700 mb-2">search_off</span>
+        <div className="py-12 text-center bg-muted/50 rounded-2xl border border-dashed border-border">
+          <span className="material-symbols-outlined text-3xl text-muted-foreground/70 mb-2">search_off</span>
           <p className="text-xs text-zinc-400">Không tìm thấy sản phẩm phù hợp.</p>
         </div>
       ) : (
@@ -145,17 +145,17 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
         return (
           <div
             key={product._id}
-            className={`group flex flex-col rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-[#181622] shadow-sm transition-all duration-200 ${outOfStock ? 'opacity-60' : 'hover:shadow-md hover:-translate-y-0.5'}`}
+            className={`group flex flex-col rounded-2xl overflow-hidden border border-border bg-white dark:bg-[#181622] shadow-sm transition-all duration-200 ${outOfStock ? 'opacity-60' : 'hover:shadow-md hover:-translate-y-0.5'}`}
           >
             {/* Cover */}
-            <div className="relative aspect-[4/3] bg-gradient-to-br from-amber-50 to-amber-100/60 dark:from-amber-500/10 dark:to-amber-500/5 flex items-center justify-center overflow-hidden">
+            <div className="relative aspect-[4/3] bg-gradient-to-br from-warning/10 to-warning/60 dark:from-warning/10 dark:to-warning/5 flex items-center justify-center overflow-hidden">
               {product.imageUrl ? (
                 <img src={product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
               ) : (
-                <span className="material-symbols-outlined text-4xl text-amber-400 dark:text-amber-500/70">{product.icon || "redeem"}</span>
+                <span className="material-symbols-outlined text-4xl text-warning/70">{product.icon || "redeem"}</span>
               )}
               {perk && (
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-indigo-600/90 text-white text-[8.5px] font-extrabold uppercase tracking-wide shadow-sm">
+                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-primary/90 text-white text-[8.5px] font-extrabold uppercase tracking-wide shadow-sm">
                   {perk}
                 </span>
               )}
@@ -173,9 +173,9 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
             {/* Content */}
             <div className="flex flex-col flex-1 p-3 gap-2">
               <div className="min-w-0">
-                <h5 className="font-bold text-zinc-800 dark:text-white text-[11.5px] leading-snug line-clamp-1">{product.name}</h5>
+                <h5 className="font-bold text-foreground text-[11.5px] leading-snug line-clamp-1">{product.name}</h5>
                 {product.description && (
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 mt-0.5 leading-relaxed">{product.description}</p>
+                  <p className="text-[10px] text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">{product.description}</p>
                 )}
               </div>
               <div className="mt-auto flex flex-col gap-2 pt-1">
@@ -183,7 +183,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
                 <button
                   onClick={() => setConfirmProduct(product)}
                   disabled={disabled}
-                  className="w-full py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-1.5 rounded-lg bg-foreground text-background text-[10px] font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {buyingId === product._id
                     ? "..."
@@ -208,51 +208,51 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
           className="fixed inset-0 z-[250] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           onClick={e => { if (e.target === e.currentTarget && buyingId !== confirmProduct._id) setConfirmProduct(null); }}
         >
-          <div className="bg-white dark:bg-[#15141c] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-5">
+          <div className="bg-white dark:bg-[#15141c] border border-border rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-5">
             <div className="text-center space-y-2">
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto">
+              <div className="w-14 h-14 rounded-2xl bg-warning/10 text-warning flex items-center justify-center mx-auto">
                 <span className="material-symbols-outlined text-2xl">{confirmProduct.icon || "redeem"}</span>
               </div>
-              <h3 className="font-black text-base text-zinc-900 dark:text-white">{t("memberPortal.joy.store.confirmTitle")}</h3>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">{t("memberPortal.joy.store.confirmSubtitle")}</p>
+              <h3 className="font-black text-base text-foreground">{t("memberPortal.joy.store.confirmTitle")}</h3>
+              <p className="text-xs text-muted-foreground">{t("memberPortal.joy.store.confirmSubtitle")}</p>
             </div>
 
-            <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl p-4 space-y-2.5">
+            <div className="bg-muted/50 rounded-2xl p-4 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmProduct")}</span>
-                <span className="text-xs font-bold text-zinc-800 dark:text-white text-right">{confirmProduct.name}</span>
+                <span className="text-xs font-bold text-foreground text-right">{confirmProduct.name}</span>
               </div>
               {perkLabel(confirmProduct) && (
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmPerk")}</span>
-                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{perkLabel(confirmProduct)}</span>
+                  <span className="text-xs font-bold text-primary">{perkLabel(confirmProduct)}</span>
                 </div>
               )}
-              <div className="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center justify-between pt-2 border-t border-border">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmPrice", "Giá gốc")}</span>
                 <JoyCoinBadge amount={confirmProduct.priceJoy} size="sm" />
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-[10px] font-medium text-zinc-500">Phí cấp hàng (2%)</span>
-                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
+                <span className="text-xs font-medium text-foreground/80">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-[10px] font-medium text-zinc-500">Phí hỗ trợ (5%)</span>
-                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">+{Math.floor(confirmProduct.priceJoy * 0.05)} JOY</span>
+                <span className="text-xs font-medium text-foreground/80">+{Math.floor(confirmProduct.priceJoy * 0.05)} JOY</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-[10px] font-medium text-zinc-500">Phí bảo dưỡng (2%)</span>
-                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
+                <span className="text-xs font-medium text-foreground/80">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
               </div>
-              <div className="flex items-center justify-between pt-2 border-t border-dashed border-zinc-200 dark:border-zinc-800">
-                <span className="text-[10px] font-black text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Tổng thanh toán</span>
-                <span className="text-sm font-black text-zinc-900 dark:text-white">
+              <div className="flex items-center justify-between pt-2 border-t border-dashed border-border">
+                <span className="text-[10px] font-black text-foreground/80 uppercase tracking-wider">Tổng thanh toán</span>
+                <span className="text-sm font-black text-foreground">
                   {confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09)} JOY
                 </span>
               </div>
               <div className="flex items-center justify-between mt-2">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmBalanceAfter", "Số dư sau mua")}</span>
-                <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">{(balance - (confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09))).toLocaleString("vi-VN")} JOY</span>
+                <span className="text-xs font-bold text-muted-foreground">{(balance - (confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09))).toLocaleString("vi-VN")} JOY</span>
               </div>
             </div>
 
@@ -260,14 +260,14 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
               <button
                 onClick={() => setConfirmProduct(null)}
                 disabled={buyingId === confirmProduct._id}
-                className="flex-1 py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-all active:scale-[0.98] disabled:opacity-50"
+                className="flex-1 py-3 rounded-xl bg-muted text-foreground/80 text-xs font-bold transition-all active:scale-[0.98] disabled:opacity-50"
               >
                 {t("memberPortal.joy.store.confirmCancel")}
               </button>
               <button
                 onClick={() => handleBuy(confirmProduct)}
                 disabled={buyingId === confirmProduct._id}
-                className="flex-1 py-3 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold transition-all active:scale-[0.98] disabled:opacity-50"
+                className="flex-1 py-3 rounded-xl bg-foreground text-background text-xs font-bold transition-all active:scale-[0.98] disabled:opacity-50"
               >
                 {buyingId === confirmProduct._id ? t("memberPortal.joy.store.confirmProcessing") : t("memberPortal.joy.store.confirmButton")}
               </button>

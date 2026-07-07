@@ -87,7 +87,10 @@
       "hobbies": "Sở Thích Cá Nhân",
       "philosophy": "Thông Điệp",
       "contacts": "Liên Kết",
-      "start": "Bắt Đầu"
+      "start": "Bắt Đầu",
+      "studio": "Hugo Studio",
+      "partners": "Nhà Sáng Lập",
+      "about": "Về Tôi"
     },
     "slide1": {
       "badge": "✦ Cổng Nhà Phát Triển Sáng Tạo",
@@ -145,7 +148,16 @@
       "idBenefitDesc": "1x Trang Bio MIỄN PHÍ",
       "idValidityTitle": "HIỆU LỰC",
       "idValidityDesc": "12 Tháng",
-      "idAuth": "ĐÃ XÁC THỰC"
+      "idAuth": "ĐÃ XÁC THỰC",
+      "benefitsTitle": "Xác minh thành công, bạn nhận được:",
+      "b1t": "Trang Bio cá nhân miễn phí",
+      "b1d": "Tùy chỉnh giao diện, hiệu ứng, hình nền và mọi liên kết mạng xã hội — như một danh thiếp số của riêng bạn.",
+      "b2t": "Link đẹp theo tên riêng",
+      "b2d": "Dạng bio/ten-cua-ban — dễ nhớ, chuyên nghiệp khi đặt vào CV, Facebook hay Instagram.",
+      "b3t": "Xác thực tự động 3 giây",
+      "b3d": "Chỉ cần email có hậu tố .edu — hệ thống tự xác minh ngay lập tức, không chờ duyệt thủ công.",
+      "b4t": "Trọn bộ tiện ích học tập",
+      "b4d": "Bạn Học Đường, Hugo PSY, Web IDE, Hugo Radio và Aura AI — dùng miễn phí trọn 12 tháng."
     },
     "slide6": {
       "badge": "✦ Dịch Vụ Web Chuyên Nghiệp",
@@ -196,84 +208,344 @@
       "desc": "Tạo lập các trang liên kết sinh viên cực đẹp hoàn toàn miễn phí hoặc kết nối cùng tôi để thiết kế nên những trang web Bespoke chuyên nghiệp ngay hôm nay.",
       "registerBtn": "Đăng Ký Tài Khoản",
       "bookBtn": "Đặt Lịch Tư Vấn"
+    },
+    "studio": {
+      "badge": "✦ Hugo Wishpax Studio",
+      "title1": "Hugo Studio",
+      "title2": "Kiến tạo trải nghiệm số bằng cả trái tim.",
+      "desc": "Hugo Studio là xưởng sáng tạo số — nơi từng trang web, trang Bio và tiện ích học đường được chăm chút như một tác phẩm: đẹp mắt, mượt mà và ấm áp với người dùng.",
+      "explore": "Khám Phá Studio",
+      "scrollHint": "Cuộn để bắt đầu hành trình"
+    },
+    "partners": {
+      "badge": "✦ Người Đứng Sau Studio",
+      "title1": "Sinh viên năm cuối,",
+      "title2": "kiến tạo trải nghiệm đẹp.",
+      "desc": "Tôi là Hugo — sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Tôi tin rằng sản phẩm số đẹp nhất là sản phẩm khiến người dùng mỉm cười, và đó là điều tôi gửi gắm vào từng chi tiết nhỏ của Hugo Studio. Đồng hành cùng tôi có Jason Phan trong vai trò đối tác đồng phát triển.",
+      "founderRole": "Nhà Sáng Lập · Thiết Kế & Phát Triển",
+      "partnerRole": "Đối Tác Đồng Phát Triển",
+      "openToWork": "Sẵn sàng thực tập & cơ hội việc làm",
+      "finalYear": "Năm cuối · Kỹ thuật Phần mềm",
+      "motto": "Kiến tạo trải nghiệm bằng cả trái tim",
+      "stackTitle": "Giá trị tôi theo đuổi",
+      "v1": "Tận tâm",
+      "v2": "Chỉn chu",
+      "v3": "Sáng tạo",
+      "v4": "Thân thiện",
+      "v5": "Đồng hành"
     }
   },
   "servicesPage": {
-    "header": {
-      "badge": "Giải Pháp & Công Nghệ",
-      "title": "Danh Mục Dịch Vụ Của Chúng Tôi",
-      "desc": "Cung cấp các công trình web chuyên nghiệp, từ trang cá nhân tinh giản cho đến các hệ thống thương mại mang đẳng cấp cung đình."
+    "meta": {
+      "title": "Bảng giá dịch vụ website | Hugo Studio",
+      "description": "Bảng giá thiết kế website, landing page, sửa web, SEO, tăng tốc và web có tính năng động tại Hugo Studio. Báo giá rõ ràng trước khi làm, tối ưu mobile.",
+      "keywords": "bảng giá thiết kế website, dịch vụ website Hugo Studio, làm landing page, sửa web, tối ưu SEO, tăng tốc website, web động"
     },
-    "tier1": {
-      "badge": "Đặc quyền .edu",
-      "subtitle": "Tài trợ hoàn toàn phí dịch vụ",
-      "title": "Miễn phí HSSV",
-      "price": "0đ",
-      "priceUnit": " /năm",
-      "oldPrice": "500.000đ",
-      "f1_bold": "Dành riêng cho tinh hoa:",
-      "f1_text": " Áp dụng cho các bạn sở hữu email trường học (.edu).",
-      "f2_bold": "Giao diện thanh nhã:",
-      "f2_text": " Không chứa quảng cáo, bố cục tinh tế, đẹp mắt.",
-      "f3_bold": "Toàn quyền làm chủ:",
-      "f3_text": " Thoải mái thay đổi câu chữ, hình ảnh bất kỳ lúc nào.",
-      "f4_bold": "Hoạt động mượt mà:",
-      "f4_text": " Tối ưu hóa để lướt êm ái trên mọi thiết bị.",
-      "f5_bold": "Cam kết 12 tháng:",
-      "f5_text": " Dùng miễn phí nguyên năm, không tự gia hạn thẻ.",
-      "note": "* Hệ thống sẽ tự động xét duyệt. Mỗi sinh viên nhận 1 suất tài trợ.",
-      "btn": "KÍCH HOẠT ĐẶC QUYỀN"
+    "common": {
+      "youGet": "Bạn nhận được",
+      "notIncluded": "Chưa bao gồm",
+      "discussPlan": "Trao đổi gói này",
+      "discussProject": "Trao đổi dự án"
     },
-    "tier2": {
-      "badge": "Phổ biến nhất",
-      "subtitle": "Gói Trang Web Tĩnh",
-      "title": "Ngự Lãm",
-      "for": "Trưng Bày Thông Tin",
-      "desc": "Trang web tĩnh hiển thị nội dung cố định, dùng để giới thiệu hồ sơ và thông tin dịch vụ một cách chuyên nghiệp.",
-      "f1_bold": "Giao diện thiết kế riêng:",
-      "f1_text": " Không dùng giao diện mẫu, thiết kế phù hợp với đặc thù dự án của riêng bạn.",
-      "f2_bold": "Tập trung nội dung:",
-      "f2_text": " Bố cục sắp xếp khoa học, giúp người xem tiếp nhận thông điệp nhanh chóng.",
-      "f3_bold": "Hồ sơ năng lực:",
-      "f3_text": " Trình bày thông tin cá nhân và kinh nghiệm làm việc một cách chuyên nghiệp.",
-      "f4_bold": "Tối ưu tốc độ tải:",
-      "f4_text": " Cấu trúc web tĩnh gọn nhẹ, đảm bảo thời gian tải trang nhanh và mượt mà.",
-      "f5_bold": "Tương thích đa thiết bị:",
-      "f5_text": " Tự động căn chỉnh hiển thị đẹp mắt trên điện thoại, máy tính bảng và màn hình lớn.",
-      "f6_bold": "Thân thiện với Google:",
-      "f6_text": " Tối ưu cấu trúc cơ bản giúp khách hàng dễ dàng tìm kiếm qua Google.",
-      "f7_bold": "Nhúng đa phương tiện:",
-      "f7_text": " Dễ dàng chèn video và hình ảnh chất lượng cao để tăng tính trực quan.",
-      "note": "* Chưa bao gồm chi phí tên miền (domain) và nơi lưu trữ (hosting).",
-      "btn": "NHẬN TƯ VẤN"
+    "hero": {
+      "badge": "Hugo Studio · Bảng giá dịch vụ",
+      "title1": "Website rõ mục tiêu,",
+      "title2": "giá rõ trước khi làm.",
+      "desc": "Chọn đúng theo tình trạng của bạn: xây mới, sửa web đang có hoặc chỉ cần một việc lẻ. Mọi gói đều chốt phạm vi, thời gian và chi phí trước khi bắt đầu.",
+      "viewPricing": "Xem bảng giá",
+      "contact": "Nhắn nhu cầu hiện tại",
+      "trust": [
+        "Báo giá rõ trước khi làm",
+        "Tối ưu mobile mọi gói",
+        "Hỗ trợ sau bàn giao",
+        "HSSV miễn phí 100%"
+      ]
     },
-    "tier3": {
-      "badge": "Doanh nghiệp",
-      "subtitle": "Trung Tâm Thông Tin Số",
-      "title": "Chưởng Quản",
-      "for": "Quản Trị & Dữ Liệu",
-      "desc": "Trang web động và bảng quản trị nội bộ giúp bạn nắm quyền tự cập nhật thông tin và kiểm soát dữ liệu liên tục.",
-      "f1_bold": "Nhận diện thương hiệu:",
-      "f1_text": " Thiết kế đồng bộ hoàn toàn với màu sắc và phong cách doanh nghiệp.",
-      "f2_bold": "Hệ thống quản trị (CMS):",
-      "f2_text": " Được cấp tài khoản nội bộ riêng để tự đăng bài, sửa giá dễ như dùng Word.",
-      "f3_bold": "Quản lý bán hàng:",
-      "f3_text": " Tích hợp giỏ hàng và danh mục sản phẩm, hỗ trợ khách mua sắm 24/7.",
-      "f4_bold": "Đa dạng thanh toán:",
-      "f4_text": " Cho phép khách quét mã QR, chuyển khoản hoặc dùng thẻ nội địa.",
-      "f5_bold": "Thông báo tự động:",
-      "f5_text": " Báo có đơn hàng hoặc lịch hẹn mới gửi thẳng về tin nhắn điện thoại.",
-      "f6_bold": "Báo cáo doanh thu:",
-      "f6_text": " Theo dõi lợi nhuận và số lượng đơn đặt hàng ngay trên biểu đồ trực quan.",
-      "f7_bold": "Bảo trì và bảo mật:",
-      "f7_text": " Đội ngũ kỹ thuật hỗ trợ sao lưu dữ liệu và duy trì máy chủ hoạt động ổn định.",
-      "note": "* Chưa bao gồm chi phí tên miền (domain) và nơi lưu trữ (hosting).",
-      "btn": "NHẬN TƯ VẤN"
+    "pricing": {
+      "eyebrow": "Xây website mới",
+      "title": "Ba mức đầu tư,",
+      "highlight": "một hướng đi rõ",
+      "desc": "Giá hiển thị là mức bắt đầu. Khi có phạm vi cụ thể, mình chốt rõ hạng mục, thời gian và phần bàn giao trước khi triển khai."
     },
-    "partner": {
-      "badge": "Đối tác chiến lược",
-      "title": "Đối Tác Chiến Lược",
-      "desc": "Hugo Studio tự hào được đồng hành cùng đối tác công nghệ chiến lược, mang đến những trải nghiệm tối ưu nhất cho khách hàng."
+    "plans": {
+      "fix": {
+        "label": "Sửa nhanh",
+        "name": "Sửa web có sẵn",
+        "price": "Từ 150.000đ",
+        "note": "Báo giá theo từng việc, xong việc mới thanh toán — không phát sinh ẩn.",
+        "desc": "Web đang chạy mà lỗi vặt làm mất khách? Mình sửa đúng chỗ cần sửa, không bắt bạn mua gói lớn.",
+        "includes": [
+          "Báo giá từng việc trước, bạn chốt mới bắt đầu làm",
+          "Sửa và test kỹ trên cả điện thoại lẫn máy tính",
+          "Bảo hành miễn phí 7 ngày cho đúng lỗi đã sửa",
+          "Giao lại đầy đủ file và quyền truy cập sau khi xong"
+        ],
+        "excludes": [
+          "Làm lại giao diện toàn trang (xem gói xây mới)",
+          "Phí mua tên miền, hosting — mình gắn giúp miễn phí"
+        ]
+      },
+      "seo": {
+        "label": "Tối ưu",
+        "name": "SEO & tăng tốc",
+        "price": "Từ 890.000đ",
+        "note": "Phù hợp web React/Next.js hoặc website đang chậm, khó lên Google.",
+        "desc": "Web đẹp nhưng chậm và không ai tìm thấy thì như cửa hàng không có biển hiệu. Gói này xử lý đúng phần đó.",
+        "includes": [
+          "Tối ưu tốc độ: nén ảnh, dọn code thừa, bật cache",
+          "Metadata + ảnh chia sẻ đẹp cho tối đa 5 trang chính",
+          "Khai báo Google Search Console, sitemap đầy đủ",
+          "Báo cáo điểm PageSpeed trước–sau, kèm việc nên làm tiếp"
+        ],
+        "excludes": [
+          "Viết bài SEO, đi backlink, chạy quảng cáo",
+          "Cam kết thứ hạng Google — không ai cam kết nghiêm túc được"
+        ]
+      },
+      "landing": {
+        "label": "Bắt đầu",
+        "name": "Landing page 1 trang",
+        "price": "Từ 990.000đ",
+        "note": "Thiết kế riêng, không template đại trà. Hoàn thành trong 5-7 ngày.",
+        "desc": "Một trang duy nhất, đúng một mục tiêu: khách đọc xong là muốn bấm liên hệ với bạn.",
+        "tagline": "Dễ bắt đầu",
+        "includes": [
+          "1 trang thiết kế riêng theo brand, tối đa 7 section",
+          "2 vòng chỉnh sửa theo góp ý của bạn",
+          "Form liên hệ đổ thẳng về Zalo hoặc email",
+          "Chuẩn SEO cơ bản, link chia sẻ hiện ảnh đẹp",
+          "Đưa web lên mạng, gắn tên miền, hướng dẫn tự đổi chữ và ảnh",
+          "Hỗ trợ lỗi miễn phí 7 ngày sau bàn giao"
+        ],
+        "excludes": [
+          "Phí tên miền ~300-500k/năm (hosting mình chọn gói miễn phí)",
+          "Nội dung chữ và hình — bạn cung cấp, mình biên tập lại",
+          "Thêm trang phụ, đa ngôn ngữ → báo giá riêng"
+        ]
+      },
+      "website": {
+        "label": "Mở rộng",
+        "name": "Website nhiều trang",
+        "price": "Từ 2.490.000đ",
+        "note": "Giá chốt theo số trang và nội dung. Rẻ hơn 40-50% so với giá agency.",
+        "desc": "Bộ mặt online hoàn chỉnh giúp shop nhỏ, quán hoặc thương hiệu cá nhân đáng tin hơn một trang Facebook.",
+        "tagline": "Được chọn nhiều nhất",
+        "includes": [
+          "4-6 trang hoàn chỉnh: chủ, giới thiệu, dịch vụ, liên hệ",
+          "Thiết kế đồng bộ nhận diện + 2 vòng chỉnh sửa",
+          "Cấu trúc chuẩn SEO, khai báo với Google",
+          "Phần hay đổi (giá, menu, tin) tự sửa không cần code",
+          "Kết nối Zalo, Messenger, Google Maps",
+          "1 buổi hướng dẫn sử dụng + hỗ trợ 14 ngày"
+        ],
+        "excludes": [
+          "Phí tên miền, hosting ~300-800k/năm tùy gói",
+          "Viết bài, chụp ảnh sản phẩm",
+          "Đặt lịch, thanh toán, tài khoản thành viên → gói Hệ thống"
+        ]
+      },
+      "system": {
+        "label": "Hệ thống",
+        "name": "Website có tính năng động",
+        "price": "Từ 6.900.000đ",
+        "note": "Dự án có thanh toán, dashboard hoặc nhiều vai trò thường từ 12-20 triệu.",
+        "desc": "Không chỉ giới thiệu — website làm việc thay bạn: nhận đơn, đặt lịch, quản lý khách hàng.",
+        "tagline": "Đầu tư dài hạn",
+        "includes": [
+          "1 luồng chức năng chính: đặt lịch HOẶC nhận đơn cơ bản",
+          "Dashboard quản trị: xem đơn, khách, số liệu chính",
+          "Đăng nhập với 2 cấp quyền: chủ và nhân viên",
+          "Kết nối 1 nguồn dữ liệu: Google Sheet hoặc Zalo",
+          "Bàn giao toàn bộ mã nguồn — web là tài sản của bạn",
+          "Đồng hành kỹ thuật 1 tháng sau bàn giao"
+        ],
+        "excludes": [
+          "Cổng thanh toán online, nhiều vai trò, nhiều luồng → dự án 12-20tr, báo giá riêng",
+          "Chi phí server, tên miền khi vận hành (~50-150k/tháng)"
+        ]
+      }
+    },
+    "demo": {
+      "eyebrow": "Xem tận mắt",
+      "title": "Trải nghiệm thử",
+      "highlight": "mẫu thiết kế thật",
+      "desc": "Đây là các trang demo chạy thật ngay trên trình duyệt — bấm chọn ngành để xem cách mình tổ chức bố cục, màu sắc và trải nghiệm cho từng loại website.",
+      "hint": "Thích một mẫu nào đó? Nhắn mình kèm tên mẫu, mình sẽ tư vấn cách tùy biến theo thương hiệu của bạn.",
+      "cta": "Làm web giống mẫu này",
+      "loading": "Đang tải giao diện...",
+      "templates": {
+        "photography": {
+          "title": "Studio Chụp Ảnh",
+          "short": "Chụp Ảnh",
+          "subtitle": "Nhiếp ảnh gia"
+        },
+        "cafe": {
+          "title": "Quán Cafe & Bistro",
+          "short": "Cafe",
+          "subtitle": "Nhà hàng"
+        },
+        "jewelry": {
+          "title": "Web Bán Vàng",
+          "short": "Bán Vàng",
+          "subtitle": "Tiệm vàng"
+        },
+        "portfolio": {
+          "title": "Giới Thiệu Cá Nhân",
+          "short": "Portfolio",
+          "subtitle": "Hồ sơ năng lực"
+        },
+        "ecommerce": {
+          "title": "Trang Bán Hàng",
+          "short": "E-Commerce",
+          "subtitle": "Đa ngành"
+        },
+        "dashboard": {
+          "title": "Trang Quản Lý",
+          "short": "Dashboard",
+          "subtitle": "Dashboard"
+        }
+      }
+    },
+    "care": {
+      "eyebrow": "Đã có website?",
+      "title": "Không cần làm lại,",
+      "highlight": "chỉ sửa đúng chỗ",
+      "desc": "Website đang chạy chỉ cần chỉnh vài điểm hoặc tăng tốc — không phải mua gói lớn."
+    },
+    "micro": {
+      "eyebrow": "Việc nhỏ giá lẻ",
+      "title": "Chỉ cần một việc?",
+      "highlight": "Từ 150.000đ",
+      "desc": "Phần này giúp bạn không phải mua gói lớn khi chỉ cần sửa đúng vài điểm.",
+      "items": [
+        {
+          "title": "Sửa bug giao diện",
+          "price": "Từ 150.000đ",
+          "desc": "Nút không bấm, layout vỡ, lỗi hiển thị nhỏ."
+        },
+        {
+          "title": "Chỉnh màu và nội dung",
+          "price": "Từ 200.000đ",
+          "desc": "Đổi chữ, ảnh, section hoặc style theo brand."
+        },
+        {
+          "title": "Làm đẹp mobile",
+          "price": "Từ 250.000đ",
+          "desc": "Canh lại khoảng cách, chữ, CTA trên điện thoại."
+        },
+        {
+          "title": "Gắn tiện ích web",
+          "price": "Từ 150.000đ",
+          "desc": "Form, Zalo, Messenger, Maps, nút gọi nhanh."
+        },
+        {
+          "title": "Deploy và tên miền",
+          "price": "Từ 250.000đ",
+          "desc": "Đưa web lên mạng, gắn domain, kiểm tra SSL."
+        },
+        {
+          "title": "SEO nhanh 1 trang",
+          "price": "Từ 200.000đ",
+          "desc": "Title, description, ảnh chia sẻ, sitemap cơ bản."
+        },
+        {
+          "title": "Tăng tốc web",
+          "price": "Từ 300.000đ",
+          "desc": "Giảm tải nặng, tối ưu ảnh, cải thiện PageSpeed."
+        },
+        {
+          "title": "Bảo trì tháng",
+          "price": "Từ 300.000đ/tháng",
+          "desc": "Sao lưu, sửa lỗi nhỏ và cập nhật nội dung."
+        }
+      ]
+    },
+    "app": {
+      "badge": "Web có hệ thống",
+      "title1": "Website",
+      "title2": "làm việc thay bạn.",
+      "desc": "Như thuê một nhân viên trực page nhận đơn, chốt lịch, báo cáo — nhưng trả một lần, chạy 24/7.",
+      "extendTitle": "Mở rộng khi cần — báo giá riêng",
+      "extendDesc": "Thanh toán online, nhiều vai trò, API riêng. Dự án dạng này thường 12-20 triệu, chốt phạm vi bằng văn bản trước khi làm."
+    },
+    "student": {
+      "badge": "Khác biệt Hugo Studio",
+      "title1": "Học sinh & Sinh viên được hỗ trợ",
+      "title2": "miễn phí 100%.",
+      "desc": "Khu cộng đồng riêng dành cho người học: xác minh xong có thể dùng Bio cá nhân, tiện ích học tập, bot hỗ trợ và cộng đồng hỏi đáp.",
+      "cta": "Xem quyền lợi miễn phí",
+      "items": [
+        {
+          "title": "Bio cá nhân",
+          "desc": "Một trang giới thiệu bản thân, link mạng xã hội, học tập và portfolio nhỏ."
+        },
+        {
+          "title": "Tiện ích học tập",
+          "desc": "Công cụ ghi chú, hỏi đáp, tài nguyên và tiện ích phục vụ tự học."
+        },
+        {
+          "title": "Bot hỗ trợ cá nhân",
+          "desc": "Hỏi nhanh, gợi ý cách học, nhắc việc và hỗ trợ nhu cầu cơ bản."
+        },
+        {
+          "title": "Cộng đồng hỏi đáp",
+          "desc": "Không gian hỏi bài, hỏi dự án và nhận định hướng trong khả năng hỗ trợ."
+        }
+      ]
+    },
+    "process": {
+      "eyebrow": "Quy trình",
+      "title": "Làm việc",
+      "highlight": "rõ từng bước",
+      "desc": "Bạn luôn biết mình đang ở bước nào, chi phí bao nhiêu và nhận lại những gì.",
+      "steps": [
+        "Bạn gửi nhu cầu, web hiện tại hoặc ý tưởng.",
+        "Mình tư vấn hướng làm và báo giá rõ trước.",
+        "Chốt phạm vi, thời gian, tiến hành theo từng mốc.",
+        "Bàn giao, hướng dẫn dùng và hỗ trợ chỉnh sửa nhỏ."
+      ]
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Hỏi nhanh,",
+      "highlight": "đáp thật",
+      "desc": "Các câu hỏi phổ biến trước khi bắt đầu một dự án web với Hugo Studio.",
+      "items": [
+        {
+          "q": "Chi phí làm website là bao nhiêu?",
+          "a": "Landing page bắt đầu từ 990.000đ, website nhiều trang từ 2.490.000đ, web có tính năng động từ 6.900.000đ. Giá cuối tùy phạm vi và luôn được chốt trước khi làm — rẻ hơn 40-50% so với agency vì mình làm trực tiếp, không qua trung gian."
+        },
+        {
+          "q": "Vì sao giá rẻ hơn agency mà vẫn đảm bảo chất lượng?",
+          "a": "Mình là sinh viên IT năm cuối làm trực tiếp toàn bộ, không tốn chi phí văn phòng hay nhân sự trung gian. Bạn xem được demo chạy thật ngay trên trang này trước khi quyết định, và mọi gói đều có hỗ trợ sau bàn giao."
+        },
+        {
+          "q": "Giá \"Từ\" nghĩa là sao, có phát sinh thêm không?",
+          "a": "Giá \"Từ\" là mức cho phạm vi ghi trong phần \"Bạn nhận được\" của mỗi gói. Nhu cầu nằm ngoài phần đó (mục \"Chưa bao gồm\") sẽ được báo giá riêng bằng văn bản trước khi làm — đã chốt thì không phát sinh thêm."
+        },
+        {
+          "q": "Chưa có thiết kế thì có làm được không?",
+          "a": "Được. Bạn chỉ cần mô tả lĩnh vực, mục tiêu và vài trang tham khảo. Mình sẽ đề xuất cấu trúc nội dung, bố cục và hướng triển khai phù hợp."
+        },
+        {
+          "q": "Website có được tối ưu SEO không?",
+          "a": "Có. Các gói xây mới đều có metadata, cấu trúc nội dung, tốc độ và hiển thị chia sẻ cơ bản. Nếu cần xử lý sâu hơn, mình tách thành hạng mục tối ưu riêng."
+        },
+        {
+          "q": "Có hỗ trợ domain và hosting không?",
+          "a": "Có. Mình có thể tư vấn hoặc triển khai domain, hosting, SSL và deploy nếu bạn chưa có hạ tầng."
+        },
+        {
+          "q": "Sau bàn giao có hỗ trợ không?",
+          "a": "Có. Mình hướng dẫn sử dụng, giải đáp thắc mắc và xử lý lỗi phát sinh trong phạm vi đã chốt."
+        }
+      ]
+    },
+    "finalCta": {
+      "title1": "Gửi mình tình trạng hiện tại,",
+      "title2": "mình gợi ý hướng làm gọn nhất.",
+      "desc": "Bạn có thể gửi website đang có, ảnh chụp lỗi hoặc mô tả ý tưởng. Mình sẽ nói rõ nên sửa nhỏ, làm landing, làm nhiều trang hay cần web động.",
+      "cta": "Nhắn mình để được tư vấn miễn phí"
     }
   },
   "faqPage": {
@@ -467,7 +739,15 @@
       "adminError": "Tên đăng nhập hoặc mật khẩu không chính xác",
       "adminNetworkError": "Không thể kết nối máy chủ, vui lòng kiểm tra mạng và thử lại",
       "adminServerError": "Lỗi máy chủ, vui lòng thử lại sau",
-      "codeLength": "Mã đăng nhập phải đúng 6 ký tự"
+      "codeLength": "Mã đăng nhập phải đúng 6 ký tự",
+      "locationAnomaly": "Hệ thống phát hiện thiết bị đăng nhập từ vị trí cách xa thường lệ trên 50km, cậu vui lòng đăng nhập lại để xác thực an toàn nhé."
+    },
+    "biometric": {
+      "btn": "Đăng nhập bằng vân tay/Face ID ({{email}})",
+      "verifying": "Đang xác thực...",
+      "notEnabled": "Thiết bị này chưa bật đăng nhập vân tay cho email này.",
+      "failed": "Không thể đăng nhập bằng vân tay/Face ID. Hãy dùng Google.",
+      "or": "hoặc"
     },
     "header": {
       "titleCustomer": "Quản trị dự án",
@@ -1526,21 +1806,57 @@
       "aboutBody2": "Từ trang Bio cá nhân, hệ thống JOY tích lũy mỗi ngày, đến các tiện ích như HugoHelpdesk, HugoHandle, HugoPSY, HugoCoder, HugoRadio, HugoArcade và HugoAura — mọi công cụ đều nằm trong một nơi duy nhất, để bạn xây dựng hình ảnh cá nhân, làm việc, học tập và giải trí mà không cần chuyển qua nhiều ứng dụng khác nhau.",
       "featuresTitle": "Tính năng nổi bật",
       "features": {
-        "bio": { "title": "Trang Bio cá nhân", "desc": "Trang giới thiệu, liên kết và dịch vụ của riêng bạn, tuỳ biến giao diện và chia sẻ bằng một đường link duy nhất." },
-        "helpdesk": { "title": "HugoHelpdesk", "desc": "Mã QR/NFC thông minh và chữ ký email chuyên nghiệp để chia sẻ thông tin liên hệ nhanh chóng." },
-        "handle": { "title": "HugoHandle", "desc": "Link bảo mật bằng mật khẩu và công cụ chuyển đổi/nén ảnh trực tuyến." },
-        "psychology": { "title": "HugoPSY", "desc": "AI hỗ trợ tư vấn tâm lý học tập, theo dõi giấc ngủ và trị liệu cảm xúc." },
-        "ide": { "title": "HugoCoder", "desc": "Trình soạn thảo code đa ngôn ngữ với gợi ý code và bài học lập trình cơ bản." },
-        "radio": { "title": "HugoRadio", "desc": "Radio tin tức Việt Nam, quốc tế và các kênh nhạc trực tuyến, miễn phí." },
-        "arcade": { "title": "HugoArcade", "desc": "2048, Caro, Cờ vua, Hugo Snake và nhiều mini game khác — chơi để nhận JOY." },
-        "aura": { "title": "HugoAura", "desc": "Không gian tập trung Pomodoro cùng âm thanh thiên nhiên thư giãn & trị liệu." }
+        "bio": {
+          "title": "Trang Bio cá nhân",
+          "desc": "Trang giới thiệu, liên kết và dịch vụ của riêng bạn, tuỳ biến giao diện và chia sẻ bằng một đường link duy nhất."
+        },
+        "helpdesk": {
+          "title": "HugoHelpdesk",
+          "desc": "Mã QR/NFC thông minh và chữ ký email chuyên nghiệp để chia sẻ thông tin liên hệ nhanh chóng."
+        },
+        "handle": {
+          "title": "HugoHandle",
+          "desc": "Link bảo mật bằng mật khẩu và công cụ chuyển đổi/nén ảnh trực tuyến."
+        },
+        "psychology": {
+          "title": "HugoPSY",
+          "desc": "AI hỗ trợ tư vấn tâm lý học tập, theo dõi giấc ngủ và trị liệu cảm xúc."
+        },
+        "ide": {
+          "title": "HugoCoder",
+          "desc": "Trình soạn thảo code đa ngôn ngữ với gợi ý code và bài học lập trình cơ bản."
+        },
+        "radio": {
+          "title": "HugoRadio",
+          "desc": "Radio tin tức Việt Nam, quốc tế và các kênh nhạc trực tuyến, miễn phí."
+        },
+        "arcade": {
+          "title": "HugoArcade",
+          "desc": "2048, Caro, Cờ vua, Hugo Snake và nhiều mini game khác — chơi để nhận JOY."
+        },
+        "aura": {
+          "title": "HugoAura",
+          "desc": "Không gian tập trung Pomodoro cùng âm thanh thiên nhiên thư giãn & trị liệu."
+        }
       },
       "guideTitle": "Hướng dẫn sử dụng",
       "guide": {
-        "step1": { "title": "Hoàn thiện hồ sơ Bio", "desc": "Thêm ảnh đại diện, thông tin cá nhân và các liên kết quan trọng trong tab Hồ Sơ." },
-        "step2": { "title": "Khám phá Tiện Ích", "desc": "Mở tab Tiện Ích để chọn công cụ phù hợp với bạn — mỗi tiện ích phục vụ một nhu cầu khác nhau." },
-        "step3": { "title": "Tích JOY mỗi ngày", "desc": "Điểm danh, hoàn thành nhiệm vụ và chơi mini game tại HugoArcade để tích lũy JOY." },
-        "step4": { "title": "Chia sẻ trang Bio", "desc": "Dùng đường link công khai hoặc mã QR/NFC từ HugoHelpdesk để chia sẻ trang của bạn với mọi người." }
+        "step1": {
+          "title": "Hoàn thiện hồ sơ Bio",
+          "desc": "Thêm ảnh đại diện, thông tin cá nhân và các liên kết quan trọng trong tab Hồ Sơ."
+        },
+        "step2": {
+          "title": "Khám phá Tiện Ích",
+          "desc": "Mở tab Tiện Ích để chọn công cụ phù hợp với bạn — mỗi tiện ích phục vụ một nhu cầu khác nhau."
+        },
+        "step3": {
+          "title": "Tích JOY mỗi ngày",
+          "desc": "Điểm danh, hoàn thành nhiệm vụ và chơi mini game tại HugoArcade để tích lũy JOY."
+        },
+        "step4": {
+          "title": "Chia sẻ trang Bio",
+          "desc": "Dùng đường link công khai hoặc mã QR/NFC từ HugoHelpdesk để chia sẻ trang của bạn với mọi người."
+        }
       },
       "versionLabel": "Phiên bản hiện tại",
       "versionNote": "Cập nhật liên tục với các tính năng mới — cảm ơn bạn đã đồng hành cùng Hugo Studio.",

@@ -66,10 +66,10 @@ export default function DesignSubTab({
     <div className="space-y-4 animate-fadeIn">
       {/* Section: Select Template Style */}
       <div className="space-y-2">
-        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">
+        <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest pl-4">
           {t("memberPortal.design.title")}
         </h3>
-        <p className="text-[9px] text-zinc-450 dark:text-zinc-500 pl-4 -mt-1">
+        <p className="text-[9px] text-muted-foreground/70 pl-4 -mt-1">
           JOY là đồng tích góp phi lợi nhuận — Brutalism &amp; Flat trao đổi {RENTAL_PRICE} JOY/tháng, hết hạn sẽ tự trả về Classic.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -78,8 +78,8 @@ export default function DesignSubTab({
             onClick={selectDefault}
             className={`p-3.5 rounded-lg border text-left transition-all ${
               isClassic
-                ? 'bg-primary/10 border-primary text-black dark:text-white ring-1 ring-[#0071e3]'
-                : 'bg-white dark:bg-card border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                ? 'bg-primary/10 border-primary text-foreground ring-1 ring-[#0071e3]'
+                : 'bg-white dark:bg-card border-border text-muted-foreground hover:border-border dark:hover:border-zinc-700'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -89,8 +89,8 @@ export default function DesignSubTab({
               )}
             </div>
             <h4 className="text-[11px] font-bold mt-2">{t("memberPortal.design.classicTitle")}</h4>
-            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">{t("memberPortal.design.classicDesc")}</p>
-            <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30">Miễn phí</span>
+            <p className="text-[8.5px] text-muted-foreground/70 mt-1 leading-relaxed">{t("memberPortal.design.classicDesc")}</p>
+            <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-success/15 text-success dark:bg-success/30">Miễn phí</span>
           </button>
 
           <button
@@ -98,8 +98,8 @@ export default function DesignSubTab({
             onClick={() => selectPaidTemplate('brutalism')}
             className={`p-3.5 rounded-lg border text-left transition-all ${
               formData.theme?.template === 'brutalism'
-                ? 'bg-primary/10 border-primary text-black dark:text-white ring-1 ring-[#0071e3]'
-                : 'bg-white dark:bg-card border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                ? 'bg-primary/10 border-primary text-foreground ring-1 ring-[#0071e3]'
+                : 'bg-white dark:bg-card border-border text-muted-foreground hover:border-border dark:hover:border-zinc-700'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -108,12 +108,12 @@ export default function DesignSubTab({
                 <span className="material-symbols-outlined text-primary text-xs font-bold">check_circle</span>
               )}
             </div>
-            <h4 className="text-[11px] font-bold mt-2 text-red-500 dark:text-red-400">Brutalism</h4>
-            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">{t("memberPortal.design.brutalismDesc")}</p>
+            <h4 className="text-[11px] font-bold mt-2 text-destructive">Brutalism</h4>
+            <p className="text-[8.5px] text-muted-foreground/70 mt-1 leading-relaxed">{t("memberPortal.design.brutalismDesc")}</p>
             {rentalActive && rental.template === 'brutalism' ? (
-              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-600 dark:bg-indigo-950/30">Còn {daysRemaining(rental.expiresAt)} ngày</span>
+              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-primary/15 text-primary dark:bg-primary/30">Còn {daysRemaining(rental.expiresAt)} ngày</span>
             ) : (
-              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 dark:bg-amber-950/30">{RENTAL_PRICE} JOY/tháng</span>
+              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-warning/15 text-warning dark:bg-warning/30">{RENTAL_PRICE} JOY/tháng</span>
             )}
           </button>
 
@@ -122,8 +122,8 @@ export default function DesignSubTab({
             onClick={() => selectPaidTemplate('flat')}
             className={`p-3.5 rounded-lg border text-left transition-all ${
               formData.theme?.template === 'flat'
-                ? 'bg-primary/10 border-primary text-black dark:text-white ring-1 ring-[#0071e3]'
-                : 'bg-white dark:bg-card border-zinc-200 dark:border-zinc-850 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350 dark:hover:border-zinc-700'
+                ? 'bg-primary/10 border-primary text-foreground ring-1 ring-[#0071e3]'
+                : 'bg-white dark:bg-card border-border text-muted-foreground hover:border-border dark:hover:border-zinc-700'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -133,11 +133,11 @@ export default function DesignSubTab({
               )}
             </div>
             <h4 className="text-[11px] font-bold mt-2 text-teal-650 dark:text-teal-400">{t("memberPortal.design.flatTitle")}</h4>
-            <p className="text-[8.5px] text-zinc-450 dark:text-zinc-500 mt-1 leading-relaxed">{t("memberPortal.design.flatDesc")}</p>
+            <p className="text-[8.5px] text-muted-foreground/70 mt-1 leading-relaxed">{t("memberPortal.design.flatDesc")}</p>
             {rentalActive && rental.template === 'flat' ? (
-              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-600 dark:bg-indigo-950/30">Còn {daysRemaining(rental.expiresAt)} ngày</span>
+              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-primary/15 text-primary dark:bg-primary/30">Còn {daysRemaining(rental.expiresAt)} ngày</span>
             ) : (
-              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 dark:bg-amber-950/30">{RENTAL_PRICE} JOY/tháng</span>
+              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-warning/15 text-warning dark:bg-warning/30">{RENTAL_PRICE} JOY/tháng</span>
             )}
           </button>
         </div>

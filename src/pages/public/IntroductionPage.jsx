@@ -1,13 +1,31 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
-import { motion } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useMotionTemplate,
+  useReducedMotion,
+} from "framer-motion";
+import Lenis from "lenis";
 import { useTranslation, Trans } from "react-i18next";
 
-// Decorative rain drops — randomised ONCE at module load (not during render),
-// so it stays pure and the drops don't reshuffle on every re-render.
+/* ============================================================================
+   HUGO STUDIO — INTRODUCTION (Apple-style scroll-driven cinematic page, v2)
+   Mỗi scene là một đoạn scroll dài (240–320vh) chứa một "sân khấu" sticky.
+   Animation 3D (CSS perspective + framer-motion) scrub theo tiến độ cuộn,
+   cộng thêm lớp tương tác con trỏ: parallax, tilt, magnetic, spotlight.
+   Lenis lo phần inertia scroll để mọi thứ trôi như video.
+   ========================================================================== */
+
+// Chiều cao stage = viewport trừ header 56px (đồng bộ layout cũ)
+const STAGE_H = "h-[calc(100vh-56px)]";
+
+// Decorative particles — randomised ONCE at module load (pure render)
 const RAIN_DROPS = Array.from({ length: 30 }, () => ({
   left: `${Math.random() * 100}%`,
   top: `-${Math.random() * 20 + 10}%`,
@@ -15,51 +33,1440 @@ const RAIN_DROPS = Array.from({ length: 30 }, () => ({
   animationDuration: `${Math.random() * 0.5 + 0.5}s`,
 }));
 
+const LEAVES = Array.from({ length: 12 }, (_, i) => ({
+  left: `${(i * 37 + 11) % 100}%`,
+  size: 8 + (i % 4) * 3,
+  duration: `${8 + (i % 5) * 2}s`,
+  delay: `${(i % 6) * 1.4}s`,
+}));
+
+const FIREFLIES = Array.from({ length: 8 }, (_, i) => ({
+  left: `${(i * 29 + 17) % 90}%`,
+  top: `${(i * 41 + 13) % 85}%`,
+  dx: (i % 2 ? 1 : -1) * (14 + (i % 4) * 8),
+  dy: (i % 3 ? -1 : 1) * (10 + (i % 3) * 9),
+  duration: 4 + (i % 4),
+  delay: i * 0.6,
+}));
+
+const DUST = Array.from({ length: 18 }, (_, i) => ({
+  left: `${(i * 53) % 100}%`,
+  top: `${(i * 31) % 100}%`,
+  size: 2 + (i % 3),
+  duration: 6 + (i % 5) * 2,
+  delay: (i % 7) * 0.8,
+}));
+
+// Film-grain texture (inline SVG turbulence — zero network cost)
+const NOISE_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
+const JASON_PHOTO =
+  "https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png";
+
+// Bộ sticker chibi (public/image) — chất hoạt hình dễ thương của trang
+const STICKER_CODING = "/image/avt5.png";
+const STICKER_HELLO = "/image/avt1.png";
+const STICKER_WOW = "/image/avt3.png";
+const FERN_MAIN = "https://res.cloudinary.com/dyehwoscu/image/upload/v1779443455/IMG_6573_rrrbpn.heic";
+const FERN_SMALL_1 = "https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6575_ko0sly.heic";
+const FERN_SMALL_2 = "https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6574_rwhajd.heic";
+
+/* ---------------------------------------------------------------------------
+   Shared helpers
+   ------------------------------------------------------------------------- */
+
+// Scroll progress (0 → 1) của một scene bên trong scroll-container của trang
+function useSceneScroll(container) {
+  const targetRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    container,
+    target: targetRef,
+    offset: ["start start", "end end"],
+    layoutEffect: false,
+  });
+  return { targetRef, p: scrollYProgress };
+}
+
+// Con trỏ toàn cục chuẩn hoá về [-1, 1] — cho parallax "camera" kiểu Apple
+function useMouseParallax(enabled = true) {
+  const x = useSpring(0, { stiffness: 50, damping: 16 });
+  const y = useSpring(0, { stiffness: 50, damping: 16 });
+  useEffect(() => {
+    if (!enabled || !window.matchMedia("(pointer: fine)").matches) return;
+    const fn = (e) => {
+      x.set((e.clientX / window.innerWidth - 0.5) * 2);
+      y.set((e.clientY / window.innerHeight - 0.5) * 2);
+    };
+    window.addEventListener("mousemove", fn, { passive: true });
+    return () => window.removeEventListener("mousemove", fn);
+  }, [enabled, x, y]);
+  return { x, y };
+}
+
+// Tilt 3D theo con trỏ trên chính phần tử (Apple-card hover)
+function useTilt(max = 10) {
+  const rx = useSpring(0, { stiffness: 160, damping: 18 });
+  const ry = useSpring(0, { stiffness: 160, damping: 18 });
+  const onPointerMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    ry.set(((e.clientX - r.left) / r.width - 0.5) * 2 * max);
+    rx.set(-((e.clientY - r.top) / r.height - 0.5) * 2 * max);
+  };
+  const onPointerLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+  return { rx, ry, handlers: { onPointerMove, onPointerLeave } };
+}
+
+// Nút "nam châm" — hút nhẹ về phía con trỏ rồi bật lại bằng spring
+function Magnetic({ children, className = "", strength = 14 }) {
+  const x = useSpring(0, { stiffness: 220, damping: 14 });
+  const y = useSpring(0, { stiffness: 220, damping: 14 });
+  const onPointerMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    x.set(((e.clientX - r.left) / r.width - 0.5) * strength);
+    y.set(((e.clientY - r.top) / r.height - 0.5) * strength);
+  };
+  const onPointerLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+  return (
+    <motion.div
+      style={{ x, y }}
+      whileTap={{ scale: 0.93 }}
+      onPointerMove={onPointerMove}
+      onPointerLeave={onPointerLeave}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Rung nhẹ (haptic) trên thiết bị hỗ trợ — phản hồi xúc giác.
+// Chrome chặn vibrate trước cú chạm đầu tiên, nên chỉ rung sau khi đã có gesture.
+let hasUserGesture = false;
+if (typeof window !== "undefined") {
+  window.addEventListener("pointerdown", () => { hasUserGesture = true; }, { once: true, passive: true });
+}
+function buzz(ms = 6) {
+  if (!hasUserGesture) return;
+  try {
+    navigator.vibrate?.(ms);
+  } catch {
+    // not supported
+  }
+}
+
+// Tiêu đề hiện từng chữ kiểu keynote: mờ + blur → sắc nét bay lên
+function RevealWords({ text, className = "", delay = 0 }) {
+  const words = String(text).split(" ");
+  return (
+    <span className={className}>
+      {words.map((w, i) => (
+        <motion.span
+          key={`${w}-${i}`}
+          initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.5, delay: delay + i * 0.045, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-block will-change-transform"
+        >
+          {w}
+          {i < words.length - 1 ? " " : ""}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
+// Vỏ scene: wrapper cao `height`, bên trong là sân khấu sticky full-viewport
+function SceneShell({ bind, targetRef, height, children, className = "" }) {
+  return (
+    <div
+      ref={(el) => {
+        targetRef.current = el;
+        bind?.(el);
+      }}
+      style={{ height }}
+      className="relative"
+    >
+      <div
+        className={`sticky top-0 ${STAGE_H} overflow-hidden flex items-center justify-center ${className}`}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Badge({ children, className = "" }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25 ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+// Icon đơn sắc theo chuẩn trang public (Material Symbols, bg-muted)
+function MonoIcon({ name, size = "text-2xl", box = "w-12 h-12" }) {
+  return (
+    <div className={`${box} rounded-2xl bg-muted text-foreground flex items-center justify-center shrink-0`}>
+      <span className={`material-symbols-outlined ${size}`}>{name}</span>
+    </div>
+  );
+}
+
+// Vệt sáng quét qua khi hover (dùng lại keyframe `shine` trong index.css)
+function Shine() {
+  return (
+    <span className="pointer-events-none absolute inset-y-0 left-0 w-1/2 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent group-hover:animate-shine" />
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE 0 — HUGO STUDIO HERO (hologram website 3D đang được "xây" + spotlight)
+   ------------------------------------------------------------------------- */
+
+// Chip icon lơ lửng quanh hologram — độ sâu translateZ khác nhau
+const HERO_CHIPS = [
+  { icon: "code", pos: "top-[-6%] left-[-10%]", z: 70, delay: 0 },
+  { icon: "brush", pos: "top-[22%] right-[-12%]", z: 50, delay: 0.8 },
+  { icon: "school", pos: "bottom-[16%] left-[-12%]", z: 60, delay: 1.6 },
+  { icon: "rocket_launch", pos: "bottom-[-6%] right-[-8%]", z: 80, delay: 2.4 },
+];
+
+// Skeleton lines — website tự "gõ" ra từng dòng rồi lặp lại
+const HERO_LINES = [
+  { w: "82%", delay: 0 },
+  { w: "64%", delay: 0.35 },
+  { w: "73%", delay: 0.7 },
+];
+
+// Hologram browser: cửa sổ web kính 3D, các lớp nổi bằng translateZ
+function StudioHologram() {
+  return (
+    <div
+      className="relative w-[270px] sm:w-[330px] lg:w-[390px] rounded-3xl border border-border/70 dark:border-white/15 bg-card/60 dark:bg-card/40 backdrop-blur-xl shadow-2xl overflow-visible"
+      style={{ transformStyle: "preserve-3d" }}
+    >
+      {/* Glow sau lưng */}
+      <div className="absolute inset-4 rounded-3xl bg-primary/25 blur-2xl" style={{ transform: "translateZ(-50px)" }} />
+
+      {/* Title bar */}
+      <div className="relative flex items-center gap-2 px-4 py-3 border-b border-border/50 rounded-t-3xl overflow-hidden">
+        <span className="w-2.5 h-2.5 rounded-full bg-destructive/70" />
+        <span className="w-2.5 h-2.5 rounded-full bg-warning/70" />
+        <span className="w-2.5 h-2.5 rounded-full bg-success/70" />
+        <div className="ml-2 flex-1 flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/70 text-muted-foreground">
+          <span className="material-symbols-outlined text-[11px]">lock</span>
+          <span className="text-[9px] sm:text-[10px] font-mono truncate">hugowishpax.studio</span>
+        </div>
+      </div>
+
+      {/* Body — trang web đang được xây */}
+      <div className="relative p-4 sm:p-5 space-y-3 rounded-b-3xl overflow-hidden">
+        {/* Vệt scan chạy dọc — cảm giác hologram */}
+        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-primary/10 to-transparent animate-scan pointer-events-none" />
+
+        {/* Brand block */}
+        <div className="flex items-center gap-3" style={{ transform: "translateZ(35px)" }}>
+          <MonoIcon name="design_services" size="text-xl" box="w-10 h-10" />
+          <div>
+            <p className="font-display text-sm sm:text-base font-black bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift leading-tight">
+              HUGO STUDIO
+            </p>
+            <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+              Digital Craft · VN
+            </p>
+          </div>
+        </div>
+
+        {/* Dòng nội dung tự "gõ" ra, lặp vô hạn */}
+        <div className="space-y-2" style={{ transform: "translateZ(25px)" }}>
+          {HERO_LINES.map((l, i) => (
+            <motion.div
+              key={i}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: [0, 1, 1, 0] }}
+              transition={{
+                duration: 5,
+                times: [0, 0.18, 0.9, 1],
+                delay: l.delay,
+                repeat: Infinity,
+                repeatDelay: 1,
+                ease: "easeOut",
+              }}
+              style={{ width: l.w }}
+              className="h-2 sm:h-2.5 rounded-full bg-muted origin-left"
+            />
+          ))}
+        </div>
+
+        {/* 3 mini feature cards */}
+        <div className="grid grid-cols-3 gap-2" style={{ transform: "translateZ(45px)" }}>
+          {["language", "captive_portal", "school"].map((ic, i) => (
+            <motion.div
+              key={ic}
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
+              className="rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm p-2 flex flex-col items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-sm text-foreground">{ic}</span>
+              <span className="h-1 w-3/4 rounded-full bg-muted" />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CTA bar giả lập với shimmer */}
+        <div
+          className="h-8 rounded-full bg-foreground/90 flex items-center justify-center gap-1.5 relative overflow-hidden"
+          style={{ transform: "translateZ(30px)" }}
+        >
+          <motion.span
+            animate={{ x: ["-120%", "260%"] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+            className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12"
+          />
+          <span className="text-[9px] font-bold text-background uppercase tracking-widest">Let&apos;s build</span>
+          <span className="material-symbols-outlined text-xs text-background">arrow_forward</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SceneStudio({ container, bind, t, onExplore, reduced }) {
+  const { targetRef, p } = useSceneScroll(container);
+  const mouse = useMouseParallax(!reduced);
+
+  // Text bay lên & mờ dần, hologram nghiêng + phóng to xuyên qua "camera"
+  const textY = useTransform(p, [0, 0.5], [0, -140]);
+  const textOpacity = useTransform(p, [0, 0.42], [1, 0]);
+  const holoScrollRotX = useTransform(p, [0, 1], [6, 32]);
+  const holoRotateX = useTransform([holoScrollRotX, mouse.y], ([a, b]) => a + b * -6);
+  const holoScrollRotY = useTransform(p, [0, 1], [-10, 14]);
+  const holoRotateY = useTransform([holoScrollRotY, mouse.x], ([a, b]) => a + b * 9);
+  const holoScale = useTransform(p, [0, 0.6, 1], [1, 1.4, 2]);
+  const holoOpacity = useTransform(p, [0, 0.62, 0.95], [1, 1, 0]);
+  const holoY = useTransform(p, [0, 1], [0, 90]);
+  const hintOpacity = useTransform(p, [0, 0.15], [1, 0]);
+
+  // Spotlight bám theo con trỏ (đèn sân khấu)
+  const spotX = useTransform(mouse.x, (v) => 50 + v * 30);
+  const spotY = useTransform(mouse.y, (v) => 40 + v * 25);
+  const spotlight = useMotionTemplate`radial-gradient(560px circle at ${spotX}% ${spotY}%, hsl(var(--primary)/0.09), transparent 70%)`;
+
+  return (
+    <SceneShell bind={bind} targetRef={targetRef} height="220vh">
+      {/* Spotlight theo chuột */}
+      <motion.div style={{ background: spotlight }} className="absolute inset-0 pointer-events-none" />
+
+      {/* Watermark */}
+      <div className="absolute left-[-4%] bottom-[6%] text-[7rem] sm:text-[11rem] xl:text-[15rem] font-black text-foreground/[0.03] dark:text-foreground/[0.02] pointer-events-none select-none tracking-tighter leading-none">
+        STUDIO
+      </div>
+
+      {/* Dust particles trôi chậm — chiều sâu không gian */}
+      {!reduced && (
+        <div className="absolute inset-0 pointer-events-none">
+          {DUST.map((d, i) => (
+            <motion.span
+              key={`dust-${i}`}
+              animate={{ y: [0, -40, 0], opacity: [0.1, 0.45, 0.1] }}
+              transition={{ duration: d.duration, repeat: Infinity, ease: "easeInOut", delay: d.delay }}
+              style={{ left: d.left, top: d.top, width: d.size, height: d.size }}
+              className="absolute rounded-full bg-primary/40"
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Ambient orbs */}
+      <motion.div
+        animate={{ y: [0, -30, 0], x: [0, 20, 0], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-[14%] right-[10%] w-28 h-28 md:w-40 md:h-40 bg-warning/25 rounded-full blur-[60px] pointer-events-none"
+      />
+      <motion.div
+        animate={{ y: [0, 40, 0], x: [0, -30, 0], opacity: [0.2, 0.5, 0.2] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute bottom-[16%] left-[8%] w-36 h-36 md:w-52 md:h-52 bg-primary/25 rounded-full blur-[80px] pointer-events-none"
+      />
+
+      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center relative z-10">
+        {/* Left: studio identity */}
+        <motion.div
+          style={{ y: textY, opacity: textOpacity }}
+          className="space-y-4 sm:space-y-6 text-center lg:text-left order-1 will-change-transform"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="flex justify-center lg:justify-start"
+          >
+            <Badge className="shadow-[0_0_15px_rgba(99,102,241,0.2)]">{t("intro.studio.badge")}</Badge>
+          </motion.div>
+
+          <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-extrabold tracking-tight leading-[1.02] text-foreground">
+            <RevealWords text={t("intro.studio.title1")} delay={0.15} />
+            <br />
+            <motion.span
+              initial={{ opacity: 0, y: 26, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-block bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-3xl sm:text-4xl lg:text-5xl xl:text-6xl will-change-transform"
+            >
+              {t("intro.studio.title2")}
+            </motion.span>
+          </h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed mx-auto lg:mx-0"
+          >
+            {t("intro.studio.desc")}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.55 }}
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 justify-center lg:justify-start"
+          >
+            <Magnetic>
+              <button
+                onClick={onExplore}
+                className="group relative inline-flex w-full sm:w-auto items-center justify-center px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-foreground text-background font-bold overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-shadow duration-300 text-xs sm:text-sm"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <Shine />
+                <span className="relative z-10 flex items-center gap-2">
+                  {t("intro.studio.explore")}
+                  <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-y-1">
+                    arrow_downward
+                  </span>
+                </span>
+              </button>
+            </Magnetic>
+            <Magnetic>
+              <Link
+                to="/booking"
+                className="inline-flex w-full sm:w-auto items-center justify-center px-7 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-border/50 text-foreground font-bold hover:border-primary hover:text-primary transition-colors duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-sm"
+              >
+                {t("intro.slide1.book")}
+              </Link>
+            </Magnetic>
+          </motion.div>
+        </motion.div>
+
+        {/* Right: hologram website 3D + orbit ring + chip icon lơ lửng */}
+        <div className="order-2 flex items-center justify-center py-4" style={{ perspective: 1400 }}>
+          <motion.div
+            animate={{ y: [-8, 8, -8] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            style={{ perspective: 1400 }}
+          >
+            <motion.div
+              style={{
+                rotateX: holoRotateX,
+                rotateY: holoRotateY,
+                scale: holoScale,
+                opacity: holoOpacity,
+                y: holoY,
+                transformStyle: "preserve-3d",
+              }}
+              className="relative will-change-transform"
+            >
+              {/* Orbit ring nghiêng quanh hologram */}
+              <div
+                className="absolute left-1/2 top-1/2 pointer-events-none"
+                style={{ transform: "translate(-50%,-50%) rotateX(72deg)", transformStyle: "preserve-3d" }}
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+                  className="w-[340px] h-[340px] sm:w-[440px] sm:h-[440px] rounded-full border border-primary/25 relative"
+                >
+                  <span className="absolute -top-1 left-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.8)]" />
+                  <span className="absolute top-1/2 -right-1 w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_hsl(var(--accent)/0.8)]" />
+                </motion.div>
+              </div>
+
+              <StudioHologram />
+
+              {/* Chip icon lơ lửng ở các độ sâu khác nhau */}
+              {HERO_CHIPS.map((c) => (
+                <motion.div
+                  key={c.icon}
+                  animate={{ y: [-7, 7, -7] }}
+                  transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: c.delay }}
+                  style={{ z: c.z }}
+                  className={`absolute ${c.pos} will-change-transform`}
+                >
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-card/80 backdrop-blur-md border border-border/60 shadow-lg flex items-center justify-center">
+                    <span className="material-symbols-outlined text-lg sm:text-xl text-foreground">{c.icon}</span>
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* Bóng đổ dưới hologram */}
+              <div className="absolute left-1/2 -bottom-12 -translate-x-1/2 w-56 h-8 rounded-[100%] bg-black/20 dark:bg-black/50 blur-xl pointer-events-none" />
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Scroll hint */}
+      <motion.div
+        style={{ opacity: hintOpacity }}
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
+      >
+        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+          {t("intro.studio.scrollHint")}
+        </span>
+        <motion.span
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          className="material-symbols-outlined text-muted-foreground text-lg"
+        >
+          keyboard_arrow_down
+        </motion.span>
+      </motion.div>
+    </SceneShell>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE 1 — FOUNDER PORTFOLIO (hologram hồ sơ Hugo là trung tâm,
+   Jason chỉ là thẻ mini phụ; tech-stack chip chứng minh năng lực code)
+   ------------------------------------------------------------------------- */
+
+const VALUE_KEYS = ["v1", "v2", "v3", "v4", "v5"];
+
+// 4 góc khung hologram (corner brackets)
+function HoloBrackets() {
+  const b = "absolute w-4 h-4 border-primary/60 pointer-events-none";
+  return (
+    <>
+      <span className={`${b} top-2 left-2 border-t-2 border-l-2 rounded-tl-md`} />
+      <span className={`${b} top-2 right-2 border-t-2 border-r-2 rounded-tr-md`} />
+      <span className={`${b} bottom-2 left-2 border-b-2 border-l-2 rounded-bl-md`} />
+      <span className={`${b} bottom-2 right-2 border-b-2 border-r-2 rounded-br-md`} />
+    </>
+  );
+}
+
+function FounderHologram({ t }) {
+  const { rx, ry, handlers } = useTilt(8);
+  const rows = [
+    { icon: "school", text: t("intro.partners.finalYear") },
+    { icon: "favorite", text: t("intro.partners.motto") },
+  ];
+  return (
+    <motion.div
+      {...handlers}
+      style={{ rotateX: rx, rotateY: ry, transformStyle: "preserve-3d" }}
+      className="group relative w-[80vw] max-w-[300px] sm:max-w-[340px] rounded-[2rem] bg-white/70 dark:bg-slate-900/70 border border-border/50 backdrop-blur-xl shadow-2xl p-4 sm:p-5 will-change-transform overflow-hidden"
+    >
+      <Shine />
+      <HoloBrackets />
+
+      {/* Header */}
+      <div className="flex justify-between items-center pb-2 border-b border-border/50 mb-3">
+        <span className="text-[8px] font-black tracking-widest text-primary uppercase">Founder · Portfolio</span>
+        <div className="flex gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary/70" />
+          <span className="w-1.5 h-1.5 rounded-full bg-accent/70" />
+        </div>
+      </div>
+
+      {/* Sticker chibi + scan hologram */}
+      <div
+        className="aspect-[4/3] rounded-xl overflow-hidden relative border border-border/40 bg-gradient-to-br from-primary/10 via-accent/5 to-warning/10"
+        style={{ transform: "translateZ(30px)" }}
+      >
+        <motion.img
+          loading="lazy"
+          src={STICKER_CODING}
+          alt="Hugo chibi đang sáng tạo"
+          animate={{ y: [0, -5, 0] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          className="w-full h-full object-contain p-2 drop-shadow-xl"
+        />
+        <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-primary/15 to-transparent animate-scan pointer-events-none" />
+        <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm text-foreground text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-md border border-border/50">
+          EST. 2004
+        </div>
+      </div>
+
+      {/* Identity */}
+      <div className="pt-3 space-y-2" style={{ transform: "translateZ(20px)" }}>
+        <div className="text-center space-y-0.5">
+          <h3 className="font-display text-base sm:text-lg font-black text-foreground leading-tight">Peter Hugo Wishpax Lê</h3>
+          <p className="text-[8px] sm:text-[9px] text-muted-foreground font-bold tracking-wider uppercase">
+            {t("intro.partners.founderRole")}
+          </p>
+        </div>
+
+        {/* Open to work */}
+        <div className="flex justify-center">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success/10 border border-success/30 text-success text-[8px] sm:text-[9px] font-bold uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+            {t("intro.partners.openToWork")}
+          </span>
+        </div>
+
+        {/* Info rows */}
+        <div className="space-y-1.5 pt-1">
+          {rows.map((r) => (
+            <div key={r.icon} className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-muted/50">
+              <span className="material-symbols-outlined text-sm text-foreground">{r.icon}</span>
+              <span className="text-[9px] sm:text-[10px] font-semibold text-foreground/90">{r.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer barcode */}
+      <div className="mt-3 pt-2 border-t border-border/50 flex justify-between items-center text-[7px] font-mono text-muted-foreground">
+        <span>HUGO·STUDIO</span>
+        <div className="h-4 flex items-center gap-0.5 opacity-60">
+          {[1, 2, 1, 3, 1, 2].map((w, i) => (
+            <div key={i} style={{ width: w }} className="h-full bg-muted-foreground" />
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// Jason — thẻ mini đơn giản, chỉ ghi nhận vai trò đối tác
+function PartnerMini({ t }) {
+  return (
+    <motion.div
+      animate={{ y: [-4, 4, -4] }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      whileHover={{ scale: 1.05, rotate: -1.5 }}
+      className="flex items-center gap-3 rounded-2xl bg-card/80 border border-border/50 backdrop-blur-md px-4 py-2.5 shadow-lg"
+    >
+      <div className="w-9 h-9 rounded-full overflow-hidden bg-muted border border-border/50 shrink-0">
+        <img loading="lazy" src={optimizeCloudinaryUrl(JASON_PHOTO, 200)} alt="Jason Phan" className="w-full h-full object-cover object-top" />
+      </div>
+      <div className="leading-tight">
+        <p className="text-[11px] font-black text-foreground font-display">Jason Phan</p>
+        <p className="text-[8px] text-muted-foreground font-bold uppercase tracking-wider">{t("intro.partners.partnerRole")}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+function ScenePartners({ container, bind, t }) {
+  const { targetRef, p } = useSceneScroll(container);
+
+  const textX = useTransform(p, [0.02, 0.18], [-120, 0]);
+  const textOpacity = useTransform(p, [0.02, 0.16], [0, 1]);
+  const cardRotY = useTransform(p, [0.02, 0.26], [-70, 4]);
+  const cardX = useTransform(p, [0.02, 0.26], [260, 0]);
+  const cardOpacity = useTransform(p, [0.02, 0.18], [0, 1]);
+  const miniOpacity = useTransform(p, [0.26, 0.38], [0, 1]);
+  const miniY = useTransform(p, [0.26, 0.38], [40, 0]);
+  const stackOpacity = useTransform(p, [0.32, 0.46], [0, 1]);
+  const stackY = useTransform(p, [0.32, 0.46], [40, 0]);
+
+  return (
+    <SceneShell bind={bind} targetRef={targetRef} height="200vh">
+      <div className="absolute right-[2%] top-[8%] text-[6rem] sm:text-[10rem] xl:text-[13rem] font-black text-foreground/[0.025] dark:text-foreground/[0.015] pointer-events-none select-none tracking-tighter leading-none">
+        HUGO
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center relative z-10">
+        {/* Text + tech stack */}
+        <motion.div style={{ x: textX, opacity: textOpacity }} className="space-y-3 sm:space-y-5 text-center lg:text-left will-change-transform order-2 lg:order-1">
+          <div className="flex justify-center lg:justify-start">
+            <Badge>{t("intro.partners.badge")}</Badge>
+          </div>
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
+            {t("intro.partners.title1")}{" "}
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              {t("intro.partners.title2")}
+            </span>
+          </h2>
+          <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+            {t("intro.partners.desc")}
+          </p>
+
+          <motion.div style={{ opacity: stackOpacity, y: stackY }} className="space-y-2 will-change-transform">
+            <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest">
+              {t("intro.partners.stackTitle")}
+            </p>
+            <div className="flex flex-wrap justify-center lg:justify-start gap-2">
+              {VALUE_KEYS.map((k, i) => (
+                <motion.span
+                  key={k}
+                  whileHover={{ scale: 1.1, rotate: i % 2 ? 3 : -3 }}
+                  className="px-3.5 py-1.5 rounded-full bg-muted text-foreground text-[10px] sm:text-xs font-bold cursor-default select-none"
+                >
+                  {t(`intro.partners.${k}`)}
+                </motion.span>
+              ))}
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Founder hologram + Jason mini */}
+        <div className="flex flex-col items-center gap-3 order-1 lg:order-2" style={{ perspective: 1200 }}>
+          <motion.div
+            style={{ rotateY: cardRotY, x: cardX, opacity: cardOpacity, transformStyle: "preserve-3d" }}
+            className="relative will-change-transform"
+          >
+            {/* Blob hoạt hình sau lưng */}
+            <div className="absolute -inset-6 bg-primary/15 blur-2xl animate-blobMorph pointer-events-none" />
+            {/* Sticker vệ tinh quanh card */}
+            <motion.img
+              src={STICKER_HELLO}
+              alt=""
+              aria-hidden
+              animate={{ y: [-6, 8, -6], rotate: [-8, -2, -8] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -left-10 sm:-left-14 top-6 w-16 sm:w-20 drop-shadow-lg z-10 pointer-events-none"
+            />
+            <motion.img
+              src={STICKER_WOW}
+              alt=""
+              aria-hidden
+              animate={{ y: [6, -8, 6], rotate: [6, 12, 6] }}
+              transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+              className="absolute -right-10 sm:-right-14 bottom-16 w-16 sm:w-20 drop-shadow-lg z-10 pointer-events-none"
+            />
+            <motion.div animate={{ y: [-6, 6, -6] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} style={{ perspective: 900 }}>
+              <FounderHologram t={t} />
+            </motion.div>
+          </motion.div>
+          <motion.div style={{ opacity: miniOpacity, y: miniY }} className="will-change-transform">
+            <PartnerMini t={t} />
+          </motion.div>
+        </div>
+      </div>
+    </SceneShell>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE 2 — VỀ TÔI (3 chương crossfade như video: danh tính → học vấn → triết lý)
+   ------------------------------------------------------------------------- */
+
+function Chapter({ p, range, hold = false, children }) {
+  const [a, b, c, d] = range;
+  const opacity = useTransform(p, hold ? [a, b, 1] : [a, b, c, d], hold ? [0, 1, 1] : [0, 1, 1, 0]);
+  const y = useTransform(p, hold ? [a, b, 1] : [a, b, c, d], hold ? [50, 0, 0] : [50, 0, 0, -50]);
+  return (
+    <motion.div style={{ opacity, y }} className="absolute inset-0 flex flex-col justify-center space-y-4 will-change-transform">
+      {children}
+    </motion.div>
+  );
+}
+
+function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
+  const { targetRef, p } = useSceneScroll(container);
+  const mouse = useMouseParallax(!reduced);
+
+  const scrollRotY = useTransform(p, [0, 1], [22, -22]);
+  const portraitRotY = useTransform([scrollRotY, mouse.x], ([a, b]) => a + b * 6);
+  const scrollRotX = useTransform(p, [0, 1], [6, -6]);
+  const portraitRotX = useTransform([scrollRotX, mouse.y], ([a, b]) => a + b * -4);
+  const portraitOpacity = useTransform(p, [0, 0.1], [0.3, 1]);
+  const dot1 = useTransform(p, [0.02, 0.1, 0.3, 0.38], [0.25, 1, 1, 0.25]);
+  const dot2 = useTransform(p, [0.34, 0.42, 0.62, 0.7], [0.25, 1, 1, 0.25]);
+  const dot3 = useTransform(p, [0.66, 0.74, 1, 1], [0.25, 1, 1, 1]);
+
+  return (
+    <SceneShell bind={bind} targetRef={targetRef} height="260vh">
+      <div className="absolute left-[3%] top-[8%] text-[6rem] sm:text-[9rem] xl:text-[12rem] font-black text-foreground/[0.03] dark:text-foreground/[0.015] pointer-events-none select-none tracking-tighter leading-none -rotate-6 md:rotate-0">
+        EST. 2004
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-12 items-center relative z-10">
+        {/* Portrait — 3D tilt theo scroll + con trỏ, các lớp nổi translateZ */}
+        <div className="lg:col-span-5 flex justify-center" style={{ perspective: 1200 }}>
+          <motion.div
+            style={{
+              rotateY: portraitRotY,
+              rotateX: portraitRotX,
+              opacity: portraitOpacity,
+              transformStyle: "preserve-3d",
+            }}
+            className="relative will-change-transform"
+          >
+            <div className="absolute -inset-4 bg-primary/20 blur-2xl animate-blobMorph" style={{ transform: "translateZ(-60px)" }} />
+            <div
+              className="relative w-[200px] sm:w-[280px] lg:w-[340px] rounded-[2rem] bg-white/60 dark:bg-black/60 backdrop-blur-2xl border border-white/80 dark:border-white/20 p-3 sm:p-4 shadow-2xl overflow-hidden"
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              <HoloBrackets />
+              <div className="aspect-[4/5] rounded-xl overflow-hidden bg-muted relative shadow-inner" style={{ transform: "translateZ(30px)" }}>
+                <img loading="lazy" src={realPhoto} alt={fullName} className="w-full h-full object-cover" />
+                <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-primary/15 to-transparent animate-scan pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-warning/10 via-transparent to-primary/10 mix-blend-overlay pointer-events-none" />
+              </div>
+              <div className="pt-3 pb-1 text-center space-y-1" style={{ transform: "translateZ(45px)" }}>
+                <span className="font-display text-sm sm:text-base font-black text-foreground">{fullName}</span>
+                <p className="text-[8px] sm:text-[9px] text-primary font-bold uppercase tracking-[0.2em]">
+                  {t("intro.partners.finalYear")}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 pt-1" style={{ transform: "translateZ(35px)" }}>
+                {[
+                  { icon: "cake", text: "2004" },
+                  { icon: "school", text: "Greenwich VN" },
+                ].map((r) => (
+                  <div key={r.icon} className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl bg-muted/60">
+                    <span className="material-symbols-outlined text-xs text-foreground">{r.icon}</span>
+                    <span className="text-[8px] sm:text-[9px] font-bold text-foreground/90">{r.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Chapters */}
+        <div className="lg:col-span-7 relative h-[300px] sm:h-[340px] lg:h-[420px]">
+          {/* Chapter 1 — danh tính */}
+          <Chapter p={p} range={[0.02, 0.1, 0.3, 0.38]}>
+            <Badge className="self-start bg-warning/15 text-warning border-warning/30">{t("intro.slide3.badge")}</Badge>
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-extrabold text-foreground leading-tight">
+              Xin chào, tôi là <br />
+              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
+                Hugo.
+              </span>
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
+              {fullName} — sinh năm 2004, sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam, nhà sáng
+              lập Hugo Studio. Tôi tin mỗi sản phẩm số đều nên đẹp, ấm áp và dễ dùng — đó là điều tôi từng ngày xây
+              dựng, và tôi sẵn sàng cho những cơ hội nghề nghiệp đầu tiên của mình.
+            </p>
+          </Chapter>
+
+          {/* Chapter 2 — học vấn */}
+          <Chapter p={p} range={[0.34, 0.42, 0.62, 0.7]}>
+            <Badge className="self-start">{t("intro.slide3.eduTitle")}</Badge>
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-5xl font-extrabold text-foreground leading-tight">
+              {t("intro.slide3.title1")} {t("intro.slide3.title2")}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+              <a
+                href="https://ndc.edu.vn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative overflow-hidden p-4 rounded-2xl glass-sm border border-border/50 hover:border-primary hover:-translate-y-1 transition-all duration-300 block text-left space-y-1.5"
+              >
+                <Shine />
+                <div className="flex justify-between items-start gap-2">
+                  <span className="text-[10px] sm:text-xs font-black text-primary uppercase tracking-wider">
+                    {t("intro.slide3.highSchool")}
+                  </span>
+                  <span className="material-symbols-outlined text-sm text-muted-foreground group-hover:text-primary transition-colors">
+                    open_in_new
+                  </span>
+                </div>
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{t("intro.slide3.highSchoolDesc")}</p>
+              </a>
+              <a
+                href="https://greenwich.edu.vn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative overflow-hidden p-4 rounded-2xl glass-sm border border-border/50 hover:border-accent hover:-translate-y-1 transition-all duration-300 block text-left space-y-1.5"
+              >
+                <Shine />
+                <div className="flex justify-between items-start gap-2">
+                  <span className="text-[10px] sm:text-xs font-black text-accent uppercase tracking-wider">
+                    {t("intro.slide3.uni")}
+                  </span>
+                  <span className="material-symbols-outlined text-sm text-muted-foreground group-hover:text-accent transition-colors">
+                    open_in_new
+                  </span>
+                </div>
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{t("intro.slide3.uniDesc")}</p>
+              </a>
+            </div>
+          </Chapter>
+
+          {/* Chapter 3 — triết lý */}
+          <Chapter p={p} range={[0.66, 0.74, 1, 1]} hold>
+            <Badge className="self-start bg-warning/15 text-warning border-warning/30">{t("intro.slide8.badge")}</Badge>
+            <blockquote className="text-base sm:text-xl lg:text-3xl italic font-semibold text-primary border-l-4 border-primary pl-4 sm:pl-6 py-1 leading-snug max-w-xl">
+              {t("intro.slide8.quote")}
+            </blockquote>
+            <div className="space-y-2 text-xs sm:text-sm max-w-xl">
+              {["p1", "p2", "p3"].map((k, i) => (
+                <div key={k} className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-primary font-mono">0{i + 1}</span>
+                  <span className="font-semibold text-foreground/90">{t(`intro.slide8.${k}`)}</span>
+                </div>
+              ))}
+            </div>
+          </Chapter>
+        </div>
+      </div>
+
+      {/* Chapter indicator */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
+        {[dot1, dot2, dot3].map((op, i) => (
+          <motion.span key={i} style={{ opacity: op }} className="w-2 h-2 rounded-full bg-primary" />
+        ))}
+      </div>
+    </SceneShell>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE 3 — SỞ THÍCH (dương xỉ: parallax đa lớp + mưa + sương trôi)
+   ------------------------------------------------------------------------- */
+
+function SceneFerns({ container, bind, t, reduced }) {
+  const { targetRef, p } = useSceneScroll(container);
+
+  const mainScale = useTransform(p, [0.02, 0.22], [0.55, 1]);
+  const mainOpacity = useTransform(p, [0.02, 0.16], [0, 1]);
+  const mainRotate = useTransform(p, [0.02, 0.4], [-53, -45]);
+  const img1Y = useTransform(p, [0, 1], [150, -150]);
+  const img2Y = useTransform(p, [0, 1], [-120, 140]);
+  const textX = useTransform(p, [0.03, 0.2], [-90, 0]);
+  const textOpacity = useTransform(p, [0.03, 0.18], [0, 1]);
+
+  return (
+    <SceneShell bind={bind} targetRef={targetRef} height="200vh">
+      {/* Aurora nền xanh ngọc — cả khung cảnh "thở" */}
+      <motion.div
+        animate={{ opacity: [0.35, 0.7, 0.35], scale: [1, 1.08, 1] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-emerald-400/15 via-teal-400/5 to-transparent pointer-events-none"
+      />
+
+      {/* Rain effect */}
+      {!reduced && (
+        <div className="absolute inset-0 pointer-events-none z-0 opacity-50">
+          {RAIN_DROPS.map((drop, i) => (
+            <div
+              key={`rain-${i}`}
+              className="absolute w-[1px] h-[80px] bg-gradient-to-b from-transparent via-emerald-200 to-transparent animate-rain-drop"
+              style={drop}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Lá rơi xoay tròn */}
+      {!reduced && (
+        <div className="absolute inset-0 pointer-events-none z-0">
+          {LEAVES.map((l, i) => (
+            <span
+              key={`leaf-${i}`}
+              className="absolute bg-emerald-400/40 animate-leafFall"
+              style={{
+                left: l.left,
+                width: l.size,
+                height: l.size,
+                borderRadius: "0 50% 0 50%",
+                animationDuration: l.duration,
+                animationDelay: l.delay,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Đom đóm phát sáng */}
+      {!reduced && (
+        <div className="absolute inset-0 pointer-events-none z-0">
+          {FIREFLIES.map((f, i) => (
+            <motion.span
+              key={`fly-${i}`}
+              animate={{ opacity: [0, 0.9, 0], x: [0, f.dx, 0], y: [0, f.dy, 0] }}
+              transition={{ duration: f.duration, repeat: Infinity, ease: "easeInOut", delay: f.delay }}
+              style={{ left: f.left, top: f.top }}
+              className="absolute w-1.5 h-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.9)] blur-[1px]"
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Sương mù trôi ngang */}
+      <motion.div
+        animate={{ x: ["-15%", "15%", "-15%"] }}
+        transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-[30%] left-0 w-[70vw] h-40 bg-emerald-400/10 blur-[90px] rounded-full pointer-events-none"
+      />
+
+      <div className="absolute right-[4%] top-[8%] text-[6rem] sm:text-[10rem] xl:text-[13rem] font-black text-foreground/[0.02] dark:text-foreground/[0.01] pointer-events-none select-none tracking-tighter leading-none">
+        FERNS
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
+        <motion.div style={{ x: textX, opacity: textOpacity }} className="lg:col-span-5 space-y-3 sm:space-y-5 text-left will-change-transform">
+          <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25">
+            {t("intro.slide7.badge")}
+          </Badge>
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
+            {t("intro.slide7.title1")} <br />
+            <span className="bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
+              {t("intro.slide7.title2")}
+            </span>
+          </h2>
+          <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
+            {t("intro.slide7.desc")}
+          </p>
+        </motion.div>
+
+        <div className="lg:col-span-7 relative h-[300px] sm:h-[380px] lg:h-[480px] w-full">
+          <motion.div
+            animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-emerald-500/20 blur-[80px]"
+          />
+
+          {/* Main droplet-shaped image — scale + xoay nhẹ theo scroll */}
+          <motion.div
+            style={{ scale: mainScale, opacity: mainOpacity }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 will-change-transform"
+          >
+            <motion.div
+              className="w-[190px] h-[190px] sm:w-[250px] sm:h-[250px] lg:w-[330px] lg:h-[330px] bg-muted overflow-hidden shadow-2xl relative"
+              style={{ borderRadius: "50% 0 50% 50%", rotate: mainRotate, border: "4px solid rgba(255,255,255,0.3)" }}
+            >
+              <img
+                loading="lazy"
+                src={optimizeCloudinaryUrl(FERN_MAIN, 800)}
+                alt="Fern"
+                className="w-[145%] h-[145%] max-w-none object-cover absolute top-1/2 left-1/2"
+                style={{ transform: "translate(-50%, -50%) rotate(45deg)" }}
+              />
+              <div className="absolute inset-0 bg-emerald-900/10 pointer-events-none" />
+            </motion.div>
+          </motion.div>
+
+          {/* Parallax satellites */}
+          <motion.div
+            style={{ y: img1Y }}
+            className="absolute top-[16%] left-[8%] sm:left-[16%] w-[92px] h-[92px] sm:w-[130px] sm:h-[130px] rounded-full bg-muted border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 will-change-transform"
+          >
+            <img loading="lazy" src={optimizeCloudinaryUrl(FERN_SMALL_1, 400)} alt="Fern detail" className="w-full h-full object-cover" />
+          </motion.div>
+          <motion.div
+            style={{ y: img2Y }}
+            className="absolute bottom-[14%] right-[8%] sm:right-[16%] w-[104px] h-[104px] sm:w-[150px] sm:h-[150px] rounded-full bg-muted border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 will-change-transform"
+          >
+            <img loading="lazy" src={optimizeCloudinaryUrl(FERN_SMALL_2, 400)} alt="Fern decor" className="w-full h-full object-cover" />
+          </motion.div>
+        </div>
+      </div>
+    </SceneShell>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE 4 — BIO EDU MIỄN PHÍ (thẻ sinh viên lật 3D 180° + glare quét theo scroll)
+   ------------------------------------------------------------------------- */
+
+const EDU_TOOLS = [
+  { id: "banhocduong", name: "Bạn Học Đường", icon: "school" },
+  { id: "therapy", name: "Hugo PSY", icon: "psychology" },
+  { id: "ide", name: "Web IDE", icon: "terminal" },
+  { id: "radio", name: "Hugo Radio", icon: "radio" },
+  { id: "aura", name: "Aura AI", icon: "lens_blur" },
+];
+
+function SceneBio({ container, bind, t }) {
+  const { targetRef, p } = useSceneScroll(container);
+
+  const textOpacity = useTransform(p, [0.03, 0.18], [0, 1]);
+  const textY = useTransform(p, [0.03, 0.18], [60, 0]);
+  const cardRotY = useTransform(p, [0.28, 0.6], [0, 180]);
+  const cardScale = useTransform(p, [0.05, 0.25], [0.8, 1]);
+  const cardOpacity = useTransform(p, [0.05, 0.2], [0, 1]);
+  const glareX = useTransform(p, [0.28, 0.6], ["-140%", "240%"]);
+  const benefitsOpacity = useTransform(p, [0.42, 0.56], [0, 1]);
+  const benefitsY = useTransform(p, [0.42, 0.56], [60, 0]);
+  const toolsOpacity = useTransform(p, [0.6, 0.74], [0, 1]);
+  const toolsY = useTransform(p, [0.6, 0.74], [50, 0]);
+
+  const cardFace =
+    "absolute inset-0 rounded-[1.75rem] bg-gradient-to-b from-white/95 to-white/50 dark:from-slate-900/95 dark:to-slate-900/50 backdrop-blur-2xl border border-white/40 dark:border-white/10 p-5 sm:p-6 shadow-2xl overflow-hidden [backface-visibility:hidden]";
+
+  return (
+    <SceneShell bind={bind} targetRef={targetRef} height="240vh">
+      <div className="absolute left-[4%] top-[8%] text-[5rem] sm:text-[8rem] xl:text-[11rem] font-black text-foreground/[0.03] dark:text-foreground/[0.015] pointer-events-none select-none tracking-tighter leading-none -rotate-12">
+        FREE .EDU
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 flex flex-col gap-5 sm:gap-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-10 items-center">
+          {/* Text */}
+          <motion.div style={{ opacity: textOpacity, y: textY }} className="md:col-span-7 space-y-3 sm:space-y-4 will-change-transform">
+            <Badge>{t("intro.slide5.badge")}</Badge>
+            <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
+              {t("intro.slide5.title1")} <br />
+              {t("intro.slide5.title2")}
+            </h2>
+            <p className="text-sm lg:text-base text-muted-foreground leading-relaxed max-w-2xl">
+              <Trans i18nKey="intro.slide5.desc">
+                Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi
+                tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố{" "}
+                <strong className="text-primary">.edu</strong> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh
+                hoàn toàn miễn phí.
+              </Trans>
+            </p>
+            <div className="pt-1">
+              <Magnetic className="inline-block">
+                <a
+                  href="/login"
+                  className="group relative overflow-hidden px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20 inline-block"
+                >
+                  <Shine />
+                  <span className="relative z-10">{t("intro.slide5.createBtn")}</span>
+                </a>
+              </Magnetic>
+            </div>
+          </motion.div>
+
+          {/* 3D flip student card (ẩn trên mobile — quyền lợi đã có lưới chi tiết) */}
+          <div className="md:col-span-5 hidden md:flex justify-center" style={{ perspective: 1300 }}>
+            <motion.div
+              style={{ rotateY: cardRotY, scale: cardScale, opacity: cardOpacity, transformStyle: "preserve-3d" }}
+              className="relative w-full max-w-[300px] sm:max-w-[340px] h-[210px] sm:h-[240px] will-change-transform"
+            >
+              {/* FRONT — thẻ sinh viên */}
+              <div className={cardFace}>
+                {/* Glare quét ngang khi thẻ lật */}
+                <motion.div
+                  style={{ x: glareX }}
+                  className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent -skew-x-12 pointer-events-none"
+                />
+                <div className="flex justify-between items-start border-b border-border/50 pb-3">
+                  <div>
+                    <span className="text-[8px] font-bold text-primary uppercase tracking-widest block">
+                      {t("intro.slide5.idTitle")}
+                    </span>
+                    <span className="font-display text-sm font-black text-foreground">{t("intro.slide5.idName")}</span>
+                  </div>
+                  <div className="w-9 h-7 rounded-md bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 shadow border border-yellow-600/30 flex items-center justify-center overflow-hidden">
+                    <div className="grid grid-cols-3 gap-0.5 w-[80%] h-[80%] opacity-40">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                        <div key={i} className="border border-yellow-800/40" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="py-4 space-y-2.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-[9px] text-muted-foreground uppercase font-bold">{t("intro.slide5.idEmailTitle")}</span>
+                    <span className="font-mono font-bold text-foreground text-[11px]">name@school.edu.vn</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[9px] text-muted-foreground uppercase font-bold">{t("intro.slide5.idBenefitTitle")}</span>
+                    <span className="font-bold text-primary text-[11px]">{t("intro.slide5.idBenefitDesc")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[9px] text-muted-foreground uppercase font-bold">{t("intro.slide5.idValidityTitle")}</span>
+                    <span className="font-bold text-muted-foreground text-[11px]">{t("intro.slide5.idValidityDesc")}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center border-t border-border/50 pt-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    <span className="text-[8px] font-bold text-muted-foreground">{t("intro.slide5.idAuth")}</span>
+                  </div>
+                  <span className="text-[8px] font-mono text-muted-foreground">ID: 2004-EDU-VALID</span>
+                </div>
+              </div>
+
+              {/* BACK — quyền lợi */}
+              <div className={cardFace} style={{ transform: "rotateY(180deg)" }}>
+                <span className="text-[8px] font-bold text-primary uppercase tracking-widest block pb-2 border-b border-border/50">
+                  {t("intro.slide5.idBenefitTitle")}
+                </span>
+                <div className="pt-4 space-y-3">
+                  {["check1", "check2", "check3"].map((k) => (
+                    <div key={k} className="flex items-start gap-2.5 text-left">
+                      <span className="material-symbols-outlined text-sm text-foreground bg-muted rounded-full p-1">
+                        verified_user
+                      </span>
+                      <span className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed">
+                        {t(`intro.slide5.${k}`)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute bottom-4 left-5 right-5 flex justify-between items-center border-t border-border/50 pt-3">
+                  <span className="text-[8px] font-mono text-muted-foreground">HUGO·STUDIO·EDU</span>
+                  <span className="material-symbols-outlined text-sm text-foreground">workspace_premium</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Quyền lợi chi tiết sau khi xác minh */}
+        <motion.div style={{ opacity: benefitsOpacity, y: benefitsY }} className="space-y-2.5 will-change-transform">
+          <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest text-center">
+            {t("intro.slide5.benefitsTitle")}
+          </p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+            {[
+              { k: "b1", icon: "id_card" },
+              { k: "b2", icon: "link" },
+              { k: "b3", icon: "bolt" },
+              { k: "b4", icon: "widgets" },
+            ].map((b, i) => (
+              <motion.div
+                key={b.k}
+                whileHover={{ y: -5, rotate: i % 2 ? 1.5 : -1.5, scale: 1.03 }}
+                className="rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-2.5 sm:p-4 space-y-1 sm:space-y-1.5 text-left"
+              >
+                <MonoIcon name={b.icon} size="text-base" box="w-8 h-8" />
+                <p className="text-[11px] sm:text-xs font-bold text-foreground leading-tight">{t(`intro.slide5.${b.k}t`)}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground leading-relaxed">{t(`intro.slide5.${b.k}d`)}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Tiện ích HSSV miễn phí */}
+        <motion.div style={{ opacity: toolsOpacity, y: toolsY }} className="space-y-3 will-change-transform">
+          <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest text-center">
+            Tiện ích HSSV miễn phí đi kèm
+          </p>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+            {EDU_TOOLS.map((tool) => (
+              <Link
+                key={tool.id}
+                to={`/public-tools/${tool.id}`}
+                className="group flex items-center gap-2 pl-1.5 pr-3.5 py-1.5 rounded-full bg-card/70 border border-border/50 hover:border-primary transition-all hover:-translate-y-0.5 shadow-sm"
+              >
+                <span className="w-7 h-7 rounded-full bg-muted text-foreground flex items-center justify-center">
+                  <span className="material-symbols-outlined text-sm">{tool.icon}</span>
+                </span>
+                <span className="text-[10px] sm:text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                  {tool.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </SceneShell>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE 5 — LIÊN LẠC NHANH + CTA (tiles bay vào từ chiều sâu 3D + magnetic)
+   ------------------------------------------------------------------------- */
+
+function ContactTile({ p, start, href, icon, label }) {
+  const opacity = useTransform(p, [start, start + 0.14], [0, 1]);
+  const y = useTransform(p, [start, start + 0.14], [90, 0]);
+  const rotateX = useTransform(p, [start, start + 0.14], [45, 0]);
+  return (
+    <motion.div style={{ opacity, y, rotateX, transformStyle: "preserve-3d" }} className="will-change-transform">
+      <Magnetic strength={10}>
+        <a
+          href={href}
+          target={href.startsWith("http") ? "_blank" : undefined}
+          rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+          className="group relative overflow-hidden clay-card rounded-2xl md:rounded-[2rem] p-4 md:p-7 border border-border/50 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-2 md:gap-3 text-center hover:scale-[1.05] hover:shadow-glow transition-all duration-300 shadow-lg"
+        >
+          <Shine />
+          <MonoIcon name={icon} size="text-2xl md:text-3xl" box="w-11 h-11 md:w-14 md:h-14" />
+          <span className="font-display text-xs md:text-base font-bold text-foreground group-hover:text-primary transition-colors">
+            {label}
+          </span>
+        </a>
+      </Magnetic>
+    </motion.div>
+  );
+}
+
+function SceneContact({ container, bind, t, profile }) {
+  const { targetRef, p } = useSceneScroll(container);
+
+  const headOpacity = useTransform(p, [0.02, 0.15], [0, 1]);
+  const headY = useTransform(p, [0.02, 0.15], [50, 0]);
+  const ctaOpacity = useTransform(p, [0.46, 0.6], [0, 1]);
+  const ctaY = useTransform(p, [0.46, 0.6], [60, 0]);
+
+  const contacts = [
+    { href: `https://zalo.me/${profile.zaloNumber}`, icon: "sms", label: t("intro.slide9.zalo"), start: 0.08 },
+    { href: `mailto:${profile.emailAddress}`, icon: "mail", label: t("intro.slide9.email"), start: 0.13 },
+    { href: "https://facebook.com/hugowishpax.le", icon: "group", label: t("intro.slide9.fb"), start: 0.18 },
+    {
+      href: "https://www.tiktok.com/@pethugowishpaxle?_r=1&_t=ZS-96UW9Neg8UW",
+      icon: "play_circle",
+      label: t("intro.slide9.tiktok"),
+      start: 0.23,
+    },
+  ];
+
+  return (
+    <SceneShell bind={bind} targetRef={targetRef} height="220vh">
+      <div className="absolute right-[3%] bottom-[6%] text-[6rem] sm:text-[10rem] xl:text-[13rem] font-black text-foreground/[0.025] dark:text-foreground/[0.012] pointer-events-none select-none tracking-tighter leading-none">
+        HELLO
+      </div>
+
+      <div className="w-full max-w-5xl mx-auto px-5 sm:px-8 md:px-16 space-y-6 sm:space-y-10 relative z-10" style={{ perspective: 1200 }}>
+        {/* Header */}
+        <motion.div style={{ opacity: headOpacity, y: headY }} className="text-center space-y-3 will-change-transform">
+          <div className="flex justify-center">
+            <motion.img
+              src={STICKER_HELLO}
+              alt={profile.fullName}
+              animate={{ y: [0, -6, 0], rotate: [-3, 3, -3] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="w-20 sm:w-28 drop-shadow-xl"
+            />
+          </div>
+          <Badge>{t("intro.slide9.badge")}</Badge>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground">
+            {t("intro.slide9.title")}
+          </h2>
+          <p className="text-xs sm:text-sm lg:text-base text-muted-foreground max-w-2xl mx-auto">
+            {t("intro.slide9.desc")}
+          </p>
+        </motion.div>
+
+        {/* Contact tiles */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+          {contacts.map((c) => (
+            <ContactTile key={c.icon} p={p} {...c} />
+          ))}
+        </div>
+
+        {/* Final CTA */}
+        <motion.div style={{ opacity: ctaOpacity, y: ctaY }} className="text-center space-y-4 sm:space-y-5 pt-2 will-change-transform">
+          <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground leading-tight">
+            {t("intro.slide10.title1")}{" "}
+            <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
+              {t("intro.slide10.title2")}
+            </span>
+          </h3>
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+            <Magnetic>
+              <a
+                href="/login"
+                className="group relative overflow-hidden px-8 py-4 rounded-full bg-primary text-white font-bold shadow-xl shadow-primary/25 text-xs sm:text-sm inline-flex w-full sm:w-auto items-center justify-center"
+              >
+                <Shine />
+                <span className="relative z-10">{t("intro.slide10.registerBtn")}</span>
+              </a>
+            </Magnetic>
+            <Magnetic>
+              <Link
+                to="/booking"
+                className="px-8 py-4 rounded-full border border-border text-foreground font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-xs sm:text-sm inline-flex w-full sm:w-auto items-center justify-center"
+              >
+                {t("intro.slide10.bookBtn")}
+              </Link>
+            </Magnetic>
+            <Magnetic>
+              <Link
+                to="/services"
+                className="px-8 py-4 rounded-full border border-border text-muted-foreground font-bold hover:text-primary hover:border-primary transition-colors text-xs sm:text-sm inline-flex w-full sm:w-auto items-center justify-center gap-2"
+              >
+                {t("intro.slide6.pricingBtn")}
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
+            </Magnetic>
+          </div>
+        </motion.div>
+      </div>
+    </SceneShell>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   PAGE
+   ------------------------------------------------------------------------- */
+
+const NAV_KEYS = [
+  "intro.nav.studio",
+  "intro.nav.partners",
+  "intro.nav.about",
+  "intro.nav.hobbies",
+  "intro.nav.bioEdu",
+  "intro.nav.contacts",
+];
+
+const BG_GLOWS = [
+  "from-primary/10 to-accent/10", // 0 Studio
+  "from-accent/10 to-primary/10", // 1 Partners
+  "from-warning/10 to-warning/10", // 2 About
+  "from-success/10 to-success/10", // 3 Ferns
+  "from-info/10 to-primary/10", // 4 Bio Edu
+  "from-primary/10 to-success/10", // 5 Contacts
+];
+
 export default function IntroductionPage() {
   const { data } = useData();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const containerRef = useRef(null);
-  
+  const contentRef = useRef(null);
+  const lenisRef = useRef(null);
+  const sceneEls = useRef([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const reduced = useReducedMotion();
+
   useHeadMeta({
-    title: "Về Tôi | Peter Hugo Wishpax Lê",
-    description: "Khám phá thế giới sáng tạo, hành trình sự nghiệp và các dự án thiết kế Claymorphism tinh tế của Hugo Lê.",
-    keywords: "Peter Hugo Wishpax Lê, Hugo Lê, Greenwich VN, thiết kế Claymorphism, web developer, portfolio",
-    canonicalUrl: "https://www.hugowishpax.studio/introduction"
+    title: "Hugo Studio | Giới Thiệu",
+    description:
+      "Hugo Studio — xưởng sáng tạo số của Peter Hugo Wishpax Lê và đối tác: thiết kế web chuyên nghiệp, trang Bio và tiện ích miễn phí cho học sinh, sinh viên.",
+    keywords: "Hugo Studio, Peter Hugo Wishpax Lê, Jason Phan, Greenwich VN, web developer, Bio miễn phí, portfolio",
+    canonicalUrl: "https://www.hugowishpax.studio/introduction",
   });
 
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  // Avatar rotation list
-  const avatarImages = [
-    "/image/avt1.png",
-    "/image/avt2.png",
-    "/image/avt3.png",
-    "/image/avt4.png"
-  ];
-  const [currentAvtIndex, setCurrentAvtIndex] = useState(0);
-  const [avtFade, setAvtFade] = useState(true);
-
-  // Rotate avatar every 3s
+  // Lenis — inertia scroll mượt kiểu Apple (tôn trọng prefers-reduced-motion)
   useEffect(() => {
-    const interval = setInterval(() => {
-      setAvtFade(false);
-      setTimeout(() => {
-        setCurrentAvtIndex((prevIndex) => (prevIndex + 1) % avatarImages.length);
-        setAvtFade(true);
-      }, 300);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    if (reduced || !containerRef.current) return;
+    const lenis = new Lenis({
+      wrapper: containerRef.current,
+      content: contentRef.current,
+      lerp: 0.14,
+    });
+    lenisRef.current = lenis;
+    let raf;
+    const loop = (time) => {
+      lenis.raf(time);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(raf);
+      lenis.destroy();
+      lenisRef.current = null;
+    };
+  }, [reduced]);
 
-  // Handle scroll snap index detection
+  // Thanh tiến độ tổng thể (Apple-style)
+  const { scrollYProgress } = useScroll({ container: containerRef, layoutEffect: false });
+  const progressScaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
+
   const handleScroll = () => {
-    if (!containerRef.current) return;
-    const scrollTop = containerRef.current.scrollTop;
-    const clientHeight = containerRef.current.clientHeight;
-    if (clientHeight <= 0) return;
-    const index = Math.round(scrollTop / clientHeight);
-    setActiveIndex(index);
+    const el = containerRef.current;
+    if (!el) return;
+    const mid = el.scrollTop + el.clientHeight / 2;
+    let idx = 0;
+    sceneEls.current.forEach((scene, i) => {
+      if (scene && scene.offsetTop <= mid) idx = i;
+    });
+    setActiveIndex((prev) => {
+      if (prev !== idx) buzz(5);
+      return idx;
+    });
   };
 
   const playTick = () => {
@@ -80,70 +1487,71 @@ export default function IntroductionPage() {
     }
   };
 
-  const scrollToSlide = (idx) => {
+  const scrollToScene = (idx) => {
     playTick();
-    if (!containerRef.current) return;
-    const clientHeight = containerRef.current.clientHeight;
-    containerRef.current.scrollTo({
-      top: idx * clientHeight,
-      behavior: "smooth"
-    });
-    setActiveIndex(idx);
+    buzz(8);
+    const el = containerRef.current;
+    const scene = sceneEls.current[idx];
+    if (!el || !scene) return;
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(scene.offsetTop, { duration: 1.4 });
+    } else {
+      el.scrollTo({ top: scene.offsetTop, behavior: "smooth" });
+    }
   };
 
   if (!data) return null;
 
   const realPhoto = optimizeCloudinaryUrl(data.gallery?.[0]?.url || "/image/avt1.png", 800);
-
-  // Dynamic colors for transition bg glows
-  const bgGlows = [
-    "from-primary/10 to-accent/10",     // 0 Welcome
-    "from-info/10 to-primary/10",       // 1 Web Dev
-    "from-warning/10 to-warning/10",    // 2 Personal Info
-    "from-accent/10 to-accent/10",      // 3 Teammate Info
-    "from-success/10 to-success/10",    // 4 Bio Edu
-    "from-info/10 to-primary/10",       // 5 Web Service
-    "from-info/10 to-info/10",          // 6 Free Utilities (New)
-    "from-success/10 to-success/10",    // 7 Ferns
-    "from-accent/10 to-accent/10",      // 8 Philosophy
-    "from-destructive/10 to-warning/10", // 9 Contacts
-    "from-primary/10 to-success/10"     // 10 CTA Start
-  ];
+  const bindScene = (i) => (el) => {
+    sceneEls.current[i] = el;
+  };
 
   return (
     <div className="relative w-full h-[calc(100vh-56px)] overflow-hidden">
-      
-      {/* Hide default browser scrollbar CSS injection */}
       <style>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes gradientShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
         }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        .animate-gradientShift { background-size: 200% 200%; animation: gradientShift 6s ease-in-out infinite; }
+        @keyframes blobMorph {
+          0%, 100% { border-radius: 58% 42% 55% 45% / 50% 55% 45% 50%; }
+          33% { border-radius: 45% 55% 48% 52% / 58% 44% 56% 42%; }
+          66% { border-radius: 52% 48% 42% 58% / 44% 56% 48% 52%; }
         }
+        .animate-blobMorph { animation: blobMorph 9s ease-in-out infinite; }
+        @keyframes leafFall {
+          0% { transform: translateY(-8vh) translateX(0) rotate(0deg); opacity: 0; }
+          12% { opacity: 0.85; }
+          55% { transform: translateY(48vh) translateX(28px) rotate(200deg); }
+          100% { transform: translateY(104vh) translateX(-18px) rotate(380deg); opacity: 0; }
+        }
+        .animate-leafFall { animation: leafFall linear infinite; }
       `}</style>
 
-      {/* Slide Indicators - Fixed on Right */}
+      {/* Overall scroll progress bar */}
+      <motion.div
+        style={{ scaleX: progressScaleX }}
+        className="absolute top-0 left-0 right-0 h-[3px] origin-left bg-gradient-to-r from-primary via-accent to-warning z-[60]"
+      />
+
+      {/* Scene indicators */}
       <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4">
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((idx) => (
+        {NAV_KEYS.map((key, idx) => (
           <button
-            key={idx}
-            onClick={() => scrollToSlide(idx)}
+            key={key}
+            onClick={() => scrollToScene(idx)}
             className="group flex items-center justify-end gap-3 text-right focus:outline-none"
           >
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-[10px] font-bold tracking-widest text-primary uppercase">
-              {idx === 0 && t("intro.nav.welcome")}
-              {idx === 1 && t("intro.nav.webDev")}
-              {idx === 2 && t("intro.nav.personalInfo")}
-              {idx === 3 && t("intro.nav.teammateInfo")}
-              {idx === 4 && t("intro.nav.bioEdu")}
-              {idx === 5 && t("intro.nav.webService")}
-              {idx === 6 && "Tiện Ích HSSV"}
-              {idx === 7 && t("intro.nav.hobbies")}
-              {idx === 8 && t("intro.nav.philosophy")}
-              {idx === 9 && t("intro.nav.contacts")}
-              {idx === 10 && t("intro.nav.start")}
+            <span
+              className={`transition-opacity duration-300 text-[10px] font-bold tracking-widest text-primary uppercase ${
+                activeIndex === idx ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              }`}
+            >
+              {t(key)}
             </span>
             <div
               className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 ${
@@ -156,1109 +1564,37 @@ export default function IntroductionPage() {
         ))}
       </div>
 
-      {/* --- DYNAMIC TRANSITION BACKGROUND GLOWS --- */}
+      {/* Dynamic background glows */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className={`absolute top-[-10%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-tr ${bgGlows[activeIndex]} blur-[150px] transition-all duration-1000 ease-in-out`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr ${bgGlows[(activeIndex + 1) % 11]} blur-[170px] transition-all duration-1000 ease-in-out`} />
+        <div
+          className={`absolute top-[-10%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-tr ${BG_GLOWS[activeIndex]} blur-[150px] transition-all duration-1000 ease-in-out`}
+        />
+        <div
+          className={`absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr ${BG_GLOWS[(activeIndex + 1) % BG_GLOWS.length]} blur-[170px] transition-all duration-1000 ease-in-out`}
+        />
       </div>
 
-      {/* --- SCROLL SNAP CONTAINER --- */}
+      {/* Film-grain overlay — chất điện ảnh, gần như vô hình nhưng đổi hẳn cảm giác */}
+      <div
+        aria-hidden
+        style={{ backgroundImage: NOISE_BG }}
+        className="absolute inset-0 pointer-events-none z-20 opacity-[0.025] dark:opacity-[0.04] mix-blend-overlay"
+      />
+
+      {/* Cinematic scroll container */}
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="w-full h-full overflow-y-auto snap-y snap-mandatory scroll-smooth no-scrollbar text-foreground relative z-10"
+        className="w-full h-full overflow-y-auto no-scrollbar text-foreground relative z-10"
       >
-        
-        {/* SLIDE 1: Welcome Section */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24 pt-6 pb-20 md:py-0">
-          {/* Background Watermark */}
-          <motion.div 
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            className="absolute left-[-10%] top-[10%] md:left-[5%] md:bottom-[10%] md:top-auto text-[8rem] md:text-[12rem] xl:text-[15rem] font-black text-foreground/[0.03] dark:text-foreground/[0.02] pointer-events-none select-none tracking-tighter leading-none transform -rotate-12 md:rotate-0"
-          >
-            CREATIVE
-          </motion.div>
-
-          {/* Floating animated orbs for premium aesthetic */}
-          <motion.div 
-            animate={{ 
-              y: [0, -30, 0],
-              x: [0, 20, 0],
-              scale: [1, 1.1, 1],
-              opacity: [0.3, 0.6, 0.3]
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[10%] md:top-[20%] right-[5%] md:right-[15%] w-24 h-24 md:w-32 md:h-32 bg-warning/30 rounded-full blur-[40px] md:blur-[60px] pointer-events-none"
-          />
-          <motion.div 
-            animate={{ 
-              y: [0, 40, 0],
-              x: [0, -30, 0],
-              scale: [1, 1.2, 1],
-              opacity: [0.2, 0.5, 0.2]
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute bottom-[15%] md:bottom-[25%] left-[5%] md:left-[25%] w-32 h-32 md:w-48 md:h-48 bg-primary/30 rounded-full blur-[50px] md:blur-[80px] pointer-events-none"
-          />
-
-          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10 h-full justify-center">
-            
-            {/* TEXT CONTENT - Centered on Mobile, Left on Desktop */}
-            <div className="lg:col-span-7 space-y-3 sm:space-y-5 md:space-y-6 text-center lg:text-left mt-8 md:mt-0 order-1 lg:order-none">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="flex justify-center lg:justify-start"
-              >
-                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-primary/20 to-accent/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-                  {t("intro.slide1.badge")}
-                </span>
-              </motion.div>
-              
-              <motion.h1 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-                className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-foreground"
-              >
-                {t("intro.slide1.title1")} <br className="hidden sm:inline" />
-                <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
-                  {t("intro.slide1.title2")}
-                </span>
-              </motion.h1>
-
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-                className="text-[13px] sm:text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed mx-auto lg:mx-0 px-2 sm:px-0"
-              >
-                <Trans i18nKey="intro.slide1.desc" values={{ name: data.profile.fullName }}>
-                  Chào mừng bạn đến với không gian sáng tạo của <strong className="text-primary font-bold">{{name: data.profile.fullName}}</strong>. Nơi tôi kết hợp tính nghệ thuật tinh tế và sức mạnh kỹ thuật để tạo ra những sản phẩm số đẳng cấp.
-                </Trans>
-              </motion.p>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
-                className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 md:pt-4 justify-center lg:justify-start px-4 sm:px-0"
-              >
-                <button 
-                  onClick={() => scrollToSlide(1)}
-                  className="group relative inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-foreground text-background font-bold overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all duration-300 text-xs sm:text-sm"
-                >
-                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                  <span className="relative z-10 flex items-center gap-2">
-                    {t("intro.slide1.explore")}
-                    <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
-                  </span>
-                </button>
-                <Link to="/booking" className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-border/50 text-foreground font-bold hover:border-primary hover:text-primary dark:hover:border-white/30 transition-all duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-sm">
-                  {t("intro.slide1.book")}
-                </Link>
-              </motion.div>
-            </div>
-            
-            {/* AVATAR SECTION - More prominent on mobile */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-              className="w-full lg:col-span-5 flex justify-center relative mt-6 mb-4 md:mt-0 order-2 lg:order-none scale-[1.05] md:scale-100"
-            >
-              <div className="absolute w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] md:w-[380px] md:h-[380px] lg:w-[480px] lg:h-[480px] rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-[50px] lg:blur-[100px] animate-pulse-soft" />
-              
-              {/* Spinning geometric rings */}
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                className="absolute -top-3 -left-3 sm:-top-6 sm:-left-6 w-[250px] h-[250px] sm:w-[360px] sm:h-[360px] md:w-[420px] md:h-[420px] lg:w-[520px] lg:h-[520px] rounded-full border border-dashed border-border dark:border-white/10 pointer-events-none"
-              />
-              <motion.div 
-                animate={{ rotate: -360 }}
-                transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-                className="absolute top-2 left-2 sm:top-4 sm:left-4 w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] lg:w-[420px] lg:h-[420px] rounded-full border border-border dark:border-primary/20 pointer-events-none"
-              />
-
-              {/* Floating Tech Badges - Specifically added for mobile pop */}
-              <motion.div 
-                animate={{ y: [-10, 10, -10], rotate: [0, 10, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -left-2 top-8 md:-left-8 md:top-20 glass p-2 md:p-3 rounded-2xl shadow-xl border border-border/50 z-30"
-              >
-                <div className="text-accent font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
-                  <span className="material-symbols-outlined text-lg md:text-xl">code</span>
-                  <span>REACT</span>
-                </div>
-              </motion.div>
-
-              <motion.div 
-                animate={{ y: [10, -10, 10], rotate: [0, -10, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute -right-2 top-10 md:-right-4 md:top-24 glass p-2 md:p-3 rounded-2xl shadow-xl border border-border/50 z-30"
-              >
-                <div className="text-accent font-bold text-[8px] md:text-[10px] tracking-widest flex flex-col items-center gap-1">
-                  <span className="material-symbols-outlined text-lg md:text-xl">draw</span>
-                  <span>DESIGN</span>
-                </div>
-              </motion.div>
-              
-              {/* Main Avatar Container - Squircle on mobile, Circle on desktop */}
-              <div className="relative w-[220px] h-[220px] sm:w-[300px] sm:h-[300px] md:w-[340px] md:h-[340px] lg:w-[480px] lg:h-[480px] rounded-[3rem] sm:rounded-[4rem] md:rounded-full bg-white/30 dark:bg-black/20 backdrop-blur-3xl border border-white/60 dark:border-white/10 flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(99,102,241,0.15)] overflow-hidden group z-20">
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-warning/20" />
-                
-                {/* Floating animation for avatar */}
-                <motion.img
-                  animate={{ y: [-5, 5, -5] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  src={avatarImages[currentAvtIndex]}
-                  alt={data.profile.fullName}
-                  className={`relative z-10 w-[90%] h-[90%] md:w-[85%] md:h-[85%] object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.2)] md:hover:scale-110 transition-all duration-500 ${
-                    avtFade ? "opacity-100 scale-100" : "opacity-0 scale-95"
-                  }`}
-                />
-              </div>
-
-              {/* Enhanced floating badge */}
-              <motion.div 
-                animate={{ y: [-3, 3, -3] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                className="absolute bottom-[-10px] sm:bottom-0 right-4 lg:bottom-8 lg:right-8 bg-card border border-border/50 backdrop-blur-xl px-4 py-2 sm:px-5 sm:py-3 rounded-2xl shadow-2xl z-30 text-[10px] sm:text-xs font-bold text-foreground flex items-center gap-2 transform rotate-[-2deg]"
-              >
-                <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-success"></span>
-                </span>
-                <span className="text-success">{t("intro.slide1.available")}</span>
-              </motion.div>
-            </motion.div>
-            
-          </div>
-          
-          {/* Scroll Down Indicator - Mobile Only */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 md:hidden"
-          >
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{t("intro.slide1.scrollDown")}</span>
-            <motion.div
-              animate={{ y: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <span className="material-symbols-outlined text-muted-foreground text-lg">keyboard_arrow_down</span>
-            </motion.div>
-          </motion.div>
-        </section>
-
-        {/* SLIDE 2: Introduction to Web Development (Giới thiệu ngành lập trình Web) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
-          {/* Background Watermark */}
-          <div className="absolute right-[5%] top-[10%] text-[12rem] xl:text-[15rem] font-black text-slate-900/[0.02] dark:text-white/[0.01] pointer-events-none select-none tracking-tighter leading-none">
-            DEV
-          </div>
-
-          <div className="w-full max-w-7xl mx-auto">
-            <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
-              <div className="lg:col-span-7 space-y-4 sm:space-y-5 md:space-y-6 text-left relative z-10">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-accent/10 text-accent border border-accent/25">
-                  {t("intro.slide2.badge")}
-                </span>
-                <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight">
-                  {t("intro.slide2.title1")} <br />
-                  <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-                    {t("intro.slide2.title2")}
-                  </span>
-                </h2>
-                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                  {t("intro.slide2.desc")}
-                </p>
-                <div className="pt-2">
-                  <button 
-                    onClick={() => scrollToSlide(2)}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-accent text-white font-bold text-xs shadow-lg shadow-accent/20 hover:scale-[1.03] transition-transform"
-                  >
-                    {t("intro.slide2.viewProfile")} <span className="material-symbols-outlined text-xs">arrow_forward</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Overlapping Coding Window and Accent Card - visible on all sizes */}
-              <div className="w-full flex lg:col-span-5 justify-center relative mt-2 sm:mt-4 md:mt-6 lg:mt-0">
-                {/* Back Underlapping Card */}
-                <div className="absolute -bottom-3 sm:-bottom-6 -left-3 sm:-left-6 w-32 h-32 sm:w-48 sm:h-48 rounded-[2rem] bg-gradient-to-tr from-primary/20 to-transparent border border-slate-200/20 dark:border-white/5 pointer-events-none transform -rotate-6" />
-
-                {/* VS Code Mockup */}
-                <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-[420px] rounded-xl sm:rounded-[2rem] bg-slate-950 dark:bg-black/80 border border-border p-3 sm:p-6 sm:p-8 shadow-2xl space-y-3 sm:space-y-4 font-mono text-[9px] sm:text-[11px] md:text-xs leading-relaxed text-slate-300 relative z-10">
-                  <div className="flex justify-between items-center pb-2 border-b border-slate-900">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full bg-red-500/80" />
-                      <span className="w-2 h-2 rounded-full bg-yellow-500/80" />
-                      <span className="w-2 h-2 rounded-full bg-green-500/80" />
-                    </div>
-                    <span className="text-[8px] sm:text-[9px] text-slate-500">App.jsx</span>
-                  </div>
-                  <div className="space-y-1">
-                    <p><span className="text-purple-400">import</span> React <span className="text-purple-400">from</span> <span className="text-emerald-400">"react"</span>;</p>
-                    <p><span className="text-purple-400">import</span> &#123; <span className="text-blue-400">CreativePortal</span> &#125; <span className="text-purple-400">from</span> <span className="text-emerald-400">"./hugo"</span>;</p>
-                    <br />
-                    <p><span className="text-blue-400">export default function</span> <span className="text-yellow-400">Portfolio</span>() &#123;</p>
-                    <p className="pl-4"><span className="text-purple-400">return</span> (</p>
-                    <p className="pl-8 text-slate-500">&lt;<span className="text-blue-400">CreativePortal</span></p>
-                    <p className="pl-12"><span className="text-purple-400">aesthetics</span>=<span className="text-emerald-450">"Glassmorphism"</span></p>
-                    <p className="pl-12"><span className="text-purple-400">speed</span>=<span className="text-emerald-450">"100ms"</span></p>
-                    <p className="pl-12"><span className="text-purple-400">heart</span>=&#123;<span className="text-blue-400">true</span>&#125;</p>
-                    <p className="pl-8 text-slate-500">/&gt;</p>
-                    <p className="pl-4">);</p>
-                    <p>&#125;</p>
-                  </div>
-                </div>
-
-                {/* Front Overlapping floating pill */}
-                <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-primary text-white text-[8px] sm:text-[9px] font-black tracking-widest uppercase px-2.5 sm:px-4 py-1 sm:py-2 rounded-xl sm:rounded-2xl shadow-lg z-20 transform rotate-6">
-                  React + Vite
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 3: Personal Information (Overlapping asymmetric stacks) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
-          {/* Background Watermark */}
-          <motion.div 
-            initial={{ opacity: 0, x: -100 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: false }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            className="absolute left-[5%] top-[10%] text-[7rem] sm:text-[10rem] xl:text-[12rem] font-black text-slate-900/[0.03] dark:text-white/[0.015] pointer-events-none select-none tracking-tighter leading-none transform -rotate-6 md:rotate-0"
-          >
-            EST. 2004
-          </motion.div>
-
-          {/* Floating animated orbs for premium aesthetic */}
-          <motion.div 
-            animate={{ 
-              y: [0, -20, 0],
-              x: [0, 10, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[15%] right-[10%] w-32 h-32 bg-amber-400/10 rounded-full blur-[40px] pointer-events-none"
-          />
-
-          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-12 w-full max-w-7xl mx-auto items-center">
-            {/* Mobile Portrait - visible on small/medium screens */}
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false }}
-              transition={{ duration: 0.6 }}
-              className="w-full flex lg:hidden justify-center relative z-10"
-            >
-              <div className="w-[70%] max-w-[240px] relative group mt-6 mb-2">
-                {/* Back shadow for depth */}
-                <div className="absolute inset-0 bg-black/20 dark:bg-black/40 rounded-sm blur-xl transform translate-y-3"></div>
-                
-                {/* Polaroid Frame */}
-                <motion.div 
-                  whileTap={{ scale: 0.98, rotate: 0 }}
-                  className="relative bg-white dark:bg-background p-2.5 sm:p-3 shadow-[0_15px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_15px_40px_rgba(0,0,0,0.3)] transform rotate-[-3deg] hover:rotate-[1deg] transition-all duration-500 origin-bottom flex flex-col"
-                >
-                  {/* Tape on top */}
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-20 h-5 bg-white/40 dark:bg-white/20 backdrop-blur-sm border border-white/50 shadow-sm transform -rotate-2 z-20" />
-                  
-                  {/* Photo Area */}
-                  <div className="aspect-[4/5] w-full bg-slate-200 overflow-hidden relative shadow-inner shrink-0">
-                    <img loading="lazy" 
-                      src={realPhoto} 
-                      alt="Hugo Portrait" 
-                      className="absolute inset-0 w-full h-full object-cover filter contrast-110 saturate-[0.9]" 
-                    />
-                    {/* Vintage photo overlay effect */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-warning/10 via-transparent to-primary/10 mix-blend-overlay pointer-events-none" />
-                    <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] pointer-events-none" />
-                  </div>
-                  
-                  {/* Handwritten Text Area */}
-                  <div className="w-full h-14 sm:h-16 flex flex-col items-center justify-center shrink-0">
-                    <span className="font-display text-lg sm:text-xl font-bold text-slate-800 transform -rotate-2 opacity-90 drop-shadow-sm">
-                      Peter Hugo W. Lê
-                    </span>
-                    <span className="text-[9px] sm:text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-0.5 transform rotate-1">
-                      Est. 2004
-                    </span>
-                  </div>
-                </motion.div>
-                
-                {/* Secondary polaroid stacked behind */}
-                <div className="absolute inset-0 bg-muted dark:bg-muted p-2.5 shadow-lg transform rotate-[4deg] translate-x-2 translate-y-2 -z-10 flex items-center justify-center">
-                   <div className="w-full h-full border-2 border-dashed border-slate-300 dark:border-slate-400 opacity-50"></div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Left: Asymmetric Stacked Portrait - hidden on mobile/tablet */}
-            <div className="hidden lg:flex lg:col-span-5 justify-center relative">
-              {/* Stacked background frame */}
-              <motion.div 
-                initial={{ opacity: 0, rotate: 0 }}
-                whileInView={{ opacity: 1, rotate: 2 }}
-                transition={{ duration: 0.8 }}
-                className="absolute w-[420px] h-[280px] rounded-[2.5rem] bg-primary/10 dark:bg-card/80 border border-border/50 transform translate-x-4 translate-y-4 shadow-xl" 
-              />
-
-              <motion.div 
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="w-[420px] rounded-[2.5rem] bg-white/60 dark:bg-black/60 backdrop-blur-2xl border border-white/80 dark:border-white/20 p-5 shadow-2xl hover:shadow-[0_25px_50px_rgba(99,102,241,0.3)] transform rotate-[-2deg] hover:rotate-0 transition-all duration-500 relative z-10 group overflow-hidden"
-              >
-                {/* Decorative gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
-                <div className="aspect-video rounded-2xl overflow-hidden bg-muted relative shadow-inner">
-                  <img loading="lazy" 
-                    src={realPhoto} 
-                    alt="Hugo Portrait" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                  />
-                  <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full text-xs font-bold text-white flex items-center gap-1.5 shadow-lg">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    Online
-                  </div>
-                </div>
-                <div className="pt-5 text-center space-y-2 relative z-10">
-                  <span className="font-display text-xl font-black bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent">Peter Hugo Wishpax Lê</span>
-                  <p className="text-xs text-primary font-bold uppercase tracking-[0.2em] bg-primary/10 inline-block px-3 py-1 rounded-lg">Software Engineering Student</p>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Right: Personal Credentials Info overlapping background */}
-            <div className="lg:col-span-7 space-y-3 sm:space-y-4 md:space-y-6 relative z-10 w-full text-center lg:text-left mt-2 lg:mt-0">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="flex justify-center lg:justify-start"
-              >
-                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-warning/20 text-warning border border-warning/30 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
-                  {t("intro.slide3.badge")}
-                </span>
-              </motion.div>
-              
-              <motion.h2 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight hidden lg:block"
-              >
-                {t("intro.slide3.title1")} <br className="hidden sm:inline lg:hidden"/> {t("intro.slide3.title2")}
-              </motion.h2>
-              
-              <div className="space-y-4 sm:space-y-5 lg:space-y-6 mt-6">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 lg:border-b lg:border-primary/10 lg:pb-4"
-                >
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 shadow-inner">
-                    <span className="material-symbols-outlined text-accent text-xl sm:text-2xl">school</span>
-                  </div>
-                  
-                  <div className="space-y-3 sm:space-y-4 w-full">
-                    <div className="text-[10px] sm:text-xs uppercase font-extrabold text-slate-400 tracking-widest text-center sm:text-left pt-1">{t("intro.slide3.eduTitle")}</div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 w-full px-2 sm:px-0">
-                      {/* High school card */}
-                      <motion.a 
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        href="https://ndc.edu.vn" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-3 sm:p-4 rounded-2xl glass-sm border border-white/80 dark:border-white/10 hover:border-primary transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
-                      >
-                        <div className="flex justify-between items-start gap-2">
-                          <span className="text-[10px] sm:text-xs font-black text-primary uppercase tracking-wider leading-tight">{t("intro.slide3.highSchool")}</span>
-                          <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-muted w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
-                        </div>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium mt-1">{t("intro.slide3.highSchoolDesc")}</p>
-                      </motion.a>
-
-                      {/* University card */}
-                      <motion.a 
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        href="https://greenwich.edu.vn" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-3 sm:p-4 rounded-2xl glass-sm border border-white/80 dark:border-white/10 hover:border-accent transition-all group space-y-1 block text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]"
-                      >
-                        <div className="flex justify-between items-start gap-2">
-                          <span className="text-[10px] sm:text-xs font-black text-accent uppercase tracking-wider leading-tight">{t("intro.slide3.uni")}</span>
-                          <span className="material-symbols-outlined text-sm sm:text-base text-slate-400 group-hover:text-accent group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0 bg-muted w-6 h-6 rounded-full flex items-center justify-center">open_in_new</span>
-                        </div>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium mt-1">{t("intro.slide3.uniDesc")}</p>
-                      </motion.a>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 4: Teammate Information (Modern ID Badge & Floating Cards Layout) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 py-8 md:py-0 md:px-16 lg:px-24">
-          {/* Background Watermark */}
-          <div className="absolute right-[5%] bottom-[5%] text-[6rem] sm:text-[10rem] xl:text-[14rem] font-black text-slate-900/[0.015] dark:text-white/[0.007] pointer-events-none select-none tracking-tighter leading-none">
-            JASON
-          </div>
-
-          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-5 lg:gap-8 w-full max-w-7xl mx-auto items-center relative z-10">
-            
-            {/* Left side: Premium Digital Badge Card */}
-            <div className="w-full lg:col-span-5 flex justify-center relative">
-              {/* Pulsing neon back glow */}
-              <div className="absolute inset-0 w-full max-w-[280px] sm:max-w-[320px] h-full mx-auto rounded-2xl bg-gradient-to-tr from-pink-500/15 to-[#d946ef]/15 blur-xl lg:blur-2xl animate-pulse" />
-              
-              {/* Single Unified Digital ID Card Container (Reduced rounded corners) */}
-              <div className="w-full max-w-[280px] sm:max-w-[320px] rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-border/50 p-3.5 sm:p-5 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 z-10">
-                {/* ID Header Decoration */}
-                <div className="flex justify-between items-center pb-2.5 sm:pb-3 border-b border-border/50 mb-3 sm:mb-4">
-                  <span className="text-[8px] sm:text-[9px] font-black tracking-widest text-pink-500 uppercase">{t("intro.slide4.idTitle")}</span>
-                  <div className="flex gap-1">
-                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-pink-500" />
-                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#d946ef]" />
-                  </div>
-                </div>
-
-                {/* Portrait Container - aspect-[4/3] on mobile (to keep height low but image wide), aspect-[4/5] on desktop (Reduced rounded corners) */}
-                <div className="aspect-[4/3] lg:aspect-[4/5] rounded-lg overflow-hidden bg-muted relative border border-slate-200/50 dark:border-white/5">
-                  <img loading="lazy" 
-                    src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png", 600)} 
-                    alt="Jason Portrait" 
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700" 
-                  />
-                  {/* Digital Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  
-                  {/* Status indicator on photo */}
-                  <div className="absolute bottom-2.5 left-2.5 bg-pink-500 text-white text-[7px] sm:text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-md">
-                    EST. 2005
-                  </div>
-                </div>
-
-                {/* ID Info Section */}
-                <div className="pt-3 sm:pt-4 space-y-2 sm:space-y-3 text-center">
-                  <div>
-                    <h3 className="font-display text-base sm:text-lg font-black text-foreground leading-tight">Jason Phan</h3>
-                    <p className="text-[9px] sm:text-[10px] text-slate-400 font-medium tracking-wider uppercase mt-0.5 sm:mt-1">Software Engineering Student</p>
-                  </div>
-                  
-                  {/* Decorative Scan/Chip/Details */}
-                  <div className="pt-2.5 sm:pt-3 border-t border-border/50 flex justify-between items-center text-[7px] sm:text-[8px] font-mono text-slate-400 text-left">
-                    <div>
-                      <div>CLASS: SE-GP</div>
-                      <div>ALLIANCE: TEAMMATE</div>
-                    </div>
-                    {/* Simulated barcode */}
-                    <div className="h-5 sm:h-6 flex items-center gap-0.5 opacity-60">
-                      <div className="w-[1px] h-full bg-slate-400" />
-                      <div className="w-[2px] h-full bg-slate-400" />
-                      <div className="w-[1px] h-full bg-slate-400" />
-                      <div className="w-[3px] h-full bg-slate-400" />
-                      <div className="w-[1px] h-full bg-slate-400" />
-                      <div className="w-[2px] h-full bg-slate-400" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right side: Modern Cards & Strengths */}
-            <div className="w-full lg:col-span-7 space-y-4 lg:space-y-6 text-left">
-              <div className="space-y-2 lg:space-y-4">
-                <span className="inline-flex items-center gap-2 px-3 py-1 lg:px-3.5 lg:py-1.5 rounded-full text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.25em] bg-pink-500/10 text-pink-500 border border-pink-500/20">
-                  {t("intro.slide4.badge")}
-                </span>
-                <h2 className="font-display text-2xl sm:text-3xl lg:text-5xl font-extrabold text-foreground leading-tight">
-                  {t("intro.slide4.title1")} <br />
-                  <span className="bg-gradient-to-r from-pink-500 via-[#d946ef] to-[#818cf8] bg-clip-text text-transparent">
-                    {t("intro.slide4.title2")}
-                  </span>
-                </h2>
-                <p className="hidden sm:block text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
-                  {t("intro.slide4.desc")}
-                </p>
-              </div>
-
-              {/* Education Floating Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 pt-1 lg:pt-2">
-                
-                {/* High School Card (Reduced rounded corners) */}
-                <a 
-                  href="https://thptcayduong.edu.vn" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="group p-3.5 lg:p-5 rounded-lg lg:rounded-xl bg-white/40 dark:bg-slate-900/40 border border-border/50 hover:border-pink-500 dark:hover:border-pink-500/50 transition-all duration-300 hover:scale-[1.02] shadow-sm hover:shadow-lg flex flex-col justify-between h-full"
-                >
-                  <div className="space-y-2 lg:space-y-3">
-                    <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-md lg:rounded-lg bg-pink-500/10 text-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <span className="material-symbols-outlined text-lg">school</span>
-                    </div>
-                    <div>
-                      <h4 className="font-display text-xs lg:text-sm font-bold text-foreground group-hover:text-pink-500 transition-colors">{t("intro.slide4.highSchool")}</h4>
-                      <p className="text-[10px] lg:text-[11px] text-slate-400 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.highSchoolDesc")}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-2.5 lg:pt-4 mt-2.5 lg:mt-4 border-t border-slate-200/50 dark:border-white/5 text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                    <span>{t("intro.slide4.highSchoolProvince")}</span>
-                    <span className="material-symbols-outlined text-[10px] group-hover:translate-x-1 transition-transform">open_in_new</span>
-                  </div>
-                </a>
-
-                {/* University Card (Reduced rounded corners) */}
-                <a 
-                  href="https://greenwich.edu.vn" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="group p-3.5 lg:p-5 rounded-lg lg:rounded-xl bg-white/40 dark:bg-slate-900/40 border border-border/50 hover:border-[#d946ef] dark:hover:border-[#d946ef]/50 transition-all duration-300 hover:scale-[1.02] shadow-sm hover:shadow-lg flex flex-col justify-between h-full"
-                >
-                  <div className="space-y-2 lg:space-y-3">
-                    <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-md lg:rounded-lg bg-[#d946ef]/10 text-[#d946ef] flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <span className="material-symbols-outlined text-lg">local_library</span>
-                    </div>
-                    <div>
-                      <h4 className="font-display text-xs lg:text-sm font-bold text-foreground group-hover:text-[#d946ef] transition-colors">{t("intro.slide4.uniTitle")}</h4>
-                      <p className="text-[10px] lg:text-[11px] text-slate-400 mt-0.5 lg:mt-1 leading-relaxed">{t("intro.slide4.uniDesc")}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-2.5 lg:pt-4 mt-2.5 lg:mt-4 border-t border-slate-200/50 dark:border-white/5 text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                    <span>{t("intro.slide4.uniTag")}</span>
-                    <span className="material-symbols-outlined text-[10px] group-hover:translate-x-1 transition-transform">open_in_new</span>
-                  </div>
-                </a>
-
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* SLIDE 5: Free Bio with Edu Mail (Overlapping Student Cards) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center">
-            <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6 relative z-10">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25">
-                {t("intro.slide5.badge")}
-              </span>
-              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
-                {t("intro.slide5.title1")} <br />
-                {t("intro.slide5.title2")}
-              </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
-                <Trans i18nKey="intro.slide5.desc">
-                  Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố <strong className="text-primary">.edu</strong> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh hoàn toàn miễn phí.
-                </Trans>
-              </p>
-              <div className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-emerald-500">verified_user</span>
-                  <span>{t("intro.slide5.check1")}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-emerald-500">verified_user</span>
-                  <span>{t("intro.slide5.check2")}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-emerald-500">verified_user</span>
-                  <span>{t("intro.slide5.check3")}</span>
-                </div>
-              </div>
-              <div className="pt-2">
-                <a href="/login" className="px-8 py-4 rounded-full bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20 hover:scale-[1.03] transition-transform inline-block">
-                  {t("intro.slide5.createBtn")}
-                </a>
-              </div>
-            </div>
-            
-            {/* Overlapping Stacks of Student Cards - hidden on mobile, visible md+ */}
-            <div className="hidden md:flex md:col-span-5 justify-end relative">
-              {/* Back Card */}
-              <div className="absolute top-4 left-4 w-full max-w-[360px] h-[240px] rounded-[2.5rem] bg-gradient-to-tr from-primary/20 to-transparent border border-primary/20 p-8 shadow-lg transform rotate-[-4deg] pointer-events-none" />
-
-              {/* Front ID Card */}
-              <div className="w-full max-w-[360px] rounded-[2.5rem] bg-gradient-to-b from-white/95 to-white/40 dark:from-slate-900/95 dark:to-slate-900/40 backdrop-blur-2xl border border-white/30 dark:border-white/10 p-6 lg:p-8 shadow-2xl relative z-10 transform rotate-[2deg] hover:rotate-0 transition-transform duration-500 group overflow-hidden">
-                {/* Holographic light reflect pattern */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                
-                <div className="flex justify-between items-start border-b border-slate-200/50 dark:border-white/5 pb-4">
-                  <div>
-                    <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-widest block">{t("intro.slide5.idTitle")}</span>
-                    <span className="font-display text-sm font-black text-foreground">{t("intro.slide5.idName")}</span>
-                  </div>
-                  {/* Metallic smart card chip */}
-                  <div className="w-9 h-7 rounded-md bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 shadow border border-yellow-600/30 flex items-center justify-center overflow-hidden">
-                    <div className="grid grid-cols-3 gap-0.5 w-[80%] h-[80%] opacity-40">
-                      {[1,2,3,4,5,6,7,8,9].map(i => <div key={i} className="border border-yellow-800/40" />)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="py-6 space-y-4 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idEmailTitle")}</span>
-                    <span className="font-mono font-bold text-foreground">name@school.edu.vn</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idBenefitTitle")}</span>
-                    <span className="font-bold text-emerald-500">{t("intro.slide5.idBenefitDesc")}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">{t("intro.slide5.idValidityTitle")}</span>
-                    <span className="font-bold text-muted-foreground">{t("intro.slide5.idValidityDesc")}</span>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center border-t border-slate-200/50 dark:border-white/5 pt-4">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[9px] font-bold text-slate-400">{t("intro.slide5.idAuth")}</span>
-                  </div>
-                  <span className="text-[9px] font-mono text-slate-400">ID: 2004-EDU-VALID</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 5: Web Development Services (Giới thiệu dịch vụ làm web của tôi, visual browser) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center">
-
-            {/* Left: Interactive Browser Mockup of Service Prices - hidden on mobile, visible md+ */}
-            <div className="hidden md:flex md:col-span-5 justify-center relative">
-              {/* Backglow sphere */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-accent/10 blur-3xl" />
-
-              {/* Visual mockup of the pricing sheet in a beautiful browser shell */}
-              <div className="w-full max-w-[420px] rounded-[2rem] bg-white dark:bg-background border border-border/50 shadow-2xl overflow-hidden relative z-10 transform -rotate-1 hover:rotate-0 transition-transform duration-500">
-                {/* Browser Header Bar */}
-                <div className="bg-slate-100 dark:bg-slate-900 px-5 py-3.5 border-b border-border/50 flex items-center justify-between">
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
-                  </div>
-                  <div className="text-[10px] bg-slate-200 dark:bg-white/5 text-slate-500 px-4 py-0.5 rounded-md font-mono select-none">
-                    hugo.dev/services
-                  </div>
-                  <span className="material-symbols-outlined text-xs text-slate-400">refresh</span>
-                </div>
-
-                {/* Browser Content */}
-                <div className="p-6 space-y-4">
-                  <span className="text-[9px] font-extrabold text-accent uppercase tracking-wider block">{t("intro.slide6.serviceOption")}</span>
-                  <div className="space-y-3">
-                    {/* Item 1 */}
-                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-muted/50 border border-slate-100 dark:border-white/5 shadow-sm">
-                      <div>
-                        <div className="text-xs font-bold text-foreground">{t("intro.slide6.item1Title")}</div>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{t("intro.slide6.item1Desc")}</p>
-                      </div>
-                      <span className="text-[10px] font-bold text-accent bg-accent/10 px-2.5 py-1 rounded-full shrink-0">Pro</span>
-                    </div>
-                    {/* Item 2 */}
-                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-muted/50 border border-slate-100 dark:border-white/5 shadow-sm">
-                      <div>
-                        <div className="text-xs font-bold text-foreground">{t("intro.slide6.item2Title")}</div>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{t("intro.slide6.item2Desc")}</p>
-                      </div>
-                      <span className="text-[10px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full shrink-0">Apex</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column details */}
-            <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6 relative z-10">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-accent/10 text-accent border border-accent/25">
-                {t("intro.slide6.badge")}
-              </span>
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
-                {t("intro.slide6.title1")} <br />
-                {t("intro.slide6.title2")}
-              </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
-                {t("intro.slide6.desc")}
-              </p>
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => {
-                    playTick();
-                    navigate("/services");
-                  }}
-                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20 hover:scale-[1.03] transition-transform"
-                >
-                  {t("intro.slide6.pricingBtn")}
-                </button>
-                <Link to="/booking" className="inline-flex items-center justify-center px-6 py-4 rounded-full border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                  {t("intro.slide6.bookBtn")}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 6: Free Utilities for Students */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
-          {/* Background Watermark */}
-          <div className="absolute left-[5%] top-[10%] text-[8rem] xl:text-[12rem] font-black text-cyan-900/[0.03] dark:text-cyan-100/[0.015] pointer-events-none select-none tracking-tighter leading-none transform -rotate-12">
-            FREE .EDU
-          </div>
-
-          {/* Floating animated orbs */}
-          <motion.div 
-            animate={{ y: [0, -20, 0], x: [0, 10, 0], scale: [1, 1.1, 1] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-[20%] right-[10%] w-32 h-32 bg-cyan-400/20 rounded-full blur-[50px] pointer-events-none"
-          />
-
-          <div className="flex flex-col gap-6 lg:gap-10 w-full max-w-7xl mx-auto items-center relative z-10">
-            {/* Header */}
-            <div className="text-center space-y-3">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/25">
-                <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
-                Tiện Ích HSSV Miễn Phí
-              </span>
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground leading-tight">
-                Đặc Quyền Dành Cho HSSV <br className="hidden sm:block" />
-                <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                  Sở Hữu Email Giáo Dục
-                </span>
-              </h2>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Tất cả các dịch vụ dưới đây đều miễn phí 100% không giới hạn. Yêu cầu duy nhất: Đăng nhập bằng tài khoản có liên kết email <strong>.edu.vn</strong> để kích hoạt đặc quyền.
-              </p>
-            </div>
-
-            {/* Cards Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 w-full">
-              {[
-                { id: "banhocduong", name: "Bạn Học Đường", desc: "AI trợ lý giải bài tập & tóm tắt kiến thức", icon: "school", color: "text-blue-500", bg: "bg-blue-500/10" },
-                { id: "therapy", name: "Hugo PSY", desc: "Chuyên gia tâm lý AI hỗ trợ cảm xúc", icon: "psychology", color: "text-rose-500", bg: "bg-rose-500/10" },
-                { id: "ide", name: "Web IDE", desc: "Lập trình trực tuyến không cần cài đặt", icon: "terminal", color: "text-emerald-500", bg: "bg-emerald-500/10" },
-                { id: "radio", name: "Hugo Radio", desc: "Trạm phát sóng podcast cảm xúc chill", icon: "radio", color: "text-amber-500", bg: "bg-amber-500/10" },
-                { id: "aura", name: "Aura AI", desc: "Phân tích & tạo hình nền năng lượng", icon: "lens_blur", color: "text-purple-500", bg: "bg-purple-500/10" }
-              ].map((tool, idx) => (
-                <div key={tool.id} className={`${idx === 4 ? "col-span-2 md:col-span-1 lg:col-span-1" : ""} flex`}>
-                  <Link 
-                    to={`/public-tools/${tool.id}`}
-                    onClick={() => playTick()}
-                    className="group flex flex-col items-center justify-start pt-6 pb-5 px-4 text-center rounded-[2rem] bg-white/40 dark:bg-white/[0.02] border border-border/50 hover:border-cyan-500/50 hover:bg-cyan-500/5 dark:hover:bg-cyan-500/10 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(6,182,212,0.15)] relative overflow-hidden w-full h-full"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 dark:to-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                    <div className={`w-14 h-14 shrink-0 rounded-2xl ${tool.bg} ${tool.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-inner`}>
-                      <span className="material-symbols-outlined text-3xl">{tool.icon}</span>
-                    </div>
-                    <h3 className="font-bold text-foreground mb-1.5 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">{tool.name}</h3>
-                    <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed px-1 mb-6 flex-1">{tool.desc}</p>
-                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-cyan-500 text-white text-[9px] font-bold uppercase tracking-wider opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-lg shadow-cyan-500/30">
-                      Khám Phá
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 7: Personal Hobby (Sở thích cá nhân - Dương xỉ) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-6 md:px-16 lg:px-24">
-          {/* RAIN EFFECT BACKGROUND */}
-          <div className="absolute inset-0 pointer-events-none z-0 opacity-50">
-            {RAIN_DROPS.map((drop, i) => (
-              <div
-                key={`rain-${i}`}
-                className="absolute w-[1px] h-[80px] bg-gradient-to-b from-transparent via-emerald-200 to-transparent animate-rain-drop"
-                style={drop}
-              />
-            ))}
-          </div>
-
-          {/* Background Watermark */}
-          <div className="absolute right-[5%] top-[10%] text-[8rem] xl:text-[12rem] font-black text-slate-900/[0.02] dark:text-white/[0.01] pointer-events-none select-none tracking-tighter leading-none">
-            FERNS
-          </div>
-
-          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
-            {/* Left side text */}
-            <div className="lg:col-span-5 space-y-4 lg:space-y-6 text-left">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/25">
-                {t("intro.slide7.badge")}
-              </span>
-              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
-                {t("intro.slide7.title1")} <br />
-                <span className="bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
-                  {t("intro.slide7.title2")}
-                </span>
-              </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
-                {t("intro.slide7.desc")}
-              </p>
-            </div>
-            
-            {/* Right side Images with floating animation */}
-            <div className="lg:col-span-7 flex justify-center relative h-[320px] sm:h-[400px] lg:h-[500px] w-full mt-4 lg:mt-0">
-              {/* Backglow sphere */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-emerald-500/20 blur-[80px]" />
-              
-              {/* Main Large Image (Water Drop Shape) */}
-              <div 
-                className="absolute top-1/2 left-1/2 z-10 hover:scale-105 transition-transform duration-700"
-                style={{ transform: 'translate(-50%, -50%)' }}
-              >
-                <div 
-                  className="w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] lg:w-[340px] lg:h-[340px] bg-slate-200 dark:bg-slate-800/50 overflow-hidden shadow-2xl relative"
-                  style={{ 
-                    borderRadius: '50% 0 50% 50%', 
-                    transform: 'rotate(-45deg)',
-                    border: '4px solid rgba(255,255,255,0.3)'
-                  }}
-                >
-                  <img loading="lazy" 
-                    src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443455/IMG_6573_rrrbpn.heic", 800)} 
-                    alt="Main Fern" 
-                    className="w-[145%] h-[145%] max-w-none object-cover absolute top-1/2 left-1/2" 
-                    style={{ transform: 'translate(-50%, -50%) rotate(45deg)' }}
-                  />
-                  <div className="absolute inset-0 bg-emerald-900/10 pointer-events-none" />
-                </div>
-              </div>
-              
-              {/* Ripple Effect Under Main Drop */}
-              <div className="absolute top-[85%] sm:top-[85%] lg:top-[90%] left-1/2 -translate-x-1/2 z-0 pointer-events-none">
-                <div className="absolute w-[80px] sm:w-[120px] lg:w-[160px] h-[20px] sm:h-[30px] lg:h-[40px] border border-emerald-400 rounded-full animate-ripple-splash" style={{ animationDelay: '0s' }} />
-                <div className="absolute w-[80px] sm:w-[120px] lg:w-[160px] h-[20px] sm:h-[30px] lg:h-[40px] border border-emerald-300 rounded-full animate-ripple-splash" style={{ animationDelay: '0.8s' }} />
-                <div className="absolute w-[80px] sm:w-[120px] lg:w-[160px] h-[20px] sm:h-[30px] lg:h-[40px] border border-emerald-200 rounded-full animate-ripple-splash" style={{ animationDelay: '1.6s' }} />
-              </div>
-
-              {/* Small Image 1 (Floating top left, overlapping) */}
-              <div className="absolute top-[10%] sm:top-[12%] lg:top-[15%] left-[10%] sm:left-[20%] lg:left-[22%] w-[100px] h-[100px] sm:w-[130px] sm:h-[130px] rounded-full bg-slate-200 dark:bg-slate-800/50 border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 animate-float" style={{ animationDelay: '0.5s' }}>
-                <img loading="lazy" src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6575_ko0sly.heic", 400)} alt="Fern Details" className="w-full h-full object-cover mix-blend-normal" />
-                <div className="absolute inset-0 rounded-full shadow-inner pointer-events-none" />
-              </div>
-              
-              {/* Small Image 2 (Floating bottom right, overlapping) */}
-              <div className="absolute bottom-[10%] sm:bottom-[15%] lg:bottom-[20%] right-[10%] sm:right-[20%] lg:right-[22%] w-[110px] h-[110px] sm:w-[150px] sm:h-[150px] rounded-full bg-slate-200 dark:bg-slate-800/50 border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 animate-float" style={{ animationDelay: '1.5s' }}>
-                <img loading="lazy" src={optimizeCloudinaryUrl("https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6574_rwhajd.heic", 400)} alt="Fern Decor" className="w-full h-full object-cover mix-blend-normal" />
-                <div className="absolute inset-0 rounded-full shadow-inner pointer-events-none" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 8: Philosophy & Experience (Overlapping Typography quotes) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 lg:gap-12 w-full max-w-7xl mx-auto items-center relative z-10">
-            {/* Left: philosophy quotes overlapping watermarks */}
-            <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6 relative">
-              
-              {/* Massive overlapping quote watermarks */}
-              <span className="absolute -top-12 -left-10 text-[8rem] sm:text-[10rem] font-serif text-primary/10 pointer-events-none select-none">“</span>
-              
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-amber-400/10 text-amber-400 border border-amber-400/25 relative z-10">
-                {t("intro.slide8.badge")}
-              </span>
-              <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-foreground relative z-10">
-                {t("intro.slide8.title1")} <br />
-                {t("intro.slide8.title2")}
-              </h2>
-              
-              <blockquote className="text-lg sm:text-2xl lg:text-4xl italic font-semibold text-primary border-l-4 border-primary pl-4 sm:pl-6 py-1 relative z-10 leading-snug">
-                {t("intro.slide8.quote")}
-              </blockquote>
-
-              <div className="grid grid-cols-2 gap-3 sm:gap-6 pt-1 sm:pt-2 text-xs sm:text-sm relative z-10">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-foreground">
-                    <span className="material-symbols-outlined text-sm text-primary">magic_button</span>
-                    <span>{t("intro.slide8.wowTitle")}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {t("intro.slide8.wowDesc")}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-foreground">
-                    <span className="material-symbols-outlined text-sm text-accent">fit_screen</span>
-                    <span>{t("intro.slide8.sweetTitle")}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {t("intro.slide8.sweetDesc")}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Asymmetric Principle Card - hidden on mobile, visible md+ */}
-            <div className="hidden md:flex md:col-span-5 justify-end relative">
-              {/* Background accent ring */}
-              <div className="absolute -top-6 -left-6 w-32 h-32 rounded-full border border-slate-200/50 dark:border-white/5 pointer-events-none" />
-
-              <div className="w-full max-w-[420px] rounded-[2.5rem] bg-white dark:bg-background border border-border/50 p-6 lg:p-8 shadow-2xl flex flex-col justify-between relative overflow-hidden transform rotate-[1.5deg]">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-xl" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">{t("intro.slide8.principles")}</span>
-                <div className="space-y-4 text-xs sm:text-sm">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm sm:text-base font-bold text-primary font-mono">01</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{t("intro.slide8.p1")}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm sm:text-base font-bold text-accent font-mono">02</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{t("intro.slide8.p2")}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm sm:text-base font-bold text-amber-400 font-mono">03</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{t("intro.slide8.p3")}</span>
-                  </div>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 border border-border/50 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-lg text-amber-400">volunteer_activism</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 9: Social Links (Liên kết của tôi, overlapping icons) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
-          <div className="w-full max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-10 lg:space-y-12 relative z-10">
-            {/* Profile Header with Avatar */}
-            <div className="text-center space-y-2 sm:space-y-3 md:space-y-4 max-w-2xl mx-auto">
-              <div className="flex justify-center mb-2 md:mb-4">
-                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-primary/30 shadow-lg">
-                  <img loading="lazy" 
-                    src={optimizeCloudinaryUrl(data.profile.avatarUrl, 300)} 
-                    alt={data.profile.fullName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-              <div>
-                <h3 className="font-display text-lg md:text-xl font-bold text-foreground">
-                  {data.profile.fullName}
-                </h3>
-                <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                  {data.profile.education}
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25">
-                {t("intro.slide9.badge")}
-              </span>
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground">
-                {t("intro.slide9.title")}
-              </h2>
-              <p className="text-[11px] sm:text-xs lg:text-base text-muted-foreground hidden sm:block">
-                {t("intro.slide9.desc")}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto pt-4 relative">
-              {/* Asymmetric offset overlapping decorative panel */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent rounded-[3rem] -rotate-1 pointer-events-none hidden md:block" />
-
-              {/* Zalo */}
-              <a 
-                href={`https://zalo.me/${data.profile.zaloNumber}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
-              >
-                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-blue-100 dark:bg-blue-900/20 text-primary dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-2xl md:text-3xl">sms</span>
-                </div>
-                <span className="font-display text-sm md:text-base font-bold text-foreground">{t("intro.slide9.zalo")}</span>
-              </a>
-
-              {/* Email */}
-              <a
-                href={`mailto:${data.profile.emailAddress}`}
-                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
-              >
-                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-red-100 dark:bg-red-900/20 text-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-xl md:text-3xl">mail</span>
-                </div>
-                <span className="font-display text-xs md:text-base font-bold text-foreground">{t("intro.slide9.email")}</span>
-              </a>
-
-              {/* Facebook */}
-              <a
-                href="https://facebook.com/hugowishpax.le"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
-              >
-                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-xl md:text-3xl">group</span>
-                </div>
-                <span className="font-display text-xs md:text-base font-bold text-foreground">{t("intro.slide9.fb")}</span>
-              </a>
-
-              {/* TikTok */}
-              <a
-                href="https://www.tiktok.com/@pethugowishpaxle?_r=1&_t=ZS-96UW9Neg8UW"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="clay-card rounded-xl md:rounded-[2rem] p-4 md:p-8 border border-slate-200/50 dark:border-white/5 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-1.5 md:gap-3 text-center hover:scale-[1.05] hover:-rotate-1 transition-all duration-300 shadow-lg group relative z-10 cursor-pointer"
-              >
-                <div className="w-10 md:w-14 h-10 md:h-14 rounded-xl md:rounded-2xl bg-black/10 dark:bg-white/10 text-foreground flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-xl md:text-3xl">play_circle</span>
-                </div>
-                <span className="font-display text-xs md:text-base font-bold text-foreground">{t("intro.slide9.tiktok")}</span>
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 10: Register & Start Journey (đăng ký và bắt đầu hành trình) */}
-        <section className="w-full h-full snap-start shrink-0 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 md:px-16 lg:px-24">
-          <div className="w-full max-w-4xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8 relative z-10">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25">
-              {t("intro.slide10.badge")}
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight">
-              {t("intro.slide10.title1")} <br />
-              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
-                {t("intro.slide10.title2")}
-              </span>
-            </h2>
-            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {t("intro.slide10.desc")}
-            </p>
-            
-            {/* Overlapping buttons and accent shadow */}
-            <div className="flex justify-center gap-4 pt-4 relative">
-              <a href="/login" className="px-8 py-4 rounded-full bg-primary text-white font-bold hover:scale-[1.03] transition-transform shadow-xl shadow-primary/25 text-xs sm:text-sm z-10">
-                {t("intro.slide10.registerBtn")}
-              </a>
-              <Link to="/booking" className="px-8 py-4 rounded-full border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-bold hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-xs sm:text-sm z-10">
-                {t("intro.slide10.bookBtn")}
-              </Link>
-            </div>
-          </div>
-        </section>
-
+        <div ref={contentRef}>
+          <SceneStudio container={containerRef} bind={bindScene(0)} t={t} onExplore={() => scrollToScene(1)} reduced={reduced} />
+          <ScenePartners container={containerRef} bind={bindScene(1)} t={t} />
+          <SceneAbout container={containerRef} bind={bindScene(2)} t={t} realPhoto={realPhoto} fullName={data.profile.fullName} reduced={reduced} />
+          <SceneFerns container={containerRef} bind={bindScene(3)} t={t} reduced={reduced} />
+          <SceneBio container={containerRef} bind={bindScene(4)} t={t} />
+          <SceneContact container={containerRef} bind={bindScene(5)} t={t} profile={data.profile} />
+        </div>
       </div>
     </div>
   );

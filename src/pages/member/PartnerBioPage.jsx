@@ -356,7 +356,7 @@ export default function PartnerBioPage() {
 
   if (accessStatus === "validating") {
     return (
-      <main className="min-h-screen bg-background dark:bg-background flex items-center justify-center text-center">
+      <main className="min-h-screen bg-background flex items-center justify-center text-center">
         <div className="space-y-3">
           <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Đang xác thực quyền đối tác...</p>
@@ -367,13 +367,13 @@ export default function PartnerBioPage() {
 
   if (accessStatus === "denied") {
     return (
-      <main className="min-h-screen bg-background dark:bg-background text-foreground flex items-center justify-center p-4">
+      <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
         <div className="bg-white dark:bg-background border border-border/50 p-8 rounded-xl max-w-sm w-full shadow-2xl text-center space-y-4">
           <div className="w-12 h-12 mx-auto rounded-lg bg-destructive/10 dark:bg-destructive/15 text-destructive flex items-center justify-center">
             <span className="material-symbols-outlined">lock</span>
           </div>
           <h2 className="text-base font-bold">Không Có Quyền Truy Cập</h2>
-          <p className="text-xs text-zinc-550 dark:text-zinc-400 leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             Trang tạo Bio này chỉ hoạt động qua link hoặc iframe đã được Hugo Studio cấp riêng cho đối tác.
           </p>
         </div>
@@ -383,14 +383,14 @@ export default function PartnerBioPage() {
 
   if (!email) {
     return (
-      <main className="min-h-screen bg-background dark:bg-background text-foreground flex items-center justify-center p-4">
+      <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
         <div className="bg-white dark:bg-background border border-border/50 p-8 rounded-xl max-w-sm w-full shadow-2xl text-center space-y-6">
           <div className="flex justify-center">
             <HugoLogo className="text-sm font-black" />
           </div>
           <div className="space-y-2">
             <h2 className="text-base font-bold">Kích Hoạt Bio Link</h2>
-            <p className="text-xs text-zinc-550 dark:text-zinc-400 leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               {partnerName} cần cung cấp email người dùng để Hugo Studio tạo và đồng bộ Bio Link miễn phí, không cần đăng nhập vào hệ thống Hugo Studio.
             </p>
           </div>
@@ -403,7 +403,7 @@ export default function PartnerBioPage() {
               placeholder="Email của bạn..."
               value={inputEmail}
               onChange={(e) => setInputEmail(e.target.value)}
-              className="w-full text-center px-4 py-3 rounded-md bg-zinc-50 dark:bg-black/40 border border-zinc-200 dark:border-zinc-800 text-xs focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+              className="w-full text-center px-4 py-3 rounded-md bg-muted/50 border border-border text-xs focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               required
             />
             <button
@@ -420,7 +420,7 @@ export default function PartnerBioPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-background dark:bg-background flex items-center justify-center text-center">
+      <main className="min-h-screen bg-background flex items-center justify-center text-center">
         <div className="space-y-3">
           <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Đang tải cấu hình Bio...</p>
@@ -432,7 +432,7 @@ export default function PartnerBioPage() {
   if (!bioData) return null;
 
   return (
-    <main className="min-h-screen bg-background dark:bg-background text-foreground transition-colors duration-300">
+    <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <PreviewTypographyStyles />
       
       <HugoNoticeToast open={Boolean(toast.message)} type={toast.type || "info"} message={toast.message} />
@@ -441,13 +441,13 @@ export default function PartnerBioPage() {
       <div className="max-w-[1400px] mx-auto p-3 sm:p-6 lg:p-8">
         
         {/* Apple Style Segmented Navigation Header */}
-        <section className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 pb-3 border-b border-zinc-200/50 dark:border-zinc-800/30">
+        <section className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 pb-3 border-b border-border/50">
           <div className="space-y-0.5">
-            <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-primary dark:text-primary block">
+            <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-primary block">
               {partnerName} • HUGO STUDIO
             </span>
-            <h1 className="text-base sm:text-lg font-bold tracking-tight text-black dark:text-white">
-              Cá nhân hóa Bio Link của: <span className="text-zinc-650 dark:text-zinc-350">{email}</span>
+            <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
+              Cá nhân hóa Bio Link của: <span className="text-muted-foreground dark:text-muted-foreground/70">{email}</span>
             </h1>
           </div>
 
@@ -455,7 +455,7 @@ export default function PartnerBioPage() {
             {/* Quick Editor/Preview Toggle on Mobile */}
             <button
               onClick={() => setDevicePreviewMode(devicePreviewMode === "mobile" ? "editor" : "mobile")}
-              className="lg:hidden p-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 flex items-center justify-center text-zinc-500"
+              className="lg:hidden p-2 rounded-full border border-border bg-card flex items-center justify-center text-zinc-500"
             >
               <span className="material-symbols-outlined text-sm">
                 {devicePreviewMode === "mobile" ? "edit_note" : "phone_iphone"}
@@ -473,10 +473,10 @@ export default function PartnerBioPage() {
               
               <div className="space-y-4">
                   {/* Photo upload header */}
-                  <div className="flex items-center gap-4 bg-white dark:bg-card p-4 rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+                  <div className="flex items-center gap-4 bg-white dark:bg-card p-4 rounded-xl border border-border/50 shadow-sm">
                     <div 
                       onClick={() => avatarInputRef.current?.click()}
-                      className="w-16 h-16 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center cursor-pointer overflow-hidden group relative shrink-0"
+                      className="w-16 h-16 rounded-lg bg-muted border border-border flex items-center justify-center cursor-pointer overflow-hidden group relative shrink-0"
                     >
                       {bioData.avatarUrl ? (
                         <img src={optimizeCloudinaryUrl(bioData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover relative z-10" />
@@ -496,7 +496,7 @@ export default function PartnerBioPage() {
                       className="hidden"
                     />
                     <div className="space-y-1">
-                      <p className="text-[10px] text-zinc-450 dark:text-zinc-400 font-bold uppercase tracking-wider">Ảnh đại diện</p>
+                      <p className="text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider">Ảnh đại diện</p>
                       <p className="text-[8px] text-zinc-400">Hình ảnh hiển thị trung tâm trên thiết bị của đối tác.</p>
                       {bioData.avatarUrl && (
                         <button
@@ -511,10 +511,10 @@ export default function PartnerBioPage() {
                   </div>
 
                   {/* Basic fields */}
-                  <div className="bg-white dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                  <div className="bg-white dark:bg-card rounded-xl border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">person</span>
-                      <label className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider w-24 shrink-0">Họ và Tên</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Họ và Tên</label>
                       <input
                         type="text"
                         name="displayName"
@@ -526,7 +526,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">badge</span>
-                      <label className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider w-24 shrink-0">Biệt danh</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Biệt danh</label>
                       <input
                         type="text"
                         name="headline"
@@ -537,7 +537,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-start gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0 mt-0.5">description</span>
-                      <label className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider w-24 shrink-0 mt-1">Giới thiệu</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0 mt-1">Giới thiệu</label>
                       <textarea
                         name="bio"
                         rows={2}
@@ -549,10 +549,10 @@ export default function PartnerBioPage() {
                   </div>
 
                   {/* Contact Info */}
-                  <div className="bg-white dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+                  <div className="bg-white dark:bg-card rounded-xl border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">school</span>
-                      <label className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider w-24 shrink-0">Học vấn</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Học vấn</label>
                       <input
                         type="text"
                         name="education"
@@ -563,7 +563,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">work</span>
-                      <label className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider w-24 shrink-0">Nghề nghiệp</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Nghề nghiệp</label>
                       <input
                         type="text"
                         name="jobTitle"
@@ -574,7 +574,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">call</span>
-                      <label className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider w-24 shrink-0">Số điện thoại</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Số điện thoại</label>
                       <input
                         type="text"
                         name="phone"
@@ -585,7 +585,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">mail</span>
-                      <label className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider w-24 shrink-0">Email liên hệ</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Email liên hệ</label>
                       <input
                         type="text"
                         name="contactEmail"
@@ -597,16 +597,16 @@ export default function PartnerBioPage() {
                   </div>
 
                   {/* Links Editor */}
-                  <div className="bg-white dark:bg-card p-5 rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-4">
-                    <h3 className="text-[10px] font-bold text-zinc-450 uppercase tracking-widest">LIÊN KẾT MẠNG XÃ HỘI (Tối đa 5)</h3>
+                  <div className="bg-white dark:bg-card p-5 rounded-xl border border-border/50 shadow-sm space-y-4">
+                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">LIÊN KẾT MẠNG XÃ HỘI (Tối đa 5)</h3>
                     
                     {bioData.links.length > 0 && (
                       <div className="space-y-2">
                         {bioData.links.map((link, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-black/25 border border-zinc-200 dark:border-zinc-800/80">
+                          <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
                             <div className="min-w-0">
                               <span className="font-bold text-xs block text-slate-800 dark:text-zinc-100 truncate">{link.label}</span>
-                              <span className="text-[9px] text-zinc-400 dark:text-zinc-500 font-mono truncate block max-w-md">{link.url}</span>
+                              <span className="text-[9px] text-muted-foreground/70 font-mono truncate block max-w-md">{link.url}</span>
                             </div>
                             <button
                               type="button"
@@ -621,21 +621,21 @@ export default function PartnerBioPage() {
                     )}
 
                     {bioData.links.length < 5 && (
-                      <div className="bg-zinc-50 dark:bg-black/10 p-3.5 rounded-lg border border-zinc-200/40 space-y-3">
+                      <div className="bg-muted/50 p-3.5 rounded-lg border border-zinc-200/40 space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <input
                             type="text"
                             placeholder="Nhãn (VD: Zalo, Instagram...)"
                             value={newLinkLabel}
                             onChange={(e) => setNewLinkLabel(e.target.value)}
-                            className="bg-white dark:bg-background border border-zinc-200 dark:border-zinc-800 rounded-md p-2.5 text-xs focus:outline-none"
+                            className="bg-white dark:bg-background border border-border rounded-md p-2.5 text-xs focus:outline-none"
                           />
                           <input
                             type="url"
                             placeholder="https://link-lien-ket.com"
                             value={newLinkUrl}
                             onChange={(e) => setNewLinkUrl(e.target.value)}
-                            className="bg-white dark:bg-background border border-zinc-200 dark:border-zinc-800 rounded-md p-2.5 text-xs focus:outline-none"
+                            className="bg-white dark:bg-background border border-border rounded-md p-2.5 text-xs focus:outline-none"
                           />
                         </div>
                         <button
@@ -651,7 +651,7 @@ export default function PartnerBioPage() {
               </div>
 
               {/* Form submit controller */}
-              <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+              <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-card rounded-xl border border-border/50 shadow-sm">
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">LƯU CÀI ĐẶT</p>
                   <p className="text-[8px] text-zinc-400 truncate">Hệ thống đồng bộ dữ liệu đám mây của đối tác.</p>
@@ -884,14 +884,14 @@ export default function PartnerBioPage() {
       {/* CROPPER IMAGE MODAL */}
       {cropper.isOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-background border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
+          <div className="bg-white dark:bg-background border border-border rounded-xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
             <div className="text-center space-y-1">
               <h3 className="font-bold text-xs text-foreground uppercase tracking-wider">Căn Chỉnh Hình Ảnh</h3>
               <p className="text-[9px] text-zinc-400">Nhấn và kéo để di chuyển vùng cắt thích hợp.</p>
             </div>
 
             <div 
-              className="w-48 h-48 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-black/40 mx-auto relative cursor-move select-none"
+              className="w-48 h-48 rounded-lg overflow-hidden border border-border bg-muted mx-auto relative cursor-move select-none"
               onMouseDown={startDrag}
               onMouseMove={doDrag}
               onMouseUp={endDrag}
@@ -929,7 +929,7 @@ export default function PartnerBioPage() {
                 step={0.1}
                 value={cropper.zoom}
                 onChange={(e) => setCropper(prev => ({ ...prev, zoom: parseFloat(e.target.value) }))}
-                className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 appearance-none cursor-pointer"
+                className="w-full h-1 bg-muted appearance-none cursor-pointer"
               />
             </div>
 

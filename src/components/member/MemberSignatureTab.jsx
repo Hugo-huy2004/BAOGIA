@@ -123,7 +123,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast }) {
           
           <div className="space-y-6">
             <div>
-              <h4 className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider flex items-center gap-1.5 mb-4">
+              <h4 className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider flex items-center gap-1.5 mb-4">
                 <span className="material-symbols-outlined text-sm">palette</span>
                 {t("utilities.signature.designLayout")}
               </h4>
@@ -142,7 +142,7 @@ export default function MemberSignatureTab({ bio, publicLink, showToast }) {
                     className={`p-3 rounded-lg border text-left flex flex-col gap-2 transition-all active:scale-95 ${
                       signatureTemplate === tpl.id 
                         ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-black font-extrabold shadow-md" 
-                        : "border-zinc-200/80 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300"
+                        : "border-border/80 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 text-muted-foreground"
                     }`}
                   >
                     <span className="material-symbols-outlined text-[18px]">{tpl.icon}</span>
@@ -181,14 +181,14 @@ export default function MemberSignatureTab({ bio, publicLink, showToast }) {
             
             {/* Typography Selection */}
             <div>
-               <h4 className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider flex items-center gap-1.5 mb-3">
+               <h4 className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider flex items-center gap-1.5 mb-3">
                 <span className="material-symbols-outlined text-sm">font_download</span>
                 {t("utilities.signature.fields.font")}
               </h4>
               <select 
                 value={fontFamily}
                 onChange={(e) => setFontFamily(e.target.value)}
-                className="w-full p-3.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-xs font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
+                className="w-full p-3.5 rounded-md border border-border bg-white dark:bg-[#1a1824] text-xs font-bold text-foreground/80 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
               >
                 <option value="Arial, sans-serif">{t("utilities.signature.fonts.arial")}</option>
                 <option value="Georgia, serif">{t("utilities.signature.fonts.georgia")}</option>
@@ -199,51 +199,51 @@ export default function MemberSignatureTab({ bio, publicLink, showToast }) {
             </div>
  
             {/* Smart Toggles */}
-            <div className="space-y-4 pt-6 border-t border-zinc-100 dark:border-zinc-800/80">
-              <div className="flex items-center justify-between p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
-                <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+            <div className="space-y-4 pt-6 border-t border-border/60">
+              <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border border-border/60">
+                <span className="text-[11px] font-bold text-foreground/80 flex items-center gap-2">
                    <span className="material-symbols-outlined text-[16px] text-zinc-400">account_circle</span>
                    {t("utilities.signature.fields.showAvatar")}
                 </span>
                 <button 
                   onClick={() => setShowAvatar(!showAvatar)}
                   className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center ${
-                    showAvatar ? "bg-zinc-900 dark:bg-white" : "bg-zinc-300 dark:bg-zinc-700"
+                    showAvatar ? "bg-foreground" : "bg-zinc-300 dark:bg-zinc-700"
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ${
                     showAvatar ? "translate-x-5" : "translate-x-0"
-                  } ${showAvatar ? "bg-white dark:bg-black" : "bg-white"}`} />
+                  } ${showAvatar ? "bg-card" : "bg-white"}`} />
                 </button>
               </div>
  
-              <div className="flex items-center justify-between p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50">
-                <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+              <div className="flex items-center justify-between p-3 rounded-md bg-muted/50 border border-border/60">
+                <span className="text-[11px] font-bold text-foreground/80 flex items-center gap-2">
                    <span className="material-symbols-outlined text-[16px] text-zinc-400">qr_code_2</span>
                    {t("utilities.signature.fields.includeQr")}
                 </span>
                 <button 
                   onClick={() => setIncludeQrCode(!includeQrCode)}
                   className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center ${
-                    includeQrCode ? "bg-zinc-900 dark:bg-white" : "bg-zinc-300 dark:bg-zinc-700"
+                    includeQrCode ? "bg-foreground" : "bg-zinc-300 dark:bg-zinc-700"
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ${
                     includeQrCode ? "translate-x-5" : "translate-x-0"
-                  } ${includeQrCode ? "bg-white dark:bg-black" : "bg-white"}`} />
+                  } ${includeQrCode ? "bg-card" : "bg-white"}`} />
                 </button>
               </div>
             </div>
  
             {/* Disclaimer */}
             <div className="pt-2">
-              <label className="block text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider mb-2">
+              <label className="block text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider mb-2">
                 {t("utilities.signature.fields.disclaimer")}
               </label>
               <select 
                 value={signatureDisclaimer}
                 onChange={(e) => setSignatureDisclaimer(e.target.value)}
-                className="w-full p-3.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#1a1824] text-[11px] font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
+                className="w-full p-3.5 rounded-md border border-border bg-white dark:bg-[#1a1824] text-[11px] font-bold text-foreground/80 focus:outline-none focus:ring-2 focus:ring-zinc-500/30"
               >
                 <option value="none">{t("utilities.signature.disclaimers.none")}</option>
                 <option value="green">{t("utilities.signature.disclaimers.green")}</option>
@@ -255,27 +255,27 @@ export default function MemberSignatureTab({ bio, publicLink, showToast }) {
 
         {/* RIGHT: Live Preview */}
         <div className="lg:col-span-7 flex flex-col h-full space-y-6">
-          <h4 className="text-[10px] font-black uppercase text-zinc-400 dark:text-zinc-500 tracking-wider flex items-center gap-1.5">
+          <h4 className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm">visibility</span>
             {t("utilities.signature.previewTitle")}
           </h4>
           
-          <div className="flex-1 bg-zinc-50 dark:bg-[#0f0e15] rounded-[24px] border border-zinc-200/80 dark:border-zinc-800/80 shadow-inner overflow-hidden flex flex-col">
+          <div className="flex-1 bg-zinc-50 dark:bg-[#0f0e15] rounded-[24px] border border-border/80 shadow-inner overflow-hidden flex flex-col">
             {/* Email Header Mockup */}
-            <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800/80 px-5 py-3 space-y-2 text-[11px] text-zinc-500">
+            <div className="bg-card border-b border-border px-5 py-3 space-y-2 text-[11px] text-zinc-500">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
+                <span className="w-2.5 h-2.5 rounded-full bg-destructive/80" />
+                <span className="w-2.5 h-2.5 rounded-full bg-warning/80" />
+                <span className="w-2.5 h-2.5 rounded-full bg-success/80" />
                 <span className="ml-2 font-mono text-[10px] tracking-wider text-zinc-400">New Message</span>
               </div>
-              <div className="flex items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/40">
+              <div className="flex items-center gap-2 pt-2 border-t border-border/60">
                 <span className="font-semibold w-8 text-zinc-400">To:</span>
-                <span className="bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md text-zinc-600 dark:text-zinc-300 font-medium">partner@example.com</span>
+                <span className="bg-muted px-2 py-0.5 rounded-md text-muted-foreground font-medium">partner@example.com</span>
               </div>
               <div className="flex items-center gap-2 pb-1">
                 <span className="font-semibold w-8 text-zinc-400">Subj:</span>
-                <span className="text-zinc-800 dark:text-zinc-200 font-bold">{t("utilities.signature.emailSubject")}</span>
+                <span className="text-foreground font-bold">{t("utilities.signature.emailSubject")}</span>
               </div>
             </div>
 
@@ -483,14 +483,14 @@ export default function MemberSignatureTab({ bio, publicLink, showToast }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
              <button
               onClick={copySignatureToClipboard}
-              className="py-4 rounded-md bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-black text-[11px] uppercase tracking-widest shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
+              className="py-4 rounded-md bg-zinc-900 hover:bg-foreground dark:hover:bg-zinc-100 text-background font-black text-[11px] uppercase tracking-widest shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
             >
               <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">content_copy</span> 
               {t("utilities.signature.copyBtn")}
             </button>
             <button
               onClick={downloadSignatureHTML}
-              className="py-4 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 font-black text-[11px] uppercase tracking-widest shadow-sm transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
+              className="py-4 rounded-md bg-card border border-border text-foreground hover:bg-zinc-50 dark:hover:bg-zinc-700 font-black text-[11px] uppercase tracking-widest shadow-sm transition-transform active:scale-[0.98] flex items-center justify-center gap-2 group"
             >
               <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">html</span> 
               {t("utilities.signature.downloadHtmlBtn")}

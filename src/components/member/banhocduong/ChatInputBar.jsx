@@ -45,7 +45,7 @@ function ChatInputBar({
                 key={i}
                 type="button"
                 onClick={() => onQuickReply?.(qr)}
-                className="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold bg-white/60 dark:bg-zinc-900/40 backdrop-blur-md border border-white/80 dark:border-white/[0.08] text-zinc-700 dark:text-zinc-300 hover:bg-white/80 dark:hover:bg-zinc-800/60 active:scale-95 transition-all shadow-sm whitespace-nowrap"
+                className="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold bg-card/60 backdrop-blur-md border border-border/80/[0.08] text-foreground/80 hover:bg-white/80 dark:hover:bg-zinc-800/60 active:scale-95 transition-all shadow-sm whitespace-nowrap"
               >
                 {qr.label || qr}
               </button>
@@ -55,10 +55,10 @@ function ChatInputBar({
       </AnimatePresence>
 
       {/* Composer pill */}
-      <div className={`flex items-end gap-1.5 pl-3.5 pr-1.5 py-1.5 rounded-[22px] bg-white/80 dark:bg-black/20 backdrop-blur-xl border transition-all duration-200 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2)] ${
+      <div className={`flex items-end gap-1.5 pl-3.5 pr-1.5 py-1.5 rounded-[22px] bg-card/80 backdrop-blur-xl border transition-all duration-200 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2)] ${
         disabled
-          ? "border-zinc-200/50 dark:border-white/[0.04] opacity-60"
-          : "border-white/60 dark:border-white/[0.1] focus-within:border-blue-500/50 dark:focus-within:border-blue-500/30 focus-within:shadow-[0_4px_20px_rgba(59,130,246,0.15)]"
+          ? "border-border/50/[0.04] opacity-60"
+          : "border-border/60/[0.1] focus-within:border-blue-500/50 dark:focus-within:border-blue-500/30 focus-within:shadow-[0_4px_20px_rgba(59,130,246,0.15)]"
       }`}>
 
         <textarea
@@ -69,7 +69,7 @@ function ChatInputBar({
           placeholder={placeholder}
           disabled={disabled}
           rows={1}
-          className="flex-1 bg-transparent text-[13px] text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 outline-none resize-none leading-snug py-1.5 max-h-[80px] overflow-y-auto"
+          className="flex-1 bg-transparent text-[13px] text-foreground placeholder-zinc-400 dark:placeholder-zinc-600 outline-none resize-none leading-snug py-1.5 max-h-[80px] overflow-y-auto"
           style={{ height: "30px" }}
         />
 

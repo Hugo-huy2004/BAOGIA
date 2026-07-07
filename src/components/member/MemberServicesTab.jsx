@@ -83,7 +83,7 @@ export default function MemberServicesTab({ formData, setFormData, showToast, is
               value={newService.description}
               onChange={(e) => setNewService(prev => ({ ...prev, description: e.target.value }))}
               placeholder={t("memberTabs.services.descPlaceholder")}
-              className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-foreground"
+              className="w-full px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground"
             />
           </div>
 

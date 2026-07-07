@@ -12,16 +12,16 @@ import { webPushHelper } from "../../../utils/webPushHelper";
 import { useTranslation } from "react-i18next";
 import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTimer";
 import { useIsMobile } from "../../../hooks/useIsMobile";
-import { HugoConfirmNotice } from "../../shared/HugoNotice";
+import { notify } from "../../../lib/notify";
 import { DEFAULT_HOTLINES } from "./constants/hotlines";
 import EmergencySiren from "./EmergencySiren";
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
-  { id: 'chat',       label: 'Tâm Sự',    icon: 'psychology_alt', grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary dark:text-primary',   dot: 'bg-primary dark:bg-primary'   },
-  { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary dark:text-primary',   dot: 'bg-primary dark:bg-primary'   },
-  { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary dark:text-primary',   dot: 'bg-primary dark:bg-primary'   },
-  { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary dark:text-primary',   dot: 'bg-primary dark:bg-primary'   },
+  { id: 'chat',       label: 'Tâm Sự',    icon: 'psychology_alt', grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
+  { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
+  { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
+  { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
 ];
 
 // ── Helper: count qualified therapy activities ─────────────────────────────────
@@ -68,10 +68,10 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
       <div className="fixed inset-0 z-[300] flex items-center justify-center p-5 bg-black/55 backdrop-blur-sm animate-fadeIn">
         <motion.div
           initial={{ opacity: 0, scale: 0.92, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="relative w-full max-w-sm rounded-3xl border border-rose-300/60 dark:border-rose-800/50 bg-white dark:bg-zinc-950 shadow-2xl p-5 space-y-4"
+          className="relative w-full max-w-sm rounded-3xl border border-rose-300/60 dark:border-rose-800/50 bg-card shadow-2xl p-5 space-y-4"
         >
           <button type="button" onClick={onDismiss}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 flex items-center justify-center active:scale-95 transition-transform"
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center active:scale-95 transition-transform"
             aria-label="Đóng tạm thời">
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
@@ -81,7 +81,7 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
               <span className="material-symbols-outlined text-rose-500 text-[30px]" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
             </span>
             <p className="text-base font-black text-rose-700 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
-            <p className="text-[12px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            <p className="text-[12px] text-muted-foreground leading-relaxed">
               {t("companion.crisis.descShort", "Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc liên hệ người thân đáng tin cậy.")}
             </p>
           </div>
@@ -110,7 +110,7 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
           <div className="flex gap-2">
             <EmergencySiren />
             <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
-              className="flex-1 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[11px] font-bold transition-all active:scale-[0.98]">
+              className="flex-1 py-2.5 rounded-xl bg-card border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[11px] font-bold transition-all active:scale-[0.98]">
               {t("companion.crisis.imSafeShort", "Tớ đã an toàn")}
             </button>
           </div>
@@ -156,7 +156,7 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
           {t("companion.crisis.talkNow", "Tớ cần nói chuyện ngay")}
         </button>
         <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
-          className="flex-1 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[11px] font-bold transition-all active:scale-[0.98]">
+          className="flex-1 py-2.5 rounded-xl bg-card border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[11px] font-bold transition-all active:scale-[0.98]">
           {t("companion.crisis.imSafe", "Tớ đã an toàn / đã liên hệ trợ giúp")}
         </button>
       </div>
@@ -206,13 +206,13 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
                 </span>
               )}
             </div>
-            <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 leading-tight">
+            <p className="text-[11px] font-bold text-foreground/80 leading-tight">
               Ngày {currentDay}/{effectiveDur} · Bắt đầu {startStr}
             </p>
           </div>
           {/* Thin progress bar side-by-side */}
           <div className="flex-grow flex items-center gap-2 mt-1 md:mt-0 min-w-[120px] max-w-xs">
-            <div className="flex-1 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }} animate={{ width: `${progressPercent}%` }}
                 transition={{ duration: 1.2, ease: 'easeOut' }}
@@ -300,28 +300,19 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
     } catch (_) {}
   };
 
-  const handleClearChat = () => {
-    toast((tToast) => (
-      <HugoConfirmNotice
-        type="error"
-        title={t("companion.tab.confirmDeleteTitle", "Xác Nhận Xóa")}
-        message={t("companion.tab.confirmDeleteDesc", "Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?")}
-        cancelLabel={t("companion.tab.skip", "Bỏ qua")}
-        confirmLabel={t("companion.tab.confirmDeleteBtn", "Xác nhận Xóa")}
-        onCancel={() => toast.dismiss(tToast.id)}
-        onConfirm={() => {
-          toast.dismiss(tToast.id);
-          localStorage.removeItem('banhocduong_chat_messages');
-          onClearMessages?.();
-          toast.success(t('companion.tab.deleteChatSuccess', 'Đã xóa lịch sử trò chuyện.'));
-          onClose();
-        }}
-      />
-    ), {
-      duration: 10000,
-      position: 'top-center',
-      style: { padding: 0, background: 'transparent', boxShadow: 'none' }
+  const handleClearChat = async () => {
+    const ok = await notify.confirm({
+      title: t("companion.tab.confirmDeleteTitle", "Xác Nhận Xóa"),
+      message: t("companion.tab.confirmDeleteDesc", "Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?"),
+      cancelText: t("companion.tab.skip", "Bỏ qua"),
+      confirmText: t("companion.tab.confirmDeleteBtn", "Xác nhận Xóa"),
+      danger: true,
     });
+    if (!ok) return;
+    localStorage.removeItem('banhocduong_chat_messages');
+    onClearMessages?.();
+    notify.success(t('companion.tab.deleteChatSuccess', 'Đã xóa lịch sử trò chuyện.'));
+    onClose();
   };
 
   return (
@@ -333,12 +324,12 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
       <motion.div
         initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 340, damping: 32 }}
-        className="bg-white dark:bg-card rounded-t-3xl md:rounded-2xl w-full md:w-[400px] shadow-2xl border-t border-zinc-200/50 dark:border-zinc-800/50 overflow-hidden"
+        className="bg-white dark:bg-card rounded-t-3xl md:rounded-2xl w-full md:w-[400px] shadow-2xl border-t border-border/50 overflow-hidden"
         style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
       >
         {/* Drag handle */}
         <div className="pt-3 pb-1 flex justify-center md:hidden">
-          <div className="w-10 h-1 bg-zinc-200 dark:bg-zinc-700 rounded-full" />
+          <div className="w-10 h-1 bg-muted rounded-full" />
         </div>
 
         <div className="px-5 py-4 space-y-5">
@@ -346,12 +337,12 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-zinc-800 dark:bg-zinc-200 flex items-center justify-center">
-                <span className="material-symbols-outlined text-white dark:text-zinc-900 text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>settings</span>
+                <span className="material-symbols-outlined text-background text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>settings</span>
               </div>
-              <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.settingsHeader", "Cài đặt HugoPSY")}</h3>
+              <h3 className="text-sm font-extrabold text-foreground">{t("companion.tab.settingsHeader", "Cài đặt HugoPSY")}</h3>
             </div>
             <button type="button" onClick={onClose}
-              className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center active:scale-90 transition-transform">
+              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center active:scale-90 transition-transform">
               <span className="material-symbols-outlined text-zinc-500 text-sm">close</span>
             </button>
           </div>
@@ -359,15 +350,15 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
           {/* Personalized stats */}
           {(totalDays > 0 || streak > 0 || lastTest) && (
             <div className="grid grid-cols-3 gap-2">
-              <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-xl p-3 text-center">
-                <p className="text-base font-black text-zinc-800 dark:text-zinc-100">{totalDays}</p>
+              <div className="bg-muted/50 rounded-xl p-3 text-center">
+                <p className="text-base font-black text-foreground">{totalDays}</p>
                 <p className="text-[8.5px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsDays", "Ngày đồng hành")}</p>
               </div>
-              <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-xl p-3 text-center">
+              <div className="bg-muted/50 rounded-xl p-3 text-center">
                 <p className="text-base font-black text-orange-500">{streak}🔥</p>
                 <p className="text-[8.5px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsStreak", "Streak check-in")}</p>
               </div>
-              <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-xl p-3 text-center">
+              <div className="bg-muted/50 rounded-xl p-3 text-center">
                 <p className="text-base font-black text-indigo-500 truncate">{lastTest ? lastTest.name : "—"}</p>
                 <p className="text-[8.5px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{lastTest ? lastTest.when : t("companion.tab.statsNoTest", "Chưa test")}</p>
               </div>
@@ -375,23 +366,23 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
           )}
 
           {/* Token usage */}
-          <div className="bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl p-4 space-y-3">
+          <div className="bg-muted/50 rounded-2xl p-4 space-y-3">
             <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">{t("companion.tab.aiLimitToday", "Giới hạn AI hôm nay")}</p>
             {[
               { label: t('companion.tab.limitChat', 'Cuộc trò chuyện'), left: chatLeft, max: chatMax, color: 'bg-primary', low: chatLeft < 4 },
             ].map(item => (
               <div key={item.label} className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-bold">
-                  <span className="text-zinc-600 dark:text-zinc-400">{item.label}</span>
+                  <span className="text-muted-foreground">{item.label}</span>
                   <span className={item.low ? 'text-amber-500 font-black' : 'text-zinc-500'}>{item.left + (bio?.bonusChatTokens || 0)}/{item.max}</span>
                 </div>
-                <div className="h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                   <div className={`h-full ${item.color} rounded-full transition-all`} style={{ width: `${Math.min(100, ((item.left + (bio?.bonusChatTokens || 0)) / item.max) * 100)}%` }} />
                 </div>
               </div>
             ))}
             {bio?.bonusChatTokens > 0 && (
-              <div className="flex items-center gap-3 pt-1 border-t border-zinc-200/60 dark:border-zinc-700/40">
+              <div className="flex items-center gap-3 pt-1 border-t border-border/60">
                 <span className="flex items-center gap-1 text-[10px] font-black text-indigo-600 dark:text-indigo-400">
                   <span className="material-symbols-outlined text-[13px]">add_circle</span>
                   {bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens", "lượt chat")} {t("companion.tab.bonusLabel", "thưởng")}
@@ -408,15 +399,15 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
                 <span className="material-symbols-outlined text-amber-500 text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>notifications_active</span>
               </div>
               <div>
-                <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200">{t("companion.tab.dailyReminder", "Nhắc nhở hằng ngày")}</p>
+                <p className="text-xs font-bold text-foreground">{t("companion.tab.dailyReminder", "Nhắc nhở hằng ngày")}</p>
                 <p className="text-[9px] text-zinc-400">{t("companion.tab.checkinSchedule", "Check-in cảm xúc + lộ trình")}</p>
               </div>
             </div>
             <button type="button" onClick={handlePush}
               className={`px-3 py-1.5 rounded-full text-[10px] font-black transition-all ${
                 notifStatus === 'granted'   ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' :
-                notifStatus === 'denied'    ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400' :
-                notifStatus === 'unsupported' ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400' :
+                notifStatus === 'denied'    ? 'bg-muted text-zinc-400' :
+                notifStatus === 'unsupported' ? 'bg-muted text-zinc-400' :
                 'bg-primary text-white shadow-sm shadow-primary/20'
               }`}
               disabled={notifStatus === 'denied' || notifStatus === 'unsupported'}
@@ -426,7 +417,7 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
           </div>
 
           {/* Danger zone */}
-          <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+          <div className="space-y-2 pt-2 border-t border-border/60">
             <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">{t("companion.tab.dangerZone", "Vùng nguy hiểm")}</p>
             <button type="button" onClick={handleClearChat}
               className="w-full flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-200/50 dark:border-red-900/20 hover:bg-red-500/10 transition-colors text-red-500 text-xs font-bold active:scale-[0.98]">
@@ -481,7 +472,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       const db = await dataApi.getCompanionHistory(memberEmail);
       if (!db) return;
       applyCompanionSnapshot(db);
-    } catch { console.error("BHD syncWithDb:", e); }
+    } catch (e) { console.error("BHD syncWithDb:", e); }
   }, [memberEmail, applyCompanionSnapshot]);
 
   useEffect(() => { syncWithDb(); }, [syncWithDb]);
@@ -507,7 +498,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       if (res?.companionHistory) {
         applyCompanionSnapshot(res.companionHistory);
       }
-    } catch { console.error("BHD handleUpdateCompanionState:", e); }
+    } catch (e) { console.error("BHD handleUpdateCompanionState:", e); }
   }, [memberEmail, healingActive, healingDuration, healingStartDate, historyLogs, chatMessages, applyCompanionSnapshot]);
 
   // ── Adaptation alert ──────────────────────────────────────────────────────────
@@ -574,7 +565,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       });
       const data = await r.json();
       if (r.ok) setCrisisFlags(data.crisisFlags || []);
-    } catch { console.error("BHD crisis resolve:", e); }
+    } catch (e) { console.error("BHD crisis resolve:", e); }
   };
 
   const handleClaimChallenge = async (challengeId) => {
@@ -646,7 +637,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         <button
           type="button"
           onClick={() => setShowSettings(true)}
-          className="flex-shrink-0 w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/50 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 transition-all"
+          className="flex-shrink-0 w-9 h-9 rounded-full bg-muted border border-border/60 flex items-center justify-center text-muted-foreground hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 transition-all"
           title={t("companion.tab.settings", "Cài đặt")}
         >
           <span className="material-symbols-outlined text-[17px]">settings</span>
@@ -694,7 +685,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
               className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl shrink-0 transition-all duration-200 active:scale-[0.97] ${
                 active
                   ? `bg-gradient-to-r ${tab.grad} text-white shadow-md`
-                  : 'bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 shadow-sm'
+                  : 'bg-card border border-border/60 text-muted-foreground shadow-sm'
               }`}
             >
               <span className="material-symbols-outlined text-[17px]" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
@@ -727,7 +718,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                 className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 relative font-bold border text-[11px] ${
                   active
                     ? 'bg-gradient-to-r from-blue-500/15 to-indigo-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25 dark:border-blue-500/30 shadow-sm shadow-blue-500/5 backdrop-blur-md'
-                    : 'bg-white/40 dark:bg-background/20 border-zinc-200/40 dark:border-zinc-800/30 text-zinc-500 dark:text-zinc-400 hover:bg-white/80 dark:hover:bg-[#1a1924]/40 hover:text-zinc-700 dark:hover:text-zinc-200'
+                    : 'bg-white/40 dark:bg-background/20 border-border/40 text-muted-foreground hover:bg-white/80 dark:hover:bg-[#1a1924]/40 hover:text-zinc-700 dark:hover:text-zinc-200'
                 }`}
               >
                 {active && (
@@ -748,7 +739,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         <div className={`flex-1 min-w-0 bg-white/80 dark:bg-background/80 backdrop-blur-2xl overflow-hidden flex flex-col relative ${
           effectiveSubTab === "chat"
             ? "rounded-none border-0 shadow-none md:rounded-3xl md:border md:border-zinc-200/40 md:dark:border-zinc-800/50 md:shadow-lg"
-            : "rounded-3xl border border-zinc-200/40 dark:border-zinc-800/50 shadow-lg"
+            : "rounded-3xl border border-border/40 shadow-lg"
         }`}>
           {/* Subtle animated background */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
@@ -848,21 +839,21 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
           >
             <motion.div
               initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }}
-              className="bg-white dark:bg-zinc-900 rounded-3xl border border-emerald-500/20 p-6 max-w-sm w-full shadow-2xl text-center space-y-5 overflow-hidden"
+              className="bg-card rounded-3xl border border-emerald-500/20 p-6 max-w-sm w-full shadow-2xl text-center space-y-5 overflow-hidden"
             >
               <div className="h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 rounded-full -mx-6 -mt-6 mb-2" />
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
                 <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>auto_awesome</span>
               </div>
               <div>
-                <h4 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.adaptiveAlert.title", "Tiến triển xuất sắc!")}</h4>
+                <h4 className="text-sm font-extrabold text-foreground">{t("companion.tab.adaptiveAlert.title", "Tiến triển xuất sắc!")}</h4>
                 <p className="text-[11px] text-zinc-500 mt-1">{t("companion.tab.adaptiveAlert.subtitle", "Lộ trình đồng hành thích ứng")}</p>
               </div>
               <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-4 text-left space-y-2">
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
                   {t("companion.tab.adaptiveAlert.recorded", "Ghi nhận:")} <span className="text-emerald-600 dark:text-emerald-400 font-bold">{adaptationAlert.improvement}</span>
                 </p>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
                   {t("companion.tab.adaptiveAlert.reduced", { count: adaptationAlert.reducedDays }, `Rút ngắn: -${adaptationAlert.reducedDays} ngày`)}
                 </p>
                 <div className="flex justify-between text-[10px] font-bold text-zinc-500 pt-2 border-t border-emerald-200 dark:border-emerald-800">
@@ -889,22 +880,22 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
           >
             <motion.div
               initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }}
-              className="bg-white dark:bg-zinc-900 rounded-3xl border border-red-500/20 p-6 max-w-sm w-full shadow-2xl text-center space-y-5"
+              className="bg-card rounded-3xl border border-red-500/20 p-6 max-w-sm w-full shadow-2xl text-center space-y-5"
             >
               <div className="h-1 bg-gradient-to-r from-red-500 via-orange-400 to-red-500 rounded-full -mx-6 -mt-6 mb-2" />
               <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
                 <span className="material-symbols-outlined text-red-500 text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>warning</span>
               </div>
               <div>
-                <h4 className="text-sm font-extrabold text-zinc-900 dark:text-white">{t("companion.tab.stopRoadmap.title", "Dừng lộ trình?")}</h4>
+                <h4 className="text-sm font-extrabold text-foreground">{t("companion.tab.stopRoadmap.title", "Dừng lộ trình?")}</h4>
                 <p className="text-[11px] text-zinc-500 mt-1">{t("companion.tab.stopRoadmap.subtitle", "Thao tác này không thể hoàn tác")}</p>
               </div>
-              <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed text-left bg-red-50 dark:bg-red-900/10 rounded-xl p-3 border border-red-200/50 dark:border-red-900/20">
+              <p className="text-[11px] text-muted-foreground leading-relaxed text-left bg-red-50 dark:bg-red-900/10 rounded-xl p-3 border border-red-200/50 dark:border-red-900/20">
                 {t("companion.tab.stopRoadmap.desc", "Dữ liệu check-in, lịch sử trắc nghiệm và nhật ký cảm xúc sẽ bị xóa vĩnh viễn. Cậu có chắc chắn không?")}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button type="button" onClick={() => setShowCancelModal(false)}
-                  className="py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+                  className="py-3 rounded-2xl border border-border text-xs font-bold text-muted-foreground hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
                   {t("companion.tab.stopRoadmap.cancel", "Quay lại")}
                 </button>
                 <button type="button" onClick={confirmCancelHealing}

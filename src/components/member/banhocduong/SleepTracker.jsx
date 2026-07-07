@@ -131,7 +131,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
       localStorage.setItem("device_sensors_connected", "true");
       setSensorsConnected(true);
       showToastMsg("Đã kết nối cảm biến thiết bị thành công!", "success");
-    } catch {
+    } catch (e) {
       console.error("Connect sensors error:", e);
       showToastMsg("Lỗi khi kết nối cảm biến: " + e.message, "error");
     }

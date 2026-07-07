@@ -554,7 +554,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
       playBeep();
       setIgnoredScanPayloads(new Set());
       selectRecipient(data);
-    } catch {
+    } catch (e) {
       playLose();
       setIgnoredScanPayloads(prev => {
         const next = new Set(prev);
@@ -591,7 +591,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
       playWin();
       onSuccess?.(data);
       setStep("success");
-    } catch {
+    } catch (e) {
       playLose();
       setError(e.message);
       setStep("invoice");
@@ -728,7 +728,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
                           value={searchQ}
                           onChange={e => setSearchQ(e.target.value)}
                           placeholder={t("joy.particle.searchPlaceholder", "Tên, SĐT, mã giới thiệu...")}
-                          className="w-full py-2.5 pl-10 pr-10 rounded-xl border-2 border-slate-200/70 bg-slate-50 text-[13px] font-bold text-slate-800 outline-none transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-indigo-500 dark:focus:bg-white/10"
+                          className="w-full py-2.5 pl-10 pr-10 rounded-xl border-2 border-slate-200/70 bg-slate-50 text-[13px] font-bold text-slate-800 outline-none transition-all focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-primary dark:focus:bg-white/10"
                         />
                         {searching && (
                           <span className="material-symbols-outlined" style={{

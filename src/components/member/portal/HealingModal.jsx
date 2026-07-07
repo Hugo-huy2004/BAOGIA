@@ -23,23 +23,23 @@ function CompanionHistoryReportPanel({ historyLogs }) {
 
   return (
     <div className="space-y-3">
-      <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Tổng quan hành trình</div>
+      <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tổng quan hành trình</div>
       {anomalies.length > 0 && (
         <div className="space-y-2">
           {anomalies.map((a, i) => (
             <div key={i} className="bg-amber-500/8 dark:bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
               <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">{a.title}</p>
-              <p className="text-[9.5px] text-zinc-500 dark:text-zinc-400 mt-0.5">{a.desc}</p>
+              <p className="text-[9.5px] text-muted-foreground mt-0.5">{a.desc}</p>
             </div>
           ))}
         </div>
       )}
       <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
         {historyLogs.slice().reverse().slice(0, 10).map((log, i) => (
-          <div key={i} className="flex items-start gap-2 py-1.5 border-b border-zinc-100/60 dark:border-zinc-800/40 last:border-0">
+          <div key={i} className="flex items-start gap-2 py-1.5 border-b border-border/60 last:border-0">
             <div className="text-[9px] font-mono text-zinc-400 shrink-0 pt-0.5">{fmt(log.date)}</div>
             <div className="flex-1 min-w-0">
-              {log.type === 'checkin' && <p className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300">{moodLabel(log.mood)}</p>}
+              {log.type === 'checkin' && <p className="text-[10px] font-bold text-foreground/80">{moodLabel(log.mood)}</p>}
               {log.note && <p className="text-[9.5px] text-zinc-500 truncate">{log.note}</p>}
             </div>
           </div>
@@ -80,7 +80,7 @@ export default function HealingModal({
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 20, opacity: 0 }}
             transition={{ type: 'spring', duration: 0.4 }}
-            className={`bg-white/85 dark:bg-background/85 backdrop-blur-2xl border border-zinc-200/50 dark:border-zinc-800/60 rounded-2xl p-6 sm:p-8 w-full shadow-2xl space-y-6 relative overflow-hidden ${
+            className={`bg-white/85 dark:bg-background/85 backdrop-blur-2xl border border-border/50 rounded-2xl p-6 sm:p-8 w-full shadow-2xl space-y-6 relative overflow-hidden ${
               (subStep === 'checkin' || subStep === 'wheel') ? 'max-w-md md:max-w-4xl' : 'max-w-md'
             }`}
           >
@@ -94,8 +94,8 @@ export default function HealingModal({
                 </div>
                 <div className="space-y-2">
                   <span className="text-[8.5px] font-black tracking-widest text-indigo-500 dark:text-indigo-400 uppercase">Hành trình hoàn tất</span>
-                  <h3 className="text-base font-black text-zinc-900 dark:text-white uppercase tracking-wider">Chúc mừng cậu đã hoàn thành!</h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-350 leading-relaxed font-semibold">Hành trình chữa lành của bạn đã hết rồi. Tớ hy vọng bạn đã vượt qua tất cả — bạn thực sự rất mạnh mẽ và xứng đáng được hạnh phúc.</p>
+                  <h3 className="text-base font-black text-foreground uppercase tracking-wider">Chúc mừng cậu đã hoàn thành!</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed font-semibold">Hành trình chữa lành của bạn đã hết rồi. Tớ hy vọng bạn đã vượt qua tất cả — bạn thực sự rất mạnh mẽ và xứng đáng được hạnh phúc.</p>
                 </div>
                 <button type="button" onClick={onGraduation}
                   className="w-full py-3 bg-gradient-to-r from-pink-500 to-indigo-650 hover:from-pink-650 hover:to-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-[0.98]">
@@ -111,12 +111,12 @@ export default function HealingModal({
                   <div className="space-y-4">
                     <div className="text-center space-y-1">
                       <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 dark:text-indigo-400 uppercase">Ngày {state.day} của lộ trình</span>
-                      <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">Hôm nay cậu thế nào?</h3>
+                      <h3 className="text-sm font-black text-foreground uppercase tracking-wider mt-1">Hôm nay cậu thế nào?</h3>
                     </div>
                     <div className="flex justify-between gap-1.5 py-1">
                       {[{v:1,c:'😢',l:'Rất tệ'},{v:2,c:'😕',l:'Hơi buồn'},{v:3,c:'😐',l:'Bình thường'},{v:4,c:'🙂',l:'Khá tốt'},{v:5,c:'😄',l:'Rất tuyệt'}].map(item => (
                         <button key={item.v} type="button" onClick={() => setMood(item.v)}
-                          className={`flex-1 py-3 rounded-xl border text-center transition-all ${mood === item.v ? 'bg-indigo-500/10 border-indigo-500 scale-[1.06] shadow-md' : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800'}`}>
+                          className={`flex-1 py-3 rounded-xl border text-center transition-all ${mood === item.v ? 'bg-indigo-500/10 border-indigo-500 scale-[1.06] shadow-md' : 'bg-card border-border'}`}>
                           <span className="text-2xl block">{item.c}</span>
                           <span className="text-[7.5px] font-black uppercase tracking-wider block mt-1">{item.l}</span>
                         </button>
@@ -125,7 +125,7 @@ export default function HealingModal({
                     <textarea
                       placeholder="Đồ án khó, thi cử áp lực, hay hôm nay là một ngày tuyệt vời..."
                       value={note} onChange={e => setNote(e.target.value)}
-                      className="w-full h-20 px-3 py-2.5 rounded-xl border border-zinc-250 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/20 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-zinc-400 font-semibold resize-none"
+                      className="w-full h-20 px-3 py-2.5 rounded-xl border border-border bg-card/50 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder:text-zinc-400 font-semibold resize-none"
                     />
                   </div>
                   <button type="button" onClick={() => onSubmit(mood, note)}
@@ -133,7 +133,7 @@ export default function HealingModal({
                     Tiếp tục
                   </button>
                 </div>
-                <div className="hidden md:block md:col-span-6 border-l border-zinc-200/50 dark:border-zinc-800/40 pl-6 max-h-[420px] overflow-y-auto pr-1">
+                <div className="hidden md:block md:col-span-6 border-l border-border/50 pl-6 max-h-[420px] overflow-y-auto pr-1">
                   <CompanionHistoryReportPanel historyLogs={historyLogs} />
                 </div>
               </div>
@@ -146,10 +146,10 @@ export default function HealingModal({
                   <div className="space-y-4">
                     <div className="text-center space-y-1">
                       <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">Bánh xe Cuộc sống</span>
-                      <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider mt-1">Định vị Cân Bằng Hôm Nay</h3>
+                      <h3 className="text-sm font-black text-foreground uppercase tracking-wider mt-1">Định vị Cân Bằng Hôm Nay</h3>
                     </div>
                     <div className="flex flex-col items-center gap-4">
-                      <div className="relative w-36 h-36 bg-white dark:bg-[#15141c] rounded-xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-inner flex items-center justify-center">
+                      <div className="relative w-36 h-36 bg-white dark:bg-[#15141c] rounded-xl border border-border/50 shadow-inner flex items-center justify-center">
                         <svg className="w-full h-full" viewBox="0 0 300 300">
                           {[2,4,6,8,10].map(level => {
                             const r = level * 10;
@@ -176,12 +176,12 @@ export default function HealingModal({
                       <div className="w-full space-y-2.5">
                         {['Bản thân','Học tập','Công việc','Gia đình','Mối quan hệ'].map((cat, idx) => (
                           <div key={idx} className="space-y-0.5">
-                            <div className="flex justify-between text-[10px] font-bold text-zinc-600 dark:text-zinc-400 pl-0.5">
+                            <div className="flex justify-between text-[10px] font-bold text-muted-foreground pl-0.5">
                               <span>{cat}</span><span className="font-mono text-emerald-500 font-black">{wheelRatings[idx]}/10</span>
                             </div>
                             <input type="range" min="1" max="10" value={wheelRatings[idx]}
                               onChange={e => { const c=[...wheelRatings]; c[idx]=parseInt(e.target.value,10); setWheelRatings(c); }}
-                              className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded appearance-none cursor-pointer accent-emerald-500" />
+                              className="w-full h-1 bg-muted rounded appearance-none cursor-pointer accent-emerald-500" />
                           </div>
                         ))}
                       </div>
@@ -192,7 +192,7 @@ export default function HealingModal({
                     Gửi cảm xúc & Bắt đầu ngày mới
                   </button>
                 </div>
-                <div className="hidden md:block md:col-span-6 border-l border-zinc-200/50 dark:border-zinc-800/40 pl-6 max-h-[420px] overflow-y-auto pr-1">
+                <div className="hidden md:block md:col-span-6 border-l border-border/50 pl-6 max-h-[420px] overflow-y-auto pr-1">
                   <CompanionHistoryReportPanel historyLogs={historyLogs} />
                 </div>
               </div>
@@ -208,10 +208,10 @@ export default function HealingModal({
                   <span className="text-[8.5px] font-black tracking-widest text-indigo-500 dark:text-indigo-400 uppercase">
                     {consecutiveLow ? 'Hỗ trợ phục hồi khẩn cấp' : 'Kiểm tra định kỳ'}
                   </span>
-                  <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider">
+                  <h3 className="text-sm font-black text-foreground uppercase tracking-wider">
                     {consecutiveLow ? 'Hãy yêu thương bản thân hơn nhé' : 'Đã đến lúc làm bài trắc nghiệm'}
                   </h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-350 leading-relaxed font-semibold max-w-sm mx-auto">
+                  <p className="text-xs text-muted-foreground leading-relaxed font-semibold max-w-sm mx-auto">
                     {consecutiveLow
                       ? 'Tâm trạng cậu đang khá trầm xuống liên tục. Hãy thực hành bài tập điều hòa nhịp thở hoặc trò chuyện với tớ nhé.'
                       : 'HugoPSY nhận thấy đã đến chu kỳ đánh giá định kỳ. Hãy làm một bài test DASS-42 để tớ đối chiếu chẩn đoán nhé.'}
@@ -228,7 +228,7 @@ export default function HealingModal({
                       <span className="material-symbols-outlined text-sm">forum</span>Tâm sự cùng Trợ lý
                     </button>
                     <button type="button" onClick={onGoToTest}
-                      className="w-full py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[9.5px] font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors">
+                      className="w-full py-2 rounded-xl border border-border text-[9.5px] font-black uppercase tracking-wider text-muted-foreground hover:bg-zinc-50 dark:hover:bg-muted transition-colors">
                       Làm test lâm sàng DASS-42
                     </button>
                     <button type="button" onClick={() => onDismiss()}
@@ -239,7 +239,7 @@ export default function HealingModal({
                 ) : (
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <button type="button" onClick={() => onDismiss()}
-                      className="py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[10px] font-black uppercase tracking-wider text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors">
+                      className="py-2.5 rounded-xl border border-border text-[10px] font-black uppercase tracking-wider text-zinc-500 hover:bg-zinc-50 dark:hover:bg-muted transition-colors">
                       Để sau
                     </button>
                     <button type="button" onClick={onGoToTest}

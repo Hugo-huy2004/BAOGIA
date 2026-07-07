@@ -5,11 +5,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 // success/warning/info/error tint — makes the list scannable at a glance
 // instead of every item looking the same shade of blue.
 const CATEGORY = {
-  verification: { icon: 'verified_user', accent: 'text-emerald-500', bar: 'bg-emerald-500', bg: 'bg-emerald-500/10' },
+  verification: { icon: 'verified_user', accent: 'text-success', bar: 'bg-success', bg: 'bg-success/10' },
   package:      { icon: 'card_membership', accent: 'text-violet-500', bar: 'bg-violet-500', bg: 'bg-violet-500/10' },
   wellness:     { icon: 'favorite', accent: 'text-pink-500', bar: 'bg-pink-500', bg: 'bg-pink-500/10' },
   security:     { icon: 'security', accent: 'text-rose-500', bar: 'bg-rose-500', bg: 'bg-rose-500/10' },
-  payment:      { icon: 'payments', accent: 'text-amber-500', bar: 'bg-amber-500', bg: 'bg-amber-500/10' },
+  payment:      { icon: 'payments', accent: 'text-warning', bar: 'bg-warning', bg: 'bg-warning/10' },
   joy:          { icon: 'paid', accent: 'text-yellow-500', bar: 'bg-yellow-500', bg: 'bg-yellow-500/10' },
   general:      { icon: 'notifications', accent: 'text-primary', bar: 'bg-primary', bg: 'bg-primary/10' },
   system:       { icon: 'notifications', accent: 'text-primary', bar: 'bg-primary', bg: 'bg-primary/10' },

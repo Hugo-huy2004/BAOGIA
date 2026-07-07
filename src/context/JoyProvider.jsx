@@ -59,7 +59,7 @@ export function JoyProvider({ children, email = "user@example.com" }) {
       // refresh data after success
       await refreshAll();
       return d;
-    } catch {
+    } catch (e) {
       throw e;
     }
   }
@@ -93,7 +93,7 @@ export function JoyProvider({ children, email = "user@example.com" }) {
       // refresh balance/transactions to ensure canonical state
       await refreshAll();
       return d;
-    } catch {
+    } catch (e) {
       // rollback optimistic change
       setTransactions((t) => t.filter((x) => x.id !== tempId));
       if (prevBalance != null) setBalance(prevBalance);

@@ -41,7 +41,7 @@ export default function AutoControl({ value = "auto", onChange, disabled = false
       </div>
       {value === "auto" && effective !== undefined && (
         <p className="mt-1 flex items-center gap-1 text-[9px] font-semibold text-muted-foreground">
-          <span className={`h-1 w-1 rounded-full ${effective ? "bg-indigo-500" : "bg-foreground/30"}`} />
+          <span className={`h-1 w-1 rounded-full ${effective ? "bg-primary" : "bg-foreground/30"}`} />
           Hugo đang tự {effective ? "bật" : "tắt"} theo ngữ cảnh
         </p>
       )}

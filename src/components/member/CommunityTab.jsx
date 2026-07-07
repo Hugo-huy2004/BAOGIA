@@ -26,15 +26,15 @@ const TAGS = {
     key: "chia sẻ",
     label: "Chia sẻ",
     icon: "tips_and_updates",
-    dot: "bg-indigo-500",
-    badge: "border-indigo-500/25 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300",
+    dot: "bg-primary",
+    badge: "border-primary/25 bg-primary/10 text-primary/40",
   },
   "câu hỏi": {
     key: "câu hỏi",
     label: "Câu hỏi",
     icon: "help",
-    dot: "bg-amber-500",
-    badge: "border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-300",
+    dot: "bg-warning",
+    badge: "border-warning/25 bg-warning/10 text-warning/40",
   },
 };
 const tagOf = (c) => TAGS[c] || TAGS["chia sẻ"];
@@ -414,10 +414,10 @@ export default function CommunityTab({ memberSession, bio }) {
           </button>
         </div>
         <div className="mt-2.5 flex items-center justify-around border-t border-slate-100 pt-2 dark:border-zinc-800">
-          <button type="button" onClick={() => openComposer()} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold text-indigo-500 transition hover:bg-slate-100 dark:hover:bg-zinc-800">
+          <button type="button" onClick={() => openComposer()} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold text-primary transition hover:bg-slate-100 dark:hover:bg-zinc-800">
             <span className="material-symbols-outlined text-[19px]">tips_and_updates</span>Chia sẻ
           </button>
-          <button type="button" onClick={() => openComposer()} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold text-amber-500 transition hover:bg-slate-100 dark:hover:bg-zinc-800">
+          <button type="button" onClick={() => openComposer()} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold text-warning transition hover:bg-slate-100 dark:hover:bg-zinc-800">
             <span className="material-symbols-outlined text-[19px]">help</span>Đặt câu hỏi
           </button>
         </div>
@@ -425,8 +425,8 @@ export default function CommunityTab({ memberSession, bio }) {
 
       {/* AI moderation notice for the author's own in-review posts */}
       {posts.some((p) => p.senderEmail === memberSession?.email && p.status === "pending") && (
-        <div className="flex items-center gap-2.5 rounded-2xl border border-indigo-500/20 bg-indigo-500/[0.06] px-3.5 py-2.5">
-          <span className="material-symbols-outlined animate-spin text-[18px] text-indigo-500">progress_activity</span>
+        <div className="flex items-center gap-2.5 rounded-2xl border border-primary/20 bg-primary/[0.06] px-3.5 py-2.5">
+          <span className="material-symbols-outlined animate-spin text-[18px] text-primary">progress_activity</span>
           <p className="text-[11.5px] font-semibold text-foreground">
             Bài của bạn đang được <b>AI kiểm duyệt</b> theo hàng đợi — sẽ tự đăng khi duyệt xong.
           </p>
@@ -457,7 +457,7 @@ export default function CommunityTab({ memberSession, bio }) {
           <button
             type="button"
             onClick={() => openComposer()}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-indigo-500 px-4 py-2 text-[12px] font-black text-white transition hover:bg-indigo-600"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-[12px] font-black text-white transition hover:bg-primary"
           >
             <span className="material-symbols-outlined text-[16px]">edit_square</span>Đăng bài
           </button>
@@ -473,7 +473,7 @@ export default function CommunityTab({ memberSession, bio }) {
             const isRejected = post.status === "rejected";
             const isLive = !isPending && !isRejected;
             return (
-              <div key={post._id} className={`relative flex flex-col bg-white/10 p-3.5 dark:bg-zinc-900/10 ${isPending ? "ring-1 ring-inset ring-indigo-500/30" : isRejected ? "ring-1 ring-inset ring-rose-500/30" : ""}`}>
+              <div key={post._id} className={`relative flex flex-col bg-white/10 p-3.5 dark:bg-zinc-900/10 ${isPending ? "ring-1 ring-inset ring-primary/30" : isRejected ? "ring-1 ring-inset ring-rose-500/30" : ""}`}>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-1.5">
                   <div className="flex min-w-0 items-center gap-2">
@@ -484,7 +484,7 @@ export default function CommunityTab({ memberSession, bio }) {
                         type="button"
                         onClick={() => openBio(post.senderSlug)}
                         disabled={!post.senderSlug}
-                        className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-tr from-indigo-400 via-fuchsia-500 to-amber-400 p-[1.5px] transition active:scale-90 disabled:cursor-default"
+                        className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-tr from-primary via-fuchsia-500 to-warning p-[1.5px] transition active:scale-90 disabled:cursor-default"
                         aria-label={`Xem trang bio của ${post.senderName}`}
                       >
                         <img src={av(post.senderAvatar)} loading="lazy" className="h-full w-full rounded-full border-2 border-card object-cover" alt="" />
@@ -508,7 +508,7 @@ export default function CommunityTab({ memberSession, bio }) {
 
                   <div className="flex items-center gap-1">
                     {isPending ? (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-indigo-500/25 bg-indigo-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-indigo-600 dark:text-indigo-300">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-primary/40">
                         <span className="material-symbols-outlined animate-spin text-[11px]">progress_activity</span>Đang xét duyệt
                       </span>
                     ) : isRejected ? (
@@ -518,7 +518,7 @@ export default function CommunityTab({ memberSession, bio }) {
                     ) : (
                       <>
                         {post.category === "câu hỏi" && post.resolved && (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-emerald-600 dark:text-emerald-300">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-success/25 bg-success/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-success/40">
                             <span className="material-symbols-outlined text-[11px]" style={{ fontVariationSettings: "'FILL' 1" }}>task_alt</span>Đã giải đáp
                           </span>
                         )}
@@ -537,7 +537,7 @@ export default function CommunityTab({ memberSession, bio }) {
                           <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
                           <div className="absolute right-0 top-8 z-20 w-40 overflow-hidden rounded-xl border border-border bg-card py-1 shadow-xl">
                             {isOwn && post.category === "câu hỏi" && (
-                              <button onClick={() => handleToggleResolve(post._id)} className="flex w-full items-center gap-2 px-4 py-2 text-left text-[13px] font-bold text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400">
+                              <button onClick={() => handleToggleResolve(post._id)} className="flex w-full items-center gap-2 px-4 py-2 text-left text-[13px] font-bold text-success hover:bg-success/10 dark:text-success">
                                 <span className="material-symbols-outlined text-[16px]">{post.resolved ? "remove_done" : "task_alt"}</span>
                                 {post.resolved ? "Bỏ đã giải đáp" : "Đã giải đáp"}
                               </button>
@@ -565,7 +565,7 @@ export default function CommunityTab({ memberSession, bio }) {
 
                 {/* Unanswered hint — nudge the community to help */}
                 {isLive && isUnanswered(post) && (
-                  <div className="mt-2.5 flex items-center gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-2.5 py-1.5 text-[10.5px] font-bold text-amber-600 dark:text-amber-300">
+                  <div className="mt-2.5 flex items-center gap-1.5 rounded-lg border border-warning/20 bg-warning/[0.06] px-2.5 py-1.5 text-[10.5px] font-bold text-warning/40">
                     <span className="material-symbols-outlined text-[14px]">contact_support</span>
                     Chưa có lời giải — giúp bạn ấy nhé!
                   </div>
@@ -577,8 +577,8 @@ export default function CommunityTab({ memberSession, bio }) {
                 {/* AI glossary — generated on demand when the reader taps the button */}
                 {isLive && (
                   glossaryOpen[post._id] && post.glossary?.length > 0 ? (
-                    <div className="mt-2.5 rounded-xl border border-indigo-500/15 bg-indigo-500/[0.05] p-2.5">
-                      <p className="mb-1.5 flex items-center gap-1 text-[9.5px] font-black uppercase tracking-wide text-indigo-500 dark:text-indigo-300">
+                    <div className="mt-2.5 rounded-xl border border-primary/15 bg-primary/[0.05] p-2.5">
+                      <p className="mb-1.5 flex items-center gap-1 text-[9.5px] font-black uppercase tracking-wide text-primary/40">
                         <span className="material-symbols-outlined text-[13px]">menu_book</span>Giải thích thuật ngữ (AI)
                       </p>
                       <div className="space-y-1">
@@ -594,7 +594,7 @@ export default function CommunityTab({ memberSession, bio }) {
                       type="button"
                       onClick={() => handleExplainTerms(post._id)}
                       disabled={glossaryLoadingId === post._id}
-                      className="mt-2 inline-flex items-center gap-1 self-start text-[10.5px] font-bold text-indigo-500 hover:underline disabled:opacity-60 dark:text-indigo-400"
+                      className="mt-2 inline-flex items-center gap-1 self-start text-[10.5px] font-bold text-primary hover:underline disabled:opacity-60 dark:text-primary"
                     >
                       <span className={`material-symbols-outlined text-[13px] ${glossaryLoadingId === post._id ? "animate-spin" : ""}`}>
                         {glossaryLoadingId === post._id ? "progress_activity" : "menu_book"}
@@ -606,8 +606,8 @@ export default function CommunityTab({ memberSession, bio }) {
 
                 {/* Pending / rejected states */}
                 {isPending && (
-                  <div className="mt-3 flex items-center gap-1.5 rounded-lg border border-indigo-500/20 bg-indigo-500/[0.06] px-2.5 py-1.5 text-[10.5px] font-semibold text-foreground/80">
-                    <span className="material-symbols-outlined animate-spin text-[14px] text-indigo-500">progress_activity</span>
+                  <div className="mt-3 flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/[0.06] px-2.5 py-1.5 text-[10.5px] font-semibold text-foreground/80">
+                    <span className="material-symbols-outlined animate-spin text-[14px] text-primary">progress_activity</span>
                     AI đang kiểm duyệt & tự gắn thẻ — bài sẽ hiển thị công khai khi duyệt xong.
                   </div>
                 )}
@@ -670,7 +670,7 @@ export default function CommunityTab({ memberSession, bio }) {
 
                     {repliesCount > 0 && (
                       <button onClick={() => setActiveCommentPostId(post._id)} className="mt-1 rounded-xl bg-slate-50 p-2.5 text-left transition hover:bg-slate-100 dark:bg-zinc-800/60 dark:hover:bg-zinc-800">
-                        {repliesCount > 1 && <p className="mb-1 text-[11px] font-bold text-indigo-500">Xem tất cả {repliesCount} bình luận</p>}
+                        {repliesCount > 1 && <p className="mb-1 text-[11px] font-bold text-primary">Xem tất cả {repliesCount} bình luận</p>}
                         <p style={READ_FONT} className="line-clamp-2 text-[12px] leading-snug text-foreground/80">
                           <span className="font-bold">{post.comments[repliesCount - 1].senderName}</span>{" "}
                           {post.comments[repliesCount - 1].message}
@@ -720,8 +720,8 @@ export default function CommunityTab({ memberSession, bio }) {
 
               {/* Scrollable content — stays visible above the keyboard */}
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-                <div className="mx-4 mt-3 flex items-start gap-2 rounded-xl border border-indigo-500/15 bg-indigo-500/[0.05] px-3 py-2">
-                  <span className="material-symbols-outlined mt-0.5 text-[16px] text-indigo-500">auto_awesome</span>
+                <div className="mx-4 mt-3 flex items-start gap-2 rounded-xl border border-primary/15 bg-primary/[0.05] px-3 py-2">
+                  <span className="material-symbols-outlined mt-0.5 text-[16px] text-primary">auto_awesome</span>
                   <p className="text-[10.5px] leading-snug text-foreground/80">
                     AI sẽ tự kiểm duyệt, <b>gắn thẻ Chia sẻ / Câu hỏi</b> và giải thích thuật ngữ giúp bạn. Bài đăng công khai sau khi duyệt xong. Chỉ dùng tiếng Việt hoặc tiếng Anh.
                   </p>
@@ -746,7 +746,7 @@ export default function CommunityTab({ memberSession, bio }) {
                   <button
                     type="button"
                     onClick={() => { playBeep(); setPostAnon((v) => !v); }}
-                    className={`mx-4 mb-3 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold transition ${postAnon ? "border-indigo-500/60 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300" : "border-border text-muted-foreground hover:bg-foreground/[0.04]"}`}
+                    className={`mx-4 mb-3 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold transition ${postAnon ? "border-primary/60 bg-primary/10 text-primary/40" : "border-border text-muted-foreground hover:bg-foreground/[0.04]"}`}
                   >
                     <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: postAnon ? "'FILL' 1" : "'FILL' 0" }}>
                       {postAnon ? "check_circle" : "visibility_off"}
@@ -856,13 +856,13 @@ export default function CommunityTab({ memberSession, bio }) {
                   onChange={(e) => setCommentInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAddComment()}
                   placeholder="Viết bình luận..."
-                  className="h-11 flex-1 rounded-full bg-foreground/[0.07] px-4 text-[15px] text-foreground outline-none ring-1 ring-inset ring-transparent transition focus:ring-indigo-500/40 placeholder:text-muted-foreground"
+                  className="h-11 flex-1 rounded-full bg-foreground/[0.07] px-4 text-[15px] text-foreground outline-none ring-1 ring-inset ring-transparent transition focus:ring-primary/40 placeholder:text-muted-foreground"
                   autoFocus
                 />
                 <button
                   onClick={handleAddComment}
                   disabled={!commentInput.trim() || commentSubmitting}
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white shadow-lg shadow-indigo-500/30 transition active:scale-90 disabled:opacity-30 disabled:shadow-none"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white shadow-lg shadow-primary/30 transition active:scale-90 disabled:opacity-30 disabled:shadow-none"
                   style={{ background: BRAND }}
                   aria-label="Gửi bình luận"
                 >

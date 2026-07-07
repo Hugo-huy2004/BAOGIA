@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { toast } from 'react-hot-toast';
+import { notify } from '../../lib/notify';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 

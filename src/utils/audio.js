@@ -27,7 +27,7 @@ export const playPopSound = () => {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.15);
-  } catch {
+  } catch (e) {
     console.warn("Audio pop effect failed:", e);
   }
 };
@@ -52,7 +52,7 @@ export const playNotificationSound = () => {
       osc.start(ctx.currentTime + at);
       osc.stop(ctx.currentTime + at + 0.32);
     });
-  } catch {
+  } catch (e) {
     console.warn("Notification sound failed:", e);
   }
 };
@@ -165,7 +165,7 @@ export const playTick = () => {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.08);
-  } catch {
+  } catch (e) {
     console.warn("Audio tick effect failed:", e);
   }
 };

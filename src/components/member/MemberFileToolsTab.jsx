@@ -131,12 +131,12 @@ export default function MemberFileToolsTab({ showToast, bio }) {
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex bg-zinc-100 dark:bg-zinc-800/50 p-1 rounded-md">
+      <div className="flex bg-muted p-1 rounded-md">
         <button
           onClick={() => setActiveSubTab("extract")}
           className={`flex-1 py-2 text-sm font-medium rounded transition-colors ${
             activeSubTab === "extract" 
-            ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm" 
+            ? "bg-card text-foreground shadow-sm" 
             : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
           }`}
         >
@@ -146,7 +146,7 @@ export default function MemberFileToolsTab({ showToast, bio }) {
           onClick={() => setActiveSubTab("compress")}
           className={`flex-1 py-2 text-sm font-medium rounded transition-colors ${
             activeSubTab === "compress" 
-            ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm" 
+            ? "bg-card text-foreground shadow-sm" 
             : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
           }`}
         >
@@ -164,8 +164,8 @@ export default function MemberFileToolsTab({ showToast, bio }) {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="p-5 rounded-lg bg-white dark:bg-card border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+            <div className="p-5 rounded-lg bg-white dark:bg-card border border-border/50 shadow-sm">
+              <label className="block text-sm font-medium text-foreground/80 mb-2">
                 {t("utilities.fileTools.extract.label")}
               </label>
               <input
@@ -188,17 +188,17 @@ export default function MemberFileToolsTab({ showToast, bio }) {
 
             {/* Hiển thị kết quả ZIP */}
             {zipResult && zipResult.entries && (
-              <div className="p-5 rounded-lg bg-white dark:bg-card border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
-                <h4 className="text-sm font-medium text-zinc-900 dark:text-white mb-3">
+              <div className="p-5 rounded-lg bg-white dark:bg-card border border-border/50 shadow-sm">
+                <h4 className="text-sm font-medium text-foreground mb-3">
                   {t("utilities.fileTools.extract.resultTitle")}
                 </h4>
                 <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                   {zipResult.entries.filter(e => !e.isDirectory && !e.name.includes('__MACOSX')).map((entry, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 rounded bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
+                    <div key={idx} className="flex items-center justify-between p-3 rounded bg-muted/50 border border-border/60">
                       <div className="flex items-center gap-3 overflow-hidden">
                         <span className="material-symbols-outlined text-zinc-400">insert_drive_file</span>
                         <div className="flex flex-col truncate">
-                          <span className="text-sm text-zinc-700 dark:text-zinc-300 truncate" title={entry.name}>
+                          <span className="text-sm text-foreground/80 truncate" title={entry.name}>
                             {entry.name.split('/').pop()}
                           </span>
                           <span className="text-xs text-zinc-400">
@@ -230,9 +230,9 @@ export default function MemberFileToolsTab({ showToast, bio }) {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            <div className="p-5 rounded-lg bg-white dark:bg-card border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm space-y-5">
+            <div className="p-5 rounded-lg bg-white dark:bg-card border border-border/50 shadow-sm space-y-5">
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-foreground/80 mb-2">
                   {t("utilities.fileTools.compress.label")}
                 </label>
                 <input
@@ -244,7 +244,7 @@ export default function MemberFileToolsTab({ showToast, bio }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
+                <label className="block text-sm font-medium text-foreground/80 mb-3">
                   {t("utilities.fileTools.compress.levelSection")}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -259,7 +259,7 @@ export default function MemberFileToolsTab({ showToast, bio }) {
                       className={`py-2 px-1 text-xs sm:text-sm font-medium rounded border transition-all ${
                         compressLevel === level.id
                           ? "border-primary bg-primary/10 text-primary dark:bg-primary/15"
-                          : "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                          : "border-border text-muted-foreground hover:bg-zinc-50 dark:hover:bg-zinc-800"
                       }`}
                     >
                       {level.name}
@@ -267,7 +267,7 @@ export default function MemberFileToolsTab({ showToast, bio }) {
                   ))}
                 </div>
                 {compressLevel !== "light" && (
-                  <p className="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+                  <p className="mt-2 text-xs text-warning font-medium flex items-center gap-1">
                     <span className="material-symbols-outlined text-sm">bolt</span>
                     Mức này trao đổi {COMPRESS_CHARGE} JOY/file
                   </p>
@@ -283,7 +283,7 @@ export default function MemberFileToolsTab({ showToast, bio }) {
                 {compressing ? t("utilities.fileTools.extract.processing") : t("utilities.fileTools.compress.btnSubmit")}
               </button>
               
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
+              <p className="text-xs text-muted-foreground text-center">
                 {t("utilities.fileTools.compress.privacyNote")}
               </p>
             </div>

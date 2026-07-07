@@ -10,14 +10,14 @@ export default function BodySubTab({
     <div className="space-y-4 animate-fadeIn">
       {/* Section D: Body Measurements & Location */}
       <div className="space-y-2">
-        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.physical.title")}</h3>
+        <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest pl-4">{t("memberPortal.physical.title")}</h3>
         <div className="hg-glass rounded-lg overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Height */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#ff3b30]">
               <span className="material-symbols-outlined text-base">height</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.height")}</label>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.height")}</label>
             <OptimizedInput
               type="text"
               name="height"
@@ -33,7 +33,7 @@ export default function BodySubTab({
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#4cd964]">
               <span className="material-symbols-outlined text-base">monitor_weight</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-450 dark:text-zinc-550 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.weight")}</label>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.weight")}</label>
             <OptimizedInput
               type="text"
               name="weight"
@@ -65,7 +65,7 @@ export default function BodySubTab({
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-primary">
               <span className="material-symbols-outlined text-base">distance</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-550 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.location")}</label>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.location")}</label>
             <OptimizedInput
               type="text"
               name="address"

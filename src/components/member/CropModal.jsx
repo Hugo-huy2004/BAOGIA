@@ -13,15 +13,15 @@ export default function CropModal({
 
   return (
     <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-white dark:bg-card w-full max-w-sm rounded-xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-2xl p-6 text-center space-y-6">
+      <div className="bg-white dark:bg-card w-full max-w-sm rounded-xl border border-border/50 shadow-2xl p-6 text-center space-y-6">
         <div className="space-y-1">
-          <h3 className="text-sm font-bold text-zinc-900 dark:text-white">{t("memberPortal.crop.title")}</h3>
-          <p className="text-[10px] text-zinc-450 dark:text-zinc-400">{t("memberPortal.crop.desc")}</p>
+          <h3 className="text-sm font-bold text-foreground">{t("memberPortal.crop.title")}</h3>
+          <p className="text-[10px] text-muted-foreground/70">{t("memberPortal.crop.desc")}</p>
         </div>
 
         {/* Circular Crop Frame container */}
         <div
-          className="w-48 h-48 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800 relative bg-zinc-950 mx-auto cursor-move select-none shadow-inner"
+          className="w-48 h-48 rounded-full overflow-hidden border border-border relative bg-zinc-950 mx-auto cursor-move select-none shadow-inner"
           style={{ touchAction: 'none' }}
           onMouseDown={handleDragStart}
           onMouseMove={handleDragMove}
@@ -49,7 +49,7 @@ export default function CropModal({
 
         {/* Zoom Slider */}
         <div className="space-y-2 px-4">
-          <div className="flex justify-between text-[10px] text-zinc-450 dark:text-zinc-400 font-bold">
+          <div className="flex justify-between text-[10px] text-muted-foreground/70 font-bold">
             <span>{t("memberPortal.crop.zoomOut")}</span>
             <span>{t("memberPortal.crop.zoomIn")}</span>
           </div>
@@ -60,7 +60,7 @@ export default function CropModal({
             step="0.05"
             value={cropModal.zoom}
             onChange={(e) => setCropModal((prev) => ({ ...prev, zoom: parseFloat(e.target.value) }))}
-            className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded appearance-none cursor-pointer accent-[#0071e3]"
+            className="w-full h-1 bg-muted rounded appearance-none cursor-pointer accent-[#0071e3]"
           />
         </div>
 
@@ -69,7 +69,7 @@ export default function CropModal({
           <button
             type="button"
             onClick={() => setCropModal({ isOpen: false, imageSrc: null, zoom: 1, aspect: 1, offset: { x: 0, y: 0 } })}
-            className="py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
+            className="py-2.5 rounded-md border border-border text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-muted transition-colors"
           >
             {t("memberPortal.crop.cancel")}
           </button>

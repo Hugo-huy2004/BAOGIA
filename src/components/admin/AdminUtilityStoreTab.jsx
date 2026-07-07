@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAdminSession } from '../../services/authSession';
-import { toast } from 'react-hot-toast';
+import { notify } from '../../lib/notify';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const EMPTY_FORM = {

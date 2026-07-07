@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAdminSession } from '../../services/authSession';
-import { toast } from 'react-hot-toast';
+import { notify } from '../../lib/notify';
 import { packageApi } from '../../services/api/PackageApi';
 import { userApi } from '../../services/api/UserApi';
 import SmartUserSearch from './SmartUserSearch';
@@ -71,7 +71,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     try {
       const data = await packageApi.getPackages();
       setPackageTemplates(data || []);
-    } catch {
+    } catch (e) {
       console.error(e);
     } finally {
       setPkgLoading(false);

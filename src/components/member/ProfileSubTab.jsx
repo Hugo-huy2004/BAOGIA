@@ -18,12 +18,12 @@ export default function ProfileSubTab({
   return (
     <div className="space-y-4 animate-fadeIn">
       {/* Section: Avatar Editor */}
-      <div className="space-y-2 text-center py-4 bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm">
+      <div className="space-y-2 text-center py-4 bg-white dark:bg-card rounded-lg border border-border/50 shadow-sm">
         <div
-          className={`relative w-20 h-20 rounded-full border shadow-md bg-zinc-100 dark:bg-zinc-900 mx-auto flex items-center justify-center overflow-hidden group cursor-pointer transition-all duration-200 ${
+          className={`relative w-20 h-20 rounded-full border shadow-md bg-muted mx-auto flex items-center justify-center overflow-hidden group cursor-pointer transition-all duration-200 ${
             isDragOver
-              ? "border-2 border-dashed border-primary scale-105 bg-blue-50/10 dark:bg-blue-900/10"
-              : "border-zinc-200 dark:border-zinc-800"
+              ? "border-2 border-dashed border-primary scale-105 bg-primary/10"
+              : "border-border"
           }`}
           onClick={() => !saving && avatarInputRef.current.click()}
           onDragOver={(e) => {
@@ -41,7 +41,7 @@ export default function ProfileSubTab({
           {formData.avatarUrl ? (
             <img src={optimizeCloudinaryUrl(formData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-850 text-zinc-400 dark:text-zinc-500">
+            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground/70">
               <span className="material-symbols-outlined text-3xl">add_a_photo</span>
             </div>
           )}
@@ -66,14 +66,14 @@ export default function ProfileSubTab({
           disabled={saving}
         />
         <div className="space-y-1">
-          <p className="text-[10px] text-zinc-450 dark:text-zinc-400 font-bold uppercase tracking-wider">{t("memberPortal.bio.avatarTitle")}</p>
+          <p className="text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider">{t("memberPortal.bio.avatarTitle")}</p>
           <p className="text-[8px] text-zinc-400">{t("memberPortal.bio.avatarDesc")}</p>
           {formData.avatarUrl && (
             <button
               type="button"
               onClick={handleRemoveAvatar}
               disabled={saving}
-              className="text-[9px] font-bold text-red-500 hover:text-red-650 transition-colors disabled:opacity-50"
+              className="text-[9px] font-bold text-destructive hover:text-red-650 transition-colors disabled:opacity-50"
             >{t("memberPortal.bio.removeAvatar")}</button>
           )}
         </div>
@@ -81,14 +81,14 @@ export default function ProfileSubTab({
 
       {/* Section A: Basic settings */}
       <div className="space-y-2">
-        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.basicInfo")}</h3>
-        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest pl-4">{t("memberPortal.bio.basicInfo")}</h3>
+        <div className="bg-white dark:bg-card rounded-lg border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Display name */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-primary">
               <span className="material-symbols-outlined text-base">person</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.fullName")}</label>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.fullName")}</label>
             <OptimizedInput
               type="text"
               name="displayName"
@@ -105,7 +105,7 @@ export default function ProfileSubTab({
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#30b0c7]">
               <span className="material-symbols-outlined text-base">badge</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.nickname")}</label>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.nickname")}</label>
             <OptimizedInput
               type="text"
               name="headline"
@@ -121,7 +121,7 @@ export default function ProfileSubTab({
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#ff2d55]">
               <span className="material-symbols-outlined text-base">cake</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.birthday")}</label>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.birthday")}</label>
             <OptimizedInput
               type="text"
               name="birthday"
@@ -136,21 +136,21 @@ export default function ProfileSubTab({
 
       {/* Section B: Contact settings */}
       <div className="space-y-2">
-        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.bio.contactInfo")}</h3>
-        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest pl-4">{t("memberPortal.bio.contactInfo")}</h3>
+        <div className="bg-white dark:bg-card rounded-lg border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Read-only email */}
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px] bg-zinc-50/50 dark:bg-zinc-900/10">
+          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px] bg-muted/50">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#34c759]">
               <span className="material-symbols-outlined text-base">mail</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">
               Gmail
             </label>
             <div className="flex-1 flex flex-wrap justify-between items-center gap-2">
               <span className="text-xs font-semibold text-zinc-500">
                 {memberSession?.email || "-"}
               </span>
-              <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[#34c759]/10 border border-[#34c759]/20 text-[9px] font-bold text-emerald-500 shrink-0">
+              <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[#34c759]/10 border border-[#34c759]/20 text-[9px] font-bold text-success shrink-0">
                 <span className="material-symbols-outlined text-[10px]">verified</span>
                 Student verified
               </div>
@@ -162,7 +162,7 @@ export default function ProfileSubTab({
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#34c759]">
               <span className="material-symbols-outlined text-base">phone</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.phone")}</label>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.phone")}</label>
             <OptimizedInput
               type="tel"
               name="phone"
@@ -178,7 +178,7 @@ export default function ProfileSubTab({
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-primary">
               <span className="material-symbols-outlined text-base">alternate_email</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.email")}</label>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.email")}</label>
             <OptimizedInput
               type="email"
               name="contactEmail"

@@ -46,7 +46,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
               <button
                 type="button"
                 onClick={handlePrevClick}
-                className="flex items-center gap-1 text-[9px] font-black uppercase text-zinc-550 hover:text-zinc-800 dark:text-zinc-450 dark:hover:text-zinc-200 transition-colors"
+                className="flex items-center gap-1 text-[9px] font-black uppercase text-muted-foreground hover:text-zinc-800 text-muted-foreground dark:hover:text-zinc-200 transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Câu trước
@@ -62,7 +62,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
           </button>
         </div>
         
-        <h4 className="text-xs font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">
+        <h4 className="text-xs font-black text-foreground uppercase tracking-wider">
           {activeTest.name}
         </h4>
 
@@ -73,7 +73,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
           Nếu cậu thấy lo lắng, hãy trao đổi với chuyên gia tâm lý hoặc bác sĩ.
         </p>
 
-        <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+        <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
           <div
             className="bg-primary h-full transition-all duration-300"
             style={{ width: `${percentProgress}%` }}
@@ -94,7 +94,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="w-full relative p-4 rounded-lg border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-card shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)] text-zinc-800 dark:text-zinc-100 font-bold text-xs text-center leading-relaxed"
+            className="w-full relative p-4 rounded-lg border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-card shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)] text-foreground font-bold text-xs text-center leading-relaxed"
           >
             "{activeTest.questions[currentQuestionIdx]}"
           </motion.div>
@@ -109,10 +109,10 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
             type="button"
             disabled={submitting}
             onClick={() => handleAnswerClick(opt.value)}
-            className="w-full py-2 px-3.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-[10px] font-black text-zinc-800 dark:text-zinc-250 uppercase tracking-wider text-left hover:bg-zinc-50 dark:hover:bg-zinc-850 active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center justify-between disabled:opacity-50 disabled:pointer-events-none"
+            className="w-full py-2 px-3.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-card text-[10px] font-black text-zinc-800 dark:text-muted-foreground/60 uppercase tracking-wider text-left hover:bg-zinc-50 dark:hover:bg-muted active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center justify-between disabled:opacity-50 disabled:pointer-events-none"
           >
             <span>{opt.label}</span>
-            <span className="font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded text-[8px]">{opt.value} điểm</span>
+            <span className="font-mono bg-muted text-zinc-500 px-2 py-0.5 rounded text-[8px]">{opt.value} điểm</span>
           </button>
         ))}
       </div>

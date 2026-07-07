@@ -247,16 +247,16 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
         <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-zinc-900/10 border border-zinc-900/20 text-zinc-855 dark:bg-white/10 dark:text-white dark:border-white/20 uppercase">
           Quét hồ sơ phòng khám
         </span>
-        <h4 className="text-xs font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">
+        <h4 className="text-xs font-black text-foreground uppercase tracking-wider">
           Phân tích kết quả DASS / MMPI
         </h4>
-        <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-relaxed font-bold">
+        <p className="text-[10px] text-muted-foreground leading-relaxed font-bold">
           Gửi ảnh chụp phiếu kiểm tra hoặc file PDF để Chuyên viên Đồng Hành trích xuất chỉ số lâm sàng lập tức.
         </p>
       </div>
 
       {scanState === "idle" && (
-        <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-black/5 rounded-xl p-6 text-center space-y-4 hover:border-primary transition-all">
+        <div className="border-2 border-dashed border-border bg-card/40 rounded-xl p-6 text-center space-y-4 hover:border-primary transition-all">
           <input
             type="file"
             accept="image/*,application/pdf"
@@ -275,14 +275,14 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
             className="hidden"
           />
           <label htmlFor="chat-scanner-input-sub" className="cursor-pointer block space-y-3 py-2">
-            <span className="material-symbols-outlined text-3xl text-zinc-450 block">cloud_upload</span>
+            <span className="material-symbols-outlined text-3xl text-muted-foreground block">cloud_upload</span>
             <span className="text-[10.5px] font-black uppercase text-primary hover:underline block">Chọn file ảnh hoặc PDF</span>
-            <span className="text-[9px] text-zinc-400 dark:text-zinc-500 block">Chấp nhận PNG, JPG, PDF bệnh án</span>
+            <span className="text-[9px] text-muted-foreground/70 block">Chấp nhận PNG, JPG, PDF bệnh án</span>
           </label>
 
           {scanFile && (
-            <div className="pt-2 space-y-2 border-t border-dashed border-zinc-200 dark:border-zinc-800">
-              <div className="text-[10px] text-zinc-700 dark:text-zinc-300 font-bold truncate max-w-xs mx-auto">
+            <div className="pt-2 space-y-2 border-t border-dashed border-border">
+              <div className="text-[10px] text-foreground/80 font-bold truncate max-w-xs mx-auto">
                 File đã chọn: {scanFile.name}
               </div>
               {scanFilePreview && (
@@ -317,12 +317,12 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
       )}
 
       {scanState === "scanning" && (
-        <div className="p-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl space-y-4 text-center">
+        <div className="p-6 border-2 border-zinc-900 dark:border-zinc-800 bg-card rounded-xl space-y-4 text-center">
           <span className="material-symbols-outlined text-2xl text-primary animate-spin">refresh</span>
-          <p className="text-[10.5px] font-bold text-zinc-800 dark:text-zinc-200">
+          <p className="text-[10.5px] font-bold text-foreground">
             {SCAN_STEPS[scanStepIdx]}
           </p>
-          <div className="w-full bg-zinc-100 dark:bg-zinc-850 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
             <div className="bg-primary h-full transition-all duration-300" style={{ width: `${((scanStepIdx + 1) / 4) * 100}%` }} />
           </div>
         </div>
@@ -330,19 +330,19 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
 
       {scanState === "verified" && (
         <div className="p-5 pt-6 border-2 border-zinc-900 dark:border-zinc-800 bg-white dark:bg-card rounded-xl space-y-5 animate-scaleUp max-h-[340px] md:max-h-[360px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800">
-          <h5 className="text-[11px] font-black uppercase tracking-wider text-zinc-900 dark:text-white border-b pb-1">
+          <h5 className="text-[11px] font-black uppercase tracking-wider text-foreground border-b pb-1">
             Xác thực thông tin trích xuất
           </h5>
 
           {scanTestType === "dass" ? (
             <div className="space-y-3">
-              <p className="text-[10px] text-zinc-550 font-semibold leading-relaxed">
+              <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed">
                 Cậu hãy kiểm tra và điều chỉnh điểm số gốc (tối đa 42 điểm):
               </p>
               <div className="grid grid-cols-3 gap-3">
                 {["D", "A", "S"].map((scale) => (
                   <div key={scale} className="space-y-1 text-center">
-                    <label className="text-[9px] font-black text-zinc-450 uppercase tracking-wider block">
+                    <label className="text-[9px] font-black text-muted-foreground uppercase tracking-wider block">
                       {scale === "D" ? "Trầm Cảm" : scale === "A" ? "Lo Âu" : "Căng Thẳng"}
                     </label>
                     <input
@@ -352,7 +352,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                         const val = Math.max(0, Math.min(42, parseInt(e.target.value, 10) || 0));
                         setScanDassScores((prev) => ({ ...prev, [scale]: val }));
                       }}
-                      className="w-full text-center px-2 py-1.5 border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs rounded font-bold"
+                      className="w-full text-center px-2 py-1.5 border border-border bg-card text-xs rounded font-bold"
                     />
                   </div>
                 ))}
@@ -360,12 +360,12 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
             </div>
           ) : scanTestType === "general_medical" ? (
             <div className="space-y-3">
-              <p className="text-[10px] text-zinc-550 font-semibold leading-relaxed">
+              <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed">
                 Tớ đã trích xuất được {scanGeneralIndices.length} chỉ số từ xét nghiệm của cậu. Hãy xác nhận lại:
               </p>
-              <div className="overflow-x-auto rounded border border-zinc-200 dark:border-zinc-800">
+              <div className="overflow-x-auto rounded border border-border">
                 <table className="w-full text-left text-[9.5px]">
-                  <thead className="bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 font-bold uppercase tracking-wider">
+                  <thead className="bg-muted text-muted-foreground font-bold uppercase tracking-wider">
                     <tr>
                       <th className="px-2 py-1.5">Chỉ số</th>
                       <th className="px-2 py-1.5 text-center">Kết quả</th>
@@ -374,8 +374,8 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                   </thead>
                   <tbody>
                     {scanGeneralIndices.map((idxItem, idx) => (
-                      <tr key={idx} className="border-t border-zinc-200 dark:border-zinc-800">
-                        <td className="px-2 py-1.5 font-bold text-zinc-800 dark:text-zinc-200">{idxItem.name}</td>
+                      <tr key={idx} className="border-t border-border">
+                        <td className="px-2 py-1.5 font-bold text-foreground">{idxItem.name}</td>
                         <td className="px-2 py-1.5 text-center">
                           <span className={`px-1.5 py-0.5 rounded ${idxItem.status === "high" ? "bg-destructive/10 text-destructive" : idxItem.status === "low" ? "bg-warning/10 text-warning" : "bg-success/10 text-success"} font-black`}>
                             {idxItem.value} {idxItem.unit}
@@ -395,7 +395,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                 <div className="grid grid-cols-3 gap-2">
                   {["L", "F", "K"].map((scale) => (
                     <div key={scale} className="space-y-1 text-center">
-                      <label className="text-[9px] font-black text-zinc-450 uppercase block">{scale}</label>
+                      <label className="text-[9px] font-black text-muted-foreground uppercase block">{scale}</label>
                       <input
                         type="number"
                         value={scanMmpiValidity[scale]}
@@ -403,7 +403,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                           const val = Math.max(0, Math.min(120, parseInt(e.target.value, 10) || 0));
                           setScanMmpiValidity((prev) => ({ ...prev, [scale]: val }));
                         }}
-                        className="w-full text-center py-1 border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-[10px] rounded font-bold"
+                        className="w-full text-center py-1 border border-border bg-card text-[10px] rounded font-bold"
                       />
                     </div>
                   ))}
@@ -416,8 +416,8 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                 <span className="text-[9px] font-black uppercase text-primary tracking-widest block">10 Thang đo lâm sàng</span>
                 <div className="grid grid-cols-2 gap-2">
                   {Object.keys(scanMmpiClinical).map((scale) => (
-                    <div key={scale} className="flex justify-between items-center gap-2 p-1.5 border border-zinc-200 dark:border-zinc-800 rounded">
-                      <span className="text-[9.5px] font-black text-zinc-650 dark:text-zinc-350">{scale}</span>
+                    <div key={scale} className="flex justify-between items-center gap-2 p-1.5 border border-border rounded">
+                      <span className="text-[9.5px] font-black text-muted-foreground dark:text-muted-foreground/70">{scale}</span>
                       <input
                         type="number"
                         value={scanMmpiClinical[scale]}
@@ -425,7 +425,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                           const val = Math.max(0, Math.min(120, parseInt(e.target.value, 10) || 0));
                           setScanMmpiClinical((prev) => ({ ...prev, [scale]: val }));
                         }}
-                        className="w-12 text-center py-1 border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-[10px] rounded font-bold"
+                        className="w-12 text-center py-1 border border-border bg-card text-[10px] rounded font-bold"
                       />
                     </div>
                   ))}
@@ -438,7 +438,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 py-2 border border-zinc-300 text-zinc-550 hover:bg-zinc-50 text-[9.5px] font-black uppercase rounded"
+              className="flex-1 py-2 border border-zinc-300 text-muted-foreground hover:bg-zinc-50 text-[9.5px] font-black uppercase rounded"
             >
               Hủy bỏ
             </button>

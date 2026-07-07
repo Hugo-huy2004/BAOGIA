@@ -160,7 +160,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
       // Start loops
       startSessionLoop(data.phrases);
       
-    } catch {
+    } catch (e) {
       showToast?.(e.message || "Lỗi tạo script thiền.", "error");
       setStep("setup");
     }
@@ -358,8 +358,8 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
             <Compass className="w-6 h-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
           </div>
           <div>
-            <p className="text-[11px] font-black text-zinc-250">Đang soạn thảo bài dẫn thiền riêng...</p>
-            <p className="text-[9.5px] text-zinc-450 mt-1">Đồng bộ nhịp sóng não alpha để giải tỏa bão lòng...</p>
+            <p className="text-[11px] font-black text-muted-foreground/60">Đang soạn thảo bài dẫn thiền riêng...</p>
+            <p className="text-[9.5px] text-muted-foreground mt-1">Đồng bộ nhịp sóng não alpha để giải tỏa bão lòng...</p>
           </div>
         </div>
       )}

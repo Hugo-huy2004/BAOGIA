@@ -59,13 +59,13 @@ class MemberPartnerTab extends Component {
     return (
       <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-0 animate-fadeIn">
         <div className="bg-white dark:bg-card rounded-xl p-4 sm:p-6 md:p-8 border border-border/50 shadow-xl flex flex-col justify-between min-h-[500px]">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-zinc-200/50 dark:border-zinc-800/50 pb-4 shrink-0">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-border/50 pb-4 shrink-0">
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-black dark:text-white flex items-center gap-2">{t("memberTabs.partner.title")}</h3>
-              <p className="text-[9px] sm:text-xs text-zinc-450 mt-1">{t("memberTabs.partner.desc")}</p>
+              <h3 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2">{t("memberTabs.partner.title")}</h3>
+              <p className="text-[9px] sm:text-xs text-muted-foreground mt-1">{t("memberTabs.partner.desc")}</p>
             </div>
 
-            <span className="text-[8px] bg-zinc-100 dark:bg-zinc-800 text-zinc-550 dark:text-zinc-400 px-3 py-1.5 rounded-full font-bold uppercase tracking-wider border border-zinc-250/20">
+            <span className="text-[8px] bg-muted text-muted-foreground px-3 py-1.5 rounded-full font-bold uppercase tracking-wider border border-border/20">
               partner.hugowishpax.studio
             </span>
           </div>
@@ -83,18 +83,18 @@ class MemberPartnerTab extends Component {
                     placeholder={t("memberTabs.partner.searchPlaceholder")}
                     value={partnerSearch}
                     onChange={this.handleSearchChange}
-                    className="w-full rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-xs py-2 pl-9 pr-4 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white font-medium"
+                    className="w-full rounded-full border border-border bg-muted/50 text-xs py-2 pl-9 pr-4 text-foreground focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white font-medium"
                   />
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">search</span>
                 </div>
 
                 {/* Pagination Indicator */}
                 {totalPartnerPages > 1 && (
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-450 uppercase tracking-wider select-none">
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider select-none">
                     <button
                       onClick={() => this.setPartnerPage(Math.max(partnerPage - 1, 1))}
                       disabled={partnerPage === 1}
-                      className="p-1 rounded bg-zinc-105 hover:bg-zinc-200 dark:bg-zinc-800 disabled:opacity-40 transition-colors"
+                      className="p-1 rounded bg-zinc-105 hover:bg-muted disabled:opacity-40 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[10px] leading-none">chevron_left</span>
                     </button>
@@ -102,7 +102,7 @@ class MemberPartnerTab extends Component {
                     <button
                       onClick={() => this.setPartnerPage(Math.min(partnerPage + 1, totalPartnerPages))}
                       disabled={partnerPage === totalPartnerPages}
-                      className="p-1 rounded bg-zinc-105 hover:bg-zinc-200 dark:bg-zinc-800 disabled:opacity-40 transition-colors"
+                      className="p-1 rounded bg-zinc-105 hover:bg-muted disabled:opacity-40 transition-colors"
                     >
                       <span className="material-symbols-outlined text-[10px] leading-none">chevron_right</span>
                     </button>
@@ -112,7 +112,7 @@ class MemberPartnerTab extends Component {
 
               {/* Selector Pills */}
               {paginatedPartners.length > 0 ? (
-                <div className="flex flex-wrap gap-2 pb-2 border-b border-zinc-200 dark:border-zinc-800">
+                <div className="flex flex-wrap gap-2 pb-2 border-b border-border">
                   {paginatedPartners.map((p) => {
                     let domain = "google.com";
                     try {
@@ -133,7 +133,7 @@ class MemberPartnerTab extends Component {
                         onClick={() => this.setSelectedPartner(p)}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${selectedPartner?._id === p._id
                             ? "bg-black text-white dark:bg-white dark:text-black shadow-sm"
-                            : "bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 text-zinc-650 dark:text-zinc-300"
+                            : "bg-zinc-100 hover:bg-muted dark:hover:bg-zinc-800 text-muted-foreground dark:text-zinc-300"
                           }`}
                       >
                         <img
@@ -148,7 +148,7 @@ class MemberPartnerTab extends Component {
                   })}
                 </div>
               ) : (
-                <div className="py-8 text-center text-zinc-400 text-xs italic border-b border-zinc-200 dark:border-zinc-800">
+                <div className="py-8 text-center text-zinc-400 text-xs italic border-b border-border">
                   Không tìm thấy đối tác nào phù hợp.
                 </div>
               )}
@@ -176,7 +176,7 @@ class MemberPartnerTab extends Component {
           ) : (
             <div className="flex-grow flex flex-col items-center justify-center text-center p-8 space-y-3">
               <span className="material-symbols-outlined text-4xl text-zinc-400">handshake</span>
-              <h4 className="text-xs font-bold text-zinc-550 dark:text-zinc-400">{t("memberTabs.partner.emptyTitle")}</h4>
+              <h4 className="text-xs font-bold text-muted-foreground">{t("memberTabs.partner.emptyTitle")}</h4>
               <p className="text-[10px] text-zinc-400 max-w-sm">{t("memberTabs.partner.emptyDesc")}</p>
             </div>
           )}

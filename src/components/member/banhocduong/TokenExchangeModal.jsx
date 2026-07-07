@@ -56,23 +56,23 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
           <div className="w-12 h-12 bg-amber-100 dark:bg-amber-500/20 text-amber-500 rounded-xl flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-6 h-6" />
           </div>
-          <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Hết Token Trò Chuyện</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+          <h3 className="text-xl font-bold text-foreground mb-2">Hết Token Trò Chuyện</h3>
+          <p className="text-sm text-muted-foreground mb-6">
             Bạn đã sử dụng hết Token miễn phí hôm nay. Dùng JOY để mua thêm Token trò chuyện cùng AI (1 Token = 25 JOY).
           </p>
 
-          <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-4 mb-6 text-left border border-zinc-100 dark:border-zinc-800">
-            <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">Số lượng Token muốn đổi (5 - 50)</label>
+          <div className="bg-muted/50 rounded-xl p-4 mb-6 text-left border border-border/60">
+            <label className="block text-xs font-semibold text-muted-foreground mb-2">Số lượng Token muốn đổi (5 - 50)</label>
             <input 
               type="number"
               min={5}
               max={50}
               value={tokenAmount}
               onChange={(e) => setTokenAmount(Number(e.target.value))}
-              className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/50"
             />
-            <div className="flex justify-between items-center mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
-              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">Tổng chi phí:</span>
+            <div className="flex justify-between items-center mt-3 pt-3 border-t border-border">
+              <span className="text-sm font-medium text-muted-foreground">Tổng chi phí:</span>
               <span className="text-sm font-bold text-amber-500">{cost} JOY</span>
             </div>
           </div>

@@ -316,7 +316,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
           } else {
             showToast?.(data.error || t("aura.toastJoyFailed"), "error");
           }
-        } catch {
+        } catch (e) {
           console.error("Failed to award focus points:", e);
         }
       }
@@ -532,12 +532,12 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
         {/* Left Column: Pomodoro Board */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-between bg-white/40 dark:bg-zinc-950/40 backdrop-blur-3xl border border-white/20 dark:border-zinc-800/30 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden text-center">
+        <div className="lg:col-span-7 flex flex-col items-center justify-between bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden text-center">
           <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-50`} />
           <AuraVFX themeId={activeThemeId} />
           
           <div className="relative z-10 w-full flex flex-col items-center">
-            <h3 className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-wider mb-5 flex items-center gap-1">
+            <h3 className="text-xs font-black text-foreground uppercase tracking-wider mb-5 flex items-center gap-1">
               <span className="material-symbols-outlined text-sm">alarm</span>
               {t("aura.pomodoroDesk")}
             </h3>
@@ -552,7 +552,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleSelectPreset(preset.minutes)}
-                    className={`relative flex flex-col items-center justify-center p-3 md:p-4 rounded-[1.25rem] border transition-all duration-300 shadow-sm backdrop-blur-md overflow-hidden ${isActive ? `${accent.accentBg} ${accent.glow} border-transparent text-white ring-2 ring-white/20` : "bg-white/40 hover:bg-white/70 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/60 border-white/60 dark:border-zinc-700/50 text-zinc-600 dark:text-zinc-300"}`}
+                    className={`relative flex flex-col items-center justify-center p-3 md:p-4 rounded-[1.25rem] border transition-all duration-300 shadow-sm backdrop-blur-md overflow-hidden ${isActive ? `${accent.accentBg} ${accent.glow} border-transparent text-white ring-2 ring-white/20` : "bg-white/40 hover:bg-card/70 dark:hover:bg-zinc-900/60 border-border/60 text-muted-foreground"}`}
                   >
                     {isActive && (
                       <motion.div 
@@ -566,7 +566,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                       <span className="text-[8.5px] md:text-[10px] font-black uppercase tracking-widest text-center leading-tight w-full truncate">
                         {t(`aura.preset${preset.id.charAt(0).toUpperCase() + preset.id.slice(1)}`)}
                       </span>
-                      <span className={`text-[8.5px] font-bold mt-1.5 px-2 py-0.5 rounded-full ${isActive ? "bg-white/20 text-white" : "bg-zinc-200/50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400"}`}>
+                      <span className={`text-[8.5px] font-bold mt-1.5 px-2 py-0.5 rounded-full ${isActive ? "bg-white/20 text-white" : "bg-muted/50 text-muted-foreground"}`}>
                         +{preset.reward} JOY
                       </span>
                     </div>
@@ -612,10 +612,10 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
               </svg>
               
               <div className="absolute flex flex-col items-center justify-center z-20">
-                <span className="text-6xl md:text-7xl font-black tracking-tighter text-zinc-900 dark:text-white leading-none mb-1">
+                <span className="text-6xl md:text-7xl font-black tracking-tighter text-foreground leading-none mb-1">
                   {formatTime(timeLeft)}
                 </span>
-                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70">
                   {timerMode === "focus" ? t("aura.focusBlock") : t("aura.breakInterval")}
                 </span>
               </div>
@@ -627,7 +627,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleResetTimer}
-                className="w-14 h-14 shrink-0 rounded-full flex items-center justify-center bg-white/50 dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 hover:bg-white/80 dark:hover:bg-zinc-800 transition-colors border border-white/60 dark:border-zinc-700/50 shadow-sm backdrop-blur-md"
+                className="w-14 h-14 shrink-0 rounded-full flex items-center justify-center bg-card/50 text-muted-foreground hover:bg-white/80 dark:hover:bg-zinc-800 transition-colors border border-border/60 shadow-sm backdrop-blur-md"
                 title={t("aura.resetBtn")}
               >
                 <span className="material-symbols-outlined text-2xl">replay</span>
@@ -637,7 +637,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleToggleTimer}
-                className={`flex-1 h-14 rounded-full flex items-center justify-center gap-2 text-white shadow-xl transition-colors font-black text-sm uppercase tracking-wider ${timerActive ? "bg-zinc-800 hover:bg-zinc-900 dark:bg-white dark:text-black dark:hover:bg-zinc-200" : `${accent.accentBg} ${accent.glow}`}`}
+                className={`flex-1 h-14 rounded-full flex items-center justify-center gap-2 text-white shadow-xl transition-colors font-black text-sm uppercase tracking-wider ${timerActive ? "bg-zinc-800 hover:bg-foreground dark:text-black dark:hover:bg-zinc-200" : `${accent.accentBg} ${accent.glow}`}`}
               >
                 <span className="material-symbols-outlined text-2xl">{timerActive ? "pause" : "play_arrow"}</span>
                 {timerActive ? t("aura.pauseBtn") : t("aura.startBtn")}
@@ -646,12 +646,12 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
           </div>
 
           {/* Mode indicators */}
-          <div className="relative z-10 w-full flex justify-center gap-4 mt-6 text-[9px] font-black uppercase tracking-wider text-zinc-450 dark:text-zinc-400">
-            <button onClick={() => handleSwitchMode("focus")} className={`hover:text-zinc-800 dark:hover:text-zinc-250 transition-colors ${timerMode === "focus" ? `underline underline-offset-4 ${accent.accentText}` : ""}`}>
+          <div className="relative z-10 w-full flex justify-center gap-4 mt-6 text-[9px] font-black uppercase tracking-wider text-muted-foreground/70">
+            <button onClick={() => handleSwitchMode("focus")} className={`hover:text-zinc-800 dark:hover:text-muted-foreground/60 transition-colors ${timerMode === "focus" ? `underline underline-offset-4 ${accent.accentText}` : ""}`}>
               {t("aura.workSession")} ({selectedMinutes}m)
             </button>
             <span>•</span>
-            <button onClick={() => handleSwitchMode("break")} className={`hover:text-zinc-800 dark:hover:text-zinc-250 transition-colors ${timerMode === "break" ? `underline underline-offset-4 ${accent.accentText}` : ""}`}>
+            <button onClick={() => handleSwitchMode("break")} className={`hover:text-zinc-800 dark:hover:text-muted-foreground/60 transition-colors ${timerMode === "break" ? `underline underline-offset-4 ${accent.accentText}` : ""}`}>
               {t("aura.breakSession")} (5m)
             </button>
           </div>
@@ -672,12 +672,12 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
         <div className="lg:col-span-5 flex flex-col gap-6">
 
           {/* Lofi Lounge Player Card */}
-          <div className="bg-white/40 dark:bg-zinc-950/40 backdrop-blur-3xl border border-white/20 dark:border-zinc-800/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+          <div className="bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between">
             <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-40`} />
             
             <div className="relative z-10 space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                <h4 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-base">music_note</span>
                   {t("aura.lofiStation")}
                 </h4>
@@ -695,23 +695,23 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
               </div>
 
               {/* Active Track Info */}
-              <div className="flex items-center gap-4 bg-white/30 dark:bg-zinc-900/30 p-3.5 rounded-2xl border border-white/10 dark:border-zinc-800/40">
+              <div className="flex items-center gap-4 bg-card/30 p-3.5 rounded-2xl border border-border/10">
                 {/* Rotating Vinyl Record Graphic */}
                 <div
-                  className={`w-14 h-14 rounded-full bg-zinc-900 dark:bg-black flex items-center justify-center text-white ring-4 ring-zinc-300/40 dark:ring-zinc-800/60 shadow-lg shrink-0 ${playing ? "animate-spin" : ""}`}
+                  className={`w-14 h-14 rounded-full bg-zinc-900 dark:bg-black flex items-center justify-center text-white ring-4 ring-border shadow-lg shrink-0 ${playing ? "animate-spin" : ""}`}
                   style={{ animationDuration: "8s", transformOrigin: "center" }}
                 >
-                  <div className="w-4 h-4 rounded-full bg-white dark:bg-zinc-900 flex items-center justify-center">
+                  <div className="w-4 h-4 rounded-full bg-card flex items-center justify-center">
                     <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
                   </div>
                 </div>
 
                 <div className="min-w-0 flex-1 text-left leading-tight">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-550 block">{t("aura.lofiWaves")}</span>
-                  <span className="text-xs font-black text-zinc-800 dark:text-zinc-150 block truncate mt-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/70 block">{t("aura.lofiWaves")}</span>
+                  <span className="text-xs font-black text-foreground block truncate mt-1">
                     {currentPlaylist[currentTrackIndex].title}
                   </span>
-                  <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 block truncate mt-0.5">
+                  <span className="text-[10px] font-semibold text-muted-foreground block truncate mt-0.5">
                     {currentPlaylist[currentTrackIndex].artist}
                   </span>
                 </div>
@@ -725,10 +725,10 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                   max={duration || 100}
                   value={currentTime}
                   onChange={handleProgressChange}
-                  className={`w-full h-1.5 rounded-full appearance-none cursor-pointer bg-zinc-200 dark:bg-zinc-800 ${accent.sliderAccent} [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-zinc-700 dark:[&::-webkit-slider-thumb]:bg-white`}
+                  className={`w-full h-1.5 rounded-full appearance-none cursor-pointer bg-muted ${accent.sliderAccent} [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-zinc-700 dark:[&::-webkit-slider-thumb]:bg-white`}
                   aria-label={t("aura.timelineScrub")}
                 />
-                <div className="flex justify-between text-[9px] font-mono text-zinc-450 dark:text-zinc-550">
+                <div className="flex justify-between text-[9px] font-mono text-muted-foreground/70">
                   <span>{formatAudioTime(currentTime)}</span>
                   <span>{formatAudioTime(duration)}</span>
                 </div>
@@ -745,14 +745,14 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                     max="100"
                     value={volume}
                     onChange={(e) => setVolume(Number(e.target.value))}
-                    className={`w-16 h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 ${accent.sliderAccent} [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:h-2 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-zinc-650`}
+                    className={`w-16 h-1 rounded-full appearance-none bg-muted ${accent.sliderAccent} [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:h-2 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-muted-foreground`}
                     aria-label={t("aura.volumeLabel")}
                   />
                 </div>
 
                 {/* Navigation group */}
                 <div className="flex items-center gap-3">
-                  <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handlePrev} className="w-9 h-9 rounded-full flex items-center justify-center bg-white/20 dark:bg-zinc-900/30 text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-zinc-900/50 transition-colors">
+                  <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handlePrev} className="w-9 h-9 rounded-full flex items-center justify-center bg-card/20 text-foreground/80 hover:bg-white/40 dark:hover:bg-zinc-900/50 transition-colors">
                     <span className="material-symbols-outlined text-base">skip_previous</span>
                   </motion.button>
 
@@ -765,7 +765,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                     <span className="material-symbols-outlined text-xl">{playing ? "pause" : "play_arrow"}</span>
                   </motion.button>
 
-                  <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleNext} className="w-9 h-9 rounded-full flex items-center justify-center bg-white/20 dark:bg-zinc-900/30 text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-zinc-900/50 transition-colors">
+                  <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleNext} className="w-9 h-9 rounded-full flex items-center justify-center bg-card/20 text-foreground/80 hover:bg-white/40 dark:hover:bg-zinc-900/50 transition-colors">
                     <span className="material-symbols-outlined text-base">skip_next</span>
                   </motion.button>
                 </div>
@@ -774,16 +774,16 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
           </div>
 
           {/* Theme Shop Card */}
-          <div className="bg-white/40 dark:bg-zinc-950/40 backdrop-blur-3xl border border-white/20 dark:border-zinc-800/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between flex-1">
+          <div className="bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between flex-1">
             <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-40`} />
             
             <div className="relative z-10 space-y-4">
               <div>
-                <h4 className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                <h4 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-base">palette</span>
                   {t("aura.themeShop")}
                 </h4>
-                <p className="text-[9px] text-zinc-500 dark:text-zinc-400 leading-snug mt-1">
+                <p className="text-[9px] text-muted-foreground leading-snug mt-1">
                   {t("aura.themeShopDesc")}
                 </p>
               </div>
@@ -799,15 +799,15 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                   return (
                     <div
                       key={theme.id}
-                      className={`flex items-center gap-3 p-2.5 rounded-2xl border transition-all ${isActive ? "bg-white/60 dark:bg-zinc-900/40 border-white dark:border-zinc-800 shadow-sm" : "bg-white/10 dark:bg-zinc-900/10 border-transparent"}`}
+                      className={`flex items-center gap-3 p-2.5 rounded-2xl border transition-all ${isActive ? "bg-card/60 border-border/60 shadow-sm" : "bg-card/10 border-transparent"}`}
                     >
                       {/* Gradient preview circle */}
-                      <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${theme.preview} shrink-0 ring-2 ring-white/30 dark:ring-zinc-950/20`} />
+                      <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${theme.preview} shrink-0 ring-2 ring-border`} />
 
                       {/* Details */}
                       <div className="flex-1 min-w-0 text-left leading-tight">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] font-black text-zinc-800 dark:text-zinc-150">
+                          <span className="text-[11px] font-black text-foreground">
                             {t(`aura.theme${theme.id.charAt(0).toUpperCase() + theme.id.slice(1)}Name`)}
                           </span>
                           {expiryText && (
@@ -816,7 +816,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                             </span>
                           )}
                         </div>
-                        <span className="text-[8.5px] text-zinc-450 dark:text-zinc-450 block truncate mt-0.5">
+                        <span className="text-[8.5px] text-muted-foreground/70 block truncate mt-0.5">
                           {t(`aura.theme${theme.id.charAt(0).toUpperCase() + theme.id.slice(1)}Desc`)}
                         </span>
                       </div>
@@ -825,13 +825,13 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                       <div className="shrink-0">
                         {isRented ? (
                           isActive ? (
-                            <span className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border border-transparent select-none bg-zinc-200/50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-600`}>
+                            <span className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border border-transparent select-none bg-muted/50 text-muted-foreground/70`}>
                               {t("aura.themeUsed")}
                             </span>
                           ) : (
                             <button
                               onClick={() => handleSelectTheme(theme.id)}
-                              className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border transition-all border-zinc-200/60 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/60 hover:bg-white dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 active:scale-95`}
+                              className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border transition-all border-border/60 bg-card/80 hover:bg-white dark:hover:bg-zinc-900 text-foreground/80 active:scale-95`}
                             >
                               {t("aura.themeApply")}
                             </button>

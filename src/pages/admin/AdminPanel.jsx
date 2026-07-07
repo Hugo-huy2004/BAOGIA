@@ -111,7 +111,7 @@ export default function AdminPanel() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.15);
-    } catch {
+    } catch (e) {
       console.warn("Audio pop effect failed:", e);
     }
   };
@@ -169,7 +169,7 @@ export default function AdminPanel() {
         setUserStats(stats);
         setCounts(prev => ({ ...prev, users: stats.total }));
       }
-    } catch {
+    } catch (e) {
       console.error("Error fetching users:", e);
     }
   };

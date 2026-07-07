@@ -79,7 +79,7 @@ export default function DashboardDemo({ isMobile = false }) {
         gain.connect(ctx.destination);
         osc.start();
         osc.stop(ctx.currentTime + 0.3);
-      } catch {
+      } catch (e) {
         console.warn("Audio Context blocked:", e);
       }
     }

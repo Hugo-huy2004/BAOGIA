@@ -44,23 +44,23 @@ export default function LinksSubTab({
       {/* Section D: Social Network Links */}
       <div className="space-y-2">
         <div className="flex justify-between items-center px-4">
-          <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest">{t("memberPortal.links.title")}</h3>
+          <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest">{t("memberPortal.links.title")}</h3>
           <span className="text-[8px] font-semibold text-zinc-400">{t("memberPortal.links.autoSave")}</span>
         </div>
 
-        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-4">
+        <div className="bg-white dark:bg-card rounded-lg border border-border/50 shadow-sm p-4 space-y-4">
           {formData.links && formData.links.length > 0 ? (
             <div className="space-y-2">
               {formData.links.map((link, idx) => {
                 const brand = getSocialBrandStyle(link.label);
                 return (
-                  <div key={idx} className="flex justify-between items-center p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/40 dark:border-zinc-800/40 text-xs transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
+                  <div key={idx} className="flex justify-between items-center p-3 rounded-md bg-muted/50 border border-border/40 text-xs transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
                     <div className="flex items-center gap-2 truncate pr-2">
-                      <span className={`material-symbols-outlined text-base shrink-0 ${brand ? "text-primary" : "text-zinc-450"}`}>
+                      <span className={`material-symbols-outlined text-base shrink-0 ${brand ? "text-primary" : "text-muted-foreground"}`}>
                         {brand ? brand.icon : "link"}
                       </span>
-                      <span className="font-bold text-zinc-800 dark:text-zinc-200 shrink-0">{link.label}:</span>
-                      <span className="text-zinc-450 truncate text-[11px] font-medium">{link.url}</span>
+                      <span className="font-bold text-foreground shrink-0">{link.label}:</span>
+                      <span className="text-muted-foreground truncate text-[11px] font-medium">{link.url}</span>
                     </div>
                     <button
                       type="button"
@@ -74,35 +74,35 @@ export default function LinksSubTab({
               })}
             </div>
           ) : (
-            <div className="text-center py-6 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-md">
+            <div className="text-center py-6 border border-dashed border-border rounded-md">
               <span className="material-symbols-outlined text-2xl text-zinc-300">link_off</span>
               <p className="text-[11px] italic text-zinc-400 mt-1">{t("memberPortal.links.empty")}</p>
             </div>
           )}
 
           {/* Add new link input rows */}
-          <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/50 space-y-3">
+          <div className="pt-2 border-t border-border/60 space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">{t("memberPortal.links.label")}</label>
+                <label className="text-[9px] font-bold text-muted-foreground uppercase pl-1">{t("memberPortal.links.label")}</label>
                 <OptimizedInput
                   type="text"
                   value={newLinkLabel}
                   onKeyDown={handleLinkInputKeyDown}
                   onChange={(e) => setNewLinkLabel(e.target.value)}
                   placeholder={t("memberPortal.links.placeholderLabel")}
-                  className="w-full px-3 py-2 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-foreground focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
+                  className="w-full px-3 py-2 rounded-md border border-border bg-muted/50 text-foreground focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[9px] font-bold text-zinc-450 uppercase pl-1">{t("memberPortal.links.url")}</label>
+                <label className="text-[9px] font-bold text-muted-foreground uppercase pl-1">{t("memberPortal.links.url")}</label>
                 <OptimizedInput
                   type="text"
                   value={newLinkUrl}
                   onKeyDown={handleLinkInputKeyDown}
                   onChange={(e) => setNewLinkUrl(e.target.value)}
                   placeholder={t("memberPortal.links.placeholderUrl")}
-                  className="w-full px-3 py-2 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-foreground focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
+                  className="w-full px-3 py-2 rounded-md border border-border bg-muted/50 text-foreground focus:outline-none focus:ring-1 focus:ring-[#0071e3] text-xs font-semibold"
                 />
               </div>
             </div>
@@ -119,14 +119,14 @@ export default function LinksSubTab({
 
       {/* Section E: Biography and Hobbies */}
       <div className="space-y-2">
-        <h3 className="text-[10px] font-bold text-zinc-450 dark:text-zinc-500 uppercase tracking-widest pl-4">{t("memberPortal.other.title")}</h3>
-        <div className="bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
+        <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest pl-4">{t("memberPortal.other.title")}</h3>
+        <div className="bg-white dark:bg-card rounded-lg border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {/* Hobbies */}
           <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
             <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#5856d6]">
               <span className="material-symbols-outlined text-base">star</span>
             </div>
-            <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.hobbies")}</label>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.hobbies")}</label>
             <OptimizedInput
               type="text"
               name="hobbies"
@@ -143,7 +143,7 @@ export default function LinksSubTab({
               <div className="w-7 h-7 rounded flex items-center justify-center text-white shrink-0 bg-[#8e8e93]">
                 <span className="material-symbols-outlined text-base">edit_note</span>
               </div>
-              <label className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.desc")}</label>
+              <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.other.desc")}</label>
             </div>
             <div className="flex-grow flex flex-col w-full">
               <OptimizedTextarea
@@ -154,7 +154,7 @@ export default function LinksSubTab({
                 placeholder={t("memberPortal.other.placeholderDesc")}
                 className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed mt-1 md:mt-0 overflow-hidden"
               />
-              <div className="flex justify-end text-[9px] font-bold text-zinc-400 dark:text-zinc-500 mt-1 select-none pr-2">
+              <div className="flex justify-end text-[9px] font-bold text-muted-foreground/70 mt-1 select-none pr-2">
                 {formData.bio ? formData.bio.trim().split(/\s+/).filter(Boolean).length : 0} / 110 chữ
               </div>
             </div>

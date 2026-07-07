@@ -31,7 +31,7 @@ function SectionLabel({ children }) {
 
 // iOS-style settings row that expands to reveal its editor. Icon in a tinted
 // rounded square, label, optional value, chevron.
-function SettingsGroup({ label, icon = "tune", iconTint = "bg-indigo-500/10 text-indigo-500", value, children, defaultOpen = false }) {
+function SettingsGroup({ label, icon = "tune", iconTint = "bg-primary/10 text-primary", value, children, defaultOpen = false }) {
   const [open, setOpen] = React.useState(defaultOpen);
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
@@ -63,9 +63,9 @@ function SettingsRow({ icon, iconColor = "text-primary", iconBg = "bg-primary/10
         <span className={`material-symbols-outlined text-base ${iconColor}`}>{icon}</span>
       </span>
       <div className="min-w-0 flex-1 space-y-0.5 text-left">
-        <p className="text-xs font-black text-zinc-800 dark:text-zinc-150">{title}</p>
-        {desc && <p className="text-[10.5px] font-medium text-zinc-500 dark:text-zinc-400 leading-relaxed">{desc}</p>}
-        {warn && <p className="text-[10px] text-amber-600 dark:text-amber-500 font-semibold pt-0.5">{warn}</p>}
+        <p className="text-xs font-black text-foreground">{title}</p>
+        {desc && <p className="text-[10.5px] font-medium text-muted-foreground leading-relaxed">{desc}</p>}
+        {warn && <p className="text-[10px] text-warning font-semibold pt-0.5">{warn}</p>}
       </div>
       {control && <div className="shrink-0 self-center">{control}</div>}
     </div>
@@ -77,13 +77,13 @@ function SettingsRow({ icon, iconColor = "text-primary", iconBg = "bg-primary/10
 // shadow, border tint, gradient wash and the blurred glow blob.
 const ACCENTS = {
   blue: {
-    icon: "text-blue-500 dark:text-blue-300",
-    badge: "bg-blue-500/12 ring-blue-400/40 dark:bg-blue-400/15 dark:ring-blue-300/30",
-    bar: "from-blue-500 to-cyan-400",
-    border: "border-blue-500/20 dark:border-blue-400/25",
-    wash: "from-blue-50/70 to-transparent dark:from-blue-950/30 dark:to-transparent",
+    icon: "text-primary/40",
+    badge: "bg-primary/12 ring-primary/40 dark:bg-primary/15 dark:ring-primary/30",
+    bar: "from-primary to-info",
+    border: "border-primary/20 dark:border-primary/25",
+    wash: "from-primary/70 to-transparent dark:from-primary/30 dark:to-transparent",
     glow: "shadow-[0_14px_34px_-16px_rgba(59,130,246,0.5)] group-hover:shadow-[0_16px_40px_-14px_rgba(59,130,246,0.62)] dark:shadow-[0_0_26px_-6px_rgba(96,165,250,0.5)] dark:group-hover:shadow-[0_0_34px_-4px_rgba(96,165,250,0.7)]",
-    blob: "bg-blue-400/25 dark:bg-blue-400/25",
+    blob: "bg-primary/25",
   },
   violet: {
     icon: "text-violet-500 dark:text-violet-300",
@@ -95,13 +95,13 @@ const ACCENTS = {
     blob: "bg-violet-400/25 dark:bg-violet-400/25",
   },
   amber: {
-    icon: "text-amber-500 dark:text-amber-300",
-    badge: "bg-amber-500/12 ring-amber-400/40 dark:bg-amber-400/15 dark:ring-amber-300/30",
-    bar: "from-amber-500 to-orange-400",
-    border: "border-amber-500/20 dark:border-amber-400/25",
-    wash: "from-amber-50/70 to-transparent dark:from-amber-950/30 dark:to-transparent",
+    icon: "text-warning/40",
+    badge: "bg-warning/12 ring-warning/40 dark:bg-warning/15 dark:ring-warning/30",
+    bar: "from-warning to-orange-400",
+    border: "border-warning/20 dark:border-warning/25",
+    wash: "from-warning/70 to-transparent dark:from-warning/30 dark:to-transparent",
     glow: "shadow-[0_14px_34px_-16px_rgba(245,158,11,0.5)] group-hover:shadow-[0_16px_40px_-14px_rgba(245,158,11,0.62)] dark:shadow-[0_0_26px_-6px_rgba(251,191,36,0.5)] dark:group-hover:shadow-[0_0_34px_-4px_rgba(251,191,36,0.7)]",
-    blob: "bg-amber-400/25 dark:bg-amber-400/25",
+    blob: "bg-warning/25",
   },
   rose: {
     icon: "text-rose-500 dark:text-rose-300",
@@ -113,13 +113,13 @@ const ACCENTS = {
     blob: "bg-rose-400/25 dark:bg-rose-400/25",
   },
   emerald: {
-    icon: "text-emerald-500 dark:text-emerald-300",
-    badge: "bg-emerald-500/12 ring-emerald-400/40 dark:bg-emerald-400/15 dark:ring-emerald-300/30",
-    bar: "from-emerald-500 to-teal-400",
-    border: "border-emerald-500/20 dark:border-emerald-400/25",
-    wash: "from-emerald-50/70 to-transparent dark:from-emerald-950/30 dark:to-transparent",
+    icon: "text-success/40",
+    badge: "bg-success/12 ring-success/40 dark:bg-success/15 dark:ring-success/30",
+    bar: "from-success to-teal-400",
+    border: "border-success/20 dark:border-success/25",
+    wash: "from-success/70 to-transparent dark:from-success/30 dark:to-transparent",
     glow: "shadow-[0_14px_34px_-16px_rgba(16,185,129,0.5)] group-hover:shadow-[0_16px_40px_-14px_rgba(16,185,129,0.62)] dark:shadow-[0_0_26px_-6px_rgba(52,211,153,0.5)] dark:group-hover:shadow-[0_0_34px_-4px_rgba(52,211,153,0.7)]",
-    blob: "bg-emerald-400/25 dark:bg-emerald-400/25",
+    blob: "bg-success/25",
   },
 };
 
@@ -129,7 +129,7 @@ function PrefCard({ icon, title, desc, control, warn, index = 0, accent = "blue"
   const a = ACCENTS[accent] || ACCENTS.blue;
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border ${a.border} bg-white dark:bg-zinc-900/50 p-3 text-left transition-all duration-300 ${a.glow}`}
+      className={`group relative overflow-hidden rounded-2xl border ${a.border} bg-card p-3 text-left transition-all duration-300 ${a.glow}`}
       style={{ animation: `settingsRise .5s cubic-bezier(.22,1,.36,1) ${index * 55}ms both` }}
     >
       {/* accent wash + top bar + glow blob */}
@@ -144,7 +144,7 @@ function PrefCard({ icon, title, desc, control, warn, index = 0, accent = "blue"
           <div className="min-w-0 flex-1">
             <p className="text-[11.5px] font-black text-foreground">{title}</p>
             <p className="mt-0.5 text-[10px] leading-snug text-muted-foreground">{desc}</p>
-            {warn && <p className="mt-0.5 text-[9.5px] font-semibold text-amber-600 dark:text-amber-400">{warn}</p>}
+            {warn && <p className="mt-0.5 text-[9.5px] font-semibold text-warning">{warn}</p>}
           </div>
         </div>
         {control && <div className="mt-2.5">{control}</div>}
@@ -159,15 +159,15 @@ function SettingsHero({ autoCount, total }) {
     <div className="relative overflow-hidden rounded-[22px] p-[2.5px] shadow-[0_20px_50px_-24px_rgba(99,102,241,0.55)] dark:shadow-[0_0_40px_-8px_rgba(129,140,248,0.6)]"
       style={{ background: "linear-gradient(135deg,#6366f1,#a855f7,#22d3ee)" }}>
       <div className="relative overflow-hidden rounded-[19.5px] bg-white p-4 ring-1 ring-inset ring-black/5 backdrop-blur-xl dark:bg-zinc-950 dark:ring-white/10">
-        <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-indigo-400/25 blur-3xl dark:bg-indigo-500/30" style={{ animation: "settingsPulse 6s ease-in-out infinite" }} />
-        <div className="pointer-events-none absolute -bottom-12 left-8 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-500/25" />
+        <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-primary/25 blur-3xl dark:bg-primary/30" style={{ animation: "settingsPulse 6s ease-in-out infinite" }} />
+        <div className="pointer-events-none absolute -bottom-12 left-8 h-32 w-32 rounded-full bg-info/20 blur-3xl dark:bg-info/25" />
         <div className="relative flex items-center gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white shadow-lg shadow-indigo-500/40"
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white shadow-lg shadow-primary/40"
             style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)" }}>
             <span className="material-symbols-outlined text-[21px]" style={{ animation: "settingsSpin 9s linear infinite" }}>auto_awesome</span>
           </span>
           <div className="min-w-0">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-500 dark:text-indigo-300">Trung tâm điều khiển</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/40">Trung tâm điều khiển</p>
             <h3 className="font-display text-base font-black text-foreground">Chế độ Tự động</h3>
             <p className="mt-0.5 text-[10.5px] leading-snug text-muted-foreground">
               <b className="text-foreground">{autoCount}/{total}</b> mục đang để Hugo tự quyết theo ngữ cảnh. Bạn chỉ chỉnh khi cần.
@@ -333,8 +333,8 @@ export default function MemberSettingsTab({
           </div>
           <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{memberSession?.email || formData.headline || "—"}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1">
-          <span className="material-symbols-outlined text-[14px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+        <div className="flex shrink-0 items-center gap-1 rounded-full bg-warning/10 px-2.5 py-1">
+          <span className="material-symbols-outlined text-[14px] text-warning" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
           <span className="text-[12px] font-black text-foreground">{(joyBalance ?? 0).toLocaleString()}</span>
         </div>
       </div>
@@ -342,7 +342,7 @@ export default function MemberSettingsTab({
       {/* CÀI ĐẶT HỒ SƠ */}
       <div className="space-y-2">
       <SectionLabel>{t("memberPortal.settings.page.profileSettings")}</SectionLabel>
-      <SettingsGroup icon="person" iconTint="bg-indigo-500/10 text-indigo-500" label={t("memberPortal.bio.basicInfo")} defaultOpen>
+      <SettingsGroup icon="person" iconTint="bg-primary/10 text-primary" label={t("memberPortal.bio.basicInfo")} defaultOpen>
         <div className="p-4 text-left sm:p-5">
           <PersonalInfoSubTab
             formData={formData}
@@ -375,7 +375,7 @@ export default function MemberSettingsTab({
         </div>
       </SettingsGroup>
 
-      <SettingsGroup icon="link" iconTint="bg-sky-500/10 text-sky-500" label={t("memberPortal.settings.page.linkCards")} value={formData.links?.length || 0}>
+      <SettingsGroup icon="link" iconTint="bg-info/10 text-info" label={t("memberPortal.settings.page.linkCards")} value={formData.links?.length || 0}>
         <div className="p-4 text-left sm:p-5">
           <LinksSubTab
             formData={formData}
@@ -393,7 +393,7 @@ export default function MemberSettingsTab({
         </div>
       </SettingsGroup>
 
-      <SettingsGroup icon="workspace_premium" iconTint="bg-amber-500/10 text-amber-500" label={t("memberPortal.settings.page.projectsWorks")} value={formData.projects?.length || 0}>
+      <SettingsGroup icon="workspace_premium" iconTint="bg-warning/10 text-warning" label={t("memberPortal.settings.page.projectsWorks")} value={formData.projects?.length || 0}>
         <div className="p-4 text-left sm:p-5">
           <AchievementsSubTab
             formData={formData}
@@ -417,7 +417,7 @@ export default function MemberSettingsTab({
           onClick={() => hapticSelect()}
           className={`flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 shadow-sm transition-colors hover:bg-foreground/[0.03] ${publicLink ? "" : "pointer-events-none opacity-50"}`}
         >
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-sky-500/10 text-sky-500">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-info/10 text-info">
             <span className="material-symbols-outlined text-[18px]">public</span>
           </span>
           <span className="flex-1 text-[13.5px] font-semibold text-foreground">{t("memberPortal.settings.page.openBioPublic")}</span>
@@ -498,7 +498,7 @@ export default function MemberSettingsTab({
       {/* NGÔN NGỮ */}
       <div className="space-y-2">
         <SectionLabel>{t("memberPortal.settings.page.language")}</SectionLabel>
-        <SettingsGroup icon="translate" iconTint="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" label={t("memberPortal.settings.page.language")} value={currentLang === "vi" ? "Tiếng Việt" : "English"}>
+        <SettingsGroup icon="translate" iconTint="bg-success/10 text-success" label={t("memberPortal.settings.page.language")} value={currentLang === "vi" ? "Tiếng Việt" : "English"}>
           <div className="p-3">
             <div className="grid grid-cols-2 gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-1.5">
               {LANGUAGES.map((lng) => {

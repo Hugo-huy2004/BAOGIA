@@ -16,22 +16,22 @@ export default function PaymentRequestModal({ isOpen, notification, onClose, onA
           initial={{ scale: 0.95, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.95, y: 20 }}
-          className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4"
+          className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4"
         >
           <div className="flex items-center gap-3 text-primary">
             <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>payments</span>
-            <h3 className="font-extrabold text-base tracking-tight text-zinc-900 dark:text-white">
+            <h3 className="font-extrabold text-base tracking-tight text-foreground">
               {notification.title || "Yêu cầu thanh toán"}
             </h3>
           </div>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed whitespace-pre-line">
+          <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
             {notification.message}
           </p>
           <div className="grid grid-cols-2 gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors"
+              className="py-3 rounded-xl border border-border text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 dark:hover:bg-muted transition-colors"
             >
               Để sau
             </button>

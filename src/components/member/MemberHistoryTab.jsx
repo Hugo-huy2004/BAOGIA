@@ -1,7 +1,7 @@
 import { withTranslation } from "react-i18next";
 import React, { useState, useMemo } from 'react';
 import HugoLogo from "../HugoLogo";
-import { toast } from "react-hot-toast";
+import { notify } from "../../lib/notify";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const getHistoryTypeConfig = (t) => ({
@@ -11,7 +11,7 @@ const getHistoryTypeConfig = (t) => ({
   package_removed: { color: 'hsl(var(--destructive))', bg: 'bg-destructive/10 dark:bg-destructive/15',       border: 'border-destructive/20',     label: t("memberTabs.history.labels.package_removed"), cat: 'package', icon: 'unsubscribe' },
   profile_updated: { color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15',   border: 'border-warning/20',   label: t("memberTabs.history.labels.profile_updated"), cat: 'account', icon: 'manage_accounts' },
   link_added:      { color: 'hsl(var(--info))', bg: 'bg-info/10 dark:bg-info/15',     border: 'border-info/20',    label: t("memberTabs.history.labels.link_added"), cat: 'account', icon: 'add_link' },
-  link_removed:    { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted dark:bg-muted',     border: 'border-border',    label: t("memberTabs.history.labels.link_removed"), cat: 'account', icon: 'link_off' },
+  link_removed:    { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted',     border: 'border-border',    label: t("memberTabs.history.labels.link_removed"), cat: 'account', icon: 'link_off' },
   birthday_wish:   { color: 'hsl(var(--accent))', bg: 'bg-accent/10 dark:bg-accent/15',     border: 'border-accent/20',    label: t("memberTabs.history.labels.birthday"), cat: 'gift', icon: 'cake' },
   birthday_voucher:{ color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15',   border: 'border-warning/20',   label: t("memberTabs.history.labels.gift"), cat: 'gift', icon: 'featured_play_list' },
 });
@@ -26,8 +26,8 @@ const NOTIF_CATEGORY_CONFIG = {
   verification: { color: 'hsl(var(--info))', bg: 'bg-info/10 dark:bg-info/15', border: 'border-info/20', cat: 'account', icon: 'verified_user' },
   security:     { color: 'hsl(var(--destructive))', bg: 'bg-destructive/10 dark:bg-destructive/15', border: 'border-destructive/20', cat: 'account', icon: 'security' },
   wellness:     { color: 'hsl(var(--accent))', bg: 'bg-accent/10 dark:bg-accent/15', border: 'border-accent/20', cat: 'account', icon: 'favorite' },
-  system:       { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted dark:bg-muted', border: 'border-border', cat: 'account', icon: 'notifications' },
-  general:      { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted dark:bg-muted', border: 'border-border', cat: 'account', icon: 'notifications' },
+  system:       { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted', border: 'border-border', cat: 'account', icon: 'notifications' },
+  general:      { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted', border: 'border-border', cat: 'account', icon: 'notifications' },
 };
 
 const formatTime = (ts, t) => {
@@ -183,11 +183,11 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
   return (
     <div className="max-w-xl mx-auto space-y-5 px-3 sm:px-0 animate-fadeIn text-left">
       {/* Header */}
-      <div className="flex items-center justify-between bg-white/60 dark:bg-black/40 backdrop-blur-md rounded-xl p-4 border border-white/50 dark:border-white/10 shadow-sm">
+      <div className="flex items-center justify-between bg-card/60 backdrop-blur-md rounded-xl p-4 border border-border/50 shadow-sm">
         <div className="space-y-1">
-          <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
+          <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
             <span className="material-symbols-outlined text-base text-primary">notifications</span>{t("memberTabs.history.title")}</h2>
-          <p className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
+          <p className="text-[10px] font-medium text-foreground/80">
             {filteredEntries.length > 0
               ? t("memberTabs.history.notification_count", { count: filteredEntries.length })
               : t("memberTabs.history.no_events")}
@@ -221,7 +221,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all duration-200 shrink-0 ${
                 active
                   ? "bg-primary border-primary text-white shadow-sm"
-                  : "bg-white/80 dark:bg-card/60 border-border/50 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 backdrop-blur-sm"
+                  : "bg-white/80 dark:bg-card/60 border-border/50 text-foreground/80 hover:text-zinc-900 dark:hover:text-zinc-100 backdrop-blur-sm"
               }`}
             >
               <span className="material-symbols-outlined text-xs">{filter.icon}</span>
@@ -233,13 +233,13 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
 
       {/* Empty State */}
       {filteredEntries.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 bg-white/40 dark:bg-card/40 border border-zinc-150 dark:border-zinc-850 rounded-2xl p-6">
-          <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-300 dark:text-zinc-700">
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 bg-white/40 dark:bg-card/40 border border-border rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground/70">
             <span className="material-symbols-outlined text-2xl">notifications_off</span>
           </div>
           <div>
-            <p className="text-xs font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">{t("memberTabs.history.empty_title")}</p>
-            <p className="text-[10px] text-zinc-450 dark:text-zinc-400 mt-1 max-w-xs">{t("memberTabs.history.empty_desc")}</p>
+            <p className="text-xs font-black text-foreground uppercase tracking-wider">{t("memberTabs.history.empty_title")}</p>
+            <p className="text-[10px] text-muted-foreground/70 mt-1 max-w-xs">{t("memberTabs.history.empty_desc")}</p>
           </div>
         </div>
       )}
@@ -251,13 +251,13 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
             <div key={group.dateString} className="space-y-2">
               {/* Day Header */}
               <div className="pl-2">
-                <span className="inline-block px-2.5 py-1 rounded-lg bg-white/70 dark:bg-black/40 backdrop-blur-md text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm">
+                <span className="inline-block px-2.5 py-1 rounded-lg bg-card/70 backdrop-blur-md text-[10px] font-black text-foreground uppercase tracking-widest border border-border/50 shadow-sm">
                   {group.dateHeader}
                 </span>
               </div>
 
               {/* Day Notification Items - Flat List */}
-              <div className="bg-white/70 dark:bg-zinc-900/50 backdrop-blur-xl rounded-[1.25rem] border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm overflow-hidden divide-y divide-zinc-200/50 dark:divide-zinc-800/40">
+              <div className="bg-card/70 backdrop-blur-xl rounded-[1.25rem] border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-200/50 dark:divide-zinc-800/40">
                 {group.items.map((entry) => {
                   const cfg = entry.cfg;
                   const isNotif = entry.source === 'notification';
@@ -294,10 +294,10 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                       {/* Content column */}
                       <div className="flex-1 min-w-0 space-y-1 text-left pt-0.5">
                         <div className="flex items-center justify-between gap-4">
-                          <p className="text-[12px] font-bold text-zinc-900 dark:text-zinc-100 leading-snug truncate">
+                          <p className="text-[12px] font-bold text-foreground leading-snug truncate">
                             {entry.title}
                           </p>
-                          <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium shrink-0">
+                          <span className="text-[10px] text-muted-foreground font-medium shrink-0">
                             {formatTime(entry.timestamp, t)}
                           </span>
                         </div>
@@ -306,11 +306,11 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                         {parsedJoy && parsedJoy.amount ? (
                           <div className="mt-1 space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <p className="text-[11px] text-zinc-600 dark:text-zinc-300 line-clamp-2 leading-relaxed">
+                              <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
                                 {parsedJoy.cleanText}
                               </p>
                               <div className="shrink-0 text-right">
-                                <span className={`text-[13px] font-black tracking-tight ${parsedJoy.isPositive ? 'text-success' : 'text-zinc-900 dark:text-white'}`}>
+                                <span className={`text-[13px] font-black tracking-tight ${parsedJoy.isPositive ? 'text-success' : 'text-foreground'}`}>
                                   {parsedJoy.isPositive ? '+' : '-'}{parsedJoy.amount} JOY
                                 </span>
                               </div>
@@ -319,13 +319,13 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                             {/* Receipt Metadata Row */}
                             <div className="flex flex-wrap gap-2 mt-2">
                               {parsedJoy.txId && (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-[8px] font-mono font-bold uppercase">
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[8px] font-mono font-bold uppercase">
                                   <span className="material-symbols-outlined text-[10px]">receipt_long</span>
                                   {parsedJoy.txId}
                                 </span>
                               )}
                               {parsedJoy.balance && (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-[8px] font-bold uppercase">
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[8px] font-bold uppercase">
                                   <span className="material-symbols-outlined text-[10px]">account_balance_wallet</span>
                                   Dư: {parsedJoy.balance}
                                 </span>
@@ -333,7 +333,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                             </div>
                             
                             {parsedJoy.message && (
-                              <div className="mt-2 text-[10px] font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 p-2.5 rounded-lg border border-zinc-100 dark:border-zinc-800 italic flex gap-2">
+                              <div className="mt-2 text-[10px] font-medium text-muted-foreground bg-muted/50 p-2.5 rounded-lg border border-border/60 italic flex gap-2">
                                 <span className="material-symbols-outlined text-[12px] text-zinc-400">format_quote</span>
                                 "{parsedJoy.message}"
                               </div>
@@ -342,7 +342,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                         ) : (
                           /* Standard Details */
                           entry.detail && (
-                            <p className="text-[11px] text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                            <p className="text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
                               {entry.detail}
                             </p>
                           )

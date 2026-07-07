@@ -169,9 +169,10 @@ self.addEventListener('push', function (event) {
       data: {
         url: payload.url || '/member/portal?tab=banhocduong'
       },
-      tag: payload.tag || (payload.url === '/member/joy' ? 'hugo-joy-wallet' : undefined),
-      renotify: true
+      tag: payload.tag || (payload.url === '/member/joy' ? 'hugo-joy-wallet' : undefined)
     };
+    // Chrome bắt buộc renotify phải đi kèm tag khác rỗng
+    if (options.tag) options.renotify = true;
 
     event.waitUntil(
       Promise.all([

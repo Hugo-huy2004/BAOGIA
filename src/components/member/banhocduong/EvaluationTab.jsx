@@ -922,13 +922,13 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
             <h4 className="text-sm font-black uppercase tracking-wider text-foreground">{t("companion.profile.deepAnalysis", "Biểu Đồ Xu Hướng Sức Khỏe")}</h4>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="border border-border/60 rounded-xl p-4 bg-white/50 dark:bg-black/20 flex flex-col">
+            <div className="border border-border/60 rounded-xl p-4 bg-card/50 flex flex-col">
               <h5 className="text-[9px] font-black text-muted-foreground uppercase tracking-wider text-center mb-3">{t("companion.profile.wheelTitle", "Chỉ số Bánh Xe Cuộc Sống (DASS)")}</h5>
               <div className="flex-1 min-h-[170px]">
                 <RadarChart scores={latestDass?.scores} />
               </div>
             </div>
-            <div className="border border-border/60 rounded-xl p-4 bg-white/50 dark:bg-black/20 flex flex-col">
+            <div className="border border-border/60 rounded-xl p-4 bg-card/50 flex flex-col">
               <h5 className="text-[9px] font-black text-muted-foreground uppercase tracking-wider text-center mb-3">{t("companion.profile.emotionTitle", "Biến thiên Cảm xúc Check-in")}</h5>
               <div className="flex-1 min-h-[170px]">
                 <LineChart 

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { loginAdmin, loginMember, loginMemberWithGoogle } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
@@ -79,7 +80,7 @@ export default function LoginPage() {
     // the client never decides identity from a decoded payload.
     const { session, error } = await loginMemberWithGoogle(response.credential);
     if (!session) {
-      showToast(error === "network" ? "Không kết nối được máy chủ. Thử lại nhé." : t("loginPage.toast.noGoogle"), "error");
+      showToast(error === "network" ? t("loginPage.toast.adminNetworkError") : t("loginPage.toast.noGoogle"), "error");
       return;
     }
 
@@ -106,9 +107,9 @@ export default function LoginPage() {
       navigate("/member");
     } catch (err) {
       if (err?.code === 'NO_CREDENTIALS') {
-        showToast("Thiết bị này chưa bật đăng nhập vân tay cho email này.", "warning");
+        showToast(t("loginPage.biometric.notEnabled"), "warning");
       } else if (err?.name !== 'NotAllowedError') {
-        showToast("Không thể đăng nhập bằng vân tay/Face ID. Hãy dùng Google.", "error");
+        showToast(t("loginPage.biometric.failed"), "error");
       }
     } finally {
       setBiometricBusy(false);
@@ -251,7 +252,7 @@ export default function LoginPage() {
       autoLoginCustomer(code);
     }
     if (params.get("reason") === "location_anomaly") {
-      showToast("Hệ thống phát hiện thiết bị đăng nhập từ vị trí cách xa thường lệ trên 50km, cậu vui lòng đăng nhập lại để xác thực an toàn nhé.", "warning");
+      showToast(t("loginPage.toast.locationAnomaly"), "warning");
     }
   }, []);
 
@@ -273,7 +274,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 text-foreground">
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-12 text-foreground transition-colors duration-300">
+
+      {/* Background glows — đồng bộ Hugo Studio */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-tr from-primary/10 to-accent/10 blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-gradient-to-tr from-info/10 to-primary/10 blur-[130px] pointer-events-none" />
+
+      {/* Ambient orbs — đồng bộ FAQ/Introduction */}
+      <motion.div
+        animate={{ y: [0, -30, 0], x: [0, 20, 0], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-[12%] right-[12%] w-28 h-28 md:w-40 md:h-40 bg-warning/20 rounded-full blur-[60px] pointer-events-none"
+      />
+      <motion.div
+        animate={{ y: [0, 40, 0], x: [0, -30, 0], opacity: [0.2, 0.5, 0.2] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute bottom-[14%] left-[6%] w-36 h-36 md:w-52 md:h-52 bg-primary/20 rounded-full blur-[80px] pointer-events-none"
+      />
+
+      {/* Watermark */}
+      <div className="absolute right-[-2%] top-[4%] text-[8rem] md:text-[13rem] font-black text-foreground/[0.03] dark:text-foreground/[0.02] pointer-events-none select-none tracking-tighter leading-none">
+        LOGIN
+      </div>
+
       <HugoNoticeToast
         open={Boolean(toast.message)}
         type={toast.type || "info"}
@@ -282,30 +305,20 @@ export default function LoginPage() {
       />
 
       <section className="w-full max-w-md space-y-6 relative">
-        {/* Decorative background glows */}
-        <div className="absolute -top-24 -left-20 w-72 h-72 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-accent/8 blur-3xl pointer-events-none" />
-
-        <div className="text-center relative z-10 space-y-2">
-          {/* Multi-colored logo */}
-          <div className="flex justify-center items-center gap-0.5 font-display text-[10px] sm:text-xs font-black tracking-[0.24em] uppercase mb-3 select-none">
-            <span style={{ color: "#EF4444" }}>H</span>
-            <span style={{ color: "#F97316" }}>u</span>
-            <span style={{ color: "#EAB308" }}>g</span>
-            <span style={{ color: "#22C55E" }}>o</span>
-            <span className="text-muted-foreground mx-1.5 font-light"></span>
-            <span style={{ color: "#3B82F6" }}>S</span>
-            <span style={{ color: "#6366F1" }}>t</span>
-            <span style={{ color: "#A855F7" }}>u</span>
-            <span style={{ color: "#EC4899" }}>d</span>
-            <span style={{ color: "#06B6D4" }}>i</span>
-            <span style={{ color: "#0EA5E9" }}>o</span>
+        <div className="text-center relative z-10 space-y-3">
+          <div className="flex justify-center">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25 select-none">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              Hugo Studio
+            </span>
           </div>
 
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground transition-all">
-            {activeMode === "customer" ? t("loginPage.header.titleCustomer") : activeMode === "member" ? t("loginPage.header.titleMember") : t("loginPage.header.titleAdmin")}
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight leading-[1.1] transition-all">
+            <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
+              {activeMode === "customer" ? t("loginPage.header.titleCustomer") : activeMode === "member" ? t("loginPage.header.titleMember") : t("loginPage.header.titleAdmin")}
+            </span>
           </h1>
-          <p className="text-xs text-muted-foreground font-medium">
+          <p className="text-[13px] text-muted-foreground font-medium leading-relaxed">
             {activeMode === "customer" ? t("loginPage.header.descCustomer") : activeMode === "member" ? t("loginPage.header.descMember") : t("loginPage.header.descAdmin")}
           </p>
         </div>
@@ -338,7 +351,7 @@ export default function LoginPage() {
                     onClick={() => setActiveMode(tab.id)}
                     className={`flex-1 py-2 text-[10px] sm:text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
                       activeMode === tab.id
-                        ? "text-foreground"
+                        ? "text-primary"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -351,7 +364,7 @@ export default function LoginPage() {
         </div>
 
         {/* Minimalist Apple Glass Card */}
-        <div className="relative z-10 bg-white/70 dark:bg-background/80 backdrop-blur-2xl border border-border/50 p-6 sm:p-8 rounded-3xl shadow-xl transition-all">
+        <div className="relative z-10 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-border/50 p-6 sm:p-8 rounded-3xl shadow-xl transition-all">
           {activeMode === "customer" ? (
             <form key="form-customer" onSubmit={handleCustomerLogin} className="space-y-6">
               <div className="text-center space-y-1">
@@ -373,7 +386,7 @@ export default function LoginPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs sm:text-sm flex justify-center items-center gap-2"
+                  className="w-full py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-full shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98] text-xs sm:text-sm flex justify-center items-center gap-2"
                 >
                   <span className="material-symbols-outlined text-[18px]">login</span> {t("loginPage.customerForm.btn")}
                 </button>
@@ -400,13 +413,13 @@ export default function LoginPage() {
                     type="button"
                     onClick={handleBiometricLogin}
                     disabled={biometricBusy}
-                    className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                    className="w-full py-3.5 rounded-full bg-primary hover:bg-primary/90 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                   >
                     <span className="material-symbols-outlined text-lg">fingerprint</span>
-                    {biometricBusy ? "Đang xác thực..." : `Đăng nhập bằng vân tay/Face ID (${biometricEmail})`}
+                    {biometricBusy ? t("loginPage.biometric.verifying") : t("loginPage.biometric.btn", { email: biometricEmail })}
                   </button>
                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <div className="flex-1 h-px bg-border/60" /> hoặc <div className="flex-1 h-px bg-border/60" />
+                    <div className="flex-1 h-px bg-border/60" /> {t("loginPage.biometric.or")} <div className="flex-1 h-px bg-border/60" />
                   </div>
                 </div>
               )}
@@ -512,7 +525,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={adminSubmitting}
-                className="w-full bg-foreground hover:bg-foreground/90 dark:bg-white dark:hover:bg-white/90 text-background dark:text-background font-bold py-3.5 rounded-xl hover:scale-[1.01] active:scale-99 transition-all text-xs shadow-md mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm shadow-lg shadow-primary/25 mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none"
               >
                 {adminSubmitting && (
                   <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>

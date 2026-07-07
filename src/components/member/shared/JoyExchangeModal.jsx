@@ -470,7 +470,7 @@ export default function JoyExchangeModal({ open, bio, item, onClose, onConfirm, 
         onClose();
         setPhase("idle");
       }, 1750);
-    } catch {
+    } catch (e) {
       setError(e.message);
       setPhase("error");
     }

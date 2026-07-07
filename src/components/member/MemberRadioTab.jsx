@@ -364,13 +364,13 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   return (
     <FeatureGate bio={bio} featureKey="hugoRadio" priceJoy={150} icon="radio" title="Trao đổi JOY để mở khóa HugoRadio" description="Nghe radio kỹ thuật số với hàng chục kênh chất lượng cao." onBioUpdate={onBioUpdate} onBack={onBack} className="max-w-lg mx-auto mt-10">
       <div>
-        <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-cyan-500" onBack={onBack} />
+        <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-info" onBack={onBack} />
 
         {/* ─── Premium Receiver UI ──────────────────────────────────────────────── */}
         <div className="relative mb-6 rounded-3xl bg-zinc-950 p-5 md:p-6 shadow-2xl overflow-hidden border border-zinc-800">
           {/* Glass/Glow Effects */}
-          <div className="absolute -top-20 -left-20 w-64 h-64 bg-cyan-600/10 rounded-full blur-[60px] pointer-events-none" />
-          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-600/10 rounded-full blur-[60px] pointer-events-none" />
+          <div className="absolute -top-20 -left-20 w-64 h-64 bg-info/10 rounded-full blur-[60px] pointer-events-none" />
+          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
           
           <div className="relative z-10 flex flex-col gap-6">
             
@@ -378,12 +378,12 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
             <div className="bg-[#050508] rounded-2xl px-5 py-4 border border-zinc-800 shadow-[inset_0_4px_20px_rgba(0,0,0,0.8)] flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${(isPlaying && !isDragging) ? "bg-cyan-400 text-cyan-400 animate-pulse" : (isStatic || isDragging) ? "bg-cyan-900 text-cyan-900" : "bg-zinc-800 text-transparent"}`} />
-                  <span className="text-[10px] font-black tracking-widest uppercase text-cyan-500/70">
+                  <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${(isPlaying && !isDragging) ? "bg-info text-info animate-pulse" : (isStatic || isDragging) ? "bg-info/20 text-info/20" : "bg-zinc-800 text-transparent"}`} />
+                  <span className="text-[10px] font-black tracking-widest uppercase text-info/70">
                     {isDragging ? "TUNING..." : isBuffering ? "CONNECTING..." : isStatic ? "STATIC NOISE" : isPlaying ? "FM STEREO" : nowPlaying ? "PAUSED" : "STANDBY"}
                   </span>
                 </div>
-                <p className={`font-mono text-[14px] font-bold tracking-wide truncate ${isDragging ? "text-cyan-700 blur-[0.5px]" : "text-cyan-400"} transition-all duration-300`} style={{ textShadow: isDragging ? "none" : "0 0 10px rgba(6,182,212,0.6)" }}>
+                <p className={`font-mono text-[14px] font-bold tracking-wide truncate ${isDragging ? "text-info/90 blur-[0.5px]" : "text-info"} transition-all duration-300`} style={{ textShadow: isDragging ? "none" : "0 0 10px rgba(6,182,212,0.6)" }}>
                   {nowPlaying && !isDragging && !isStatic ? nowPlaying.name : "HUGO DIGITAL RECEIVER"}
                 </p>
                 
@@ -406,10 +406,10 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
               
               <div className="flex flex-row md:flex-col items-center md:items-end justify-between font-mono select-none">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-cyan-400 text-4xl font-black tracking-tighter" style={{ textShadow: "0 0 16px rgba(6,182,212,0.7)" }}>
+                  <span className="text-info text-4xl font-black tracking-tighter" style={{ textShadow: "0 0 16px rgba(6,182,212,0.7)" }}>
                     {visualFreq.toFixed(1)}
                   </span>
-                  <span className="text-[10px] font-bold text-cyan-600">MHz</span>
+                  <span className="text-[10px] font-bold text-info">MHz</span>
                 </div>
               </div>
             </div>
@@ -435,7 +435,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
                 </div>
                 
                 {/* Glowing Needle */}
-                <div className="absolute top-0 bottom-0 w-1 bg-cyan-400 pointer-events-none z-10 rounded-full" style={{ left: needleLeft, boxShadow: "0 0 12px 2px rgba(6,182,212,0.9)" }} />
+                <div className="absolute top-0 bottom-0 w-1 bg-info pointer-events-none z-10 rounded-full" style={{ left: needleLeft, boxShadow: "0 0 12px 2px rgba(6,182,212,0.9)" }} />
 
                 <input type="range" min="87.5" max="108.0" step="0.1" value={visualFreq} onChange={(e) => handleDialDrag(Number(e.target.value))}
                        onPointerDown={() => setIsDragging(true)} onPointerUp={() => { if (isDragging) handleDialRelease(visualFreq); }}
@@ -444,17 +444,17 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
 
               {/* Action Toolbar */}
               <div className="flex items-center justify-between px-2">
-                <button onClick={() => autoScan("down")} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-cyan-500 active:scale-95 transition-all font-bold text-[10px] tracking-wider uppercase border border-zinc-700">
+                <button onClick={() => autoScan("down")} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-info active:scale-95 transition-all font-bold text-[10px] tracking-wider uppercase border border-zinc-700">
                   <span className="material-symbols-outlined text-[14px]">skip_previous</span>
                   <span>Scan</span>
                 </button>
                 
                 {/* Big Play Button */}
-                <button onClick={togglePlayPause} className="w-16 h-16 shrink-0 rounded-full bg-gradient-to-b from-cyan-400 to-blue-500 text-black flex items-center justify-center active:scale-95 transition-transform shadow-[0_8px_30px_rgba(6,182,212,0.5)] border border-cyan-300/50">
+                <button onClick={togglePlayPause} className="w-16 h-16 shrink-0 rounded-full bg-gradient-to-b from-info to-primary text-black flex items-center justify-center active:scale-95 transition-transform shadow-[0_8px_30px_rgba(6,182,212,0.5)] border border-info/50">
                   <span className="material-symbols-outlined text-3xl">{(isPlaying || isStatic || isBuffering) ? "power_settings_new" : "play_arrow"}</span>
                 </button>
                 
-                <button onClick={() => autoScan("up")} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-cyan-500 active:scale-95 transition-all font-bold text-[10px] tracking-wider uppercase border border-zinc-700">
+                <button onClick={() => autoScan("up")} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-info active:scale-95 transition-all font-bold text-[10px] tracking-wider uppercase border border-zinc-700">
                   <span>Scan</span>
                   <span className="material-symbols-outlined text-[14px]">skip_next</span>
                 </button>
@@ -465,13 +465,13 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
         </div>
 
         {/* ─── Band Navigation ──────────────────────────────────────────────── */}
-        <div className="flex mb-5 p-1 rounded-2xl bg-zinc-200/50 dark:bg-zinc-900">
+        <div className="flex mb-5 p-1 rounded-2xl bg-muted/50">
           {RADIO_CATEGORIES.map((cat) => {
             const active = activeCategory === cat.id;
             return (
               <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[11px] font-bold transition-all ${
-                  active ? "bg-white dark:bg-zinc-800 text-cyan-600 dark:text-cyan-400 shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                  active ? "bg-card text-info shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                 }`}>
                 <span className="material-symbols-outlined text-[16px]">{cat.icon}</span>
                 <span className="hidden sm:inline">{t(cat.labelKey)}</span>
@@ -497,28 +497,28 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
               return (
                 <button key={station.stationuuid} onClick={() => playStation(station)}
                   className={`group text-left p-3.5 rounded-2xl border transition-all flex flex-col gap-3 relative overflow-hidden ${
-                    active ? "border-cyan-500/50 bg-cyan-50 dark:bg-cyan-950/30" : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:border-cyan-300 dark:hover:border-cyan-700"
+                    active ? "border-info/50 bg-info/10 dark:bg-info/30" : "border-border bg-card hover:border-info/40 dark:hover:border-info/90"
                   }`}>
                   {/* Subtle active glow */}
-                  {active && <div className="absolute -top-10 -right-10 w-24 h-24 bg-cyan-400/20 blur-2xl rounded-full" />}
+                  {active && <div className="absolute -top-10 -right-10 w-24 h-24 bg-info/20 blur-2xl rounded-full" />}
                   
                   <div className="flex items-start justify-between">
                     <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center transition-colors ${
-                      active ? "bg-gradient-to-br from-cyan-400 to-blue-500 text-white shadow-lg" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 group-hover:text-cyan-500"
+                      active ? "bg-gradient-to-br from-info to-primary text-white shadow-lg" : "bg-muted text-muted-foreground group-hover:text-info"
                     }`}>
                       <span className={`material-symbols-outlined text-[20px] ${active && isPlaying && !isDragging ? "animate-pulse" : ""}`}>
                         {active && (isBuffering || isDragging) ? "sync" : active && isPlaying ? "graphic_eq" : "radio"}
                       </span>
                     </div>
                     {active && <span className="flex h-2 w-2 relative mt-1 mr-1">
-                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isPlaying && !isDragging ? "bg-cyan-400 opacity-75" : "bg-zinc-400 opacity-0"}`}></span>
-                      <span className={`relative inline-flex rounded-full h-2 w-2 ${isPlaying && !isDragging ? "bg-cyan-500" : "bg-zinc-400"}`}></span>
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isPlaying && !isDragging ? "bg-info opacity-75" : "bg-zinc-400 opacity-0"}`}></span>
+                      <span className={`relative inline-flex rounded-full h-2 w-2 ${isPlaying && !isDragging ? "bg-info" : "bg-zinc-400"}`}></span>
                     </span>}
                   </div>
                   <div className="flex flex-col">
-                    <span className={`text-[12px] font-bold line-clamp-1 leading-tight ${active ? "text-cyan-700 dark:text-cyan-400" : "text-zinc-800 dark:text-zinc-200"}`}>{station.name}</span>
+                    <span className={`text-[12px] font-bold line-clamp-1 leading-tight ${active ? "text-info/90 dark:text-info" : "text-foreground"}`}>{station.name}</span>
                     {stationFreq && (
-                      <span className={`text-[9px] font-mono font-bold mt-1 ${active ? "text-cyan-600/80 dark:text-cyan-400/80" : "text-zinc-400 dark:text-zinc-500"}`}>
+                      <span className={`text-[9px] font-mono font-bold mt-1 ${active ? "text-info/80" : "text-muted-foreground/70"}`}>
                         {stationFreq.toFixed(1)} MHz
                       </span>
                     )}

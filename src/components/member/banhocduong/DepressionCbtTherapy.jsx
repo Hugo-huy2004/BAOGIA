@@ -50,7 +50,7 @@ export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showT
       setStep("worksheet");
       setActionStepChecked(false);
       setShowReRating(false);
-    } catch {
+    } catch (e) {
       showToast?.(e.message || "Lỗi tạo bảng CBT.", "error");
       setStep("intro");
     }
@@ -145,7 +145,7 @@ export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showT
           </div>
           <div>
             <p className="text-[11px] font-black text-zinc-200">Đang lập bảng nhận thức CBT riêng...</p>
-            <p className="text-[9.5px] text-zinc-450 mt-1">AI đang bóc tách biến dạng nhận thức để tái tạo suy nghĩ...</p>
+            <p className="text-[9.5px] text-muted-foreground mt-1">AI đang bóc tách biến dạng nhận thức để tái tạo suy nghĩ...</p>
           </div>
         </div>
       )}
@@ -199,7 +199,7 @@ export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showT
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <span className="text-[9.5px] font-black uppercase text-zinc-400">Bằng chứng ủng hộ suy nghĩ đó</span>
-                <div className="p-3 bg-white/5 border border-white/10 rounded-2xl font-semibold text-zinc-350 min-h-[60px]">
+                <div className="p-3 bg-white/5 border border-white/10 rounded-2xl font-semibold text-muted-foreground/70 min-h-[60px]">
                   {worksheet.evidence_for || "Không có bằng chứng thực tế khách quan nào ngoài cảm xúc suy diễn tự thân."}
                 </div>
               </div>

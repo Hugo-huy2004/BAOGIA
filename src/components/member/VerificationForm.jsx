@@ -39,17 +39,17 @@ export default function VerificationForm({
 
   return (
     <div className="max-w-xl mx-auto py-8 px-4 animate-fadeIn">
-      <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md border border-zinc-200/50 dark:border-zinc-850/60 p-6 sm:p-8 rounded-xl shadow-xl space-y-6 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+      <div className="bg-white/80 dark:bg-card/80 backdrop-blur-md border border-border/50 p-6 sm:p-8 rounded-xl shadow-xl space-y-6 relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-purple-500 to-pink-500" />
 
         <div className="text-center space-y-2">
-          <span className="material-symbols-outlined text-4xl text-indigo-500">
+          <span className="material-symbols-outlined text-4xl text-primary">
             school
           </span>
           <h2 className="font-display text-xl sm:text-2xl font-black text-foreground uppercase tracking-tight">
             Hoàn Tất Thông Tin Sinh Viên
           </h2>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             Thông tin dưới đây sẽ được cố định sau khi xác minh, vui lòng nhập chính xác.
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function VerificationForm({
           <div className="space-y-4">
             {/* Full Name */}
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
                 Họ và tên
               </label>
               <input
@@ -67,14 +67,14 @@ export default function VerificationForm({
                 placeholder="Nhập họ và tên của bạn..."
                 value={verificationForm.fullName}
                 onChange={(e) => setVerificationForm({ ...verificationForm, fullName: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
+                className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all placeholder-zinc-400"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Birthday */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
                   Sinh nhật
                 </label>
                 <input
@@ -82,13 +82,13 @@ export default function VerificationForm({
                   required
                   value={verificationForm.birthday}
                   onChange={(e) => setVerificationForm({ ...verificationForm, birthday: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
 
               {/* Phone Zalo */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
                   Số điện thoại (Zalo)
                 </label>
                 <input
@@ -97,7 +97,7 @@ export default function VerificationForm({
                   placeholder="Nhập số điện thoại Zalo..."
                   value={verificationForm.phoneZalo}
                   onChange={(e) => setVerificationForm({ ...verificationForm, phoneZalo: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
+                  className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all placeholder-zinc-400"
                 />
               </div>
             </div>
@@ -105,7 +105,7 @@ export default function VerificationForm({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* School Name — just type the name, level is auto-detected */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
                   Tên trường học
                 </label>
                 <input
@@ -114,20 +114,20 @@ export default function VerificationForm({
                   placeholder="VD: Thăng Long (không cần ghi TH/THCS/ĐH...)"
                   value={verificationForm.schoolName}
                   onChange={handleSchoolNameChange}
-                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
+                  className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all placeholder-zinc-400"
                 />
               </div>
 
               {/* School Level — auto-filled from the name above, can override manually */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
                   Cấp học
                 </label>
                 <select
                   required
                   value={verificationForm.schoolLevel}
                   onChange={(e) => setVerificationForm({ ...verificationForm, schoolLevel: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all"
                 >
                   <option value="">-- Chọn Cấp Học --</option>
                   <option value="TH">Tiểu học (TH)</option>
@@ -141,7 +141,7 @@ export default function VerificationForm({
 
             {/* Student/School ID code */}
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-zinc-550 dark:text-zinc-400 uppercase tracking-wider block">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
                 Mã học sinh / sinh viên
               </label>
               <input
@@ -150,7 +150,7 @@ export default function VerificationForm({
                 placeholder="Nhập mã số HS/SV của bạn..."
                 value={verificationForm.schoolIdCode}
                 onChange={(e) => setVerificationForm({ ...verificationForm, schoolIdCode: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-background text-xs text-zinc-800 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-zinc-400"
+                className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all placeholder-zinc-400"
               />
             </div>
           </div>
@@ -163,9 +163,9 @@ export default function VerificationForm({
                 required
                 checked={verificationForm.acceptTerms}
                 onChange={(e) => setVerificationForm({ ...verificationForm, acceptTerms: e.target.checked })}
-                className="mt-0.5 w-4 h-4 rounded border-zinc-350 dark:border-zinc-800 text-indigo-600 focus:ring-indigo-500"
+                className="mt-0.5 w-4 h-4 rounded border-border text-primary focus:ring-primary"
               />
-              <span className="text-[11px] text-zinc-650 dark:text-zinc-400 leading-normal">
+              <span className="text-[11px] text-muted-foreground dark:text-zinc-400 leading-normal">
                 Chấp nhận cung cấp thông tin và miễn trừ pháp lý
               </span>
             </label>
@@ -176,9 +176,9 @@ export default function VerificationForm({
                 required
                 checked={verificationForm.acceptContact}
                 onChange={(e) => setVerificationForm({ ...verificationForm, acceptContact: e.target.checked })}
-                className="mt-0.5 w-4 h-4 rounded border-zinc-350 dark:border-zinc-800 text-indigo-600 focus:ring-indigo-500"
+                className="mt-0.5 w-4 h-4 rounded border-border text-primary focus:ring-primary"
               />
-              <span className="text-[11px] text-zinc-650 dark:text-zinc-400 leading-normal">
+              <span className="text-[11px] text-muted-foreground dark:text-zinc-400 leading-normal">
                 Email .edu sẽ được duyệt ngay lập tức; email thường sẽ được Admin xem xét trong 24 tiếng tới.
               </span>
             </label>
@@ -189,14 +189,14 @@ export default function VerificationForm({
             <button
               type="button"
               onClick={handleLogout}
-              className="flex-1 py-2.5 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-md transition-all active:scale-95"
+              className="flex-1 py-2.5 border border-border hover:bg-zinc-50 dark:hover:bg-zinc-800/50 text-foreground/80 text-xs font-bold rounded-md transition-all active:scale-95"
             >
               Đăng xuất
             </button>
             <button
               type="submit"
               disabled={verifying}
-              className="flex-[2] py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-md transition-all active:scale-95 shadow-md shadow-indigo-200/40 dark:shadow-none flex justify-center items-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none"
+              className="flex-[2] py-2.5 bg-primary hover:bg-primary/90 text-white text-xs font-bold rounded-md transition-all active:scale-95 shadow-md shadow-primary/40 dark:shadow-none flex justify-center items-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none"
             >
               {verifying && (
                 <span className="animate-spin border-2 border-white border-t-transparent w-3 h-3 rounded-full shrink-0" />

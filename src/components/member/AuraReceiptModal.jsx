@@ -58,7 +58,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
           initial={{ y: 50, opacity: 0, scale: 0.95 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 20, opacity: 0, scale: 0.95 }}
-          className="relative w-full max-w-sm bg-[#faf9f6] dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 shadow-2xl overflow-hidden"
+          className="relative w-full max-w-sm bg-[#faf9f6] dark:bg-zinc-900 text-foreground shadow-2xl overflow-hidden"
           style={{
             clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), 95% 100%, 90% calc(100% - 10px), 85% 100%, 80% calc(100% - 10px), 75% 100%, 70% calc(100% - 10px), 65% 100%, 60% calc(100% - 10px), 55% 100%, 50% calc(100% - 10px), 45% 100%, 40% calc(100% - 10px), 35% 100%, 30% calc(100% - 10px), 25% 100%, 20% calc(100% - 10px), 15% 100%, 10% calc(100% - 10px), 5% 100%, 0 calc(100% - 10px))"
           }}
@@ -81,7 +81,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="mt-8 font-mono font-black text-2xl text-red-500 bg-red-500/10 dark:bg-red-500/20 px-6 py-3 rounded-full"
+                  className="mt-8 font-mono font-black text-2xl text-destructive bg-destructive/10 dark:bg-destructive/20 px-6 py-3 rounded-full"
                 >
                   - {totalPrice} JOY
                 </motion.div>
@@ -89,7 +89,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
           ) : (
             <>
               {/* Header */}
-              <div className="pt-8 pb-4 px-6 text-center border-b border-zinc-200 dark:border-zinc-800 border-dashed">
+              <div className="pt-8 pb-4 px-6 text-center border-b border-border border-dashed">
                 <h2 className="font-black text-2xl tracking-tighter uppercase mb-1">Hugo Aura</h2>
                 <p className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">{isEn ? "Premium Theme Receipt" : "Hóa Đơn Thuê Giao Diện"}</p>
                 <div className="mt-4 text-left">
@@ -109,7 +109,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
               <div className="py-4 px-6 font-mono text-sm space-y-4 min-h-[150px]">
                 
                 {/* Duration Toggle */}
-                <div className="flex bg-zinc-200 dark:bg-zinc-800 rounded-lg p-1 mb-4">
+                <div className="flex bg-muted rounded-lg p-1 mb-4">
                   <button 
                     onClick={() => setDuration('day')}
                     className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-all ${duration === 'day' ? 'bg-white dark:bg-zinc-600 shadow-sm' : 'text-zinc-500'}`}
@@ -144,7 +144,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
               </div>
 
               {/* Total */}
-              <div className="py-4 px-6 border-t border-zinc-200 dark:border-zinc-800 border-dashed font-mono bg-zinc-50 dark:bg-zinc-800/20">
+              <div className="py-4 px-6 border-t border-border border-dashed font-mono bg-muted/50">
                 <div className="flex justify-between items-center text-lg font-black">
                   <span>{isEn ? "TOTAL" : "TỔNG CỘNG"}</span>
                   <span>{totalPrice} JOY</span>
@@ -157,7 +157,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                   initial={{ scale: 3, opacity: 0, rotate: -15 }}
                   animate={{ scale: 1, opacity: 1, rotate: -15 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-red-500 text-red-500 font-black text-4xl px-6 py-2 uppercase tracking-widest rounded-lg"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-destructive text-destructive font-black text-4xl px-6 py-2 uppercase tracking-widest rounded-lg"
                   style={{ textShadow: "0 0 4px rgba(239,68,68,0.5)" }}
                 >
                   {isEn ? "PAID" : "ĐÃ THU"}
@@ -165,7 +165,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
               )}
 
               {/* Actions */}
-              <div className="p-6 bg-zinc-100 dark:bg-zinc-800/60 pb-10">
+              <div className="p-6 bg-muted pb-10">
                 {isProcessing ? (
                   <div className="flex flex-col items-center justify-center gap-3 py-2 text-zinc-500 font-mono text-xs">
                     <div className="w-5 h-5 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" />
@@ -175,13 +175,13 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                   <div className="flex gap-3">
                     <button
                       onClick={onCancel}
-                      className="flex-1 py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-white dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors border border-zinc-200 dark:border-zinc-600"
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-white dark:bg-zinc-700 text-muted-foreground hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors border border-border"
                     >
                       {isEn ? "Cancel" : "Hủy"}
                     </button>
                     <button
                       onClick={() => onConfirm(theme.id, duration)}
-                      className="flex-[2] py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-colors shadow-lg"
+                      className="flex-[2] py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider text-white bg-zinc-900 hover:bg-foreground dark:text-black dark:hover:bg-zinc-200 transition-colors shadow-lg"
                     >
                       {isEn ? "Pay" : "Thanh Toán"} {totalPrice} JOY
                     </button>

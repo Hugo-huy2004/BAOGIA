@@ -23,7 +23,7 @@ export function useWeather({ enabled = true, preferGeo = false, refreshMs = 10 *
         }
         const w = await fetchWeather(coordsRef.current.lat, coordsRef.current.lon);
         if (active) { setWeather(w); setError(null); }
-      } catch {
+      } catch (e) {
         if (active) setError(e);
       } finally {
         if (active) setLoading(false);

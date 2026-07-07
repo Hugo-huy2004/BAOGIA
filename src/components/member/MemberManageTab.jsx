@@ -135,11 +135,11 @@ function PackageDetailsSheet({ pkg, onClose, t }) {
                 <span className="material-symbols-outlined text-lg">workspace_premium</span>
               </span>
               <div>
-                <h3 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight">{pkg.name}</h3>
-                <p className="text-[9px] text-zinc-450 dark:text-zinc-400">{t("memberTabs.manage.benefitsTitle")}</p>
+                <h3 className="text-sm font-black text-foreground uppercase tracking-tight">{pkg.name}</h3>
+                <p className="text-[9px] text-muted-foreground/70">{t("memberTabs.manage.benefitsTitle")}</p>
               </div>
             </div>
-            <button onClick={onClose} className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-zinc-500">
               <span className="material-symbols-outlined text-base">close</span>
             </button>
           </div>
@@ -147,14 +147,14 @@ function PackageDetailsSheet({ pkg, onClose, t }) {
           {formattedBenefits.length > 0 ? (
             <div className="space-y-2">
               {formattedBenefits.map((benefit, i) => (
-                <div key={i} className="flex gap-2.5 items-start p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800">
+                <div key={i} className="flex gap-2.5 items-start p-3 rounded-xl bg-muted/50 border border-border/60">
                   <span className="material-symbols-outlined text-xs mt-0.5 shrink-0" style={{ color: pkg.color }}>check_circle</span>
-                  <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 leading-relaxed">{benefit}</p>
+                  <p className="text-[11px] font-bold text-foreground/80 leading-relaxed">{benefit}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-[10px] text-zinc-450 italic py-2">{t("memberPortal.package.noDetails")}</p>
+            <p className="text-[10px] text-muted-foreground italic py-2">{t("memberPortal.package.noDetails")}</p>
           )}
         </motion.div>
       </motion.div>
@@ -183,9 +183,9 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
     <div className="max-w-xl mx-auto space-y-6 px-3 sm:px-0 animate-fadeIn">
       {/* Header */}
       <div className="space-y-1 text-left">
-        <h2 className="text-sm font-black text-zinc-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
+        <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
           <span className="material-symbols-outlined text-base text-primary">wallet</span>{t("memberTabs.manage.ownedPackagesTitle")}</h2>
-        <p className="text-[10px] text-zinc-455 dark:text-zinc-400">{t("memberTabs.manage.ownedPackagesDesc")}</p>
+        <p className="text-[10px] text-muted-foreground/70">{t("memberTabs.manage.ownedPackagesDesc")}</p>
       </div>
 
       {/* Membership-card grid — use a vertical list/grid instead of horizontal scroll to avoid "cut in half" peek on mobile */}
@@ -220,19 +220,19 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
       <PackageDetailsSheet pkg={activePkg} onClose={() => setActivePkg(null)} t={t} />
 
       {/* Public Link Card */}
-      <div className="bg-white/60 dark:bg-card/60 backdrop-blur-xl rounded-2xl border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-6 space-y-4">
+      <div className="bg-white/60 dark:bg-card/60 backdrop-blur-xl rounded-2xl border border-border/50 shadow-sm p-6 space-y-4">
         <div className="space-y-1 text-left">
-          <h4 className="text-[11px] font-black text-zinc-800 dark:text-white uppercase tracking-widest flex items-center gap-2">
+          <h4 className="text-[11px] font-black text-foreground uppercase tracking-widest flex items-center gap-2">
             <span className="material-symbols-outlined text-sm text-primary">link</span>
             {t("memberTabs.manage.publicLinkTitle")}
           </h4>
-          <p className="text-[9.5px] text-zinc-450 dark:text-zinc-400">{t("memberTabs.manage.publicLinkDesc")}</p>
+          <p className="text-[9.5px] text-muted-foreground/70">{t("memberTabs.manage.publicLinkDesc")}</p>
         </div>
 
         {bio?.slug ? (
           <div className="space-y-3.5">
-            <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-zinc-50/80 dark:bg-black/35 border border-zinc-200/60 dark:border-zinc-800 font-mono text-[10px] sm:text-xs text-zinc-700 dark:text-zinc-300 font-bold select-all shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
-              <span className="material-symbols-outlined text-xs text-emerald-500 shrink-0">lock</span>
+            <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-muted/80 border border-border/60 font-mono text-[10px] sm:text-xs text-foreground/80 font-bold select-all shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+              <span className="material-symbols-outlined text-xs text-success shrink-0">lock</span>
               <span className="flex-1 overflow-x-auto scrollbar-hide whitespace-nowrap text-left">{publicLink}</span>
             </div>
 
@@ -241,7 +241,7 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
                 href={publicLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-black dark:bg-white text-white dark:text-black hover:opacity-90 active:scale-95 font-bold py-2.5 rounded-xl transition-all text-center text-[10px] uppercase tracking-wider shadow-sm flex items-center justify-center gap-1.5"
+                className="bg-foreground text-background hover:opacity-90 active:scale-95 font-bold py-2.5 rounded-xl transition-all text-center text-[10px] uppercase tracking-wider shadow-sm flex items-center justify-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-xs">open_in_new</span>
                 {t("memberTabs.manage.viewLiveBtn")}
@@ -249,7 +249,7 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
               <button
                 type="button"
                 onClick={onCopy}
-                className="bg-zinc-100 hover:bg-zinc-200/60 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/80 text-zinc-800 dark:text-zinc-200 font-bold py-2.5 rounded-xl transition-all text-[10px] uppercase tracking-wider border border-zinc-200/60 dark:border-zinc-800 flex items-center justify-center gap-1.5 active:scale-95"
+                className="bg-zinc-100 hover:bg-muted/60 dark:hover:bg-zinc-900/80 text-foreground font-bold py-2.5 rounded-xl transition-all text-[10px] uppercase tracking-wider border border-border/60 flex items-center justify-center gap-1.5 active:scale-95"
               >
                 <span className="material-symbols-outlined text-xs">
                   {copied ? "check" : "content_copy"}
@@ -259,8 +259,8 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
             </div>
           </div>
         ) : (
-          <div className="text-center py-8 border border-dashed border-zinc-200 dark:border-zinc-850 rounded-xl">
-            <span className="material-symbols-outlined text-2xl text-zinc-300 dark:text-zinc-750">link_off</span>
+          <div className="text-center py-8 border border-dashed border-border rounded-xl">
+            <span className="material-symbols-outlined text-2xl text-muted-foreground/70">link_off</span>
             <p className="text-[10px] italic text-zinc-400 mt-2">{t("memberTabs.manage.notActivatedDesc")}</p>
           </div>
         )}
@@ -268,14 +268,14 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
 
       {/* Warning Danger Zone */}
       {bio?._id && (
-        <div className="bg-red-500/5 dark:bg-red-950/10 border border-red-200/20 dark:border-red-900/30 p-5 rounded-2xl shadow-sm space-y-4">
+        <div className="bg-destructive/5 dark:bg-destructive/10 border border-destructive/20 dark:border-destructive/30 p-5 rounded-2xl shadow-sm space-y-4">
           <div className="flex gap-3 text-left">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 bg-[#ff3b30] shadow-sm">
               <span className="material-symbols-outlined text-base">warning</span>
             </div>
             <div>
-              <h4 className="text-xs font-black text-zinc-800 dark:text-white uppercase tracking-wider">{t("memberTabs.manage.removeBioTitle")}</h4>
-              <p className="text-[9.5px] text-zinc-450 dark:text-zinc-400 mt-0.5 leading-relaxed">{t("memberTabs.manage.removeBioDesc")}</p>
+              <h4 className="text-xs font-black text-foreground uppercase tracking-wider">{t("memberTabs.manage.removeBioTitle")}</h4>
+              <p className="text-[9.5px] text-muted-foreground/70 mt-0.5 leading-relaxed">{t("memberTabs.manage.removeBioDesc")}</p>
             </div>
           </div>
 

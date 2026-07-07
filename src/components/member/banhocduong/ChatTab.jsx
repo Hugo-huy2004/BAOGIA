@@ -450,7 +450,7 @@ export default function ChatTab({
             // fall through to the fresh greeting below instead of showing an
             // empty chat.
           }
-        } catch {
+        } catch (e) {
           console.error("Failed to parse local chat messages", e);
         }
       }
@@ -1493,15 +1493,15 @@ export default function ChatTab({
   if (showTherapyOverlay) {
     return (
       <div className="flex flex-col min-h-0 h-full bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
-        <div className="shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800/50" style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}>
+        <div className="shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-border/60" style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}>
           <button
             type="button"
             onClick={() => { setShowTherapyOverlay(false); setTherapyInitialMethod(null); }}
-            className="w-8 h-8 -ml-1 rounded-full flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all shrink-0"
+            className="w-8 h-8 -ml-1 rounded-full flex items-center justify-center text-muted-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all shrink-0"
           >
             <span className="material-symbols-outlined text-[20px]">chevron_left</span>
           </button>
-          <p className="text-[13px] font-extrabold text-zinc-800 dark:text-zinc-100">Trị Liệu Tâm Lý</p>
+          <p className="text-[13px] font-extrabold text-foreground">Trị Liệu Tâm Lý</p>
         </div>
         <div className="flex-1 overflow-y-auto">
           <TherapyTab
@@ -1560,7 +1560,7 @@ export default function ChatTab({
         {/* Back button (mobile fullscreen only) */}
         {onExitFullscreen && (
           <button type="button" onClick={onExitFullscreen}
-            className="md:hidden -ml-1 w-8 h-8 rounded-full flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/[0.07] active:scale-90 transition-all shrink-0">
+            className="md:hidden -ml-1 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-zinc-100 dark:hover:bg-white/[0.07] active:scale-90 transition-all shrink-0">
             <span className="material-symbols-outlined text-[22px]">chevron_left</span>
           </button>
         )}
@@ -1575,7 +1575,7 @@ export default function ChatTab({
 
         {/* Bot identity */}
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-extrabold text-zinc-900 dark:text-white leading-tight truncate">
+          <p className="text-[13px] font-extrabold text-foreground leading-tight truncate">
             <RenderColoredText text="Hugo" /><span className="text-[#0071e3]">PSY</span>
           </p>
           <p className="text-[9.5px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5">
@@ -1629,7 +1629,7 @@ export default function ChatTab({
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90 ${
               isVentingMode
                 ? "bg-orange-500/15 text-orange-500 border border-orange-400/30"
-                : "text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
+                : "text-muted-foreground/70 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
             }`}>
             <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
               {isVentingMode ? "local_fire_department" : "mood"}
@@ -1646,7 +1646,7 @@ export default function ChatTab({
             onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-1">
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Bài đánh giá lâm sàng</p>
-              <button type="button" onClick={() => setShowTestsMenu(false)} className="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center active:scale-90">
+              <button type="button" onClick={() => setShowTestsMenu(false)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center active:scale-90">
                 <span className="material-symbols-outlined text-sm text-zinc-500">close</span>
               </button>
             </div>
@@ -1726,7 +1726,7 @@ export default function ChatTab({
             paddingBottom: keyboardInset > 0 ? "8px" : "max(16px, env(safe-area-inset-bottom))",
           }}
         >
-          <div className="pointer-events-auto max-w-3xl mx-auto bg-white/60 dark:bg-[#060609]/60 backdrop-blur-3xl rounded-[32px] border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-1.5 transition-all">
+          <div className="pointer-events-auto max-w-3xl mx-auto bg-white/60 dark:bg-[#060609]/60 backdrop-blur-3xl rounded-[32px] border border-border/50/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-1.5 transition-all">
             <ChatInputBar
               inputRef={inputRef}
               value={inputText}

@@ -39,7 +39,7 @@ function InlineBreathingCircle() {
   const phaseLabel = phase === "inhale" ? "Hít Vào (4s)" : phase === "hold" ? "Nín Thở (7s)" : phase === "exhale" ? "Thở Ra (8s)" : "Hít thở 4-7-8";
 
   return (
-    <div className="mt-2 p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/25 border border-sky-200/60 dark:border-sky-800/40 flex flex-col items-center gap-3 w-full max-w-[240px] text-zinc-800 dark:text-zinc-100">
+    <div className="mt-2 p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/25 border border-sky-200/60 dark:border-sky-800/40 flex flex-col items-center gap-3 w-full max-w-[240px] text-foreground">
       <div className="text-[9px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider">Bài tập Thở 4-7-8</div>
       <div className="w-16 h-16 rounded-full flex items-center justify-center bg-sky-500/10 border-2 border-sky-400 relative">
         <motion.div className="absolute inset-0.5 rounded-full bg-sky-400/30"
@@ -47,7 +47,7 @@ function InlineBreathingCircle() {
           transition={{ duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, ease: "linear" }} />
         <span className="text-[12px] font-black text-sky-700 dark:text-sky-300 z-10">{isActive ? sec : "🧘"}</span>
       </div>
-      <p className="text-[10px] font-extrabold text-zinc-700 dark:text-zinc-300 text-center h-4">{phaseLabel}</p>
+      <p className="text-[10px] font-extrabold text-foreground/80 text-center h-4">{phaseLabel}</p>
       <button type="button" onClick={isActive ? stopBreathing : startBreathing}
         className={`w-full py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-white transition-all active:scale-95 ${isActive ? "bg-zinc-400 dark:bg-zinc-700" : "bg-sky-500 hover:bg-sky-600"}`}>
         {isActive ? "Dừng" : "Bắt đầu"}
@@ -61,16 +61,16 @@ function InlineCbtCard() {
   return (
     <div className="mt-2 p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col gap-2.5 w-full max-w-[240px]">
       <div className="text-[9px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Thử thách Suy nghĩ (CBT)</div>
-      <div className="bg-white/90 dark:bg-zinc-900/80 p-2.5 rounded-xl border border-indigo-100/70 dark:border-zinc-800 shadow-sm">
+      <div className="bg-card/90 p-2.5 rounded-xl border border-indigo-100/70 dark:border-zinc-800 shadow-sm">
         <p className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
-        <p className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mt-1">"Tớ cảm thấy mình thật vô dụng..."</p>
+        <p className="text-[11px] font-semibold text-foreground/80 mt-1">"Tớ cảm thấy mình thật vô dụng..."</p>
       </div>
       <AnimatePresence mode="wait">
         {challenged ? (
           <motion.div key="reframe" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             className="bg-emerald-500/10 dark:bg-emerald-500/5 p-2.5 rounded-xl border border-emerald-500/20">
             <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
-            <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mt-1 leading-relaxed">"Mình đang học và cố gắng từng ngày — điều đó không định nghĩa giá trị của mình."</p>
+            <p className="text-[11px] font-bold text-foreground/80 mt-1 leading-relaxed">"Mình đang học và cố gắng từng ngày — điều đó không định nghĩa giá trị của mình."</p>
           </motion.div>
         ) : (
           <motion.button key="btn" type="button" onClick={() => setChallenged(true)}
@@ -135,7 +135,7 @@ function MoodCheckinCard({ onMoodSelect }) {
           >
             <span className="text-[22px] leading-none select-none">{opt.emoji}</span>
             <span className={`text-[8px] font-bold leading-none ${
-              selected === opt.value ? "text-white" : "text-zinc-500 dark:text-zinc-400"
+              selected === opt.value ? "text-white" : "text-muted-foreground"
             }`}>{opt.label}</span>
           </button>
         ))}
@@ -148,7 +148,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
   return (
     <div className="flex flex-col gap-1.5 items-start">
       {/* Main text bubble */}
-      <div className="px-5 py-3.5 text-[12.5px] md:text-[14px] leading-relaxed bg-white/70 dark:bg-[#1a1a24]/60 backdrop-blur-3xl text-zinc-900 dark:text-zinc-100 rounded-[24px] rounded-tl-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.08)] border border-white/80 dark:border-white/[0.12] max-w-full">
+      <div className="px-5 py-3.5 text-[12.5px] md:text-[14px] leading-relaxed bg-white/70 dark:bg-[#1a1a24]/60 backdrop-blur-3xl text-foreground rounded-[24px] rounded-tl-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.08)] border border-border/80/[0.12] max-w-full">
         {!completedMessageIds.has(msg.id) && msg.id !== "init" ? (
           <TypewriterText text={msg.text} id={msg.id}
             onComplete={() => setCompletedMessageIds(prev => { const s = new Set(prev); s.add(msg.id); return s; })} />
@@ -181,7 +181,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
             </div>
             <span className="text-[10px] font-extrabold text-violet-700 dark:text-violet-300">Gợi ý nhỏ từ tớ</span>
           </div>
-          <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-snug">
+          <p className="text-[10.5px] text-muted-foreground leading-snug">
             Tớ muốn hiểu cậu sâu hơn — thử đo nhanh nhé? Chỉ 2 phút thôi.
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -210,7 +210,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
               </button>
             )}
           </div>
-          <p className="text-[8.5px] text-zinc-400 dark:text-zinc-600">Không muốn làm ngay cũng ổn — cứ tâm sự tiếp nha!</p>
+          <p className="text-[8.5px] text-muted-foreground/70">Không muốn làm ngay cũng ổn — cứ tâm sự tiếp nha!</p>
         </div>
       )}
 
@@ -273,13 +273,13 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
           <div className="grid grid-cols-3 gap-1">
             {[7, 14, 30, 50, 90].map(d => (
               <button key={d} type="button" onClick={() => onSelectDuration(msg.id, d)}
-                className="py-1.5 text-[9px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95">
+                className="py-1.5 text-[9px] font-bold bg-muted text-muted-foreground rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95">
                 {d}ngày
               </button>
             ))}
           </div>
           <button type="button" onClick={() => onSelectDuration(msg.id, "cancel")}
-            className="w-full py-1.5 text-[10px] font-medium text-zinc-400 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all">
+            className="w-full py-1.5 text-[10px] font-medium text-zinc-400 border border-border rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all">
             Để sau
           </button>
         </div>
@@ -296,7 +296,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
 
 function UserBubble({ msg }) {
   return (
-    <div className="px-5 py-3.5 text-[12.5px] md:text-[14px] leading-relaxed bg-gradient-to-br from-[#0071e3] to-[#5856d6] text-white rounded-[24px] rounded-tr-[8px] shadow-[0_8px_32px_rgba(0,113,227,0.3),inset_0_2px_6px_rgba(255,255,255,0.25)] border border-white/20 dark:border-white/[0.15] max-w-full">
+    <div className="px-5 py-3.5 text-[12.5px] md:text-[14px] leading-relaxed bg-gradient-to-br from-[#0071e3] to-[#5856d6] text-white rounded-[24px] rounded-tr-[8px] shadow-[0_8px_32px_rgba(0,113,227,0.3),inset_0_2px_6px_rgba(255,255,255,0.25)] border border-border/20/[0.15] max-w-full">
       <p className="whitespace-pre-wrap font-medium">{msg.text}</p>
     </div>
   );
@@ -365,11 +365,11 @@ function ChatMessages({
       >
         {/* Date separator */}
         <div className="flex items-center gap-3 pb-3">
-          <div className="flex-1 h-px bg-zinc-200/50 dark:bg-white/[0.06]" />
-          <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 px-3 py-1 rounded-full bg-zinc-100 dark:bg-white/[0.05] select-none">
+          <div className="flex-1 h-px bg-muted/50/[0.06]" />
+          <span className="text-[10px] font-semibold text-muted-foreground/70 px-3 py-1 rounded-full bg-muted/[0.05] select-none">
             {new Date().toLocaleDateString("vi-VN", { weekday: "short", day: "numeric", month: "numeric" })}
           </span>
-          <div className="flex-1 h-px bg-zinc-200/50 dark:bg-white/[0.06]" />
+          <div className="flex-1 h-px bg-muted/50/[0.06]" />
         </div>
 
         <AnimatePresence mode="popLayout">
@@ -411,7 +411,7 @@ function ChatMessages({
 
                 {/* Timestamp */}
                 <div className={`flex items-center gap-1.5 mt-1.5 ${isBot ? "ml-11" : "mr-1"}`}>
-                  <span className="text-[9.5px] text-zinc-400 dark:text-zinc-500 font-medium">
+                  <span className="text-[9.5px] text-muted-foreground/70 font-medium">
                     {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                   </span>
                   {msg.timeLeft !== undefined && (
@@ -436,7 +436,7 @@ function ChatMessages({
                 </div>
                 <div className="absolute inset-0 bg-blue-500 rounded-2xl animate-ping opacity-20" />
               </div>
-              <div className="px-4 py-3 bg-white/80 dark:bg-zinc-900/60 backdrop-blur-md rounded-[20px] rounded-tl-[6px] border border-white/60 dark:border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.2)] flex items-center gap-2.5">
+              <div className="px-4 py-3 bg-card/80 backdrop-blur-md rounded-[20px] rounded-tl-[6px] border border-border/60/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.2)] flex items-center gap-2.5">
                 <span className="flex items-center gap-[3px]">
                   {[0, 150, 300].map((delay, i) => (
                     <span key={delay} className={`w-1.5 h-1.5 rounded-full animate-bounce ${i === 0 ? "bg-blue-500" : i === 1 ? "bg-indigo-500" : "bg-purple-500"}`}
@@ -459,7 +459,7 @@ function ChatMessages({
             initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }}
             transition={{ type: "spring", stiffness: 400, damping: 22 }}
             onClick={() => { userScrolledUpRef.current = false; scrollToBottom("smooth"); }}
-            className="absolute bottom-4 right-4 z-10 w-9 h-9 rounded-full bg-white dark:bg-[#1e1d2c] border border-zinc-200 dark:border-zinc-700 shadow-lg flex items-center justify-center text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 active:scale-90 transition-all"
+            className="absolute bottom-4 right-4 z-10 w-9 h-9 rounded-full bg-white dark:bg-[#1e1d2c] border border-border shadow-lg flex items-center justify-center text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 active:scale-90 transition-all"
           >
             <ChevronDown className="w-4 h-4" />
           </motion.button>

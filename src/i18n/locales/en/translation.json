@@ -87,7 +87,10 @@
       "hobbies": "Hobbies",
       "philosophy": "Philosophy",
       "contacts": "Contacts",
-      "start": "Get Started"
+      "start": "Get Started",
+      "studio": "Hugo Studio",
+      "partners": "The Founder",
+      "about": "About Me"
     },
     "slide1": {
       "badge": "✦ Creative Developer Portal",
@@ -145,7 +148,16 @@
       "idBenefitDesc": "1x FREE Bio Page",
       "idValidityTitle": "VALIDITY",
       "idValidityDesc": "12 Months",
-      "idAuth": "AUTHENTICATED"
+      "idAuth": "AUTHENTICATED",
+      "benefitsTitle": "Verify successfully and you receive:",
+      "b1t": "Free personal Bio page",
+      "b1d": "Customize the layout, effects, background and every social link — your own digital business card.",
+      "b2t": "A clean personalized link",
+      "b2d": "Like bio/your-name — memorable and professional on your CV, Facebook or Instagram.",
+      "b3t": "3-second auto verification",
+      "b3d": "Just an email ending in .edu — the system verifies instantly, no manual review.",
+      "b4t": "Full student toolkit",
+      "b4d": "Bạn Học Đường, Hugo PSY, Web IDE, Hugo Radio and Aura AI — free for a full 12 months."
     },
     "slide6": {
       "badge": "✦ Professional Web Services",
@@ -196,84 +208,344 @@
       "desc": "Create stunning student link pages completely free, or connect with me to design professional Bespoke websites today.",
       "registerBtn": "Register Account",
       "bookBtn": "Book Consultation"
+    },
+    "studio": {
+      "badge": "✦ Hugo Wishpax Studio",
+      "title1": "Hugo Studio",
+      "title2": "Crafting digital experiences with heart.",
+      "desc": "Hugo Studio is a digital craft workshop — where every website, Bio page and student utility is polished like a little work of art: beautiful, smooth and warm to its users.",
+      "explore": "Explore The Studio",
+      "scrollHint": "Scroll to begin the journey"
+    },
+    "partners": {
+      "badge": "✦ The Person Behind The Studio",
+      "title1": "Final-year student,",
+      "title2": "crafting beautiful experiences.",
+      "desc": "I'm Hugo — a final-year Software Engineering student at Greenwich Vietnam. I believe the most beautiful digital products are the ones that make people smile, and that belief lives in every little detail of Hugo Studio. Jason Phan accompanies me as co-development partner.",
+      "founderRole": "Founder · Design & Development",
+      "partnerRole": "Co-Development Partner",
+      "openToWork": "Open to internships & job opportunities",
+      "finalYear": "Final year · Software Engineering",
+      "motto": "Crafting experiences with all my heart",
+      "stackTitle": "Values I pursue",
+      "v1": "Dedicated",
+      "v2": "Polished",
+      "v3": "Creative",
+      "v4": "Friendly",
+      "v5": "Supportive"
     }
   },
   "servicesPage": {
-    "header": {
-      "badge": "Solutions & Technology",
-      "title": "Our Service Packages",
-      "desc": "Providing professional website design solutions, from minimalist personal pages to comprehensive commercial management systems."
+    "meta": {
+      "title": "Website Services & Pricing | Hugo Studio",
+      "description": "Pricing for websites, landing pages, fixes, SEO, speed-ups and dynamic web apps at Hugo Studio. Clear quotes before any work starts, mobile-first.",
+      "keywords": "website design pricing, Hugo Studio web services, landing page, website fixes, SEO optimization, website speed up, web app"
     },
-    "tier1": {
-      "badge": ".edu privilege",
-      "subtitle": "Fully Sponsored for Students",
-      "title": "Student Edition",
-      "price": "$0",
-      "priceUnit": " /year",
-      "oldPrice": "$20",
-      "f1_bold": "Tailored for scholars:",
-      "f1_text": " Applicable for those with a valid .edu email address.",
-      "f2_bold": "Elegant interface:",
-      "f2_text": " Ad-free with an aesthetically pleasing and refined layout.",
-      "f3_bold": "Full control:",
-      "f3_text": " Conveniently update images and texts at any time.",
-      "f4_bold": "Smooth performance:",
-      "f4_text": " Optimized for seamless browsing across all devices.",
-      "f5_bold": "12-month commitment:",
-      "f5_text": " Free for a full year with no automatic renewals.",
-      "note": "* System automatically reviews eligibility. 1 sponsorship per student.",
-      "btn": "ACTIVATE PRIVILEGE"
+    "common": {
+      "youGet": "What you get",
+      "notIncluded": "Not included",
+      "discussPlan": "Discuss this package",
+      "discussProject": "Discuss your project"
     },
-    "tier2": {
-      "badge": "Most popular",
-      "subtitle": "Static Web Package",
-      "title": "Showcase Edition",
-      "for": "Displaying Information",
-      "desc": "A static website with fixed content, perfect for introducing your portfolio or professional services.",
-      "f1_bold": "Custom design:",
-      "f1_text": " No pre-made templates, fully designed tailored to your project's identity.",
-      "f2_bold": "Content focus:",
-      "f2_text": " Logically arranged layouts helping visitors grasp your message instantly.",
-      "f3_bold": "Digital portfolio:",
-      "f3_text": " Professionally present personal details and work experiences.",
-      "f4_bold": "Optimized load speed:",
-      "f4_text": " Lightweight static architecture ensuring lightning-fast performance.",
-      "f5_bold": "Multi-device compatibility:",
-      "f5_text": " Automatically adjusts for a flawless view on phones, tablets, and desktops.",
-      "f6_bold": "Google friendly:",
-      "f6_text": " Optimized core structure assisting customers in easily finding you online.",
-      "f7_bold": "Multimedia embed:",
-      "f7_text": " Easily embed high-quality images and clear videos for better visuals.",
-      "note": "* Excludes domain name and hosting costs.",
-      "btn": "CONSULT NOW"
+    "hero": {
+      "badge": "Hugo Studio · Service pricing",
+      "title1": "A website with a clear goal,",
+      "title2": "at a clear price up front.",
+      "desc": "Pick what matches your situation: build new, fix an existing site, or just one small task. Every package locks scope, timeline and cost before work starts.",
+      "viewPricing": "View pricing",
+      "contact": "Tell me what you need",
+      "trust": [
+        "Clear quote before work starts",
+        "Mobile-optimized in every package",
+        "Support after handover",
+        "100% free for students"
+      ]
     },
-    "tier3": {
-      "badge": "Enterprise",
-      "subtitle": "Digital Information Center",
-      "title": "Command Hub",
-      "for": "Management & Data",
-      "desc": "A dynamic website with an admin dashboard, giving you complete control over continuous self-updates and data management.",
-      "f1_bold": "Brand identity:",
-      "f1_text": " Designed to perfectly match your business colors and professional style.",
-      "f2_bold": "Management System (CMS):",
-      "f2_text": " A dedicated internal account allowing easy publishing and content updates.",
-      "f3_bold": "Sales management:",
-      "f3_text": " Integrated cart and product lists supporting 24/7 seamless shopping.",
-      "f4_bold": "Payment variety:",
-      "f4_text": " Supports QR code scanning, bank transfers, and domestic cards.",
-      "f5_bold": "Automated notifications:",
-      "f5_text": " Receive immediate phone alerts for any new orders or appointments.",
-      "f6_bold": "Revenue reporting:",
-      "f6_text": " Monitor your profit margins and order counts on an intuitive chart.",
-      "f7_bold": "Support and security:",
-      "f7_text": " Our technical team backs up your data and maintains server stability.",
-      "note": "* Excludes domain name and hosting costs.",
-      "btn": "CONSULT NOW"
+    "pricing": {
+      "eyebrow": "Build a new website",
+      "title": "Three investment levels,",
+      "highlight": "one clear path",
+      "desc": "Listed prices are starting points. Once your scope is clear, I confirm the exact items, timeline and deliverables before starting."
     },
-    "partner": {
-      "badge": "Strategic partner",
-      "title": "Strategic Partner",
-      "desc": "Hugo Studio is proud to accompany a strategic technology partner, bringing the most optimal experiences to customers."
+    "plans": {
+      "fix": {
+        "label": "Quick fix",
+        "name": "Fix an existing site",
+        "price": "From 150,000₫",
+        "note": "Each task quoted up front, pay when it's done — no hidden extras.",
+        "desc": "Site running but small bugs are costing you customers? I fix exactly what needs fixing — no big package required.",
+        "includes": [
+          "A quote per task first — work starts only when you approve",
+          "Fixed and tested on both phone and desktop",
+          "Free 7-day warranty on the exact bug fixed",
+          "All files and access handed back when done"
+        ],
+        "excludes": [
+          "Full redesign of the whole site (see the build packages)",
+          "Domain and hosting fees — I'll hook them up for free"
+        ]
+      },
+      "seo": {
+        "label": "Optimize",
+        "name": "SEO & speed-up",
+        "price": "From 890,000₫",
+        "note": "Best for React/Next.js sites, or any site that's slow and hard to find on Google.",
+        "desc": "A pretty site that's slow and invisible on Google is a shop without a sign. This package fixes exactly that.",
+        "includes": [
+          "Speed tune-up: compressed images, cleaned code, caching on",
+          "Metadata + rich share previews for up to 5 key pages",
+          "Google Search Console setup and a full sitemap",
+          "Before–after PageSpeed report with recommended next steps"
+        ],
+        "excludes": [
+          "SEO copywriting, backlinks, paid ads",
+          "Google ranking guarantees — nobody can honestly promise those"
+        ]
+      },
+      "landing": {
+        "label": "Start",
+        "name": "One-page landing page",
+        "price": "From 990,000₫",
+        "note": "Custom design, no mass-market templates. Done in 5-7 days.",
+        "desc": "One page, one goal: visitors finish reading and want to contact you.",
+        "tagline": "Easy to start",
+        "includes": [
+          "1 page custom-designed to your brand, up to 7 sections",
+          "2 revision rounds based on your feedback",
+          "Contact form delivered straight to your Zalo or email",
+          "Basic SEO, rich preview when your link is shared",
+          "Deployed live on your domain, with a guide to edit text & images",
+          "Free bug support for 7 days after handover"
+        ],
+        "excludes": [
+          "Domain fee ~300-500k/year (I'll pick a free hosting tier)",
+          "Copy and images — you provide them, I polish",
+          "Extra pages, multi-language → quoted separately"
+        ]
+      },
+      "website": {
+        "label": "Grow",
+        "name": "Multi-page website",
+        "price": "From 2,490,000₫",
+        "note": "Final price depends on pages and content. 40-50% below agency rates.",
+        "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
+        "tagline": "Most popular",
+        "includes": [
+          "4-6 finished pages: home, about, services, contact",
+          "Design matched to your brand + 2 revision rounds",
+          "SEO-ready structure, registered with Google",
+          "Frequently-changed parts (prices, menu, news) editable without code",
+          "Zalo, Messenger and Google Maps integration",
+          "1 training session + 14 days of support"
+        ],
+        "excludes": [
+          "Domain/hosting fees ~300-800k/year depending on plan",
+          "Copywriting and product photography",
+          "Booking, payments, member accounts → see the System package"
+        ]
+      },
+      "system": {
+        "label": "System",
+        "name": "Dynamic web app",
+        "price": "From 6,900,000₫",
+        "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
+        "desc": "Not just a brochure — a website that works for you: taking orders, bookings and managing customers.",
+        "tagline": "Long-term asset",
+        "includes": [
+          "1 core flow of your choice: bookings OR basic orders",
+          "Admin dashboard: orders, customers, key numbers",
+          "Login with 2 permission levels: owner and staff",
+          "1 data connection: Google Sheet or Zalo",
+          "Full source code handover — the site is your asset",
+          "1 month of technical support after handover"
+        ],
+        "excludes": [
+          "Online payments, extra roles, extra flows → 12-20M projects, quoted separately",
+          "Running costs for server & domain (~50-150k/month)"
+        ]
+      }
+    },
+    "demo": {
+      "eyebrow": "See for yourself",
+      "title": "Try out",
+      "highlight": "real design demos",
+      "desc": "These demos run live right in your browser — pick an industry to see how I structure layout, color and experience for each type of website.",
+      "hint": "Like one of these? Message me with its name and I'll tailor it to your brand.",
+      "cta": "Build something like this",
+      "loading": "Loading demo...",
+      "templates": {
+        "photography": {
+          "title": "Photography Studio",
+          "short": "Photo",
+          "subtitle": "Photographer"
+        },
+        "cafe": {
+          "title": "Cafe & Bistro",
+          "short": "Cafe",
+          "subtitle": "Restaurant"
+        },
+        "jewelry": {
+          "title": "Gold & Jewelry Store",
+          "short": "Jewelry",
+          "subtitle": "Jeweler"
+        },
+        "portfolio": {
+          "title": "Personal Portfolio",
+          "short": "Portfolio",
+          "subtitle": "Personal profile"
+        },
+        "ecommerce": {
+          "title": "Online Store",
+          "short": "E-Commerce",
+          "subtitle": "Multi-industry"
+        },
+        "dashboard": {
+          "title": "Admin Panel",
+          "short": "Dashboard",
+          "subtitle": "Dashboard"
+        }
+      }
+    },
+    "care": {
+      "eyebrow": "Already have a website?",
+      "title": "No rebuild needed —",
+      "highlight": "fix just what's broken",
+      "desc": "If your site only needs a few fixes or a speed boost, you shouldn't pay for a full package."
+    },
+    "micro": {
+      "eyebrow": "Small tasks, small prices",
+      "title": "Just need one thing?",
+      "highlight": "From 150,000₫",
+      "desc": "So you never have to buy a big package for a couple of small fixes.",
+      "items": [
+        {
+          "title": "UI bug fixes",
+          "price": "From 150,000₫",
+          "desc": "Dead buttons, broken layout, small display glitches."
+        },
+        {
+          "title": "Color & content tweaks",
+          "price": "From 200,000₫",
+          "desc": "Swap text, images, sections or restyle to your brand."
+        },
+        {
+          "title": "Mobile polish",
+          "price": "From 250,000₫",
+          "desc": "Re-tuned spacing, type and CTAs on phones."
+        },
+        {
+          "title": "Web widgets",
+          "price": "From 150,000₫",
+          "desc": "Forms, Zalo, Messenger, Maps, quick-call buttons."
+        },
+        {
+          "title": "Deploy & domain",
+          "price": "From 250,000₫",
+          "desc": "Put the site online, connect the domain, check SSL."
+        },
+        {
+          "title": "1-page quick SEO",
+          "price": "From 200,000₫",
+          "desc": "Title, description, share image, basic sitemap."
+        },
+        {
+          "title": "Speed boost",
+          "price": "From 300,000₫",
+          "desc": "Trim heavy assets, optimize images, improve PageSpeed."
+        },
+        {
+          "title": "Monthly maintenance",
+          "price": "From 300,000₫/month",
+          "desc": "Backups, small fixes and content updates."
+        }
+      ]
+    },
+    "app": {
+      "badge": "Full web system",
+      "title1": "A website that",
+      "title2": "works for you.",
+      "desc": "Like hiring someone to run your page — taking orders, booking slots, reporting — but you pay once and it runs 24/7.",
+      "extendTitle": "Extensions when you need them — quoted separately",
+      "extendDesc": "Online payments, multiple roles, custom APIs. These projects usually run 12-20 million; scope is confirmed in writing before work starts."
+    },
+    "student": {
+      "badge": "The Hugo Studio difference",
+      "title1": "Students get full support,",
+      "title2": "100% free.",
+      "desc": "A dedicated community space for learners: once verified you can use a personal Bio page, study tools, a support bot and a Q&A community.",
+      "cta": "See free benefits",
+      "items": [
+        {
+          "title": "Personal Bio",
+          "desc": "A page introducing yourself with social, study and mini-portfolio links."
+        },
+        {
+          "title": "Study tools",
+          "desc": "Notes, Q&A, resources and utilities for self-study."
+        },
+        {
+          "title": "Personal support bot",
+          "desc": "Quick answers, study tips, reminders and everyday help."
+        },
+        {
+          "title": "Q&A community",
+          "desc": "A space to ask about homework and projects, and get direction within support scope."
+        }
+      ]
+    },
+    "process": {
+      "eyebrow": "Process",
+      "title": "Clear steps,",
+      "highlight": "start to finish",
+      "desc": "You always know which step you're on, what it costs and what you'll receive.",
+      "steps": [
+        "You send your needs, current site or idea.",
+        "I advise on the approach and give a clear quote first.",
+        "We lock scope and timeline, then work in milestones.",
+        "Handover with guidance, plus support for small tweaks."
+      ]
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Quick questions,",
+      "highlight": "honest answers",
+      "desc": "Common questions before starting a web project with Hugo Studio.",
+      "items": [
+        {
+          "q": "How much does a website cost?",
+          "a": "Landing pages start at 990,000₫, multi-page websites at 2,490,000₫, and dynamic web apps at 6,900,000₫. The final price depends on scope and is always confirmed before work starts — 40-50% below agency rates because I work with you directly, no middlemen."
+        },
+        {
+          "q": "Why is it cheaper than an agency but still good quality?",
+          "a": "I'm a final-year IT student doing all the work directly, with no office costs or middle layers. You can try live demos right on this page before deciding, and every package includes post-handover support."
+        },
+        {
+          "q": "What does \"From\" pricing mean — will costs balloon?",
+          "a": "\"From\" is the price for the scope listed under \"What you get\" in each package. Anything outside that (the \"Not included\" list) gets a separate written quote before any work — once agreed, nothing extra is added."
+        },
+        {
+          "q": "Can you build it if I don't have a design yet?",
+          "a": "Yes. Just describe your field, goals and a few reference sites. I'll propose the content structure, layout and approach."
+        },
+        {
+          "q": "Is SEO included?",
+          "a": "Yes. Every new build includes metadata, content structure, speed and basic share previews. Deeper work is split into a separate optimization item."
+        },
+        {
+          "q": "Do you help with domain and hosting?",
+          "a": "Yes. I can advise on or set up domain, hosting, SSL and deployment if you don't have infrastructure yet."
+        },
+        {
+          "q": "Is there support after handover?",
+          "a": "Yes. I walk you through the site, answer questions and fix issues within the agreed scope."
+        }
+      ]
+    },
+    "finalCta": {
+      "title1": "Send me where you're at —",
+      "title2": "I'll suggest the leanest way forward.",
+      "desc": "Share your current site, a screenshot of the bug, or just an idea. I'll tell you honestly whether you need a small fix, a landing page, a multi-page site or a web app.",
+      "cta": "Message me for a free consult"
     }
   },
   "faqPage": {
@@ -467,7 +739,15 @@
       "adminError": "Incorrect admin username or password",
       "adminNetworkError": "Could not connect to the server, please check your network and try again",
       "adminServerError": "Server error, please try again later",
-      "codeLength": "Login code must be exactly 6 characters"
+      "codeLength": "Login code must be exactly 6 characters",
+      "locationAnomaly": "We detected a sign-in from a location over 50km away from your usual area. Please sign in again to verify it's really you."
+    },
+    "biometric": {
+      "btn": "Sign in with Fingerprint/Face ID ({{email}})",
+      "verifying": "Verifying...",
+      "notEnabled": "Fingerprint sign-in isn't enabled for this email on this device.",
+      "failed": "Couldn't sign in with Fingerprint/Face ID. Please use Google.",
+      "or": "or"
     },
     "header": {
       "titleCustomer": "Project Management",
@@ -478,7 +758,7 @@
       "descAdmin": "Access the developer dashboard system"
     },
     "tabs": {
-      "customer": "Membership",
+      "customer": "Client",
       "member": "Student (.edu)",
       "admin": "Admin"
     },
@@ -1526,21 +1806,57 @@
       "aboutBody2": "From your personal Bio page and a daily JOY rewards system, to utilities like HugoHelpdesk, HugoHandle, HugoPSY, HugoCoder, HugoRadio, HugoArcade and HugoAura — every tool lives in one place, so you can build your personal image, work, study and unwind without switching between different apps.",
       "featuresTitle": "Key features",
       "features": {
-        "bio": { "title": "Personal Bio page", "desc": "Your own profile, links and services page — customize the design and share it with a single link." },
-        "helpdesk": { "title": "HugoHelpdesk", "desc": "Smart QR/NFC codes and a professional email signature for sharing your contact info quickly." },
-        "handle": { "title": "HugoHandle", "desc": "Password-protected secure links and an online image converter/compressor." },
-        "psychology": { "title": "HugoPSY", "desc": "AI-assisted study counseling, sleep tracking, and emotional therapy support." },
-        "ide": { "title": "HugoCoder", "desc": "A multi-language code editor with code suggestions and beginner programming lessons." },
-        "radio": { "title": "HugoRadio", "desc": "Vietnamese and international news radio plus online music channels, free." },
-        "arcade": { "title": "HugoArcade", "desc": "2048, Caro, Chess, Hugo Snake and more mini games — play to earn JOY." },
-        "aura": { "title": "HugoAura", "desc": "A Pomodoro focus space with relaxing nature sounds and therapy audio." }
+        "bio": {
+          "title": "Personal Bio page",
+          "desc": "Your own profile, links and services page — customize the design and share it with a single link."
+        },
+        "helpdesk": {
+          "title": "HugoHelpdesk",
+          "desc": "Smart QR/NFC codes and a professional email signature for sharing your contact info quickly."
+        },
+        "handle": {
+          "title": "HugoHandle",
+          "desc": "Password-protected secure links and an online image converter/compressor."
+        },
+        "psychology": {
+          "title": "HugoPSY",
+          "desc": "AI-assisted study counseling, sleep tracking, and emotional therapy support."
+        },
+        "ide": {
+          "title": "HugoCoder",
+          "desc": "A multi-language code editor with code suggestions and beginner programming lessons."
+        },
+        "radio": {
+          "title": "HugoRadio",
+          "desc": "Vietnamese and international news radio plus online music channels, free."
+        },
+        "arcade": {
+          "title": "HugoArcade",
+          "desc": "2048, Caro, Chess, Hugo Snake and more mini games — play to earn JOY."
+        },
+        "aura": {
+          "title": "HugoAura",
+          "desc": "A Pomodoro focus space with relaxing nature sounds and therapy audio."
+        }
       },
       "guideTitle": "How to use Hugo Studio",
       "guide": {
-        "step1": { "title": "Complete your Bio profile", "desc": "Add a profile photo, your personal info, and important links in the Profile tab." },
-        "step2": { "title": "Explore the Utilities", "desc": "Open the Utilities tab to pick the tool that fits you — each utility serves a different need." },
-        "step3": { "title": "Earn JOY every day", "desc": "Check in daily, complete missions, and play mini games in HugoArcade to build up JOY." },
-        "step4": { "title": "Share your Bio page", "desc": "Use your public link or the QR/NFC code from HugoHelpdesk to share your page with anyone." }
+        "step1": {
+          "title": "Complete your Bio profile",
+          "desc": "Add a profile photo, your personal info, and important links in the Profile tab."
+        },
+        "step2": {
+          "title": "Explore the Utilities",
+          "desc": "Open the Utilities tab to pick the tool that fits you — each utility serves a different need."
+        },
+        "step3": {
+          "title": "Earn JOY every day",
+          "desc": "Check in daily, complete missions, and play mini games in HugoArcade to build up JOY."
+        },
+        "step4": {
+          "title": "Share your Bio page",
+          "desc": "Use your public link or the QR/NFC code from HugoHelpdesk to share your page with anyone."
+        }
       },
       "versionLabel": "Current version",
       "versionNote": "Continuously updated with new features — thank you for being part of Hugo Studio.",

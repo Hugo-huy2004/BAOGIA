@@ -70,16 +70,16 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
   };
 
   return (
-    <div className={bare ? "p-4 space-y-3" : "bg-white dark:bg-card rounded-lg border border-zinc-200/50 dark:border-zinc-800/60 shadow-sm p-4 space-y-3"}>
+    <div className={bare ? "p-4 space-y-3" : "bg-white dark:bg-card rounded-lg border border-border/50 shadow-sm p-4 space-y-3"}>
       <div className="flex items-center gap-3">
-        <span className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
-          <span className="material-symbols-outlined text-base text-emerald-500">fingerprint</span>
+        <span className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center shrink-0">
+          <span className="material-symbols-outlined text-base text-success">fingerprint</span>
         </span>
         <div>
-          <h3 className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
+          <h3 className="text-xs font-bold text-foreground">
             {t("memberPortal.settings.biometric.title")}
           </h3>
-          <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
+          <p className="text-[10.5px] text-muted-foreground leading-relaxed">
             {t("memberPortal.settings.biometric.desc")}
           </p>
         </div>
@@ -90,9 +90,9 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
           {devices.map(d => {
             const addedDate = d.createdAt ? new Date(d.createdAt).toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit', year: 'numeric' }) : "";
             return (
-              <div key={d._id} className="flex items-center justify-between text-[11px] px-2.5 py-1.5 rounded-md bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800">
+              <div key={d._id} className="flex items-center justify-between text-[11px] px-2.5 py-1.5 rounded-md bg-muted/50 border border-border/60">
                 <div className="flex flex-col">
-                  <span className="text-zinc-700 dark:text-zinc-200 font-bold">{d.deviceName}</span>
+                  <span className="text-foreground/80 font-bold">{d.deviceName}</span>
                   {addedDate && <span className="text-[9px] text-zinc-400 font-medium">Thêm: {addedDate}</span>}
                 </div>
                 <button onClick={() => handleRemove(d._id)} className="text-rose-500 hover:text-rose-600 font-bold px-2 py-1">{t("memberPortal.settings.biometric.removeBtn")}</button>

@@ -75,18 +75,18 @@ export default function CheckinCard({ email, showToast }) {
   const claimedDays = status.claimedDaysThisWeek || [];
 
   return (
-    <div className={`bg-white dark:bg-[#15131e] rounded-3xl border border-zinc-200 dark:border-white/10 border-t-4 p-5 space-y-5 shadow-sm transition-all duration-300 ${
+    <div className={`bg-white dark:bg-[#15131e] rounded-3xl border border-border border-t-4 p-5 space-y-5 shadow-sm transition-all duration-300 ${
       status.weekLocked ? 'border-t-destructive ring-1 ring-destructive/10' : 'border-t-warning'
     }`}>
       <div className="flex items-start justify-between">
         <div>
-          <h3 className={`text-sm font-black flex items-center gap-1.5 ${status.weekLocked ? 'text-destructive' : 'text-zinc-900 dark:text-white'}`}>
+          <h3 className={`text-sm font-black flex items-center gap-1.5 ${status.weekLocked ? 'text-destructive' : 'text-foreground'}`}>
             <span className={`material-symbols-outlined text-base ${status.weekLocked ? 'text-destructive' : 'text-warning'}`}>
               {status.weekLocked ? 'lock' : 'event_available'}
             </span>
             {t("memberPortal.checkin.title")}
           </h3>
-          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-[10px] text-muted-foreground mt-1">
             {status.weekLocked 
               ? "Chuỗi điểm danh đã bị huỷ do bạn bỏ lỡ 1 ngày. Vui lòng quay lại vào Thứ Hai tuần sau."
               : t("memberPortal.checkin.subtitle")}
@@ -106,10 +106,10 @@ export default function CheckinCard({ email, showToast }) {
                 claimed
                   ? "bg-success/10 border-success/40 shadow-sm shadow-success/10"
                   : status.weekLocked
-                    ? "bg-zinc-100 dark:bg-zinc-900/50 border-zinc-200/50 dark:border-zinc-800/50 opacity-40 grayscale"
+                    ? "bg-muted border-border/50 opacity-40 grayscale"
                     : isToday
-                      ? "bg-warning/10 dark:bg-warning/10 border-warning ring-2 ring-warning/40 shadow-sm shadow-warning/20 transform scale-105"
-                      : "bg-white/60 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60 opacity-80"
+                      ? "bg-warning/10 border-warning ring-2 ring-warning/40 shadow-sm shadow-warning/20 transform scale-105"
+                      : "bg-card/60 border-border/60 opacity-80"
               }`}
             >
               <span className="text-[8px] sm:text-[9px] font-bold uppercase text-zinc-400">{t("memberPortal.checkin.dayLabel", { day })}</span>
@@ -120,7 +120,7 @@ export default function CheckinCard({ email, showToast }) {
               ) : (
                 <span className="material-symbols-outlined text-warning text-sm sm:text-base">paid</span>
               )}
-              <span className={`text-[9px] sm:text-[10px] font-mono font-bold ${claimed ? 'text-success' : 'text-zinc-700 dark:text-zinc-300'}`}>
+              <span className={`text-[9px] sm:text-[10px] font-mono font-bold ${claimed ? 'text-success' : 'text-foreground/80'}`}>
                 {amount}
               </span>
             </div>
@@ -136,9 +136,9 @@ export default function CheckinCard({ email, showToast }) {
           <div key={m.threshold} className={`w-full flex-1 flex items-center justify-between gap-1 px-3 py-2.5 rounded-xl border text-[10px] transition-all ${
             m.awarded 
               ? "bg-success/10 border-success/40 shadow-sm" 
-              : "bg-white/60 dark:bg-zinc-900/30 border-zinc-200/60 dark:border-zinc-800/60"
+              : "bg-card/60 border-border/60"
           }`}>
-            <span className={`font-bold flex items-center ${m.awarded ? 'text-success' : 'text-zinc-600 dark:text-zinc-300'}`}>
+            <span className={`font-bold flex items-center ${m.awarded ? 'text-success' : 'text-muted-foreground'}`}>
               {m.awarded && <span className="material-symbols-outlined text-[12px] mr-1.5">verified</span>}
               {t("memberPortal.checkin.milestone", { days: m.threshold })}
             </span>
@@ -147,9 +147,9 @@ export default function CheckinCard({ email, showToast }) {
         ))}
       </div>
 
-      <div className="flex items-center justify-between gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800/60">
+      <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/60">
         <div className="flex flex-col">
-          <p className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
+          <p className="text-[11px] font-medium text-muted-foreground">
             {t("memberPortal.checkin.streakLabel", { count: status.consecutiveDays })}
           </p>
           {status.weekLocked && (
