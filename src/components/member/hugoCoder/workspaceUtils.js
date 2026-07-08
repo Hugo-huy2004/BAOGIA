@@ -1,4 +1,4 @@
-export const MIN_LESSON_STUDY_MS = 10 * 60 * 1000;
+export const MIN_LESSON_STUDY_MS = 0;
 
 export const CODER_STORAGE_KEYS = {
   workspace: "student_ide_workspace",
