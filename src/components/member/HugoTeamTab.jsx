@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { motion, useSpring, useScroll, useTransform, useMotionTemplate } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, useSpring } from "framer-motion";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/authSession";
 
@@ -22,8 +22,6 @@ export default function HugoTeamTab() {
   const [cvFile, setCvFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userStatus, setUserStatus] = useState(null);
-  const containerRef = React.useRef(null);
-  const { scrollY } = useScroll({ container: containerRef });
 
   useEffect(() => {
     loadDevelopers();
@@ -138,7 +136,7 @@ export default function HugoTeamTab() {
   }
 
   return (
-    <div ref={containerRef} className="space-y-12 pb-20 relative">
+    <div className="space-y-12 pb-20 relative">
       {/* Animated background orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
