@@ -899,7 +899,7 @@ export default function ServicesPage() {
               color: black !important;
             }
             /* Hide global navbar, footer, and other non-print elements */
-            header, footer, nav, .print\:hidden, .cursor-effect-wrapper, #offline-banner, #pwa-install-banner, [class*="Toaster"] {
+            header, footer, nav, .print:hidden, .cursor-effect-wrapper, #offline-banner, #pwa-install-banner, [class*="Toaster"] {
               display: none !important;
             }
             .print-section {

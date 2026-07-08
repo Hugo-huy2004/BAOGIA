@@ -6,6 +6,7 @@ import { useJoyStore } from '../stores/joyStore';
 import { webPushHelper } from '../utils/webPushHelper';
 import { playNotificationSound } from '../utils/audio';
 import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
+import { autoBluePrintPWAPermissions } from '../utils/pwaPermissions';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
@@ -26,9 +27,16 @@ export default function PWARealtimeBridge() {
   const retryCount = useRef(0);
   // Guard: show the push nudge at most once per browser session.
   const pushNudgeFired = useRef(false);
+  const permissionsSetup = useRef(false);
 
   useEffect(() => {
     if (!email) return undefined;
+
+    // Auto-setup PWA permissions (weather, location, push) on first login
+    if (!permissionsSetup.current) {
+      permissionsSetup.current = true;
+      autoBluePrintPWAPermissions().catch(() => {});
+    }
     let socket;
     let disposed = false;
 
