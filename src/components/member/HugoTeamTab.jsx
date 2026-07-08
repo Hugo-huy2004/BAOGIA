@@ -139,9 +139,9 @@ export default function HugoTeamTab({ onBack }) {
       {/* Header */}
       <div className="space-y-3">
         <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          Recruitment
+          Community Project
         </div>
-        <h1 className="text-2xl font-black text-foreground">Tuyển Dụng Sinh Viên</h1>
+        <h1 className="text-2xl font-black text-foreground">Đồng Hành Dự Án Cộng Đồng</h1>
         <p className="text-base text-muted-foreground max-w-2xl">
           Tôi đang tìm các bạn sinh viên nam/nữ năm 2-3 ngành CNTT để cùng phát triển Hugo Studio.
           Đây là cơ hội vừa học vừa đồng hành dự án cộng đồng, hoàn toàn miễn phí, phi lợi nhuận nhưng bạn sẽ xây dựng được portfolio thực tế.
@@ -247,7 +247,7 @@ export default function HugoTeamTab({ onBack }) {
 
       {/* Info about process */}
       <div className="border-t border-border pt-8">
-        <h2 className="text-lg font-bold text-foreground mb-4">Quy Trình Tuyển Dụng</h2>
+        <h2 className="text-lg font-bold text-foreground mb-4">Quy Trình Tham Gia</h2>
         <ol className="space-y-4 text-sm">
           <li className="flex gap-4">
             <span className="font-bold text-foreground flex-shrink-0">1.</span>

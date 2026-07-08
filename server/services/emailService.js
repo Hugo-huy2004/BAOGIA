@@ -1,18 +1,10 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Create reusable transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_SMTP_HOST,
-  port: parseInt(process.env.EMAIL_SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_SMTP_USER,
-    pass: process.env.EMAIL_SMTP_PASS,
-  },
-});
+// Initialize SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Email templates
 const templates = {
@@ -84,8 +76,8 @@ const templates = {
 export const sendHugoTeamApplyConfirm = async (name, email) => {
   try {
     const template = templates.hugoTeamApplyConfirm(name, email);
-    await transporter.sendMail({
-      from: `"Hugo Team" <${process.env.EMAIL_CONTACT}>`,
+    await sgMail.send({
+      from: process.env.EMAIL_CONTACT,
       to: email,
       subject: template.subject,
       html: template.html,
@@ -101,8 +93,8 @@ export const sendHugoTeamApplyConfirm = async (name, email) => {
 export const sendHugoTeamApproved = async (name, email) => {
   try {
     const template = templates.hugoTeamApproved(name, email);
-    await transporter.sendMail({
-      from: `"Hugo Team Support" <${process.env.EMAIL_SUPPORT}>`,
+    await sgMail.send({
+      from: process.env.EMAIL_SUPPORT,
       to: email,
       replyTo: process.env.EMAIL_SUPPORT,
       subject: template.subject,
@@ -119,8 +111,8 @@ export const sendHugoTeamApproved = async (name, email) => {
 export const sendHugoTeamRejected = async (name, email) => {
   try {
     const template = templates.hugoTeamRejected(name, email);
-    await transporter.sendMail({
-      from: `"Hugo Team" <${process.env.EMAIL_CONTACT}>`,
+    await sgMail.send({
+      from: process.env.EMAIL_CONTACT,
       to: email,
       subject: template.subject,
       html: template.html,
@@ -136,8 +128,8 @@ export const sendHugoTeamRejected = async (name, email) => {
 export const sendContactForm = async (name, email, subject, message, recipientEmail) => {
   try {
     const template = templates.contactForm(name, email, subject, message);
-    await transporter.sendMail({
-      from: `"Hugo Contact" <${process.env.EMAIL_CONTACT}>`,
+    await sgMail.send({
+      from: process.env.EMAIL_CONTACT,
       to: recipientEmail,
       replyTo: email,
       subject: template.subject,
@@ -153,15 +145,15 @@ export const sendContactForm = async (name, email, subject, message, recipientEm
 
 export const sendCustomEmail = async (to, subject, html, cc = null, fromEmail = null) => {
   try {
-    const mailOptions = {
-      from: fromEmail || `"Hugo Support" <${process.env.EMAIL_SUPPORT}>`,
+    const msg = {
+      from: fromEmail || process.env.EMAIL_SUPPORT,
       to,
       subject,
       html,
     };
-    if (cc) mailOptions.cc = cc;
+    if (cc) msg.cc = cc;
 
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     console.log(`✅ Custom email sent to ${to}`);
     return { success: true };
   } catch (error) {
