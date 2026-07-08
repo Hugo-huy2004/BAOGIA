@@ -29,6 +29,12 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
       ]
     },
     {
+      title: "Phát Triển",
+      items: [
+        { id: "hugoteam", label: "Hugo Team", icon: "groups" },
+      ]
+    },
+    {
       title: "Hệ Thống",
       items: [
         { id: "system", label: "Giám sát hệ thống", icon: "monitoring" },

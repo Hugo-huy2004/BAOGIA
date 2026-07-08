@@ -148,6 +148,16 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
       desc: "Trang trí không gian Ký Túc Xá Ảo của bạn bằng các vật phẩm nội thất độc đáo và trưng bày trên trang Bio.",
       shortDesc: "Trang trí Ký Túc Xá Ảo của bạn.",
       btnText: "Mở Deco Studio"
+    },
+    {
+      id: "team",
+      icon: "groups",
+      glyphs: ["school", "favorite"],
+      tint: "teal",
+      title: "Hugo Team",
+      desc: "Cộng đồng phát triển mã nguồn mở. Các sinh viên nam năm 2-3 ngành CNTT hãy cùng chúng tôi học vừa làm, phi lợi nhuận.",
+      shortDesc: "Tuyển dụng sinh viên CNTT",
+      btnText: "Tham gia Hugo Team"
     }
   ];
 

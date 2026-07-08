@@ -32,16 +32,24 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon/**', 'image/**'],
+      // Precache only favicons — image/** added ~2MB to every first visit;
+      // images load on demand and land in the browser/runtime cache instead.
+      includeAssets: ['favicon/**'],
       workbox: {
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
         importScripts: ['/push-sw.js'],
-        // Avoid including PNGs here because `includeAssets` already adds
-        // favicon/** and image/** — listing PNGs in both places caused
-        // duplicate precache entries (conflicting revisions).
         globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
+        // Don't precache member/admin-only route chunks (~2.5MB): public
+        // visitors never need them, and logged-in users fetch them on
+        // navigation like a normal SPA (browser HTTP cache still applies).
+        // Offline members only lose tabs they've never opened.
+        globIgnores: [
+          '**/Admin*', '**/Member*', '**/Banhocduong*', '**/Therapy*',
+          '**/Chess*', '**/Deco*', '**/HugoArcade*', '**/PartnerBio*',
+          '**/decoAssets*', '**/gestures*',
+        ],
         runtimeCaching: [
           // Arcade leaderboard — StaleWhileRevalidate so UI shows instantly
           // from cache while fresh data loads in background (matches 8s poll interval)

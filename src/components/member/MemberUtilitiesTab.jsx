@@ -8,6 +8,7 @@ const HugoHelpdeskTab = lazy(() => import("./HugoHelpdeskTab"));
 const HugoHandleTab = lazy(() => import("./HugoHandleTab"));
 const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
 const MemberIdeTab = lazy(() => import("./MemberIdeTab"));
+const HugoTeamTab = lazy(() => import("./HugoTeamTab"));
 const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
 const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
 const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
@@ -86,6 +87,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* Web IDE Tool */}
       {selectedUtility === "ide" && (
         <MemberIdeTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+      )}
+
+      {/* Hugo Team — Recruitment */}
+      {selectedUtility === "team" && (
+        <HugoTeamTab onBack={() => onSelectUtility(null)} showToast={showToast} />
       )}
 
       {/* HugoRadio */}

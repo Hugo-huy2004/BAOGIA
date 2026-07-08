@@ -2,9 +2,11 @@
 <html lang="vi" class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
+    <!-- Zoom stays enabled for low-vision users (a11y); accidental double-tap
+         zoom is already prevented by CSS touch-action: manipulation -->
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
     />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -85,21 +87,32 @@
     
     <link rel="canonical" href="https://www.hugowishpax.studio" />
 
-    <link
-      rel="preload"
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap"
-      as="style"
-    />
+    <!-- Fonts load async (media="print" swap trick) so they never block first paint;
+         system font renders immediately, web font swaps in when ready. -->
     <link
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
 
-    <!-- Google Material Symbols Outlined -->
+    <!-- Google Material Symbols Outlined (display=block on purpose: icons must
+         not flash as raw ligature text) -->
     <link
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all';document.documentElement.classList.add('msym-ready')"
     />
+    <style>
+      /* Hide icon ligature text until the Material Symbols CSS arrives
+         (display=block then keeps glyphs invisible while the font file loads) */
+      html:not(.msym-ready) .material-symbols-outlined { opacity: 0; }
+    </style>
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
+    </noscript>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <!-- Structured Data (JSON-LD Schema) for Google -->

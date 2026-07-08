@@ -14,6 +14,7 @@ import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import AdminServicesTab from "../../components/admin/AdminServicesTab";
 import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
 import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
+import AdminHugoTeamTab from "../../components/admin/AdminHugoTeamTab";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
@@ -485,6 +486,7 @@ export default function AdminPanel() {
                 {activeTab === "community" && "Quản lý Cộng đồng"}
                 {activeTab === "contactSupport" && "Liên Hệ & Hỗ Trợ"}
                 {activeTab === "projects" && t("adminProjects.page.title", "Dự Án Khách Hàng")}
+                {activeTab === "hugoteam" && "Hugo Team - Quản Lý Đơn Tuyển Dụng"}
                 {activeTab === "system" && "Giám sát hệ thống"}
                 {activeTab === "settings" && t("admin.texts.txt_207", "Cài Đặt Hệ Thống")}
               </h2>
@@ -540,6 +542,9 @@ export default function AdminPanel() {
         )}
         {activeTab === "projects" && (
           <AdminProjectsTab showNotification={showNotification} />
+        )}
+        {activeTab === "hugoteam" && (
+          <AdminHugoTeamTab />
         )}
         {activeTab === "settings" && (
           <AdminSettingsTab
