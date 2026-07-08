@@ -551,75 +551,214 @@ PHP có thể viết đan xen trực tiếp trong các thẻ HTML để hiển t
   },
   {
     id: "lesson8",
-    title: "8. Thực hành Website 1 (Desktop)",
+    title: "8. Advanced: Responsive Layout & Flexbox Challenge",
     lang: "html",
     file: "src/lesson8.html",
-    theory: `### Thực hành Website 1 trên Desktop
-Hãy mở máy tính của bạn lên, dùng trình soạn thảo code (VS Code, HugoCoder Desktop) để viết một trang Profile cá nhân chứa đầy đủ HTML, CSS và JavaScript.
+    theory: `### Responsive Web Design & Flexbox
+Xây dựng trang web thích ứng với mọi kích thước màn hình (mobile, tablet, desktop).
 
-### Yêu cầu sản phẩm:
-1. Có ảnh đại diện, họ tên và phần giới thiệu bản thân.
-2. Có các nút liên kết mạng xã hội được trang trí CSS nổi bật.
-3. Khi nhấn nút, hiển thị hộp thoại chào mừng bằng JavaScript.
+### Yêu cầu nâng cao:
+1. **Flexbox Layout**: Sử dụng flexbox để tạo nav, hero, section layout
+2. **Media Queries**: CSS @media cho mobile (<768px), tablet, desktop
+3. **Semantic HTML5**: Dùng <header>, <nav>, <section>, <article>, <footer>
+4. **Accessibility**: Contrast ratio 4.5:1, ARIA labels, semantic headings
+5. **Performance**: Optimize images, minimize CSS/JS
 
-### Cách nộp bài trên điện thoại:
-Bạn chụp ảnh màn hình trang web đã chạy hoàn chỉnh, tải ảnh lên đây. Hệ thống sẽ tự kiểm tra định dạng ảnh nộp để mở khóa bước học tiếp theo; kết quả này không thay thế việc giáo viên hoặc quản trị viên xem lại bài thật.`,
+### Công cụ kiểm tra:
+- Inspect Element để kiểm tra responsive
+- Chrome DevTools Lighthouse score tối thiểu 80`,
     tasks: [
-      "Code hoàn thành trang Profile cá nhân trên máy tính.",
-      "Chụp ảnh màn hình kết quả và tải lên đây để hệ thống tự kiểm tra ảnh nộp (Đạt trên 60% để hoàn thành)."
+      "Xây dựng trang Portfolio responsive với: header, navigation menu (flex), hero section (image + text), 3-column project grid, responsive footer",
+      "Đảm bảo layout tự động stack trên mobile, 2 column trên tablet, 3 column trên desktop",
+      "Kiểm tra Lighthouse score tối thiểu 80, không có console error"
     ],
-    starterCode: ``,
-    verify: (code) => true,
-    practiceType: "screenshot_upload",
+    starterCode: `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio - Responsive</title>
+</head>
+<body>
+  <header>
+    <nav></nav>
+  </header>
+  <main>
+    <section id="projects"></section>
+  </main>
+  <footer></footer>
+</body>
+</html>`,
+    verify: (code) => code.includes("@media") || code.includes("flex"),
+    practiceType: "code_challenge",
     miniQuiz: [
-      { q: "Responsive Design là gì?", o: ["Làm web chạy nhanh hơn", "Thiết kế web tự thích ứng với nhiều kích thước màn hình", "Mã hoá hình ảnh", "Kết nối CSDL"], a: 1 },
-      { q: "Javascript giúp website như thế nào?", o: ["Hiển thị hình ảnh", "Định dạng font chữ", "Xử lý logic và tạo sự kiện tương tác", "Lưu trữ dữ liệu vĩnh viễn"], a: 2 },
-      { q: "Thẻ HTML nào dùng để gom nhóm các phần tử tạo bố cục (layout)?", o: ["<span>", "<div>", "<a>", "<strong>"], a: 1 }
+      { q: "Mobile-first design có nghĩa là gì?", o: ["Thiết kế mobile trước, sau đó mở rộng lên desktop", "Chỉ thiết kế cho mobile", "Tối ưu cho tốc độ mobile", "Dùng Mobile Safari"], a: 0 },
+      { q: "Viewport meta tag có tác dụng gì?", o: ["Tăng tốc độ load", "Giúp trình duyệt render responsive", "Tùy chỉnh màu nền", "Gắn favicon"], a: 1 },
+      { q: "Breakpoint 768px thường dùng để làm gì?", o: ["Desktop breakpoint", "Mobile-to-tablet transition", "Print breakpoint", "Không có cố định"], a: 1 }
     ]
   },
   {
     id: "lesson9",
-    title: "9. Thực hành Website 2 (Desktop)",
-    lang: "html",
-    file: "src/lesson9.html",
-    theory: `### Thực hành Website 2 trên Desktop
-Trong bài này, bạn sẽ thiết kế một trang Cửa Hàng bán sản phẩm kết nối dữ liệu PHP & MySQL.
+    title: "9. Capstone: Full-Stack E-Commerce Product Page",
+    lang: "php",
+    file: "src/lesson9.php",
+    theory: `### Full-Stack Development Challenge
+Xây dựng trang chi tiết sản phẩm hoàn chỉnh với PHP backend + MySQL + responsive frontend.
 
-### Yêu cầu sản phẩm:
-1. Đọc danh sách sản phẩm từ bảng CSDL MySQL và hiển thị dạng lưới (grid).
-2. Dùng CSS làm nổi bật giá sản phẩm và nút thêm vào giỏ hàng.
-3. Lọc sản phẩm bằng PHP theo danh mục sản phẩm.
+### Yêu cầu Full-Stack:
+**Backend (PHP/MySQL):**
+1. API endpoint GET /api/products/{id} trả về JSON product details
+2. Validate ID, SQL injection protection (prepared statements)
+3. Caching (Redis hoặc file-based) nếu product không thay đổi
+4. Error handling: 404 nếu product không tồn tại
 
-### Cách nộp bài trên điện thoại:
-Bạn chụp màn hình trang web chứa danh sách sản phẩm hiển thị từ CSDL, tải ảnh lên để hệ thống tự kiểm tra định dạng ảnh nộp.`,
+**Frontend (HTML/CSS/JS):**
+1. Fetch dữ liệu từ API, render product details
+2. Image gallery (thumbnail → click để xem lớn)
+3. Quantity selector, "Add to Cart" button
+4. Related products carousel (minimum 3 sản phẩm liên quan)
+5. Review/rating section (read-only hoặc write if logged in)
+
+**Database:**
+- users table (id, email, password hash, created_at)
+- products table (id, name, price, description, category, image, stock)
+- reviews table (id, product_id, user_id, rating, comment, created_at)
+- orders table (id, user_id, product_id, quantity, total_price, status)`,
     tasks: [
-      "Viết code PHP đọc CSDL MySQL và hiển thị sản phẩm trên desktop.",
-      "Chụp màn hình và tải lên để hệ thống tự kiểm tra ảnh nộp (Đạt trên 60% để hoàn thành)."
+      "Thiết kế database schema với 4 bảng: users, products, reviews, orders",
+      "Viết API endpoint GET /api/products/{id} with validation & error handling",
+      "Frontend: Fetch API, render product page, image gallery, quantity selector, reviews",
+      "Responsive design: Mobile stack layout, Desktop 2-column (image + details)"
     ],
-    starterCode: ``,
-    verify: (code) => true,
-    practiceType: "screenshot_upload",
+    starterCode: `<?php
+header("Content-Type: application/json");
+$pdo = new PDO("mysql:host=localhost;dbname=ecommerce", "root", "");
+
+$productId = $_GET['id'] ?? null;
+if (!$productId || !is_numeric($productId)) {
+  http_response_code(400);
+  echo json_encode(["error" => "Invalid product ID"]);
+  exit;
+}
+
+// TODO: Fetch from DB with validation
+?>`,
+    verify: (code) => code.includes("PDO") || code.includes("json_encode"),
+    practiceType: "capstone",
     miniQuiz: [
-      { q: "CSS Grid phù hợp nhất cho việc gì?", o: ["Định dạng text", "Tạo layout lưới 2 chiều", "Tạo hình động (animation)", "Ẩn hiện phần tử"], a: 1 },
-      { q: "Từ khoá nào dùng để sắp xếp dữ liệu SQL?", o: ["GROUP BY", "SORT", "ORDER BY", "FILTER"], a: 2 },
-      { q: "Thuộc tính 'object-fit: cover' trong CSS thường áp dụng cho thẻ nào?", o: ["<img>", "<div>", "<h1>", "<body>"], a: 0 }
+      { q: "SQL Injection là gì?", o: ["Database performance issue", "Tấn công nhúng code SQL vào input", "Cải thiện query performance", "Không liên quan database"], a: 1 },
+      { q: "Prepared Statement giúp gì?", o: ["Tăng tốc độ", "Ngăn SQL Injection", "Giảm dung lượng", "Không có tác dụng"], a: 1 },
+      { q: "HTTP status code 404 có nghĩa?", o: ["Server error", "Not Found", "Success", "Redirect"], a: 1 }
     ]
   },
   {
     id: "lesson10",
-    title: "10. Bài kiểm tra Website Programming 2",
-    lang: "html",
-    file: "src/lesson10.html",
-    theory: `### Bài kiểm tra Tổng kết Chương trình
-Đây là bài kiểm tra tổng hợp cuối khóa gồm **20 câu trắc nghiệm** bao quát toàn bộ 9 bài học (HTML, CSS, JS, SQL, PHP).
-Bạn cần làm đúng tối thiểu **12/20 câu** (60%) để chính thức hoàn thành chương trình học lập trình Web của HugoCoder và nhận phần thưởng **+450 JOY**!`,
+    title: "10. Advanced Security & Optimization Challenge",
+    lang: "php",
+    file: "src/lesson10.php",
+    theory: `### Web Security & Performance Optimization
+Hành trình của một Web Developer không hoàn chỉnh nếu không hiểu về bảo mật và tối ưu hóa.
+
+### Security Threats (OWASP Top 10):
+1. **SQL Injection**: Nhúng SQL code qua input → Dùng prepared statements
+2. **XSS (Cross-Site Scripting)**: Nhúng JS code qua input → Sanitize output
+3. **CSRF (Cross-Site Request Forgery)**: Tấn công từ trang khác → Dùng CSRF tokens
+4. **Authentication**: Mật khẩu yếu, lưu plaintext → Hash (bcrypt/password_hash)
+5. **Authorization**: Không kiểm tra quyền hạn → Validate permission trên mỗi request
+
+### Optimization:
+1. Database: Index, query optimization, connection pooling
+2. Frontend: Lazy loading images, minify CSS/JS, gzip compression
+3. Caching: Page cache, query cache, browser cache
+4. CDN: Phân phối nội dung toàn cầu`,
     tasks: [
-      "Hoàn thành bài kiểm tra tổng kết 20 câu đạt tối thiểu 60%."
+      "Viết 3 hàm PHP để demo lỗi bảo mật + cách fix: XSS, SQL Injection, CSRF token validation",
+      "Implement bcrypt password hashing cho user registration",
+      "Tối ưu database query: thêm INDEX, sử dụng EXPLAIN, validate performance"
     ],
-    starterCode: ``,
+    starterCode: `<?php
+// Lỗi XSS - Không escape output
+// echo $_GET['name'];  // ❌ DANGER
+// Cách fix:
+// echo htmlspecialchars($_GET['name'], ENT_QUOTES, 'UTF-8');  // ✓ SAFE
+
+// Lỗi SQL Injection - Nối string trực tiếp
+// $query = "SELECT * FROM users WHERE id = " . $_GET['id'];  // ❌ DANGER
+// Cách fix:
+// $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+// $stmt->execute([$_GET['id']]);  // ✓ SAFE
+?>`,
+    verify: (code) => code.includes("htmlspecialchars") || code.includes("prepare"),
+    practiceType: "code_challenge",
+    miniQuiz: [
+      { q: "Hàm nào bảo vệ trước XSS attack trong PHP?", o: ["mysql_escape_string", "htmlspecialchars", "md5", "base64_encode"], a: 1 },
+      { q: "Cách nào lưu mật khẩu an toàn nhất?", o: ["Plaintext", "MD5 hash", "SHA256 hash", "bcrypt/password_hash"], a: 3 },
+      { q: "Index database giúp gì?", o: ["Tiết kiệm dung lượng", "Tăng tốc độ query", "Bảo vệ dữ liệu", "Giảm số connection"], a: 1 }
+    ]
+  },
+  {
+    id: "lesson11",
+    title: "11. Final Exam: Architecture & System Design",
+    lang: "html",
+    file: "src/lesson11.html",
+    theory: `### Bài kiểm tra Cuối cùng - Khó & Sâu (Advanced)
+**ATTENTION**: Đây không phải bài kiểm tra ghi chọp. Đây là bài thi **kiến trúc hệ thống** yêu cầu bạn thiết kế một ứng dụng web hoàn chỉnh.
+
+### Scenario thực tế:
+Công ty "ShopHub" muốn xây dựng nền tảng e-commerce cho các cửa hàng nhỏ. Bạn là Lead Architect.
+
+### Yêu cầu (phải trả lời đủ 4/5):
+1. **Database Design**: Thiết kế schema cho multi-vendor, products, orders, payments. Vẽ ER diagram.
+2. **API Architecture**: RESTful hay GraphQL? Tại sao? Chia sẻ 5 endpoints chính.
+3. **Security Plan**: Xác định 5 security risks + mitigation strategy cho từng cái.
+4. **Scaling Strategy**: Giải pháp khi có 1 triệu users? Load balancing, caching, database sharding?
+5. **Monitoring & Logging**: Kiến trúc observability: logs, metrics, traces → để theo dõi performance.
+
+### Delivery:
+- Viết tài liệu thiết kế (markdown hoặc PDF)
+- Bao gồm: Problem statement, Solution architecture, Technology stack rationale
+- Thảo luận trade-offs (CAP theorem, eventual consistency, etc.)
+
+### Tiêu chí chấm:
+- ✅ Hiểu vấn đề thực tế (problem-solving mindset)
+- ✅ Giải pháp khả thi & scalable
+- ✅ Biết trade-offs & có logic reasoning
+- ✅ Security-first thinking
+- ✅ Ghi chép rõ ràng, chuyên nghiệp`,
+    tasks: [
+      "Design database schema cho multi-vendor e-commerce platform",
+      "Viết API specification (5 core endpoints)",
+      "List 5 security risks + mitigation steps",
+      "Propose scaling strategy cho 1M+ concurrent users"
+    ],
+    starterCode: `# ShopHub System Architecture Design
+
+## 1. Database Schema
+\`\`\`sql
+-- TO BE DESIGNED BY YOU
+\`\`\`
+
+## 2. API Endpoints
+\`\`\`
+GET /api/v1/shops/:shopId/products
+POST /api/v1/orders
+...
+\`\`\`
+
+## 3. Security Risks & Mitigations
+- Risk 1: ...
+  - Mitigation: ...
+...
+
+## 4. Scaling Architecture
+...`,
     verify: (code) => true,
-    practiceType: "quiz",
-    quizSize: 20
+    practiceType: "capstone",
+    miniQuiz: [
+      { q: "CAP Theorem nói gì?", o: ["Consistency, Availability, Partition tolerance - chỉ 2/3 có thể đạt", "Cost, Automation, Performance", "Client, API, Provider", "Không liên quan database"], a: 0 },
+      { q: "Eventual Consistency có nghĩa?", o: ["Dữ liệu luôn đồng bộ tức thời", "Dữ liệu sẽ đồng bộ sau một lúc", "Consistency không thể đạt", "Database không có consistency"], a: 1 },
+      { q: "Khi có 1M+ users, nên dùng gì?", o: ["Một server duy nhất", "Load balancer + multiple servers + caching", "Xóa bớt users", "Nâng cấp hosting"], a: 1 }
+    ]
   }
 ];
 
