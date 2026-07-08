@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
+import { useJsonLd } from "../../hooks/useJsonLd";
 
 const PhotographyDemo = lazy(() => import("../../components/demos/PhotographyDemo"));
 const CoffeeDemo = lazy(() => import("../../components/demos/CoffeeDemo"));
@@ -10,20 +11,6 @@ const JewelryDemo = lazy(() => import("../../components/demos/JewelryDemo"));
 const PortfolioDemo = lazy(() => import("../../components/demos/PortfolioDemo"));
 const ECommerceDemo = lazy(() => import("../../components/demos/ECommerceDemo"));
 const DashboardDemo = lazy(() => import("../../components/demos/DashboardDemo"));
-
-function useJsonLd(id, schema) {
-  useEffect(() => {
-    let el = document.getElementById(id);
-    if (!el) {
-      el = document.createElement("script");
-      el.type = "application/ld+json";
-      el.id = id;
-      document.head.appendChild(el);
-    }
-    el.textContent = JSON.stringify(schema);
-    return () => document.getElementById(id)?.remove();
-  }, [id, schema]);
-}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -86,7 +73,10 @@ function usePlans() {
   );
 }
 
-function MonoIcon({ name, className = "" }) {
+function MonoIcon({ name, className = "", bare = false }) {
+  if (bare) {
+    return <span className={`material-symbols-outlined text-4xl text-foreground ${className}`}>{name}</span>;
+  }
   return (
     <span
       className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border bg-muted text-foreground ${className}`}
@@ -157,7 +147,7 @@ function PlanCard({ plan, emphasized = false }) {
         </span>
       )}
       <div className="relative flex flex-1 flex-col">
-        <MonoIcon name={plan.icon} />
+        <MonoIcon name={plan.icon} bare />
         <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">{plan.label}</p>
         <h3 className="font-display mt-2 text-xl font-extrabold tracking-tight text-foreground">{plan.name}</h3>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{plan.desc}</p>
