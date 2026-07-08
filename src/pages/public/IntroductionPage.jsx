@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
@@ -1117,6 +1117,64 @@ function ContactTile({ p, start, href, icon, label }) {
   );
 }
 
+function SceneTransition({ container, bind, t }) {
+  const { targetRef, p } = useSceneScroll(container);
+  const navigate = useNavigate();
+
+  // Trigger transition to services at 70% scroll
+  useEffect(() => {
+    if (p.current > 0.7) {
+      const timer = setTimeout(() => navigate("/services"), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [p, navigate]);
+
+  const opacity = useTransform(p, [0, 0.5, 1], [0, 0.5, 1]);
+  const scale = useTransform(p, [0, 0.6, 1], [0.8, 0.9, 1]);
+  const blurValue = useTransform(p, [0, 0.5, 1], [20, 10, 0]);
+
+  return (
+    <SceneShell bind={bind} targetRef={targetRef} height="140vh">
+      <motion.div
+        style={{
+          opacity,
+          scale,
+          filter: blurValue.get ? blurValue : "blur(20px)",
+        }}
+        className="w-full h-full flex flex-col items-center justify-center space-y-8 px-4"
+      >
+        <motion.div className="text-center space-y-4 max-w-2xl">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground"
+          >
+            Từ lời nói sang hành động
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-base sm:text-lg text-muted-foreground italic"
+          >
+            "Hãy chọn một sắc thái, hay tôi sẽ vẽ cầu vồng cho bạn."
+          </motion.p>
+        </motion.div>
+
+        {/* Animated arrow pointing down */}
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="text-3xl text-primary/60"
+        >
+          <span className="material-symbols-outlined">expand_more</span>
+        </motion.div>
+      </motion.div>
+    </SceneShell>
+  );
+}
+
 function SceneContact({ container, bind, t, profile }) {
   const { targetRef, p } = useSceneScroll(container);
 
@@ -1405,6 +1463,7 @@ export default function IntroductionPage() {
           <SceneAbout container={containerRef} bind={bindScene(2)} t={t} realPhoto={realPhoto} fullName={data.profile.fullName} reduced={reduced} />
           <SceneBio container={containerRef} bind={bindScene(3)} t={t} />
           <SceneContact container={containerRef} bind={bindScene(4)} t={t} profile={data.profile} />
+          <SceneTransition container={containerRef} bind={bindScene(5)} t={t} />
         </div>
       </div>
     </div>

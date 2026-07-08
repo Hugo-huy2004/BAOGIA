@@ -93,21 +93,21 @@
       "about": "Về Tôi"
     },
     "slide1": {
-      "badge": "✦ Cổng Nhà Phát Triển Sáng Tạo",
-      "title1": "Kiến tạo vũ trụ số",
-      "title2": "bằng cả trái tim.",
-      "desc": "Chào mừng bạn đến với không gian sáng tạo của <1>{{name}}</1>. Nơi tôi kết hợp tính nghệ thuật tinh tế và sức mạnh kỹ thuật để tạo ra những sản phẩm số đẳng cấp.",
-      "explore": "Khám Phá Portal",
-      "book": "Đặt Lịch Hẹn",
-      "available": "Sẵn Sàng Nhận Dự Án",
-      "scrollDown": "Cuộn Xuống"
+      "badge": "✦ Một Lập Trình Viên Nhỏ Tô Vẽ Trên Mạng",
+      "title1": "Kiến tạo thế giới số",
+      "title2": "bằng những bàn tay nhỏ, lửa lớn.",
+      "desc": "Chào bạn. Tôi là <1>{{name}}</1> — một sinh viên IT ở những năm cuối, viết code với trái tim. Ở đây, mỗi dòng code là một nét vẽ, mỗi website là một bức tranh, mỗi tương tác là một cơn rung cảm. Tôi không tạo ra ứng dụng. Tôi tạo ra những thế giới nhỏ nơi người dùng cảm thấy được.",
+      "explore": "Vào Thế Giới",
+      "book": "Chọn Tôi Làm Bạn",
+      "available": "Sẵn Sàng — Lửa Đang Cháy",
+      "scrollDown": "Lướt Xuống"
     },
     "slide2": {
-      "badge": "✦ Phát Triển Web",
-      "title1": "Lập Trình Web",
-      "title2": "Nơi Ý Tưởng Trở Thành Không Gian Tương Tác",
-      "desc": "Ngành lập trình Web là hành trình biến các ý tưởng sáng tạo thành các trang web sống động. Không chỉ là viết code thuần túy, lập trình web đòi hỏi tư duy thẩm mỹ cao kết hợp cùng giải pháp kỹ thuật tối ưu để mang lại trải nghiệm hoàn hảo cho người dùng.",
-      "viewProfile": "Xem Hồ Sơ Cá Nhân"
+      "badge": "✦ Lập Trình Là Nghệ Thuật",
+      "title1": "Lập Trình Web —",
+      "title2": "Nơi ý tưởng sống, thở, và nhảy múa.",
+      "desc": "Lập trình web không phải chỉ là viết code. Nó là hội họa trên canvas của mạng lưới. Mỗi dòng là một đốt sơn, mỗi hàm là một bóng tối, mỗi tương tác là một lần cảm ứng từ người dùng. Tôi kết hợp thẩm mỹ tinh tế và sức mạnh kỹ thuật để tạo những không gian số nơi ý tưởng không chỉ hiện hữu — mà còn *sống*.",
+      "viewProfile": "Nhìn Vào Những Gì Tôi Đã Tạo"
     },
     "slide3": {
       "badge": "✦ Thông Tin Cá Nhân",
@@ -120,11 +120,11 @@
       "uniDesc": "Greenwich University"
     },
     "slide4": {
-      "idTitle": "GREENWICH - ĐỒNG PHÁT TRIỂN",
-      "badge": "✦ Đối Tác Đồng Phát Triển",
-      "title1": "Đồng hành cùng kiến tạo",
-      "title2": "những trải nghiệm số mang dấu ấn riêng.",
-      "desc": "Jason Phan là người bạn đồng hành cùng tôi trên con đường học tập và phát triển dự án. Chúng tôi kết hợp tư duy hệ thống và niềm đam mê công nghệ để biến những ý tưởng phức tạp thành những ứng dụng mượt mà, tối ưu.",
+      "idTitle": "GREENWICH - ĐỒNG HÀNH",
+      "badge": "✦ Hai Tay, Một Trái Tim",
+      "title1": "Đồng hành cùng vẽ nên",
+      "title2": "những thế giới số có linh hồn.",
+      "desc": "Jason Phan không phải chỉ là đối tác — anh ấy là bàn tay thứ hai của tôi. Chúng tôi nói chuyện bằng code, suy nghĩ bằng sắc thái kỹ thuật, và mỗi dự án là một bức họa chúng tôi cùng nhau sáng tạo. Khi tôi viết logic, Jason vẽ kiến trúc. Khi Jason xây dựng nền tảng, tôi thở sức sống vào nó. Chúng tôi không tạo ứng dụng — chúng tôi tạo ra những sự tương tác có hồn.",
       "highSchool": "THPT Cây Dương",
       "highSchoolDesc": "Trường trung học phổ thông năng động tại Kiên Giang.",
       "highSchoolProvince": "An Giang (Kiên Giang cũ)",
@@ -133,10 +133,10 @@
       "uniTag": "Đại học liên kết"
     },
     "slide5": {
-      "badge": "✦ Quyền Lợi Sinh Viên",
-      "title1": "Trang Bio Link Miễn Phí",
-      "title2": "Cho Sinh Viên Dùng Email .edu",
-      "desc": "Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố <1>.edu</1> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh hoàn toàn miễn phí.",
+      "badge": "✦ Tặng Những Em Lửa",
+      "title1": "Bio Link Miễn Phí",
+      "title2": "Cho Em Sinh Viên — Để Bạn Tỏa Sáng.",
+      "desc": "Tôi nhớ khi mới là sinh viên, lao vào đêm đêm code mà không biết mình sẽ đi đâu. Hôm nay, tôi muốn tặng các em một lửa — một trang bio đẹp, hoàn toàn miễn phí. Nếu bạn dùng email .edu, hệ thống sẽ tự động nhận ra và mở ra cho bạn một trang cá nhân, nơi bạn có thể tô vẽ những giấc mơ của mình.",
       "check1": "Xác thực email giáo dục tự động trong 3 giây.",
       "check2": "Hỗ trợ tạo link đẹp theo tên riêng biệt (Ví dụ: bio/ten-cua-ban).",
       "check3": "Thời hạn sử dụng Bio Link trong vòng 12 tháng.",
@@ -149,23 +149,23 @@
       "idValidityTitle": "HIỆU LỰC",
       "idValidityDesc": "12 Tháng",
       "idAuth": "ĐÃ XÁC THỰC",
-      "benefitsTitle": "Xác minh thành công, bạn nhận được:",
-      "b1t": "Trang Bio cá nhân miễn phí",
-      "b1d": "Tùy chỉnh giao diện, hiệu ứng, hình nền và mọi liên kết mạng xã hội — như một danh thiếp số của riêng bạn.",
-      "b2t": "Link đẹp theo tên riêng",
-      "b2d": "Dạng bio/ten-cua-ban — dễ nhớ, chuyên nghiệp khi đặt vào CV, Facebook hay Instagram.",
-      "b3t": "Xác thực tự động 3 giây",
-      "b3d": "Chỉ cần email có hậu tố .edu — hệ thống tự xác minh ngay lập tức, không chờ duyệt thủ công.",
-      "b4t": "Trọn bộ tiện ích học tập",
-      "b4d": "Bạn Học Đường, Hugo PSY, Web IDE, Hugo Radio và Aura AI — dùng miễn phí trọn 12 tháng."
+      "benefitsTitle": "Lửa của bạn sẽ cháy sáng với:",
+      "b1t": "Một trang Bio sống",
+      "b1d": "Mỗi sắc thái, mỗi động tác, mỗi liên kết — đều phản ánh bạn. Danh thiếp số không chỉ cho phim hành động, nó là cho bạn.",
+      "b2t": "Link đẹp — tên riêng của bạn",
+      "b2d": "bio/ten-cua-ban — khi bạn đặt trên CV, Facebook, Instagram, mọi người nhớ bạn, không nhớ mã số.",
+      "b3t": "Xác thực tự động — 3 giây đó",
+      "b3d": "Email .edu = Được. Thế đó. Không chờ, không phiền — chỉ .edu là đủ để hệ thống tin bạn.",
+      "b4t": "Cả một vũ trụ tiện ích",
+      "b4d": "Bạn Học Đường, Hugo PSY để chữa lành tâm hồn, Web IDE để code, Hugo Radio cho những lúc cô đơn, Aura AI để tập trung — tất cả miễn phí 12 tháng."
     },
     "slide6": {
-      "badge": "✦ Dịch Vụ Web Chuyên Nghiệp",
-      "title1": "Thiết Kế Web Chuyên Nghiệp",
-      "title2": "Tối Ưu Trải Nghiệm Số",
-      "desc": "Tôi phát triển các ứng dụng web với triết lý mã nguồn tinh gọn, tải trang nhanh chóng, áp dụng tối ưu các hiệu ứng chuyển động mượt mà và chuẩn SEO để giúp thương hiệu của bạn tiếp cận người dùng tốt nhất.",
-      "pricingBtn": "Xem Bảng Giá & Chi Tiết",
-      "bookBtn": "Đặt Lịch Thiết Kế",
+      "badge": "✦ Sáng Tạo Cho Những Người Yêu Kiến Trúc",
+      "title1": "Website Tôi Tạo Ra",
+      "title2": "Sống, Thích Ứng, và Đập Vào Tim.",
+      "desc": "Mỗi website tôi viết là một bộ óc nhỏ. Code sạch — không có dư thừa, mỗi hàm như một nét vẽ cần thiết. Trang web tôi tạo nhanh như suy nghĩ, mượt như hơi thở của con người, và được tối ưu để Google tìm thấy bạn dễ dàng. Tôi không chỉ làm websites, tôi tạo ra những điểm tiếp xúc số nơi khách hàng cảm thấy được chất lượng của bạn.",
+      "pricingBtn": "Xem Giá Tham Khảo",
+      "bookBtn": "Hãy Tạo Cái Gì Đó Đẹp",
       "serviceOption": "TÙY CHỌN DỊCH VỤ",
       "item1Title": "Signature Portfolio",
       "item1Desc": "Thiết kế độc bản, trang riêng lẻ",
@@ -247,134 +247,144 @@
       "discussPlan": "Trao đổi gói này",
       "discussProject": "Trao đổi dự án"
     },
+    "whispers": {
+      "intro": "Không có website hoàn hảo. Chỉ có website phù hợp.",
+      "between1": "Mỗi lỗi là một tín hiệu. Lắng nghe nó.",
+      "between2": "Tốc độ không phải là mục tiêu. Tốc độ là điều kiện tiên quyết.",
+      "between3": "Một website đẹp mà chậm là sắc màu trên vải buổi hoàng hôn — đẹp nhưng không ai nhìn thấy.",
+      "between4": "Từ một trang đến một thế giới. Bước đầu là bước duy nhất bạn cần lo lắng.",
+      "between5": "Khi thế giới có thể tìm thấy bạn, bạn mới thực sự tồn tại trực tuyến.",
+      "climax": "Và rồi, website không chỉ nói chuyện — nó tư duy, nó quyết định, nó làm việc cho bạn.",
+      "closing": "Mỗi con số là một cánh cửa. Bạn chọn cái nào?"
+    },
     "hero": {
-      "badge": "Hugo Studio · Bảng giá dịch vụ",
-      "title1": "Website rõ mục tiêu,",
-      "title2": "giá rõ trước khi làm.",
-      "desc": "Chọn đúng theo tình trạng của bạn: xây mới, sửa web đang có hoặc chỉ cần một việc lẻ. Mọi gói đều chốt phạm vi, thời gian và chi phí trước khi bắt đầu.",
-      "viewPricing": "Xem bảng giá",
-      "contact": "Nhắn nhu cầu hiện tại",
+      "badge": "Hugo Studio · Hành trình thiết kế",
+      "title1": "Mỗi website là một tác phẩm,",
+      "title2": "mỗi giá là một tuyên ngôn.",
+      "desc": "Từ những chỉnh sửa nhỏ như điều chỉnh hơi thở, đến xây dựng cả một thế giới số. Mỗi gói đều được thiết kế để bạn yên tâm — phạm vi rõ ràng, thời gian chắc chắn, giá không bất ngờ.",
+      "viewPricing": "Khám phá hành trình",
+      "contact": "Chia sẻ câu chuyện của bạn",
       "trust": [
-        "Báo giá rõ trước khi làm",
-        "Tối ưu mobile mọi gói",
-        "Hỗ trợ sau bàn giao",
-        "HSSV miễn phí 100%"
+        "Giá truyệt đối minh bạch",
+        "Tối ưu từng màn hình",
+        "Đồng hành sau khi ra mắt",
+        "Học sinh, sinh viên được ưu tiên"
       ]
     },
     "pricingPhilosophy": {
-      "title": "Chia sẻ từ một sinh viên IT làm Freelance",
-      "desc": "Mình là sinh viên năm cuối ngành Công Nghệ Thông Tin. Trang web này vừa là nơi mình xây dựng cộng đồng, chia sẻ các dịch vụ hỗ trợ sinh viên, vừa là nơi mình làm việc trực tiếp với khách hàng. Vì là sinh viên làm việc trực tiếp 1-1 không qua trung gian hay công ty, mức giá của mình rất phù hợp với ngân sách cá nhân hoặc kinh doanh nhỏ.",
-      "philosophy": "Để đảm bảo chất lượng tốt nhất, mình luôn làm việc theo nguyên tắc: chỉ nhận duy nhất 1 dự án tại một thời điểm. Khi dự án hiện tại gần hoàn tất, mình mới tiếp nhận dự án tiếp theo theo hàng đợi. Mọi chi tiết về giá cả, thời gian đều được trao đổi rõ ràng từ đầu và cam kết không phát sinh."
+      "title": "Một lời thú nhận từ góc phòng làm việc",
+      "desc": "Tôi là một sinh viên ngành Công Nghệ Thông Tin ở những năm cuối đại học. Trang này không chỉ là danh sách giá — đó là câu chuyện về cách tôi tin rằng mọi người, từ những doanh nhân vừa khởi nghiệp đến học sinh cần tư vấn, đều xứng đáng có một website tốt. Làm việc trực tiếp 1-1, không qua trung gian, là lý do tôi có thể giữ giá cho bạn hợp lý mà vẫn chất lượng.",
+      "philosophy": "Tôi tin rằng chất lượng không tồn tại khi bạn đi nhanh. Vì vậy, tôi luôn chỉ nhận một dự án tại một thời điểm — toàn bộ tâm trí, tay và trái tim cho dự án đó. Mỗi chi tiết, từ pixel nhỏ đến logic code, đều được trao đổi rõ ràng từ đầu. Không bất ngờ. Không phát sinh. Chỉ có cam kết."
     },
     "pricing": {
-      "eyebrow": "Xây website mới",
-      "title": "Ba mức đầu tư,",
-      "highlight": "một hướng đi rõ",
-      "desc": "Giá hiển thị là mức bắt đầu. Khi có phạm vi cụ thể, mình chốt rõ hạng mục, thời gian và phần bàn giao trước khi triển khai."
+      "eyebrow": "Bộ sưu tập sắc thái",
+      "title": "Mỗi tác phẩm có sắc của nó,",
+      "highlight": "từ dấu chấm đến bức tranh đầy",
+      "desc": "Từ những điều chỉnh nhẹ nhàng — như chà ai sơn lại một nét trên tranh cổ — đến những công trình toàn vẹn, nơi mỗi pixel là một sắc thái, mỗi tương tác là một hơi thở của kiến trúc. Giá bạn thấy là cửa vào. Với dự án thực, mình sẽ chốt chi tiết, thời gian và bàn giao trước khi bắt tay."
     },
     "plans": {
       "fix": {
-        "label": "Sửa nhanh",
-        "name": "Sửa web có sẵn",
+        "label": "Thụp lệ nhẹ",
+        "name": "Điều chỉnh nhỏ — Sửa web hiện tại",
         "price": "Từ 150.000đ",
-        "note": "Báo giá theo từng việc, xong việc mới thanh toán — không phát sinh ẩn.",
-        "desc": "Web đang chạy mà lỗi vặt làm mất khách? Mình sửa đúng chỗ cần sửa, không bắt bạn mua gói lớn.",
+        "note": "Chỉ trả cho cái bạn sử dụng. Xong việc, bạn chốt — không ẩn chi phí.",
+        "desc": "Website của bạn đang chạy, nhưng có một lỗi nhỏ — một nút không phản ứng dưới tay, hay một ảnh lệch khỏi khung. Đó không phải lúc xây dựng lại từ đầu. Đó là lúc chỉnh sửa nhẹ, như một nháy tay trên tranh để hút lại một sắc thái.",
         "includes": [
-          "Báo giá từng việc trước, bạn chốt mới bắt đầu làm",
-          "Sửa và test kỹ trên cả điện thoại lẫn máy tính",
-          "Bảo hành miễn phí 7 ngày cho đúng lỗi đã sửa",
-          "Giao lại đầy đủ file và quyền truy cập sau khi xong"
+          "Báo giá rõ ràng từng việc — bạn đồng ý mới tiến hành",
+          "Test kỹ lưỡng trên cả điện thoại lẫn máy tính",
+          "7 ngày bảo hành miễn phí cho lỗi đã sửa",
+          "Giao lại toàn bộ file và quyền truy cập"
         ],
         "excludes": [
-          "Làm lại giao diện toàn trang (xem gói xây mới)",
-          "Phí mua tên miền, hosting — mình gắn giúp miễn phí"
+          "Thiết kế lại toàn trang (xem gói xây dựng mới)",
+          "Phí tên miền, hosting — mình giúp kết nối miễn phí"
         ]
       },
       "seo": {
-        "label": "Tối ưu",
-        "name": "SEO & tăng tốc",
+        "label": "Canh ánh sáng",
+        "name": "Khắc sâu & Tăng tốc — Bộ tối ưu",
         "price": "Từ 890.000đ",
-        "note": "Phù hợp web React/Next.js hoặc website đang chậm, khó lên Google.",
-        "desc": "Web đẹp nhưng chậm và không ai tìm thấy thì như cửa hàng không có biển hiệu. Gói này xử lý đúng phần đó.",
+        "note": "Lý tưởng cho website React/Next.js hoặc những trang web bị chậm, khó tìm kiếm.",
+        "desc": "Website đẹp nhưng chậm chạp — giống như âm thanh đó mà tai không nghe rõ, hay một mùi hương mà mũi cảm nhận không trọn vẹn. Gói này là cách để bạn làm cho đó trở nên sắc nét — mọi sắc thái hiển thị nhanh, mỗi tương tác cảm thấy được.",
         "includes": [
-          "Tối ưu tốc độ: nén ảnh, dọn code thừa, bật cache",
-          "Metadata + ảnh chia sẻ đẹp cho tối đa 5 trang chính",
-          "Khai báo Google Search Console, sitemap đầy đủ",
-          "Báo cáo điểm PageSpeed trước–sau, kèm việc nên làm tiếp"
+          "Tăng tốc: nén ảnh thông minh, dọn code, kích hoạt cache",
+          "Metadata tối ưu + hình ảnh chia sẻ đẹp cho 5 trang chủ yếu",
+          "Đăng ký Google Search Console, sitemap hoàn chỉnh",
+          "Báo cáo điểm tốc độ trước/sau, kèm lộ trình tiếp theo"
         ],
         "excludes": [
-          "Viết bài SEO, đi backlink, chạy quảng cáo",
-          "Cam kết thứ hạng Google — không ai cam kết nghiêm túc được"
+          "Viết bài viết SEO, xây dựng backlink, chạy quảng cáo",
+          "Cam kết vị trí Google — không ai có thể cam kết điều đó một cách trung thực"
         ]
       },
       "landing": {
-        "label": "Bắt đầu",
-        "name": "Landing page 1 trang",
+        "label": "Tia sáng đầu tiên",
+        "name": "Landing Page — Một trang có linh hồn",
         "oldPrice": "1.990.000đ",
         "price": "999.000đ",
         "discount": "-50%",
-        "note": "Thiết kế riêng, không template đại trà. Hoàn thành trong 5-7 ngày.",
-        "desc": "Một trang duy nhất, đúng một mục tiêu: khách đọc xong là muốn bấm liên hệ với bạn.",
-        "tagline": "Dễ bắt đầu",
+        "note": "Thiết kế riêng — không template. Hoàn thành trong 5-7 ngày như một hơi thở dài.",
+        "desc": "Một trang duy nhất. Một câu chuyện. Một mục tiêu rõ. Đó là lúc bạn nhìn thẳng vào con ngươi khách hàng qua màn hình, để lời bạn nói vọng vang: 'Đây là tôi. Đây là những gì tôi làm. Bạn có muốn cùng tôi tạo ra điều gì đó đẹp không?'",
+        "tagline": "Bước đầu tiên tỏa sáng",
         "includes": [
-          "1 trang thiết kế riêng theo brand, tối đa 7 section",
-          "2 vòng chỉnh sửa theo góp ý của bạn",
-          "Form liên hệ đổ thẳng về Zalo hoặc email",
-          "Chuẩn SEO cơ bản, link chia sẻ hiện ảnh đẹp",
-          "Đưa web lên mạng, gắn tên miền",
-          "Chỉnh sửa theo yêu cầu (số lần bảo dưỡng theo gói khác)",
-          "Hỗ trợ lỗi miễn phí 7 ngày sau bàn giao"
+          "1 trang thiết kế riêng theo nhận diện của bạn — tối đa 7 phần nội dung",
+          "2 vòng chỉnh sửa theo ý kiến quý báu của bạn",
+          "Biểu mẫu liên hệ gửi thẳng Zalo hoặc email",
+          "Tối ưu SEO cơ bản, hình ảnh chia sẻ đẹp trên mạng xã hội",
+          "Đặt web lên mạng, kết nối tên miền",
+          "Bảo dưỡng theo yêu cầu (số lần tùy gói khác)",
+          "7 ngày hỗ trợ lỗi miễn phí sau bàn giao"
         ],
         "excludes": [
-          "Phí tên miền ~300-500k/năm, hosting — không bao",
-          "Nội dung chữ và hình — bạn cung cấp, mình biên tập lại",
-          "Thêm trang phụ, đa ngôn ngữ → báo giá riêng"
+          "Phí tên miền (~300-500k/năm), hosting — bạn tìm bên ngoài",
+          "Nội dung chữ và hình — bạn cung cấp, mình biên tập và cài đặt",
+          "Thêm trang phụ, đa ngôn ngữ — báo giá riêng"
         ]
       },
       "website": {
-        "label": "Mở rộng",
-        "name": "Website nhiều trang",
+        "label": "Sân khấu chính",
+        "name": "Website Hoàn Chỉnh — Nhân cách trực tuyến của bạn",
         "oldPrice": "4.990.000đ",
         "price": "2.490.000đ",
         "discount": "-50%",
-        "note": "Giá chốt theo số trang và tính năng, phù hợp với ngân sách của bạn và thanh toán theo tiến độ.",
-        "desc": "Bộ mặt online hoàn chỉnh giúp shop nhỏ, quán hoặc thương hiệu cá nhân đáng tin hơn một trang Facebook.",
-        "tagline": "Được chọn nhiều nhất",
+        "note": "Giá thay đổi theo số trang và tính năng. Thanh toán linh hoạt theo tiến độ công việc.",
+        "desc": "Không phải chỉ một trang. Đây là bộ mặt toàn diện của bạn — nơi mỗi màu sắc khoé phòng kể một phần câu chuyện, mỗi dòng chữ là một hơi thở, mỗi hình ảnh là một cái chạm tay. Từ lối vào đến tâm điểm, từ những lời nói đến những cách để khách hàng bắt gặp bạn. Đó là một doanh nghiệp nhỏ sống trên mạng 24/7, luôn nói chuyện, luôn chào đón.",
+        "tagline": "Con tim của thương hiệu số",
         "includes": [
-          "4-6 trang hoàn chỉnh: chủ, giới thiệu, dịch vụ, liên hệ",
-          "Thiết kế đồng bộ nhận diện + 2 vòng chỉnh sửa",
-          "Cấu trúc chuẩn SEO, khai báo với Google",
-          "Bảo dưỡng 1 tháng miễn phí (4 lần chỉnh sửa nhỏ), sau đó có các gói bảo dưỡng thêm",
+          "4-6 trang hoàn chỉnh: trang chủ, giới thiệu, dịch vụ, liên hệ",
+          "Thiết kế nhận diện đồng bộ + 2 vòng chỉnh sửa theo góp ý",
+          "Cấu trúc SEO chuẩn mực, khai báo với Google",
+          "1 tháng bảo dưỡng miễn phí (4 lần chỉnh sửa nhỏ), sau đó các gói bảo dưỡng thêm",
           "Kết nối Zalo, Messenger, Google Maps",
           "1 buổi hướng dẫn sử dụng + hỗ trợ 14 ngày"
         ],
         "excludes": [
-          "Phí tên miền, hosting — không bao (~300-800k/năm nếu tìm bên ngoài)",
-          "Viết bài, chụp ảnh sản phẩm",
-          "Đặt lịch, thanh toán, tài khoản thành viên → gói Ứng Dụng Web"
+          "Phí tên miền, hosting (~300-800k/năm nếu tìm bên ngoài)",
+          "Viết bài, chụp ảnh sản phẩm — bạn cung cấp",
+          "Đặt lịch hẹn, thanh toán trực tuyến → gói Ứng Dụng Web"
         ]
       },
       "system": {
-        "label": "Ứng Dụng Web",
-        "name": "Website với quản lý dữ liệu",
+        "label": "Triển lãm toàn mới",
+        "name": "Ứng Dụng Web — Hệ thống thông minh",
         "oldPrice": "15.000.000đ",
         "price": "6.999.000đ",
         "discount": "-53%",
-        "note": "Dự án có thanh toán online tự động, phân quyền phức tạp thường từ 12-20 triệu.",
-        "desc": "Không chỉ giới thiệu — website làm việc thay bạn: nhận đơn hàng hoặc đặt lịch hẹn trực tuyến có lưu cơ sở dữ liệu.",
-        "tagline": "Đầu tư dài hạn",
+        "note": "Cho dự án phức tạp với thanh toán tự động, phân quyền nhiều tầng (thường 12-20 triệu).",
+        "desc": "Website không còn chỉ nói chuyện — nó sống, nó nghĩ, nó cảm thấy. Website làm việc thay bạn với những cảm xúc lạnh lùng của logic: nó nhận chuỗi đơn hàng, ghi nhớ khuôn mặt mỗi khách, sắp xếp những khoảnh khắc quan trọng. Nó làm những công việc lặp đi lặp lại để bạn được tự do — tự do sáng tạo, tự do yêu thương công việc. Đó là khi công nghệ trở thành bàn tay phụ của bạn, và tự do trở thành hiện thực.",
+        "tagline": "Vô giá — tài sản dài hạn",
         "includes": [
-          "1 luồng chức năng chính: đặt lịch hẹn HOẶC nhận đơn hàng cơ bản",
-          "Dashboard quản lý: xem đơn/lịch hẹn, khách hàng và số liệu cơ bản",
-          "Đăng nhập phân quyền cho 2 cấp độ: chủ và nhân viên",
+          "1 hệ thống chính: đặt lịch hẹn HOẶC nhận đơn hàng với cơ sở dữ liệu",
+          "Bảng điều khiển quản lý: xem đơn hàng, lịch hẹn, khách hàng, thống kê cơ bản",
+          "Đăng nhập phân quyền 2 cấp: chủ doanh nghiệp và nhân viên",
           "Kết nối 1 nguồn dữ liệu: Google Sheet hoặc Zalo",
-          "Bàn giao toàn bộ mã nguồn sạch — web là tài sản của bạn",
-          "Đồng hành kỹ thuật 1 tháng sau bàn giao (sửa lỗi phát sinh)"
+          "Bàn giao toàn bộ mã nguồn sạch — web là tài sản của riêng bạn",
+          "Đồng hành kỹ thuật 1 tháng (sửa lỗi phát sinh, tối ưu hiệu năng)"
         ],
         "excludes": [
-          "Tự động tích hợp cổng thanh toán (PayOS, Momo) webhook → Add-on",
-          "Tính năng quản lý thành viên nâng cao, tích điểm → Add-on",
-          "Phí duy trì tên miền, VPS/Server hàng tháng"
+          "Tích hợp cổng thanh toán tự động (PayOS, Momo) → Add-on riêng",
+          "Quản lý thành viên nâng cao, tích điểm VIP → Add-on riêng",
+          "Phí tên miền, VPS/Server hàng tháng (chi phí vận hành)"
         ]
       }
     },

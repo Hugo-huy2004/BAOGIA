@@ -7,10 +7,10 @@ import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 export default function StudentBenefitsPage() {
   useHeadMeta({
-    title: "Quyền Lợi Sinh Viên | Hugo Studio",
+    title: "Bio Của Riêng Bạn — Miễn Phí 12 Tháng | Hugo Studio",
     description:
-      "Khám phá đặc quyền miễn phí 100% dành riêng cho Học sinh - Sinh viên khi tạo Bio Link cá nhân với thiết kế aesthetic.",
-    keywords: "Student Bio, Bio Link miễn phí, email edu, Hugo Studio",
+      "Tôi tặng bạn một trang Bio đẹp, riêng biệt, không quảng cáo — miễn phí 12 tháng. Chỉ cần email giáo dục. Đó là lửa của bạn, hãy thắp sáng nó.",
+    keywords: "Student Bio, Bio Link miễn phí, email edu, trang cá nhân, Hugo Studio",
     canonicalUrl: "https://www.hugowishpax.studio/student-benefits",
   });
 
@@ -134,27 +134,27 @@ export default function StudentBenefitsPage() {
 
   const benefits = [
     {
-      icon: "money_off",
-      title: "Miễn phí 100%",
-      desc: "Tài trợ toàn bộ chi phí, không phí ẩn. Gói 12 tháng, sau đó tự động huỷ — không tính phí thêm.",
+      icon: "favorite",
+      title: "Không Một Đồng",
+      desc: "Tôi tặng 12 tháng cho bạn — không phí ẩn, không quảng cáo. Đó là một lời hứa, không phải một giao dịch.",
       color: "text-primary",
     },
     {
-      icon: "diamond",
-      title: "Giao diện Premium",
-      desc: "Thiết kế aesthetic chuẩn Gen Z cực kỳ mượt mà. Đảm bảo sạch sẽ tuyệt đối, không chèn bất cứ quảng cáo nào.",
+      icon: "palette",
+      title: "Cánh Cửa Sáng Tạo",
+      desc: "Mỗi sắc thái, mỗi hình ảnh, mỗi liên kết — đều là của bạn. Trang Bio không chỉ đẹp, nó là tấm tranh của riêng bạn.",
       color: "text-secondary",
     },
     {
-      icon: "tune",
-      title: "Toàn quyền tùy biến",
-      desc: "Chỉnh sửa nội dung Bio Link 24/7. Thỏa sức sáng tạo với avatar, background, liên kết mạng xã hội theo phong cách cá nhân.",
+      icon: "flash_on",
+      title: "Nhanh Như Thở",
+      desc: "Trang bạn tải nhanh như suy nghĩ. Mượt như hơi thở trên tuyết — không lag, không chờ, chỉ có cảm giác.",
       color: "text-accent",
     },
     {
-      icon: "speed",
-      title: "Hiệu năng & Tốc độ",
-      desc: "Tốc độ tải trang siêu tốc. Trải nghiệm lướt mượt mà như một ứng dụng gốc trên nền tảng di động.",
+      icon: "fingerprint",
+      title: "Chỉ Là Của Bạn",
+      desc: "Bio Link riêng biệt — tên riêng của bạn, thiết kế riêng của bạn. Không mẫu mực, không công thức, chỉ bạn.",
       color: "text-success",
     },
   ];
@@ -195,18 +195,16 @@ export default function StudentBenefitsPage() {
                 <span className="material-symbols-outlined text-[14px]">
                   workspace_premium
                 </span>
-                Tài Trợ 100% Học Sinh - Sinh Viên
+                Tôi Tặng Bạn Lửa — 12 Tháng
               </div>
               <h1 className="font-display text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-[1.1]">
-                Xây Dựng <br className="hidden lg:block" />
+                Trang Bio <br className="hidden lg:block" />
                 <span className="text-gradient drop-shadow-sm">
-                  Thương Hiệu Số
+                  Của Riêng Bạn
                 </span>
               </h1>
               <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground lg:mx-0">
-                Hugo Studio dành tặng đặc quyền{" "}
-                <strong>miễn phí 12 tháng</strong> cho sinh viên. Sở hữu Bio
-                Link cá nhân chuẩn Premium, không quảng cáo và thiết kế độc bản.
+                Bạn là một sinh viên IT, một nghệ sĩ, một chuyên gia mà thế giới chưa biết. Bio Link này là cửa sổ để bạn nói: "Đây là tôi." Miễn phí 12 tháng, thiết kế riêng, không quảng cáo — chỉ là <strong>bạn, nói lên chính mình.</strong>
               </p>
             </div>
           </div>
@@ -215,7 +213,7 @@ export default function StudentBenefitsPage() {
           <div className="flex flex-col items-center justify-center gap-4 border-y border-border/60 py-4 sm:flex-row sm:gap-6 lg:justify-start">
             <div className="text-center sm:text-left">
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-0.5">
-                Giá gốc dịch vụ
+                Giá thị trường
               </p>
               <p className="text-lg font-bold text-muted-foreground/70 line-through decoration-muted-foreground/40">
                 500.000đ<span className="text-xs font-normal">/năm</span>
@@ -225,12 +223,12 @@ export default function StudentBenefitsPage() {
             <div className="text-center sm:text-left">
               <p className="mb-0.5 flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary sm:justify-start">
                 <span className="material-symbols-outlined text-[14px]">
-                  school
+                  favorite
                 </span>{" "}
-                Đặc quyền Sinh Viên
+                Tôi Tặng Bạn
               </p>
               <p className="text-2xl font-black text-foreground">
-                0đ<span className="text-sm font-medium">/năm</span>
+                0đ<span className="text-sm font-medium"> — Vô Giá</span>
               </p>
             </div>
           </div>
@@ -270,10 +268,10 @@ export default function StudentBenefitsPage() {
               </div>
               <div>
                 <h2 className="font-display text-xl font-bold text-foreground mb-1">
-                  Định Danh Sinh Viên
+                  Xác Thực — Biết Bạn Là Ai
                 </h2>
                 <p className="text-[11px] text-muted-foreground leading-relaxed px-2">
-                  Chỉ áp dụng cho tài khoản Google giáo dục (
+                  Email giáo dục (
                   <strong className="text-primary">
                     .edu
                   </strong>{" "}
@@ -281,7 +279,7 @@ export default function StudentBenefitsPage() {
                   <strong className="text-primary">
                     .edu.vn
                   </strong>
-                  )
+                  ) là chìa khóa. Hệ thống sẽ nhận ra bạn, tặng cho bạn lửa.
                 </p>
               </div>
             </div>

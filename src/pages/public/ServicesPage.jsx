@@ -118,6 +118,20 @@ function CtaButton({ to = "/booking", children, className = "" }) {
   );
 }
 
+function Whisper({ text, delay = 0 }) {
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 0.6 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.8, delay }}
+      className="mx-auto max-w-2xl text-center text-sm italic text-muted-foreground/70 py-6 px-4 border-l-2 border-accent/30"
+    >
+      "{text}"
+    </motion.p>
+  );
+}
+
 function PlanCard({ plan, emphasized = false }) {
   const { t } = useTranslation();
   return (
@@ -439,6 +453,37 @@ export default function ServicesPage() {
   return (
     <div className="relative w-full overflow-x-hidden pb-20 text-foreground">
       <div className="print:hidden">
+
+      {/* ================= STUDENT BIO PROMO TAB ================= */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="sticky top-14 z-40 mx-auto max-w-7xl px-4 sm:px-8 py-3 mb-4"
+      >
+        <div className="rounded-2xl border border-blue-300/30 dark:border-blue-600/30 bg-gradient-to-r from-blue-50/80 to-blue-100/50 dark:from-blue-950/40 dark:to-blue-900/30 backdrop-blur-sm p-4 shadow-lg">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-xl">school</span>
+                <h3 className="font-bold text-sm sm:text-base text-blue-900 dark:text-blue-200">
+                  Bio Trang Cá Nhân Miễn Phí Cho Sinh Viên
+                </h3>
+              </div>
+              <p className="text-xs sm:text-sm text-blue-800/80 dark:text-blue-300/80 ml-8">
+                Email .edu = Trang bio đẹp, tùy chỉnh toàn bộ. Nhấn ngay để xác minh.
+              </p>
+            </div>
+            <Link
+              to="/student-benefits"
+              className="shrink-0 inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-semibold text-xs sm:text-sm transition-all hover:shadow-lg active:scale-95"
+            >
+              <span>Xác Minh Ngay</span>
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
+            </Link>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Nền glow đồng bộ Landing */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-10%] top-[-6%] h-[45vw] w-[45vw] rounded-full bg-gradient-to-tr from-primary/10 to-accent/10 blur-[150px]" />
@@ -514,6 +559,8 @@ export default function ServicesPage() {
       {/* ================= DEMO — BẰNG CHỨNG THỰC TẾ (VISUAL HOOK) ================= */}
       <DemoShowcaseSection />
 
+      <Whisper text={t("servicesPage.whispers.between2")} delay={0.2} />
+
       {/* ================= BỘ GẠT CHUYỂN ĐỔI BẢNG GIÁ ================= */}
       <section className="mx-auto mt-16 max-w-7xl px-4 sm:px-8 text-center relative z-10 print:hidden">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -571,9 +618,9 @@ export default function ServicesPage() {
             <div id="build" className="absolute -top-24" />
             <SectionHeading
               eyebrow={t("servicesPage.pricing.eyebrow")}
-              title="Mức Giá Tham Khảo - Thiết Kế Website"
-              highlight="Trọn Gói & Tiêu Chuẩn"
-              desc="Các gói thiết kế web trọn gói từ cơ bản đến phức tạp, báo giá và thống nhất scope từ đầu."
+              title={t("servicesPage.pricing.title")}
+              highlight={t("servicesPage.pricing.highlight")}
+              desc={t("servicesPage.pricing.desc")}
             />
             <div className="mt-12 grid gap-6 md:grid-cols-3">
               {[...staticPlans, ...dynamicPlans].map((plan) => (
@@ -605,9 +652,9 @@ export default function ServicesPage() {
           <div id="build" className="absolute -top-24" />
           <SectionHeading
             eyebrow={t("servicesPage.student.badge")}
-            title="Mức Giá Tham Khảo - Coursework & CV"
-            highlight="Dành riêng HSSV"
-            desc="Xây dựng giao diện, viết logic code bài tập lớn môn học (Coursework) và Portfolio học thuật. Cam kết học tập, không viết báo cáo hộ."
+            title={t("servicesPage.pricing.title")}
+            highlight={t("servicesPage.pricing.highlight")}
+            desc={t("servicesPage.pricing.desc")}
           />
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {studentPlans.map((plan) => {
@@ -763,6 +810,8 @@ export default function ServicesPage() {
         </div>
       </motion.section>
 
+      <Whisper text={t("servicesPage.whispers.intro")} delay={0.2} />
+
       {/* ================= ĐÃ CÓ WEB: SỬA + TỐI ƯU ================= */}
       <section id="fix" className="mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
         <SectionHeading
@@ -777,6 +826,8 @@ export default function ServicesPage() {
           ))}
         </div>
       </section>
+
+      <Whisper text={t("servicesPage.whispers.between1")} delay={0.2} />
 
       {/* ================= VIỆC LẺ — BẬC THANG CAM KẾT THẤP ================= */}
       <section className="mx-auto mt-20 max-w-7xl px-4 sm:mt-28 sm:px-8">
