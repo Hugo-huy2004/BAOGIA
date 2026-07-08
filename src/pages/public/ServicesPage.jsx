@@ -373,64 +373,6 @@ export default function ServicesPage() {
     });
   }, [t]);
 
-  const allExportPlans = useMemo(() => {
-    const list = [];
-    
-    // 1. Commercial Plans
-    const staticPlansData = STATIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
-    const dynamicPlansData = DYNAMIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
-    
-    staticPlansData.forEach(p => {
-      if (p) list.push({ name: `[Doanh nghiệp] ${p.name}`, price: p.price, desc: p.desc, includes: p.includes, note: p.note });
-    });
-    dynamicPlansData.forEach(p => {
-      if (p) list.push({ name: `[Doanh nghiệp] ${p.name}`, price: p.price, desc: p.desc, includes: p.includes, note: p.note });
-    });
-
-    // 2. Care & Speed Plans
-    const carePlansData = CARE_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
-    carePlansData.forEach(p => {
-      if (p) list.push({ name: `[Bảo trì & Tối ưu] ${p.name}`, price: p.price, desc: p.desc, includes: p.includes, note: p.note });
-    });
-
-    // 3. Student Plans
-    const bugData = t("servicesPage.studentPlans.bug", { returnObjects: true });
-    const bentoData = t("servicesPage.studentPlans.bento", { returnObjects: true });
-    const courseworkData = t("servicesPage.studentPlans.coursework", { returnObjects: true });
-
-    if (bugData) list.push({ name: `[HSSV] ${bugData.name}`, price: bugData.price, desc: bugData.desc, includes: bugData.includes, note: bugData.note });
-    if (bentoData) list.push({ name: `[HSSV] ${bentoData.name}`, price: bentoData.price, desc: bentoData.desc, includes: bentoData.includes, note: bentoData.note });
-    
-    if (courseworkData && courseworkData.stacks) {
-      Object.keys(courseworkData.stacks).forEach(stack => {
-        const stackData = courseworkData.stacks[stack];
-        list.push({
-          name: `[HSSV] ${courseworkData.name} (${stack.toUpperCase()})`,
-          price: stackData.price,
-          desc: stackData.desc,
-          includes: stackData.includes,
-          note: stackData.note
-        });
-      });
-    }
-
-    // 4. Việc lẻ (Micro Tasks)
-    const microTasks = t("servicesPage.micro.items", { returnObjects: true });
-    if (Array.isArray(microTasks)) {
-      microTasks.forEach(task => {
-        list.push({
-          name: `[Việc lẻ] ${task.title}`,
-          price: task.price,
-          desc: task.desc,
-          includes: [],
-          note: "Hoàn thành nhanh chóng trong ngày."
-        });
-      });
-    }
-
-    return list;
-  }, [plans, t]);
-
   const trustPoints = t("servicesPage.hero.trust", { returnObjects: true });
   const microItems = t("servicesPage.micro.items", { returnObjects: true });
   const studentItems = t("servicesPage.student.items", { returnObjects: true });
@@ -602,16 +544,25 @@ export default function ServicesPage() {
               Học sinh & Sinh viên (-20%)
             </button>
           </div>
-
-          <button
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-card/85 px-6 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition-all active:scale-95 shadow-sm"
-          >
-            <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-            Xuất Bảng Giá (PDF)
-          </button>
         </div>
       </section>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="mx-auto max-w-4xl px-4 sm:px-8 mt-8"
+      >
+        <div className="rounded-lg border border-amber-200 bg-amber-50/50 dark:border-amber-900/30 dark:bg-amber-950/20 p-4">
+          <div className="flex gap-3 items-start">
+            <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">info</span>
+            <div className="text-xs text-amber-900 dark:text-amber-100">
+              <strong>Lưu ý:</strong> Các mức giá dưới đây là <strong>tham khảo</strong> dựa trên phạm vi công việc. Giá cuối cùng sẽ được thỏa thuận chi tiết qua tư vấn cá nhân. Liên hệ Hugo Studio để nhận báo giá cụ thể cho dự án của bạn.
+            </div>
+          </div>
+        </div>
+      </motion.div>
 
       {priceMode === "commercial" ? (
         <>
@@ -620,7 +571,7 @@ export default function ServicesPage() {
             <div id="build" className="absolute -top-24" />
             <SectionHeading
               eyebrow={t("servicesPage.pricing.eyebrow")}
-              title="Bảng Giá Thiết Kế Website"
+              title="Mức Giá Tham Khảo - Thiết Kế Website"
               highlight="Trọn Gói & Tiêu Chuẩn"
               desc="Các gói thiết kế web trọn gói từ cơ bản đến phức tạp, báo giá và thống nhất scope từ đầu."
             />
@@ -633,11 +584,28 @@ export default function ServicesPage() {
         </>
       ) : (
         /* ================= BẢNG GIÁ DÀNH RIÊNG HSSV ================= */
+        <>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto max-w-4xl px-4 sm:px-8 mt-8"
+        >
+          <div className="rounded-lg border border-blue-200 bg-blue-50/50 dark:border-blue-900/30 dark:bg-blue-950/20 p-4">
+            <div className="flex gap-3 items-start">
+              <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 shrink-0 mt-0.5">info</span>
+              <div className="text-xs text-blue-900 dark:text-blue-100">
+                <strong>Lưu ý:</strong> Các mức giá dưới đây là <strong>tham khảo</strong> dành cho học sinh, sinh viên. Giá cuối cùng sẽ được thỏa thuận chi tiết qua tư vấn cá nhân. Liên hệ Hugo Studio để nhận báo giá cụ thể cho dự án của bạn.
+              </div>
+            </div>
+          </div>
+        </motion.div>
         <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:px-8 animate-fadeIn">
           <div id="build" className="absolute -top-24" />
           <SectionHeading
             eyebrow={t("servicesPage.student.badge")}
-            title="Gói Lập Trình Coursework & CV"
+            title="Mức Giá Tham Khảo - Coursework & CV"
             highlight="Dành riêng HSSV"
             desc="Xây dựng giao diện, viết logic code bài tập lớn môn học (Coursework) và Portfolio học thuật. Cam kết học tập, không viết báo cáo hộ."
           />
@@ -777,6 +745,7 @@ export default function ServicesPage() {
             </div>
           </motion.section>
         </section>
+        </>
       )}
 
       {/* ================= TÂM TÍCH GIÁ CẢ & PHƯƠNG CHÂM LÀM VIỆC ================= */}
@@ -878,217 +847,6 @@ export default function ServicesPage() {
           <CtaButton className="mt-7 px-8">{t("servicesPage.finalCta.cta")}</CtaButton>
         </motion.div>
       </section>
-      </div>{/* /print:hidden — bọc toàn bộ nội dung màn hình, ẩn khi in */}
-
-      {/* Printable pricing table document layout (Hidden on screen, visible during printing) */}
-      <div className="print-section hidden bg-white text-black p-8 font-sans">
-        <style>{`
-          @media print {
-            /* Reset absolute positions and height/overflow limits on root and body elements */
-            html, body, #root, #root > *, .relative.w-full {
-              height: auto !important;
-              min-height: 0 !important;
-              overflow: visible !important;
-              display: block !important;
-              position: static !important;
-              background: white !important;
-              color: black !important;
-            }
-            body {
-              background: white !important;
-              color: black !important;
-            }
-            /* Hide global navbar, footer, and other non-print elements */
-            header, footer, nav, .print:hidden, .cursor-effect-wrapper, #offline-banner, #pwa-install-banner, [class*="Toaster"] {
-              display: none !important;
-            }
-            .print-section {
-              display: block !important;
-              position: static !important;
-              width: 100% !important;
-              background: white !important;
-              color: black !important;
-              padding: 0 !important;
-            }
-            .page-break {
-              page-break-before: always;
-              break-before: page;
-            }
-            @page {
-              margin: 0;
-            }
-            body {
-              padding: 2cm 1.5cm;
-            }
-          }
-        `}</style>
-
-        {/* ================= PAGE 1 ================= */}
-        <div className="min-h-[26cm] flex flex-col justify-between">
-          <div>
-            {/* Header with side-by-side logos (Grayscale, no text names next to them) */}
-            <div className="flex items-center justify-between border-b border-black pb-4 mb-8">
-              <div className="border-2 border-black px-3 py-1 font-mono text-xs font-black tracking-widest text-black uppercase">
-                HUGO STUDIO
-              </div>
-              <div className="text-sm font-bold text-black">×</div>
-              <img
-                src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png"
-                alt="JasonDev Logo"
-                className="h-10 w-auto object-contain filter grayscale"
-              />
-            </div>
-
-            <div className="text-center my-10">
-              <h1 className="text-2xl font-bold uppercase tracking-tight text-black">TÀI LIỆU BÁO GIÁ & ĐIỀU KHOẢN DỊCH VỤ</h1>
-              <p className="text-xs text-black mt-2">Đơn vị ban hành: Hugo Studio × JasonDev</p>
-              <p className="text-xs text-black mt-0.5">Ngày lập tài liệu: {new Date().toLocaleDateString("vi-VN")}</p>
-            </div>
-
-            {/* Table of Contents (Mục lục) */}
-            <div className="border border-black p-4 mt-8 mb-8">
-              <h2 className="text-xs font-bold uppercase tracking-wider mb-3 border-b border-black pb-1 text-black">Mục Lục Tài Liệu</h2>
-              <ul className="space-y-2 text-xs text-black">
-                <li className="flex justify-between">
-                  <span>1. Giới thiệu đơn vị Hugo Studio</span>
-                  <span className="text-black">Trang 1</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>2. Các danh mục dịch vụ & Đơn giá chi tiết</span>
-                  <span className="text-black">Trang 2</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>3. Quy trình thực hiện & Điều khoản giao dịch</span>
-                  <span className="text-black">Trang 3</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>4. Quy định loại trừ & Chi phí phát sinh bổ sung</span>
-                  <span className="text-black">Trang 3</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Section 1: Giới thiệu */}
-            <div className="mt-6 text-left">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-black pb-1 mb-2">1. Giới thiệu đơn vị Hugo Studio</h2>
-              <p className="text-xs leading-relaxed text-black">
-                Hugo Studio, phối hợp cùng đối tác kỹ thuật JasonDev, chuyên cung cấp các giải pháp tư vấn, thiết kế giao diện website tương thích di động (Responsive), phát triển ứng dụng Web (Web Application), và hỗ trợ kỹ thuật lập trình (Coursework) dành cho học sinh, sinh viên các khối ngành Công nghệ thông tin.
-              </p>
-              <p className="text-xs leading-relaxed text-black mt-2">
-                Chúng tôi cam kết cung cấp các sản phẩm có mã nguồn sạch, tối ưu hóa tốc độ vận hành và chuẩn hóa giao diện tương tác theo đúng yêu cầu đặc tả từ đối tác và khách hàng.
-              </p>
-              <div className="mt-4 p-3 border border-black text-xs text-black leading-relaxed">
-                <strong>Quy định về phương thức hỗ trợ:</strong> Hugo Studio hoạt động và hỗ trợ theo hình thức trực tuyến (Online Call qua Google Meet/Zoom). Chúng tôi thực hiện hướng dẫn cài đặt, demo sản phẩm trực tiếp và giải thích cấu trúc code. Dịch vụ không bao gồm việc quay video chạy thử hoặc bàn giao, hướng dẫn trực tiếp ngoại tuyến (Offline).
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= PAGE 2 ================= */}
-        <div className="page-break pt-8 text-left">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-black pb-1 mb-3">2. Các Danh Mục Dịch Vụ & Đơn Giá Chi Tiết</h2>
-          
-          <table className="w-full border-collapse border border-black text-[9px] text-black">
-            <thead>
-              <tr className="border-b border-black text-left">
-                <th className="border border-black p-2 font-bold w-1/4">Gói dịch vụ / Danh mục</th>
-                <th className="border border-black p-2 font-bold w-1/6 text-right">Đơn giá</th>
-                <th className="border border-black p-2 font-bold w-5/12">Mô tả chi tiết hạng mục</th>
-                <th className="border border-black p-2 font-bold w-1/6">Ghi chú</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allExportPlans.map((p, idx) => (
-                <tr key={idx} className="page-break-inside-avoid">
-                  <td className="border border-black p-2 align-top font-bold">
-                    {p.name}
-                  </td>
-                  <td className="border border-black p-2 align-top text-right font-bold whitespace-nowrap">
-                    {p.price}
-                  </td>
-                  <td className="border border-black p-2 align-top">
-                    <p className="font-semibold mb-1">{p.desc}</p>
-                    {p.includes && p.includes.length > 0 && (
-                      <ul className="list-disc pl-4 space-y-0.5 mt-1">
-                        {p.includes.map((item, i) => (
-                          <li key={i}>{item.replace(/\*\*/g, "")}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </td>
-                  <td className="border border-black p-2 align-top italic">
-                    {p.note}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* ================= PAGE 3 ================= */}
-        <div className="page-break pt-8 flex flex-col justify-between text-left">
-          <div>
-            {/* Section 3: Quy trình thực hiện & Điều khoản giao dịch */}
-            <div>
-              <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-black pb-1 mb-3">3. Quy trình thực hiện & Điều khoản giao dịch</h2>
-              <div className="space-y-3">
-                <div>
-                  <h4 className="text-xs font-bold">3.1. Quy trình triển khai dịch vụ</h4>
-                  <ol className="list-decimal pl-5 space-y-0.5 text-[10px] text-black">
-                    {workSteps.map((step, idx) => (
-                      <li key={idx} className="leading-relaxed">{step}</li>
-                    ))}
-                  </ol>
-                </div>
-
-                <div>
-                  <h4 className="text-xs font-bold">3.2. Điều khoản thanh toán & Chuyển giao</h4>
-                  <ul className="list-disc pl-5 space-y-0.5 text-[10px] text-black">
-                    <li><strong>Đặt cọc hợp đồng:</strong> Khách hàng thanh toán tạm ứng trước 50% tổng chi phí đối với dịch vụ thiết kế Landing Page, Website nhiều trang và Ứng dụng Web. Các dịch vụ sửa lỗi hoặc việc lẻ thanh toán 100% sau khi hoàn thành.</li>
-                    <li><strong>Phương thức giao dịch:</strong> Thanh toán qua hình thức chuyển khoản ngân hàng hoặc quét mã QR ngân hàng thanh toán nhanh.</li>
-                    <li><strong>Chuyển giao mã nguồn:</strong> Bàn giao toàn bộ mã nguồn sạch qua GitHub hoặc định dạng ZIP, hỗ trợ triển khai cấu hình lên máy chủ sau khi nhận đủ 50% thanh toán còn lại đợt cuối.</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Section 4: Quy định loại trừ & Chi phí phát sinh bổ sung */}
-            <div className="mt-6">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-black pb-1 mb-3">4. Quy định loại trừ & Chi phí phát sinh bổ sung</h2>
-              <div className="space-y-3">
-                <div>
-                  <h4 className="text-xs font-bold">4.1. Các hạng mục loại trừ (Excludes)</h4>
-                  <ul className="list-disc pl-5 space-y-0.5 text-[10px] text-black">
-                    <li>Chi phí không bao gồm phí mua bản quyền tên miền (Domain) và dịch vụ lưu trữ (Hosting/VPS) hàng năm (trừ các trường hợp sử dụng hạ tầng miễn phí được thỏa thuận trước).</li>
-                    <li>Không bao gồm dịch vụ biên soạn văn bản, chuẩn bị tư liệu thương hiệu riêng của khách hàng.</li>
-                    <li><strong>Đối với sinh viên:</strong> Cam kết giữ vững tính trung thực học thuật. Hugo Studio tuyệt đối không cung cấp dịch vụ viết báo cáo lý thuyết, khóa luận tốt nghiệp hoặc đồ án thay sinh viên.</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="text-xs font-bold">4.2. Biểu phí tính năng bổ sung ngoài gói (Add-ons)</h4>
-                  <ul className="list-disc pl-5 space-y-0.5 text-[10px] text-black">
-                    <li>Thay đổi cấu trúc giao diện ngoài thỏa thuận ban đầu: +150.000đ/lần chỉnh sửa.</li>
-                    <li>Tích hợp cổng thanh toán trực tuyến tự động (Momo, PayOS): +1.500.000đ.</li>
-                    <li>Tích hợp hệ thống quản trị thành viên & tích điểm CRM: +2.000.000đ.</li>
-                    <li>Chuyển ngữ đa ngôn ngữ (Anh - Việt): +1.000.000đ.</li>
-                    <li>Tích hợp đồng bộ dữ liệu bên thứ 3 (Google Sheets, Zalo ZNS API): +1.200.000đ.</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Single Signature Block */}
-          <div className="mt-8 flex justify-end text-center text-[10px] font-semibold pt-6 border-t border-black page-break-inside-avoid">
-            <div className="w-64">
-              <p className="text-black font-bold">Đại diện Hugo Studio</p>
-              <p className="text-[9px] text-black italic font-normal">(Ký và ghi rõ họ tên)</p>
-              <div className="h-16" />
-              <p className="font-bold text-black">Lê Peter Hugo</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
