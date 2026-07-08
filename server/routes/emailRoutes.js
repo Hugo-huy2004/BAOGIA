@@ -64,7 +64,9 @@ router.post("/support", async (req, res) => {
     const result = await sendCustomEmail(
       process.env.EMAIL_SUPPORT,
       `[Support] ${subject}`,
-      html
+      html,
+      null,
+      `"Hugo Support" <${process.env.EMAIL_SUPPORT}>`
     );
 
     if (!result.success) {

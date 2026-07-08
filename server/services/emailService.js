@@ -85,7 +85,7 @@ export const sendHugoTeamApplyConfirm = async (name, email) => {
   try {
     const template = templates.hugoTeamApplyConfirm(name, email);
     await transporter.sendMail({
-      from: process.env.EMAIL_SMTP_USER,
+      from: `"Hugo Team" <${process.env.EMAIL_CONTACT}>`,
       to: email,
       subject: template.subject,
       html: template.html,
@@ -102,9 +102,9 @@ export const sendHugoTeamApproved = async (name, email) => {
   try {
     const template = templates.hugoTeamApproved(name, email);
     await transporter.sendMail({
-      from: process.env.EMAIL_SMTP_USER,
+      from: `"Hugo Team Support" <${process.env.EMAIL_SUPPORT}>`,
       to: email,
-      cc: process.env.EMAIL_SUPPORT,
+      replyTo: process.env.EMAIL_SUPPORT,
       subject: template.subject,
       html: template.html,
     });
@@ -120,7 +120,7 @@ export const sendHugoTeamRejected = async (name, email) => {
   try {
     const template = templates.hugoTeamRejected(name, email);
     await transporter.sendMail({
-      from: process.env.EMAIL_SMTP_USER,
+      from: `"Hugo Team" <${process.env.EMAIL_CONTACT}>`,
       to: email,
       subject: template.subject,
       html: template.html,
@@ -137,7 +137,7 @@ export const sendContactForm = async (name, email, subject, message, recipientEm
   try {
     const template = templates.contactForm(name, email, subject, message);
     await transporter.sendMail({
-      from: process.env.EMAIL_SMTP_USER,
+      from: `"Hugo Contact" <${process.env.EMAIL_CONTACT}>`,
       to: recipientEmail,
       replyTo: email,
       subject: template.subject,
@@ -151,10 +151,10 @@ export const sendContactForm = async (name, email, subject, message, recipientEm
   }
 };
 
-export const sendCustomEmail = async (to, subject, html, cc = null) => {
+export const sendCustomEmail = async (to, subject, html, cc = null, fromEmail = null) => {
   try {
     const mailOptions = {
-      from: process.env.EMAIL_SMTP_USER,
+      from: fromEmail || `"Hugo Support" <${process.env.EMAIL_SUPPORT}>`,
       to,
       subject,
       html,

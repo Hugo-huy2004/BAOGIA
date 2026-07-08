@@ -8,7 +8,7 @@ const BENEFITS = [
   {
     icon: "school",
     title: "Học từ dự án thật, không phải bài tập",
-    desc: "Bạn làm việc trực tiếp trên hệ thống đang chạy thật với người dùng thật: React, Node.js, MongoDB, AI, PWA, thanh toán trực tuyến. Mỗi dòng code bạn viết đều được deploy và có người sử dụng — thứ mà không giáo trình nào dạy được.",
+    desc: "Bạn đồng hành trực tiếp cùng hệ thống đang chạy thật với người dùng thật: React, Node.js, MongoDB, AI, PWA, thanh toán trực tuyến. Mỗi dòng code bạn viết đều được deploy và có người sử dụng — thứ mà không giáo trình nào dạy được.",
   },
   {
     icon: "co_present",
@@ -18,7 +18,7 @@ const BENEFITS = [
   {
     icon: "work_history",
     title: "Portfolio & kinh nghiệm thực chiến",
-    desc: "Sau vài tháng, CV của bạn có: dự án production thật để demo, lịch sử commit công khai, và kinh nghiệm làm việc theo quy trình chuyên nghiệp (Git flow, code review, testing). Đây là lợi thế lớn khi phỏng vấn thực tập hoặc việc làm đầu tiên.",
+    desc: "Sau vài tháng, CV của bạn có: dự án production thật để demo, lịch sử commit công khai, và kinh nghiệm đồng hành dự án theo quy trình chuyên nghiệp (Git flow, code review, testing). Đây là lợi thế lớn khi phỏng vấn thực tập hoặc vị trí đầu tiên trong nghề.",
   },
   {
     icon: "workspace_premium",
@@ -28,12 +28,12 @@ const BENEFITS = [
   {
     icon: "schedule",
     title: "Linh hoạt tuyệt đối theo lịch học",
-    desc: "Làm remote 100%, tự chọn giờ làm, 5–10 giờ/tuần. Mùa thi được nghỉ hẳn không cần xin phép. Nguyên tắc của Hugo Studio: việc học của bạn luôn đứng trước dự án — không deadline gắt, không áp lực OT.",
+    desc: "Đồng hành remote 100%, tự chọn khung giờ tham gia, 5–10 giờ/tuần. Mùa thi được nghỉ hẳn không cần xin phép. Nguyên tắc của Hugo Studio: việc học của bạn luôn đứng trước dự án — không deadline gắt, không áp lực OT.",
   },
   {
     icon: "diversity_3",
     title: "Cộng đồng dev sinh viên cùng chí hướng",
-    desc: "Gặp gỡ những bạn sinh viên CNTT khác cùng làm, cùng học. Trao đổi kỹ thuật, chia sẻ tài liệu, giúp nhau debug — một network nhỏ nhưng chất lượng sẽ theo bạn dài lâu sau khi ra trường.",
+    desc: "Gặp gỡ những bạn sinh viên CNTT khác cùng đồng hành, cùng học. Trao đổi kỹ thuật, chia sẻ tài liệu, giúp nhau debug — một network nhỏ nhưng chất lượng sẽ theo bạn dài lâu sau khi ra trường.",
   },
 ];
 
@@ -144,7 +144,7 @@ export default function HugoTeamTab({ onBack }) {
         <h1 className="text-2xl font-black text-foreground">Tuyển Dụng Sinh Viên</h1>
         <p className="text-base text-muted-foreground max-w-2xl">
           Tôi đang tìm các bạn sinh viên nam/nữ năm 2-3 ngành CNTT để cùng phát triển Hugo Studio.
-          Đây là cơ hội học vừa làm, hoàn toàn miễn phí, không lương nhưng bạn sẽ xây dựng được portfolio thực tế.
+          Đây là cơ hội vừa học vừa đồng hành dự án cộng đồng, hoàn toàn miễn phí, phi lợi nhuận nhưng bạn sẽ xây dựng được portfolio thực tế.
         </p>
       </div>
 
@@ -191,7 +191,7 @@ export default function HugoTeamTab({ onBack }) {
             của HugoTeam là gỡ rối cùng nhau thay vì để một người tự vật lộn.
           </p>
           <p>
-            <span className="font-semibold text-foreground">Số giờ làm việc của bạn được ghi nhận</span> —
+            <span className="font-semibold text-foreground">Số giờ đồng hành của bạn được ghi nhận</span> —
             từng giờ đóng góp đều được theo dõi minh bạch, là căn cứ cho thư giới thiệu, xác nhận
             kinh nghiệm và các mốc tri ân bên dưới.
           </p>
@@ -208,7 +208,7 @@ export default function HugoTeamTab({ onBack }) {
             <h2 className="text-lg font-bold text-foreground">Mốc 500 Giờ — Món Quà Tri Ân Đặc Biệt</h2>
           </div>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Với những thành viên đạt <span className="font-semibold text-foreground">500 giờ làm việc</span> cùng
+            Với những thành viên đạt <span className="font-semibold text-foreground">500 giờ đồng hành</span> cùng
             Hugo Studio, chúng tôi dành tặng một <span className="font-semibold text-foreground">món quà tri ân
             đặc biệt</span> — lời cảm ơn cho chặng đường bạn đã tin tưởng và bền bỉ đồng hành. 500 giờ
             không chỉ là con số: đó là hàng trăm bug đã sửa, hàng chục feature đã xây, và một nhà phát
@@ -216,7 +216,7 @@ export default function HugoTeamTab({ onBack }) {
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground">
             Đây là cách Hugo Studio luôn chăm sóc và đồng hành cùng các nhà phát triển của mình trong
-            hành trình phi lợi nhuận — không lương, nhưng chưa bao giờ là không có gì: cùng làm, cùng
+            hành trình phi lợi nhuận — không lương, nhưng chưa bao giờ là không có gì: cùng đồng hành, cùng
             học, cùng có lợi, và cùng được ghi nhận xứng đáng.
           </p>
         </div>
@@ -231,7 +231,7 @@ export default function HugoTeamTab({ onBack }) {
             <span className="text-muted-foreground">Sinh viên nam/nữ, năm 2-3, ngành Công Nghệ Thông Tin</span>
           </div>
           <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">Công việc:</span>
+            <span className="font-bold text-foreground w-24">Đồng hành:</span>
             <span className="text-muted-foreground">Học lập trình, fix bug, phát triển feature nhỏ, viết test</span>
           </div>
           <div className="flex gap-3">
@@ -263,7 +263,7 @@ export default function HugoTeamTab({ onBack }) {
           </li>
           <li className="flex gap-4">
             <span className="font-bold text-foreground flex-shrink-0">4.</span>
-            <span className="text-muted-foreground">Bạn bắt đầu học và làm việc theo lộ trình</span>
+            <span className="text-muted-foreground">Bạn bắt đầu học và đồng hành dự án theo lộ trình</span>
           </li>
         </ol>
       </div>
