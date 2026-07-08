@@ -349,11 +349,11 @@
         ]
       },
       "seo": {
-        "label": "Canh ánh sáng",
-        "name": "Khắc sâu & Tăng tốc — Bộ tối ưu",
+        "label": "Tối ưu SEO",
+        "name": "Dịch vụ tối ưu SEO & Tăng tốc Website",
         "price": "Từ 890.000đ",
-        "note": "Lý tưởng cho website React/Next.js hoặc những trang web bị chậm, khó tìm kiếm.",
-        "desc": "Website đẹp nhưng chậm chạp — giống như âm thanh đó mà tai không nghe rõ, hay một mùi hương mà mũi cảm nhận không trọn vẹn. Gói này là cách để bạn làm cho đó trở nên sắc nét — mọi sắc thái hiển thị nhanh, mỗi tương tác cảm thấy được.",
+        "note": "Lý tưởng cho website React/Next.js hoặc những trang web bị chậm, khó tìm kiếm trên Google.",
+        "desc": "Website đẹp nhưng chậm chạp hoặc không tìm thấy trên Google? Gói này sẽ tối ưu sitemap, cấu trúc thẻ HTML chuẩn SEO, nén hình ảnh và cấu hình SEO tối đa để tiếp cận hàng ngàn khách hàng tiềm năng.",
         "includes": [
           "Tăng tốc: nén ảnh thông minh, dọn code, kích hoạt cache",
           "Metadata tối ưu + hình ảnh chia sẻ đẹp cho 5 trang chủ yếu",

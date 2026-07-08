@@ -656,7 +656,7 @@ export default function ServicesPage() {
       {priceMode === "commercial" ? (
         <>
           {/* ================= WEBSITE & ỨNG DỤNG WEB ================= */}
-          <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:mt-24 sm:px-8">
+          <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:mt-24 sm:px-8 space-y-16">
             <div id="build" className="absolute -top-24" />
             <SectionHeading
               eyebrow={t("servicesPage.pricing.eyebrow")}
@@ -664,51 +664,42 @@ export default function ServicesPage() {
               highlight={t("servicesPage.pricing.highlight")}
               desc={t("servicesPage.pricing.desc")}
             />
-            <div className="mt-12 space-y-8">
-              {/* Services as Chapters */}
-              <JourneyChapter
-                badge={t("servicesPage.journey.stone1.badge")}
-                desc={t("servicesPage.journey.stone1.desc")}
-                index={0}
-              />
-              <div className="grid gap-6 md:grid-cols-2 lg:w-2/3">
-                <PlanCard plan={staticPlans[0]} />
-                <PlanCard plan={carePlans[0]} />
-              </div>
 
-              <JourneyChapter
-                badge={t("servicesPage.journey.stone2.badge")}
-                desc={t("servicesPage.journey.stone2.desc")}
-                index={1}
-              />
-              <div className="grid gap-6 md:grid-cols-2 lg:w-2/3">
-                <PlanCard plan={carePlans[1]} />
-                <PlanCard plan={staticPlans[0]} />
+            {/* 1. XÂY DỰNG MỚI (NEW DESIGN & BUILDS) */}
+            <div className="space-y-6">
+              <div className="text-center">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10">
+                  <span className="material-symbols-outlined text-primary text-lg">rocket_launch</span>
+                  Thiết Kế & Xây Dựng Mới
+                </h3>
+                <p className="text-xs text-muted-foreground mt-2 max-w-md mx-auto">
+                  Dành cho cá nhân, doanh nghiệp cần làm website mới từ đầu để quảng bá thương hiệu.
+                </p>
               </div>
-
-              <JourneyChapter
-                badge={t("servicesPage.journey.stone3.badge")}
-                desc={t("servicesPage.journey.stone3.desc")}
-                index={2}
-              />
-              <div className="grid gap-6 md:grid-cols-1 max-w-2xl mx-auto">
-                <PlanCard plan={staticPlans[1]} emphasized={true} />
+              
+              <div className="grid gap-6 md:grid-cols-3 items-stretch">
+                <PlanCard plan={plans.find(p => p.id === "landing")} />
+                <PlanCard plan={plans.find(p => p.id === "website")} emphasized={true} />
+                <PlanCard plan={plans.find(p => p.id === "system")} />
               </div>
+            </div>
 
-              <JourneyChapter
-                badge={t("servicesPage.journey.stone4.badge")}
-                desc={t("servicesPage.journey.stone4.desc")}
-                index={3}
-              />
-              <div className="grid gap-6 md:grid-cols-1 max-w-2xl mx-auto">
-                <PlanCard plan={dynamicPlans[0]} />
+            {/* 2. TỐI ƯU & SỬA LỖI (SEO, SPEED UP & SUPPORT) */}
+            <div className="space-y-6 pt-4">
+              <div className="text-center">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/5 border border-accent/10">
+                  <span className="material-symbols-outlined text-accent text-lg">bolt</span>
+                  Tối Ưu SEO, Tăng Tốc & Sửa Lỗi
+                </h3>
+                <p className="text-xs text-muted-foreground mt-2 max-w-md mx-auto">
+                  Dành cho website sẵn có cần nâng cấp điểm SEO, đẩy nhanh tốc độ hoặc gỡ lỗi kỹ thuật.
+                </p>
               </div>
-
-              <JourneyChapter
-                badge={t("servicesPage.journey.stone5.badge")}
-                desc={t("servicesPage.journey.stone5.desc")}
-                index={4}
-              />
+              
+              <div className="grid gap-6 md:grid-cols-2 lg:w-2/3 mx-auto items-stretch">
+                <PlanCard plan={plans.find(p => p.id === "seo")} />
+                <PlanCard plan={plans.find(p => p.id === "fix")} />
+              </div>
             </div>
           </section>
         </>

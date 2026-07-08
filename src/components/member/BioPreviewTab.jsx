@@ -44,6 +44,70 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack }) {
         )}
       </div>
 
+      {/* Packages owned section */}
+      {ready && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-bold text-foreground px-1">Các gói dịch vụ sở hữu</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* FREE BIO package */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-500/15 to-slate-500/5 border border-slate-500/20 space-y-3">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">GÓI CÓ BẢN</p>
+                  <p className="text-sm font-black text-foreground mt-1">FREE BIO</p>
+                </div>
+                <span className="material-symbols-outlined text-2xl text-slate-600/40">card_giftcard</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <p className="text-muted-foreground font-bold">NGÀY BẮT ĐẦU</p>
+                  <p className="text-foreground font-bold mt-0.5">20/5/2026</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground font-bold">HẠN DÙNG BIO</p>
+                  <p className="text-foreground font-bold mt-0.5">20/5/2027</p>
+                </div>
+              </div>
+              {/* Progress bar */}
+              <div className="space-y-1.5">
+                <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                  <div className="h-full w-30% bg-gradient-to-r from-slate-400 to-slate-500" />
+                </div>
+                <p className="text-[10px] text-muted-foreground">365 ngày · Còn 254 ngày</p>
+              </div>
+            </div>
+
+            {/* VVIP Developer package (nếu có) */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/15 via-pink-500/15 to-amber-500/10 border border-purple-500/30 space-y-3">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">GÓI KHUYÊN MÃI</p>
+                  <p className="text-sm font-black text-foreground mt-1">CARD SINH NHẬT</p>
+                </div>
+                <span className="material-symbols-outlined text-2xl text-purple-600/60">verified_user</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <p className="text-muted-foreground font-bold">NGÀY BẮT ĐẦU</p>
+                  <p className="text-foreground font-bold mt-0.5">1/6/2026</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground font-bold">THỜI HẠN CỘNG THÊM</p>
+                  <p className="text-purple-600 dark:text-purple-400 font-bold mt-0.5">+14 ngày</p>
+                </div>
+              </div>
+              {/* Progress bar */}
+              <div className="space-y-1.5">
+                <div className="h-2 rounded-full bg-gradient-to-r from-purple-200/50 to-pink-200/50 dark:from-purple-900/50 dark:to-pink-900/50 overflow-hidden">
+                  <div className="h-full w-15% bg-gradient-to-r from-purple-500 to-pink-500" />
+                </div>
+                <p className="text-[10px] text-muted-foreground">14 ngày · Còn 6 ngày</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {ready ? (
         <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
           {/* Edit hint */}

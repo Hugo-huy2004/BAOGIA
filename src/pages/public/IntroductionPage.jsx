@@ -448,32 +448,12 @@ function DiscoveriesCore() {
   );
 }
 
-function HologramMaster({ activeIndex, realPhoto, fullName, t, scrollProgress, isMobile, reduced }) {
+function HologramMaster({ activeIndex, realPhoto, fullName, t, scrollProgress, reduced, target }) {
   const mouse = useMouseParallax(!reduced);
   
   // Parallax rotation values (spring dampened)
   const rx = useTransform(mouse.y, (v) => v * -7);
   const ry = useTransform(mouse.x, (v) => v * 9);
-
-  // Layout positions
-  const targetX = isMobile 
-    ? "0vw" 
-    : activeIndex === 0 ? "20vw" 
-    : activeIndex === 1 ? "22vw" 
-    : activeIndex === 2 ? "-20vw" 
-    : activeIndex === 3 ? "22vw" 
-    : activeIndex === 4 ? "20vw" : "0px";
-    
-  const targetY = isMobile
-    ? (activeIndex === 0 ? "18vh" : activeIndex === 1 ? "20vh" : activeIndex === 2 ? "12vh" : activeIndex === 3 ? "20vh" : "12vh")
-    : "0px";
-
-  const targetScale = isMobile
-    ? (activeIndex === 4 ? 0.75 : 0.65)
-    : (activeIndex === 4 ? 0.75 : 0.95);
-
-  // Set low opacity on mobile to avoid blocking layout texts
-  const opacity = activeIndex <= 4 ? (isMobile ? 0.28 : 1) : 0;
 
   const renderCardContent = () => {
     switch (activeIndex) {
@@ -492,6 +472,9 @@ function HologramMaster({ activeIndex, realPhoto, fullName, t, scrollProgress, i
     }
   };
 
+  const animX = typeof target.x === "number" ? `calc(-50% + ${target.x}px)` : `calc(-50% + ${target.x})`;
+  const animY = typeof target.y === "number" ? `calc(-50% + ${target.y}px)` : target.y;
+
   return (
     <motion.div
       style={{
@@ -502,13 +485,12 @@ function HologramMaster({ activeIndex, realPhoto, fullName, t, scrollProgress, i
         rotateY: ry,
         transformStyle: "preserve-3d",
         perspective: 1200,
-        y: "-50%",
       }}
       animate={{
-        x: `calc(-50% + ${targetX})`,
-        y: `calc(-50% + ${targetY})`,
-        scale: targetScale,
-        opacity,
+        x: animX,
+        y: animY,
+        scale: target.scale,
+        opacity: target.opacity,
       }}
       transition={{
         type: "spring",
@@ -797,6 +779,7 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
         {/* Right: hologram browser spacer and emitter */}
         <div className="order-1 lg:order-2 flex items-center justify-center py-4 relative select-none pointer-events-none" style={{ perspective: 1400 }}>
           <motion.div
+            id="hologram-spacer-0"
             animate={{ y: [-6, 6, -6] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             className="relative w-[270px] sm:w-[330px] lg:w-[390px] h-[340px] sm:h-[420px] flex items-center justify-center"
@@ -1038,6 +1021,7 @@ function ScenePartners({ container, bind, t }) {
         {/* Founder hologram space + Jason mini */}
         <div className="flex flex-col items-center gap-3 order-1 lg:order-2" style={{ perspective: 1200 }}>
           <motion.div
+            id="hologram-spacer-1"
             style={{ x: cardX, opacity: cardOpacity, transformStyle: "preserve-3d" }}
             className="relative w-[80vw] max-w-[300px] sm:max-w-[340px] h-[340px] sm:h-[400px] flex items-center justify-center pointer-events-none"
           >
@@ -1096,6 +1080,7 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
           {/* Chibi Yummy! ghé chơi góc chân dung */}
           <Chibi src={STICKER_YUMMY} delay={0.7} drift={6} tilt={5} className="absolute -bottom-6 left-[6%] w-16 sm:w-24 z-20" />
           <motion.div
+            id="hologram-spacer-2"
             style={{ opacity: portraitOpacity }}
             className="relative w-[210px] sm:w-[270px] lg:w-[320px] h-[300px] sm:h-[400px] flex items-center justify-center"
           >
@@ -1261,7 +1246,7 @@ function SceneBio({ container, bind, t }) {
           <div className="md:col-span-5 hidden md:flex justify-center relative pointer-events-none" style={{ perspective: 1300 }}>
             {/* Chibi hỗ trợ đứng cạnh thẻ */}
             <Chibi src={STICKER_SUPPORT} delay={0.5} drift={6} tilt={3} className="absolute -right-4 -bottom-14 w-24 lg:w-28 z-20" />
-            <div className="relative w-full max-w-[300px] sm:max-w-[340px] h-[210px] sm:h-[240px]" />
+            <div id="hologram-spacer-3" className="relative w-full max-w-[300px] sm:max-w-[340px] h-[210px] sm:h-[240px]" />
           </div>
         </div>
 
@@ -1437,7 +1422,7 @@ function SceneDiscoveries({ container, bind, t, reduced }) {
             className="w-[280px] h-[280px] sm:w-[380px] sm:h-[380px] rounded-full border border-dashed border-border/30 relative flex items-center justify-center"
           >
             {/* Core Logo Node placeholder (rendered by HologramMaster) */}
-            <div className="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full z-20 pointer-events-none" />
+            <div id="hologram-spacer-4" className="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full z-20 pointer-events-none" />
 
             {/* Orbit paths */}
             <div className="absolute w-[200px] h-[200px] rounded-full border border-dotted border-border/20 pointer-events-none" />
@@ -1702,6 +1687,7 @@ export default function IntroductionPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [hologramTarget, setHologramTarget] = useState({ x: 0, y: 0, scale: 0.95, opacity: 1 });
   const reduced = useReducedMotion();
 
   useEffect(() => {
@@ -1710,6 +1696,56 @@ export default function IntroductionPage() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  useEffect(() => {
+    const updatePosition = () => {
+      const spacer = document.getElementById(`hologram-spacer-${activeIndex}`);
+      
+      if (isMobile || !spacer) {
+        // Fallback to mobile default centered position
+        const targetY = activeIndex === 0 ? "18vh" : activeIndex === 1 ? "20vh" : activeIndex === 2 ? "12vh" : activeIndex === 3 ? "20vh" : "12vh";
+        setHologramTarget({
+          x: 0,
+          y: `calc(-50% + ${targetY})`,
+          scale: activeIndex === 4 ? 0.75 : 0.65,
+          opacity: activeIndex <= 4 ? 0.28 : 0
+        });
+        return;
+      }
+
+      const rect = spacer.getBoundingClientRect();
+      const containerEl = containerRef.current;
+      const containerRect = containerEl
+        ? containerEl.getBoundingClientRect()
+        : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+
+      const spacerCenterX = rect.left + rect.width / 2;
+      const spacerCenterY = rect.top + rect.height / 2;
+
+      const containerCenterX = containerRect.left + containerRect.width / 2;
+      const containerCenterY = containerRect.top + containerRect.height / 2;
+
+      setHologramTarget({
+        x: spacerCenterX - containerCenterX,
+        y: spacerCenterY - containerCenterY,
+        scale: activeIndex === 4 ? 0.75 : 0.95,
+        opacity: activeIndex <= 4 ? 1 : 0
+      });
+    };
+
+    updatePosition();
+
+    // Observe body modifications (for columns mounting/hiding on resize or state changes)
+    const observer = new MutationObserver(updatePosition);
+    observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+
+    window.addEventListener("resize", updatePosition);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [activeIndex, isMobile]);
 
   useHeadMeta({
     title: "Hugo Studio — Portfolio & Dịch Vụ Thiết Kế Web Sinh Viên",
@@ -1878,6 +1914,7 @@ export default function IntroductionPage() {
         scrollProgress={scrollYProgress}
         isMobile={isMobile}
         reduced={reduced}
+        target={hologramTarget}
       />
 
       {/* Film-grain overlay */}
