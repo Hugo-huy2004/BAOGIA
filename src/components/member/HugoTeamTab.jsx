@@ -105,7 +105,7 @@ export default function HugoTeamTab() {
         </div>
         <h1 className="text-4xl font-black text-foreground">Hugo Team</h1>
         <p className="text-base text-muted-foreground max-w-2xl">
-          Tôi đang tìm các bạn sinh viên nam năm 2-3 ngành CNTT để cùng phát triển Hugo Studio.
+          Tôi đang tìm các bạn sinh viên nam/nữ năm 2-3 ngành CNTT để cùng phát triển Hugo Studio.
           Đây là cơ hội học vừa làm, hoàn toàn miễn phí, không lương nhưng bạn sẽ xây dựng được portfolio thực tế.
         </p>
       </div>
@@ -116,7 +116,7 @@ export default function HugoTeamTab() {
         <div className="space-y-3 text-sm">
           <div className="flex gap-3">
             <span className="font-bold text-foreground w-24">Đối tượng:</span>
-            <span className="text-muted-foreground">Sinh viên nam, năm 2-3, ngành Công Nghệ Thông Tin</span>
+            <span className="text-muted-foreground">Sinh viên nam/nữ, năm 2-3, ngành Công Nghệ Thông Tin</span>
           </div>
           <div className="flex gap-3">
             <span className="font-bold text-foreground w-24">Công việc:</span>

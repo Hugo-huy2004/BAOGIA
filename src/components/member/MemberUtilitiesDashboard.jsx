@@ -155,7 +155,7 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
       glyphs: ["school", "favorite"],
       tint: "teal",
       title: "Hugo Team",
-      desc: "Cộng đồng phát triển mã nguồn mở. Các sinh viên nam năm 2-3 ngành CNTT hãy cùng chúng tôi học vừa làm, phi lợi nhuận.",
+      desc: "Cộng đồng phát triển mã nguồn mở. Các sinh viên nam/nữ năm 2-3 ngành CNTT hãy cùng chúng tôi học vừa làm, phi lợi nhuận.",
       shortDesc: "Tuyển dụng sinh viên CNTT",
       btnText: "Tham gia Hugo Team"
     }
