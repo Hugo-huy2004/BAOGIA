@@ -1,9 +1,22 @@
 import React from "react";
+import { getMemberSession } from "../../services/authSession";
 
 // Simple "Trang Bio" utility — Bio editing now lives in Settings, so this tile
 // just previews the member's public bio page and points them to Settings to edit.
 export default function BioPreviewTab({ bio, publicLink, showToast, onBack }) {
   const ready = !!publicLink;
+  const session = getMemberSession();
+
+  // Calculate membership end date (3 years from today for demo; in real case from server)
+  const now = new Date();
+  const membershipStart = bio?.createdAt ? new Date(bio.createdAt) : now;
+  const membershipEnd = new Date(membershipStart.getTime() + 3 * 365 * 24 * 60 * 60 * 1000);
+
+  const formatDate = (date) => date.toLocaleDateString("vi-VN");
+  const daysRemaining = Math.max(0, Math.ceil((membershipEnd - now) / (24 * 60 * 60 * 1000)));
+  const totalDays = 3 * 365;
+  const elapsedDays = Math.max(0, Math.ceil((now - membershipStart) / (24 * 60 * 60 * 1000)));
+  const progress = Math.min(100, (elapsedDays / totalDays) * 100);
 
   const copyLink = async () => {
     if (!ready) return;
@@ -44,64 +57,48 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack }) {
         )}
       </div>
 
-      {/* Packages owned section */}
-      {ready && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-bold text-foreground px-1">Các gói dịch vụ sở hữu</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* FREE BIO package */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-500/15 to-slate-500/5 border border-slate-500/20 space-y-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">GÓI CÓ BẢN</p>
-                  <p className="text-sm font-black text-foreground mt-1">FREE BIO</p>
-                </div>
-                <span className="material-symbols-outlined text-2xl text-slate-600/40">card_giftcard</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <p className="text-muted-foreground font-bold">NGÀY BẮT ĐẦU</p>
-                  <p className="text-foreground font-bold mt-0.5">20/5/2026</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground font-bold">HẠN DÙNG BIO</p>
-                  <p className="text-foreground font-bold mt-0.5">20/5/2027</p>
-                </div>
-              </div>
-              {/* Progress bar */}
-              <div className="space-y-1.5">
-                <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                  <div className="h-full w-30% bg-gradient-to-r from-slate-400 to-slate-500" />
-                </div>
-                <p className="text-[10px] text-muted-foreground">365 ngày · Còn 254 ngày</p>
-              </div>
-            </div>
+      {/* Developer Membership & Bio Expiry section */}
+      {ready && session?.email && (
+        <div className="space-y-4">
+          {/* 3-Year Developer Membership Header */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-pink-500/10 border border-amber-500/20 space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">3-Year Developer Membership</p>
+            <p className="text-sm font-bold text-foreground">Hết hạn: <span className="text-amber-600 dark:text-amber-400">{formatDate(membershipEnd)}</span></p>
+          </div>
 
-            {/* VVIP Developer package (nếu có) */}
+          {/* Bio Package Info */}
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1 mb-3">Trang Bio sở hữu</h3>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/15 via-pink-500/15 to-amber-500/10 border border-purple-500/30 space-y-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">GÓI KHUYÊN MÃI</p>
-                  <p className="text-sm font-black text-foreground mt-1">CARD SINH NHẬT</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">GÓI CÓ BẢN</p>
+                  <p className="text-sm font-black text-foreground mt-1">BIO + MEMBERSHIP</p>
                 </div>
                 <span className="material-symbols-outlined text-2xl text-purple-600/60">verified_user</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <p className="text-muted-foreground font-bold">NGÀY BẮT ĐẦU</p>
-                  <p className="text-foreground font-bold mt-0.5">1/6/2026</p>
+                  <p className="text-foreground font-bold mt-0.5">{formatDate(membershipStart)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground font-bold">THỜI HẠN CỘNG THÊM</p>
-                  <p className="text-purple-600 dark:text-purple-400 font-bold mt-0.5">+14 ngày</p>
+                  <p className="text-muted-foreground font-bold">HẠN DÙNG BIO</p>
+                  <p className="text-purple-600 dark:text-purple-400 font-bold mt-0.5">{formatDate(membershipEnd)}</p>
                 </div>
               </div>
               {/* Progress bar */}
               <div className="space-y-1.5">
-                <div className="h-2 rounded-full bg-gradient-to-r from-purple-200/50 to-pink-200/50 dark:from-purple-900/50 dark:to-pink-900/50 overflow-hidden">
-                  <div className="h-full w-15% bg-gradient-to-r from-purple-500 to-pink-500" />
+                <div className="h-2.5 rounded-full bg-gradient-to-r from-purple-200/50 to-pink-200/50 dark:from-purple-900/50 dark:to-pink-900/50 overflow-hidden border border-border/30">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
-                <p className="text-[10px] text-muted-foreground">14 ngày · Còn 6 ngày</p>
+                <p className="text-[10px] text-muted-foreground flex justify-between">
+                  <span>{elapsedDays}/{totalDays} ngày</span>
+                  <span>Còn {daysRemaining} ngày</span>
+                </p>
               </div>
             </div>
           </div>

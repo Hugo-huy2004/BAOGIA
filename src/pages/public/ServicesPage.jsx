@@ -61,6 +61,73 @@ const DEMO_META = [
   { id: "dashboard", url: "hugo.dev/admin", icon: "dashboard", Demo: DashboardDemo },
 ];
 
+const MICRO_JOBS = [
+  {
+    id: "bug-ui",
+    icon: "bug_report",
+    name: "Sửa bug giao diện",
+    desc: "Khắc phục nút không bấm được, layout bị vỡ, lỗi hiển thị font chữ, sai kích thước hoặc chồng chéo nội dung.",
+    price: "Từ 150.000đ",
+    time: "Trong ngày",
+  },
+  {
+    id: "style-content",
+    icon: "palette",
+    name: "Chỉnh màu & nội dung",
+    desc: "Thay đổi màu sắc thương hiệu, đổi phông chữ, cập nhật hình ảnh đại diện, viết lại/chỉnh sửa văn bản hiển thị.",
+    price: "Từ 200.000đ",
+    time: "Trong ngày",
+  },
+  {
+    id: "mobile-beauty",
+    icon: "smartphone",
+    name: "Làm đẹp mobile",
+    desc: "Canh chỉnh khoảng cách padding/margin, co giãn font chữ, tối ưu hóa nút bấm CTA để hiển thị đẹp nhất trên di động.",
+    price: "Từ 250.000đ",
+    time: "Trong ngày",
+  },
+  {
+    id: "web-widget",
+    icon: "widgets",
+    name: "Gắn tiện ích web",
+    desc: "Tích hợp biểu mẫu liên hệ, nút chat nhanh Zalo/Messenger, liên kết bản đồ Google Maps, hotline gọi điện trực tiếp.",
+    price: "Từ 150.000đ",
+    time: "Trong ngày",
+  },
+  {
+    id: "deploy-domain",
+    icon: "cloud_upload",
+    name: "Deploy & Tên miền",
+    desc: "Hỗ trợ đưa website lên môi trường mạng (Vercel, Netlify, VPS), trỏ tên miền cá nhân, cài đặt chứng chỉ bảo mật SSL.",
+    price: "Từ 250.000đ",
+    time: "Trong ngày",
+  },
+  {
+    id: "seo-quick",
+    icon: "search",
+    name: "SEO nhanh 1 trang",
+    desc: "Tối ưu hóa các thẻ meta tiêu đề (Title), mô tả (Description), cấu hình ảnh đại diện hiển thị chuẩn mực khi chia sẻ mạng xã hội.",
+    price: "Từ 200.000đ",
+    time: "Trong ngày",
+  },
+  {
+    id: "speed-optimize",
+    icon: "bolt",
+    name: "Tăng tốc web",
+    desc: "Nén dung lượng hình ảnh không làm giảm chất lượng, dọn dẹp các tệp tin JS/CSS thừa, tối ưu PageSpeed.",
+    price: "Từ 300.000đ",
+    time: "Trong ngày",
+  },
+  {
+    id: "monthly-maintenance",
+    icon: "shield",
+    name: "Bảo trì tháng",
+    desc: "Sao lưu định kỳ dữ liệu website, kiểm tra bảo mật, vá lỗi phát sinh nhỏ và hỗ trợ đổi nội dung định kỳ hàng tháng.",
+    price: "Từ 300.000đ/tháng",
+    time: "Hàng tháng",
+  },
+];
+
 function usePlans() {
   const { t } = useTranslation();
   return useMemo(
@@ -409,7 +476,6 @@ export default function ServicesPage() {
   }, [t]);
 
   const trustPoints = t("servicesPage.hero.trust", { returnObjects: true });
-  const microItems = t("servicesPage.micro.items", { returnObjects: true });
   const studentItems = t("servicesPage.student.items", { returnObjects: true });
   const workSteps = t("servicesPage.process.steps", { returnObjects: true });
 
@@ -585,75 +651,50 @@ export default function ServicesPage() {
       {/* ================= BỘ GẠT CHUYỂN ĐỔI BẢNG GIÁ ================= */}
       <section className="mx-auto mt-16 max-w-7xl px-4 sm:px-8 text-center relative z-10 print:hidden">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <div className="relative inline-flex rounded-full bg-muted/65 p-1 border border-border">
+          <div className="relative grid grid-cols-3 w-full max-w-[680px] mx-auto rounded-full bg-muted/65 p-1 border border-border">
             {/* Background sliding indicator */}
             <motion.div
-              className="absolute top-1 bottom-1 rounded-full bg-foreground"
+              className="absolute top-1 bottom-1 rounded-full bg-foreground z-0"
               animate={{
-                left: priceMode === "commercial" ? "4px" : "calc(50% + 2px)",
-                width: "calc(50% - 6px)",
+                left: priceMode === "commercial" ? "4px" : priceMode === "student" ? "calc(33.33% + 2px)" : "calc(66.66% + 2px)",
+              }}
+              style={{
+                width: "calc(33.33% - 6px)"
               }}
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
             />
             <button
               onClick={() => setPriceMode("commercial")}
-              className={`relative rounded-full px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors duration-300 ${
-                priceMode === "commercial" ? "text-background z-10" : "text-muted-foreground hover:text-foreground"
+              className={`relative rounded-full py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-colors duration-300 z-10 ${
+                priceMode === "commercial" ? "text-background" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Cá nhân / Doanh nghiệp
+              Doanh nghiệp
             </button>
             <button
               onClick={() => setPriceMode("student")}
-              className={`relative rounded-full px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors duration-300 ${
-                priceMode === "student" ? "text-background z-10" : "text-muted-foreground hover:text-foreground"
+              className={`relative rounded-full py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-colors duration-300 z-10 ${
+                priceMode === "student" ? "text-background" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Học sinh & Sinh viên (-20%)
+              Học sinh & Sinh viên
+            </button>
+            <button
+              onClick={() => setPriceMode("micro")}
+              className={`relative rounded-full py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-colors duration-300 z-10 ${
+                priceMode === "micro" ? "text-background" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Việc lẻ / Chỉnh sửa
             </button>
           </div>
         </div>
+        <p className="mt-4 text-xs text-muted-foreground/75 italic">
+          * Tất cả bảng giá dưới đây là giá tham khảo. Giá cuối cùng sẽ được chốt qua tư vấn 1-1, đảm bảo không phát sinh chi phí ẩn.
+        </p>
       </section>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="mx-auto max-w-4xl px-4 sm:px-8 mt-8"
-      >
-        <div className="rounded-lg border border-amber-200 bg-amber-50/50 dark:border-amber-900/30 dark:bg-amber-950/20 p-4">
-          <div className="flex gap-3 items-start">
-            <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">info</span>
-            <div className="text-xs text-amber-900 dark:text-amber-100">
-              <strong>Lưu ý:</strong> Các mức giá dưới đây là <strong>tham khảo</strong> dựa trên phạm vi công việc. Giá cuối cùng sẽ được thỏa thuận chi tiết qua tư vấn cá nhân. Liên hệ Hugo Studio để nhận báo giá cụ thể cho dự án của bạn.
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ================= JOURNEY INTRO ================= */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7, delay: 0.2 }}
-        className="mx-auto max-w-5xl px-4 sm:px-8 mt-16 sm:mt-24"
-      >
-        <div className="text-center space-y-4">
-          <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground">
-            Một hành trình có tinh hồn
-          </h2>
-          <p className="text-base sm:text-lg text-muted-foreground/80 max-w-3xl mx-auto leading-relaxed">
-            Mỗi dịch vụ không phải một bảng giá. Đó là một bước trong hành trình khám phá. Từ những viên đá tâm hồn nhỏ bé — khi bạn lần đầu nhận ra cần thay đổi — đến những hòn ngọc giữa Đại Dương — khi website sống, thở, và làm việc cho bạn.
-          </p>
-          <p className="text-sm text-muted-foreground/60 italic">
-            Chọn điểm bắt đầu của bạn. Tôi sẽ đồng hành từng bước.
-          </p>
-        </div>
-      </motion.div>
-
-      {priceMode === "commercial" ? (
+      {priceMode === "commercial" && (
         <>
           {/* ================= WEBSITE & ỨNG DỤNG WEB ================= */}
           <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:mt-24 sm:px-8 space-y-16">
@@ -703,26 +744,11 @@ export default function ServicesPage() {
             </div>
           </section>
         </>
-      ) : (
-        /* ================= BẢNG GIÁ DÀNH RIÊNG HSSV ================= */
+      )}
+
+      {priceMode === "student" && (
         <>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-4xl px-4 sm:px-8 mt-8"
-        >
-          <div className="rounded-lg border border-blue-200 bg-blue-50/50 dark:border-blue-900/30 dark:bg-blue-950/20 p-4">
-            <div className="flex gap-3 items-start">
-              <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 shrink-0 mt-0.5">info</span>
-              <div className="text-xs text-blue-900 dark:text-blue-100">
-                <strong>Lưu ý:</strong> Các mức giá dưới đây là <strong>tham khảo</strong> dành cho học sinh, sinh viên. Giá cuối cùng sẽ được thỏa thuận chi tiết qua tư vấn cá nhân. Liên hệ Hugo Studio để nhận báo giá cụ thể cho dự án của bạn.
-              </div>
-            </div>
-          </div>
-        </motion.div>
-        <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:px-8 animate-fadeIn">
+          <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:px-8 animate-fadeIn">
           <div id="build" className="absolute -top-24" />
           <SectionHeading
             eyebrow={t("servicesPage.student.badge")}
@@ -869,6 +895,78 @@ export default function ServicesPage() {
         </>
       )}
 
+      {priceMode === "micro" && (
+        <>
+          {/* ================= MICRO SERVICES (VIỆC LẺ) ================= */}
+          <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:px-8 animate-fadeIn">
+            <SectionHeading
+              eyebrow="Tốc Độ & Tiện Lợi"
+              title="Dịch Vụ Việc Lẻ"
+              highlight="Chỉnh Sửa Nhanh"
+              desc="Giải quyết nhanh chóng các yêu cầu nhỏ lẻ trong ngày. Báo giá minh bạch, thanh toán linh hoạt, không phát sinh chi phí ẩn."
+            />
+
+            <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
+              {MICRO_JOBS.map((job) => (
+                <motion.article
+                  key={job.id}
+                  {...reveal}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/30 sm:p-7"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-3">
+                      <MonoIcon name={job.icon} className="bg-primary/10 text-primary" />
+                      <span className="rounded-full bg-muted border border-border px-3 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        {job.time}
+                      </span>
+                    </div>
+                    
+                    <h3 className="font-display mt-5 text-lg font-extrabold text-foreground group-hover:text-primary transition-colors duration-200">
+                      {job.name}
+                    </h3>
+                    <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                      {job.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Chi phí:</p>
+                      <p className="text-base sm:text-lg font-black text-foreground">{job.price}</p>
+                    </div>
+                    <Link
+                      to={`/booking?type=micro&plan=${job.id}`}
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-primary group-hover:underline"
+                    >
+                      Đăng ký
+                      <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                    </Link>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+
+            <div className="mt-12 rounded-[2rem] border border-dashed border-border bg-muted/30 p-6 sm:p-8 text-center max-w-2xl mx-auto relative overflow-hidden">
+              <div className="absolute -inset-10 bg-primary/5 blur-2xl rounded-full" />
+              <div className="relative z-10 space-y-3">
+                <span className="material-symbols-outlined text-4xl text-muted-foreground">support_agent</span>
+                <h4 className="font-display text-lg font-bold text-foreground">Bạn có yêu cầu khác biệt không nằm trong danh sách?</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Đừng lo lắng! Hugo sẵn sàng nhận các yêu cầu tùy chỉnh theo giờ hoặc tính chất công việc riêng biệt. Báo giá minh bạch trước khi bắt tay thực hiện.
+                </p>
+                <Link
+                  to="/booking"
+                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-xs font-bold text-background shadow-lg transition-all hover:bg-foreground/90 active:scale-95"
+                >
+                  Trao đổi yêu cầu riêng
+                  <span className="material-symbols-outlined text-sm">chat</span>
+                </Link>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
       {/* ================= TÂM TÍCH GIÁ CẢ & PHƯƠNG CHÂM LÀM VIỆC ================= */}
       <motion.section {...reveal} className="mx-auto mt-20 max-w-4xl px-4 sm:mt-28 sm:px-8">
         <div className="rounded-3xl border border-border bg-card/70 p-8 backdrop-blur sm:p-10">
@@ -883,52 +981,6 @@ export default function ServicesPage() {
           </p>
         </div>
       </motion.section>
-
-      <Whisper text={t("servicesPage.whispers.intro")} delay={0.2} />
-
-      {/* ================= ĐÃ CÓ WEB: SỬA + TỐI ƯU ================= */}
-      <section id="fix" className="mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
-        <SectionHeading
-          eyebrow={t("servicesPage.care.eyebrow")}
-          title={t("servicesPage.care.title")}
-          highlight={t("servicesPage.care.highlight")}
-          desc={t("servicesPage.care.desc")}
-        />
-        <div className="mx-auto mt-12 grid max-w-4xl gap-5 md:grid-cols-2">
-          {carePlans.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} />
-          ))}
-        </div>
-      </section>
-
-      <Whisper text={t("servicesPage.whispers.between1")} delay={0.2} />
-
-      {/* ================= VIỆC LẺ — BẬC THANG CAM KẾT THẤP ================= */}
-      <section className="mx-auto mt-20 max-w-7xl px-4 sm:mt-28 sm:px-8">
-        <SectionHeading
-          eyebrow={t("servicesPage.micro.eyebrow")}
-          title={t("servicesPage.micro.title")}
-          highlight={t("servicesPage.micro.highlight")}
-          desc={t("servicesPage.micro.desc")}
-        />
-        <motion.div {...reveal} className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {microItems.map(({ title, price, desc }, index) => (
-            <div
-              key={title}
-              className="group rounded-3xl border border-border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <MonoIcon name={MICRO_ICONS[index]} className="h-10 w-10" />
-                <span className="rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-bold text-foreground">{price}</span>
-              </div>
-              <h3 className="mt-4 text-sm font-bold text-foreground">{title}</h3>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
-            </div>
-          ))}
-        </motion.div>
-      </section>
-
-
 
       {/* ================= QUY TRÌNH — TĂNG NIỀM TIN ================= */}
       <section className="mx-auto mt-20 max-w-7xl px-4 sm:mt-28 sm:px-8">
