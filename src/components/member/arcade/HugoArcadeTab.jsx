@@ -26,7 +26,7 @@ const GAMES = [
   { id: "chess",     name: "HugoChess",      tagline: "Đấu Bot hoặc bạn bè, leo rank.",      label: "Cờ vua · Xếp hạng",   Icon: Castle   },
   { id: "wordguess", name: "Mật Mã Từ",     tagline: "Mỗi chữ cái là một manh mối.",        label: "Ngôn ngữ · Suy luận", Icon: Keyboard },
   { id: "survivor",  name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.",             label: "Hành động · Đạn mạc", Icon: Zap      },
-  { id: "snake",     name: "Hugo Snake",     tagline: "Ăn mồi, dài ra, đừng tự đâm mình.",  label: "Cổ điển · Phản xạ",   Icon: Infinity },
+  { id: "snake",     name: "Hugo Snake",     tagline: "Ăn mồi, dài ra, đừng tự đâm mình.",  label: "Cổ điển · Phản xạ",   Icon: InfinityIcon },
 ];
 
 const STANDALONE = new Set(["chess"]);
