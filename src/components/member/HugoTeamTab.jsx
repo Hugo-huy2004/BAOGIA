@@ -130,50 +130,69 @@ export default function HugoTeamTab({ onBack }) {
 
   // Dev đã được duyệt → HugoTeam trở thành workspace: task, giờ đồng hành, trao đổi.
   if (userStatus === "approved") {
+    const membershipEnd = me?.membershipEnd ? new Date(me.membershipEnd) : null;
+    const daysRemaining = membershipEnd ? Math.ceil((membershipEnd - new Date()) / (24 * 60 * 60 * 1000)) : null;
     return (
       <div className="animate-fadeIn max-w-4xl mx-auto bg-white dark:bg-background rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 space-y-6">
         <SubUtilityHeader title="Hugo Team" icon="groups" colorClass="text-primary" onBack={onBack} />
-        <DevWorkspace me={me} reload={loadMe} />
+        {/* Dev Badge */}
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-pink-500/10 border border-amber-500/30 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-2xl text-amber-500">verified_user</span>
+            <div>
+              <p className="font-black text-foreground">Developer Member</p>
+              <p className="text-xs text-muted-foreground">
+                Membership hết hạn: {membershipEnd?.toLocaleDateString("vi-VN")} ({daysRemaining} ngày)
+              </p>
+            </div>
+          </div>
+          <span className="text-3xl font-black bg-gradient-to-r from-amber-400 to-pink-500 bg-clip-text text-transparent">VVIP</span>
+        </div>
+        <DevWorkspace me={me} reload={loadMe} membershipEnd={membershipEnd} />
       </div>
     );
   }
 
   return (
-    <div className="animate-fadeIn max-w-4xl mx-auto bg-white dark:bg-background rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 space-y-6">
-      <SubUtilityHeader title="Hugo Team" icon="groups" colorClass="text-primary" onBack={onBack} />
+    <div className="animate-fadeIn max-w-5xl mx-auto bg-white dark:bg-background rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 space-y-8">
+      <SubUtilityHeader title="Hugo Team — Đồng Hành Dự Án Cộng Đồng" icon="groups" colorClass="text-primary" onBack={onBack} />
 
-      <div className="space-y-8">
+      <div className="space-y-10">
       {/* Header */}
-      <div className="space-y-3">
-        <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          Community Project
+      <div className="space-y-4">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
+          <span className="material-symbols-outlined text-sm">rocket</span>
+          Cơ hội tham gia dự án thực tế
         </div>
-        <h1 className="text-2xl font-black text-foreground">Đồng Hành Dự Án Cộng Đồng</h1>
-        <p className="text-base text-muted-foreground max-w-2xl">
-          Bạn học CNTT năm 2–3, code đã hòm hòm nhưng muốn cọ xát với dự án thực tế chạy thật? 
-          Tụi mình hiểu cảm giác muốn học hỏi thêm ngoài giờ lên lớp nhưng chưa biết bắt đầu từ đâu.
-        </p>
-        <p className="text-base text-muted-foreground max-w-2xl">
-          HugoTeam là nhóm nhỏ sinh viên IT cùng nhau xây dựng các sản phẩm thực tế phục vụ cộng đồng HSSV. 
-          Hoạt động hoàn toàn phi lợi nhuận, hỗ trợ và chia sẻ kinh nghiệm lẫn nhau. Mọi đóng góp của bạn 
-          đều được ghi nhận thực tế trên Github, làm việc từ xa 5–10 giờ/tuần và hoàn toàn tự do theo lịch học của bạn.
-        </p>
+        <h1 className="text-3xl lg:text-4xl font-black text-foreground">Đồng Hành Dự Án Cộng Đồng</h1>
+        <div className="space-y-3 max-w-3xl">
+          <p className="text-base text-muted-foreground">
+            Bạn học CNTT năm 2–3, code đã hòm hòm nhưng muốn cọ xát với dự án thực tế chạy thật?
+            Tụi mình hiểu cảm giác muốn học hỏi thêm ngoài giờ lên lớp nhưng chưa biết bắt đầu từ đâu.
+          </p>
+          <p className="text-base text-muted-foreground">
+            HugoTeam là nhóm nhỏ sinh viên IT cùng nhau xây dựng các sản phẩm thực tế phục vụ cộng đồng HSSV.
+            Hoạt động hoàn toàn <span className="font-semibold text-foreground">phi lợi nhuận</span>, hỗ trợ và chia sẻ kinh nghiệm lẫn nhau.
+            Mọi đóng góp của bạn được ghi nhận trên Github, làm việc <span className="font-semibold text-foreground">5–10 giờ/tuần</span> tự do theo lịch học.
+          </p>
+        </div>
       </div>
 
       {/* Benefits */}
       <div className="border-t border-border pt-8">
-        <h2 className="text-lg font-bold text-foreground mb-2">Những thứ tụi mình có thể làm cho nhau</h2>
-        <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
-          Đây là dự án cộng đồng phi lợi nhuận hoạt động trên tinh thần tự nguyện. Tụi mình không trả lương cho nhau, 
-          nhưng cùng chia sẻ những giá trị thực chất để cùng tiến bộ:
-        </p>
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-foreground mb-2">🎁 Những thứ tụi mình có thể làm cho nhau</h2>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            Dự án cộng đồng phi lợi nhuận hoạt động trên tinh thần tự nguyện. Không có tiền lương, nhưng có giá trị thực chất:
+          </p>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {BENEFITS.map((b) => (
-            <div key={b.title} className="p-4 rounded-2xl border border-border bg-card/50 space-y-2">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-foreground">
-                <span className="material-symbols-outlined text-[20px]">{b.icon}</span>
+            <div key={b.title} className="group p-5 rounded-2xl border border-border/50 bg-gradient-to-br from-card to-card/50 hover:border-primary/30 hover:shadow-lg transition-all space-y-3">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-[22px]">{b.icon}</span>
               </span>
-              <p className="font-semibold text-foreground text-sm">{b.title}</p>
+              <p className="font-bold text-foreground text-sm leading-snug">{b.title}</p>
               <p className="text-xs leading-relaxed text-muted-foreground">{b.desc}</p>
             </div>
           ))}
@@ -208,25 +227,40 @@ export default function HugoTeamTab({ onBack }) {
         </div>
       </div>
 
-      {/* 500-hour milestone */}
+      {/* Membership & 500-hour milestone */}
       <div className="border-t border-border pt-8">
-        <div className="p-6 rounded-2xl border border-primary/30 bg-primary/5 space-y-3">
+        <div className="p-6 rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-pink-500/10 space-y-4">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-foreground">
-              <span className="material-symbols-outlined text-[22px]">military_tech</span>
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/30 to-pink-500/30 text-amber-600 dark:text-amber-400">
+              <span className="material-symbols-outlined text-[24px]">military_tech</span>
             </span>
             <h2 className="text-lg font-bold text-foreground">Sự Bền Bỉ Và Tri Ân Nhẹ Nhàng</h2>
           </div>
+
+          {/* Membership info */}
+          <div className="bg-white/40 dark:bg-black/20 rounded-xl p-3 border border-border/50 space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="material-symbols-outlined text-base text-primary">verified</span>
+              <span className="font-semibold text-foreground">Membership: 3 năm (1095 ngày)</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Khi được chấp thuận tham gia, bạn nhận membership 3 năm (không phải 365 ngày) với quyền lợi VVIP Developer.
+            </p>
+          </div>
+
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Đồng hành cùng nhau lâu dài là điều rất đáng quý. Hành trình phi lợi nhuận này hoạt động 
+            Đồng hành cùng nhau lâu dài là điều rất đáng quý. Hành trình phi lợi nhuận này hoạt động
             dựa trên sự tự nguyện, không ràng buộc nhưng tụi mình luôn trân trọng sự kiên trì của bạn.
           </p>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Khi chạm mốc <span className="font-semibold text-foreground">500 giờ đồng hành</span>, tụi mình 
-            sẽ có những <span className="font-semibold text-foreground">sự tri ân đặc biệt và thiết thực</span>: 
-            vinh danh trong mục đóng góp trên hệ thống, hỗ trợ review CV chuyên sâu từ kinh nghiệm thực tế, 
-            hoặc một buổi cafe trò chuyện định hướng nghề nghiệp cùng một phần quà kỷ niệm nhỏ để cảm ơn bạn.
-          </p>
+          <div className="bg-white/40 dark:bg-black/20 rounded-xl p-3 border border-success/30 space-y-2">
+            <p className="text-sm font-bold text-foreground">🎁 Khi chạm mốc 500 giờ đồng hành:</p>
+            <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+              <li>• Vinh danh trong mục đóng góp trên hệ thống</li>
+              <li>• Hỗ trợ review CV chuyên sâu từ kinh nghiệm thực tế</li>
+              <li>• Buổi cafe trò chuyện định hướng nghề nghiệp</li>
+              <li>• Phần quà kỷ niệm để cảm ơn sự kiên trì của bạn</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -278,18 +312,24 @@ export default function HugoTeamTab({ onBack }) {
 
       {/* Application Section */}
       {userStatus !== "approved" && (
-        <div className="border-t border-border pt-8 space-y-6">
-          <h2 className="text-lg font-bold text-foreground">Sẵn Sàng Bắt Đầu?</h2>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            CV không cần hoàn hảo — chúng tôi tìm sự nghiêm túc và ham học, không tìm người đã giỏi sẵn.
-            Kể cả khi bạn mới chỉ có đồ án môn học, cứ mạnh dạn gửi: dòng code production đầu tiên
-            của bạn có thể được merge ngay trong tuần tới.
-          </p>
+        <div className="border-t border-border pt-8 space-y-8">
+          <div className="space-y-3">
+            <h2 className="text-2xl font-bold text-foreground">🚀 Sẵn Sàng Bắt Đầu?</h2>
+            <p className="text-sm text-muted-foreground max-w-3xl">
+              CV không cần hoàn hảo — chúng tôi tìm sự <span className="font-semibold text-foreground">nghiêm túc</span> và
+              <span className="font-semibold text-foreground"> ham học</span>, không tìm người đã giỏi sẵn.
+              Kể cả khi bạn mới chỉ có đồ án môn học, cứ mạnh dạn gửi: dòng code production đầu tiên
+              của bạn có thể được merge ngay trong tuần tới.
+            </p>
+          </div>
 
           {userStatus === "pending" && (
-            <div className="p-4 rounded-lg bg-warning/10 border border-warning/30 text-sm">
-              <p className="font-semibold text-foreground">Đơn của bạn đang được xem xét</p>
-              <p className="text-muted-foreground mt-1">Tôi sẽ liên hệ qua email trong 3-5 ngày</p>
+            <div className="p-4 rounded-2xl bg-warning/10 border border-warning/30 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-warning">hourglass_top</span>
+                <p className="font-semibold text-foreground">Đơn của bạn đang được xem xét</p>
+              </div>
+              <p className="text-sm text-muted-foreground">Tôi sẽ liên hệ qua email trong 3-5 ngày, cảm ơn sự kiên nhẫn!</p>
             </div>
           )}
 
@@ -319,20 +359,55 @@ export default function HugoTeamTab({ onBack }) {
         </div>
       )}
 
-      {/* Developers List */}
+      {/* Developers List — nâng cấp */}
       <div className="border-t border-border pt-8">
-        <h2 className="text-lg font-bold text-foreground mb-4">Nhà Phát Triển ({developers.length})</h2>
+        <div className="space-y-4 mb-6">
+          <h2 className="text-lg font-bold text-foreground">Tim Phát Triển ({developers.length})</h2>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            Những bạn sinh viên đã được chấp nhận tham gia HugoTeam. Mỗi người mang theo ghi chú cam kết 3 năm đồng hành dự án cộng đồng.
+          </p>
+        </div>
         {developers.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-6">Chưa có ai tham gia</p>
+          <div className="p-8 rounded-2xl border border-dashed border-border/50 text-center">
+            <span className="material-symbols-outlined text-3xl text-muted-foreground block mb-2">groups</span>
+            <p className="text-sm text-muted-foreground">Tim sẽ bắt đầu từ thành viên đầu tiên</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {developers.map((dev) => (
-              <div key={dev.id} className="p-4 rounded-lg border border-border bg-card/50 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="flex-1 min-w-0 font-semibold text-foreground text-sm">{dev.name}</p>
-                  <span className="material-symbols-outlined text-base text-success flex-shrink-0">check_circle</span>
+              <div
+                key={dev.id}
+                className="group relative p-5 rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-purple-500/5 to-pink-500/5 hover:border-amber-500/50 hover:shadow-lg transition-all duration-300 space-y-3"
+              >
+                {/* VVIP Badge */}
+                <div className="absolute -top-3 -right-3 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-pink-500 text-white text-[10px] font-black shadow-md">
+                  DEVELOPER
                 </div>
-                {dev.school && <p className="text-xs text-muted-foreground">{dev.school}</p>}
+
+                {/* Avatar + Name */}
+                <div className="flex items-start gap-3 pt-1">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-pink-500 flex items-center justify-center text-white font-black text-lg flex-shrink-0">
+                    {dev.name[0]?.toUpperCase() || "?"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-foreground text-sm leading-tight">{dev.name}</p>
+                    {dev.school && <p className="text-xs text-muted-foreground mt-0.5 truncate">{dev.school}</p>}
+                  </div>
+                </div>
+
+                {/* Membership Status */}
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="material-symbols-outlined text-sm">verified</span>
+                  <span>Membership: 3 năm</span>
+                </div>
+
+                {/* Verified Check */}
+                <div className="flex items-center justify-center pt-1">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/10 text-success text-[10px] font-bold">
+                    <span className="material-symbols-outlined text-xs">check_circle</span>
+                    Đã phê duyệt
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -377,11 +452,12 @@ function StatusChip({ meta }) {
   );
 }
 
-function DevWorkspace({ me, reload }) {
+function DevWorkspace({ me, reload, membershipEnd }) {
   const [section, setSection] = useState("tasks");
   const stats = me?.stats || {};
   const goal = 500;
   const progress = Math.min(100, ((stats.approvedHours || 0) / goal) * 100);
+  const isMilestone = (stats.approvedHours || 0) >= goal;
 
   const SECTIONS = [
     { id: "tasks", label: "Nhiệm vụ", icon: "checklist", badge: stats.openTasks },
@@ -391,54 +467,94 @@ function DevWorkspace({ me, reload }) {
 
   return (
     <div className="space-y-6">
-      {/* Chào + tiến độ 500h */}
-      <div className="space-y-3">
-        <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Dev Workspace</div>
-        <h1 className="text-2xl font-black text-foreground">Chào {me.name}!</h1>
-        <div className="p-4 rounded-2xl border border-primary/30 bg-primary/5 space-y-2">
+      {/* Chào + membership info + tiến độ 500h */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+            <span className="material-symbols-outlined text-base">verified_user</span>
+            Dev Workspace
+          </div>
+          <h1 className="text-3xl font-black bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">Chào {me.name}! 🎉</h1>
+        </div>
+
+        {/* Membership Card */}
+        {membershipEnd && (
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-pink-500/10 border border-amber-500/20 space-y-2">
+            <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">3-Year Developer Membership</p>
+            <p className="text-sm text-muted-foreground">
+              Hết hạn: <span className="font-semibold text-foreground">{membershipEnd.toLocaleDateString("vi-VN")}</span>
+            </p>
+          </div>
+        )}
+
+        {/* Hours Milestone */}
+        <div className={`p-5 rounded-2xl space-y-3 border transition-all ${
+          isMilestone
+            ? "bg-gradient-to-br from-success/10 via-emerald-500/10 to-success/10 border-success/30"
+            : "bg-gradient-to-br from-primary/10 via-blue-500/10 to-primary/10 border-primary/30"
+        }`}>
           <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold text-foreground">Hành trình 500 giờ đồng hành</span>
-            <span className="font-black text-primary">{stats.approvedHours || 0}h / {goal}h</span>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-base">{isMilestone ? "military_tech" : "schedule"}</span>
+              <span className="font-semibold text-foreground">Hành trình {goal} giờ đồng hành</span>
+            </div>
+            <span className={`font-black ${isMilestone ? "text-success" : "text-primary"}`}>
+              {stats.approvedHours || 0}h / {goal}h
+            </span>
           </div>
-          <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+          <div className="h-3 rounded-full bg-muted overflow-hidden border border-border/50">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                isMilestone ? "bg-gradient-to-r from-success to-emerald-500" : "bg-gradient-to-r from-primary to-blue-500"
+              }`}
+              style={{ width: `${progress}%` }}
+            />
           </div>
-          <p className="text-xs text-muted-foreground">
-            {stats.pendingHours > 0 && `${stats.pendingHours}h đang chờ duyệt · `}
-            Chạm mốc {goal}h để nhận món quà tri ân đặc biệt từ Hugo Studio.
-          </p>
+          {isMilestone && (
+            <p className="text-xs font-bold text-success">
+              🎁 Bạn đã đạt mốc! Liên hệ Hugo để nhận những phần quà tri ân đặc biệt từ Hugo Studio.
+            </p>
+          )}
+          {!isMilestone && (
+            <p className="text-xs text-muted-foreground">
+              {stats.pendingHours > 0 && `${stats.pendingHours}h đang chờ duyệt · `}
+              Còn {goal - (stats.approvedHours || 0)}h nữa!
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Stats nhanh */}
+      {/* Stats nhanh — nâng cấp visual */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: "pending_actions", value: stats.openTasks || 0, label: "Task đang mở" },
-          { icon: "task_alt", value: stats.doneTasks || 0, label: "Task hoàn thành" },
-          { icon: "verified", value: `${stats.approvedHours || 0}h`, label: "Giờ đã duyệt" },
+          { icon: "pending_actions", value: stats.openTasks || 0, label: "Task đang mở", color: "from-blue-500/10 to-blue-500/5 border-blue-500/20 text-blue-600 dark:text-blue-400" },
+          { icon: "task_alt", value: stats.doneTasks || 0, label: "Task hoàn thành", color: "from-success/10 to-emerald-500/5 border-success/20 text-success" },
+          { icon: "verified", value: `${stats.approvedHours || 0}h`, label: "Giờ đã duyệt", color: "from-purple-500/10 to-purple-500/5 border-purple-500/20 text-purple-600 dark:text-purple-400" },
         ].map((s) => (
-          <div key={s.label} className="p-3 rounded-2xl border border-border bg-card/50 text-center space-y-1">
-            <span className="material-symbols-outlined text-[20px] text-foreground">{s.icon}</span>
-            <p className="text-lg font-black text-foreground leading-none">{s.value}</p>
-            <p className="text-[10px] text-muted-foreground">{s.label}</p>
+          <div key={s.label} className={`p-4 rounded-2xl bg-gradient-to-br ${s.color} border text-center space-y-2 transition-transform hover:scale-105`}>
+            <span className="material-symbols-outlined text-[22px] block">{s.icon}</span>
+            <p className="text-xl font-black leading-none">{s.value}</p>
+            <p className="text-[11px] text-muted-foreground font-medium">{s.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Section switcher */}
-      <div className="flex gap-2">
+      {/* Section switcher — nâng cấp */}
+      <div className="flex gap-2 bg-muted/50 p-1 rounded-2xl border border-border/50">
         {SECTIONS.map((s) => (
           <button
             key={s.id}
             onClick={() => setSection(s.id)}
-            className={`relative flex-1 flex items-center justify-center gap-1.5 rounded-2xl px-3 py-2.5 text-xs font-bold transition-all ${
-              section === s.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+            className={`relative flex-1 flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-bold transition-all duration-200 ${
+              section === s.id
+                ? "bg-gradient-to-r from-primary to-blue-500 text-primary-foreground shadow-md"
+                : "bg-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <span className="material-symbols-outlined text-[16px]">{s.icon}</span>
-            {s.label}
+            <span className="hidden sm:inline">{s.label}</span>
             {s.badge > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-white text-[10px] font-black flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 min-w-[20px] h-[20px] px-1 rounded-full bg-destructive text-white text-[10px] font-black flex items-center justify-center shadow-md">
                 {s.badge}
               </span>
             )}
@@ -477,9 +593,12 @@ function DevTasks({ tasks, reload }) {
 
   if (!tasks.length) {
     return (
-      <div className="p-8 rounded-2xl border border-border bg-card/50 text-center space-y-2">
-        <span className="material-symbols-outlined text-[28px] text-muted-foreground">inbox</span>
-        <p className="text-sm text-muted-foreground">Chưa có nhiệm vụ nào. Admin sẽ giao task qua đây và báo bạn qua email.</p>
+      <div className="p-8 rounded-2xl border border-dashed border-border bg-muted/30 text-center space-y-3">
+        <span className="material-symbols-outlined text-[36px] text-muted-foreground block">inbox</span>
+        <div>
+          <p className="text-sm font-semibold text-muted-foreground">Chưa có nhiệm vụ nào</p>
+          <p className="text-xs text-muted-foreground mt-1">Admin sẽ giao task qua đây và gửi thông báo qua email</p>
+        </div>
       </div>
     );
   }
@@ -487,7 +606,7 @@ function DevTasks({ tasks, reload }) {
   return (
     <div className="space-y-3">
       {tasks.map((t) => (
-        <div key={t._id} className="p-4 rounded-2xl border border-border bg-card/50 space-y-3">
+        <div key={t._id} className="p-4 rounded-2xl border border-border/50 bg-gradient-to-r from-card via-card/50 to-card hover:border-border transition-all space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="font-bold text-foreground text-sm">{t.title}</p>
@@ -612,8 +731,11 @@ function DevHours({ hourLogs, tasks, reload }) {
   return (
     <div className="space-y-4">
       {/* Form ghi giờ */}
-      <div className="p-4 rounded-2xl border border-border bg-card/50 space-y-3">
-        <p className="font-bold text-foreground text-sm">Ghi giờ đồng hành</p>
+      <div className="p-5 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/5 to-primary/0 space-y-4">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-base text-primary">schedule</span>
+          <p className="font-bold text-foreground text-sm">Ghi giờ đồng hành</p>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <label className="text-xs space-y-1">
             <span className="font-semibold text-muted-foreground">Ngày</span>
@@ -654,11 +776,14 @@ function DevHours({ hourLogs, tasks, reload }) {
 
       {/* Lịch sử */}
       {hourLogs.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-4">Chưa có giờ nào được ghi.</p>
+        <div className="p-6 rounded-2xl border border-dashed border-border/50 text-center">
+          <p className="text-sm text-muted-foreground">Chưa có giờ nào được ghi. Bắt đầu ghi giờ đồng hành của bạn!</p>
+        </div>
       ) : (
         <div className="space-y-2">
+          <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider mb-3">Lịch sử ghi giờ</p>
           {hourLogs.map((l) => (
-            <div key={l._id} className="p-3 rounded-2xl border border-border bg-card/50 flex items-center gap-3">
+            <div key={l._id} className="p-3.5 rounded-2xl border border-border/50 bg-gradient-to-r from-card via-card/50 to-card hover:border-border transition-all flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">
                   {l.hours}h · {fmtDate(l.date)}
@@ -717,12 +842,17 @@ function DevChat({ messages, reload }) {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="max-h-[50vh] overflow-y-auto space-y-2 p-1">
+    <div className="space-y-3 flex flex-col h-[500px]">
+      <div className="flex-1 max-h-[60vh] overflow-y-auto space-y-2 p-2 border border-border/50 rounded-xl bg-muted/30">
         {messages.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-6">
-            Chưa có trao đổi nào. Nhắn admin tại đây — tin quan trọng cũng sẽ được gửi qua email cho bạn.
-          </p>
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center space-y-2">
+              <span className="material-symbols-outlined text-3xl text-muted-foreground block">mail</span>
+              <p className="text-sm text-muted-foreground">
+                Chưa có trao đổi nào. Nhắn admin tại đây — tin quan trọng cũng sẽ được gửi qua email cho bạn.
+              </p>
+            </div>
+          </div>
         )}
         {messages.map((m) => (
           <div key={m._id} className={`flex ${m.from === "dev" ? "justify-end" : "justify-start"}`}>
@@ -737,15 +867,15 @@ function DevChat({ messages, reload }) {
           </div>
         ))}
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 mt-auto">
         <input value={text} maxLength={2000}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-          placeholder="Nhắn admin..."
-          className="flex-1 px-4 py-2.5 rounded-2xl border border-border bg-background text-xs" />
+          placeholder="Viết tin nhắn..."
+          className="flex-1 px-4 py-2.5 rounded-2xl border border-border bg-background text-xs focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none transition-all" />
         <button onClick={send} disabled={sending || !text.trim()}
-          className="px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground text-xs font-bold disabled:opacity-50 active:scale-95 transition-transform">
-          Gửi
+          className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-primary to-blue-600 text-primary-foreground text-xs font-bold disabled:opacity-50 disabled:bg-muted disabled:text-muted-foreground active:scale-95 transition-all">
+          {sending ? "..." : "Gửi"}
         </button>
       </div>
     </div>

@@ -73,10 +73,15 @@ router.get("/me", requireMember, async (req, res) => {
     if (!dev) return res.json({ status: null });
     if (dev.status !== "approved") return res.json({ status: dev.status });
 
+    // Membership: 3 years from approved date
+    const membershipEnd = new Date(dev.approvedAt);
+    membershipEnd.setFullYear(membershipEnd.getFullYear() + 3);
+
     res.json({
       status: "approved",
       name: dev.name,
       approvedAt: dev.approvedAt,
+      membershipEnd: membershipEnd,
       stats: {
         approvedHours: dev.approvedHours(),
         pendingHours: dev.pendingHours(),

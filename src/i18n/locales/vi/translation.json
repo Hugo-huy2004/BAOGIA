@@ -90,7 +90,11 @@
       "start": "Bắt Đầu",
       "studio": "Hugo Studio",
       "partners": "Nhà Sáng Lập",
-      "about": "Về Tôi"
+      "about": "Về Tôi",
+      "discoveries": "Khám Phá"
+    },
+    "about": {
+      "desc": "Mình là Hugo — một người mộng mơ viết code. Sinh năm 2004, lớn lên giữa thế giới số đầy logic, mình luôn khao khát kiến tạo nên những góc nhỏ ấm áp, thơ mộng và chứa đựng cảm xúc chân thành. Với mình, mỗi sản phẩm số là một hành tinh nhỏ, nơi từng chi tiết, từng nút bấm đều được nâng niu để sưởi ấm cho người bạn đồng hành."
     },
     "slide1": {
       "badge": "✦ Một Lập Trình Viên Nhỏ Tô Vẽ Trên Mạng",
@@ -233,6 +237,28 @@
       "v3": "Sáng tạo",
       "v4": "Thân thiện",
       "v5": "Đồng hành"
+    },
+    "discoveries": {
+      "badge": "✦ Hệ sinh thái tiện ích",
+      "title1": "Hành Tinh Tiện Ích",
+      "title2": "Những khám phá số của riêng bạn.",
+      "desc": "Tự tay tôi xây dựng những tiện ích độc đáo từ trí tuệ nhân tạo, âm nhạc đến chữa lành tâm hồn — tất cả đều tích hợp hoàn toàn miễn phí và dành riêng cho bạn.",
+      "auraTitle": "Aura AI",
+      "auraDesc": "Hạt bụi sáng giữa khoảng không. Một trợ lý AI nhẹ nhàng, giúp bạn tập trung học tập, khơi gợi cảm hứng sáng tạo giữa những dòng code.",
+      "psyTitle": "Hugo PSY",
+      "psyDesc": "Nơi bạn trút bỏ gánh nặng. Khi đêm muộn buông xuống và thế giới ngoài kia quá ồn ào, Hugo PSY là người bạn lắng nghe mọi tâm sự thầm kín nhất.",
+      "hocduongTitle": "Bạn Học Đường",
+      "hocduongDesc": "Trạm dừng chân của những kẻ mộng mơ. Không gian học tập, chia sẻ tài liệu và kết nối những tâm hồn học hỏi.",
+      "radioTitle": "Hugo Radio",
+      "radioDesc": "Những giai điệu trôi nổi giữa ngân hà. Trạm phát nhạc lofi dịu êm, đồng hành cùng bạn qua những đêm dài cặm cụi.",
+      "ideTitle": "Web IDE",
+      "ideDesc": "Xưởng chế tạo tinh tú. Nơi bạn có thể tự tay lập trình, biên dịch những ý tưởng lập trình sơ khai nhất ngay trên trình duyệt di động.",
+      "arcadeTitle": "Hugo Arcade",
+      "arcadeDesc": "Góc giải trí giữa các tinh cầu. Những trò chơi cổ điển, cờ vua đối kháng để thư giãn đầu óc sau những giờ học căng thẳng.",
+      "joyTitle": "Joy PWA",
+      "joyDesc": "Nút thắt năng lượng của vũ trụ. Nơi lưu giữ giá trị, tích lũy điểm thưởng Joy và liên kết tất cả tiện ích trong hệ sinh thái.",
+      "bioTitle": "Signature Bio",
+      "bioDesc": "Dấu ấn cá nhân giữa ngân hà. Trang cá nhân độc bản phản ánh chân thực cái tôi nghệ thuật và tri thức của riêng bạn."
     }
   },
   "servicesPage": {
@@ -277,10 +303,32 @@
       "philosophy": "Tôi tin rằng chất lượng không tồn tại khi bạn đi nhanh. Vì vậy, tôi luôn chỉ nhận một dự án tại một thời điểm — toàn bộ tâm trí, tay và trái tim cho dự án đó. Mỗi chi tiết, từ pixel nhỏ đến logic code, đều được trao đổi rõ ràng từ đầu. Không bất ngờ. Không phát sinh. Chỉ có cam kết."
     },
     "pricing": {
-      "eyebrow": "Bộ sưu tập sắc thái",
-      "title": "Mỗi tác phẩm có sắc của nó,",
-      "highlight": "từ dấu chấm đến bức tranh đầy",
-      "desc": "Từ những điều chỉnh nhẹ nhàng — như chà ai sơn lại một nét trên tranh cổ — đến những công trình toàn vẹn, nơi mỗi pixel là một sắc thái, mỗi tương tác là một hơi thở của kiến trúc. Giá bạn thấy là cửa vào. Với dự án thực, mình sẽ chốt chi tiết, thời gian và bàn giao trước khi bắt tay."
+      "eyebrow": "Hành Trình Khám Phá",
+      "title": "Từ những viên đá tâm hồn",
+      "highlight": "đến hòn ngọc giữa Đại Dương",
+      "desc": "Mỗi dịch vụ không phải mức giá — đó là một bước trong hành trình thức tỉnh. Từ những điều chỉnh nhỏ như cánh chim lần đầu bay, đến những công trình toàn vẹn nơi ý tưởng sống và thở. Hãy chọn điểm bắt đầu của bạn. Tôi sẽ đồng hành từ viên đá đầu tiên đến ngọc lớn nhất."
+    },
+    "journey": {
+      "stone1": {
+        "badge": "✦ Viên Đá Đầu Tiên",
+        "desc": "Khi bạn bắt đầu nhận ra — có cái gì cần chỉnh sửa. Tôi đến, tìm đúng chỗ, và chữa lành nó. Đó là lần đầu bạn cảm thấy website của bạn được chạm tay một người yêu thích nó."
+      },
+      "stone2": {
+        "badge": "✦ Viên Đá Sáng Lên",
+        "desc": "Website đẹp nhưng chưa ai thấy? Bây giờ, tôi bật đèn. Tốc độ nhanh, Google tìm thấy bạn, và khách hàng cảm thấy chất lượng ngay lần đầu tiên."
+      },
+      "stone3": {
+        "badge": "✦ Viên Đá Hình Thành",
+        "desc": "Một trang duy nhất. Một câu chuyện. Khi bạn nhìn thẳng vào mắt khách hàng qua màn hình và họ nói: 'Có, bạn là người tôi tìm.'"
+      },
+      "stone4": {
+        "badge": "✦ Hòn Đá Hoàng Tráng",
+        "desc": "Bộ mặt hoàn chỉnh của bạn. Mỗi trang là một câu chuyện, mỗi liên kết là một cơ hội. Website không chỉ nói chuyện — nó *mời gọi* người ta vào thế giới của bạn."
+      },
+      "stone5": {
+        "badge": "✦ Hòn Ngọc — Sự Sống",
+        "desc": "Website không chỉ nói chuyện — nó sống. Nó suy nghĩ, nó quyết định, nó làm việc cho bạn 24/7. Đó là khi công nghệ trở thành phần mềm của bạn, không còn là công cụ."
+      }
     },
     "plans": {
       "fix": {

@@ -132,6 +132,27 @@ function Whisper({ text, delay = 0 }) {
   );
 }
 
+function JourneyChapter({ badge, desc, index }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+      className="my-12 px-4 sm:px-8"
+    >
+      <div className="mx-auto max-w-3xl text-center space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 backdrop-blur-sm">
+          <span className="text-xs font-bold text-primary tracking-wider">{badge}</span>
+        </div>
+        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+          {desc}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
 function PlanCard({ plan, emphasized = false }) {
   const { t } = useTranslation();
   return (
@@ -611,6 +632,27 @@ export default function ServicesPage() {
         </div>
       </motion.div>
 
+      {/* ================= JOURNEY INTRO ================= */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.7, delay: 0.2 }}
+        className="mx-auto max-w-5xl px-4 sm:px-8 mt-16 sm:mt-24"
+      >
+        <div className="text-center space-y-4">
+          <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground">
+            Một hành trình có tinh hồn
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground/80 max-w-3xl mx-auto leading-relaxed">
+            Mỗi dịch vụ không phải một bảng giá. Đó là một bước trong hành trình khám phá. Từ những viên đá tâm hồn nhỏ bé — khi bạn lần đầu nhận ra cần thay đổi — đến những hòn ngọc giữa Đại Dương — khi website sống, thở, và làm việc cho bạn.
+          </p>
+          <p className="text-sm text-muted-foreground/60 italic">
+            Chọn điểm bắt đầu của bạn. Tôi sẽ đồng hành từng bước.
+          </p>
+        </div>
+      </motion.div>
+
       {priceMode === "commercial" ? (
         <>
           {/* ================= WEBSITE & ỨNG DỤNG WEB ================= */}
@@ -622,10 +664,51 @@ export default function ServicesPage() {
               highlight={t("servicesPage.pricing.highlight")}
               desc={t("servicesPage.pricing.desc")}
             />
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
-              {[...staticPlans, ...dynamicPlans].map((plan) => (
-                <PlanCard key={plan.id} plan={plan} emphasized={plan.featured} />
-              ))}
+            <div className="mt-12 space-y-8">
+              {/* Services as Chapters */}
+              <JourneyChapter
+                badge={t("servicesPage.journey.stone1.badge")}
+                desc={t("servicesPage.journey.stone1.desc")}
+                index={0}
+              />
+              <div className="grid gap-6 md:grid-cols-2 lg:w-2/3">
+                <PlanCard plan={staticPlans[0]} />
+                <PlanCard plan={carePlans[0]} />
+              </div>
+
+              <JourneyChapter
+                badge={t("servicesPage.journey.stone2.badge")}
+                desc={t("servicesPage.journey.stone2.desc")}
+                index={1}
+              />
+              <div className="grid gap-6 md:grid-cols-2 lg:w-2/3">
+                <PlanCard plan={carePlans[1]} />
+                <PlanCard plan={staticPlans[0]} />
+              </div>
+
+              <JourneyChapter
+                badge={t("servicesPage.journey.stone3.badge")}
+                desc={t("servicesPage.journey.stone3.desc")}
+                index={2}
+              />
+              <div className="grid gap-6 md:grid-cols-1 max-w-2xl mx-auto">
+                <PlanCard plan={staticPlans[1]} emphasized={true} />
+              </div>
+
+              <JourneyChapter
+                badge={t("servicesPage.journey.stone4.badge")}
+                desc={t("servicesPage.journey.stone4.desc")}
+                index={3}
+              />
+              <div className="grid gap-6 md:grid-cols-1 max-w-2xl mx-auto">
+                <PlanCard plan={dynamicPlans[0]} />
+              </div>
+
+              <JourneyChapter
+                badge={t("servicesPage.journey.stone5.badge")}
+                desc={t("servicesPage.journey.stone5.desc")}
+                index={4}
+              />
             </div>
           </section>
         </>

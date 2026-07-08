@@ -10,6 +10,7 @@ import {
   useSpring,
   useMotionTemplate,
   useReducedMotion,
+  AnimatePresence,
 } from "framer-motion";
 import Lenis from "lenis";
 import { useTranslation, Trans } from "react-i18next";
@@ -35,6 +36,90 @@ const DUST = Array.from({ length: 18 }, (_, i) => ({
 
 // Film-grain texture (inline SVG turbulence — zero network cost)
 const NOISE_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
+// Starry universe background component
+function StarryUniverse({ activeIndex, reduced }) {
+  const stars = useRef(
+    Array.from({ length: 70 }, (_, i) => ({
+      id: i,
+      left: `${(i * 17) % 100}%`,
+      top: `${(i * 23) % 100}%`,
+      size: 1 + (i % 2),
+      duration: 3 + (i % 5) * 1.5,
+      delay: (i % 7) * 0.7,
+    }))
+  ).current;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 bg-[#04050f]">
+      {/* Dynamic Nebulae */}
+      <div className="absolute inset-0 transition-opacity duration-1000">
+        <div
+          className="absolute top-[-20%] left-[-20%] w-[70vw] h-[70vw] rounded-full blur-[150px] opacity-[0.35] transition-all duration-1000 ease-in-out"
+          style={{
+            background: activeIndex === 0
+              ? "radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)"
+              : activeIndex === 1
+              ? "radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)"
+              : activeIndex === 2
+              ? "radial-gradient(circle, rgba(234,179,8,0.2) 0%, transparent 70%)"
+              : activeIndex === 3
+              ? "radial-gradient(circle, rgba(6,182,212,0.25) 0%, transparent 70%)"
+              : activeIndex === 4
+              ? "radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(16,185,129,0.25) 0%, transparent 70%)"
+          }}
+        />
+        <div
+          className="absolute bottom-[-20%] right-[-20%] w-[75vw] h-[75vw] rounded-full blur-[170px] opacity-[0.35] transition-all duration-1000 ease-in-out"
+          style={{
+            background: activeIndex === 0
+              ? "radial-gradient(circle, rgba(236,72,153,0.2) 0%, transparent 70%)"
+              : activeIndex === 1
+              ? "radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)"
+              : activeIndex === 2
+              ? "radial-gradient(circle, rgba(234,179,8,0.2) 0%, transparent 70%)"
+              : activeIndex === 3
+              ? "radial-gradient(circle, rgba(168,85,247,0.2) 0%, transparent 70%)"
+              : activeIndex === 4
+              ? "radial-gradient(circle, rgba(6,182,212,0.25) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)"
+          }}
+        />
+      </div>
+
+      {/* Stars Grid */}
+      {!reduced && (
+        <div className="absolute inset-0 opacity-70">
+          {stars.map((s) => (
+            <motion.span
+              key={s.id}
+              animate={{ opacity: [0.15, 0.85, 0.15] }}
+              transition={{ duration: s.duration, repeat: Infinity, ease: "easeInOut", delay: s.delay }}
+              style={{
+                position: "absolute",
+                left: s.left,
+                top: s.top,
+                width: `${s.size}px`,
+                height: `${s.size}px`,
+              }}
+              className="rounded-full bg-white shadow-[0_0_4px_white]"
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Cosmic Shooting Stars */}
+      {!reduced && (
+        <div className="absolute inset-0">
+          <div className="shooting-star" style={{ top: "15%", left: "45%", animationDelay: "1s" }} />
+          <div className="shooting-star" style={{ top: "45%", left: "80%", animationDelay: "5.5s" }} />
+          <div className="shooting-star" style={{ top: "30%", left: "15%", animationDelay: "11s" }} />
+        </div>
+      )}
+    </div>
+  );
+}
 
 const JASON_PHOTO =
   "https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png";
@@ -221,6 +306,237 @@ function Shine() {
 }
 
 /* ---------------------------------------------------------------------------
+   FLOATING HOLOGRAM SYSTEM (Single morphing container linked across scenes)
+   ------------------------------------------------------------------------- */
+
+// 4 góc khung hologram (corner brackets)
+function HoloBrackets() {
+  const b = "absolute w-4 h-4 border-cyan-500/50 pointer-events-none";
+  return (
+    <>
+      <span className={`${b} top-2 left-2 border-t-2 border-l-2 rounded-tl-md`} />
+      <span className={`${b} top-2 right-2 border-t-2 border-r-2 rounded-tr-md`} />
+      <span className={`${b} bottom-2 left-2 border-b-2 border-l-2 rounded-bl-md`} />
+      <span className={`${b} bottom-2 right-2 border-b-2 border-r-2 rounded-br-md`} />
+    </>
+  );
+}
+
+function AboutPortraitPhoto({ realPhoto, fullName, t }) {
+  return (
+    <div
+      className="relative w-[210px] sm:w-[270px] lg:w-[320px] rounded-[2rem] bg-[#060713]/70 backdrop-blur-2xl border border-cyan-500/30 p-3 sm:p-4 shadow-[0_0_40px_rgba(6,182,212,0.2)] overflow-hidden"
+      style={{ transformStyle: "preserve-3d" }}
+    >
+      <HoloBrackets />
+      <div className="aspect-[4/5] rounded-xl overflow-hidden bg-muted relative shadow-inner" style={{ transform: "translateZ(30px)" }}>
+        <img loading="lazy" src={realPhoto} alt={fullName} className="w-full h-full object-cover" />
+        <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-primary/15 to-transparent animate-scan pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-warning/10 via-transparent to-primary/10 mix-blend-overlay pointer-events-none" />
+      </div>
+      <div className="pt-3 pb-1 text-center space-y-1" style={{ transform: "translateZ(45px)" }}>
+        <span className="font-display text-xs sm:text-sm font-black text-foreground">{fullName}</span>
+        <p className="text-[8px] sm:text-[9px] text-cyan-400 font-bold uppercase tracking-[0.2em]">
+          {t("intro.partners.finalYear")}
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-1.5 pt-1" style={{ transform: "translateZ(35px)" }}>
+        {[
+          { icon: "cake", text: "2004" },
+          { icon: "school", text: "Greenwich VN" },
+        ].map((r) => (
+          <div key={r.icon} className="flex items-center justify-center gap-1.5 px-2 py-1 rounded-xl bg-cyan-950/30 border border-cyan-500/10">
+            <span className="material-symbols-outlined text-[10px] text-cyan-400">{r.icon}</span>
+            <span className="text-[7px] sm:text-[8px] font-mono font-bold text-cyan-300">{r.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BioStudentCard({ t, scrollProgress }) {
+  const cardRotY = useTransform(scrollProgress, [0.44, 0.58], [0, 180]);
+  const cardFace =
+    "absolute inset-0 rounded-[1.75rem] bg-gradient-to-b from-[#0a0f2c]/95 to-[#050713]/85 backdrop-blur-2xl border border-cyan-500/30 p-5 sm:p-6 shadow-[0_0_40px_rgba(6,182,212,0.2)] overflow-hidden [backface-visibility:hidden]";
+
+  return (
+    <motion.div
+      style={{ rotateY: cardRotY, transformStyle: "preserve-3d" }}
+      className="relative w-[280px] sm:w-[320px] h-[200px] sm:h-[230px] will-change-transform"
+    >
+      {/* FRONT — thẻ sinh viên */}
+      <div className={cardFace}>
+        <div className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-500/15 to-transparent -skew-x-12 pointer-events-none" />
+        <div className="flex justify-between items-start border-b border-cyan-500/10 pb-3">
+          <div>
+            <span className="text-[7px] font-mono font-bold text-cyan-400 uppercase tracking-widest block">
+              {t("intro.slide5.idTitle")}
+            </span>
+            <span className="font-display text-xs sm:text-sm font-black text-foreground">{t("intro.slide5.idName")}</span>
+          </div>
+          <div className="w-8 h-6 rounded-md bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 shadow border border-yellow-600/30 flex items-center justify-center overflow-hidden">
+            <div className="grid grid-cols-3 gap-0.5 w-[80%] h-[80%] opacity-40">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                <div key={i} className="border border-yellow-800/40" />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="py-3 space-y-2 text-[10px] sm:text-xs">
+          <div className="flex justify-between">
+            <span className="text-[8px] text-cyan-400/60 uppercase font-bold">{t("intro.slide5.idEmailTitle")}</span>
+            <span className="font-mono font-bold text-cyan-300 text-[10px] sm:text-[11px]">name@school.edu.vn</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[8px] text-cyan-400/60 uppercase font-bold">{t("intro.slide5.idBenefitTitle")}</span>
+            <span className="font-bold text-cyan-300 text-[10px] sm:text-[11px]">{t("intro.slide5.idBenefitDesc")}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[8px] text-cyan-400/60 uppercase font-bold">{t("intro.slide5.idValidityTitle")}</span>
+            <span className="font-bold text-cyan-400/80 text-[10px] sm:text-[11px]">{t("intro.slide5.idValidityDesc")}</span>
+          </div>
+        </div>
+        <div className="flex justify-between items-center border-t border-cyan-500/10 pt-2.5">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="text-[7px] font-mono font-bold text-cyan-400/60">{t("intro.slide5.idAuth")}</span>
+          </div>
+          <span className="text-[7px] font-mono text-cyan-400/60">ID: 2004-EDU-VALID</span>
+        </div>
+      </div>
+
+      {/* BACK — quyền lợi */}
+      <div className={cardFace} style={{ transform: "rotateY(180deg)" }}>
+        <span className="text-[7px] font-mono font-bold text-cyan-400 uppercase tracking-widest block pb-1.5 border-b border-cyan-500/10">
+          {t("intro.slide5.idBenefitTitle")}
+        </span>
+        <div className="pt-3 space-y-2">
+          {["check1", "check2", "check3"].map((k) => (
+            <div key={k} className="flex items-start gap-2 text-left">
+              <span className="material-symbols-outlined text-xs text-cyan-400 bg-cyan-950/40 rounded-full p-1 border border-cyan-500/10">
+                verified_user
+              </span>
+              <span className="text-[9px] sm:text-[10px] text-cyan-300/80 leading-snug">
+                {t(`intro.slide5.${k}`)}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="absolute bottom-3 left-5 right-5 flex justify-between items-center border-t border-cyan-500/10 pt-2">
+          <span className="text-[7px] font-mono text-cyan-400/60">HUGO·STUDIO·EDU</span>
+          <span className="material-symbols-outlined text-xs text-cyan-400">workspace_premium</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function DiscoveriesCore() {
+  return (
+    <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary via-accent to-warning p-[2px] shadow-[0_0_35px_rgba(99,102,241,0.4)] flex items-center justify-center pointer-events-auto">
+      <div className="w-full h-full rounded-full bg-[#050713] flex items-center justify-center">
+        <motion.span
+          animate={{ rotate: 360 }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="material-symbols-outlined text-xl sm:text-2xl text-cyan-400 font-black block"
+        >
+          token
+        </motion.span>
+      </div>
+    </div>
+  );
+}
+
+function HologramMaster({ activeIndex, realPhoto, fullName, t, scrollProgress, isMobile, reduced }) {
+  const mouse = useMouseParallax(!reduced);
+  
+  // Parallax rotation values (spring dampened)
+  const rx = useTransform(mouse.y, (v) => v * -7);
+  const ry = useTransform(mouse.x, (v) => v * 9);
+
+  // Layout positions
+  const targetX = isMobile 
+    ? "0vw" 
+    : activeIndex === 0 ? "20vw" 
+    : activeIndex === 1 ? "22vw" 
+    : activeIndex === 2 ? "-20vw" 
+    : activeIndex === 3 ? "22vw" 
+    : activeIndex === 4 ? "20vw" : "0px";
+    
+  const targetY = isMobile
+    ? (activeIndex === 0 ? "18vh" : activeIndex === 1 ? "20vh" : activeIndex === 2 ? "12vh" : activeIndex === 3 ? "20vh" : "12vh")
+    : "0px";
+
+  const targetScale = isMobile
+    ? (activeIndex === 4 ? 0.75 : 0.65)
+    : (activeIndex === 4 ? 0.75 : 0.95);
+
+  // Set low opacity on mobile to avoid blocking layout texts
+  const opacity = activeIndex <= 4 ? (isMobile ? 0.28 : 1) : 0;
+
+  const renderCardContent = () => {
+    switch (activeIndex) {
+      case 0:
+        return <StudioHologram />;
+      case 1:
+        return <FounderHologram t={t} />;
+      case 2:
+        return <AboutPortraitPhoto realPhoto={realPhoto} fullName={fullName} t={t} />;
+      case 3:
+        return <BioStudentCard t={t} scrollProgress={scrollProgress} />;
+      case 4:
+        return <DiscoveriesCore />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <motion.div
+      style={{
+        position: "fixed",
+        left: "50%",
+        top: "50%",
+        rotateX: rx,
+        rotateY: ry,
+        transformStyle: "preserve-3d",
+        perspective: 1200,
+        y: "-50%",
+      }}
+      animate={{
+        x: `calc(-50% + ${targetX})`,
+        y: `calc(-50% + ${targetY})`,
+        scale: targetScale,
+        opacity,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 85,
+        damping: 18,
+        mass: 1.05,
+      }}
+      className="z-30 pointer-events-none"
+    >
+      <div className="pointer-events-auto flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeIndex}
+            initial={{ opacity: 0, scale: 0.9, filter: "blur(5px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.9, filter: "blur(5px)" }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            {renderCardContent()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
    SCENE 0 — HUGO STUDIO HERO (hologram website 3D đang được "xây" + spotlight)
    ------------------------------------------------------------------------- */
 
@@ -234,83 +550,108 @@ const HERO_LINES = [
 ];
 
 // Hologram browser: cửa sổ web kính 3D, các lớp nổi bằng translateZ
+// Hologram browser: cửa sổ web kính 3D, các lớp nổi bằng translateZ
 function StudioHologram() {
   return (
     <div
-      className="relative w-[270px] sm:w-[330px] lg:w-[390px] rounded-3xl border border-border/70 dark:border-white/15 bg-card/60 dark:bg-card/40 backdrop-blur-xl shadow-2xl overflow-visible"
+      className="relative w-[270px] sm:w-[330px] lg:w-[390px] rounded-3xl border border-cyan-500/30 dark:border-cyan-500/20 bg-[#060713]/75 backdrop-blur-2xl shadow-[0_0_50px_rgba(6,182,212,0.25),inset_0_0_20px_rgba(6,182,212,0.1)] overflow-visible"
       style={{ transformStyle: "preserve-3d" }}
     >
-      {/* Glow sau lưng */}
-      <div className="absolute inset-4 rounded-3xl bg-primary/25 blur-2xl" style={{ transform: "translateZ(-50px)" }} />
+      {/* Cyber Grid Pattern Backdrop */}
+      <div 
+        className="absolute inset-0 rounded-3xl pointer-events-none opacity-20"
+        style={{
+          backgroundImage: "linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px)",
+          backgroundSize: "16px 16px"
+        }}
+      />
+
+      {/* Glow behind */}
+      <div className="absolute inset-4 rounded-3xl bg-cyan-500/20 blur-3xl" style={{ transform: "translateZ(-55px)" }} />
+      <div className="absolute inset-4 rounded-3xl bg-pink-500/10 blur-3xl" style={{ transform: "translateZ(-80px)" }} />
+
+      {/* Glowing Edge Gradient Ring */}
+      <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-tr from-cyan-500/40 via-transparent to-pink-500/40 pointer-events-none" />
 
       {/* Title bar */}
-      <div className="relative flex items-center gap-2 px-4 py-3 border-b border-border/50 rounded-t-3xl overflow-hidden">
-        <span className="w-2.5 h-2.5 rounded-full bg-destructive/70" />
-        <span className="w-2.5 h-2.5 rounded-full bg-warning/70" />
-        <span className="w-2.5 h-2.5 rounded-full bg-success/70" />
-        <div className="ml-2 flex-1 flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/70 text-muted-foreground">
-          <span className="material-symbols-outlined text-[11px]">lock</span>
-          <span className="text-[9px] sm:text-[10px] font-mono truncate">hugowishpax.studio</span>
+      <div className="relative flex items-center gap-2 px-4 py-3 border-b border-cyan-500/10 rounded-t-3xl overflow-hidden bg-cyan-950/20">
+        <span className="w-2.5 h-2.5 rounded-full bg-cyan-500/60 shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-pink-500/60 shadow-[0_0_6px_rgba(236,72,153,0.8)]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/60 shadow-[0_0_6px_rgba(234,179,8,0.8)]" />
+        <div className="ml-2 flex-1 flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/40 text-cyan-400/80 border border-cyan-500/10">
+          <span className="material-symbols-outlined text-[11px] animate-pulse">lock</span>
+          <span className="text-[9px] sm:text-[10px] font-mono truncate tracking-wider">hugowishpax.studio</span>
         </div>
+        <span className="text-[8px] font-mono text-cyan-500/60 tracking-tighter">SYS_OK</span>
       </div>
 
-      {/* Body — trang web đang được xây */}
-      <div className="relative p-4 sm:p-5 space-y-3 rounded-b-3xl overflow-hidden">
-        {/* Vệt scan chạy dọc — cảm giác hologram */}
-        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-primary/10 to-transparent animate-scan pointer-events-none" />
+      {/* Body — built-up layout */}
+      <div className="relative p-4 sm:p-5 space-y-4 rounded-b-3xl overflow-hidden">
+        {/* Holographic glowing scan line & gradient trail */}
+        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-cyan-500/15 via-cyan-500/5 to-transparent animate-scan pointer-events-none flex flex-col justify-end">
+          <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_10px_#22d3ee,0_0_20px_#22d3ee]" />
+        </div>
 
         {/* Brand block */}
         <div className="flex items-center gap-3" style={{ transform: "translateZ(35px)" }}>
-          <MonoIcon name="design_services" size="text-xl" box="w-10 h-10" />
+          <div className="w-10 h-10 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+            <span className="material-symbols-outlined text-xl text-cyan-400 animate-pulse">design_services</span>
+          </div>
           <div>
-            <p className="font-display text-sm sm:text-base font-black bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift leading-tight">
+            <p className="font-display text-sm sm:text-base font-black bg-gradient-to-r from-cyan-400 via-pink-400 to-yellow-400 bg-clip-text text-transparent animate-gradientShift leading-tight tracking-wider">
               HUGO STUDIO
             </p>
-            <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
-              Digital Craft · VN
+            <p className="text-[7px] sm:text-[8px] font-mono font-bold uppercase tracking-[0.25em] text-cyan-400/60 flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-cyan-400 animate-ping" />
+              DIGITAL CRAFT · PORTAL
             </p>
           </div>
         </div>
 
-        {/* Dòng nội dung tự "gõ" ra, lặp vô hạn */}
-        <div className="space-y-2" style={{ transform: "translateZ(25px)" }}>
+        {/* Typing lines */}
+        <div className="space-y-2.5" style={{ transform: "translateZ(25px)" }}>
           {HERO_LINES.map((l, i) => (
-            <motion.div
-              key={i}
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: [0, 1, 1, 0] }}
-              transition={{
-                duration: 5,
-                times: [0, 0.18, 0.9, 1],
-                delay: l.delay,
-                repeat: Infinity,
-                repeatDelay: 1,
-                ease: "easeOut",
-              }}
-              style={{ width: l.w }}
-              className="h-2 sm:h-2.5 rounded-full bg-muted origin-left"
-            />
+            <div key={i} className="relative h-2 sm:h-2.5 rounded-full bg-cyan-950/40 border border-cyan-500/10 overflow-hidden">
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: [0, 1, 1, 0] }}
+                transition={{
+                  duration: 5,
+                  times: [0, 0.18, 0.9, 1],
+                  delay: l.delay,
+                  repeat: Infinity,
+                  repeatDelay: 1,
+                  ease: "easeOut",
+                }}
+                style={{ width: l.w }}
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500 to-pink-500 origin-left shadow-[0_0_8px_rgba(6,182,212,0.5)]"
+              />
+            </div>
           ))}
         </div>
 
-        {/* 3 mini feature cards */}
-        <div className="grid grid-cols-3 gap-2" style={{ transform: "translateZ(45px)" }}>
-          {["language", "captive_portal", "school"].map((ic, i) => (
+        {/* 3 mini cards */}
+        <div className="grid grid-cols-3 gap-2.5" style={{ transform: "translateZ(45px)" }}>
+          {[
+            { icon: "language", label: "WEB" },
+            { icon: "captive_portal", label: "PORTAL" },
+            { icon: "school", label: "EDU" }
+          ].map((item, i) => (
             <motion.div
-              key={ic}
-              animate={{ y: [0, -4, 0] }}
+              key={item.label}
+              animate={{ y: [0, -6, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
-              className="rounded-xl border border-border/50 bg-background/60 backdrop-blur-sm p-2 flex flex-col items-center gap-1"
+              className="rounded-xl border border-cyan-500/20 bg-cyan-950/20 backdrop-blur-md p-2 flex flex-col items-center gap-1 shadow-[0_0_10px_rgba(6,182,212,0.05)]"
             >
-              <span className="material-symbols-outlined text-sm text-foreground">{ic}</span>
-              <span className="h-1 w-3/4 rounded-full bg-muted" />
+              <span className="material-symbols-outlined text-sm text-cyan-400 animate-pulse">{item.icon}</span>
+              <span className="text-[7px] font-mono font-bold text-cyan-300/80 tracking-widest">{item.label}</span>
             </motion.div>
           ))}
         </div>
 
-        {/* CTA bar giả lập với shimmer */}
+        {/* CTA bar */}
         <div
-          className="h-8 rounded-full bg-foreground/90 flex items-center justify-center gap-1.5 relative overflow-hidden"
+          className="h-9 rounded-full bg-gradient-to-r from-cyan-500 to-pink-500 flex items-center justify-center gap-1.5 relative overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.3)] cursor-pointer"
           style={{ transform: "translateZ(30px)" }}
         >
           <motion.span
@@ -318,8 +659,8 @@ function StudioHologram() {
             transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
             className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12"
           />
-          <span className="text-[9px] font-bold text-background uppercase tracking-widest">Let&apos;s build</span>
-          <span className="material-symbols-outlined text-xs text-background">arrow_forward</span>
+          <span className="text-[9px] font-mono font-bold text-slate-950 uppercase tracking-[0.2em]">INITIATE_PROJ</span>
+          <span className="material-symbols-outlined text-xs text-slate-950 animate-bounce">arrow_forward</span>
         </div>
       </div>
     </div>
@@ -453,51 +794,57 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
           </motion.div>
         </motion.div>
 
-        {/* Right: hologram website 3D — sạch sẽ, không chồng đè */}
-        <div className="order-1 lg:order-2 flex items-center justify-center py-4 relative" style={{ perspective: 1400 }}>
+        {/* Right: hologram browser spacer and emitter */}
+        <div className="order-1 lg:order-2 flex items-center justify-center py-4 relative select-none pointer-events-none" style={{ perspective: 1400 }}>
           <motion.div
-            animate={{ y: [-8, 8, -8] }}
+            animate={{ y: [-6, 6, -6] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            style={{ perspective: 1400 }}
+            className="relative w-[270px] sm:w-[330px] lg:w-[390px] h-[340px] sm:h-[420px] flex items-center justify-center"
+            style={{ transformStyle: "preserve-3d" }}
           >
-            <motion.div
-              style={{
-                rotateX: holoRotateX,
-                rotateY: holoRotateY,
-                scale: holoScale,
-                opacity: holoOpacity,
-                y: holoY,
-                transformStyle: "preserve-3d",
-              }}
-              className="relative will-change-transform"
+            {/* Double Orbit Rings (Futuristic Projection) */}
+            <div
+              className="absolute left-1/2 top-1/2 pointer-events-none opacity-60"
+              style={{ transform: "translate(-50%,-50%) rotateX(75deg) rotateY(10deg)", transformStyle: "preserve-3d" }}
             >
-              {/* Orbit ring nhỏ hơn, không chồng */}
-              <div
-                className="absolute left-1/2 top-1/2 pointer-events-none opacity-60"
-                style={{ transform: "translate(-50%,-50%) rotateX(72deg)", transformStyle: "preserve-3d" }}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                className="w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] rounded-full border border-cyan-500/25 relative"
               >
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                  className="w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] rounded-full border border-primary/20 relative"
-                >
-                  <span className="absolute -top-0.5 left-1/2 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
-                </motion.div>
-              </div>
+                <span className="absolute -top-1 left-1/2 w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_12px_#06b6d4]" />
+              </motion.div>
+            </div>
+            <div
+              className="absolute left-1/2 top-1/2 pointer-events-none opacity-50"
+              style={{ transform: "translate(-50%,-50%) rotateX(70deg) rotateY(-15deg)", transformStyle: "preserve-3d" }}
+            >
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                className="w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] rounded-full border border-dashed border-pink-500/20 relative"
+              >
+                <span className="absolute -bottom-1 left-1/3 w-2 h-2 rounded-full bg-pink-400 shadow-[0_0_10px_#ec4899]" />
+              </motion.div>
+            </div>
 
-              {/* Chibi Nice! ló đầu — vị trí rõ ràng */}
-              <Chibi
-                src={STICKER_NICE}
-                delay={0.4}
-                drift={4}
-                className="absolute -top-12 -right-6 sm:-right-8 w-14 sm:w-18 z-20"
-              />
+            {/* Hologram projection cone/emitter at the bottom */}
+            <div 
+              className="absolute left-1/2 -bottom-24 -translate-x-1/2 w-48 h-36 opacity-[0.12] pointer-events-none"
+              style={{
+                background: "linear-gradient(to top, rgba(6, 182, 212, 0.4), transparent)",
+                clipPath: "polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%)",
+              }}
+            />
+            <div className="absolute left-1/2 -bottom-24 -translate-x-1/2 w-16 h-1 bg-cyan-400 shadow-[0_0_12px_#06b6d4] rounded-full opacity-40 blur-[1px] pointer-events-none animate-pulse" />
 
-              <StudioHologram />
-
-              {/* Bóng đổ dưới hologram */}
-              <div className="absolute left-1/2 -bottom-12 -translate-x-1/2 w-52 h-6 rounded-[100%] bg-black/15 dark:bg-black/40 blur-lg pointer-events-none" />
-            </motion.div>
+            {/* Chibi Nice! ló đầu */}
+            <Chibi
+              src={STICKER_NICE}
+              delay={0.4}
+              drift={4}
+              className="absolute -top-12 -right-6 sm:-right-8 w-14 sm:w-18 z-20"
+            />
           </motion.div>
         </div>
       </div>
@@ -529,18 +876,7 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
 
 const VALUE_KEYS = ["v1", "v2", "v3", "v4", "v5"];
 
-// 4 góc khung hologram (corner brackets)
-function HoloBrackets() {
-  const b = "absolute w-4 h-4 border-primary/60 pointer-events-none";
-  return (
-    <>
-      <span className={`${b} top-2 left-2 border-t-2 border-l-2 rounded-tl-md`} />
-      <span className={`${b} top-2 right-2 border-t-2 border-r-2 rounded-tr-md`} />
-      <span className={`${b} bottom-2 left-2 border-b-2 border-l-2 rounded-bl-md`} />
-      <span className={`${b} bottom-2 right-2 border-b-2 border-r-2 rounded-br-md`} />
-    </>
-  );
-}
+
 
 function FounderHologram({ t }) {
   const { rx, ry, handlers } = useTilt(8);
@@ -699,20 +1035,17 @@ function ScenePartners({ container, bind, t }) {
           </motion.div>
         </motion.div>
 
-        {/* Founder hologram + Jason mini */}
+        {/* Founder hologram space + Jason mini */}
         <div className="flex flex-col items-center gap-3 order-1 lg:order-2" style={{ perspective: 1200 }}>
           <motion.div
-            style={{ rotateY: cardRotY, x: cardX, opacity: cardOpacity, transformStyle: "preserve-3d" }}
-            className="relative will-change-transform"
+            style={{ x: cardX, opacity: cardOpacity, transformStyle: "preserve-3d" }}
+            className="relative w-[80vw] max-w-[300px] sm:max-w-[340px] h-[340px] sm:h-[400px] flex items-center justify-center pointer-events-none"
           >
             {/* Blob hoạt hình sau lưng */}
-            <div className="absolute -inset-6 bg-primary/15 blur-2xl animate-blobMorph pointer-events-none" />
+            <div className="absolute -inset-6 bg-primary/10 blur-2xl animate-blobMorph pointer-events-none" />
             {/* Nhân vật chibi vệ tinh quanh card */}
             <Chibi src={STICKER_HELLO} tilt={6} className="absolute -left-10 sm:-left-14 top-6 w-16 sm:w-20 z-10" />
             <Chibi src={STICKER_WOW} delay={0.6} tilt={5} className="absolute -right-10 sm:-right-14 bottom-16 w-16 sm:w-20 z-10" />
-            <motion.div animate={{ y: [-6, 6, -6] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} style={{ perspective: 900 }}>
-              <FounderHologram t={t} />
-            </motion.div>
           </motion.div>
           <motion.div style={{ opacity: miniOpacity, y: miniY }} className="will-change-transform">
             <PartnerMini t={t} />
@@ -758,48 +1091,15 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-12 items-center relative z-10">
-        {/* Portrait — 3D tilt theo scroll + con trỏ, các lớp nổi translateZ */}
-        <div className="lg:col-span-5 flex justify-center relative" style={{ perspective: 1200 }}>
+        {/* Portrait space — 3D tilt theo scroll + con trỏ */}
+        <div className="lg:col-span-5 flex justify-center relative pointer-events-none" style={{ perspective: 1200 }}>
           {/* Chibi Yummy! ghé chơi góc chân dung */}
           <Chibi src={STICKER_YUMMY} delay={0.7} drift={6} tilt={5} className="absolute -bottom-6 left-[6%] w-16 sm:w-24 z-20" />
           <motion.div
-            style={{
-              rotateY: portraitRotY,
-              rotateX: portraitRotX,
-              opacity: portraitOpacity,
-              transformStyle: "preserve-3d",
-            }}
-            className="relative will-change-transform"
+            style={{ opacity: portraitOpacity }}
+            className="relative w-[210px] sm:w-[270px] lg:w-[320px] h-[300px] sm:h-[400px] flex items-center justify-center"
           >
-            <div className="absolute -inset-4 bg-primary/20 blur-2xl animate-blobMorph" style={{ transform: "translateZ(-60px)" }} />
-            <div
-              className="relative w-[200px] sm:w-[280px] lg:w-[340px] rounded-[2rem] bg-white/60 dark:bg-black/60 backdrop-blur-2xl border border-white/80 dark:border-white/20 p-3 sm:p-4 shadow-2xl overflow-hidden"
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <HoloBrackets />
-              <div className="aspect-[4/5] rounded-xl overflow-hidden bg-muted relative shadow-inner" style={{ transform: "translateZ(30px)" }}>
-                <img loading="lazy" src={realPhoto} alt={fullName} className="w-full h-full object-cover" />
-                <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-primary/15 to-transparent animate-scan pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-tr from-warning/10 via-transparent to-primary/10 mix-blend-overlay pointer-events-none" />
-              </div>
-              <div className="pt-3 pb-1 text-center space-y-1" style={{ transform: "translateZ(45px)" }}>
-                <span className="font-display text-sm sm:text-base font-black text-foreground">{fullName}</span>
-                <p className="text-[8px] sm:text-[9px] text-primary font-bold uppercase tracking-[0.2em]">
-                  {t("intro.partners.finalYear")}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-1.5 pt-1" style={{ transform: "translateZ(35px)" }}>
-                {[
-                  { icon: "cake", text: "2004" },
-                  { icon: "school", text: "Greenwich VN" },
-                ].map((r) => (
-                  <div key={r.icon} className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl bg-muted/60">
-                    <span className="material-symbols-outlined text-xs text-foreground">{r.icon}</span>
-                    <span className="text-[8px] sm:text-[9px] font-bold text-foreground/90">{r.text}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <div className="absolute -inset-4 bg-primary/15 blur-2xl animate-blobMorph" />
           </motion.div>
         </div>
 
@@ -815,9 +1115,7 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
               </span>
             </h2>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
-              {fullName} — sinh năm 2004, sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam, nhà sáng
-              lập Hugo Studio. Tôi tin mỗi sản phẩm số đều nên đẹp, ấm áp và dễ dùng — đó là điều tôi từng ngày xây
-              dựng, và tôi sẵn sàng cho những cơ hội nghề nghiệp đầu tiên của mình.
+              {t("intro.about.desc")}
             </p>
           </Chapter>
 
@@ -959,81 +1257,11 @@ function SceneBio({ container, bind, t }) {
           </motion.div>
 
           {/* 3D flip student card (ẩn trên mobile — quyền lợi đã có lưới chi tiết) */}
-          <div className="md:col-span-5 hidden md:flex justify-center relative" style={{ perspective: 1300 }}>
-            {/* Chibi hỗ trợ đứng cạnh thẻ như nhân viên tư vấn */}
+          {/* 3D student card space (hidden on mobile) */}
+          <div className="md:col-span-5 hidden md:flex justify-center relative pointer-events-none" style={{ perspective: 1300 }}>
+            {/* Chibi hỗ trợ đứng cạnh thẻ */}
             <Chibi src={STICKER_SUPPORT} delay={0.5} drift={6} tilt={3} className="absolute -right-4 -bottom-14 w-24 lg:w-28 z-20" />
-            <motion.div
-              style={{ rotateY: cardRotY, scale: cardScale, opacity: cardOpacity, transformStyle: "preserve-3d" }}
-              className="relative w-full max-w-[300px] sm:max-w-[340px] h-[210px] sm:h-[240px] will-change-transform"
-            >
-              {/* FRONT — thẻ sinh viên */}
-              <div className={cardFace}>
-                {/* Glare quét ngang khi thẻ lật */}
-                <motion.div
-                  style={{ x: glareX }}
-                  className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent -skew-x-12 pointer-events-none"
-                />
-                <div className="flex justify-between items-start border-b border-border/50 pb-3">
-                  <div>
-                    <span className="text-[8px] font-bold text-primary uppercase tracking-widest block">
-                      {t("intro.slide5.idTitle")}
-                    </span>
-                    <span className="font-display text-sm font-black text-foreground">{t("intro.slide5.idName")}</span>
-                  </div>
-                  <div className="w-9 h-7 rounded-md bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 shadow border border-yellow-600/30 flex items-center justify-center overflow-hidden">
-                    <div className="grid grid-cols-3 gap-0.5 w-[80%] h-[80%] opacity-40">
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-                        <div key={i} className="border border-yellow-800/40" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="py-4 space-y-2.5 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-[9px] text-muted-foreground uppercase font-bold">{t("intro.slide5.idEmailTitle")}</span>
-                    <span className="font-mono font-bold text-foreground text-[11px]">name@school.edu.vn</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[9px] text-muted-foreground uppercase font-bold">{t("intro.slide5.idBenefitTitle")}</span>
-                    <span className="font-bold text-primary text-[11px]">{t("intro.slide5.idBenefitDesc")}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[9px] text-muted-foreground uppercase font-bold">{t("intro.slide5.idValidityTitle")}</span>
-                    <span className="font-bold text-muted-foreground text-[11px]">{t("intro.slide5.idValidityDesc")}</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center border-t border-border/50 pt-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    <span className="text-[8px] font-bold text-muted-foreground">{t("intro.slide5.idAuth")}</span>
-                  </div>
-                  <span className="text-[8px] font-mono text-muted-foreground">ID: 2004-EDU-VALID</span>
-                </div>
-              </div>
-
-              {/* BACK — quyền lợi */}
-              <div className={cardFace} style={{ transform: "rotateY(180deg)" }}>
-                <span className="text-[8px] font-bold text-primary uppercase tracking-widest block pb-2 border-b border-border/50">
-                  {t("intro.slide5.idBenefitTitle")}
-                </span>
-                <div className="pt-4 space-y-3">
-                  {["check1", "check2", "check3"].map((k) => (
-                    <div key={k} className="flex items-start gap-2.5 text-left">
-                      <span className="material-symbols-outlined text-sm text-foreground bg-muted rounded-full p-1">
-                        verified_user
-                      </span>
-                      <span className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed">
-                        {t(`intro.slide5.${k}`)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <div className="absolute bottom-4 left-5 right-5 flex justify-between items-center border-t border-border/50 pt-3">
-                  <span className="text-[8px] font-mono text-muted-foreground">HUGO·STUDIO·EDU</span>
-                  <span className="material-symbols-outlined text-sm text-foreground">workspace_premium</span>
-                </div>
-              </div>
-            </motion.div>
+            <div className="relative w-full max-w-[300px] sm:max-w-[340px] h-[210px] sm:h-[240px]" />
           </div>
         </div>
 
@@ -1090,6 +1318,182 @@ function SceneBio({ container, bind, t }) {
 }
 
 /* ---------------------------------------------------------------------------
+   SCENE 4.5 — VŨ TRỤ TIỆN ÍCH (Orbiting utility planets + interactive cards)
+   ------------------------------------------------------------------------- */
+
+function SceneDiscoveries({ container, bind, t, reduced }) {
+  const { targetRef, p } = useSceneScroll(container);
+  const mouse = useMouseParallax(!reduced);
+
+  // Smooth scroll animations
+  const textOpacity = useTransform(p, [0.03, 0.22], [0, 1]);
+  const textY = useTransform(p, [0.03, 0.22], [60, 0]);
+
+  const orbitOpacity = useTransform(p, [0.12, 0.32], [0, 1]);
+  const orbitScale = useTransform(p, [0.12, 0.42], [0.8, 1]);
+  const orbitRotate = useTransform(p, [0.12, 1], [0, 60]);
+
+  const mouseXParallax = useTransform(mouse.x, (v) => v * 12);
+  const mouseYParallax = useTransform(mouse.y, (v) => v * 12);
+
+  const discoveryItems = [
+    { id: "aura", name: t("intro.discoveries.auraTitle"), icon: "lens_blur", path: "/aura", desc: t("intro.discoveries.auraDesc"), color: "rgba(168,85,247,0.3)" },
+    { id: "therapy", name: t("intro.discoveries.psyTitle"), icon: "psychology", path: "/therapy", desc: t("intro.discoveries.psyDesc"), color: "rgba(236,72,153,0.3)" },
+    { id: "banhocduong", name: t("intro.discoveries.hocduongTitle"), icon: "school", path: "/banhocduong", desc: t("intro.discoveries.hocduongDesc"), color: "rgba(59,130,246,0.3)" },
+    { id: "radio", name: t("intro.discoveries.radioTitle"), icon: "radio", path: "/radio", desc: t("intro.discoveries.radioDesc"), color: "rgba(234,179,8,0.3)" },
+    { id: "ide", name: t("intro.discoveries.ideTitle"), icon: "terminal", path: "/member/utilities/ide", desc: t("intro.discoveries.ideDesc"), color: "rgba(6,182,212,0.3)" },
+    { id: "arcade", name: t("intro.discoveries.arcadeTitle"), icon: "sports_esports", path: "/arcade", desc: t("intro.discoveries.arcadeDesc"), color: "rgba(16,185,129,0.3)" },
+    { id: "joy", name: t("intro.discoveries.joyTitle"), icon: "wallet", path: "/joy", desc: t("intro.discoveries.joyDesc"), color: "rgba(99,102,241,0.3)" },
+    { id: "bio", name: t("intro.discoveries.bioTitle"), icon: "id_card", path: "/login", desc: t("intro.discoveries.bioDesc"), color: "rgba(239,68,68,0.3)" },
+  ];
+
+  const [activeItem, setActiveItem] = useState(null);
+
+  // Prevent icons from rotating by counter-rotating them
+  const counterRotate = useTransform(orbitRotate, (r) => -r);
+
+  return (
+    <SceneShell bind={bind} targetRef={targetRef} height="220vh">
+      <div className="absolute right-[4%] top-[8%] text-[5rem] sm:text-[8rem] xl:text-[11rem] font-black text-foreground/[0.02] dark:text-foreground/[0.01] pointer-events-none select-none tracking-tighter leading-none">
+        DISCOVER
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        {/* Left column: Text details */}
+        <motion.div
+          style={{ opacity: textOpacity, y: textY }}
+          className="lg:col-span-5 space-y-4 sm:space-y-6 text-center lg:text-left order-2 lg:order-1"
+        >
+          <Badge>{t("intro.discoveries.badge")}</Badge>
+
+          <div className="h-[280px] sm:h-[300px] flex flex-col justify-center lg:justify-start">
+            {activeItem ? (
+              <motion.div
+                key={activeItem.id}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-3 sm:space-y-4"
+              >
+                <div className="flex items-center gap-3 justify-center lg:justify-start">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white"
+                    style={{ backgroundColor: activeItem.color.replace("0.3", "0.85") }}
+                  >
+                    <span className="material-symbols-outlined text-2xl">{activeItem.icon}</span>
+                  </div>
+                  <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground">
+                    {activeItem.name}
+                  </h3>
+                </div>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  {activeItem.desc}
+                </p>
+                <div className="pt-2">
+                  <Magnetic className="inline-block">
+                    <Link
+                      to={activeItem.path}
+                      className="group relative overflow-hidden px-6 py-2.5 rounded-full bg-foreground text-background font-bold text-xs shadow-md inline-flex items-center gap-2"
+                    >
+                      <Shine />
+                      <span>{t("intro.studio.explore")}</span>
+                      <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">
+                        arrow_forward
+                      </span>
+                    </Link>
+                  </Magnetic>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="space-y-3 sm:space-y-4">
+                <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
+                  {t("intro.discoveries.title1")}<br />
+                  <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
+                    {t("intro.discoveries.title2")}
+                  </span>
+                </h2>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  {t("intro.discoveries.desc")}
+                </p>
+                <p className="text-xs text-primary font-bold uppercase tracking-wider animate-pulse hidden lg:block">
+                  ✦ Rê chuột qua các hạt hành tinh để khám phá vũ trụ số
+                </p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Right column: Orbiting planets */}
+        <div className="lg:col-span-7 flex justify-center items-center h-[340px] sm:h-[440px] relative order-1 lg:order-2">
+          <motion.div
+            style={{
+              opacity: orbitOpacity,
+              scale: orbitScale,
+              rotateZ: orbitRotate,
+              x: mouseXParallax,
+              y: mouseYParallax,
+              transformStyle: "preserve-3d",
+            }}
+            className="w-[280px] h-[280px] sm:w-[380px] sm:h-[380px] rounded-full border border-dashed border-border/30 relative flex items-center justify-center"
+          >
+            {/* Core Logo Node placeholder (rendered by HologramMaster) */}
+            <div className="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full z-20 pointer-events-none" />
+
+            {/* Orbit paths */}
+            <div className="absolute w-[200px] h-[200px] rounded-full border border-dotted border-border/20 pointer-events-none" />
+
+            {/* Orbiting items */}
+            {discoveryItems.map((item, idx) => {
+              const angle = (idx * 360) / discoveryItems.length;
+              const angleRad = (angle * Math.PI) / 180;
+              const radius = typeof window !== "undefined" && window.innerWidth >= 640 ? 170 : 125;
+              const x = Math.cos(angleRad) * radius;
+              const y = Math.sin(angleRad) * radius;
+
+              const isCurrent = activeItem?.id === item.id;
+
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    position: "absolute",
+                    left: `calc(50% + ${x}px - 22px)`,
+                    top: `calc(50% + ${y}px - 22px)`,
+                    transformStyle: "preserve-3d",
+                  }}
+                  className="z-30 pointer-events-auto"
+                >
+                  <motion.button
+                    onMouseEnter={() => {
+                      buzz(4);
+                      setActiveItem(item);
+                    }}
+                    onClick={() => {
+                      buzz(8);
+                      setActiveItem(item);
+                    }}
+                    whileHover={{ scale: 1.22 }}
+                    style={{
+                      rotate: counterRotate,
+                      backgroundColor: isCurrent ? item.color.replace("0.3", "0.4") : "rgba(255,255,255,0.06)",
+                      borderColor: isCurrent ? item.color.replace("0.3", "0.8") : "rgba(255,255,255,0.1)",
+                      boxShadow: isCurrent ? `0 0 25px ${item.color.replace("0.3", "0.8")}` : "none",
+                    }}
+                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-foreground transition-all duration-300 backdrop-blur-md cursor-pointer focus:outline-none"
+                  >
+                    <span className="material-symbols-outlined text-base sm:text-lg">{item.icon}</span>
+                  </motion.button>
+                </div>
+              );
+            })}
+          </motion.div>
+        </div>
+      </div>
+    </SceneShell>
+  );
+}
+
+/* ---------------------------------------------------------------------------
    SCENE 5 — LIÊN LẠC NHANH + CTA (tiles bay vào từ chiều sâu 3D + magnetic)
    ------------------------------------------------------------------------- */
 
@@ -1117,21 +1521,29 @@ function ContactTile({ p, start, href, icon, label }) {
   );
 }
 
-function SceneTransition({ container, bind, t }) {
+function SceneTransition({ container, bind, setIsTransitioning }) {
   const { targetRef, p } = useSceneScroll(container);
   const navigate = useNavigate();
 
-  // Trigger transition to services at 70% scroll
+  // Listen to the scroll progress of this transition scene reactively
   useEffect(() => {
-    if (p.current > 0.7) {
-      const timer = setTimeout(() => navigate("/services"), 800);
-      return () => clearTimeout(timer);
-    }
-  }, [p, navigate]);
+    let triggered = false;
+    const unsubscribe = p.on("change", (value) => {
+      if (value > 0.9 && !triggered) {
+        triggered = true;
+        setIsTransitioning(true);
+        setTimeout(() => {
+          navigate("/services");
+        }, 550);
+      }
+    });
+    return () => unsubscribe();
+  }, [p, navigate, setIsTransitioning]);
 
-  const opacity = useTransform(p, [0, 0.5, 1], [0, 0.5, 1]);
-  const scale = useTransform(p, [0, 0.6, 1], [0.8, 0.9, 1]);
-  const blurValue = useTransform(p, [0, 0.5, 1], [20, 10, 0]);
+  const opacity = useTransform(p, [0, 0.3, 0.7, 0.9], [0, 1, 1, 0]);
+  const scale = useTransform(p, [0, 0.3, 0.7, 0.9], [0.95, 1, 1, 1.15]);
+  const blurVal = useTransform(p, [0, 0.3, 0.7, 0.9], [20, 0, 0, 15]);
+  const blurValue = useMotionTemplate`blur(${blurVal}px)`;
 
   return (
     <SceneShell bind={bind} targetRef={targetRef} height="140vh">
@@ -1139,7 +1551,7 @@ function SceneTransition({ container, bind, t }) {
         style={{
           opacity,
           scale,
-          filter: blurValue.get ? blurValue : "blur(20px)",
+          filter: blurValue,
         }}
         className="w-full h-full flex flex-col items-center justify-center space-y-8 px-4"
       >
@@ -1276,15 +1688,8 @@ const NAV_KEYS = [
   "intro.nav.partners",
   "intro.nav.about",
   "intro.nav.bioEdu",
+  "intro.nav.discoveries",
   "intro.nav.contacts",
-];
-
-const BG_GLOWS = [
-  "from-primary/10 to-accent/10", // 0 Studio
-  "from-accent/10 to-primary/10", // 1 Partners
-  "from-warning/10 to-warning/10", // 2 About
-  "from-info/10 to-primary/10", // 3 Bio Edu
-  "from-primary/10 to-success/10", // 4 Contacts
 ];
 
 export default function IntroductionPage() {
@@ -1295,7 +1700,16 @@ export default function IntroductionPage() {
   const lenisRef = useRef(null);
   const sceneEls = useRef([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const reduced = useReducedMotion();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useHeadMeta({
     title: "Hugo Studio — Portfolio & Dịch Vụ Thiết Kế Web Sinh Viên",
@@ -1340,9 +1754,11 @@ export default function IntroductionPage() {
     sceneEls.current.forEach((scene, i) => {
       if (scene && scene.offsetTop <= mid) idx = i;
     });
+    // Cap activeIndex for visual nav-highlight to index 5
+    const displayIdx = Math.min(idx, 5);
     setActiveIndex((prev) => {
-      if (prev !== idx) buzz(5);
-      return idx;
+      if (prev !== displayIdx) buzz(5);
+      return displayIdx;
     });
   };
 
@@ -1400,6 +1816,22 @@ export default function IntroductionPage() {
           66% { border-radius: 52% 48% 42% 58% / 44% 56% 48% 52%; }
         }
         .animate-blobMorph { animation: blobMorph 9s ease-in-out infinite; }
+        @keyframes shoot {
+          0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0); opacity: 0; }
+          1% { opacity: 1; scale: 1; }
+          20% { transform: translateX(-300px) translateY(300px) rotate(-45deg) scale(1); opacity: 0; }
+          100% { transform: translateX(-300px) translateY(300px) rotate(-45deg) scale(0); opacity: 0; }
+        }
+        .shooting-star {
+          position: absolute;
+          width: 120px;
+          height: 2px;
+          background: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0));
+          transform: rotate(-45deg);
+          opacity: 0;
+          animation: shoot 12s linear infinite;
+          pointer-events: none;
+        }
       `}</style>
 
       {/* Overall scroll progress bar */}
@@ -1434,17 +1866,21 @@ export default function IntroductionPage() {
         ))}
       </div>
 
-      {/* Dynamic background glows */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div
-          className={`absolute top-[-10%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-tr ${BG_GLOWS[activeIndex]} blur-[150px] transition-all duration-1000 ease-in-out`}
-        />
-        <div
-          className={`absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr ${BG_GLOWS[(activeIndex + 1) % BG_GLOWS.length]} blur-[170px] transition-all duration-1000 ease-in-out`}
-        />
-      </div>
+      {/* Starry Universe & Dynamic Nebulae Background */}
+      <StarryUniverse activeIndex={activeIndex} reduced={reduced} />
 
-      {/* Film-grain overlay — chất điện ảnh, gần như vô hình nhưng đổi hẳn cảm giác */}
+      {/* Floating Hologram Master (Linked thread across scenes) */}
+      <HologramMaster
+        activeIndex={activeIndex}
+        realPhoto={realPhoto}
+        fullName={data.profile.fullName}
+        t={t}
+        scrollProgress={scrollYProgress}
+        isMobile={isMobile}
+        reduced={reduced}
+      />
+
+      {/* Film-grain overlay */}
       <div
         aria-hidden
         style={{ backgroundImage: NOISE_BG }}
@@ -1462,10 +1898,30 @@ export default function IntroductionPage() {
           <ScenePartners container={containerRef} bind={bindScene(1)} t={t} />
           <SceneAbout container={containerRef} bind={bindScene(2)} t={t} realPhoto={realPhoto} fullName={data.profile.fullName} reduced={reduced} />
           <SceneBio container={containerRef} bind={bindScene(3)} t={t} />
-          <SceneContact container={containerRef} bind={bindScene(4)} t={t} profile={data.profile} />
-          <SceneTransition container={containerRef} bind={bindScene(5)} t={t} />
+          <SceneDiscoveries container={containerRef} bind={bindScene(4)} t={t} reduced={reduced} />
+          <SceneContact container={containerRef} bind={bindScene(5)} t={t} profile={data.profile} />
+          <SceneTransition container={containerRef} bind={bindScene(6)} t={t} setIsTransitioning={setIsTransitioning} />
         </div>
       </div>
+
+      {/* Cinematic Portal Transition Wormhole Overlay */}
+      <AnimatePresence>
+        {isTransitioning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="fixed inset-0 bg-[#04050f] z-[100] flex items-center justify-center pointer-events-auto"
+          >
+            <motion.div
+              animate={{ rotate: 360, scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 rounded-full border-2 border-t-cyan-500 border-r-transparent border-b-pink-500 border-l-transparent"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

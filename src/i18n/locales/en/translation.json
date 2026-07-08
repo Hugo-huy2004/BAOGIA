@@ -90,7 +90,11 @@
       "start": "Get Started",
       "studio": "Hugo Studio",
       "partners": "The Founder",
-      "about": "About Me"
+      "about": "About Me",
+      "discoveries": "Discoveries"
+    },
+    "about": {
+      "desc": "I am Hugo — a dreamer who codes. Born in 2004 and growing up in a cold digital world of logic, I always strive to create warm, poetic, and emotional spaces. To me, every digital product is a small planet where every detail and button is carefully crafted to warm the hearts of my companions."
     },
     "slide1": {
       "badge": "✦ Creative Developer Portal",
@@ -233,6 +237,28 @@
       "v3": "Creative",
       "v4": "Friendly",
       "v5": "Supportive"
+    },
+    "discoveries": {
+      "badge": "✦ Utilities Ecosystem",
+      "title1": "Utility Planets",
+      "title2": "Your personal digital discoveries.",
+      "desc": "I hand-built these unique utilities spanning artificial intelligence, music, and emotional healing — all fully integrated, free, and crafted just for you.",
+      "auraTitle": "Aura AI",
+      "auraDesc": "A bright speck in the void. A gentle AI companion that helps you concentrate on studying and sparks creative inspiration between lines of code.",
+      "psyTitle": "Hugo PSY",
+      "psyDesc": "Unburden your mind. When late night falls and the outside world is too loud, Hugo PSY is your listening friend for your deepest secrets.",
+      "hocduongTitle": "Bạn Học Đường",
+      "hocduongDesc": "A haven for dreamers. A shared space for students to study, exchange documents, and connect like-minded learners.",
+      "radioTitle": "Hugo Radio",
+      "radioDesc": "Melodies drifting through the galaxy. A soothing lofi radio station accompanying you through long nights of dedication.",
+      "ideTitle": "Web IDE",
+      "ideDesc": "The star forge. A portable workspace where you can write code and compile your initial ideas directly from your mobile browser.",
+      "arcadeTitle": "Hugo Arcade",
+      "arcadeDesc": "A gaming oasis between stars. Retro arcade games and multiplayer chess to relax your mind after stressful study sessions.",
+      "joyTitle": "Joy PWA",
+      "joyDesc": "The cosmos' energy node. A place to store value, accumulate Joy rewards, and bind all utilities in the ecosystem.",
+      "bioTitle": "Signature Bio",
+      "bioDesc": "Your personal mark in the galaxy. A unique page reflecting your true artistic self and intelligence."
     }
   },
   "servicesPage": {
