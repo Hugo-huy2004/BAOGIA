@@ -200,7 +200,7 @@ export default function HugoTeamTab() {
               className="space-y-4"
             >
               <h1 className="text-5xl md:text-7xl font-black tracking-tight">
-                <span className="bg-gradient-to-r from-primary via-accent via-warning to-primary bg-clip-text text-transparent bg-300% animate-gradientShift">
+                <span className="bg-gradient-to-r from-primary via-accent via-warning to-primary bg-clip-text text-transparent" style={{ backgroundSize: "300% 100%", animation: "gradientShift 4s ease infinite" }}>
                   Hugo Team
                 </span>
               </h1>

@@ -161,6 +161,12 @@ export default {
           "60%": { transform: "translateX(-4px)" },
           "80%": { transform: "translateX(4px)" },
         },
+        // Gradient shift (for animated gradients)
+        "gradientShift": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
       },
 
       animation: {
@@ -181,6 +187,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up":   "accordion-up 0.2s ease-out",
         "eq-bar":         "eq-bar 0.9s ease-in-out infinite",
+        "gradientShift":  "gradientShift 4s ease infinite",
       },
 
       backgroundImage: {
