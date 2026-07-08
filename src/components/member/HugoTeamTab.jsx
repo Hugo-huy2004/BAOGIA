@@ -7,33 +7,33 @@ import { getMemberSession } from "../../services/authSession";
 const BENEFITS = [
   {
     icon: "school",
-    title: "Học từ dự án thật, không phải bài tập",
-    desc: "Bạn đồng hành trực tiếp cùng hệ thống đang chạy thật với người dùng thật: React, Node.js, MongoDB, AI, PWA, thanh toán trực tuyến. Mỗi dòng code bạn viết đều được deploy và có người sử dụng — thứ mà không giáo trình nào dạy được.",
+    title: "Code của bạn có người dùng thật",
+    desc: "Không phải bài tập chấm xong rồi bỏ: bạn đồng hành trực tiếp cùng hệ thống đang phục vụ người dùng thật mỗi ngày — React, Node.js, MongoDB, AI, PWA, thanh toán trực tuyến. Cảm giác feature mình xây được hàng trăm người bấm vào là thứ không giáo trình nào cho được.",
   },
   {
     icon: "co_present",
-    title: "Mentor 1:1 trong suốt quá trình",
-    desc: "Hugo trực tiếp review từng pull request, giải thích vì sao code nên viết thế này thay vì thế kia. Bạn không bị bỏ rơi với một task khó — luôn có người đồng hành gỡ rối, từ bug đầu tiên đến feature hoàn chỉnh đầu tiên.",
+    title: "Không bao giờ bị bỏ lại một mình",
+    desc: "Hugo trực tiếp review từng pull request và giải thích vì sao nên viết thế này thay vì thế kia — mỗi lần review là một buổi học riêng. Kẹt bug lúc nửa đêm? Nhắn. Không hiểu kiến trúc? Hỏi. Ở HugoTeam, câu hỏi ngớ ngẩn nhất là câu hỏi không được hỏi ra.",
   },
   {
     icon: "work_history",
-    title: "Portfolio & kinh nghiệm thực chiến",
-    desc: "Sau vài tháng, CV của bạn có: dự án production thật để demo, lịch sử commit công khai, và kinh nghiệm đồng hành dự án theo quy trình chuyên nghiệp (Git flow, code review, testing). Đây là lợi thế lớn khi phỏng vấn thực tập hoặc vị trí đầu tiên trong nghề.",
+    title: "CV có chuyện thật để kể",
+    desc: "Sau vài tháng, khi nhà tuyển dụng hỏi \"em đã xây gì?\", bạn không phải kể về đồ án môn học: bạn mở sản phẩm production đang chạy, chỉ vào feature mình xây, kèm lịch sử commit công khai và quy trình chuyên nghiệp (Git flow, code review, testing) mà bạn đã sống trong đó.",
   },
   {
     icon: "workspace_premium",
-    title: "Thư giới thiệu & xác nhận đóng góp",
-    desc: "Hoàn thành tốt giai đoạn cộng tác, bạn nhận thư giới thiệu chi tiết về những gì bạn đã xây dựng — có số liệu, có sản phẩm cụ thể — do Hugo Studio xác nhận, dùng được cho hồ sơ xin việc, học bổng hoặc du học.",
+    title: "Đóng góp được xác nhận bằng văn bản",
+    desc: "Hoàn thành tốt giai đoạn cộng tác, bạn nhận thư giới thiệu chi tiết do Hugo Studio xác nhận — có số liệu, có sản phẩm cụ thể, không phải lời khen chung chung. Dùng được ngay cho hồ sơ thực tập, học bổng hoặc du học.",
   },
   {
     icon: "schedule",
-    title: "Linh hoạt tuyệt đối theo lịch học",
-    desc: "Đồng hành remote 100%, tự chọn khung giờ tham gia, 5–10 giờ/tuần. Mùa thi được nghỉ hẳn không cần xin phép. Nguyên tắc của Hugo Studio: việc học của bạn luôn đứng trước dự án — không deadline gắt, không áp lực OT.",
+    title: "Việc học của bạn luôn đứng trước",
+    desc: "Remote 100%, tự chọn khung giờ, 5–10 giờ/tuần. Mùa thi nghỉ hẳn — không cần xin phép, không ai hỏi. Đây là nguyên tắc chứ không phải ưu đãi: HugoTeam tồn tại để bồi đắp việc học của bạn, không phải cạnh tranh với nó.",
   },
   {
     icon: "diversity_3",
-    title: "Cộng đồng dev sinh viên cùng chí hướng",
-    desc: "Gặp gỡ những bạn sinh viên CNTT khác cùng đồng hành, cùng học. Trao đổi kỹ thuật, chia sẻ tài liệu, giúp nhau debug — một network nhỏ nhưng chất lượng sẽ theo bạn dài lâu sau khi ra trường.",
+    title: "Network nhỏ nhưng đi theo bạn cả sự nghiệp",
+    desc: "Những người giỏi lên cùng nhau. Bạn gặp các sinh viên CNTT cùng chí hướng: trao đổi kỹ thuật, chia sẻ tài liệu, giúp nhau debug — và vài năm nữa, đó là những đồng nghiệp, người giới thiệu việc, co-founder tiềm năng của bạn.",
   },
 ];
 
@@ -41,11 +41,12 @@ export default function HugoTeamTab({ onBack }) {
   const [developers, setDevelopers] = useState([]);
   const [cvFile, setCvFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userStatus, setUserStatus] = useState(null);
+  const [me, setMe] = useState(null); // GET /me payload — status + dashboard data
+  const userStatus = me?.status ?? null;
 
   useEffect(() => {
     loadDevelopers();
-    checkUserStatus();
+    loadMe();
   }, []);
 
   const loadDevelopers = async () => {
@@ -60,18 +61,14 @@ export default function HugoTeamTab({ onBack }) {
     }
   };
 
-  const checkUserStatus = async () => {
+  const loadMe = async () => {
     try {
       const session = await getMemberSession();
-      if (session?.email) {
-        const res = await fetch(`/api/hugoteam/status/${session.email}`);
-        if (res.ok) {
-          const data = await res.json();
-          setUserStatus(data.status);
-        }
-      }
+      if (!session?.email) return;
+      const res = await fetch("/api/hugoteam/me");
+      if (res.ok) setMe(await res.json());
     } catch (error) {
-      console.error("Failed to check user status:", error);
+      console.error("Failed to load hugoteam profile:", error);
     }
   };
 
@@ -119,7 +116,7 @@ export default function HugoTeamTab({ onBack }) {
       if (res.ok) {
         notify.success("Đơn đăng ký của bạn đã được gửi! Admin sẽ xem xét sớm.");
         setCvFile(null);
-        setUserStatus("pending");
+        setMe((m) => ({ ...(m || {}), status: "pending" }));
       } else {
         notify.error(data.error || "Lỗi khi gửi đơn");
       }
@@ -130,6 +127,16 @@ export default function HugoTeamTab({ onBack }) {
       setIsSubmitting(false);
     }
   };
+
+  // Dev đã được duyệt → HugoTeam trở thành workspace: task, giờ đồng hành, trao đổi.
+  if (userStatus === "approved") {
+    return (
+      <div className="animate-fadeIn max-w-4xl mx-auto bg-white dark:bg-background rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 space-y-6">
+        <SubUtilityHeader title="Hugo Team" icon="groups" colorClass="text-primary" onBack={onBack} />
+        <DevWorkspace me={me} reload={loadMe} />
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fadeIn max-w-4xl mx-auto bg-white dark:bg-background rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 space-y-6">
@@ -143,8 +150,14 @@ export default function HugoTeamTab({ onBack }) {
         </div>
         <h1 className="text-2xl font-black text-foreground">Đồng Hành Dự Án Cộng Đồng</h1>
         <p className="text-base text-muted-foreground max-w-2xl">
-          Tôi đang tìm các bạn sinh viên nam/nữ năm 2-3 ngành CNTT để cùng phát triển Hugo Studio.
-          Đây là cơ hội vừa học vừa đồng hành dự án cộng đồng, hoàn toàn miễn phí, phi lợi nhuận nhưng bạn sẽ xây dựng được portfolio thực tế.
+          Bạn học CNTT năm 2–3, code đã kha khá — nhưng CV vẫn trống mục "dự án thực tế"?
+          Bài tập trên trường không có người dùng thật, còn đi thực tập thì nơi nào cũng đòi kinh nghiệm.
+        </p>
+        <p className="text-base text-muted-foreground max-w-2xl">
+          HugoTeam mở lối ra khỏi vòng luẩn quẩn đó: bạn đồng hành cùng một sản phẩm đang chạy thật,
+          phục vụ cộng đồng học sinh sinh viên thật — có mentor kèm 1:1, có lộ trình, và mọi đóng góp
+          của bạn đều được ghi nhận bằng sản phẩm cụ thể. Phi lợi nhuận, không ràng buộc, chỉ cần
+          5–10 giờ mỗi tuần theo lịch của chính bạn.
         </p>
       </div>
 
@@ -152,9 +165,10 @@ export default function HugoTeamTab({ onBack }) {
       <div className="border-t border-border pt-8">
         <h2 className="text-lg font-bold text-foreground mb-2">Lợi Ích Khi Tham Gia HugoTeam</h2>
         <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
-          HugoTeam là dự án phi lợi nhuận — không ai trả lương ai, nhưng cả hai bên cùng có lợi:
-          bạn nhận kiến thức, kinh nghiệm và sự đồng hành thật; Hugo Studio có thêm những người
-          bạn cùng xây sản phẩm phục vụ cộng đồng học sinh sinh viên.
+          Thỏa thuận của HugoTeam rất sòng phẳng: không ai trả lương ai — bạn góp thời gian và
+          nhiệt huyết, Hugo Studio góp kinh nghiệm, sản phẩm thật và sự đồng hành tận tâm.
+          Cả hai cùng xây một thứ lớn hơn chính mình: sản phẩm phục vụ cộng đồng học sinh sinh viên.
+          Đây là những gì bạn mang về:
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {BENEFITS.map((b) => (
@@ -208,16 +222,16 @@ export default function HugoTeamTab({ onBack }) {
             <h2 className="text-lg font-bold text-foreground">Mốc 500 Giờ — Món Quà Tri Ân Đặc Biệt</h2>
           </div>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Với những thành viên đạt <span className="font-semibold text-foreground">500 giờ đồng hành</span> cùng
-            Hugo Studio, chúng tôi dành tặng một <span className="font-semibold text-foreground">món quà tri ân
-            đặc biệt</span> — lời cảm ơn cho chặng đường bạn đã tin tưởng và bền bỉ đồng hành. 500 giờ
-            không chỉ là con số: đó là hàng trăm bug đã sửa, hàng chục feature đã xây, và một nhà phát
-            triển đã thực sự trưởng thành.
+            500 giờ không phải con số ngẫu nhiên. Đó là khoảng một năm đồng hành đều đặn — hàng trăm
+            bug đã gỡ, hàng chục feature đã lên production, và một sinh viên năm 2 đã trở thành nhà
+            phát triển thực thụ. Ít người đi được tới đó. Ai đi được, xứng đáng được nhớ.
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Đây là cách Hugo Studio luôn chăm sóc và đồng hành cùng các nhà phát triển của mình trong
-            hành trình phi lợi nhuận — không lương, nhưng chưa bao giờ là không có gì: cùng đồng hành, cùng
-            học, cùng có lợi, và cùng được ghi nhận xứng đáng.
+            Vì vậy, thành viên chạm mốc <span className="font-semibold text-foreground">500 giờ đồng hành</span> sẽ
+            nhận một <span className="font-semibold text-foreground">món quà tri ân đặc biệt</span> từ
+            Hugo Studio — lời cảm ơn cho sự tin tưởng và bền bỉ mà không khoản lương nào đo được.
+            Hành trình phi lợi nhuận này chưa bao giờ là "không có gì": cùng đồng hành, cùng học,
+            cùng có lợi, và cùng được ghi nhận xứng đáng.
           </p>
         </div>
       </div>
@@ -271,7 +285,12 @@ export default function HugoTeamTab({ onBack }) {
       {/* Application Section */}
       {userStatus !== "approved" && (
         <div className="border-t border-border pt-8 space-y-6">
-          <h2 className="text-lg font-bold text-foreground">Nộp Đơn</h2>
+          <h2 className="text-lg font-bold text-foreground">Sẵn Sàng Bắt Đầu?</h2>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            CV không cần hoàn hảo — chúng tôi tìm sự nghiêm túc và ham học, không tìm người đã giỏi sẵn.
+            Kể cả khi bạn mới chỉ có đồ án môn học, cứ mạnh dạn gửi: dòng code production đầu tiên
+            của bạn có thể được merge ngay trong tuần tới.
+          </p>
 
           {userStatus === "pending" && (
             <div className="p-4 rounded-lg bg-warning/10 border border-warning/30 text-sm">
@@ -306,21 +325,6 @@ export default function HugoTeamTab({ onBack }) {
         </div>
       )}
 
-      {/* Approved Success State */}
-      {userStatus === "approved" && (
-        <div className="p-6 rounded-lg bg-success/10 border border-success/30">
-          <div className="flex items-start gap-4">
-            <span className="material-symbols-outlined text-2xl text-success flex-shrink-0">check_circle</span>
-            <div>
-              <p className="font-semibold text-foreground">Chúc mừng bạn! ✅</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Bạn đã được phê duyệt. Tôi sẽ liên hệ qua email để hướng dẫn các bước tiếp theo.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Developers List */}
       <div className="border-t border-border pt-8">
         <h2 className="text-lg font-bold text-foreground mb-4">Nhà Phát Triển ({developers.length})</h2>
@@ -331,13 +335,10 @@ export default function HugoTeamTab({ onBack }) {
             {developers.map((dev) => (
               <div key={dev.id} className="p-4 rounded-lg border border-border bg-card/50 space-y-2">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-sm">{dev.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{dev.email}</p>
-                  </div>
+                  <p className="flex-1 min-w-0 font-semibold text-foreground text-sm">{dev.name}</p>
                   <span className="material-symbols-outlined text-base text-success flex-shrink-0">check_circle</span>
                 </div>
-                {dev.school && <p className="text-xs text-muted-foreground">📍 {dev.school}</p>}
+                {dev.school && <p className="text-xs text-muted-foreground">{dev.school}</p>}
               </div>
             ))}
           </div>
@@ -351,6 +352,407 @@ export default function HugoTeamTab({ onBack }) {
           hugowishpax@gmail.com
         </a>
       </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── Dev Workspace (đã được duyệt) ───────────────────────── */
+
+const TASK_STATUS_META = {
+  assigned:  { label: "Mới giao",    cls: "bg-info/10 text-info" },
+  doing:     { label: "Đang thực hiện", cls: "bg-warning/10 text-warning" },
+  submitted: { label: "Chờ nghiệm thu", cls: "bg-primary/10 text-primary" },
+  done:      { label: "Hoàn thành",  cls: "bg-success/10 text-success" },
+  cancelled: { label: "Đã hủy",      cls: "bg-muted text-muted-foreground" },
+};
+
+const LOG_STATUS_META = {
+  pending:  { label: "Chờ duyệt", cls: "bg-warning/10 text-warning" },
+  approved: { label: "Đã duyệt",  cls: "bg-success/10 text-success" },
+  rejected: { label: "Từ chối",   cls: "bg-destructive/10 text-destructive" },
+};
+
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("vi-VN") : "—");
+
+function StatusChip({ meta }) {
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${meta.cls}`}>
+      {meta.label}
+    </span>
+  );
+}
+
+function DevWorkspace({ me, reload }) {
+  const [section, setSection] = useState("tasks");
+  const stats = me?.stats || {};
+  const goal = 500;
+  const progress = Math.min(100, ((stats.approvedHours || 0) / goal) * 100);
+
+  const SECTIONS = [
+    { id: "tasks", label: "Nhiệm vụ", icon: "checklist", badge: stats.openTasks },
+    { id: "hours", label: "Giờ đồng hành", icon: "schedule", badge: 0 },
+    { id: "chat", label: "Trao đổi", icon: "forum", badge: stats.unreadMessages },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Chào + tiến độ 500h */}
+      <div className="space-y-3">
+        <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Dev Workspace</div>
+        <h1 className="text-2xl font-black text-foreground">Chào {me.name}!</h1>
+        <div className="p-4 rounded-2xl border border-primary/30 bg-primary/5 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-semibold text-foreground">Hành trình 500 giờ đồng hành</span>
+            <span className="font-black text-primary">{stats.approvedHours || 0}h / {goal}h</span>
+          </div>
+          <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {stats.pendingHours > 0 && `${stats.pendingHours}h đang chờ duyệt · `}
+            Chạm mốc {goal}h để nhận món quà tri ân đặc biệt từ Hugo Studio.
+          </p>
+        </div>
+      </div>
+
+      {/* Stats nhanh */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { icon: "pending_actions", value: stats.openTasks || 0, label: "Task đang mở" },
+          { icon: "task_alt", value: stats.doneTasks || 0, label: "Task hoàn thành" },
+          { icon: "verified", value: `${stats.approvedHours || 0}h`, label: "Giờ đã duyệt" },
+        ].map((s) => (
+          <div key={s.label} className="p-3 rounded-2xl border border-border bg-card/50 text-center space-y-1">
+            <span className="material-symbols-outlined text-[20px] text-foreground">{s.icon}</span>
+            <p className="text-lg font-black text-foreground leading-none">{s.value}</p>
+            <p className="text-[10px] text-muted-foreground">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Section switcher */}
+      <div className="flex gap-2">
+        {SECTIONS.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => setSection(s.id)}
+            className={`relative flex-1 flex items-center justify-center gap-1.5 rounded-2xl px-3 py-2.5 text-xs font-bold transition-all ${
+              section === s.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="material-symbols-outlined text-[16px]">{s.icon}</span>
+            {s.label}
+            {s.badge > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-white text-[10px] font-black flex items-center justify-center">
+                {s.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {section === "tasks" && <DevTasks tasks={me.tasks || []} reload={reload} />}
+      {section === "hours" && <DevHours hourLogs={me.hourLogs || []} tasks={me.tasks || []} reload={reload} />}
+      {section === "chat" && <DevChat messages={me.messages || []} reload={reload} />}
+    </div>
+  );
+}
+
+function DevTasks({ tasks, reload }) {
+  const [noteFor, setNoteFor] = useState(null); // taskId đang nộp
+  const [note, setNote] = useState("");
+
+  const updateTask = async (taskId, body) => {
+    try {
+      const res = await fetch(`/api/hugoteam/me/tasks/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Lỗi cập nhật task");
+      notify.success(body.status === "submitted" ? "Đã nộp task — chờ nghiệm thu!" : "Đã cập nhật task");
+      setNoteFor(null);
+      setNote("");
+      reload();
+    } catch (e) {
+      notify.error(e.message);
+    }
+  };
+
+  if (!tasks.length) {
+    return (
+      <div className="p-8 rounded-2xl border border-border bg-card/50 text-center space-y-2">
+        <span className="material-symbols-outlined text-[28px] text-muted-foreground">inbox</span>
+        <p className="text-sm text-muted-foreground">Chưa có nhiệm vụ nào. Admin sẽ giao task qua đây và báo bạn qua email.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {tasks.map((t) => (
+        <div key={t._id} className="p-4 rounded-2xl border border-border bg-card/50 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-bold text-foreground text-sm">{t.title}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Giao {fmtDate(t.assignedAt)}
+                {t.deadline && <> · Hạn <span className="font-semibold text-foreground">{fmtDate(t.deadline)}</span></>}
+              </p>
+            </div>
+            <StatusChip meta={TASK_STATUS_META[t.status] || TASK_STATUS_META.assigned} />
+          </div>
+
+          {t.guide && (
+            <div className="p-3 rounded-xl bg-muted/60 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap">
+              <p className="font-bold text-foreground mb-1">Hướng dẫn từ admin</p>
+              {t.guide}
+            </div>
+          )}
+          {t.adminNote && (
+            <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap">
+              <p className="font-bold text-foreground mb-1">Nhận xét nghiệm thu</p>
+              {t.adminNote}
+            </div>
+          )}
+          {t.devNote && t.status !== "doing" && (
+            <p className="text-xs text-muted-foreground italic">Ghi chú của bạn: {t.devNote}</p>
+          )}
+
+          {t.status === "assigned" && (
+            <button
+              onClick={() => updateTask(t._id, { status: "doing" })}
+              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold active:scale-95 transition-transform"
+            >
+              Bắt đầu thực hiện
+            </button>
+          )}
+          {t.status === "doing" && (
+            noteFor === t._id ? (
+              <div className="space-y-2">
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Mô tả ngắn những gì bạn đã hoàn thành (link PR, kết quả...)"
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => updateTask(t._id, { status: "submitted", devNote: note })}
+                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold active:scale-95 transition-transform"
+                  >
+                    Xác nhận nộp
+                  </button>
+                  <button
+                    onClick={() => { setNoteFor(null); setNote(""); }}
+                    className="px-4 py-2 rounded-xl bg-muted text-muted-foreground text-xs font-bold"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setNoteFor(t._id); setNote(t.devNote || ""); }}
+                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold active:scale-95 transition-transform"
+              >
+                Nộp task
+              </button>
+            )
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DevHours({ hourLogs, tasks, reload }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [form, setForm] = useState({ date: today, hours: "", note: "", taskId: "" });
+  const [saving, setSaving] = useState(false);
+  const openTasks = tasks.filter((t) => ["doing", "submitted", "done"].includes(t.status));
+
+  const submit = async () => {
+    const h = Number(form.hours);
+    if (!form.date || !Number.isFinite(h) || h <= 0) {
+      notify.error("Nhập ngày và số giờ hợp lệ");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/hugoteam/me/hours", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, hours: h, taskId: form.taskId || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Lỗi ghi giờ");
+      notify.success("Đã ghi giờ đồng hành — chờ admin duyệt");
+      setForm({ date: today, hours: "", note: "", taskId: "" });
+      reload();
+    } catch (e) {
+      notify.error(e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const withdraw = async (logId) => {
+    const ok = await notify.confirm({ title: "Rút lại giờ đã ghi?", message: "Chỉ rút được khi chưa duyệt.", danger: true });
+    if (!ok) return;
+    try {
+      const res = await fetch(`/api/hugoteam/me/hours/${logId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error((await res.json()).error || "Lỗi");
+      notify.success("Đã rút lại");
+      reload();
+    } catch (e) {
+      notify.error(e.message);
+    }
+  };
+
+  const taskTitle = (id) => tasks.find((t) => t._id === id)?.title;
+
+  return (
+    <div className="space-y-4">
+      {/* Form ghi giờ */}
+      <div className="p-4 rounded-2xl border border-border bg-card/50 space-y-3">
+        <p className="font-bold text-foreground text-sm">Ghi giờ đồng hành</p>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="text-xs space-y-1">
+            <span className="font-semibold text-muted-foreground">Ngày</span>
+            <input type="date" max={today} value={form.date}
+              onChange={(e) => setForm({ ...form, date: e.target.value })}
+              className="w-full px-3 py-2 rounded-xl border border-border bg-background" />
+          </label>
+          <label className="text-xs space-y-1">
+            <span className="font-semibold text-muted-foreground">Số giờ (0.25–24)</span>
+            <input type="number" min="0.25" max="24" step="0.25" value={form.hours}
+              onChange={(e) => setForm({ ...form, hours: e.target.value })}
+              placeholder="VD: 2.5"
+              className="w-full px-3 py-2 rounded-xl border border-border bg-background" />
+          </label>
+        </div>
+        {openTasks.length > 0 && (
+          <label className="text-xs space-y-1 block">
+            <span className="font-semibold text-muted-foreground">Gắn với task (tùy chọn)</span>
+            <select value={form.taskId} onChange={(e) => setForm({ ...form, taskId: e.target.value })}
+              className="w-full px-3 py-2 rounded-xl border border-border bg-background">
+              <option value="">— Không gắn task —</option>
+              {openTasks.map((t) => <option key={t._id} value={t._id}>{t.title}</option>)}
+            </select>
+          </label>
+        )}
+        <label className="text-xs space-y-1 block">
+          <span className="font-semibold text-muted-foreground">Bạn đã đồng hành việc gì?</span>
+          <input value={form.note} maxLength={500}
+            onChange={(e) => setForm({ ...form, note: e.target.value })}
+            placeholder="VD: Fix bug thanh toán, review tài liệu onboarding..."
+            className="w-full px-3 py-2 rounded-xl border border-border bg-background" />
+        </label>
+        <button onClick={submit} disabled={saving}
+          className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold disabled:opacity-50 active:scale-95 transition-transform">
+          {saving ? "Đang lưu..." : "Ghi giờ"}
+        </button>
+      </div>
+
+      {/* Lịch sử */}
+      {hourLogs.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-4">Chưa có giờ nào được ghi.</p>
+      ) : (
+        <div className="space-y-2">
+          {hourLogs.map((l) => (
+            <div key={l._id} className="p-3 rounded-2xl border border-border bg-card/50 flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">
+                  {l.hours}h · {fmtDate(l.date)}
+                </p>
+                {(l.note || l.taskId) && (
+                  <p className="text-xs text-muted-foreground truncate">
+                    {taskTitle(l.taskId) ? `[${taskTitle(l.taskId)}] ` : ""}{l.note}
+                  </p>
+                )}
+              </div>
+              <StatusChip meta={LOG_STATUS_META[l.status] || LOG_STATUS_META.pending} />
+              {l.status === "pending" && (
+                <button onClick={() => withdraw(l._id)} aria-label="Rút lại"
+                  className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-muted">
+                  <span className="material-symbols-outlined text-[16px]">delete</span>
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DevChat({ messages, reload }) {
+  const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+
+  // Mở tab Trao đổi = đã đọc tin admin
+  useEffect(() => {
+    if (messages.some((m) => m.from === "admin" && !m.readByDev)) {
+      fetch("/api/hugoteam/me/messages/read", { method: "POST" }).then(reload).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const send = async () => {
+    const t = text.trim();
+    if (!t) return;
+    setSending(true);
+    try {
+      const res = await fetch("/api/hugoteam/me/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: t }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Lỗi gửi tin");
+      setText("");
+      reload();
+    } catch (e) {
+      notify.error(e.message);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="max-h-[50vh] overflow-y-auto space-y-2 p-1">
+        {messages.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-6">
+            Chưa có trao đổi nào. Nhắn admin tại đây — tin quan trọng cũng sẽ được gửi qua email cho bạn.
+          </p>
+        )}
+        {messages.map((m) => (
+          <div key={m._id} className={`flex ${m.from === "dev" ? "justify-end" : "justify-start"}`}>
+            <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap ${
+              m.from === "dev" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+            }`}>
+              {m.text}
+              <p className={`mt-1 text-[9px] ${m.from === "dev" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                {new Date(m.at).toLocaleString("vi-VN")}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <input value={text} maxLength={2000}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
+          placeholder="Nhắn admin..."
+          className="flex-1 px-4 py-2.5 rounded-2xl border border-border bg-background text-xs" />
+        <button onClick={send} disabled={sending || !text.trim()}
+          className="px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground text-xs font-bold disabled:opacity-50 active:scale-95 transition-transform">
+          Gửi
+        </button>
       </div>
     </div>
   );
