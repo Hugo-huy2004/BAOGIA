@@ -398,7 +398,7 @@
     },
     "studentPlans": {
       "bug": {
-        "label": "Debug Coursework",
+        "label": "Students",
         "name": "Coursework Bug Fix",
         "price": "From 120,000₫",
         "note": "Quick quotes based on coursework criteria. Speed delivery before deadlines.",
@@ -409,14 +409,10 @@
           "Zalo walkthrough on how to deploy on free hosting (Vercel/Render)",
           "3 days of stability warranty",
           "Full working code handover"
-        ],
-        "excludes": [
-          "Building coursework from scratch (see Coursework Web App package)",
-          "Writing academic report or analysis documents"
         ]
       },
       "bento": {
-        "label": "Academic CV",
+        "label": "Students",
         "name": "Bento CV / Portfolio",
         "price": "799,000₫",
         "oldPrice": "1,500,000₫",
@@ -429,59 +425,54 @@
           "Github, social media, and contact link integration",
           "Contact form dumping messages directly to a free Google Sheet",
           "Deploy on free hosting trọn đời (Vercel/Netlify)"
-        ],
-        "excludes": [
-          "Custom domain name (uses free .vercel.app subdomain)",
-          "Writing content from scratch (you provide profile draft)"
         ]
       },
-      "coursework": {
-        "label": "Coursework Dev",
-        "name": "Coursework Web App",
-        "tagline": "Secure maximum code points",
-        "stacks": {
-          "html": {
-            "price": "From 590,000₫",
-            "oldPrice": "1,200,000₫",
-            "note": "Static HTML/CSS/JS coursework. Split the bill from ~295k/member (group of 2).",
-            "desc": "Perfect for Web Design basics, building responsive layouts, static assignment templates.",
-            "includes": [
-              "Responsive layout design compatible with mobile devices",
-              "DOM animation effects & basic native Javascript",
-              "Detailed README setup documentation for local run",
-              "Clean source code + free deployment setup guidance"
-            ]
-          },
-          "php": {
-            "price": "From 1,490,000₫",
-            "oldPrice": "2,500,000₫",
-            "note": "Dynamic PHP/MySQL coursework. Split the bill from ~495k/member (group of 3).",
-            "desc": "Perfect for Database Web basics, dynamic data CRUD, registering & logins.",
-            "includes": [
-              "Dynamic server handling with PHP + MySQL database",
-              "Simple registration, login, and authorization logic",
-              "Pre-loaded mock database (Seed Data) for quick demo",
-              "Bonus: 1 live call session for setup guidance and live run demo"
-            ]
-          },
-          "react": {
-            "price": "From 2,490,000₫",
-            "oldPrice": "4,000,000₫",
-            "note": "Full-stack React/Node.js coursework. Split the bill from ~620k/member (group of 4).",
-            "desc": "Perfect for Advanced Web, React SPA, REST APIs, MongoDB/PostgreSQL.",
-            "includes": [
-              "React SPA architecture + Node.js/Express REST API Backend",
-              "Bonus: 1 live call session (45 mins) explaining code structure",
-              "Pre-loaded mock database (Seed Data) for quick demo",
-              "Dedicated help with setting up execution environments"
-            ]
-          }
-        },
-        "excludes": [
-          "**ABSOLUTELY NO report or document writing**",
-          "No graduation theses or final degree research works",
-          "No screen-recorded demo video creation services",
-          "Students must run the code themselves and write reports"
+      "html": {
+        "label": "HTML/CSS/JS",
+        "name": "Web App Coursework (HTML)",
+        "price": "From 590,000₫",
+        "oldPrice": "1,200,000₫",
+        "discount": "-50%",
+        "note": "Static HTML/CSS/JS coursework. Split the bill from ~295k/member (group of 2).",
+        "desc": "Perfect for Web Design basics, building responsive layouts, static assignment templates.",
+        "tagline": "Responsive layout",
+        "includes": [
+          "Responsive layout design compatible with mobile devices",
+          "DOM animation effects & basic native Javascript",
+          "Detailed README setup documentation for local run",
+          "Clean source code + free deployment setup guidance"
+        ]
+      },
+      "php": {
+        "label": "PHP/SQL",
+        "name": "Web App Coursework (PHP)",
+        "price": "From 1.490.000₫",
+        "oldPrice": "2,500,000₫",
+        "discount": "-40%",
+        "note": "Dynamic PHP/MySQL coursework. Split the bill from ~495k/member (group of 3).",
+        "desc": "Perfect for Database Web basics, dynamic data CRUD, registering & logins.",
+        "tagline": "Dynamic database",
+        "includes": [
+          "Dynamic server handling with PHP + MySQL database",
+          "Simple registration, login, and authorization logic",
+          "Pre-loaded mock database (Seed Data) for quick demo",
+          "Bonus: 1 live call session for setup guidance and live run demo"
+        ]
+      },
+      "react": {
+        "label": "React/Node",
+        "name": "Web App Coursework (REACT)",
+        "price": "From 2.490.000₫",
+        "oldPrice": "4,000,000₫",
+        "discount": "-37%",
+        "note": "Full-stack React/Node.js coursework. Split the bill from ~620k/member (group of 4).",
+        "desc": "Perfect for Advanced Web, React SPA, REST APIs, MongoDB/PostgreSQL.",
+        "tagline": "Full-stack React/Node.js",
+        "includes": [
+          "React SPA architecture + Node.js/Express REST API Backend",
+          "Bonus: 1 live call session (45 mins) explaining code structure",
+          "Pre-loaded mock database (Seed Data) for quick demo",
+          "Dedicated help with setting up execution environments"
         ]
       }
     },
@@ -533,52 +524,15 @@
       "desc": "If your site only needs a few fixes or a speed boost, you shouldn't pay for a full package."
     },
     "micro": {
-      "eyebrow": "Small tasks, small prices",
-      "title": "Just need one thing?",
-      "highlight": "From 150,000₫",
-      "desc": "So you never have to buy a big package for a couple of small fixes.",
-      "items": [
-        {
-          "title": "UI bug fixes",
-          "price": "From 150,000₫",
-          "desc": "Dead buttons, broken layout, small display glitches."
-        },
-        {
-          "title": "Color & content tweaks",
-          "price": "From 200,000₫",
-          "desc": "Swap text, images, sections or restyle to your brand."
-        },
-        {
-          "title": "Mobile polish",
-          "price": "From 250,000₫",
-          "desc": "Re-tuned spacing, type and CTAs on phones."
-        },
-        {
-          "title": "Web widgets",
-          "price": "From 150,000₫",
-          "desc": "Forms, Zalo, Messenger, Maps, quick-call buttons."
-        },
-        {
-          "title": "Deploy & domain",
-          "price": "From 250,000₫",
-          "desc": "Put the site online, connect the domain, check SSL."
-        },
-        {
-          "title": "1-page quick SEO",
-          "price": "From 200,000₫",
-          "desc": "Title, description, share image, basic sitemap."
-        },
-        {
-          "title": "Speed boost",
-          "price": "From 300,000₫",
-          "desc": "Trim heavy assets, optimize images, improve PageSpeed."
-        },
-        {
-          "title": "Monthly maintenance",
-          "price": "From 300,000₫/month",
-          "desc": "Backups, small fixes and content updates."
-        }
-      ]
+      "eyebrow": "Super Fast & Convenient",
+      "title": "Bite-sized Services",
+      "highlight": "Quick Polish & Fixes",
+      "desc": "Quick help for minor website adjustments. Transparent quotes, prompt delivery, and absolutely no hidden fees!",
+      "costLabel": "Cost:",
+      "cta": "Contact",
+      "customTitle": "Got a unique idea or custom request?",
+      "customDesc": "Don't worry! Hugo is always happy to tackle custom hourly tasks or specialized web requests. Let's chat!",
+      "customCta": "Let's chat about it!"
     },
     "app": {
       "badge": "Full web system",
@@ -670,6 +624,78 @@
       "title2": "I'll suggest the leanest way forward.",
       "desc": "Share your current site, a screenshot of the bug, or just an idea. I'll tell you honestly whether you need a small fix, a landing page, a multi-page site or a web app.",
       "cta": "Message me for a free consult"
+    },
+    "promo": {
+      "title": "Free Aesthetic Bio Page for Students!",
+      "desc": "Got an .edu email? Claim your gorgeous ad-free personal bio page for free!",
+      "cta": "Verify Me!"
+    },
+    "tabs": {
+      "commercial": "Business / Personal",
+      "student": "For Students",
+      "micro": "Quick Fixes"
+    },
+    "microJobs": {
+      "bug-ui": {
+        "name": "Squish Interface Bugs",
+        "desc": "Fix broken buttons, misaligned images, font size oopsies, or overlapping text elements.",
+        "price": "From 150,000₫",
+        "time": "Done today!"
+      },
+      "style-content": {
+        "name": "Colors & Copy Polish",
+        "desc": "Modify brand colors, swap typography, update avatar graphics, or rewrite text sections.",
+        "price": "From 200,000₫",
+        "time": "Done today!"
+      },
+      "mobile-beauty": {
+        "name": "Mobile Glow-up",
+        "desc": "Optimize spacing, responsive fonts, and call-to-action touch zones for mobile screens.",
+        "price": "From 250,000₫",
+        "time": "Done today!"
+      },
+      "web-widget": {
+        "name": "Sweet Widgets",
+        "desc": "Integrate cute Zalo/Messenger floating chats, contact forms, Google Maps, or click-to-call hotlines.",
+        "price": "From 150,000₫",
+        "time": "Done today!"
+      },
+      "deploy-domain": {
+        "name": "Web Launch",
+        "desc": "Deploy your site to Vercel/Netlify/VPS, connect custom domains, and secure with a free SSL certificate.",
+        "price": "From 250,000₫",
+        "time": "Done today!"
+      },
+      "seo-quick": {
+        "name": "Quick SEO Boost",
+        "desc": "Set correct meta tags (Title/Desc) and configure pretty link previews for Facebook/Zalo sharing.",
+        "price": "From 200,000₫",
+        "time": "Done today!"
+      },
+      "speed-optimize": {
+        "name": "Speed Boost",
+        "desc": "Lossless compression for heavy images, clean up redundant JS/CSS files, and push up PageSpeed scores.",
+        "price": "From 300,000₫",
+        "time": "Done today!"
+      },
+      "monthly-maintenance": {
+        "name": "Monthly Cozy Care",
+        "desc": "Routine backups, security checkups, quick bug hotfixes, and light content revisions every month.",
+        "price": "From 300,000₫/mo",
+        "time": "Ongoing care"
+      }
+    },
+    "disclaimer": "* Sweet note: All prices are starting guides. The final price is tailored to your scope during our 1-1 chat, ensuring no surprise fees!",
+    "section": {
+      "newBuildsTitle": "New Designs & Custom Builds",
+      "newBuildsDesc": "For brands, creators, and businesses needing a brand new website built from the ground up.",
+      "optimizeTitle": "SEO, Speed & Bug Squishing",
+      "optimizeDesc": "For existing websites that need better Google rankings, faster load times, or technical bugs resolved."
+    },
+    "devices": {
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "mobile": "Mobile"
     }
   },
   "faqPage": {
@@ -2970,6 +2996,131 @@
     },
     "userMeta": {
       "noName": "No name set"
+    }
+  },
+  "studentBenefitsPage": {
+    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
+    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
+    "backToServices": "Back to Services",
+    "giftSpark": "12 Months of Spark — On the House!",
+    "title": "Your Dream Bio Link",
+    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
+    "marketValue": "Normal price",
+    "perYear": "/year",
+    "marketPrice": "500,000₫",
+    "giftToYou": "Hugo's Gift",
+    "giftPrice": "0₫",
+    "priceless": " — Priceless!",
+    "verificationTitle": "Verify & Claim Your Spark!",
+    "verificationDesc": "Use your school email (.edu or .edu.vn) to login. Our robot will instantly recognize you and hand over the key!",
+    "orManual": "or click below if it doesn't prompt",
+    "clickSelect": "Choose Google Account",
+    "warningClientId": "Warning: Missing Google Client ID",
+    "originError": "Authorized JavaScript origins must include current origin and production domain.",
+    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
+    "ready": "OAuth robot is ready!",
+    "loading": "Waking up OAuth robot...",
+    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
+    "toastFail": "Oh no! Google verification failed.",
+    "toastNetwork": "Server connection lost. Let's try again in a bit!",
+    "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
+    "benefits": {
+      "free": {
+        "title": "Free of Charge",
+        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
+      },
+      "creative": {
+        "title": "Creative Playground",
+        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
+      },
+      "fast": {
+        "title": "Lightning Fast",
+        "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
+      },
+      "yours": {
+        "title": "Truly Yours",
+        "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
+      }
+    }
+  },
+  "studentPlans": {
+    "bug": {
+      "label": "Students",
+      "name": "Oopsie! Coursework Fix",
+      "price": "From 120,000₫",
+      "note": "Quick quotes based on coursework criteria. Speed delivery before deadlines.",
+      "desc": "Logic errors, DB connection issue or broken layout in your end-of-term assignment? Let's squish those bugs!",
+      "tagline": "Save your submission",
+      "includes": [
+        "Fix exact logic code errors or styling bugs agreed upon",
+        "Zalo walkthrough on how to deploy on free hosting (Vercel/Render)",
+        "3 days of stability warranty",
+        "Full working code handover"
+      ]
+    },
+    "bento": {
+      "label": "Students",
+      "name": "Aesthetic Bento CV",
+      "price": "799,000₫",
+      "oldPrice": "1,500,000₫",
+      "discount": "-46%",
+      "note": "Modern Bento Grid design. Tailored for internship, scholarship, or study abroad applications.",
+      "desc": "Showcase your achievements, projects, Git links and profile in a beautiful Apple-inspired aesthetic.",
+      "tagline": "Stand out like a star!",
+      "includes": [
+        "1 Bento Grid page layout, up to 7 sections max",
+        "Github, social media, and contact link integration",
+        "Contact form dumping messages directly to a free Google Sheet",
+        "Deploy on free hosting trọn đời (Vercel/Netlify)"
+      ]
+    },
+    "html": {
+      "label": "HTML/CSS/JS",
+      "name": "Static Web App (HTML)",
+      "price": "From 590,000₫",
+      "oldPrice": "1,200,000₫",
+      "discount": "-50%",
+      "note": "Static HTML/CSS/JS coursework. Split the bill from ~295k/member (group of 2).",
+      "desc": "Perfect for Web Design basics, building responsive layouts, static assignment templates.",
+      "tagline": "Responsive & Cute!",
+      "includes": [
+        "Responsive layout design compatible with mobile devices",
+        "DOM animation effects & basic native Javascript",
+        "Detailed README setup documentation for local run",
+        "Clean source code + free deployment setup guidance"
+      ]
+    },
+    "php": {
+      "label": "PHP/SQL",
+      "name": "Web App (PHP & SQL)",
+      "price": "From 1.490.000₫",
+      "oldPrice": "2,500,000₫",
+      "discount": "-40%",
+      "note": "Dynamic PHP/MySQL coursework. Split the bill from ~495k/member (group of 3).",
+      "desc": "Perfect for Database Web basics, dynamic data CRUD, registering & logins.",
+      "tagline": "Database Power!",
+      "includes": [
+        "Dynamic server handling with PHP + MySQL database",
+        "Simple registration, login, and authorization logic",
+        "Pre-loaded mock database (Seed Data) for quick demo",
+        "Bonus: 1 live call session for setup guidance and live run demo"
+      ]
+    },
+    "react": {
+      "label": "React/Node",
+      "name": "Full-stack App (REACT)",
+      "price": "From 2.490.000₫",
+      "oldPrice": "4,000,000₫",
+      "discount": "-37%",
+      "note": "Full-stack React/Node.js coursework. Split the bill from ~620k/member (group of 4).",
+      "desc": "Perfect for Advanced Web, React SPA, REST APIs, MongoDB/PostgreSQL.",
+      "tagline": "Modern Full-stack Magic!",
+      "includes": [
+        "React SPA architecture + Node.js/Express REST API Backend",
+        "Bonus: 1 live call session (45 mins) explaining code structure",
+        "Pre-loaded mock database (Seed Data) for quick demo",
+        "Dedicated help with setting up execution environments"
+      ]
     }
   }
 }

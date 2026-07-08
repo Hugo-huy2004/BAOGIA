@@ -237,24 +237,6 @@
     <script type="module" src="/src/main.jsx"></script>
 
     <script>
-
-
-      // Hide address bar on scroll for mobile browsers
-      if (navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)) {
-        window.addEventListener(
-          "scroll",
-          () => {
-            window.scrollTo(0, 1);
-          },
-          false,
-        );
-
-        // Trigger scroll on load
-        window.addEventListener("load", () => {
-          setTimeout(() => window.scrollTo(0, 1), 100);
-        });
-      }
-
       // Request fullscreen on iOS if available
       if (
         document.documentElement.requestFullscreen &&

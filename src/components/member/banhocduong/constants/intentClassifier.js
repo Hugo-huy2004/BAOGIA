@@ -196,7 +196,11 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Áp lực học dễ làm não ${name} quá tải thật`, `Nhưng điểm số không nói lên cậu là ai đâu nha — thiệt đó.`, `Thử chia nhỏ ra từng bước + thở sâu xíu. Phần nào đang dằn vặt cậu nhất hiện tại?`];
+      return [
+        `Tớ hiểu mà, áp lực học hành và thi cử dạo này đang khiến đầu óc của ${name} muốn nổ tung đúng không?`,
+        `Đừng quên là điểm số hay kỳ thi chỉ là một phần rất nhỏ, nó không định nghĩa giá trị con người cậu đâu nha — thiệt đó.`,
+        `Hãy dừng lại uống một ngụm nước ấm, hít thở một hơi thật sâu. Hôm nay phần bài vở hay áp lực nào đang làm cậu thấy bế tắc nhất vậy?`
+      ];
     }
   },
   {
@@ -209,7 +213,11 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Mất ngủ thường là dấu hiệu não ${name} đang "chạy ngầm" lo âu đó`, `Thử: tắt điện thoại trước ngủ 30 phút, phòng tối + mát, bật âm thanh mưa ở tab Trị Liệu nha.`, `Gần đây cậu ngủ được mấy tiếng mỗi đêm?`];
+      return [
+        `Mất ngủ thường là tín hiệu cho thấy tâm trí của ${name} đang phải "chạy ngầm" rất nhiều lo âu chưa được giải tỏa đó.`,
+        `Tối nay cậu thử tắt điện thoại trước khi ngủ 30 phút, giữ phòng tối mát và bật âm thanh "Mưa rơi" ở mục Trị Liệu xem sao nha.`,
+        `Đừng bắt bản thân phải ngủ ngay lập tức kẻo lại áp lực thêm. Gần đây cậu ngủ được trung bình mấy tiếng mỗi đêm thế?`
+      ];
     }
   },
   {
@@ -227,12 +235,16 @@ export const INTENT_DATABASE = [
         const latest = gad7Logs[gad7Logs.length - 1];
         const dateStr = formatVnDate(latest.date);
         const severity = getGad7SeverityVi(latest.score);
-        return [`Test GAD-7 hôm ${dateStr} của cậu là ${latest.score}/21, mức ${severity} đó.`, `Lo âu là cơ chế tự bảo vệ — không phải cậu yếu đuối gì hết.`, `Thở sâu 4-7-8 cùng tớ xíu nha?`];
+        return [
+          `Tớ nghe đây, cảm giác lồng ngực thắt lại và bồn chồn lo âu này thật sự mệt mỏi lắm đúng không ${name}?`,
+          `Chỉ số GAD-7 hôm ${dateStr} của cậu là ${latest.score}/21 (${severity}). Điều đó phản ánh cơ thể cậu đang bật chế độ cảnh báo căng thẳng ở mức cao.`,
+          `Lo âu chỉ là phản ứng bảo vệ quá đà của não bộ thôi, không có nghĩa cậu yếu đuối đâu. Bây giờ, đặt tay lên ngực và thử thở sâu 4-7-8 cùng tớ vài nhịp để làm dịu lại nha?`
+        ];
       }
       return _rotate("anxiety", [
-        [`Ugh, lo âu mệt thật sự — não đang "chạy 100 tab" một lúc phải không ${name}`, `Thử hít vào mũi 4s, nín 4s, thở ra miệng 6s, lặp vài lần.`, `Điều gì đang làm cậu lo nhất lúc này?`],
-        [`Lo lắng kiểu đó tim đập nhanh, tay bồn chồn phải không ${name}?`, `Não đang "cảnh báo quá mức" thôi — cậu thật sự an toàn lúc này.`, `Thử đặt tay lên ngực, thở chậm lại. Cậu đang lo về điều gì cụ thể?`],
-        [`${name} ơi, khi lo âu cậu cảm thấy nó ở đâu nhất trong người — ngực, dạ dày, hay vai?`, `Nhận diện được rồi thì "giao tiếp" với nó dễ hơn nhiều.`, `Cậu mô tả cảm giác đó thử nha?`],
+        [`Tớ nghe cậu đây, cảm giác lo âu bồn chồn này chắc hẳn đang khiến đầu óc ${name} căng như dây đàn đúng không?`, `Cố gắng hít vào sâu bằng mũi 4 giây, nín thở 4 giây và thở ra chậm bằng miệng 6 giây nha.`, `Hôm nay điều gì đang làm cậu cảm thấy bất an và lo nghĩ nhiều nhất vậy?`],
+        [`Lo lắng kiểu đó làm lồng ngực cậu nghẹn lại, tim đập nhanh hay bồn chồn tay chân phải không ${name}?`, `Tâm trí cậu đang ở trạng thái phòng thủ thôi — cậu đang an toàn ở đây rồi. Hãy thả lỏng vai ra chút xíu.`, `Điều cụ thể nào đang làm cậu bất an nhất lúc này, kể tớ nghe nha?`],
+        [`${name} ơi, khi lo âu ập đến, cậu thấy khó chịu nhất ở đâu trong cơ thể (như nghẹn ngực, cồn cào ruột gan hay căng cứng vai gáy)?`, `Hãy cùng tớ gọi tên và chấp nhận cảm giác đó trước nha — nó sẽ dịu đi từ từ thui à.`, `Cậu đang trải qua chuyện gì thế, tớ lắng nghe nè.`],
       ]);
     }
   },
@@ -251,12 +263,16 @@ export const INTENT_DATABASE = [
         const latest = phq9Logs[phq9Logs.length - 1];
         const dateStr = formatVnDate(latest.date);
         const severity = getPhq9SeverityVi(latest.score);
-        return [`Test PHQ-9 ngày ${dateStr} của cậu ${latest.score}/27, mức ${severity}.`, `Buồn không có nghĩa cậu yếu — tâm hồn cậu đang cần được nghỉ thôi.`, `Điều gì đang làm cậu nặng nề nhất hôm nay?`];
+        return [
+          `Tớ nghe đây ${name}. Cảm giác buồn bã, chán nản này thật sự rất nặng nề và làm cậu thấy kiệt quệ đúng không?`,
+          `Chỉ số trầm cảm PHQ-9 hôm ${dateStr} của cậu là ${latest.score}/27, đang ở mức ${severity}. Nó phản ánh tâm hồn cậu đang mỏi mệt và rất cần được yêu thương, vỗ về.`,
+          `Buồn không có nghĩa là cậu yếu đuối đâu — chỉ là cậu đã gồng gánh quá nhiều rồi. Hôm nay có chuyện gì đang đè nặng trong lòng cậu nhất, cứ từ từ chia sẻ với tớ nha.`
+        ];
       }
       return _rotate("sadness", [
-        [`${name} ơi, tớ nghe cậu đây`, `Cho phép bản thân buồn xíu đi — không cần gồng "ổn" đâu.`, `Muốn kể tớ nghe chuyện gì không?`],
-        [`Buồn thì cứ buồn thôi ${name} ơi — không cần giải thích với ai.`, `Tớ ở đây nghe, không phán xét gì hết`, `Điều gì đang nặng nề nhất với cậu lúc này?`],
-        [`Có những lúc không biết tại sao mà buồn — và điều đó hoàn toàn ổn ${name} ạ.`, `Cậu muốn thử viết hết ra ở 'Viết Tự Do' không?`, `Hay kể tớ nghe trước đi.`],
+        [`${name} ơi, tớ nghe cậu đây. Tớ biết cảm giác trống rỗng và buồn bã này làm cậu thấy cô độc lắm...`, `Cho phép bản thân mình được buồn một chút đi — không cần lúc nào cũng phải cố gồng lên tỏ ra ổn đâu nha.`, `Muốn kể cho tớ nghe bất kỳ chuyện gì không, tớ luôn ở đây mà.`],
+        [`Buồn thì cứ buồn thôi ${name} ơi, không cần phải cảm thấy có lỗi vì tâm trạng đi xuống đâu nè.`, `Tớ ngồi đây cùng cậu, không phán xét, chỉ lặng lẽ lắng nghe cậu thôi.`, `Điều gì đang làm lòng cậu thấy trĩu nặng nhất lúc này vậy?`],
+        [`Có những ngày nỗi buồn ập đến không vì lý do gì cả — và điều đó hoàn toàn bình thường ${name} ạ.`, `Nếu thấy khó mở lời, cậu có muốn thử viết mọi suy nghĩ ra ở mục "Viết Tự Do" cho nhẹ lòng không?`, `Hoặc nếu sẵn sàng, cứ nhắn cho tớ nha.`],
       ]);
     }
   },
@@ -958,6 +974,81 @@ function getFuseInstance() {
   return _fuseInstance;
 }
 
+// Pre-compiled regex rules for instant fast-path matching (compiled once at startup)
+const STATIC_RULES = [
+  { id: "guide_bio_link",      regex: /(tao bio|chinh bio|sua bio|trang ca nhan|thong tin lien he|link bio|bio link|chinh theme|theme editor|giao dien bio|brutalism|glassmorphism|bo goc|do bong|vien nut|mau nen|background bio|chieu cao|can nang|so do|ba vong|vong nguc|vong eo|vong mong|thong so co ban|ky nang|portfolio)/ },
+  { id: "guide_booking",       regex: /(dat lich|hen lich|lich hen|hen chup|book|booking|khach dat|khach hen|khach book|quan ly lich|xem lich|zalo khach|email khach)/ },
+  { id: "guide_qr",            regex: /(ma qr|tao qr|qr wifi|wifi qr|qr vcard|vcard|qr danh ba|danh ba qr|quet wifi|quet qr|quet offline|in qr|tai qr|download qr|helpdesk|nfc)/ },
+  { id: "guide_signature",     regex: /(chu ky|signature|hugosmail|font chu ky|mau chu ky|tao chu ky|outlook|gmail)/ },
+  { id: "guide_ide",           regex: /(code|lap trinh|viet code|ide|hugocoder|hoc lap trinh|compiler|chay code|download code|tai code|python|cpp)/ },
+  { id: "guide_chess",         regex: /(co vua|chess|hugochess|dau co|choi co|phong co|giao huu|stockfish|dau co vua|choi co vua)/ },
+  { id: "guide_partners",      regex: /(iframe|nhung iframe|nhung link|nhung bio|doi tac|partner|security key|khoa bao mat|ma bao mat)/ },
+  { id: "panic_attack",        regex: /(kho tho|ngop tho|tim dap nhanh|hoang loan|run ray|sap ngat|panic)/ },
+  { id: "crisis",              regex: /(tu tu|tu sat|ket lieu|khong muon song|muon chet|tu lam dau|muon ket thuc)/ },
+  { id: "university_exam",     regex: /(thi dai hoc|thi thpt|thptqg|thi quoc gia|diem chuan dai hoc|on thi dai hoc)/ },
+  { id: "burnout",             regex: /(kiet suc|burn.?out|het suc roi|can kiet nang luong|gong qua lau|xiu roi)/ },
+  { id: "social_comparison",   regex: /(so sanh voi nguoi|nguoi ta gioi hon|thua kem moi nguoi|fomo|instagram lam|khong bang ai)/ },
+  { id: "perfectionism",       regex: /(cau toan|muon hoan hao|so lam sai|khong dam bat dau|tu chinh minh qua|phai lam cho hoan hao)/ },
+  { id: "body_image",          regex: /(tu ti ngoai hinh|beo qua|xau qua|ghet co the|khong hai long voi ngoai hinh|tu ti can nang)/ },
+  { id: "phone_addiction",     regex: /(nghien dien thoai|nghien tiktok|nghien mxh|luot mang xa hoi nhieu|nghien game|screen time)/ },
+  { id: "social_anxiety",      regex: /(so noi truoc dam dong|so bi phan xet|ngai tiep xuc nguoi la|social anxiety|so ra ngoai|khong dam phat bieu)/ },
+  { id: "homesickness",        regex: /(nho nha|xa nha|nho bo me|di hoc xa|nho que huong|xa gia dinh)/ },
+  { id: "first_love",          regex: /(thich ai do|co crush|dang yeu ai|tinh cam dau tien|thich ban trong lop|to tinh)/ },
+  { id: "jealousy",            regex: /(ghen voi ban|ghen tuong|ghen ti|ganh ti voi|ghet nguoi thanh cong hon)/ },
+  { id: "concentration",       regex: /(khong tap trung duoc|mat focus|lo dang|adhd|kho tap trung|doc sach khong vao)/ },
+  { id: "emptiness",           regex: /(trong rong|khong cam thay gi|vo cam|khong buon khong vui|trong khong|te liet cam xuc)/ },
+  { id: "overthinking",        regex: /(nghi nhieu qua|overthink|dau oc khong tat|lo van vo|suy nghi lap lai|khong ngung lo nghi)/ },
+  { id: "exercise_request",    regex: /(bai tap tho|huong dan tho|day toi thien|bai thien|bai tap thu gian|muon tho sau|tap tho cung toi)/ },
+  { id: "checkin_feature",     regex: /(check.?in la gi|diem danh cam xuc|streak la gi|tai sao phai check)/ },
+  { id: "venting_space",       regex: /(khong gian trut gian|trut bau tam su|tin nhan tu huy|che do trut gian)/ },
+  { id: "loneliness",          regex: /(co don|lac long|khong ai hieu|khong ai ben canh|bi bo roi|khong co ban)/ },
+  { id: "family_conflict",     regex: /(cai nhau voi bo me|gia dinh khong hieu|bo me ap dat|mau thuan voi gia dinh|bo me la mang|ky vong qua nhieu)/ },
+  { id: "friendship_conflict", regex: /(ban be xa lanh|bi bat nat|bi co lap|noi xau to|tay chay|bi bully|drama ban be)/ },
+  { id: "breakup",             regex: /(chia tay|that tinh|nguoi yeu bo|tinh cam tan vo|chia tay dau)/ },
+  { id: "low_self_esteem",     regex: /(vo dung|tu ti|kem coi|khong tin vao ban than|ghet ban than|cam thay that bai|khong du gioi)/ },
+  { id: "procrastination",     regex: /(tri hoan|luoi hoc|mat dong luc|khong co dong luc|chan deadline|om viec khong lam)/ },
+  { id: "anger",               regex: /(tuc gian|buc boi|nong gian|am uc|kho chiu trong nguoi|gian dien len|muon dap pha)/ },
+  { id: "grief",               regex: /(mat nguoi than|qua doi|de tang|dau buon vi mat mat|nguoi than qua doi)/ },
+  { id: "future_anxiety",      regex: /(hoang mang ve tuong lai|chon nganh|dinh huong nghe nghiep|khong biet minh muon gi|so chon sai nganh|tuong lai mo mit)/ },
+  { id: "room_organization",   regex: /(bo tri phong|sap xep phong|trang tri goc hoc tap|phong bua|don phong|sap xep phong ngu)/ },
+  { id: "mindful_spending",    regex: /(mua do toi thich|nen mua cay|tu thuong cho minh|mua sam de giai toa|mua sam linh tinh|tieu xai qua da)/ },
+  { id: "test_inventory",      regex: /(bao nhieu bai test|nhung bai test|danh sach bai test|may bai trac nghiem|cac bai kiem tra tam ly|test tam ly gom|co test gi)/ },
+  { id: "clinical_tests",      regex: /(lam bai test|lam trac nghiem|phq9|gad7|who5|bigfive|mmpi|kiem tra tram cam|kiem tra lo au)/ },
+  { id: "therapy_catalog",     regex: /(co lieu phap gi|tri lieu gom|cac lieu phap tu chua lanh|nen dung lieu phap nao|phuong phap tri lieu)/ },
+  { id: "pricing_package",     regex: /(gia bao nhieu|goi cuoc|mua goi|nap tien|ton phi|mat phi|goi premium|phi dich vu)/ },
+  { id: "joy_currency",        regex: /(joy la gi|kiem joy|dong joy|tien joy|xu joy|joy coin|dung joy)/ },
+  { id: "token_limit",         regex: /(gioi han token|het token|may token|reset token|luot chat|token la gi)/ },
+  { id: "about_creator",       regex: /(ai tao ra|hugo studio|ai phat trien|ai lam ra app|creator)/ },
+  { id: "data_privacy",        regex: /(du lieu cua toi|bao mat|lo tin nhan|an toan du lieu|co ai doc duoc|rieng tu)/ },
+  { id: "support_contact",     regex: /(bao loi|lien he ho tro|loi ky thuat|gap loi|nhan vien ho tro|support)/ },
+  { id: "identity",            regex: /(cau la ai|ban la ai|ten cau|la bot|gioi thieu ban than)/ },
+  { id: "features",            regex: /(lam duoc gi|tinh nang|chuc nang|giup gi|huong dan|features)/ },
+  { id: "sleep",               regex: /(mat ngu|kho ngu|ngu ngon|thuc khuya|thieu ngu|tinh giac giua dem)/ },
+  { id: "academic_stress",     regex: /(ap luc hoc|thi cu|diem so|thi rot|stress hoc|bai tap qua tai|deadline chong chat)/ },
+  { id: "anxiety",             regex: /(lo au|lo lang|bon chon|so hai|hoang so|lo so|tim dap hoi hop)/ },
+  { id: "sadness",             regex: /(buon|chan nan|tuyet vong|met moi|khoc|cam thay te|khong vui)/ },
+  { id: "gratitude",           regex: /(cam on|thank|de thuong|huu ich|tot qua|cau tot)/ },
+  { id: "positive",            regex: /(vui|khoe|hanh phuc|tuyet voi|rat tot|on lam|dang ok)/ },
+];
+
+// O(1) direct lookup map for intents compiled once at startup
+const INTENT_MAP = {};
+
+// Pre-computed, flattened, and untoned patterns to speed up Sørensen-Dice loop operations
+const PRECOMPUTED_UNTONED_PATTERNS = [];
+
+// Initialize lookup Map and pre-computed patterns array
+for (const intent of INTENT_DATABASE) {
+  INTENT_MAP[intent.id] = intent;
+  for (const pattern of intent.patterns) {
+    PRECOMPUTED_UNTONED_PATTERNS.push({
+      original: pattern,
+      untoned: removeVietnameseTones(pattern).toLowerCase(),
+      intent: intent
+    });
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN CLASSIFIER
 // Order: crisis → therapy navigation → metrics → regex fast-path → Fuse fuzzy → Dice fallback
@@ -971,7 +1062,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
 
   // 1. Crisis — must run first, before any similarity check.
   if (isCrisisText(cleanText)) {
-    const crisisIntent = INTENT_DATABASE.find(i => i.id === "crisis");
+    const crisisIntent = INTENT_MAP["crisis"];
     if (crisisIntent) {
       return {
         reply: crisisIntent.generateResponse(bio, historyLogs),
@@ -1014,69 +1105,13 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     return { reply: buildMetricsSummary(historyLogs), id: "metrics_report", tier: "free", quickActions: null };
   }
 
-  // 4. Regex fast-path — O(n) rules, ~1ms, highest priority for unambiguous patterns.
-  const rules = [
-    { id: "guide_bio_link",      regex: /(tao bio|chinh bio|sua bio|trang ca nhan|thong tin lien he|link bio|bio link|chinh theme|theme editor|giao dien bio|brutalism|glassmorphism|bo goc|do bong|vien nut|mau nen|background bio|chieu cao|can nang|so do|ba vong|vong nguc|vong eo|vong mong|thong so co ban|ky nang|portfolio)/ },
-    { id: "guide_booking",       regex: /(dat lich|hen lich|lich hen|hen chup|book|booking|khach dat|khach hen|khach book|quan ly lich|xem lich|zalo khach|email khach)/ },
-    { id: "guide_qr",            regex: /(ma qr|tao qr|qr wifi|wifi qr|qr vcard|vcard|qr danh ba|danh ba qr|quet wifi|quet qr|quet offline|in qr|tai qr|download qr|helpdesk|nfc)/ },
-    { id: "guide_signature",     regex: /(chu ky|signature|hugosmail|font chu ky|mau chu ky|tao chu ky|outlook|gmail)/ },
-    { id: "guide_ide",           regex: /(code|lap trinh|viet code|ide|hugocoder|hoc lap trinh|compiler|chay code|download code|tai code|python|cpp)/ },
-    { id: "guide_chess",         regex: /(co vua|chess|hugochess|dau co|choi co|phong co|giao huu|stockfish|dau co vua|choi co vua)/ },
-    { id: "guide_partners",      regex: /(iframe|nhung iframe|nhung link|nhung bio|doi tac|partner|security key|khoa bao mat|ma bao mat)/ },
-    { id: "panic_attack",        regex: /(kho tho|ngop tho|tim dap nhanh|hoang loan|run ray|sap ngat|panic)/ },
-    { id: "crisis",              regex: /(tu tu|tu sat|ket lieu|khong muon song|muon chet|tu lam dau|muon ket thuc)/ },
-    { id: "university_exam",     regex: /(thi dai hoc|thi thpt|thptqg|thi quoc gia|diem chuan dai hoc|on thi dai hoc)/ },
-    { id: "burnout",             regex: /(kiet suc|burn.?out|het suc roi|can kiet nang luong|gong qua lau|xiu roi)/ },
-    { id: "social_comparison",   regex: /(so sanh voi nguoi|nguoi ta gioi hon|thua kem moi nguoi|fomo|instagram lam|khong bang ai)/ },
-    { id: "perfectionism",       regex: /(cau toan|muon hoan hao|so lam sai|khong dam bat dau|tu chinh minh qua|phai lam cho hoan hao)/ },
-    { id: "body_image",          regex: /(tu ti ngoai hinh|beo qua|xau qua|ghet co the|khong hai long voi ngoai hinh|tu ti can nang)/ },
-    { id: "phone_addiction",     regex: /(nghien dien thoai|nghien tiktok|nghien mxh|luot mang xa hoi nhieu|nghien game|screen time)/ },
-    { id: "social_anxiety",      regex: /(so noi truoc dam dong|so bi phan xet|ngai tiep xuc nguoi la|social anxiety|so ra ngoai|khong dam phat bieu)/ },
-    { id: "homesickness",        regex: /(nho nha|xa nha|nho bo me|di hoc xa|nho que huong|xa gia dinh)/ },
-    { id: "first_love",          regex: /(thich ai do|co crush|dang yeu ai|tinh cam dau tien|thich ban trong lop|to tinh)/ },
-    { id: "jealousy",            regex: /(ghen voi ban|ghen tuong|ghen ti|ganh ti voi|ghet nguoi thanh cong hon)/ },
-    { id: "concentration",       regex: /(khong tap trung duoc|mat focus|lo dang|adhd|kho tap trung|doc sach khong vao)/ },
-    { id: "emptiness",           regex: /(trong rong|khong cam thay gi|vo cam|khong buon khong vui|trong khong|te liet cam xuc)/ },
-    { id: "overthinking",        regex: /(nghi nhieu qua|overthink|dau oc khong tat|lo van vo|suy nghi lap lai|khong ngung lo nghi)/ },
-    { id: "exercise_request",    regex: /(bai tap tho|huong dan tho|day toi thien|bai thien|bai tap thu gian|muon tho sau|tap tho cung toi)/ },
-    { id: "checkin_feature",     regex: /(check.?in la gi|diem danh cam xuc|streak la gi|tai sao phai check)/ },
-    { id: "venting_space",       regex: /(khong gian trut gian|trut bau tam su|tin nhan tu huy|che do trut gian)/ },
-    { id: "loneliness",          regex: /(co don|lac long|khong ai hieu|khong ai ben canh|bi bo roi|khong co ban)/ },
-    { id: "family_conflict",     regex: /(cai nhau voi bo me|gia dinh khong hieu|bo me ap dat|mau thuan voi gia dinh|bo me la mang|ky vong qua nhieu)/ },
-    { id: "friendship_conflict", regex: /(ban be xa lanh|bi bat nat|bi co lap|noi xau to|tay chay|bi bully|drama ban be)/ },
-    { id: "breakup",             regex: /(chia tay|that tinh|nguoi yeu bo|tinh cam tan vo|chia tay dau)/ },
-    { id: "low_self_esteem",     regex: /(vo dung|tu ti|kem coi|khong tin vao ban than|ghet ban than|cam thay that bai|khong du gioi)/ },
-    { id: "procrastination",     regex: /(tri hoan|luoi hoc|mat dong luc|khong co dong luc|chan deadline|om viec khong lam)/ },
-    { id: "anger",               regex: /(tuc gian|buc boi|nong gian|am uc|kho chiu trong nguoi|gian dien len|muon dap pha)/ },
-    { id: "grief",               regex: /(mat nguoi than|qua doi|de tang|dau buon vi mat mat|nguoi than qua doi)/ },
-    { id: "future_anxiety",      regex: /(hoang mang ve tuong lai|chon nganh|dinh huong nghe nghiep|khong biet minh muon gi|so chon sai nganh|tuong lai mo mit)/ },
-    { id: "room_organization",   regex: /(bo tri phong|sap xep phong|trang tri goc hoc tap|phong bua|don phong|sap xep phong ngu)/ },
-    { id: "mindful_spending",    regex: /(mua do toi thich|nen mua cay|tu thuong cho minh|mua sam de giai toa|mua sam linh tinh|tieu xai qua da)/ },
-    { id: "test_inventory",      regex: /(bao nhieu bai test|nhung bai test|danh sach bai test|may bai trac nghiem|cac bai kiem tra tam ly|test tam ly gom|co test gi)/ },
-    { id: "clinical_tests",      regex: /(lam bai test|lam trac nghiem|phq9|gad7|who5|bigfive|mmpi|kiem tra tram cam|kiem tra lo au)/ },
-    { id: "therapy_catalog",     regex: /(co lieu phap gi|tri lieu gom|cac lieu phap tu chua lanh|nen dung lieu phap nao|phuong phap tri lieu)/ },
-    { id: "pricing_package",     regex: /(gia bao nhieu|goi cuoc|mua goi|nap tien|ton phi|mat phi|goi premium|phi dich vu)/ },
-    { id: "joy_currency",        regex: /(joy la gi|kiem joy|dong joy|tien joy|xu joy|joy coin|dung joy)/ },
-    { id: "token_limit",         regex: /(gioi han token|het token|may token|reset token|luot chat|token la gi)/ },
-    { id: "about_creator",       regex: /(ai tao ra|hugo studio|ai phat trien|ai lam ra app|creator)/ },
-    { id: "data_privacy",        regex: /(du lieu cua toi|bao mat|lo tin nhan|an toan du lieu|co ai doc duoc|rieng tu)/ },
-    { id: "support_contact",     regex: /(bao loi|lien he ho tro|loi ky thuat|gap loi|nhan vien ho tro|support)/ },
-    { id: "identity",            regex: /(cau la ai|ban la ai|ten cau|la bot|gioi thieu ban than)/ },
-    { id: "features",            regex: /(lam duoc gi|tinh nang|chuc nang|giup gi|huong dan|features)/ },
-    { id: "sleep",               regex: /(mat ngu|kho ngu|ngu ngon|thuc khuya|thieu ngu|tinh giac giua dem)/ },
-    { id: "academic_stress",     regex: /(ap luc hoc|thi cu|diem so|thi rot|stress hoc|bai tap qua tai|deadline chong chat)/ },
-    { id: "anxiety",             regex: /(lo au|lo lang|bon chon|so hai|hoang so|lo so|tim dap hoi hop)/ },
-    { id: "sadness",             regex: /(buon|chan nan|tuyet vong|met moi|khoc|cam thay te|khong vui)/ },
-    { id: "gratitude",           regex: /(cam on|thank|de thuong|huu ich|tot qua|cau tot)/ },
-    { id: "positive",            regex: /(vui|khoe|hanh phuc|tuyet voi|rat tot|on lam|dang ok)/ },
-  ];
-
   let bestMatch = null;
   let highestScore = 0;
 
-  for (const rule of rules) {
+  // 4. Regex fast-path — O(n) rules, ~1ms, highest priority for pre-compiled static patterns.
+  for (const rule of STATIC_RULES) {
     if (rule.regex.test(cleanText)) {
-      const intentObj = INTENT_DATABASE.find(i => i.id === rule.id);
+      const intentObj = INTENT_MAP[rule.id];
       if (intentObj) {
         bestMatch = intentObj;
         highestScore = 0.95;
@@ -1089,30 +1124,31 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
   if (!bestMatch) {
     const fuse = getFuseInstance();
     const results = fuse.search(cleanText);
-    if (results.length > 0 && results[0].score < 0.42) {
-      const intentObj = INTENT_DATABASE.find(i => i.id === results[0].item.id);
+    if (results.length > 0 && results[0].score < 0.50) {
+      const intentObj = INTENT_MAP[results[0].item.id];
       if (intentObj) {
         bestMatch = intentObj;
-        highestScore = 1 - results[0].score; // e.g. score 0.2 → similarity 0.8
+        highestScore = 1 - results[0].score;
       }
     }
   }
 
-  // 6. Sørensen-Dice fallback — catches cases Fuse misses on longer pattern strings.
+  // 6. Sørensen-Dice fallback — catches cases Fuse misses, optimized using pre-computed untoned lookups
   if (!bestMatch) {
-    for (const intent of INTENT_DATABASE) {
-      for (const pattern of intent.patterns) {
-        const score = getSimilarityScore(text, pattern);
-        if (score > highestScore) {
-          highestScore = score;
-          bestMatch = intent;
-        }
+    for (const item of PRECOMPUTED_UNTONED_PATTERNS) {
+      const score = Math.max(
+        getDiceSimilarity(text, item.original),
+        getDiceSimilarity(cleanText, item.untoned)
+      );
+      if (score > highestScore) {
+        highestScore = score;
+        bestMatch = item.intent;
       }
     }
   }
 
-  // Threshold lowered from 0.80 → 0.72 for better recall with noisy/short input.
-  if (highestScore >= 0.72 && bestMatch) {
+  // Hạ ngưỡng từ 0.72 xuống 0.60 để ưu tiên khớp intent cục bộ tối đa, tiết kiệm lượt gọi server AI
+  if (highestScore >= 0.60 && bestMatch) {
     const replyText = bestMatch.generateResponse(bio, historyLogs);
 
     let companionUpdate = null;

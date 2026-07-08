@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { loginMemberWithGoogle } from "../../services/authSession";
 import { isEduEmail } from "../../utils/eduEmail";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 export default function StudentBenefitsPage() {
+  const { t } = useTranslation();
+
   useHeadMeta({
-    title: "Bio Của Riêng Bạn — Miễn Phí 12 Tháng | Hugo Studio",
-    description:
-      "Tôi tặng bạn một trang Bio đẹp, riêng biệt, không quảng cáo — miễn phí 12 tháng. Chỉ cần email giáo dục. Đó là lửa của bạn, hãy thắp sáng nó.",
+    title: t("studentBenefitsPage.metaTitle"),
+    description: t("studentBenefitsPage.metaDesc"),
     keywords: "Student Bio, Bio Link miễn phí, email edu, trang cá nhân, Hugo Studio",
     canonicalUrl: "https://www.hugowishpax.studio/student-benefits",
   });
@@ -36,20 +38,20 @@ export default function StudentBenefitsPage() {
     setToast({ message: "", type: "" });
 
     if (!response?.credential) {
-      showToast("Không thể xác thực với Google.", "error");
+      showToast(t("studentBenefitsPage.toastFail"), "error");
       return;
     }
 
     const { session, error } = await loginMemberWithGoogle(response.credential);
     if (!session) {
-      showToast(error === "network" ? "Không kết nối được máy chủ. Thử lại nhé." : "Không thể xác thực với Google.", "error");
+      showToast(error === "network" ? t("studentBenefitsPage.toastNetwork") : t("studentBenefitsPage.toastFail"), "error");
       return;
     }
 
     const isEdu = await isEduEmail(session.email);
     if (!isEdu) {
       showToast(
-        "Tài khoản của bạn sẽ ở trạng thái chờ duyệt vì đây không phải email .edu. Đang chuyển hướng...",
+        t("studentBenefitsPage.toastPending"),
         "warning",
       );
     }
@@ -135,26 +137,26 @@ export default function StudentBenefitsPage() {
   const benefits = [
     {
       icon: "favorite",
-      title: "Không Một Đồng",
-      desc: "Tôi tặng 12 tháng cho bạn — không phí ẩn, không quảng cáo. Đó là một lời hứa, không phải một giao dịch.",
+      title: t("studentBenefitsPage.benefits.free.title"),
+      desc: t("studentBenefitsPage.benefits.free.desc"),
       color: "text-primary",
     },
     {
       icon: "palette",
-      title: "Cánh Cửa Sáng Tạo",
-      desc: "Mỗi sắc thái, mỗi hình ảnh, mỗi liên kết — đều là của bạn. Trang Bio không chỉ đẹp, nó là tấm tranh của riêng bạn.",
+      title: t("studentBenefitsPage.benefits.creative.title"),
+      desc: t("studentBenefitsPage.benefits.creative.desc"),
       color: "text-secondary",
     },
     {
       icon: "flash_on",
-      title: "Nhanh Như Thở",
-      desc: "Trang bạn tải nhanh như suy nghĩ. Mượt như hơi thở trên tuyết — không lag, không chờ, chỉ có cảm giác.",
+      title: t("studentBenefitsPage.benefits.fast.title"),
+      desc: t("studentBenefitsPage.benefits.fast.desc"),
       color: "text-accent",
     },
     {
       icon: "fingerprint",
-      title: "Chỉ Là Của Bạn",
-      desc: "Bio Link riêng biệt — tên riêng của bạn, thiết kế riêng của bạn. Không mẫu mực, không công thức, chỉ bạn.",
+      title: t("studentBenefitsPage.benefits.yours.title"),
+      desc: t("studentBenefitsPage.benefits.yours.desc"),
       color: "text-success",
     },
   ];
@@ -187,7 +189,7 @@ export default function StudentBenefitsPage() {
               <span className="material-symbols-outlined text-sm">
                 arrow_back
               </span>
-              Quay lại dịch vụ
+              {t("studentBenefitsPage.backToServices")}
             </Link>
 
             <div className="space-y-3">
@@ -195,16 +197,13 @@ export default function StudentBenefitsPage() {
                 <span className="material-symbols-outlined text-[14px]">
                   workspace_premium
                 </span>
-                Tôi Tặng Bạn Lửa — 12 Tháng
+                {t("studentBenefitsPage.giftSpark")}
               </div>
               <h1 className="font-display text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-[1.1]">
-                Trang Bio <br className="hidden lg:block" />
-                <span className="text-gradient drop-shadow-sm">
-                  Của Riêng Bạn
-                </span>
+                {t("studentBenefitsPage.title")}
               </h1>
               <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground lg:mx-0">
-                Bạn là một sinh viên IT, một nghệ sĩ, một chuyên gia mà thế giới chưa biết. Bio Link này là cửa sổ để bạn nói: "Đây là tôi." Miễn phí 12 tháng, thiết kế riêng, không quảng cáo — chỉ là <strong>bạn, nói lên chính mình.</strong>
+                {t("studentBenefitsPage.desc")}
               </p>
             </div>
           </div>
@@ -213,10 +212,10 @@ export default function StudentBenefitsPage() {
           <div className="flex flex-col items-center justify-center gap-4 border-y border-border/60 py-4 sm:flex-row sm:gap-6 lg:justify-start">
             <div className="text-center sm:text-left">
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-0.5">
-                Giá thị trường
+                {t("studentBenefitsPage.marketValue")}
               </p>
               <p className="text-lg font-bold text-muted-foreground/70 line-through decoration-muted-foreground/40">
-                500.000đ<span className="text-xs font-normal">/năm</span>
+                {t("studentBenefitsPage.marketPrice")}<span className="text-xs font-normal">{t("studentBenefitsPage.perYear")}</span>
               </p>
             </div>
             <div className="hidden h-8 w-px bg-border sm:block"></div>
@@ -225,10 +224,10 @@ export default function StudentBenefitsPage() {
                 <span className="material-symbols-outlined text-[14px]">
                   favorite
                 </span>{" "}
-                Tôi Tặng Bạn
+                {t("studentBenefitsPage.giftToYou")}
               </p>
               <p className="text-2xl font-black text-foreground">
-                0đ<span className="text-sm font-medium"> — Vô Giá</span>
+                {t("studentBenefitsPage.giftPrice")}<span className="text-sm font-medium">{t("studentBenefitsPage.priceless")}</span>
               </p>
             </div>
           </div>
@@ -240,7 +239,7 @@ export default function StudentBenefitsPage() {
                 className="group relative border-b border-border/50 pb-4 transition-all duration-300 last:border-b-0 sm:pb-5"
               >
                 <div
-                  className={`mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-muted/50 transition-transform group-hover:scale-105 ${benefit.color}`}
+                  className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-muted/50 text-foreground transition-transform group-hover:scale-105"
                 >
                   <span className="material-symbols-outlined text-xl">
                     {benefit.icon}
@@ -268,18 +267,10 @@ export default function StudentBenefitsPage() {
               </div>
               <div>
                 <h2 className="font-display text-xl font-bold text-foreground mb-1">
-                  Xác Thực — Biết Bạn Là Ai
+                  {t("studentBenefitsPage.verificationTitle")}
                 </h2>
                 <p className="text-[11px] text-muted-foreground leading-relaxed px-2">
-                  Email giáo dục (
-                  <strong className="text-primary">
-                    .edu
-                  </strong>{" "}
-                  hoặc{" "}
-                  <strong className="text-primary">
-                    .edu.vn
-                  </strong>
-                  ) là chìa khóa. Hệ thống sẽ nhận ra bạn, tặng cho bạn lửa.
+                  {t("studentBenefitsPage.verificationDesc")}
                 </p>
               </div>
             </div>
@@ -293,7 +284,7 @@ export default function StudentBenefitsPage() {
 
                 <div className="flex w-full items-center gap-3 text-xs text-muted-foreground">
                   <div className="h-px flex-1 bg-border"></div>
-                  <span>hoặc nếu không tự hiện</span>
+                  <span>{t("studentBenefitsPage.orManual")}</span>
                   <div className="h-px flex-1 bg-border"></div>
                 </div>
 
@@ -308,25 +299,29 @@ export default function StudentBenefitsPage() {
                   }}
                   className="w-full border-b border-primary/30 px-1 py-2.5 text-xs font-semibold text-primary transition-all hover:bg-primary/5"
                 >
-                  Bấm để chọn tài khoản Google
+                  {t("studentBenefitsPage.clickSelect")}
                 </button>
               </div>
 
               {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
                 <p className="text-[10px] text-center text-red-500 font-medium">
-                  Cảnh báo: Thiếu Google Client ID
+                  {t("studentBenefitsPage.warningClientId")}
                 </p>
               )}
 
               {googleConfigError && (
                 <div className="w-full border-l-2 border-warning/40 bg-warning/8 px-4 py-3 text-left text-[10px] text-warning dark:text-amber-300">
                   <p className="font-semibold">{googleConfigError}</p>
-                  <p className="mt-1 text-muted-foreground">Authorized JavaScript origins cần chứa origin hiện tại và domain production.</p>
+                  <p className="mt-1 text-muted-foreground">{t("studentBenefitsPage.originError")}</p>
                 </div>
               )}
 
               <p className="text-[10px] text-center text-muted-foreground font-medium">
-                {googleConfigError ? "Google Sign-In đang bị chặn bởi cấu hình OAuth." : gisReady ? "Google Sign-In đã sẵn sàng." : "Đang tải Google Sign-In..."}
+                {googleConfigError 
+                  ? t("studentBenefitsPage.blockedByOauth") 
+                  : gisReady 
+                    ? t("studentBenefitsPage.ready") 
+                    : t("studentBenefitsPage.loading")}
               </p>
 
               <div className="flex w-full gap-2.5 border-t border-border/50 pt-3.5 text-left text-[10px] leading-relaxed text-muted-foreground sm:text-[11px]">
@@ -334,8 +329,7 @@ export default function StudentBenefitsPage() {
                   shield_person
                 </span>
                 <p>
-                  Hệ thống bảo mật bằng Google OAuth 2.0. Tự động gợi ý tài
-                  khoản edu đang đăng nhập trên trình duyệt của bạn.
+                  {t("studentBenefitsPage.securityDesc")}
                 </p>
               </div>
             </div>

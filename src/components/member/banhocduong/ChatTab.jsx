@@ -53,7 +53,8 @@ export default function ChatTab({
   healingActive,
   onProfileUpdate,
   onExitFullscreen,
-  journeyProgress
+  journeyProgress,
+  hasSevereDistress
 }) {
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
@@ -1637,6 +1638,27 @@ export default function ChatTab({
           </button>
         </div>
       </div>
+
+      {/* Alert banner for severe distress linking to O2O counselor bridge */}
+      {hasSevereDistress && (
+        <div className="mx-4 mb-2 p-3 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-start gap-2.5 shadow-md animate-fadeIn z-30 relative">
+          <span className="material-symbols-outlined text-rose-500 text-lg mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-black uppercase text-rose-700 dark:text-rose-400 tracking-wide">Phát hiện chỉ số căng thẳng cao</p>
+            <p className="text-[9.5px] text-zinc-600 dark:text-zinc-300 font-bold leading-relaxed mt-0.5">
+              Kết quả kiểm tra gần đây của cậu cho thấy mức độ áp lực đang ở mức cao. Đội ngũ chuyên gia tâm lý học đường luôn sẵn sàng lắng nghe cậu.
+            </p>
+            <button
+              type="button"
+              onClick={() => onNavigateToTab?.("counselor")}
+              className="mt-2 px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-[8.5px] font-black uppercase tracking-wider rounded-lg transition-all active:scale-95 flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[10px]">support_agent</span>
+              Kết nối Chuyên Gia ngay
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Tests bottom sheet ──────────────────────────────────────────────────── */}
       {showTestsMenu && (

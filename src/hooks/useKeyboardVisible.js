@@ -58,6 +58,12 @@ export function useVirtualKeyboardOptIn() {
 // Updates are rAF-batched and sub-pixel noise is ignored so the value doesn't
 // jitter (the flaw that sank earlier attempts). Callers should animate the
 // offset with a CSS transform + transition, never by changing layout height.
+//
+// iOS Safari note: when an input is focused the browser scrolls the page up
+// so the input is visible. This sets vv.offsetTop to a non-zero value during
+// the animation. We must NOT include vv.offsetTop in the inset calculation —
+// it represents page scroll position, not keyboard height. The keyboard height
+// is the gap between innerHeight and vv.height only.
 export function useKeyboardInset() {
   const [inset, setInset] = useState(0);
 
@@ -66,19 +72,39 @@ export function useKeyboardInset() {
     if (!vv) return;
 
     let raf = null;
+    // Suppress scroll-triggered recomputes for 300 ms after a focus event.
+    // On iOS, focusing an input causes the browser to auto-scroll the page,
+    // which fires vv "scroll" — but at that moment vv.height hasn't changed yet
+    // so we'd incorrectly compute inset = 0 and snap the UI back down.
+    let suppressUntil = 0;
+
     const compute = () => {
       raf = null;
-      const next = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      // Keyboard height = how much the visual viewport shrank vs the layout viewport.
+      // DO NOT subtract vv.offsetTop — that's page scroll, not keyboard height.
+      const next = Math.max(0, window.innerHeight - vv.height);
       setInset((prev) => (Math.abs(prev - next) > 1 ? next : prev));
     };
-    const schedule = () => { if (raf == null) raf = requestAnimationFrame(compute); };
 
-    vv.addEventListener("resize", schedule);
-    vv.addEventListener("scroll", schedule);
+    const scheduleResize = () => {
+      if (raf == null) raf = requestAnimationFrame(compute);
+    };
+
+    const scheduleScroll = () => {
+      if (Date.now() < suppressUntil) return;
+      if (raf == null) raf = requestAnimationFrame(compute);
+    };
+
+    const onFocus = () => { suppressUntil = Date.now() + 300; };
+
+    vv.addEventListener("resize", scheduleResize);
+    vv.addEventListener("scroll", scheduleScroll);
+    document.addEventListener("focusin", onFocus, true);
     compute();
     return () => {
-      vv.removeEventListener("resize", schedule);
-      vv.removeEventListener("scroll", schedule);
+      vv.removeEventListener("resize", scheduleResize);
+      vv.removeEventListener("scroll", scheduleScroll);
+      document.removeEventListener("focusin", onFocus, true);
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);

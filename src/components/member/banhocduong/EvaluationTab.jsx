@@ -10,6 +10,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import RadarChart from "./charts/RadarChart";
 import LineChart from "./charts/LineChart";
 import dataApi from "../../../services/dataApi";
+import AuraMoodMap from "./charts/AuraMoodMap";
 
 // ── Big Five Radar Chart Component ───────────────────────────────────────────
 function BigFiveRadarChart({ traits, maxScore = 5 }) {
@@ -634,56 +635,9 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
           </div>
         </div>
 
-        {/* Cell 2: Mood Speedometer Gauge (col-span-1) */}
-        <div className="col-span-1 p-5 rounded-2xl border bg-white/40 dark:bg-card/40 backdrop-blur-xl border-border/50 shadow-sm flex flex-col justify-between min-h-[260px] group">
-          <div>
-            <div className="flex items-center gap-2 border-b border-border/60 pb-2.5 mb-3">
-              <Activity className="w-4 h-4 text-success" />
-              <h4 className="text-[10px] font-black uppercase tracking-wider text-foreground">{t("companion.evaluation.moodGauge", "Chỉ số Cảm xúc")}</h4>
-            </div>
-            <p className="text-[10px] text-muted-foreground font-bold mb-4">{t("companion.evaluation.moodGaugeDesc", "Mức độ cân bằng cảm xúc trung bình gần đây")}</p>
-          </div>
-
-          <div className="relative flex flex-col items-center justify-center py-2">
-            <svg width="120" height="70" viewBox="0 0 120 70" className="overflow-visible">
-              {/* Background Arc */}
-              <path
-                d="M 20 60 A 40 40 0 0 1 100 60"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="8"
-                strokeLinecap="round"
-                className="text-muted/80"
-              />
-              {/* Active Arc */}
-              <motion.path
-                d="M 20 60 A 40 40 0 0 1 100 60"
-                fill="none"
-                stroke="url(#moodGaugeGrad)"
-                strokeWidth="8"
-                strokeLinecap="round"
-                strokeDasharray={moodArcLength}
-                initial={{ strokeDashoffset: moodArcLength }}
-                animate={{ strokeDashoffset: moodStrokeOffset }}
-                transition={{ duration: 1, ease: "easeOut" }}
-              />
-              <defs>
-                <linearGradient id="moodGaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="hsl(var(--destructive))" />
-                  <stop offset="50%" stopColor="hsl(var(--warning))" />
-                  <stop offset="100%" stopColor="hsl(var(--success))" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <div className="absolute bottom-2 flex flex-col items-center">
-              <span className="text-xl font-black text-foreground leading-none">{avgMoodValue}</span>
-              <span className="text-[7.5px] uppercase tracking-wider text-muted-foreground font-black mt-1">/ 5.0</span>
-            </div>
-          </div>
-
-          <div className={`mt-3 p-2 rounded-xl text-center text-[10px] font-black tracking-wide ${moodLabel.color}`}>
-            {t("companion.evaluation.moodGaugeState", "Trạng thái: ")} {moodLabel.text}
-          </div>
+        {/* Cell 2: Aura Mood Map */}
+        <div className="col-span-1">
+          <AuraMoodMap historyLogs={historyLogs} />
         </div>
 
         {/* Cell 3: Stress & Anxiety Progress Bars (col-span-1) */}

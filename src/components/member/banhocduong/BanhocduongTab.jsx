@@ -6,6 +6,8 @@ import ChatTab from "./ChatTab";
 import TherapyTab from "./TherapyTab";
 import EvaluationTab from "./EvaluationTab";
 import SleepTracker from "./SleepTracker";
+import CbtThoughtWorksheet from "./CbtThoughtWorksheet";
+import CounselorBridge from "./CounselorBridge";
 import dataApi from "../../../services/dataApi";
 import AIBot from "../../../services/classes/CompanionBot/AIBot";
 import { webPushHelper } from "../../../utils/webPushHelper";
@@ -22,6 +24,8 @@ const SUB_TABS = [
   { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
   { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
   { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
+  { id: 'cbt',        label: 'Nhật Ký CBT', icon: 'edit_note',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
+  { id: 'counselor',  label: 'Chuyên Gia', icon: 'support_agent',  grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
 ];
 
 // ── Helper: count qualified therapy activities ─────────────────────────────────
@@ -584,6 +588,14 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
 
   const activeTab = SUB_TABS.find(t => t.id === activeSubTab);
 
+  const hasSevereDistress = useMemo(() => {
+    const phq9 = historyLogs.filter(l => l.test === "phq9").slice(-1)[0];
+    const gad7 = historyLogs.filter(l => l.test === "gad7").slice(-1)[0];
+    if (phq9 && phq9.score >= 15) return true;
+    if (gad7 && gad7.score >= 15) return true;
+    return false;
+  }, [historyLogs]);
+
   // Mobile no longer has a visible tab switcher at all — Sleep/Evaluation
   // are reachable only by asking the AI in chat, and Therapy opens as an
   // in-chat overlay (see ChatTab.jsx) — so whatever `activeSubTab` happens to
@@ -771,6 +783,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                     setPresetTest={setPresetTest}
                     showToast={showToast}
                     healingActive={healingActive}
+                    hasSevereDistress={hasSevereDistress}
                     onProfileUpdate={(newFields) => {
                       if (setFormData && handleSave) {
                         setFormData(prev => {
@@ -810,6 +823,40 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                 )}
                 {effectiveSubTab === "evaluation" && (
                   <EvaluationTab onNavigateToTab={handleNavigateToTab} bio={bio} historyLogs={historyLogs} showToast={showToast} />
+                )}
+                {effectiveSubTab === "cbt" && (
+                  <div className="flex-1 overflow-y-auto p-4 md:p-6">
+                    <CbtThoughtWorksheet 
+                      chatHistory={chatMessages} 
+                      onSaveWorksheet={(data) => {
+                        const updatedLogs = [...(historyLogs || []), {
+                          date: data.date,
+                          type: "therapy_activity",
+                          name: "Bài tập nhận thức CBT",
+                          desc: `Hoàn thành tự nhận thức: "${data.situation}". Mức độ tin tưởng giảm từ ${data.intensity}% xuống ${data.newIntensity}%.`
+                        }];
+                        handleUpdateCompanionState({ historyLogs: updatedLogs });
+                      }}
+                      showToast={showToast}
+                    />
+                  </div>
+                )}
+                {effectiveSubTab === "counselor" && (
+                  <div className="flex-1 overflow-y-auto p-4 md:p-6">
+                    <CounselorBridge 
+                      bio={bio}
+                      onBookAppointment={(data) => {
+                        const updatedLogs = [...(historyLogs || []), {
+                          date: data.date,
+                          type: "appointment",
+                          name: "Hẹn lịch chuyên gia",
+                          desc: `Mã bảo mật: ${data.ticketId}. Hình thức: ${data.method}. Slot: ${data.slot}. Trạng thái: Đang chờ xác nhận.`
+                        }];
+                        handleUpdateCompanionState({ historyLogs: updatedLogs });
+                      }}
+                      showToast={showToast}
+                    />
+                  </div>
                 )}
               </motion.div>
             </AnimatePresence>

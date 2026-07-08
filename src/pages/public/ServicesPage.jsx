@@ -346,9 +346,9 @@ function DemoShowcaseSection() {
           {/* Device Selector toolbar - hidden on extra small mobile */}
           <div className="hidden sm:flex items-center gap-1.5 p-1 rounded-2xl bg-muted/65 border border-border w-fit">
             {[
-              { id: "desktop", label: "Máy tính", icon: "laptop" },
-              { id: "tablet", label: "Máy tính bảng", icon: "tablet_mac" },
-              { id: "mobile", label: "Điện thoại", icon: "smartphone" }
+              { id: "desktop", label: t("servicesPage.devices.desktop"), icon: "laptop" },
+              { id: "tablet", label: t("servicesPage.devices.tablet"), icon: "tablet_mac" },
+              { id: "mobile", label: t("servicesPage.devices.mobile"), icon: "smartphone" }
             ].map((d) => (
               <button
                 key={d.id}
@@ -453,18 +453,19 @@ export default function ServicesPage() {
 
   const [priceMode, setPriceMode] = useState(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get("type") === "student" ? "student" : "commercial";
+    const type = searchParams.get("type");
+    if (type === "student") return "student";
+    if (type === "micro") return "micro";
+    return "commercial";
   });
-
-  const [courseworkStack, setCourseworkStack] = useState("react");
 
   const staticPlans = STATIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
   const dynamicPlans = DYNAMIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
   const carePlans = CARE_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
 
   const studentPlans = useMemo(() => {
-    const plansKeys = ["bug", "bento", "coursework"];
-    const icons = ["handyman", "contact_page", "code"];
+    const plansKeys = ["bug", "bento", "html", "php", "react"];
+    const icons = ["handyman", "contact_page", "code", "code_blocks", "terminal"];
     return plansKeys.map((key, index) => {
       const planData = t(`servicesPage.studentPlans.${key}`, { returnObjects: true });
       return {
@@ -473,6 +474,16 @@ export default function ServicesPage() {
         ...planData,
       };
     });
+  }, [t]);
+
+  const microJobsList = useMemo(() => {
+    return MICRO_JOBS.map((job) => ({
+      ...job,
+      name: t(`servicesPage.microJobs.${job.id}.name`),
+      desc: t(`servicesPage.microJobs.${job.id}.desc`),
+      price: t(`servicesPage.microJobs.${job.id}.price`),
+      time: t(`servicesPage.microJobs.${job.id}.time`),
+    }));
   }, [t]);
 
   const trustPoints = t("servicesPage.hero.trust", { returnObjects: true });
@@ -553,18 +564,18 @@ export default function ServicesPage() {
               <div className="flex items-center gap-2 mb-1">
                 <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-xl">school</span>
                 <h3 className="font-bold text-sm sm:text-base text-blue-900 dark:text-blue-200">
-                  Bio Trang Cá Nhân Miễn Phí Cho Sinh Viên
+                  {t("servicesPage.promo.title")}
                 </h3>
               </div>
               <p className="text-xs sm:text-sm text-blue-800/80 dark:text-blue-300/80 ml-8">
-                Email .edu = Trang bio đẹp, tùy chỉnh toàn bộ. Nhấn ngay để xác minh.
+                {t("servicesPage.promo.desc")}
               </p>
             </div>
             <Link
               to="/student-benefits"
               className="shrink-0 inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-semibold text-xs sm:text-sm transition-all hover:shadow-lg active:scale-95"
             >
-              <span>Xác Minh Ngay</span>
+              <span>{t("servicesPage.promo.cta")}</span>
               <span className="material-symbols-outlined text-base">arrow_forward</span>
             </Link>
           </div>
@@ -669,7 +680,7 @@ export default function ServicesPage() {
                 priceMode === "commercial" ? "text-background" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Doanh nghiệp
+              {t("servicesPage.tabs.commercial")}
             </button>
             <button
               onClick={() => setPriceMode("student")}
@@ -677,7 +688,7 @@ export default function ServicesPage() {
                 priceMode === "student" ? "text-background" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Học sinh & Sinh viên
+              {t("servicesPage.tabs.student")}
             </button>
             <button
               onClick={() => setPriceMode("micro")}
@@ -685,12 +696,12 @@ export default function ServicesPage() {
                 priceMode === "micro" ? "text-background" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Việc lẻ / Chỉnh sửa
+              {t("servicesPage.tabs.micro")}
             </button>
           </div>
         </div>
         <p className="mt-4 text-xs text-muted-foreground/75 italic">
-          * Tất cả bảng giá dưới đây là giá tham khảo. Giá cuối cùng sẽ được chốt qua tư vấn 1-1, đảm bảo không phát sinh chi phí ẩn.
+          {t("servicesPage.disclaimer")}
         </p>
       </section>
 
@@ -711,10 +722,10 @@ export default function ServicesPage() {
               <div className="text-center">
                 <h3 className="text-lg sm:text-xl font-bold text-foreground inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10">
                   <span className="material-symbols-outlined text-primary text-lg">rocket_launch</span>
-                  Thiết Kế & Xây Dựng Mới
+                  {t("servicesPage.section.newBuildsTitle")}
                 </h3>
                 <p className="text-xs text-muted-foreground mt-2 max-w-md mx-auto">
-                  Dành cho cá nhân, doanh nghiệp cần làm website mới từ đầu để quảng bá thương hiệu.
+                  {t("servicesPage.section.newBuildsDesc")}
                 </p>
               </div>
               
@@ -730,10 +741,10 @@ export default function ServicesPage() {
               <div className="text-center">
                 <h3 className="text-lg sm:text-xl font-bold text-foreground inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/5 border border-accent/10">
                   <span className="material-symbols-outlined text-accent text-lg">bolt</span>
-                  Tối Ưu SEO, Tăng Tốc & Sửa Lỗi
+                  {t("servicesPage.section.optimizeTitle")}
                 </h3>
                 <p className="text-xs text-muted-foreground mt-2 max-w-md mx-auto">
-                  Dành cho website sẵn có cần nâng cấp điểm SEO, đẩy nhanh tốc độ hoặc gỡ lỗi kỹ thuật.
+                  {t("servicesPage.section.optimizeDesc")}
                 </p>
               </div>
               
@@ -756,93 +767,55 @@ export default function ServicesPage() {
             highlight={t("servicesPage.pricing.highlight")}
             desc={t("servicesPage.pricing.desc")}
           />
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {studentPlans.map((plan) => {
-              const isCoursework = plan.id === "coursework";
-              const currentStackData = isCoursework ? plan.stacks[courseworkStack] : null;
-              const displayPrice = isCoursework ? currentStackData.price : plan.price;
-              const displayOldPrice = isCoursework ? currentStackData.oldPrice : plan.oldPrice;
-              const displayDiscount = isCoursework ? currentStackData.discount : plan.discount;
-              const displayNote = isCoursework ? currentStackData.note : plan.note;
-              const displayDesc = isCoursework ? currentStackData.desc : plan.desc;
-              const displayIncludes = isCoursework ? currentStackData.includes : plan.includes;
-
-              return (
-                <motion.article
-                  {...reveal}
-                  key={plan.id}
-                  className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:p-7"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-3">
-                      <MonoIcon name={plan.icon} className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
-                      {displayDiscount && (
-                        <span className="rounded-full bg-emerald-500/20 px-3 py-0.5 text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">
-                          {displayDiscount}
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="font-display mt-5 text-xl font-bold text-foreground">{plan.name}</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">{plan.tagline}</p>
-
-                    {/* Tech Stack selector pills */}
-                    {isCoursework && (
-                      <div className="mt-4 flex flex-wrap gap-1 p-1 rounded-2xl bg-muted/80 border border-border relative z-10">
-                        {[
-                          { id: "html", label: "HTML/CSS/JS" },
-                          { id: "php", label: "PHP/SQL" },
-                          { id: "react", label: "React/Node" }
-                        ].map((s) => (
-                          <button
-                            key={s.id}
-                            onClick={() => setCourseworkStack(s.id)}
-                            className={`flex-1 rounded-xl px-2 py-1.5 text-[9px] font-bold uppercase transition-all duration-200 ${
-                              courseworkStack === s.id
-                                ? "bg-foreground text-background shadow"
-                                : "text-muted-foreground hover:text-foreground"
-                            }`}
-                          >
-                            {s.label}
-                          </button>
-                        ))}
-                      </div>
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {studentPlans.map((plan) => (
+              <motion.article
+                {...reveal}
+                key={plan.id}
+                className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:p-7"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-3">
+                    <MonoIcon name={plan.icon} />
+                    {plan.discount && (
+                      <span className="rounded-full bg-foreground/10 text-foreground px-3 py-0.5 text-[10px] font-extrabold border border-foreground/10">
+                        {plan.discount}
+                      </span>
                     )}
+                  </div>
+                  <h3 className="font-display mt-5 text-xl font-bold text-foreground">{plan.name}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{plan.tagline}</p>
 
-                    <div className="mt-4 flex items-baseline gap-2">
-                      <span className="text-2xl font-black text-foreground">{displayPrice}</span>
-                      {displayOldPrice && (
-                        <span className="text-xs text-muted-foreground line-through">{displayOldPrice}</span>
-                      )}
-                    </div>
-                    <p className="mt-1 text-[11px] text-muted-foreground/80 leading-normal">{displayNote}</p>
-                    <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{displayDesc}</p>
-                    <div className="mt-6 border-t border-border/60 pt-4">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Bạn nhận được:</p>
-                      <ul className="mt-3 space-y-2">
-                        {displayIncludes?.slice(0, 4).map((item) => (
-                          <li key={item} className="flex items-start gap-2 text-xs leading-relaxed text-foreground/80">
-                            <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                  <div className="mt-4 flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-foreground">{plan.price}</span>
+                    {plan.oldPrice && (
+                      <span className="text-xs text-muted-foreground line-through">{plan.oldPrice}</span>
+                    )}
                   </div>
-                  <div className="mt-8">
-                    <Link
-                      to={
-                        isCoursework
-                          ? `/booking?type=student&plan=coursework&stack=${courseworkStack}`
-                          : `/booking?type=student&plan=${plan.id}`
-                      }
-                      className="block w-full text-center rounded-2xl bg-foreground py-3 text-xs font-bold text-background transition-all hover:bg-foreground/90 active:scale-98"
-                    >
-                      Đăng ký gói sinh viên
-                    </Link>
+                  <p className="mt-1 text-[11px] text-muted-foreground/80 leading-normal">{plan.note}</p>
+                  <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{plan.desc}</p>
+                  <div className="mt-6 border-t border-border/60 pt-4">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Bạn nhận được:</p>
+                    <ul className="mt-3 space-y-2">
+                      {plan.includes?.map((item) => (
+                        <li key={item} className="flex items-start gap-2 text-xs leading-relaxed text-foreground/80">
+                          <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </motion.article>
-              );
-            })}
+                </div>
+                <div className="mt-8">
+                  <Link
+                    to={`/booking?type=student&plan=${plan.id}`}
+                    className="block w-full text-center rounded-2xl bg-foreground py-3 text-xs font-bold text-background transition-all hover:bg-foreground/90 active:scale-98"
+                  >
+                    Liên hệ đăng ký
+                  </Link>
+                </div>
+              </motion.article>
+            ))}
           </div>
           <div className="mt-12 text-center">
             <Link
@@ -900,14 +873,14 @@ export default function ServicesPage() {
           {/* ================= MICRO SERVICES (VIỆC LẺ) ================= */}
           <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:px-8 animate-fadeIn">
             <SectionHeading
-              eyebrow="Tốc Độ & Tiện Lợi"
-              title="Dịch Vụ Việc Lẻ"
-              highlight="Chỉnh Sửa Nhanh"
-              desc="Giải quyết nhanh chóng các yêu cầu nhỏ lẻ trong ngày. Báo giá minh bạch, thanh toán linh hoạt, không phát sinh chi phí ẩn."
+              eyebrow={t("servicesPage.micro.eyebrow")}
+              title={t("servicesPage.micro.title")}
+              highlight={t("servicesPage.micro.highlight")}
+              desc={t("servicesPage.micro.desc")}
             />
 
             <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-stretch">
-              {MICRO_JOBS.map((job) => (
+              {microJobsList.map((job) => (
                 <motion.article
                   key={job.id}
                   {...reveal}
@@ -915,7 +888,7 @@ export default function ServicesPage() {
                 >
                   <div>
                     <div className="flex items-start justify-between gap-3">
-                      <MonoIcon name={job.icon} className="bg-primary/10 text-primary" />
+                      <MonoIcon name={job.icon} />
                       <span className="rounded-full bg-muted border border-border px-3 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                         {job.time}
                       </span>
@@ -931,14 +904,14 @@ export default function ServicesPage() {
 
                   <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Chi phí:</p>
+                      <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">{t("servicesPage.micro.costLabel")}</p>
                       <p className="text-base sm:text-lg font-black text-foreground">{job.price}</p>
                     </div>
                     <Link
                       to={`/booking?type=micro&plan=${job.id}`}
                       className="inline-flex items-center gap-1 text-[11px] font-bold text-primary group-hover:underline"
                     >
-                      Đăng ký
+                      {t("servicesPage.micro.cta")}
                       <span className="material-symbols-outlined text-xs">arrow_forward</span>
                     </Link>
                   </div>
@@ -950,15 +923,15 @@ export default function ServicesPage() {
               <div className="absolute -inset-10 bg-primary/5 blur-2xl rounded-full" />
               <div className="relative z-10 space-y-3">
                 <span className="material-symbols-outlined text-4xl text-muted-foreground">support_agent</span>
-                <h4 className="font-display text-lg font-bold text-foreground">Bạn có yêu cầu khác biệt không nằm trong danh sách?</h4>
+                <h4 className="font-display text-lg font-bold text-foreground">{t("servicesPage.micro.customTitle")}</h4>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Đừng lo lắng! Hugo sẵn sàng nhận các yêu cầu tùy chỉnh theo giờ hoặc tính chất công việc riêng biệt. Báo giá minh bạch trước khi bắt tay thực hiện.
+                  {t("servicesPage.micro.customDesc")}
                 </p>
                 <Link
                   to="/booking"
                   className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-xs font-bold text-background shadow-lg transition-all hover:bg-foreground/90 active:scale-95"
                 >
-                  Trao đổi yêu cầu riêng
+                  {t("servicesPage.micro.customCta")}
                   <span className="material-symbols-outlined text-sm">chat</span>
                 </Link>
               </div>
