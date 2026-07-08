@@ -2,6 +2,7 @@ import express from "express";
 import { requireMember, requireAdmin } from "../middleware/authMiddleware.js";
 import multer from "multer";
 import path from "path";
+import { sendHugoTeamApplyConfirm, sendHugoTeamApproved, sendHugoTeamRejected } from "../services/emailService.js";
 
 const router = express.Router();
 
@@ -99,6 +100,9 @@ router.post("/apply", upload.single("cv"), requireMember, (req, res) => {
       createdAt: new Date()
     });
 
+    // Send confirmation email
+    await sendHugoTeamApplyConfirm(name, email);
+
     res.json({
       success: true,
       message: "Application submitted successfully"
@@ -156,6 +160,9 @@ router.post("/admin/approve", requireAdmin, (req, res) => {
 
     applicantsDb.delete(email);
 
+    // Send approval email
+    await sendHugoTeamApproved(applicant.name, email);
+
     res.json({
       success: true,
       message: `${applicant.name} approved as developer`
@@ -185,6 +192,9 @@ router.post("/admin/reject", requireAdmin, (req, res) => {
 
     // Delete application
     applicantsDb.delete(email);
+
+    // Send rejection email
+    await sendHugoTeamRejected(applicant.name, email);
 
     res.json({
       success: true,
