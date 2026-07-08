@@ -91,7 +91,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* Hugo Team — Recruitment */}
       {selectedUtility === "team" && (
-        <HugoTeamTab onBack={() => onSelectUtility(null)} showToast={showToast} />
+        <HugoTeamTab onBack={() => onSelectUtility(null)} />
       )}
 
       {/* HugoRadio */}

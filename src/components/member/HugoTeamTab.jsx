@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import SubUtilityHeader from "./SubUtilityHeader";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/authSession";
 
-export default function HugoTeamTab() {
+export default function HugoTeamTab({ onBack }) {
   const [developers, setDevelopers] = useState([]);
   const [cvFile, setCvFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,13 +98,16 @@ export default function HugoTeamTab() {
   };
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="animate-fadeIn max-w-4xl mx-auto bg-white dark:bg-background rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 space-y-6">
+      <SubUtilityHeader title="Hugo Team" icon="groups" colorClass="text-primary" onBack={onBack} />
+
+      <div className="space-y-8">
       {/* Header */}
       <div className="space-y-3">
         <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
           Recruitment
         </div>
-        <h1 className="text-4xl font-black text-foreground">Hugo Team</h1>
+        <h1 className="text-2xl font-black text-foreground">Tuyển Dụng Sinh Viên</h1>
         <p className="text-base text-muted-foreground max-w-2xl">
           Tôi đang tìm các bạn sinh viên nam/nữ năm 2-3 ngành CNTT để cùng phát triển Hugo Studio.
           Đây là cơ hội học vừa làm, hoàn toàn miễn phí, không lương nhưng bạn sẽ xây dựng được portfolio thực tế.
@@ -238,6 +242,7 @@ export default function HugoTeamTab() {
         <a href="mailto:hugowishpax@gmail.com" className="text-primary font-semibold hover:underline">
           hugowishpax@gmail.com
         </a>
+      </div>
       </div>
     </div>
   );
