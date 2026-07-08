@@ -75,7 +75,7 @@ router.get("/status/:email", (req, res) => {
  * POST /api/hugoteam/apply
  * Submit CV application
  */
-router.post("/apply", upload.single("cv"), requireMember, (req, res) => {
+router.post("/apply", upload.single("cv"), requireMember, async (req, res) => {
   try {
     const { email, name } = req.body;
     const file = req.file;
@@ -134,7 +134,7 @@ router.get("/admin/applicants", requireAdmin, (req, res) => {
  * POST /api/hugoteam/admin/approve
  * Approve applicant (admin only)
  */
-router.post("/admin/approve", requireAdmin, (req, res) => {
+router.post("/admin/approve", requireAdmin, async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -177,7 +177,7 @@ router.post("/admin/approve", requireAdmin, (req, res) => {
  * POST /api/hugoteam/admin/reject
  * Reject applicant (admin only)
  */
-router.post("/admin/reject", requireAdmin, (req, res) => {
+router.post("/admin/reject", requireAdmin, async (req, res) => {
   try {
     const { email } = req.body;
 
