@@ -48,20 +48,16 @@ export function JoyProvider({ children, email = "user@example.com" }) {
   useEffect(() => { refreshAll(); }, [email]);
 
   async function executeExchange(item) {
-    try {
-      const res = await fetch(`${API_BASE}/joy/exchange`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, item }),
-      });
-      const d = await res.json();
-      if (!res.ok) throw new Error(d?.error || d?.message || "Exchange failed");
-      // refresh data after success
-      await refreshAll();
-      return d;
-    } catch (e) {
-      throw e;
-    }
+    const res = await fetch(`${API_BASE}/joy/exchange`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, item }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d?.error || d?.message || "Exchange failed");
+    // refresh data after success
+    await refreshAll();
+    return d;
   }
 
   // Optimistic execute: apply local state changes immediately, attempt API call, rollback on failure

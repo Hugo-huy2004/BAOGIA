@@ -1,53 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0">
-  
-  <!-- Main Homepage - Highest Priority -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Homepage (redirects to /introduction) -->
   <url>
     <loc>https://www.hugowishpax.studio/</loc>
-    <lastmod>2026-05-20</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- Main Pages -->
+
   <url>
     <loc>https://www.hugowishpax.studio/introduction</loc>
-    <lastmod>2026-05-20</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>1.0</priority>
   </url>
-  
+
+  <!-- Services / pricing — main money page for "làm web giá rẻ" -->
   <url>
     <loc>https://www.hugowishpax.studio/services</loc>
-    <lastmod>2026-05-20</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  
+
+  <url>
+    <loc>https://www.hugowishpax.studio/booking</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
   <url>
     <loc>https://www.hugowishpax.studio/faq</loc>
-    <lastmod>2026-05-20</lastmod>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
+
   <url>
-    <loc>https://www.hugowishpax.studio/booking</loc>
-    <lastmod>2026-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.hugowishpax.studio/login</loc>
-    <lastmod>2026-05-20</lastmod>
+    <loc>https://www.hugowishpax.studio/student-benefits</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
 
-  <!-- Note: Bio pages (/bio/[slug]) should be generated dynamically via server sitemap endpoint -->
-  <!-- Consider implementing: GET /sitemap-bios.xml for dynamic bio URLs -->
+  <url>
+    <loc>https://www.hugowishpax.studio/user-guide</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.hugowishpax.studio/login</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://www.hugowishpax.studio/privacy-policy</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Bio pages (/bio/[slug]) are user content; add a dynamic
+       GET /sitemap-bios.xml server endpoint if they should be indexed. -->
 
 </urlset>

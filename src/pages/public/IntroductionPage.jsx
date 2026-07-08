@@ -25,30 +25,6 @@ import { useTranslation, Trans } from "react-i18next";
 // Chiều cao stage = viewport trừ header 56px (đồng bộ layout cũ)
 const STAGE_H = "h-[calc(100vh-56px)]";
 
-// Decorative particles — randomised ONCE at module load (pure render)
-const RAIN_DROPS = Array.from({ length: 30 }, () => ({
-  left: `${Math.random() * 100}%`,
-  top: `-${Math.random() * 20 + 10}%`,
-  animationDelay: `${Math.random() * 2}s`,
-  animationDuration: `${Math.random() * 0.5 + 0.5}s`,
-}));
-
-const LEAVES = Array.from({ length: 12 }, (_, i) => ({
-  left: `${(i * 37 + 11) % 100}%`,
-  size: 8 + (i % 4) * 3,
-  duration: `${8 + (i % 5) * 2}s`,
-  delay: `${(i % 6) * 1.4}s`,
-}));
-
-const FIREFLIES = Array.from({ length: 8 }, (_, i) => ({
-  left: `${(i * 29 + 17) % 90}%`,
-  top: `${(i * 41 + 13) % 85}%`,
-  dx: (i % 2 ? 1 : -1) * (14 + (i % 4) * 8),
-  dy: (i % 3 ? -1 : 1) * (10 + (i % 3) * 9),
-  duration: 4 + (i % 4),
-  delay: i * 0.6,
-}));
-
 const DUST = Array.from({ length: 18 }, (_, i) => ({
   left: `${(i * 53) % 100}%`,
   top: `${(i * 31) % 100}%`,
@@ -63,13 +39,30 @@ const NOISE_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
 const JASON_PHOTO =
   "https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png";
 
-// Bộ sticker chibi (public/image) — chất hoạt hình dễ thương của trang
-const STICKER_CODING = "/image/avt5.png";
-const STICKER_HELLO = "/image/avt1.png";
-const STICKER_WOW = "/image/avt3.png";
-const FERN_MAIN = "https://res.cloudinary.com/dyehwoscu/image/upload/v1779443455/IMG_6573_rrrbpn.heic";
-const FERN_SMALL_1 = "https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6575_ko0sly.heic";
-const FERN_SMALL_2 = "https://res.cloudinary.com/dyehwoscu/image/upload/v1779443454/IMG_6574_rwhajd.heic";
+// Bộ sticker chibi (public/image) — dàn nhân vật hoạt hình của trang
+const STICKER_CODING = "/image/avt5.png"; // gõ laptop
+const STICKER_HELLO = "/image/avt1.png"; // vẫy tay Hello!
+const STICKER_WOW = "/image/avt3.png"; // ngạc nhiên Wow!
+const STICKER_NICE = "/image/avt2.png"; // giơ ngón cái Nice!
+const STICKER_SUPPORT = "/image/avt7.png"; // hỗ trợ tai nghe
+const STICKER_GO = "/image/avt6.png"; // xe du lịch Let's go
+const STICKER_YUMMY = "/image/avt4.png"; // ăn burger Yummy!
+
+// Nhân vật chibi lơ lửng — dùng chung cho mọi scene
+function Chibi({ src, className = "", delay = 0, drift = 8, tilt = 4 }) {
+  return (
+    <motion.img
+      src={src}
+      alt=""
+      aria-hidden
+      loading="lazy"
+      animate={{ y: [-drift, drift, -drift], rotate: [-tilt, tilt, -tilt] }}
+      transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut", delay }}
+      whileHover={{ scale: 1.15, rotate: 0 }}
+      className={`drop-shadow-xl pointer-events-auto select-none ${className}`}
+    />
+  );
+}
 
 /* ---------------------------------------------------------------------------
    Shared helpers
@@ -231,13 +224,7 @@ function Shine() {
    SCENE 0 — HUGO STUDIO HERO (hologram website 3D đang được "xây" + spotlight)
    ------------------------------------------------------------------------- */
 
-// Chip icon lơ lửng quanh hologram — độ sâu translateZ khác nhau
-const HERO_CHIPS = [
-  { icon: "code", pos: "top-[-6%] left-[-10%]", z: 70, delay: 0 },
-  { icon: "brush", pos: "top-[22%] right-[-12%]", z: 50, delay: 0.8 },
-  { icon: "school", pos: "bottom-[16%] left-[-12%]", z: 60, delay: 1.6 },
-  { icon: "rocket_launch", pos: "bottom-[-6%] right-[-8%]", z: 80, delay: 2.4 },
-];
+// Bỏ chip icon — không cần, làm chồng đè
 
 // Skeleton lines — website tự "gõ" ra từng dòng rồi lặp lại
 const HERO_LINES = [
@@ -397,11 +384,11 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
         className="absolute bottom-[16%] left-[8%] w-36 h-36 md:w-52 md:h-52 bg-primary/25 rounded-full blur-[80px] pointer-events-none"
       />
 
-      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center relative z-10">
-        {/* Left: studio identity */}
+      <div className="w-full max-w-6xl mx-auto px-5 sm:px-8 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center relative z-10">
+        {/* Left: studio identity — layout sạch, không chồng đè */}
         <motion.div
           style={{ y: textY, opacity: textOpacity }}
-          className="space-y-4 sm:space-y-6 text-center lg:text-left order-1 will-change-transform"
+          className="space-y-5 sm:space-y-7 text-center lg:text-left order-2 lg:order-1 will-change-transform"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -466,8 +453,8 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
           </motion.div>
         </motion.div>
 
-        {/* Right: hologram website 3D + orbit ring + chip icon lơ lửng */}
-        <div className="order-2 flex items-center justify-center py-4" style={{ perspective: 1400 }}>
+        {/* Right: hologram website 3D — sạch sẽ, không chồng đè */}
+        <div className="order-1 lg:order-2 flex items-center justify-center py-4 relative" style={{ perspective: 1400 }}>
           <motion.div
             animate={{ y: [-8, 8, -8] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
@@ -484,40 +471,32 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
               }}
               className="relative will-change-transform"
             >
-              {/* Orbit ring nghiêng quanh hologram */}
+              {/* Orbit ring nhỏ hơn, không chồng */}
               <div
-                className="absolute left-1/2 top-1/2 pointer-events-none"
+                className="absolute left-1/2 top-1/2 pointer-events-none opacity-60"
                 style={{ transform: "translate(-50%,-50%) rotateX(72deg)", transformStyle: "preserve-3d" }}
               >
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                  className="w-[340px] h-[340px] sm:w-[440px] sm:h-[440px] rounded-full border border-primary/25 relative"
+                  className="w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] rounded-full border border-primary/20 relative"
                 >
-                  <span className="absolute -top-1 left-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.8)]" />
-                  <span className="absolute top-1/2 -right-1 w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_hsl(var(--accent)/0.8)]" />
+                  <span className="absolute -top-0.5 left-1/2 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
                 </motion.div>
               </div>
 
+              {/* Chibi Nice! ló đầu — vị trí rõ ràng */}
+              <Chibi
+                src={STICKER_NICE}
+                delay={0.4}
+                drift={4}
+                className="absolute -top-12 -right-6 sm:-right-8 w-14 sm:w-18 z-20"
+              />
+
               <StudioHologram />
 
-              {/* Chip icon lơ lửng ở các độ sâu khác nhau */}
-              {HERO_CHIPS.map((c) => (
-                <motion.div
-                  key={c.icon}
-                  animate={{ y: [-7, 7, -7] }}
-                  transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: c.delay }}
-                  style={{ z: c.z }}
-                  className={`absolute ${c.pos} will-change-transform`}
-                >
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-card/80 backdrop-blur-md border border-border/60 shadow-lg flex items-center justify-center">
-                    <span className="material-symbols-outlined text-lg sm:text-xl text-foreground">{c.icon}</span>
-                  </div>
-                </motion.div>
-              ))}
-
               {/* Bóng đổ dưới hologram */}
-              <div className="absolute left-1/2 -bottom-12 -translate-x-1/2 w-56 h-8 rounded-[100%] bg-black/20 dark:bg-black/50 blur-xl pointer-events-none" />
+              <div className="absolute left-1/2 -bottom-12 -translate-x-1/2 w-52 h-6 rounded-[100%] bg-black/15 dark:bg-black/40 blur-lg pointer-events-none" />
             </motion.div>
           </motion.div>
         </div>
@@ -728,23 +707,9 @@ function ScenePartners({ container, bind, t }) {
           >
             {/* Blob hoạt hình sau lưng */}
             <div className="absolute -inset-6 bg-primary/15 blur-2xl animate-blobMorph pointer-events-none" />
-            {/* Sticker vệ tinh quanh card */}
-            <motion.img
-              src={STICKER_HELLO}
-              alt=""
-              aria-hidden
-              animate={{ y: [-6, 8, -6], rotate: [-8, -2, -8] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -left-10 sm:-left-14 top-6 w-16 sm:w-20 drop-shadow-lg z-10 pointer-events-none"
-            />
-            <motion.img
-              src={STICKER_WOW}
-              alt=""
-              aria-hidden
-              animate={{ y: [6, -8, 6], rotate: [6, 12, 6] }}
-              transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-              className="absolute -right-10 sm:-right-14 bottom-16 w-16 sm:w-20 drop-shadow-lg z-10 pointer-events-none"
-            />
+            {/* Nhân vật chibi vệ tinh quanh card */}
+            <Chibi src={STICKER_HELLO} tilt={6} className="absolute -left-10 sm:-left-14 top-6 w-16 sm:w-20 z-10" />
+            <Chibi src={STICKER_WOW} delay={0.6} tilt={5} className="absolute -right-10 sm:-right-14 bottom-16 w-16 sm:w-20 z-10" />
             <motion.div animate={{ y: [-6, 6, -6] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} style={{ perspective: 900 }}>
               <FounderHologram t={t} />
             </motion.div>
@@ -794,7 +759,9 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
 
       <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-12 items-center relative z-10">
         {/* Portrait — 3D tilt theo scroll + con trỏ, các lớp nổi translateZ */}
-        <div className="lg:col-span-5 flex justify-center" style={{ perspective: 1200 }}>
+        <div className="lg:col-span-5 flex justify-center relative" style={{ perspective: 1200 }}>
+          {/* Chibi Yummy! ghé chơi góc chân dung */}
+          <Chibi src={STICKER_YUMMY} delay={0.7} drift={6} tilt={5} className="absolute -bottom-6 left-[6%] w-16 sm:w-24 z-20" />
           <motion.div
             style={{
               rotateY: portraitRotY,
@@ -927,151 +894,6 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
 }
 
 /* ---------------------------------------------------------------------------
-   SCENE 3 — SỞ THÍCH (dương xỉ: parallax đa lớp + mưa + sương trôi)
-   ------------------------------------------------------------------------- */
-
-function SceneFerns({ container, bind, t, reduced }) {
-  const { targetRef, p } = useSceneScroll(container);
-
-  const mainScale = useTransform(p, [0.02, 0.22], [0.55, 1]);
-  const mainOpacity = useTransform(p, [0.02, 0.16], [0, 1]);
-  const mainRotate = useTransform(p, [0.02, 0.4], [-53, -45]);
-  const img1Y = useTransform(p, [0, 1], [150, -150]);
-  const img2Y = useTransform(p, [0, 1], [-120, 140]);
-  const textX = useTransform(p, [0.03, 0.2], [-90, 0]);
-  const textOpacity = useTransform(p, [0.03, 0.18], [0, 1]);
-
-  return (
-    <SceneShell bind={bind} targetRef={targetRef} height="200vh">
-      {/* Aurora nền xanh ngọc — cả khung cảnh "thở" */}
-      <motion.div
-        animate={{ opacity: [0.35, 0.7, 0.35], scale: [1, 1.08, 1] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-emerald-400/15 via-teal-400/5 to-transparent pointer-events-none"
-      />
-
-      {/* Rain effect */}
-      {!reduced && (
-        <div className="absolute inset-0 pointer-events-none z-0 opacity-50">
-          {RAIN_DROPS.map((drop, i) => (
-            <div
-              key={`rain-${i}`}
-              className="absolute w-[1px] h-[80px] bg-gradient-to-b from-transparent via-emerald-200 to-transparent animate-rain-drop"
-              style={drop}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Lá rơi xoay tròn */}
-      {!reduced && (
-        <div className="absolute inset-0 pointer-events-none z-0">
-          {LEAVES.map((l, i) => (
-            <span
-              key={`leaf-${i}`}
-              className="absolute bg-emerald-400/40 animate-leafFall"
-              style={{
-                left: l.left,
-                width: l.size,
-                height: l.size,
-                borderRadius: "0 50% 0 50%",
-                animationDuration: l.duration,
-                animationDelay: l.delay,
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Đom đóm phát sáng */}
-      {!reduced && (
-        <div className="absolute inset-0 pointer-events-none z-0">
-          {FIREFLIES.map((f, i) => (
-            <motion.span
-              key={`fly-${i}`}
-              animate={{ opacity: [0, 0.9, 0], x: [0, f.dx, 0], y: [0, f.dy, 0] }}
-              transition={{ duration: f.duration, repeat: Infinity, ease: "easeInOut", delay: f.delay }}
-              style={{ left: f.left, top: f.top }}
-              className="absolute w-1.5 h-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.9)] blur-[1px]"
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Sương mù trôi ngang */}
-      <motion.div
-        animate={{ x: ["-15%", "15%", "-15%"] }}
-        transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-[30%] left-0 w-[70vw] h-40 bg-emerald-400/10 blur-[90px] rounded-full pointer-events-none"
-      />
-
-      <div className="absolute right-[4%] top-[8%] text-[6rem] sm:text-[10rem] xl:text-[13rem] font-black text-foreground/[0.02] dark:text-foreground/[0.01] pointer-events-none select-none tracking-tighter leading-none">
-        FERNS
-      </div>
-
-      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
-        <motion.div style={{ x: textX, opacity: textOpacity }} className="lg:col-span-5 space-y-3 sm:space-y-5 text-left will-change-transform">
-          <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25">
-            {t("intro.slide7.badge")}
-          </Badge>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
-            {t("intro.slide7.title1")} <br />
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
-              {t("intro.slide7.title2")}
-            </span>
-          </h2>
-          <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
-            {t("intro.slide7.desc")}
-          </p>
-        </motion.div>
-
-        <div className="lg:col-span-7 relative h-[300px] sm:h-[380px] lg:h-[480px] w-full">
-          <motion.div
-            animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-emerald-500/20 blur-[80px]"
-          />
-
-          {/* Main droplet-shaped image — scale + xoay nhẹ theo scroll */}
-          <motion.div
-            style={{ scale: mainScale, opacity: mainOpacity }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 will-change-transform"
-          >
-            <motion.div
-              className="w-[190px] h-[190px] sm:w-[250px] sm:h-[250px] lg:w-[330px] lg:h-[330px] bg-muted overflow-hidden shadow-2xl relative"
-              style={{ borderRadius: "50% 0 50% 50%", rotate: mainRotate, border: "4px solid rgba(255,255,255,0.3)" }}
-            >
-              <img
-                loading="lazy"
-                src={optimizeCloudinaryUrl(FERN_MAIN, 800)}
-                alt="Fern"
-                className="w-[145%] h-[145%] max-w-none object-cover absolute top-1/2 left-1/2"
-                style={{ transform: "translate(-50%, -50%) rotate(45deg)" }}
-              />
-              <div className="absolute inset-0 bg-emerald-900/10 pointer-events-none" />
-            </motion.div>
-          </motion.div>
-
-          {/* Parallax satellites */}
-          <motion.div
-            style={{ y: img1Y }}
-            className="absolute top-[16%] left-[8%] sm:left-[16%] w-[92px] h-[92px] sm:w-[130px] sm:h-[130px] rounded-full bg-muted border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 will-change-transform"
-          >
-            <img loading="lazy" src={optimizeCloudinaryUrl(FERN_SMALL_1, 400)} alt="Fern detail" className="w-full h-full object-cover" />
-          </motion.div>
-          <motion.div
-            style={{ y: img2Y }}
-            className="absolute bottom-[14%] right-[8%] sm:right-[16%] w-[104px] h-[104px] sm:w-[150px] sm:h-[150px] rounded-full bg-muted border-[3px] border-white/80 dark:border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] overflow-hidden z-20 will-change-transform"
-          >
-            <img loading="lazy" src={optimizeCloudinaryUrl(FERN_SMALL_2, 400)} alt="Fern decor" className="w-full h-full object-cover" />
-          </motion.div>
-        </div>
-      </div>
-    </SceneShell>
-  );
-}
-
-/* ---------------------------------------------------------------------------
    SCENE 4 — BIO EDU MIỄN PHÍ (thẻ sinh viên lật 3D 180° + glare quét theo scroll)
    ------------------------------------------------------------------------- */
 
@@ -1137,7 +959,9 @@ function SceneBio({ container, bind, t }) {
           </motion.div>
 
           {/* 3D flip student card (ẩn trên mobile — quyền lợi đã có lưới chi tiết) */}
-          <div className="md:col-span-5 hidden md:flex justify-center" style={{ perspective: 1300 }}>
+          <div className="md:col-span-5 hidden md:flex justify-center relative" style={{ perspective: 1300 }}>
+            {/* Chibi hỗ trợ đứng cạnh thẻ như nhân viên tư vấn */}
+            <Chibi src={STICKER_SUPPORT} delay={0.5} drift={6} tilt={3} className="absolute -right-4 -bottom-14 w-24 lg:w-28 z-20" />
             <motion.div
               style={{ rotateY: cardRotY, scale: cardScale, opacity: cardOpacity, transformStyle: "preserve-3d" }}
               className="relative w-full max-w-[300px] sm:max-w-[340px] h-[210px] sm:h-[240px] will-change-transform"
@@ -1323,13 +1147,7 @@ function SceneContact({ container, bind, t, profile }) {
         {/* Header */}
         <motion.div style={{ opacity: headOpacity, y: headY }} className="text-center space-y-3 will-change-transform">
           <div className="flex justify-center">
-            <motion.img
-              src={STICKER_HELLO}
-              alt={profile.fullName}
-              animate={{ y: [0, -6, 0], rotate: [-3, 3, -3] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="w-20 sm:w-28 drop-shadow-xl"
-            />
+            <Chibi src={STICKER_HELLO} drift={6} tilt={3} className="w-20 sm:w-28" />
           </div>
           <Badge>{t("intro.slide9.badge")}</Badge>
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground">
@@ -1348,7 +1166,9 @@ function SceneContact({ container, bind, t, profile }) {
         </div>
 
         {/* Final CTA */}
-        <motion.div style={{ opacity: ctaOpacity, y: ctaY }} className="text-center space-y-4 sm:space-y-5 pt-2 will-change-transform">
+        <motion.div style={{ opacity: ctaOpacity, y: ctaY }} className="relative text-center space-y-4 sm:space-y-5 pt-2 will-change-transform">
+          {/* Chibi lái xe "Let's go" — sẵn sàng lên đường cùng bạn */}
+          <Chibi src={STICKER_GO} delay={0.2} drift={5} tilt={2} className="absolute -top-16 sm:-top-20 right-[4%] w-24 sm:w-32 hidden sm:block" />
           <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground leading-tight">
             {t("intro.slide10.title1")}{" "}
             <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
@@ -1397,7 +1217,6 @@ const NAV_KEYS = [
   "intro.nav.studio",
   "intro.nav.partners",
   "intro.nav.about",
-  "intro.nav.hobbies",
   "intro.nav.bioEdu",
   "intro.nav.contacts",
 ];
@@ -1406,9 +1225,8 @@ const BG_GLOWS = [
   "from-primary/10 to-accent/10", // 0 Studio
   "from-accent/10 to-primary/10", // 1 Partners
   "from-warning/10 to-warning/10", // 2 About
-  "from-success/10 to-success/10", // 3 Ferns
-  "from-info/10 to-primary/10", // 4 Bio Edu
-  "from-primary/10 to-success/10", // 5 Contacts
+  "from-info/10 to-primary/10", // 3 Bio Edu
+  "from-primary/10 to-success/10", // 4 Contacts
 ];
 
 export default function IntroductionPage() {
@@ -1422,10 +1240,11 @@ export default function IntroductionPage() {
   const reduced = useReducedMotion();
 
   useHeadMeta({
-    title: "Hugo Studio | Giới Thiệu",
+    title: "Hugo Studio — Làm Web Giá Rẻ, Tạo Bio Miễn Phí Cho Học Sinh Sinh Viên",
     description:
-      "Hugo Studio — xưởng sáng tạo số của Peter Hugo Wishpax Lê và đối tác: thiết kế web chuyên nghiệp, trang Bio và tiện ích miễn phí cho học sinh, sinh viên.",
-    keywords: "Hugo Studio, Peter Hugo Wishpax Lê, Jason Phan, Greenwich VN, web developer, Bio miễn phí, portfolio",
+      "Hugo Studio — xưởng sáng tạo số của Peter Hugo Wishpax Lê: làm web giá rẻ (sửa web từ 150k, landing page 690k, website trọn gói), tạo trang bio cá nhân miễn phí kèm booking, portfolio và tiện ích cho học sinh, sinh viên.",
+    keywords:
+      "làm web giá rẻ, thiết kế website giá rẻ, tạo bio miễn phí, bio miễn phí, link in bio, làm web sinh viên, làm landing page giá rẻ, Hugo Studio, Peter Hugo Wishpax Lê, portfolio",
     canonicalUrl: "https://www.hugowishpax.studio/introduction",
   });
 
@@ -1523,13 +1342,6 @@ export default function IntroductionPage() {
           66% { border-radius: 52% 48% 42% 58% / 44% 56% 48% 52%; }
         }
         .animate-blobMorph { animation: blobMorph 9s ease-in-out infinite; }
-        @keyframes leafFall {
-          0% { transform: translateY(-8vh) translateX(0) rotate(0deg); opacity: 0; }
-          12% { opacity: 0.85; }
-          55% { transform: translateY(48vh) translateX(28px) rotate(200deg); }
-          100% { transform: translateY(104vh) translateX(-18px) rotate(380deg); opacity: 0; }
-        }
-        .animate-leafFall { animation: leafFall linear infinite; }
       `}</style>
 
       {/* Overall scroll progress bar */}
@@ -1591,9 +1403,8 @@ export default function IntroductionPage() {
           <SceneStudio container={containerRef} bind={bindScene(0)} t={t} onExplore={() => scrollToScene(1)} reduced={reduced} />
           <ScenePartners container={containerRef} bind={bindScene(1)} t={t} />
           <SceneAbout container={containerRef} bind={bindScene(2)} t={t} realPhoto={realPhoto} fullName={data.profile.fullName} reduced={reduced} />
-          <SceneFerns container={containerRef} bind={bindScene(3)} t={t} reduced={reduced} />
-          <SceneBio container={containerRef} bind={bindScene(4)} t={t} />
-          <SceneContact container={containerRef} bind={bindScene(5)} t={t} profile={data.profile} />
+          <SceneBio container={containerRef} bind={bindScene(3)} t={t} />
+          <SceneContact container={containerRef} bind={bindScene(4)} t={t} profile={data.profile} />
         </div>
       </div>
     </div>

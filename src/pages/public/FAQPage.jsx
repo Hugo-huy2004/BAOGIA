@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
+import { useJsonLd } from "../../hooks/useJsonLd";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 
@@ -14,13 +15,28 @@ const FAQS = [
 ];
 
 export default function FAQPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   useHeadMeta({
-    title: "FAQ | Hugo Studio",
-    description: "Giải đáp các thắc mắc thường gặp về dịch vụ thiết kế Bio Link cá nhân, chi phí thiết kế và cách thức hoạt động tại Hugo Studio.",
-    keywords: "câu hỏi thường gặp, FAQ Hugo Studio, liên hệ thiết kế, Bio Link giá rẻ, thiết kế portfolio",
+    title: "Câu Hỏi Thường Gặp — Làm Web Giá Rẻ & Bio Miễn Phí | Hugo Studio",
+    description: "Giải đáp thắc mắc về dịch vụ làm web giá rẻ, tạo bio cá nhân miễn phí, chi phí thiết kế website, ưu đãi học sinh sinh viên và cách thức hoạt động tại Hugo Studio.",
+    keywords: "câu hỏi thường gặp, FAQ Hugo Studio, làm web giá rẻ, bio miễn phí, chi phí thiết kế website, ưu đãi sinh viên, thiết kế portfolio",
     canonicalUrl: "https://www.hugowishpax.studio/faq"
   });
+
+  const faqSchema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FAQS.map((_, idx) => ({
+        "@type": "Question",
+        name: t(`faqPage.faqs.${idx}.question`),
+        acceptedAnswer: { "@type": "Answer", text: t(`faqPage.faqs.${idx}.answer`) },
+      })),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, i18n.language]
+  );
+  useJsonLd("faq-schema", faqSchema);
 
   const [expandedIdx, setExpandedIdx] = useState(0); // Mở sẵn câu đầu tiên
 
