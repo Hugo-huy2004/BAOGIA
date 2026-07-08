@@ -7,33 +7,33 @@ import { getMemberSession } from "../../services/authSession";
 const BENEFITS = [
   {
     icon: "school",
-    title: "Code của bạn có người dùng thật",
-    desc: "Không phải bài tập chấm xong rồi bỏ: bạn đồng hành trực tiếp cùng hệ thống đang phục vụ người dùng thật mỗi ngày — React, Node.js, MongoDB, AI, PWA, thanh toán trực tuyến. Cảm giác feature mình xây được hàng trăm người bấm vào là thứ không giáo trình nào cho được.",
+    title: "Cùng làm sản phẩm chạy thật",
+    desc: "Tụi mình cùng phát triển hệ thống phục vụ các bạn HSSV mỗi ngày (React, Node.js, MongoDB, AI). Có cơ hội thử sức với các tính năng thực tế thay vì chỉ làm bài tập lớn rồi bỏ.",
   },
   {
     icon: "co_present",
-    title: "Không bao giờ bị bỏ lại một mình",
-    desc: "Hugo trực tiếp review từng pull request và giải thích vì sao nên viết thế này thay vì thế kia — mỗi lần review là một buổi học riêng. Kẹt bug lúc nửa đêm? Nhắn. Không hiểu kiến trúc? Hỏi. Ở HugoTeam, câu hỏi ngớ ngẩn nhất là câu hỏi không được hỏi ra.",
+    title: "Không lo cô đơn khi gỡ bug",
+    desc: "Tụi mình sẽ cùng review code và trao đổi. Gặp bug khó hay chưa hiểu kiến trúc cứ thoải mái hỏi, tụi mình cùng tìm cách giải quyết trên tinh thần học hỏi lẫn nhau.",
   },
   {
     icon: "work_history",
-    title: "CV có chuyện thật để kể",
-    desc: "Sau vài tháng, khi nhà tuyển dụng hỏi \"em đã xây gì?\", bạn không phải kể về đồ án môn học: bạn mở sản phẩm production đang chạy, chỉ vào feature mình xây, kèm lịch sử commit công khai và quy trình chuyên nghiệp (Git flow, code review, testing) mà bạn đã sống trong đó.",
+    title: "Tích lũy kinh nghiệm thực tế",
+    desc: "Cùng trải qua quy trình làm việc thực tế (Git, code review, debug). Đây là những câu chuyện thực chất giúp bạn tự tin chia sẻ khi đi phỏng vấn thực tập.",
   },
   {
     icon: "workspace_premium",
-    title: "Đóng góp được xác nhận bằng văn bản",
-    desc: "Hoàn thành tốt giai đoạn cộng tác, bạn nhận thư giới thiệu chi tiết do Hugo Studio xác nhận — có số liệu, có sản phẩm cụ thể, không phải lời khen chung chung. Dùng được ngay cho hồ sơ thực tập, học bổng hoặc du học.",
+    title: "Ghi nhận qua commit Github",
+    desc: "Vì là dự án phi lợi nhuận của sinh viên nên việc xác nhận bằng văn bản/đóng dấu khá khó. Thay vào đó, mọi đóng góp của bạn sẽ hiển thị công khai qua lịch sử commit Github - bằng chứng năng lực thực tế nhất.",
   },
   {
     icon: "schedule",
-    title: "Việc học của bạn luôn đứng trước",
-    desc: "Remote 100%, tự chọn khung giờ, 5–10 giờ/tuần. Mùa thi nghỉ hẳn — không cần xin phép, không ai hỏi. Đây là nguyên tắc chứ không phải ưu đãi: HugoTeam tồn tại để bồi đắp việc học của bạn, không phải cạnh tranh với nó.",
+    title: "Việc học luôn được ưu tiên",
+    desc: "Hoàn toàn tự chọn thời gian làm việc (tầm 5-10h/tuần). Mùa thi cử có thể tạm nghỉ để tập trung học tập, không áp lực tiến độ hay KPI gò bó.",
   },
   {
     icon: "diversity_3",
-    title: "Network nhỏ nhưng đi theo bạn cả sự nghiệp",
-    desc: "Những người giỏi lên cùng nhau. Bạn gặp các sinh viên CNTT cùng chí hướng: trao đổi kỹ thuật, chia sẻ tài liệu, giúp nhau debug — và vài năm nữa, đó là những đồng nghiệp, người giới thiệu việc, co-founder tiềm năng của bạn.",
+    title: "Kết nối bạn bè cùng ngành",
+    desc: "Gặp gỡ những bạn sinh viên IT cùng chí hướng để chia sẻ tài liệu, kinh nghiệm học tập và hỗ trợ nhau trên con đường phát triển sự nghiệp sau này.",
   },
 ];
 
@@ -150,25 +150,22 @@ export default function HugoTeamTab({ onBack }) {
         </div>
         <h1 className="text-2xl font-black text-foreground">Đồng Hành Dự Án Cộng Đồng</h1>
         <p className="text-base text-muted-foreground max-w-2xl">
-          Bạn học CNTT năm 2–3, code đã kha khá — nhưng CV vẫn trống mục "dự án thực tế"?
-          Bài tập trên trường không có người dùng thật, còn đi thực tập thì nơi nào cũng đòi kinh nghiệm.
+          Bạn học CNTT năm 2–3, code đã hòm hòm nhưng muốn cọ xát với dự án thực tế chạy thật? 
+          Tụi mình hiểu cảm giác muốn học hỏi thêm ngoài giờ lên lớp nhưng chưa biết bắt đầu từ đâu.
         </p>
         <p className="text-base text-muted-foreground max-w-2xl">
-          HugoTeam mở lối ra khỏi vòng luẩn quẩn đó: bạn đồng hành cùng một sản phẩm đang chạy thật,
-          phục vụ cộng đồng học sinh sinh viên thật — có mentor kèm 1:1, có lộ trình, và mọi đóng góp
-          của bạn đều được ghi nhận bằng sản phẩm cụ thể. Phi lợi nhuận, không ràng buộc, chỉ cần
-          5–10 giờ mỗi tuần theo lịch của chính bạn.
+          HugoTeam là nhóm nhỏ sinh viên IT cùng nhau xây dựng các sản phẩm thực tế phục vụ cộng đồng HSSV. 
+          Hoạt động hoàn toàn phi lợi nhuận, hỗ trợ và chia sẻ kinh nghiệm lẫn nhau. Mọi đóng góp của bạn 
+          đều được ghi nhận thực tế trên Github, làm việc từ xa 5–10 giờ/tuần và hoàn toàn tự do theo lịch học của bạn.
         </p>
       </div>
 
       {/* Benefits */}
       <div className="border-t border-border pt-8">
-        <h2 className="text-lg font-bold text-foreground mb-2">Lợi Ích Khi Tham Gia HugoTeam</h2>
+        <h2 className="text-lg font-bold text-foreground mb-2">Những thứ tụi mình có thể làm cho nhau</h2>
         <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
-          Thỏa thuận của HugoTeam rất sòng phẳng: không ai trả lương ai — bạn góp thời gian và
-          nhiệt huyết, Hugo Studio góp kinh nghiệm, sản phẩm thật và sự đồng hành tận tâm.
-          Cả hai cùng xây một thứ lớn hơn chính mình: sản phẩm phục vụ cộng đồng học sinh sinh viên.
-          Đây là những gì bạn mang về:
+          Đây là dự án cộng đồng phi lợi nhuận hoạt động trên tinh thần tự nguyện. Tụi mình không trả lương cho nhau, 
+          nhưng cùng chia sẻ những giá trị thực chất để cùng tiến bộ:
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {BENEFITS.map((b) => (
@@ -206,8 +203,7 @@ export default function HugoTeamTab({ onBack }) {
           </p>
           <p>
             <span className="font-semibold text-foreground">Số giờ đồng hành của bạn được ghi nhận</span> —
-            từng giờ đóng góp đều được theo dõi minh bạch, là căn cứ cho thư giới thiệu, xác nhận
-            kinh nghiệm và các mốc tri ân bên dưới.
+            từng giờ đóng góp đều được cập nhật minh bạch trong workspace này, làm cơ sở cho việc vinh danh đóng góp và các mốc tri ân bên dưới.
           </p>
         </div>
       </div>
@@ -219,19 +215,17 @@ export default function HugoTeamTab({ onBack }) {
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-foreground">
               <span className="material-symbols-outlined text-[22px]">military_tech</span>
             </span>
-            <h2 className="text-lg font-bold text-foreground">Mốc 500 Giờ — Món Quà Tri Ân Đặc Biệt</h2>
+            <h2 className="text-lg font-bold text-foreground">Sự Bền Bỉ Và Tri Ân Nhẹ Nhàng</h2>
           </div>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            500 giờ không phải con số ngẫu nhiên. Đó là khoảng một năm đồng hành đều đặn — hàng trăm
-            bug đã gỡ, hàng chục feature đã lên production, và một sinh viên năm 2 đã trở thành nhà
-            phát triển thực thụ. Ít người đi được tới đó. Ai đi được, xứng đáng được nhớ.
+            Đồng hành cùng nhau lâu dài là điều rất đáng quý. Hành trình phi lợi nhuận này hoạt động 
+            dựa trên sự tự nguyện, không ràng buộc nhưng tụi mình luôn trân trọng sự kiên trì của bạn.
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Vì vậy, thành viên chạm mốc <span className="font-semibold text-foreground">500 giờ đồng hành</span> sẽ
-            nhận một <span className="font-semibold text-foreground">món quà tri ân đặc biệt</span> từ
-            Hugo Studio — lời cảm ơn cho sự tin tưởng và bền bỉ mà không khoản lương nào đo được.
-            Hành trình phi lợi nhuận này chưa bao giờ là "không có gì": cùng đồng hành, cùng học,
-            cùng có lợi, và cùng được ghi nhận xứng đáng.
+            Khi chạm mốc <span className="font-semibold text-foreground">500 giờ đồng hành</span>, tụi mình 
+            sẽ có những <span className="font-semibold text-foreground">sự tri ân đặc biệt và thiết thực</span>: 
+            vinh danh trong mục đóng góp trên hệ thống, hỗ trợ review CV chuyên sâu từ kinh nghiệm thực tế, 
+            hoặc một buổi cafe trò chuyện định hướng nghề nghiệp cùng một phần quà kỷ niệm nhỏ để cảm ơn bạn.
           </p>
         </div>
       </div>
@@ -253,8 +247,8 @@ export default function HugoTeamTab({ onBack }) {
             <span className="text-muted-foreground">5-10 giờ/tuần, tự do, linh hoạt theo lịch học của bạn</span>
           </div>
           <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">Lương:</span>
-            <span className="text-muted-foreground">Không lương, hoàn toàn miễn phí, phi lợi nhuận</span>
+            <span className="font-bold text-foreground w-24">Tính chất:</span>
+            <span className="text-muted-foreground">Dự án phi lợi nhuận, tự nguyện hỗ trợ học tập và tích lũy kinh nghiệm</span>
           </div>
         </div>
       </div>

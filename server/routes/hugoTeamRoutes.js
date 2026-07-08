@@ -2,6 +2,7 @@ import express from "express";
 import { requireMember, requireAdmin } from "../middleware/authMiddleware.js";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 import HugoTeamDev from "../models/HugoTeamDev.js";
 import {
   sendHugoTeamApplyConfirm,
@@ -12,10 +13,13 @@ import {
 
 const router = express.Router();
 
-// Configure multer for CV upload
+// Configure multer for CV upload — ensure the dir exists (a fresh checkout or
+// clean deploy doesn't have it, and multer errors with ENOENT instead of creating it).
+const CV_DIR = "uploads/cvs";
+fs.mkdirSync(CV_DIR, { recursive: true });
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/cvs/");
+    cb(null, CV_DIR);
   },
   filename: (req, file, cb) => {
     const timestamp = Date.now();
@@ -188,10 +192,12 @@ router.post("/me/messages/read", requireMember, async (req, res) => {
 router.post("/apply", upload.single("cv"), requireMember, async (req, res) => {
   try {
     const email = req.memberEmail;
-    const name = String(req.body.name || "").trim();
+    // name is display-only; some login paths (WebAuthn) store no name in the
+    // session, so fall back to the email local-part instead of rejecting.
+    const name = String(req.body.name || "").trim() || email?.split("@")[0] || "";
     const file = req.file;
-    if (!email || !name || !file) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!email || !file) {
+      return res.status(400).json({ error: "Thiếu CV đính kèm" });
     }
 
     const existing = await HugoTeamDev.findOne({ email });
@@ -233,13 +239,23 @@ router.get("/admin/applicants", requireAdmin, async (req, res) => {
         school: a.school,
         createdAt: a.createdAt,
         cv: a.cv,
-        cvPath: `/uploads/cvs/${a.cv}`,
+        cvPath: `/api/hugoteam/admin/cv/${encodeURIComponent(a.cv)}`,
       })),
     });
   } catch (error) {
     console.error("GET applicants error:", error);
     res.status(500).json({ error: "Failed to load applicants" });
   }
+});
+
+// Serve a CV PDF — admin only (CVs are private; uploads/ is deliberately not
+// served statically). basename() blocks path traversal.
+router.get("/admin/cv/:filename", requireAdmin, (req, res) => {
+  const filename = path.basename(req.params.filename);
+  const filePath = path.resolve(CV_DIR, filename);
+  res.sendFile(filePath, { headers: { "Content-Type": "application/pdf" } }, (err) => {
+    if (err && !res.headersSent) res.status(404).json({ error: "CV not found" });
+  });
 });
 
 router.post("/admin/approve", requireAdmin, async (req, res) => {
@@ -420,6 +436,72 @@ router.post("/admin/devs/:email/messages", requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Failed to send message" });
   }
 });
+
+// Formal email to a dev, optionally with a PDF attached. The PDF lives only
+// in memory for the duration of the request — deliberately NOT saved to disk.
+const mailUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    if (path.extname(file.originalname).toLowerCase() !== ".pdf") {
+      return cb(new Error("Only PDF files allowed"));
+    }
+    cb(null, true);
+  },
+});
+
+router.post(
+  "/admin/devs/:email/send-mail",
+  requireAdmin,
+  mailUpload.single("attachment"),
+  async (req, res) => {
+    try {
+      const subject = String(req.body.subject || "").trim().slice(0, 200);
+      const body = String(req.body.body || "").trim().slice(0, 10000);
+      if (!subject || !body) {
+        return res.status(400).json({ error: "Thiếu tiêu đề hoặc nội dung thư" });
+      }
+      const dev = await HugoTeamDev.findOne({ email: req.params.email, status: "approved" });
+      if (!dev) return res.status(404).json({ error: "Dev not found" });
+
+      const attachments = req.file
+        ? [{
+            content: req.file.buffer.toString("base64"),
+            filename: req.file.originalname,
+            type: "application/pdf",
+            disposition: "attachment",
+          }]
+        : null;
+
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #333; line-height: 1.7;">
+          <div style="white-space: pre-wrap;">${body
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+          ${req.file ? `<p style="color:#666;font-size:13px;margin-top:16px;">📎 Văn bản đính kèm: <strong>${req.file.originalname}</strong></p>` : ""}
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 24px 0;">
+          <p style="color: #999; font-size: 12px;">Thư được gửi từ hệ thống HugoTeam — Hugo Studio. Bạn có thể phản hồi trực tiếp email này hoặc trao đổi trên tab Hugo Team trong Member Portal.</p>
+        </div>`;
+
+      const result = await sendCustomEmail(dev.email, subject, html, null, null, attachments);
+      if (!result.success) {
+        return res.status(502).json({ error: "Gửi email thất bại: " + (result.error || "unknown") });
+      }
+
+      // Lưu dấu vết tương tác vào thread (chỉ subject — file KHÔNG lưu hệ thống).
+      dev.messages.push({
+        from: "admin",
+        text: `[Email đã gửi] ${subject}${req.file ? ` (đính kèm: ${req.file.originalname})` : ""}`,
+        readByAdmin: true,
+      });
+      await dev.save();
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("POST send-mail error:", error);
+      res.status(500).json({ error: error.message || "Failed to send email" });
+    }
+  }
+);
 
 // Mark a dev's messages as read by admin.
 router.post("/admin/devs/:email/messages/read", requireAdmin, async (req, res) => {

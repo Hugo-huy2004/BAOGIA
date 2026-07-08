@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import HugoLogo from "../../components/HugoLogo";
@@ -8,6 +9,8 @@ import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 export default function BookingContactPage() {
   const { t } = useTranslation();
+  const location = useLocation();
+
   useHeadMeta({
     title: "Đặt Lịch & Liên Hệ | Hugo Studio",
     description: "Đặt lịch hẹn thiết kế website hoặc gửi tin nhắn trực tiếp cho Hugo Studio để nhận báo giá chi tiết trong vòng 24 giờ.",
@@ -21,6 +24,31 @@ export default function BookingContactPage() {
     phone: "",
     message: ""
   });
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const type = searchParams.get("type");
+    const plan = searchParams.get("plan");
+    const stack = searchParams.get("stack");
+    if (type === "student") {
+      let planText = "";
+      if (plan === "bug") planText = "Gói gỡ lỗi Coursework (Từ 120k)";
+      if (plan === "bento") planText = "Gói Bento CV / Portfolio (799k)";
+      if (plan === "coursework") {
+        if (stack === "html") planText = "Gói Web App Coursework phiên bản HTML/CSS/JS (Từ 590k)";
+        else if (stack === "php") planText = "Gói Web App Coursework phiên bản PHP/MySQL (Từ 1.49M)";
+        else planText = "Gói Web App Coursework phiên bản React/Node.js (Từ 2.49M)";
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        message: `Chào Hugo, mình là sinh viên. Mình muốn tìm hiểu và đăng ký ${
+          planText ? planText : "dịch vụ làm web dành riêng cho HSSV"
+        }. Mình cam kết sẽ tự học hiểu code và tự viết báo cáo học thuật.`
+      }));
+    }
+  }, [location.search]);
+
   const [toast, setToast] = useState({ message: "", type: "" });
 
   const showToast = (message, type = "success") => {

@@ -221,8 +221,8 @@
       "badge": "✦ The Person Behind The Studio",
       "title1": "Final-year student,",
       "title2": "crafting beautiful experiences.",
-      "desc": "I'm Hugo — a final-year Software Engineering student at Greenwich Vietnam. I believe the most beautiful digital products are the ones that make people smile, and that belief lives in every little detail of Hugo Studio. Jason Phan accompanies me as co-development partner.",
-      "founderRole": "Founder · Design & Development",
+      "desc": "I'm Hugo — a final-year Software Engineering student at Greenwich Vietnam. I built this website to serve as my personal portfolio, share helpful utilities for the student community, and directly handle freelance projects to gain practical experience. Jason Phan accompanies me as co-development partner.",
+      "founderRole": "Student Designer & Developer",
       "partnerRole": "Co-Development Partner",
       "openToWork": "Open to internships & job opportunities",
       "finalYear": "Final year · Software Engineering",
@@ -260,6 +260,11 @@
         "Support after handover",
         "100% free for students"
       ]
+    },
+    "pricingPhilosophy": {
+      "title": "Thoughts from a Student Freelancer",
+      "desc": "I am a final-year Software Engineering student. This website serves as my personal portfolio, a community platform sharing tools for students, and a space where I work directly with clients. Operating 1-1 without any middleman or corporate overhead allows me to offer pricing that fits small businesses, individuals, and student projects.",
+      "philosophy": "To ensure the best quality, I only accept 1 project at a time. I only move to the next project in the queue when the current one is near completion. All items, timelines, and costs are discussed upfront with absolute clarity and no hidden fees."
     },
     "pricing": {
       "eyebrow": "Build a new website",
@@ -327,7 +332,7 @@
         "label": "Grow",
         "name": "Multi-page website",
         "price": "From 2,490,000₫",
-        "note": "Final price depends on pages and content. 40-50% below agency rates.",
+        "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
         "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
         "tagline": "Most popular",
         "includes": [
@@ -362,6 +367,95 @@
         "excludes": [
           "Online payments, extra roles, extra flows → 12-20M projects, quoted separately",
           "Running costs for server & domain (~50-150k/month)"
+        ]
+      }
+    },
+    "studentPlans": {
+      "bug": {
+        "label": "Debug Coursework",
+        "name": "Coursework Bug Fix",
+        "price": "From 120,000₫",
+        "note": "Quick quotes based on coursework criteria. Speed delivery before deadlines.",
+        "desc": "Logic errors, DB connection issue or broken layout in your end-of-term assignment? I'll fix it for you.",
+        "tagline": "Save your submission",
+        "includes": [
+          "Fix exact logic code errors or styling bugs agreed upon",
+          "Zalo walkthrough on how to deploy on free hosting (Vercel/Render)",
+          "3 days of stability warranty",
+          "Full working code handover"
+        ],
+        "excludes": [
+          "Building coursework from scratch (see Coursework Web App package)",
+          "Writing academic report or analysis documents"
+        ]
+      },
+      "bento": {
+        "label": "Academic CV",
+        "name": "Bento CV / Portfolio",
+        "price": "799,000₫",
+        "oldPrice": "1,500,000₫",
+        "discount": "-46%",
+        "note": "Modern Bento Grid design. Tailored for internship, scholarship, or study abroad applications.",
+        "desc": "Showcase your achievements, projects, Git links and profile in a beautiful Apple-inspired aesthetic.",
+        "tagline": "Make a strong impression",
+        "includes": [
+          "1 Bento Grid page layout, up to 7 sections max",
+          "Github, social media, and contact link integration",
+          "Contact form dumping messages directly to a free Google Sheet",
+          "Deploy on free hosting trọn đời (Vercel/Netlify)"
+        ],
+        "excludes": [
+          "Custom domain name (uses free .vercel.app subdomain)",
+          "Writing content from scratch (you provide profile draft)"
+        ]
+      },
+      "coursework": {
+        "label": "Coursework Dev",
+        "name": "Coursework Web App",
+        "tagline": "Secure maximum code points",
+        "stacks": {
+          "html": {
+            "price": "From 590,000₫",
+            "oldPrice": "1,200,000₫",
+            "note": "Static HTML/CSS/JS coursework. Split the bill from ~295k/member (group of 2).",
+            "desc": "Perfect for Web Design basics, building responsive layouts, static assignment templates.",
+            "includes": [
+              "Responsive layout design compatible with mobile devices",
+              "DOM animation effects & basic native Javascript",
+              "Detailed README setup documentation for local run",
+              "Clean source code + free deployment setup guidance"
+            ]
+          },
+          "php": {
+            "price": "From 1,490,000₫",
+            "oldPrice": "2,500,000₫",
+            "note": "Dynamic PHP/MySQL coursework. Split the bill from ~495k/member (group of 3).",
+            "desc": "Perfect for Database Web basics, dynamic data CRUD, registering & logins.",
+            "includes": [
+              "Dynamic server handling with PHP + MySQL database",
+              "Simple registration, login, and authorization logic",
+              "Pre-loaded mock database (Seed Data) for quick demo",
+              "Bonus: 1 live call session for setup guidance and live run demo"
+            ]
+          },
+          "react": {
+            "price": "From 2,490,000₫",
+            "oldPrice": "4,000,000₫",
+            "note": "Full-stack React/Node.js coursework. Split the bill from ~620k/member (group of 4).",
+            "desc": "Perfect for Advanced Web, React SPA, REST APIs, MongoDB/PostgreSQL.",
+            "includes": [
+              "React SPA architecture + Node.js/Express REST API Backend",
+              "Bonus: 1 live call session (45 mins) explaining code structure",
+              "Pre-loaded mock database (Seed Data) for quick demo",
+              "Dedicated help with setting up execution environments"
+            ]
+          }
+        },
+        "excludes": [
+          "**ABSOLUTELY NO report or document writing**",
+          "No graduation theses or final degree research works",
+          "No screen-recorded demo video creation services",
+          "Students must run the code themselves and write reports"
         ]
       }
     },
@@ -513,11 +607,11 @@
       "items": [
         {
           "q": "How much does a website cost?",
-          "a": "Landing pages start at 990,000₫, multi-page websites at 2,490,000₫, and dynamic web apps at 6,900,000₫. The final price depends on scope and is always confirmed before work starts — 40-50% below agency rates because I work with you directly, no middlemen."
+          "a": "Landing page from 999,000₫, multi-page website from 2,490,000₫, dynamic web app from 6,990,000₫. The final price depends on specific features and is locked upfront. Since I am a student working directly 1-1, the pricing is highly affordable and free of middlemen."
         },
         {
-          "q": "Why is it cheaper than an agency but still good quality?",
-          "a": "I'm a final-year IT student doing all the work directly, with no office costs or middle layers. You can try live demos right on this page before deciding, and every package includes post-handover support."
+          "q": "Why is it affordable while maintaining good quality?",
+          "a": "As a final-year IT student, I develop everything directly without administrative overhead. I focus on quality, provide live interactive demos for you to test, and offer dedicated post-handover support."
         },
         {
           "q": "What does \"From\" pricing mean — will costs balloon?",
@@ -538,6 +632,10 @@
         {
           "q": "Is there support after handover?",
           "a": "Yes. I walk you through the site, answer questions and fix issues within the agreed scope."
+        },
+        {
+          "q": "Do students get a discount?",
+          "a": "Yes. Students get 20% off all web packages (Landing from 799k, Website from 1.99M, Web App from 5.59M). I support building the technical app/code for coursework assignments, but I absolutely DO NOT write reports or build graduation theses. Students must study the code and write their own academic reports."
         }
       ]
     },
@@ -558,24 +656,23 @@
     "faqs": [
       {
         "question": "Does Hugo Studio have fixed working hours?",
-        "answer": "Hugo Studio provides personalized and direct 1:1 services with customers, so we are not bound by time. Feel free to send us a message anytime, the team will respond as soon as possible!"
+        "answer": "I work directly 1-1, so there are no rigid working hours. Feel free to message me anytime, and I will get back to you as soon as possible!"
       },
       {
         "question": "How many members are in the Hugo Studio team?",
-        "answer": "We currently have 2 core members, Hugo Wishpax Le and Jason Phan, jointly handling the entire Full-stack process to bring you the most consistent and optimal experience."
+        "answer": "I am Hugo, a final-year Software Engineering student and the primary developer. I collaborate with Jason Phan (co-development partner) on technical discussions and optimizing the full-stack experience."
       },
       {
         "question": "Is there any promotional or trial policy at Hugo Studio?",
-        "answer": "Understanding that students eagerly desire a professional personal introduction page, Hugo Studio is 100% sponsoring premium Bio Portfolio creation services (with an exclusive domain name) specifically for students with .edu or .edu.vn educational emails.",
-        "actionText": "Get Student Offer"
+        "answer": "Understanding that students desire a professional personal brand, I support creating customized Bio Portfolios completely free for students with .edu or .edu.vn educational emails."
       },
       {
         "question": "How is the design cost at Hugo Studio?",
-        "answer": "The cost is extremely optimal and flexible according to your needs. We always strive to eliminate hidden costs to deliver a high-quality, smooth product that far exceeds expectations compared to the price."
+        "answer": "Since I work directly 1-1, the pricing is highly affordable and tailored to students or small businesses. To maintain quality, I only accept 1 project at a time in a queue."
       },
       {
         "question": "Does Hugo Studio work on holidays?",
-        "answer": "Rest assured, when there's a long holiday, we will notify you directly on the homepage. (Secret: Most of those times we are traveling to relieve stress 🏖️)"
+        "answer": "When there is a long holiday, I will post an update directly on the homepage. (Secret: Sometimes I take a short trip to recharge 🏖️)"
       }
     ],
     "contact": {
@@ -593,7 +690,7 @@
     },
     "header": {
       "title": "Book a Design.",
-      "desc": "Briefly outline your project. I will contact you directly via Zalo/Email within 24 hours to discuss details and create the most suitable quote."
+      "desc": "I work directly 1-1 and only accept 1 project at a time to ensure the highest quality. Please briefly sketch your needs, and I will contact you via Zalo/Email within 24 hours to discuss details, provide a quote, and place your project in the queue."
     },
     "features": [
       {

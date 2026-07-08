@@ -36,6 +36,7 @@ const AdminPanel = lazy(() => import("./pages/admin/AdminPanel"));
 const PartnerBioPage = lazy(() => import("./pages/member/PartnerBioPage"));
 const FAQPage = lazy(() => import("./pages/public/FAQPage"));
 const StudentBenefitsPage = lazy(() => import("./pages/public/StudentBenefitsPage"));
+const StudentPricingPage = lazy(() => import("./pages/public/StudentPricingPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/public/PrivacyPolicyPage"));
 const UserGuidePage = lazy(() => import("./pages/public/UserGuidePage"));
 const LivePreviewPage = lazy(() => import("./pages/member/LivePreviewPage"));
@@ -149,6 +150,7 @@ function AppContent() {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/joy" element={<JoyPWA />} />
             <Route path="/student-benefits" element={<StudentBenefitsPage />} />
+            <Route path="/student-pricing" element={<StudentPricingPage />} />
             <Route path="/templates" element={<Navigate to="/services#templates" replace />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/booking" element={<BookingContactPage />} />

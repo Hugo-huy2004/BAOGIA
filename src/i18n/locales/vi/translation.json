@@ -221,8 +221,8 @@
       "badge": "✦ Người Đứng Sau Studio",
       "title1": "Sinh viên năm cuối,",
       "title2": "kiến tạo trải nghiệm đẹp.",
-      "desc": "Tôi là Hugo — sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Tôi tin rằng sản phẩm số đẹp nhất là sản phẩm khiến người dùng mỉm cười, và đó là điều tôi gửi gắm vào từng chi tiết nhỏ của Hugo Studio. Đồng hành cùng tôi có Jason Phan trong vai trò đối tác đồng phát triển.",
-      "founderRole": "Nhà Sáng Lập · Thiết Kế & Phát Triển",
+      "desc": "Mình là Hugo — sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Mình xây dựng trang web này vừa làm portfolio cá nhân, vừa chia sẻ các dịch vụ hỗ trợ các bạn HSSV, và cũng là nơi mình trực tiếp nhận các dự án freelance để cọ xát thực tế. Đồng hành cùng mình có Jason Phan trong vai trò đối tác đồng phát triển.",
+      "founderRole": "Sinh viên thiết kế & phát triển",
       "partnerRole": "Đối Tác Đồng Phát Triển",
       "openToWork": "Sẵn sàng thực tập & cơ hội việc làm",
       "finalYear": "Năm cuối · Kỹ thuật Phần mềm",
@@ -262,9 +262,9 @@
       ]
     },
     "pricingPhilosophy": {
-      "title": "Tâm tích về giá cả",
-      "desc": "Mình không xây nên Hugo Studio để cạnh tranh giá, mà để chia sẻ cách làm chân thành, kỹ thuật hiện đại và vẫn giữ giá mà nhỏ có thể dùng được. Đó là lý do tôi bỏ bớt chi phí marketing quá thừa, tập trung vào chất lượng, và nói thẳng thắn về phạm vi từng gói.",
-      "philosophy": "Bạn muốn trọng lượng của một website là giá trị nó mang đến cho người dùng của bạn, chứ không phải chi phí lương con người khi agency nói '5 người 3 tháng'. Vậy nên mình định giá: rõ trước khi làm, không phát sinh, chất lượng công việc không bao giờ bị bào mòn vì áp lực nhân sự."
+      "title": "Chia sẻ từ một sinh viên IT làm Freelance",
+      "desc": "Mình là sinh viên năm cuối ngành Công Nghệ Thông Tin. Trang web này vừa là nơi mình xây dựng cộng đồng, chia sẻ các dịch vụ hỗ trợ sinh viên, vừa là nơi mình làm việc trực tiếp với khách hàng. Vì là sinh viên làm việc trực tiếp 1-1 không qua trung gian hay công ty, mức giá của mình rất phù hợp với ngân sách cá nhân hoặc kinh doanh nhỏ.",
+      "philosophy": "Để đảm bảo chất lượng tốt nhất, mình luôn làm việc theo nguyên tắc: chỉ nhận duy nhất 1 dự án tại một thời điểm. Khi dự án hiện tại gần hoàn tất, mình mới tiếp nhận dự án tiếp theo theo hàng đợi. Mọi chi tiết về giá cả, thời gian đều được trao đổi rõ ràng từ đầu và cam kết không phát sinh."
     },
     "pricing": {
       "eyebrow": "Xây website mới",
@@ -337,7 +337,7 @@
         "oldPrice": "4.990.000đ",
         "price": "2.490.000đ",
         "discount": "-50%",
-        "note": "Giá chốt theo số trang và nội dung. Rẻ hơn 40-50% so với giá agency.",
+        "note": "Giá chốt theo số trang và tính năng, phù hợp với ngân sách của bạn và thanh toán theo tiến độ.",
         "desc": "Bộ mặt online hoàn chỉnh giúp shop nhỏ, quán hoặc thương hiệu cá nhân đáng tin hơn một trang Facebook.",
         "tagline": "Được chọn nhiều nhất",
         "includes": [
@@ -360,24 +360,110 @@
         "oldPrice": "15.000.000đ",
         "price": "6.999.000đ",
         "discount": "-53%",
-        "note": "Dự án có thanh toán, dashboard hoặc nhiều vai trò thường từ 12-20 triệu. Không bao hosting.",
-        "desc": "Không chỉ giới thiệu — website làm việc thay bạn: nhận đơn, đặt lịch, quản lý khách hàng, xử lý thanh toán & hóa đơn, thống kê doanh số.",
+        "note": "Dự án có thanh toán online tự động, phân quyền phức tạp thường từ 12-20 triệu.",
+        "desc": "Không chỉ giới thiệu — website làm việc thay bạn: nhận đơn hàng hoặc đặt lịch hẹn trực tuyến có lưu cơ sở dữ liệu.",
         "tagline": "Đầu tư dài hạn",
         "includes": [
-          "1 luồng chức năng chính: đặt lịch HOẶC nhận đơn cơ bản",
-          "Dashboard quản trị: xem đơn, khách, doanh số, lịch sử giao dịch",
-          "Đăng nhập với 2+ cấp quyền: chủ, nhân viên, khách hàng",
-          "Tích hợp thanh toán online + xử lý hóa đơn/chứng từ tự động",
-          "Quản lý thẻ thành viên, điểm thưởng, lịch sử mua hàng khách",
-          "Báo cáo doanh số realtime, phân tích khách hàng",
+          "1 luồng chức năng chính: đặt lịch hẹn HOẶC nhận đơn hàng cơ bản",
+          "Dashboard quản lý: xem đơn/lịch hẹn, khách hàng và số liệu cơ bản",
+          "Đăng nhập phân quyền cho 2 cấp độ: chủ và nhân viên",
           "Kết nối 1 nguồn dữ liệu: Google Sheet hoặc Zalo",
-          "Bàn giao toàn bộ mã nguồn — web là tài sản của bạn",
-          "Bảo dưỡng 1 tháng miễn phí (6 lần chỉnh sửa); sau đó 300k/tháng hoặc gói lẻ",
-          "Đồng hành kỹ thuật 1 tháng sau bàn giao"
+          "Bàn giao toàn bộ mã nguồn sạch — web là tài sản của bạn",
+          "Đồng hành kỹ thuật 1 tháng sau bàn giao (sửa lỗi phát sinh)"
         ],
         "excludes": [
-          "Phí tên miền, hosting (~2-3 triệu/năm, khách chọn gói ngoài)",
-          "Cổng thanh toán phức tạp, nhiều luồng, tích hợp kho → dự án 12-20tr, báo giá riêng"
+          "Tự động tích hợp cổng thanh toán (PayOS, Momo) webhook → Add-on",
+          "Tính năng quản lý thành viên nâng cao, tích điểm → Add-on",
+          "Phí duy trì tên miền, VPS/Server hàng tháng"
+        ]
+      }
+    },
+    "studentPlans": {
+      "bug": {
+        "label": "Gỡ lỗi bài tập",
+        "name": "Sửa lỗi Coursework",
+        "price": "Từ 120.000đ",
+        "note": "Báo giá nhanh theo yêu cầu đề bài. Giải quyết nhanh trước thời hạn nộp bài.",
+        "desc": "Bài tập lớn cuối kỳ bị lỗi logic, kết nối DB hoặc vỡ layout? Mình hỗ trợ debug để bài chạy hoàn hảo.",
+        "tagline": "Cứu cánh nộp bài",
+        "includes": [
+          "Khắc phục đúng lỗi logic code hoặc lỗi hiển thị đã chốt",
+          "Hướng dẫn nhanh qua Zalo cách deploy lên host free (Vercel/Render)",
+          "Bảo hành chạy thử ổn định trong 3 ngày",
+          "Bàn giao code chạy hoàn chỉnh"
+        ],
+        "excludes": [
+          "Làm hộ bài tập lớn từ đầu (xem gói Coursework Web App)",
+          "Viết hộ tài liệu giải trình/báo cáo lỗi"
+        ]
+      },
+      "bento": {
+        "label": "CV Học Tập",
+        "name": "Bento CV / Portfolio",
+        "price": "799.000đ",
+        "oldPrice": "1.500.000đ",
+        "discount": "-46%",
+        "note": "Thiết kế Bento Grid hiện đại. Tối ưu cho xin việc, học bổng hoặc du học.",
+        "desc": "Khoe thành tích học tập, bài tập nổi bật và các link liên kết cá nhân một cách aesthetic chuẩn Apple-style.",
+        "tagline": "Tạo ấn tượng mạnh",
+        "includes": [
+          "1 trang Portfolio chuẩn Bento Grid hiện đại, tối đa 7 section",
+          "Kết nối link Github, mạng xã hội, thông tin liên lạc",
+          "Form nhận liên hệ/tin nhắn đổ về Google Sheet miễn phí",
+          "Deploy lên hosting miễn phí trọn đời (Vercel/Netlify)"
+        ],
+        "excludes": [
+          "Tên miền riêng `.com/.vn` (dùng subdomain free `.vercel.app`)",
+          "Viết nội dung giới thiệu cá nhân hộ (bạn tự cung cấp sườn)"
+        ]
+      },
+      "coursework": {
+        "label": "Lập trình môn học",
+        "name": "Web App Coursework",
+        "tagline": "Đạt điểm kỹ thuật tối đa",
+        "stacks": {
+          "html": {
+            "price": "Từ 590.000đ",
+            "oldPrice": "1.200.000đ",
+            "note": "Cắt giao diện tĩnh, hiệu ứng DOM JS cơ bản. Nhóm 2 bạn chia ra chỉ ~295k/người.",
+            "desc": "Phù hợp môn Thiết kế web, xây dựng layout Responsive, làm đồ án môn học giao diện tĩnh.",
+            "includes": [
+              "Thiết kế giao diện Responsive tương thích di động",
+              "Hiệu ứng chuyển động DOM, Javascript cơ bản",
+              "Tài liệu hướng dẫn tự chạy code chi tiết",
+              "Bàn giao source code sạch + hướng dẫn tự deploy free"
+            ]
+          },
+          "php": {
+            "price": "Từ 1.490.000đ",
+            "oldPrice": "2.500.000đ",
+            "note": "Web động PHP/MySQL cơ bản. Nhóm 3 bạn chia ra chỉ ~495k/người.",
+            "desc": "Phù hợp môn Lập trình web động cơ bản, quản lý dữ liệu CRUD, đăng ký/đăng nhập.",
+            "includes": [
+              "Xử lý dữ liệu động bằng ngôn ngữ PHP + database MySQL",
+              "Tính năng Đăng ký, Đăng nhập phân quyền cơ bản",
+              "Tích hợp sẵn bộ dữ liệu mẫu (Seed Mock Data) để chạy thử",
+              "Tặng kèm: 1 buổi Call trực tiếp hướng dẫn setup và chạy thử"
+            ]
+          },
+          "react": {
+            "price": "Từ 2.490.000đ",
+            "oldPrice": "4.000.000đ",
+            "note": "Full-stack React/Node.js nâng cao. Nhóm 4 bạn chia ra chỉ ~620k/người.",
+            "desc": "Phù hợp bài tập lớn Web nâng cao, Single Page App React, REST API, MongoDB/PostgreSQL.",
+            "includes": [
+              "Kiến trúc SPA React + REST API Backend Node.js/Express",
+              "Tặng kèm: 1 buổi Call trực tiếp giải thích code và hướng dẫn chạy",
+              "Tích hợp sẵn bộ dữ liệu mẫu (Seed Mock Data) để chạy thử",
+              "Đồng hành hỗ trợ cài đặt môi trường chạy thực tế"
+            ]
+          }
+        },
+        "excludes": [
+          "Tuyệt đối không viết báo cáo học thuật (Report) hộ",
+          "Không làm luận văn tốt nghiệp ra trường",
+          "Không hỗ trợ quay video demo chạy hệ thống hộ",
+          "Sinh viên phải tự chạy code và tự viết phần báo cáo văn bản"
         ]
       }
     },
@@ -529,11 +615,11 @@
       "items": [
         {
           "q": "Chi phí làm website là bao nhiêu?",
-          "a": "Landing page bắt đầu từ 999.000đ, website nhiều trang từ 2.499.000đ, web có tính năng động từ 6.999.000đ. Giá cuối tùy phạm vi và luôn được chốt trước khi làm — rẻ hơn 40-50% so với agency vì mình làm trực tiếp, không qua trung gian."
+          "a": "Landing page từ 999.000đ, website nhiều trang từ 2.490.000đ, web động từ 6.999.000đ. Giá cuối tùy thuộc vào tính năng cụ thể và được chốt rõ từ đầu. Vì mình là sinh viên làm trực tiếp 1-1 nên mức giá rất mềm so với thị trường và không qua trung gian."
         },
         {
-          "q": "Vì sao giá rẻ hơn agency mà vẫn đảm bảo chất lượng?",
-          "a": "Mình là sinh viên IT năm cuối làm trực tiếp toàn bộ, không tốn chi phí văn phòng hay nhân sự trung gian. Bạn xem được demo chạy thật ngay trên trang này trước khi quyết định, và mọi gói đều có hỗ trợ sau bàn giao."
+          "q": "Vì sao chi phí lại hợp lý mà vẫn đảm bảo chất lượng?",
+          "a": "Mình là sinh viên IT năm cuối, tự tay thực hiện trực tiếp nên không tốn chi phí vận hành hay trung gian. Mình luôn thiết kế chỉn chu, có demo chạy thử trên trang để bạn kiểm tra trước, đồng thời luôn đồng hành hỗ trợ sau khi bàn giao."
         },
         {
           "q": "Giá \"Từ\" nghĩa là sao, có phát sinh thêm không?",
@@ -557,7 +643,7 @@
         },
         {
           "q": "HSSV có được giảm giá không?",
-          "a": "Có. Học sinh và sinh viên được giảm 20% trên toàn bộ các gói dịch vụ — từ landing, website, dịch vụ sửa chữa đến ứng dụng web. Cần xác minh qua email trường hoặc giấy tờ sinh viên. Điều này là cách mình chia sẻ, vì mình biết khó khăn khi học tập lại phải chi tiêu."
+          "a": "Có. HSSV được giảm 20% trên toàn bộ các gói dịch vụ làm web (Landing từ 799k, Web nhiều trang từ 1.99M, Web App từ 5.59M). Mình hỗ trợ xây dựng phần kỹ thuật/viết code cho bài tập cuối môn (Coursework) nhưng TUYỆT ĐỐI không viết báo cáo (Report) hộ và không nhận làm Đồ án tốt nghiệp. Các bạn cần tự đọc hiểu code và tự viết báo cáo học thuật."
         }
       ]
     },
@@ -578,24 +664,24 @@
     "faqs": [
       {
         "question": "Hugo Studio có giờ làm việc cố định không?",
-        "answer": "Hugo Studio cung cấp dịch vụ cá nhân và trực tiếp 1:1 với khách hàng nên không gò bó thời gian. Các bạn cứ thoải mái gửi tin nhắn cho tụi mình bất cứ lúc nào nhé, đội ngũ sẽ phản hồi sớm nhất có thể!"
+        "answer": "Mình làm việc trực tiếp 1-1 nên không gò bó thời gian. Bạn cứ thoải mái gửi tin nhắn bất cứ lúc nào nhé, mình sẽ phản hồi sớm nhất có thể!"
       },
       {
         "question": "Team Hugo Studio có bao nhiêu thành viên?",
-        "answer": "Chúng tớ hiện có 2 thành viên nòng cốt là Hugo Wishpax Lê và Jason Phan đang cùng đảm nhiệm toàn bộ quy trình Full-stack để mang đến trải nghiệm đồng nhất và tối ưu nhất cho các bạn."
+        "answer": "Mình là Hugo, sinh viên năm cuối IT và là người thực hiện chính các dự án. Mình đồng hành cùng Jason Phan (đối tác đồng phát triển) trong việc thảo luận kỹ thuật và tối ưu trải nghiệm Full-stack tốt nhất cho bạn."
       },
       {
         "question": "Có chính sách ưu đãi hay dùng thử nào tại Hugo Studio không?",
-        "answer": "Thấu hiểu các bạn học sinh/sinh viên rất mong mỏi có một trang giới thiệu bản thân chuyên nghiệp, Hugo Studio đang tài trợ toàn bộ chi phí dịch vụ tạo Bio Portfolio cao cấp (kèm tên miền cá nhân hóa) dành riêng cho các bạn có email giáo dục đuôi .edu hoặc .edu.vn.",
+        "answer": "Thấu hiểu các bạn học sinh/sinh viên rất mong mỏi có một trang giới thiệu bản thân chuyên nghiệp, mình đang hỗ trợ tạo Bio Portfolio cá nhân hóa hoàn toàn miễn phí dành riêng cho các bạn có email giáo dục đuôi .edu hoặc .edu.vn.",
         "actionText": "Nhận ưu đãi Sinh Viên"
       },
       {
         "question": "Chi phí thiết kế tại Hugo Studio như thế nào?",
-        "answer": "Chi phí cực kỳ tối ưu và linh hoạt theo từng nhu cầu của bạn. Tụi mình luôn nỗ lực loại bỏ các chi phí ẩn để mang lại một sản phẩm chất lượng, mượt mà và vượt xa kỳ vọng so với giá tiền."
+        "answer": "Vì mình làm việc trực tiếp 1-1 nên chi phí cực kỳ tối ưu và phù hợp với các bạn học sinh sinh viên hoặc kinh doanh nhỏ. Để đảm bảo chất lượng, mình chỉ nhận duy nhất 1 dự án tại một thời điểm theo hàng đợi."
       },
       {
         "question": "Ngày lễ, Hugo Studio có làm việc không?",
-        "answer": "Các bạn cứ an tâm nha, khi nào nghỉ lễ dài ngày chúng mình sẽ có thông báo trực tiếp trên trang chủ. (Bật mí: Đa số những lúc đó chúng tớ đang vi vu đi du lịch xả stress đấy 🏖️)"
+        "answer": "Khi nào nghỉ lễ dài ngày mình sẽ có thông báo trực tiếp trên trang chủ nha. (Bật mí là đôi khi mình cũng đi du lịch xả stress chút xíu 🏖️)"
       }
     ],
     "contact": {
@@ -613,7 +699,7 @@
     },
     "header": {
       "title": "Đặt Lịch Thiết Kế.",
-      "desc": "Hãy phác thảo sơ bộ về dự án của bạn. Tôi sẽ liên lạc trực tiếp qua Zalo/Email trong vòng 24h để trao đổi chi tiết và lập báo giá phù hợp nhất."
+      "desc": "Mình làm việc theo hình thức trực tiếp 1-1 và chỉ nhận duy nhất 1 dự án tại một thời điểm để đảm bảo chất lượng. Bạn hãy phác thảo sơ bộ nhu cầu, mình sẽ phản hồi qua Zalo/Email trong vòng 24h để báo giá và xếp lịch thực hiện theo thứ tự hàng đợi nhé."
     },
     "features": [
       {

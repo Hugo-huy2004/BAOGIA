@@ -143,7 +143,7 @@ export const sendContactForm = async (name, email, subject, message, recipientEm
   }
 };
 
-export const sendCustomEmail = async (to, subject, html, cc = null, fromEmail = null) => {
+export const sendCustomEmail = async (to, subject, html, cc = null, fromEmail = null, attachments = null) => {
   try {
     const msg = {
       from: fromEmail || process.env.EMAIL_SUPPORT,
@@ -152,6 +152,8 @@ export const sendCustomEmail = async (to, subject, html, cc = null, fromEmail = 
       html,
     };
     if (cc) msg.cc = cc;
+    // [{ content: base64, filename, type, disposition }]
+    if (attachments?.length) msg.attachments = attachments;
 
     await sgMail.send(msg);
     console.log(`✅ Custom email sent to ${to}`);

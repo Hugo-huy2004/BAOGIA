@@ -186,8 +186,17 @@ function PlanCard({ plan, emphasized = false }) {
 function DemoShowcaseSection() {
   const { t } = useTranslation();
   const [activeId, setActiveId] = useState("photography");
+  const [device, setDevice] = useState("mobile"); // "desktop" | "tablet" | "mobile"
   const active = DEMO_META.find((tpl) => tpl.id === activeId);
   const ActiveDemo = active.Demo;
+
+  // Responsive device container sizes
+  let mockupWidthClasses = "w-[300px] sm:w-[340px] h-[550px] md:h-[600px]";
+  if (device === "desktop") {
+    mockupWidthClasses = "w-full max-w-[820px] aspect-[16/10] h-[480px] md:h-[520px]";
+  } else if (device === "tablet") {
+    mockupWidthClasses = "w-[440px] max-w-full aspect-[3/4] h-[580px]";
+  }
 
   return (
     <section id="templates" className="relative mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
@@ -203,7 +212,7 @@ function DemoShowcaseSection() {
 
       <div className="mt-12 flex flex-col items-center gap-8 lg:flex-row lg:items-start lg:gap-12">
         {/* Danh sách chọn demo */}
-        <div className="w-full lg:w-1/3">
+        <div className="w-full lg:w-1/4 shrink-0">
           <div className="scrollbar-hide flex snap-x gap-3 overflow-x-auto pb-4 lg:flex-col lg:overflow-visible lg:pb-0">
             {DEMO_META.map((tpl) => (
               <button
@@ -230,9 +239,31 @@ function DemoShowcaseSection() {
           <CtaButton className="mt-4 hidden w-full lg:inline-flex">{t("servicesPage.demo.cta")}</CtaButton>
         </div>
 
-        {/* Khung mockup trình duyệt */}
-        <div className="flex w-full justify-center lg:w-2/3 lg:justify-end">
-          <div className="relative flex h-[55vh] w-full max-w-[300px] flex-col rounded-[2rem] border border-border bg-muted p-2 shadow-2xl sm:max-w-[340px] md:h-[640px] md:max-w-[420px] md:rounded-[2.5rem] md:p-4 lg:max-w-[460px]">
+        {/* Khung mockup trình duyệt & Device Switcher */}
+        <div className="flex-grow w-full flex flex-col items-center gap-4 lg:items-end">
+          {/* Device Selector toolbar - hidden on extra small mobile */}
+          <div className="hidden sm:flex items-center gap-1.5 p-1 rounded-2xl bg-muted/65 border border-border w-fit">
+            {[
+              { id: "desktop", label: "Máy tính", icon: "laptop" },
+              { id: "tablet", label: "Máy tính bảng", icon: "tablet_mac" },
+              { id: "mobile", label: "Điện thoại", icon: "smartphone" }
+            ].map((d) => (
+              <button
+                key={d.id}
+                onClick={() => setDevice(d.id)}
+                className={`flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+                  device === d.id
+                    ? "bg-foreground text-background shadow"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">{d.icon}</span>
+                {d.label}
+              </button>
+            ))}
+          </div>
+
+          <div className={`relative flex flex-col rounded-[2rem] border border-border bg-muted p-2 shadow-2xl md:rounded-[2.5rem] md:p-3 transition-all duration-300 ${mockupWidthClasses}`}>
             <div className="z-20 flex w-full shrink-0 items-center gap-2 rounded-t-[1.5rem] border-b border-border bg-card p-2 md:p-3">
               <div className="flex shrink-0 gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
@@ -246,20 +277,20 @@ function DemoShowcaseSection() {
             <div className="relative isolate w-full flex-1 overflow-hidden rounded-b-[1.5rem] bg-card">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={activeId}
+                  key={`${activeId}-${device}`}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                   className="scrollbar-hide h-full w-full overflow-y-auto"
-                  style={{ zoom: "0.8" }}
+                  style={{ zoom: device === "desktop" ? "0.75" : "0.85" }}
                 >
                   <Suspense
                     fallback={
                       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">{t("servicesPage.demo.loading")}</div>
                     }
                   >
-                    <ActiveDemo isMobile={true} />
+                    <ActiveDemo isMobile={device !== "desktop"} />
                   </Suspense>
                 </motion.div>
               </AnimatePresence>
@@ -318,9 +349,87 @@ export default function ServicesPage() {
   const { t, i18n } = useTranslation();
   const plans = usePlans();
 
+  const [priceMode, setPriceMode] = useState(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    return searchParams.get("type") === "student" ? "student" : "commercial";
+  });
+
+  const [courseworkStack, setCourseworkStack] = useState("react");
+
   const staticPlans = STATIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
   const dynamicPlans = DYNAMIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
   const carePlans = CARE_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
+
+  const studentPlans = useMemo(() => {
+    const plansKeys = ["bug", "bento", "coursework"];
+    const icons = ["handyman", "contact_page", "code"];
+    return plansKeys.map((key, index) => {
+      const planData = t(`servicesPage.studentPlans.${key}`, { returnObjects: true });
+      return {
+        id: key,
+        icon: icons[index],
+        ...planData,
+      };
+    });
+  }, [t]);
+
+  const allExportPlans = useMemo(() => {
+    const list = [];
+    
+    // 1. Commercial Plans
+    const staticPlansData = STATIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
+    const dynamicPlansData = DYNAMIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
+    
+    staticPlansData.forEach(p => {
+      if (p) list.push({ name: `[Doanh nghiệp] ${p.name}`, price: p.price, desc: p.desc, includes: p.includes, note: p.note });
+    });
+    dynamicPlansData.forEach(p => {
+      if (p) list.push({ name: `[Doanh nghiệp] ${p.name}`, price: p.price, desc: p.desc, includes: p.includes, note: p.note });
+    });
+
+    // 2. Care & Speed Plans
+    const carePlansData = CARE_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
+    carePlansData.forEach(p => {
+      if (p) list.push({ name: `[Bảo trì & Tối ưu] ${p.name}`, price: p.price, desc: p.desc, includes: p.includes, note: p.note });
+    });
+
+    // 3. Student Plans
+    const bugData = t("servicesPage.studentPlans.bug", { returnObjects: true });
+    const bentoData = t("servicesPage.studentPlans.bento", { returnObjects: true });
+    const courseworkData = t("servicesPage.studentPlans.coursework", { returnObjects: true });
+
+    if (bugData) list.push({ name: `[HSSV] ${bugData.name}`, price: bugData.price, desc: bugData.desc, includes: bugData.includes, note: bugData.note });
+    if (bentoData) list.push({ name: `[HSSV] ${bentoData.name}`, price: bentoData.price, desc: bentoData.desc, includes: bentoData.includes, note: bentoData.note });
+    
+    if (courseworkData && courseworkData.stacks) {
+      Object.keys(courseworkData.stacks).forEach(stack => {
+        const stackData = courseworkData.stacks[stack];
+        list.push({
+          name: `[HSSV] ${courseworkData.name} (${stack.toUpperCase()})`,
+          price: stackData.price,
+          desc: stackData.desc,
+          includes: stackData.includes,
+          note: stackData.note
+        });
+      });
+    }
+
+    // 4. Việc lẻ (Micro Tasks)
+    const microTasks = t("servicesPage.micro.items", { returnObjects: true });
+    if (Array.isArray(microTasks)) {
+      microTasks.forEach(task => {
+        list.push({
+          name: `[Việc lẻ] ${task.title}`,
+          price: task.price,
+          desc: task.desc,
+          includes: [],
+          note: "Hoàn thành nhanh chóng trong ngày."
+        });
+      });
+    }
+
+    return list;
+  }, [plans, t]);
 
   const trustPoints = t("servicesPage.hero.trust", { returnObjects: true });
   const microItems = t("servicesPage.micro.items", { returnObjects: true });
@@ -387,6 +496,7 @@ export default function ServicesPage() {
 
   return (
     <div className="relative w-full overflow-x-hidden pb-20 text-foreground">
+      <div className="print:hidden">
       {/* Nền glow đồng bộ Landing */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-10%] top-[-6%] h-[45vw] w-[45vw] rounded-full bg-gradient-to-tr from-primary/10 to-accent/10 blur-[150px]" />
@@ -459,7 +569,217 @@ export default function ServicesPage() {
         </motion.div>
       </section>
 
-      {/* ================= TÂM TÍCH GIÁ CẢ ================= */}
+      {/* ================= DEMO — BẰNG CHỨNG THỰC TẾ (VISUAL HOOK) ================= */}
+      <DemoShowcaseSection />
+
+      {/* ================= BỘ GẠT CHUYỂN ĐỔI BẢNG GIÁ ================= */}
+      <section className="mx-auto mt-16 max-w-7xl px-4 sm:px-8 text-center relative z-10 print:hidden">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="relative inline-flex rounded-full bg-muted/65 p-1 border border-border">
+            {/* Background sliding indicator */}
+            <motion.div
+              className="absolute top-1 bottom-1 rounded-full bg-foreground"
+              animate={{
+                left: priceMode === "commercial" ? "4px" : "calc(50% + 2px)",
+                width: "calc(50% - 6px)",
+              }}
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            />
+            <button
+              onClick={() => setPriceMode("commercial")}
+              className={`relative rounded-full px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors duration-300 ${
+                priceMode === "commercial" ? "text-background z-10" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Cá nhân / Doanh nghiệp
+            </button>
+            <button
+              onClick={() => setPriceMode("student")}
+              className={`relative rounded-full px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors duration-300 ${
+                priceMode === "student" ? "text-background z-10" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Học sinh & Sinh viên (-20%)
+            </button>
+          </div>
+
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card/85 px-6 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition-all active:scale-95 shadow-sm"
+          >
+            <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+            Xuất Bảng Giá (PDF)
+          </button>
+        </div>
+      </section>
+
+      {priceMode === "commercial" ? (
+        <>
+          {/* ================= WEBSITE & ỨNG DỤNG WEB ================= */}
+          <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:mt-24 sm:px-8">
+            <div id="build" className="absolute -top-24" />
+            <SectionHeading
+              eyebrow={t("servicesPage.pricing.eyebrow")}
+              title="Bảng Giá Thiết Kế Website"
+              highlight="Trọn Gói & Tiêu Chuẩn"
+              desc="Các gói thiết kế web trọn gói từ cơ bản đến phức tạp, báo giá và thống nhất scope từ đầu."
+            />
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {[...staticPlans, ...dynamicPlans].map((plan) => (
+                <PlanCard key={plan.id} plan={plan} emphasized={plan.featured} />
+              ))}
+            </div>
+          </section>
+        </>
+      ) : (
+        /* ================= BẢNG GIÁ DÀNH RIÊNG HSSV ================= */
+        <section id="pricing" className="relative mx-auto mt-16 max-w-7xl scroll-mt-24 px-4 sm:px-8 animate-fadeIn">
+          <div id="build" className="absolute -top-24" />
+          <SectionHeading
+            eyebrow={t("servicesPage.student.badge")}
+            title="Gói Lập Trình Coursework & CV"
+            highlight="Dành riêng HSSV"
+            desc="Xây dựng giao diện, viết logic code bài tập lớn môn học (Coursework) và Portfolio học thuật. Cam kết học tập, không viết báo cáo hộ."
+          />
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {studentPlans.map((plan) => {
+              const isCoursework = plan.id === "coursework";
+              const currentStackData = isCoursework ? plan.stacks[courseworkStack] : null;
+              const displayPrice = isCoursework ? currentStackData.price : plan.price;
+              const displayOldPrice = isCoursework ? currentStackData.oldPrice : plan.oldPrice;
+              const displayDiscount = isCoursework ? currentStackData.discount : plan.discount;
+              const displayNote = isCoursework ? currentStackData.note : plan.note;
+              const displayDesc = isCoursework ? currentStackData.desc : plan.desc;
+              const displayIncludes = isCoursework ? currentStackData.includes : plan.includes;
+
+              return (
+                <motion.article
+                  {...reveal}
+                  key={plan.id}
+                  className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:p-7"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-3">
+                      <MonoIcon name={plan.icon} className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
+                      {displayDiscount && (
+                        <span className="rounded-full bg-emerald-500/20 px-3 py-0.5 text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">
+                          {displayDiscount}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-display mt-5 text-xl font-bold text-foreground">{plan.name}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">{plan.tagline}</p>
+
+                    {/* Tech Stack selector pills */}
+                    {isCoursework && (
+                      <div className="mt-4 flex flex-wrap gap-1 p-1 rounded-2xl bg-muted/80 border border-border relative z-10">
+                        {[
+                          { id: "html", label: "HTML/CSS/JS" },
+                          { id: "php", label: "PHP/SQL" },
+                          { id: "react", label: "React/Node" }
+                        ].map((s) => (
+                          <button
+                            key={s.id}
+                            onClick={() => setCourseworkStack(s.id)}
+                            className={`flex-1 rounded-xl px-2 py-1.5 text-[9px] font-bold uppercase transition-all duration-200 ${
+                              courseworkStack === s.id
+                                ? "bg-foreground text-background shadow"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-foreground">{displayPrice}</span>
+                      {displayOldPrice && (
+                        <span className="text-xs text-muted-foreground line-through">{displayOldPrice}</span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground/80 leading-normal">{displayNote}</p>
+                    <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{displayDesc}</p>
+                    <div className="mt-6 border-t border-border/60 pt-4">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Bạn nhận được:</p>
+                      <ul className="mt-3 space-y-2">
+                        {displayIncludes?.slice(0, 4).map((item) => (
+                          <li key={item} className="flex items-start gap-2 text-xs leading-relaxed text-foreground/80">
+                            <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="mt-8">
+                    <Link
+                      to={
+                        isCoursework
+                          ? `/booking?type=student&plan=coursework&stack=${courseworkStack}`
+                          : `/booking?type=student&plan=${plan.id}`
+                      }
+                      className="block w-full text-center rounded-2xl bg-foreground py-3 text-xs font-bold text-background transition-all hover:bg-foreground/90 active:scale-98"
+                    >
+                      Đăng ký gói sinh viên
+                    </Link>
+                  </div>
+                </motion.article>
+              );
+            })}
+          </div>
+          <div className="mt-12 text-center">
+            <Link
+              to="/student-pricing"
+              className="inline-flex items-center gap-2 rounded-full border-2 border-border/50 bg-card/70 px-6 py-3 text-xs font-bold uppercase tracking-wide text-foreground backdrop-blur transition-all duration-300 hover:border-primary hover:text-primary animate-pulse-slow"
+            >
+              Xem điều kiện xác minh & Chi tiết gói HSSV
+              <span className="material-symbols-outlined text-sm animate-bounceRight">arrow_forward</span>
+            </Link>
+          </div>
+
+          {/* ================= HSSV MIỄN PHÍ — KHÁC BIỆT THƯƠNG HIỆU ================= */}
+          <motion.section {...reveal} id="student-free" className="mx-auto mt-20 max-w-7xl scroll-mt-24 px-0">
+            <div className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-2xl sm:p-8 lg:p-10">
+              <div className={`absolute inset-x-0 top-0 h-1.5 ${brandGradient}`} />
+              <div className="pointer-events-none absolute bottom-[5%] left-[-4%] select-none text-[6rem] font-black leading-none tracking-tighter text-foreground/[0.03] sm:text-[9rem]">
+                FREE
+              </div>
+              <div className="relative grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+                <div>
+                  <span className={`inline-flex rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.25em] sm:text-[10px] ${heroBadge}`}>
+                    {t("servicesPage.student.badge")}
+                  </span>
+                  <h2 className="font-display mt-5 text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+                    {t("servicesPage.student.title1")}{" "}
+                    <span className={`${brandGradient} bg-clip-text text-transparent`}>{t("servicesPage.student.title2")}</span>
+                  </h2>
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">{t("servicesPage.student.desc")}</p>
+                  <Link
+                    to="/student-benefits"
+                    className="mt-6 inline-flex items-center gap-2 rounded-full border-2 border-border/50 bg-card/70 px-6 py-3 text-xs font-bold uppercase tracking-wide text-foreground backdrop-blur transition-all duration-300 hover:border-primary hover:text-primary"
+                  >
+                    {t("servicesPage.student.cta")}
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  </Link>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {studentItems.map(({ title, desc }, index) => (
+                    <div key={title} className="rounded-3xl border border-border bg-background/55 p-4 backdrop-blur">
+                      <MonoIcon name={STUDENT_ICONS[index]} className="h-10 w-10" />
+                      <h3 className="mt-4 text-sm font-bold text-foreground">{title}</h3>
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.section>
+        </section>
+      )}
+
+      {/* ================= TÂM TÍCH GIÁ CẢ & PHƯƠNG CHÂM LÀM VIỆC ================= */}
       <motion.section {...reveal} className="mx-auto mt-20 max-w-4xl px-4 sm:mt-28 sm:px-8">
         <div className="rounded-3xl border border-border bg-card/70 p-8 backdrop-blur sm:p-10">
           <h2 className="font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
@@ -473,25 +793,6 @@ export default function ServicesPage() {
           </p>
         </div>
       </motion.section>
-
-      {/* ================= WEBSITE TIÊU CHUẨN: LANDING + WEBSITE ================= */}
-      <section id="pricing" className="relative mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
-        <div id="build" className="absolute -top-24" />
-        <SectionHeading
-          eyebrow={t("servicesPage.pricing.eyebrow")}
-          title="Website Tiêu Chuẩn — Để giới thiệu thương hiệu"
-          highlight="Giá chốt sẵn"
-          desc="Các trang web để khách hiểu về bạn, liên hệ với bạn. Chỉnh sửa theo yêu cầu + số lần bảo dưỡng ghi trong gói. Không bao hosting."
-        />
-        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:gap-6">
-          {staticPlans.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} emphasized={plan.featured} />
-          ))}
-        </div>
-      </section>
-
-      {/* ================= DEMO — BẰNG CHỨNG NGAY SAU BẢNG GIÁ ================= */}
-      <DemoShowcaseSection />
 
       {/* ================= ĐÃ CÓ WEB: SỬA + TỐI ƯU ================= */}
       <section id="fix" className="mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
@@ -533,89 +834,7 @@ export default function ServicesPage() {
         </motion.div>
       </section>
 
-      {/* ================= ỨNG DỤNG WEB: HỆ THỐNG QUẢN LÝ ================= */}
-      <section id="app" className="mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
-        <SectionHeading
-          eyebrow={t("servicesPage.app.badge")}
-          title="Ứng Dụng Web — Để quản lý doanh nghiệp"
-          highlight="Giá tùy scope"
-          desc="Các hệ thống web có quản lý dữ liệu, đăng nhập, thanh toán, quản lý đơn hàng, v.v. Bao gồm hosting. Giá thương lượng theo chi tiết dự án."
-        />
-        <div className="mt-12">
-          {dynamicPlans.map((plan) => (
-            <motion.div {...reveal} key={plan.id} className="relative overflow-hidden rounded-[2rem] border border-border bg-card shadow-2xl">
-              <div className={`absolute inset-x-0 top-0 h-1.5 ${brandGradient}`} />
-              <div className="grid lg:grid-cols-[1fr_1.05fr]">
-                {/* Trái: thông điệp + giá + CTA */}
-                <div className="p-6 sm:p-10">
-                  <h2 className="font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-                    {plan.name}
-                  </h2>
-                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{plan.desc}</p>
-                  <p className={`mt-6 text-4xl font-extrabold ${brandGradient} bg-clip-text text-transparent`}>{plan.price}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{plan.note}</p>
-                  <CtaButton className="mt-7">{t("servicesPage.common.discussProject")}</CtaButton>
-                </div>
 
-                {/* Phải: phạm vi gói */}
-                <div className="border-t border-border bg-muted/40 p-6 sm:p-10 lg:border-l lg:border-t-0">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.common.youGet")}</p>
-                  <ul className="mt-4 space-y-3">
-                    {plan.includes.map((item) => (
-                      <li key={item} className="flex items-start gap-2.5 text-sm font-medium leading-relaxed text-foreground/80">
-                        <span className="material-symbols-outlined mt-0.5 text-base text-foreground">check_circle</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-6 rounded-2xl border border-dashed border-border bg-background/50 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.app.extendTitle")}</p>
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t("servicesPage.app.extendDesc")}</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ================= HSSV MIỄN PHÍ — KHÁC BIỆT THƯƠNG HIỆU ================= */}
-      <motion.section {...reveal} id="student-free" className="mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
-        <div className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-2xl sm:p-8 lg:p-10">
-          <div className={`absolute inset-x-0 top-0 h-1.5 ${brandGradient}`} />
-          <div className="pointer-events-none absolute bottom-[5%] left-[-4%] select-none text-[6rem] font-black leading-none tracking-tighter text-foreground/[0.03] sm:text-[9rem]">
-            FREE
-          </div>
-          <div className="relative grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-            <div>
-              <span className={`inline-flex rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.25em] sm:text-[10px] ${heroBadge}`}>
-                {t("servicesPage.student.badge")}
-              </span>
-              <h2 className="font-display mt-5 text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-                {t("servicesPage.student.title1")}{" "}
-                <span className={`${brandGradient} bg-clip-text text-transparent`}>{t("servicesPage.student.title2")}</span>
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">{t("servicesPage.student.desc")}</p>
-              <Link
-                to="/student-benefits"
-                className="mt-6 inline-flex items-center gap-2 rounded-full border-2 border-border/50 bg-card/70 px-6 py-3 text-xs font-bold uppercase tracking-wide text-foreground backdrop-blur transition-all duration-300 hover:border-primary hover:text-primary"
-              >
-                {t("servicesPage.student.cta")}
-                <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </Link>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {studentItems.map(({ title, desc }, index) => (
-                <div key={title} className="rounded-3xl border border-border bg-background/55 p-4 backdrop-blur">
-                  <MonoIcon name={STUDENT_ICONS[index]} className="h-10 w-10" />
-                  <h3 className="mt-4 text-sm font-bold text-foreground">{title}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </motion.section>
 
       {/* ================= QUY TRÌNH — TĂNG NIỀM TIN ================= */}
       <section className="mx-auto mt-20 max-w-7xl px-4 sm:mt-28 sm:px-8">
@@ -642,7 +861,7 @@ export default function ServicesPage() {
       <FaqSection />
 
       {/* ================= CTA CUỐI — TƯ VẤN MIỄN PHÍ, KHÔNG RÀO CẢN ================= */}
-      <section className="mx-auto mt-20 max-w-4xl px-4 text-center sm:mt-28 sm:px-8">
+      <section className="mx-auto mt-20 max-w-4xl px-4 text-center sm:mt-28 sm:px-8 print:hidden">
         <motion.div {...reveal} className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-8 shadow-xl sm:p-12">
           <div className={`absolute inset-x-0 top-0 h-1.5 ${brandGradient}`} />
           <motion.div
@@ -659,6 +878,218 @@ export default function ServicesPage() {
           <CtaButton className="mt-7 px-8">{t("servicesPage.finalCta.cta")}</CtaButton>
         </motion.div>
       </section>
+      </div>{/* /print:hidden — bọc toàn bộ nội dung màn hình, ẩn khi in */}
+
+      {/* Printable pricing table document layout (Hidden on screen, visible during printing) */}
+      <div className="print-section hidden bg-white text-black p-8 font-sans">
+        <style>{`
+          @media print {
+            /* Reset absolute positions and height/overflow limits on root and body elements */
+            html, body, #root, #root > *, .relative.w-full {
+              height: auto !important;
+              min-height: 0 !important;
+              overflow: visible !important;
+              display: block !important;
+              position: static !important;
+              background: white !important;
+              color: black !important;
+            }
+            body {
+              background: white !important;
+              color: black !important;
+            }
+            /* Hide global navbar, footer, and other non-print elements */
+            header, footer, nav, .print\:hidden, .cursor-effect-wrapper, #offline-banner, #pwa-install-banner, [class*="Toaster"] {
+              display: none !important;
+            }
+            .print-section {
+              display: block !important;
+              position: static !important;
+              width: 100% !important;
+              background: white !important;
+              color: black !important;
+              padding: 0 !important;
+            }
+            .page-break {
+              page-break-before: always;
+              break-before: page;
+            }
+            @page {
+              margin: 0;
+            }
+            body {
+              padding: 2cm 1.5cm;
+            }
+          }
+        `}</style>
+
+        {/* ================= PAGE 1 ================= */}
+        <div className="min-h-[26cm] flex flex-col justify-between">
+          <div>
+            {/* Header with side-by-side logos (Grayscale, no text names next to them) */}
+            <div className="flex items-center justify-between border-b border-black pb-4 mb-8">
+              <div className="border-2 border-black px-3 py-1 font-mono text-xs font-black tracking-widest text-black uppercase">
+                HUGO STUDIO
+              </div>
+              <div className="text-sm font-bold text-black">×</div>
+              <img
+                src="https://res.cloudinary.com/dyehwoscu/image/upload/v1779514310/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-23_lu%CC%81c_12.31.33-removebg-preview_ww2qxy.png"
+                alt="JasonDev Logo"
+                className="h-10 w-auto object-contain filter grayscale"
+              />
+            </div>
+
+            <div className="text-center my-10">
+              <h1 className="text-2xl font-bold uppercase tracking-tight text-black">TÀI LIỆU BÁO GIÁ & ĐIỀU KHOẢN DỊCH VỤ</h1>
+              <p className="text-xs text-black mt-2">Đơn vị ban hành: Hugo Studio × JasonDev</p>
+              <p className="text-xs text-black mt-0.5">Ngày lập tài liệu: {new Date().toLocaleDateString("vi-VN")}</p>
+            </div>
+
+            {/* Table of Contents (Mục lục) */}
+            <div className="border border-black p-4 mt-8 mb-8">
+              <h2 className="text-xs font-bold uppercase tracking-wider mb-3 border-b border-black pb-1 text-black">Mục Lục Tài Liệu</h2>
+              <ul className="space-y-2 text-xs text-black">
+                <li className="flex justify-between">
+                  <span>1. Giới thiệu đơn vị Hugo Studio</span>
+                  <span className="text-black">Trang 1</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>2. Các danh mục dịch vụ & Đơn giá chi tiết</span>
+                  <span className="text-black">Trang 2</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>3. Quy trình thực hiện & Điều khoản giao dịch</span>
+                  <span className="text-black">Trang 3</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>4. Quy định loại trừ & Chi phí phát sinh bổ sung</span>
+                  <span className="text-black">Trang 3</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Section 1: Giới thiệu */}
+            <div className="mt-6 text-left">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-black pb-1 mb-2">1. Giới thiệu đơn vị Hugo Studio</h2>
+              <p className="text-xs leading-relaxed text-black">
+                Hugo Studio, phối hợp cùng đối tác kỹ thuật JasonDev, chuyên cung cấp các giải pháp tư vấn, thiết kế giao diện website tương thích di động (Responsive), phát triển ứng dụng Web (Web Application), và hỗ trợ kỹ thuật lập trình (Coursework) dành cho học sinh, sinh viên các khối ngành Công nghệ thông tin.
+              </p>
+              <p className="text-xs leading-relaxed text-black mt-2">
+                Chúng tôi cam kết cung cấp các sản phẩm có mã nguồn sạch, tối ưu hóa tốc độ vận hành và chuẩn hóa giao diện tương tác theo đúng yêu cầu đặc tả từ đối tác và khách hàng.
+              </p>
+              <div className="mt-4 p-3 border border-black text-xs text-black leading-relaxed">
+                <strong>Quy định về phương thức hỗ trợ:</strong> Hugo Studio hoạt động và hỗ trợ theo hình thức trực tuyến (Online Call qua Google Meet/Zoom). Chúng tôi thực hiện hướng dẫn cài đặt, demo sản phẩm trực tiếp và giải thích cấu trúc code. Dịch vụ không bao gồm việc quay video chạy thử hoặc bàn giao, hướng dẫn trực tiếp ngoại tuyến (Offline).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= PAGE 2 ================= */}
+        <div className="page-break pt-8 text-left">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-black pb-1 mb-3">2. Các Danh Mục Dịch Vụ & Đơn Giá Chi Tiết</h2>
+          
+          <table className="w-full border-collapse border border-black text-[9px] text-black">
+            <thead>
+              <tr className="border-b border-black text-left">
+                <th className="border border-black p-2 font-bold w-1/4">Gói dịch vụ / Danh mục</th>
+                <th className="border border-black p-2 font-bold w-1/6 text-right">Đơn giá</th>
+                <th className="border border-black p-2 font-bold w-5/12">Mô tả chi tiết hạng mục</th>
+                <th className="border border-black p-2 font-bold w-1/6">Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allExportPlans.map((p, idx) => (
+                <tr key={idx} className="page-break-inside-avoid">
+                  <td className="border border-black p-2 align-top font-bold">
+                    {p.name}
+                  </td>
+                  <td className="border border-black p-2 align-top text-right font-bold whitespace-nowrap">
+                    {p.price}
+                  </td>
+                  <td className="border border-black p-2 align-top">
+                    <p className="font-semibold mb-1">{p.desc}</p>
+                    {p.includes && p.includes.length > 0 && (
+                      <ul className="list-disc pl-4 space-y-0.5 mt-1">
+                        {p.includes.map((item, i) => (
+                          <li key={i}>{item.replace(/\*\*/g, "")}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </td>
+                  <td className="border border-black p-2 align-top italic">
+                    {p.note}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* ================= PAGE 3 ================= */}
+        <div className="page-break pt-8 flex flex-col justify-between text-left">
+          <div>
+            {/* Section 3: Quy trình thực hiện & Điều khoản giao dịch */}
+            <div>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-black pb-1 mb-3">3. Quy trình thực hiện & Điều khoản giao dịch</h2>
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-xs font-bold">3.1. Quy trình triển khai dịch vụ</h4>
+                  <ol className="list-decimal pl-5 space-y-0.5 text-[10px] text-black">
+                    {workSteps.map((step, idx) => (
+                      <li key={idx} className="leading-relaxed">{step}</li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold">3.2. Điều khoản thanh toán & Chuyển giao</h4>
+                  <ul className="list-disc pl-5 space-y-0.5 text-[10px] text-black">
+                    <li><strong>Đặt cọc hợp đồng:</strong> Khách hàng thanh toán tạm ứng trước 50% tổng chi phí đối với dịch vụ thiết kế Landing Page, Website nhiều trang và Ứng dụng Web. Các dịch vụ sửa lỗi hoặc việc lẻ thanh toán 100% sau khi hoàn thành.</li>
+                    <li><strong>Phương thức giao dịch:</strong> Thanh toán qua hình thức chuyển khoản ngân hàng hoặc quét mã QR ngân hàng thanh toán nhanh.</li>
+                    <li><strong>Chuyển giao mã nguồn:</strong> Bàn giao toàn bộ mã nguồn sạch qua GitHub hoặc định dạng ZIP, hỗ trợ triển khai cấu hình lên máy chủ sau khi nhận đủ 50% thanh toán còn lại đợt cuối.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 4: Quy định loại trừ & Chi phí phát sinh bổ sung */}
+            <div className="mt-6">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-black pb-1 mb-3">4. Quy định loại trừ & Chi phí phát sinh bổ sung</h2>
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-xs font-bold">4.1. Các hạng mục loại trừ (Excludes)</h4>
+                  <ul className="list-disc pl-5 space-y-0.5 text-[10px] text-black">
+                    <li>Chi phí không bao gồm phí mua bản quyền tên miền (Domain) và dịch vụ lưu trữ (Hosting/VPS) hàng năm (trừ các trường hợp sử dụng hạ tầng miễn phí được thỏa thuận trước).</li>
+                    <li>Không bao gồm dịch vụ biên soạn văn bản, chuẩn bị tư liệu thương hiệu riêng của khách hàng.</li>
+                    <li><strong>Đối với sinh viên:</strong> Cam kết giữ vững tính trung thực học thuật. Hugo Studio tuyệt đối không cung cấp dịch vụ viết báo cáo lý thuyết, khóa luận tốt nghiệp hoặc đồ án thay sinh viên.</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold">4.2. Biểu phí tính năng bổ sung ngoài gói (Add-ons)</h4>
+                  <ul className="list-disc pl-5 space-y-0.5 text-[10px] text-black">
+                    <li>Thay đổi cấu trúc giao diện ngoài thỏa thuận ban đầu: +150.000đ/lần chỉnh sửa.</li>
+                    <li>Tích hợp cổng thanh toán trực tuyến tự động (Momo, PayOS): +1.500.000đ.</li>
+                    <li>Tích hợp hệ thống quản trị thành viên & tích điểm CRM: +2.000.000đ.</li>
+                    <li>Chuyển ngữ đa ngôn ngữ (Anh - Việt): +1.000.000đ.</li>
+                    <li>Tích hợp đồng bộ dữ liệu bên thứ 3 (Google Sheets, Zalo ZNS API): +1.200.000đ.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Single Signature Block */}
+          <div className="mt-8 flex justify-end text-center text-[10px] font-semibold pt-6 border-t border-black page-break-inside-avoid">
+            <div className="w-64">
+              <p className="text-black font-bold">Đại diện Hugo Studio</p>
+              <p className="text-[9px] text-black italic font-normal">(Ký và ghi rõ họ tên)</p>
+              <div className="h-16" />
+              <p className="font-bold text-black">Lê Peter Hugo</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

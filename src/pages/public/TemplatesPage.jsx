@@ -37,6 +37,7 @@ export default function TemplatesPage() {
   });
 
   const [activeTemplateId, setActiveTemplateId] = useState("photography");
+  const [device, setDevice] = useState("mobile"); // "desktop" | "tablet" | "mobile"
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef(null);
 
@@ -74,7 +75,7 @@ export default function TemplatesPage() {
     }
     return (
       <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground text-sm">Đang tải giao diện...</div>}>
-        <Demo isMobile={true} />
+        <Demo isMobile={device !== "desktop"} />
       </Suspense>
     );
   };
@@ -145,7 +146,7 @@ export default function TemplatesPage() {
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center lg:items-start max-w-7xl mx-auto w-full">
             
             {/* Left: Interactive Tabs List */}
-            <div className="w-full lg:w-1/3 space-y-4">
+            <div className="w-full lg:w-1/4 space-y-4 shrink-0">
               <div className="mb-4 lg:mb-6 text-center lg:text-left">
                 <h2 className="text-2xl md:text-3xl font-display font-black">Khám Phá Giao Diện</h2>
                 <p className="text-sm text-muted-foreground mt-2">Chọn một danh mục để xem chi tiết trải nghiệm ngay trên trình duyệt.</p>
@@ -172,42 +173,72 @@ export default function TemplatesPage() {
               </div>
             </div>
 
-            {/* Right: Mockup Display */}
-            <div className="w-full lg:w-2/3 flex justify-center lg:justify-end">
-              <div className="w-full max-w-[300px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[450px] h-[55vh] md:h-[650px] bg-muted border border-border rounded-[2rem] md:rounded-[2.5rem] p-2 md:p-4 shadow-2xl relative flex flex-col">
-                
-                {/* Browser/Phone Header */}
-                <div className="w-full bg-card rounded-t-[1.5rem] p-2 md:p-3 flex items-center gap-2 border-b border-border z-20 shrink-0">
-                  <div className="flex gap-1.5 shrink-0">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
+            {/* Right: Mockup Display & Device Switcher */}
+            {(() => {
+              let mockupWidthClasses = "w-[300px] sm:w-[320px] h-[55vh] md:h-[620px]";
+              if (device === "desktop") {
+                mockupWidthClasses = "w-full max-w-[820px] aspect-[16/10] h-[480px] md:h-[520px]";
+              } else if (device === "tablet") {
+                mockupWidthClasses = "w-[440px] max-w-full aspect-[3/4] h-[580px]";
+              }
+
+              return (
+                <div className="flex-grow w-full flex flex-col items-center gap-4 lg:items-end">
+                  {/* Device Selector toolbar */}
+                  <div className="hidden sm:flex items-center gap-1.5 p-1 rounded-2xl bg-muted/65 border border-border w-fit">
+                    {[
+                      { id: "desktop", label: "Máy tính", icon: "laptop" },
+                      { id: "tablet", label: "Máy tính bảng", icon: "tablet_mac" },
+                      { id: "mobile", label: "Điện thoại", icon: "smartphone" }
+                    ].map((d) => (
+                      <button
+                        key={d.id}
+                        onClick={() => setDevice(d.id)}
+                        className={`flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+                          device === d.id
+                            ? "bg-foreground text-background shadow"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[16px]">{d.icon}</span>
+                        {d.label}
+                      </button>
+                    ))}
                   </div>
-                  <div className="flex-1 bg-muted rounded-full py-1.5 px-4 text-center text-[9px] md:text-[10px] font-mono text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">
-                    {templates.find(t => t.id === activeTemplateId)?.url}
+
+                  <div className={`relative flex flex-col rounded-[2rem] border border-border bg-muted p-2 shadow-2xl md:rounded-[2.5rem] md:p-3 transition-all duration-300 ${mockupWidthClasses}`}>
+                    {/* Browser/Phone Header */}
+                    <div className="w-full bg-card rounded-t-[1.5rem] p-2 md:p-3 flex items-center gap-2 border-b border-border z-20 shrink-0">
+                      <div className="flex gap-1.5 shrink-0">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
+                      </div>
+                      <div className="flex-1 bg-muted rounded-full py-1.5 px-4 text-center text-[9px] md:text-[10px] font-mono text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">
+                        {templates.find(t => t.id === activeTemplateId)?.url}
+                      </div>
+                    </div>
+
+                    {/* Screen Content */}
+                    <div className="w-full flex-1 bg-card rounded-b-[1.5rem] overflow-hidden relative isolate">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={`${activeTemplateId}-${device}`}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                          className="w-full h-full overflow-y-auto custom-scrollbar"
+                          style={{ zoom: device === "desktop" ? "0.75" : "0.85" }}
+                        >
+                          {renderActivePreview()}
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
-
-                {/* Screen Content */}
-                <div className="w-full flex-1 bg-card rounded-b-[1.5rem] overflow-hidden relative isolate">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={activeTemplateId}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                      className="w-full h-full overflow-y-auto custom-scrollbar"
-                      style={{ zoom: "0.8" }} // Scale down for mobile mockup view
-                    >
-                      {renderActivePreview()}
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-
-              </div>
-            </div>
-
+              );
+            })()}
           </div>
         </section>
 

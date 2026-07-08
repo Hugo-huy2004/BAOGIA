@@ -1240,11 +1240,11 @@ export default function IntroductionPage() {
   const reduced = useReducedMotion();
 
   useHeadMeta({
-    title: "Hugo Studio — Làm Web Giá Rẻ, Tạo Bio Miễn Phí Cho Học Sinh Sinh Viên",
+    title: "Hugo Studio — Portfolio & Dịch Vụ Thiết Kế Web Sinh Viên",
     description:
-      "Hugo Studio — xưởng sáng tạo số của Peter Hugo Wishpax Lê: làm web giá rẻ (sửa web từ 150k, landing page 690k, website trọn gói), tạo trang bio cá nhân miễn phí kèm booking, portfolio và tiện ích cho học sinh, sinh viên.",
+      "Hugo Studio — Portfolio và dịch vụ làm web cá nhân của Hugo Lê: sửa web từ 150k, landing page từ 999k, website trọn gói từ 2.49tr. Tạo trang bio cá nhân miễn phí và tiện ích học tập cho học sinh, sinh viên.",
     keywords:
-      "làm web giá rẻ, thiết kế website giá rẻ, tạo bio miễn phí, bio miễn phí, link in bio, làm web sinh viên, làm landing page giá rẻ, Hugo Studio, Peter Hugo Wishpax Lê, portfolio",
+      "làm web sinh viên, thiết kế website giá rẻ, tạo bio miễn phí, bio miễn phí, link in bio, làm web giá rẻ, làm landing page, Hugo Studio, Hugo Lê, portfolio",
     canonicalUrl: "https://www.hugowishpax.studio/introduction",
   });
 
