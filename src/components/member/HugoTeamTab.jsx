@@ -148,6 +148,80 @@ export default function HugoTeamTab({ onBack }) {
         </p>
       </div>
 
+      {/* Benefits */}
+      <div className="border-t border-border pt-8">
+        <h2 className="text-lg font-bold text-foreground mb-2">Lợi Ích Khi Tham Gia HugoTeam</h2>
+        <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
+          HugoTeam là dự án phi lợi nhuận — không ai trả lương ai, nhưng cả hai bên cùng có lợi:
+          bạn nhận kiến thức, kinh nghiệm và sự đồng hành thật; Hugo Studio có thêm những người
+          bạn cùng xây sản phẩm phục vụ cộng đồng học sinh sinh viên.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {BENEFITS.map((b) => (
+            <div key={b.title} className="p-4 rounded-2xl border border-border bg-card/50 space-y-2">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-foreground">
+                <span className="material-symbols-outlined text-[20px]">{b.icon}</span>
+              </span>
+              <p className="font-semibold text-foreground text-sm">{b.title}</p>
+              <p className="text-xs leading-relaxed text-muted-foreground">{b.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* How Hugo Studio takes care of members */}
+      <div className="border-t border-border pt-8">
+        <h2 className="text-lg font-bold text-foreground mb-4">Cách Hugo Studio Đồng Hành Cùng Bạn</h2>
+        <div className="space-y-4 text-sm leading-relaxed text-muted-foreground max-w-2xl">
+          <p>
+            <span className="font-semibold text-foreground">Tuần đầu tiên</span> — bạn được hướng dẫn
+            setup môi trường, đọc hiểu kiến trúc hệ thống và nhận task đầu tiên vừa sức (thường là một
+            bug nhỏ có hướng dẫn). Mục tiêu duy nhất của tuần này: bạn merge được dòng code đầu tiên
+            vào sản phẩm thật.
+          </p>
+          <p>
+            <span className="font-semibold text-foreground">Hàng tuần</span> — trao đổi tiến độ ngắn
+            gọn qua chat, không họp hành rườm rà. Task giao theo năng lực và tăng dần độ khó: từ fix
+            bug, viết test, đến tự thiết kế và xây feature hoàn chỉnh. Mọi pull request đều được
+            review kỹ kèm giải thích — review chính là buổi học.
+          </p>
+          <p>
+            <span className="font-semibold text-foreground">Khi bạn gặp khó</span> — hỏi bất cứ lúc
+            nào, không có câu hỏi nào là ngớ ngẩn. Kẹt quá 2 tiếng thì dừng lại và hỏi ngay; văn hóa
+            của HugoTeam là gỡ rối cùng nhau thay vì để một người tự vật lộn.
+          </p>
+          <p>
+            <span className="font-semibold text-foreground">Số giờ làm việc của bạn được ghi nhận</span> —
+            từng giờ đóng góp đều được theo dõi minh bạch, là căn cứ cho thư giới thiệu, xác nhận
+            kinh nghiệm và các mốc tri ân bên dưới.
+          </p>
+        </div>
+      </div>
+
+      {/* 500-hour milestone */}
+      <div className="border-t border-border pt-8">
+        <div className="p-6 rounded-2xl border border-primary/30 bg-primary/5 space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-foreground">
+              <span className="material-symbols-outlined text-[22px]">military_tech</span>
+            </span>
+            <h2 className="text-lg font-bold text-foreground">Mốc 500 Giờ — Món Quà Tri Ân Đặc Biệt</h2>
+          </div>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Với những thành viên đạt <span className="font-semibold text-foreground">500 giờ làm việc</span> cùng
+            Hugo Studio, chúng tôi dành tặng một <span className="font-semibold text-foreground">món quà tri ân
+            đặc biệt</span> — lời cảm ơn cho chặng đường bạn đã tin tưởng và bền bỉ đồng hành. 500 giờ
+            không chỉ là con số: đó là hàng trăm bug đã sửa, hàng chục feature đã xây, và một nhà phát
+            triển đã thực sự trưởng thành.
+          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Đây là cách Hugo Studio luôn chăm sóc và đồng hành cùng các nhà phát triển của mình trong
+            hành trình phi lợi nhuận — không lương, nhưng chưa bao giờ là không có gì: cùng làm, cùng
+            học, cùng có lợi, và cùng được ghi nhận xứng đáng.
+          </p>
+        </div>
+      </div>
+
       {/* Requirements */}
       <div className="border-t border-border pt-8">
         <h2 className="text-lg font-bold text-foreground mb-4">Yêu Cầu & Điều Kiện</h2>
