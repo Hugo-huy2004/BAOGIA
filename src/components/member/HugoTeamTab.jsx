@@ -3,6 +3,40 @@ import SubUtilityHeader from "./SubUtilityHeader";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/authSession";
 
+// Nội dung lợi ích thành viên HugoTeam — thuần tĩnh, sửa chữ ở đây.
+const BENEFITS = [
+  {
+    icon: "school",
+    title: "Học từ dự án thật, không phải bài tập",
+    desc: "Bạn làm việc trực tiếp trên hệ thống đang chạy thật với người dùng thật: React, Node.js, MongoDB, AI, PWA, thanh toán trực tuyến. Mỗi dòng code bạn viết đều được deploy và có người sử dụng — thứ mà không giáo trình nào dạy được.",
+  },
+  {
+    icon: "co_present",
+    title: "Mentor 1:1 trong suốt quá trình",
+    desc: "Hugo trực tiếp review từng pull request, giải thích vì sao code nên viết thế này thay vì thế kia. Bạn không bị bỏ rơi với một task khó — luôn có người đồng hành gỡ rối, từ bug đầu tiên đến feature hoàn chỉnh đầu tiên.",
+  },
+  {
+    icon: "work_history",
+    title: "Portfolio & kinh nghiệm thực chiến",
+    desc: "Sau vài tháng, CV của bạn có: dự án production thật để demo, lịch sử commit công khai, và kinh nghiệm làm việc theo quy trình chuyên nghiệp (Git flow, code review, testing). Đây là lợi thế lớn khi phỏng vấn thực tập hoặc việc làm đầu tiên.",
+  },
+  {
+    icon: "workspace_premium",
+    title: "Thư giới thiệu & xác nhận đóng góp",
+    desc: "Hoàn thành tốt giai đoạn cộng tác, bạn nhận thư giới thiệu chi tiết về những gì bạn đã xây dựng — có số liệu, có sản phẩm cụ thể — do Hugo Studio xác nhận, dùng được cho hồ sơ xin việc, học bổng hoặc du học.",
+  },
+  {
+    icon: "schedule",
+    title: "Linh hoạt tuyệt đối theo lịch học",
+    desc: "Làm remote 100%, tự chọn giờ làm, 5–10 giờ/tuần. Mùa thi được nghỉ hẳn không cần xin phép. Nguyên tắc của Hugo Studio: việc học của bạn luôn đứng trước dự án — không deadline gắt, không áp lực OT.",
+  },
+  {
+    icon: "diversity_3",
+    title: "Cộng đồng dev sinh viên cùng chí hướng",
+    desc: "Gặp gỡ những bạn sinh viên CNTT khác cùng làm, cùng học. Trao đổi kỹ thuật, chia sẻ tài liệu, giúp nhau debug — một network nhỏ nhưng chất lượng sẽ theo bạn dài lâu sau khi ra trường.",
+  },
+];
+
 export default function HugoTeamTab({ onBack }) {
   const [developers, setDevelopers] = useState([]);
   const [cvFile, setCvFile] = useState(null);

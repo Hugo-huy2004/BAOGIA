@@ -178,6 +178,7 @@ import webauthnRoutes from './routes/webauthnRoutes.js';
 import memberAuthRoutes from './routes/memberAuthRoutes.js';
 import memberProgressRoutes from './routes/memberProgressRoutes.js';
 import hugoTeamRoutes from './routes/hugoTeamRoutes.js';
+import emailRoutes from './routes/emailRoutes.js';
 import opsRoutes from './routes/opsRoutes.js';
 import joyDecoRoutes from './routes/joyDecoRoutes.js';
 
@@ -186,6 +187,7 @@ app.use('/api/ops', opsRoutes);
 app.use('/api/auth/member', memberAuthRoutes);
 app.use('/api/member/progress', memberProgressRoutes);
 app.use('/api/hugoteam', hugoTeamRoutes);
+app.use('/api/email', emailRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/bios', bioRoutes);
 app.use('/api/bookings', bookingRoutes);
