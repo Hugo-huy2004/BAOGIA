@@ -604,6 +604,26 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   const [verificationStatus, setVerificationStatus] = useState(null); // null, 'success', 'failed'
   const [timeLeft, setTimeLeft] = useState(0);
 
+  // Sync progress from server on mount (cross-device sync)
+  useEffect(() => {
+    const loadProgressFromServer = async () => {
+      try {
+        const res = await fetch("/api/member/progress");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.lessons && Array.isArray(data.lessons)) {
+            setCompletedLessons(data.lessons);
+            localStorage.setItem("student_ide_progress", JSON.stringify(data.lessons));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load progress from server:", error);
+        // Fallback to localStorage
+      }
+    };
+    loadProgressFromServer();
+  }, []);
+
   // Interactive Practice states
   const [htmlBlocks, setHtmlBlocks] = useState([]);
   const [themeBg, setThemeBg] = useState("#ffffff");
@@ -759,6 +779,9 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
         const nextCompleted = [...completedLessons, course.id];
         setCompletedLessons(nextCompleted);
         localStorage.setItem("student_ide_progress", JSON.stringify(nextCompleted));
+        // Sync progress to server (cross-device sync)
+        fetch(`/api/member/progress/lesson/${course.id}/complete`, { method: "POST" })
+          .catch(err => console.error("Failed to sync progress:", err));
       }
     } else {
       setVerificationStatus("failed");
@@ -1920,6 +1943,9 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       const nextCompleted = [...completedLessons, course.id];
       setCompletedLessons(nextCompleted);
       localStorage.setItem("student_ide_progress", JSON.stringify(nextCompleted));
+      // Sync progress to server (cross-device sync)
+      fetch(`/api/member/progress/lesson/${course.id}/complete`, { method: "POST" })
+        .catch(err => console.error("Failed to sync progress:", err));
     }
   };
 

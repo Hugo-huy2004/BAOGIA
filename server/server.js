@@ -176,12 +176,14 @@ import radioRoutes from './routes/radioRoutes.js';
 import arcadeRoutes from './routes/arcadeRoutes.js';
 import webauthnRoutes from './routes/webauthnRoutes.js';
 import memberAuthRoutes from './routes/memberAuthRoutes.js';
+import memberProgressRoutes from './routes/memberProgressRoutes.js';
 import opsRoutes from './routes/opsRoutes.js';
 import joyDecoRoutes from './routes/joyDecoRoutes.js';
 
 // Routes
 app.use('/api/ops', opsRoutes);
 app.use('/api/auth/member', memberAuthRoutes);
+app.use('/api/member/progress', memberProgressRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/bios', bioRoutes);
 app.use('/api/bookings', bookingRoutes);
