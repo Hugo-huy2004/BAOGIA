@@ -139,13 +139,6 @@ function PlanCard({ plan, emphasized = false }) {
           {plan.tagline}
         </span>
       )}
-      {plan.discount && (
-        <span
-          className={`absolute left-5 top-5 rounded-full px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] ${heroBadge}`}
-        >
-          {plan.discount}
-        </span>
-      )}
       <div className="relative flex flex-1 flex-col">
         <MonoIcon name={plan.icon} bare />
         <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">{plan.label}</p>
