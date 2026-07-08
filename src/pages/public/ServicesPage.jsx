@@ -56,7 +56,8 @@ const PLAN_META = [
   { id: "system", icon: "dashboard", href: "#app" },
 ];
 
-const BUILD_PLAN_IDS = ["landing", "website", "system"];
+const STATIC_PLAN_IDS = ["landing", "website"];
+const DYNAMIC_PLAN_IDS = ["system"];
 const CARE_PLAN_IDS = ["fix", "seo"];
 
 const MICRO_ICONS = ["code", "palette", "smartphone", "widgets", "cloud_upload", "search", "bolt", "shield"];
@@ -148,14 +149,26 @@ function PlanCard({ plan, emphasized = false }) {
           {plan.tagline}
         </span>
       )}
+      {plan.discount && (
+        <span
+          className={`absolute left-5 top-5 rounded-full px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] ${heroBadge}`}
+        >
+          {plan.discount}
+        </span>
+      )}
       <div className="relative flex flex-1 flex-col">
         <MonoIcon name={plan.icon} />
         <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">{plan.label}</p>
         <h3 className="font-display mt-2 text-xl font-extrabold tracking-tight text-foreground">{plan.name}</h3>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{plan.desc}</p>
-        <p className={`mt-5 text-3xl font-extrabold tracking-tight ${emphasized ? `${brandGradient} bg-clip-text text-transparent` : "text-foreground"}`}>
-          {plan.price}
-        </p>
+        <div className="mt-5">
+          {plan.oldPrice && (
+            <p className="text-sm font-semibold tracking-tight text-muted-foreground line-through">{plan.oldPrice}</p>
+          )}
+          <p className={`text-3xl font-extrabold tracking-tight ${emphasized ? `${brandGradient} bg-clip-text text-transparent` : "text-foreground"}`}>
+            {plan.price}
+          </p>
+        </div>
         <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{plan.note}</p>
         <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.common.youGet")}</p>
         <ul className="mt-3 grid gap-2.5">
@@ -322,9 +335,9 @@ export default function ServicesPage() {
   const { t, i18n } = useTranslation();
   const plans = usePlans();
 
-  const buildPlans = BUILD_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
+  const staticPlans = STATIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
+  const dynamicPlans = DYNAMIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
   const carePlans = CARE_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
-  const systemPlan = plans.find((plan) => plan.id === "system");
 
   const trustPoints = t("servicesPage.hero.trust", { returnObjects: true });
   const microItems = t("servicesPage.micro.items", { returnObjects: true });
@@ -463,17 +476,32 @@ export default function ServicesPage() {
         </motion.div>
       </section>
 
-      {/* ================= BẢNG GIÁ CHÍNH: XÂY MỚI (Good–Better–Best) ================= */}
+      {/* ================= TÂM TÍCH GIÁ CẢ ================= */}
+      <motion.section {...reveal} className="mx-auto mt-20 max-w-4xl px-4 sm:mt-28 sm:px-8">
+        <div className="rounded-3xl border border-border bg-card/70 p-8 backdrop-blur sm:p-10">
+          <h2 className="font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+            {t("servicesPage.pricingPhilosophy.title")}
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            {t("servicesPage.pricingPhilosophy.desc")}
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-foreground/80 sm:text-base italic">
+            "{t("servicesPage.pricingPhilosophy.philosophy")}"
+          </p>
+        </div>
+      </motion.section>
+
+      {/* ================= WEBSITE TIÊU CHUẨN: LANDING + WEBSITE ================= */}
       <section id="pricing" className="relative mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
         <div id="build" className="absolute -top-24" />
         <SectionHeading
           eyebrow={t("servicesPage.pricing.eyebrow")}
-          title={t("servicesPage.pricing.title")}
-          highlight={t("servicesPage.pricing.highlight")}
-          desc={t("servicesPage.pricing.desc")}
+          title="Website Tiêu Chuẩn — Để giới thiệu thương hiệu"
+          highlight="Giá chốt sẵn"
+          desc="Các trang web để khách hiểu về bạn, liên hệ với bạn. Chỉnh sửa theo yêu cầu + số lần bảo dưỡng ghi trong gói. Không bao hosting."
         />
-        <div className="mt-12 grid gap-5 md:grid-cols-3 lg:gap-6">
-          {buildPlans.map((plan) => (
+        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:gap-6">
+          {staticPlans.map((plan) => (
             <PlanCard key={plan.id} plan={plan} emphasized={plan.featured} />
           ))}
         </div>
@@ -522,44 +550,50 @@ export default function ServicesPage() {
         </motion.div>
       </section>
 
-      {/* ================= WEB ĐỘNG (#app) — GỌN, MỘT PANEL ================= */}
-      <section id="app" className="mx-auto mt-20 max-w-5xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
-        <motion.div {...reveal} className="relative overflow-hidden rounded-[2rem] border border-border bg-card shadow-2xl">
-          <div className={`absolute inset-x-0 top-0 h-1.5 ${brandGradient}`} />
-          <div className="grid lg:grid-cols-[1fr_1.05fr]">
-            {/* Trái: thông điệp + giá + CTA */}
-            <div className="p-6 sm:p-10">
-              <span className={`inline-flex rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.25em] sm:text-[10px] ${heroBadge}`}>
-                {t("servicesPage.app.badge")}
-              </span>
-              <h2 className="font-display mt-5 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-                {t("servicesPage.app.title1")}{" "}
-                <span className={`${brandGradient} bg-clip-text text-transparent`}>{t("servicesPage.app.title2")}</span>
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{t("servicesPage.app.desc")}</p>
-              <p className={`mt-6 text-4xl font-extrabold ${brandGradient} bg-clip-text text-transparent`}>{systemPlan.price}</p>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{systemPlan.note}</p>
-              <CtaButton className="mt-7">{t("servicesPage.common.discussProject")}</CtaButton>
-            </div>
+      {/* ================= ỨNG DỤNG WEB: HỆ THỐNG QUẢN LÝ ================= */}
+      <section id="app" className="mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:mt-28 sm:px-8">
+        <SectionHeading
+          eyebrow={t("servicesPage.app.badge")}
+          title="Ứng Dụng Web — Để quản lý doanh nghiệp"
+          highlight="Giá tùy scope"
+          desc="Các hệ thống web có quản lý dữ liệu, đăng nhập, thanh toán, quản lý đơn hàng, v.v. Bao gồm hosting. Giá thương lượng theo chi tiết dự án."
+        />
+        <div className="mt-12">
+          {dynamicPlans.map((plan) => (
+            <motion.div {...reveal} key={plan.id} className="relative overflow-hidden rounded-[2rem] border border-border bg-card shadow-2xl">
+              <div className={`absolute inset-x-0 top-0 h-1.5 ${brandGradient}`} />
+              <div className="grid lg:grid-cols-[1fr_1.05fr]">
+                {/* Trái: thông điệp + giá + CTA */}
+                <div className="p-6 sm:p-10">
+                  <h2 className="font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+                    {plan.name}
+                  </h2>
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{plan.desc}</p>
+                  <p className={`mt-6 text-4xl font-extrabold ${brandGradient} bg-clip-text text-transparent`}>{plan.price}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{plan.note}</p>
+                  <CtaButton className="mt-7">{t("servicesPage.common.discussProject")}</CtaButton>
+                </div>
 
-            {/* Phải: phạm vi gói — một danh sách duy nhất */}
-            <div className="border-t border-border bg-muted/40 p-6 sm:p-10 lg:border-l lg:border-t-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.common.youGet")}</p>
-              <ul className="mt-4 space-y-3">
-                {systemPlan.includes.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm font-medium leading-relaxed text-foreground/80">
-                    <span className="material-symbols-outlined mt-0.5 text-base text-foreground">check_circle</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6 rounded-2xl border border-dashed border-border bg-background/50 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.app.extendTitle")}</p>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t("servicesPage.app.extendDesc")}</p>
+                {/* Phải: phạm vi gói */}
+                <div className="border-t border-border bg-muted/40 p-6 sm:p-10 lg:border-l lg:border-t-0">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.common.youGet")}</p>
+                  <ul className="mt-4 space-y-3">
+                    {plan.includes.map((item) => (
+                      <li key={item} className="flex items-start gap-2.5 text-sm font-medium leading-relaxed text-foreground/80">
+                        <span className="material-symbols-outlined mt-0.5 text-base text-foreground">check_circle</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-6 rounded-2xl border border-dashed border-border bg-background/50 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.app.extendTitle")}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t("servicesPage.app.extendDesc")}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </motion.div>
+            </motion.div>
+          ))}
+        </div>
       </section>
 
       {/* ================= HSSV MIỄN PHÍ — KHÁC BIỆT THƯƠNG HIỆU ================= */}

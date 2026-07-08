@@ -261,6 +261,11 @@
         "HSSV miễn phí 100%"
       ]
     },
+    "pricingPhilosophy": {
+      "title": "Tâm tích về giá cả",
+      "desc": "Mình không xây nên Hugo Studio để cạnh tranh giá, mà để chia sẻ cách làm chân thành, kỹ thuật hiện đại và vẫn giữ giá mà nhỏ có thể dùng được. Đó là lý do tôi bỏ bớt chi phí marketing quá thừa, tập trung vào chất lượng, và nói thẳng thắn về phạm vi từng gói.",
+      "philosophy": "Bạn muốn trọng lượng của một website là giá trị nó mang đến cho người dùng của bạn, chứ không phải chi phí lương con người khi agency nói '5 người 3 tháng'. Vậy nên mình định giá: rõ trước khi làm, không phát sinh, chất lượng công việc không bao giờ bị bào mòn vì áp lực nhân sự."
+    },
     "pricing": {
       "eyebrow": "Xây website mới",
       "title": "Ba mức đầu tư,",
@@ -305,7 +310,9 @@
       "landing": {
         "label": "Bắt đầu",
         "name": "Landing page 1 trang",
-        "price": "Từ 990.000đ",
+        "oldPrice": "1.990.000đ",
+        "price": "990.000đ",
+        "discount": "-50%",
         "note": "Thiết kế riêng, không template đại trà. Hoàn thành trong 5-7 ngày.",
         "desc": "Một trang duy nhất, đúng một mục tiêu: khách đọc xong là muốn bấm liên hệ với bạn.",
         "tagline": "Dễ bắt đầu",
@@ -314,11 +321,12 @@
           "2 vòng chỉnh sửa theo góp ý của bạn",
           "Form liên hệ đổ thẳng về Zalo hoặc email",
           "Chuẩn SEO cơ bản, link chia sẻ hiện ảnh đẹp",
-          "Đưa web lên mạng, gắn tên miền, hướng dẫn tự đổi chữ và ảnh",
+          "Đưa web lên mạng, gắn tên miền",
+          "Chỉnh sửa theo yêu cầu (số lần bảo dưỡng theo gói khác)",
           "Hỗ trợ lỗi miễn phí 7 ngày sau bàn giao"
         ],
         "excludes": [
-          "Phí tên miền ~300-500k/năm (hosting mình chọn gói miễn phí)",
+          "Phí tên miền ~300-500k/năm, hosting — không bao",
           "Nội dung chữ và hình — bạn cung cấp, mình biên tập lại",
           "Thêm trang phụ, đa ngôn ngữ → báo giá riêng"
         ]
@@ -326,7 +334,9 @@
       "website": {
         "label": "Mở rộng",
         "name": "Website nhiều trang",
-        "price": "Từ 2.490.000đ",
+        "oldPrice": "4.990.000đ",
+        "price": "2.490.000đ",
+        "discount": "-50%",
         "note": "Giá chốt theo số trang và nội dung. Rẻ hơn 40-50% so với giá agency.",
         "desc": "Bộ mặt online hoàn chỉnh giúp shop nhỏ, quán hoặc thương hiệu cá nhân đáng tin hơn một trang Facebook.",
         "tagline": "Được chọn nhiều nhất",
@@ -334,34 +344,40 @@
           "4-6 trang hoàn chỉnh: chủ, giới thiệu, dịch vụ, liên hệ",
           "Thiết kế đồng bộ nhận diện + 2 vòng chỉnh sửa",
           "Cấu trúc chuẩn SEO, khai báo với Google",
-          "Phần hay đổi (giá, menu, tin) tự sửa không cần code",
+          "Bảo dưỡng 1 tháng miễn phí (4 lần chỉnh sửa nhỏ), sau đó có các gói bảo dưỡng thêm",
           "Kết nối Zalo, Messenger, Google Maps",
           "1 buổi hướng dẫn sử dụng + hỗ trợ 14 ngày"
         ],
         "excludes": [
-          "Phí tên miền, hosting ~300-800k/năm tùy gói",
+          "Phí tên miền, hosting — không bao (~300-800k/năm nếu tìm bên ngoài)",
           "Viết bài, chụp ảnh sản phẩm",
-          "Đặt lịch, thanh toán, tài khoản thành viên → gói Hệ thống"
+          "Đặt lịch, thanh toán, tài khoản thành viên → gói Ứng Dụng Web"
         ]
       },
       "system": {
-        "label": "Hệ thống",
-        "name": "Website có tính năng động",
-        "price": "Từ 6.900.000đ",
-        "note": "Dự án có thanh toán, dashboard hoặc nhiều vai trò thường từ 12-20 triệu.",
-        "desc": "Không chỉ giới thiệu — website làm việc thay bạn: nhận đơn, đặt lịch, quản lý khách hàng.",
+        "label": "Ứng Dụng Web",
+        "name": "Website với quản lý dữ liệu",
+        "oldPrice": "15.000.000đ",
+        "price": "6.900.000đ",
+        "discount": "-54%",
+        "note": "Dự án có thanh toán, dashboard hoặc nhiều vai trò thường từ 12-20 triệu. Không bao hosting.",
+        "desc": "Không chỉ giới thiệu — website làm việc thay bạn: nhận đơn, đặt lịch, quản lý khách hàng, xử lý thanh toán & hóa đơn, thống kê doanh số.",
         "tagline": "Đầu tư dài hạn",
         "includes": [
           "1 luồng chức năng chính: đặt lịch HOẶC nhận đơn cơ bản",
-          "Dashboard quản trị: xem đơn, khách, số liệu chính",
-          "Đăng nhập với 2 cấp quyền: chủ và nhân viên",
+          "Dashboard quản trị: xem đơn, khách, doanh số, lịch sử giao dịch",
+          "Đăng nhập với 2+ cấp quyền: chủ, nhân viên, khách hàng",
+          "Tích hợp thanh toán online + xử lý hóa đơn/chứng từ tự động",
+          "Quản lý thẻ thành viên, điểm thưởng, lịch sử mua hàng khách",
+          "Báo cáo doanh số realtime, phân tích khách hàng",
           "Kết nối 1 nguồn dữ liệu: Google Sheet hoặc Zalo",
           "Bàn giao toàn bộ mã nguồn — web là tài sản của bạn",
+          "Bảo dưỡng 1 tháng miễn phí (6 lần chỉnh sửa); sau đó 300k/tháng hoặc gói lẻ",
           "Đồng hành kỹ thuật 1 tháng sau bàn giao"
         ],
         "excludes": [
-          "Cổng thanh toán online, nhiều vai trò, nhiều luồng → dự án 12-20tr, báo giá riêng",
-          "Chi phí server, tên miền khi vận hành (~50-150k/tháng)"
+          "Phí tên miền, hosting (~2-3 triệu/năm, khách chọn gói ngoài)",
+          "Cổng thanh toán phức tạp, nhiều luồng, tích hợp kho → dự án 12-20tr, báo giá riêng"
         ]
       }
     },
@@ -538,6 +554,10 @@
         {
           "q": "Sau bàn giao có hỗ trợ không?",
           "a": "Có. Mình hướng dẫn sử dụng, giải đáp thắc mắc và xử lý lỗi phát sinh trong phạm vi đã chốt."
+        },
+        {
+          "q": "HSSV có được giảm giá không?",
+          "a": "Có. Học sinh và sinh viên được giảm 20% trên toàn bộ các gói dịch vụ — từ landing, website, dịch vụ sửa chữa đến ứng dụng web. Cần xác minh qua email trường hoặc giấy tờ sinh viên. Điều này là cách mình chia sẻ, vì mình biết khó khăn khi học tập lại phải chi tiêu."
         }
       ]
     },
