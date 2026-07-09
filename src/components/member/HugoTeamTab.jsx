@@ -390,8 +390,8 @@ export default function HugoTeamTab({ onBack }) {
                     {dev.name[0]?.toUpperCase() || "?"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-foreground text-sm leading-tight">{dev.name}</p>
-                    {dev.school && <p className="text-xs text-muted-foreground mt-0.5 truncate">{dev.school}</p>}
+                    <p className="font-bold text-foreground text-sm leading-tight break-words">{dev.name}</p>
+                    {dev.school && <p className="text-xs text-muted-foreground mt-0.5 break-words">{dev.school}</p>}
                   </div>
                 </div>
 
