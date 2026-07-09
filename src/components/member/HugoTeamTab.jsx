@@ -468,60 +468,84 @@ function DevWorkspace({ me, reload, membershipEnd }) {
   return (
     <div className="space-y-6">
       {/* Chào + membership info + tiến độ 500h */}
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-            <span className="material-symbols-outlined text-base">verified_user</span>
-            Dev Workspace
+      <div className="space-y-6">
+        {/* Hero Greeting */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-accent/10 to-blue-500/20 border border-primary/20 p-8 lg:p-10">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20" />
+          <div className="relative z-10">
+            <p className="text-xs font-bold text-primary/70 uppercase tracking-widest mb-2">Chào mừng trở lại</p>
+            <h1 className="text-4xl lg:text-5xl font-black text-foreground mb-2">Chào {me.name}! 👋</h1>
+            <p className="text-muted-foreground max-w-2xl">Bạn là thành viên HugoTeam — cảm ơn đã cùng xây dựng dự án cộng đồng này.</p>
           </div>
-          <h1 className="text-3xl font-black bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">Chào {me.name}! 🎉</h1>
         </div>
 
-        {/* Membership Card */}
-        {membershipEnd && (
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-pink-500/10 border border-amber-500/20 space-y-2">
-            <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">3-Year Developer Membership</p>
-            <p className="text-sm text-muted-foreground">
-              Hết hạn: <span className="font-semibold text-foreground">{membershipEnd.toLocaleDateString("vi-VN")}</span>
+        {/* Quick Stats Row */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {/* Membership Status */}
+          {membershipEnd && (
+            <div className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 p-4 space-y-1">
+              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Membership</p>
+              <p className="text-sm font-bold text-foreground">{membershipEnd.getFullYear() - new Date().getFullYear()}+ năm</p>
+              <p className="text-xs text-muted-foreground">Hết: {membershipEnd.toLocaleDateString("vi-VN")}</p>
+            </div>
+          )}
+
+          {/* Hours Progress */}
+          <div className={`rounded-2xl border p-4 space-y-1 ${
+            isMilestone
+              ? "bg-gradient-to-br from-success/10 to-emerald-500/10 border-success/30"
+              : "bg-gradient-to-br from-primary/10 to-blue-500/10 border-primary/30"
+          }`}>
+            <p className={`text-[10px] font-bold uppercase tracking-wider ${isMilestone ? "text-success/70" : "text-primary/70"}`}>
+              {isMilestone ? "🎯 Mốc đạt được" : "Hành trình"}
             </p>
+            <p className={`text-lg font-black ${isMilestone ? "text-success" : "text-primary"}`}>
+              {stats.approvedHours || 0}h
+            </p>
+            <p className="text-xs text-muted-foreground">/ {goal}h</p>
+          </div>
+
+          {/* Open Tasks */}
+          <div className="rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 p-4 space-y-1">
+            <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Task mở</p>
+            <p className="text-lg font-black text-blue-600 dark:text-blue-400">{stats.openTasks || 0}</p>
+            <p className="text-xs text-muted-foreground">đang thực hiện</p>
+          </div>
+        </div>
+
+        {/* Hours Milestone Progress Bar */}
+        {!isMilestone && (
+          <div className="rounded-2xl bg-gradient-to-br from-primary/5 to-blue-500/5 border border-primary/20 p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-base text-primary">schedule</span>
+                <span className="font-semibold text-foreground text-sm">Hành trình {goal} giờ đồng hành</span>
+              </div>
+              <span className="text-xs font-bold text-primary/70">Còn {goal - (stats.approvedHours || 0)}h</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-muted overflow-hidden border border-border/30">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary to-blue-500 transition-all duration-700"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            {stats.pendingHours > 0 && (
+              <p className="text-xs text-muted-foreground">
+                <span className="text-warning font-semibold">{stats.pendingHours}h</span> đang chờ admin duyệt
+              </p>
+            )}
           </div>
         )}
 
-        {/* Hours Milestone */}
-        <div className={`p-5 rounded-2xl space-y-3 border transition-all ${
-          isMilestone
-            ? "bg-gradient-to-br from-success/10 via-emerald-500/10 to-success/10 border-success/30"
-            : "bg-gradient-to-br from-primary/10 via-blue-500/10 to-primary/10 border-primary/30"
-        }`}>
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-base">{isMilestone ? "military_tech" : "schedule"}</span>
-              <span className="font-semibold text-foreground">Hành trình {goal} giờ đồng hành</span>
+        {isMilestone && (
+          <div className="rounded-2xl bg-gradient-to-br from-success/20 via-emerald-500/10 to-success/10 border border-success/30 p-6 space-y-3 text-center">
+            <span className="material-symbols-outlined text-5xl text-success block">military_tech</span>
+            <div>
+              <p className="font-black text-success text-lg mb-1">🎁 Bạn đã đạt mốc 500 giờ!</p>
+              <p className="text-sm text-muted-foreground">Liên hệ Hugo để nhận những phần quà tri ân đặc biệt từ Hugo Studio.</p>
             </div>
-            <span className={`font-black ${isMilestone ? "text-success" : "text-primary"}`}>
-              {stats.approvedHours || 0}h / {goal}h
-            </span>
           </div>
-          <div className="h-3 rounded-full bg-muted overflow-hidden border border-border/50">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                isMilestone ? "bg-gradient-to-r from-success to-emerald-500" : "bg-gradient-to-r from-primary to-blue-500"
-              }`}
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          {isMilestone && (
-            <p className="text-xs font-bold text-success">
-              🎁 Bạn đã đạt mốc! Liên hệ Hugo để nhận những phần quà tri ân đặc biệt từ Hugo Studio.
-            </p>
-          )}
-          {!isMilestone && (
-            <p className="text-xs text-muted-foreground">
-              {stats.pendingHours > 0 && `${stats.pendingHours}h đang chờ duyệt · `}
-              Còn {goal - (stats.approvedHours || 0)}h nữa!
-            </p>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Stats nhanh — nâng cấp visual */}
