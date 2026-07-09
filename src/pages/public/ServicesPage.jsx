@@ -825,7 +825,7 @@ export default function ServicesPage() {
               to="/student-pricing"
               className="inline-flex items-center gap-2 rounded-full border-2 border-border/50 bg-card/70 px-6 py-3 text-xs font-bold uppercase tracking-wide text-foreground backdrop-blur transition-all duration-300 hover:border-primary hover:text-primary animate-pulse-slow"
             >
-              Xem điều kiện xác minh & Chi tiết gói HSSV
+              {i18n.language.startsWith("vi") ? "Xem điều kiện xác minh & Chi tiết gói HSSV" : "Verification Requirements & Student Plan Details"}
               <span className="material-symbols-outlined text-sm animate-bounceRight">arrow_forward</span>
             </Link>
           </div>
