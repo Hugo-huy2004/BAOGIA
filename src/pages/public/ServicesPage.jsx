@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { useExchangeRate } from "../../hooks/useExchangeRate";
-import { vndToUsdWithFee } from "../../services/exchangeRateService";
+import { vndToUsdWithFee, applyPricingRule } from "../../services/exchangeRateService";
 
 const PhotographyDemo = lazy(() => import("../../components/demos/PhotographyDemo"));
 const CoffeeDemo = lazy(() => import("../../components/demos/CoffeeDemo"));
@@ -792,13 +792,13 @@ export default function ServicesPage() {
                   <div className="mt-4 flex items-baseline gap-2">
                     <span className="text-2xl font-black text-foreground">
                       {i18n.language === "en" && typeof plan.price === "string"
-                        ? `$${vndToUsdWithFee(parseInt(plan.price.replace(/\D/g, ""), 10)).toFixed(2)}`
+                        ? `$${applyPricingRule(vndToUsdWithFee(parseInt(plan.price.replace(/\D/g, ""), 10))).toFixed(2)}`
                         : plan.price}
                     </span>
                     {plan.oldPrice && (
                       <span className="text-xs text-muted-foreground line-through">
                         {i18n.language === "en" && typeof plan.oldPrice === "string"
-                          ? `$${vndToUsdWithFee(parseInt(plan.oldPrice.replace(/\D/g, ""), 10)).toFixed(2)}`
+                          ? `$${applyPricingRule(vndToUsdWithFee(parseInt(plan.oldPrice.replace(/\D/g, ""), 10))).toFixed(2)}`
                           : plan.oldPrice}
                       </span>
                     )}

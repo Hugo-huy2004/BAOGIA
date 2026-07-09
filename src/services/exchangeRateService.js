@@ -95,3 +95,9 @@ export function updateExchangeRate(newRate) {
     JSON.stringify({ rate: newRate, timestamp: Date.now() })
   );
 }
+
+// Apply psychological pricing rule (xxx.99)
+export function applyPricingRule(usdPrice) {
+  const base = Math.floor(usdPrice);
+  return base + 0.99;
+}
