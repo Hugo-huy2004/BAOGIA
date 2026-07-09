@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
@@ -29,11 +29,6 @@ function MonoIcon({ name, className = "" }) {
 export default function StudentPricingPage() {
   const { t, i18n } = useTranslation();
 
-  const [courseworkStack, setCourseworkStack] = useState(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get("stack") || "react";
-  });
-
   useHeadMeta({
     title: "Bảng Giá Đặc Quyền HSSV | Hugo Studio",
     description: "Bảng giá và các gói lập trình web thiết kế riêng cho Học sinh Sinh viên. Hỗ trợ coursework bài tập lớn, bento portfolio giá rẻ, cam kết liêm chính học thuật.",
@@ -42,8 +37,8 @@ export default function StudentPricingPage() {
   });
 
   const studentPlans = useMemo(() => {
-    const plansKeys = ["bug", "bento", "coursework"];
-    const icons = ["handyman", "contact_page", "code"];
+    const plansKeys = ["bug", "bento", "html", "php", "react"];
+    const icons = ["handyman", "contact_page", "code", "code_blocks", "terminal"];
     return plansKeys.map((key, index) => {
       const planData = t(`servicesPage.studentPlans.${key}`, { returnObjects: true });
       return {
@@ -122,17 +117,15 @@ export default function StudentPricingPage() {
           </p>
         </div>
 
-        {/* 3 Student Pricing Cards */}
-        <div className="grid gap-6 md:grid-cols-3 mb-16">
+        {/* Student Pricing Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
           {studentPlans.map((plan) => {
-            const isCoursework = plan.id === "coursework";
-            const currentStackData = isCoursework ? plan.stacks[courseworkStack] : null;
-            const displayPrice = isCoursework ? currentStackData.price : plan.price;
-            const displayOldPrice = isCoursework ? currentStackData.oldPrice : plan.oldPrice;
-            const displayDiscount = isCoursework ? currentStackData.discount : plan.discount;
-            const displayNote = isCoursework ? currentStackData.note : plan.note;
-            const displayDesc = isCoursework ? currentStackData.desc : plan.desc;
-            const displayIncludes = isCoursework ? currentStackData.includes : plan.includes;
+            const displayPrice = plan.price;
+            const displayOldPrice = plan.oldPrice;
+            const displayDiscount = plan.discount;
+            const displayNote = plan.note;
+            const displayDesc = plan.desc;
+            const displayIncludes = plan.includes;
 
             return (
               <motion.div
@@ -151,29 +144,6 @@ export default function StudentPricingPage() {
                   </div>
                   <h3 className="font-display mt-5 text-xl font-bold text-foreground">{plan.name}</h3>
                   <p className="mt-1 text-xs text-muted-foreground">{plan.tagline}</p>
-
-                  {/* Tech Stack selector pills */}
-                  {isCoursework && (
-                    <div className="mt-4 flex flex-wrap gap-1 p-1 rounded-2xl bg-muted/80 border border-border relative z-10">
-                      {[
-                        { id: "html", label: "HTML/CSS/JS" },
-                        { id: "php", label: "PHP/SQL" },
-                        { id: "react", label: "React/Node" }
-                      ].map((s) => (
-                        <button
-                          key={s.id}
-                          onClick={() => setCourseworkStack(s.id)}
-                          className={`flex-1 rounded-xl px-2 py-1.5 text-[9px] font-bold uppercase transition-all duration-200 ${
-                            courseworkStack === s.id
-                              ? "bg-foreground text-background shadow"
-                              : "text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          {s.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
 
                   <div className="mt-4 flex items-baseline gap-2">
                     <span className="text-2xl font-black text-foreground">{displayPrice}</span>
@@ -212,11 +182,7 @@ export default function StudentPricingPage() {
                 </div>
                 <div className="mt-8">
                   <Link
-                    to={
-                      isCoursework
-                        ? `/booking?type=student&plan=coursework&stack=${courseworkStack}`
-                        : `/booking?type=student&plan=${plan.id}`
-                    }
+                    to={`/booking?type=student&plan=${plan.id}`}
                     className="block w-full text-center rounded-2xl bg-foreground py-3 text-xs font-bold text-background transition-all hover:bg-foreground/90 active:scale-98"
                   >
                     {i18n.language.startsWith("vi") ? "Đăng ký gói sinh viên" : "Order Student Plan"}
