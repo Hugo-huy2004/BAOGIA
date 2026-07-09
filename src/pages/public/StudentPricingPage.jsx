@@ -107,7 +107,7 @@ export default function StudentPricingPage() {
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tight leading-[1.1]">
             {i18n.language.startsWith("vi") ? "Bảng Giá Dịch Vụ" : "Services & Pricing"}{" "}
             <span className="bg-gradient-to-r from-emerald-500 via-primary to-accent bg-clip-text text-transparent">
-              Dành Riêng HSSV
+              {i18n.language.startsWith("vi") ? "Dành Riêng HSSV" : "for Students"}
             </span>
           </h1>
           <p className="text-muted-foreground text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
