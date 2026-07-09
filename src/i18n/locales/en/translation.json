@@ -273,6 +273,16 @@
       "discussPlan": "Discuss this package",
       "discussProject": "Discuss your project"
     },
+    "whispers": {
+      "intro": "Không có website hoàn hảo. Chỉ có website phù hợp.",
+      "between1": "Mỗi lỗi là một tín hiệu. Lắng nghe nó.",
+      "between2": "Tốc độ không phải là mục tiêu. Tốc độ là điều kiện tiên quyết.",
+      "between3": "Một website đẹp mà chậm là sắc màu trên vải buổi hoàng hôn — đẹp nhưng không ai nhìn thấy.",
+      "between4": "Từ một trang đến một thế giới. Bước đầu là bước duy nhất bạn cần lo lắng.",
+      "between5": "Khi thế giới có thể tìm thấy bạn, bạn mới thực sự tồn tại trực tuyến.",
+      "climax": "Và rồi, website không chỉ nói chuyện — nó tư duy, nó quyết định, nó làm việc cho bạn.",
+      "closing": "Mỗi con số là một cánh cửa. Bạn chọn cái nào?"
+    },
     "hero": {
       "badge": "Hugo Studio · Service pricing",
       "title1": "A website with a clear goal,",
@@ -297,6 +307,28 @@
       "title": "Three investment levels,",
       "highlight": "one clear path",
       "desc": "Listed prices are starting points. Once your scope is clear, I confirm the exact items, timeline and deliverables before starting."
+    },
+    "journey": {
+      "stone1": {
+        "badge": "✦ Viên Đá Đầu Tiên",
+        "desc": "Khi bạn bắt đầu nhận ra — có cái gì cần chỉnh sửa. Tôi đến, tìm đúng chỗ, và chữa lành nó. Đó là lần đầu bạn cảm thấy website của bạn được chạm tay một người yêu thích nó."
+      },
+      "stone2": {
+        "badge": "✦ Viên Đá Sáng Lên",
+        "desc": "Website đẹp nhưng chưa ai thấy? Bây giờ, tôi bật đèn. Tốc độ nhanh, Google tìm thấy bạn, và khách hàng cảm thấy chất lượng ngay lần đầu tiên."
+      },
+      "stone3": {
+        "badge": "✦ Viên Đá Hình Thành",
+        "desc": "Một trang duy nhất. Một câu chuyện. Khi bạn nhìn thẳng vào mắt khách hàng qua màn hình và họ nói: 'Có, bạn là người tôi tìm.'"
+      },
+      "stone4": {
+        "badge": "✦ Hòn Đá Hoàng Tráng",
+        "desc": "Bộ mặt hoàn chỉnh của bạn. Mỗi trang là một câu chuyện, mỗi liên kết là một cơ hội. Website không chỉ nói chuyện — nó *mời gọi* người ta vào thế giới của bạn."
+      },
+      "stone5": {
+        "badge": "✦ Hòn Ngọc — Sự Sống",
+        "desc": "Website không chỉ nói chuyện — nó sống. Nó suy nghĩ, nó quyết định, nó làm việc cho bạn 24/7. Đó là khi công nghệ trở thành phần mềm của bạn, không còn là công cụ."
+      }
     },
     "plans": {
       "fix": {
@@ -336,7 +368,9 @@
       "landing": {
         "label": "Start",
         "name": "One-page landing page",
+        "oldPrice": "1.990.000đ",
         "price": "From $40.99",
+        "discount": "-50%",
         "note": "Custom design, no mass-market templates. Done in 5-7 days.",
         "desc": "One page, one goal: visitors finish reading and want to contact you.",
         "tagline": "Easy to start",
@@ -346,7 +380,8 @@
           "Contact form delivered straight to your Zalo or email",
           "Basic SEO, rich preview when your link is shared",
           "Deployed live on your domain, with a guide to edit text & images",
-          "Free bug support for 7 days after handover"
+          "Free bug support for 7 days after handover",
+          "Hỗ trợ lỗi miễn phí 7 ngày sau bàn giao"
         ],
         "excludes": [
           "Domain fee ~300-500k/year (I'll pick a free hosting tier)",
@@ -357,7 +392,9 @@
       "website": {
         "label": "Grow",
         "name": "Multi-page website",
-        "price": "From $0.99",
+        "oldPrice": "$101.99",
+        "price": "From $60.99",
+        "discount": "-50%",
         "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
         "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
         "tagline": "Most popular",
@@ -378,7 +415,9 @@
       "system": {
         "label": "System",
         "name": "Dynamic web app",
-        "price": "From $0.99",
+        "oldPrice": "$609.99",
+        "price": "From $283.99",
+        "discount": "-53%",
         "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
         "desc": "Not just a brochure — a website that works for you: taking orders, bookings and managing customers.",
         "tagline": "Long-term asset",
@@ -392,7 +431,8 @@
         ],
         "excludes": [
           "Online payments, extra roles, extra flows → 12-20M projects, quoted separately",
-          "Running costs for server & domain (~50-150k/month)"
+          "Running costs for server & domain (~50-150k/month)",
+          "Phí tên miền, VPS/Server hàng tháng (chi phí vận hành)"
         ]
       }
     },
@@ -429,7 +469,7 @@
         "label": "Students",
         "name": "Bento CV / Portfolio",
         "price": "$32.99",
-        "oldPrice": "$0.99",
+        "oldPrice": "$60.99",
         "discount": "-46%",
         "note": "Modern Bento Grid design. Tailored for internship, scholarship, or study abroad applications.",
         "desc": "Showcase your achievements, projects, Git links and profile in a beautiful Apple-inspired aesthetic.",
@@ -445,7 +485,7 @@
         "label": "HTML/CSS/JS",
         "name": "Web App Coursework (HTML)",
         "price": "From $23.99",
-        "oldPrice": "$0.99",
+        "oldPrice": "$48.99",
         "discount": "-50%",
         "note": "Static HTML/CSS/JS coursework. Split the bill from ~295k/member (group of 2).",
         "desc": "Perfect for Web Design basics, building responsive layouts, static assignment templates.",
@@ -460,8 +500,8 @@
       "php": {
         "label": "PHP/SQL",
         "name": "Web App Coursework (PHP)",
-        "price": "From $0.99",
-        "oldPrice": "$0.99",
+        "price": "From $60.99",
+        "oldPrice": "$101.99",
         "discount": "-40%",
         "note": "Dynamic PHP/MySQL coursework. Split the bill from ~495k/member (group of 3).",
         "desc": "Perfect for Database Web basics, dynamic data CRUD, registering & logins.",
@@ -476,8 +516,8 @@
       "react": {
         "label": "React/Node",
         "name": "Web App Coursework (REACT)",
-        "price": "From $0.99",
-        "oldPrice": "$0.99",
+        "price": "From $101.99",
+        "oldPrice": "$162.99",
         "discount": "-37%",
         "note": "Full-stack React/Node.js coursework. Split the bill from ~620k/member (group of 4).",
         "desc": "Perfect for Advanced Web, React SPA, REST APIs, MongoDB/PostgreSQL.",
@@ -626,10 +666,6 @@
         {
           "q": "Is there support after handover?",
           "a": "Yes. I walk you through the site, answer questions and fix issues within the agreed scope."
-        },
-        {
-          "q": "Do students get a discount?",
-          "a": "Yes. Students get 20% off all web packages (Landing from 799k, Website from 1.99M, Web App from 5.59M). I support building the technical app/code for coursework assignments, but I absolutely DO NOT write reports or build graduation theses. Students must study the code and write their own academic reports."
         }
       ]
     },
@@ -730,7 +766,8 @@
       },
       {
         "question": "Is there any promotional or trial policy at Hugo Studio?",
-        "answer": "Understanding that students desire a professional personal brand, I support creating customized Bio Portfolios completely free for students with .edu or .edu.vn educational emails."
+        "answer": "Understanding that students desire a professional personal brand, I support creating customized Bio Portfolios completely free for students with .edu or .edu.vn educational emails.",
+        "actionText": "Nhận ưu đãi Sinh Viên"
       },
       {
         "question": "How is the design cost at Hugo Studio?",
@@ -1738,33 +1775,6 @@
       "submitButton": "Finish"
     },
     "joy": {
-      "walletTitle": "Your JOY Wallet",
-      "referral": {
-        "countLabel": "You've referred {{count}} people",
-        "copied": "Referral link copied!"
-      },
-      "sections": {
-        "wallet": "Wallet",
-        "store": "Store",
-        "history": "History",
-        "send": "Send JOY",
-        "missions": "Missions"
-      },
-      "redeem": {
-        "title": "Redeem a JOY gift code",
-        "placeholder": "Enter gift code",
-        "button": "Redeem",
-        "success": "Redeemed successfully! +{{amount}} JOY",
-        "error": "This code could not be redeemed."
-      },
-      "applyReferral": {
-        "title": "Enter a referral code",
-        "placeholder": "e.g. HG123456",
-        "button": "Apply",
-        "hint": "If someone referred you, enter their code here so you both get JOY. Each account can only do this once.",
-        "success": "Referral applied! +10 JOY and +{{days}} days of Bio Link.",
-        "error": "This code could not be applied."
-      },
       "particle": {
         "title": "Hugo Studio - Intelligent Connection",
         "qrTitle": "JOY QR Code",
@@ -1823,6 +1833,33 @@
         "processing": "Processing...",
         "confirmBtn": "Confirm",
         "disclaimer": "JOY is a non-profit accumulation token — cannot be topped up with cash"
+      },
+      "walletTitle": "Your JOY Wallet",
+      "referral": {
+        "countLabel": "You've referred {{count}} people",
+        "copied": "Referral link copied!"
+      },
+      "sections": {
+        "wallet": "Wallet",
+        "store": "Store",
+        "history": "History",
+        "send": "Send JOY",
+        "missions": "Missions"
+      },
+      "redeem": {
+        "title": "Redeem a JOY gift code",
+        "placeholder": "Enter gift code",
+        "button": "Redeem",
+        "success": "Redeemed successfully! +{{amount}} JOY",
+        "error": "This code could not be redeemed."
+      },
+      "applyReferral": {
+        "title": "Enter a referral code",
+        "placeholder": "e.g. HG123456",
+        "button": "Apply",
+        "hint": "If someone referred you, enter their code here so you both get JOY. Each account can only do this once.",
+        "success": "Referral applied! +10 JOY and +{{days}} days of Bio Link.",
+        "error": "This code could not be applied."
       },
       "earnInfo": "Earn JOY by: referring friends, attending therapy sessions, winning chess games, or redeeming an admin gift code.",
       "history": {
@@ -3055,86 +3092,6 @@
         "title": "Truly Yours",
         "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
       }
-    }
-  },
-  "studentPlans": {
-    "bug": {
-      "label": "Students",
-      "name": "Oopsie! Coursework Fix",
-      "price": "From $4.99",
-      "note": "Quick quotes based on coursework criteria. Speed delivery before deadlines.",
-      "desc": "Logic errors, DB connection issue or broken layout in your end-of-term assignment? Let's squish those bugs!",
-      "tagline": "Save your submission",
-      "includes": [
-        "Fix exact logic code errors or styling bugs agreed upon",
-        "Zalo walkthrough on how to deploy on free hosting (Vercel/Render)",
-        "3 days of stability warranty",
-        "Full working code handover"
-      ]
-    },
-    "bento": {
-      "label": "Students",
-      "name": "Aesthetic Bento CV",
-      "price": "$32.99",
-      "oldPrice": "$0.99",
-      "discount": "-46%",
-      "note": "Modern Bento Grid design. Tailored for internship, scholarship, or study abroad applications.",
-      "desc": "Showcase your achievements, projects, Git links and profile in a beautiful Apple-inspired aesthetic.",
-      "tagline": "Stand out like a star!",
-      "includes": [
-        "1 Bento Grid page layout, up to 7 sections max",
-        "Github, social media, and contact link integration",
-        "Contact form dumping messages directly to a free Google Sheet",
-        "Deploy on free hosting trọn đời (Vercel/Netlify)"
-      ]
-    },
-    "html": {
-      "label": "HTML/CSS/JS",
-      "name": "Static Web App (HTML)",
-      "price": "From $23.99",
-      "oldPrice": "$0.99",
-      "discount": "-50%",
-      "note": "Static HTML/CSS/JS coursework. Split the bill from ~295k/member (group of 2).",
-      "desc": "Perfect for Web Design basics, building responsive layouts, static assignment templates.",
-      "tagline": "Responsive & Cute!",
-      "includes": [
-        "Responsive layout design compatible with mobile devices",
-        "DOM animation effects & basic native Javascript",
-        "Detailed README setup documentation for local run",
-        "Clean source code + free deployment setup guidance"
-      ]
-    },
-    "php": {
-      "label": "PHP/SQL",
-      "name": "Web App (PHP & SQL)",
-      "price": "From $0.99",
-      "oldPrice": "$0.99",
-      "discount": "-40%",
-      "note": "Dynamic PHP/MySQL coursework. Split the bill from ~495k/member (group of 3).",
-      "desc": "Perfect for Database Web basics, dynamic data CRUD, registering & logins.",
-      "tagline": "Database Power!",
-      "includes": [
-        "Dynamic server handling with PHP + MySQL database",
-        "Simple registration, login, and authorization logic",
-        "Pre-loaded mock database (Seed Data) for quick demo",
-        "Bonus: 1 live call session for setup guidance and live run demo"
-      ]
-    },
-    "react": {
-      "label": "React/Node",
-      "name": "Full-stack App (REACT)",
-      "price": "From $0.99",
-      "oldPrice": "$0.99",
-      "discount": "-37%",
-      "note": "Full-stack React/Node.js coursework. Split the bill from ~620k/member (group of 4).",
-      "desc": "Perfect for Advanced Web, React SPA, REST APIs, MongoDB/PostgreSQL.",
-      "tagline": "Modern Full-stack Magic!",
-      "includes": [
-        "React SPA architecture + Node.js/Express REST API Backend",
-        "Bonus: 1 live call session (45 mins) explaining code structure",
-        "Pre-loaded mock database (Seed Data) for quick demo",
-        "Dedicated help with setting up execution environments"
-      ]
     }
   }
 }
