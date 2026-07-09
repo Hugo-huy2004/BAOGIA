@@ -69,6 +69,14 @@ function Card({ t, type, message, title }) {
 
 function show(type, message, opts = {}) {
   if (!message) return undefined;
+  if (typeof message === "function" || React.isValidElement(message)) {
+    const id = opts.id || "custom_" + Date.now();
+    const duration = opts.duration ?? (type === "loading" ? Infinity : type === "error" ? 5000 : 3200);
+    return toast.custom(
+      typeof message === "function" ? message : () => message,
+      { id, duration }
+    );
+  }
   const msg = String(message);
   const id = opts.id || hashId(type + "|" + msg);
   const duration = opts.duration ?? (type === "loading" ? Infinity : type === "error" ? 5000 : 3200);

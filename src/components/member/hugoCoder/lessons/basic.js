@@ -1,31 +1,37 @@
 export const BASIC_LESSONS = [
   {
     id: "lesson1",
-    title: "1. Giới thiệu HTML & Code cơ bản",
+    title: "1. Giới thiệu HTML & Code cơ bản (Semantic HTML)",
     lang: "html",
     file: "src/lesson1.html",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-HTML (HyperText Markup Language) là ngôn ngữ đánh dấu siêu văn bản, tạo cấu trúc khung xương cho trang web. Nó hoạt động bằng các thẻ (tags) đi theo cặp để định nghĩa các khối vùng dữ liệu khác nhau.
+Theo tiêu chuẩn **MDN Web Docs** và **freeCodeCamp Curriculum**, HTML (HyperText Markup Language) là ngôn ngữ đánh dấu siêu văn bản dùng để xây dựng cấu trúc nền tảng cho trang web. Một tài liệu chuẩn quốc tế luôn bắt đầu bằng \`<!DOCTYPE html>\` để khai báo chế độ chuẩn (standards mode) cho trình duyệt, sử dụng thẻ \`<html lang="vi">\` để tối ưu SEO, và sử dụng các thẻ có cấu trúc ngữ nghĩa (Semantic HTML) như \`<header>\`, \`<main>\`, \`<footer>\` thay vì dùng các thẻ \`<div>\` vô nghĩa.
 
 ### ÁP DỤNG HỆ THỐNG
-Trong hệ thống thực tế, một cấu trúc HTML sạch sẽ, đúng ngữ nghĩa (semantic HTML) giúp các công cụ tìm kiếm (SEO) và thiết bị hỗ trợ đọc màn hình (Accessibility) hoạt động tốt nhất.
+Trong các dự án thực tế theo triết lý **The Odin Project**, cấu trúc HTML đúng ngữ nghĩa không chỉ giúp cải thiện thứ hạng SEO mà còn là bắt buộc đối với khả năng tiếp cận (Accessibility - A11y), giúp các công cụ đọc màn hình của người khiếm thị hiểu được nội dung trang web.
 
 ### THỰC HÀNH NHỎ
-Bạn hãy sắp xếp các thẻ HTML theo đúng thứ tự phân cấp tiêu chuẩn từ ngoài vào trong: \`<!DOCTYPE html>\`, \`<html>\`, \`<head>\`, \`<body>\`.
+Bạn hãy sắp xếp các thẻ HTML theo thứ tự phân cấp tiêu chuẩn từ ngoài vào trong: \`<!DOCTYPE html>\`, \`<html lang="vi">\`, \`<head>\`, \`<body>\`.
 
 ### KIỂM TRA HOÀN TẤT
-Hệ thống sẽ kiểm tra xem file code của bạn đã có đủ cấu trúc chuẩn \`<!DOCTYPE html>\`, \`<html>\`, \`<head>\`, \`<title>\`, \`<body>\`, \`<h1>\`, \`<p>\` chưa.`,
+Hệ thống sẽ xác minh xem mã nguồn của bạn có chứa các phần tử chuẩn: \`<!DOCTYPE html>\`, \`<html\`, \`<head>\`, \`<title>\`, \`<body>\`, \`<h1>\`, và \`<p>\` hay chưa.`,
     tasks: [
-      "Kéo thả các thẻ HTML theo thứ tự từ trên xuống: <!DOCTYPE html> -> <html> -> <head> -> <body>."
+      "Xây dựng khung HTML5 chuẩn ngữ nghĩa MDN: chứa DOCTYPE, html, head, title, body, h1 và thẻ p."
     ],
     starterCode: `<!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>Bài 1: HTML Cơ Bản</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 1: HTML Chuẩn Quốc Tế</title>
 </head>
 <body>
-    <h1>Chào mừng bạn đến với HTML!</h1>
-    <p>Học để hiểu, thực hành thực tế.</p>
+    <header>
+        <h1>Chào mừng bạn đến với HugoCoder!</h1>
+    </header>
+    <main>
+        <p>Học để hiểu, thực hành thực chiến chuẩn MDN & freeCodeCamp.</p>
+    </main>
 </body>
 </html>`,
     verify: (code) => {
@@ -35,35 +41,39 @@ Hệ thống sẽ kiểm tra xem file code của bạn đã có đủ cấu trú
     practiceType: "drag_drop_html",
     dragBlocks: [
       { id: "b1", text: "<!DOCTYPE html>" },
-      { id: "b2", text: "<html>" },
+      { id: "b2", text: "<html lang=\"vi\">" },
       { id: "b3", text: "<head>" },
       { id: "b4", text: "<body>" }
     ],
     correctOrder: ["b1", "b2", "b3", "b4"],
     miniQuiz: [
-      { q: "Thẻ <html> có vai trò gì?", o: ["Bao bọc toàn bộ trang web", "Tạo tiêu đề", "Tạo ảnh", "Chứa metadata"], a: 0 },
-      { q: "Thẻ <head> thường chứa phần tử nào sau đây?", o: ["<p>", "<h1>", "<title>", "<img>"], a: 2 },
-      { q: "HTML được viết tắt từ chữ gì?", o: ["HyperText Markup Language", "Hyperlinks and Text Markup Language", "Home Tool Markup Language", "Hyper Tool Markup Language"], a: 0 }
+      { q: "Tại sao nên dùng các thẻ Semantic như <header>, <main> thay vì <div>?", o: ["Giúp trang chạy nhanh hơn", "Tối ưu hóa SEO và khả năng tiếp cận (Accessibility) theo MDN", "Làm đẹp giao diện", "Không có tác dụng gì"], a: 1 },
+      { q: "Thẻ <head> thường dùng để chứa thông tin nào?", o: ["Văn bản hiển thị", "Hình ảnh lớn", "Siêu dữ liệu (Metadata) và tiêu đề trang", "Nút bấm"], a: 2 },
+      { q: "Khai báo <!DOCTYPE html> ở đầu file có ý nghĩa gì?", o: ["Khai báo liên kết CSS", "Báo trình duyệt hiển thị trang theo chế độ chuẩn (Standards Mode)", "Đăng ký tên miền", "Viết script"], a: 1 }
     ]
   },
   {
     id: "lesson2",
-    title: "2. Giới thiệu CSS & Định dạng",
+    title: "2. CSS Fundamentals & Box Model",
     lang: "html",
     file: "src/lesson2.html",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-CSS (Cascading Style Sheets) giúp định dạng màu sắc, bố cục, khoảng cách và hiệu ứng cho tài liệu HTML. Cấu trúc Box Model là nền tảng gồm: content, padding, border, và margin.
+Theo cẩm nang **MDN Web Docs** và khóa học **The Odin Project**, CSS Box Model là mô hình hộp nền tảng của mọi phần tử giao diện web. Mỗi phần tử là một chiếc hộp chữ nhật gồm 4 lớp từ trong ra ngoài:
+1. **Content**: Nội dung hiển thị (chữ, ảnh).
+2. **Padding**: Khoảng đệm giữa nội dung và viền.
+3. **Border**: Đường viền bao quanh phần tử.
+4. **Margin**: Khoảng cách từ viền đến các phần tử xung quanh.
 
 ### ÁP DỤNG HỆ THỐNG
-Trong hệ thống thực tế, CSS được gom nhóm thành các CSS variables để quản trị chủ đề màu sắc (Dark Mode / Light Mode) một cách tập trung, giúp đổi giao diện hệ thống trong 1 dòng code.
+Áp dụng thuộc tính \`box-sizing: border-box\` giúp kích thước hộp (\`width\`, \`height\`) đã bao gồm cả \`padding\` và \`border\`. Đây là quy chuẩn thực tế quốc tế giúp việc tính toán kích thước giao diện không bị sai lệch hoặc tràn vỡ khung layout.
 
 ### THỰC HÀNH NHỎ
-Đổi màu nền giao diện demo thành màu Xanh Dương và màu chữ thành màu Trắng theo yêu cầu của hệ thống để trực quan hóa giao diện Card.
+Định dạng một lớp Card có nền xanh dương đậm (\`background-color: #0056b3\`) và chữ màu trắng (\`color: #ffffff\`) đạt độ tương phản chuẩn WCAG.
 
 ### KIỂM TRA HOÀN TẤT
-Đảm bảo mã nguồn định nghĩa bộ chọn \`.card\` có nền xanh dương \`background-color: #0056b3\` và chữ trắng \`color: #ffffff\`.`,
+Hệ thống sẽ quét mã CSS của bạn để tìm bộ chọn \`.card\` chứa \`background-color: #0056b3\` và \`color: #ffffff\`.`,
     tasks: [
-      "Thực hành: Đổi màu nền giao diện thành màu Xanh Dương và màu chữ thành màu Trắng theo yêu cầu của hệ thống."
+      "Thực hành: Định dạng class .card đạt chuẩn Box Model với nền xanh dương #0056b3 và chữ trắng #ffffff."
     ],
     starterCode: `<style>
 .card {
@@ -71,11 +81,12 @@ Trong hệ thống thực tế, CSS được gom nhóm thành các CSS variables
     color: #ffffff;
     padding: 20px;
     border-radius: 10px;
+    box-sizing: border-box;
 }
 </style>
 <div class="card">
-    <h2>Giao diện đổi màu</h2>
-    <p>Hãy chọn đúng màu nền và màu chữ để kiểm tra.</p>
+    <h2>Giao diện Card chuẩn Box Model</h2>
+    <p>Học để hiểu, thực hành đúng quy cách thiết kế giao diện.</p>
 </div>`,
     verify: (code) => {
       const c = code.toLowerCase().replace(/\s+/g, "");
@@ -86,35 +97,35 @@ Trong hệ thống thực tế, CSS được gom nhóm thành các CSS variables
     requiredBg: "#0056b3",
     requiredText: "#ffffff",
     miniQuiz: [
-      { q: "Thuộc tính 'background-color' dùng để làm gì?", o: ["Đổi màu chữ", "Đổi màu nền", "Tạo viền", "Chỉnh phông chữ"], a: 1 },
-      { q: "Thuộc tính 'padding' tạo khoảng trống ở đâu?", o: ["Bên ngoài viền", "Giữa các phần tử", "Bên trong viền", "Không tạo khoảng trống"], a: 2 },
-      { q: "CSS được viết tắt từ chữ gì?", o: ["Computer Style Sheets", "Creative Style Sheets", "Cascading Style Sheets", "Colorful Style Sheets"], a: 2 }
+      { q: "Thuộc tính 'box-sizing: border-box' có tác dụng gì?", o: ["Ẩn phần thừa của hộp", "Gộp padding và border vào kích thước tổng của hộp", "Tạo viền tròn", "Làm nghiêng hộp"], a: 1 },
+      { q: "Khoảng cách margin nằm ở vị trí nào của phần tử?", o: ["Bên trong viền border", "Giữa content và padding", "Bên ngoài viền border, tạo khoảng cách với các hộp khác", "Chính giữa viền"], a: 2 },
+      { q: "Độ tương phản chữ tối thiểu cho văn bản thông thường theo chuẩn WCAG là bao nhiêu?", o: ["2:1", "3:1", "4.5:1", "10:1"], a: 2 }
     ]
   },
   {
     id: "lesson3",
-    title: "3. JavaScript & Tương tác động",
+    title: "3. JavaScript ES6+ & DOM Events",
     lang: "html",
     file: "src/lesson3.html",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-JavaScript (JS) là ngôn ngữ lập trình kịch bản chạy ở phía Client, cho phép tương tác trực tiếp với cây DOM (Document Object Model), bắt sự kiện và thay đổi trạng thái UI thời gian thực.
+Theo quy chuẩn **W3Schools Exercises** và **MDN Web Docs**, DOM (Document Object Model) là giao diện lập trình cho tài liệu web. Để bắt các hành vi tương tác từ người dùng, chúng ta sử dụng phương thức \`addEventListener()\` để đăng ký trình lắng nghe sự kiện trên các phần tử DOM, tách biệt hoàn toàn giữa cấu trúc (HTML) và hành vi (JavaScript).
 
 ### ÁP DỤNG HỆ THỐNG
-Trong các dự án thực tế, các nút bấm thanh toán hoặc đăng ký đều sử dụng JS để kích hoạt loading, ngăn chặn bấm đúp (double-click submission) và gửi dữ liệu đi bất đồng bộ.
+Tránh sử dụng các thuộc tính inline kiểu cũ như \`onclick="..."\` trực tiếp trong HTML vì nó gây khó khăn cho việc gỡ lỗi, kiểm thử và vi phạm các quy tắc an toàn bảo mật nội dung trang web (Content Security Policy - CSP).
 
 ### THỰC HÀNH NHỎ
-Thao tác nhấp chuột vào nút bấm demo đủ 3 lần liên tiếp để tăng bộ đếm lên đúng số 3.
+Nhấp chuột vào nút bấm có ID là \`btn\` để kiểm tra việc tăng bộ đếm sự kiện lên số 3.
 
 ### KIỂM TRA HOÀN TẤT
-Đảm bảo mã nguồn có sử dụng \`document.getElementById('btn')\` để bắt sự kiện click thông qua \`addEventListener('click', ...)\`.`,
+Hệ thống kiểm tra mã nguồn JS xem bạn đã gọi đúng hàm lấy phần tử \`document.getElementById('btn')\` và gán sự kiện click thông qua \`addEventListener('click', ...)\`.`,
     tasks: [
-      "Thực hành: Nhấp chuột vào nút bấm 3 lần liên tiếp để tăng bộ đếm lên đúng số 3."
+      "Đăng ký sự kiện click cho nút bấm chuẩn ES6+ và cập nhật tương tác DOM."
     ],
     starterCode: `<button id="btn">Click me</button>
 <script>
 const button = document.getElementById("btn");
 button.addEventListener("click", () => {
-    console.log("Clicked!");
+    console.log("Button clicked!");
 });
 </script>`,
     verify: (code) => {
@@ -123,29 +134,29 @@ button.addEventListener("click", () => {
     },
     practiceType: "js_button",
     miniQuiz: [
-      { q: "Hàm nào dùng để lấy phần tử theo ID trong Javascript?", o: ["document.getElementById", "document.querySelector", "document.getClass", "document.find"], a: 0 },
-      { q: "Từ khoá nào dùng để khai báo biến có thể thay đổi giá trị?", o: ["const", "let", "static", "def"], a: 1 },
-      { q: "Sự kiện nào xảy ra khi người dùng nhấp chuột vào một phần tử?", o: ["onmouseover", "onkeydown", "onclick", "onchange"], a: 2 }
+      { q: "Tại sao addEventListener được khuyến nghị thay cho thuộc tính inline onclick?", o: ["Chạy nhanh hơn", "Cho phép gán nhiều listener và tuân thủ Content Security Policy (CSP)", "Tự động sửa lỗi code", "Dễ viết hơn"], a: 1 },
+      { q: "Lệnh nào dùng để khai báo hằng số không thể gán lại giá trị trong ES6?", o: ["let", "var", "const", "define"], a: 2 },
+      { q: "Sự kiện nào kích hoạt khi người dùng thay đổi giá trị trong ô nhập liệu?", o: ["click", "submit", "change", "mouseover"], a: 2 }
     ]
   },
   {
     id: "lesson4",
-    title: "4. Kiểm tra Website Programming 1",
+    title: "4. Kiểm tra Kiến thức Web 1 (Fully Automated Exam)",
     lang: "html",
     file: "src/lesson4.html",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-Bài kiểm tra tổng hợp kiến thức cơ bản về HTML, CSS và JavaScript. Ôn lại Box Model, cấu trúc trang web semantic và cách xử lý sự kiện DOM tương tác.
+Bài kiểm tra tự động hóa toàn bộ theo cấu trúc đánh giá năng lực của **W3Schools** và **freeCodeCamp**. Nội dung bao gồm kiến thức cơ bản về Semantic HTML5, CSS Box Model, CSS Selector và tương tác sự kiện DOM.
 
 ### ÁP DỤNG HỆ THỐNG
-Việc đánh giá giúp hệ thống hiểu mức độ tiếp thu của học viên trước khi cấp quyền tiếp cận cơ sở dữ liệu và máy chủ phía sau.
+Đánh giá định kỳ giúp củng cố kiến thức nền tảng trước khi chuyển sang các chủ đề phức tạp hơn về cơ sở dữ liệu quan hệ và máy chủ Backend PHP.
 
 ### THỰC HÀNH NHỎ
-Hoàn thành bộ câu hỏi thi trắc nghiệm ngẫu nhiên gồm 5 câu.
+Hoàn thành bộ câu hỏi thi trắc nghiệm gồm 5 câu hỏi ngẫu nhiên.
 
 ### KIỂM TRA HOÀN TẤT
-Đạt tối thiểu 3 trên 5 câu đúng (>= 60%) để vượt qua bài kiểm tra.`,
+Bạn cần đạt tối thiểu 3/5 câu đúng (>= 60%) để vượt qua bài kiểm tra này.`,
     tasks: [
-      "Hoàn thành bài kiểm tra 5 câu trắc nghiệm ngẫu nhiên đạt tối thiểu 60%."
+      "Hoàn thành bài kiểm tra lý thuyết và thực hành Web cơ bản."
     ],
     starterCode: ``,
     verify: (code) => true,
@@ -154,22 +165,22 @@ Hoàn thành bộ câu hỏi thi trắc nghiệm ngẫu nhiên gồm 5 câu.
   },
   {
     id: "lesson5",
-    title: "5. Giới thiệu MySQL & CSDL",
+    title: "5. Cơ sở dữ liệu SQL & MySQL Basics",
     lang: "sql",
     file: "src/lesson5.sql",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-SQL (Structured Query Language) là ngôn ngữ truy vấn cơ sở dữ liệu quan hệ. MySQL dùng để lưu trữ dữ liệu dạng bảng có cấu trúc cột/dòng và các khóa liên kết.
+Theo quy chuẩn **W3Schools SQL Tutorial**, SQL (Structured Query Language) là ngôn ngữ chuẩn quốc tế để tương tác với các hệ quản trị cơ sở dữ liệu quan hệ (RDBMS). Một câu lệnh truy vấn dữ liệu chuẩn mực yêu cầu viết HOA các từ khóa chính (\`SELECT\`, \`FROM\`, \`WHERE\`, \`LIMIT\`) và kết thúc bằng dấu chấm phẩy \`;\`.
 
 ### ÁP DỤNG HỆ THỐNG
-Các hệ thống lớn cần lọc dữ liệu ở tầng cơ sở dữ liệu trước khi chuyển lên backend để tránh nghẽn băng thông và giảm thiểu bộ nhớ RAM máy chủ.
+Trong hệ thống thực tế, việc lọc và giới hạn dữ liệu ở tầng CSDL bằng \`WHERE\` và \`LIMIT\` là cực kỳ quan trọng để bảo vệ hiệu năng máy chủ, tránh tải hàng triệu dòng dữ liệu không cần thiết lên bộ nhớ RAM.
 
 ### THỰC HÀNH NHỎ
-Sắp xếp các mệnh đề SQL để tạo câu lệnh SELECT hoàn chỉnh lấy dữ liệu người dùng hoạt động.
+Sắp xếp các mệnh đề SQL để truy vấn tất cả người dùng có trạng thái kích hoạt, giới hạn 5 bản ghi.
 
 ### KIỂM TRA HOÀN TẤT
-Đảm bảo mã lệnh SQL viết đúng cú pháp: \`SELECT * FROM users WHERE status = 'active' LIMIT 5;\`.`,
+Hệ thống sẽ chạy thử và kiểm tra câu lệnh SQL xem có đầy đủ: \`SELECT *\`, \`FROM users\`, \`WHERE status = 'active'\`, và \`LIMIT 5\` không.`,
     tasks: [
-      "Kéo thả các mệnh đề SQL để ghép thành câu lệnh hoàn chỉnh: Lấy tất cả từ bảng users, lọc status là 'active' và giới hạn 5 dòng."
+      "Viết truy vấn SQL chuẩn cú pháp quốc tế để lọc người dùng active kèm giới hạn 5 bản ghi."
     ],
     starterCode: `-- Viết câu lệnh SELECT lấy danh sách người dùng active giới hạn 5 dòng
 SELECT * FROM users WHERE status = 'active' LIMIT 5;`,
@@ -186,29 +197,29 @@ SELECT * FROM users WHERE status = 'active' LIMIT 5;`,
     ],
     correctOrder: ["s1", "s2", "s3", "s4"],
     miniQuiz: [
-      { q: "Mệnh đề 'WHERE' trong SQL dùng để làm gì?", o: ["Sắp xếp dữ liệu", "Lọc dữ liệu", "Xoá dữ liệu", "Giới hạn số dòng"], a: 1 },
-      { q: "Lệnh 'SELECT *' có nghĩa là gì?", o: ["Chọn tất cả các bảng", "Chọn tất cả các dòng", "Chọn tất cả các cột", "Đếm tất cả dữ liệu"], a: 2 },
-      { q: "MySQL là hệ quản trị cơ sở dữ liệu thuộc loại nào?", o: ["NoSQL", "Graph Database", "Relational Database (Quan hệ)", "Document Database"], a: 2 }
+      { q: "Tại sao nên viết hoa các từ khóa SQL chính?", o: ["Bắt buộc từ trình dịch", "Theo quy ước viết code sạch (clean code) để tăng tính dễ đọc", "Giúp query chạy nhanh hơn", "Chống hacker"], a: 1 },
+      { q: "Mệnh đề LIMIT 5 có ý nghĩa gì?", o: ["Chỉ lấy 5 cột", "Giới hạn tối đa trả về 5 dòng dữ liệu", "Lọc dữ liệu lớn hơn 5", "Xóa 5 dòng"], a: 2 },
+      { q: "Hệ cơ sở dữ liệu quan hệ RDBMS lưu trữ dữ liệu dưới dạng nào?", o: ["Dạng cây không cấu trúc", "Dạng bảng gồm các cột và các dòng", "Dạng file văn bản thô", "Dạng đồ thị"], a: 1 }
     ]
   },
   {
     id: "lesson6",
-    title: "6. Giới thiệu PHP & MySQL Backend",
+    title: "6. Backend Development: PHP & MySQL Connection",
     lang: "php",
     file: "src/lesson6.php",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-PHP là ngôn ngữ lập trình phía máy chủ (Server-side). Nó nhận request từ trình duyệt, kết nối cơ sở dữ liệu qua PDO, xử lý logic, biên dịch mã nguồn thành mã HTML thô rồi gửi trả lại cho người dùng.
+Theo tài liệu kiến trúc backend của **The Odin Project**, máy chủ backend chịu trách nhiệm nhận request, xử lý logic an toàn và truy xuất cơ sở dữ liệu. PHP kết nối MySQL sử dụng lớp **PDO** (PHP Data Objects) - chuẩn mực kết nối hướng đối tượng an toàn, hỗ trợ chuẩn bị truy vấn (Prepared Statements) chống lỗi tiêm nhiễm mã độc.
 
 ### ÁP DỤNG HỆ THỐNG
-Mọi thông tin như tiền, mật khẩu, và quyền truy cập của thành viên đều bắt buộc phải xử lý và kiểm soát ở Backend (PHP) để đảm bảo không bị chỉnh sửa ác ý từ phía client.
+Bảo mật backend là nguyên tắc tối thượng: Toàn bộ dữ liệu nhạy cảm như thông tin người dùng, số dư ví JOY bắt buộc phải xử lý dưới máy chủ PHP, tuyệt đối không tin tưởng bất cứ tính toán nào gửi lên từ trình duyệt Client.
 
 ### THỰC HÀNH NHỎ
-Nối các cặp khái niệm biến \`$\`, từ khóa \`echo\`, đối tượng kết nối cơ sở dữ liệu \`PDO\`, và toán tử nối chuỗi \`.\` của PHP.
+Định nghĩa biến, thực hiện phép ghép chuỗi bằng toán tử dấu chấm \`.\` và in ra kết quả.
 
 ### KIỂM TRA HOÀN TẤT
-Đảm bảo file PHP có thẻ mở \`<?php\`, có chứa ký tự biến \`$\` và lệnh \`echo\`, và thẻ đóng \`?>\`.`,
+Đảm bảo mã PHP mở đầu bằng \`<?php\`, kết thúc bằng \`?>\`, khai báo biến với ký tự \`$\` và sử dụng lệnh xuất dữ liệu \`echo\`.`,
     tasks: [
-      "Thực hành ghép nối các cặp từ khóa PHP với định nghĩa chính xác để vượt qua bài học."
+      "Thực hành cú pháp PHP cơ bản: viết thẻ mở/đóng, khai báo biến và dùng lệnh echo."
     ],
     starterCode: `<?php
 $title = "Học lập trình Backend PHP";
@@ -226,32 +237,36 @@ echo "Chào mừng bạn: " . $title;
       { key: ". (Dấu chấm)", val: "Ghép hai chuỗi ký tự" }
     ],
     miniQuiz: [
-      { q: "Biến trong PHP luôn bắt đầu bằng ký tự nào?", o: ["#", "@", "$", "&"], a: 2 },
-      { q: "Ngôn ngữ PHP chạy ở đâu?", o: ["Trình duyệt (Client)", "Máy chủ (Server)", "Database", "Hệ điều hành"], a: 1 },
-      { q: "Lệnh nào dùng để in dữ liệu ra trình duyệt bằng PHP?", o: ["print_out", "console.log", "echo", "write"], a: 2 }
+      { q: "Tại sao nên dùng thư viện PDO thay cho mysql_connect kiểu cũ?", o: ["PDO chạy nhanh gấp 10 lần", "PDO cung cấp Prepared Statements giúp chống SQL Injection an toàn hơn", "PDO dễ gõ hơn", "PDO chỉ có trên Linux"], a: 1 },
+      { q: "Toán tử ghép chuỗi trong PHP là gì?", o: ["Dấu cộng (+)", "Dấu chấm (.)", "Dấu và (&)", "Dấu gạch ngang (-)"], a: 1 },
+      { q: "Mã nguồn PHP chạy ở môi trường nào?", o: ["Trình duyệt của khách hàng", "Phía máy chủ (Server-side)", "Tại card mạng", "Tại ổ đĩa cứng client"], a: 1 }
     ]
   },
   {
     id: "lesson7",
-    title: "7. Thử thách tìm & vá lỗi (Debugging)",
+    title: "7. Bug Hunting & Debugging",
     lang: "php",
     file: "src/lesson7.php",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-Lỗi trong lập trình chia làm hai loại chính: Lỗi cú pháp (Syntax Error - làm dừng chương trình ngay lập tức) và Lỗi logic (Logical Bug - chương trình vẫn chạy nhưng trả về kết quả sai hoặc gây rò rỉ dữ liệu).
+Theo quy trình gỡ lỗi chuẩn **The Odin Project** và **MDN Web Docs**, một nhà phát triển phải phân biệt rõ lỗi cú pháp (Syntax Errors - làm chương trình sập ngay lập tức) và lỗi logic (Logical Bugs - chương trình vẫn chạy nhưng cho kết quả sai hoặc gây rò rỉ dữ liệu).
 
 ### ÁP DỤNG HỆ THỐNG
-Kiểm soát lỗi biên mảng (off-by-one), type coercion (tự ép kiểu lỏng lẻo trong PHP), lỗi biến không xác định (null check), và chuẩn bị lệnh truy vấn SQL (Prepared Statement) để tránh lỗ hổng bảo mật.
+Bài tập thực hành này mô phỏng 4 lỗi bảo mật và vận hành kinh điển:
+1. **Lỗi vượt biên mảng (Off-by-one error)**: Gây treo/lỗi bộ nhớ.
+2. **Lỗi kiểu dữ liệu (Type Coercion)**: Gây sai lệch tính toán số học.
+3. **Lỗi biến chưa được khởi tạo (Null reference)**: Sập chương trình khi tham số rỗng.
+4. **Lỗ hổng SQL Injection**: Hacker có thể chiếm quyền kiểm soát toàn bộ cơ sở dữ liệu.
 
 ### THỰC HÀNH NHỎ
-Vá 4 lỗi logic trong tệp PHP khởi tạo: sửa vòng lặp vượt biên, ép kiểu giá trị số, thêm null-coalescing, và dùng prepared statements.
+Vá 4 lỗi logic trong file starter code: sửa vòng lặp vượt biên, ép kiểu giá trị số, thêm toán tử null-coalescing, và đổi sang dùng Prepared Statements.
 
 ### KIỂM TRA HOÀN TẤT
-Code PHP sau khi sửa phải đảm bảo: điều kiện vòng lặp dùng \`<\` thay vì \`<=\`, ép kiểu số \`(int)$price\`, null-check \`??\`, và dùng hàm \`prepare()\` cùng \`execute()\` của PDO.`,
+Đảm bảo mã nguồn áp dụng: điều kiện lặp \`<\` thay vì \`<=\`, ép kiểu số \`(int)\`, null-coalescing \`??\`, và dùng các hàm \`prepare()\` kết hợp \`execute()\` của PDO.`,
     tasks: [
-      "**Bug #1**: Mảng có 5 phần tử (index 0-4), code access index 5 → sửa điều kiện lặp thành < count",
-      "**Bug #2**: Ép kiểu số cho biến $price để phép cộng chuỗi không lỗi.",
-      "**Bug #3**: Thêm toán tử null coalescing ?? để gán biến action an toàn.",
-      "**Bug #4**: Thay thế SQL Injection bằng Prepared Statement."
+      "**Bug #1**: Sửa điều kiện lặp vượt biên mảng thành < count.",
+      "**Bug #2**: Ép kiểu số (int) cho biến chuỗi price trước khi cộng.",
+      "**Bug #3**: Dùng null coalescing ?? để bảo vệ biến $_GET['action'].",
+      "**Bug #4**: Thay thế truy vấn nối chuỗi thô bằng PDO Prepared Statement."
     ],
     starterCode: `<?php
 // BUG #1: Loop vượt quá array bounds
@@ -275,10 +290,10 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$id]);
 ?>`,
     hints: [
-      "Bug #1: Dùng < thay vì <= trong loop condition",
-      "Bug #2: Explicit cast: (int)$price + 10",
-      "Bug #3: Dùng null coalescing: $_GET['action'] ?? null",
-      "Bug #4: LUÔN dùng prepared statements: pdo->prepare()"
+      "Bug #1: Sử dụng dấu so sánh < thay vì <= đối với độ dài mảng.",
+      "Bug #2: Ép kiểu tường minh bằng cách đặt (int) trước tên biến.",
+      "Bug #3: Sử dụng toán tử ?? để thiết lập giá trị mặc định cho biến.",
+      "Bug #4: Sử dụng pdo->prepare() và truyền tham số dạng mảng vào execute()."
     ],
     resources: [
       { title: "PHP Variable Debugging", url: "https://www.php.net/manual/en/function.var-dump.php" },
@@ -294,29 +309,28 @@ $stmt->execute([$id]);
     },
     practiceType: "code_challenge",
     miniQuiz: [
-      { q: "Khi gặp lỗi E_WARNING 'Undefined offset: 5', bạn cần làm gì đầu tiên?", o: ["Xóa code", "Check array bounds & loop condition", "Tăng memory_limit", "Restart PHP"], a: 1 },
-      { q: "Type coercion '99' + 10 trong PHP trả kết quả gì?", o: ["'9910' (string concatenation)", "109 (type cast to int)", "Error", "null"], a: 1 },
-      { q: "SQL Injection 'OR 1=1' nguy hiểm vì sao?", o: ["Làm chậm query", "Trả về tất cả records thay vì 1", "Xóa database", "Không nguy hiểm"], a: 1 }
+      { q: "Lỗ hổng SQL Injection xảy ra do nguyên nhân chính nào?", o: ["Nối chuỗi dữ liệu đầu vào chưa được lọc trực tiếp vào câu lệnh SQL", "Cơ sở dữ liệu bị quá tải", "Không cài đặt mật khẩu cho root", "Kết nối SSL thất bại"], a: 0 },
+      { q: "Toán tử ?? trong PHP dùng để làm gì?", o: ["Thực hiện phép chia", "Trả về toán tử bên trái nếu nó tồn tại và khác null; ngược lại trả về bên phải", "So sánh bằng", "Gán biến số"], a: 1 }
     ]
   },
   {
     id: "lesson8",
-    title: "8. CSS Flexbox & Giao diện Responsive",
+    title: "8. CSS Flexbox & Responsive Layouts",
     lang: "html",
     file: "src/lesson8.html",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-Responsive Web Design giúp trang web hiển thị tối ưu trên mọi màn hình. Sử dụng \`@media\` query để thay đổi CSS và áp dụng CSS Flexbox (\`display: flex\`) để xếp sắp luồng giao diện tự động.
+Theo giáo trình **freeCodeCamp Responsive Web Design** và **MDN Web Docs**, Responsive là kỹ thuật thiết kế giúp giao diện trang web thích ứng hoàn hảo với mọi kích thước màn hình. CSS Flexbox là công cụ dàn trang 1 chiều cực mạnh thông qua thuộc tính \`display: flex\`, cho phép co giãn phần tử linh hoạt mà không cần tính toán tọa độ thủ công.
 
 ### ÁP DỤNG HỆ THỐNG
-Tỷ lệ người dùng lướt web bằng thiết bị di động chiếm hơn 60%. Xây dựng responsive chuẩn đảm bảo trải nghiệm khách hàng đồng đều và gia tăng tỷ lệ chuyển đổi.
+Sử dụng truy vấn truyền thông \`@media (max-width: 768px)\` để định nghĩa lại hướng hiển thị của Flexbox (ví dụ chuyển từ hàng ngang \`row\` trên desktop sang cột dọc \`column\` trên mobile).
 
 ### THỰC HÀNH NHỎ
-Viết các thuộc tính CSS Flexbox định nghĩa trục chính dọc (column) cho mobile và ngang (row) cho màn hình lớn.
+Viết các thuộc tính CSS Flexbox định nghĩa trục chính dọc cho mobile và ngang cho màn hình lớn.
 
 ### KIỂM TRA HOÀN TẤT
-Đảm bảo mã nguồn CSS có sử dụng quy tắc truyền thông \`@media\` và thuộc tính bố cục \`display: flex\`.`,
+Đảm bảo mã nguồn CSS có chứa quy tắc \`@media\` thích ứng màn hình và thuộc tính layout \`display: flex\`.`,
     tasks: [
-      "Xây dựng trang Portfolio responsive với: header, navigation menu (flex), và media queries thích ứng màn hình."
+      "Xây dựng menu điều hướng responsive sử dụng display: flex và @media query theo chuẩn MDN."
     ],
     starterCode: `<!DOCTYPE html>
 <html lang="vi">
@@ -327,10 +341,14 @@ Viết các thuộc tính CSS Flexbox định nghĩa trục chính dọc (column
   <style>
     nav {
       display: flex;
+      justify-content: space-around;
+      background: #f4f4f9;
+      padding: 10px;
     }
     @media (max-width: 768px) {
       nav {
         flex-direction: column;
+        align-items: center;
       }
     }
   </style>
@@ -351,32 +369,32 @@ Viết các thuộc tính CSS Flexbox định nghĩa trục chính dọc (column
     },
     practiceType: "code_challenge",
     hints: [
-      "Bắt đầu từ mobile CSS, sau đó thêm @media (min-width: 768px) cho màn hình lớn hơn.",
-      "Sử dụng display: flex để kích hoạt hộp căn chỉnh linh hoạt."
+      "Khai báo display: flex trên phần tử cha để kích hoạt chế độ hộp Flexbox.",
+      "Đặt quy tắc @media với max-width thích hợp để thay đổi flex-direction trên màn hình nhỏ."
     ],
     miniQuiz: [
-      { q: "Một trang web có @media (min-width: 768px) { width: 50% }. Trên màn hình 800px, chiều rộng là bao nhiêu?", o: ["Phụ thuộc vào CSS cha", "50% (vì 800px >= 768px)", "Lỗi", "Không thể xác định"], a: 1 },
-      { q: "Viewport meta tag có tác dụng gì?", o: ["Ẩn thanh địa chỉ", "Cho phép zoom", "Cấu hình tỉ lệ co giãn trang chuẩn theo màn hình", "Không quan trọng"], a: 2 }
+      { q: "Thuộc tính nào dùng để đổi hướng các phần tử trong hộp Flexbox?", o: ["justify-content", "align-items", "flex-direction", "flex-wrap"], a: 2 },
+      { q: "Ý nghĩa của thẻ meta viewport trong trang responsive là gì?", o: ["Giúp trang load nhanh", "Thiết lập chiều rộng trang khớp với chiều rộng màn hình thiết bị và tỷ lệ co giãn ban đầu", "Liên kết CSS", "Không quan trọng"], a: 1 }
     ]
   },
   {
     id: "lesson9",
-    title: "9. Capstone: Trang chi tiết sản phẩm",
+    title: "9. Capstone Project: RESTful Product Detail API",
     lang: "php",
     file: "src/lesson9.php",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-Một ứng dụng Full-stack hoàn chỉnh bao gồm Frontend (giao diện, fetch gọi dữ liệu) và Backend (API, kết nối và truy vấn CSDL, kiểm soát an toàn, trả về JSON).
+Dự án Capstone theo phong cách **The Odin Project**. Một sản phẩm web hoàn chỉnh kết nối Frontend (giao diện, Fetch API gọi dữ liệu) và Backend (API PHP kết nối cơ sở dữ liệu MySQL thông qua PDO và trả dữ liệu chuẩn JSON).
 
 ### ÁP DỤNG HỆ THỐNG
-Khi người dùng truy cập trang sản phẩm, frontend thực hiện yêu cầu AJAX/fetch gửi lên API, backend nhận diện ID sản phẩm, truy vấn trong MySQL rồi trả về dạng JSON để frontend vẽ ra UI.
+Khi người dùng truy cập trang chi tiết sản phẩm, Frontend JavaScript gửi một HTTP GET Request lên API backend. Backend PHP nhận diện ID sản phẩm từ query string, thực thi Prepared Statement trong MySQL để lấy thông tin sản phẩm, và gửi trả dữ liệu dưới dạng JSON cùng HTTP status code tương ứng.
 
 ### THỰC HÀNH NHỎ
-Hoàn thiện API PHP kết nối PDO, chuẩn bị truy vấn SQL với tham số an toàn và trả về tiêu đề JSON Content-Type.
+Hoàn thiện endpoint API bằng PHP kết nối PDO, chuẩn bị truy vấn SQL an toàn và trả thông tin với header định dạng JSON.
 
 ### KIỂM TRA HOÀN TẤT
-Hệ thống sẽ chạy thử file PHP của bạn để xác minh có sử dụng truy vấn an sau \`prepare()\`, thực thi \`execute()\` và trả định dạng dữ liệu \`json_encode()\` kèm header \`application/json\`.`,
+Hệ thống sẽ chạy thử file PHP của bạn và kiểm tra có thiết lập tiêu đề header \`application/json\`, sử dụng \`prepare()\` kết hợp \`execute()\` và trả ra chuỗi bằng \`json_encode()\`.`,
     tasks: [
-      "Viết API endpoint chi tiết sản phẩm bằng PHP, validate tham số đầu vào và trả về JSON an toàn."
+      "Xây dựng API endpoint chi tiết sản phẩm an toàn bằng PHP kết nối database MySQL thực tế."
     ],
     starterCode: `<?php
 header("Content-Type: application/json");
@@ -403,32 +421,35 @@ echo json_encode($product);
     },
     practiceType: "capstone",
     hints: [
-      "Tham số lấy từ client thông qua $_GET['id'] bắt buộc phải validate bằng is_numeric()",
-      "LUÔN dùng Prepared Statements để ngăn chặn triệt để SQL Injection."
+      "Luôn kiểm tra dữ liệu đầu vào $_GET['id'] có phải là số hợp lệ không bằng hàm is_numeric().",
+      "Trả về mã trạng thái HTTP 400 Bad Request nếu dữ liệu đầu vào không hợp lệ."
     ],
     miniQuiz: [
-      { q: "Tại sao cần gửi tiêu đề Content-Type: application/json?", o: ["Để hiển thị dạng chữ", "Báo trình duyệt biết đây là dữ liệu JSON để parse tự động", "Bảo mật", "Tăng tốc độ mạng"], a: 1 },
-      { q: "Hàm is_numeric() dùng để làm gì trong API?", o: ["Băm mật khẩu", "Kiểm tra xem tham số nhận được có phải là số hợp lệ không", "Tìm kiếm chữ", "Tải trang"], a: 1 }
+      { q: "Mã trạng thái HTTP nào biểu thị lỗi từ phía người dùng gửi dữ liệu sai cấu trúc?", o: ["200 OK", "404 Not Found", "400 Bad Request", "500 Server Error"], a: 2 },
+      { q: "Tại sao cần dùng json_encode() trước khi in dữ liệu trả về?", o: ["Để nén file", "Để chuyển đổi mảng/đối tượng PHP thành định dạng chuỗi JSON chuẩn quốc tế mà JavaScript có thể đọc", "Để mã hóa mật khẩu", "Tăng tốc độ truyền mạng"], a: 1 }
     ]
   },
   {
     id: "lesson10",
-    title: "10. Bảo mật nâng cao & Tối ưu hóa",
+    title: "10. Security & Web Optimization (OWASP Security Standards)",
     lang: "php",
     file: "src/lesson10.php",
     theory: `### LÝ THUYẾT & ĐỊNH NGHĨA
-Hai lỗ hổng bảo mật nguy hiểm hàng đầu trên web là: XSS (Cross-Site Scripting - tiêm nhiễm mã độc JavaScript vào trình duyệt) và SQL Injection (chèn câu truy vấn SQL trái phép để lấy hoặc phá hủy dữ liệu).
+Theo tiêu chuẩn bảo mật của **OWASP** (Open Web Application Security Project) được giảng dạy tại **freeCodeCamp** và **The Odin Project**, các mối đe dọa hàng đầu gồm XSS (tiêm nhiễm script phá hoại giao diện) và SQL Injection (chiếm quyền truy vấn dữ liệu). Học viên bắt buộc phải nắm rõ cách phòng chống:
+1. **Chống XSS**: Sử dụng hàm \`htmlspecialchars()\` làm sạch mọi dữ liệu lấy từ người dùng trước khi in ra HTML.
+2. **Chống SQL Injection**: Sử dụng các câu truy vấn có chuẩn bị (Prepared Statements).
+3. **Bảo mật mật khẩu**: Tuyệt đối không lưu mật khẩu dạng thô. Bắt buộc sử dụng hàm \`password_hash()\` với thuật toán mạnh như \`PASSWORD_BCRYPT\`.
 
 ### ÁP DỤNG HỆ THỐNG
-Học cách sử dụng \`htmlspecialchars()\` để làm sạch dữ liệu hiển thị (chống XSS), sử dụng Prepared Statements (chống SQL Injection), và băm mật khẩu bằng thuật toán mạnh \`password_hash()\` kèm muối bảo mật (salt).
+Mật khẩu của thành viên trên cổng HugoCoder đều được băm bằng thuật toán BCRYPT và muối bảo mật ngẫu nhiên, giúp chống lại các cuộc tấn công dò tìm bảng mã băm (Rainbow Table attacks) ngay cả khi database bị rò rỉ.
 
 ### THỰC HÀNH NHỎ
-Vá các lỗ hổng bảo mật cơ bản bằng cách áp dụng các hàm băm và escape của PHP.
+Vá các lỗ hổng bảo mật cơ bản bằng cách áp dụng hàm băm và làm sạch dữ liệu của PHP.
 
 ### KIỂM TRA HOÀN TẤT
-Đảm bảo mã nguồn áp dụng đồng thời cả 3 quy tắc: \`htmlspecialchars()\`, \`prepare()\` kết hợp \`execute()\`, và \`password_hash()\` với thuật toán \`PASSWORD_BCRYPT\`.`,
+Đảm bảo tệp PHP áp dụng đồng thời: \`htmlspecialchars()\`, \`prepare()\` cùng \`execute()\`, và \`password_hash()\` với \`PASSWORD_BCRYPT\`.`,
     tasks: [
-      "Viết tệp PHP xử lý đăng ký tài khoản an toàn: chống XSS đầu ra, chống SQL Injection truy vấn và băm mật khẩu."
+      "Triển khai quy chuẩn bảo mật OWASP: chống XSS đầu ra, chống SQL Injection truy vấn và băm mật khẩu an toàn."
     ],
     starterCode: `<?php
 // XSS Prevention
@@ -450,8 +471,8 @@ $hashed = password_hash($_POST['password'] ?? '', PASSWORD_BCRYPT);
     },
     practiceType: "code_challenge",
     miniQuiz: [
-      { q: "Thuật toán nào sau đây được khuyến nghị cho băm mật khẩu trong PHP?", o: ["md5", "sha1", "PASSWORD_BCRYPT", "base64_encode"], a: 2 },
-      { q: "Mục đích chính của hàm htmlspecialchars() là gì?", o: ["Bảo mật chống SQL Injection", "Bảo mật chống XSS (Cross-site scripting) bằng cách vô hiệu hóa thẻ HTML", "Tối ưu hóa tốc độ trang", "Nén file"], a: 1 }
+      { q: "Thuật toán băm nào sau đây KHÔNG an toàn để lưu mật khẩu?", o: ["PASSWORD_BCRYPT", "md5 (vì dễ bị giải mã ngược qua bảng cầu vồng)", "PASSWORD_ARGON2I", "Argon2id"], a: 1 },
+      { q: "Tham số ENT_QUOTES trong htmlspecialchars() có tác dụng gì?", o: ["Mã hóa cả dấu nháy đơn và nháy kép để chống XSS trong thuộc tính HTML", "Làm chữ in hoa", "Nén dung lượng", "Tạo liên kết"], a: 0 }
     ]
   }
 ];

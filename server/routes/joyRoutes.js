@@ -206,33 +206,46 @@ router.post('/award-learning', requireMember, async (req, res) => {
       return res.status(400).json({ error: 'Bài nộp cần đạt tối thiểu 60% để nhận thưởng JOY.' });
     }
 
-    // Daily cap validation: max 2 lessons completed per calendar day in ICT (GMT+7)
-    const now = new Date();
-    const ictOffset = 7 * 60 * 60 * 1000;
-    const ictNow = new Date(now.getTime() + ictOffset);
-    const ictTodayStart = new Date(ictNow.getUTCFullYear(), ictNow.getUTCMonth(), ictNow.getUTCDate());
-    const utcTodayStart = new Date(ictTodayStart.getTime() - ictOffset);
 
-    const count = await JoyLedger.countDocuments({
-      email: bio.email,
-      source: 'ide_learning',
-      createdAt: { $gte: utcTodayStart }
-    });
 
-    if (count >= 2) {
-      return res.status(400).json({ error: 'Mỗi ngày chỉ được hoàn thành tối đa 2 bài học.' });
-    }
-
-    const awardAmount = lessonId === 'lesson10' ? 450 : 100;
-    const result = await awardJoy(
-      email,
-      awardAmount,
-      'ide_learning',
-      `Hoàn thành bài học HugoCoder: ${lessonId}${Number.isFinite(score) ? ` (${score}%)` : ''}`,
-      { bioDoc: bio, refId: lessonId }
-    );
     bio.completedLessons.push(lessonId);
     bio.markModified('completedLessons');
+    await bio.save();
+
+    res.json({ success: true, balance: bio.joyBalance });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+// POST /api/joy/award-course-completion
+router.post('/award-course-completion', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    if (bio.courseCompletionAwardClaimed) {
+      return res.status(400).json({ error: 'Bạn đã nhận phần thưởng hoàn thành khóa học rồi.' });
+    }
+
+    if (!bio.completedLessons || !bio.completedLessons.includes('lesson50')) {
+      return res.status(400).json({ error: 'Bạn cần hoàn thành toàn bộ 50 bài học trước khi nhận thưởng.' });
+    }
+
+    const result = await awardJoy(
+      email,
+      10000,
+      'ide_course_completion',
+      'Đạt thành tích Xuất Sắc tốt nghiệp HugoCoder (+10,000 JOY)',
+      { bioDoc: bio, refId: 'lesson50_completion' }
+    );
+
+    bio.courseCompletionAwardClaimed = true;
     await bio.save();
 
     res.json({ success: true, balance: result.balance });

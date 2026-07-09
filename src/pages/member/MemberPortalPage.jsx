@@ -782,6 +782,7 @@ export default function MemberPortalPage() {
                 defaultPsychologyPresetTest={defaultPsychologyPresetTest}
                 sleepAutoDetect={sleepAutoDetect}
                 onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
+                ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null}
               />
             </React.Suspense>
           </ErrorBoundary>
@@ -973,7 +974,7 @@ export default function MemberPortalPage() {
                 )}
                 {visitedTabs.has("utilities") && (
                   <div style={{ display: activeTab === "utilities" ? undefined : "none", padding: "0 12px"  }}>
-                    <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} />
+                    <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
                   </div>
                 )}
                 {visitedTabs.has("history") && (

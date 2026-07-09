@@ -16,7 +16,7 @@ const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
 const DecoStudioTab = lazy(() => import("./DecoStudioTab"));
 const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
   const { t } = useTranslation();
   const { data } = useData();
 
@@ -86,7 +86,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* Web IDE Tool */}
       {selectedUtility === "ide" && (
-        <MemberIdeTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+        <MemberIdeTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} urlLessonId={ideLessonId} />
       )}
 
       {/* Hugo Team — Recruitment */}

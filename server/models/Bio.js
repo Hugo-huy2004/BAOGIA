@@ -381,6 +381,10 @@ const BioSchema = new mongoose.Schema(
     hugoCoderAdvancedLifetime: {
       type: Boolean,
       default: false
+    },
+    courseCompletionAwardClaimed: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }
