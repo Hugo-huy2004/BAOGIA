@@ -437,6 +437,20 @@
       }
     },
     "studentPlans": {
+      "exclusiveBio": {
+        "label": "HSSV",
+        "name": "Trang Bio Độc Quyền",
+        "price": "99.000đ",
+        "note": "Thiết kế may đo, chỉ một trang duy nhất không trùng lặp với ai.",
+        "desc": "Một trang giới thiệu bản thân hoàn toàn độc lập với thiết kế riêng dành riêng cho bạn. Tối ưu để xin việc, học bổng hay kết nối mạng xã hội — mọi thứ trên một trang bio mình chọn.",
+        "tagline": "Khác biệt trong vài dòng",
+        "includes": [
+          "Thiết kế trang Bio độc đáo, không trùng lặp — riêng biệt cho bạn",
+          "Tối đa 5 liên kết (Github, LinkedIn, portfolio, mạng xã hội...)",
+          "Phần giới thiệu về bản thân (tóm tắt, sở thích, kỹ năng chọn lọc)",
+          "Tối ưu hiển thị đẹp trên Desktop & Mobile (Responsive)"
+        ]
+      },
       "bug": {
         "label": "HSSV",
         "name": "Sửa lỗi Coursework",
