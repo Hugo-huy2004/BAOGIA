@@ -806,7 +806,7 @@ export default function ServicesPage() {
                   <p className="mt-1 text-[11px] text-muted-foreground/80 leading-normal">{plan.note}</p>
                   <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{plan.desc}</p>
                   <div className="mt-6 border-t border-border/60 pt-4">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Bạn nhận được:</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{i18n.language.startsWith("vi") ? "Bạn nhận được:" : "What's included:"}</p>
                     <ul className="mt-3 space-y-2">
                       {plan.includes?.map((item) => (
                         <li key={item} className="flex items-start gap-2 text-xs leading-relaxed text-foreground/80">
@@ -822,7 +822,7 @@ export default function ServicesPage() {
                     to={`/booking?type=student&plan=${plan.id}`}
                     className="block w-full text-center rounded-2xl bg-foreground py-3 text-xs font-bold text-background transition-all hover:bg-foreground/90 active:scale-98"
                   >
-                    Liên hệ đăng ký
+                    {i18n.language.startsWith("vi") ? "Liên hệ đăng ký" : "Order Student Plan"}
                   </Link>
                 </div>
               </motion.article>
