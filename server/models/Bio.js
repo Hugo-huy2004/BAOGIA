@@ -313,6 +313,14 @@ const BioSchema = new mongoose.Schema(
         expiresAt: { type: Date, default: null },
         active: { type: Boolean, default: false }
       },
+      hugoCoderIntermediate: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      },
+      hugoCoderAdvanced: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      },
       hugoAura: {
         expiresAt: { type: Date, default: null },
         active: { type: Boolean, default: false }
@@ -365,6 +373,14 @@ const BioSchema = new mongoose.Schema(
       },
       positions: { type: mongoose.Schema.Types.Mixed, default: {} },
       unlockedItems: { type: [String], default: [] }
+    },
+    hugoCoderIntermediateLifetime: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderAdvancedLifetime: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

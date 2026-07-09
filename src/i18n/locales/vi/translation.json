@@ -652,10 +652,6 @@
         {
           "q": "Sau bàn giao có hỗ trợ không?",
           "a": "Có. Mình hướng dẫn sử dụng, giải đáp thắc mắc và xử lý lỗi phát sinh trong phạm vi đã chốt."
-        },
-        {
-          "q": "HSSV có được giảm giá không?",
-          "a": "Có. HSSV được giảm 20% trên toàn bộ các gói dịch vụ làm web (Landing từ 799k, Web nhiều trang từ 1.99M, Web App từ 5.59M). Mình hỗ trợ xây dựng phần kỹ thuật/viết code cho bài tập cuối môn (Coursework) nhưng TUYỆT ĐỐI không viết báo cáo (Report) hộ và không nhận làm Đồ án tốt nghiệp. Các bạn cần tự đọc hiểu code và tự viết báo cáo học thuật."
         }
       ]
     },

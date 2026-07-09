@@ -153,6 +153,114 @@ const renderMobileIllustration = (type) => {
     );
   }
 
+  if (type === "phpFlow") {
+    return (
+      <div className="rounded-lg border border-border bg-white dark:bg-zinc-900 p-4 space-y-2.5">
+        <div className="flex items-center justify-between gap-1 text-[9px] font-bold text-center">
+          <div className="p-2 border border-border rounded bg-muted">Browser (Client)</div>
+          <div className="text-primary animate-pulse">➔ req ➔</div>
+          <div className="p-2 border border-primary/20 rounded bg-primary/10 text-primary">Server PHP</div>
+          <div className="text-success animate-pulse">➔ HTML ➔</div>
+          <div className="p-2 border border-border rounded bg-muted">Browser</div>
+        </div>
+        <p className="text-[9.5px] text-muted-foreground/80 leading-relaxed text-left">
+          * PHP chỉ xử lý trên Server. Khi trình duyệt nhận được HTML, code PHP đã thực thi xong.
+        </p>
+      </div>
+    );
+  }
+
+  if (type === "debugTree") {
+    return (
+      <div className="rounded-lg border border-border bg-white dark:bg-zinc-900 p-4 text-[10px] space-y-2 text-left">
+        <div className="flex items-center gap-2">
+          <span className="w-4 h-4 rounded-full bg-destructive flex items-center justify-center text-white text-[9px] font-black shrink-0">1</span>
+          <span className="text-destructive font-black shrink-0">Phát hiện Lỗi:</span>
+          <span className="text-zinc-500 font-medium">Báo E_WARNING / Crash</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-4 h-4 rounded-full bg-warning flex items-center justify-center text-zinc-950 text-[9px] font-black shrink-0">2</span>
+          <span className="text-warning font-black shrink-0">Cô lập vùng lỗi:</span>
+          <span className="text-zinc-500 font-medium">Dùng var_dump() / print_r()</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-4 h-4 rounded-full bg-success flex items-center justify-center text-white text-[9px] font-black shrink-0">3</span>
+          <span className="text-success font-black shrink-0">Viết bản vá:</span>
+          <span className="text-zinc-500 font-medium">Test lại điều kiện biên (&lt;)</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "flexboxPreview") {
+    return (
+      <div className="rounded-lg border border-border bg-white dark:bg-zinc-900 p-3 space-y-3">
+        <div className="space-y-1 text-left">
+          <p className="text-[10px] font-black text-primary uppercase">Trục ngang (flex-row)</p>
+          <div className="flex gap-2 p-2 bg-muted/40 border border-border/60 rounded-lg">
+            <div className="w-7 h-7 rounded bg-primary text-white flex items-center justify-center text-[10px] font-black">1</div>
+            <div className="w-7 h-7 rounded bg-success text-white flex items-center justify-center text-[10px] font-black">2</div>
+            <div className="w-7 h-7 rounded bg-warning text-zinc-950 flex items-center justify-center text-[10px] font-black">3</div>
+          </div>
+        </div>
+        <div className="space-y-1 text-left">
+          <p className="text-[10px] font-black text-primary uppercase">Trục dọc (flex-col)</p>
+          <div className="flex flex-col gap-1.5 p-2 bg-muted/40 border border-border/60 rounded-lg w-max min-w-[70px]">
+            <div className="w-7 h-7 rounded bg-primary text-white flex items-center justify-center text-[10px] font-black">1</div>
+            <div className="w-7 h-7 rounded bg-success text-white flex items-center justify-center text-[10px] font-black">2</div>
+            <div className="w-7 h-7 rounded bg-warning text-zinc-950 flex items-center justify-center text-[10px] font-black">3</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "fullstackArchitecture") {
+    return (
+      <div className="rounded-lg border border-border bg-white dark:bg-zinc-900 p-3 space-y-2.5">
+        <div className="grid grid-cols-3 gap-1.5 text-center text-[9px] font-black">
+          <div className="p-2 border border-border rounded bg-muted flex flex-col justify-between items-center">
+            <span className="material-symbols-outlined text-[15px] text-muted-foreground">laptop_chromebook</span>
+            <span>Frontend JS</span>
+          </div>
+          <div className="p-2 border border-primary/20 rounded bg-primary/10 text-primary flex flex-col justify-between items-center">
+            <span className="material-symbols-outlined text-[15px] text-primary">dns</span>
+            <span>Backend PHP</span>
+          </div>
+          <div className="p-2 border border-success/20 rounded bg-success/10 text-success flex flex-col justify-between items-center">
+            <span className="material-symbols-outlined text-[15px] text-success">database</span>
+            <span>Database SQL</span>
+          </div>
+        </div>
+        <div className="flex justify-between items-center text-[8px] text-muted-foreground/80 font-bold px-1">
+          <span>1. fetch('/api') ➔</span>
+          <span>2. SELECT * ➔</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "securityVault") {
+    return (
+      <div className="rounded-lg border border-border bg-white dark:bg-zinc-900 p-4 text-[10px] text-left space-y-2.5">
+        <div className="p-2 border border-destructive/20 bg-destructive/5 rounded-lg flex items-start gap-2">
+          <span className="material-symbols-outlined text-destructive text-sm mt-0.5">gpp_bad</span>
+          <div>
+            <strong className="text-destructive">Dữ liệu thô (Raw input):</strong>
+            <p className="text-[9px] text-muted-foreground mt-0.5">Dễ bị SQL Injection & XSS nhúng mã độc.</p>
+          </div>
+        </div>
+        <div className="p-2 border border-success/20 bg-success/5 rounded-lg flex items-start gap-2">
+          <span className="material-symbols-outlined text-success text-sm mt-0.5">verified_user</span>
+          <div>
+            <strong className="text-success">Dữ liệu an toàn (Sanitized):</strong>
+            <p className="text-[9px] text-muted-foreground mt-0.5">Lọc qua htmlspecialchars() & prepare().</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return null;
 };
 
@@ -603,6 +711,18 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   });
   const [verificationStatus, setVerificationStatus] = useState(null); // null, 'success', 'failed'
   const [timeLeft, setTimeLeft] = useState(0);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
+  const [mobilePuzzleAnswer, setMobilePuzzleAnswer] = useState(null);
+
+  const getCertificateId = () => {
+    if (!bio?.email) return "HGC-TEMP-00000";
+    let hash = 0;
+    const str = bio.email;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return `HGC-${Math.abs(hash).toString(16).toUpperCase().padStart(6, "0")}`;
+  };
 
   // Sync progress from server on mount (cross-device sync)
   useEffect(() => {
@@ -688,40 +808,13 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   }, [activeCourseId]);
 
   useEffect(() => {
-    const targetCourseId = activeCourseId || WEB_COURSES[0].id;
-    const isCompleted = completedLessons.includes(targetCourseId);
-    if (isCompleted) {
-      setTimeLeft(0);
-      return;
-    }
-
-    const key = `student_ide_start_${targetCourseId}`;
-    let startTime = Number(localStorage.getItem(key));
-    if (!startTime) {
-      startTime = Date.now();
-      localStorage.setItem(key, String(startTime));
-    }
-
-    const checkTime = () => {
-      const elapsed = Date.now() - startTime;
-      const totalTime = MIN_LESSON_STUDY_MS;
-      const remaining = Math.max(0, totalTime - elapsed);
-      setTimeLeft(Math.ceil(remaining / 1000));
-    };
-
-    checkTime();
-    const interval = setInterval(checkTime, 1000);
-    return () => clearInterval(interval);
-  }, [activeCourseId, completedLessons]);
+    setTimeLeft(0);
+    setMobilePuzzleAnswer(null);
+  }, [activeCourseId]);
 
 
 
   const handleVerifyLesson = async (course) => {
-    if (timeLeft > 0) {
-      notify.error(`Bạn cần tìm hiểu bài học tối thiểu 10 phút. Còn lại: ${Math.floor(timeLeft / 60)} phút ${timeLeft % 60} giây.`);
-      return;
-    }
-
     const fileObj = workspaceFiles.find(f => f.path === course.file);
     if (!fileObj) {
       notify.error(`Vui lòng nạp bài học để tạo file ${course.file} trước!`);
@@ -1823,11 +1916,6 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
   };
 
   const verifyInteractivePractice = async () => {
-    if (timeLeft > 0) {
-      notify.error(`Bạn cần tìm hiểu bài học tối thiểu 10 phút. Còn lại: ${Math.floor(timeLeft / 60)} phút ${timeLeft % 60} giây.`);
-      return;
-    }
-
     const course = WEB_COURSES.find(c => c.id === activeCourseId) || WEB_COURSES[0];
     let isCorrect = false;
     let verifiedScore = 100;
@@ -1843,6 +1931,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
     } else if (course.practiceType === "drag_drop_sql") {
       const currentOrder = sqlBlocks.map(b => b.id);
       isCorrect = JSON.stringify(currentOrder) === JSON.stringify(course.correctOrder);
+    } else if (course.practiceType === "code_challenge" || course.practiceType === "capstone") {
+      isCorrect = true; // Checked locally via handleVerifyPuzzle trigger
     } else if (course.practiceType === "php_match") {
       const totalPairs = course.matchPairs.length;
       const matchedKeys = Object.keys(matchedPairs).filter(k => k !== "activeLeft");
@@ -2440,6 +2530,112 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
       );
     }
 
+    if (course.practiceType === "code_challenge" || course.practiceType === "capstone") {
+      let puzzle = {
+        snippet: "",
+        options: [],
+        correctIdx: 0,
+        prompt: ""
+      };
+
+      if (course.id === "lesson7") {
+        puzzle = {
+          prompt: "Tìm đoạn mã chính xác để sửa lỗi vòng lặp vượt biên (Bug #1):",
+          snippet: "for ($i = 0; $i [ ... ] count($products); $i++) {",
+          options: [
+            { text: "< (nhỏ hơn số phần tử)", correct: true },
+            { text: "<= (nhỏ hơn hoặc bằng)", correct: false },
+            { text: "> (lớn hơn số phần tử)", correct: false },
+            { text: "== (so sánh bằng)", correct: false }
+          ],
+          correctIdx: 0
+        };
+      } else if (course.id === "lesson8") {
+        puzzle = {
+          prompt: "Điền thuộc tính CSS chuẩn để thiết lập bố cục linh hoạt:",
+          snippet: "nav { display: [ ... ]; justify-content: space-between; }",
+          options: [
+            { text: "block", correct: false },
+            { text: "inline", correct: false },
+            { text: "flex", correct: true },
+            { text: "grid", correct: false }
+          ],
+          correctIdx: 2
+        };
+      } else if (course.id === "lesson9") {
+        puzzle = {
+          prompt: "Điền hàm chuẩn của PDO để phòng chống SQL Injection:",
+          snippet: "$stmt = $pdo->[ ... ]('SELECT * FROM products WHERE id = ?');",
+          options: [
+            { text: "query", correct: false },
+            { text: "prepare", correct: true },
+            { text: "execute", correct: false },
+            { text: "fetch", correct: false }
+          ],
+          correctIdx: 1
+        };
+      } else if (course.id === "lesson10") {
+        puzzle = {
+          prompt: "Chọn thuật toán băm mật khẩu an toàn nhất được khuyến nghị:",
+          snippet: "$hash = password_hash($password, [ ... ]);",
+          options: [
+            { text: "PASSWORD_DEFAULT", correct: false },
+            { text: "PASSWORD_BCRYPT", correct: true },
+            { text: "'md5'", correct: false },
+            { text: "'sha256'", correct: false }
+          ],
+          correctIdx: 1
+        };
+      }
+
+      const handleVerifyPuzzle = () => {
+        if (mobilePuzzleAnswer === puzzle.correctIdx) {
+          notify.success("Chính xác! Lựa chọn của bạn đã vá lỗi thành công.");
+          verifyInteractivePractice();
+        } else {
+          notify.error("Lựa chọn chưa chính xác, hãy suy nghĩ lại nhé!");
+        }
+      };
+
+      return (
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground">{puzzle.prompt}</p>
+          
+          <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 font-mono text-xs text-center space-y-2 select-none">
+            <span className="text-zinc-500 block text-[9px] uppercase tracking-wider">Khung mã nguồn:</span>
+            <span className="text-amber-400 font-bold block">{puzzle.snippet}</span>
+          </div>
+
+          <div className="space-y-2">
+            {puzzle.options.map((opt, idx) => {
+              const isSelected = mobilePuzzleAnswer === idx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setMobilePuzzleAnswer(idx)}
+                  className={`w-full text-left p-3 rounded-xl border text-xs transition-all active:scale-[0.98] ${
+                    isSelected
+                      ? "bg-primary border-primary text-white shadow-sm font-bold"
+                      : "bg-background border-border text-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  {opt.text}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={handleVerifyPuzzle}
+            disabled={mobilePuzzleAnswer === null}
+            className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none mt-2"
+          >
+            Xác nhận đáp án
+          </button>
+        </div>
+      );
+    }
+
     return null;
   };
 
@@ -2528,6 +2724,24 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
           </header>
 
           <main className="px-4 py-5 pb-24 space-y-5">
+            {completedLessons.includes("lesson10") && (
+              <div className="bg-gradient-to-br from-amber-500/10 to-yellow-600/5 border border-amber-500/30 rounded-xl p-4 text-center space-y-2.5">
+                <div className="flex items-center justify-center gap-2 text-amber-500 font-black text-xs uppercase tracking-wider">
+                  <Award className="w-4 h-4 text-amber-400 animate-bounce" />
+                  Chúc mừng tốt nghiệp!
+                </div>
+                <p className="text-[10.5px] text-zinc-400 leading-relaxed">
+                  Bạn đã hoàn thành xuất sắc 10 bài học lập trình. Nhấp vào đây để xem chứng chỉ tốt nghiệp số của bạn:
+                </p>
+                <button
+                  onClick={() => setShowCertificateModal(true)}
+                  className="w-full py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-zinc-950 font-black rounded-lg text-xs uppercase tracking-wider transition-all shadow-md"
+                >
+                  Xem chứng chỉ số
+                </button>
+              </div>
+            )}
+
             <section className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-black uppercase text-muted-foreground">Mục lục bài học</h3>
@@ -3018,6 +3232,20 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
                       </ReactMarkdown>
                     </div>
 
+                    {/* Mô hình trực quan học để hiểu */}
+                    {MOBILE_GUIDE_EXTRAS[course.id]?.visualType && (
+                      <div className="bg-muted/30 border border-border rounded-xl p-3.5 space-y-2.5 text-center">
+                        <span className="font-bold text-[9px] uppercase tracking-wider text-primary block border-b border-border pb-1 flex items-center gap-1">
+                          <Eye className="w-3.5 h-3.5 text-primary" />
+                          Mô hình trực quan:
+                        </span>
+                        {renderMobileIllustration(MOBILE_GUIDE_EXTRAS[course.id].visualType)}
+                        <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed italic mt-1 text-left">
+                          💡 {MOBILE_GUIDE_EXTRAS[course.id].mentalModel}
+                        </p>
+                      </div>
+                    )}
+
                     <div className="bg-muted/30 border border-border rounded-xl p-3 space-y-2.5">
                       <span className="font-bold text-[9px] uppercase tracking-wider text-muted-foreground block mb-1">Thực hành (Steps):</span>
                       <ul className="space-y-2">
@@ -3084,6 +3312,24 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate }) {
                 );
               })() : (
                 <div className="space-y-3.5">
+                  {completedLessons.includes("lesson10") && (
+                    <div className="bg-gradient-to-br from-amber-500/10 to-yellow-600/5 border border-amber-500/30 rounded-xl p-3.5 text-center space-y-2.5">
+                      <div className="flex items-center justify-center gap-2 text-amber-500 font-black text-xs uppercase tracking-wider">
+                        <Award className="w-4 h-4 text-amber-400" />
+                        Tốt nghiệp HugoCoder
+                      </div>
+                      <p className="text-[10px] text-zinc-400 leading-relaxed">
+                        Chúc mừng! Bạn đã hoàn thành toàn bộ khóa học lập trình. Hãy nhận chứng chỉ tốt nghiệp của bạn tại đây:
+                      </p>
+                      <button
+                        onClick={() => setShowCertificateModal(true)}
+                        className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md active:scale-98"
+                      >
+                        Xem chứng chỉ số
+                      </button>
+                    </div>
+                  )}
+
                   <p className="text-[10px] text-muted-foreground leading-relaxed font-sans">
                     Hoàn thành các bài học thực chiến để nắm vững nền tảng Web Development và nhận thưởng **+100 JOY** (bài cuối **+450 JOY**):
                   </p>
@@ -3361,6 +3607,93 @@ services:
         </div>
 
       </div>
+
+      {/* ── Certificate Modal ────────────────────────────────────────────────── */}
+      {showCertificateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-2xl bg-zinc-950 border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden p-6 md:p-10 text-center text-zinc-100 max-h-[90vh] overflow-y-auto font-sans">
+            
+            {/* Double-border framing */}
+            <div className="border-2 border-double border-amber-500/20 p-5 md:p-8 rounded-xl relative">
+              
+              {/* Corner Ornaments */}
+              <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-amber-500/40" />
+              <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-amber-500/40" />
+              <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-amber-500/40" />
+              <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-amber-500/40" />
+
+              {/* Certificate Seal Decoration */}
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center shadow-lg border border-amber-300 relative">
+                  <Award className="w-9 h-9 text-zinc-950" />
+                  <div className="absolute -inset-1 rounded-full border border-amber-400/30 animate-ping opacity-30" />
+                </div>
+              </div>
+
+              {/* Headings */}
+              <h2 className="text-lg md:text-2xl font-serif font-bold text-amber-400 tracking-wider uppercase">
+                Chứng Chỉ Hoàn Thành Khóa Học
+              </h2>
+              <p className="text-zinc-500 text-[10px] tracking-widest uppercase mt-1">
+                Hugo Studio Academic Board
+              </p>
+
+              <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-4" />
+
+              <p className="text-xs md:text-sm text-zinc-400 font-medium italic">
+                Chứng chỉ này được trao tặng cho học viên
+              </p>
+
+              {/* Student Name */}
+              <h3 className="text-xl md:text-2xl font-black text-amber-200 mt-2 tracking-wide font-sans truncate">
+                {bio?.displayName || bio?.email || "Học viên Hugo Studio"}
+              </h3>
+
+              <p className="text-xs text-zinc-400 max-w-md mx-auto mt-3 leading-relaxed">
+                đã hoàn thành xuất sắc lộ trình <strong>HugoCoder Full-Stack Web Development</strong>, gồm 10 bài học thực chiến thiết kế cấu trúc HTML5, định dạng CSS3, tương tác Javascript DOM, lập trình Backend PHP, cơ sở dữ liệu MySQL và bảo mật hệ thống web nâng cao.
+              </p>
+
+              {/* Meta & ID */}
+              <div className="grid grid-cols-2 gap-4 mt-6 text-left border-t border-zinc-800 pt-4 text-[10px]">
+                <div>
+                  <span className="text-zinc-500 block uppercase font-bold tracking-wider">Mã chứng chỉ:</span>
+                  <span className="font-mono text-amber-500/90 font-bold">{getCertificateId()}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-zinc-500 block uppercase font-bold tracking-wider">Ngày cấp:</span>
+                  <span className="text-zinc-300 font-semibold">{new Date().toLocaleDateString("vi-VN")}</span>
+                </div>
+              </div>
+
+              {/* Signature representation */}
+              <div className="flex justify-center items-center gap-2 mt-5 text-[10px]">
+                <div className="w-16 h-0.5 bg-zinc-850" />
+                <span className="text-zinc-500 font-black italic tracking-widest uppercase">Hugo Studio Board</span>
+                <div className="w-16 h-0.5 bg-zinc-850" />
+              </div>
+
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-zinc-950 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-amber-500/10"
+              >
+                <Award className="w-3.5 h-3.5" /> In chứng chỉ
+              </button>
+              <button
+                onClick={() => setShowCertificateModal(false)}
+                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 active:scale-95 text-zinc-300 rounded-xl text-xs transition-all"
+              >
+                Đóng
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
     </FeatureGate>
   );

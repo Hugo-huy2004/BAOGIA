@@ -372,6 +372,7 @@ export default function ChatTab({
   // without waiting for a re-render.
   const testCompletingRef = useRef(false);
   const [remainingChatTokens, setRemainingChatTokens] = useState(10);
+  const [maxChatTokens, setMaxChatTokens] = useState(20);
   const [tokenLockMinutes, setTokenLockMinutes] = useState(0);
   const [inputText, setInputText] = useState("");
   const [chatQuickReplies, setChatQuickReplies] = useState([]);
@@ -384,6 +385,7 @@ export default function ChatTab({
     const data = await botManager.getRemainingTokens();
     if (data && typeof data.remaining === "number") {
       setRemainingChatTokens(data.remaining);
+      if (typeof data.max === "number") setMaxChatTokens(data.max);
       setTokenLockMinutes(data.locked ? (data.lockMinutes || 180) : 0);
     }
   }, [botManager]);
@@ -1420,8 +1422,8 @@ export default function ChatTab({
     // 4. Streaming conversational LLM AI server (costs 3 tokens on success).
     const bonusTokens = bio?.bonusChatTokens || 0;
     if (remainingChatTokens + bonusTokens <= 0) {
-      showToast?.("Hết token chat hôm nay. Quay lại vào ngày mai nhé!", "warning");
       setLoading(false);
+      setShowTokenExchangeModal(true); // Open exchange modal directly
       return;
     }
 
@@ -1602,9 +1604,9 @@ export default function ChatTab({
               ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
               : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
           }`}
-            title={tokenLockMinutes > 0 ? `Khóa ~${tokenLockMinutes} phút` : `Token: ${remainingChatTokens + (bio?.bonusChatTokens || 0)}/10`}>
+            title={tokenLockMinutes > 0 ? `Khóa ~${tokenLockMinutes} phút` : `Token: ${remainingChatTokens + (bio?.bonusChatTokens || 0)}/${maxChatTokens}`}>
             <span className="material-symbols-outlined text-[11px] drop-shadow-sm">{tokenLockMinutes > 0 ? "lock" : "bolt"}</span>
-            {tokenLockMinutes > 0 ? "Khóa" : `${remainingChatTokens + (bio?.bonusChatTokens || 0)}/10`}
+            {tokenLockMinutes > 0 ? "Khóa" : `${remainingChatTokens + (bio?.bonusChatTokens || 0)}/${maxChatTokens}`}
           </div>
 
           {/* Re-test button (desktop, inside active journey) */}
@@ -1748,30 +1750,49 @@ export default function ChatTab({
             paddingBottom: keyboardInset > 0 ? "8px" : "max(16px, env(safe-area-inset-bottom))",
           }}
         >
-          <div className="pointer-events-auto max-w-3xl mx-auto bg-white/60 dark:bg-[#060609]/60 backdrop-blur-3xl rounded-[32px] border border-border/50/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-1.5 transition-all">
-            <ChatInputBar
-              inputRef={inputRef}
-              value={inputText}
-              onChange={setInputText}
-              onSend={handleSendFreeText}
-              disabled={tokenLockMinutes > 0 || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 || loading}
-              placeholder={
-                tokenLockMinutes > 0
-                  ? `Token PSY bị khóa ~${tokenLockMinutes} phút...`
-                  : (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0
-                  ? "Hết token hôm nay..."
-                  : isVentingMode
-                  ? "Trút bỏ mọi muộn phiền tại đây (riêng tư)..."
-                  : "Nhắn tin với HugoPSY..."
-              }
-              quickReplies={chatQuickReplies}
-              onQuickReply={(qr) => {
-                const msgText = typeof qr === "string" ? qr : (qr.text || qr.label || "");
-                if (!msgText || loading) return;
-                setInputText("");
-                handleSendFreeText(msgText);
-              }}
-            />
+          <div className="pointer-events-auto max-w-3xl mx-auto space-y-2">
+            {/* Quick Purchase Ribbon when out of tokens */}
+            {(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 && (
+              <div className="mx-2 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 border border-amber-500/20 dark:border-amber-500/30 rounded-2xl flex items-center justify-between shadow-sm animate-fadeIn">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-amber-500 text-sm animate-pulse">bolt</span>
+                  <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300">Hết token trò chuyện hôm nay</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowTokenExchangeModal(true)}
+                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white text-[10px] font-black transition-all shadow-md shrink-0"
+                >
+                  Mua nhanh bằng JOY
+                </button>
+              </div>
+            )}
+
+            <div className="bg-white/60 dark:bg-[#060609]/60 backdrop-blur-3xl rounded-[32px] border border-border/50/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-1.5 transition-all">
+              <ChatInputBar
+                inputRef={inputRef}
+                value={inputText}
+                onChange={setInputText}
+                onSend={handleSendFreeText}
+                disabled={tokenLockMinutes > 0 || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 || loading}
+                placeholder={
+                  tokenLockMinutes > 0
+                    ? `Token PSY bị khóa ~${tokenLockMinutes} phút...`
+                    : (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0
+                    ? "Hết token hôm nay..."
+                    : isVentingMode
+                    ? "Trút bỏ mọi muộn phiền tại đây (riêng tư)..."
+                    : "Nhắn tin với HugoPSY..."
+                }
+                quickReplies={chatQuickReplies}
+                onQuickReply={(qr) => {
+                  const msgText = typeof qr === "string" ? qr : (qr.text || qr.label || "");
+                  if (!msgText || loading) return;
+                  setInputText("");
+                  handleSendFreeText(msgText);
+                }}
+              />
+            </div>
           </div>
         </div>
       )}

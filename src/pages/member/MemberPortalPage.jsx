@@ -30,7 +30,6 @@ import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
 import ParticleConnectModal from "../../components/member/shared/ParticleConnectModal";
 import { DashboardSkeleton } from "../../components/ui/SkeletonLayouts";
-
 // Maps a raw Bio document onto the editable formData shape — pulled out so
 // both the lazy-cache hydrate (instant paint) and the real fetch (revalidate)
 // build the exact same shape.
@@ -936,6 +935,8 @@ export default function MemberPortalPage() {
             </div>
           )}
         </header>
+
+
 
         {/* ── Tab Content ─────────────────────────────────────────────────────── */}
         <ErrorBoundary>

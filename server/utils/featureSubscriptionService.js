@@ -5,6 +5,8 @@ import { awardJoy } from './joyService.js';
 // routes never hardcode 150/199 independently.
 export const FEATURE_PRICES = {
   hugoCoder: 150,
+  hugoCoderIntermediate: 1999,
+  hugoCoderAdvanced: 6199,
   hugoAura: 150,
   hugoRadio: 150,
   hugoArcade: 199,
@@ -13,6 +15,8 @@ export const FEATURE_PRICES = {
 
 const FEATURE_LABELS = {
   hugoCoder: 'HugoCoder',
+  hugoCoderIntermediate: 'HugoCoder Trung Cấp',
+  hugoCoderAdvanced: 'HugoCoder Cao Cấp',
   hugoAura: 'HugoAura (Lofi & Cửa hàng giao diện)',
   hugoRadio: 'HugoRadio',
   hugoArcade: 'HugoArcade (Bứt phá & Huyền thoại)',

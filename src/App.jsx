@@ -24,6 +24,7 @@ import PWAQuickLogin from "./components/PWAQuickLogin";
 import DonationModal from "./components/ui/DonationModal";
 import { LazyMotion, domAnimation } from "framer-motion";
 import { initGlobalHaptics } from "./utils/haptics";
+import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -232,6 +233,9 @@ export default function App() {
   }, []);
 
   useEffect(() => initGlobalHaptics(), []);
+  // Fix: on mobile, after keyboard opens (≈380ms), scroll the focused input
+  // back into view in case a React re-render reset the scroll container.
+  useInputFocusScroll();
 
   return (
     <ErrorBoundary>

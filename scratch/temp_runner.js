@@ -6,8 +6,8 @@
  * Threshold lowered to 0.72 (from 0.80) for better recall with short/noisy input.
  */
 import Fuse from "fuse.js";
-import { matchTherapyMethod } from "./therapyMethods";
-import { loadSecureMemory, saveSecureMemory, updateMemoryFromText } from "../utils/secureMemory";
+import { matchTherapyMethod } from "../src/components/member/banhocduong/constants/therapyMethods.js";
+import { loadSecureMemory, saveSecureMemory, updateMemoryFromText } from "../src/components/member/banhocduong/utils/secureMemory.js";
 
 function getFriendlyName(bio) {
   if (!bio?.displayName) return "cậu";
@@ -1231,7 +1231,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
 
   // 4. Regex fast-path — O(n) rules, ~1ms, highest priority for pre-compiled static patterns.
   for (const rule of STATIC_RULES) {
-    if (rule.regex.test(cleanText)) {
+    if (rule.regex.test(cleanText)) { console.log("Matched regex rule:", rule.id);
       const intentObj = INTENT_MAP[rule.id];
       if (intentObj) {
         bestMatch = intentObj;
@@ -1245,7 +1245,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
   if (!bestMatch) {
     const fuse = getFuseInstance();
     const results = fuse.search(cleanText);
-    if (results.length > 0 && results[0].score < 0.50) {
+    if (results.length > 0 && results[0].score < 0.50) { console.log("Fuse search results:", results.slice(0, 3));
       // Guard: if input is a single word or very short, require a much stricter match score (< 0.15)
       const isShort = cleanText.length <= 6 || !cleanText.includes(" ");
       const maxAllowedScore = isShort ? 0.15 : 0.50;
@@ -1266,7 +1266,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
         getDiceSimilarity(text, item.original),
         getDiceSimilarity(cleanText, item.untoned)
       );
-      if (score > highestScore) {
+      if (score > highestScore) { console.log("Dice loop updating highestScore:", score, "for intent:", item.intent.id);
         // Guard: if input is a single word or very short, require a much higher dice similarity (>= 0.85)
         const isShort = cleanText.length <= 6 || !cleanText.includes(" ");
         const minAllowedScore = isShort ? 0.85 : 0.60;

@@ -179,7 +179,7 @@ def health_check():
     }
 
 
-MAX_CHAT_TOKENS = 10  # Daily chat budget. Free social/crisis intents = 0, intent-answered questions = -1, full LLM = -3.
+MAX_CHAT_TOKENS = 20  # Daily chat budget. Free social/crisis intents = 0, intent-answered questions = -1, full LLM = -1.
 
 
 @app.get("/api/ai/chat/remaining")
@@ -244,7 +244,7 @@ async def classify_intent(request: IntentClassifyRequest, req: Request):
                 await intent_insights.set_cached(normalized, intent_id)
 
         if intent_id and intent_id != "fallback":
-            weight = 0 if intent_id in ai_service.FREE_INTENT_IDS else 2
+            weight = 0 if intent_id in ai_service.FREE_INTENT_IDS else 1
             if weight > 0:
                 await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=weight)
         return {"intent": intent_id or "fallback"}
@@ -264,7 +264,7 @@ async def log_local_intent_match(request: LocalIntentLogRequest, req: Request):
 
 @app.post("/api/ai/chat")
 async def chat(request: ChatRequest, req: Request):
-    LLM_WEIGHT = 3
+    LLM_WEIGHT = 1
 
     try:
         client_identifier = _client_id(request.userId, req)
@@ -307,7 +307,7 @@ async def chat(request: ChatRequest, req: Request):
 
 @app.post("/api/ai/chat/stream")
 async def chat_stream(request: ChatRequest, req: Request):
-    LLM_WEIGHT = 3
+    LLM_WEIGHT = 1
     try:
         client_identifier = _client_id(request.userId, req)
         remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)

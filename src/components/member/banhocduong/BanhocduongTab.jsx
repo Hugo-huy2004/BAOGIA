@@ -3,11 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import SubUtilityHeader from "../SubUtilityHeader";
 import ChatTab from "./ChatTab";
+import StoryTab from "./StoryTab";
 import TherapyTab from "./TherapyTab";
 import EvaluationTab from "./EvaluationTab";
 import SleepTracker from "./SleepTracker";
-import CbtThoughtWorksheet from "./CbtThoughtWorksheet";
-import CounselorBridge from "./CounselorBridge";
 import dataApi from "../../../services/dataApi";
 import AIBot from "../../../services/classes/CompanionBot/AIBot";
 import { webPushHelper } from "../../../utils/webPushHelper";
@@ -21,11 +20,10 @@ import EmergencySiren from "./EmergencySiren";
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
   { id: 'chat',       label: 'Tâm Sự',    icon: 'psychology_alt', grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
+  { id: 'story',      label: 'Cốt Truyện',icon: 'auto_stories',   grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
   { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
   { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
   { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
-  { id: 'cbt',        label: 'Nhật Ký CBT', icon: 'edit_note',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
-  { id: 'counselor',  label: 'Chuyên Gia', icon: 'support_agent',  grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
 ];
 
 // ── Helper: count qualified therapy activities ─────────────────────────────────
@@ -795,6 +793,9 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                     }}
                   />
                 )}
+                {effectiveSubTab === "story" && (
+                  <StoryTab bio={bio} />
+                )}
                 {effectiveSubTab === "therapy" && (
                   <TherapyTab
                     onNavigateToTab={handleNavigateToTab}
@@ -823,40 +824,6 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                 )}
                 {effectiveSubTab === "evaluation" && (
                   <EvaluationTab onNavigateToTab={handleNavigateToTab} bio={bio} historyLogs={historyLogs} showToast={showToast} />
-                )}
-                {effectiveSubTab === "cbt" && (
-                  <div className="flex-1 overflow-y-auto p-4 md:p-6">
-                    <CbtThoughtWorksheet 
-                      chatHistory={chatMessages} 
-                      onSaveWorksheet={(data) => {
-                        const updatedLogs = [...(historyLogs || []), {
-                          date: data.date,
-                          type: "therapy_activity",
-                          name: "Bài tập nhận thức CBT",
-                          desc: `Hoàn thành tự nhận thức: "${data.situation}". Mức độ tin tưởng giảm từ ${data.intensity}% xuống ${data.newIntensity}%.`
-                        }];
-                        handleUpdateCompanionState({ historyLogs: updatedLogs });
-                      }}
-                      showToast={showToast}
-                    />
-                  </div>
-                )}
-                {effectiveSubTab === "counselor" && (
-                  <div className="flex-1 overflow-y-auto p-4 md:p-6">
-                    <CounselorBridge 
-                      bio={bio}
-                      onBookAppointment={(data) => {
-                        const updatedLogs = [...(historyLogs || []), {
-                          date: data.date,
-                          type: "appointment",
-                          name: "Hẹn lịch chuyên gia",
-                          desc: `Mã bảo mật: ${data.ticketId}. Hình thức: ${data.method}. Slot: ${data.slot}. Trạng thái: Đang chờ xác nhận.`
-                        }];
-                        handleUpdateCompanionState({ historyLogs: updatedLogs });
-                      }}
-                      showToast={showToast}
-                    />
-                  </div>
                 )}
               </motion.div>
             </AnimatePresence>

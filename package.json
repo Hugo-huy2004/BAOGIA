@@ -22,6 +22,7 @@
     "@payos/payos-checkout": "^1.0.8",
     "@radix-ui/react-progress": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.11",
+    "@rive-app/react-canvas": "^4.29.5",
     "@simplewebauthn/browser": "^10.0.0",
     "@use-gesture/react": "^10.3.1",
     "canvas-confetti": "^1.9.4",

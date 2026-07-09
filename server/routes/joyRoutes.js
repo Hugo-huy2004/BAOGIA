@@ -9,16 +9,18 @@ import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToke
 
 const BIO_THEME_RENTAL_PRICE = 150;
 const COMPRESS_CHARGE = 50;
-const CODER_LESSON_IDS = Array.from({ length: 10 }, (_, index) => `lesson${index + 1}`);
+const CODER_LESSON_IDS = Array.from({ length: 50 }, (_, index) => `lesson${index + 1}`);
 const CODER_MIN_STUDY_MS = 10 * 60 * 1000;
-const CODER_QUIZ_LESSONS = new Set(['lesson4', 'lesson10']);
+const CODER_QUIZ_LESSONS = new Set(['lesson4', 'lesson25', 'lesson50']);
 const CODER_SCREENSHOT_LESSONS = new Set(['lesson8', 'lesson9']);
 
 // Item labels shown on the invoice modal, keyed the same way the frontend
 // calls /exchange-quote — kept here (not duplicated client-side) so price
 // changes only ever need updating in one place.
 const EXCHANGE_ITEMS = {
-  hugoCoder: { label: 'HugoCoder (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoder },
+  hugoCoder: { label: 'HugoCoder Cơ Bản (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoder },
+  hugoCoderIntermediate: { label: 'HugoCoder Trung Cấp (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderIntermediate },
+  hugoCoderAdvanced: { label: 'HugoCoder Cao Cấp (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderAdvanced },
   hugoAura: { label: 'HugoAura — Lofi & Cửa hàng giao diện (1 tháng)', priceJoy: FEATURE_PRICES.hugoAura },
   hugoRadio: { label: 'HugoRadio (1 tháng)', priceJoy: FEATURE_PRICES.hugoRadio },
   hugoArcade: { label: 'HugoArcade — Bứt phá & Huyền thoại (1 tháng)', priceJoy: FEATURE_PRICES.hugoArcade },
@@ -197,10 +199,7 @@ router.post('/award-learning', requireMember, async (req, res) => {
       }
     }
 
-    const timeSpentMs = Number(evidence.timeSpentMs);
-    if (!Number.isFinite(timeSpentMs) || timeSpentMs < CODER_MIN_STUDY_MS) {
-      return res.status(400).json({ error: 'Cần học tối thiểu 10 phút trước khi nhận thưởng bài học.' });
-    }
+
 
     const score = Number(evidence.score);
     if ((CODER_QUIZ_LESSONS.has(lessonId) || CODER_SCREENSHOT_LESSONS.has(lessonId)) && (!Number.isFinite(score) || score < 60)) {
@@ -388,6 +387,69 @@ router.post('/subscribe-feature', requireMember, async (req, res) => {
 
     const { balance, expiresAt } = await chargeFeatureSubscription(email, featureKey, Number(months) || 1);
     res.json({ success: true, balance, expiresAt });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/joy/buy-lifetime-unlock
+ * Deduct 50 JOY (+ 10% tax = 55 total) to grant lifetime unlock access to Coder Intermediate or Advanced phase.
+ */
+router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
+  try {
+    const { tier } = req.body; // 'intermediate' or 'advanced'
+    const email = req.memberEmail;
+    if (!email || !['intermediate', 'advanced'].includes(tier)) {
+      return res.status(400).json({ error: 'Cấp độ mở khóa không hợp lệ.' });
+    }
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    const key = tier === 'intermediate' ? 'hugoCoderIntermediateLifetime' : 'hugoCoderAdvancedLifetime';
+    if (bio[key]) {
+      return res.status(400).json({ error: 'Bạn đã mở khóa vĩnh viễn cấp độ này rồi.' });
+    }
+
+    // Verify completion requirements:
+    // Intermediate requires all lessons from 11 to 25 to be completed.
+    // Advanced requires all lessons from 26 to 50 to be completed.
+    const completed = bio.completedLessons || [];
+    let requiredLessons = [];
+    if (tier === 'intermediate') {
+      requiredLessons = Array.from({ length: 15 }, (_, i) => `lesson${i + 11}`);
+    } else {
+      requiredLessons = Array.from({ length: 25 }, (_, i) => `lesson${i + 26}`);
+    }
+
+    const missing = requiredLessons.filter(id => !completed.includes(id));
+    if (missing.length > 0) {
+      return res.status(400).json({ 
+        error: `Bạn cần hoàn thành tất cả các bài học trong phần này trước khi mở khóa vĩnh viễn. Các bài chưa xong: ${missing.map(m => m.replace('lesson', 'Bài ')).join(', ')}` 
+      });
+    }
+
+    // Cost: 50 JOY + 10% tax = 55 JOY
+    const priceJoy = 50;
+    const { tax, total } = calcExchangeTotal(priceJoy);
+    if (bio.joyBalance < total) {
+      return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY phí sáng tạo) để mua.` });
+    }
+
+    const result = await awardJoy(
+      bio.email,
+      -total,
+      'lifetime_unlock',
+      `Trao đổi JOY mở khóa vĩnh viễn HugoCoder ${tier === 'intermediate' ? 'Trung Cấp' : 'Cao Cấp'} (gồm ${tax} JOY phí sáng tạo)`,
+      { bioDoc: bio, skipSave: true, refId: key }
+    );
+
+    bio[key] = true;
+    await bio.save();
+
+    res.json({ success: true, balance: result.balance, bio });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

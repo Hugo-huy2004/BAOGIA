@@ -1,20 +1,24 @@
 import express from "express";
 import { requireMember } from "../middleware/authMiddleware.js";
+import Bio from "../models/Bio.js";
 
 const router = express.Router();
 
-// In-memory storage for development (replace with MongoDB in production)
-const progressDb = new Map(); // memberEmail -> { lessons: [lesson1, lesson2, ...], updatedAt }
-
 /**
  * GET /api/member/progress
- * Load all completed lessons for current member
+ * Load all completed lessons for current member from MongoDB
  */
-router.get("/", requireMember, (req, res) => {
+router.get("/", requireMember, async (req, res) => {
   try {
     const memberEmail = req.memberEmail;
-    const progress = progressDb.get(memberEmail) || { lessons: [], updatedAt: new Date() };
-    res.json(progress);
+    let bio = await Bio.findOne({ email: memberEmail });
+    if (!bio) bio = await Bio.findOne({ contactEmail: memberEmail });
+
+    const lessons = bio?.completedLessons || [];
+    res.json({
+      lessons,
+      updatedAt: bio?.updatedAt || new Date()
+    });
   } catch (error) {
     console.error("GET progress error:", error);
     res.status(500).json({ error: "Failed to load progress" });
@@ -23,9 +27,9 @@ router.get("/", requireMember, (req, res) => {
 
 /**
  * POST /api/member/progress/lesson/:lessonId/complete
- * Mark lesson as completed (sync across devices)
+ * Mark lesson as completed in MongoDB (persisted & sync'd cross-device)
  */
-router.post("/lesson/:lessonId/complete", requireMember, (req, res) => {
+router.post("/lesson/:lessonId/complete", requireMember, async (req, res) => {
   try {
     const memberEmail = req.memberEmail;
     const { lessonId } = req.params;
@@ -34,23 +38,25 @@ router.post("/lesson/:lessonId/complete", requireMember, (req, res) => {
       return res.status(400).json({ error: "Invalid lessonId" });
     }
 
-    // Get or create progress record
-    let progress = progressDb.get(memberEmail) || { lessons: [], updatedAt: new Date() };
+    let bio = await Bio.findOne({ email: memberEmail });
+    if (!bio) bio = await Bio.findOne({ contactEmail: memberEmail });
+    if (!bio) return res.status(404).json({ error: "Không tìm thấy hồ sơ thành viên." });
 
-    // Add lesson if not already completed
-    if (!progress.lessons.includes(lessonId)) {
-      progress.lessons.push(lessonId);
-      progress.updatedAt = new Date();
+    if (!bio.completedLessons) {
+      bio.completedLessons = [];
     }
 
-    // Save to in-memory DB
-    progressDb.set(memberEmail, progress);
+    if (!bio.completedLessons.includes(lessonId)) {
+      bio.completedLessons.push(lessonId);
+      bio.markModified("completedLessons");
+      await bio.save();
+    }
 
     res.json({
       success: true,
-      completedCount: progress.lessons.length,
-      lessons: progress.lessons,
-      updatedAt: progress.updatedAt
+      completedCount: bio.completedLessons.length,
+      lessons: bio.completedLessons,
+      updatedAt: new Date()
     });
   } catch (error) {
     console.error("POST lesson complete error:", error);
@@ -60,20 +66,24 @@ router.post("/lesson/:lessonId/complete", requireMember, (req, res) => {
 
 /**
  * DELETE /api/member/progress/lesson/:lessonId
- * Reset/uncomplete lesson (for testing)
+ * Reset/uncomplete lesson in MongoDB (for testing)
  */
-router.delete("/lesson/:lessonId", requireMember, (req, res) => {
+router.delete("/lesson/:lessonId", requireMember, async (req, res) => {
   try {
     const memberEmail = req.memberEmail;
     const { lessonId } = req.params;
 
-    let progress = progressDb.get(memberEmail) || { lessons: [], updatedAt: new Date() };
-    progress.lessons = progress.lessons.filter(id => id !== lessonId);
-    progress.updatedAt = new Date();
+    let bio = await Bio.findOne({ email: memberEmail });
+    if (!bio) bio = await Bio.findOne({ contactEmail: memberEmail });
+    if (!bio) return res.status(404).json({ error: "Không tìm thấy hồ sơ thành viên." });
 
-    progressDb.set(memberEmail, progress);
+    if (bio.completedLessons) {
+      bio.completedLessons = bio.completedLessons.filter(id => id !== lessonId);
+      bio.markModified("completedLessons");
+      await bio.save();
+    }
 
-    res.json({ success: true, lessons: progress.lessons });
+    res.json({ success: true, lessons: bio.completedLessons || [] });
   } catch (error) {
     console.error("DELETE lesson error:", error);
     res.status(500).json({ error: "Failed to reset progress" });
@@ -82,9 +92,9 @@ router.delete("/lesson/:lessonId", requireMember, (req, res) => {
 
 /**
  * POST /api/member/progress/sync
- * Bulk sync progress (client sends all completed lessons)
+ * Bulk sync progress (client sends all completed lessons to save to MongoDB)
  */
-router.post("/sync", requireMember, (req, res) => {
+router.post("/sync", requireMember, async (req, res) => {
   try {
     const memberEmail = req.memberEmail;
     const { lessons } = req.body;
@@ -93,18 +103,22 @@ router.post("/sync", requireMember, (req, res) => {
       return res.status(400).json({ error: "lessons must be an array" });
     }
 
-    const progress = {
-      lessons: [...new Set(lessons)], // deduplicate
-      updatedAt: new Date()
-    };
+    let bio = await Bio.findOne({ email: memberEmail });
+    if (!bio) bio = await Bio.findOne({ contactEmail: memberEmail });
+    if (!bio) return res.status(404).json({ error: "Không tìm thấy hồ sơ thành viên." });
 
-    progressDb.set(memberEmail, progress);
+    const currentLessons = bio.completedLessons || [];
+    const merged = [...new Set([...currentLessons, ...lessons])];
+
+    bio.completedLessons = merged;
+    bio.markModified("completedLessons");
+    await bio.save();
 
     res.json({
       success: true,
-      completedCount: progress.lessons.length,
-      lessons: progress.lessons,
-      updatedAt: progress.updatedAt
+      completedCount: bio.completedLessons.length,
+      lessons: bio.completedLessons,
+      updatedAt: new Date()
     });
   } catch (error) {
     console.error("POST sync error:", error);
