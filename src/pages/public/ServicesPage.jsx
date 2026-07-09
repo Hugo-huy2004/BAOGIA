@@ -464,8 +464,8 @@ export default function ServicesPage() {
   const carePlans = CARE_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
 
   const studentPlans = useMemo(() => {
-    const plansKeys = ["bug", "bento", "html", "php", "react"];
-    const icons = ["handyman", "contact_page", "code", "code_blocks", "terminal"];
+    const plansKeys = ["exclusiveBio", "bug", "bento", "html", "php", "react"];
+    const icons = ["badge", "handyman", "contact_page", "code", "code_blocks", "terminal"];
     return plansKeys.map((key, index) => {
       const planData = t(`servicesPage.studentPlans.${key}`, { returnObjects: true });
       return {
