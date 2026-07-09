@@ -3,7 +3,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { 
   Award, ArrowLeft, Smartphone, CheckCircle, BookOpen, 
-  Sparkles, ListChecks, Play, ChevronDown, ChevronUp, Lock 
+  Sparkles, ListChecks, Play, ChevronDown, ChevronUp, Lock,
+  Terminal, Shield, Zap, Trophy, Cpu, ChevronRight
 } from "lucide-react";
 import InteractivePuzzles from "./InteractivePuzzles";
 import { renderMobileIllustration, renderVisualArtwork, renderStudyModePanel } from "./VisualIllustrations";
@@ -80,7 +81,11 @@ export default function MobileGuidebook({
   const [expandedPhases, setExpandedPhases] = React.useState({
     basic: true,
     intermediate: false,
-    advanced: false
+    advanced: false,
+    security: false,
+    exam: false,
+    optimize: false,
+    ultimate: false
   });
 
   const togglePhase = (phaseId) => {
@@ -88,6 +93,74 @@ export default function MobileGuidebook({
       ...prev,
       [phaseId]: !prev[phaseId]
     }));
+  };
+
+  const rankTitle = React.useMemo(() => {
+    if (mobileCompletedCount < 10) return "Tập sự Lập trình 💻";
+    if (mobileCompletedCount < 25) return "Thợ Code Thực chiến ⚡";
+    if (mobileCompletedCount < 50) return "Lập Trình Viên Pro 🚀";
+    if (mobileCompletedCount < 70) return "Kỹ Sư Hệ Thống 🛡️";
+    if (mobileCompletedCount < 90) return "Chuyên Gia Tối Ưu 🧠";
+    return "Huyền Thoại Fullstack 🎓";
+  }, [mobileCompletedCount]);
+
+  const phaseMeta = {
+    basic: {
+      gradient: "from-blue-500/10 via-indigo-500/5 to-transparent border-blue-500/20 dark:border-blue-500/30",
+      accentColor: "text-blue-500 dark:text-blue-400 border-blue-500/30",
+      badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+      barColor: "bg-gradient-to-r from-blue-500 to-indigo-500",
+      subtext: "HTML, CSS cơ bản & Cây cấu trúc DOM",
+      icon: <Terminal className="w-4.5 h-4.5 text-blue-500" />
+    },
+    intermediate: {
+      gradient: "from-emerald-500/10 via-teal-500/5 to-transparent border-emerald-500/20 dark:border-emerald-500/30",
+      accentColor: "text-emerald-500 dark:text-emerald-400 border-emerald-500/30",
+      badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+      barColor: "bg-gradient-to-r from-emerald-500 to-teal-500",
+      subtext: "Làm chủ JavaScript & Xử lý sự kiện động",
+      icon: <Cpu className="w-4.5 h-4.5 text-emerald-500" />
+    },
+    advanced: {
+      gradient: "from-violet-500/10 via-purple-500/5 to-transparent border-violet-500/20 dark:border-violet-500/30",
+      accentColor: "text-violet-500 dark:text-violet-400 border-violet-500/30",
+      badgeColor: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
+      barColor: "bg-gradient-to-r from-violet-500 to-purple-500",
+      subtext: "SQL, PHP Backend & Tích hợp API dữ liệu",
+      icon: <BookOpen className="w-4.5 h-4.5 text-violet-500" />
+    },
+    security: {
+      gradient: "from-rose-500/10 via-pink-500/5 to-transparent border-rose-500/20 dark:border-rose-500/30",
+      accentColor: "text-rose-500 dark:text-rose-400 border-rose-500/30",
+      badgeColor: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+      barColor: "bg-gradient-to-r from-rose-500 to-pink-500",
+      subtext: "Bảo mật CIA, chuẩn đặt tên & tổ chức file",
+      icon: <Shield className="w-4.5 h-4.5 text-rose-500" />
+    },
+    exam: {
+      gradient: "from-amber-500/10 via-orange-500/5 to-transparent border-amber-500/20 dark:border-amber-500/30",
+      accentColor: "text-amber-500 dark:text-amber-400 border-amber-500/30",
+      badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      barColor: "bg-gradient-to-r from-amber-500 to-orange-500",
+      subtext: "Kiểm tra trắc nghiệm tổng hợp 2 chặng",
+      icon: <Award className="w-4.5 h-4.5 text-amber-500" />
+    },
+    optimize: {
+      gradient: "from-cyan-500/10 via-sky-500/5 to-transparent border-cyan-500/20 dark:border-cyan-500/30",
+      accentColor: "text-cyan-500 dark:text-cyan-400 border-cyan-500/30",
+      badgeColor: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+      barColor: "bg-gradient-to-r from-cyan-500 to-sky-500",
+      subtext: "Clean Code DRY, tối ưu code & Prompt AI/LLM",
+      icon: <Zap className="w-4.5 h-4.5 text-cyan-500" />
+    },
+    ultimate: {
+      gradient: "from-yellow-500/15 via-amber-500/5 to-transparent border-yellow-500/30 dark:border-yellow-500/45",
+      accentColor: "text-yellow-500 dark:text-yellow-400 border-yellow-500/30",
+      badgeColor: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20",
+      barColor: "bg-gradient-to-r from-yellow-500 to-amber-500",
+      subtext: "Dự án tốt nghiệp: Làm web fullstack hoàn chỉnh",
+      icon: <Trophy className="w-4.5 h-4.5 text-yellow-500" />
+    }
   };
 
   const phases = [
@@ -206,119 +279,178 @@ export default function MobileGuidebook({
             /* ==========================================================
                1. TABLE OF CONTENTS (MỤC LỤC BÀI HỌC)
                ========================================================== */
-            <section className="space-y-3.5 font-sans animate-fadeIn">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black uppercase text-muted-foreground">Mục lục bài học</h3>
-                <span className="text-[10px] font-bold text-primary">{mobileCompletedCount}/{WEB_COURSES.length} hoàn thành</span>
+            <section className="space-y-6 font-sans animate-fadeIn">
+              {/* Premium Progress Summary Card */}
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-900 via-indigo-950 to-zinc-950 text-white p-6 border border-indigo-500/20 shadow-xl">
+                <div className="absolute top-0 right-0 -mr-6 -mt-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 -ml-6 -mb-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+                
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-[9px] font-black tracking-widest text-indigo-300 uppercase">
+                    {rankTitle}
+                  </span>
+                  <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/25">
+                    {mobileProgress}% Hoàn thành
+                  </span>
+                </div>
+                
+                <div className="mt-4">
+                  <h3 className="text-base font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">HugoCoder Mobile Academy</h3>
+                  <p className="text-[11px] text-zinc-400 mt-1">Đã chinh phục {mobileCompletedCount} trên tổng số {WEB_COURSES.length} bài học thực chiến</p>
+                </div>
+                
+                <div className="mt-5 space-y-1.5">
+                  <div className="h-2 bg-zinc-800 rounded-full overflow-hidden p-0.5 border border-zinc-700/50">
+                    <div className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(99,102,241,0.5)]" style={{ width: `${mobileProgress}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Title & Total Complete Stats */}
+              <div className="flex items-center justify-between px-1">
+                <div>
+                  <h3 className="text-xs font-black uppercase text-muted-foreground tracking-wider">Mục lục lộ trình</h3>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Vui lòng học tuần tự để mở khóa các bài tiếp theo</p>
+                </div>
+                <span className="text-[10px] font-black text-primary bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20">{mobileCompletedCount}/{WEB_COURSES.length} Bài đã học</span>
               </div>
               
-              <div className="space-y-3">
+              {/* Stages List */}
+              <div className="space-y-4">
                 {phases.map((phase) => {
                   const completedCount = phase.lessons.filter(l => completedLessons.includes(l.id)).length;
                   const isPhaseCompleted = completedCount === phase.lessons.length;
                   const isExpanded = expandedPhases[phase.id];
-                  const globalStartIndex = phase.id === "basic" ? 0 : phase.id === "intermediate" ? 10 : 25;
+                  const globalStartIndex = 
+                    phase.id === "basic" ? 0 :
+                    phase.id === "intermediate" ? 10 :
+                    phase.id === "advanced" ? 25 :
+                    phase.id === "security" ? 50 :
+                    phase.id === "exam" ? 60 :
+                    phase.id === "optimize" ? 62 :
+                    phase.id === "ultimate" ? 70 : 0;
+                  const meta = phaseMeta[phase.id] || phaseMeta.basic;
+                  const progressPercent = Math.round((completedCount / phase.lessons.length) * 100) || 0;
 
                   return (
-                    <div key={phase.id} className="border border-border rounded-xl overflow-hidden bg-card/25">
-                      {/* Header */}
+                    <div key={phase.id} className="border border-border/80 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900/40 shadow-sm hover:shadow-md transition-all">
+                      {/* Header Card */}
                       <div
                         onClick={() => togglePhase(phase.id)}
-                        className="flex items-center justify-between p-3.5 bg-muted/40 hover:bg-muted/65 transition-all border-b border-border/50 select-none cursor-pointer"
+                        className={`flex items-center justify-between p-4 bg-gradient-to-br ${meta.gradient} border-b border-border/50 select-none cursor-pointer`}
                       >
-                        <div className="text-left">
-                          <h4 className="font-extrabold text-xs text-foreground tracking-wide">{phase.title}</h4>
-                          <span className="text-[9.5px] font-bold text-muted-foreground">{phase.rangeText} • {completedCount}/{phase.lessons.length} bài đã học</span>
+                        <div className="flex items-center gap-3 min-w-0">
+                          {/* Phase Icon */}
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center border shrink-0 ${meta.badgeColor}`}>
+                            {meta.icon}
+                          </div>
+                          <div className="text-left min-w-0">
+                            <span className="text-[9px] font-black tracking-widest text-muted-foreground uppercase">{phase.rangeText}</span>
+                            <h4 className="font-black text-xs text-foreground tracking-wide truncate">{phase.title}</h4>
+                            <p className="text-[9.5px] text-muted-foreground truncate leading-normal mt-0.5">{meta.subtext}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          {isPhaseCompleted && (
-                            <span className="flex items-center justify-center w-4 h-4 rounded-full bg-success/20 border border-success/30 text-success text-[8px] font-bold">
+                        
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <div className="text-right">
+                            <span className="text-[10px] font-black text-foreground">{completedCount}/{phase.lessons.length}</span>
+                          </div>
+                          
+                          {isPhaseCompleted ? (
+                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-success/20 border border-success/40 text-success text-[10px] font-black shadow-sm">
                               ✓
                             </span>
+                          ) : (
+                            <div className="w-5 h-5 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground">
+                              {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                            </div>
                           )}
-                          {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                         </div>
+                      </div>
+
+                      {/* Phase completion percent track line */}
+                      <div className="w-full h-[3px] bg-muted relative">
+                        <div className={`h-full ${meta.barColor} transition-all duration-500`} style={{ width: `${progressPercent}%` }} />
                       </div>
 
                       {/* Phase Content */}
                       {isExpanded && (
-                        <div className="p-3 space-y-3 bg-zinc-950/10">
-                          {/* Certificate Button if Phase Completed */}
-                           {isPhaseCompleted && (
-                            <div className="bg-gradient-to-br from-amber-500/10 to-yellow-600/5 border border-amber-500/30 rounded-xl p-3 text-center space-y-2 shadow-sm animate-fadeIn">
-                              <div className="flex items-center justify-center gap-1.5 text-amber-500 font-extrabold text-[10.5px] uppercase tracking-wider">
-                                <Award className="w-4 h-4 text-amber-400" />
-                                Hoàn Thành {phase.title}
+                        <div className="p-3.5 space-y-3.5 bg-zinc-50/50 dark:bg-zinc-950/20">
+                          {/* Certificate Reward Card if Completed */}
+                          {isPhaseCompleted && (
+                            <div className="bg-gradient-to-br from-amber-500/15 via-yellow-500/5 to-transparent border border-amber-500/30 rounded-2xl p-4 text-center space-y-3 shadow-md animate-fadeIn relative overflow-hidden">
+                              <div className="absolute top-0 right-0 -mr-4 -mt-4 w-12 h-12 bg-amber-500/10 rounded-full blur-xl pointer-events-none" />
+                              <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-black text-xs uppercase tracking-wider">
+                                <Trophy className="w-4.5 h-4.5 text-amber-400 animate-bounce" />
+                                Chúc mừng tốt nghiệp {phase.title}
                               </div>
                               
-                              {/* Phase 3, 4, 5, 6: milestone rewards */}
                               {[3, 4, 5, 6].includes(phase.phaseNumber) && (() => {
                                 const claimKey = `hugoCoderRewardClaimed${phase.phaseNumber}`;
                                 const hasClaimed = !!bio?.[claimKey];
                                 return (
-                                  <div className="space-y-1.5">
-                                    <p className="text-[9.5px] text-zinc-400 leading-normal font-sans">
-                                      Chúc mừng bạn đã hoàn thành xuất sắc toàn bộ bài học của chặng này!
+                                  <div className="space-y-2.5">
+                                    <p className="text-[10px] text-muted-foreground leading-relaxed font-sans">
+                                      Bạn đã hoàn thành xuất sắc toàn bộ thử thách của chặng này! Hãy nhận phần thưởng vinh danh.
                                     </p>
                                     {hasClaimed ? (
-                                      <div className="py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-bold rounded-lg text-[10px] uppercase tracking-wider">
+                                      <div className="py-2.5 bg-emerald-500/15 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 font-black rounded-xl text-[10px] uppercase tracking-widest shadow-sm">
                                         Đã nhận thưởng +800 JOY ✓
                                       </div>
                                     ) : (
                                       <button
                                         onClick={() => handleClaimMilestoneReward(phase.phaseNumber)}
-                                        className="w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
+                                        className="w-full py-2.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-black rounded-xl text-[10px] uppercase tracking-wider transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
                                       >
-                                        Nhận thưởng chặng (+800 JOY)
+                                        Nhận phần thưởng (+800 JOY)
                                       </button>
                                     )}
                                   </div>
                                 );
                               })()}
 
-                              {/* Phase 7: project submission status */}
                               {phase.phaseNumber === 7 && (() => {
                                 const status = bio?.hugoCoderProjectStatus || 'idle';
                                 const certUrl = bio?.hugoCoderCertificateUrl || '';
                                 const adminNote = bio?.hugoCoderProjectAdminNote || '';
                                 
                                 return (
-                                  <div className="space-y-2 text-[9.5px] font-sans text-zinc-400">
+                                  <div className="space-y-2.5 text-[10px] font-sans text-muted-foreground">
                                     {status === 'idle' && (
-                                      <p className="leading-normal">
+                                      <p className="leading-relaxed">
                                         Hãy hoàn thành đề án tốt nghiệp và nộp đường link dự án của bạn tại <strong>Bài 100</strong> để nhận đánh giá từ Hugo Studio.
                                       </p>
                                     )}
                                     {status === 'pending' && (
-                                      <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-500 font-bold">
-                                        Yêu cầu đang chờ duyệt... ⏳
-                                        <p className="text-[8.5px] font-normal text-zinc-400 mt-1">Hugo Studio đang kiểm tra sản phẩm của bạn.</p>
+                                      <div className="p-3 bg-amber-500/15 border border-amber-500/25 rounded-xl text-amber-600 dark:text-amber-400 font-black shadow-sm">
+                                        Đang chờ duyệt đề án tốt nghiệp... ⏳
+                                        <p className="text-[9px] font-normal text-muted-foreground mt-1">Hugo Studio đang rà soát dự án và mã nguồn của bạn.</p>
                                       </div>
                                     )}
                                     {status === 'rejected' && (
-                                      <div className="p-2 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive font-bold text-left space-y-1">
-                                        <div>Dự án chưa đạt yêu cầu ❌</div>
-                                        {adminNote && <p className="text-[8.5px] font-normal text-zinc-300">Phản hồi: {adminNote}</p>}
-                                        <p className="text-[8.5px] font-normal text-zinc-400 mt-1">Bạn có thể sửa đổi code và nộp lại link mới ở Bài 100.</p>
+                                      <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive font-black text-left space-y-1.5 shadow-sm">
+                                        <div>Đề án chưa đạt yêu cầu ❌</div>
+                                        {adminNote && <p className="text-[9px] font-normal text-zinc-300">Phản hồi: {adminNote}</p>}
+                                        <p className="text-[9px] font-normal text-muted-foreground">Bạn có thể sửa đổi và nộp lại link mới ở Bài 100.</p>
                                       </div>
                                     )}
                                     {status === 'approved' && (
-                                      <div className="space-y-2">
-                                        <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-500 font-bold">
-                                          Dự án đã được duyệt thành công! 🎉
-                                          <p className="text-[8.5px] font-normal text-zinc-400 mt-1">Đã nhận thưởng 4,000 JOY & phần quà VVIP.</p>
+                                      <div className="space-y-2.5">
+                                        <div className="p-3 bg-emerald-500/15 border border-emerald-500/25 rounded-xl text-emerald-600 dark:text-emerald-400 font-black shadow-sm">
+                                          Đề án đã được duyệt thành công! 🎉
+                                          <p className="text-[9px] font-normal text-muted-foreground mt-1">Đã nhận thưởng tốt nghiệp 4,000 JOY & phần quà VVIP.</p>
                                         </div>
                                         {certUrl ? (
                                           <a
                                             href={certUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="block w-full py-2 text-center bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md"
+                                            className="block w-full py-2.5 text-center bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-zinc-950 font-black rounded-xl text-[10px] uppercase tracking-wider transition-all shadow-md"
                                           >
-                                            Xem chứng nhận tốt nghiệp 🎓
+                                            Nhận chứng nhận tốt nghiệp 🎓
                                           </a>
                                         ) : (
-                                          <p className="text-[8.5px] text-amber-400 font-bold">Chứng nhận đang được đẩy lên Drive bởi Admin...</p>
+                                          <p className="text-[9px] text-amber-400 font-bold">Chứng nhận đang được chuẩn bị bởi Admin...</p>
                                         )}
                                       </div>
                                     )}
@@ -328,8 +460,8 @@ export default function MobileGuidebook({
                             </div>
                           )}
 
-                          {/* List of lessons */}
-                          <div className="divide-y divide-border/30 border border-border/40 rounded-xl overflow-hidden bg-zinc-950/20">
+                          {/* List of Lessons inside phase */}
+                          <div className="space-y-2">
                             {phase.lessons.map((course, idx) => {
                               const index = globalStartIndex + idx;
                               const isActive = mobileCourse?.id === course.id;
@@ -348,34 +480,52 @@ export default function MobileGuidebook({
                                     setMobileStudyMode("story");
                                     setVerificationStatus(null);
                                   }}
-                                  className={`flex items-center justify-between px-3.5 py-3 transition-all text-left ${
+                                  className={`group flex items-center justify-between px-3.5 py-3 rounded-xl border transition-all text-left relative ${
                                     isLocked
-                                      ? "opacity-40 cursor-not-allowed bg-black/5"
+                                      ? "opacity-45 bg-zinc-100/10 dark:bg-zinc-800/10 border-transparent cursor-not-allowed"
                                       : isActive
-                                        ? "bg-primary/15 border-l-2 border-primary"
-                                        : "cursor-pointer hover:bg-primary/5 active:bg-primary/10"
+                                        ? "bg-primary/10 border-primary shadow-[0_0_12px_rgba(79,70,229,0.1)] text-primary"
+                                        : "bg-white dark:bg-zinc-900 border-border hover:border-primary/45 active:bg-primary/5 cursor-pointer shadow-sm"
                                   }`}
                                 >
-                                  <div className="flex items-center gap-3 min-w-0">
-                                    <span className="font-mono text-[10px] font-bold text-muted-foreground select-none">
-                                      {String(index + 1).padStart(2, "0")}
-                                    </span>
-                                    <span className={`text-[12px] font-medium truncate ${
-                                      isLocked 
-                                        ? "text-muted-foreground/60" 
+                                  <div className="flex items-center gap-3.5 min-w-0">
+                                    {/* Beautiful index pill */}
+                                    <div className={`w-6 h-6 rounded-lg font-mono text-[10px] font-black flex items-center justify-center border shrink-0 ${
+                                      isLocked
+                                        ? "bg-zinc-100 dark:bg-zinc-800 text-muted-foreground/50 border-zinc-200 dark:border-zinc-700"
                                         : isActive
-                                          ? "text-primary font-bold"
-                                          : "text-foreground"
+                                          ? "bg-primary text-white border-primary"
+                                          : "bg-muted text-muted-foreground border-border"
                                     }`}>
-                                      {course.title.replace(/^\d+\.\s*/, "")}
-                                    </span>
+                                      {String(index + 1).padStart(2, "0")}
+                                    </div>
+                                    <div className="min-w-0 flex flex-col">
+                                      <span className={`text-[12.5px] font-black truncate leading-tight ${
+                                        isLocked 
+                                          ? "text-muted-foreground/60" 
+                                          : isActive
+                                            ? "text-primary"
+                                            : "text-foreground"
+                                      }`}>
+                                        {course.title.replace(/^\d+\.\s*/, "")}
+                                      </span>
+                                      <span className="text-[9px] text-muted-foreground mt-0.5 truncate max-w-[200px]">
+                                        {course.file || "Thực hành lý thuyết"}
+                                      </span>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-2.5 shrink-0">
+                                  <div className="flex items-center gap-2 shrink-0">
                                     {isCompleted ? (
-                                      <CheckCircle className="w-4 h-4 text-success" />
+                                      <div className="w-5 h-5 rounded-full bg-success/15 border border-success/30 flex items-center justify-center text-success">
+                                        <CheckCircle className="w-3.5 h-3.5" />
+                                      </div>
                                     ) : isLocked ? (
-                                      <Lock className="w-3.5 h-3.5 text-muted-foreground/40" />
-                                    ) : null}
+                                      <Lock className="w-3.5 h-3.5 text-muted-foreground/45" />
+                                    ) : (
+                                      <div className="w-5 h-5 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                                        <Play className="w-2.5 h-2.5 translate-x-[0.5px]" />
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               );
@@ -541,7 +691,7 @@ export default function MobileGuidebook({
                     <Sparkles className="w-4 h-4 text-primary" />
                     <h3 className="text-sm font-black">Mô hình tư duy</h3>
                   </div>
-                  {renderMobileIllustration(mobileExtra.visualType)}
+                  {renderMobileIllustration(mobileExtra.visualType, mobileCourse?.id)}
                   <p className="text-sm leading-7 text-muted-foreground">{mobileExtra.mentalModel}</p>
                   <div className="grid grid-cols-1 gap-2">
                     {(mobileExtra.keyIdeas || []).map((idea, index) => (

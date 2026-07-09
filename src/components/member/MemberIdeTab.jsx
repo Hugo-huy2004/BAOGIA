@@ -591,8 +591,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
   );
 
   const mobileVisualSet = useMemo(
-    () => getMobileVisualSet(mobileExtra.visualType),
-    [mobileExtra.visualType]
+    () => getMobileVisualSet(mobileExtra.visualType, mobileCourse?.id, mobileCourse?.title),
+    [mobileExtra.visualType, mobileCourse?.id, mobileCourse?.title]
   );
 
   const mobileDemoCode = useMemo(
