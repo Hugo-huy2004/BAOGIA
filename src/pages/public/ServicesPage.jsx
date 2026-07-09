@@ -790,17 +790,9 @@ export default function ServicesPage() {
                   <p className="mt-1 text-xs text-muted-foreground">{plan.tagline}</p>
 
                   <div className="mt-4 flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-foreground">
-                      {i18n.language === "en" && typeof plan.price === "string"
-                        ? `$${applyPricingRule(vndToUsdWithFee(parseInt(plan.price.replace(/\D/g, ""), 10))).toFixed(2)}`
-                        : plan.price}
-                    </span>
+                    <span className="text-2xl font-black text-foreground">{plan.price}</span>
                     {plan.oldPrice && (
-                      <span className="text-xs text-muted-foreground line-through">
-                        {i18n.language === "en" && typeof plan.oldPrice === "string"
-                          ? `$${applyPricingRule(vndToUsdWithFee(parseInt(plan.oldPrice.replace(/\D/g, ""), 10))).toFixed(2)}`
-                          : plan.oldPrice}
-                      </span>
+                      <span className="text-xs text-muted-foreground line-through">{plan.oldPrice}</span>
                     )}
                   </div>
                   <p className="mt-1 text-[11px] text-muted-foreground/80 leading-normal">{plan.note}</p>
