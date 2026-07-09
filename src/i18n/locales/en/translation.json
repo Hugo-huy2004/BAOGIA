@@ -397,10 +397,24 @@
       }
     },
     "studentPlans": {
+      "exclusiveBio": {
+        "label": "Students",
+        "name": "Exclusive Bio Page",
+        "price": "$4.04",
+        "note": "Bespoke design — no one else will have the same page.",
+        "desc": "A standalone personal bio page with a unique design custom-made for you. Optimized for internships, scholarships, or networking — everything on one elegant page.",
+        "tagline": "Stand out",
+        "includes": [
+          "Exclusive bio page design — uniquely yours, not shared with anyone",
+          "Up to 5 links (GitHub, LinkedIn, portfolio, socials...)",
+          "About section (summary, interests, select skills)",
+          "Beautiful responsive design (Desktop & Mobile)"
+        ]
+      },
       "bug": {
         "label": "Students",
         "name": "Coursework Bug Fix",
-        "price": "From 120,000₫",
+        "price": "From $4.88",
         "note": "Quick quotes based on coursework criteria. Speed delivery before deadlines.",
         "desc": "Logic errors, DB connection issue or broken layout in your end-of-term assignment? I'll fix it for you.",
         "tagline": "Save your submission",
@@ -414,8 +428,8 @@
       "bento": {
         "label": "Students",
         "name": "Bento CV / Portfolio",
-        "price": "799,000₫",
-        "oldPrice": "1,500,000₫",
+        "price": "$32.54",
+        "oldPrice": "$61.08",
         "discount": "-46%",
         "note": "Modern Bento Grid design. Tailored for internship, scholarship, or study abroad applications.",
         "desc": "Showcase your achievements, projects, Git links and profile in a beautiful Apple-inspired aesthetic.",
@@ -424,16 +438,16 @@
           "1 Bento Grid page layout, up to 7 sections max",
           "Github, social media, and contact link integration",
           "Contact form dumping messages directly to a free Google Sheet",
-          "Deploy on free hosting trọn đời (Vercel/Netlify)"
+          "Deploy on free hosting for life (Vercel/Netlify)"
         ]
       },
       "html": {
         "label": "HTML/CSS/JS",
         "name": "Web App Coursework (HTML)",
-        "price": "From 590,000₫",
-        "oldPrice": "1,200,000₫",
+        "price": "From $24.08",
+        "oldPrice": "$48.95",
         "discount": "-50%",
-        "note": "Static HTML/CSS/JS coursework. Split the bill from ~295k/member (group of 2).",
+        "note": "Static HTML/CSS/JS coursework. Split the bill from ~$12/member (group of 2).",
         "desc": "Perfect for Web Design basics, building responsive layouts, static assignment templates.",
         "tagline": "Responsive layout",
         "includes": [
@@ -446,10 +460,10 @@
       "php": {
         "label": "PHP/SQL",
         "name": "Web App Coursework (PHP)",
-        "price": "From 1.490.000₫",
-        "oldPrice": "2,500,000₫",
+        "price": "From $60.95",
+        "oldPrice": "$101.96",
         "discount": "-40%",
-        "note": "Dynamic PHP/MySQL coursework. Split the bill from ~495k/member (group of 3).",
+        "note": "Dynamic PHP/MySQL coursework. Split the bill from ~$20/member (group of 3).",
         "desc": "Perfect for Database Web basics, dynamic data CRUD, registering & logins.",
         "tagline": "Dynamic database",
         "includes": [
@@ -462,10 +476,10 @@
       "react": {
         "label": "React/Node",
         "name": "Web App Coursework (REACT)",
-        "price": "From 2.490.000₫",
-        "oldPrice": "4,000,000₫",
+        "price": "From $101.67",
+        "oldPrice": "$163.47",
         "discount": "-37%",
-        "note": "Full-stack React/Node.js coursework. Split the bill from ~620k/member (group of 4).",
+        "note": "Full-stack React/Node.js coursework. Split the bill from ~$25/member (group of 4).",
         "desc": "Perfect for Advanced Web, React SPA, REST APIs, MongoDB/PostgreSQL.",
         "tagline": "Full-stack React/Node.js",
         "includes": [
