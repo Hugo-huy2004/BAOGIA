@@ -53,7 +53,7 @@ const messageSchema = new mongoose.Schema(
 const hugoTeamDevSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    name: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true }, // Full name from Google/form
     school: { type: String, default: "" },
     status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
     cv: { type: String, default: "" },

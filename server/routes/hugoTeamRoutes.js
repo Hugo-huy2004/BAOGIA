@@ -197,8 +197,8 @@ router.post("/me/messages/read", requireMember, async (req, res) => {
 router.post("/apply", upload.single("cv"), requireMember, async (req, res) => {
   try {
     const email = req.memberEmail;
-    // name is display-only; some login paths (WebAuthn) store no name in the
-    // session, so fall back to the email local-part instead of rejecting.
+    // Get displayName from form (sent by frontend from Google auth or session)
+    // Fallback: email local-part for WebAuthn or missing name
     const name = String(req.body.name || "").trim() || email?.split("@")[0] || "";
     const file = req.file;
     if (!email || !file) {
@@ -211,17 +211,17 @@ router.post("/apply", upload.single("cv"), requireMember, async (req, res) => {
     }
 
     // Re-application after rejection overwrites the old doc.
-    await HugoTeamDev.findOneAndUpdate(
+    const dev = await HugoTeamDev.findOneAndUpdate(
       { email },
       {
         email,
-        name,
+        name, // Full displayName (e.g., "Trần Văn A")
         school: req.body.school || "",
         status: "pending",
         cv: file.filename,
         cvPath: file.path,
       },
-      { upsert: true }
+      { upsert: true, new: true }
     );
 
     await sendHugoTeamApplyConfirm(name, email);

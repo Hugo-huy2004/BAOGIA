@@ -105,7 +105,8 @@ export default function HugoTeamTab({ onBack }) {
       const formData = new FormData();
       formData.append("cv", cvFile);
       formData.append("email", session.email);
-      formData.append("name", session.name || "");
+      // Use displayName from Google auth, fallback to name if WebAuthn
+      formData.append("name", session.displayName || session.name || "");
 
       const res = await fetch("/api/hugoteam/apply", {
         method: "POST",
