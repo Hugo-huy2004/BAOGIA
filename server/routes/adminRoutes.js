@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import Admin from '../models/Admin.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
+import { awardJoy } from '../utils/joyService.js';
 import fs from 'fs/promises';
 import path from 'path';
 import mongoose from 'mongoose';
@@ -368,6 +369,68 @@ router.delete('/community/posts/:id', requireAdmin, async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+// GET /admin/coder-submissions
+router.get('/coder-submissions', requireAdmin, async (req, res) => {
+  try {
+    // Find all bios who completed lesson62 (which is the last lesson of Chặng 5, indicating they reached Chặng 6+)
+    const submissions = await Bio.find({
+      completedLessons: 'lesson62'
+    }).select('email displayName avatarUrl completedLessons hugoCoderProjectUrl hugoCoderProjectStatus hugoCoderCertificateUrl hugoCoderProjectSubmittedAt hugoCoderProjectNote hugoCoderProjectAdminNote')
+      .sort({ hugoCoderProjectSubmittedAt: -1 })
+      .lean();
+
+    res.json({ success: true, data: submissions });
+  } catch (error) {
+    console.error('Error fetching coder submissions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /admin/verify-graduation-project
+router.post('/verify-graduation-project', requireAdmin, async (req, res) => {
+  try {
+    const { email, status, adminNote, certificateUrl } = req.body;
+    if (!email || !status) {
+      return res.status(400).json({ error: 'email and status are required' });
+    }
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Trạng thái xác thực không hợp lệ.' });
+    }
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    bio.hugoCoderProjectStatus = status;
+    bio.hugoCoderProjectAdminNote = adminNote || '';
+
+    if (status === 'approved') {
+      bio.hugoCoderCertificateUrl = certificateUrl || '';
+      
+      // Award 4000 JOY if not already claimed
+      if (!bio.hugoCoderRewardClaimed7) {
+        await awardJoy(
+          email,
+          4000,
+          'ide_course_completion',
+          'Đạt thành tích Xuất Sắc tốt nghiệp HugoCoder (+4,000 JOY)',
+          { bioDoc: bio, refId: 'lesson100_completion' }
+        );
+        bio.hugoCoderRewardClaimed7 = true;
+      }
+    } else {
+      // If rejected, allow them to re-submit
+      bio.hugoCoderProjectStatus = 'rejected';
+    }
+
+    await bio.save();
+    res.json({ success: true, data: bio });
+  } catch (error) {
+    console.error('Error verifying project:', error);
     res.status(500).json({ error: error.message });
   }
 });

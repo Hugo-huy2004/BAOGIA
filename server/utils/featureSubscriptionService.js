@@ -4,9 +4,13 @@ import { awardJoy } from './joyService.js';
 // Canonical feature keys + monthly JOY price — single source of truth so
 // routes never hardcode 150/199 independently.
 export const FEATURE_PRICES = {
-  hugoCoder: 150,
-  hugoCoderIntermediate: 1999,
-  hugoCoderAdvanced: 6199,
+  hugoCoder: 1500,
+  hugoCoderIntermediate: 2600,
+  hugoCoderAdvanced: 2600,
+  hugoCoderSecurity: 1000,
+  hugoCoderExam: 100,
+  hugoCoderOptimize: 1500,
+  hugoCoderUltimate: 5000,
   hugoAura: 150,
   hugoRadio: 150,
   hugoArcade: 199,
@@ -14,9 +18,13 @@ export const FEATURE_PRICES = {
 };
 
 const FEATURE_LABELS = {
-  hugoCoder: 'HugoCoder',
+  hugoCoder: 'HugoCoder Cơ Bản',
   hugoCoderIntermediate: 'HugoCoder Trung Cấp',
   hugoCoderAdvanced: 'HugoCoder Cao Cấp',
+  hugoCoderSecurity: 'HugoCoder Bảo Mật (Chặng 4)',
+  hugoCoderExam: 'HugoCoder Kiểm Tra (Chặng 5)',
+  hugoCoderOptimize: 'HugoCoder Tối Ưu & AI (Chặng 6)',
+  hugoCoderUltimate: 'HugoCoder Lập Trình Web Nâng Cao (Chặng 7)',
   hugoAura: 'HugoAura (Lofi & Cửa hàng giao diện)',
   hugoRadio: 'HugoRadio',
   hugoArcade: 'HugoArcade (Bứt phá & Huyền thoại)',

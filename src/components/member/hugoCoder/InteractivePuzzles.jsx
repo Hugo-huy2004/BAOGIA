@@ -38,9 +38,22 @@ export default function InteractivePuzzles({
   handleRetakeQuiz,
   mobilePuzzleAnswer,
   setMobilePuzzleAnswer,
-  verifyInteractivePractice
+  verifyInteractivePractice,
+  bio,
+  onBioUpdate
 }) {
   const isCompleted = completedLessons.includes(course.id);
+
+  if (course.practiceType === "graduation_submission") {
+    return (
+      <GraduationSubmissionForm
+        bio={bio}
+        onBioUpdate={onBioUpdate}
+        handleRewardMobileLesson={handleRewardMobileLesson}
+        course={course}
+      />
+    );
+  }
 
   if (course.miniQuiz && interactivePassed && !isCompleted) {
     const handleSubmitMiniQuiz = () => {
@@ -1032,4 +1045,131 @@ export default function InteractivePuzzles({
   }
 
   return null;
+}
+
+function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, course }) {
+  const [projectUrl, setProjectUrl] = React.useState(bio?.hugoCoderProjectUrl || "");
+  const [projectNote, setProjectNote] = React.useState(bio?.hugoCoderProjectNote || "");
+  const [submitting, setSubmitting] = React.useState(false);
+
+  const status = bio?.hugoCoderProjectStatus || "idle";
+  const certUrl = bio?.hugoCoderCertificateUrl || "";
+  const adminNote = bio?.hugoCoderProjectAdminNote || "";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!projectUrl.trim()) {
+      notify.error("Vui lòng nhập Link dự án Live URL!");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const token = localStorage.getItem("token") || "";
+      const apiBase = import.meta.env.VITE_API_URL || "/api";
+      const res = await fetch(`${apiBase}/joy/submit-graduation-project`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ projectUrl, projectNote })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Giao dịch nộp dự án thất bại.");
+      
+      notify.success("Đã nộp dự án tốt nghiệp thành công! Đang chờ kiểm duyệt.");
+      if (onBioUpdate) {
+        onBioUpdate(data.bio);
+      }
+      
+      // Mark lesson 100 completed as well to grant completed status
+      await handleRewardMobileLesson(course, 100);
+    } catch (err) {
+      notify.error(err.message || "Lỗi khi nộp bài.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 font-sans bg-zinc-900/50 p-4 border border-border/60 rounded-2xl">
+      <div className="text-center space-y-1">
+        <Sparkles className="w-8 h-8 text-amber-400 mx-auto animate-pulse" />
+        <h3 className="text-sm font-extrabold text-amber-500 uppercase tracking-wider">Đề Án Tốt Nghiệp HugoCoder</h3>
+        <p className="text-[10px] text-zinc-400">
+          Nộp sản phẩm hoàn thiện nhất của bạn để hoàn tất Chặng 7 và nhận Chứng nhận tốt nghiệp & +4,000 JOY.
+        </p>
+      </div>
+
+      {status === "approved" && (
+        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center space-y-2">
+          <p className="text-xs font-bold text-emerald-500">Chúc mừng! Bạn đã tốt nghiệp HugoCoder! 🎉</p>
+          {certUrl ? (
+            <a
+              href={certUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-4 py-2 bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md"
+            >
+              Xem chứng nhận tốt nghiệp 🎓
+            </a>
+          ) : (
+            <p className="text-[9px] text-zinc-400">Đang chờ admin đính kèm link chứng chỉ...</p>
+          )}
+        </div>
+      )}
+
+      {status !== "approved" && (
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          {status === "pending" && (
+            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center">
+              <p className="text-xs font-bold text-amber-500">Dự án đang chờ duyệt... ⏳</p>
+              <p className="text-[9px] text-zinc-400 mt-1">Hugo Studio đang xem xét bài nộp của bạn.</p>
+            </div>
+          )}
+          
+          {status === "rejected" && (
+            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-left space-y-1">
+              <p className="text-xs font-bold text-red-500">Dự án chưa đạt yêu cầu ❌</p>
+              {adminNote && <p className="text-[9px] text-zinc-300">Phản hồi của Admin: {adminNote}</p>}
+              <p className="text-[9px] text-zinc-400">Bạn có thể điều chỉnh và gửi lại link dự án mới dưới đây.</p>
+            </div>
+          )}
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider block">Live URL / Repository *</label>
+            <input
+              type="url"
+              required
+              disabled={status === "pending"}
+              value={projectUrl}
+              onChange={(e) => setProjectUrl(e.target.value)}
+              placeholder="https://myproject.com hoặc https://github.com/..."
+              className="w-full bg-zinc-950 border border-border p-2.5 rounded-lg text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-amber-500/50"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider block">Ghi chú cho Admin (Không bắt buộc)</label>
+            <textarea
+              rows={3}
+              disabled={status === "pending"}
+              value={projectNote}
+              onChange={(e) => setProjectNote(e.target.value)}
+              placeholder="Nhập ghi chú, tài khoản test, thông tin vận hành..."
+              className="w-full bg-zinc-950 border border-border p-2.5 rounded-lg text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-amber-500/50 resize-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitting || status === "pending"}
+            className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 disabled:opacity-50 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-[0.98]"
+          >
+            {submitting ? "Đang gửi..." : "Gửi Đề Án Tốt Nghiệp"}
+          </button>
+        </form>
+      )}
+    </div>
+  );
 }

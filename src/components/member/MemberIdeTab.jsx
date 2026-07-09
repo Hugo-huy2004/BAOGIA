@@ -125,15 +125,20 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
   const [exchangeSubmitting, setExchangeSubmitting] = useState(false);
 
   const getLessonTierAndAccess = (lessonId) => {
-    if (!lessonId) return { tier: "basic", tierLabel: "Cơ Bản (Bài 1-10)", hasAccess: true, price: 150 };
+    if (!lessonId) return { tier: "basic", tierLabel: "Cơ Bản (Bài 1-10)", hasAccess: false, price: 1500, subKey: "hugoCoder" };
     const num = parseInt(lessonId.replace("lesson", ""), 10);
     
     if (num <= 10) {
+      const active = bio?.featureSubscriptions?.hugoCoder?.expiresAt 
+        ? new Date(bio.featureSubscriptions.hugoCoder.expiresAt).getTime() > Date.now()
+        : false;
+      const lifetime = !!bio?.hugoCoderLifetime;
       return {
         tier: "basic",
         tierLabel: "Cơ Bản (Bài 1-10)",
-        hasAccess: true,
-        price: 150,
+        hasAccess: active || lifetime,
+        lifetime,
+        price: 1500,
         subKey: "hugoCoder"
       };
     }
@@ -148,22 +153,82 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
         tierLabel: "Trung Cấp Nâng Cao (Bài 11-25)",
         hasAccess: active || lifetime,
         lifetime,
-        price: 1999,
+        price: 2600,
         subKey: "hugoCoderIntermediate"
       };
     }
     
-    const active = bio?.featureSubscriptions?.hugoCoderAdvanced?.expiresAt 
-      ? new Date(bio.featureSubscriptions.hugoCoderAdvanced.expiresAt).getTime() > Date.now()
+    if (num <= 50) {
+      const active = bio?.featureSubscriptions?.hugoCoderAdvanced?.expiresAt 
+        ? new Date(bio.featureSubscriptions.hugoCoderAdvanced.expiresAt).getTime() > Date.now()
+        : false;
+      const lifetime = !!bio?.hugoCoderAdvancedLifetime;
+      return {
+        tier: "advanced",
+        tierLabel: "Chuyên Nghiệp Cao Cấp (Bài 26-50)",
+        hasAccess: active || lifetime,
+        lifetime,
+        price: 2600,
+        subKey: "hugoCoderAdvanced"
+      };
+    }
+
+    if (num <= 60) {
+      const active = bio?.featureSubscriptions?.hugoCoderSecurity?.expiresAt 
+        ? new Date(bio.featureSubscriptions.hugoCoderSecurity.expiresAt).getTime() > Date.now()
+        : false;
+      const lifetime = !!bio?.hugoCoderSecurityLifetime;
+      return {
+        tier: "security",
+        tierLabel: "Bảo Mật & Quy Tắc (Bài 51-60)",
+        hasAccess: active || lifetime,
+        lifetime,
+        price: 1000,
+        subKey: "hugoCoderSecurity"
+      };
+    }
+
+    if (num <= 62) {
+      const active = bio?.featureSubscriptions?.hugoCoderExam?.expiresAt 
+        ? new Date(bio.featureSubscriptions.hugoCoderExam.expiresAt).getTime() > Date.now()
+        : false;
+      const lifetime = !!bio?.hugoCoderExamLifetime;
+      return {
+        tier: "exam",
+        tierLabel: "Kiểm Tra Tổng Hợp (Bài 61-62)",
+        hasAccess: active || lifetime,
+        lifetime,
+        price: 100,
+        subKey: "hugoCoderExam"
+      };
+    }
+
+    if (num <= 70) {
+      const active = bio?.featureSubscriptions?.hugoCoderOptimize?.expiresAt 
+        ? new Date(bio.featureSubscriptions.hugoCoderOptimize.expiresAt).getTime() > Date.now()
+        : false;
+      const lifetime = !!bio?.hugoCoderOptimizeLifetime;
+      return {
+        tier: "optimize",
+        tierLabel: "Tối Ưu Code & AI (Bài 63-70)",
+        hasAccess: active || lifetime,
+        lifetime,
+        price: 1500,
+        subKey: "hugoCoderOptimize"
+      };
+    }
+
+    const active = bio?.featureSubscriptions?.hugoCoderUltimate?.expiresAt 
+      ? new Date(bio.featureSubscriptions.hugoCoderUltimate.expiresAt).getTime() > Date.now()
       : false;
-    const lifetime = !!bio?.hugoCoderAdvancedLifetime;
+    const lifetime = !!bio?.hugoCoderUltimateLifetime;
     return {
-      tier: "advanced",
-      tierLabel: "Chuyên Nghiệp Cao Cấp (Bài 26-50)",
+      tier: "ultimate",
+      tierLabel: "Lập Trình Web Nâng Cao (Bài 71-100)",
       hasAccess: active || lifetime,
       lifetime,
-      price: 6199,
-      subKey: "hugoCoderAdvanced"
+      price: 5000,
+      subKey: "hugoCoderUltimate"
     };
   };
 
@@ -222,7 +287,15 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
   };
 
   const handleBuyLifetimeUnlock = (tier) => {
-    const tierLabel = tier === 'intermediate' ? 'Trung Cấp Nâng Cao (Bài 11-25)' : 'Chuyên Nghiệp Cao Cấp (Bài 26-50)';
+    const labels = {
+      intermediate: 'Trung Cấp Nâng Cao (Bài 11-25)',
+      advanced: 'Chuyên Nghiệp Cao Cấp (Bài 26-50)',
+      security: 'Bảo Mật & Quy Tắc (Bài 51-60)',
+      exam: 'Kiểm Tra Tổng Hợp (Bài 61-62)',
+      optimize: 'Tối Ưu Code & AI (Bài 63-70)',
+      ultimate: 'Lập Trình Web Nâng Cao (Bài 71-100)'
+    };
+    const tierLabel = labels[tier] || 'Khóa học';
     notify.info((t) => (
       <HugoConfirmNotice
         type="warning"
@@ -252,7 +325,15 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
             notify.success("Mở khóa vĩnh viễn thành công! Bạn có quyền xem lại các bài học này bất cứ lúc nào.");
             useJoyStore.getState().setBalance(data.balance);
             if (onBioUpdate) {
-              const key = tier === 'intermediate' ? 'hugoCoderIntermediateLifetime' : 'hugoCoderAdvancedLifetime';
+              const keyMap = {
+                intermediate: 'hugoCoderIntermediateLifetime',
+                advanced: 'hugoCoderAdvancedLifetime',
+                security: 'hugoCoderSecurityLifetime',
+                exam: 'hugoCoderExamLifetime',
+                optimize: 'hugoCoderOptimizeLifetime',
+                ultimate: 'hugoCoderUltimateLifetime'
+              };
+              const key = keyMap[tier];
               const updatedBio = {
                 ...bio,
                 joyBalance: data.balance,
@@ -272,6 +353,35 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
       position: 'top-center',
       style: { padding: 0, background: 'transparent', boxShadow: 'none' }
     });
+  };
+
+  const handleClaimMilestoneReward = async (phaseNum) => {
+    try {
+      const token = getMemberSession()?.token;
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/joy/claim-milestone-reward`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ phase: phaseNum })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Nhận thưởng thất bại.");
+
+      import("canvas-confetti").then((module) => {
+        const conf = module.default || module;
+        conf({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+      });
+
+      notify.success(`Chúc mừng! Bạn đã nhận thưởng +800 JOY cho Chặng ${phaseNum}! 🎁`);
+      useJoyStore.getState().setBalance(data.balance);
+      if (onBioUpdate) {
+        onBioUpdate(data.bio);
+      }
+    } catch (err) {
+      notify.error(err.message || "Lỗi khi nhận thưởng.");
+    }
   };
 
 
@@ -352,7 +462,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
       const shuffled = [...course.dragBlocks].sort(() => Math.random() - 0.5);
       setSqlBlocks(shuffled);
     } else if (course.practiceType === "quiz") {
-      const pool = course.id === "lesson4" ? QUIZ_POOL_1 : QUIZ_POOL_2;
+      const pool = course.quizPool || (course.id === "lesson4" ? QUIZ_POOL_1 : QUIZ_POOL_2);
       const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, course.quizSize);
       setQuizQuestions(shuffled);
     }
@@ -1428,7 +1538,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
     setVerificationStatus(null);
     const course = WEB_COURSES.find(c => c.id === activeCourseId);
     if (course) {
-      const pool = course.id === "lesson4" ? QUIZ_POOL_1 : QUIZ_POOL_2;
+      const pool = course.quizPool || (course.id === "lesson4" ? QUIZ_POOL_1 : QUIZ_POOL_2);
       const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, course.quizSize);
       setQuizQuestions(shuffled);
     }
@@ -1441,6 +1551,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
         course={course}
         completedLessons={completedLessons}
         interactivePassed={interactivePassed}
+        bio={bio}
+        onBioUpdate={onBioUpdate}
         miniQuizAnswers={miniQuizAnswers}
         setMiniQuizAnswers={setMiniQuizAnswers}
         setMiniQuizPassed={setMiniQuizPassed}
@@ -1525,6 +1637,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
         handleExchangeSubscription={handleExchangeSubscription}
         exchangeSubmitting={exchangeSubmitting}
         handleBuyLifetimeUnlock={handleBuyLifetimeUnlock}
+        handleClaimMilestoneReward={handleClaimMilestoneReward}
         mobileStudyMode={mobileStudyMode}
         mobileVisualSet={mobileVisualSet}
         mobileExtra={mobileExtra}
@@ -1581,7 +1694,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
     <FeatureGate
       bio={bio}
       featureKey="hugoCoder"
-      priceJoy={150}
+      priceJoy={1500}
       icon="terminal"
       title="Trao đổi JOY để mở khóa HugoCoder"
       description="Soạn code, học bài tương tác và nhận JOY khi hoàn thành bài học."
@@ -1704,6 +1817,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
               handleExchangeSubscription={handleExchangeSubscription}
               exchangeSubmitting={exchangeSubmitting}
               handleBuyLifetimeUnlock={handleBuyLifetimeUnlock}
+              handleClaimMilestoneReward={handleClaimMilestoneReward}
+              bio={bio}
               MOBILE_GUIDE_EXTRAS={MOBILE_GUIDE_EXTRAS}
               workspaceFiles={workspaceFiles}
               setWorkspaceFiles={setWorkspaceFiles}

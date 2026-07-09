@@ -15,6 +15,7 @@ import AdminServicesTab from "../../components/admin/AdminServicesTab";
 import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
 import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 import AdminHugoTeamTab from "../../components/admin/AdminHugoTeamTab";
+import AdminCoderSubmissionsTab from "../../components/admin/AdminCoderSubmissionsTab";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
@@ -545,6 +546,9 @@ export default function AdminPanel() {
         )}
         {activeTab === "hugoteam" && (
           <AdminHugoTeamTab />
+        )}
+        {activeTab === "coderSubmissions" && (
+          <AdminCoderSubmissionsTab />
         )}
         {activeTab === "settings" && (
           <AdminSettingsTab

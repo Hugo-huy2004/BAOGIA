@@ -27,6 +27,7 @@ export default function MobileGuidebook({
   handleExchangeSubscription,
   exchangeSubmitting,
   handleBuyLifetimeUnlock,
+  handleClaimMilestoneReward,
   mobileStudyMode,
   mobileVisualSet,
   mobileExtra,
@@ -92,24 +93,52 @@ export default function MobileGuidebook({
   const phases = [
     {
       id: "basic",
+      phaseNumber: 1,
       title: "Chặng 1: Nhập Môn Cơ Bản",
       rangeText: "Bài 1 - 10",
-      lessons: WEB_COURSES.slice(0, 10),
-      certType: null
+      lessons: WEB_COURSES.slice(0, 10)
     },
     {
       id: "intermediate",
+      phaseNumber: 2,
       title: "Chặng 2: Lập Trình Trung Cấp",
       rangeText: "Bài 11 - 25",
-      lessons: WEB_COURSES.slice(10, 25),
-      certType: "intermediate"
+      lessons: WEB_COURSES.slice(10, 25)
     },
     {
       id: "advanced",
+      phaseNumber: 3,
       title: "Chặng 3: Chuyên Gia Cao Cấp",
       rangeText: "Bài 26 - 50",
-      lessons: WEB_COURSES.slice(25, 50),
-      certType: "advanced"
+      lessons: WEB_COURSES.slice(25, 50)
+    },
+    {
+      id: "security",
+      phaseNumber: 4,
+      title: "Chặng 4: Bảo Mật & Quy Tắc",
+      rangeText: "Bài 51 - 60",
+      lessons: WEB_COURSES.slice(50, 60)
+    },
+    {
+      id: "exam",
+      phaseNumber: 5,
+      title: "Chặng 5: Kiểm Tra Tổng Hợp",
+      rangeText: "Bài 61 - 62",
+      lessons: WEB_COURSES.slice(60, 62)
+    },
+    {
+      id: "optimize",
+      phaseNumber: 6,
+      title: "Chặng 6: Tối Ưu Code & AI",
+      rangeText: "Bài 63 - 70",
+      lessons: WEB_COURSES.slice(62, 70)
+    },
+    {
+      id: "ultimate",
+      phaseNumber: 7,
+      title: "Chặng 7: Lập Trình Web Nâng Cao",
+      rangeText: "Bài 71 - 100",
+      lessons: WEB_COURSES.slice(70, 100)
     }
   ];
 
@@ -117,7 +146,7 @@ export default function MobileGuidebook({
     <FeatureGate
       bio={bio}
       featureKey="hugoCoder"
-      priceJoy={150}
+      priceJoy={1500}
       icon="terminal"
       title="Trao đổi JOY để mở khóa HugoCoder"
       description="Đọc sách hướng dẫn, xem demo chạy code và học lập trình ngay trên điện thoại."
@@ -215,21 +244,87 @@ export default function MobileGuidebook({
                       {isExpanded && (
                         <div className="p-3 space-y-3 bg-zinc-950/10">
                           {/* Certificate Button if Phase Completed */}
-                          {isPhaseCompleted && phase.certType && (
+                           {isPhaseCompleted && (
                             <div className="bg-gradient-to-br from-amber-500/10 to-yellow-600/5 border border-amber-500/30 rounded-xl p-3 text-center space-y-2 shadow-sm animate-fadeIn">
                               <div className="flex items-center justify-center gap-1.5 text-amber-500 font-extrabold text-[10.5px] uppercase tracking-wider">
                                 <Award className="w-4 h-4 text-amber-400" />
-                                Đã Hoàn Thành Chặng
+                                Hoàn Thành {phase.title}
                               </div>
-                              <p className="text-[9.5px] text-zinc-400 leading-normal font-sans">
-                                Chúc mừng bạn đã hoàn thành xuất sắc toàn bộ các bài học của {phase.title}.
-                              </p>
-                              <button
-                                onClick={() => onShowCertificate(phase.certType)}
-                                className="w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
-                              >
-                                Xem chứng chỉ & thư mời HugoTeam
-                              </button>
+                              
+                              {/* Phase 3, 4, 5, 6: milestone rewards */}
+                              {[3, 4, 5, 6].includes(phase.phaseNumber) && (() => {
+                                const claimKey = `hugoCoderRewardClaimed${phase.phaseNumber}`;
+                                const hasClaimed = !!bio?.[claimKey];
+                                return (
+                                  <div className="space-y-1.5">
+                                    <p className="text-[9.5px] text-zinc-400 leading-normal font-sans">
+                                      Chúc mừng bạn đã hoàn thành xuất sắc toàn bộ bài học của chặng này!
+                                    </p>
+                                    {hasClaimed ? (
+                                      <div className="py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-bold rounded-lg text-[10px] uppercase tracking-wider">
+                                        Đã nhận thưởng +800 JOY ✓
+                                      </div>
+                                    ) : (
+                                      <button
+                                        onClick={() => handleClaimMilestoneReward(phase.phaseNumber)}
+                                        className="w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
+                                      >
+                                        Nhận thưởng chặng (+800 JOY)
+                                      </button>
+                                    )}
+                                  </div>
+                                );
+                              })()}
+
+                              {/* Phase 7: project submission status */}
+                              {phase.phaseNumber === 7 && (() => {
+                                const status = bio?.hugoCoderProjectStatus || 'idle';
+                                const certUrl = bio?.hugoCoderCertificateUrl || '';
+                                const adminNote = bio?.hugoCoderProjectAdminNote || '';
+                                
+                                return (
+                                  <div className="space-y-2 text-[9.5px] font-sans text-zinc-400">
+                                    {status === 'idle' && (
+                                      <p className="leading-normal">
+                                        Hãy hoàn thành đề án tốt nghiệp và nộp đường link dự án của bạn tại <strong>Bài 100</strong> để nhận đánh giá từ Hugo Studio.
+                                      </p>
+                                    )}
+                                    {status === 'pending' && (
+                                      <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-500 font-bold">
+                                        Yêu cầu đang chờ duyệt... ⏳
+                                        <p className="text-[8.5px] font-normal text-zinc-400 mt-1">Hugo Studio đang kiểm tra sản phẩm của bạn.</p>
+                                      </div>
+                                    )}
+                                    {status === 'rejected' && (
+                                      <div className="p-2 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive font-bold text-left space-y-1">
+                                        <div>Dự án chưa đạt yêu cầu ❌</div>
+                                        {adminNote && <p className="text-[8.5px] font-normal text-zinc-300">Phản hồi: {adminNote}</p>}
+                                        <p className="text-[8.5px] font-normal text-zinc-400 mt-1">Bạn có thể sửa đổi code và nộp lại link mới ở Bài 100.</p>
+                                      </div>
+                                    )}
+                                    {status === 'approved' && (
+                                      <div className="space-y-2">
+                                        <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-500 font-bold">
+                                          Dự án đã được duyệt thành công! 🎉
+                                          <p className="text-[8.5px] font-normal text-zinc-400 mt-1">Đã nhận thưởng 4,000 JOY & phần quà VVIP.</p>
+                                        </div>
+                                        {certUrl ? (
+                                          <a
+                                            href={certUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block w-full py-2 text-center bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md"
+                                          >
+                                            Xem chứng nhận tốt nghiệp 🎓
+                                          </a>
+                                        ) : (
+                                          <p className="text-[8.5px] text-amber-400 font-bold">Chứng nhận đang được đẩy lên Drive bởi Admin...</p>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })()}
                             </div>
                           )}
 
@@ -301,7 +396,11 @@ export default function MobileGuidebook({
             if (!tierInfo.hasAccess) {
               const showLifetimeOption = 
                 (tierInfo.tier === "intermediate" && completedLessons.includes("lesson25")) ||
-                (tierInfo.tier === "advanced" && completedLessons.includes("lesson50"));
+                (tierInfo.tier === "advanced" && completedLessons.includes("lesson50")) ||
+                (tierInfo.tier === "security" && completedLessons.includes("lesson60")) ||
+                (tierInfo.tier === "exam" && completedLessons.includes("lesson62")) ||
+                (tierInfo.tier === "optimize" && completedLessons.includes("lesson70")) ||
+                (tierInfo.tier === "ultimate" && (completedLessons.includes("lesson100") || bio?.hugoCoderProjectStatus === 'approved'));
 
               return (
                 <div className="space-y-4 font-sans animate-fadeIn">
@@ -504,6 +603,8 @@ export default function MobileGuidebook({
                       course={mobileCourse}
                       completedLessons={completedLessons}
                       interactivePassed={interactivePassed}
+                      bio={bio}
+                      onBioUpdate={onBioUpdate}
                       miniQuizAnswers={miniQuizAnswers}
                       setMiniQuizAnswers={setMiniQuizAnswers}
                       setMiniQuizPassed={setMiniQuizPassed}

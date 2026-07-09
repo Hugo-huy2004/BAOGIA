@@ -1,11 +1,19 @@
 import { BASIC_LESSONS } from "./basic";
 import { INTERMEDIATE_LESSONS } from "./intermediate";
 import { ADVANCED_LESSONS } from "./advanced";
+import { SECURITY_LESSONS } from "./security";
+import { EXAM_LESSONS } from "./exam";
+import { OPTIMIZE_LESSONS } from "./optimize";
+import { ULTIMATE_LESSONS } from "./ultimate";
 
 export const WEB_COURSES = [
   ...BASIC_LESSONS,
   ...INTERMEDIATE_LESSONS,
-  ...ADVANCED_LESSONS
+  ...ADVANCED_LESSONS,
+  ...SECURITY_LESSONS,
+  ...EXAM_LESSONS,
+  ...OPTIMIZE_LESSONS,
+  ...ULTIMATE_LESSONS
 ];
 
 function getVisualTypeForLesson(id) {
@@ -40,10 +48,21 @@ function getVisualTypeForLesson(id) {
   if (num === 43 || num === 44) return "htmlTree";
   if (num >= 45 && num <= 47) return "phpFlow";
   if (num >= 48) return "fullstackArchitecture";
-  return "apiFlow";
+  
+  // Phase 4: Security
+  if (num >= 51 && num <= 60) return "securityVault";
+  
+  // Phase 5: Exams
+  if (num >= 61 && num <= 62) return "eventFlow";
+  
+  // Phase 6: Optimize & AI
+  if (num >= 63 && num <= 70) return "apiFlow";
+  
+  // Phase 7: Ultimate
+  return "fullstackArchitecture";
 }
 
-// Compile MOBILE_GUIDE_EXTRAS dynamically from the 50 course definitions
+// Compile MOBILE_GUIDE_EXTRAS dynamically from the course definitions
 export const MOBILE_GUIDE_EXTRAS = {};
 
 WEB_COURSES.forEach(course => {

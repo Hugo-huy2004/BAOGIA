@@ -321,6 +321,22 @@ const BioSchema = new mongoose.Schema(
         expiresAt: { type: Date, default: null },
         active: { type: Boolean, default: false }
       },
+      hugoCoderSecurity: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      },
+      hugoCoderExam: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      },
+      hugoCoderOptimize: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      },
+      hugoCoderUltimate: {
+        expiresAt: { type: Date, default: null },
+        active: { type: Boolean, default: false }
+      },
       hugoAura: {
         expiresAt: { type: Date, default: null },
         active: { type: Boolean, default: false }
@@ -382,7 +398,68 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    hugoCoderSecurityLifetime: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderExamLifetime: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderOptimizeLifetime: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderUltimateLifetime: {
+      type: Boolean,
+      default: false
+    },
     courseCompletionAwardClaimed: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderProjectUrl: {
+      type: String,
+      default: ""
+    },
+    hugoCoderProjectStatus: {
+      type: String,
+      enum: ["idle", "pending", "approved", "rejected"],
+      default: "idle"
+    },
+    hugoCoderCertificateUrl: {
+      type: String,
+      default: ""
+    },
+    hugoCoderProjectSubmittedAt: {
+      type: Date,
+      default: null
+    },
+    hugoCoderProjectNote: {
+      type: String,
+      default: ""
+    },
+    hugoCoderProjectAdminNote: {
+      type: String,
+      default: ""
+    },
+    hugoCoderRewardClaimed3: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderRewardClaimed4: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderRewardClaimed5: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderRewardClaimed6: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderRewardClaimed7: {
       type: Boolean,
       default: false
     }
