@@ -54,11 +54,31 @@ export function installApiAuthInterceptor() {
     try {
       if (isApiRequest(url)) {
         const token = getMemberToken();
-        const headers = new Headers(init.headers || (typeof input !== "string" ? input.headers : undefined));
-        if (token && !headers.has("Authorization")) {
-          headers.set("Authorization", `Bearer ${token}`);
+        const headersObj = {};
+
+        // Robustly parse existing headers
+        const rawHeaders = init.headers || (typeof input !== "string" ? input.headers : undefined);
+        if (rawHeaders) {
+          if (typeof rawHeaders.forEach === "function") {
+            rawHeaders.forEach((value, key) => {
+              headersObj[key] = value;
+            });
+          } else if (Array.isArray(rawHeaders)) {
+            rawHeaders.forEach(([key, value]) => {
+              headersObj[key] = value;
+            });
+          } else {
+            Object.assign(headersObj, rawHeaders);
+          }
         }
-        return originalFetch(input, { credentials: "include", ...init, headers })
+
+        // Add Authorization Bearer header if not already present
+        const hasAuth = Object.keys(headersObj).some(k => k.toLowerCase() === "authorization");
+        if (token && !hasAuth) {
+          headersObj["Authorization"] = `Bearer ${token}`;
+        }
+
+        return originalFetch(input, { credentials: "include", ...init, headers: headersObj })
           .then((res) => {
             const durationMs = performance.now() - startedAt;
             // Don't report transient/non-actionable statuses: 429 (backpressure)

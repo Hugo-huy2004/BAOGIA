@@ -60,7 +60,7 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
         conf({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
       });
 
-      notify.success("Chúc mừng! Bạn đã nhận phần thưởng +10,000 JOY tốt nghiệp!");
+      notify.success("Chúc mừng! Bạn đã nhận phần thưởng +10,000 JOY hoàn thành khóa học!");
       setAwardClaimed(true);
       if (bio?.email) {
         useJoyStore.getState().fetchBalance(bio.email);
@@ -181,10 +181,10 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
                 <div>
                   <h4 className="text-[11px] font-black uppercase text-amber-400 flex items-center gap-1.5 tracking-wider">
                     <Gift className="w-4 h-4" />
-                    Phần thưởng tốt nghiệp xuất sắc
+                    Phần thưởng hoàn thành khóa học xuất sắc
                   </h4>
                   <p className="text-[9.5px] text-zinc-400 mt-0.5 leading-normal">
-                    Học viên tốt nghiệp toàn khóa với điểm số trung bình lớn hơn 60% nhận ngay phần thưởng khích lệ.
+                    Học viên hoàn thành toàn khóa với điểm số trung bình lớn hơn 60% nhận ngay phần thưởng khích lệ.
                   </p>
                 </div>
                 <div className="text-right">
@@ -203,7 +203,7 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
                     disabled={claiming}
                     className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 active:scale-[0.98] text-zinc-950 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all text-center flex items-center justify-center gap-1.5 shadow"
                   >
-                    {claiming ? "Đang xử lý..." : "Nhận 10,000 JOY thưởng tốt nghiệp"}
+                    {claiming ? "Đang xử lý..." : "Nhận 10,000 JOY thưởng hoàn thành khóa học"}
                   </button>
                 )
               ) : (

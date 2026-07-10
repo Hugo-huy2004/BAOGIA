@@ -19,6 +19,7 @@ import CertificateModal from "./hugoCoder/CertificateModal";
 import MobileGuidebook from "./hugoCoder/MobileGuidebook";
 import LessonsSidebar from "./hugoCoder/LessonsSidebar";
 import FileExplorerSidebar from "./hugoCoder/FileExplorerSidebar";
+import { runMockSql, runMockPhp } from "./hugoCoder/mockRunner";
 import FeatureGate from "./shared/FeatureGate";
 import {
   CODER_STORAGE_KEYS,
@@ -128,105 +129,99 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
     if (!lessonId) return { tier: "basic", tierLabel: "Cơ Bản (Bài 1-10)", hasAccess: false, price: 1500, subKey: "hugoCoder" };
     const num = parseInt(lessonId.replace("lesson", ""), 10);
     
+    // Check if user has global lifetime package (waives maintenance and unlocks all)
+    const hasAll7Lifetime = !!bio?.hugoCoderAll7Lifetime;
+    
+    // Global maintenance status (reusing hugoCoder feature subscription as the maintenance check)
+    const maintenanceActive = hasAll7Lifetime || (bio?.featureSubscriptions?.hugoCoder?.expiresAt 
+      ? new Date(bio.featureSubscriptions.hugoCoder.expiresAt).getTime() > Date.now()
+      : false);
+
     if (num <= 10) {
-      const active = bio?.featureSubscriptions?.hugoCoder?.expiresAt 
-        ? new Date(bio.featureSubscriptions.hugoCoder.expiresAt).getTime() > Date.now()
-        : false;
-      const lifetime = !!bio?.hugoCoderLifetime;
+      const lifetime = hasAll7Lifetime || !!bio?.hugoCoderBasicLifetime;
       return {
         tier: "basic",
         tierLabel: "Cơ Bản (Bài 1-10)",
-        hasAccess: active || lifetime,
+        hasAccess: lifetime && maintenanceActive,
         lifetime,
+        maintenanceActive,
         price: 1500,
-        subKey: "hugoCoder"
+        subKey: "hugoCoderBasic"
       };
     }
     
     if (num <= 25) {
-      const active = bio?.featureSubscriptions?.hugoCoderIntermediate?.expiresAt 
-        ? new Date(bio.featureSubscriptions.hugoCoderIntermediate.expiresAt).getTime() > Date.now()
-        : false;
-      const lifetime = !!bio?.hugoCoderIntermediateLifetime;
+      const lifetime = hasAll7Lifetime || !!bio?.hugoCoderIntermediateLifetime;
       return {
         tier: "intermediate",
         tierLabel: "Trung Cấp Nâng Cao (Bài 11-25)",
-        hasAccess: active || lifetime,
+        hasAccess: lifetime && maintenanceActive,
         lifetime,
+        maintenanceActive,
         price: 2600,
         subKey: "hugoCoderIntermediate"
       };
     }
     
     if (num <= 50) {
-      const active = bio?.featureSubscriptions?.hugoCoderAdvanced?.expiresAt 
-        ? new Date(bio.featureSubscriptions.hugoCoderAdvanced.expiresAt).getTime() > Date.now()
-        : false;
-      const lifetime = !!bio?.hugoCoderAdvancedLifetime;
+      const lifetime = hasAll7Lifetime || !!bio?.hugoCoderAdvancedLifetime;
       return {
         tier: "advanced",
         tierLabel: "Chuyên Nghiệp Cao Cấp (Bài 26-50)",
-        hasAccess: active || lifetime,
+        hasAccess: lifetime && maintenanceActive,
         lifetime,
+        maintenanceActive,
         price: 2600,
         subKey: "hugoCoderAdvanced"
       };
     }
 
     if (num <= 60) {
-      const active = bio?.featureSubscriptions?.hugoCoderSecurity?.expiresAt 
-        ? new Date(bio.featureSubscriptions.hugoCoderSecurity.expiresAt).getTime() > Date.now()
-        : false;
-      const lifetime = !!bio?.hugoCoderSecurityLifetime;
+      const lifetime = hasAll7Lifetime || !!bio?.hugoCoderSecurityLifetime;
       return {
         tier: "security",
         tierLabel: "Bảo Mật & Quy Tắc (Bài 51-60)",
-        hasAccess: active || lifetime,
+        hasAccess: lifetime && maintenanceActive,
         lifetime,
+        maintenanceActive,
         price: 1000,
         subKey: "hugoCoderSecurity"
       };
     }
 
     if (num <= 62) {
-      const active = bio?.featureSubscriptions?.hugoCoderExam?.expiresAt 
-        ? new Date(bio.featureSubscriptions.hugoCoderExam.expiresAt).getTime() > Date.now()
-        : false;
-      const lifetime = !!bio?.hugoCoderExamLifetime;
+      const lifetime = hasAll7Lifetime || !!bio?.hugoCoderExamLifetime;
       return {
         tier: "exam",
         tierLabel: "Kiểm Tra Tổng Hợp (Bài 61-62)",
-        hasAccess: active || lifetime,
+        hasAccess: lifetime && maintenanceActive,
         lifetime,
+        maintenanceActive,
         price: 100,
         subKey: "hugoCoderExam"
       };
     }
 
     if (num <= 70) {
-      const active = bio?.featureSubscriptions?.hugoCoderOptimize?.expiresAt 
-        ? new Date(bio.featureSubscriptions.hugoCoderOptimize.expiresAt).getTime() > Date.now()
-        : false;
-      const lifetime = !!bio?.hugoCoderOptimizeLifetime;
+      const lifetime = hasAll7Lifetime || !!bio?.hugoCoderOptimizeLifetime;
       return {
         tier: "optimize",
         tierLabel: "Tối Ưu Code & AI (Bài 63-70)",
-        hasAccess: active || lifetime,
+        hasAccess: lifetime && maintenanceActive,
         lifetime,
+        maintenanceActive,
         price: 1500,
         subKey: "hugoCoderOptimize"
       };
     }
 
-    const active = bio?.featureSubscriptions?.hugoCoderUltimate?.expiresAt 
-      ? new Date(bio.featureSubscriptions.hugoCoderUltimate.expiresAt).getTime() > Date.now()
-      : false;
-    const lifetime = !!bio?.hugoCoderUltimateLifetime;
+    const lifetime = hasAll7Lifetime || !!bio?.hugoCoderUltimateLifetime;
     return {
       tier: "ultimate",
       tierLabel: "Lập Trình Web Nâng Cao (Bài 71-100)",
-      hasAccess: active || lifetime,
+      hasAccess: lifetime && maintenanceActive,
       lifetime,
+      maintenanceActive,
       price: 5000,
       subKey: "hugoCoderUltimate"
     };
@@ -288,6 +283,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
 
   const handleBuyLifetimeUnlock = (tier) => {
     const labels = {
+      basic: 'Cơ Bản (Bài 1-10)',
       intermediate: 'Trung Cấp Nâng Cao (Bài 11-25)',
       advanced: 'Chuyên Nghiệp Cao Cấp (Bài 26-50)',
       security: 'Bảo Mật & Quy Tắc (Bài 51-60)',
@@ -295,6 +291,16 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
       optimize: 'Tối Ưu Code & AI (Bài 63-70)',
       ultimate: 'Lập Trình Web Nâng Cao (Bài 71-100)'
     };
+    const tierPrices = {
+      basic: 1500,
+      intermediate: 2600,
+      advanced: 2600,
+      security: 1000,
+      exam: 100,
+      optimize: 1500,
+      ultimate: 5000
+    };
+    const price = tierPrices[tier] || 0;
     const tierLabel = labels[tier] || 'Khóa học';
     notify.info((t) => (
       <HugoConfirmNotice
@@ -302,7 +308,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
         title="Mua gói Vĩnh Viễn"
         message={
           <>
-            Bạn có đồng ý dùng <strong>50 JOY</strong> (+ 10% phí sáng tạo) để mở khóa vĩnh viễn quyền xem lại các bài học thuộc <strong>{tierLabel}</strong> không?
+            Bạn có đồng ý dùng <strong>{price} JOY</strong> (+ 10% phí sáng tạo) để mở khóa vĩnh viễn quyền học và thực hành các bài học thuộc <strong>{tierLabel}</strong> không?
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -322,10 +328,11 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Giao dịch thất bại.");
             
-            notify.success("Mở khóa vĩnh viễn thành công! Bạn có quyền xem lại các bài học này bất cứ lúc nào.");
+            notify.success(`Mở khóa vĩnh viễn ${tierLabel} thành công!`);
             useJoyStore.getState().setBalance(data.balance);
             if (onBioUpdate) {
               const keyMap = {
+                basic: 'hugoCoderBasicLifetime',
                 intermediate: 'hugoCoderIntermediateLifetime',
                 advanced: 'hugoCoderAdvancedLifetime',
                 security: 'hugoCoderSecurityLifetime',
@@ -340,6 +347,105 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
                 [key]: true
               };
               onBioUpdate(updatedBio);
+            }
+          } catch (err) {
+            notify.error(err.message || "Lỗi giao dịch.");
+          } finally {
+            setExchangeSubmitting(false);
+          }
+        }}
+      />
+    ), {
+      duration: 10000,
+      position: 'top-center',
+      style: { padding: 0, background: 'transparent', boxShadow: 'none' }
+    });
+  };
+
+  const handlePayMaintenance = () => {
+    notify.info((t) => (
+      <HugoConfirmNotice
+        type="warning"
+        title="Gia hạn phí bảo trì HugoCoder"
+        message={
+          <>
+            Bạn có đồng ý dùng <strong>50 JOY</strong> (+ 10% phí sáng tạo) để đóng phí bảo trì 30 ngày cho HugoCoder không?
+          </>
+        }
+        onCancel={() => notify.dismiss(t.id)}
+        onConfirm={async () => {
+          notify.dismiss(t.id);
+          setExchangeSubmitting(true);
+          try {
+            const token = getMemberSession()?.token;
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/joy/subscribe-feature`, {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+              },
+              body: JSON.stringify({ email: bio.email, featureKey: "hugoCoder", months: 1 })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Giao dịch thất bại.");
+            
+            notify.success("Đóng phí bảo trì thành công!");
+            useJoyStore.getState().setBalance(data.balance);
+            if (onBioUpdate) {
+              const updatedBio = {
+                ...bio,
+                joyBalance: data.balance,
+                featureSubscriptions: {
+                  ...(bio.featureSubscriptions || {}),
+                  hugoCoder: { active: true, expiresAt: data.expiresAt }
+                }
+              };
+              onBioUpdate(updatedBio);
+            }
+          } catch (err) {
+            notify.error(err.message || "Lỗi giao dịch.");
+          } finally {
+            setExchangeSubmitting(false);
+          }
+        }}
+      />
+    ), {
+      duration: 10000,
+      position: 'top-center',
+      style: { padding: 0, background: 'transparent', boxShadow: 'none' }
+    });
+  };
+
+  const handleBuyAllStagesBundle = () => {
+    notify.info((t) => (
+      <HugoConfirmNotice
+        type="warning"
+        title="Mua Trọn Gói 7 Chặng"
+        message={
+          <>
+            Bạn có đồng ý dùng <strong>16.000 JOY</strong> (+ 10% phí sáng tạo) để mở khóa vĩnh viễn TOÀN BỘ 7 chặng học HugoCoder và được miễn phí phí bảo trì trọn đời không?
+          </>
+        }
+        onCancel={() => notify.dismiss(t.id)}
+        onConfirm={async () => {
+          notify.dismiss(t.id);
+          setExchangeSubmitting(true);
+          try {
+            const token = getMemberSession()?.token;
+            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/joy/buy-all-stages-bundle`, {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+              }
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Giao dịch thất bại.");
+            
+            notify.success("Mở khóa trọn gói vĩnh viễn thành công! Bạn đã được kích hoạt toàn bộ các chặng học và được miễn phí bảo trì trọn đời.");
+            useJoyStore.getState().setBalance(data.balance);
+            if (onBioUpdate) {
+              onBioUpdate(data.bio);
             }
           } catch (err) {
             notify.error(err.message || "Lỗi giao dịch.");
@@ -389,7 +495,14 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
   useEffect(() => {
     const loadProgressFromServer = async () => {
       try {
-        const res = await fetch("/api/member/progress");
+        const token = getMemberSession()?.token;
+        const headers = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/member/progress`, {
+          headers
+        });
         if (res.ok) {
           const data = await res.json();
           if (data.lessons && Array.isArray(data.lessons)) {
@@ -528,12 +641,39 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
         setCompletedLessons(nextCompleted);
         localStorage.setItem("student_ide_progress", JSON.stringify(nextCompleted));
         // Sync progress to server (cross-device sync)
-        fetch(`/api/member/progress/lesson/${course.id}/complete`, { method: "POST" })
+        const token = getMemberSession()?.token;
+        const headers = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/member/progress/lesson/${course.id}/complete`, { 
+          method: "POST",
+          headers
+        })
           .catch(err => console.error("Failed to sync progress:", err));
       }
     } else {
       setVerificationStatus("failed");
       notify.error("Mã nguồn chưa chính xác, hãy kiểm tra lại yêu cầu đề bài!");
+    }
+  };
+
+  const handleRunSandbox = () => {
+    if (!activeFile) {
+      notify.error("Vui lòng mở một file để chạy thử.");
+      return;
+    }
+    const ext = activeFile.name.split(".").pop().toLowerCase();
+    setTerminalTab("console");
+    if (ext === "php") {
+      setConsoleOutput("[Giả lập PHP Engine v8.2]\nĐang biên dịch và thực thi...\n\n" + runMockPhp(activeFile.content));
+      notify.success("Chạy thử code PHP thành công!");
+    } else if (ext === "sql") {
+      setConsoleOutput("[Giả lập MySQL Engine v8.0]\nĐang kết nối cơ sở dữ liệu và truy vấn...\n\n" + runMockSql(activeFile.content));
+      notify.success("Truy vấn SQL thành công!");
+    } else {
+      setConsoleOutput(`[Hệ thống] Trình chạy giả lập (Mock Sandboxed Runner) chỉ hỗ trợ kiểm tra nhanh cho PHP và SQL.\nVới file .${ext}, hãy tải về máy và chạy local theo Bảng Hướng dẫn Chạy.`);
+      notify.info("Ngôn ngữ này chỉ hỗ trợ chạy local.");
     }
   };
 
@@ -564,6 +704,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
   const [previewUrl, setPreviewUrl] = useState("");
   const [saveStatus, setSaveStatus] = useState("Đã lưu tất cả");
   const [mobileRunKey, setMobileRunKey] = useState(0);
+  const [terminalTab, setTerminalTab] = useState("guide"); // "guide" or "console"
+  const [consoleOutput, setConsoleOutput] = useState("");
 
   // Inline inputs state (New File, New Folder, Rename)
   // { type: 'new_file' | 'new_folder' | 'rename', parentPath?: string, targetPath?: string, oldName?: string, value: string }
@@ -1525,7 +1667,15 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
       const nextCompleted = [...completedLessons, course.id];
       setCompletedLessons(nextCompleted);
       localStorage.setItem("student_ide_progress", JSON.stringify(nextCompleted));
-      fetch(`/api/member/progress/lesson/${course.id}/complete`, { method: "POST" })
+      const token = getMemberSession()?.token;
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/member/progress/lesson/${course.id}/complete`, { 
+        method: "POST",
+        headers
+      })
         .catch(err => console.error("Failed to sync progress:", err));
     }
   };
@@ -1638,6 +1788,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
         exchangeSubmitting={exchangeSubmitting}
         handleBuyLifetimeUnlock={handleBuyLifetimeUnlock}
         handleClaimMilestoneReward={handleClaimMilestoneReward}
+        handlePayMaintenance={handlePayMaintenance}
+        handleBuyAllStagesBundle={handleBuyAllStagesBundle}
         mobileStudyMode={mobileStudyMode}
         mobileVisualSet={mobileVisualSet}
         mobileExtra={mobileExtra}
@@ -1828,6 +1980,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
               handleVerifyLesson={handleVerifyLesson}
               verificationStatus={verificationStatus}
               onShowCertificate={handleShowCertificate}
+              handlePayMaintenance={handlePayMaintenance}
+              handleBuyAllStagesBundle={handleBuyAllStagesBundle}
             />
           )}
 
@@ -1993,59 +2147,95 @@ services:
           </div>
 
           {/* Execution Panel / Output Panel */}
-          <div className="bg-card border-t border-border px-5 py-4 min-h-[140px] max-h-[160px] flex flex-col font-sans">
+          <div className="bg-card border-t border-border px-5 py-4 min-h-[160px] max-h-[190px] flex flex-col font-sans">
             <div className="flex items-center justify-between pb-2 border-b border-border text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
-              <span className="flex items-center gap-1.5 font-mono">
-                <Terminal className="w-3.5 h-3.5" /> Bảng Hướng dẫn Chạy & Thực thi
-                <span className="mx-2 text-foreground">|</span>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setTerminalTab("guide")}
+                  className={`flex items-center gap-1.5 pb-1 border-b-2 transition-all ${terminalTab === "guide" ? "border-primary text-foreground" : "border-transparent hover:text-foreground"}`}
+                >
+                  <Terminal className="w-3.5 h-3.5" /> Hướng dẫn Chạy
+                </button>
+                <button 
+                  onClick={() => {
+                    if (!consoleOutput) {
+                      setConsoleOutput("[Hệ thống] Nhấn nút 'Chạy Code thử' để giả lập chạy code.");
+                    }
+                    setTerminalTab("console");
+                  }}
+                  className={`flex items-center gap-1.5 pb-1 border-b-2 transition-all ${terminalTab === "console" ? "border-primary text-foreground" : "border-transparent hover:text-foreground"}`}
+                >
+                  <FileCode className="w-3.5 h-3.5" /> Chạy thử Console
+                </button>
+                <span className="mx-1 text-border">|</span>
                 <span className={`font-mono text-[9px] ${saveStatus.includes("Lỗi") ? "text-destructive" : (saveStatus.includes("Đang") ? "text-warning" : "text-success")}`}>
                   ● {saveStatus}
                 </span>
-              </span>
-              {activeFile?.language === "html" && (
-                <button 
-                  onClick={() => setPreviewMode(!previewMode)}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-[10px] transition-all font-bold font-sans"
-                >
-                  <Play className="w-3 h-3" /> {previewMode ? "Dừng Xem" : "Xem Live Preview"}
-                </button>
-              )}
+              </div>
+              
+              <div className="flex items-center gap-2">
+                {(activeFile?.name?.endsWith(".php") || activeFile?.name?.endsWith(".sql") || activeFile?.language === "php" || activeFile?.language === "sql") && (
+                  <button 
+                    onClick={handleRunSandbox}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-success/15 hover:bg-success/25 text-success border border-success/30 text-[10px] transition-all font-bold font-sans"
+                    title="Chạy thử mã nguồn bằng Sandbox Giả lập trực tiếp trên trình duyệt"
+                  >
+                    <Play className="w-3 h-3 text-success" /> Chạy Code thử
+                  </button>
+                )}
+                {activeFile?.language === "html" && (
+                  <button 
+                    onClick={() => setPreviewMode(!previewMode)}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-[10px] transition-all font-bold font-sans"
+                  >
+                    <Play className="w-3 h-3" /> {previewMode ? "Dừng Xem" : "Xem Live Preview"}
+                  </button>
+                )}
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto pt-3 font-mono text-[11px] leading-relaxed text-muted-foreground space-y-1">
-              {activeFile?.language === "html" && (
-                <p className="text-muted-foreground">File dạng Web (HTML/CSS/JS). Bạn bấm vào nút **Xem Live Preview** phía trên bên phải để trực quan hóa giao diện ngay lập trình duyệt!</p>
-              )}
-              {activeFile?.language === "python" && (
-                <>
-                  <p className="text-muted-foreground">Đối với Python, bạn mở Terminal trên máy tính (local) của bạn tại thư mục chứa file đã tải về và gõ lệnh chạy:</p>
-                  <code className="block bg-background p-2 text-success rounded mt-1 border border-border">python3 {activeFile.name}</code>
-                </>
-              )}
-              {activeFile?.language === "c" && (
-                <>
-                  <p className="text-muted-foreground">Đối với ngôn ngữ C, hãy cài đặt compiler GCC. Biên dịch và thực thi bằng lệnh Terminal:</p>
-                  <code className="block bg-background p-2 text-success rounded mt-1 border border-border">gcc {activeFile.name} -o output && ./output</code>
-                </>
-              )}
-              {activeFile?.language === "cpp" && (
-                <>
-                  <p className="text-muted-foreground">Đối với C++, biên dịch bằng trình biên dịch g++:</p>
-                  <code className="block bg-background p-2 text-success rounded mt-1 border border-border">g++ {activeFile.name} -o output && ./output</code>
-                </>
-              )}
-              {activeFile?.language === "csharp" && (
-                <>
-                  <p className="text-muted-foreground">Đối với C#, hãy cài đặt .NET SDK trên máy. Tạo project Console mới và chạy:</p>
-                  <code className="block bg-background p-2 text-success rounded mt-1 border border-border">dotnet run</code>
-                </>
-              )}
-              {activeFile?.language === "php" && (
-                <>
-                  <p className="text-muted-foreground">Đối với PHP, bạn có thể chạy server PHP tích hợp cục bộ để test nhanh mà không cần Apache:</p>
-                  <code className="block bg-background p-2 text-success rounded mt-1 border border-border">php -S localhost:8000</code>
-                  <p className="text-[10px] text-muted-foreground mt-1">Truy cập http://localhost:8000 trên máy tính của bạn để xem kết quả.</p>
-                </>
+            <div className="flex-1 overflow-y-auto pt-3 text-xs leading-relaxed text-muted-foreground">
+              {terminalTab === "console" ? (
+                <pre className="h-full bg-zinc-950/90 text-emerald-400 rounded-lg p-3 font-mono text-[10.5px] overflow-y-auto leading-relaxed whitespace-pre-wrap select-text border border-zinc-800/80 shadow-inner">
+                  {consoleOutput}
+                </pre>
+              ) : (
+                <div className="space-y-1 font-mono text-[11px]">
+                  {activeFile?.language === "html" && (
+                    <p className="text-muted-foreground">File dạng Web (HTML/CSS/JS). Bạn bấm vào nút **Xem Live Preview** phía trên bên phải để trực quan hóa giao diện ngay lập trình duyệt!</p>
+                  )}
+                  {activeFile?.language === "python" && (
+                    <>
+                      <p className="text-muted-foreground">Đối với Python, bạn mở Terminal trên máy tính (local) của bạn tại thư mục chứa file đã tải về và gõ lệnh chạy:</p>
+                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">python3 {activeFile.name}</code>
+                    </>
+                  )}
+                  {activeFile?.language === "c" && (
+                    <>
+                      <p className="text-muted-foreground">Đối với ngôn ngữ C, hãy cài đặt compiler GCC. Biên dịch và thực thi bằng lệnh Terminal:</p>
+                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">gcc {activeFile.name} -o output && ./output</code>
+                    </>
+                  )}
+                  {activeFile?.language === "cpp" && (
+                    <>
+                      <p className="text-muted-foreground">Đối với C++, biên dịch bằng trình biên dịch g++:</p>
+                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">g++ {activeFile.name} -o output && ./output</code>
+                    </>
+                  )}
+                  {activeFile?.language === "csharp" && (
+                    <>
+                      <p className="text-muted-foreground">Đối với C#, hãy cài đặt .NET SDK trên máy. Tạo project Console mới và chạy:</p>
+                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">dotnet run</code>
+                    </>
+                  )}
+                  {activeFile?.language === "php" && (
+                    <>
+                      <p className="text-muted-foreground">Đối với PHP, bạn có thể chạy server PHP tích hợp cục bộ để test nhanh mà không cần Apache:</p>
+                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">php -S localhost:8000</code>
+                      <p className="text-[10px] text-muted-foreground mt-1">Truy cập http://localhost:8000 trên máy tính của bạn để xem kết quả.</p>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           </div>

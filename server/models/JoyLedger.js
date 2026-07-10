@@ -49,7 +49,16 @@ const JoyLedgerSchema = new mongoose.Schema({
       'community_post',
       'community_comment',
       'community_like_received',
-      'community_anon_post'
+      'community_anon_post',
+      'lifetime_unlock',
+      'lifetime_unlock_all',
+      'ide_phase_1_completion',
+      'ide_phase_2_completion',
+      'ide_phase_3_completion',
+      'ide_phase_4_completion',
+      'ide_phase_5_completion',
+      'ide_phase_6_completion',
+      'ide_phase_7_completion'
     ],
     required: true
   },

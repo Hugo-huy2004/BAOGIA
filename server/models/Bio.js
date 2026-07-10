@@ -390,6 +390,14 @@ const BioSchema = new mongoose.Schema(
       positions: { type: mongoose.Schema.Types.Mixed, default: {} },
       unlockedItems: { type: [String], default: [] }
     },
+    hugoCoderBasicLifetime: {
+      type: Boolean,
+      default: false
+    },
+    hugoCoderAll7Lifetime: {
+      type: Boolean,
+      default: false
+    },
     hugoCoderIntermediateLifetime: {
       type: Boolean,
       default: false

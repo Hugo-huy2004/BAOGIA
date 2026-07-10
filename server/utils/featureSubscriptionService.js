@@ -4,7 +4,7 @@ import { awardJoy } from './joyService.js';
 // Canonical feature keys + monthly JOY price — single source of truth so
 // routes never hardcode 150/199 independently.
 export const FEATURE_PRICES = {
-  hugoCoder: 1500,
+  hugoCoder: 50,
   hugoCoderIntermediate: 2600,
   hugoCoderAdvanced: 2600,
   hugoCoderSecurity: 1000,
@@ -18,7 +18,7 @@ export const FEATURE_PRICES = {
 };
 
 const FEATURE_LABELS = {
-  hugoCoder: 'HugoCoder Cơ Bản',
+  hugoCoder: 'Phí bảo trì HugoCoder',
   hugoCoderIntermediate: 'HugoCoder Trung Cấp',
   hugoCoderAdvanced: 'HugoCoder Cao Cấp',
   hugoCoderSecurity: 'HugoCoder Bảo Mật (Chặng 4)',

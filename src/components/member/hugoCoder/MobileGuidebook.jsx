@@ -42,6 +42,8 @@ export default function MobileGuidebook({
   handlePrevMobileLesson,
   handleNextMobileLesson,
   onShowCertificate,
+  handlePayMaintenance,
+  handleBuyAllStagesBundle,
   // Puzzle props
   interactivePassed,
   miniQuizAnswers,
@@ -96,12 +98,12 @@ export default function MobileGuidebook({
   };
 
   const rankTitle = React.useMemo(() => {
-    if (mobileCompletedCount < 10) return "Tập sự Lập trình 💻";
-    if (mobileCompletedCount < 25) return "Thợ Code Thực chiến ⚡";
-    if (mobileCompletedCount < 50) return "Lập Trình Viên Pro 🚀";
-    if (mobileCompletedCount < 70) return "Kỹ Sư Hệ Thống 🛡️";
-    if (mobileCompletedCount < 90) return "Chuyên Gia Tối Ưu 🧠";
-    return "Huyền Thoại Fullstack 🎓";
+    if (mobileCompletedCount < 10) return "Học viên Sơ cấp";
+    if (mobileCompletedCount < 25) return "Lập trình viên Sơ cấp";
+    if (mobileCompletedCount < 50) return "Lập trình viên Trung cấp";
+    if (mobileCompletedCount < 70) return "Lập trình viên Cao cấp";
+    if (mobileCompletedCount < 90) return "Kỹ sư Phần mềm Chuyên nghiệp";
+    return "Chuyên gia Kiến trúc Hệ thống Web";
   }, [mobileCompletedCount]);
 
   const phaseMeta = {
@@ -158,7 +160,7 @@ export default function MobileGuidebook({
       accentColor: "text-yellow-500 dark:text-yellow-400 border-yellow-500/30",
       badgeColor: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20",
       barColor: "bg-gradient-to-r from-yellow-500 to-amber-500",
-      subtext: "Dự án tốt nghiệp: Làm web fullstack hoàn chỉnh",
+      subtext: "Đồ án kết khóa: Làm web fullstack hoàn chỉnh",
       icon: <Trophy className="w-4.5 h-4.5 text-yellow-500" />
     }
   };
@@ -304,6 +306,51 @@ export default function MobileGuidebook({
                     <div className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(99,102,241,0.5)]" style={{ width: `${mobileProgress}%` }} />
                   </div>
                 </div>
+
+                {/* Maintenance status display */}
+                <div className="mt-4 pt-3.5 border-t border-white/10 flex flex-col gap-2">
+                  {bio?.hugoCoderAll7Lifetime ? (
+                    <div className="flex items-center gap-1.5 text-[10px] font-black text-amber-300">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      Sở hữu Trọn gói Vĩnh viễn (Miễn phí bảo trì trọn đời)
+                    </div>
+                  ) : (() => {
+                    const expiresAt = bio?.featureSubscriptions?.hugoCoder?.expiresAt;
+                    if (!expiresAt) {
+                      return (
+                        <div className="text-[10px] text-zinc-400">
+                          Chưa kích hoạt phí bảo trì hàng tháng (50 JOY)
+                        </div>
+                      );
+                    }
+                    const expTime = new Date(expiresAt).getTime();
+                    const now = Date.now();
+                    const isExpired = expTime <= now;
+                    if (isExpired) {
+                      const resetTime = expTime + 90 * 24 * 60 * 60 * 1000;
+                      const daysUntilReset = Math.ceil((resetTime - now) / (24 * 60 * 60 * 1000));
+                      return (
+                        <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-2.5 space-y-1.5 text-left text-red-200">
+                          <div className="text-[10.5px] font-black flex items-center gap-1.5">
+                            <Lock className="w-3.5 h-3.5 text-red-400 animate-pulse" />
+                            Phí bảo trì đã Hết Hạn!
+                          </div>
+                          <p className="text-[9.5px] text-zinc-300 leading-normal">
+                            Vui lòng gia hạn 50 JOY bảo trì hàng tháng để tiếp tục học. Còn <strong>{daysUntilReset > 0 ? daysUntilReset : 0} ngày</strong> đóng phí trước khi tiến trình học bị reset hoàn toàn về 0.
+                          </p>
+                        </div>
+                      );
+                    } else {
+                      const daysLeft = Math.ceil((expTime - now) / (24 * 60 * 60 * 1000));
+                      return (
+                        <div className="flex items-center justify-between text-[10px]">
+                          <span className="text-zinc-400">Phí bảo trì hàng tháng:</span>
+                          <span className="font-bold text-emerald-400">Đã kích hoạt (Còn {daysLeft} ngày)</span>
+                        </div>
+                      );
+                    }
+                  })()}
+                </div>
               </div>
 
               {/* Title & Total Complete Stats */}
@@ -382,7 +429,7 @@ export default function MobileGuidebook({
                               <div className="absolute top-0 right-0 -mr-4 -mt-4 w-12 h-12 bg-amber-500/10 rounded-full blur-xl pointer-events-none" />
                               <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-black text-xs uppercase tracking-wider">
                                 <Trophy className="w-4.5 h-4.5 text-amber-400 animate-bounce" />
-                                Chúc mừng tốt nghiệp {phase.title}
+                                Chúc mừng hoàn thành {phase.title}
                               </div>
                               
                               {[3, 4, 5, 6].includes(phase.phaseNumber) && (() => {
@@ -418,18 +465,18 @@ export default function MobileGuidebook({
                                   <div className="space-y-2.5 text-[10px] font-sans text-muted-foreground">
                                     {status === 'idle' && (
                                       <p className="leading-relaxed">
-                                        Hãy hoàn thành đề án tốt nghiệp và nộp đường link dự án của bạn tại <strong>Bài 100</strong> để nhận đánh giá từ Hugo Studio.
+                                        Hãy hoàn thành đồ án kết khóa và nộp đường link dự án của bạn tại <strong>Bài 100</strong> để nhận đánh giá từ Hugo Studio.
                                       </p>
                                     )}
                                     {status === 'pending' && (
                                       <div className="p-3 bg-amber-500/15 border border-amber-500/25 rounded-xl text-amber-600 dark:text-amber-400 font-black shadow-sm">
-                                        Đang chờ duyệt đề án tốt nghiệp... ⏳
+                                        Đang chờ duyệt đồ án kết khóa... ⏳
                                         <p className="text-[9px] font-normal text-muted-foreground mt-1">Hugo Studio đang rà soát dự án và mã nguồn của bạn.</p>
                                       </div>
                                     )}
                                     {status === 'rejected' && (
                                       <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive font-black text-left space-y-1.5 shadow-sm">
-                                        <div>Đề án chưa đạt yêu cầu ❌</div>
+                                        <div>Đồ án chưa đạt yêu cầu ❌</div>
                                         {adminNote && <p className="text-[9px] font-normal text-zinc-300">Phản hồi: {adminNote}</p>}
                                         <p className="text-[9px] font-normal text-muted-foreground">Bạn có thể sửa đổi và nộp lại link mới ở Bài 100.</p>
                                       </div>
@@ -437,8 +484,8 @@ export default function MobileGuidebook({
                                     {status === 'approved' && (
                                       <div className="space-y-2.5">
                                         <div className="p-3 bg-emerald-500/15 border border-emerald-500/25 rounded-xl text-emerald-600 dark:text-emerald-400 font-black shadow-sm">
-                                          Đề án đã được duyệt thành công! 🎉
-                                          <p className="text-[9px] font-normal text-muted-foreground mt-1">Đã nhận thưởng tốt nghiệp 4,000 JOY & phần quà VVIP.</p>
+                                          Đồ án đã được duyệt thành công! 🎉
+                                          <p className="text-[9px] font-normal text-muted-foreground mt-1">Đã nhận thưởng hoàn thành khóa học 4,000 JOY & phần quà VVIP.</p>
                                         </div>
                                         {certUrl ? (
                                           <a
@@ -447,7 +494,7 @@ export default function MobileGuidebook({
                                             rel="noopener noreferrer"
                                             className="block w-full py-2.5 text-center bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-zinc-950 font-black rounded-xl text-[10px] uppercase tracking-wider transition-all shadow-md"
                                           >
-                                            Nhận chứng nhận tốt nghiệp 🎓
+                                            Nhận chứng nhận hoàn thành
                                           </a>
                                         ) : (
                                           <p className="text-[9px] text-amber-400 font-bold">Chứng nhận đang được chuẩn bị bởi Admin...</p>
@@ -565,48 +612,73 @@ export default function MobileGuidebook({
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      Nội dung bài học này đang bị khóa. Hãy mở khóa chặng học tập này để tiếp tục đọc giáo trình lý thuyết và thực hành.
+                      {!tierInfo.lifetime 
+                        ? "Nội dung bài học này đang bị khóa. Vui lòng mở khóa vĩnh viễn chặng học tập này hoặc sở hữu trọn gói 7 chặng để bắt đầu học."
+                        : "Thuê bao bảo trì đã hết hạn. Vui lòng gia hạn 50 JOY bảo trì hàng tháng để tiếp tục học tập."}
                     </p>
                   </div>
 
                   <div className="space-y-4">
-                    {/* Option 1: Monthly subscription */}
-                    <div className="border border-border bg-white dark:bg-zinc-900 rounded-xl p-4 space-y-3">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-bold text-foreground">Thuê bao học tập (30 ngày)</span>
-                        <span className="font-black text-primary">{tierInfo.price} JOY</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Mở khóa toàn bộ các bài học trong {tierInfo.tierLabel} trong 30 ngày để xem lý thuyết và thực hành.
-                      </p>
-                      <button
-                        onClick={() => handleExchangeSubscription(tierInfo)}
-                        disabled={exchangeSubmitting}
-                        className="w-full py-3 bg-primary hover:bg-primary/95 text-white font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow active:scale-95 disabled:opacity-50"
-                      >
-                        Kích hoạt thuê bao
-                      </button>
-                    </div>
+                    {/* Case 1: Stage not yet purchased/unlocked */}
+                    {!tierInfo.lifetime && (
+                      <>
+                        {/* Option 1: Lifetime Stage Unlock */}
+                        <div className="border border-border bg-white dark:bg-zinc-900 rounded-xl p-4 space-y-3">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="font-bold text-foreground">Mở khóa vĩnh viễn chặng</span>
+                            <span className="font-black text-primary">{tierInfo.price} JOY</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Mở khóa vĩnh viễn quyền học và thực hành toàn bộ bài học thuộc {tierInfo.tierLabel}.
+                          </p>
+                          <button
+                            onClick={() => handleBuyLifetimeUnlock(tierInfo.tier)}
+                            disabled={exchangeSubmitting}
+                            className="w-full py-3 bg-primary hover:bg-primary/95 text-white font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow active:scale-95 disabled:opacity-50"
+                          >
+                            Mở khóa chặng vĩnh viễn
+                          </button>
+                        </div>
 
-                    {/* Option 2: Lifetime permanent unlock */}
-                    {showLifetimeOption && (
-                      <div className="border border-amber-500/20 bg-amber-500/5 rounded-xl p-4 space-y-3">
+                        {/* Option 2: Buy All 7 Stages Bundle */}
+                        <div className="border border-amber-500/20 bg-amber-500/5 rounded-xl p-4 space-y-3">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="font-bold text-amber-500 flex items-center gap-1.5">
+                              <Award className="w-4 h-4 text-amber-400" />
+                              Trọn gói vĩnh viễn 7 chặng
+                            </span>
+                            <span className="font-black text-amber-500">16.000 JOY</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Mở khóa toàn bộ 100 bài học của 7 chặng vĩnh viễn & được <strong>miễn phí phí bảo trì trọn đời</strong>.
+                          </p>
+                          <button
+                            onClick={() => handleBuyAllStagesBundle()}
+                            disabled={exchangeSubmitting}
+                            className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow active:scale-95 disabled:opacity-50"
+                          >
+                            Mua trọn gói 16k JOY
+                          </button>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Case 2: Stage unlocked but maintenance expired */}
+                    {tierInfo.lifetime && !tierInfo.maintenanceActive && (
+                      <div className="border border-red-500/20 bg-red-500/5 rounded-xl p-4 space-y-3">
                         <div className="flex justify-between items-center text-xs">
-                          <span className="font-bold text-amber-500 flex items-center gap-1.5">
-                            <Award className="w-4 h-4 text-amber-400" />
-                            Mở khóa vĩnh viễn
-                          </span>
-                          <span className="font-black text-amber-500">50 JOY</span>
+                          <span className="font-bold text-red-500">Gia hạn phí bảo trì tháng</span>
+                          <span className="font-black text-red-500">50 JOY</span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          Hoàn thành chặng! Nhận quyền sở hữu trọn đời học liệu chỉ với một lần trao đổi 50 JOY.
+                          Phí bảo trì cần đóng hàng tháng để giữ quyền truy cập. Quá hạn 3 tháng sẽ bị reset tiến trình học về 0.
                         </p>
                         <button
-                          onClick={() => handleBuyLifetimeUnlock(tierInfo.tier)}
+                          onClick={() => handlePayMaintenance()}
                           disabled={exchangeSubmitting}
-                          className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow active:scale-95 disabled:opacity-50"
+                          className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow active:scale-95 disabled:opacity-50"
                         >
-                          Mở khóa vĩnh viễn trọn đời
+                          Đóng phí bảo trì 50 JOY
                         </button>
                       </div>
                     )}

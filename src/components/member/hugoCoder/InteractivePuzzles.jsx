@@ -1077,7 +1077,7 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Giao dịch nộp dự án thất bại.");
       
-      notify.success("Đã nộp dự án tốt nghiệp thành công! Đang chờ kiểm duyệt.");
+      notify.success("Đã nộp đồ án kết khóa thành công! Đang chờ kiểm duyệt.");
       if (onBioUpdate) {
         onBioUpdate(data.bio);
       }
@@ -1095,15 +1095,15 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
     <div className="space-y-4 font-sans bg-zinc-900/50 p-4 border border-border/60 rounded-2xl">
       <div className="text-center space-y-1">
         <Sparkles className="w-8 h-8 text-amber-400 mx-auto animate-pulse" />
-        <h3 className="text-sm font-extrabold text-amber-500 uppercase tracking-wider">Đề Án Tốt Nghiệp HugoCoder</h3>
+        <h3 className="text-sm font-extrabold text-amber-500 uppercase tracking-wider">Đồ Án Kết Khóa HugoCoder</h3>
         <p className="text-[10px] text-zinc-400">
-          Nộp sản phẩm hoàn thiện nhất của bạn để hoàn tất Chặng 7 và nhận Chứng nhận tốt nghiệp & +4,000 JOY.
+          Nộp sản phẩm hoàn thiện nhất của bạn để hoàn tất Chặng 7 và nhận Chứng nhận hoàn thành & +4,000 JOY.
         </p>
       </div>
 
       {status === "approved" && (
         <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center space-y-2">
-          <p className="text-xs font-bold text-emerald-500">Chúc mừng! Bạn đã tốt nghiệp HugoCoder! 🎉</p>
+          <p className="text-xs font-bold text-emerald-500">Chúc mừng! Bạn đã hoàn thành HugoCoder! 🎉</p>
           {certUrl ? (
             <a
               href={certUrl}
@@ -1111,7 +1111,7 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
               rel="noopener noreferrer"
               className="inline-block px-4 py-2 bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md"
             >
-              Xem chứng nhận tốt nghiệp 🎓
+              Xem chứng nhận hoàn thành
             </a>
           ) : (
             <p className="text-[9px] text-zinc-400">Đang chờ admin đính kèm link chứng chỉ...</p>

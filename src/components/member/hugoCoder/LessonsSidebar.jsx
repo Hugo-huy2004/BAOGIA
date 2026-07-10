@@ -37,7 +37,9 @@ export default function LessonsSidebar({
   setActiveTabPath,
   handleVerifyLesson,
   verificationStatus,
-  onShowCertificate
+  onShowCertificate,
+  handlePayMaintenance,
+  handleBuyAllStagesBundle
 }) {
   const [expandedPhases, setExpandedPhases] = useState({
     basic: true,
@@ -102,14 +104,6 @@ export default function LessonsSidebar({
         const tierInfo = getLessonTierAndAccess(course.id);
 
         if (!tierInfo.hasAccess) {
-          const showLifetimeOption = 
-            (tierInfo.tier === "intermediate" && completedLessons.includes("lesson25")) ||
-            (tierInfo.tier === "advanced" && completedLessons.includes("lesson50")) ||
-            (tierInfo.tier === "security" && completedLessons.includes("lesson60")) ||
-            (tierInfo.tier === "exam" && completedLessons.includes("lesson62")) ||
-            (tierInfo.tier === "optimize" && completedLessons.includes("lesson70")) ||
-            (tierInfo.tier === "ultimate" && (completedLessons.includes("lesson100") || bio?.hugoCoderProjectStatus === 'approved'));
-
           return (
             <div className="space-y-5 py-2">
               <div className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-2xl p-4 text-center space-y-3.5 shadow-sm">
@@ -123,48 +117,73 @@ export default function LessonsSidebar({
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
-                  Nội dung bài học này đang bị khóa. Hãy mở khóa chặng học tập này để tiếp tục học tập và thực hành lập trình thực tế.
+                  {!tierInfo.lifetime 
+                    ? "Nội dung bài học này đang bị khóa. Vui lòng mở khóa vĩnh viễn chặng học tập này hoặc sở hữu trọn gói 7 chặng để bắt đầu."
+                    : "Thuê bao bảo trì đã hết hạn. Vui lòng gia hạn 50 JOY bảo trì hàng tháng để tiếp tục học tập."}
                 </p>
               </div>
 
               <div className="space-y-3.5">
-                {/* Option 1: Monthly subscription */}
-                <div className="border border-border bg-card/50 rounded-xl p-3.5 space-y-2.5">
-                  <div className="flex justify-between items-center text-[10.5px]">
-                    <span className="font-bold text-foreground">Thuê bao học tập (30 ngày)</span>
-                    <span className="font-black text-primary">{tierInfo.price} JOY</span>
-                  </div>
-                  <p className="text-[9.5px] text-muted-foreground leading-relaxed">
-                    Mở khóa đầy đủ toàn bộ các bài học trong gói {tierInfo.tierLabel} trong 30 ngày để học tập và code trực tiếp trên IDE.
-                  </p>
-                  <button
-                    onClick={() => handleExchangeSubscription(tierInfo)}
-                    disabled={exchangeSubmitting}
-                    className="w-full py-2 bg-primary hover:bg-primary/95 text-white font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow active:scale-98 disabled:opacity-50"
-                  >
-                    Kích hoạt thuê bao
-                  </button>
-                </div>
+                {/* Case 1: Stage not yet purchased/unlocked */}
+                {!tierInfo.lifetime && (
+                  <>
+                    {/* Option 1: Lifetime Stage Unlock */}
+                    <div className="border border-border bg-card/50 rounded-xl p-3.5 space-y-2.5">
+                      <div className="flex justify-between items-center text-[10.5px]">
+                        <span className="font-bold text-foreground">Mở khóa vĩnh viễn chặng</span>
+                        <span className="font-black text-primary">{tierInfo.price} JOY</span>
+                      </div>
+                      <p className="text-[9.5px] text-muted-foreground leading-relaxed">
+                        Mở khóa vĩnh viễn quyền học và thực hành toàn bộ bài học thuộc {tierInfo.tierLabel}.
+                      </p>
+                      <button
+                        onClick={() => handleBuyLifetimeUnlock(tierInfo.tier)}
+                        disabled={exchangeSubmitting}
+                        className="w-full py-2 bg-primary hover:bg-primary/95 text-white font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow active:scale-98 disabled:opacity-50"
+                      >
+                        Mở khóa chặng vĩnh viễn
+                      </button>
+                    </div>
 
-                {/* Option 2: Lifetime permanent unlock */}
-                {showLifetimeOption && (
-                  <div className="border border-amber-500/20 bg-amber-500/5 rounded-xl p-3.5 space-y-2.5">
+                    {/* Option 2: Buy All 7 Stages Bundle */}
+                    <div className="border border-amber-500/20 bg-amber-500/5 rounded-xl p-3.5 space-y-2.5">
+                      <div className="flex justify-between items-center text-[10.5px]">
+                        <span className="font-bold text-amber-500 flex items-center gap-1">
+                          <Award className="w-3.5 h-3.5 text-amber-400" />
+                          Trọn gói vĩnh viễn 7 chặng
+                        </span>
+                        <span className="font-black text-amber-500">16.000 JOY</span>
+                      </div>
+                      <p className="text-[9.5px] text-muted-foreground leading-relaxed">
+                        Mở khóa toàn bộ 100 bài học của 7 chặng vĩnh viễn & được <strong>miễn phí phí bảo trì trọn đời</strong>.
+                      </p>
+                      <button
+                        onClick={() => handleBuyAllStagesBundle()}
+                        disabled={exchangeSubmitting}
+                        className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow active:scale-98 disabled:opacity-50"
+                      >
+                        Mua trọn gói 16k JOY
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* Case 2: Stage unlocked but maintenance expired */}
+                {tierInfo.lifetime && !tierInfo.maintenanceActive && (
+                  <div className="border border-red-500/20 bg-red-500/5 rounded-xl p-3.5 space-y-2.5">
                     <div className="flex justify-between items-center text-[10.5px]">
-                      <span className="font-bold text-amber-500 flex items-center gap-1">
-                        <Award className="w-3.5 h-3.5 text-amber-400" />
-                        Mở khóa vĩnh viễn
-                      </span>
-                      <span className="font-black text-amber-500">50 JOY</span>
+                      <span className="font-bold text-red-500">Gia hạn phí bảo trì tháng</span>
+                      <span className="font-black text-red-500">50 JOY</span>
                     </div>
                     <p className="text-[9.5px] text-muted-foreground leading-relaxed">
-                      Hoàn thành chặng! Nhận quyền sở hữu trọn đời học liệu chỉ với một lần trao đổi 50 JOY.
+                      Phí bảo trì cần đóng hàng tháng để giữ quyền truy cập. Quá hạn 3 tháng sẽ bị reset tiến trình học về 0.
                     </p>
                     <button
-                      onClick={() => handleBuyLifetimeUnlock(tierInfo.tier)}
+                      onClick={() => handlePayMaintenance()}
                       disabled={exchangeSubmitting}
-                      className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow active:scale-98 disabled:opacity-50"
+                      className="w-full py-2 bg-red-500 hover:bg-red-600 text-white font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow active:scale-98 disabled:opacity-50"
                     >
-                      Mở khóa vĩnh viễn
+                      Đóng phí bảo trì 50 JOY
                     </button>
                   </div>
                 )}
@@ -308,7 +327,7 @@ export default function LessonsSidebar({
                               <div className="space-y-2 text-[9px] font-sans text-zinc-400">
                                 {status === 'idle' && (
                                   <p className="leading-normal">
-                                    Hãy hoàn thành đề án tốt nghiệp và nộp đường link dự án của bạn tại <strong>Bài 100</strong> để nhận đánh giá từ Hugo Studio.
+                                    Hãy hoàn thành đồ án kết khóa và nộp đường link dự án của bạn tại <strong>Bài 100</strong> để nhận đánh giá từ Hugo Studio.
                                   </p>
                                 )}
                                 {status === 'pending' && (
@@ -337,7 +356,7 @@ export default function LessonsSidebar({
                                         rel="noopener noreferrer"
                                         className="block w-full py-1.5 text-center bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[9px] uppercase tracking-wider transition-all shadow-md"
                                       >
-                                        Xem chứng nhận tốt nghiệp 🎓
+                                        Xem chứng nhận hoàn thành
                                       </a>
                                     ) : (
                                       <p className="text-[8px] text-amber-400 font-bold">Chứng nhận đang được đẩy lên Drive bởi Admin...</p>

@@ -992,7 +992,7 @@ function ScenePartners({ container, bind, t }) {
           </div>
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
             {t("intro.partners.title1")}{" "}
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
               {t("intro.partners.title2")}
             </span>
           </h2>
@@ -1064,9 +1064,10 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
   const scrollRotX = useTransform(p, [0, 1], [6, -6]);
   const portraitRotX = useTransform([scrollRotX, mouse.y], ([a, b]) => a + b * -4);
   const portraitOpacity = useTransform(p, [0, 0.1], [0.3, 1]);
-  const dot1 = useTransform(p, [0.02, 0.1, 0.3, 0.38], [0.25, 1, 1, 0.25]);
-  const dot2 = useTransform(p, [0.34, 0.42, 0.62, 0.7], [0.25, 1, 1, 0.25]);
-  const dot3 = useTransform(p, [0.66, 0.74, 1, 1], [0.25, 1, 1, 1]);
+  const dot1 = useTransform(p, [0.02, 0.08, 0.22, 0.28], [0.25, 1, 1, 0.25]);
+  const dot2 = useTransform(p, [0.26, 0.32, 0.46, 0.52], [0.25, 1, 1, 0.25]);
+  const dot3 = useTransform(p, [0.50, 0.56, 0.70, 0.76], [0.25, 1, 1, 0.25]);
+  const dot4 = useTransform(p, [0.74, 0.80, 1, 1], [0.25, 1, 1, 1]);
 
   return (
     <SceneShell bind={bind} targetRef={targetRef} height="260vh">
@@ -1089,9 +1090,9 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
         </div>
 
         {/* Chapters */}
-        <div className="lg:col-span-7 relative h-[300px] sm:h-[340px] lg:h-[420px]">
+        <div className="lg:col-span-7 relative h-[400px] sm:h-[450px] lg:h-[500px]">
           {/* Chapter 1 — danh tính */}
-          <Chapter p={p} range={[0.02, 0.1, 0.3, 0.38]}>
+          <Chapter p={p} range={[0.02, 0.08, 0.22, 0.28]}>
             <Badge className="self-start bg-warning/15 text-warning border-warning/30">{t("intro.slide3.badge")}</Badge>
             <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-extrabold text-foreground leading-tight">
               Xin chào, tôi là <br />
@@ -1104,54 +1105,184 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
             </p>
           </Chapter>
 
-          {/* Chapter 2 — học vấn */}
-          <Chapter p={p} range={[0.34, 0.42, 0.62, 0.7]}>
-            <Badge className="self-start">{t("intro.slide3.eduTitle")}</Badge>
-            <h2 className="font-display text-2xl sm:text-3xl lg:text-5xl font-extrabold text-foreground leading-tight">
-              {t("intro.slide3.title1")} {t("intro.slide3.title2")}
+          {/* Chapter 2 — Học vấn Cấp 3 (THPT Nguyễn Đình Chiểu) */}
+          <Chapter p={p} range={[0.26, 0.32, 0.46, 0.52]}>
+            <Badge className="self-start bg-primary/15 text-primary border-primary/30">Học vấn THPT</Badge>
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight">
+              THPT Nguyễn Đình Chiểu <br />
+              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-lg sm:text-xl">
+                Nơi rèn giũa và ươm mầm tư duy lập trình
+              </span>
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+
+            <div className="space-y-4 max-w-2xl w-full">
+              {/* School link banner (Full-width) */}
               <a
                 href="https://ndc.edu.vn"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative overflow-hidden p-4 rounded-2xl glass-sm border border-border/50 hover:border-primary hover:-translate-y-1 transition-all duration-300 block text-left space-y-1.5"
+                className="group relative overflow-hidden p-4 rounded-2xl bg-gradient-to-r from-[#0c1538]/60 to-[#050818]/80 border border-cyan-500/10 hover:border-primary transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg"
               >
                 <Shine />
-                <div className="flex justify-between items-start gap-2">
-                  <span className="text-[10px] sm:text-xs font-black text-primary uppercase tracking-wider">
-                    {t("intro.slide3.highSchool")}
-                  </span>
-                  <span className="material-symbols-outlined text-sm text-muted-foreground group-hover:text-primary transition-colors">
-                    open_in_new
-                  </span>
+                <div className="flex items-center gap-3.5 text-left w-full">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-primary/20 flex items-center justify-center p-1.5 shrink-0 group-hover:scale-105 group-hover:border-primary/40 transition-all duration-300">
+                    <img
+                      src="https://ndc.edu.vn/wp-content/themes/thptndc/assets/img/common/favicon.ico"
+                      alt="THPT Nguyễn Đình Chiểu Logo"
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.target.src = "https://www.google.com/s2/favicons?domain=ndc.edu.vn&sz=64";
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="text-xs font-black text-primary uppercase tracking-wider">
+                        Trường THPT Nguyễn Đình Chiểu
+                      </span>
+                      <span className="flex items-center gap-0.5 text-[9px] text-zinc-200 font-medium">
+                        <span className="material-symbols-outlined text-[10px] text-primary">location_on</span>
+                        8 Bis Đ. Hùng Vương, phường Mỹ Tho, Đồng Tháp
+                      </span>
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-zinc-200 font-sans leading-normal">
+                      {t("intro.slide3.highSchoolDesc")} (Mỹ Tho - Collège de MyTho)
+                    </p>
+                  </div>
                 </div>
-                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{t("intro.slide3.highSchoolDesc")}</p>
+                <span className="material-symbols-outlined text-sm text-muted-foreground group-hover:text-primary transition-colors self-end sm:self-center">
+                  open_in_new
+                </span>
               </a>
+
+              {/* 3-column virtues/skills/knowledge grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+                {[
+                  {
+                    title: "Đức tính & Kỷ luật",
+                    icon: "verified_user",
+                    desc: "Kiên trì vượt khó, rèn luyện ý chí và chủ động tự học sâu sắc."
+                  },
+                  {
+                    title: "Kỹ năng cốt lõi",
+                    icon: "psychology",
+                    desc: "Tư duy phản biện sắc bén, giải quyết vấn đề và tự nghiên cứu độc lập."
+                  },
+                  {
+                    title: "Kiến thức nền",
+                    icon: "menu_book",
+                    desc: "Tư duy logic Toán tự nhiên vững vàng và thuật toán cơ sở."
+                  }
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="p-3 rounded-xl bg-[#0a0f2c]/40 border border-cyan-500/10 backdrop-blur-md space-y-1 text-left shadow-md"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[11px] text-primary bg-primary/10 rounded-full p-1 border border-primary/20">
+                        {item.icon}
+                      </span>
+                      <span className="text-[9px] font-black text-cyan-300 uppercase tracking-wide font-mono">
+                        {item.title}
+                      </span>
+                    </div>
+                    <p className="text-[9.5px] text-zinc-200 leading-relaxed font-sans font-medium">
+                      {item.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Chapter>
+
+          {/* Chapter 3 — Đại học Greenwich */}
+          <Chapter p={p} range={[0.50, 0.56, 0.70, 0.76]}>
+            <Badge className="self-start bg-accent/15 text-accent border-accent/30">{t("intro.slide3.eduTitle")}</Badge>
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight">
+              Đại Học Greenwich <br />
+              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-lg sm:text-xl">
+                Chương trình chuẩn quốc tế Vương Quốc Anh
+              </span>
+            </h2>
+
+            <div className="space-y-4 max-w-2xl w-full">
+              {/* University link banner (Full-width) */}
               <a
                 href="https://greenwich.edu.vn"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative overflow-hidden p-4 rounded-2xl glass-sm border border-border/50 hover:border-accent hover:-translate-y-1 transition-all duration-300 block text-left space-y-1.5"
+                className="group relative overflow-hidden p-4 rounded-2xl bg-gradient-to-r from-[#0c1538]/60 to-[#050818]/80 border border-[#2b4c8c]/15 hover:border-accent transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg"
               >
                 <Shine />
-                <div className="flex justify-between items-start gap-2">
-                  <span className="text-[10px] sm:text-xs font-black text-accent uppercase tracking-wider">
-                    {t("intro.slide3.uni")}
-                  </span>
-                  <span className="material-symbols-outlined text-sm text-muted-foreground group-hover:text-accent transition-colors">
-                    open_in_new
+                <div className="flex items-center gap-3.5 text-left w-full">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-accent/20 flex items-center justify-center p-1.5 shrink-0 group-hover:scale-105 group-hover:border-accent/40 transition-all duration-300">
+                    <img
+                      src="https://www.google.com/s2/favicons?domain=greenwich.edu.vn&sz=64"
+                      alt="Greenwich Vietnam Logo"
+                      className="w-full h-full object-contain bg-white rounded-lg p-0.5"
+                      onError={(e) => {
+                        e.target.src = "https://www.google.com/s2/favicons?domain=tuyensinh.greenwich.edu.vn&sz=64";
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black text-accent uppercase tracking-wider font-display">
+                        {t("intro.slide3.uni")}
+                      </span>
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-zinc-200 font-sans leading-normal">
+                      {t("intro.slide3.uniDesc")}
+                    </p>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-sm text-muted-foreground group-hover:text-accent transition-colors self-end sm:self-center">
+                  open_in_new
+                </span>
+              </a>
+
+              {/* Greenwich Tech Stack Display (Full-width) */}
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-[#0b133a]/80 via-[#060814]/90 to-[#020512]/95 border border-cyan-500/20 shadow-[0_0_25px_rgba(6,182,212,0.1)] relative overflow-hidden text-left space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-cyan-400 animate-pulse">terminal</span>
+                  <span className="text-[10px] font-black uppercase text-cyan-300 tracking-wider font-mono">
+                    Greenwich Academic Stack
                   </span>
                 </div>
-                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{t("intro.slide3.uniDesc")}</p>
-              </a>
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {[
+                    { name: "C#", glow: "hover:shadow-purple-500/30 hover:border-purple-400/50", color: "from-purple-500/15 via-purple-500/5 to-transparent text-purple-300 border-purple-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/csharp/csharp-original.svg" },
+                    { name: "Python", glow: "hover:shadow-blue-500/30 hover:border-blue-400/50", color: "from-blue-500/15 via-blue-500/5 to-transparent text-blue-300 border-blue-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" },
+                    { name: "HTML", glow: "hover:shadow-orange-500/30 hover:border-orange-400/50", color: "from-orange-500/15 via-orange-500/5 to-transparent text-orange-300 border-orange-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" },
+                    { name: "CSS", glow: "hover:shadow-cyan-500/30 hover:border-cyan-400/50", color: "from-cyan-500/15 via-cyan-500/5 to-transparent text-cyan-300 border-cyan-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" },
+                    { name: "JavaScript", glow: "hover:shadow-yellow-500/30 hover:border-yellow-400/50", color: "from-yellow-500/15 via-yellow-500/5 to-transparent text-yellow-300 border-yellow-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
+                    { name: "PHP", glow: "hover:shadow-indigo-500/30 hover:border-indigo-400/50", color: "from-indigo-500/15 via-indigo-500/5 to-transparent text-indigo-300 border-indigo-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" },
+                    { name: "MySQL", glow: "hover:shadow-sky-500/30 hover:border-sky-400/50", color: "from-sky-500/15 via-sky-500/5 to-transparent text-sky-300 border-sky-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg" },
+                    { name: "React.js", glow: "hover:shadow-teal-500/30 hover:border-teal-400/50", color: "from-teal-500/15 via-teal-500/5 to-transparent text-teal-300 border-teal-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
+                    { name: "Unity", glow: "hover:shadow-emerald-500/30 hover:border-emerald-400/50", color: "from-emerald-500/15 via-emerald-500/5 to-transparent text-emerald-300 border-emerald-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/unity/unity-original.svg" }
+                  ].map((tech) => (
+                    <span
+                      key={tech.name}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wide border bg-gradient-to-br transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg select-none cursor-pointer ${tech.color} ${tech.glow}`}
+                    >
+                      <img
+                        src={tech.iconUrl}
+                        alt={tech.name}
+                        className={`w-3.5 h-3.5 object-contain ${tech.name === "React.js" ? "animate-[spin_10s_linear_infinite]" : ""}`}
+                        loading="lazy"
+                      />
+                      {tech.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           </Chapter>
 
-          {/* Chapter 3 — triết lý */}
-          <Chapter p={p} range={[0.66, 0.74, 1, 1]} hold>
+          {/* Chapter 4 — triết lý */}
+          <Chapter p={p} range={[0.74, 0.80, 1, 1]} hold>
             <Badge className="self-start bg-warning/15 text-warning border-warning/30">{t("intro.slide8.badge")}</Badge>
-            <blockquote className="text-base sm:text-xl lg:text-3xl italic font-semibold text-primary border-l-4 border-primary pl-4 sm:pl-6 py-1 leading-snug max-w-xl">
+            <blockquote className="text-base sm:text-xl lg:text-3xl italic font-semibold bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift border-l-4 border-primary pl-4 sm:pl-6 py-1 leading-snug max-w-xl">
               {t("intro.slide8.quote")}
             </blockquote>
             <div className="space-y-2 text-xs sm:text-sm max-w-xl">
@@ -1168,7 +1299,7 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
 
       {/* Chapter indicator */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
-        {[dot1, dot2, dot3].map((op, i) => (
+        {[dot1, dot2, dot3, dot4].map((op, i) => (
           <motion.span key={i} style={{ opacity: op }} className="w-2 h-2 rounded-full bg-primary" />
         ))}
       </div>
@@ -1218,7 +1349,9 @@ function SceneBio({ container, bind, t }) {
             <Badge>{t("intro.slide5.badge")}</Badge>
             <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
               {t("intro.slide5.title1")} <br />
-              {t("intro.slide5.title2")}
+              <span className="inline-block bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
+                {t("intro.slide5.title2")}
+              </span>
             </h2>
             <p className="text-sm lg:text-base text-muted-foreground leading-relaxed max-w-2xl">
               <Trans i18nKey="intro.slide5.desc">
@@ -1606,7 +1739,9 @@ function SceneContact({ container, bind, t, profile }) {
           </div>
           <Badge>{t("intro.slide9.badge")}</Badge>
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground">
-            {t("intro.slide9.title")}
+            <span className="inline-block bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
+              {t("intro.slide9.title")}
+            </span>
           </h2>
           <p className="text-xs sm:text-sm lg:text-base text-muted-foreground max-w-2xl mx-auto">
             {t("intro.slide9.desc")}
@@ -1837,7 +1972,7 @@ export default function IntroductionPage() {
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-56px)] overflow-hidden">
+    <div className="dark relative w-full h-[calc(100vh-56px)] overflow-hidden bg-[#04050f] text-slate-100">
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -1885,19 +2020,25 @@ export default function IntroductionPage() {
             className="group flex items-center justify-end gap-3 text-right focus:outline-none"
           >
             <span
-              className={`transition-opacity duration-300 text-[10px] font-bold tracking-widest text-primary uppercase ${
-                activeIndex === idx ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              className={`transition-all duration-300 text-[10px] font-bold tracking-widest uppercase ${
+                activeIndex === idx
+                  ? "opacity-100 bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift scale-105"
+                  : "opacity-0 group-hover:opacity-100 text-zinc-400"
               }`}
             >
               {t(key)}
             </span>
             <div
-              className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 ${
+              className={`w-3.5 h-3.5 rounded-full transition-all duration-300 relative flex items-center justify-center ${
                 activeIndex === idx
-                  ? "bg-primary border-primary scale-125 shadow-lg shadow-primary/30"
-                  : "border-muted-foreground/50 bg-transparent hover:border-primary"
+                  ? "scale-125 shadow-[0_0_15px_rgba(99,102,241,0.5)] p-[1.5px] bg-gradient-to-br from-primary via-accent to-warning"
+                  : "border-2 border-zinc-500 bg-transparent hover:border-primary"
               }`}
-            />
+            >
+              {activeIndex === idx ? (
+                <div className="w-full h-full rounded-full bg-[#050713]" />
+              ) : null}
+            </div>
           </button>
         ))}
       </div>

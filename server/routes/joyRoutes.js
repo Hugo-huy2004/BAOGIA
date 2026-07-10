@@ -9,9 +9,9 @@ import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToke
 
 const BIO_THEME_RENTAL_PRICE = 150;
 const COMPRESS_CHARGE = 50;
-const CODER_LESSON_IDS = Array.from({ length: 50 }, (_, index) => `lesson${index + 1}`);
+const CODER_LESSON_IDS = Array.from({ length: 100 }, (_, index) => `lesson${index + 1}`);
 const CODER_MIN_STUDY_MS = 10 * 60 * 1000;
-const CODER_QUIZ_LESSONS = new Set(['lesson4', 'lesson25', 'lesson50']);
+const CODER_QUIZ_LESSONS = new Set(['lesson4', 'lesson25', 'lesson50', 'lesson61', 'lesson62']);
 const CODER_SCREENSHOT_LESSONS = new Set(['lesson8', 'lesson9']);
 
 // Item labels shown on the invoice modal, keyed the same way the frontend
@@ -444,6 +444,11 @@ router.post('/subscribe-feature', requireMember, async (req, res) => {
     if (!email || !featureKey) return res.status(400).json({ error: 'email and featureKey are required' });
     if (!FEATURE_PRICES[featureKey]) return res.status(400).json({ error: 'Tính năng không hợp lệ.' });
 
+    // Block stage-specific monthly subscriptions, only allow hugoCoder (maintenance fee)
+    if (featureKey.startsWith('hugoCoder') && featureKey !== 'hugoCoder') {
+      return res.status(400).json({ error: 'Cấp độ này chỉ có thể mở khóa vĩnh viễn, không hỗ trợ thuê tháng.' });
+    }
+
     const { balance, expiresAt } = await chargeFeatureSubscription(email, featureKey, Number(months) || 1);
     res.json({ success: true, balance, expiresAt });
   } catch (error) {
@@ -453,13 +458,13 @@ router.post('/subscribe-feature', requireMember, async (req, res) => {
 
 /**
  * POST /api/joy/buy-lifetime-unlock
- * Deduct 50 JOY (+ 10% tax = 55 total) to grant lifetime unlock access to Coder Intermediate or Advanced phase.
+ * Deduct stage price to grant lifetime unlock access to Coder phase.
  */
 router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
   try {
-    const { tier } = req.body; // 'intermediate' or 'advanced'
+    const { tier } = req.body; // 'basic', 'intermediate', 'advanced', 'security', 'exam', 'optimize', 'ultimate'
     const email = req.memberEmail;
-    const validTiers = ['intermediate', 'advanced', 'security', 'exam', 'optimize', 'ultimate'];
+    const validTiers = ['basic', 'intermediate', 'advanced', 'security', 'exam', 'optimize', 'ultimate'];
     if (!email || !validTiers.includes(tier)) {
       return res.status(400).json({ error: 'Cấp độ mở khóa không hợp lệ.' });
     }
@@ -469,6 +474,7 @@ router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
     const keyMap = {
+      basic: 'hugoCoderBasicLifetime',
       intermediate: 'hugoCoderIntermediateLifetime',
       advanced: 'hugoCoderAdvancedLifetime',
       security: 'hugoCoderSecurityLifetime',
@@ -481,37 +487,46 @@ router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
       return res.status(400).json({ error: 'Bạn đã mở khóa vĩnh viễn cấp độ này rồi.' });
     }
 
+    // Enforce sequential unlocking and previous stage completion
     const completed = bio.completedLessons || [];
-    let requiredLessons = [];
     if (tier === 'intermediate') {
-      requiredLessons = Array.from({ length: 15 }, (_, i) => `lesson${i + 11}`);
+      if (!bio.hugoCoderBasicLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 1 trước.' });
+      if (!completed.includes('lesson10')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 1 (đến Bài 10) trước khi mở khóa Chặng 2.' });
     } else if (tier === 'advanced') {
-      requiredLessons = Array.from({ length: 25 }, (_, i) => `lesson${i + 26}`);
+      if (!bio.hugoCoderIntermediateLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 2 trước.' });
+      if (!completed.includes('lesson25')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 2 (đến Bài 25) trước khi mở khóa Chặng 3.' });
     } else if (tier === 'security') {
-      requiredLessons = Array.from({ length: 10 }, (_, i) => `lesson${i + 51}`);
+      if (!bio.hugoCoderAdvancedLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 3 trước.' });
+      if (!completed.includes('lesson50')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 3 (đến Bài 50) trước khi mở khóa Chặng 4.' });
     } else if (tier === 'exam') {
-      requiredLessons = Array.from({ length: 2 }, (_, i) => `lesson${i + 61}`);
+      if (!bio.hugoCoderSecurityLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 4 trước.' });
+      if (!completed.includes('lesson60')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 4 (đến Bài 60) trước khi mở khóa Chặng 5.' });
     } else if (tier === 'optimize') {
-      requiredLessons = Array.from({ length: 8 }, (_, i) => `lesson${i + 63}`);
+      if (!bio.hugoCoderExamLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 5 trước.' });
+      if (!completed.includes('lesson62')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 5 (đến Bài 62) trước khi mở khóa Chặng 6.' });
     } else if (tier === 'ultimate') {
-      requiredLessons = Array.from({ length: 30 }, (_, i) => `lesson${i + 71}`);
+      if (!bio.hugoCoderOptimizeLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 6 trước.' });
+      if (!completed.includes('lesson70')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 6 (đến Bài 70) trước khi mở khóa Chặng 7.' });
     }
 
-    const missing = requiredLessons.filter(id => !completed.includes(id));
-    if (missing.length > 0) {
-      return res.status(400).json({ 
-        error: `Bạn cần hoàn thành tất cả các bài học trong phần này trước khi mở khóa vĩnh viễn. Các bài chưa xong: ${missing.map(m => m.replace('lesson', 'Bài ')).join(', ')}` 
-      });
-    }
+    const tierPrices = {
+      basic: 1500,
+      intermediate: 2600,
+      advanced: 2600,
+      security: 1000,
+      exam: 100,
+      optimize: 1500,
+      ultimate: 5000
+    };
 
-    // Cost: 50 JOY + 10% tax = 55 JOY
-    const priceJoy = 50;
+    const priceJoy = tierPrices[tier];
     const { tax, total } = calcExchangeTotal(priceJoy);
     if (bio.joyBalance < total) {
       return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY phí sáng tạo) để mua.` });
     }
 
     const tierLabels = {
+      basic: 'Cơ Bản',
       intermediate: 'Trung Cấp',
       advanced: 'Cao Cấp',
       security: 'Bảo Mật',
@@ -531,6 +546,51 @@ router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
     bio[key] = true;
     await bio.save();
 
+    res.json({ success: true, balance: result.balance, bio });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/joy/buy-all-stages-bundle
+ * Deduct 16,000 JOY (+ 10% tax = 17,600 total) to grant lifetime unlock access to all 7 phases and waive maintenance.
+ */
+router.post('/buy-all-stages-bundle', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    if (bio.hugoCoderAll7Lifetime) {
+      return res.status(400).json({ error: 'Bạn đã mở khóa trọn gói 7 chặng vĩnh viễn rồi.' });
+    }
+
+    const priceJoy = 16000;
+    const { tax, total } = calcExchangeTotal(priceJoy);
+    if (bio.joyBalance < total) {
+      return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY phí sáng tạo) để mua trọn gói.` });
+    }
+
+    const result = await awardJoy(
+      bio.email,
+      -total,
+      'lifetime_unlock_all',
+      `Trao đổi JOY trọn gói vĩnh viễn 7 chặng HugoCoder (Miễn phí bảo trì trọn đời, gồm ${tax} JOY phí sáng tạo)`,
+      { bioDoc: bio, skipSave: true, refId: 'hugoCoderAll7Lifetime' }
+    );
+
+    bio.hugoCoderAll7Lifetime = true;
+    bio.hugoCoderBasicLifetime = true;
+    bio.hugoCoderIntermediateLifetime = true;
+    bio.hugoCoderAdvancedLifetime = true;
+    bio.hugoCoderSecurityLifetime = true;
+    bio.hugoCoderExamLifetime = true;
+    bio.hugoCoderOptimizeLifetime = true;
+    bio.hugoCoderUltimateLifetime = true;
+
+    await bio.save();
     res.json({ success: true, balance: result.balance, bio });
   } catch (error) {
     res.status(400).json({ error: error.message });

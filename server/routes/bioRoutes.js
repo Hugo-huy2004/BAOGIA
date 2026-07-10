@@ -396,6 +396,16 @@ router.get('/me', requireMember, async (req, res) => {
     }
 
     if (bioDoc) {
+      // Check if maintenance is overdue by more than 3 months (90 days)
+      if (bioDoc.completedLessons && bioDoc.completedLessons.length > 0 && !bioDoc.hugoCoderAll7Lifetime) {
+        const expiresAt = bioDoc.featureSubscriptions?.hugoCoder?.expiresAt;
+        if (expiresAt && Date.now() > new Date(expiresAt).getTime() + 90 * 24 * 60 * 60 * 1000) {
+          bioDoc.completedLessons = [];
+          bioDoc.markModified('completedLessons');
+          await bioDoc.save();
+        }
+      }
+
       await cleanupExpiredBirthdayNotifications(bioDoc);
       const bioObj = bioDoc.toObject();
       if (bioObj.secretLinks && Array.isArray(bioObj.secretLinks)) {
