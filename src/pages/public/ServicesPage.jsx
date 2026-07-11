@@ -224,10 +224,14 @@ function JourneyChapter({ badge, desc, index }) {
 
 function PlanCard({ plan, emphasized = false }) {
   const { t } = useTranslation();
+  const [showExcludes, setShowExcludes] = useState(false);
+  const displayIncludes = plan.includes.slice(0, 4);
+  const hiddenIncludes = plan.includes.slice(4);
+
   return (
     <motion.article
       {...reveal}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-[2rem] border bg-card p-6 transition-all duration-300 hover:-translate-y-1 sm:p-7 ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-[2rem] border bg-card p-5 transition-all duration-300 hover:-translate-y-1 sm:p-6 ${
         emphasized
           ? "border-primary/40 shadow-2xl shadow-primary/15 ring-1 ring-primary/25 lg:scale-[1.04]"
           : "border-border shadow-xl shadow-primary/5 hover:shadow-2xl"
@@ -236,7 +240,7 @@ function PlanCard({ plan, emphasized = false }) {
       {emphasized && <div className={`absolute inset-x-0 top-0 h-1.5 ${brandGradient}`} />}
       {plan.tagline && (
         <span
-          className={`absolute right-5 top-5 rounded-full px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] ${
+          className={`absolute right-4 top-4 rounded-full px-3 py-1 text-[8px] font-bold uppercase tracking-[0.18em] ${
             emphasized ? heroBadge : "border border-border bg-muted text-muted-foreground"
           }`}
         >
@@ -244,43 +248,80 @@ function PlanCard({ plan, emphasized = false }) {
         </span>
       )}
       <div className="relative flex flex-1 flex-col">
-        <MonoIcon name={plan.icon} bare />
-        <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">{plan.label}</p>
-        <h3 className="font-display mt-2 text-xl font-extrabold tracking-tight text-foreground">{plan.name}</h3>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{plan.desc}</p>
-        <div className="mt-5">
+        {/* Header: Icon + Category */}
+        <div className="flex items-start gap-3">
+          <MonoIcon name={plan.icon} />
+          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/70">{plan.label}</span>
+        </div>
+
+        {/* Title + Desc (compact) */}
+        <h3 className="font-display mt-3 text-lg font-extrabold tracking-tight text-foreground">{plan.name}</h3>
+        <p className="mt-2 text-xs leading-snug text-muted-foreground">{plan.desc}</p>
+
+        {/* Price section (compact) */}
+        <div className="mt-4 border-t border-border/40 pt-4">
           {plan.oldPrice && (
-            <p className="text-sm font-semibold tracking-tight text-muted-foreground line-through">{plan.oldPrice}</p>
+            <p className="text-xs font-semibold text-muted-foreground line-through">{plan.oldPrice}</p>
           )}
-          <p className={`text-3xl font-extrabold tracking-tight ${emphasized ? `${brandGradient} bg-clip-text text-transparent` : "text-foreground"}`}>
+          <p className={`text-2xl font-extrabold tracking-tight ${emphasized ? `${brandGradient} bg-clip-text text-transparent` : "text-foreground"}`}>
             {plan.price}
           </p>
+          {plan.note && <p className="mt-1 text-[10px] leading-snug text-muted-foreground/80">{plan.note}</p>}
         </div>
-        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{plan.note}</p>
-        <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.common.youGet")}</p>
-        <ul className="mt-3 grid gap-2.5">
-          {plan.includes.map((item) => (
-            <li key={item} className="flex items-start gap-2.5 text-sm font-medium leading-relaxed text-foreground/80">
-              <span className="material-symbols-outlined mt-0.5 text-base text-foreground">check_circle</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-        {plan.excludes && (
-          <>
-            <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.common.notIncluded")}</p>
-            <ul className="mt-3 grid gap-2">
-              {plan.excludes.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-xs leading-relaxed text-muted-foreground">
-                  <span className="material-symbols-outlined mt-0.5 text-sm">do_not_disturb_on</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </>
+
+        {/* Benefits (top 4 only) */}
+        <div className="mt-5">
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.common.youGet")}</p>
+          <ul className="mt-2.5 grid gap-1.5">
+            {displayIncludes.map((item) => (
+              <li key={item} className="flex items-start gap-2 text-xs font-medium leading-tight text-foreground/85">
+                <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-sm text-foreground">check_circle</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          {hiddenIncludes.length > 0 && (
+            <button
+              onClick={() => setShowExcludes(!showExcludes)}
+              className="mt-2 text-[9px] font-bold text-primary/80 hover:text-primary transition-colors"
+            >
+              +{hiddenIncludes.length} thêm
+            </button>
+          )}
+        </div>
+
+        {/* Hidden benefits + Excludes (expandable) */}
+        {showExcludes && (
+          <div className="mt-4 space-y-3 border-t border-border/30 pt-3">
+            {hiddenIncludes.length > 0 && (
+              <ul className="grid gap-1.5">
+                {hiddenIncludes.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs leading-tight text-foreground/70">
+                    <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-sm text-foreground">check_circle</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {plan.excludes && (
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground/70">{t("servicesPage.common.notIncluded")}</p>
+                <ul className="mt-1.5 grid gap-1">
+                  {plan.excludes.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-[10px] leading-tight text-muted-foreground/75">
+                      <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-xs">do_not_disturb_on</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         )}
-        <div className="mt-auto pt-7">
-          <CtaButton className="w-full">{t("servicesPage.common.discussPlan")}</CtaButton>
+
+        {/* CTA */}
+        <div className="mt-auto pt-5">
+          <CtaButton className="w-full text-xs">{t("servicesPage.common.discussPlan")}</CtaButton>
         </div>
       </div>
     </motion.article>

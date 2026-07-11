@@ -263,9 +263,9 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "Làm Web Giá Rẻ — Bảng Giá Thiết Kế Website | Hugo Studio",
-      "description": "Làm web giá rẻ tại Hugo Studio: sửa web lẻ từ 150k, landing page 690k, website trọn gói 1.9tr, web động 6.9tr. Kèm SEO, tăng tốc, tối ưu mobile. Báo giá rõ ràng trước khi làm.",
-      "keywords": "làm web giá rẻ, thiết kế website giá rẻ, bảng giá thiết kế website, làm landing page giá rẻ, sửa web giá rẻ, tối ưu SEO website, tăng tốc website, làm web sinh viên, web động, Hugo Studio"
+      "title": "Website Cho Quán Nhỏ, Shop Lẻ — Giá Hợp Lý | Hugo Studio",
+      "description": "Website cho quán café, salon, shop bán lẻ — giá hợp lý từ 299k sửa nhanh đến 1.49M web hoàn chỉnh. Không template, thiết kế riêng, hỗ trợ 1-1 qua Zalo. Bảo giá minh bạch, hoàn thành 1-2 tuần.",
+      "keywords": "website cho quán nhỏ, website shop bán lẻ, website café giá rẻ, làm web doanh nghiệp nhỏ, website cho salon, thiết kế web doanh nhân, web responsive giá rẻ, Hugo Studio"
     },
     "common": {
       "youGet": "Bạn nhận được",
@@ -284,29 +284,29 @@
       "closing": "Mỗi con số là một cánh cửa. Bạn chọn cái nào?"
     },
     "hero": {
-      "badge": "Hugo Studio · Hành trình thiết kế",
-      "title1": "Mỗi website là một tác phẩm,",
-      "title2": "mỗi giá là một tuyên ngôn.",
-      "desc": "Từ những chỉnh sửa nhỏ như điều chỉnh hơi thở, đến xây dựng cả một thế giới số. Mỗi gói đều được thiết kế để bạn yên tâm — phạm vi rõ ràng, thời gian chắc chắn, giá không bất ngờ.",
-      "viewPricing": "Khám phá hành trình",
-      "contact": "Chia sẻ câu chuyện của bạn",
+      "badge": "Hugo Studio · Dành cho quán, shop, doanh nhân nhỏ",
+      "title1": "Website cho quán của bạn,",
+      "title2": "không phải cho startup lớn.",
+      "desc": "Quán cà phê, salon, tiệm, cửa hàng... tất cả đều xứng đáng có website tốt. Không template đại trà, thiết kế riêng, giá hợp lý, hoàn thành nhanh. Mình làm trực tiếp 1-1, điều này giúp chi phí tối ưu mà vẫn chất lượng.",
+      "viewPricing": "Xem bảng giá",
+      "contact": "Chia sẻ nhu cầu của bạn",
       "trust": [
-        "Giá truyệt đối minh bạch",
-        "Tối ưu từng màn hình",
-        "Đồng hành sau khi ra mắt",
-        "Học sinh, sinh viên được ưu tiên"
+        "Giá từ 299k lên, không bắt gói lớn",
+        "Hoàn thành trong 1-2 tuần",
+        "Hỗ trợ Zalo, không gò bó hành chính",
+        "Không phát sinh, báo giá trước khi làm"
       ]
     },
     "pricingPhilosophy": {
-      "title": "Một lời thú nhận từ góc phòng làm việc",
-      "desc": "Tôi là một sinh viên ngành Công Nghệ Thông Tin ở những năm cuối đại học. Trang này không chỉ là danh sách giá — đó là câu chuyện về cách tôi tin rằng mọi người, từ những doanh nhân vừa khởi nghiệp đến học sinh cần tư vấn, đều xứng đáng có một website tốt. Làm việc trực tiếp 1-1, không qua trung gian, là lý do tôi có thể giữ giá cho bạn hợp lý mà vẫn chất lượng.",
-      "philosophy": "Tôi tin rằng chất lượng không tồn tại khi bạn đi nhanh. Vì vậy, tôi luôn chỉ nhận một dự án tại một thời điểm — toàn bộ tâm trí, tay và trái tim cho dự án đó. Mỗi chi tiết, từ pixel nhỏ đến logic code, đều được trao đổi rõ ràng từ đầu. Không bất ngờ. Không phát sinh. Chỉ có cam kết."
+      "title": "Vì sao giá lại hợp lý mà vẫn chất lượng?",
+      "desc": "Mình là sinh viên năm cuối IT. Không qua công ty, không qua đội nhóm, không qua trung gian — mình tự tay thiết kế, viết code, bàn giao. Tiết kiệm đó chính là tiền mà bạn tiết kiệm được. Với mình, một quán cà phê nhỏ hoặc cửa hàng lẻ đều xứng đáng có website đẹp, không chỉ startup lớn.",
+      "philosophy": "Chất lượng được sinh ra từ tập trung, không phải tốc độ. Vì vậy mình chỉ nhận một dự án tại một thời điểm — toàn bộ sức lực cho dự án đó. Mỗi detail, từ pixel layout đến logic backend, đều được nói chuyện rõ từ đầu. Khi chốt phạm vi, giá là thế đó, không phát sinh. Bạn luôn biết mình sẽ nhận được gì và bao giờ."
     },
     "pricing": {
-      "eyebrow": "Hành Trình Khám Phá",
-      "title": "Từ những viên đá tâm hồn",
-      "highlight": "đến hòn ngọc giữa Đại Dương",
-      "desc": "Mỗi dịch vụ không phải mức giá — đó là một bước trong hành trình thức tỉnh. Từ những điều chỉnh nhỏ như cánh chim lần đầu bay, đến những công trình toàn vẹn nơi ý tưởng sống và thở. Hãy chọn điểm bắt đầu của bạn. Tôi sẽ đồng hành từ viên đá đầu tiên đến ngọc lớn nhất."
+      "eyebrow": "Bảng Giá Minh Bạch",
+      "title": "Chọn điểm bắt đầu phù hợp",
+      "highlight": "cho quán / shop của bạn",
+      "desc": "Từ chỉnh sửa nhanh trong ngày, đến web hoàn chỉnh hoàn thành 1-2 tuần. Mỗi gói đều rõ ràng — bạn sẽ nhận được gì, không phát sinh chi phí ẩn, hỗ trợ miễn phí sau bàn giao. Chọn mức phù hợp với ngân sách, còn chi tiết tính năng chúng mình trao đổi kỹ 1-1."
     },
     "journey": {
       "stone1": {
@@ -332,107 +332,110 @@
     },
     "plans": {
       "fix": {
-        "label": "Bảo trì & Tối ưu",
-        "name": "Sửa web có sẵn",
-        "price": "Từ 150.000đ",
-        "note": "Báo giá theo từng việc, xong việc mới thanh toán — không phát sinh ẩn.",
-        "desc": "Web đang chạy mà lỗi vặt làm mất khách? Mình sửa đúng chỗ cần sửa, không bắt bạn mua gói lớn.",
+        "label": "Sửa Lỗi Nhanh",
+        "name": "Quick Tune-Up — Sửa Lỗi Tại Chỗ",
+        "price": "Từ 299.000đ",
+        "note": "Báo giá từng việc trước khi làm. Xong việc mới thanh toán. Giao lại trong ngày hoặc ngày hôm sau.",
+        "desc": "Website đang chạy nhưng nút bấm lỗi, layout vỡ trên mobile, hay khách phàn nàn? Mình fix đúng chỗ cần fix. Không bắt bạn mua gói lớn, chỉ giải quyết vấn đề.",
         "includes": [
-          "Báo giá từng việc trước, bạn chốt mới bắt đầu làm",
-          "Sửa và test kỹ trên cả điện thoại lẫn máy tính",
-          "Bảo hành miễn phí 7 ngày cho đúng lỗi đã sửa",
-          "Giao lại đầy đủ file và quyền truy cập sau khi xong"
+          "Báo giá chi tiết từng việc, bạn duyệt xong mới bắt đầu",
+          "Sửa lỗi và test kỹ lưỡng trên desktop & mobile",
+          "Bảo hành miễn phí 7 ngày cho đúng phần sửa",
+          "Giao lại file và hướng dẫn update nếu cần"
         ],
         "excludes": [
-          "Thiết kế lại toàn trang (xem gói xây dựng mới)",
-          "Phí tên miền, hosting — mình giúp kết nối miễn phí"
+          "Thiết kế lại toàn bộ trang hoặc giao diện (xem gói Shop Starter)",
+          "Phí domain, hosting — mình tư vấn hoặc hỗ trợ setup miễn phí"
         ]
       },
       "seo": {
-        "label": "Bảo trì & Tối ưu",
-        "name": "SEO & tăng tốc",
-        "price": "Từ 890.000đ",
-        "note": "Phù hợp web React/Next.js hoặc website đang chậm, khó lên Google.",
-        "desc": "Web đẹp nhưng chậm và không ai tìm thấy thì như cửa hàng không có biển hiệu. Gói này xử lý đúng phần đó.",
+        "label": "Tối Ưu SEO & Tốc Độ",
+        "name": "Speed Boost — SEO & Performance",
+        "price": "Từ 1.190.000đ",
+        "note": "Cho website React/Next.js, hoặc site đang chậm, khó lên Google. Hoàn thành 5-7 ngày.",
+        "desc": "Website đẹp nhưng chậm và Google không biết tới, thì vô dùng. Mình tối ưu tốc độ, bật SEO, sau đó khách truy cập nhanh và Google dễ tìm thấy hơn.",
         "includes": [
-          "Tối ưu tốc độ: nén ảnh, dọn code thừa, bật cache",
-          "Metadata + ảnh chia sẻ đẹp cho tối đa 5 trang chính",
-          "Khai báo Google Search Console, sitemap đầy đủ",
-          "Báo cáo điểm PageSpeed trước–sau, kèm việc nên làm tiếp"
+          "Tối ưu tốc độ: nén ảnh, dọn code thừa, bật cache, lazy-load",
+          "SEO on-page: metadata, Open Graph cho mạng xã hội, schema markup",
+          "Khai báo Google Search Console, submit sitemap, robots.txt",
+          "Tối ưu hóa cho 5 trang chính (hoặc toàn bộ nếu nhỏ)",
+          "Báo cáo PageSpeed Insights trước-sau + khuyến nghị tiếp theo",
+          "Giải thích cách optimize tiếp nếu cần"
         ],
         "excludes": [
-          "Viết bài viết SEO, xây dựng backlink, chạy quảng cáo",
-          "Cam kết vị trí Google — không ai có thể cam kết điều đó một cách trung thực"
+          "Viết bài blog SEO, xây dựng backlink, chạy quảng cáo Google Ads",
+          "Cam kết vị trí #1 Google (không ai có thể cam kết, đó là sự thật)"
         ]
       },
       "landing": {
-        "label": "Doanh nghiệp",
-        "name": "Landing page 1 trang",
+        "label": "Quán & Shop Nhỏ",
+        "name": "Shop Starter — Trang Chủ Riêng",
         "oldPrice": "1.990.000đ",
-        "price": "999.000đ",
-        "discount": "-50%",
-        "note": "Thiết kế riêng, không template đại trà. Hoàn thành trong 5-7 ngày.",
-        "desc": "Một trang duy nhất, đúng một mục tiêu: khách đọc xong là muốn bấm liên hệ với bạn.",
-        "tagline": "Thiết kế riêng biệt",
+        "price": "1.490.000đ",
+        "discount": "-25%",
+        "note": "Thiết kế riêng biệt, không dùng template. Hoàn thành trong 7-10 ngày. Tối ưu cho lần đầu có web.",
+        "desc": "Một trang chủ hoàn chỉnh cho quán, shop hoặc dịch vụ của bạn. Khách truy cập xong biết bạn là ai, bạn bán gì, và gọi liên hệ được liền. Gọn, đẹp, nhanh.",
+        "tagline": "Tối ưu cho lần đầu tiên",
         "includes": [
-          "1 trang thiết kế riêng theo brand, tối đa 7 section",
-          "2 vòng chỉnh sửa theo góp ý của bạn",
-          "Form liên hệ đổ thẳng về Zalo hoặc email",
-          "Chuẩn SEO cơ bản, link chia sẻ hiện ảnh đẹp",
-          "Đưa web lên mạng, gắn tên miền",
-          "Chỉnh sửa theo yêu cầu (số lần bảo dưỡng theo gói khác)",
-          "Hỗ trợ lỗi miễn phí 7 ngày sau bàn giao"
+          "1 trang chủ thiết kế riêng biệt, tối đa 7 section (intro, sản phẩm, về bạn, liên hệ...)",
+          "2 vòng chỉnh sửa theo yêu cầu",
+          "Form liên hệ hoặc nút gọi, nhắn Zalo/Messenger trực tiếp",
+          "SEO cơ bản (metadata, ảnh chia sẻ đẹp, mobile-friendly)",
+          "Deploy lên mạng + gắn tên miền",
+          "1 buổi hướng dẫn sử dụng qua Zalo (30 phút)",
+          "Hỗ trợ lỗi miễn phí 14 ngày sau bàn giao"
         ],
         "excludes": [
-          "Phí tên miền (~300-500k/năm), hosting — bạn tìm bên ngoài",
-          "Nội dung chữ và hình — bạn cung cấp, mình biên tập và cài đặt",
-          "Thêm trang phụ, đa ngôn ngữ — báo giá riêng"
+          "Phí domain & hosting (khoảng 300-500k/năm, bạn tìm bên ngoài hoặc mình giúp tư vấn)",
+          "Nội dung hình ảnh & text — bạn cung cấp, mình edit & thiết kế",
+          "Hệ thống đặt lịch / thanh toán online → gói Website Pro"
         ]
       },
       "website": {
-        "label": "Doanh nghiệp",
-        "name": "Website nhiều trang",
+        "label": "Quán & Shop Lớn Hơn",
+        "name": "Website Pro — Nhiều Trang",
         "oldPrice": "4.990.000đ",
-        "price": "2.490.000đ",
-        "discount": "-50%",
-        "note": "Giá chốt theo số trang và tính năng, phù hợp với ngân sách của bạn và thanh toán theo tiến độ.",
-        "desc": "Bộ mặt online hoàn chỉnh giúp shop nhỏ, quán hoặc thương hiệu cá nhân đáng tin hơn một trang Facebook.",
-        "tagline": "Nhận diện thương hiệu",
+        "price": "2.990.000đ",
+        "discount": "-40%",
+        "note": "Bộ mặt online hoàn chỉnh. Hoàn thành 2-3 tuần. Thanh toán theo tiến độ.",
+        "desc": "Khi quán phát triển, cần trang về sản phẩm, dịch vụ, giới thiệu riêng... Website nhiều trang giúp khách hiểu rõ hơn, Google tìm thấy dễ hơn, bạn nổi bật hơn.",
+        "tagline": "Nhận diện hoàn chỉnh",
         "includes": [
-          "4-6 trang hoàn chỉnh: chủ, giới thiệu, dịch vụ, liên hệ",
-          "Thiết kế đồng bộ nhận diện + 2 vòng chỉnh sửa",
-          "Cấu trúc chuẩn SEO, khai báo với Google",
-          "Bảo dưỡng 1 tháng miễn phí (4 lần chỉnh sửa nhỏ), sau đó có các gói bảo dưỡng thêm",
-          "Kết nối Zalo, Messenger, Google Maps",
-          "1 buổi hướng dẫn sử dụng + hỗ trợ 14 ngày"
+          "4-6 trang: chủ, giới thiệu, sản phẩm/dịch vụ, tin tức (tùy), liên hệ",
+          "Thiết kế đồng bộ, nhận diện thương hiệu (logo placement, màu sắc, font...)",
+          "3 vòng chỉnh sửa theo feedback",
+          "SEO nâng cao: khai báo Google Search Console, sitemap, schema markup",
+          "Kết nối Zalo, Messenger, Google Maps, form liên hệ nâng cao",
+          "Bảo dưỡng 1 tháng miễn phí (4 lần chỉnh sửa nhỏ)",
+          "1 buổi training 30 phút + hỗ trợ 14 ngày sau bàn giao"
         ],
         "excludes": [
-          "Phí tên miền, hosting (~300-800k/năm nếu tìm bên ngoài)",
-          "Viết bài, chụp ảnh sản phẩm — bạn cung cấp",
-          "Đặt lịch hẹn, thanh toán trực tuyến → gói Website với quản lý dữ liệu"
+          "Phí domain, hosting hàng năm (khoảng 300-800k, bạn tìm bên ngoài)",
+          "Viết bài blog, chụp ảnh sản phẩm — bạn cung cấp",
+          "Hệ thống quản lý lịch hẹn, thanh toán online → Web System (gói nâng cao)"
         ]
       },
       "system": {
-        "label": "Doanh nghiệp",
-        "name": "Website với quản lý dữ liệu",
+        "label": "Tối Ưu Nâng Cao",
+        "name": "Web System — Quản Lý & Thanh Toán",
         "oldPrice": "15.000.000đ",
-        "price": "6.999.000đ",
+        "price": "Từ 6.999.000đ",
         "discount": "-53%",
-        "note": "Dự án có thanh toán online tự động, phân quyền phức tạp thường từ 12-20 triệu.",
-        "desc": "Không chỉ giới thiệu — website làm việc thay bạn: nhận đơn hàng hoặc đặt lịch hẹn trực tuyến có lưu cơ sở dữ liệu.",
-        "tagline": "Tích hợp hệ thống",
+        "note": "Cho doanh nghiệp có nhu cầu phức tạp: đặt lịch online, nhận đơn, quản lý inventory... Thường 8-20 triệu tùy tính năng.",
+        "desc": "Website không chỉ để giới thiệu — nó làm việc: nhận đơn hàng online, cho khách đặt lịch hẹn, tự động ghi lại dữ liệu để bạn quản lý. Như thuê nhân viên, nhưng chạy 24/7.",
+        "tagline": "Tự động hóa doanh nghiệp",
         "includes": [
-          "1 luồng chức năng chính: đặt lịch hẹn HOẶC nhận đơn hàng cơ bản",
-          "Dashboard quản lý: xem đơn/lịch hẹn, khách hàng và số liệu cơ bản",
-          "Đăng nhập phân quyền cho 2 cấp độ: chủ và nhân viên",
-          "Kết nối 1 nguồn dữ liệu: Google Sheet hoặc Zalo",
-          "Bàn giao toàn bộ mã nguồn sạch — web là tài sản của bạn",
-          "Đồng hành kỹ thuật 1 tháng sau bàn giao (sửa lỗi phát sinh)"
+          "1 luồng chính: Đặt lịch hẹn HOẶC Nhận đơn hàng (chốn sau)",
+          "Dashboard quản lý: xem đơn/lịch, danh sách khách, báo cáo cơ bản",
+          "Đăng nhập 2 cấp độ: chủ quán (full control) & nhân viên (view/edit giới hạn)",
+          "Kết nối 1 nguồn dữ liệu: Google Sheet hoặc Zalo (sync tự động)",
+          "Toàn bộ mã nguồn clean code — website là tài sản của bạn, bạn có thể mở rộng sau",
+          "Đồng hành kỹ thuật 1 tháng (fix bug, hướng dẫn dùng, support qua Zalo)"
         ],
         "excludes": [
-          "Tích hợp cổng thanh toán tự động (PayOS, Momo) → Add-on riêng",
-          "Quản lý thành viên nâng cao, tích điểm VIP → Add-on riêng",
-          "Phí tên miền, VPS/Server hàng tháng (chi phí vận hành)"
+          "Cổng thanh toán online (PayOS, Momo, Stripe) → Add-on riêng, khoảng 1-3M",
+          "Quản lý thành viên VIP, tích điểm, loyalty → Add-on riêng",
+          "Phí domain, server VPS hàng tháng (khoảng 300k-1M/tháng, bạn tìm bên ngoài)"
         ]
       }
     },
@@ -572,21 +575,21 @@
       }
     },
     "care": {
-      "eyebrow": "Đã có website?",
+      "eyebrow": "Web Hiện Có Gặp Vấn Đề?",
       "title": "Không cần làm lại,",
-      "highlight": "chỉ sửa đúng chỗ",
-      "desc": "Website đang chạy chỉ cần chỉnh vài điểm hoặc tăng tốc — không phải mua gói lớn."
+      "highlight": "sửa đúng chỗ là được",
+      "desc": "Lỗi nhỏ hoặc chậm? Mình fix nhanh trong ngày, từ 299k lên. Không bắt bạn mua gói lớn 2-3 triệu."
     },
     "micro": {
-      "eyebrow": "Tốc Độ & Tiện Lợi",
-      "title": "Dịch Vụ Việc Lẻ",
-      "highlight": "Chỉnh Sửa Nhanh",
-      "desc": "Giải quyết nhanh chóng các yêu cầu nhỏ lẻ trong ngày. Báo giá minh bạch, thanh toán linh hoạt, không phát sinh chi phí ẩn.",
-      "costLabel": "Chi phí:",
-      "cta": "Liên hệ",
-      "customTitle": "Bạn có yêu cầu khác biệt không nằm trong danh sách?",
-      "customDesc": "Đừng lo lắng! Hugo sẵn sàng nhận các yêu cầu tùy chỉnh theo giờ hoặc tính chất công việc riêng biệt. Báo giá minh bạch trước khi bắt tay thực hiện.",
-      "customCta": "Trao đổi yêu cầu riêng"
+      "eyebrow": "Xử Lý Nhanh Chóng",
+      "title": "Quick Fixes",
+      "highlight": "Chỉnh Sửa Tại Chỗ",
+      "desc": "Vấn đề nhỏ nhưng cần xử lý gấp? Mình fix trong ngày hoặc ngày hôm sau. Báo giá trước, thanh toán sau, không phát sinh ẩn.",
+      "costLabel": "Giá từ:",
+      "cta": "Liên hệ để báo giá",
+      "customTitle": "Yêu cầu khác ngoài danh sách?",
+      "customDesc": "Không vấn đề! Hugo linh hoạt nhận các công việc tùy chỉnh, báo giá theo yêu cầu cụ thể. Trao đổi rõ phạm vi trước, chốt giá, xong việc mới thanh toán.",
+      "customCta": "Nhắn yêu cầu riêng"
     },
     "app": {
       "badge": "Web có hệ thống",
@@ -640,32 +643,32 @@
       "desc": "Các câu hỏi phổ biến trước khi bắt đầu một dự án web với Hugo Studio.",
       "items": [
         {
-          "q": "Chi phí làm website là bao nhiêu?",
-          "a": "Landing page từ 999.000đ, website nhiều trang từ 2.490.000đ, web động từ 6.999.000đ. Giá cuối tùy thuộc vào tính năng cụ thể và được chốt rõ từ đầu. Vì mình là sinh viên làm trực tiếp 1-1 nên mức giá rất mềm so với thị trường và không qua trung gian."
+          "q": "Website cho quán/shop của tôi cần bao nhiêu tiền?",
+          "a": "Sửa nhanh từ 299k, shop starter 1.49M, website nhiều trang 2.99M. Giá cuối chốt qua trao đổi 1-1 để phù hợp đúng nhu cầu. Mình là sinh viên IT làm trực tiếp nên không trung gian, không overhead — giá mềm mà chất lượng không kém."
         },
         {
-          "q": "Vì sao chi phí lại hợp lý mà vẫn đảm bảo chất lượng?",
-          "a": "Mình là sinh viên IT năm cuối, tự tay thực hiện trực tiếp nên không tốn chi phí vận hành hay trung gian. Mình luôn thiết kế chỉn chu, có demo chạy thử trên trang để bạn kiểm tra trước, đồng thời luôn đồng hành hỗ trợ sau khi bàn giao."
+          "q": "Tại sao giá lại hợp lý mà chất lượng vẫn tốt?",
+          "a": "Mình là sinh viên năm cuối, tự tay thiết kế + code, không công ty hay đội nhóm giữa đó. Bạn tiết kiệm chi phí vận hành đó, nên giá rẻ hơn thị trường. Đồng thời, chỉ nhận 1 dự án lúc đó nên toàn tâm cho bạn, chất lượng không bị ảnh hưởng."
         },
         {
-          "q": "Giá \"Từ\" nghĩa là sao, có phát sinh thêm không?",
-          "a": "Giá \"Từ\" là mức cho phạm vi ghi trong phần \"Bạn nhận được\" của mỗi gói. Nhu cầu nằm ngoài phần đó (mục \"Chưa bao gồm\") sẽ được báo giá riêng bằng văn bản trước khi làm — đã chốt thì không phát sinh thêm."
+          "q": "Giá \"từ\" là sao, có phát sinh chi phí ẩn không?",
+          "a": "Giá \"từ\" là mức tối thiểu cho nội dung trong mục \"Bạn nhận được\". Yêu cầu ngoài đó sẽ báo giá riêng bằng tin nhắn trước khi làm. Sau khi chốt = thế đó, không phát sinh. Cam kết rõ ràng từ lúc đầu."
         },
         {
-          "q": "Chưa có thiết kế thì có làm được không?",
-          "a": "Được. Bạn chỉ cần mô tả lĩnh vực, mục tiêu và vài trang tham khảo. Mình sẽ đề xuất cấu trúc nội dung, bố cục và hướng triển khai phù hợp."
+          "q": "Chưa có ý tưởng hay thiết kế thì sao?",
+          "a": "Không sao! Bạn chỉ mô tả lĩnh vực (quán café, salon, shop...), mục tiêu (bán hàng, giới thiệu, đặt lịch), và cho mình 2-3 trang tham khảo. Mình đề xuất cấu trúc, layout, màu sắc phù hợp."
         },
         {
-          "q": "Website có được tối ưu SEO không?",
-          "a": "Có. Các gói xây mới đều có metadata, cấu trúc nội dung, tốc độ và hiển thị chia sẻ cơ bản. Nếu cần xử lý sâu hơn, mình tách thành hạng mục tối ưu riêng."
+          "q": "Website đã có SEO, Google dễ tìm không?",
+          "a": "Có. Gói xây mới đều có metadata, cấu trúc heading, tốc độ tối ưu, chia sẻ mạng xã hội đẹp. Nếu muốn tối ưu sâu hơn (backlink, content strategy), mình có gói Speed Boost riêng."
         },
         {
-          "q": "Có hỗ trợ domain và hosting không?",
-          "a": "Có. Mình có thể tư vấn hoặc triển khai domain, hosting, SSL và deploy nếu bạn chưa có hạ tầng."
+          "q": "Mình cần domain & hosting, có giúp được không?",
+          "a": "Được! Mình tư vấn nơi mua (GoDaddy, Namecheap, Haloha...), hoặc mình triển khai hộ. Phí domain/hosting là chi phí hàng năm, bạn tìm bên ngoài hoặc mình giúp setup."
         },
         {
-          "q": "Sau bàn giao có hỗ trợ không?",
-          "a": "Có. Mình hướng dẫn sử dụng, giải đáp thắc mắc và xử lý lỗi phát sinh trong phạm vi đã chốt."
+          "q": "Bàn giao xong, website lỗi thì sao?",
+          "a": "Mình hướng dẫn dùng (30 phút qua Zalo), hỗ trợ miễn phí lỗi phát sinh trong 14-30 ngày. Ngoài thời gian đó, bạn có thể gọi mình sửa, tính từng lần hoặc gói bảo trì tháng."
         }
       ]
     },
@@ -681,66 +684,66 @@
       "cta": "Xác Minh Ngay"
     },
     "tabs": {
-      "commercial": "Doanh nghiệp",
+      "commercial": "Quán & Shop",
       "student": "Học sinh & Sinh viên",
-      "micro": "Việc lẻ / Chỉnh sửa"
+      "micro": "Chỉnh Sửa Nhanh"
     },
     "microJobs": {
       "bug-ui": {
         "name": "Sửa bug giao diện",
-        "desc": "Khắc phục nút không bấm được, layout bị vỡ, lỗi hiển thị font chữ, sai kích thước hoặc chồng chéo nội dung.",
-        "price": "Từ 150.000đ",
+        "desc": "Nút bấm không hoạt động, layout vỡ trên mobile, chữ chồng lên nhau, hình ảnh bị sai kích thước... Mình fix nhanh.",
+        "price": "Từ 299.000đ",
         "time": "Trong ngày"
       },
       "style-content": {
-        "name": "Chỉnh màu & nội dung",
-        "desc": "Thay đổi màu sắc thương hiệu, đổi phông chữ, cập nhật hình ảnh đại diện, viết lại/chỉnh sửa văn bản hiển thị.",
-        "price": "Từ 200.000đ",
+        "name": "Chỉnh màu sắc & nội dung",
+        "desc": "Thay logo, đổi màu thương hiệu, cập nhật ảnh đại diện, chỉnh sửa text, đổi phông chữ... Nhỏ nhưng cần gọn.",
+        "price": "Từ 299.000đ",
         "time": "Trong ngày"
       },
       "mobile-beauty": {
-        "name": "Làm đẹp mobile",
-        "desc": "Canh chỉnh khoảng cách padding/margin, co giãn font chữ, tối ưu hóa nút bấm CTA để hiển thị đẹp nhất trên di động.",
-        "price": "Từ 250.000đ",
+        "name": "Tối ưu hiển thị mobile",
+        "desc": "Web xấu trên điện thoại? Canh khoảng cách, scale font, sắp xếp lại nút bấm để mobile đẹp và dễ dùng.",
+        "price": "Từ 399.000đ",
         "time": "Trong ngày"
       },
       "web-widget": {
-        "name": "Gắn tiện ích web",
-        "desc": "Tích hợp biểu mẫu liên hệ, nút chat nhanh Zalo/Messenger, liên kết bản đồ Google Maps, hotline gọi điện trực tiếp.",
-        "price": "Từ 150.000đ",
+        "name": "Thêm tiện ích web",
+        "desc": "Gắn form liên hệ, nút nhắn Zalo/Messenger, Google Maps, nút gọi điện trực tiếp... Tất cả trong 1 ngày.",
+        "price": "Từ 299.000đ",
         "time": "Trong ngày"
       },
       "deploy-domain": {
-        "name": "Deploy & Tên miền",
-        "desc": "Hỗ trợ đưa website lên môi trường mạng (Vercel, Netlify, VPS), trỏ tên miền cá nhân, cài đặt chứng chỉ bảo mật SSL.",
-        "price": "Từ 250.000đ",
+        "name": "Deploy & Quản lý domain",
+        "desc": "Đưa web lên mạng (Vercel, Netlify, VPS), trỏ domain, setup SSL... Mình làm hết, bạn chỉ cần domain sẵn.",
+        "price": "Từ 399.000đ",
         "time": "Trong ngày"
       },
       "seo-quick": {
         "name": "SEO nhanh 1 trang",
-        "desc": "Tối ưu hóa các thẻ meta tiêu đề (Title), mô tả (Description), cấu hình ảnh đại diện hiển thị chuẩn mực khi chia sẻ mạng xã hội.",
-        "price": "Từ 200.000đ",
+        "desc": "Thiết lập meta title/description, schema markup, tối ưu ảnh chia sẻ... Giúp Google tìm thấy bạn dễ hơn.",
+        "price": "Từ 399.000đ",
         "time": "Trong ngày"
       },
       "speed-optimize": {
         "name": "Tăng tốc web",
-        "desc": "Nén dung lượng hình ảnh không làm giảm chất lượng, dọn dẹp các tệp tin JS/CSS thừa, tối ưu PageSpeed.",
-        "price": "Từ 300.000đ",
+        "desc": "Nén ảnh, dọn code thừa, bật cache, lazy-load hình... Giảm thời gian tải từ 5s xuống còn 2s.",
+        "price": "Từ 499.000đ",
         "time": "Trong ngày"
       },
       "monthly-maintenance": {
-        "name": "Bảo trì tháng",
-        "desc": "Sao lưu định kỳ dữ liệu website, kiểm tra bảo mật, vá lỗi phát sinh nhỏ và hỗ trợ đổi nội dung định kỳ hàng tháng.",
-        "price": "Từ 300.000đ/tháng",
+        "name": "Bảo trì hàng tháng",
+        "desc": "Backup dữ liệu, cập nhật bảo mật, chỉnh nội dung nhỏ, hỗ trợ lỗi phát sinh... Theo tháng hoặc theo gói.",
+        "price": "399.000đ/tháng",
         "time": "Hàng tháng"
       }
     },
-    "disclaimer": "* Tất cả bảng giá dưới đây là giá tham khảo. Giá cuối cùng sẽ được chốt qua tư vấn 1-1, đảm bảo không phát sinh chi phí ẩn.",
+    "disclaimer": "* Tất cả giá trên là giá tham khảo. Giá cuối sẽ được trao đổi 1-1 qua Zalo để phù hợp chính xác nhu cầu của bạn — chốt phạm vi từ đầu, không phát sinh.",
     "section": {
-      "newBuildsTitle": "Thiết Kế & Xây Dựng Mới",
-      "newBuildsDesc": "Dành cho cá nhân, doanh nghiệp cần làm website mới từ đầu để quảng bá thương hiệu.",
-      "optimizeTitle": "Tối Ưu SEO, Tăng Tốc & Sửa Lỗi",
-      "optimizeDesc": "Dành cho website sẵn có cần nâng cấp điểm SEO, đẩy nhanh tốc độ hoặc gỡ lỗi kỹ thuật."
+      "newBuildsTitle": "Website Mới cho Quán / Shop",
+      "newBuildsDesc": "Chưa có web hoặc web cũ quá rồi? Mình giúp bạn làm website mới từ đầu — thiết kế riêng, giá hợp lý, hoàn thành nhanh.",
+      "optimizeTitle": "Chỉnh Sửa & Tối Ưu Web Hiện Tại",
+      "optimizeDesc": "Web đã có lỗi nhỏ, chậm, hoặc khó lên Google? Mình fix đúng chỗ, không cần làm lại từ đầu."
     },
     "devices": {
       "desktop": "Máy tính",
