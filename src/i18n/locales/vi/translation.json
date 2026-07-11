@@ -58,7 +58,8 @@
     "portal": "Truy Cập Cổng Khách Hàng",
     "loginAdmin": "Đăng Nhập Quản Trị",
     "hello": "Xin Chào",
-    "mainMenu": "Menu Chính"
+    "mainMenu": "Menu Chính",
+    "login": "Đăng Nhập"
   },
   "footer": {
     "tagline": "Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.",
@@ -74,7 +75,9 @@
     "booking": "Đặt Lịch",
     "connect": "Kết nối",
     "partner": "Đối tác",
-    "privacyPolicy": "Chính sách bảo mật"
+    "privacyPolicy": "Chính sách bảo mật",
+    "supportServer": "Ủng Hộ Server",
+    "userGuide": "Hướng dẫn sử dụng"
   },
   "intro": {
     "nav": {
@@ -94,7 +97,8 @@
       "discoveries": "Khám Phá"
     },
     "about": {
-      "desc": "Mình là Hugo — một người mộng mơ viết code. Sinh năm 2004, lớn lên giữa thế giới số đầy logic, mình luôn khao khát kiến tạo nên những góc nhỏ ấm áp, thơ mộng và chứa đựng cảm xúc chân thành. Với mình, mỗi sản phẩm số là một hành tinh nhỏ, nơi từng chi tiết, từng nút bấm đều được nâng niu để sưởi ấm cho người bạn đồng hành."
+      "desc": "Mình là Hugo — một người mộng mơ viết code. Sinh năm 2004, lớn lên giữa thế giới số đầy logic, mình luôn khao khát kiến tạo nên những góc nhỏ ấm áp, thơ mộng và chứa đựng cảm xúc chân thành. Với mình, mỗi sản phẩm số là một hành tinh nhỏ, nơi từng chi tiết, từng nút bấm đều được nâng niu để sưởi ấm cho người bạn đồng hành.",
+      "hello": "Xin chào, tôi là"
     },
     "slide1": {
       "badge": "✦ Một Lập Trình Viên Nhỏ Tô Vẽ Trên Mạng",
@@ -121,7 +125,19 @@
       "highSchool": "THPT Nguyễn Đình Chiểu",
       "highSchoolDesc": "Mỹ Tho (Collège de MyTho)",
       "uni": "Greenwich Vietnam",
-      "uniDesc": "Greenwich University"
+      "uniDesc": "Greenwich University",
+      "hsBadge": "Học vấn THPT",
+      "hsSub": "Nơi rèn giũa và ươm mầm tư duy lập trình",
+      "hsFull": "Trường THPT Nguyễn Đình Chiểu",
+      "hsAddress": "8 Bis Đ. Hùng Vương, phường Mỹ Tho, Đồng Tháp",
+      "v1t": "Đức tính & Kỷ luật",
+      "v1d": "Kiên trì vượt khó, rèn luyện ý chí và chủ động tự học sâu sắc.",
+      "v2t": "Kỹ năng cốt lõi",
+      "v2d": "Tư duy phản biện sắc bén, giải quyết vấn đề và tự nghiên cứu độc lập.",
+      "v3t": "Kiến thức nền",
+      "v3d": "Tư duy logic Toán tự nhiên vững vàng và thuật toán cơ sở.",
+      "uniTitle": "Đại Học Greenwich",
+      "uniSub": "Chương trình chuẩn quốc tế Vương Quốc Anh"
     },
     "slide4": {
       "idTitle": "GREENWICH - ĐỒNG HÀNH",
@@ -161,7 +177,8 @@
       "b3t": "Xác thực tự động — 3 giây đó",
       "b3d": "Email .edu = Được. Thế đó. Không chờ, không phiền — chỉ .edu là đủ để hệ thống tin bạn.",
       "b4t": "Cả một vũ trụ tiện ích",
-      "b4d": "Bạn Học Đường, Hugo PSY để chữa lành tâm hồn, Web IDE để code, Hugo Radio cho những lúc cô đơn, Aura AI để tập trung — tất cả miễn phí 12 tháng."
+      "b4d": "Bạn Học Đường, Hugo PSY để chữa lành tâm hồn, Web IDE để code, Hugo Radio cho những lúc cô đơn, Aura AI để tập trung — tất cả miễn phí 12 tháng.",
+      "toolsTitle": "Tiện ích HSSV miễn phí đi kèm"
     },
     "slide6": {
       "badge": "✦ Sáng Tạo Cho Những Người Yêu Kiến Trúc",
@@ -258,7 +275,12 @@
       "joyTitle": "Joy PWA",
       "joyDesc": "Nút thắt năng lượng của vũ trụ. Nơi lưu giữ giá trị, tích lũy điểm thưởng Joy và liên kết tất cả tiện ích trong hệ sinh thái.",
       "bioTitle": "Signature Bio",
-      "bioDesc": "Dấu ấn cá nhân giữa ngân hà. Trang cá nhân độc bản phản ánh chân thực cái tôi nghệ thuật và tri thức của riêng bạn."
+      "bioDesc": "Dấu ấn cá nhân giữa ngân hà. Trang cá nhân độc bản phản ánh chân thực cái tôi nghệ thuật và tri thức của riêng bạn.",
+      "hint": "✦ Rê chuột qua các hạt hành tinh để khám phá vũ trụ số"
+    },
+    "transition": {
+      "title": "Từ lời nói sang hành động",
+      "quote": "\"Hãy chọn một sắc thái, hay tôi sẽ vẽ cầu vồng cho bạn.\""
     }
   },
   "servicesPage": {
@@ -440,6 +462,8 @@
       }
     },
     "studentPlans": {
+      "orderCta": "Liên hệ đăng ký",
+      "detailsCta": "Xem điều kiện xác minh & Chi tiết gói HSSV",
       "exclusiveBio": {
         "label": "HSSV",
         "name": "Trang Bio Độc Quyền",

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { useExchangeRate } from "../../hooks/useExchangeRate";
-import { vndToUsdWithFee, applyPricingRule } from "../../services/exchangeRateService";
+import { withUsdPrices } from "../../utils/priceFormatter";
 
 const PhotographyDemo = lazy(() => import("../../components/demos/PhotographyDemo"));
 const CoffeeDemo = lazy(() => import("../../components/demos/CoffeeDemo"));
@@ -63,82 +63,27 @@ const DEMO_META = [
   { id: "dashboard", url: "hugo.dev/admin", icon: "dashboard", Demo: DashboardDemo },
 ];
 
+// Chữ + giá lấy từ i18n (servicesPage.microJobs.*) — ở đây chỉ giữ cấu trúc
 const MICRO_JOBS = [
-  {
-    id: "bug-ui",
-    icon: "bug_report",
-    name: "Sửa bug giao diện",
-    desc: "Khắc phục nút không bấm được, layout bị vỡ, lỗi hiển thị font chữ, sai kích thước hoặc chồng chéo nội dung.",
-    price: "Từ 150.000đ",
-    time: "Trong ngày",
-  },
-  {
-    id: "style-content",
-    icon: "palette",
-    name: "Chỉnh màu & nội dung",
-    desc: "Thay đổi màu sắc thương hiệu, đổi phông chữ, cập nhật hình ảnh đại diện, viết lại/chỉnh sửa văn bản hiển thị.",
-    price: "Từ 200.000đ",
-    time: "Trong ngày",
-  },
-  {
-    id: "mobile-beauty",
-    icon: "smartphone",
-    name: "Làm đẹp mobile",
-    desc: "Canh chỉnh khoảng cách padding/margin, co giãn font chữ, tối ưu hóa nút bấm CTA để hiển thị đẹp nhất trên di động.",
-    price: "Từ 250.000đ",
-    time: "Trong ngày",
-  },
-  {
-    id: "web-widget",
-    icon: "widgets",
-    name: "Gắn tiện ích web",
-    desc: "Tích hợp biểu mẫu liên hệ, nút chat nhanh Zalo/Messenger, liên kết bản đồ Google Maps, hotline gọi điện trực tiếp.",
-    price: "Từ 150.000đ",
-    time: "Trong ngày",
-  },
-  {
-    id: "deploy-domain",
-    icon: "cloud_upload",
-    name: "Deploy & Tên miền",
-    desc: "Hỗ trợ đưa website lên môi trường mạng (Vercel, Netlify, VPS), trỏ tên miền cá nhân, cài đặt chứng chỉ bảo mật SSL.",
-    price: "Từ 250.000đ",
-    time: "Trong ngày",
-  },
-  {
-    id: "seo-quick",
-    icon: "search",
-    name: "SEO nhanh 1 trang",
-    desc: "Tối ưu hóa các thẻ meta tiêu đề (Title), mô tả (Description), cấu hình ảnh đại diện hiển thị chuẩn mực khi chia sẻ mạng xã hội.",
-    price: "Từ 200.000đ",
-    time: "Trong ngày",
-  },
-  {
-    id: "speed-optimize",
-    icon: "bolt",
-    name: "Tăng tốc web",
-    desc: "Nén dung lượng hình ảnh không làm giảm chất lượng, dọn dẹp các tệp tin JS/CSS thừa, tối ưu PageSpeed.",
-    price: "Từ 300.000đ",
-    time: "Trong ngày",
-  },
-  {
-    id: "monthly-maintenance",
-    icon: "shield",
-    name: "Bảo trì tháng",
-    desc: "Sao lưu định kỳ dữ liệu website, kiểm tra bảo mật, vá lỗi phát sinh nhỏ và hỗ trợ đổi nội dung định kỳ hàng tháng.",
-    price: "Từ 300.000đ/tháng",
-    time: "Hàng tháng",
-  },
+  { id: "bug-ui", icon: "bug_report" },
+  { id: "style-content", icon: "palette" },
+  { id: "mobile-beauty", icon: "smartphone" },
+  { id: "web-widget", icon: "widgets" },
+  { id: "deploy-domain", icon: "cloud_upload" },
+  { id: "seo-quick", icon: "search" },
+  { id: "speed-optimize", icon: "bolt" },
+  { id: "monthly-maintenance", icon: "shield" },
 ];
 
 function usePlans() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return useMemo(
     () =>
       PLAN_META.map((meta) => ({
         ...meta,
-        ...t(`servicesPage.plans.${meta.id}`, { returnObjects: true }),
+        ...withUsdPrices(i18n, `servicesPage.plans.${meta.id}`, t(`servicesPage.plans.${meta.id}`, { returnObjects: true })),
       })),
-    [t]
+    [t, i18n]
   );
 }
 
@@ -499,20 +444,22 @@ export default function ServicesPage() {
       return {
         id: key,
         icon: icons[index],
-        ...planData,
+        ...withUsdPrices(i18n, `servicesPage.studentPlans.${key}`, planData),
       };
     });
-  }, [t]);
+  }, [t, i18n]);
 
   const microJobsList = useMemo(() => {
     return MICRO_JOBS.map((job) => ({
       ...job,
-      name: t(`servicesPage.microJobs.${job.id}.name`),
-      desc: t(`servicesPage.microJobs.${job.id}.desc`),
-      price: t(`servicesPage.microJobs.${job.id}.price`),
-      time: t(`servicesPage.microJobs.${job.id}.time`),
+      ...withUsdPrices(i18n, `servicesPage.microJobs.${job.id}`, {
+        name: t(`servicesPage.microJobs.${job.id}.name`),
+        desc: t(`servicesPage.microJobs.${job.id}.desc`),
+        price: t(`servicesPage.microJobs.${job.id}.price`),
+        time: t(`servicesPage.microJobs.${job.id}.time`),
+      }),
     }));
-  }, [t]);
+  }, [t, i18n]);
 
   const trustPoints = t("servicesPage.hero.trust", { returnObjects: true });
   const studentItems = t("servicesPage.student.items", { returnObjects: true });
@@ -823,7 +770,7 @@ export default function ServicesPage() {
                   <p className="mt-1 text-[11px] text-muted-foreground/80 leading-normal">{plan.note}</p>
                   <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{plan.desc}</p>
                   <div className="mt-6 border-t border-border/60 pt-4">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{i18n.language.startsWith("vi") ? "Bạn nhận được:" : "What's included:"}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t("servicesPage.common.youGet")}</p>
                     <ul className="mt-3 space-y-2">
                       {plan.includes?.map((item) => (
                         <li key={item} className="flex items-start gap-2 text-xs leading-relaxed text-foreground/80">
@@ -839,7 +786,7 @@ export default function ServicesPage() {
                     to={`/booking?type=student&plan=${plan.id}`}
                     className="block w-full text-center rounded-2xl bg-foreground py-3 text-xs font-bold text-background transition-all hover:bg-foreground/90 active:scale-98"
                   >
-                    {i18n.language.startsWith("vi") ? "Liên hệ đăng ký" : "Order Student Plan"}
+                    {t("servicesPage.studentPlans.orderCta")}
                   </Link>
                 </div>
               </motion.article>
@@ -850,7 +797,7 @@ export default function ServicesPage() {
               to="/student-pricing"
               className="inline-flex items-center gap-2 rounded-full border-2 border-border/50 bg-card/70 px-6 py-3 text-xs font-bold uppercase tracking-wide text-foreground backdrop-blur transition-all duration-300 hover:border-primary hover:text-primary animate-pulse-slow"
             >
-              {i18n.language.startsWith("vi") ? "Xem điều kiện xác minh & Chi tiết gói HSSV" : "Verification Requirements & Student Plan Details"}
+              {t("servicesPage.studentPlans.detailsCta")}
               <span className="material-symbols-outlined text-sm animate-bounceRight">arrow_forward</span>
             </Link>
           </div>

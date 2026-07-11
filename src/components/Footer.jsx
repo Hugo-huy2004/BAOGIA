@@ -128,7 +128,7 @@ export default function Footer() {
                   className="hover:text-primary dark:hover:text-primary hover:translate-x-1 inline-block transition-all flex items-center gap-1.5 font-bold"
                 >
                   <span className="material-symbols-outlined text-[16px]">local_cafe</span> 
-                  <span>Ủng Hộ Server</span>
+                  <span>{t("footer.supportServer", "Ủng Hộ Server")}</span>
                 </button>
               </li>
             </ul>
@@ -226,7 +226,7 @@ export default function Footer() {
               to="/user-guide" 
               className="font-medium transition-colors hover:text-foreground hover:underline underline-offset-4"
             >
-              Hướng dẫn sử dụng
+              {t("footer.userGuide", "Hướng dẫn sử dụng")}
             </Link>
           </div>
         </div>

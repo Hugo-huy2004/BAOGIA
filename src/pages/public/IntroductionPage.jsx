@@ -16,7 +16,7 @@ import Lenis from "lenis";
 import { useTranslation, Trans } from "react-i18next";
 
 function useMediaQuery(query) {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
   useEffect(() => {
     const mq = window.matchMedia(query);
     setMatches(mq.matches);
@@ -1112,7 +1112,7 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
           <Chapter p={p} range={[0.02, 0.08, 0.22, 0.28]}>
             <Badge className="self-start bg-warning/15 text-warning border-warning/30">{t("intro.slide3.badge")}</Badge>
             <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-extrabold text-foreground leading-tight">
-              Xin chào, tôi là <br />
+              {t("intro.about.hello")} <br />
               <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
                 Hugo.
               </span>
@@ -1124,11 +1124,11 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
 
           {/* Chapter 2 — Học vấn Cấp 3 (THPT Nguyễn Đình Chiểu) */}
           <Chapter p={p} range={[0.26, 0.32, 0.46, 0.52]}>
-            <Badge className="self-start bg-primary/15 text-primary border-primary/30">Học vấn THPT</Badge>
+            <Badge className="self-start bg-primary/15 text-primary border-primary/30">{t("intro.slide3.hsBadge")}</Badge>
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight">
-              THPT Nguyễn Đình Chiểu <br />
+              {t("intro.slide3.highSchool")} <br />
               <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-lg sm:text-xl">
-                Nơi rèn giũa và ươm mầm tư duy lập trình
+                {t("intro.slide3.hsSub")}
               </span>
             </h2>
 
@@ -1155,15 +1155,15 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="text-xs font-black text-primary uppercase tracking-wider">
-                        Trường THPT Nguyễn Đình Chiểu
+                        {t("intro.slide3.hsFull")}
                       </span>
                       <span className="flex items-center gap-0.5 text-[9px] text-zinc-200 font-medium">
                         <span className="material-symbols-outlined text-[10px] text-primary">location_on</span>
-                        8 Bis Đ. Hùng Vương, phường Mỹ Tho, Đồng Tháp
+                        {t("intro.slide3.hsAddress")}
                       </span>
                     </div>
                     <p className="text-[10px] sm:text-xs text-zinc-200 font-sans leading-normal">
-                      {t("intro.slide3.highSchoolDesc")} (Mỹ Tho - Collège de MyTho)
+                      {t("intro.slide3.highSchoolDesc")}
                     </p>
                   </div>
                 </div>
@@ -1175,24 +1175,12 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
               {/* 3-column virtues/skills/knowledge grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
                 {[
-                  {
-                    title: "Đức tính & Kỷ luật",
-                    icon: "verified_user",
-                    desc: "Kiên trì vượt khó, rèn luyện ý chí và chủ động tự học sâu sắc."
-                  },
-                  {
-                    title: "Kỹ năng cốt lõi",
-                    icon: "psychology",
-                    desc: "Tư duy phản biện sắc bén, giải quyết vấn đề và tự nghiên cứu độc lập."
-                  },
-                  {
-                    title: "Kiến thức nền",
-                    icon: "menu_book",
-                    desc: "Tư duy logic Toán tự nhiên vững vàng và thuật toán cơ sở."
-                  }
-                ].map((item) => (
+                  { k: "v1", icon: "verified_user" },
+                  { k: "v2", icon: "psychology" },
+                  { k: "v3", icon: "menu_book" },
+                ].map((item) => ({ ...item, title: t(`intro.slide3.${item.k}t`), desc: t(`intro.slide3.${item.k}d`) })).map((item) => (
                   <div
-                    key={item.title}
+                    key={item.k}
                     className="p-3 rounded-xl bg-[#0a0f2c]/40 border border-cyan-500/10 backdrop-blur-md space-y-1 text-left shadow-md"
                   >
                     <div className="flex items-center gap-1.5">
@@ -1216,9 +1204,9 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
           <Chapter p={p} range={[0.50, 0.56, 0.70, 0.76]}>
             <Badge className="self-start bg-accent/15 text-accent border-accent/30">{t("intro.slide3.eduTitle")}</Badge>
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight">
-              Đại Học Greenwich <br />
+              {t("intro.slide3.uniTitle")} <br />
               <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-lg sm:text-xl">
-                Chương trình chuẩn quốc tế Vương Quốc Anh
+                {t("intro.slide3.uniSub")}
               </span>
             </h2>
 
@@ -1267,17 +1255,7 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
-                  {[
-                    { name: "C#", glow: "hover:shadow-purple-500/30 hover:border-purple-400/50", color: "from-purple-500/15 via-purple-500/5 to-transparent text-purple-300 border-purple-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/csharp/csharp-original.svg" },
-                    { name: "Python", glow: "hover:shadow-blue-500/30 hover:border-blue-400/50", color: "from-blue-500/15 via-blue-500/5 to-transparent text-blue-300 border-blue-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" },
-                    { name: "HTML", glow: "hover:shadow-orange-500/30 hover:border-orange-400/50", color: "from-orange-500/15 via-orange-500/5 to-transparent text-orange-300 border-orange-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" },
-                    { name: "CSS", glow: "hover:shadow-cyan-500/30 hover:border-cyan-400/50", color: "from-cyan-500/15 via-cyan-500/5 to-transparent text-cyan-300 border-cyan-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" },
-                    { name: "JavaScript", glow: "hover:shadow-yellow-500/30 hover:border-yellow-400/50", color: "from-yellow-500/15 via-yellow-500/5 to-transparent text-yellow-300 border-yellow-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
-                    { name: "PHP", glow: "hover:shadow-indigo-500/30 hover:border-indigo-400/50", color: "from-indigo-500/15 via-indigo-500/5 to-transparent text-indigo-300 border-indigo-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" },
-                    { name: "MySQL", glow: "hover:shadow-sky-500/30 hover:border-sky-400/50", color: "from-sky-500/15 via-sky-500/5 to-transparent text-sky-300 border-sky-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg" },
-                    { name: "React.js", glow: "hover:shadow-teal-500/30 hover:border-teal-400/50", color: "from-teal-500/15 via-teal-500/5 to-transparent text-teal-300 border-teal-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
-                    { name: "Unity", glow: "hover:shadow-emerald-500/30 hover:border-emerald-400/50", color: "from-emerald-500/15 via-emerald-500/5 to-transparent text-emerald-300 border-emerald-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/unity/unity-original.svg" }
-                  ].map((tech) => (
+                  {GREENWICH_STACK.map((tech) => (
                     <span
                       key={tech.name}
                       className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wide border bg-gradient-to-br transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg select-none cursor-pointer ${tech.color} ${tech.glow}`}
@@ -1327,6 +1305,18 @@ function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
 /* ---------------------------------------------------------------------------
    SCENE 4 — BIO EDU MIỄN PHÍ (thẻ sinh viên lật 3D 180° + glare quét theo scroll)
    ------------------------------------------------------------------------- */
+
+const GREENWICH_STACK = [
+  { name: "C#", glow: "hover:shadow-purple-500/30 hover:border-purple-400/50", color: "from-purple-500/15 via-purple-500/5 to-transparent text-purple-300 border-purple-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/csharp/csharp-original.svg" },
+  { name: "Python", glow: "hover:shadow-blue-500/30 hover:border-blue-400/50", color: "from-blue-500/15 via-blue-500/5 to-transparent text-blue-300 border-blue-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" },
+  { name: "HTML", glow: "hover:shadow-orange-500/30 hover:border-orange-400/50", color: "from-orange-500/15 via-orange-500/5 to-transparent text-orange-300 border-orange-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" },
+  { name: "CSS", glow: "hover:shadow-cyan-500/30 hover:border-cyan-400/50", color: "from-cyan-500/15 via-cyan-500/5 to-transparent text-cyan-300 border-cyan-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" },
+  { name: "JavaScript", glow: "hover:shadow-yellow-500/30 hover:border-yellow-400/50", color: "from-yellow-500/15 via-yellow-500/5 to-transparent text-yellow-300 border-yellow-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
+  { name: "PHP", glow: "hover:shadow-indigo-500/30 hover:border-indigo-400/50", color: "from-indigo-500/15 via-indigo-500/5 to-transparent text-indigo-300 border-indigo-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" },
+  { name: "MySQL", glow: "hover:shadow-sky-500/30 hover:border-sky-400/50", color: "from-sky-500/15 via-sky-500/5 to-transparent text-sky-300 border-sky-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg" },
+  { name: "React.js", glow: "hover:shadow-teal-500/30 hover:border-teal-400/50", color: "from-teal-500/15 via-teal-500/5 to-transparent text-teal-300 border-teal-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
+  { name: "Unity", glow: "hover:shadow-emerald-500/30 hover:border-emerald-400/50", color: "from-emerald-500/15 via-emerald-500/5 to-transparent text-emerald-300 border-emerald-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/unity/unity-original.svg" },
+];
 
 const EDU_TOOLS = [
   { id: "banhocduong", name: "Bạn Học Đường", icon: "school" },
@@ -1428,7 +1418,7 @@ function SceneBio({ container, bind, t }) {
         {/* Tiện ích HSSV miễn phí */}
         <motion.div style={{ opacity: toolsOpacity, y: toolsY }} className="space-y-3 will-change-transform">
           <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest text-center">
-            Tiện ích HSSV miễn phí đi kèm
+            {t("intro.slide5.toolsTitle")}
           </p>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
             {EDU_TOOLS.map((tool) => (
@@ -1456,6 +1446,19 @@ function SceneBio({ container, bind, t }) {
    SCENE 4.5 — VŨ TRỤ TIỆN ÍCH (Orbiting utility planets + interactive cards)
    ------------------------------------------------------------------------- */
 
+function buildDiscoveryItems(t) {
+  return [
+    { id: "aura", name: t("intro.discoveries.auraTitle"), icon: "lens_blur", path: "/aura", desc: t("intro.discoveries.auraDesc"), color: "rgba(168,85,247,0.3)" },
+    { id: "therapy", name: t("intro.discoveries.psyTitle"), icon: "psychology", path: "/therapy", desc: t("intro.discoveries.psyDesc"), color: "rgba(236,72,153,0.3)" },
+    { id: "banhocduong", name: t("intro.discoveries.hocduongTitle"), icon: "school", path: "/banhocduong", desc: t("intro.discoveries.hocduongDesc"), color: "rgba(59,130,246,0.3)" },
+    { id: "radio", name: t("intro.discoveries.radioTitle"), icon: "radio", path: "/radio", desc: t("intro.discoveries.radioDesc"), color: "rgba(234,179,8,0.3)" },
+    { id: "ide", name: t("intro.discoveries.ideTitle"), icon: "terminal", path: "/member/utilities/ide", desc: t("intro.discoveries.ideDesc"), color: "rgba(6,182,212,0.3)" },
+    { id: "arcade", name: t("intro.discoveries.arcadeTitle"), icon: "sports_esports", path: "/arcade", desc: t("intro.discoveries.arcadeDesc"), color: "rgba(16,185,129,0.3)" },
+    { id: "joy", name: t("intro.discoveries.joyTitle"), icon: "wallet", path: "/joy", desc: t("intro.discoveries.joyDesc"), color: "rgba(99,102,241,0.3)" },
+    { id: "bio", name: t("intro.discoveries.bioTitle"), icon: "id_card", path: "/login", desc: t("intro.discoveries.bioDesc"), color: "rgba(239,68,68,0.3)" },
+  ];
+}
+
 function SceneDiscoveries({ container, bind, t, reduced }) {
   const { targetRef, p } = useSceneScroll(container);
   const mouse = useMouseParallax(!reduced);
@@ -1471,16 +1474,7 @@ function SceneDiscoveries({ container, bind, t, reduced }) {
   const mouseXParallax = useTransform(mouse.x, (v) => v * 12);
   const mouseYParallax = useTransform(mouse.y, (v) => v * 12);
 
-  const discoveryItems = [
-    { id: "aura", name: t("intro.discoveries.auraTitle"), icon: "lens_blur", path: "/aura", desc: t("intro.discoveries.auraDesc"), color: "rgba(168,85,247,0.3)" },
-    { id: "therapy", name: t("intro.discoveries.psyTitle"), icon: "psychology", path: "/therapy", desc: t("intro.discoveries.psyDesc"), color: "rgba(236,72,153,0.3)" },
-    { id: "banhocduong", name: t("intro.discoveries.hocduongTitle"), icon: "school", path: "/banhocduong", desc: t("intro.discoveries.hocduongDesc"), color: "rgba(59,130,246,0.3)" },
-    { id: "radio", name: t("intro.discoveries.radioTitle"), icon: "radio", path: "/radio", desc: t("intro.discoveries.radioDesc"), color: "rgba(234,179,8,0.3)" },
-    { id: "ide", name: t("intro.discoveries.ideTitle"), icon: "terminal", path: "/member/utilities/ide", desc: t("intro.discoveries.ideDesc"), color: "rgba(6,182,212,0.3)" },
-    { id: "arcade", name: t("intro.discoveries.arcadeTitle"), icon: "sports_esports", path: "/arcade", desc: t("intro.discoveries.arcadeDesc"), color: "rgba(16,185,129,0.3)" },
-    { id: "joy", name: t("intro.discoveries.joyTitle"), icon: "wallet", path: "/joy", desc: t("intro.discoveries.joyDesc"), color: "rgba(99,102,241,0.3)" },
-    { id: "bio", name: t("intro.discoveries.bioTitle"), icon: "id_card", path: "/login", desc: t("intro.discoveries.bioDesc"), color: "rgba(239,68,68,0.3)" },
-  ];
+  const discoveryItems = buildDiscoveryItems(t);
 
   const [activeItem, setActiveItem] = useState(null);
 
@@ -1551,7 +1545,7 @@ function SceneDiscoveries({ container, bind, t, reduced }) {
                   {t("intro.discoveries.desc")}
                 </p>
                 <p className="text-xs text-primary font-bold uppercase tracking-wider animate-pulse hidden lg:block">
-                  ✦ Rê chuột qua các hạt hành tinh để khám phá vũ trụ số
+                  {t("intro.discoveries.hint")}
                 </p>
               </div>
             )}
@@ -1656,7 +1650,7 @@ function ContactTile({ p, start, href, icon, label }) {
   );
 }
 
-function SceneTransition({ container, bind, setIsTransitioning }) {
+function SceneTransition({ container, bind, t, setIsTransitioning }) {
   const { targetRef, p } = useSceneScroll(container);
   const navigate = useNavigate();
 
@@ -1697,7 +1691,7 @@ function SceneTransition({ container, bind, setIsTransitioning }) {
             transition={{ delay: 0.2 }}
             className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground"
           >
-            Từ lời nói sang hành động
+            {t("intro.transition.title")}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -1705,7 +1699,7 @@ function SceneTransition({ container, bind, setIsTransitioning }) {
             transition={{ delay: 0.4 }}
             className="text-base sm:text-lg text-muted-foreground italic"
           >
-            "Hãy chọn một sắc thái, hay tôi sẽ vẽ cầu vồng cho bạn."
+            {t("intro.transition.quote")}
           </motion.p>
         </motion.div>
 
@@ -1722,15 +1716,8 @@ function SceneTransition({ container, bind, setIsTransitioning }) {
   );
 }
 
-function SceneContact({ container, bind, t, profile }) {
-  const { targetRef, p } = useSceneScroll(container);
-
-  const headOpacity = useTransform(p, [0.02, 0.15], [0, 1]);
-  const headY = useTransform(p, [0.02, 0.15], [50, 0]);
-  const ctaOpacity = useTransform(p, [0.46, 0.6], [0, 1]);
-  const ctaY = useTransform(p, [0.46, 0.6], [60, 0]);
-
-  const contacts = [
+function buildContacts(profile, t) {
+  return [
     { href: `https://zalo.me/${profile.zaloNumber}`, icon: "sms", label: t("intro.slide9.zalo"), start: 0.08 },
     { href: `mailto:${profile.emailAddress}`, icon: "mail", label: t("intro.slide9.email"), start: 0.13 },
     { href: "https://facebook.com/hugowishpax.le", icon: "group", label: t("intro.slide9.fb"), start: 0.18 },
@@ -1741,6 +1728,17 @@ function SceneContact({ container, bind, t, profile }) {
       start: 0.23,
     },
   ];
+}
+
+function SceneContact({ container, bind, t, profile }) {
+  const { targetRef, p } = useSceneScroll(container);
+
+  const headOpacity = useTransform(p, [0.02, 0.15], [0, 1]);
+  const headY = useTransform(p, [0.02, 0.15], [50, 0]);
+  const ctaOpacity = useTransform(p, [0.46, 0.6], [0, 1]);
+  const ctaY = useTransform(p, [0.46, 0.6], [60, 0]);
+
+  const contacts = buildContacts(profile, t);
 
   return (
     <SceneShell bind={bind} targetRef={targetRef} height="220vh">
@@ -1816,6 +1814,464 @@ function SceneContact({ container, bind, t, profile }) {
   );
 }
 
+const PAGE_CSS = `
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .animate-gradientShift { background-size: 200% 200%; animation: gradientShift 6s ease-in-out infinite; }
+  @keyframes blobMorph {
+    0%, 100% { border-radius: 58% 42% 55% 45% / 50% 55% 45% 50%; }
+    33% { border-radius: 45% 55% 48% 52% / 58% 44% 56% 42%; }
+    66% { border-radius: 52% 48% 42% 58% / 44% 56% 48% 52%; }
+  }
+  .animate-blobMorph { animation: blobMorph 9s ease-in-out infinite; }
+  @keyframes shoot {
+    0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0); opacity: 0; }
+    1% { opacity: 1; scale: 1; }
+    20% { transform: translateX(-300px) translateY(300px) rotate(-45deg) scale(1); opacity: 0; }
+    100% { transform: translateX(-300px) translateY(300px) rotate(-45deg) scale(0); opacity: 0; }
+  }
+  .shooting-star {
+    position: absolute;
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0));
+    transform: rotate(-45deg);
+    opacity: 0;
+    animation: shoot 12s linear infinite;
+    pointer-events: none;
+  }
+`;
+
+/* ---------------------------------------------------------------------------
+   MOBILE (< 768px) — layout dọc đơn giản: không scene sticky, không scroll-scrub.
+   Dùng lại toàn bộ nội dung/i18n của bản desktop, chỉ đổi cách trình bày.
+   ------------------------------------------------------------------------- */
+
+// Mỗi slide chiếm trọn viewport (trừ header) + scroll-snap; slide cao hơn
+// viewport vẫn cuộn tự do bên trong vùng snap của nó.
+// `from` = trạng thái vào riêng của từng scene — mỗi cú vuốt một kiểu xuất hiện.
+function MSection({ id, idx, from = { opacity: 0, y: 40 }, children, className = "" }) {
+  return (
+    <motion.section
+      id={id}
+      data-slide={idx}
+      initial={from}
+      whileInView={{ opacity: 1, x: 0, y: 0, scale: 1, rotate: 0, rotateY: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      className={`relative snap-start min-h-[calc(100vh-56px)] flex flex-col justify-center px-5 py-8 space-y-4 max-w-lg mx-auto ${className}`}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
+// Item trong lưới hiện dần theo thứ tự (stagger pop)
+function MPop({ i = 0, children, className = "" }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.92 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ duration: 0.45, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function MHeading({ badge, title, gradient, desc }) {
+  return (
+    <>
+      <div className="flex justify-center">
+        <Badge>{badge}</Badge>
+      </div>
+      <h2 className="font-display text-2xl font-extrabold text-foreground leading-tight">
+        {title}
+        {gradient ? (
+          <>
+            <br />
+            <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
+              {gradient}
+            </span>
+          </>
+        ) : null}
+      </h2>
+      {desc ? <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p> : null}
+    </>
+  );
+}
+
+function MEduLink({ href, favicon, name, desc }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-3 p-3.5 rounded-2xl bg-card/70 border border-border/50 text-left"
+    >
+      <div className="w-9 h-9 rounded-xl bg-white/5 border border-border/50 flex items-center justify-center p-1.5 shrink-0">
+        <img src={favicon} alt="" loading="lazy" className="w-full h-full object-contain" />
+      </div>
+      <div className="min-w-0 flex-1 space-y-0.5">
+        <p className="text-xs font-black text-foreground">{name}</p>
+        <p className="text-[10px] text-muted-foreground leading-snug">{desc}</p>
+      </div>
+      <span className="material-symbols-outlined text-sm text-muted-foreground shrink-0">open_in_new</span>
+    </a>
+  );
+}
+
+const MOBILE_SLIDES = [
+  "m-hero",
+  "m-studio",
+  "m-founder",
+  "m-partner",
+  "m-about",
+  "m-edu",
+  "m-philosophy",
+  "m-bio",
+  "m-benefits",
+  "m-discover",
+  "m-contact",
+  "m-cta",
+];
+
+function IntroductionMobile({ t, data, realPhoto, reduced }) {
+  const profile = data.profile;
+  const contacts = buildContacts(profile, t);
+  const discoveryItems = buildDiscoveryItems(t);
+  const scrollRef = useRef(null);
+  const [active, setActive] = useState(0);
+
+  // Đánh dấu slide đang xem cho dot indicator (threshold thấp vì có slide cao hơn viewport)
+  useEffect(() => {
+    const root = scrollRef.current;
+    if (!root) return;
+    const obs = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(Number(e.target.dataset.slide));
+        }),
+      { root, threshold: 0.3 }
+    );
+    root.querySelectorAll("[data-slide]").forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  const primaryBtn =
+    "inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-full bg-primary text-white font-bold text-xs shadow-lg shadow-primary/20";
+  const ghostBtn =
+    "inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-full border border-border text-foreground font-bold text-xs";
+
+  return (
+    <div className="dark relative w-full h-[calc(100vh-56px)] bg-[#04050f] text-slate-100 overflow-hidden">
+      <style>{PAGE_CSS}</style>
+      {/* Nebula đổi màu theo slide đang xem — mỗi scene một tông vũ trụ */}
+      <StarryUniverse activeIndex={Math.min(active, 5)} reduced={reduced} />
+
+      {/* Dot indicators (slide hiện tại) */}
+      <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2.5">
+        {MOBILE_SLIDES.map((id, i) => (
+          <button
+            key={id}
+            aria-label={`Slide ${i + 1}`}
+            onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })}
+            className={`rounded-full transition-all duration-300 ${
+              active === i
+                ? "w-2 h-5 bg-gradient-to-b from-primary via-accent to-warning shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                : "w-2 h-2 border border-zinc-500 bg-transparent"
+            }`}
+          />
+        ))}
+      </div>
+
+      <div ref={scrollRef} className="relative z-10 h-full overflow-y-auto no-scrollbar scroll-smooth snap-y snap-mandatory">
+        {/* HERO */}
+        <MSection id="m-hero" idx={0} from={{ opacity: 0, y: 30, filter: "blur(8px)" }} className="text-center">
+          <div className="flex justify-center">
+            <Badge className="shadow-[0_0_15px_rgba(99,102,241,0.2)]">{t("intro.studio.badge")}</Badge>
+          </div>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight leading-[1.05] text-foreground">
+            <RevealWords text={t("intro.studio.title1")} delay={0.1} />
+            <br />
+            <span className="inline-block bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-2xl">
+              {t("intro.studio.title2")}
+            </span>
+          </h1>
+          <p className="text-sm text-muted-foreground leading-relaxed">{t("intro.studio.desc")}</p>
+          <div className="flex flex-col gap-2.5 pt-1">
+            <a href="#m-founder" className={primaryBtn.replace("bg-primary text-white", "bg-foreground text-background")}>
+              {t("intro.studio.explore")}
+              <span className="material-symbols-outlined text-sm">arrow_downward</span>
+            </a>
+            <Link to="/booking" className={ghostBtn}>
+              {t("intro.slide1.book")}
+            </Link>
+          </div>
+        </MSection>
+
+        {/* STUDIO SHOWCASE — hologram website */}
+        <MSection id="m-studio" idx={1} from={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }} className="text-center">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            DIGITAL CRAFT · PORTAL
+          </p>
+          <div className="flex justify-center pt-2">
+            <div className="relative">
+              <StudioHologram />
+              <Chibi src={STICKER_NICE} delay={0.4} drift={4} className="absolute -top-10 -right-4 w-14 z-20" />
+            </div>
+          </div>
+        </MSection>
+
+        {/* FOUNDER */}
+        <MSection id="m-founder" idx={2} from={{ opacity: 0, x: 80, rotateY: -18 }} className="text-center">
+          <MHeading
+            badge={t("intro.partners.badge")}
+            title={t("intro.partners.title1")}
+            gradient={t("intro.partners.title2")}
+          />
+          <div className="flex justify-center pt-2">
+            <FounderHologram t={t} />
+          </div>
+        </MSection>
+
+        {/* PARTNER + GIÁ TRỊ CỐT LÕI */}
+        <MSection id="m-partner" idx={3} from={{ opacity: 0, y: 50 }} className="text-center">
+          <div className="flex justify-center">
+            <Chibi src={STICKER_WOW} delay={0.3} drift={5} tilt={5} className="w-20" />
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">{t("intro.partners.desc")}</p>
+          <div className="flex justify-center">
+            <PartnerMini t={t} />
+          </div>
+          <div className="space-y-2 pt-3">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+              {t("intro.partners.stackTitle")}
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {VALUE_KEYS.map((k, i) => (
+                <MPop key={k} i={i} className="inline-block">
+                  <span className="inline-block px-3.5 py-1.5 rounded-full bg-muted text-foreground text-[10px] font-bold select-none">
+                    {t(`intro.partners.${k}`)}
+                  </span>
+                </MPop>
+              ))}
+            </div>
+          </div>
+        </MSection>
+
+        {/* ABOUT */}
+        <MSection id="m-about" idx={4} from={{ opacity: 0, scale: 0.85 }} className="text-center">
+          <div className="flex justify-center">
+            <Badge className="bg-warning/15 text-warning border-warning/30">{t("intro.slide3.badge")}</Badge>
+          </div>
+          <h2 className="font-display text-3xl font-extrabold text-foreground leading-tight">
+            {t("intro.about.hello")}{" "}
+            <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">Hugo.</span>
+          </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">{t("intro.about.desc")}</p>
+          <div className="flex justify-center pt-2 relative">
+            <AboutPortraitPhoto realPhoto={realPhoto} fullName={data.profile.fullName} t={t} />
+            <Chibi src={STICKER_YUMMY} delay={0.7} drift={6} tilt={5} className="absolute -bottom-4 left-0 w-16 z-20" />
+          </div>
+        </MSection>
+
+        {/* EDUCATION + PHILOSOPHY */}
+        <MSection id="m-edu" idx={5} from={{ opacity: 0, x: -80 }} className="text-center">
+          <div className="space-y-3 text-left">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center">
+              {t("intro.slide3.eduTitle")}
+            </p>
+            <MEduLink
+              href="https://ndc.edu.vn"
+              favicon="https://www.google.com/s2/favicons?domain=ndc.edu.vn&sz=64"
+              name={t("intro.slide3.hsFull")}
+              desc={t("intro.slide3.highSchoolDesc")}
+            />
+            <MEduLink
+              href="https://greenwich.edu.vn"
+              favicon="https://www.google.com/s2/favicons?domain=greenwich.edu.vn&sz=64"
+              name={t("intro.slide3.uni")}
+              desc={t("intro.slide3.uniDesc")}
+            />
+            <div className="flex flex-wrap gap-1.5">
+              {GREENWICH_STACK.map((tech) => (
+                <span
+                  key={tech.name}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wide border bg-gradient-to-br select-none ${tech.color}`}
+                >
+                  <img src={tech.iconUrl} alt={tech.name} loading="lazy" className="w-3.5 h-3.5 object-contain" />
+                  {tech.name}
+                </span>
+              ))}
+            </div>
+          </div>
+
+        </MSection>
+
+        {/* TRIẾT LÝ */}
+        <MSection id="m-philosophy" idx={6} from={{ opacity: 0, y: 40, filter: "blur(8px)" }}>
+          <div className="flex justify-start">
+            <Badge className="bg-warning/15 text-warning border-warning/30">{t("intro.slide8.badge")}</Badge>
+          </div>
+          <blockquote className="text-xl italic font-semibold bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift border-l-4 border-primary pl-4 py-1 leading-snug text-left">
+            {t("intro.slide8.quote")}
+          </blockquote>
+          <div className="space-y-3 text-left pt-2">
+            {["p1", "p2", "p3"].map((k, i) => (
+              <MPop key={k} i={i} className="flex items-center gap-3 text-sm">
+                <span className="text-base font-bold text-primary font-mono">0{i + 1}</span>
+                <span className="font-semibold text-foreground/90">{t(`intro.slide8.${k}`)}</span>
+              </MPop>
+            ))}
+          </div>
+        </MSection>
+
+        {/* BIO EDU */}
+        <MSection id="m-bio" idx={7} from={{ opacity: 0, y: 60, scale: 0.95 }} className="text-center">
+          <MHeading
+            badge={t("intro.slide5.badge")}
+            title={t("intro.slide5.title1")}
+            gradient={t("intro.slide5.title2")}
+          />
+          <p className="text-sm text-muted-foreground leading-relaxed text-left">
+            <Trans i18nKey="intro.slide5.desc">
+              Tôi mong muốn hỗ trợ tối đa cho học sinh, sinh viên trong việc xây dựng thương hiệu cá nhân số. Mỗi
+              tài khoản đăng ký sử dụng email giáo dục có chứa hậu tố{" "}
+              <strong className="text-primary">.edu</strong> sẽ được tự động kích hoạt tạo 1 trang Bio tùy chỉnh
+              hoàn toàn miễn phí.
+            </Trans>
+          </p>
+          <a href="/login" className={primaryBtn}>
+            {t("intro.slide5.createBtn")}
+          </a>
+          <div className="flex justify-center pt-2">
+            <Chibi src={STICKER_SUPPORT} delay={0.5} drift={6} tilt={3} className="w-24" />
+          </div>
+        </MSection>
+
+        {/* QUYỀN LỢI + TIỆN ÍCH EDU */}
+        <MSection id="m-benefits" idx={8} from={{ opacity: 0, x: 80 }} className="text-center">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            {t("intro.slide5.benefitsTitle")}
+          </p>
+          <div className="grid grid-cols-2 gap-2.5 text-left">
+            {[
+              { k: "b1", icon: "id_card" },
+              { k: "b2", icon: "link" },
+              { k: "b3", icon: "bolt" },
+              { k: "b4", icon: "widgets" },
+            ].map((b, i) => (
+              <MPop key={b.k} i={i} className="rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-3 space-y-1">
+                <MonoIcon name={b.icon} size="text-base" box="w-8 h-8" />
+                <p className="text-[11px] font-bold text-foreground leading-tight">{t(`intro.slide5.${b.k}t`)}</p>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">{t(`intro.slide5.${b.k}d`)}</p>
+              </MPop>
+            ))}
+          </div>
+
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pt-3">
+            {t("intro.slide5.toolsTitle")}
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {EDU_TOOLS.map((tool) => (
+              <Link
+                key={tool.id}
+                to={`/public-tools/${tool.id}`}
+                className="flex items-center gap-2 pl-1.5 pr-3.5 py-1.5 rounded-full bg-card/70 border border-border/50 shadow-sm"
+              >
+                <span className="w-7 h-7 rounded-full bg-muted text-foreground flex items-center justify-center">
+                  <span className="material-symbols-outlined text-sm">{tool.icon}</span>
+                </span>
+                <span className="text-[10px] font-bold text-foreground">{tool.name}</span>
+              </Link>
+            ))}
+          </div>
+        </MSection>
+
+        {/* DISCOVERIES */}
+        <MSection id="m-discover" idx={9} from={{ opacity: 0, scale: 0.8, rotate: -4 }} className="text-center">
+          <MHeading
+            badge={t("intro.discoveries.badge")}
+            title={t("intro.discoveries.title1")}
+            gradient={t("intro.discoveries.title2")}
+            desc={t("intro.discoveries.desc")}
+          />
+          <div className="grid grid-cols-2 gap-2 text-left pt-1">
+            {discoveryItems.map((item, i) => (
+              <MPop key={item.id} i={i}>
+                <Link
+                  to={item.path}
+                  className="block h-full rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-2.5 space-y-1 active:scale-[0.98] transition-transform"
+                >
+                  <MonoIcon name={item.icon} size="text-base" box="w-8 h-8" />
+                  <p className="text-[11px] font-bold text-foreground leading-tight">{item.name}</p>
+                  <p className="text-[10px] text-muted-foreground leading-snug line-clamp-1">{item.desc}</p>
+                </Link>
+              </MPop>
+            ))}
+          </div>
+        </MSection>
+
+        {/* CONTACT + CTA */}
+        <MSection id="m-contact" idx={10} from={{ opacity: 0, y: 40, filter: "blur(6px)" }} className="text-center pb-16">
+          <div className="flex justify-center">
+            <Chibi src={STICKER_HELLO} drift={6} tilt={3} className="w-20" />
+          </div>
+          <MHeading badge={t("intro.slide9.badge")} title="" gradient={t("intro.slide9.title")} desc={t("intro.slide9.desc")} />
+          <div className="grid grid-cols-2 gap-3">
+            {contacts.map((c, i) => (
+              <MPop key={c.icon} i={i}>
+                <a
+                  href={c.href}
+                  target={c.href.startsWith("http") ? "_blank" : undefined}
+                  rel={c.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  className="clay-card h-full rounded-2xl p-4 border border-border/50 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-2 text-center shadow-lg"
+                >
+                  <MonoIcon name={c.icon} size="text-2xl" box="w-11 h-11" />
+                  <span className="font-display text-xs font-bold text-foreground">{c.label}</span>
+                </a>
+              </MPop>
+            ))}
+          </div>
+
+        </MSection>
+
+        {/* FINAL CTA */}
+        <MSection id="m-cta" idx={11} from={{ opacity: 0, scale: 0.9, y: 40 }} className="text-center pb-16">
+          <div className="flex justify-center">
+            <Chibi src={STICKER_GO} delay={0.2} drift={5} tilt={2} className="w-28" />
+          </div>
+          <h3 className="font-display text-2xl font-extrabold text-foreground leading-tight">
+            {t("intro.slide10.title1")}{" "}
+            <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
+              {t("intro.slide10.title2")}
+            </span>
+          </h3>
+          <div className="flex flex-col gap-2.5">
+            <a href="/login" className={primaryBtn}>
+              {t("intro.slide10.registerBtn")}
+            </a>
+            <Link to="/booking" className={ghostBtn}>
+              {t("intro.slide10.bookBtn")}
+            </Link>
+            <Link to="/services" className={ghostBtn}>
+              {t("intro.slide6.pricingBtn")}
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          </div>
+        </MSection>
+      </div>
+    </div>
+  );
+}
+
 /* ---------------------------------------------------------------------------
    PAGE
    ------------------------------------------------------------------------- */
@@ -1841,6 +2297,8 @@ export default function IntroductionPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [hologramTarget, setHologramTarget] = useState({ x: 0, y: 0, scale: 0.95, opacity: 1 });
   const reduced = useReducedMotion();
+  // Điện thoại (< 768px) dùng layout dọc riêng — desktop/iPad giữ bản cinematic
+  const isPhone = useMediaQuery("(max-width: 767px)");
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -1850,6 +2308,7 @@ export default function IntroductionPage() {
   }, []);
 
   useEffect(() => {
+    if (isPhone) return; // mobile view có layout riêng, không cần hologram
     const updatePosition = () => {
       const spacer = document.getElementById(`hologram-spacer-${activeIndex}`);
       
@@ -1897,7 +2356,7 @@ export default function IntroductionPage() {
       observer.disconnect();
       window.removeEventListener("resize", updatePosition);
     };
-  }, [activeIndex, isMobile]);
+  }, [activeIndex, isMobile, isPhone]);
 
   useHeadMeta({
     title: "Hugo Studio — Portfolio & Dịch Vụ Thiết Kế Web Sinh Viên",
@@ -1984,43 +2443,18 @@ export default function IntroductionPage() {
   if (!data) return null;
 
   const realPhoto = optimizeCloudinaryUrl(data.gallery?.[0]?.url || "/image/avt1.png", 800);
+
+  if (isPhone) {
+    return <IntroductionMobile t={t} data={data} realPhoto={realPhoto} reduced={reduced} />;
+  }
+
   const bindScene = (i) => (el) => {
     sceneEls.current[i] = el;
   };
 
   return (
     <div className="dark relative w-full h-[calc(100vh-56px)] overflow-hidden bg-[#04050f] text-slate-100">
-      <style>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes gradientShift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-gradientShift { background-size: 200% 200%; animation: gradientShift 6s ease-in-out infinite; }
-        @keyframes blobMorph {
-          0%, 100% { border-radius: 58% 42% 55% 45% / 50% 55% 45% 50%; }
-          33% { border-radius: 45% 55% 48% 52% / 58% 44% 56% 42%; }
-          66% { border-radius: 52% 48% 42% 58% / 44% 56% 48% 52%; }
-        }
-        .animate-blobMorph { animation: blobMorph 9s ease-in-out infinite; }
-        @keyframes shoot {
-          0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0); opacity: 0; }
-          1% { opacity: 1; scale: 1; }
-          20% { transform: translateX(-300px) translateY(300px) rotate(-45deg) scale(1); opacity: 0; }
-          100% { transform: translateX(-300px) translateY(300px) rotate(-45deg) scale(0); opacity: 0; }
-        }
-        .shooting-star {
-          position: absolute;
-          width: 120px;
-          height: 2px;
-          background: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0));
-          transform: rotate(-45deg);
-          opacity: 0;
-          animation: shoot 12s linear infinite;
-          pointer-events: none;
-        }
-      `}</style>
+      <style>{PAGE_CSS}</style>
 
       {/* Overall scroll progress bar */}
       <motion.div

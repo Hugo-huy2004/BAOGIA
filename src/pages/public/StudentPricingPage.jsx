@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
+import { withUsdPrices } from "../../utils/priceFormatter";
 import { motion } from "framer-motion";
 
 const fadeUp = {
@@ -44,10 +45,10 @@ export default function StudentPricingPage() {
       return {
         id: key,
         icon: icons[index],
-        ...planData,
+        ...withUsdPrices(i18n, `servicesPage.studentPlans.${key}`, planData),
       };
     });
-  }, [t]);
+  }, [t, i18n]);
 
   const verificationSteps = useMemo(() => {
     return [

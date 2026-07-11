@@ -58,7 +58,8 @@
     "portal": "Access Client Portal",
     "loginAdmin": "Admin Login",
     "hello": "Hello",
-    "mainMenu": "Main Menu"
+    "mainMenu": "Main Menu",
+    "login": "Log In"
   },
   "footer": {
     "tagline": "Crafting sweet and professional digital experiences. Specializing in Bio Links and performance-optimized website designs.",
@@ -74,7 +75,9 @@
     "booking": "Book a Meeting",
     "connect": "Connect",
     "partner": "Partners",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "supportServer": "Support the Server",
+    "userGuide": "User Guide"
   },
   "intro": {
     "nav": {
@@ -94,7 +97,8 @@
       "discoveries": "Discoveries"
     },
     "about": {
-      "desc": "I am Hugo — a dreamer who codes. Born in 2004 and growing up in a cold digital world of logic, I always strive to create warm, poetic, and emotional spaces. To me, every digital product is a small planet where every detail and button is carefully crafted to warm the hearts of my companions."
+      "desc": "I am Hugo — a dreamer who codes. Born in 2004 and growing up in a cold digital world of logic, I always strive to create warm, poetic, and emotional spaces. To me, every digital product is a small planet where every detail and button is carefully crafted to warm the hearts of my companions.",
+      "hello": "Hi there, I'm"
     },
     "slide1": {
       "badge": "✦ Creative Developer Portal",
@@ -121,7 +125,19 @@
       "highSchool": "Nguyen Dinh Chieu High School",
       "highSchoolDesc": "My Tho (Collège de MyTho)",
       "uni": "Greenwich Vietnam",
-      "uniDesc": "Greenwich University"
+      "uniDesc": "Greenwich University",
+      "hsBadge": "High School",
+      "hsSub": "Where my programming mindset was forged and nurtured",
+      "hsFull": "Nguyen Dinh Chieu High School",
+      "hsAddress": "8 Bis Hung Vuong St., My Tho, Dong Thap",
+      "v1t": "Character & Discipline",
+      "v1d": "Perseverance through challenges, strong willpower, and deep self-driven learning.",
+      "v2t": "Core Skills",
+      "v2d": "Sharp critical thinking, problem-solving, and independent research.",
+      "v3t": "Foundations",
+      "v3d": "Solid mathematical logic and fundamental algorithms.",
+      "uniTitle": "University of Greenwich",
+      "uniSub": "UK-standard international curriculum"
     },
     "slide4": {
       "idTitle": "GREENWICH CO-DEVELOPER",
@@ -161,7 +177,8 @@
       "b3t": "3-second auto verification",
       "b3d": "Just an email ending in .edu — the system verifies instantly, no manual review.",
       "b4t": "Full student toolkit",
-      "b4d": "Bạn Học Đường, Hugo PSY, Web IDE, Hugo Radio and Aura AI — free for a full 12 months."
+      "b4d": "Bạn Học Đường, Hugo PSY, Web IDE, Hugo Radio and Aura AI — free for a full 12 months.",
+      "toolsTitle": "Free student utilities included"
     },
     "slide6": {
       "badge": "✦ Professional Web Services",
@@ -258,7 +275,12 @@
       "joyTitle": "Joy PWA",
       "joyDesc": "The cosmos' energy node. A place to store value, accumulate Joy rewards, and bind all utilities in the ecosystem.",
       "bioTitle": "Signature Bio",
-      "bioDesc": "Your personal mark in the galaxy. A unique page reflecting your true artistic self and intelligence."
+      "bioDesc": "Your personal mark in the galaxy. A unique page reflecting your true artistic self and intelligence.",
+      "hint": "✦ Hover over the planets to explore the digital universe"
+    },
+    "transition": {
+      "title": "From words to action",
+      "quote": "\"Pick a shade — or I'll paint you a rainbow.\""
     }
   },
   "servicesPage": {
@@ -274,14 +296,14 @@
       "discussProject": "Discuss your project"
     },
     "whispers": {
-      "intro": "Không có website hoàn hảo. Chỉ có website phù hợp.",
-      "between1": "Mỗi lỗi là một tín hiệu. Lắng nghe nó.",
-      "between2": "Tốc độ không phải là mục tiêu. Tốc độ là điều kiện tiên quyết.",
-      "between3": "Một website đẹp mà chậm là sắc màu trên vải buổi hoàng hôn — đẹp nhưng không ai nhìn thấy.",
-      "between4": "Từ một trang đến một thế giới. Bước đầu là bước duy nhất bạn cần lo lắng.",
-      "between5": "Khi thế giới có thể tìm thấy bạn, bạn mới thực sự tồn tại trực tuyến.",
-      "climax": "Và rồi, website không chỉ nói chuyện — nó tư duy, nó quyết định, nó làm việc cho bạn.",
-      "closing": "Mỗi con số là một cánh cửa. Bạn chọn cái nào?"
+      "intro": "There is no perfect website. Only the right one.",
+      "between1": "Every bug is a signal. Listen to it.",
+      "between2": "Speed isn't the goal. Speed is the prerequisite.",
+      "between3": "A beautiful site that loads slowly is color on canvas at dusk — lovely, but no one sees it.",
+      "between4": "From one page to a whole world. The first step is the only one you need to worry about.",
+      "between5": "Only when the world can find you do you truly exist online.",
+      "climax": "And then, the website doesn't just talk — it thinks, it decides, it works for you.",
+      "closing": "Every number is a door. Which one will you open?"
     },
     "hero": {
       "badge": "Hugo Studio · Service pricing",
@@ -310,24 +332,24 @@
     },
     "journey": {
       "stone1": {
-        "badge": "✦ Viên Đá Đầu Tiên",
-        "desc": "Khi bạn bắt đầu nhận ra — có cái gì cần chỉnh sửa. Tôi đến, tìm đúng chỗ, và chữa lành nó. Đó là lần đầu bạn cảm thấy website của bạn được chạm tay một người yêu thích nó."
+        "badge": "✦ The First Stone",
+        "desc": "It starts when you notice — something needs fixing. I come in, find the exact spot, and heal it. That's the first time you feel your website touched by someone who loves it."
       },
       "stone2": {
-        "badge": "✦ Viên Đá Sáng Lên",
-        "desc": "Website đẹp nhưng chưa ai thấy? Bây giờ, tôi bật đèn. Tốc độ nhanh, Google tìm thấy bạn, và khách hàng cảm thấy chất lượng ngay lần đầu tiên."
+        "badge": "✦ The Stone That Lights Up",
+        "desc": "A beautiful site no one has seen? Now I turn the lights on. It gets fast, Google finds you, and customers feel the quality from the very first visit."
       },
       "stone3": {
-        "badge": "✦ Viên Đá Hình Thành",
-        "desc": "Một trang duy nhất. Một câu chuyện. Khi bạn nhìn thẳng vào mắt khách hàng qua màn hình và họ nói: 'Có, bạn là người tôi tìm.'"
+        "badge": "✦ The Stone That Takes Shape",
+        "desc": "A single page. A single story. You look your customer in the eye through the screen and they say: 'Yes, you're the one I've been looking for.'"
       },
       "stone4": {
-        "badge": "✦ Hòn Đá Hoàng Tráng",
-        "desc": "Bộ mặt hoàn chỉnh của bạn. Mỗi trang là một câu chuyện, mỗi liên kết là một cơ hội. Website không chỉ nói chuyện — nó *mời gọi* người ta vào thế giới của bạn."
+        "badge": "✦ The Grand Stone",
+        "desc": "Your complete face to the world. Every page is a story, every link an opportunity. The website doesn't just talk — it *invites* people into your world."
       },
       "stone5": {
-        "badge": "✦ Hòn Ngọc — Sự Sống",
-        "desc": "Website không chỉ nói chuyện — nó sống. Nó suy nghĩ, nó quyết định, nó làm việc cho bạn 24/7. Đó là khi công nghệ trở thành phần mềm của bạn, không còn là công cụ."
+        "badge": "✦ The Pearl — Alive",
+        "desc": "The website doesn't just talk — it lives. It thinks, it decides, it works for you 24/7. That's when technology becomes your software, no longer just a tool."
       }
     },
     "plans": {
@@ -355,10 +377,12 @@
         "note": "Best for React/Next.js sites, or any site that's slow and hard to find on Google.",
         "desc": "A pretty site that's slow and invisible on Google is a shop without a sign. This package fixes exactly that.",
         "includes": [
-          "Speed tune-up: compressed images, cleaned code, caching on",
-          "Metadata + rich share previews for up to 5 key pages",
-          "Google Search Console setup and a full sitemap",
-          "Before–after PageSpeed report with recommended next steps"
+          "Speed tune-up: compressed images, cleaned code, caching and lazy-load on",
+          "On-page SEO: metadata, rich share previews, schema markup",
+          "Google Search Console setup, sitemap and robots.txt submitted",
+          "Optimization for your 5 key pages (or the whole site if it's small)",
+          "Before–after PageSpeed report with recommended next steps",
+          "A walkthrough of what to optimize next if you want to keep going"
         ],
         "excludes": [
           "SEO copywriting, backlinks, paid ads",
@@ -368,48 +392,49 @@
       "landing": {
         "label": "Start",
         "name": "One-page landing page",
-        "oldPrice": "1.990.000đ",
-        "price": "From $40.99",
-        "discount": "-50%",
+        "oldPrice": "$80.99",
+        "price": "$60.99",
+        "discount": "-25%",
         "note": "Custom design, no mass-market templates. Done in 5-7 days.",
         "desc": "One page, one goal: visitors finish reading and want to contact you.",
         "tagline": "Easy to start",
         "includes": [
           "1 page custom-designed to your brand, up to 7 sections",
           "2 revision rounds based on your feedback",
-          "Contact form delivered straight to your Zalo or email",
-          "Basic SEO, rich preview when your link is shared",
-          "Deployed live on your domain, with a guide to edit text & images",
-          "Free bug support for 7 days after handover",
-          "Hỗ trợ lỗi miễn phí 7 ngày sau bàn giao"
+          "Contact form, click-to-call, or direct Zalo/Messenger chat",
+          "Basic SEO: metadata, rich share previews, mobile-friendly",
+          "Deployed live with your domain hooked up",
+          "A 30-minute hands-on walkthrough over Zalo",
+          "Free bug support for 14 days after handover"
         ],
         "excludes": [
-          "Domain fee ~300-500k/year (I'll pick a free hosting tier)",
-          "Copy and images — you provide them, I polish",
-          "Extra pages, multi-language → quoted separately"
+          "Domain & hosting fees (~300-500k/year — you buy them, I'll help you choose)",
+          "Copy and images — you provide them, I polish and design",
+          "Booking or online payment systems → see the Website Pro package"
         ]
       },
       "website": {
         "label": "Grow",
         "name": "Multi-page website",
-        "oldPrice": "$101.99",
-        "price": "From $60.99",
-        "discount": "-50%",
+        "oldPrice": "$202.99",
+        "price": "$121.99",
+        "discount": "-40%",
         "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
         "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
         "tagline": "Most popular",
         "includes": [
-          "4-6 finished pages: home, about, services, contact",
-          "Design matched to your brand + 2 revision rounds",
-          "SEO-ready structure, registered with Google",
-          "Frequently-changed parts (prices, menu, news) editable without code",
-          "Zalo, Messenger and Google Maps integration",
-          "1 training session + 14 days of support"
+          "4-6 finished pages: home, about, products/services, news (optional), contact",
+          "Cohesive design matched to your brand (logo placement, colors, fonts...)",
+          "3 revision rounds based on your feedback",
+          "Advanced SEO: Google Search Console, sitemap, schema markup",
+          "Zalo, Messenger, Google Maps + advanced contact forms",
+          "1 month of free maintenance (4 small tweaks included)",
+          "A 30-minute training session + 14 days of post-handover support"
         ],
         "excludes": [
-          "Domain/hosting fees ~300-800k/year depending on plan",
-          "Copywriting and product photography",
-          "Booking, payments, member accounts → see the System package"
+          "Yearly domain & hosting fees (~300-800k, sourced externally)",
+          "Blog copywriting and product photography — you provide those",
+          "Booking management, online payments → Web System (the advanced package)"
         ]
       },
       "system": {
@@ -430,13 +455,15 @@
           "1 month of technical support after handover"
         ],
         "excludes": [
-          "Online payments, extra roles, extra flows → 12-20M projects, quoted separately",
-          "Running costs for server & domain (~50-150k/month)",
-          "Phí tên miền, VPS/Server hàng tháng (chi phí vận hành)"
+          "Online payment gateways (PayOS, Momo, Stripe) → separate add-on, roughly 1-3M",
+          "VIP membership, points & loyalty programs → separate add-on",
+          "Monthly domain & VPS costs (~300k-1M/month, sourced externally)"
         ]
       }
     },
     "studentPlans": {
+      "orderCta": "Order Student Plan",
+      "detailsCta": "Verification Requirements & Student Plan Details",
       "exclusiveBio": {
         "label": "Students",
         "name": "Exclusive Bio Page",
@@ -641,7 +668,7 @@
       "items": [
         {
           "q": "How much does a website cost?",
-          "a": "Landing page from $40.99, multi-page website from $101.99, dynamic web app from $283.99. The final price depends on specific features and is locked upfront. Since I am a student working directly 1-1, the pricing is highly affordable and free of middlemen."
+          "a": "A quick fix starts around $12, a shop-starter landing page around $57, and a multi-page website around $115 (converted from VND at the live rate). The final price is agreed 1-1 to fit exactly what you need. As an IT student working directly with you, there are no middlemen and no overhead — soft prices without compromising quality."
         },
         {
           "q": "Why is it affordable while maintaining good quality?",
@@ -767,7 +794,7 @@
       {
         "question": "Is there any promotional or trial policy at Hugo Studio?",
         "answer": "Understanding that students desire a professional personal brand, I support creating customized Bio Portfolios completely free for students with .edu or .edu.vn educational emails.",
-        "actionText": "Nhận ưu đãi Sinh Viên"
+        "actionText": "Claim the Student Offer"
       },
       {
         "question": "How is the design cost at Hugo Studio?",
