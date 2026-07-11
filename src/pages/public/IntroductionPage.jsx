@@ -15,6 +15,18 @@ import {
 import Lenis from "lenis";
 import { useTranslation, Trans } from "react-i18next";
 
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    setMatches(mq.matches);
+    const handler = () => setMatches(mq.matches);
+    mq.addListener(handler);
+    return () => mq.removeListener(handler);
+  }, [query]);
+  return matches;
+}
+
 /* ============================================================================
    HUGO STUDIO — INTRODUCTION (Apple-style scroll-driven cinematic page, v2)
    Mỗi scene là một đoạn scroll dài (240–320vh) chứa một "sân khấu" sticky.
@@ -282,7 +294,7 @@ function SceneShell({ bind, targetRef, height, children, className = "" }) {
 function Badge({ children, className = "" }) {
   return (
     <span
-      className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25 ${className}`}
+      className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[8px] sm:text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] bg-primary/10 text-primary border border-primary/25 ${className}`}
     >
       {children}
     </span>
@@ -448,12 +460,14 @@ function DiscoveriesCore() {
   );
 }
 
-function HologramMaster({ activeIndex, realPhoto, fullName, t, scrollProgress, reduced, target }) {
+function HologramMaster({ activeIndex, realPhoto, fullName, t, scrollProgress, reduced, target, isMobile }) {
   const mouse = useMouseParallax(!reduced);
-  
+
   // Parallax rotation values (spring dampened)
   const rx = useTransform(mouse.y, (v) => v * -7);
   const ry = useTransform(mouse.x, (v) => v * 9);
+
+  if (isMobile) return null;
 
   const renderCardContent = () => {
     switch (activeIndex) {
@@ -652,6 +666,7 @@ function StudioHologram() {
 function SceneStudio({ container, bind, t, onExplore, reduced }) {
   const { targetRef, p } = useSceneScroll(container);
   const mouse = useMouseParallax(!reduced);
+  const isLargeScreen = useMediaQuery("(min-width: 768px)");
 
   // Text bay lên & mờ dần, hologram nghiêng + phóng to xuyên qua "camera"
   const textY = useTransform(p, [0, 0.5], [0, -140]);
@@ -707,11 +722,11 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
         className="absolute bottom-[16%] left-[8%] w-36 h-36 md:w-52 md:h-52 bg-primary/25 rounded-full blur-[80px] pointer-events-none"
       />
 
-      <div className="w-full max-w-6xl mx-auto px-5 sm:px-8 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center relative z-10">
+      <div className="w-full max-w-6xl mx-auto px-5 sm:px-8 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-16 items-center relative z-10">
         {/* Left: studio identity — layout sạch, không chồng đè */}
         <motion.div
           style={{ y: textY, opacity: textOpacity }}
-          className="space-y-5 sm:space-y-7 text-center lg:text-left order-2 lg:order-1 will-change-transform"
+          className="space-y-3 sm:space-y-5 md:space-y-7 text-center md:text-left order-2 md:order-1 will-change-transform"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -722,14 +737,14 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
             <Badge className="shadow-[0_0_15px_rgba(99,102,241,0.2)]">{t("intro.studio.badge")}</Badge>
           </motion.div>
 
-          <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-extrabold tracking-tight leading-[1.02] text-foreground">
+          <h1 className="font-display text-3xl sm:text-5xl lg:text-7xl xl:text-8xl font-extrabold tracking-tight leading-[1.02] text-foreground">
             <RevealWords text={t("intro.studio.title1")} delay={0.15} />
             <br />
             <motion.span
               initial={{ opacity: 0, y: 26, filter: "blur(10px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-block bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-3xl sm:text-4xl lg:text-5xl xl:text-6xl will-change-transform"
+              className="inline-block bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-lg sm:text-3xl lg:text-5xl xl:text-6xl will-change-transform"
             >
               {t("intro.studio.title2")}
             </motion.span>
@@ -739,7 +754,7 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed mx-auto lg:mx-0"
+            className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground max-w-xl leading-relaxed mx-auto md:mx-0"
           >
             {t("intro.studio.desc")}
           </motion.p>
@@ -748,12 +763,12 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.55 }}
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 justify-center lg:justify-start"
+            className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 pt-1 md:pt-2 justify-center md:justify-start"
           >
             <Magnetic>
               <button
                 onClick={onExplore}
-                className="group relative inline-flex w-full sm:w-auto items-center justify-center px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-foreground text-background font-bold overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-shadow duration-300 text-xs sm:text-sm"
+                className="group relative inline-flex w-full sm:w-auto items-center justify-center px-5 sm:px-7 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full bg-foreground text-background font-bold overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-shadow duration-300 text-xs sm:text-xs md:text-sm"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <Shine />
@@ -768,7 +783,7 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
             <Magnetic>
               <Link
                 to="/booking"
-                className="inline-flex w-full sm:w-auto items-center justify-center px-7 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-border/50 text-foreground font-bold hover:border-primary hover:text-primary transition-colors duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-sm"
+                className="inline-flex w-full sm:w-auto items-center justify-center px-5 sm:px-7 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full border-2 border-border/50 text-foreground font-bold hover:border-primary hover:text-primary transition-colors duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-xs md:text-sm"
               >
                 {t("intro.slide1.book")}
               </Link>
@@ -777,6 +792,7 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
         </motion.div>
 
         {/* Right: hologram browser spacer and emitter */}
+        {isLargeScreen && (
         <div className="order-1 lg:order-2 flex items-center justify-center py-4 relative select-none pointer-events-none" style={{ perspective: 1400 }}>
           <motion.div
             id="hologram-spacer-0"
@@ -830,6 +846,7 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
             />
           </motion.div>
         </div>
+        )}
       </div>
 
       {/* Scroll hint */}
