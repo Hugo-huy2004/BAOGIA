@@ -912,32 +912,32 @@ export default function ServicesPage() {
                 <motion.article
                   key={job.id}
                   {...reveal}
-                  className="group relative flex flex-col justify-between overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/30 sm:p-7"
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-[2rem] border border-border bg-card p-4 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/30 sm:p-5"
                 >
                   <div>
-                    <div className="flex items-start justify-between gap-3">
+                    {/* Header: Icon + Time */}
+                    <div className="flex items-start justify-between gap-2">
                       <MonoIcon name={job.icon} />
-                      <span className="rounded-full bg-muted border border-border px-3 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                      <span className="rounded-full bg-muted border border-border/50 px-2.5 py-0.5 text-[8px] font-bold text-muted-foreground uppercase tracking-wider">
                         {job.time}
                       </span>
                     </div>
-                    
-                    <h3 className="font-display mt-5 text-lg font-extrabold text-foreground group-hover:text-primary transition-colors duration-200">
+
+                    {/* Title + Description */}
+                    <h3 className="font-display mt-3 text-base font-extrabold text-foreground group-hover:text-primary transition-colors duration-200">
                       {job.name}
                     </h3>
-                    <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2 text-[11px] sm:text-xs leading-tight text-muted-foreground/85">
                       {job.desc}
                     </p>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">{t("servicesPage.micro.costLabel")}</p>
-                      <p className="text-base sm:text-lg font-black text-foreground">{job.price}</p>
-                    </div>
+                  {/* Price + CTA */}
+                  <div className="mt-4 flex items-end justify-between gap-3 border-t border-border/30 pt-3">
+                    <p className="text-sm font-black text-foreground">{job.price}</p>
                     <Link
                       to={`/booking?type=micro&plan=${job.id}`}
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-primary group-hover:underline"
+                      className="inline-flex items-center gap-1 text-[10px] font-bold text-primary group-hover:underline whitespace-nowrap"
                     >
                       {t("servicesPage.micro.cta")}
                       <span className="material-symbols-outlined text-xs">arrow_forward</span>
