@@ -225,8 +225,6 @@ function JourneyChapter({ badge, desc, index }) {
 function PlanCard({ plan, emphasized = false }) {
   const { t } = useTranslation();
   const [showExcludes, setShowExcludes] = useState(false);
-  const displayIncludes = plan.includes.slice(0, 4);
-  const hiddenIncludes = plan.includes.slice(4);
 
   return (
     <motion.article
@@ -269,58 +267,44 @@ function PlanCard({ plan, emphasized = false }) {
           {plan.note && <p className="mt-1 text-[10px] leading-snug text-muted-foreground/80">{plan.note}</p>}
         </div>
 
-        {/* Benefits (top 4 only) */}
-        <div className="mt-5">
+        {/* Benefits (all visible for readability) */}
+        <div className="mt-4">
           <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("servicesPage.common.youGet")}</p>
           <ul className="mt-2.5 grid gap-1.5">
-            {displayIncludes.map((item) => (
+            {plan.includes.map((item) => (
               <li key={item} className="flex items-start gap-2 text-xs font-medium leading-tight text-foreground/85">
                 <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-sm text-foreground">check_circle</span>
                 <span>{item}</span>
               </li>
             ))}
           </ul>
-          {hiddenIncludes.length > 0 && (
-            <button
-              onClick={() => setShowExcludes(!showExcludes)}
-              className="mt-2 text-[9px] font-bold text-primary/80 hover:text-primary transition-colors"
-            >
-              +{hiddenIncludes.length} thêm
-            </button>
-          )}
         </div>
 
-        {/* Hidden benefits + Excludes (expandable) */}
-        {showExcludes && (
-          <div className="mt-4 space-y-3 border-t border-border/30 pt-3">
-            {hiddenIncludes.length > 0 && (
-              <ul className="grid gap-1.5">
-                {hiddenIncludes.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-xs leading-tight text-foreground/70">
-                    <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-sm text-foreground">check_circle</span>
+        {/* Excludes (expandable, not essential) */}
+        {plan.excludes && (
+          <div className="mt-3">
+            <button
+              onClick={() => setShowExcludes(!showExcludes)}
+              className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground/70 hover:text-muted-foreground transition-colors"
+            >
+              <span className="material-symbols-outlined text-xs">{showExcludes ? "expand_less" : "expand_more"}</span>
+              {t("servicesPage.common.notIncluded")}
+            </button>
+            {showExcludes && (
+              <ul className="mt-2 grid gap-1 border-l border-border/30 pl-3">
+                {plan.excludes.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-[9px] leading-tight text-muted-foreground/70">
+                    <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-xs">do_not_disturb_on</span>
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             )}
-            {plan.excludes && (
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground/70">{t("servicesPage.common.notIncluded")}</p>
-                <ul className="mt-1.5 grid gap-1">
-                  {plan.excludes.map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-[10px] leading-tight text-muted-foreground/75">
-                      <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-xs">do_not_disturb_on</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         )}
 
         {/* CTA */}
-        <div className="mt-auto pt-5">
+        <div className="mt-auto pt-4">
           <CtaButton className="w-full text-xs">{t("servicesPage.common.discussPlan")}</CtaButton>
         </div>
       </div>
