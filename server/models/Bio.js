@@ -422,6 +422,11 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    // Chặng 6 mới (Bài 91-100) tách từ gói Ultimate cũ (71-100)
+    hugoCoderDevopsLifetime: {
+      type: Boolean,
+      default: false
+    },
     courseCompletionAwardClaimed: {
       type: Boolean,
       default: false

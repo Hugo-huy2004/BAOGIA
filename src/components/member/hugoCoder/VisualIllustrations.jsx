@@ -93,11 +93,11 @@ export const renderMobileIllustration = (type, courseId = "") => {
     return (
       <div className="rounded-lg border border-border bg-slate-50 dark:bg-zinc-950 p-4 space-y-2.5 font-sans text-left text-[11px]">
         <div className="p-2 border border-destructive/20 bg-destructive/5 rounded-lg">
-          <code className="text-destructive font-mono block">// Gán i bằng 0</code>
+          <code className="text-destructive font-mono block">{"// Gán i bằng 0"}</code>
           <p className="text-[9px] text-muted-foreground mt-0.5">❌ Bad: Giải thích code làm cái gì (dư thừa).</p>
         </div>
         <div className="p-2 border border-success/20 bg-success/5 rounded-lg">
-          <code className="text-success font-mono block">// Bù lệch múi giờ UTC+7 khi lưu DB</code>
+          <code className="text-success font-mono block">{"// Bù lệch múi giờ UTC+7 khi lưu DB"}</code>
           <p className="text-[9px] text-muted-foreground mt-0.5">✅ Good: Giải thích tại sao cần viết đoạn code này.</p>
         </div>
       </div>

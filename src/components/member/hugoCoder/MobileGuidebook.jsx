@@ -7,6 +7,7 @@ import {
   Terminal, Shield, Zap, Trophy, Cpu, ChevronRight
 } from "lucide-react";
 import InteractivePuzzles from "./InteractivePuzzles";
+import { STAGES } from "./lessons";
 import { renderMobileIllustration, renderVisualArtwork, renderStudyModePanel } from "./VisualIllustrations";
 import FeatureGate from "../shared/FeatureGate";
 import { notify } from "../../../lib/notify";
@@ -85,9 +86,8 @@ export default function MobileGuidebook({
     intermediate: false,
     advanced: false,
     security: false,
-    exam: false,
-    optimize: false,
-    ultimate: false
+    project: false,
+    devops: false
   });
 
   const togglePhase = (phaseId) => {
@@ -101,9 +101,9 @@ export default function MobileGuidebook({
     if (mobileCompletedCount < 10) return "Học viên Sơ cấp";
     if (mobileCompletedCount < 25) return "Lập trình viên Sơ cấp";
     if (mobileCompletedCount < 50) return "Lập trình viên Trung cấp";
-    if (mobileCompletedCount < 70) return "Lập trình viên Cao cấp";
-    if (mobileCompletedCount < 90) return "Kỹ sư Phần mềm Chuyên nghiệp";
-    return "Chuyên gia Kiến trúc Hệ thống Web";
+    if (mobileCompletedCount < 70) return "Kỹ sư Bảo mật & AI";
+    if (mobileCompletedCount < 90) return "Kỹ sư Full-Stack Chuyên nghiệp";
+    return "Kỹ sư DevOps — Phát hành sản phẩm thật";
   }, [mobileCompletedCount]);
 
   const phaseMeta = {
@@ -112,7 +112,7 @@ export default function MobileGuidebook({
       accentColor: "text-blue-500 dark:text-blue-400 border-blue-500/30",
       badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
       barColor: "bg-gradient-to-r from-blue-500 to-indigo-500",
-      subtext: "HTML, CSS cơ bản & Cây cấu trúc DOM",
+      subtext: "Gõ cho thuộc lòng: HTML, CSS, JS, SQL, PHP",
       icon: <Terminal className="w-4.5 h-4.5 text-blue-500" />
     },
     intermediate: {
@@ -120,7 +120,7 @@ export default function MobileGuidebook({
       accentColor: "text-emerald-500 dark:text-emerald-400 border-emerald-500/30",
       badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
       barColor: "bg-gradient-to-r from-emerald-500 to-teal-500",
-      subtext: "Làm chủ JavaScript & Xử lý sự kiện động",
+      subtext: "Tư duy hệ thống: Schema, MVC, REST & chuẩn UI/UX",
       icon: <Cpu className="w-4.5 h-4.5 text-emerald-500" />
     },
     advanced: {
@@ -128,7 +128,7 @@ export default function MobileGuidebook({
       accentColor: "text-violet-500 dark:text-violet-400 border-violet-500/30",
       badgeColor: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
       barColor: "bg-gradient-to-r from-violet-500 to-purple-500",
-      subtext: "SQL, PHP Backend & Tích hợp API dữ liệu",
+      subtext: "Lõi CS: cấu trúc dữ liệu, giải thuật & mật mã học",
       icon: <BookOpen className="w-4.5 h-4.5 text-violet-500" />
     },
     security: {
@@ -136,86 +136,31 @@ export default function MobileGuidebook({
       accentColor: "text-rose-500 dark:text-rose-400 border-rose-500/30",
       badgeColor: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
       barColor: "bg-gradient-to-r from-rose-500 to-pink-500",
-      subtext: "Bảo mật CIA, chuẩn đặt tên & tổ chức file",
+      subtext: "OWASP, JWT/OAuth2, Gemini AI & quy trình dự án",
       icon: <Shield className="w-4.5 h-4.5 text-rose-500" />
     },
-    exam: {
-      gradient: "from-amber-500/10 via-orange-500/5 to-transparent border-amber-500/20 dark:border-amber-500/30",
-      accentColor: "text-amber-500 dark:text-amber-400 border-amber-500/30",
-      badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-      barColor: "bg-gradient-to-r from-amber-500 to-orange-500",
-      subtext: "Kiểm tra trắc nghiệm tổng hợp 2 chặng",
-      icon: <Award className="w-4.5 h-4.5 text-amber-500" />
-    },
-    optimize: {
+    project: {
       gradient: "from-cyan-500/10 via-sky-500/5 to-transparent border-cyan-500/20 dark:border-cyan-500/30",
       accentColor: "text-cyan-500 dark:text-cyan-400 border-cyan-500/30",
       badgeColor: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
       barColor: "bg-gradient-to-r from-cyan-500 to-sky-500",
-      subtext: "Clean Code DRY, tối ưu code & Prompt AI/LLM",
+      subtext: "Siêu đồ án: Full-Stack + Chat realtime + AI",
       icon: <Zap className="w-4.5 h-4.5 text-cyan-500" />
     },
-    ultimate: {
+    devops: {
       gradient: "from-yellow-500/15 via-amber-500/5 to-transparent border-yellow-500/30 dark:border-yellow-500/45",
       accentColor: "text-yellow-500 dark:text-yellow-400 border-yellow-500/30",
       badgeColor: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20",
       barColor: "bg-gradient-to-r from-yellow-500 to-amber-500",
-      subtext: "Đồ án kết khóa: Làm web fullstack hoàn chỉnh",
+      subtext: "DevOps: VPS, Nginx, SSL & phát hành thật",
       icon: <Trophy className="w-4.5 h-4.5 text-yellow-500" />
     }
   };
 
-  const phases = [
-    {
-      id: "basic",
-      phaseNumber: 1,
-      title: "Chặng 1: Nhập Môn Cơ Bản",
-      rangeText: "Bài 1 - 10",
-      lessons: WEB_COURSES.slice(0, 10)
-    },
-    {
-      id: "intermediate",
-      phaseNumber: 2,
-      title: "Chặng 2: Lập Trình Trung Cấp",
-      rangeText: "Bài 11 - 25",
-      lessons: WEB_COURSES.slice(10, 25)
-    },
-    {
-      id: "advanced",
-      phaseNumber: 3,
-      title: "Chặng 3: Chuyên Gia Cao Cấp",
-      rangeText: "Bài 26 - 50",
-      lessons: WEB_COURSES.slice(25, 50)
-    },
-    {
-      id: "security",
-      phaseNumber: 4,
-      title: "Chặng 4: Bảo Mật & Quy Tắc",
-      rangeText: "Bài 51 - 60",
-      lessons: WEB_COURSES.slice(50, 60)
-    },
-    {
-      id: "exam",
-      phaseNumber: 5,
-      title: "Chặng 5: Kiểm Tra Tổng Hợp",
-      rangeText: "Bài 61 - 62",
-      lessons: WEB_COURSES.slice(60, 62)
-    },
-    {
-      id: "optimize",
-      phaseNumber: 6,
-      title: "Chặng 6: Tối Ưu Code & AI",
-      rangeText: "Bài 63 - 70",
-      lessons: WEB_COURSES.slice(62, 70)
-    },
-    {
-      id: "ultimate",
-      phaseNumber: 7,
-      title: "Chặng 7: Lập Trình Web Nâng Cao",
-      rangeText: "Bài 71 - 100",
-      lessons: WEB_COURSES.slice(70, 100)
-    }
-  ];
+  const phases = STAGES.map((stage) => ({
+    ...stage,
+    lessons: WEB_COURSES.slice(stage.from, stage.to)
+  }));
 
   return (
     <FeatureGate
@@ -368,14 +313,7 @@ export default function MobileGuidebook({
                   const completedCount = phase.lessons.filter(l => completedLessons.includes(l.id)).length;
                   const isPhaseCompleted = completedCount === phase.lessons.length;
                   const isExpanded = expandedPhases[phase.id];
-                  const globalStartIndex = 
-                    phase.id === "basic" ? 0 :
-                    phase.id === "intermediate" ? 10 :
-                    phase.id === "advanced" ? 25 :
-                    phase.id === "security" ? 50 :
-                    phase.id === "exam" ? 60 :
-                    phase.id === "optimize" ? 62 :
-                    phase.id === "ultimate" ? 70 : 0;
+                  const globalStartIndex = phase.from;
                   const meta = phaseMeta[phase.id] || phaseMeta.basic;
                   const progressPercent = Math.round((completedCount / phase.lessons.length) * 100) || 0;
 
@@ -432,9 +370,13 @@ export default function MobileGuidebook({
                                 Chúc mừng hoàn thành {phase.title}
                               </div>
                               
-                              {[3, 4, 5, 6].includes(phase.phaseNumber) && (() => {
-                                const claimKey = `hugoCoderRewardClaimed${phase.phaseNumber}`;
-                                const hasClaimed = !!bio?.[claimKey];
+                              {[3, 4, 5].includes(phase.phaseNumber) && (() => {
+                                const claimKeysByPhase = {
+                                  3: ["hugoCoderRewardClaimed3"],
+                                  4: ["hugoCoderRewardClaimed4", "hugoCoderRewardClaimed5", "hugoCoderRewardClaimed6"],
+                                  5: ["hugoCoderRewardClaimed7"]
+                                };
+                                const hasClaimed = (claimKeysByPhase[phase.phaseNumber] || []).some((k) => !!bio?.[k]);
                                 return (
                                   <div className="space-y-2.5">
                                     <p className="text-[10px] text-muted-foreground leading-relaxed font-sans">
@@ -456,7 +398,7 @@ export default function MobileGuidebook({
                                 );
                               })()}
 
-                              {phase.phaseNumber === 7 && (() => {
+                              {phase.phaseNumber === 6 && (() => {
                                 const status = bio?.hugoCoderProjectStatus || 'idle';
                                 const certUrl = bio?.hugoCoderCertificateUrl || '';
                                 const adminNote = bio?.hugoCoderProjectAdminNote || '';
@@ -594,10 +536,9 @@ export default function MobileGuidebook({
               const showLifetimeOption = 
                 (tierInfo.tier === "intermediate" && completedLessons.includes("lesson25")) ||
                 (tierInfo.tier === "advanced" && completedLessons.includes("lesson50")) ||
-                (tierInfo.tier === "security" && completedLessons.includes("lesson60")) ||
-                (tierInfo.tier === "exam" && completedLessons.includes("lesson62")) ||
-                (tierInfo.tier === "optimize" && completedLessons.includes("lesson70")) ||
-                (tierInfo.tier === "ultimate" && (completedLessons.includes("lesson100") || bio?.hugoCoderProjectStatus === 'approved'));
+                (tierInfo.tier === "security" && completedLessons.includes("lesson70")) ||
+                (tierInfo.tier === "project" && completedLessons.includes("lesson90")) ||
+                (tierInfo.tier === "devops" && (completedLessons.includes("lesson100") || bio?.hugoCoderProjectStatus === 'approved'));
 
               return (
                 <div className="space-y-4 font-sans animate-fadeIn">
@@ -697,6 +638,9 @@ export default function MobileGuidebook({
                   <div className="px-4 py-3 border-b border-border flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-primary" />
                     <h3 className="text-sm font-black leading-tight">{mobileCourse.title}</h3>
+                    {mobileCourse.duration && (
+                      <span className="ml-auto shrink-0 text-[9px] font-bold text-muted-foreground bg-muted border border-border rounded-full px-2 py-0.5">{mobileCourse.duration}</span>
+                    )}
                   </div>
                   <article className="px-4 py-4 text-muted-foreground">
                     <ReactMarkdown
@@ -800,6 +744,22 @@ export default function MobileGuidebook({
                       </li>
                     ))}
                   </ul>
+                  {mobileCourse.challenge && (
+                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                      <p className="text-sm leading-6 text-muted-foreground"><strong className="text-primary">Thử thách mở rộng:</strong> {mobileCourse.challenge}</p>
+                    </div>
+                  )}
+                  {mobileCourse.checklist?.length > 0 && (
+                    <div className="rounded-lg border border-border bg-background p-3 space-y-2">
+                      <h4 className="text-xs font-black text-foreground">Checklist thuộc bài</h4>
+                      {mobileCourse.checklist.map((item, i) => (
+                        <label key={i} className="flex items-start gap-2 text-sm leading-6 text-muted-foreground cursor-pointer select-none">
+                          <input type="checkbox" className="mt-1 accent-current" />
+                          <span>{item}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </section>
 
                 {/* 2.7. Interactive Practice (Puzzles) */}

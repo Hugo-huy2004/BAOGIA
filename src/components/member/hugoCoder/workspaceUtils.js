@@ -96,6 +96,17 @@ export function buildPreviewHtml(activeFile, workspaceFiles) {
   return html;
 }
 
+// Loại bỏ mọi comment trước khi chấm bài — chữ trong TODO/hướng dẫn
+// không được tính là bài làm của học viên.
+export function stripCodeComments(code) {
+  return String(code || "")
+    .replace(/<!--[\s\S]*?-->/g, "")   // HTML
+    .replace(/\/\*[\s\S]*?\*\//g, "")  // CSS / JS / PHP block
+    .replace(/(^|[^:])\/\/[^\n]*/g, "$1") // JS / PHP line (giữ http://)
+    .replace(/^\s*--[^\n]*/gm, "")     // SQL line
+    .replace(/^\s*#[^\n]*/gm, "");     // PHP / shell line
+}
+
 export function getLessonStudyMs(courseId) {
   const startedAt = Number(localStorage.getItem(`student_ide_start_${courseId}`));
   return startedAt ? Math.max(0, Date.now() - startedAt) : 0;

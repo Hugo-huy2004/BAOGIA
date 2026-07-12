@@ -11,8 +11,8 @@ const BIO_THEME_RENTAL_PRICE = 150;
 const COMPRESS_CHARGE = 50;
 const CODER_LESSON_IDS = Array.from({ length: 100 }, (_, index) => `lesson${index + 1}`);
 const CODER_MIN_STUDY_MS = 10 * 60 * 1000;
-const CODER_QUIZ_LESSONS = new Set(['lesson4', 'lesson25', 'lesson50', 'lesson61', 'lesson62']);
-const CODER_SCREENSHOT_LESSONS = new Set(['lesson8', 'lesson9']);
+const CODER_QUIZ_LESSONS = new Set(['lesson6', 'lesson25', 'lesson50', 'lesson57', 'lesson58']);
+const CODER_SCREENSHOT_LESSONS = new Set(['lesson10']);
 
 // Item labels shown on the invoice modal, keyed the same way the frontend
 // calls /exchange-quote — kept here (not duplicated client-side) so price
@@ -257,7 +257,7 @@ router.post('/claim-milestone-reward', requireMember, async (req, res) => {
     if (!email || !phase) return res.status(400).json({ error: 'email and phase are required' });
 
     const phaseNum = Number(phase);
-    if (![3, 4, 5, 6].includes(phaseNum)) {
+    if (![3, 4, 5].includes(phaseNum)) {
       return res.status(400).json({ error: 'Chặng nhận thưởng không hợp lệ.' });
     }
 
@@ -265,8 +265,15 @@ router.post('/claim-milestone-reward', requireMember, async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
-    const claimKey = `hugoCoderRewardClaimed${phaseNum}`;
-    if (bio[claimKey]) {
+    // Chặng 4 mới gộp các mốc cũ 4/5/6 — ai đã nhận mốc cũ nào cũng coi như đã nhận.
+    // Chặng 5 mới (bài 90) dùng khoá RewardClaimed7 còn trống của hệ cũ.
+    const claimKeysByPhase = {
+      3: ['hugoCoderRewardClaimed3'],
+      4: ['hugoCoderRewardClaimed4', 'hugoCoderRewardClaimed5', 'hugoCoderRewardClaimed6'],
+      5: ['hugoCoderRewardClaimed7']
+    };
+    const claimKey = claimKeysByPhase[phaseNum][0];
+    if (claimKeysByPhase[phaseNum].some((k) => bio[k])) {
       return res.status(400).json({ error: `Bạn đã nhận phần thưởng cho Chặng ${phaseNum} rồi.` });
     }
 
@@ -274,9 +281,8 @@ router.post('/claim-milestone-reward', requireMember, async (req, res) => {
     const completed = bio.completedLessons || [];
     let requiredLesson = '';
     if (phaseNum === 3) requiredLesson = 'lesson50';
-    else if (phaseNum === 4) requiredLesson = 'lesson60';
-    else if (phaseNum === 5) requiredLesson = 'lesson62';
-    else if (phaseNum === 6) requiredLesson = 'lesson70';
+    else if (phaseNum === 4) requiredLesson = 'lesson70';
+    else if (phaseNum === 5) requiredLesson = 'lesson90';
 
     if (!completed.includes(requiredLesson)) {
       return res.status(400).json({ error: `Bạn cần hoàn thành Chặng ${phaseNum} (đến bài ${requiredLesson.replace('lesson', 'Bài ')}) để nhận thưởng.` });
@@ -462,9 +468,9 @@ router.post('/subscribe-feature', requireMember, async (req, res) => {
  */
 router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
   try {
-    const { tier } = req.body; // 'basic', 'intermediate', 'advanced', 'security', 'exam', 'optimize', 'ultimate'
+    const { tier } = req.body; // 6 chặng: 'basic', 'intermediate', 'advanced', 'security' (51-70), 'project' (71-90), 'devops' (91-100)
     const email = req.memberEmail;
-    const validTiers = ['basic', 'intermediate', 'advanced', 'security', 'exam', 'optimize', 'ultimate'];
+    const validTiers = ['basic', 'intermediate', 'advanced', 'security', 'project', 'devops'];
     if (!email || !validTiers.includes(tier)) {
       return res.status(400).json({ error: 'Cấp độ mở khóa không hợp lệ.' });
     }
@@ -478,45 +484,49 @@ router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
       intermediate: 'hugoCoderIntermediateLifetime',
       advanced: 'hugoCoderAdvancedLifetime',
       security: 'hugoCoderSecurityLifetime',
-      exam: 'hugoCoderExamLifetime',
-      optimize: 'hugoCoderOptimizeLifetime',
-      ultimate: 'hugoCoderUltimateLifetime'
+      project: 'hugoCoderUltimateLifetime',
+      devops: 'hugoCoderDevopsLifetime'
+    };
+    // Quyền legacy: chặng 4 mới = 1 trong 3 gói cũ; chặng 6 = gói Ultimate cũ (71-100)
+    const alreadyOwned = {
+      basic: bio.hugoCoderBasicLifetime,
+      intermediate: bio.hugoCoderIntermediateLifetime,
+      advanced: bio.hugoCoderAdvancedLifetime,
+      security: bio.hugoCoderSecurityLifetime || bio.hugoCoderExamLifetime || bio.hugoCoderOptimizeLifetime,
+      project: bio.hugoCoderUltimateLifetime,
+      devops: bio.hugoCoderDevopsLifetime || bio.hugoCoderUltimateLifetime
     };
     const key = keyMap[tier];
-    if (bio[key]) {
+    if (alreadyOwned[tier]) {
       return res.status(400).json({ error: 'Bạn đã mở khóa vĩnh viễn cấp độ này rồi.' });
     }
 
     // Enforce sequential unlocking and previous stage completion
     const completed = bio.completedLessons || [];
     if (tier === 'intermediate') {
-      if (!bio.hugoCoderBasicLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 1 trước.' });
+      if (!alreadyOwned.basic) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 1 trước.' });
       if (!completed.includes('lesson10')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 1 (đến Bài 10) trước khi mở khóa Chặng 2.' });
     } else if (tier === 'advanced') {
-      if (!bio.hugoCoderIntermediateLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 2 trước.' });
+      if (!alreadyOwned.intermediate) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 2 trước.' });
       if (!completed.includes('lesson25')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 2 (đến Bài 25) trước khi mở khóa Chặng 3.' });
     } else if (tier === 'security') {
-      if (!bio.hugoCoderAdvancedLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 3 trước.' });
+      if (!alreadyOwned.advanced) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 3 trước.' });
       if (!completed.includes('lesson50')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 3 (đến Bài 50) trước khi mở khóa Chặng 4.' });
-    } else if (tier === 'exam') {
-      if (!bio.hugoCoderSecurityLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 4 trước.' });
-      if (!completed.includes('lesson60')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 4 (đến Bài 60) trước khi mở khóa Chặng 5.' });
-    } else if (tier === 'optimize') {
-      if (!bio.hugoCoderExamLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 5 trước.' });
-      if (!completed.includes('lesson62')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 5 (đến Bài 62) trước khi mở khóa Chặng 6.' });
-    } else if (tier === 'ultimate') {
-      if (!bio.hugoCoderOptimizeLifetime) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 6 trước.' });
-      if (!completed.includes('lesson70')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 6 (đến Bài 70) trước khi mở khóa Chặng 7.' });
+    } else if (tier === 'project') {
+      if (!alreadyOwned.security) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 4 trước.' });
+      if (!completed.includes('lesson70')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 4 (đến Bài 70) trước khi mở khóa Chặng 5.' });
+    } else if (tier === 'devops') {
+      if (!alreadyOwned.project) return res.status(400).json({ error: 'Bạn cần mở khóa Chặng 5 trước.' });
+      if (!completed.includes('lesson90')) return res.status(400).json({ error: 'Bạn cần hoàn thành Chặng 5 (đến Bài 90) trước khi mở khóa Chặng 6.' });
     }
 
     const tierPrices = {
       basic: 1500,
       intermediate: 2600,
       advanced: 2600,
-      security: 1000,
-      exam: 100,
-      optimize: 1500,
-      ultimate: 5000
+      security: 2600,
+      project: 3500,
+      devops: 1500
     };
 
     const priceJoy = tierPrices[tier];
@@ -526,13 +536,12 @@ router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
     }
 
     const tierLabels = {
-      basic: 'Cơ Bản',
-      intermediate: 'Trung Cấp',
-      advanced: 'Cao Cấp',
-      security: 'Bảo Mật',
-      exam: 'Kiểm Tra',
-      optimize: 'Tối Ưu & AI',
-      ultimate: 'Lập Trình Web Nâng Cao'
+      basic: 'Chặng 1: Phản Xạ Cơ Bản',
+      intermediate: 'Chặng 2: Tư Duy Kiến Trúc',
+      advanced: 'Chặng 3: CTDL, Giải Thuật & Mật Mã',
+      security: 'Chặng 4: Kỹ Sư Bảo Mật & Tiền Đề AI',
+      project: 'Chặng 5: Siêu Đồ Án Full-Stack & AI',
+      devops: 'Chặng 6: Kỹ Sư DevOps & Phát Hành'
     };
 
     const result = await awardJoy(
@@ -564,7 +573,7 @@ router.post('/buy-all-stages-bundle', requireMember, async (req, res) => {
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
     if (bio.hugoCoderAll7Lifetime) {
-      return res.status(400).json({ error: 'Bạn đã mở khóa trọn gói 7 chặng vĩnh viễn rồi.' });
+      return res.status(400).json({ error: 'Bạn đã mở khóa trọn gói 6 chặng vĩnh viễn rồi.' });
     }
 
     const priceJoy = 16000;
@@ -577,7 +586,7 @@ router.post('/buy-all-stages-bundle', requireMember, async (req, res) => {
       bio.email,
       -total,
       'lifetime_unlock_all',
-      `Trao đổi JOY trọn gói vĩnh viễn 7 chặng HugoCoder (Miễn phí bảo trì trọn đời, gồm ${tax} JOY phí sáng tạo)`,
+      `Trao đổi JOY trọn gói vĩnh viễn 6 chặng HugoCoder (Miễn phí bảo trì trọn đời, gồm ${tax} JOY phí sáng tạo)`,
       { bioDoc: bio, skipSave: true, refId: 'hugoCoderAll7Lifetime' }
     );
 
@@ -586,6 +595,7 @@ router.post('/buy-all-stages-bundle', requireMember, async (req, res) => {
     bio.hugoCoderIntermediateLifetime = true;
     bio.hugoCoderAdvancedLifetime = true;
     bio.hugoCoderSecurityLifetime = true;
+    bio.hugoCoderDevopsLifetime = true;
     bio.hugoCoderExamLifetime = true;
     bio.hugoCoderOptimizeLifetime = true;
     bio.hugoCoderUltimateLifetime = true;
