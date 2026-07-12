@@ -5,6 +5,7 @@ import { awardJoy, getJoyHistory } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
+import { startExam, submitExam, consumeExamPass, isQuizLesson } from '../utils/coderExamService.js';
 import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToken.js';
 
 const BIO_THEME_RENTAL_PRICE = 150;
@@ -169,6 +170,33 @@ router.post('/reset-to-zero', requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/joy/coder-exam/start — máy chủ ra đề (không gửi đáp án xuống client)
+router.post('/coder-exam/start', requireMember, (req, res) => {
+  try {
+    const { lessonId } = req.body;
+    const email = req.memberEmail;
+    if (!email || !lessonId) return res.status(400).json({ error: 'lessonId là bắt buộc.' });
+    if (!CODER_QUIZ_LESSONS.has(lessonId) || !isQuizLesson(lessonId)) {
+      return res.status(400).json({ error: 'Bài học này không phải bài thi trắc nghiệm.' });
+    }
+    res.json(startExam(email, lessonId));
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// POST /api/joy/coder-exam/submit — máy chủ chấm, đậu thì cấp vé ngắn hạn cho award-learning
+router.post('/coder-exam/submit', requireMember, (req, res) => {
+  try {
+    const { examId, answers } = req.body;
+    const email = req.memberEmail;
+    if (!email || !examId) return res.status(400).json({ error: 'examId là bắt buộc.' });
+    res.json(submitExam(email, examId, answers));
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // POST /api/joy/award-learning
 router.post('/award-learning', requireMember, async (req, res) => {
   try {
@@ -205,9 +233,17 @@ router.post('/award-learning', requireMember, async (req, res) => {
 
 
 
-    const score = Number(evidence.score);
-    if ((CODER_QUIZ_LESSONS.has(lessonId) || CODER_SCREENSHOT_LESSONS.has(lessonId)) && (!Number.isFinite(score) || score < 60)) {
-      return res.status(400).json({ error: 'Bài nộp cần đạt tối thiểu 60% để nhận thưởng JOY.' });
+    if (CODER_QUIZ_LESSONS.has(lessonId)) {
+      // Điểm bài thi do MÁY CHỦ chấm (coder-exam/start + submit) — không tin điểm client khai
+      const serverScore = consumeExamPass(email, lessonId);
+      if (serverScore === null) {
+        return res.status(400).json({ error: 'Bài thi phải được chấm tại máy chủ. Hãy làm bài trong phần Thực hành tương tác và đạt tối thiểu 60%.' });
+      }
+    } else if (CODER_SCREENSHOT_LESSONS.has(lessonId)) {
+      const score = Number(evidence.score);
+      if (!Number.isFinite(score) || score < 60) {
+        return res.status(400).json({ error: 'Bài nộp cần đạt tối thiểu 60% để nhận thưởng JOY.' });
+      }
     }
 
 

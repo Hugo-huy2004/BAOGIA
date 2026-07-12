@@ -124,6 +124,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
     setShowCertificateModal(true);
   };
   const [mobilePuzzleAnswer, setMobilePuzzleAnswer] = useState(null);
+  // Đề thi do máy chủ ra (chống gian lận) — null nghĩa là đang dùng đề cục bộ (khách/offline)
+  const [examId, setExamId] = useState(null);
   const [exchangeSubmitting, setExchangeSubmitting] = useState(false);
 
   const getLessonTierAndAccess = (lessonId) => {
@@ -501,9 +503,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
       const shuffled = [...course.dragBlocks].sort(() => Math.random() - 0.5);
       setSqlBlocks(shuffled);
     } else if (course.practiceType === "quiz") {
-      const pool = course.quizPool || (course.id === "lesson6" ? QUIZ_POOL_1 : QUIZ_POOL_2);
-      const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, course.quizSize);
-      setQuizQuestions(shuffled);
+      startServerExam(course);
     }
   }, [activeCourseId]);
 
@@ -513,6 +513,35 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
   }, [activeCourseId]);
 
 
+
+
+  // Bài thi trắc nghiệm: máy chủ ra đề và giữ đáp án. Khách chưa đăng nhập/offline
+  // rơi về đề cục bộ (chỉ luyện tập, không có thưởng JOY từ server).
+  const startServerExam = async (course) => {
+    setExamId(null);
+    const session = getMemberSession();
+    if (session?.email) {
+      try {
+        const apiBase = import.meta.env.VITE_API_URL || "/api";
+        const res = await fetch(`${apiBase}/joy/coder-exam/start`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lessonId: course.id })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setExamId(data.examId);
+          setQuizQuestions(data.questions);
+          return;
+        }
+      } catch (e) {
+        console.error("Không lấy được đề từ máy chủ, dùng đề luyện tập cục bộ:", e);
+      }
+    }
+    const pool = course.quizPool || (course.id === "lesson6" ? QUIZ_POOL_1 : QUIZ_POOL_2);
+    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, course.quizSize);
+    setQuizQuestions(shuffled);
+  };
 
   const handleVerifyLesson = async (course) => {
     const fileObj = workspaceFiles.find(f => f.path === course.file);
@@ -1508,11 +1537,39 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
       isCorrect = screenshotFile && !isScanning && scanScore >= 60;
       verifiedScore = scanScore;
     } else if (course.practiceType === "quiz") {
-      let correct = 0;
-      quizQuestions.forEach((q, idx) => {
-        if (quizAnswers[idx] === q.a) correct++;
-      });
-      const score = Math.round((correct / quizQuestions.length) * 100);
+      let score = 0;
+      if (examId) {
+        // Máy chủ chấm — client chỉ gửi lựa chọn, không gửi điểm
+        try {
+          const apiBase = import.meta.env.VITE_API_URL || "/api";
+          const res = await fetch(`${apiBase}/joy/coder-exam/submit`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              examId,
+              answers: quizQuestions.map((q, idx) => quizAnswers[idx] ?? -1)
+            })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            notify.error(data.error || "Không nộp được bài thi, hãy đổi đề và thử lại.");
+            setExamId(null);
+            return;
+          }
+          score = data.score;
+          setExamId(null); // đề dùng một lần
+        } catch (e) {
+          notify.error("Mất kết nối máy chủ chấm thi, hãy thử lại.");
+          return;
+        }
+      } else {
+        // Đề luyện tập cục bộ (khách/offline)
+        let correct = 0;
+        quizQuestions.forEach((q, idx) => {
+          if (quizAnswers[idx] === q.a) correct++;
+        });
+        score = Math.round((correct / quizQuestions.length) * 100);
+      }
       setQuizScore(score);
       setQuizCompleted(true);
       isCorrect = score >= 60;
@@ -1615,9 +1672,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
     setVerificationStatus(null);
     const course = WEB_COURSES.find(c => c.id === activeCourseId);
     if (course) {
-      const pool = course.quizPool || (course.id === "lesson6" ? QUIZ_POOL_1 : QUIZ_POOL_2);
-      const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, course.quizSize);
-      setQuizQuestions(shuffled);
+      startServerExam(course);
     }
     notify.success("Đã đổi đề thi mới! Hãy làm lại bài thi.");
   };

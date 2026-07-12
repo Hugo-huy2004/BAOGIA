@@ -387,6 +387,17 @@ export default function MobileGuidebook({
                                 Chúc mừng hoàn thành {phase.title}
                               </div>
                               
+                              {bio?.slug && (
+                                <a
+                                  href={`/certificate/${bio.slug}/${phase.phaseNumber}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block w-full py-2 text-center bg-foreground text-background font-black rounded-xl text-[10px] uppercase tracking-wider transition-all active:scale-[0.98]"
+                                >
+                                  Xem & chia sẻ chứng chỉ chặng
+                                </a>
+                              )}
+
                               {[3, 4, 5].includes(phase.phaseNumber) && (() => {
                                 const claimKeysByPhase = {
                                   3: ["hugoCoderRewardClaimed3"],

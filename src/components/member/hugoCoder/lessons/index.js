@@ -1,9 +1,10 @@
-import { BASIC_LESSONS } from "./basic";
-import { INTERMEDIATE_LESSONS } from "./intermediate";
-import { ADVANCED_LESSONS } from "./advanced";
-import { SECURITY_LESSONS } from "./security";
-import { PROJECT_LESSONS } from "./project";
-import { DEVOPS_LESSONS } from "./devops";
+// Đuôi .js tường minh để server Node import chung được bộ đề (coderExamService)
+import { BASIC_LESSONS } from "./basic.js";
+import { INTERMEDIATE_LESSONS } from "./intermediate.js";
+import { ADVANCED_LESSONS } from "./advanced.js";
+import { SECURITY_LESSONS } from "./security.js";
+import { PROJECT_LESSONS } from "./project.js";
+import { DEVOPS_LESSONS } from "./devops.js";
 
 // 6 chặng — 100 bài:
 // 1 (1-10) Phản xạ cơ bản • 2 (11-25) Tư duy kiến trúc

@@ -33,6 +33,7 @@ const LoginPage = lazy(() => import("./pages/public/LoginPage"));
 const PWALoginPage = lazy(() => import("./pages/public/PWALoginPage"));
 const MemberPortalPage = lazy(() => import("./pages/member/MemberPortalPage"));
 const BioPublicPage = lazy(() => import("./pages/public/BioPublicPage"));
+const CoderCertificatePage = lazy(() => import("./pages/public/CoderCertificatePage"));
 const AdminPanel = lazy(() => import("./pages/admin/AdminPanel"));
 const PartnerBioPage = lazy(() => import("./pages/member/PartnerBioPage"));
 const FAQPage = lazy(() => import("./pages/public/FAQPage"));
@@ -89,6 +90,7 @@ function AppContent() {
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
         <Routes>
           <Route path="/bio/:slug" element={<BioPublicPage />} />
+          <Route path="/certificate/:slug/:phase" element={<CoderCertificatePage />} />
           <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
           <Route path="/preview" element={<LivePreviewPage />} />
@@ -175,6 +177,7 @@ function AppContent() {
                 : <Navigate to="/login" replace />
             } />
             <Route path="/bio/:slug" element={<BioPublicPage />} />
+          <Route path="/certificate/:slug/:phase" element={<CoderCertificatePage />} />
             <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
             <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

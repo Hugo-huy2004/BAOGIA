@@ -145,6 +145,10 @@ export default function LessonsSidebar({
   }));
 
   const onVerifyClick = (course, isCompleted) => {
+    if (!isCompleted && course.practiceType === "quiz") {
+      notify.error("Bài thi được máy chủ ra đề và chấm điểm — hãy làm bài trong bảng Thực hành tương tác!");
+      return;
+    }
     if (!isCompleted && course.miniQuiz?.length) {
       const answeredAll = course.miniQuiz.every((q, i) => quizAnswers[i] !== undefined);
       if (!answeredAll) {
@@ -546,6 +550,23 @@ export default function LessonsSidebar({
                           <Award className="w-4 h-4 text-amber-400" />
                           Hoàn Thành {phase.title}
                         </div>
+
+                        {bio?.slug && (
+                          <a
+                            href={`/certificate/${bio.slug}/${phase.phaseNumber}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => {
+                              navigator.clipboard?.writeText(`${window.location.origin}/certificate/${bio.slug}/${phase.phaseNumber}`).then(
+                                () => notify.success("Đã sao chép liên kết chứng chỉ — chia sẻ ngay!"),
+                                () => {}
+                              );
+                            }}
+                            className="block w-full py-1.5 text-center bg-foreground text-background font-black rounded-lg text-[9px] uppercase tracking-wider transition-all active:scale-[0.98]"
+                          >
+                            Xem & chia sẻ chứng chỉ chặng
+                          </a>
+                        )}
 
                         {[3, 4, 5].includes(phase.phaseNumber) && (() => {
                           const claimKeys = { 3: ["hugoCoderRewardClaimed3"], 4: ["hugoCoderRewardClaimed4", "hugoCoderRewardClaimed5", "hugoCoderRewardClaimed6"], 5: ["hugoCoderRewardClaimed7"] };

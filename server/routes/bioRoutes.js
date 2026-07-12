@@ -16,6 +16,7 @@ import { generate as aiGenerate } from '../services/aiGateway.js';
 import { recordSignal, getTopInterests, getPeakHour, getInterestEmbedding, refreshInterestEmbedding } from '../services/userUnderstanding.js';
 import { checkAndResetDecoRoom, updateTrashAndPetStatus } from '../utils/decoHelper.js';
 import { awardJoy } from '../utils/joyService.js';
+import { getStageCertificate } from '../utils/coderExamService.js';
 
 const router = express.Router();
 
@@ -622,6 +623,29 @@ router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
     );
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
     res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/bios/certificate/:slug/:phase — chứng chỉ chặng HugoCoder công khai.
+// Xác thực từ completedLessons trên server: không thể giả mạo bằng cách sửa URL.
+router.get('/certificate/:slug/:phase', async (req, res) => {
+  try {
+    const { slug, phase } = req.params;
+    if (global.validSlugs && !global.validSlugs.has(slug)) {
+      return res.status(404).json({ error: 'Không tìm thấy chứng chỉ.' });
+    }
+    const bio = await Bio.findOne({ slug });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy chứng chỉ.' });
+
+    const certificate = getStageCertificate(bio, phase);
+    if (!certificate) {
+      return res.status(404).json({ error: 'Học viên chưa hoàn thành chặng này.' });
+    }
+
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    res.json(certificate);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
