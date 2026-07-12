@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Sparkles, Award, CheckCircle, ChevronDown, ChevronUp, Lock, Clock, Target, ListChecks, Bug, Flame, BookOpen, Wrench, Check, Play, Star, Trophy, Terminal, Cpu, Brain, Shield, Rocket, Server, Gift } from "lucide-react";
+import { Sparkles, Award, CheckCircle, ChevronDown, ChevronUp, Lock, Clock, Target, ListChecks, Bug, Flame, BookOpen, Wrench, Check, Play, Star, Trophy, Gift, Library } from "lucide-react";
 import { notify } from "../../../lib/notify";
-import { STAGES } from "./lessons";
+import { STAGES, getStageBenefits } from "./lessons";
 
 // Helper to resolve language from file extension
 const getLanguageFromExt = (ext) => {
@@ -37,69 +37,6 @@ const markdownComponents = {
   td: (props) => <td className="border border-border px-2 py-1" {...props} />
 };
 
-// Bảng màu & biểu tượng riêng của từng chặng — bản đồ hành trình kiểu Duolingo
-const STAGE_THEME = {
-  basic: {
-    icon: Terminal,
-    banner: "from-blue-500 to-indigo-600",
-    soft: "from-blue-500/15 via-indigo-500/5 to-transparent border-blue-500/25",
-    text: "text-blue-500",
-    node: "bg-gradient-to-br from-blue-400 to-indigo-600 border-blue-300/60",
-    ring: "ring-blue-500/40",
-    bar: "bg-gradient-to-r from-blue-400 to-indigo-500",
-    chip: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
-  },
-  intermediate: {
-    icon: Cpu,
-    banner: "from-emerald-500 to-teal-600",
-    soft: "from-emerald-500/15 via-teal-500/5 to-transparent border-emerald-500/25",
-    text: "text-emerald-500",
-    node: "bg-gradient-to-br from-emerald-400 to-teal-600 border-emerald-300/60",
-    ring: "ring-emerald-500/40",
-    bar: "bg-gradient-to-r from-emerald-400 to-teal-500",
-    chip: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-  },
-  advanced: {
-    icon: Brain,
-    banner: "from-violet-500 to-purple-600",
-    soft: "from-violet-500/15 via-purple-500/5 to-transparent border-violet-500/25",
-    text: "text-violet-500",
-    node: "bg-gradient-to-br from-violet-400 to-purple-600 border-violet-300/60",
-    ring: "ring-violet-500/40",
-    bar: "bg-gradient-to-r from-violet-400 to-purple-500",
-    chip: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20"
-  },
-  security: {
-    icon: Shield,
-    banner: "from-rose-500 to-pink-600",
-    soft: "from-rose-500/15 via-pink-500/5 to-transparent border-rose-500/25",
-    text: "text-rose-500",
-    node: "bg-gradient-to-br from-rose-400 to-pink-600 border-rose-300/60",
-    ring: "ring-rose-500/40",
-    bar: "bg-gradient-to-r from-rose-400 to-pink-500",
-    chip: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-  },
-  project: {
-    icon: Rocket,
-    banner: "from-cyan-500 to-sky-600",
-    soft: "from-cyan-500/15 via-sky-500/5 to-transparent border-cyan-500/25",
-    text: "text-cyan-500",
-    node: "bg-gradient-to-br from-cyan-400 to-sky-600 border-cyan-300/60",
-    ring: "ring-cyan-500/40",
-    bar: "bg-gradient-to-r from-cyan-400 to-sky-500",
-    chip: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20"
-  },
-  devops: {
-    icon: Server,
-    banner: "from-amber-500 to-yellow-600",
-    soft: "from-amber-500/15 via-yellow-500/5 to-transparent border-amber-500/25",
-    text: "text-amber-500",
-    node: "bg-gradient-to-br from-amber-400 to-yellow-600 border-amber-300/60",
-    ring: "ring-amber-500/40",
-    bar: "bg-gradient-to-r from-amber-400 to-yellow-500",
-    chip: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-  }
-};
 
 // Node đặc biệt trên bản đồ: thi chặng & tốt nghiệp
 const isBossLesson = (course) => course.practiceType === "quiz" || course.practiceType === "graduation_submission";
@@ -208,6 +145,21 @@ export default function LessonsSidebar({
                     : "Thuê bao bảo trì đã hết hạn. Vui lòng gia hạn 50 JOY bảo trì hàng tháng để tiếp tục học tập."}
                 </p>
               </div>
+
+              {/* Trong gói này bạn nhận được gì — minh bạch trước khi trả JOY */}
+              {!tierInfo.lifetime && (
+                <div className="border border-border bg-card/50 rounded-xl p-3.5 space-y-2">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-primary">Trong gói này bạn nhận được</span>
+                  <ul className="space-y-1.5">
+                    {getStageBenefits(tierInfo.tier).map((b, i) => (
+                      <li key={i} className="flex items-start gap-2 text-[10px] leading-5 text-muted-foreground">
+                        <CheckCircle className="w-3 h-3 shrink-0 mt-0.5 text-muted-foreground" />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="space-y-3.5">
                 {!tierInfo.lifetime && (
@@ -378,6 +330,36 @@ export default function LessonsSidebar({
               )}
             </section>
 
+            {/* Tài liệu & sách học thuật — nguồn chuẩn quốc tế của chặng + bài */}
+            {(() => {
+              const num = parseInt(String(course.id).replace("lesson", ""), 10);
+              const stage = STAGES.find((s) => num > s.from && num <= s.to);
+              const stageReading = stage?.intro?.reading || [];
+              const lessonReading = course.resources || [];
+              if (stageReading.length === 0 && lessonReading.length === 0) return null;
+              return (
+                <section className="space-y-1.5">
+                  <span className="text-[9px] font-black uppercase text-primary tracking-wider flex items-center gap-1">
+                    <Library className="w-3 h-3" /> Tài liệu & Sách học thuật
+                  </span>
+                  <div className="border border-border rounded-lg p-2.5 space-y-1.5">
+                    {lessonReading.map((r, i) => (
+                      <a key={`l${i}`} href={r.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-1.5 text-[10.5px] leading-5 text-muted-foreground hover:text-foreground transition-colors">
+                        <span className="material-symbols-outlined text-[13px] mt-px shrink-0">open_in_new</span>
+                        <span className="font-bold text-foreground">{r.title}</span>
+                      </a>
+                    ))}
+                    {stageReading.map((r, i) => (
+                      <a key={`s${i}`} href={r.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-1.5 text-[10.5px] leading-5 text-muted-foreground hover:text-foreground transition-colors">
+                        <span className="material-symbols-outlined text-[13px] mt-px shrink-0">menu_book</span>
+                        <span><strong className="text-foreground font-bold">{r.title}</strong> — {r.author}</span>
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              );
+            })()}
+
             {/* Yêu cầu hoàn thành (điều kiện chấm code) */}
             {course.tasks?.length > 0 && (
               <div className="bg-muted/40 border border-border rounded-xl p-3 space-y-2">
@@ -485,19 +467,31 @@ export default function LessonsSidebar({
 
             return (
               <div key={phase.id} className="space-y-0">
-                {/* Banner chặng */}
+                {/* Banner chặng — chặng elite (5,6) có viền sáng + shimmer sang trọng */}
                 <div
                   onClick={() => togglePhase(phase.id)}
-                  className={`relative overflow-hidden rounded-2xl cursor-pointer select-none bg-gradient-to-br ${theme.banner} p-3.5 shadow-lg transition-transform active:scale-[0.99]`}
+                  className={`relative overflow-hidden rounded-2xl cursor-pointer select-none bg-gradient-to-br ${theme.banner} p-3.5 transition-transform active:scale-[0.99] ${
+                    theme.elite ? "shadow-xl ring-1 ring-white/40" : "shadow-lg"
+                  }`}
                 >
+                  {theme.elite && (
+                    <div className="absolute inset-0 bg-[length:200%_100%] bg-shimmer-gradient animate-shimmer opacity-40 pointer-events-none" />
+                  )}
                   <div className="absolute -right-6 -bottom-8 w-24 h-24 rounded-full bg-white/10" />
                   <div className="absolute right-8 -top-6 w-14 h-14 rounded-full bg-white/10" />
                   <div className="flex items-center gap-3 relative">
-                    <div className="w-10 h-10 shrink-0 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center border border-white/30">
+                    <div className={`w-10 h-10 shrink-0 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center border ${theme.elite ? "border-white/50 animate-pulse-glow" : "border-white/30"}`}>
                       <StageIcon className="w-5 h-5 text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[8.5px] font-black uppercase tracking-widest text-white/70">{phase.rangeText}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-[8.5px] font-black uppercase tracking-widest text-white/70">{phase.rangeText}</p>
+                        {theme.elite && (
+                          <span className="inline-flex items-center gap-0.5 text-[7px] font-black uppercase tracking-widest text-white bg-white/25 rounded-full px-1.5 py-px">
+                            <Star className="w-2 h-2" /> Cao cấp
+                          </span>
+                        )}
+                      </div>
                       <h4 className="font-black text-[12px] text-white leading-tight truncate">{phase.title.replace(/^Chặng \d+: /, "")}</h4>
                     </div>
                     <div className="shrink-0 flex flex-col items-end gap-1">
@@ -540,6 +534,26 @@ export default function LessonsSidebar({
                           <Gift className="w-3.5 h-3.5 shrink-0 mt-0.5 text-muted-foreground" />
                           <p className="text-[10px] leading-5 text-muted-foreground"><strong className="text-foreground">Hứa hẹn:</strong> {phase.intro.promise}</p>
                         </div>
+                        {phase.intro.reading?.length > 0 && (
+                          <div className="pt-1 space-y-1.5 border-t border-border/50">
+                            <span className="text-[8.5px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+                              <Library className="w-3 h-3 text-muted-foreground" /> Đọc thêm — nguồn học thuật chuẩn quốc tế
+                            </span>
+                            {phase.intro.reading.map((r, i) => (
+                              <a
+                                key={i}
+                                href={r.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="flex items-start gap-1.5 text-[10px] leading-4 text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                <span className="material-symbols-outlined text-[13px] mt-px shrink-0">open_in_new</span>
+                                <span><strong className="text-foreground font-bold">{r.title}</strong> — {r.author}</span>
+                              </a>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
 

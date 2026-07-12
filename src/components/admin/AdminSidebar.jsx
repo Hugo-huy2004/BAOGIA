@@ -33,6 +33,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
       items: [
         { id: "hugoteam", label: "Hugo Team", icon: "groups" },
         { id: "coderSubmissions", label: "Bài nộp HugoCoder", icon: "school" },
+        { id: "coderResources", label: "Học liệu HugoCoder", icon: "smart_display" },
       ]
     },
     {

@@ -29,7 +29,8 @@ export const STAGES = [
       tagline: "Gõ đi gõ lại cho đến khi thuộc lòng — nền móng của mọi kỹ sư.",
       learn: ["Semantic HTML & khung tài liệu chuẩn", "CSS Box Model & code sạch chuẩn BEM", "JavaScript ES6+ & DOM Events", "SQL CRUD, PHP + PDO & kỹ thuật debug"],
       challenge: "Mỗi bài phải gõ lại tối thiểu 2 lần không nhìn tài liệu — chưa cần tư duy cao siêu, cần thuộc cú pháp trước đã.",
-      promise: "Kết chặng: tay bạn tự gõ được khung web + truy vấn dữ liệu mà không cần Google từng dòng."
+      promise: "Kết chặng: tay bạn tự gõ được khung web + truy vấn dữ liệu mà không cần Google từng dòng.",
+      reading: [{"title": "MDN Web Docs — HTML/CSS/JavaScript", "author": "Mozilla", "url": "https://developer.mozilla.org/vi/docs/Learn"}, {"title": "freeCodeCamp — Responsive Web Design", "author": "freeCodeCamp", "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/"}, {"title": "The Odin Project — Foundations", "author": "The Odin Project", "url": "https://www.theodinproject.com/paths/foundations"}]
     }
   },
   {
@@ -38,7 +39,8 @@ export const STAGES = [
       tagline: "Thoát ly code thô — bắt đầu suy nghĩ như người thiết kế hệ thống.",
       learn: ["Thiết kế schema, JOIN & transaction ACID", "MVC, RESTful API & JSON chuẩn", "UI/UX theo chuẩn WCAG + toán ứng dụng", "CORS/CSP, DRY & SEO kỹ thuật"],
       challenge: "Không còn bài tập chép mẫu — bạn phải tự phán đoán: đặt gì ở tầng nào, chuẩn nào áp cho tình huống nào.",
-      promise: "Kết chặng: đọc một yêu cầu là phác được kiến trúc dữ liệu + API + giao diện trong đầu."
+      promise: "Kết chặng: đọc một yêu cầu là phác được kiến trúc dữ liệu + API + giao diện trong đầu.",
+      reading: [{"title": "Eloquent JavaScript (miễn phí)", "author": "Marijn Haverbeke", "url": "https://eloquentjavascript.net/"}, {"title": "REST API Tutorial", "author": "restfulapi.net", "url": "https://restfulapi.net/"}, {"title": "Refactoring Guru — Design Patterns & MVC", "author": "Refactoring Guru", "url": "https://refactoring.guru/design-patterns"}, {"title": "Web Content Accessibility Guidelines (WCAG)", "author": "W3C", "url": "https://www.w3.org/WAI/standards-guidelines/wcag/"}]
     }
   },
   {
@@ -47,7 +49,8 @@ export const STAGES = [
       tagline: "Phần lõi khoa học máy tính — thứ phân biệt kỹ sư với thợ code.",
       learn: ["Array, Linked List, Stack, Queue, Hash Table", "Tìm kiếm, sắp xếp & phân tích Big O", "AES/RSA, hash & salt, encoding, tam giác CIA", "Event Loop, WebSockets, hiệu năng, PWA & unit test"],
       challenge: "25 bài dày đặc nhất lộ trình — mỗi thuật toán phải tự cài chạy được, mỗi khái niệm phải đo bằng số liệu thật.",
-      promise: "Kết chặng: bạn nhìn code là ước được độ phức tạp, nhìn hệ thống là chỉ được điểm nghẽn + nhận thưởng +800 JOY."
+      promise: "Kết chặng: bạn nhìn code là ước được độ phức tạp, nhìn hệ thống là chỉ được điểm nghẽn + nhận thưởng +800 JOY.",
+      reading: [{"title": "Grokking Algorithms (sách nền tảng giải thuật)", "author": "Aditya Bhargava", "url": "https://www.manning.com/books/grokking-algorithms"}, {"title": "Big-O Cheat Sheet", "author": "Eric Rowell", "url": "https://www.bigocheatsheet.com/"}, {"title": "web.dev — Performance & Core Web Vitals", "author": "Google", "url": "https://web.dev/learn/performance"}, {"title": "MDN — Web Crypto API", "author": "Mozilla", "url": "https://developer.mozilla.org/docs/Web/API/Web_Crypto_API"}]
     }
   },
   {
@@ -56,7 +59,8 @@ export const STAGES = [
       tagline: "Chống lại tấn công mạng thật và đưa trí tuệ nhân tạo vào sản phẩm.",
       learn: ["HTTPS/TLS, XSS, CSRF, JWT & OAuth2 theo chuẩn OWASP", "2 kỳ thi tổng hợp 25 câu rà toàn bộ kiến thức", "Gemini API, multimodal & Structured Outputs", "SRS, kiến trúc, Git chuyên nghiệp, seeding & tài liệu"],
       challenge: "Vượt 2 bài kiểm tra tổng hợp (≥60%) và viết trọn bộ hồ sơ dự án — cửa ải cuối trước khi vào đồ án thật.",
-      promise: "Kết chặng: đủ vũ khí bảo mật + AI + quy trình để tự tin khởi công sản phẩm thật + nhận thưởng +800 JOY."
+      promise: "Kết chặng: đủ vũ khí bảo mật + AI + quy trình để tự tin khởi công sản phẩm thật + nhận thưởng +800 JOY.",
+      reading: [{"title": "OWASP Top 10", "author": "OWASP Foundation", "url": "https://owasp.org/www-project-top-ten/"}, {"title": "OWASP Cheat Sheet Series", "author": "OWASP Foundation", "url": "https://cheatsheetseries.owasp.org/"}, {"title": "JWT.io — Introduction to JSON Web Tokens", "author": "Auth0", "url": "https://jwt.io/introduction"}, {"title": "Google AI — Gemini API Docs", "author": "Google", "url": "https://ai.google.dev/gemini-api/docs"}]
     }
   },
   {
@@ -65,8 +69,10 @@ export const STAGES = [
       tagline: "20 cột mốc — một sản phẩm: tự tay code toàn bộ hệ thống từ số 0.",
       learn: ["Backend OOP + CRUD + JWT auth hoàn chỉnh", "Frontend hiện đại: router, store, i18n, responsive", "Chat realtime WebSocket + upload ảnh có nén", "AI moderation, chatbot, insights + kiểm thử & release v1.0.0"],
       challenge: "Không còn bài tập — mỗi bài là một phần sản phẩm TỐT NGHIỆP của chính bạn, tuần nào cũng phải có commit cột mốc.",
-      promise: "Kết chặng: repo v1.0.0 hoàn chỉnh chuẩn thương mại mang đi phỏng vấn được + nhận thưởng +800 JOY."
-    }
+      promise: "Kết chặng: repo v1.0.0 hoàn chỉnh chuẩn thương mại mang đi phỏng vấn được + nhận thưởng +800 JOY.",
+      reading: [{"title": "The Twelve-Factor App", "author": "Heroku", "url": "https://12factor.net/"}, {"title": "Vite — Hướng dẫn chính thức", "author": "Vite", "url": "https://vitejs.dev/guide/"}, {"title": "Socket.IO — Realtime docs", "author": "Socket.IO", "url": "https://socket.io/docs/v4/"}, {"title": "Testing JavaScript", "author": "Kent C. Dodds", "url": "https://testingjavascript.com/"}]
+    },
+    elite: true
   },
   {
     id: "devops", phaseNumber: 6, title: "Chặng 6: Kỹ Sư DevOps & Phát Hành", rangeText: "Bài 91 - 100", from: 90, to: 100,
@@ -74,10 +80,41 @@ export const STAGES = [
       tagline: "Đưa sản phẩm ra Internet thật — đón người dùng thật.",
       learn: ["Thuê & cứng hóa VPS, môi trường Node/MySQL production", "Nginx reverse proxy, DNS + SSL Let's Encrypt", "Tường lửa UFW/Fail2ban, PM2 & quản lý log", "Load test, deploy có rollback & bảo vệ đồ án"],
       challenge: "Máy chủ thật, tên miền thật, bot tấn công thật — mọi cấu hình sai đều có hậu quả nhìn thấy được.",
-      promise: "Vạch đích: sản phẩm sống trên Internet, 4.000 JOY + Giấy chứng nhận Kỹ sư Full-Stack Web của Hugo Studio."
-    }
+      promise: "Vạch đích: sản phẩm sống trên Internet, 4.000 JOY + Giấy chứng nhận Kỹ sư Full-Stack Web của Hugo Studio.",
+      reading: [{"title": "DigitalOcean Community Tutorials", "author": "DigitalOcean", "url": "https://www.digitalocean.com/community/tutorials"}, {"title": "Nginx — Official Docs", "author": "Nginx", "url": "https://nginx.org/en/docs/"}, {"title": "Let's Encrypt — Getting Started", "author": "Let's Encrypt", "url": "https://letsencrypt.org/getting-started/"}, {"title": "PM2 — Process Manager Docs", "author": "PM2", "url": "https://pm2.keymetrics.io/docs/usage/quick-start/"}]
+    },
+    elite: true
   }
 ];
+
+
+// Quyền lợi cụ thể của từng gói chặng — hiển thị TRƯỚC khi thanh toán
+// để học viên biết rõ trong gói có gì.
+export function getStageBenefits(stageId) {
+  const stage = STAGES.find((s) => s.id === stageId);
+  if (!stage) return [];
+  const lessons = WEB_COURSES.slice(stage.from, stage.to);
+  const examCount = lessons.filter((l) => l.practiceType === "quiz").length;
+
+  const benefits = [
+    `${lessons.length} bài học chuyên sâu (${stage.rangeText}) — khung 5 phần: mục tiêu, lý thuyết, thực hành, bẫy lỗi, thử thách`
+  ];
+  if (examCount > 0) {
+    benefits.push(`${examCount} bài kiểm tra chấm tại máy chủ — MỖI BÀI 1 lượt thi trong gói (thi lại 250 JOY/lượt)`);
+  }
+  benefits.push("Chứng chỉ chặng công khai — link chia sẻ, xác thực trực tuyến, in/lưu PDF");
+  if ([3, 4, 5].includes(stage.phaseNumber)) {
+    benefits.push("Thưởng hoàn thành chặng +800 JOY");
+  }
+  if (stage.id === "project") {
+    benefits.push("20 cột mốc xây sản phẩm tốt nghiệp của chính bạn (repo v1.0.0 chuẩn thương mại)");
+  }
+  if (stage.id === "devops") {
+    benefits.push("Bảo vệ đồ án tốt nghiệp: thưởng 4.000 JOY + Giấy chứng nhận Kỹ sư Full-Stack + quà VVIP");
+  }
+  benefits.push("Sở hữu vĩnh viễn + nhận mọi cập nhật nội dung sau này");
+  return benefits;
+}
 
 // Chọn hình minh họa theo chủ đề bài học (các loại có sẵn trong VisualIllustrations)
 function getVisualTypeForLesson(id, lesson) {

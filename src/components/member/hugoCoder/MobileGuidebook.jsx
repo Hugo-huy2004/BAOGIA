@@ -1,18 +1,19 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { 
-  Award, ArrowLeft, Smartphone, CheckCircle, BookOpen, 
+import {
+  Award, ArrowLeft, Smartphone, CheckCircle, BookOpen,
   Sparkles, ListChecks, Play, ChevronDown, ChevronUp, Lock,
-  Terminal, Shield, Zap, Trophy, Cpu, ChevronRight
+  Terminal, Shield, Zap, Trophy, Cpu, ChevronRight, Target, Library
 } from "lucide-react";
 import InteractivePuzzles from "./InteractivePuzzles";
-import { STAGES } from "./lessons";
-import { renderMobileIllustration, renderVisualArtwork, renderStudyModePanel } from "./VisualIllustrations";
+import { STAGES, getStageBenefits } from "./lessons";
+import { renderMobileIllustration, renderVisualArtwork } from "./VisualIllustrations";
 import FeatureGate from "../shared/FeatureGate";
 import { notify } from "../../../lib/notify";
 
 export default function MobileGuidebook({
+  embedded = false,
   activeCourseId,
   bio,
   onBioUpdate,
@@ -162,19 +163,8 @@ export default function MobileGuidebook({
     lessons: WEB_COURSES.slice(stage.from, stage.to)
   }));
 
-  return (
-    <FeatureGate
-      bio={bio}
-      featureKey="hugoCoder"
-      priceJoy={1500}
-      icon="terminal"
-      title="Trao đổi JOY để mở khóa HugoCoder"
-      description="Đọc sách hướng dẫn, xem demo chạy code và học lập trình ngay trên điện thoại."
-      onBioUpdate={onBioUpdate}
-      onBack={onBack}
-      className="max-w-lg mx-auto mt-10"
-    >
-      <div className="fixed inset-0 z-50 bg-[#f8fafc] dark:bg-[#09090b] text-foreground overflow-y-auto">
+  const guidebookBody = (
+      <div className={`bg-[#f8fafc] dark:bg-[#09090b] text-foreground overflow-y-auto ${embedded ? "h-full w-full" : "fixed inset-0 z-50"}`}>
         <style>{`
           @keyframes hugoCodeFloat {
             0%, 100% { transform: translateY(0); }
@@ -194,14 +184,16 @@ export default function MobileGuidebook({
             50% { transform: scaleX(1); opacity: 1; }
           }
         `}</style>
-        <header className="sticky top-0 z-20 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-b border-border px-4 pt-[calc(env(safe-area-inset-top,16px)+12px)] pb-3">
+        <header className={`sticky top-0 z-20 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-b border-border px-4 pb-3 ${embedded ? "pt-3" : "pt-[calc(env(safe-area-inset-top,16px)+12px)]"}`}>
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={activeCourseId ? () => {
                 setActiveCourseId(null);
                 setVerificationStatus(null);
               } : onBack}
-              className="w-11 h-11 rounded-xl border border-border bg-background flex items-center justify-center text-foreground active:scale-95 transition-all shadow-sm"
+              className={`w-11 h-11 rounded-xl border border-border bg-background items-center justify-center text-foreground active:scale-95 transition-all shadow-sm ${
+                embedded && !activeCourseId ? "hidden" : "flex"
+              }`}
               aria-label="Quay lại"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -600,6 +592,12 @@ export default function MobileGuidebook({
                           <p className="text-xs text-muted-foreground leading-relaxed">
                             Mở khóa vĩnh viễn quyền học và thực hành toàn bộ bài học thuộc {tierInfo.tierLabel}.
                           </p>
+                          <div className="rounded-xl border border-border bg-background p-3 space-y-1.5 text-left">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-primary">Trong gói này bạn nhận được</span>
+                            {getStageBenefits(tierInfo.tier).map((b, i) => (
+                              <p key={i} className="text-[10.5px] leading-5 text-muted-foreground">— {b}</p>
+                            ))}
+                          </div>
                           <button
                             onClick={() => handleBuyLifetimeUnlock(tierInfo.tier)}
                             disabled={exchangeSubmitting}
@@ -609,17 +607,17 @@ export default function MobileGuidebook({
                           </button>
                         </div>
 
-                        {/* Option 2: Buy All 7 Stages Bundle */}
+                        {/* Option 2: Buy All 6 Stages Bundle */}
                         <div className="border border-amber-500/20 bg-amber-500/5 rounded-xl p-4 space-y-3">
                           <div className="flex justify-between items-center text-xs">
                             <span className="font-bold text-amber-500 flex items-center gap-1.5">
                               <Award className="w-4 h-4 text-amber-400" />
-                              Trọn gói vĩnh viễn 7 chặng
+                              Trọn gói vĩnh viễn 6 chặng
                             </span>
                             <span className="font-black text-amber-500">16.000 JOY</span>
                           </div>
                           <p className="text-xs text-muted-foreground leading-relaxed">
-                            Mở khóa toàn bộ 100 bài học của 7 chặng vĩnh viễn & được <strong>miễn phí phí bảo trì trọn đời</strong>.
+                            Mở khóa toàn bộ 100 bài học của 6 chặng vĩnh viễn & được <strong>miễn phí phí bảo trì trọn đời</strong>.
                           </p>
                           <button
                             onClick={() => handleBuyAllStagesBundle()}
@@ -691,33 +689,6 @@ export default function MobileGuidebook({
                   </article>
                 </section>
 
-                {/* 2.2. Interactive study modes */}
-                <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-4 font-sans">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <span className="text-[10px] font-black uppercase text-primary">Đa dạng cách học</span>
-                      <h3 className="text-sm font-black">{mobileVisualSet.title}</h3>
-                    </div>
-                    <Sparkles className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {mobileVisualSet.modes.map((mode) => (
-                      <button
-                        key={mode.id}
-                        onClick={() => setMobileStudyMode(mode.id)}
-                        className={`h-9 rounded-lg border text-[11px] font-black transition-all active:scale-95 ${
-                          mobileStudyMode === mode.id
-                            ? "bg-primary text-white border-primary"
-                            : "bg-background text-muted-foreground border-border"
-                        }`}
-                      >
-                        {mode.label}
-                      </button>
-                    ))}
-                  </div>
-                  {renderStudyModePanel(mobileVisualSet, mobileStudyMode)}
-                </section>
-
                 {/* 2.3. Visual Artwork Panels */}
                 <section className="space-y-3 font-sans">
                   <div className="flex items-center justify-between">
@@ -730,10 +701,11 @@ export default function MobileGuidebook({
                 </section>
 
                 {/* 2.4. Mental Model & Key Ideas */}
-                <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-4 font-sans">
+                <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3 font-sans">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    <h3 className="text-sm font-black">Mô hình tư duy</h3>
+                    <Target className="w-4 h-4 text-primary" />
+                    <h3 className="text-sm font-black">Tổng quan & Mục tiêu</h3>
+                    {mobileCourse.duration && <span className="ml-auto text-[9px] font-bold text-muted-foreground bg-muted border border-border rounded-full px-2 py-0.5">{mobileCourse.duration}</span>}
                   </div>
                   {renderMobileIllustration(mobileExtra.visualType, mobileCourse?.id)}
                   <p className="text-sm leading-7 text-muted-foreground">{mobileExtra.mentalModel}</p>
@@ -749,7 +721,7 @@ export default function MobileGuidebook({
 
                 {/* 2.5. Deep Dive Section */}
                 <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3 font-sans">
-                  <h3 className="text-sm font-black">Đào sâu kiến thức</h3>
+                  <h3 className="text-sm font-black">Thực hành & Code mẫu từng bước</h3>
                   {(mobileExtra.deepDive || []).map((item) => (
                     <div key={item.title} className="rounded-lg border border-border bg-background p-3">
                       <h4 className="text-xs font-black text-foreground">{item.title}</h4>
@@ -855,22 +827,53 @@ export default function MobileGuidebook({
                 {/* 2.8. Common mistakes / Self-quizzes */}
                 <section className="grid grid-cols-1 gap-3 font-sans">
                   <div className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
-                    <h3 className="text-sm font-black">Lỗi hay gặp</h3>
+                    <h3 className="text-sm font-black">Bẫy lỗi & Cách khắc phục</h3>
                     <ul className="space-y-2">
                       {(mobileExtra.commonMistakes || []).map((mistake) => (
                         <li key={mistake} className="text-sm leading-6 text-muted-foreground border-l-2 border-warning pl-3">{mistake}</li>
                       ))}
                     </ul>
                   </div>
-                  <div className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
-                    <h3 className="text-sm font-black">Tự hỏi nhanh</h3>
-                    <ul className="space-y-2">
-                      {(mobileExtra.quiz || []).map((question) => (
-                        <li key={question} className="rounded-lg bg-primary/10 border border-primary/20 p-3 text-sm leading-6 text-primary font-semibold">{question}</li>
-                      ))}
-                    </ul>
-                  </div>
                 </section>
+
+                {/* 2.8b. Tài liệu học thuật — nguồn chuẩn quốc tế của chặng + bài */}
+                {(() => {
+                  const num = parseInt(String(mobileCourse.id).replace("lesson", ""), 10);
+                  const stage = STAGES.find((s) => num > s.from && num <= s.to);
+                  const stageReading = stage?.intro?.reading || [];
+                  const lessonReading = mobileCourse.resources || [];
+                  if (stageReading.length === 0 && lessonReading.length === 0) return null;
+                  return (
+                    <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3 font-sans">
+                      <div className="flex items-center gap-2">
+                        <Library className="w-4 h-4 text-primary" />
+                        <h3 className="text-sm font-black">Tài liệu & Sách học thuật</h3>
+                      </div>
+                      {lessonReading.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cho bài này</span>
+                          {lessonReading.map((r, i) => (
+                            <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
+                              <span className="material-symbols-outlined text-base mt-0.5 shrink-0">open_in_new</span>
+                              <span className="font-bold text-foreground">{r.title}</span>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                      {stageReading.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Nguồn chuẩn quốc tế của chặng</span>
+                          {stageReading.map((r, i) => (
+                            <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
+                              <span className="material-symbols-outlined text-base mt-0.5 shrink-0">menu_book</span>
+                              <span><span className="font-bold text-foreground">{r.title}</span> — {r.author}</span>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  );
+                })()}
 
                 {/* 2.9. Code Run Frame */}
                 <section className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden text-zinc-100 font-sans">
@@ -938,6 +941,24 @@ export default function MobileGuidebook({
           })()}
         </main>
       </div>
+  );
+
+  // Embedded trong Hub: Hub đã lo FeatureGate — trả thẳng body.
+  if (embedded) return guidebookBody;
+
+  return (
+    <FeatureGate
+      bio={bio}
+      featureKey="hugoCoder"
+      priceJoy={1500}
+      icon="terminal"
+      title="Trao đổi JOY để mở khóa HugoCoder"
+      description="Đọc sách hướng dẫn, xem demo chạy code và học lập trình ngay trên điện thoại."
+      onBioUpdate={onBioUpdate}
+      onBack={onBack}
+      className="max-w-lg mx-auto mt-10"
+    >
+      {guidebookBody}
     </FeatureGate>
   );
 }

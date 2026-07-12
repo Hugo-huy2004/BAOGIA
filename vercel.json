@@ -5,6 +5,10 @@
       "destination": "/api/pay?id=:id"
     },
     {
+      "source": "/certificate/:slug/:phase",
+      "destination": "/api/certificate?slug=:slug&phase=:phase"
+    },
+    {
       "source": "/((?!assets/|image/|public/|.*\\..*$).*)",
       "destination": "/index.html"
     }
@@ -13,7 +17,10 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" }
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        }
       ]
     }
   ]

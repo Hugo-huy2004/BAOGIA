@@ -427,6 +427,12 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    // Số lần đã NỘP mỗi bài thi (lessonId -> count). Lượt 1 nằm trong gói,
+    // từ lượt 2 thu 250 JOY/lần tại coder-exam/start.
+    hugoCoderExamAttempts: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {}
+    },
     courseCompletionAwardClaimed: {
       type: Boolean,
       default: false

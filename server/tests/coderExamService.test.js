@@ -72,6 +72,14 @@ describe('coderExamService — chấm thi phía máy chủ', () => {
     expect(getStageCertificate(bio, 99)).toBeNull();     // chặng không tồn tại
   });
 
+  it('bộ đề dùng chung với client — mọi bài thi ra được đề', () => {
+    for (const id of ['lesson6', 'lesson25', 'lesson50', 'lesson57', 'lesson58']) {
+      const exam = startExam('a@b.vn', id);
+      expect(exam.questions.length).toBeGreaterThan(0);
+      expect(exam.passPercent).toBe(60);
+    }
+  });
+
   it('chứng chỉ chặng 6 cấp khi đồ án được duyệt dù chưa tick bài 100', () => {
     const bio = {
       displayName: 'Hugo Tốt Nghiệp',

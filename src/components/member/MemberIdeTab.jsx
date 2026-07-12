@@ -12,7 +12,7 @@ import { HugoConfirmNotice } from "../shared/HugoNotice";
 import { getMemberSession } from "../../services/authSession";
 import { useJoyStore } from "../../stores/joyStore";
 import { TEMPLATES, INITIAL_WORKSPACE, QUIZ_POOL_1, QUIZ_POOL_2 } from "./ideData";
-import { WEB_COURSES, MOBILE_GUIDE_EXTRAS } from "./hugoCoder/lessons";
+import { WEB_COURSES, MOBILE_GUIDE_EXTRAS, getStageBenefits } from "./hugoCoder/lessons";
 import { renderMobileIllustration, getMobileVisualSet, renderVisualArtwork } from "./hugoCoder/VisualIllustrations";
 import InteractivePuzzles from "./hugoCoder/InteractivePuzzles";
 import CertificateModal from "./hugoCoder/CertificateModal";
@@ -84,7 +84,9 @@ const getFileIcon = (fileName) => {
 
 import { useNavigate } from "react-router-dom";
 
-export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) {
+// embedded=true: chạy trong vỏ chung HugoCoderHub — bỏ FeatureGate riêng,
+// bỏ shell fullscreen và nút Back riêng (Hub đã lo các thứ đó).
+export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, embedded = false }) {
   const [isDesktop, setIsDesktop] = useState(true);
   const [activeSidebarTab, setActiveSidebarTab] = useState("explorer"); // explorer, learn, db
 
@@ -237,7 +239,12 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
         title="Mua gói Vĩnh Viễn"
         message={
           <>
-            Bạn có đồng ý dùng <strong>{price} JOY</strong> (+ 10% phí sáng tạo) để mở khóa vĩnh viễn quyền học và thực hành các bài học thuộc <strong>{tierLabel}</strong> không?
+            Bạn có đồng ý dùng <strong>{price} JOY</strong> (+ 10% phí sáng tạo) để mở khóa vĩnh viễn <strong>{tierLabel}</strong>?
+            <span className="block mt-1.5 text-[11px] opacity-90">
+              {getStageBenefits(tier).map((b, i) => (
+                <span key={i} className="block">— {b}</span>
+              ))}
+            </span>
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -517,7 +524,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
 
   // Bài thi trắc nghiệm: máy chủ ra đề và giữ đáp án. Khách chưa đăng nhập/offline
   // rơi về đề cục bộ (chỉ luyện tập, không có thưởng JOY từ server).
-  const startServerExam = async (course) => {
+  const startServerExam = async (course, confirmRetake = false) => {
     setExamId(null);
     const session = getMemberSession();
     if (session?.email) {
@@ -526,12 +533,36 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
         const res = await fetch(`${apiBase}/joy/coder-exam/start`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ lessonId: course.id })
+          body: JSON.stringify({ lessonId: course.id, confirmRetake })
         });
+        const data = await res.json().catch(() => ({}));
+
+        // Lượt thi trong gói đã dùng — hỏi xác nhận trước khi trừ JOY
+        if (res.status === 402 && data.requiresFee) {
+          const ok = await notify.confirm({
+            title: "Thi lại bài kiểm tra",
+            message: `Lượt thi trong gói đã dùng (đã nộp ${data.attemptsUsed} lần). Thi lại tốn ${data.requiresFee} JOY/lần — đồng ý trừ JOY và nhận đề mới?`,
+            confirmText: `Trừ ${data.requiresFee} JOY & thi lại`,
+            danger: true
+          });
+          if (ok) return startServerExam(course, true);
+          setQuizQuestions([]);
+          return;
+        }
+
         if (res.ok) {
-          const data = await res.json();
           setExamId(data.examId);
           setQuizQuestions(data.questions);
+          if (data.charged > 0) {
+            useJoyStore.getState().setBalance(data.balance);
+            notify.info(`Đã trừ ${data.charged} JOY cho lượt thi lại. Chúc bạn thi tốt!`);
+          }
+          return;
+        }
+        if (data.error) {
+          // Lỗi có chủ đích (vd: thiếu JOY) — không phát đề luyện tập thay thế
+          notify.error(data.error);
+          setQuizQuestions([]);
           return;
         }
       } catch (e) {
@@ -1753,6 +1784,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
   if (!isDesktop) {
     return (
       <MobileGuidebook
+        embedded={embedded}
         activeCourseId={activeCourseId}
         bio={bio}
         onBioUpdate={onBioUpdate}
@@ -1824,28 +1856,19 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId }) 
     );
   }
 
-  return (
-    <FeatureGate
-      bio={bio}
-      featureKey="hugoCoder"
-      priceJoy={1500}
-      icon="terminal"
-      title="Trao đổi JOY để mở khóa HugoCoder"
-      description="Soạn code, học bài tương tác và nhận JOY khi hoàn thành bài học."
-      onBioUpdate={onBioUpdate}
-      onBack={onBack}
-      className="max-w-lg mx-auto mt-10"
-    >
-    <div className="flex flex-col bg-background h-screen w-screen text-foreground relative overflow-hidden">
+  const desktopBody = (
+    <div className={`flex flex-col bg-background text-foreground relative overflow-hidden ${embedded ? "h-full w-full" : "h-screen w-screen"}`}>
       {/* Top IDE Header Control Bar */}
       <div className="bg-card border-b border-border px-4 py-2.5 flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={onBack}
-            className="flex items-center gap-1.5 font-bold uppercase hover:text-white transition-colors border-r border-border pr-3"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back
-          </button>
+          {!embedded && (
+            <button
+              onClick={onBack}
+              className="flex items-center gap-1.5 font-bold uppercase hover:text-white transition-colors border-r border-border pr-3"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Back
+            </button>
+          )}
           <div className="flex items-center gap-1.5 font-mono text-muted-foreground">
             <span className="w-2.5 h-2.5 rounded-full bg-primary" />
             <span>STUDENT WORKSPACE</span>
@@ -2236,6 +2259,24 @@ services:
       />
 
     </div>
+  );
+
+  // Embedded trong Hub: Hub đã lo FeatureGate — trả thẳng body.
+  if (embedded) return desktopBody;
+
+  return (
+    <FeatureGate
+      bio={bio}
+      featureKey="hugoCoder"
+      priceJoy={1500}
+      icon="terminal"
+      title="Trao đổi JOY để mở khóa HugoCoder"
+      description="Soạn code, học bài tương tác và nhận JOY khi hoàn thành bài học."
+      onBioUpdate={onBioUpdate}
+      onBack={onBack}
+      className="max-w-lg mx-auto mt-10"
+    >
+      {desktopBody}
     </FeatureGate>
   );
 }

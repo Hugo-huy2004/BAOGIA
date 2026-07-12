@@ -170,28 +170,81 @@ router.post('/reset-to-zero', requireAdmin, async (req, res) => {
   }
 });
 
+const CODER_EXAM_RETAKE_FEE = 250; // Lượt thi đầu nằm trong gói; từ lượt 2: 250 JOY/lần
+
 // POST /api/joy/coder-exam/start — máy chủ ra đề (không gửi đáp án xuống client)
-router.post('/coder-exam/start', requireMember, (req, res) => {
+router.post('/coder-exam/start', requireMember, async (req, res) => {
   try {
-    const { lessonId } = req.body;
+    const { lessonId, confirmRetake } = req.body;
     const email = req.memberEmail;
     if (!email || !lessonId) return res.status(400).json({ error: 'lessonId là bắt buộc.' });
     if (!CODER_QUIZ_LESSONS.has(lessonId) || !isQuizLesson(lessonId)) {
       return res.status(400).json({ error: 'Bài học này không phải bài thi trắc nghiệm.' });
     }
-    res.json(startExam(email, lessonId));
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    const attemptsUsed = Number(bio.hugoCoderExamAttempts?.[lessonId] || 0);
+    const alreadyCompleted = (bio.completedLessons || []).includes(lessonId);
+    const needsFee = !alreadyCompleted && attemptsUsed >= 1; // đã hoàn thành thì ôn tập miễn phí
+
+    let charged = 0;
+    if (needsFee) {
+      if (!confirmRetake) {
+        // Client phải xác nhận trước khi bị trừ JOY — không trừ tiền âm thầm
+        return res.status(402).json({
+          error: `Lượt thi trong gói đã dùng. Thi lại tốn ${CODER_EXAM_RETAKE_FEE} JOY/lần.`,
+          requiresFee: CODER_EXAM_RETAKE_FEE,
+          attemptsUsed
+        });
+      }
+      try {
+        await awardJoy(
+          email,
+          -CODER_EXAM_RETAKE_FEE,
+          'coder_exam_retake',
+          `Phí thi lại HugoCoder ${lessonId} (lượt ${attemptsUsed + 1})`,
+          { bioDoc: bio, refId: `${lessonId}_retake_${attemptsUsed + 1}` }
+        );
+        charged = CODER_EXAM_RETAKE_FEE;
+      } catch (e) {
+        if (e.message === 'INSUFFICIENT_JOY') {
+          return res.status(400).json({ error: `Số dư JOY không đủ — cần ${CODER_EXAM_RETAKE_FEE} JOY để thi lại.` });
+        }
+        throw e;
+      }
+    }
+
+    const exam = startExam(email, lessonId);
+    res.json({ ...exam, attemptsUsed, charged, retakeFee: CODER_EXAM_RETAKE_FEE, balance: bio.joyBalance });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
 // POST /api/joy/coder-exam/submit — máy chủ chấm, đậu thì cấp vé ngắn hạn cho award-learning
-router.post('/coder-exam/submit', requireMember, (req, res) => {
+router.post('/coder-exam/submit', requireMember, async (req, res) => {
   try {
     const { examId, answers } = req.body;
     const email = req.memberEmail;
     if (!email || !examId) return res.status(400).json({ error: 'examId là bắt buộc.' });
-    res.json(submitExam(email, examId, answers));
+
+    const result = submitExam(email, examId, answers);
+
+    // Mỗi lần NỘP tiêu một lượt thi (chỉ đếm khi bài chưa hoàn thành)
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (bio && !(bio.completedLessons || []).includes(result.lessonId)) {
+      const attempts = { ...(bio.hugoCoderExamAttempts || {}) };
+      attempts[result.lessonId] = Number(attempts[result.lessonId] || 0) + 1;
+      bio.hugoCoderExamAttempts = attempts;
+      bio.markModified('hugoCoderExamAttempts');
+      await bio.save();
+    }
+
+    res.json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
