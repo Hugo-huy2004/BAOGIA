@@ -361,6 +361,23 @@ export default function MobileGuidebook({
                       {/* Phase Content */}
                       {isExpanded && (
                         <div className="p-3.5 space-y-3.5 bg-zinc-50/50 dark:bg-zinc-950/20">
+                          {/* Giới thiệu chặng: kiến thức — thách thức — hứa hẹn */}
+                          {phase.intro && (
+                            <div className={`rounded-2xl border bg-gradient-to-br ${meta.gradient} p-3.5 space-y-2.5`}>
+                              <p className={`text-[11px] font-black italic ${meta.accentColor.split(" ")[0]}`}>“{phase.intro.tagline}”</p>
+                              <div className="space-y-1.5">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Bạn sẽ học</span>
+                                <div className="flex flex-wrap gap-1">
+                                  {phase.intro.learn.map((item, i) => (
+                                    <span key={i} className={`text-[9.5px] font-bold px-2 py-1 rounded-full border ${meta.badgeColor}`}>{item}</span>
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-[10.5px] leading-5 text-muted-foreground"><strong className="text-foreground">Thách thức:</strong> {phase.intro.challenge}</p>
+                              <p className="text-[10.5px] leading-5 text-muted-foreground"><strong className="text-foreground">Hứa hẹn:</strong> {phase.intro.promise}</p>
+                            </div>
+                          )}
+
                           {/* Certificate Reward Card if Completed */}
                           {isPhaseCompleted && (
                             <div className="bg-gradient-to-br from-amber-500/15 via-yellow-500/5 to-transparent border border-amber-500/30 rounded-2xl p-4 text-center space-y-3 shadow-md animate-fadeIn relative overflow-hidden">

@@ -3,7 +3,8 @@ import {
   buildLessonEvidence,
   buildPreviewHtml,
   createWorkspaceZipBlob,
-  scoreScreenshotSubmission
+  scoreScreenshotSubmission,
+  stripCodeComments
 } from "./workspaceUtils";
 
 function installLocalStorageMock() {
@@ -74,6 +75,26 @@ describe("HugoCoder workspace utils", () => {
     expect(scoreScreenshotSubmission(file)).toBe(scoreScreenshotSubmission(file));
     expect(scoreScreenshotSubmission(file)).toBeGreaterThanOrEqual(60);
     expect(scoreScreenshotSubmission(new File(["nope"], "note.txt", { type: "text/plain" }))).toBe(0);
+  });
+
+  it("strips every comment style so TODO hints can't pass lesson verify", () => {
+    const html = "<!-- TODO: viết <header> tại đây -->\n<main>ok</main>";
+    expect(stripCodeComments(html)).not.toContain("header");
+    expect(stripCodeComments(html)).toContain("<main>ok</main>");
+
+    const js = "// TODO: dùng addEventListener\nconst url = \"http://a.vn\";\n/* prepare() */\nfetch(url);";
+    const strippedJs = stripCodeComments(js);
+    expect(strippedJs).not.toContain("addEventListener");
+    expect(strippedJs).not.toContain("prepare()");
+    expect(strippedJs).toContain("http://a.vn");
+
+    const sql = "-- TODO: SELECT * FROM users\nINSERT INTO logs VALUES (1);";
+    expect(stripCodeComments(sql)).not.toContain("SELECT");
+    expect(stripCodeComments(sql)).toContain("INSERT INTO logs");
+
+    const css = "/* TODO: box-sizing */\n.card { color: #0056b3; }";
+    expect(stripCodeComments(css)).not.toContain("box-sizing");
+    expect(stripCodeComments(css)).toContain("#0056b3");
   });
 
   it("exports a readable zip blob", async () => {

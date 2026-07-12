@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Sparkles, Award, CheckCircle, ChevronDown, ChevronUp, Lock, Clock, Target, ListChecks, Bug, Flame, BookOpen, Wrench } from "lucide-react";
+import { Sparkles, Award, CheckCircle, ChevronDown, ChevronUp, Lock, Clock, Target, ListChecks, Bug, Flame, BookOpen, Wrench, Check, Play, Star, Trophy, Terminal, Cpu, Brain, Shield, Rocket, Server, Gift } from "lucide-react";
 import { notify } from "../../../lib/notify";
 import { STAGES } from "./lessons";
 
@@ -36,6 +36,73 @@ const markdownComponents = {
   th: (props) => <th className="border border-border px-2 py-1 bg-muted font-bold text-left" {...props} />,
   td: (props) => <td className="border border-border px-2 py-1" {...props} />
 };
+
+// Bảng màu & biểu tượng riêng của từng chặng — bản đồ hành trình kiểu Duolingo
+const STAGE_THEME = {
+  basic: {
+    icon: Terminal,
+    banner: "from-blue-500 to-indigo-600",
+    soft: "from-blue-500/15 via-indigo-500/5 to-transparent border-blue-500/25",
+    text: "text-blue-500",
+    node: "bg-gradient-to-br from-blue-400 to-indigo-600 border-blue-300/60",
+    ring: "ring-blue-500/40",
+    bar: "bg-gradient-to-r from-blue-400 to-indigo-500",
+    chip: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+  },
+  intermediate: {
+    icon: Cpu,
+    banner: "from-emerald-500 to-teal-600",
+    soft: "from-emerald-500/15 via-teal-500/5 to-transparent border-emerald-500/25",
+    text: "text-emerald-500",
+    node: "bg-gradient-to-br from-emerald-400 to-teal-600 border-emerald-300/60",
+    ring: "ring-emerald-500/40",
+    bar: "bg-gradient-to-r from-emerald-400 to-teal-500",
+    chip: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+  },
+  advanced: {
+    icon: Brain,
+    banner: "from-violet-500 to-purple-600",
+    soft: "from-violet-500/15 via-purple-500/5 to-transparent border-violet-500/25",
+    text: "text-violet-500",
+    node: "bg-gradient-to-br from-violet-400 to-purple-600 border-violet-300/60",
+    ring: "ring-violet-500/40",
+    bar: "bg-gradient-to-r from-violet-400 to-purple-500",
+    chip: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20"
+  },
+  security: {
+    icon: Shield,
+    banner: "from-rose-500 to-pink-600",
+    soft: "from-rose-500/15 via-pink-500/5 to-transparent border-rose-500/25",
+    text: "text-rose-500",
+    node: "bg-gradient-to-br from-rose-400 to-pink-600 border-rose-300/60",
+    ring: "ring-rose-500/40",
+    bar: "bg-gradient-to-r from-rose-400 to-pink-500",
+    chip: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+  },
+  project: {
+    icon: Rocket,
+    banner: "from-cyan-500 to-sky-600",
+    soft: "from-cyan-500/15 via-sky-500/5 to-transparent border-cyan-500/25",
+    text: "text-cyan-500",
+    node: "bg-gradient-to-br from-cyan-400 to-sky-600 border-cyan-300/60",
+    ring: "ring-cyan-500/40",
+    bar: "bg-gradient-to-r from-cyan-400 to-sky-500",
+    chip: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20"
+  },
+  devops: {
+    icon: Server,
+    banner: "from-amber-500 to-yellow-600",
+    soft: "from-amber-500/15 via-yellow-500/5 to-transparent border-amber-500/25",
+    text: "text-amber-500",
+    node: "bg-gradient-to-br from-amber-400 to-yellow-600 border-amber-300/60",
+    ring: "ring-amber-500/40",
+    bar: "bg-gradient-to-r from-amber-400 to-yellow-500",
+    chip: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+  }
+};
+
+// Node đặc biệt trên bản đồ: thi chặng & tốt nghiệp
+const isBossLesson = (course) => course.practiceType === "quiz" || course.practiceType === "graduation_submission";
 
 export default function LessonsSidebar({
   WEB_COURSES,
@@ -369,194 +436,252 @@ export default function LessonsSidebar({
 
             {verificationStatus === "success" && (
               <div className="bg-success/10 border border-success/20 p-3 rounded-xl text-[10.5px] text-success leading-relaxed font-sans">
-                🎉 <strong>Tuyệt vời!</strong> Bạn đã hoàn thành xuất sắc các yêu cầu của bài học. Hãy chuyển qua bài học tiếp theo nhé!
+                <strong>Tuyệt vời!</strong> Bạn đã hoàn thành xuất sắc các yêu cầu của bài học. Hãy chuyển qua bài học tiếp theo nhé!
               </div>
             )}
             {verificationStatus === "failed" && (
               <div className="bg-destructive/10 border border-destructive/20 p-3 rounded-xl text-[10.5px] text-destructive leading-relaxed font-sans">
-                ❌ <strong>Chưa chính xác!</strong> Mã nguồn trong editor chưa đáp ứng đủ yêu cầu bài học. Hãy đọc lại phần Thực hành & Code mẫu rồi thử lại.
+                <strong>Chưa chính xác!</strong> Mã nguồn trong editor chưa đáp ứng đủ yêu cầu bài học. Hãy đọc lại phần Thực hành & Code mẫu rồi thử lại.
               </div>
             )}
           </div>
         );
       })() : (
-        <div className="space-y-4">
-          <p className="text-[10px] text-muted-foreground leading-relaxed font-sans">
-            Lộ trình 100 bài — 6 chặng: từ phản xạ cú pháp đến kỹ sư Full-Stack phát hành sản phẩm thật:
-          </p>
+        <div className="space-y-5">
+          {/* Tiến trình tổng — huy hiệu hành trình */}
+          <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-4 space-y-2">
+            <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-primary/10 blur-xl" />
+            <div className="flex items-center justify-between relative">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-primary">Hành trình 100 bài — 6 chặng</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Từ phản xạ cú pháp đến kỹ sư Full-Stack phát hành sản phẩm thật.</p>
+              </div>
+              <div className="shrink-0 w-11 h-11 rounded-full bg-primary text-white flex flex-col items-center justify-center shadow-lg shadow-primary/30">
+                <span className="text-[11px] font-black leading-none">{completedLessons.filter((id) => WEB_COURSES.some((c) => c.id === id)).length}</span>
+                <span className="text-[7px] font-bold opacity-80">/100</span>
+              </div>
+            </div>
+            <div className="h-2 rounded-full bg-muted overflow-hidden relative">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-700"
+                style={{ width: `${completedLessons.filter((id) => WEB_COURSES.some((c) => c.id === id)).length}%` }}
+              />
+            </div>
+          </div>
 
-          <div className="space-y-3">
-            {phases.map((phase) => {
-              const completedCount = phase.lessons.filter((l) => completedLessons.includes(l.id)).length;
-              const isPhaseCompleted = completedCount === phase.lessons.length;
-              const isExpanded = expandedPhases[phase.id];
+          {phases.map((phase) => {
+            const theme = STAGE_THEME[phase.id] || STAGE_THEME.basic;
+            const StageIcon = theme.icon;
+            const completedCount = phase.lessons.filter((l) => completedLessons.includes(l.id)).length;
+            const isPhaseCompleted = completedCount === phase.lessons.length;
+            const progressPercent = Math.round((completedCount / phase.lessons.length) * 100);
+            const isExpanded = expandedPhases[phase.id];
+            const stageAccess = getLessonTierAndAccess(phase.lessons[0].id);
+            const stageLocked = !stageAccess.hasAccess;
 
-              return (
-                <div key={phase.id} className="border border-border rounded-xl overflow-hidden bg-card/25">
-                  <div
-                    onClick={() => togglePhase(phase.id)}
-                    className="flex items-center justify-between p-3 bg-muted/40 hover:bg-muted/65 cursor-pointer transition-all border-b border-border/50 select-none"
-                  >
-                    <div className="text-left">
-                      <h4 className="font-extrabold text-[11px] text-foreground tracking-wide">{phase.title}</h4>
-                      <span className="text-[9px] font-bold text-muted-foreground">{phase.rangeText} • {completedCount}/{phase.lessons.length} bài đã học</span>
+            return (
+              <div key={phase.id} className="space-y-0">
+                {/* Banner chặng */}
+                <div
+                  onClick={() => togglePhase(phase.id)}
+                  className={`relative overflow-hidden rounded-2xl cursor-pointer select-none bg-gradient-to-br ${theme.banner} p-3.5 shadow-lg transition-transform active:scale-[0.99]`}
+                >
+                  <div className="absolute -right-6 -bottom-8 w-24 h-24 rounded-full bg-white/10" />
+                  <div className="absolute right-8 -top-6 w-14 h-14 rounded-full bg-white/10" />
+                  <div className="flex items-center gap-3 relative">
+                    <div className="w-10 h-10 shrink-0 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center border border-white/30">
+                      <StageIcon className="w-5 h-5 text-white" />
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      {isPhaseCompleted && (
-                        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-success/20 border border-success/30 text-success text-[8px] font-bold">
-                          ✓
-                        </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[8.5px] font-black uppercase tracking-widest text-white/70">{phase.rangeText}</p>
+                      <h4 className="font-black text-[12px] text-white leading-tight truncate">{phase.title.replace(/^Chặng \d+: /, "")}</h4>
+                    </div>
+                    <div className="shrink-0 flex flex-col items-end gap-1">
+                      {stageLocked ? (
+                        <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase text-white bg-black/25 rounded-full px-2 py-0.5"><Lock className="w-2.5 h-2.5" /> Mở khóa</span>
+                      ) : isPhaseCompleted ? (
+                        <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase text-white bg-black/25 rounded-full px-2 py-0.5"><Trophy className="w-2.5 h-2.5" /> Hoàn thành</span>
+                      ) : (
+                        <span className="text-[10px] font-black text-white">{completedCount}/{phase.lessons.length}</span>
                       )}
-                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-white/80" /> : <ChevronDown className="w-3.5 h-3.5 text-white/80" />}
                     </div>
                   </div>
+                  <div className="mt-2.5 h-1.5 rounded-full bg-black/20 overflow-hidden relative">
+                    <div className="h-full rounded-full bg-white/90 transition-all duration-700" style={{ width: `${progressPercent}%` }} />
+                  </div>
+                </div>
 
-                  {isExpanded && (
-                    <div className="p-2.5 space-y-2.5 bg-zinc-950/10">
-                      {isPhaseCompleted && (
-                        <div className="bg-gradient-to-br from-amber-500/10 to-yellow-600/5 border border-amber-500/30 rounded-xl p-3 text-center space-y-2 shadow-sm animate-fadeIn">
-                          <div className="flex items-center justify-center gap-1.5 text-amber-500 font-extrabold text-[10px] uppercase tracking-wider">
-                            <Award className="w-4 h-4 text-amber-400" />
-                            Hoàn Thành {phase.title}
+                {isExpanded && (
+                  <div className="pt-3 space-y-3">
+                    {/* Giới thiệu chặng — kiến thức, thách thức, hứa hẹn */}
+                    {phase.intro && (
+                      <div className={`rounded-2xl border bg-gradient-to-br ${theme.soft} p-3.5 space-y-2.5`}>
+                        <p className={`text-[10.5px] font-black italic ${theme.text}`}>“{phase.intro.tagline}”</p>
+                        <div className="space-y-1.5">
+                          <span className="text-[8.5px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+                            <BookOpen className="w-3 h-3 text-muted-foreground" /> Bạn sẽ học
+                          </span>
+                          <div className="flex flex-wrap gap-1">
+                            {phase.intro.learn.map((item, i) => (
+                              <span key={i} className={`text-[9px] font-bold px-2 py-1 rounded-full border ${theme.chip}`}>{item}</span>
+                            ))}
                           </div>
-
-                          {[3, 4, 5].includes(phase.phaseNumber) && (() => {
-                            const claimKeys = { 3: ["hugoCoderRewardClaimed3"], 4: ["hugoCoderRewardClaimed4", "hugoCoderRewardClaimed5", "hugoCoderRewardClaimed6"], 5: ["hugoCoderRewardClaimed7"] };
-                            const hasClaimed = (claimKeys[phase.phaseNumber] || []).some((k) => !!bio?.[k]);
-                            return (
-                              <div className="space-y-1.5">
-                                <p className="text-[9px] text-zinc-400 leading-normal font-sans">
-                                  Chúc mừng bạn đã hoàn thành xuất sắc toàn bộ bài học của chặng này!
-                                </p>
-                                {hasClaimed ? (
-                                  <div className="py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-bold rounded-lg text-[9px] uppercase tracking-wider">
-                                    Đã nhận thưởng +800 JOY ✓
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={() => handleClaimMilestoneReward(phase.phaseNumber)}
-                                    className="w-full py-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[9px] uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
-                                  >
-                                    Nhận thưởng chặng (+800 JOY)
-                                  </button>
-                                )}
-                              </div>
-                            );
-                          })()}
-
-                          {phase.phaseNumber === 6 && (() => {
-                            const status = bio?.hugoCoderProjectStatus || "idle";
-                            const certUrl = bio?.hugoCoderCertificateUrl || "";
-                            const adminNote = bio?.hugoCoderProjectAdminNote || "";
-
-                            return (
-                              <div className="space-y-2 text-[9px] font-sans text-zinc-400">
-                                {status === "idle" && (
-                                  <p className="leading-normal">
-                                    Hãy hoàn thành đồ án kết khóa và nộp đường link dự án của bạn tại <strong>Bài 100</strong> để nhận đánh giá từ Hugo Studio.
-                                  </p>
-                                )}
-                                {status === "pending" && (
-                                  <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-500 font-bold">
-                                    Yêu cầu đang chờ duyệt... ⏳
-                                    <p className="text-[8px] font-normal text-zinc-400 mt-1">Hugo Studio đang kiểm tra sản phẩm của bạn.</p>
-                                  </div>
-                                )}
-                                {status === "rejected" && (
-                                  <div className="p-2 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive font-bold text-left space-y-1">
-                                    <div>Dự án chưa đạt yêu cầu ❌</div>
-                                    {adminNote && <p className="text-[8px] font-normal text-zinc-300">Phản hồi: {adminNote}</p>}
-                                    <p className="text-[8px] font-normal text-zinc-400 mt-1">Bạn có thể sửa đổi code và nộp lại link mới ở Bài 100.</p>
-                                  </div>
-                                )}
-                                {status === "approved" && (
-                                  <div className="space-y-2">
-                                    <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-500 font-bold">
-                                      Dự án đã được duyệt thành công! 🎉
-                                      <p className="text-[8px] font-normal text-zinc-400 mt-1">Đã nhận thưởng 4,000 JOY & phần quà VVIP.</p>
-                                    </div>
-                                    {certUrl ? (
-                                      <a
-                                        href={certUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block w-full py-1.5 text-center bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[9px] uppercase tracking-wider transition-all shadow-md"
-                                      >
-                                        Xem chứng nhận hoàn thành
-                                      </a>
-                                    ) : (
-                                      <p className="text-[8px] text-amber-400 font-bold">Chứng nhận đang được đẩy lên Drive bởi Admin...</p>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })()}
                         </div>
-                      )}
+                        <div className="flex items-start gap-2">
+                          <Flame className="w-3.5 h-3.5 shrink-0 mt-0.5 text-muted-foreground" />
+                          <p className="text-[10px] leading-5 text-muted-foreground"><strong className="text-foreground">Thách thức:</strong> {phase.intro.challenge}</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <Gift className="w-3.5 h-3.5 shrink-0 mt-0.5 text-muted-foreground" />
+                          <p className="text-[10px] leading-5 text-muted-foreground"><strong className="text-foreground">Hứa hẹn:</strong> {phase.intro.promise}</p>
+                        </div>
+                      </div>
+                    )}
 
-                      <div className="divide-y divide-border/30 border border-border/40 rounded-xl overflow-hidden bg-zinc-950/20">
+                    {/* Thưởng chặng + trạng thái tốt nghiệp */}
+                    {isPhaseCompleted && (
+                      <div className="bg-gradient-to-br from-amber-500/10 to-yellow-600/5 border border-amber-500/30 rounded-2xl p-3 text-center space-y-2 shadow-sm animate-fadeIn">
+                        <div className="flex items-center justify-center gap-1.5 text-amber-500 font-extrabold text-[10px] uppercase tracking-wider">
+                          <Award className="w-4 h-4 text-amber-400" />
+                          Hoàn Thành {phase.title}
+                        </div>
+
+                        {[3, 4, 5].includes(phase.phaseNumber) && (() => {
+                          const claimKeys = { 3: ["hugoCoderRewardClaimed3"], 4: ["hugoCoderRewardClaimed4", "hugoCoderRewardClaimed5", "hugoCoderRewardClaimed6"], 5: ["hugoCoderRewardClaimed7"] };
+                          const hasClaimed = (claimKeys[phase.phaseNumber] || []).some((k) => !!bio?.[k]);
+                          return hasClaimed ? (
+                            <div className="py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-bold rounded-lg text-[9px] uppercase tracking-wider">
+                              Đã nhận thưởng +800 JOY
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleClaimMilestoneReward(phase.phaseNumber)}
+                              className="w-full py-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[9px] uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
+                            >
+                              Nhận thưởng chặng (+800 JOY)
+                            </button>
+                          );
+                        })()}
+
+                        {phase.phaseNumber === 6 && (() => {
+                          const status = bio?.hugoCoderProjectStatus || "idle";
+                          const certUrl = bio?.hugoCoderCertificateUrl || "";
+                          const adminNote = bio?.hugoCoderProjectAdminNote || "";
+                          return (
+                            <div className="space-y-2 text-[9px] font-sans text-zinc-400">
+                              {status === "idle" && (
+                                <p className="leading-normal">Hãy hoàn thành đồ án kết khóa và nộp link dự án tại <strong>Bài 100</strong> để nhận đánh giá từ Hugo Studio.</p>
+                              )}
+                              {status === "pending" && (
+                                <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-500 font-bold">Yêu cầu đang chờ duyệt...</div>
+                              )}
+                              {status === "rejected" && (
+                                <div className="p-2 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive font-bold text-left space-y-1">
+                                  <div>Dự án chưa đạt yêu cầu</div>
+                                  {adminNote && <p className="text-[8px] font-normal text-zinc-300">Phản hồi: {adminNote}</p>}
+                                </div>
+                              )}
+                              {status === "approved" && (
+                                <div className="space-y-2">
+                                  <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-500 font-bold">
+                                    Dự án đã được duyệt thành công!
+                                    <p className="text-[8px] font-normal text-zinc-400 mt-1">Đã nhận thưởng 4,000 JOY & phần quà VVIP.</p>
+                                  </div>
+                                  {certUrl ? (
+                                    <a href={certUrl} target="_blank" rel="noopener noreferrer" className="block w-full py-1.5 text-center bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[9px] uppercase tracking-wider transition-all shadow-md">
+                                      Xem chứng nhận hoàn thành
+                                    </a>
+                                  ) : (
+                                    <p className="text-[8px] text-amber-400 font-bold">Chứng nhận đang được đẩy lên Drive bởi Admin...</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+
+                    {/* Con đường bài học — node tròn uốn lượn kiểu Duolingo */}
+                    <div className="relative py-2">
+                      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2 border-l-2 border-dashed border-border" />
+                      <div className="relative space-y-4">
                         {phase.lessons.map((course, idx) => {
                           const index = phase.from + idx;
                           const isCompleted = completedLessons.includes(course.id);
                           const isLocked = index > 0 && !completedLessons.includes(WEB_COURSES[index - 1].id);
+                          const isCurrent = !isCompleted && !isLocked;
+                          const boss = isBossLesson(course);
+                          // Uốn lượn: chu kỳ 4 bước — giữa, phải, giữa, trái
+                          const wave = [0, 34, 0, -34][idx % 4];
+
+                          const openLesson = () => {
+                            if (isLocked) {
+                              notify.error("Vui lòng hoàn thành bài học trước để mở khóa bài này!");
+                              return;
+                            }
+                            setActiveCourseId(course.id);
+                            setVerificationStatus(null);
+                            const exists = workspaceFiles.some((f) => f.path === course.file);
+                            if (!exists) {
+                              setWorkspaceFiles((prev) => [...prev, {
+                                path: course.file,
+                                name: course.file.split("/").pop(),
+                                content: course.starterCode,
+                                language: getLanguageFromExt(course.file.split(".").pop().toLowerCase())
+                              }]);
+                            }
+                            if (!openTabs.includes(course.file)) {
+                              setOpenTabs((prev) => [...prev, course.file]);
+                            }
+                            setActiveTabPath(course.file);
+                          };
 
                           return (
-                            <div
-                              key={course.id}
-                              className={`flex items-center justify-between px-3 py-2.5 transition-all text-left ${
-                                isLocked
-                                  ? "opacity-40 cursor-not-allowed bg-black/5"
-                                  : "cursor-pointer hover:bg-primary/5 active:bg-primary/10"
-                              }`}
-                              onClick={() => {
-                                if (isLocked) {
-                                  notify.error("Vui lòng hoàn thành bài học trước để mở khóa bài này!");
-                                  return;
-                                }
-                                setActiveCourseId(course.id);
-                                setVerificationStatus(null);
-                                const exists = workspaceFiles.some((f) => f.path === course.file);
-                                if (!exists) {
-                                  const newFile = {
-                                    path: course.file,
-                                    name: course.file.split("/").pop(),
-                                    content: course.starterCode,
-                                    language: getLanguageFromExt(course.file.split(".").pop().toLowerCase())
-                                  };
-                                  setWorkspaceFiles((prev) => [...prev, newFile]);
-                                }
-                                if (!openTabs.includes(course.file)) {
-                                  setOpenTabs((prev) => [...prev, course.file]);
-                                }
-                                setActiveTabPath(course.file);
-                              }}
-                            >
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <span className="font-mono text-[9px] font-bold text-muted-foreground select-none">
-                                  {String(index + 1).padStart(2, "0")}
-                                </span>
-                                <span className={`text-[11px] font-medium truncate ${isLocked ? "text-muted-foreground/60" : "text-foreground"}`}>
-                                  {course.title.replace(/^\d+\.\s*/, "")}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
+                            <div key={course.id} className="flex flex-col items-center" style={{ transform: `translateX(${wave}px)` }}>
+                              <button
+                                onClick={openLesson}
+                                title={course.title}
+                                className={`relative flex items-center justify-center rounded-full border-b-4 transition-all active:scale-95 active:border-b-0 active:translate-y-1 ${
+                                  boss ? "w-14 h-14" : "w-11 h-11"
+                                } ${
+                                  isCompleted
+                                    ? `${theme.node} border-black/20 text-white shadow-lg`
+                                    : isCurrent
+                                      ? `${theme.node} border-black/20 text-white shadow-xl ring-4 ${theme.ring} animate-pulse`
+                                      : "bg-muted border-border text-muted-foreground/50 cursor-not-allowed"
+                                }`}
+                              >
+                                {isCurrent && (
+                                  <span className={`absolute -top-6 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest text-white bg-gradient-to-r ${theme.banner} shadow animate-bounce whitespace-nowrap`}>
+                                    Bắt đầu
+                                  </span>
+                                )}
                                 {isCompleted ? (
-                                  <CheckCircle className="w-3.5 h-3.5 text-success" />
+                                  boss ? <Trophy className="w-6 h-6" /> : <Check className="w-5 h-5" strokeWidth={3} />
                                 ) : isLocked ? (
-                                  <Lock className="w-3 h-3 text-muted-foreground/40" />
-                                ) : null}
-                              </div>
+                                  boss ? <Star className="w-6 h-6 opacity-60" /> : <Lock className="w-4 h-4" />
+                                ) : (
+                                  boss ? <Star className="w-6 h-6" /> : <Play className="w-4.5 h-4.5 ml-0.5" />
+                                )}
+                              </button>
+                              <span className={`mt-1.5 max-w-[150px] text-center text-[9px] font-bold leading-tight truncate ${
+                                isLocked ? "text-muted-foreground/50" : isCurrent ? theme.text : "text-muted-foreground"
+                              }`}>
+                                <span className="font-mono mr-1 opacity-70">{index + 1}.</span>
+                                {course.title.replace(/^\d+\.\s*/, "")}
+                              </span>
                             </div>
                           );
                         })}
                       </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
