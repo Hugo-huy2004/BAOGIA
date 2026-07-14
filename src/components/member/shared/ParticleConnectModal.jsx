@@ -485,6 +485,12 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
   const [ignoredScanPayloads, setIgnoredScanPayloads] = useState(() => new Set());
   const debounceRef = useRef(null);
   const scanResolvingRef = useRef(false);
+  // A live, spinning particle code (or decode noise) yields a *different*
+  // valid-shaped token almost every frame, so the exact-value ignore set never
+  // catches a bad one twice. Without a time gate that turns into a flood of
+  // failing /joy/resolve-qr calls (one per decoded frame). This blocks any new
+  // resolve for a short window after a failure.
+  const scanCooldownUntilRef = useRef(0);
 
   const numAmount = parseInt(amount, 10) || 0;
   const fee = Math.floor(numAmount * TRANSFER_FEE_RATE);
@@ -544,7 +550,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
   }, []);
 
   const handleQRDetected = useCallback(async (rawValue) => {
-    if (!rawValue || scanResolvingRef.current || ignoredScanPayloads.has(rawValue)) return;
+    if (!rawValue || scanResolvingRef.current || Date.now() < scanCooldownUntilRef.current || ignoredScanPayloads.has(rawValue)) return;
     scanResolvingRef.current = true;
     setScanResolving(true);
     try {
@@ -556,6 +562,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
       selectRecipient(data);
     } catch (e) {
       playLose();
+      // Throttle the whole scanner briefly so a stream of distinct bad tokens
+      // can't flood the server with resolve-qr calls (each already 400s).
+      scanCooldownUntilRef.current = Date.now() + 1500;
       setIgnoredScanPayloads(prev => {
         const next = new Set(prev);
         next.add(rawValue);

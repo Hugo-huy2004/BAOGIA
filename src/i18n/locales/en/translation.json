@@ -315,7 +315,24 @@
       "card4c1": "Hugo PSY — a listening companion",
       "card4c2": "Web IDE — code right in the browser",
       "card4c3": "Hugo Radio — lofi for late-night study",
-      "learnMore": "Learn more"
+      "learnMore": "Learn more",
+      "stackTitle": "What I've studied",
+      "strengthTitle": "Strengths",
+      "weakTitle": "Things I'm improving",
+      "weak1": "Not many years of production experience yet — I make up for it by learning fast and finishing what I start.",
+      "weak2": "Sometimes too perfectionist about details, so I agree on clear scope and deadlines up front.",
+      "howTitle": "How I craft experiences for users",
+      "stat1v": "2004",
+      "stat1l": "Born — a true Gen Z",
+      "stat2v": "Greenwich",
+      "stat2l": "Final year · Software Engineering",
+      "stat3v": "8+",
+      "stat3l": "Free utilities for students",
+      "stat4v": "12 months",
+      "stat4l": "Free .edu Bio, all included",
+      "partnerLabel": "Working alongside me",
+      "contactTitle": "Let's build something beautiful.",
+      "marqueeTitle": "Technologies I have learned"
     }
   },
   "servicesPage": {
