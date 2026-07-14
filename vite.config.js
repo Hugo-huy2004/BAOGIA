@@ -119,7 +119,7 @@ export default defineConfig({
             name: 'HugoArcade',
             short_name: 'Arcade',
             description: 'Chơi game, chinh phục thử thách, nhận JOY',
-            url: '/portal?tab=arcade',
+            url: '/member/utilities/arcade',
             icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
           },
           {
@@ -133,7 +133,7 @@ export default defineConfig({
             name: 'Hồ Sơ Bio',
             short_name: 'Bio',
             description: 'Quản lý thiết kế Bio cá nhân',
-            url: '/?tab=account',
+            url: '/member/utilities/bio',
             icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
           }
         ],
