@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import BiometricLoginCard from "./BiometricLoginCard";
@@ -13,9 +14,6 @@ import { useWeather } from "../../hooks/useWeather";
 import { describeCondition } from "../../utils/weather";
 
 import PersonalInfoSubTab from "./PersonalInfoSubTab";
-import DesignSubTab from "./DesignSubTab";
-import LinksSubTab from "./LinksSubTab";
-import AchievementsSubTab from "./AchievementsSubTab";
 
 const LANGUAGES = [
   { code: "vi", label: "Tiếng Việt" },
@@ -215,6 +213,7 @@ export default function MemberSettingsTab({
 }) {
   const { t, i18n } = useTranslation();
   const [expandedSection, setExpandedSection] = useState(null);
+  const navigate = useNavigate();
   const [settingsTab, setSettingsTab] = useState("personal");
   const [pushSupported, setPushSupported] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -300,8 +299,6 @@ export default function MemberSettingsTab({
     i18n.changeLanguage(code);
   };
 
-  const activeThemeName = (formData?.theme?.template || "Classic").toUpperCase();
-
   return (
     <div className="mx-auto max-w-2xl space-y-4 animate-fadeIn pb-2">
       <style>{SETTINGS_CSS}</style>
@@ -339,11 +336,10 @@ export default function MemberSettingsTab({
         </div>
       </div>
 
-      {/* CÀI ĐẶT HỒ SƠ */}
+      {/* THÔNG TIN CÁ NHÂN — shown directly, not buried in a collapsible */}
       <div className="space-y-2">
-      <SectionLabel>{t("memberPortal.settings.page.profileSettings")}</SectionLabel>
-      <SettingsGroup icon="person" iconTint="bg-primary/10 text-primary" label={t("memberPortal.bio.basicInfo")} defaultOpen>
-        <div className="p-4 text-left sm:p-5">
+        <SectionLabel>{currentLang === "vi" ? "Thông tin cá nhân" : "Personal info"}</SectionLabel>
+        <div className="rounded-2xl border border-border bg-card p-4 text-left shadow-sm sm:p-5">
           <PersonalInfoSubTab
             formData={formData}
             handleFieldChange={handleFieldChange}
@@ -360,51 +356,22 @@ export default function MemberSettingsTab({
             t={t}
           />
         </div>
-      </SettingsGroup>
 
-      <SettingsGroup icon="palette" iconTint="bg-violet-500/10 text-violet-500" label={t("memberPortal.settings.page.appearance")} value={activeThemeName}>
-        <div className="p-4 text-left sm:p-5">
-          <DesignSubTab
-            formData={formData}
-            setFormData={setFormData}
-            bio={bio}
-            onBioUpdate={setFormData}
-            showToast={showToast}
-            t={t}
-          />
-        </div>
-      </SettingsGroup>
-
-      <SettingsGroup icon="link" iconTint="bg-info/10 text-info" label={t("memberPortal.settings.page.linkCards")} value={formData.links?.length || 0}>
-        <div className="p-4 text-left sm:p-5">
-          <LinksSubTab
-            formData={formData}
-            newLinkLabel={newLinkLabel}
-            setNewLinkLabel={setNewLinkLabel}
-            newLinkUrl={newLinkUrl}
-            setNewLinkUrl={setNewLinkUrl}
-            handleLinkInputKeyDown={handleLinkInputKeyDown}
-            addSocialLink={addSocialLink}
-            removeSocialLink={removeSocialLink}
-            handleFieldChange={handleFieldChange}
-            bioTextareaRef={bioTextareaRef}
-            t={t}
-          />
-        </div>
-      </SettingsGroup>
-
-      <SettingsGroup icon="workspace_premium" iconTint="bg-warning/10 text-warning" label={t("memberPortal.settings.page.projectsWorks")} value={formData.projects?.length || 0}>
-        <div className="p-4 text-left sm:p-5">
-          <AchievementsSubTab
-            formData={formData}
-            setFormData={setFormData}
-            handleSave={handleSave}
-            showToast={showToast}
-            isGuestMode={isGuestMode}
-            bio={bio}
-          />
-        </div>
-      </SettingsGroup>
+        {/* Bio-page styling (theme/links/projects) now lives in the free Bio utility */}
+        <button
+          type="button"
+          onClick={() => { hapticSelect(); navigate("/member/utilities/bio"); }}
+          className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 text-left shadow-sm transition-colors hover:bg-foreground/[0.03]"
+        >
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-violet-500/10 text-violet-500">
+            <span className="material-symbols-outlined text-[18px]">palette</span>
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13.5px] font-semibold text-foreground">{currentLang === "vi" ? "Tùy chỉnh trang Bio" : "Customize your Bio page"}</span>
+            <span className="block text-[11px] text-muted-foreground">{currentLang === "vi" ? "Giao diện · liên kết · thành tích — trong Tiện ích › Trang Bio" : "Theme · links · projects — in Utilities › Bio"}</span>
+          </span>
+          <span className="material-symbols-outlined text-[20px] text-muted-foreground/60">chevron_right</span>
+        </button>
       </div>
 
       {/* HIỂN THỊ TRANG BIO */}

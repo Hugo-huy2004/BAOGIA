@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { getMemberSession } from "../../services/authSession";
 
-// Simple "Trang Bio" utility — Bio editing now lives in Settings, so this tile
-// just previews the member's public bio page and points them to Settings to edit.
-export default function BioPreviewTab({ bio, publicLink, showToast, onBack }) {
+// "Trang Bio" utility — the home for everything that styles the PUBLIC bio page:
+// theme/appearance, link cards and projects/achievements are edited right here
+// (via renderAccountForm from the portal) with a live preview underneath.
+// Personal info stays in Settings; only bio-page styling lives here.
+export default function BioPreviewTab({ bio, publicLink, showToast, onBack, renderAccountForm }) {
   const ready = !!publicLink;
   const session = getMemberSession();
+  // Accordion (one section open at a time) — kept in state so it survives the
+  // re-renders that happen while editing, and stays collapsible by the user.
+  const [openSec, setOpenSec] = useState("design");
 
   // Calculate membership end date (3 years from today for demo; in real case from server)
   const now = new Date();
@@ -105,13 +110,43 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack }) {
         </div>
       )}
 
+      {/* ── Bio editors — style the public page right here ── */}
+      {renderAccountForm && (
+        <div className="space-y-2.5">
+          <p className="px-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Tùy chỉnh trang Bio</p>
+          {[
+            { id: "design", label: "Giao diện & Chủ đề", icon: "palette", tint: "bg-violet-500/10 text-violet-500" },
+            { id: "links", label: "Thẻ liên kết", icon: "link", tint: "bg-info/10 text-info" },
+            { id: "achievements", label: "Dự án & Thành tích", icon: "workspace_premium", tint: "bg-warning/10 text-warning" },
+          ].map((sec) => (
+            <details
+              key={sec.id}
+              open={openSec === sec.id}
+              onToggle={(e) => { if (e.target.open) setOpenSec(sec.id); else if (openSec === sec.id) setOpenSec(null); }}
+              className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+            >
+              <summary className="flex cursor-pointer list-none items-center gap-3 px-3.5 py-3 [&::-webkit-details-marker]:hidden">
+                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-[10px] ${sec.tint}`}>
+                  <span className="material-symbols-outlined text-[18px]">{sec.icon}</span>
+                </span>
+                <span className="flex-1 text-[13px] font-black text-foreground">{sec.label}</span>
+                <span className="material-symbols-outlined text-[20px] text-muted-foreground/60 transition-transform group-open:rotate-180">expand_more</span>
+              </summary>
+              <div className="border-t border-border p-4 text-left sm:p-5">
+                {renderAccountForm(sec.id)}
+              </div>
+            </details>
+          ))}
+        </div>
+      )}
+
       {ready ? (
         <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          {/* Edit hint */}
+          {/* Preview hint */}
           <div className="flex items-start gap-2.5 border-b border-border bg-primary/[0.05] p-3.5">
-            <span className="material-symbols-outlined mt-0.5 text-[18px] text-primary">info</span>
+            <span className="material-symbols-outlined mt-0.5 text-[18px] text-primary">visibility</span>
             <p className="text-[12px] leading-relaxed text-foreground/85">
-              Chỉnh sửa nội dung Bio tại <b>Cài đặt › Thông tin cá nhân</b> — thay đổi sẽ tự cập nhật ở bản xem trước bên dưới.
+              Chỉnh <b>giao diện, liên kết, thành tích</b> ở các mục phía trên — thay đổi sẽ tự cập nhật ở bản xem trước bên dưới.
             </p>
           </div>
 

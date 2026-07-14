@@ -16,7 +16,7 @@ const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
 const DecoStudioTab = lazy(() => import("./DecoStudioTab"));
 const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
   const { t } = useTranslation();
   const { data } = useData();
 
@@ -121,7 +121,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* Trang Bio — public bio preview (edit via Settings) */}
       {selectedUtility === "bio" && (
-        <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} />
+        <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} renderAccountForm={renderAccountForm} />
       )}
       </Suspense>
     </div>

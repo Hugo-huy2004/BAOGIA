@@ -45,7 +45,7 @@ const BRAND = "#6366f1";
 // Anonymous authors get a coloured disc (server picks the colour from the
 // Hugo Studio palette at post time) with a person icon inside.
 const AnonAvatar = ({ color, size = "h-9 w-9", icon = "text-[20px]" }) => (
-  <div className={`grid ${size} shrink-0 place-items-center rounded-full shadow-sm`} style={{ background: color || BRAND }}>
+  <div className={`grid ${size} shrink-0 place-items-center rounded-sm shadow-sm`} style={{ background: color || BRAND }}>
     <span className={`material-symbols-outlined ${icon} text-white`} style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
   </div>
 );
@@ -55,6 +55,18 @@ const isAnonPost = (p) => p.anonymous || (!p.senderAvatar && !p.senderSlug && p.
 // Reading font for post/comment content — the system UI stack (what Facebook
 // itself renders with): crisper at small sizes than the app's Jakarta Sans.
 const READ_FONT = { fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" };
+
+// Classic-newspaper serif for the community "gazette" look — headlines, bylines
+// and article body all set in a Times/Georgia serif to read like broadsheet print.
+const SERIF = { fontFamily: "'Georgia', 'Times New Roman', 'Noto Serif', 'Iowan Old Style', serif" };
+
+// Today's dateline, in Vietnamese, e.g. "Thứ Hai, 14 tháng 7, 2026".
+const gazetteDate = () => {
+  try {
+    const s = new Date().toLocaleDateString("vi-VN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  } catch { return ""; }
+};
 
 // Diacritic-insensitive normalize so search matches "cau hoi" ↔ "câu hỏi" etc.
 const normalize = (s) =>
@@ -382,43 +394,63 @@ export default function CommunityTab({ memberSession, bio }) {
   };
 
   return (
-    <div className="space-y-2.5 animate-fadeIn">
-      {/* ── Search (sticky, follows scroll) ── */}
-      <div className="sticky top-1 z-30 -mx-1 rounded-full bg-white px-1 py-1 shadow-[0_1px_4px_rgba(0,0,0,0.1)] dark:bg-zinc-900 dark:shadow-black/40">
-        <div className="flex h-9 items-center gap-2 rounded-full bg-slate-100 px-3.5 dark:bg-zinc-800">
-          <span className="material-symbols-outlined text-[17px] text-slate-400">search</span>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm kiếm trong cộng đồng..."
-            className="w-full bg-transparent text-[12.5px] text-foreground outline-none placeholder:text-slate-400"
-          />
-          {search && (
-            <button onClick={() => setSearch("")} className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-zinc-700">
-              <span className="material-symbols-outlined text-[15px]">close</span>
-            </button>
-          )}
+    <div className="hg-gazette animate-fadeIn overflow-hidden rounded-2xl border border-border/40 bg-card/70 px-3.5 py-4 text-foreground shadow-sm backdrop-blur-2xl backdrop-saturate-150 sm:px-6" style={SERIF}>
+      <style>{`
+        .hg-gazette .hg-dropcap::first-letter{ float:left; font-family:Georgia,'Times New Roman',serif; font-weight:700; font-size:3.3em; line-height:.72; padding:6px 9px 0 0; color:var(--tw-prose-links,#6366f1); }
+      `}</style>
+
+      {/* ── Masthead / nameplate — classic broadsheet, in the portal's palette ── */}
+      <div className="text-center">
+        <div className="flex items-center gap-2 text-[8px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          <span>Ấn bản sinh viên</span>
+          <span className="h-[3px] w-[3px] rounded-full bg-primary" />
+          <span>Hugo Studio</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <h1 className="mt-2 bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-[33px] font-black uppercase leading-[0.92] tracking-tight text-transparent sm:text-[44px]" style={SERIF}>Hugo Gazette</h1>
+        <div className="mx-auto mt-2 flex max-w-[300px] items-center gap-2.5">
+          <span className="h-px flex-1 bg-border" />
+          <span className="material-symbols-outlined text-[13px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>auto_stories</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <p className="mt-1.5 text-[10px] italic text-muted-foreground">“Tiếng nói của cộng đồng sinh viên”</p>
+        <div className="mt-2.5 border-y-[1.5px] border-border py-[5px] text-[8.5px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {gazetteDate()}
         </div>
       </div>
 
-      {/* ── Composer trigger — Facebook-style "what's on your mind" card ── */}
-      <div className="-mx-1 bg-white/10 backdrop-blur-2xl mb-3 border-1 border-white/70 rounded-xl mx-3 p-3 shadow-[0_1px_2px_rgba(0,0,0,0.08)] dark:bg-zinc-600/10 dark:shadow-black/40">
-        <div className="flex items-center gap-2.5">
-          <img src={av(bio?.avatarUrl, "/image/avt7.png")} loading="lazy" className="h-10 w-10 shrink-0 rounded-full object-cover" alt="" />
-          <button
-            type="button"
-            onClick={() => openComposer()}
-            className="h-10 flex-1 rounded-full bg-slate-100 px-4 text-left text-[13px] text-slate-500 transition hover:bg-slate-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
-          >
-            Bạn muốn chia sẻ hay hỏi điều gì?
+      {/* ── Search — a slim ruled "index" line ── */}
+      <div className="sticky top-1 z-30 mt-2 flex h-9 items-center gap-2 border-b-2 border-foreground/60 bg-card/90 backdrop-blur">
+        <span className="material-symbols-outlined text-[16px] text-muted-foreground">search</span>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Tra cứu trong số báo…"
+          className="w-full bg-transparent text-[12.5px] italic outline-none placeholder:opacity-50"
+          style={SERIF}
+        />
+        {search && (
+          <button onClick={() => setSearch("")} className="grid h-5 w-5 shrink-0 place-items-center rounded-full opacity-60 hover:opacity-100">
+            <span className="material-symbols-outlined text-[15px]">close</span>
           </button>
-        </div>
-        <div className="mt-2.5 flex items-center justify-around border-t border-slate-100 pt-2 dark:border-zinc-800">
-          <button type="button" onClick={() => openComposer()} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold text-primary transition hover:bg-slate-100 dark:hover:bg-zinc-800">
-            <span className="material-symbols-outlined text-[19px]">tips_and_updates</span>Chia sẻ
+        )}
+      </div>
+      <div className="mt-3 space-y-2.5">
+
+      {/* ── Reader's desk — "gửi bài cho toà soạn" ── */}
+      <div className="border-y-2 border-double border-border py-2.5">
+        <button type="button" onClick={() => openComposer()} className="flex w-full items-center gap-2 text-left">
+          <span className="material-symbols-outlined text-[20px] opacity-70">edit_note</span>
+          <span className="flex-1 text-[13px] italic opacity-70" style={SERIF}>Gửi bài cho chuyên mục — bạn muốn chia sẻ hay hỏi điều gì?</span>
+        </button>
+        <div className="mt-2 flex items-center gap-3 text-[9.5px] font-bold uppercase tracking-[0.13em]">
+          <button type="button" onClick={() => openComposer()} className="inline-flex items-center gap-1 opacity-80 hover:opacity-100">
+            <span className="material-symbols-outlined text-[15px]">tips_and_updates</span>Chuyên mục Chia sẻ
           </button>
-          <button type="button" onClick={() => openComposer()} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold text-warning transition hover:bg-slate-100 dark:hover:bg-zinc-800">
-            <span className="material-symbols-outlined text-[19px]">help</span>Đặt câu hỏi
+          <span className="opacity-30">·</span>
+          <button type="button" onClick={() => openComposer()} className="inline-flex items-center gap-1 opacity-80 hover:opacity-100">
+            <span className="material-symbols-outlined text-[15px]">help</span>Hỏi đáp
           </button>
         </div>
       </div>
@@ -435,11 +467,11 @@ export default function CommunityTab({ memberSession, bio }) {
 
       {/* ── Feed ── */}
       {postsLoading && posts.length === 0 ? (
-        <div className="-mx-1 flex flex-col gap-px">
+        <div className="flex flex-col divide-y divide-border">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white p-4 dark:bg-zinc-900">
+            <div key={i} className="py-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 animate-pulse rounded-full bg-foreground/10" />
+                <div className="h-9 w-9 animate-pulse rounded-sm bg-foreground/10" />
                 <div className="space-y-1.5">
                   <div className="h-3 w-28 animate-pulse rounded bg-foreground/10" />
                   <div className="h-2 w-16 animate-pulse rounded bg-foreground/10" />
@@ -450,10 +482,10 @@ export default function CommunityTab({ memberSession, bio }) {
           ))}
         </div>
       ) : filteredPosts.length === 0 ? (
-        <div className="-mx-1 flex flex-col items-center justify-center bg-white py-16 text-center shadow-[0_1px_2px_rgba(0,0,0,0.08)] dark:bg-zinc-900 dark:shadow-black/40">
-          <span className="material-symbols-outlined text-4xl text-muted-foreground/50">forum</span>
-          <p className="mt-3 text-sm font-black text-foreground">Chưa có bài viết nào</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">Hãy là người đầu tiên khởi đầu cuộc trò chuyện!</p>
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <span className="material-symbols-outlined text-4xl text-muted-foreground/50">menu_book</span>
+          <p className="mt-3 text-sm font-black text-foreground" style={SERIF}>Số báo còn trống</p>
+          <p className="mt-1 text-[11px] italic text-muted-foreground">Hãy là người viết bài đầu tiên cho hôm nay!</p>
           <button
             type="button"
             onClick={() => openComposer()}
@@ -463,8 +495,8 @@ export default function CommunityTab({ memberSession, bio }) {
           </button>
         </div>
       ) : (
-        <div className="-mx-1 flex flex-col gap-px">
-          {filteredPosts.map((post) => {
+        <div className="flex flex-col divide-y divide-border">
+          {filteredPosts.map((post, idx) => {
             const hasLiked = post.likes?.includes(memberSession?.email);
             const repliesCount = post.comments?.length || 0;
             const tag = tagOf(post.category);
@@ -473,7 +505,7 @@ export default function CommunityTab({ memberSession, bio }) {
             const isRejected = post.status === "rejected";
             const isLive = !isPending && !isRejected;
             return (
-              <div key={post._id} className={`relative flex flex-col bg-white/10 p-3.5 dark:bg-zinc-900/10 ${isPending ? "ring-1 ring-inset ring-primary/30" : isRejected ? "ring-1 ring-inset ring-rose-500/30" : ""}`}>
+              <div key={post._id} className={`relative flex flex-col py-3.5 ${isPending ? "opacity-95" : ""} ${isRejected ? "opacity-70" : ""}`}>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-1.5">
                   <div className="flex min-w-0 items-center gap-2">
@@ -484,10 +516,10 @@ export default function CommunityTab({ memberSession, bio }) {
                         type="button"
                         onClick={() => openBio(post.senderSlug)}
                         disabled={!post.senderSlug}
-                        className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-tr from-primary via-fuchsia-500 to-warning p-[1.5px] transition active:scale-90 disabled:cursor-default"
+                        className="h-9 w-9 shrink-0 rounded-sm p-[1px] ring-1 ring-current/25 grayscale-[0.35] transition active:scale-90 disabled:cursor-default"
                         aria-label={`Xem trang bio của ${post.senderName}`}
                       >
-                        <img src={av(post.senderAvatar)} loading="lazy" className="h-full w-full rounded-full border-2 border-card object-cover" alt="" />
+                        <img src={av(post.senderAvatar)} loading="lazy" className="h-full w-full rounded-sm object-cover" alt="" />
                       </button>
                     )}
                     <div className="min-w-0">
@@ -522,7 +554,7 @@ export default function CommunityTab({ memberSession, bio }) {
                             <span className="material-symbols-outlined text-[11px]" style={{ fontVariationSettings: "'FILL' 1" }}>task_alt</span>Đã giải đáp
                           </span>
                         )}
-                        <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wide ${tag.badge}`}>
+                        <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.16em] text-primary">
                           <span className="material-symbols-outlined text-[11px]">{tag.icon}</span>
                           {tag.label}
                         </span>
@@ -572,7 +604,7 @@ export default function CommunityTab({ memberSession, bio }) {
                 )}
 
                 {/* Body — one uniform size for every author (bot posts look like anyone else's) */}
-                <div style={READ_FONT} className={`mt-2 text-[13px] leading-relaxed ${isLive ? "text-foreground/95" : "text-foreground/60"}`}>{formatText(post.message)}</div>
+                <div style={SERIF} className={`mt-2 text-[14.5px] leading-[1.62] ${idx === 0 && !search ? "hg-dropcap" : ""} ${isLive ? "" : "opacity-60"}`}>{formatText(post.message)}</div>
 
                 {/* AI glossary — generated on demand when the reader taps the button */}
                 {isLive && (
@@ -620,51 +652,24 @@ export default function CommunityTab({ memberSession, bio }) {
                 {/* Action bar (only for published posts) — Facebook-style */}
                 {isLive && (
                   <>
-                    {/* Reaction summary row */}
-                    {((post.likes?.length || 0) > 0 || repliesCount > 0) && (
-                      <div className="mt-2.5 flex items-center justify-between text-[11.5px] text-slate-500 dark:text-zinc-400">
-                        <span className="inline-flex items-center gap-1">
-                          {(post.likes?.length || 0) > 0 && (
-                            <>
-                              <span className="grid h-[17px] w-[17px] place-items-center rounded-full bg-gradient-to-br from-rose-500 to-pink-500 shadow-sm">
-                                <span className="material-symbols-outlined text-[11px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-                              </span>
-                              {post.likes.length}
-                            </>
-                          )}
-                        </span>
-                        {repliesCount > 0 && (
-                          <button onClick={() => setActiveCommentPostId(post._id)} className="hover:underline">{repliesCount} bình luận</button>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Big split action buttons */}
-                    <div className="mt-1.5 grid grid-cols-2 gap-1 border-t border-slate-100 pt-1 dark:border-zinc-800">
+                    {/* Action line — understated newspaper links */}
+                    <div className="mt-2.5 flex items-center gap-3.5 text-[10px] font-bold uppercase tracking-[0.12em]">
                       <motion.button
-                        whileTap={{ scale: 0.94 }}
+                        whileTap={{ scale: 0.92 }}
                         onClick={() => handleToggleLike(post._id)}
-                        className={`flex h-9 items-center justify-center gap-1.5 rounded-lg text-[12.5px] font-bold transition-colors ${hasLiked ? "text-rose-500 bg-rose-500/[0.06]" : "text-slate-500 hover:bg-slate-100 dark:text-zinc-400 dark:hover:bg-zinc-800"}`}
+                        className={`inline-flex items-center gap-1 transition ${hasLiked ? "text-primary" : "opacity-60 hover:opacity-100"}`}
                       >
-                        <motion.span
-                          key={hasLiked ? "liked" : "unliked"}
-                          initial={{ scale: hasLiked ? 0.4 : 1 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                          className="material-symbols-outlined text-[19px]"
-                          style={{ fontVariationSettings: hasLiked ? "'FILL' 1" : "'FILL' 0" }}
-                        >
-                          favorite
-                        </motion.span>
-                        Thích
+                        <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: hasLiked ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
+                        Tán thành{(post.likes?.length || 0) > 0 ? ` · ${post.likes.length}` : ""}
                       </motion.button>
+                      <span className="opacity-25">|</span>
                       <motion.button
-                        whileTap={{ scale: 0.94 }}
+                        whileTap={{ scale: 0.92 }}
                         onClick={() => { playBeep(); setActiveCommentPostId(post._id); }}
-                        className="flex h-9 items-center justify-center gap-1.5 rounded-lg text-[12.5px] font-bold text-slate-500 transition-colors hover:bg-slate-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                        className="inline-flex items-center gap-1 opacity-60 transition hover:opacity-100"
                       >
-                        <span className="material-symbols-outlined text-[19px]">mode_comment</span>
-                        Bình luận
+                        <span className="material-symbols-outlined text-[14px]">mode_comment</span>
+                        Thảo luận{repliesCount > 0 ? ` · ${repliesCount}` : ""}
                       </motion.button>
                     </div>
 
@@ -873,6 +878,7 @@ export default function CommunityTab({ memberSession, bio }) {
           </div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }
