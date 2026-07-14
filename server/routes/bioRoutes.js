@@ -1267,7 +1267,7 @@ router.get('/community/chat', requireMember, async (req, res) => {
     const query = { $or: [{ status: 'approved' }, { senderEmail: email }] };
 
     if (!smart) {
-      const messages = await CommunityMessage.find(query).sort({ createdAt: -1 }).limit(300);
+      const messages = await CommunityMessage.find(query).sort({ createdAt: -1 }).limit(300).lean();
       return res.json({ success: true, messages: messages.map((m) => maskAnonPost(m, email)) });
     }
 

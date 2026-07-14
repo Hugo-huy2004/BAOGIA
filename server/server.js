@@ -148,8 +148,10 @@ mongoose.connect(MONGODB_URI, {
         const seedPass = process.env.ADMIN_SEED_PASSWORD;
         if (seedUser && seedPass) {
           const cryptoMod = await import('crypto');
-          const hash = (m) => cryptoMod.createHash('sha256').update(m).digest('hex');
-          await Admin.create({ username: hash(seedUser), password: hash(seedPass) });
+          const bcryptMod = (await import('bcryptjs')).default;
+          // Username is a lookup hash; password is bcrypt (salted, slow) — never SHA-256.
+          const usernameHash = cryptoMod.createHash('sha256').update(seedUser).digest('hex');
+          await Admin.create({ username: usernameHash, password: await bcryptMod.hash(seedPass, 12) });
           console.log('👥 Admin account seeded from ADMIN_SEED_* env vars');
         } else {
           console.warn('⚠️  No admin account exists and ADMIN_SEED_USERNAME/ADMIN_SEED_PASSWORD are not set — admin login unavailable until seeded.');

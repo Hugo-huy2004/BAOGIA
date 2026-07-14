@@ -232,6 +232,7 @@ export default function LoginPage() {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ loginCode: customerCode })
       });
       
@@ -264,6 +265,7 @@ export default function LoginPage() {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ loginCode: code })
       });
       const data = await response.json();

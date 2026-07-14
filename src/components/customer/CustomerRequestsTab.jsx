@@ -12,7 +12,9 @@ export default function CustomerRequestsTab({ project }) {
 
   const fetchMessages = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages`, {
+        credentials: 'include'
+      });
       const data = await res.json();
       setMessages(data);
     } catch (error) {
@@ -37,6 +39,7 @@ export default function CustomerRequestsTab({ project }) {
       await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages/read`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ role: 'customer' })
       });
       // Fire an event to update badge immediately if possible
@@ -56,7 +59,8 @@ export default function CustomerRequestsTab({ project }) {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender: 'customer', message: newMessage })
+        credentials: 'include',
+        body: JSON.stringify({ message: newMessage })
       });
       const data = await res.json();
       setMessages(prev => [...prev, data]);

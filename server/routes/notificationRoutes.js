@@ -73,7 +73,9 @@ router.post('/unsubscribe', async (req, res) => {
 });
 
 // API 3 (Dùng thử): Gửi thông báo đẩy mẫu tới một email cụ thể
-router.post('/send-test', async (req, res) => {
+// requireAdmin: nội dung push (title/body/url) do client quyết định → chỉ admin,
+// tránh biến thành kênh phishing/spam đẩy tới email bất kỳ đã đăng ký.
+router.post('/send-test', requireAdmin, async (req, res) => {
   try {
     const { email, title, body, url } = req.body;
     if (!email) {
@@ -113,7 +115,8 @@ router.post('/send-test', async (req, res) => {
 import { triggerProactivePushNow } from '../services/proactivePushService.js';
 
 // API 4 (Dùng thử): Kích hoạt thủ công Cron Job AI Proactive Push để test
-router.post('/test-proactive', async (req, res) => {
+// requireAdmin: chạy job AI ngầm (tốn quota Gemini + đẩy push) → không để lộ công khai.
+router.post('/test-proactive', requireAdmin, async (req, res) => {
   try {
     triggerProactivePushNow(); // Run async without blocking
     res.json({ success: true, message: 'Đã kích hoạt trình kích hoạt AI Proactive Push thủ công thành công. Tiến trình sẽ chạy ngầm và gửi thông báo nếu AI quyết định cần thiết.' });

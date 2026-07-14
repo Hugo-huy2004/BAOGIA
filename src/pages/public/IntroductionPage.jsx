@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
@@ -10,7 +10,6 @@ import {
   useSpring,
   useMotionTemplate,
   useReducedMotion,
-  AnimatePresence,
 } from "framer-motion";
 import Lenis from "lenis";
 import { useTranslation, Trans } from "react-i18next";
@@ -28,15 +27,16 @@ function useMediaQuery(query) {
 }
 
 /* ============================================================================
-   HUGO STUDIO — INTRODUCTION (Apple-style scroll-driven cinematic page, v2)
-   Mỗi scene là một đoạn scroll dài (240–320vh) chứa một "sân khấu" sticky.
-   Animation 3D (CSS perspective + framer-motion) scrub theo tiến độ cuộn,
-   cộng thêm lớp tương tác con trỏ: parallax, tilt, magnetic, spotlight.
-   Lenis lo phần inertia scroll để mọi thứ trôi như video.
+   HUGO STUDIO — INTRODUCTION (v3)
+   Desktop: các section dọc bình thường + hiệu ứng whileInView (IntersectionObserver)
+   thay cho scroll-scrub theo scene — scrub từng scene trong container cuộn lồng
+   Lenis đo sai (progress chạy ngược), làm nội dung không bao giờ hiện ra.
+   Lớp "wow" giữ nguyên: Lenis inertia, tilt 3D, magnetic, spotlight, orbit,
+   hologram, thẻ sinh viên lật 3D (giờ lật theo hover/chạm — trực quan hơn).
    ========================================================================== */
 
 // Chiều cao stage = viewport trừ header 56px (đồng bộ layout cũ)
-const STAGE_H = "h-[calc(100vh-56px)]";
+const STAGE_H = "min-h-[calc(100vh-56px)]";
 
 const DUST = Array.from({ length: 18 }, (_, i) => ({
   left: `${(i * 53) % 100}%`,
@@ -165,18 +165,6 @@ function Chibi({ src, className = "", delay = 0, drift = 8, tilt = 4 }) {
    Shared helpers
    ------------------------------------------------------------------------- */
 
-// Scroll progress (0 → 1) của một scene bên trong scroll-container của trang
-function useSceneScroll(container) {
-  const targetRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    container,
-    target: targetRef,
-    offset: ["start start", "end end"],
-    layoutEffect: false,
-  });
-  return { targetRef, p: scrollYProgress };
-}
-
 // Con trỏ toàn cục chuẩn hoá về [-1, 1] — cho parallax "camera" kiểu Apple
 function useMouseParallax(enabled = true) {
   const x = useSpring(0, { stiffness: 50, damping: 16 });
@@ -271,23 +259,35 @@ function RevealWords({ text, className = "", delay = 0 }) {
   );
 }
 
-// Vỏ scene: wrapper cao `height`, bên trong là sân khấu sticky full-viewport
-function SceneShell({ bind, targetRef, height, children, className = "" }) {
+// Khối nội dung hiện dần khi cuộn tới (IntersectionObserver — luôn chạy đúng,
+// khác với scroll-scrub theo scene từng bị đo sai trong container Lenis)
+function FadeUp({ children, className = "", delay = 0, y = 44, x = 0, blur = true, style }) {
   return (
-    <div
-      ref={(el) => {
-        targetRef.current = el;
-        bind?.(el);
-      }}
-      style={{ height }}
-      className="relative"
+    <motion.div
+      initial={{ opacity: 0, y, x, filter: blur ? "blur(8px)" : "blur(0px)" }}
+      whileInView={{ opacity: 1, y: 0, x: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+      className={className}
+      style={style}
     >
-      <div
-        className={`sticky top-0 ${STAGE_H} overflow-hidden flex items-center justify-center ${className}`}
-      >
-        {children}
-      </div>
-    </div>
+      {children}
+    </motion.div>
+  );
+}
+
+// Item trong lưới hiện dần theo thứ tự (stagger pop)
+function Pop({ i = 0, children, className = "" }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.92 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ duration: 0.45, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
   );
 }
 
@@ -317,10 +317,6 @@ function Shine() {
   );
 }
 
-/* ---------------------------------------------------------------------------
-   FLOATING HOLOGRAM SYSTEM (Single morphing container linked across scenes)
-   ------------------------------------------------------------------------- */
-
 // 4 góc khung hologram (corner brackets)
 function HoloBrackets() {
   const b = "absolute w-4 h-4 border-cyan-500/50 pointer-events-none";
@@ -335,10 +331,12 @@ function HoloBrackets() {
 }
 
 function AboutPortraitPhoto({ realPhoto, fullName, t }) {
+  const { rx, ry, handlers } = useTilt(9);
   return (
-    <div
-      className="relative w-[210px] sm:w-[270px] lg:w-[320px] rounded-[2rem] bg-[#060713]/70 backdrop-blur-2xl border border-cyan-500/30 p-3 sm:p-4 shadow-[0_0_40px_rgba(6,182,212,0.2)] overflow-hidden"
-      style={{ transformStyle: "preserve-3d" }}
+    <motion.div
+      {...handlers}
+      style={{ rotateX: rx, rotateY: ry, transformStyle: "preserve-3d" }}
+      className="relative w-[210px] sm:w-[270px] lg:w-[320px] rounded-[2rem] bg-[#060713]/70 backdrop-blur-2xl border border-cyan-500/30 p-3 sm:p-4 shadow-[0_0_40px_rgba(6,182,212,0.2)] overflow-hidden will-change-transform"
     >
       <HoloBrackets />
       <div className="aspect-[4/5] rounded-xl overflow-hidden bg-muted relative shadow-inner" style={{ transform: "translateZ(30px)" }}>
@@ -363,180 +361,110 @@ function AboutPortraitPhoto({ realPhoto, fullName, t }) {
           </div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-function BioStudentCard({ t, scrollProgress }) {
-  const cardRotY = useTransform(scrollProgress, [0.44, 0.58], [0, 180]);
+// Thẻ sinh viên lật 3D — lật theo hover/chạm thay vì scroll (trực quan, chủ động)
+function BioStudentCard({ t }) {
+  const [flipped, setFlipped] = useState(false);
   const cardFace =
     "absolute inset-0 rounded-[1.75rem] bg-gradient-to-b from-[#0a0f2c]/95 to-[#050713]/85 backdrop-blur-2xl border border-cyan-500/30 p-5 sm:p-6 shadow-[0_0_40px_rgba(6,182,212,0.2)] overflow-hidden [backface-visibility:hidden]";
 
   return (
-    <motion.div
-      style={{ rotateY: cardRotY, transformStyle: "preserve-3d" }}
-      className="relative w-[280px] sm:w-[320px] h-[200px] sm:h-[230px] will-change-transform"
-    >
-      {/* FRONT — thẻ sinh viên */}
-      <div className={cardFace}>
-        <div className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-500/15 to-transparent -skew-x-12 pointer-events-none" />
-        <div className="flex justify-between items-start border-b border-cyan-500/10 pb-3">
-          <div>
-            <span className="text-[7px] font-mono font-bold text-cyan-400 uppercase tracking-widest block">
-              {t("intro.slide5.idTitle")}
-            </span>
-            <span className="font-display text-xs sm:text-sm font-black text-foreground">{t("intro.slide5.idName")}</span>
+    <div className="space-y-2.5 select-none">
+      <div
+        style={{ perspective: 1300 }}
+        className="cursor-pointer"
+        onMouseEnter={() => setFlipped(true)}
+        onMouseLeave={() => setFlipped(false)}
+        onClick={() => {
+          buzz(6);
+          setFlipped((f) => !f);
+        }}
+      >
+        <motion.div
+          animate={{ rotateY: flipped ? 180 : 0 }}
+          transition={{ type: "spring", stiffness: 130, damping: 17 }}
+          style={{ transformStyle: "preserve-3d" }}
+          className="relative w-[280px] sm:w-[320px] h-[200px] sm:h-[230px] will-change-transform"
+        >
+          {/* FRONT — thẻ sinh viên */}
+          <div className={cardFace}>
+            <div className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-cyan-500/15 to-transparent -skew-x-12 pointer-events-none" />
+            <div className="flex justify-between items-start border-b border-cyan-500/10 pb-3">
+              <div>
+                <span className="text-[7px] font-mono font-bold text-cyan-400 uppercase tracking-widest block">
+                  {t("intro.slide5.idTitle")}
+                </span>
+                <span className="font-display text-xs sm:text-sm font-black text-foreground">{t("intro.slide5.idName")}</span>
+              </div>
+              <div className="w-8 h-6 rounded-md bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 shadow border border-yellow-600/30 flex items-center justify-center overflow-hidden">
+                <div className="grid grid-cols-3 gap-0.5 w-[80%] h-[80%] opacity-40">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                    <div key={i} className="border border-yellow-800/40" />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="py-3 space-y-2 text-[10px] sm:text-xs">
+              <div className="flex justify-between">
+                <span className="text-[8px] text-cyan-400/60 uppercase font-bold">{t("intro.slide5.idEmailTitle")}</span>
+                <span className="font-mono font-bold text-cyan-300 text-[10px] sm:text-[11px]">name@school.edu.vn</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[8px] text-cyan-400/60 uppercase font-bold">{t("intro.slide5.idBenefitTitle")}</span>
+                <span className="font-bold text-cyan-300 text-[10px] sm:text-[11px]">{t("intro.slide5.idBenefitDesc")}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[8px] text-cyan-400/60 uppercase font-bold">{t("intro.slide5.idValidityTitle")}</span>
+                <span className="font-bold text-cyan-400/80 text-[10px] sm:text-[11px]">{t("intro.slide5.idValidityDesc")}</span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center border-t border-cyan-500/10 pt-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="text-[7px] font-mono font-bold text-cyan-400/60">{t("intro.slide5.idAuth")}</span>
+              </div>
+              <span className="text-[7px] font-mono text-cyan-400/60">ID: 2004-EDU-VALID</span>
+            </div>
           </div>
-          <div className="w-8 h-6 rounded-md bg-gradient-to-br from-amber-300 via-amber-400 to-yellow-500 shadow border border-yellow-600/30 flex items-center justify-center overflow-hidden">
-            <div className="grid grid-cols-3 gap-0.5 w-[80%] h-[80%] opacity-40">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-                <div key={i} className="border border-yellow-800/40" />
+
+          {/* BACK — quyền lợi */}
+          <div className={cardFace} style={{ transform: "rotateY(180deg)" }}>
+            <span className="text-[7px] font-mono font-bold text-cyan-400 uppercase tracking-widest block pb-1.5 border-b border-cyan-500/10">
+              {t("intro.slide5.idBenefitTitle")}
+            </span>
+            <div className="pt-3 space-y-2">
+              {["check1", "check2", "check3"].map((k) => (
+                <div key={k} className="flex items-start gap-2 text-left">
+                  <span className="material-symbols-outlined text-xs text-cyan-400 bg-cyan-950/40 rounded-full p-1 border border-cyan-500/10">
+                    verified_user
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] text-cyan-300/80 leading-snug">
+                    {t(`intro.slide5.${k}`)}
+                  </span>
+                </div>
               ))}
             </div>
-          </div>
-        </div>
-        <div className="py-3 space-y-2 text-[10px] sm:text-xs">
-          <div className="flex justify-between">
-            <span className="text-[8px] text-cyan-400/60 uppercase font-bold">{t("intro.slide5.idEmailTitle")}</span>
-            <span className="font-mono font-bold text-cyan-300 text-[10px] sm:text-[11px]">name@school.edu.vn</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-[8px] text-cyan-400/60 uppercase font-bold">{t("intro.slide5.idBenefitTitle")}</span>
-            <span className="font-bold text-cyan-300 text-[10px] sm:text-[11px]">{t("intro.slide5.idBenefitDesc")}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-[8px] text-cyan-400/60 uppercase font-bold">{t("intro.slide5.idValidityTitle")}</span>
-            <span className="font-bold text-cyan-400/80 text-[10px] sm:text-[11px]">{t("intro.slide5.idValidityDesc")}</span>
-          </div>
-        </div>
-        <div className="flex justify-between items-center border-t border-cyan-500/10 pt-2.5">
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-[7px] font-mono font-bold text-cyan-400/60">{t("intro.slide5.idAuth")}</span>
-          </div>
-          <span className="text-[7px] font-mono text-cyan-400/60">ID: 2004-EDU-VALID</span>
-        </div>
-      </div>
-
-      {/* BACK — quyền lợi */}
-      <div className={cardFace} style={{ transform: "rotateY(180deg)" }}>
-        <span className="text-[7px] font-mono font-bold text-cyan-400 uppercase tracking-widest block pb-1.5 border-b border-cyan-500/10">
-          {t("intro.slide5.idBenefitTitle")}
-        </span>
-        <div className="pt-3 space-y-2">
-          {["check1", "check2", "check3"].map((k) => (
-            <div key={k} className="flex items-start gap-2 text-left">
-              <span className="material-symbols-outlined text-xs text-cyan-400 bg-cyan-950/40 rounded-full p-1 border border-cyan-500/10">
-                verified_user
-              </span>
-              <span className="text-[9px] sm:text-[10px] text-cyan-300/80 leading-snug">
-                {t(`intro.slide5.${k}`)}
-              </span>
+            <div className="absolute bottom-3 left-5 right-5 flex justify-between items-center border-t border-cyan-500/10 pt-2">
+              <span className="text-[7px] font-mono text-cyan-400/60">HUGO·STUDIO·EDU</span>
+              <span className="material-symbols-outlined text-xs text-cyan-400">workspace_premium</span>
             </div>
-          ))}
-        </div>
-        <div className="absolute bottom-3 left-5 right-5 flex justify-between items-center border-t border-cyan-500/10 pt-2">
-          <span className="text-[7px] font-mono text-cyan-400/60">HUGO·STUDIO·EDU</span>
-          <span className="material-symbols-outlined text-xs text-cyan-400">workspace_premium</span>
-        </div>
+          </div>
+        </motion.div>
       </div>
-    </motion.div>
-  );
-}
-
-function DiscoveriesCore() {
-  return (
-    <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary via-accent to-warning p-[2px] shadow-[0_0_35px_rgba(99,102,241,0.4)] flex items-center justify-center pointer-events-auto">
-      <div className="w-full h-full rounded-full bg-[#050713] flex items-center justify-center">
-        <motion.span
-          animate={{ rotate: 360 }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="material-symbols-outlined text-xl sm:text-2xl text-cyan-400 font-black block"
-        >
-          token
-        </motion.span>
-      </div>
+      <p className="text-center text-[9px] font-bold uppercase tracking-widest text-cyan-400/60 flex items-center justify-center gap-1.5">
+        <span className="material-symbols-outlined text-xs">touch_app</span>
+        {t("intro.slide5.flipHint")}
+      </p>
     </div>
   );
 }
 
-function HologramMaster({ activeIndex, realPhoto, fullName, t, scrollProgress, reduced, target, isMobile }) {
-  const mouse = useMouseParallax(!reduced);
-
-  // Parallax rotation values (spring dampened)
-  const rx = useTransform(mouse.y, (v) => v * -7);
-  const ry = useTransform(mouse.x, (v) => v * 9);
-
-  if (isMobile) return null;
-
-  const renderCardContent = () => {
-    switch (activeIndex) {
-      case 0:
-        return <StudioHologram />;
-      case 1:
-        return <FounderHologram t={t} />;
-      case 2:
-        return <AboutPortraitPhoto realPhoto={realPhoto} fullName={fullName} t={t} />;
-      case 3:
-        return <BioStudentCard t={t} scrollProgress={scrollProgress} />;
-      case 4:
-        return <DiscoveriesCore />;
-      default:
-        return null;
-    }
-  };
-
-  const animX = typeof target.x === "number" ? `calc(-50% + ${target.x}px)` : `calc(-50% + ${target.x})`;
-  const animY = typeof target.y === "number" ? `calc(-50% + ${target.y}px)` : target.y;
-
-  return (
-    <motion.div
-      style={{
-        position: "fixed",
-        left: "50%",
-        top: "50%",
-        rotateX: rx,
-        rotateY: ry,
-        transformStyle: "preserve-3d",
-        perspective: 1200,
-      }}
-      animate={{
-        x: animX,
-        y: animY,
-        scale: target.scale,
-        opacity: target.opacity,
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 85,
-        damping: 18,
-        mass: 1.05,
-      }}
-      className="z-30 pointer-events-none"
-    >
-      <div className="pointer-events-auto flex items-center justify-center">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeIndex}
-            initial={{ opacity: 0, scale: 0.9, filter: "blur(5px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.9, filter: "blur(5px)" }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            style={{ transformStyle: "preserve-3d" }}
-          >
-            {renderCardContent()}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-}
-
 /* ---------------------------------------------------------------------------
-   SCENE 0 — HUGO STUDIO HERO (hologram website 3D đang được "xây" + spotlight)
+   SCENE 0 — HUGO STUDIO HERO (hologram website 3D + spotlight)
    ------------------------------------------------------------------------- */
-
-// Bỏ chip icon — không cần, làm chồng đè
 
 // Skeleton lines — website tự "gõ" ra từng dòng rồi lặp lại
 const HERO_LINES = [
@@ -546,15 +474,14 @@ const HERO_LINES = [
 ];
 
 // Hologram browser: cửa sổ web kính 3D, các lớp nổi bằng translateZ
-// Hologram browser: cửa sổ web kính 3D, các lớp nổi bằng translateZ
-function StudioHologram() {
+function StudioHologram({ t }) {
   return (
     <div
       className="relative w-[270px] sm:w-[330px] lg:w-[390px] rounded-3xl border border-cyan-500/30 dark:border-cyan-500/20 bg-[#060713]/75 backdrop-blur-2xl shadow-[0_0_50px_rgba(6,182,212,0.25),inset_0_0_20px_rgba(6,182,212,0.1)] overflow-visible"
       style={{ transformStyle: "preserve-3d" }}
     >
       {/* Cyber Grid Pattern Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 rounded-3xl pointer-events-none opacity-20"
         style={{
           backgroundImage: "linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px)",
@@ -578,7 +505,7 @@ function StudioHologram() {
           <span className="material-symbols-outlined text-[11px] animate-pulse">lock</span>
           <span className="text-[9px] sm:text-[10px] font-mono truncate tracking-wider">hugowishpax.studio</span>
         </div>
-        <span className="text-[8px] font-mono text-cyan-500/60 tracking-tighter">SYS_OK</span>
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
       </div>
 
       {/* Body — built-up layout */}
@@ -599,7 +526,7 @@ function StudioHologram() {
             </p>
             <p className="text-[7px] sm:text-[8px] font-mono font-bold uppercase tracking-[0.25em] text-cyan-400/60 flex items-center gap-1.5">
               <span className="w-1 h-1 rounded-full bg-cyan-400 animate-ping" />
-              DIGITAL CRAFT · PORTAL
+              {t("intro.holo.tag")}
             </p>
           </div>
         </div>
@@ -630,7 +557,7 @@ function StudioHologram() {
         <div className="grid grid-cols-3 gap-2.5" style={{ transform: "translateZ(45px)" }}>
           {[
             { icon: "language", label: "WEB" },
-            { icon: "captive_portal", label: "PORTAL" },
+            { icon: "id_card", label: "BIO" },
             { icon: "school", label: "EDU" }
           ].map((item, i) => (
             <motion.div
@@ -646,7 +573,8 @@ function StudioHologram() {
         </div>
 
         {/* CTA bar */}
-        <div
+        <Link
+          to="/booking"
           className="h-9 rounded-full bg-gradient-to-r from-cyan-500 to-pink-500 flex items-center justify-center gap-1.5 relative overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.3)] cursor-pointer"
           style={{ transform: "translateZ(30px)" }}
         >
@@ -655,30 +583,19 @@ function StudioHologram() {
             transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
             className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12"
           />
-          <span className="text-[9px] font-mono font-bold text-slate-950 uppercase tracking-[0.2em]">INITIATE_PROJ</span>
-          <span className="material-symbols-outlined text-xs text-slate-950 animate-bounce">arrow_forward</span>
-        </div>
+          <span className="text-[9px] font-bold text-slate-950 uppercase tracking-[0.2em]">{t("intro.holo.cta")}</span>
+          <span className="material-symbols-outlined text-xs text-slate-950">arrow_forward</span>
+        </Link>
       </div>
     </div>
   );
 }
 
-function SceneStudio({ container, bind, t, onExplore, reduced }) {
-  const { targetRef, p } = useSceneScroll(container);
+function SceneStudio({ bind, t, onExplore, reduced }) {
   const mouse = useMouseParallax(!reduced);
-  const isLargeScreen = useMediaQuery("(min-width: 768px)");
 
-  // Text bay lên & mờ dần, hologram nghiêng + phóng to xuyên qua "camera"
-  const textY = useTransform(p, [0, 0.5], [0, -140]);
-  const textOpacity = useTransform(p, [0, 0.42], [1, 0]);
-  const holoScrollRotX = useTransform(p, [0, 1], [6, 32]);
-  const holoRotateX = useTransform([holoScrollRotX, mouse.y], ([a, b]) => a + b * -6);
-  const holoScrollRotY = useTransform(p, [0, 1], [-10, 14]);
-  const holoRotateY = useTransform([holoScrollRotY, mouse.x], ([a, b]) => a + b * 9);
-  const holoScale = useTransform(p, [0, 0.6, 1], [1, 1.4, 2]);
-  const holoOpacity = useTransform(p, [0, 0.62, 0.95], [1, 1, 0]);
-  const holoY = useTransform(p, [0, 1], [0, 90]);
-  const hintOpacity = useTransform(p, [0, 0.15], [1, 0]);
+  const holoRotateX = useTransform(mouse.y, (v) => 6 + v * -7);
+  const holoRotateY = useTransform(mouse.x, (v) => -8 + v * 9);
 
   // Spotlight bám theo con trỏ (đèn sân khấu)
   const spotX = useTransform(mouse.x, (v) => 50 + v * 30);
@@ -686,7 +603,7 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
   const spotlight = useMotionTemplate`radial-gradient(560px circle at ${spotX}% ${spotY}%, hsl(var(--primary)/0.09), transparent 70%)`;
 
   return (
-    <SceneShell bind={bind} targetRef={targetRef} height="220vh">
+    <section ref={bind} className={`relative ${STAGE_H} overflow-hidden flex items-center justify-center`}>
       {/* Spotlight theo chuột */}
       <motion.div style={{ background: spotlight }} className="absolute inset-0 pointer-events-none" />
 
@@ -722,17 +639,14 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
         className="absolute bottom-[16%] left-[8%] w-36 h-36 md:w-52 md:h-52 bg-primary/25 rounded-full blur-[80px] pointer-events-none"
       />
 
-      <div className="w-full max-w-6xl mx-auto px-5 sm:px-8 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-16 items-center relative z-10">
-        {/* Left: studio identity — layout sạch, không chồng đè */}
-        <motion.div
-          style={{ y: textY, opacity: textOpacity }}
-          className="space-y-3 sm:space-y-5 md:space-y-7 text-center md:text-left order-2 md:order-1 will-change-transform"
-        >
+      <div className="w-full max-w-6xl mx-auto px-5 sm:px-8 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-16 items-center relative z-10 py-10">
+        {/* Left: studio identity */}
+        <div className="space-y-3 sm:space-y-5 md:space-y-7 text-center md:text-left order-2 md:order-1">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex justify-center lg:justify-start"
+            className="flex justify-center md:justify-start"
           >
             <Badge className="shadow-[0_0_15px_rgba(99,102,241,0.2)]">{t("intro.studio.badge")}</Badge>
           </motion.div>
@@ -785,20 +699,19 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
                 to="/booking"
                 className="inline-flex w-full sm:w-auto items-center justify-center px-5 sm:px-7 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full border-2 border-border/50 text-foreground font-bold hover:border-primary hover:text-primary transition-colors duration-300 bg-white/50 dark:bg-transparent backdrop-blur-sm text-xs sm:text-xs md:text-sm"
               >
-                {t("intro.slide1.book")}
+                {t("intro.slide10.bookBtn")}
               </Link>
             </Magnetic>
           </motion.div>
-        </motion.div>
+        </div>
 
-        {/* Right: hologram browser spacer and emitter */}
-        {isLargeScreen && (
-        <div className="order-1 lg:order-2 flex items-center justify-center py-4 relative select-none pointer-events-none" style={{ perspective: 1400 }}>
+        {/* Right: hologram browser + orbit rings */}
+        <div className="hidden md:flex order-1 md:order-2 items-center justify-center py-4 relative select-none" style={{ perspective: 1400 }}>
           <motion.div
-            id="hologram-spacer-0"
-            animate={{ y: [-6, 6, -6] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="relative w-[270px] sm:w-[330px] lg:w-[390px] h-[340px] sm:h-[420px] flex items-center justify-center"
+            initial={{ opacity: 0, scale: 0.85, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="relative flex items-center justify-center"
             style={{ transformStyle: "preserve-3d" }}
           >
             {/* Double Orbit Rings (Futuristic Projection) */}
@@ -827,8 +740,25 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
               </motion.div>
             </div>
 
+            {/* Hologram — trôi nhẹ + nghiêng theo con trỏ */}
+            <motion.div
+              animate={{ y: [-6, 6, -6] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              style={{ rotateX: holoRotateX, rotateY: holoRotateY, transformStyle: "preserve-3d" }}
+              className="relative will-change-transform"
+            >
+              <StudioHologram t={t} />
+              {/* Chibi Nice! ló đầu */}
+              <Chibi
+                src={STICKER_NICE}
+                delay={0.4}
+                drift={4}
+                className="absolute -top-12 -right-6 sm:-right-8 w-14 sm:w-18 z-20"
+              />
+            </motion.div>
+
             {/* Hologram projection cone/emitter at the bottom */}
-            <div 
+            <div
               className="absolute left-1/2 -bottom-24 -translate-x-1/2 w-48 h-36 opacity-[0.12] pointer-events-none"
               style={{
                 background: "linear-gradient(to top, rgba(6, 182, 212, 0.4), transparent)",
@@ -836,24 +766,12 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
               }}
             />
             <div className="absolute left-1/2 -bottom-24 -translate-x-1/2 w-16 h-1 bg-cyan-400 shadow-[0_0_12px_#06b6d4] rounded-full opacity-40 blur-[1px] pointer-events-none animate-pulse" />
-
-            {/* Chibi Nice! ló đầu */}
-            <Chibi
-              src={STICKER_NICE}
-              delay={0.4}
-              drift={4}
-              className="absolute -top-12 -right-6 sm:-right-8 w-14 sm:w-18 z-20"
-            />
           </motion.div>
         </div>
-        )}
       </div>
 
       {/* Scroll hint */}
-      <motion.div
-        style={{ opacity: hintOpacity }}
-        className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
-      >
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
         <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
           {t("intro.studio.scrollHint")}
         </span>
@@ -864,19 +782,16 @@ function SceneStudio({ container, bind, t, onExplore, reduced }) {
         >
           keyboard_arrow_down
         </motion.span>
-      </motion.div>
-    </SceneShell>
+      </div>
+    </section>
   );
 }
 
 /* ---------------------------------------------------------------------------
-   SCENE 1 — FOUNDER PORTFOLIO (hologram hồ sơ Hugo là trung tâm,
-   Jason chỉ là thẻ mini phụ; tech-stack chip chứng minh năng lực code)
+   SCENE 1 — FOUNDER (hologram hồ sơ Hugo là trung tâm, Jason là thẻ mini phụ)
    ------------------------------------------------------------------------- */
 
 const VALUE_KEYS = ["v1", "v2", "v3", "v4", "v5"];
-
-
 
 function FounderHologram({ t }) {
   const { rx, ry, handlers } = useTilt(8);
@@ -982,28 +897,16 @@ function PartnerMini({ t }) {
   );
 }
 
-function ScenePartners({ container, bind, t }) {
-  const { targetRef, p } = useSceneScroll(container);
-
-  const textX = useTransform(p, [0.02, 0.18], [-120, 0]);
-  const textOpacity = useTransform(p, [0.02, 0.16], [0, 1]);
-  const cardRotY = useTransform(p, [0.02, 0.26], [-70, 4]);
-  const cardX = useTransform(p, [0.02, 0.26], [260, 0]);
-  const cardOpacity = useTransform(p, [0.02, 0.18], [0, 1]);
-  const miniOpacity = useTransform(p, [0.26, 0.38], [0, 1]);
-  const miniY = useTransform(p, [0.26, 0.38], [40, 0]);
-  const stackOpacity = useTransform(p, [0.32, 0.46], [0, 1]);
-  const stackY = useTransform(p, [0.32, 0.46], [40, 0]);
-
+function ScenePartners({ bind, t }) {
   return (
-    <SceneShell bind={bind} targetRef={targetRef} height="200vh">
+    <section ref={bind} className={`relative ${STAGE_H} overflow-hidden flex items-center justify-center py-16`}>
       <div className="absolute right-[2%] top-[8%] text-[6rem] sm:text-[10rem] xl:text-[13rem] font-black text-foreground/[0.025] dark:text-foreground/[0.015] pointer-events-none select-none tracking-tighter leading-none">
         HUGO
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center relative z-10">
-        {/* Text + tech stack */}
-        <motion.div style={{ x: textX, opacity: textOpacity }} className="space-y-3 sm:space-y-5 text-center lg:text-left will-change-transform order-2 lg:order-1">
+        {/* Text + giá trị theo đuổi */}
+        <FadeUp x={-80} y={0} className="space-y-3 sm:space-y-5 text-center lg:text-left order-2 lg:order-1">
           <div className="flex justify-center lg:justify-start">
             <Badge>{t("intro.partners.badge")}</Badge>
           </div>
@@ -1017,293 +920,46 @@ function ScenePartners({ container, bind, t }) {
             {t("intro.partners.desc")}
           </p>
 
-          <motion.div style={{ opacity: stackOpacity, y: stackY }} className="space-y-2 will-change-transform">
+          <div className="space-y-2">
             <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest">
               {t("intro.partners.stackTitle")}
             </p>
             <div className="flex flex-wrap justify-center lg:justify-start gap-2">
               {VALUE_KEYS.map((k, i) => (
-                <motion.span
-                  key={k}
-                  whileHover={{ scale: 1.1, rotate: i % 2 ? 3 : -3 }}
-                  className="px-3.5 py-1.5 rounded-full bg-muted text-foreground text-[10px] sm:text-xs font-bold cursor-default select-none"
-                >
-                  {t(`intro.partners.${k}`)}
-                </motion.span>
+                <Pop key={k} i={i} className="inline-block">
+                  <motion.span
+                    whileHover={{ scale: 1.1, rotate: i % 2 ? 3 : -3 }}
+                    className="inline-block px-3.5 py-1.5 rounded-full bg-muted text-foreground text-[10px] sm:text-xs font-bold cursor-default select-none"
+                  >
+                    {t(`intro.partners.${k}`)}
+                  </motion.span>
+                </Pop>
               ))}
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </FadeUp>
 
-        {/* Founder hologram space + Jason mini */}
-        <div className="flex flex-col items-center gap-3 order-1 lg:order-2" style={{ perspective: 1200 }}>
-          <motion.div
-            id="hologram-spacer-1"
-            style={{ x: cardX, opacity: cardOpacity, transformStyle: "preserve-3d" }}
-            className="relative w-[80vw] max-w-[300px] sm:max-w-[340px] h-[340px] sm:h-[400px] flex items-center justify-center pointer-events-none"
-          >
+        {/* Founder hologram + Jason mini */}
+        <div className="flex flex-col items-center gap-4 order-1 lg:order-2" style={{ perspective: 1200 }}>
+          <FadeUp x={80} y={0} className="relative flex items-center justify-center">
             {/* Blob hoạt hình sau lưng */}
             <div className="absolute -inset-6 bg-primary/10 blur-2xl animate-blobMorph pointer-events-none" />
+            <FounderHologram t={t} />
             {/* Nhân vật chibi vệ tinh quanh card */}
             <Chibi src={STICKER_HELLO} tilt={6} className="absolute -left-10 sm:-left-14 top-6 w-16 sm:w-20 z-10" />
             <Chibi src={STICKER_WOW} delay={0.6} tilt={5} className="absolute -right-10 sm:-right-14 bottom-16 w-16 sm:w-20 z-10" />
-          </motion.div>
-          <motion.div style={{ opacity: miniOpacity, y: miniY }} className="will-change-transform">
+          </FadeUp>
+          <FadeUp delay={0.25}>
             <PartnerMini t={t} />
-          </motion.div>
+          </FadeUp>
         </div>
       </div>
-    </SceneShell>
+    </section>
   );
 }
 
 /* ---------------------------------------------------------------------------
-   SCENE 2 — VỀ TÔI (3 chương crossfade như video: danh tính → học vấn → triết lý)
-   ------------------------------------------------------------------------- */
-
-function Chapter({ p, range, hold = false, children }) {
-  const [a, b, c, d] = range;
-  const opacity = useTransform(p, hold ? [a, b, 1] : [a, b, c, d], hold ? [0, 1, 1] : [0, 1, 1, 0]);
-  const y = useTransform(p, hold ? [a, b, 1] : [a, b, c, d], hold ? [50, 0, 0] : [50, 0, 0, -50]);
-  return (
-    <motion.div style={{ opacity, y }} className="absolute inset-0 flex flex-col justify-center space-y-4 will-change-transform">
-      {children}
-    </motion.div>
-  );
-}
-
-function SceneAbout({ container, bind, t, realPhoto, fullName, reduced }) {
-  const { targetRef, p } = useSceneScroll(container);
-  const mouse = useMouseParallax(!reduced);
-
-  const scrollRotY = useTransform(p, [0, 1], [22, -22]);
-  const portraitRotY = useTransform([scrollRotY, mouse.x], ([a, b]) => a + b * 6);
-  const scrollRotX = useTransform(p, [0, 1], [6, -6]);
-  const portraitRotX = useTransform([scrollRotX, mouse.y], ([a, b]) => a + b * -4);
-  const portraitOpacity = useTransform(p, [0, 0.1], [0.3, 1]);
-  const dot1 = useTransform(p, [0.02, 0.08, 0.22, 0.28], [0.25, 1, 1, 0.25]);
-  const dot2 = useTransform(p, [0.26, 0.32, 0.46, 0.52], [0.25, 1, 1, 0.25]);
-  const dot3 = useTransform(p, [0.50, 0.56, 0.70, 0.76], [0.25, 1, 1, 0.25]);
-  const dot4 = useTransform(p, [0.74, 0.80, 1, 1], [0.25, 1, 1, 1]);
-
-  return (
-    <SceneShell bind={bind} targetRef={targetRef} height="260vh">
-      <div className="absolute left-[3%] top-[8%] text-[6rem] sm:text-[9rem] xl:text-[12rem] font-black text-foreground/[0.03] dark:text-foreground/[0.015] pointer-events-none select-none tracking-tighter leading-none -rotate-6 md:rotate-0">
-        EST. 2004
-      </div>
-
-      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-12 items-center relative z-10">
-        {/* Portrait space — 3D tilt theo scroll + con trỏ */}
-        <div className="lg:col-span-5 flex justify-center relative pointer-events-none" style={{ perspective: 1200 }}>
-          {/* Chibi Yummy! ghé chơi góc chân dung */}
-          <Chibi src={STICKER_YUMMY} delay={0.7} drift={6} tilt={5} className="absolute -bottom-6 left-[6%] w-16 sm:w-24 z-20" />
-          <motion.div
-            id="hologram-spacer-2"
-            style={{ opacity: portraitOpacity }}
-            className="relative w-[210px] sm:w-[270px] lg:w-[320px] h-[300px] sm:h-[400px] flex items-center justify-center"
-          >
-            <div className="absolute -inset-4 bg-primary/15 blur-2xl animate-blobMorph" />
-          </motion.div>
-        </div>
-
-        {/* Chapters */}
-        <div className="lg:col-span-7 relative h-[400px] sm:h-[450px] lg:h-[500px]">
-          {/* Chapter 1 — danh tính */}
-          <Chapter p={p} range={[0.02, 0.08, 0.22, 0.28]}>
-            <Badge className="self-start bg-warning/15 text-warning border-warning/30">{t("intro.slide3.badge")}</Badge>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-extrabold text-foreground leading-tight">
-              {t("intro.about.hello")} <br />
-              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
-                Hugo.
-              </span>
-            </h2>
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
-              {t("intro.about.desc")}
-            </p>
-          </Chapter>
-
-          {/* Chapter 2 — Học vấn Cấp 3 (THPT Nguyễn Đình Chiểu) */}
-          <Chapter p={p} range={[0.26, 0.32, 0.46, 0.52]}>
-            <Badge className="self-start bg-primary/15 text-primary border-primary/30">{t("intro.slide3.hsBadge")}</Badge>
-            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight">
-              {t("intro.slide3.highSchool")} <br />
-              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-lg sm:text-xl">
-                {t("intro.slide3.hsSub")}
-              </span>
-            </h2>
-
-            <div className="space-y-4 max-w-2xl w-full">
-              {/* School link banner (Full-width) */}
-              <a
-                href="https://ndc.edu.vn"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative overflow-hidden p-4 rounded-2xl bg-gradient-to-r from-[#0c1538]/60 to-[#050818]/80 border border-cyan-500/10 hover:border-primary transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg"
-              >
-                <Shine />
-                <div className="flex items-center gap-3.5 text-left w-full">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-primary/20 flex items-center justify-center p-1.5 shrink-0 group-hover:scale-105 group-hover:border-primary/40 transition-all duration-300">
-                    <img
-                      src="https://ndc.edu.vn/wp-content/themes/thptndc/assets/img/common/favicon.ico"
-                      alt="THPT Nguyễn Đình Chiểu Logo"
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        e.target.src = "https://www.google.com/s2/favicons?domain=ndc.edu.vn&sz=64";
-                      }}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className="text-xs font-black text-primary uppercase tracking-wider">
-                        {t("intro.slide3.hsFull")}
-                      </span>
-                      <span className="flex items-center gap-0.5 text-[9px] text-zinc-200 font-medium">
-                        <span className="material-symbols-outlined text-[10px] text-primary">location_on</span>
-                        {t("intro.slide3.hsAddress")}
-                      </span>
-                    </div>
-                    <p className="text-[10px] sm:text-xs text-zinc-200 font-sans leading-normal">
-                      {t("intro.slide3.highSchoolDesc")}
-                    </p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-sm text-muted-foreground group-hover:text-primary transition-colors self-end sm:self-center">
-                  open_in_new
-                </span>
-              </a>
-
-              {/* 3-column virtues/skills/knowledge grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
-                {[
-                  { k: "v1", icon: "verified_user" },
-                  { k: "v2", icon: "psychology" },
-                  { k: "v3", icon: "menu_book" },
-                ].map((item) => ({ ...item, title: t(`intro.slide3.${item.k}t`), desc: t(`intro.slide3.${item.k}d`) })).map((item) => (
-                  <div
-                    key={item.k}
-                    className="p-3 rounded-xl bg-[#0a0f2c]/40 border border-cyan-500/10 backdrop-blur-md space-y-1 text-left shadow-md"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[11px] text-primary bg-primary/10 rounded-full p-1 border border-primary/20">
-                        {item.icon}
-                      </span>
-                      <span className="text-[9px] font-black text-cyan-300 uppercase tracking-wide font-mono">
-                        {item.title}
-                      </span>
-                    </div>
-                    <p className="text-[9.5px] text-zinc-200 leading-relaxed font-sans font-medium">
-                      {item.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Chapter>
-
-          {/* Chapter 3 — Đại học Greenwich */}
-          <Chapter p={p} range={[0.50, 0.56, 0.70, 0.76]}>
-            <Badge className="self-start bg-accent/15 text-accent border-accent/30">{t("intro.slide3.eduTitle")}</Badge>
-            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight">
-              {t("intro.slide3.uniTitle")} <br />
-              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-lg sm:text-xl">
-                {t("intro.slide3.uniSub")}
-              </span>
-            </h2>
-
-            <div className="space-y-4 max-w-2xl w-full">
-              {/* University link banner (Full-width) */}
-              <a
-                href="https://greenwich.edu.vn"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative overflow-hidden p-4 rounded-2xl bg-gradient-to-r from-[#0c1538]/60 to-[#050818]/80 border border-[#2b4c8c]/15 hover:border-accent transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg"
-              >
-                <Shine />
-                <div className="flex items-center gap-3.5 text-left w-full">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-accent/20 flex items-center justify-center p-1.5 shrink-0 group-hover:scale-105 group-hover:border-accent/40 transition-all duration-300">
-                    <img
-                      src="https://www.google.com/s2/favicons?domain=greenwich.edu.vn&sz=64"
-                      alt="Greenwich Vietnam Logo"
-                      className="w-full h-full object-contain bg-white rounded-lg p-0.5"
-                      onError={(e) => {
-                        e.target.src = "https://www.google.com/s2/favicons?domain=tuyensinh.greenwich.edu.vn&sz=64";
-                      }}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-accent uppercase tracking-wider font-display">
-                        {t("intro.slide3.uni")}
-                      </span>
-                    </div>
-                    <p className="text-[10px] sm:text-xs text-zinc-200 font-sans leading-normal">
-                      {t("intro.slide3.uniDesc")}
-                    </p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-sm text-muted-foreground group-hover:text-accent transition-colors self-end sm:self-center">
-                  open_in_new
-                </span>
-              </a>
-
-              {/* Greenwich Tech Stack Display (Full-width) */}
-              <div className="p-5 rounded-2xl bg-gradient-to-br from-[#0b133a]/80 via-[#060814]/90 to-[#020512]/95 border border-cyan-500/20 shadow-[0_0_25px_rgba(6,182,212,0.1)] relative overflow-hidden text-left space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-cyan-400 animate-pulse">terminal</span>
-                  <span className="text-[10px] font-black uppercase text-cyan-300 tracking-wider font-mono">
-                    Greenwich Academic Stack
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-1.5 pt-0.5">
-                  {GREENWICH_STACK.map((tech) => (
-                    <span
-                      key={tech.name}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wide border bg-gradient-to-br transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg select-none cursor-pointer ${tech.color} ${tech.glow}`}
-                    >
-                      <img
-                        src={tech.iconUrl}
-                        alt={tech.name}
-                        className={`w-3.5 h-3.5 object-contain ${tech.name === "React.js" ? "animate-[spin_10s_linear_infinite]" : ""}`}
-                        loading="lazy"
-                      />
-                      {tech.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Chapter>
-
-          {/* Chapter 4 — triết lý */}
-          <Chapter p={p} range={[0.74, 0.80, 1, 1]} hold>
-            <Badge className="self-start bg-warning/15 text-warning border-warning/30">{t("intro.slide8.badge")}</Badge>
-            <blockquote className="text-base sm:text-xl lg:text-3xl italic font-semibold bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift border-l-4 border-primary pl-4 sm:pl-6 py-1 leading-snug max-w-xl">
-              {t("intro.slide8.quote")}
-            </blockquote>
-            <div className="space-y-2 text-xs sm:text-sm max-w-xl">
-              {["p1", "p2", "p3"].map((k, i) => (
-                <div key={k} className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-primary font-mono">0{i + 1}</span>
-                  <span className="font-semibold text-foreground/90">{t(`intro.slide8.${k}`)}</span>
-                </div>
-              ))}
-            </div>
-          </Chapter>
-        </div>
-      </div>
-
-      {/* Chapter indicator */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
-        {[dot1, dot2, dot3, dot4].map((op, i) => (
-          <motion.span key={i} style={{ opacity: op }} className="w-2 h-2 rounded-full bg-primary" />
-        ))}
-      </div>
-    </SceneShell>
-  );
-}
-
-/* ---------------------------------------------------------------------------
-   SCENE 4 — BIO EDU MIỄN PHÍ (thẻ sinh viên lật 3D 180° + glare quét theo scroll)
+   SCENE 2 — VỀ TÔI (danh tính → học vấn → triết lý, hiện dần khi cuộn tới)
    ------------------------------------------------------------------------- */
 
 const GREENWICH_STACK = [
@@ -1318,6 +974,198 @@ const GREENWICH_STACK = [
   { name: "Unity", glow: "hover:shadow-emerald-500/30 hover:border-emerald-400/50", color: "from-emerald-500/15 via-emerald-500/5 to-transparent text-emerald-300 border-emerald-500/30", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/unity/unity-original.svg" },
 ];
 
+const EDU_TONES = {
+  primary: { border: "hover:border-primary", box: "border-primary/20", text: "text-primary" },
+  accent: { border: "hover:border-accent", box: "border-accent/20", text: "text-accent" },
+};
+
+function EduBanner({ href, logo, logoFallback, name, address, desc, tone = "primary" }) {
+  const c = EDU_TONES[tone];
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`group relative overflow-hidden p-4 rounded-2xl bg-gradient-to-r from-[#0c1538]/60 to-[#050818]/80 border border-cyan-500/10 ${c.border} transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg`}
+    >
+      <Shine />
+      <div className="flex items-center gap-3.5 text-left w-full">
+        <div className={`w-10 h-10 rounded-xl bg-white/5 border ${c.box} flex items-center justify-center p-1.5 shrink-0 group-hover:scale-105 transition-all duration-300`}>
+          <img
+            src={logo}
+            alt={`${name} Logo`}
+            className="w-full h-full object-contain"
+            onError={(e) => {
+              if (logoFallback) e.target.src = logoFallback;
+            }}
+          />
+        </div>
+        <div className="space-y-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className={`text-xs font-black ${c.text} uppercase tracking-wider`}>{name}</span>
+            {address ? (
+              <span className="flex items-center gap-0.5 text-[9px] text-zinc-200 font-medium">
+                <span className={`material-symbols-outlined text-[10px] ${c.text}`}>location_on</span>
+                {address}
+              </span>
+            ) : null}
+          </div>
+          <p className="text-[10px] sm:text-xs text-zinc-200 font-sans leading-normal">{desc}</p>
+        </div>
+      </div>
+      <span className="material-symbols-outlined text-sm text-muted-foreground group-hover:text-primary transition-colors self-end sm:self-center">
+        open_in_new
+      </span>
+    </a>
+  );
+}
+
+function SceneAbout({ bind, t, realPhoto, fullName }) {
+  return (
+    <section ref={bind} className="relative overflow-x-clip py-20 sm:py-28">
+      <div className="absolute left-[3%] top-[4%] text-[6rem] sm:text-[9rem] xl:text-[12rem] font-black text-foreground/[0.03] dark:text-foreground/[0.015] pointer-events-none select-none tracking-tighter leading-none -rotate-6 md:rotate-0">
+        EST. 2004
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 relative z-10">
+        {/* Portrait — 3D tilt theo con trỏ, dính theo khi cuộn */}
+        <div className="lg:col-span-5 relative">
+          <FadeUp className="lg:sticky lg:top-10 flex items-center justify-center py-6" style={{ perspective: 1200 }}>
+            <div className="absolute -inset-4 bg-primary/15 blur-2xl animate-blobMorph" />
+            <AboutPortraitPhoto realPhoto={realPhoto} fullName={fullName} t={t} />
+            {/* Chibi Yummy! ghé chơi góc chân dung */}
+            <Chibi src={STICKER_YUMMY} delay={0.7} drift={6} tilt={5} className="absolute -bottom-6 -left-6 w-16 sm:w-24 z-20" />
+          </FadeUp>
+        </div>
+
+        {/* Nội dung: danh tính → học vấn → triết lý */}
+        <div className="lg:col-span-7 space-y-10">
+          {/* Danh tính */}
+          <FadeUp className="space-y-4">
+            <Badge className="bg-warning/15 text-warning border-warning/30">{t("intro.slide3.badge")}</Badge>
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-extrabold text-foreground leading-tight">
+              {t("intro.about.hello")} <br />
+              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent">
+                Hugo.
+              </span>
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
+              {t("intro.about.desc")}
+            </p>
+          </FadeUp>
+
+          {/* Học vấn THPT */}
+          <FadeUp className="space-y-4">
+            <Badge className="bg-primary/15 text-primary border-primary/30">{t("intro.slide3.hsBadge")}</Badge>
+            <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground leading-tight">
+              {t("intro.slide3.highSchool")} <br />
+              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-base sm:text-lg">
+                {t("intro.slide3.hsSub")}
+              </span>
+            </h3>
+            <EduBanner
+              href="https://ndc.edu.vn"
+              logo="https://ndc.edu.vn/wp-content/themes/thptndc/assets/img/common/favicon.ico"
+              logoFallback="https://www.google.com/s2/favicons?domain=ndc.edu.vn&sz=64"
+              name={t("intro.slide3.hsFull")}
+              address={t("intro.slide3.hsAddress")}
+              desc={t("intro.slide3.highSchoolDesc")}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+              {[
+                { k: "v1", icon: "verified_user" },
+                { k: "v2", icon: "psychology" },
+                { k: "v3", icon: "menu_book" },
+              ].map((item, i) => (
+                <Pop
+                  key={item.k}
+                  i={i}
+                  className="p-3 rounded-xl bg-[#0a0f2c]/40 border border-cyan-500/10 backdrop-blur-md space-y-1 text-left shadow-md"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[11px] text-primary bg-primary/10 rounded-full p-1 border border-primary/20">
+                      {item.icon}
+                    </span>
+                    <span className="text-[9px] font-black text-cyan-300 uppercase tracking-wide font-mono">
+                      {t(`intro.slide3.${item.k}t`)}
+                    </span>
+                  </div>
+                  <p className="text-[9.5px] text-zinc-200 leading-relaxed font-sans font-medium">
+                    {t(`intro.slide3.${item.k}d`)}
+                  </p>
+                </Pop>
+              ))}
+            </div>
+          </FadeUp>
+
+          {/* Đại học Greenwich */}
+          <FadeUp className="space-y-4">
+            <Badge className="bg-accent/15 text-accent border-accent/30">{t("intro.slide3.eduTitle")}</Badge>
+            <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground leading-tight">
+              {t("intro.slide3.uniTitle")} <br />
+              <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift text-base sm:text-lg">
+                {t("intro.slide3.uniSub")}
+              </span>
+            </h3>
+            <EduBanner
+              href="https://greenwich.edu.vn"
+              logo="https://www.google.com/s2/favicons?domain=greenwich.edu.vn&sz=64"
+              logoFallback="https://www.google.com/s2/favicons?domain=tuyensinh.greenwich.edu.vn&sz=64"
+              name={t("intro.slide3.uni")}
+              desc={t("intro.slide3.uniDesc")}
+              tone="accent"
+            />
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-[#0b133a]/80 via-[#060814]/90 to-[#020512]/95 border border-cyan-500/20 shadow-[0_0_25px_rgba(6,182,212,0.1)] relative overflow-hidden text-left space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm text-cyan-400 animate-pulse">terminal</span>
+                <span className="text-[10px] font-black uppercase text-cyan-300 tracking-wider font-mono">
+                  Greenwich Academic Stack
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {GREENWICH_STACK.map((tech) => (
+                  <span
+                    key={tech.name}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wide border bg-gradient-to-br transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg select-none cursor-pointer ${tech.color} ${tech.glow}`}
+                  >
+                    <img
+                      src={tech.iconUrl}
+                      alt={tech.name}
+                      className={`w-3.5 h-3.5 object-contain ${tech.name === "React.js" ? "animate-[spin_10s_linear_infinite]" : ""}`}
+                      loading="lazy"
+                    />
+                    {tech.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </FadeUp>
+
+          {/* Triết lý */}
+          <FadeUp className="space-y-4">
+            <Badge className="bg-warning/15 text-warning border-warning/30">{t("intro.slide8.badge")}</Badge>
+            <blockquote className="text-base sm:text-xl lg:text-2xl italic font-semibold bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift border-l-4 border-primary pl-4 sm:pl-6 py-1 leading-snug max-w-xl">
+              {t("intro.slide8.quote")}
+            </blockquote>
+            <div className="space-y-2 text-xs sm:text-sm max-w-xl">
+              {["p1", "p2", "p3"].map((k, i) => (
+                <Pop key={k} i={i} className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-primary font-mono">0{i + 1}</span>
+                  <span className="font-semibold text-foreground/90">{t(`intro.slide8.${k}`)}</span>
+                </Pop>
+              ))}
+            </div>
+          </FadeUp>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   SCENE 3 — BIO EDU MIỄN PHÍ (thẻ sinh viên lật 3D theo hover/chạm)
+   ------------------------------------------------------------------------- */
+
 const EDU_TOOLS = [
   { id: "banhocduong", name: "Bạn Học Đường", icon: "school" },
   { id: "therapy", name: "Hugo PSY", icon: "psychology" },
@@ -1326,33 +1174,17 @@ const EDU_TOOLS = [
   { id: "aura", name: "Aura AI", icon: "lens_blur" },
 ];
 
-function SceneBio({ container, bind, t }) {
-  const { targetRef, p } = useSceneScroll(container);
-
-  const textOpacity = useTransform(p, [0.03, 0.18], [0, 1]);
-  const textY = useTransform(p, [0.03, 0.18], [60, 0]);
-  const cardRotY = useTransform(p, [0.28, 0.6], [0, 180]);
-  const cardScale = useTransform(p, [0.05, 0.25], [0.8, 1]);
-  const cardOpacity = useTransform(p, [0.05, 0.2], [0, 1]);
-  const glareX = useTransform(p, [0.28, 0.6], ["-140%", "240%"]);
-  const benefitsOpacity = useTransform(p, [0.42, 0.56], [0, 1]);
-  const benefitsY = useTransform(p, [0.42, 0.56], [60, 0]);
-  const toolsOpacity = useTransform(p, [0.6, 0.74], [0, 1]);
-  const toolsY = useTransform(p, [0.6, 0.74], [50, 0]);
-
-  const cardFace =
-    "absolute inset-0 rounded-[1.75rem] bg-gradient-to-b from-white/95 to-white/50 dark:from-slate-900/95 dark:to-slate-900/50 backdrop-blur-2xl border border-white/40 dark:border-white/10 p-5 sm:p-6 shadow-2xl overflow-hidden [backface-visibility:hidden]";
-
+function SceneBio({ bind, t }) {
   return (
-    <SceneShell bind={bind} targetRef={targetRef} height="240vh">
-      <div className="absolute left-[4%] top-[8%] text-[5rem] sm:text-[8rem] xl:text-[11rem] font-black text-foreground/[0.03] dark:text-foreground/[0.015] pointer-events-none select-none tracking-tighter leading-none -rotate-12">
+    <section ref={bind} className={`relative ${STAGE_H} overflow-hidden flex items-center justify-center py-16`}>
+      <div className="absolute left-[4%] top-[6%] text-[5rem] sm:text-[8rem] xl:text-[11rem] font-black text-foreground/[0.03] dark:text-foreground/[0.015] pointer-events-none select-none tracking-tighter leading-none -rotate-12">
         FREE .EDU
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 flex flex-col gap-5 sm:gap-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-10 items-center">
           {/* Text */}
-          <motion.div style={{ opacity: textOpacity, y: textY }} className="md:col-span-7 space-y-3 sm:space-y-4 will-change-transform">
+          <FadeUp className="md:col-span-7 space-y-3 sm:space-y-4">
             <Badge>{t("intro.slide5.badge")}</Badge>
             <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
               {t("intro.slide5.title1")} <br />
@@ -1379,19 +1211,20 @@ function SceneBio({ container, bind, t }) {
                 </a>
               </Magnetic>
             </div>
-          </motion.div>
+          </FadeUp>
 
-          {/* 3D flip student card (ẩn trên mobile — quyền lợi đã có lưới chi tiết) */}
-          {/* 3D student card space (hidden on mobile) */}
-          <div className="md:col-span-5 hidden md:flex justify-center relative pointer-events-none" style={{ perspective: 1300 }}>
-            {/* Chibi hỗ trợ đứng cạnh thẻ */}
-            <Chibi src={STICKER_SUPPORT} delay={0.5} drift={6} tilt={3} className="absolute -right-4 -bottom-14 w-24 lg:w-28 z-20" />
-            <div id="hologram-spacer-3" className="relative w-full max-w-[300px] sm:max-w-[340px] h-[210px] sm:h-[240px]" />
+          {/* Thẻ sinh viên lật 3D (ẩn trên mobile — quyền lợi đã có lưới chi tiết) */}
+          <div className="md:col-span-5 hidden md:flex justify-center relative">
+            <FadeUp x={60} y={0} delay={0.15} className="relative">
+              <BioStudentCard t={t} />
+              {/* Chibi hỗ trợ đứng cạnh thẻ */}
+              <Chibi src={STICKER_SUPPORT} delay={0.5} drift={6} tilt={3} className="absolute -right-8 -bottom-16 w-24 lg:w-28 z-20" />
+            </FadeUp>
           </div>
         </div>
 
         {/* Quyền lợi chi tiết sau khi xác minh */}
-        <motion.div style={{ opacity: benefitsOpacity, y: benefitsY }} className="space-y-2.5 will-change-transform">
+        <FadeUp className="space-y-2.5">
           <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest text-center">
             {t("intro.slide5.benefitsTitle")}
           </p>
@@ -1402,21 +1235,22 @@ function SceneBio({ container, bind, t }) {
               { k: "b3", icon: "bolt" },
               { k: "b4", icon: "widgets" },
             ].map((b, i) => (
-              <motion.div
-                key={b.k}
-                whileHover={{ y: -5, rotate: i % 2 ? 1.5 : -1.5, scale: 1.03 }}
-                className="rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-2.5 sm:p-4 space-y-1 sm:space-y-1.5 text-left"
-              >
-                <MonoIcon name={b.icon} size="text-base" box="w-8 h-8" />
-                <p className="text-[11px] sm:text-xs font-bold text-foreground leading-tight">{t(`intro.slide5.${b.k}t`)}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground leading-relaxed">{t(`intro.slide5.${b.k}d`)}</p>
-              </motion.div>
+              <Pop key={b.k} i={i}>
+                <motion.div
+                  whileHover={{ y: -5, rotate: i % 2 ? 1.5 : -1.5, scale: 1.03 }}
+                  className="h-full rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-2.5 sm:p-4 space-y-1 sm:space-y-1.5 text-left"
+                >
+                  <MonoIcon name={b.icon} size="text-base" box="w-8 h-8" />
+                  <p className="text-[11px] sm:text-xs font-bold text-foreground leading-tight">{t(`intro.slide5.${b.k}t`)}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground leading-relaxed">{t(`intro.slide5.${b.k}d`)}</p>
+                </motion.div>
+              </Pop>
             ))}
           </div>
-        </motion.div>
+        </FadeUp>
 
         {/* Tiện ích HSSV miễn phí */}
-        <motion.div style={{ opacity: toolsOpacity, y: toolsY }} className="space-y-3 will-change-transform">
+        <FadeUp className="space-y-3">
           <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest text-center">
             {t("intro.slide5.toolsTitle")}
           </p>
@@ -1436,14 +1270,14 @@ function SceneBio({ container, bind, t }) {
               </Link>
             ))}
           </div>
-        </motion.div>
+        </FadeUp>
       </div>
-    </SceneShell>
+    </section>
   );
 }
 
 /* ---------------------------------------------------------------------------
-   SCENE 4.5 — VŨ TRỤ TIỆN ÍCH (Orbiting utility planets + interactive cards)
+   SCENE 4 — VŨ TRỤ TIỆN ÍCH (Orbiting utility planets + interactive cards)
    ------------------------------------------------------------------------- */
 
 function buildDiscoveryItems(t) {
@@ -1459,40 +1293,33 @@ function buildDiscoveryItems(t) {
   ];
 }
 
-function SceneDiscoveries({ container, bind, t, reduced }) {
-  const { targetRef, p } = useSceneScroll(container);
+function SceneDiscoveries({ bind, t, reduced }) {
   const mouse = useMouseParallax(!reduced);
-
-  // Smooth scroll animations
-  const textOpacity = useTransform(p, [0.03, 0.22], [0, 1]);
-  const textY = useTransform(p, [0.03, 0.22], [60, 0]);
-
-  const orbitOpacity = useTransform(p, [0.12, 0.32], [0, 1]);
-  const orbitScale = useTransform(p, [0.12, 0.42], [0.8, 1]);
-  const orbitRotate = useTransform(p, [0.12, 1], [0, 60]);
-
   const mouseXParallax = useTransform(mouse.x, (v) => v * 12);
   const mouseYParallax = useTransform(mouse.y, (v) => v * 12);
 
   const discoveryItems = buildDiscoveryItems(t);
-
   const [activeItem, setActiveItem] = useState(null);
+  const isDesktop = useMediaQuery("(min-width: 640px)");
+  const radius = isDesktop ? 170 : 125;
 
-  // Prevent icons from rotating by counter-rotating them
-  const counterRotate = useTransform(orbitRotate, (r) => -r);
+  // Vòng quỹ đạo tự quay chậm; icon quay ngược lại để luôn thẳng đứng
+  const spin = reduced
+    ? {}
+    : { animate: { rotate: 360 }, transition: { duration: 90, repeat: Infinity, ease: "linear" } };
+  const counterSpin = reduced
+    ? {}
+    : { animate: { rotate: -360 }, transition: { duration: 90, repeat: Infinity, ease: "linear" } };
 
   return (
-    <SceneShell bind={bind} targetRef={targetRef} height="220vh">
+    <section ref={bind} className={`relative ${STAGE_H} overflow-hidden flex items-center justify-center py-16`}>
       <div className="absolute right-[4%] top-[8%] text-[5rem] sm:text-[8rem] xl:text-[11rem] font-black text-foreground/[0.02] dark:text-foreground/[0.01] pointer-events-none select-none tracking-tighter leading-none">
         DISCOVER
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
         {/* Left column: Text details */}
-        <motion.div
-          style={{ opacity: textOpacity, y: textY }}
-          className="lg:col-span-5 space-y-4 sm:space-y-6 text-center lg:text-left order-2 lg:order-1"
-        >
+        <FadeUp className="lg:col-span-5 space-y-4 sm:space-y-6 text-center lg:text-left order-2 lg:order-1">
           <Badge>{t("intro.discoveries.badge")}</Badge>
 
           <div className="h-[280px] sm:h-[300px] flex flex-col justify-center lg:justify-start">
@@ -1550,205 +1377,110 @@ function SceneDiscoveries({ container, bind, t, reduced }) {
               </div>
             )}
           </div>
-        </motion.div>
+        </FadeUp>
 
         {/* Right column: Orbiting planets */}
         <div className="lg:col-span-7 flex justify-center items-center h-[340px] sm:h-[440px] relative order-1 lg:order-2">
           <motion.div
-            style={{
-              opacity: orbitOpacity,
-              scale: orbitScale,
-              rotateZ: orbitRotate,
-              x: mouseXParallax,
-              y: mouseYParallax,
-              transformStyle: "preserve-3d",
-            }}
-            className="w-[280px] h-[280px] sm:w-[380px] sm:h-[380px] rounded-full border border-dashed border-border/30 relative flex items-center justify-center"
+            style={{ x: mouseXParallax, y: mouseYParallax }}
+            className="relative w-[280px] h-[280px] sm:w-[380px] sm:h-[380px] flex items-center justify-center"
           >
-            {/* Core Logo Node placeholder (rendered by HologramMaster) */}
-            <div id="hologram-spacer-4" className="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full z-20 pointer-events-none" />
+            {/* Core Logo Node */}
+            <div className="absolute z-20 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary via-accent to-warning p-[2px] shadow-[0_0_35px_rgba(99,102,241,0.4)] flex items-center justify-center">
+              <div className="w-full h-full rounded-full bg-[#050713] flex items-center justify-center">
+                <motion.span
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                  className="material-symbols-outlined text-xl sm:text-2xl text-cyan-400 font-black block"
+                >
+                  token
+                </motion.span>
+              </div>
+            </div>
 
             {/* Orbit paths */}
             <div className="absolute w-[200px] h-[200px] rounded-full border border-dotted border-border/20 pointer-events-none" />
 
-            {/* Orbiting items */}
-            {discoveryItems.map((item, idx) => {
-              const angle = (idx * 360) / discoveryItems.length;
-              const angleRad = (angle * Math.PI) / 180;
-              const radius = typeof window !== "undefined" && window.innerWidth >= 640 ? 170 : 125;
-              const x = Math.cos(angleRad) * radius;
-              const y = Math.sin(angleRad) * radius;
+            {/* Orbit ring quay chậm, icon counter-rotate để giữ thẳng đứng */}
+            <motion.div {...spin} className="absolute inset-0 rounded-full border border-dashed border-border/30">
+              {discoveryItems.map((item, idx) => {
+                const angle = (idx * 360) / discoveryItems.length;
+                const angleRad = (angle * Math.PI) / 180;
+                const x = Math.cos(angleRad) * radius;
+                const y = Math.sin(angleRad) * radius;
+                const isCurrent = activeItem?.id === item.id;
 
-              const isCurrent = activeItem?.id === item.id;
-
-              return (
-                <div
-                  key={item.id}
-                  style={{
-                    position: "absolute",
-                    left: `calc(50% + ${x}px - 22px)`,
-                    top: `calc(50% + ${y}px - 22px)`,
-                    transformStyle: "preserve-3d",
-                  }}
-                  className="z-30 pointer-events-auto"
-                >
-                  <motion.button
-                    onMouseEnter={() => {
-                      buzz(4);
-                      setActiveItem(item);
-                    }}
-                    onClick={() => {
-                      buzz(8);
-                      setActiveItem(item);
-                    }}
-                    whileHover={{ scale: 1.22 }}
+                return (
+                  <div
+                    key={item.id}
                     style={{
-                      rotate: counterRotate,
-                      backgroundColor: isCurrent ? item.color.replace("0.3", "0.4") : "rgba(255,255,255,0.06)",
-                      borderColor: isCurrent ? item.color.replace("0.3", "0.8") : "rgba(255,255,255,0.1)",
-                      boxShadow: isCurrent ? `0 0 25px ${item.color.replace("0.3", "0.8")}` : "none",
+                      position: "absolute",
+                      left: `calc(50% + ${x}px - 22px)`,
+                      top: `calc(50% + ${y}px - 22px)`,
                     }}
-                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-foreground transition-all duration-300 backdrop-blur-md cursor-pointer focus:outline-none"
+                    className="z-30"
                   >
-                    <span className="material-symbols-outlined text-base sm:text-lg">{item.icon}</span>
-                  </motion.button>
-                </div>
-              );
-            })}
+                    <motion.div {...counterSpin}>
+                      <motion.button
+                        onMouseEnter={() => {
+                          buzz(4);
+                          setActiveItem(item);
+                        }}
+                        onClick={() => {
+                          buzz(8);
+                          setActiveItem(item);
+                        }}
+                        whileHover={{ scale: 1.22 }}
+                        style={{
+                          backgroundColor: isCurrent ? item.color.replace("0.3", "0.4") : "rgba(255,255,255,0.06)",
+                          borderColor: isCurrent ? item.color.replace("0.3", "0.8") : "rgba(255,255,255,0.1)",
+                          boxShadow: isCurrent ? `0 0 25px ${item.color.replace("0.3", "0.8")}` : "none",
+                        }}
+                        className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-foreground transition-all duration-300 backdrop-blur-md cursor-pointer focus:outline-none"
+                      >
+                        <span className="material-symbols-outlined text-base sm:text-lg">{item.icon}</span>
+                      </motion.button>
+                    </motion.div>
+                  </div>
+                );
+              })}
+            </motion.div>
           </motion.div>
         </div>
       </div>
-    </SceneShell>
+    </section>
   );
 }
 
 /* ---------------------------------------------------------------------------
-   SCENE 5 — LIÊN LẠC NHANH + CTA (tiles bay vào từ chiều sâu 3D + magnetic)
+   SCENE 5 — LIÊN LẠC NHANH + CTA + LỐI SANG BẢNG GIÁ (không auto-redirect)
    ------------------------------------------------------------------------- */
-
-function ContactTile({ p, start, href, icon, label }) {
-  const opacity = useTransform(p, [start, start + 0.14], [0, 1]);
-  const y = useTransform(p, [start, start + 0.14], [90, 0]);
-  const rotateX = useTransform(p, [start, start + 0.14], [45, 0]);
-  return (
-    <motion.div style={{ opacity, y, rotateX, transformStyle: "preserve-3d" }} className="will-change-transform">
-      <Magnetic strength={10}>
-        <a
-          href={href}
-          target={href.startsWith("http") ? "_blank" : undefined}
-          rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-          className="group relative overflow-hidden clay-card rounded-2xl md:rounded-[2rem] p-4 md:p-7 border border-border/50 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-2 md:gap-3 text-center hover:scale-[1.05] hover:shadow-glow transition-all duration-300 shadow-lg"
-        >
-          <Shine />
-          <MonoIcon name={icon} size="text-2xl md:text-3xl" box="w-11 h-11 md:w-14 md:h-14" />
-          <span className="font-display text-xs md:text-base font-bold text-foreground group-hover:text-primary transition-colors">
-            {label}
-          </span>
-        </a>
-      </Magnetic>
-    </motion.div>
-  );
-}
-
-function SceneTransition({ container, bind, t, setIsTransitioning }) {
-  const { targetRef, p } = useSceneScroll(container);
-  const navigate = useNavigate();
-
-  // Listen to the scroll progress of this transition scene reactively
-  useEffect(() => {
-    let triggered = false;
-    const unsubscribe = p.on("change", (value) => {
-      if (value > 0.9 && !triggered) {
-        triggered = true;
-        setIsTransitioning(true);
-        setTimeout(() => {
-          navigate("/services");
-        }, 550);
-      }
-    });
-    return () => unsubscribe();
-  }, [p, navigate, setIsTransitioning]);
-
-  const opacity = useTransform(p, [0, 0.3, 0.7, 0.9], [0, 1, 1, 0]);
-  const scale = useTransform(p, [0, 0.3, 0.7, 0.9], [0.95, 1, 1, 1.15]);
-  const blurVal = useTransform(p, [0, 0.3, 0.7, 0.9], [20, 0, 0, 15]);
-  const blurValue = useMotionTemplate`blur(${blurVal}px)`;
-
-  return (
-    <SceneShell bind={bind} targetRef={targetRef} height="140vh">
-      <motion.div
-        style={{
-          opacity,
-          scale,
-          filter: blurValue,
-        }}
-        className="w-full h-full flex flex-col items-center justify-center space-y-8 px-4"
-      >
-        <motion.div className="text-center space-y-4 max-w-2xl">
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground"
-          >
-            {t("intro.transition.title")}
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-base sm:text-lg text-muted-foreground italic"
-          >
-            {t("intro.transition.quote")}
-          </motion.p>
-        </motion.div>
-
-        {/* Animated arrow pointing down */}
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="text-3xl text-primary/60"
-        >
-          <span className="material-symbols-outlined">expand_more</span>
-        </motion.div>
-      </motion.div>
-    </SceneShell>
-  );
-}
 
 function buildContacts(profile, t) {
   return [
-    { href: `https://zalo.me/${profile.zaloNumber}`, icon: "sms", label: t("intro.slide9.zalo"), start: 0.08 },
-    { href: `mailto:${profile.emailAddress}`, icon: "mail", label: t("intro.slide9.email"), start: 0.13 },
-    { href: "https://facebook.com/hugowishpax.le", icon: "group", label: t("intro.slide9.fb"), start: 0.18 },
+    { href: `https://zalo.me/${profile.zaloNumber}`, icon: "sms", label: t("intro.slide9.zalo") },
+    { href: `mailto:${profile.emailAddress}`, icon: "mail", label: t("intro.slide9.email") },
+    { href: "https://facebook.com/hugowishpax.le", icon: "group", label: t("intro.slide9.fb") },
     {
       href: "https://www.tiktok.com/@pethugowishpaxle?_r=1&_t=ZS-96UW9Neg8UW",
       icon: "play_circle",
       label: t("intro.slide9.tiktok"),
-      start: 0.23,
     },
   ];
 }
 
-function SceneContact({ container, bind, t, profile }) {
-  const { targetRef, p } = useSceneScroll(container);
-
-  const headOpacity = useTransform(p, [0.02, 0.15], [0, 1]);
-  const headY = useTransform(p, [0.02, 0.15], [50, 0]);
-  const ctaOpacity = useTransform(p, [0.46, 0.6], [0, 1]);
-  const ctaY = useTransform(p, [0.46, 0.6], [60, 0]);
-
+function SceneContact({ bind, t, profile }) {
   const contacts = buildContacts(profile, t);
 
   return (
-    <SceneShell bind={bind} targetRef={targetRef} height="220vh">
+    <section ref={bind} className={`relative ${STAGE_H} overflow-hidden flex items-center justify-center py-20`}>
       <div className="absolute right-[3%] bottom-[6%] text-[6rem] sm:text-[10rem] xl:text-[13rem] font-black text-foreground/[0.025] dark:text-foreground/[0.012] pointer-events-none select-none tracking-tighter leading-none">
         HELLO
       </div>
 
-      <div className="w-full max-w-5xl mx-auto px-5 sm:px-8 md:px-16 space-y-6 sm:space-y-10 relative z-10" style={{ perspective: 1200 }}>
+      <div className="w-full max-w-5xl mx-auto px-5 sm:px-8 md:px-16 space-y-6 sm:space-y-10 relative z-10">
         {/* Header */}
-        <motion.div style={{ opacity: headOpacity, y: headY }} className="text-center space-y-3 will-change-transform">
+        <FadeUp className="text-center space-y-3">
           <div className="flex justify-center">
             <Chibi src={STICKER_HELLO} drift={6} tilt={3} className="w-20 sm:w-28" />
           </div>
@@ -1761,19 +1493,34 @@ function SceneContact({ container, bind, t, profile }) {
           <p className="text-xs sm:text-sm lg:text-base text-muted-foreground max-w-2xl mx-auto">
             {t("intro.slide9.desc")}
           </p>
-        </motion.div>
+        </FadeUp>
 
         {/* Contact tiles */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-          {contacts.map((c) => (
-            <ContactTile key={c.icon} p={p} {...c} />
+          {contacts.map((c, i) => (
+            <Pop key={c.icon} i={i}>
+              <Magnetic strength={10}>
+                <a
+                  href={c.href}
+                  target={c.href.startsWith("http") ? "_blank" : undefined}
+                  rel={c.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  className="group relative overflow-hidden clay-card rounded-2xl md:rounded-[2rem] p-4 md:p-7 border border-border/50 bg-white/75 dark:bg-background/45 flex flex-col items-center justify-center gap-2 md:gap-3 text-center hover:scale-[1.05] hover:shadow-glow transition-all duration-300 shadow-lg"
+                >
+                  <Shine />
+                  <MonoIcon name={c.icon} size="text-2xl md:text-3xl" box="w-11 h-11 md:w-14 md:h-14" />
+                  <span className="font-display text-xs md:text-base font-bold text-foreground group-hover:text-primary transition-colors">
+                    {c.label}
+                  </span>
+                </a>
+              </Magnetic>
+            </Pop>
           ))}
         </div>
 
         {/* Final CTA */}
-        <motion.div style={{ opacity: ctaOpacity, y: ctaY }} className="relative text-center space-y-4 sm:space-y-5 pt-2 will-change-transform">
+        <FadeUp className="relative text-center space-y-4 sm:space-y-5 pt-2">
           {/* Chibi lái xe "Let's go" — sẵn sàng lên đường cùng bạn */}
-          <Chibi src={STICKER_GO} delay={0.2} drift={5} tilt={2} className="absolute -top-16 sm:-top-20 right-[4%] w-24 sm:w-32 hidden sm:block" />
+          <Chibi src={STICKER_GO} delay={0.2} drift={5} tilt={2} className="absolute -top-24 sm:-top-32 right-0 w-24 sm:w-28 hidden xl:block" />
           <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground leading-tight">
             {t("intro.slide10.title1")}{" "}
             <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
@@ -1798,19 +1545,29 @@ function SceneContact({ container, bind, t, profile }) {
                 {t("intro.slide10.bookBtn")}
               </Link>
             </Magnetic>
-            <Magnetic>
-              <Link
-                to="/services"
-                className="px-8 py-4 rounded-full border border-border text-muted-foreground font-bold hover:text-primary hover:border-primary transition-colors text-xs sm:text-sm inline-flex w-full sm:w-auto items-center justify-center gap-2"
-              >
-                {t("intro.slide6.pricingBtn")}
-                <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </Link>
-            </Magnetic>
           </div>
-        </motion.div>
+
+          {/* Lối sang bảng giá — thay cho auto-redirect cũ */}
+          <Link
+            to="/services"
+            className="group relative overflow-hidden mt-4 mx-auto max-w-2xl flex items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#0c1538]/60 to-[#050818]/80 border border-cyan-500/10 hover:border-primary transition-all duration-300 shadow-lg"
+          >
+            <Shine />
+            <div className="flex items-center gap-3.5 text-left">
+              <MonoIcon name="sell" size="text-xl" box="w-10 h-10" />
+              <div>
+                <p className="text-xs sm:text-sm font-black text-foreground">{t("intro.transition.title")}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{t("intro.transition.quote")}</p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-primary whitespace-nowrap">
+              {t("intro.slide6.pricingBtn")}
+              <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+            </span>
+          </Link>
+        </FadeUp>
       </div>
-    </SceneShell>
+    </section>
   );
 }
 
@@ -1867,21 +1624,6 @@ function MSection({ id, idx, from = { opacity: 0, y: 40 }, children, className =
     >
       {children}
     </motion.section>
-  );
-}
-
-// Item trong lưới hiện dần theo thứ tự (stagger pop)
-function MPop({ i = 0, children, className = "" }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24, scale: 0.92 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-30px" }}
-      transition={{ duration: 0.45, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
   );
 }
 
@@ -2011,7 +1753,7 @@ function IntroductionMobile({ t, data, realPhoto, reduced }) {
               <span className="material-symbols-outlined text-sm">arrow_downward</span>
             </a>
             <Link to="/booking" className={ghostBtn}>
-              {t("intro.slide1.book")}
+              {t("intro.slide10.bookBtn")}
             </Link>
           </div>
         </MSection>
@@ -2019,11 +1761,11 @@ function IntroductionMobile({ t, data, realPhoto, reduced }) {
         {/* STUDIO SHOWCASE — hologram website */}
         <MSection id="m-studio" idx={1} from={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }} className="text-center">
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-            DIGITAL CRAFT · PORTAL
+            {t("intro.holo.tag")}
           </p>
           <div className="flex justify-center pt-2">
             <div className="relative">
-              <StudioHologram />
+              <StudioHologram t={t} />
               <Chibi src={STICKER_NICE} delay={0.4} drift={4} className="absolute -top-10 -right-4 w-14 z-20" />
             </div>
           </div>
@@ -2056,11 +1798,11 @@ function IntroductionMobile({ t, data, realPhoto, reduced }) {
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {VALUE_KEYS.map((k, i) => (
-                <MPop key={k} i={i} className="inline-block">
+                <Pop key={k} i={i} className="inline-block">
                   <span className="inline-block px-3.5 py-1.5 rounded-full bg-muted text-foreground text-[10px] font-bold select-none">
                     {t(`intro.partners.${k}`)}
                   </span>
-                </MPop>
+                </Pop>
               ))}
             </div>
           </div>
@@ -2125,10 +1867,10 @@ function IntroductionMobile({ t, data, realPhoto, reduced }) {
           </blockquote>
           <div className="space-y-3 text-left pt-2">
             {["p1", "p2", "p3"].map((k, i) => (
-              <MPop key={k} i={i} className="flex items-center gap-3 text-sm">
+              <Pop key={k} i={i} className="flex items-center gap-3 text-sm">
                 <span className="text-base font-bold text-primary font-mono">0{i + 1}</span>
                 <span className="font-semibold text-foreground/90">{t(`intro.slide8.${k}`)}</span>
-              </MPop>
+              </Pop>
             ))}
           </div>
         </MSection>
@@ -2168,11 +1910,11 @@ function IntroductionMobile({ t, data, realPhoto, reduced }) {
               { k: "b3", icon: "bolt" },
               { k: "b4", icon: "widgets" },
             ].map((b, i) => (
-              <MPop key={b.k} i={i} className="rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-3 space-y-1">
+              <Pop key={b.k} i={i} className="rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-3 space-y-1">
                 <MonoIcon name={b.icon} size="text-base" box="w-8 h-8" />
                 <p className="text-[11px] font-bold text-foreground leading-tight">{t(`intro.slide5.${b.k}t`)}</p>
                 <p className="text-[10px] text-muted-foreground leading-relaxed">{t(`intro.slide5.${b.k}d`)}</p>
-              </MPop>
+              </Pop>
             ))}
           </div>
 
@@ -2205,7 +1947,7 @@ function IntroductionMobile({ t, data, realPhoto, reduced }) {
           />
           <div className="grid grid-cols-2 gap-2 text-left pt-1">
             {discoveryItems.map((item, i) => (
-              <MPop key={item.id} i={i}>
+              <Pop key={item.id} i={i}>
                 <Link
                   to={item.path}
                   className="block h-full rounded-2xl border border-border/50 bg-card/70 backdrop-blur-sm p-2.5 space-y-1 active:scale-[0.98] transition-transform"
@@ -2214,7 +1956,7 @@ function IntroductionMobile({ t, data, realPhoto, reduced }) {
                   <p className="text-[11px] font-bold text-foreground leading-tight">{item.name}</p>
                   <p className="text-[10px] text-muted-foreground leading-snug line-clamp-1">{item.desc}</p>
                 </Link>
-              </MPop>
+              </Pop>
             ))}
           </div>
         </MSection>
@@ -2227,7 +1969,7 @@ function IntroductionMobile({ t, data, realPhoto, reduced }) {
           <MHeading badge={t("intro.slide9.badge")} title="" gradient={t("intro.slide9.title")} desc={t("intro.slide9.desc")} />
           <div className="grid grid-cols-2 gap-3">
             {contacts.map((c, i) => (
-              <MPop key={c.icon} i={i}>
+              <Pop key={c.icon} i={i}>
                 <a
                   href={c.href}
                   target={c.href.startsWith("http") ? "_blank" : undefined}
@@ -2237,7 +1979,7 @@ function IntroductionMobile({ t, data, realPhoto, reduced }) {
                   <MonoIcon name={c.icon} size="text-2xl" box="w-11 h-11" />
                   <span className="font-display text-xs font-bold text-foreground">{c.label}</span>
                 </a>
-              </MPop>
+              </Pop>
             ))}
           </div>
 
@@ -2293,70 +2035,9 @@ export default function IntroductionPage() {
   const lenisRef = useRef(null);
   const sceneEls = useRef([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [hologramTarget, setHologramTarget] = useState({ x: 0, y: 0, scale: 0.95, opacity: 1 });
   const reduced = useReducedMotion();
-  // Điện thoại (< 768px) dùng layout dọc riêng — desktop/iPad giữ bản cinematic
+  // Điện thoại (< 768px) dùng layout dọc riêng — desktop/iPad giữ bản đầy đủ
   const isPhone = useMediaQuery("(max-width: 767px)");
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  useEffect(() => {
-    if (isPhone) return; // mobile view có layout riêng, không cần hologram
-    const updatePosition = () => {
-      const spacer = document.getElementById(`hologram-spacer-${activeIndex}`);
-      
-      if (isMobile || !spacer) {
-        // Fallback to mobile default centered position
-        const targetY = activeIndex === 0 ? "18vh" : activeIndex === 1 ? "20vh" : activeIndex === 2 ? "12vh" : activeIndex === 3 ? "20vh" : "12vh";
-        setHologramTarget({
-          x: 0,
-          y: `calc(-50% + ${targetY})`,
-          scale: activeIndex === 4 ? 0.75 : 0.65,
-          opacity: activeIndex <= 4 ? 0.28 : 0
-        });
-        return;
-      }
-
-      const rect = spacer.getBoundingClientRect();
-      const containerEl = containerRef.current;
-      const containerRect = containerEl
-        ? containerEl.getBoundingClientRect()
-        : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
-
-      const spacerCenterX = rect.left + rect.width / 2;
-      const spacerCenterY = rect.top + rect.height / 2;
-
-      const containerCenterX = containerRect.left + containerRect.width / 2;
-      const containerCenterY = containerRect.top + containerRect.height / 2;
-
-      setHologramTarget({
-        x: spacerCenterX - containerCenterX,
-        y: spacerCenterY - containerCenterY,
-        scale: activeIndex === 4 ? 0.75 : 0.95,
-        opacity: activeIndex <= 4 ? 1 : 0
-      });
-    };
-
-    updatePosition();
-
-    // Observe body modifications (for columns mounting/hiding on resize or state changes)
-    const observer = new MutationObserver(updatePosition);
-    observer.observe(document.body, { attributes: true, childList: true, subtree: true });
-
-    window.addEventListener("resize", updatePosition);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updatePosition);
-    };
-  }, [activeIndex, isMobile, isPhone]);
 
   useHeadMeta({
     title: "Hugo Studio — Portfolio & Dịch Vụ Thiết Kế Web Sinh Viên",
@@ -2369,7 +2050,7 @@ export default function IntroductionPage() {
 
   // Lenis — inertia scroll mượt kiểu Apple (tôn trọng prefers-reduced-motion)
   useEffect(() => {
-    if (reduced || !containerRef.current) return;
+    if (reduced || isPhone || !containerRef.current) return;
     const lenis = new Lenis({
       wrapper: containerRef.current,
       content: contentRef.current,
@@ -2387,7 +2068,7 @@ export default function IntroductionPage() {
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, [reduced]);
+  }, [reduced, isPhone]);
 
   // Thanh tiến độ tổng thể (Apple-style)
   const { scrollYProgress } = useScroll({ container: containerRef, layoutEffect: false });
@@ -2401,11 +2082,9 @@ export default function IntroductionPage() {
     sceneEls.current.forEach((scene, i) => {
       if (scene && scene.offsetTop <= mid) idx = i;
     });
-    // Cap activeIndex for visual nav-highlight to index 5
-    const displayIdx = Math.min(idx, 5);
     setActiveIndex((prev) => {
-      if (prev !== displayIdx) buzz(5);
-      return displayIdx;
+      if (prev !== idx) buzz(5);
+      return idx;
     });
   };
 
@@ -2497,18 +2176,6 @@ export default function IntroductionPage() {
       {/* Starry Universe & Dynamic Nebulae Background */}
       <StarryUniverse activeIndex={activeIndex} reduced={reduced} />
 
-      {/* Floating Hologram Master (Linked thread across scenes) */}
-      <HologramMaster
-        activeIndex={activeIndex}
-        realPhoto={realPhoto}
-        fullName={data.profile.fullName}
-        t={t}
-        scrollProgress={scrollYProgress}
-        isMobile={isMobile}
-        reduced={reduced}
-        target={hologramTarget}
-      />
-
       {/* Film-grain overlay */}
       <div
         aria-hidden
@@ -2516,41 +2183,21 @@ export default function IntroductionPage() {
         className="absolute inset-0 pointer-events-none z-20 opacity-[0.025] dark:opacity-[0.04] mix-blend-overlay"
       />
 
-      {/* Cinematic scroll container */}
+      {/* Scroll container */}
       <div
         ref={containerRef}
         onScroll={handleScroll}
         className="w-full h-full overflow-y-auto no-scrollbar text-foreground relative z-10"
       >
         <div ref={contentRef}>
-          <SceneStudio container={containerRef} bind={bindScene(0)} t={t} onExplore={() => scrollToScene(1)} reduced={reduced} />
-          <ScenePartners container={containerRef} bind={bindScene(1)} t={t} />
-          <SceneAbout container={containerRef} bind={bindScene(2)} t={t} realPhoto={realPhoto} fullName={data.profile.fullName} reduced={reduced} />
-          <SceneBio container={containerRef} bind={bindScene(3)} t={t} />
-          <SceneDiscoveries container={containerRef} bind={bindScene(4)} t={t} reduced={reduced} />
-          <SceneContact container={containerRef} bind={bindScene(5)} t={t} profile={data.profile} />
-          <SceneTransition container={containerRef} bind={bindScene(6)} t={t} setIsTransitioning={setIsTransitioning} />
+          <SceneStudio bind={bindScene(0)} t={t} onExplore={() => scrollToScene(1)} reduced={reduced} />
+          <ScenePartners bind={bindScene(1)} t={t} />
+          <SceneAbout bind={bindScene(2)} t={t} realPhoto={realPhoto} fullName={data.profile.fullName} />
+          <SceneBio bind={bindScene(3)} t={t} />
+          <SceneDiscoveries bind={bindScene(4)} t={t} reduced={reduced} />
+          <SceneContact bind={bindScene(5)} t={t} profile={data.profile} />
         </div>
       </div>
-
-      {/* Cinematic Portal Transition Wormhole Overlay */}
-      <AnimatePresence>
-        {isTransitioning && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="fixed inset-0 bg-[#04050f] z-[100] flex items-center justify-center pointer-events-auto"
-          >
-            <motion.div
-              animate={{ rotate: 360, scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="w-12 h-12 rounded-full border-2 border-t-cyan-500 border-r-transparent border-b-pink-500 border-l-transparent"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

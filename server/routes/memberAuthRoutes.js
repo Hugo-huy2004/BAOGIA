@@ -1,8 +1,19 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { signMemberToken } from '../middleware/authMiddleware.js';
 import { GOOGLE_CLIENT_ID } from '../utils/secrets.js';
 
 const router = express.Router();
+
+// Google login is verified server-side (Google signs the token), so this isn't
+// about brute-force — it caps token-verification abuse / DoS per IP.
+const googleLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 30 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Quá nhiều yêu cầu đăng nhập. Vui lòng thử lại sau ít phút.' }
+});
 
 const isProduction = process.env.NODE_ENV === 'production';
 const MEMBER_COOKIE_MAX_AGE = 14 * 24 * 60 * 60 * 1000; // mirror token TTL (14d)
@@ -21,7 +32,7 @@ const setMemberCookie = (res, token) => {
 // issues our own member session token. The frontend must never mint a session
 // from a client-side-decoded Google payload — that let anyone impersonate any
 // email by editing localStorage.
-router.post('/google', async (req, res) => {
+router.post('/google', googleLoginLimiter, async (req, res) => {
   try {
     const { credential } = req.body;
     if (!credential || typeof credential !== 'string') {

@@ -60,14 +60,17 @@ function AppContent() {
   const isBioRoute = location.pathname.startsWith('/bio/');
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
   const isPreviewRoute = location.pathname === "/preview";
-  const showFooter = 
-    !isBioRoute && 
-    !isPartnerBioRoute && 
+  const showFooter =
+    !isBioRoute &&
+    !isPartnerBioRoute &&
     !isPreviewRoute &&
-    location.pathname !== "/introduction" && 
+    location.pathname !== "/introduction" &&
     location.pathname !== "/" &&
     !location.pathname.startsWith("/member") &&
-    !location.pathname.startsWith("/admin");
+    !location.pathname.startsWith("/admin") &&
+    // Login is a focused, form-only screen (esp. as an installed PWA) — the full
+    // marketing footer below it is noise, like every major sign-in page.
+    !location.pathname.startsWith("/login");
 
   const isMaintenanceMode = data?.systemSettings?.maintenanceMode === true;
   const isVacationMode = data?.systemSettings?.vacationMode === true;

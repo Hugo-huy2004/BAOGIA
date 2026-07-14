@@ -30,6 +30,7 @@ export default function CustomerProfileTab({ project, setProject }) {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
       const updatedProject = await res.json();

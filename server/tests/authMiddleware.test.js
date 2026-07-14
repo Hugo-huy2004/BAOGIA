@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import jwt from 'jsonwebtoken';
-import { requireMember, requireAdmin, signMemberToken } from '../middleware/authMiddleware.js';
+import { requireMember, requireAdmin, requireCustomer, signMemberToken, signCustomerToken } from '../middleware/authMiddleware.js';
 import { JWT_SECRET } from '../utils/secrets.js';
 
 const mockRes = () => {
@@ -77,6 +77,48 @@ describe('requireMember', () => {
     expect(nextCalled).toBe(true);
     expect(req.isAdminActor).toBe(true);
     expect(req.memberEmail).toBeNull();
+  });
+});
+
+describe('requireCustomer', () => {
+  it('rejects requests with no token', () => {
+    const { res, nextCalled } = run(requireCustomer, { cookies: {}, headers: {}, params: { id: 'anything' } });
+    expect(nextCalled).toBe(false);
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('binds projectId from the token, ignoring the :id in the URL (no IDOR)', () => {
+    const token = signCustomerToken('myProjectId');
+    const req = { cookies: { customer_jwt: token }, headers: {}, params: { id: 'someoneElsesProjectId' } };
+    const { nextCalled } = run(requireCustomer, req);
+    expect(nextCalled).toBe(true);
+    expect(req.customerRole).toBe('customer');
+    expect(req.projectId).toBe('myProjectId'); // from token, NOT the attacker-supplied :id
+  });
+
+  it('lets an admin act on the project named by :id', () => {
+    const adminToken = jwt.sign({ id: '1', role: 'admin' }, JWT_SECRET);
+    const req = { cookies: { jwt: adminToken }, headers: {}, params: { id: 'targetProject' } };
+    const { nextCalled } = run(requireCustomer, req);
+    expect(nextCalled).toBe(true);
+    expect(req.customerRole).toBe('admin');
+    expect(req.projectId).toBe('targetProject');
+  });
+
+  it('rejects a forged customer token', () => {
+    const forged = jwt.sign({ projectId: 'x', role: 'customer' }, 'wrong-secret');
+    const req = { cookies: { customer_jwt: forged }, headers: {}, params: { id: 'x' } };
+    const { res, nextCalled } = run(requireCustomer, req);
+    expect(nextCalled).toBe(false);
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('rejects a member token on customer routes (wrong role)', () => {
+    const token = signMemberToken('m@e.edu');
+    const req = { cookies: { customer_jwt: token }, headers: {}, params: { id: 'x' } };
+    const { res, nextCalled } = run(requireCustomer, req);
+    expect(nextCalled).toBe(false);
+    expect(res.statusCode).toBe(403);
   });
 });
 

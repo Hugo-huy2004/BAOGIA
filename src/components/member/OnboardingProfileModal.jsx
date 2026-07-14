@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
-export default function OnboardingProfileModal({ email, onDone }) {
+export default function OnboardingProfileModal({ email, onDone, onSkip }) {
   const { t } = useTranslation();
   const [phone, setPhone] = useState("");
   const [referrerCode, setReferrerCode] = useState(() => {
@@ -82,6 +82,16 @@ export default function OnboardingProfileModal({ email, onDone }) {
         >
           {submitting ? t("memberPortal.onboarding.submitting") : t("memberPortal.onboarding.submitButton")}
         </button>
+
+        {onSkip && (
+          <button
+            onClick={onSkip}
+            disabled={submitting}
+            className="w-full -mt-1 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+          >
+            {t("memberPortal.onboarding.skipButton", "Để sau")}
+          </button>
+        )}
       </div>
     </div>
   );

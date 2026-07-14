@@ -1,6 +1,8 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import rateLimit from 'express-rate-limit';
 import Admin from '../models/Admin.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { awardJoy } from '../utils/joyService.js';
@@ -16,12 +18,41 @@ const router = express.Router();
 
 import { JWT_SECRET } from '../utils/secrets.js';
 
-// Helper for SHA-256 (to match the existing MongoDB hashed credentials)
-const sha256 = (message) => {
-  return crypto.createHash('sha256').update(message).digest('hex');
-};
+// Username is hashed only as a lookup key (not a secret). Passwords used to be
+// unsalted SHA-256 — fast and brute-forceable if the DB ever leaked. They're now
+// bcrypt; verifyAndUpgrade() checks either scheme and transparently re-hashes a
+// legacy SHA-256 record to bcrypt the first time its owner logs in.
+const sha256 = (message) => crypto.createHash('sha256').update(message).digest('hex');
+export const isBcrypt = (h) => typeof h === 'string' && h.startsWith('$2');
 
-router.post('/login', async (req, res) => {
+// Exported for unit testing (see tests/adminPassword.test.js).
+export async function verifyAndUpgrade(admin, plainPassword) {
+  if (isBcrypt(admin.password)) {
+    return bcrypt.compare(plainPassword, admin.password);
+  }
+  // Legacy unsalted SHA-256 hex — constant-time compare, then upgrade on success.
+  const legacy = sha256(plainPassword);
+  const stored = admin.password || '';
+  const ok = legacy.length === stored.length &&
+    crypto.timingSafeEqual(Buffer.from(legacy), Buffer.from(stored));
+  if (ok) {
+    admin.password = await bcrypt.hash(plainPassword, 12);
+    await admin.save();
+  }
+  return ok;
+}
+
+// Admin login is directly brute-forceable (unlike Google login) — cap attempts
+// per IP. Kept loose in dev where the Vite proxy collapses every request to one IP.
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 10 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Quá nhiều lần đăng nhập thất bại. Vui lòng thử lại sau 15 phút.' }
+});
+
+router.post('/login', adminLoginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
 
@@ -29,12 +60,9 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    const usernameHash = sha256(username);
-    const passwordHash = sha256(password);
+    const admin = await Admin.findOne({ username: sha256(username) });
 
-    const admin = await Admin.findOne({ username: usernameHash, password: passwordHash });
-
-    if (!admin) {
+    if (!admin || !(await verifyAndUpgrade(admin, password))) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
 
@@ -89,8 +117,7 @@ router.post('/verify-password', requireAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Không tìm thấy tài khoản admin' });
     }
 
-    const passwordHash = sha256(password);
-    if (admin.password !== passwordHash) {
+    if (!(await verifyAndUpgrade(admin, password))) {
       return res.status(401).json({ error: 'Mật khẩu không chính xác' });
     }
 
@@ -117,11 +144,11 @@ router.post('/change-password', requireAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Không tìm thấy tài khoản admin' });
     }
 
-    if (admin.password !== sha256(currentPassword)) {
+    if (!(await verifyAndUpgrade(admin, currentPassword))) {
       return res.status(401).json({ error: 'Mật khẩu hiện tại không chính xác' });
     }
 
-    admin.password = sha256(newPassword);
+    admin.password = await bcrypt.hash(newPassword, 12);
     await admin.save();
 
     res.json({ success: true });

@@ -178,7 +178,8 @@
       "b3d": "Just an email ending in .edu — the system verifies instantly, no manual review.",
       "b4t": "Full student toolkit",
       "b4d": "Bạn Học Đường, Hugo PSY, Web IDE, Hugo Radio and Aura AI — free for a full 12 months.",
-      "toolsTitle": "Free student utilities included"
+      "toolsTitle": "Free student utilities included",
+      "flipHint": "Hover or tap to flip the card"
     },
     "slide6": {
       "badge": "✦ Professional Web Services",
@@ -259,28 +260,62 @@
       "badge": "✦ Utilities Ecosystem",
       "title1": "Utility Planets",
       "title2": "Your personal digital discoveries.",
-      "desc": "I hand-built these unique utilities spanning artificial intelligence, music, and emotional healing — all fully integrated, free, and crafted just for you.",
+      "desc": "Utilities I built by hand — from AI and music to mental-wellness support — all free for students.",
       "auraTitle": "Aura AI",
-      "auraDesc": "A bright speck in the void. A gentle AI companion that helps you concentrate on studying and sparks creative inspiration between lines of code.",
+      "auraDesc": "A gentle AI companion that helps you focus on studying and sparks creative inspiration.",
       "psyTitle": "Hugo PSY",
-      "psyDesc": "Unburden your mind. When late night falls and the outside world is too loud, Hugo PSY is your listening friend for your deepest secrets.",
+      "psyDesc": "A listening friend for whatever is on your mind — supporting your mental well-being, especially late at night.",
       "hocduongTitle": "Bạn Học Đường",
-      "hocduongDesc": "A haven for dreamers. A shared space for students to study, exchange documents, and connect like-minded learners.",
+      "hocduongDesc": "A shared study space: exchange documents, ask questions and connect with the student community.",
       "radioTitle": "Hugo Radio",
-      "radioDesc": "Melodies drifting through the galaxy. A soothing lofi radio station accompanying you through long nights of dedication.",
+      "radioDesc": "A soothing lofi radio station for your late-night study sessions.",
       "ideTitle": "Web IDE",
-      "ideDesc": "The star forge. A portable workspace where you can write code and compile your initial ideas directly from your mobile browser.",
+      "ideDesc": "Write and run code right in your browser — even on your phone.",
       "arcadeTitle": "Hugo Arcade",
-      "arcadeDesc": "A gaming oasis between stars. Retro arcade games and multiplayer chess to relax your mind after stressful study sessions.",
+      "arcadeDesc": "Retro games and multiplayer chess to unwind after stressful study sessions.",
       "joyTitle": "Joy PWA",
-      "joyDesc": "The cosmos' energy node. A place to store value, accumulate Joy rewards, and bind all utilities in the ecosystem.",
+      "joyDesc": "The JOY rewards wallet — earn and spend points across the whole ecosystem.",
       "bioTitle": "Signature Bio",
-      "bioDesc": "Your personal mark in the galaxy. A unique page reflecting your true artistic self and intelligence.",
-      "hint": "✦ Hover over the planets to explore the digital universe"
+      "bioDesc": "A one-of-a-kind personal page that reflects your true style and knowledge.",
+      "hint": "✦ Hover over the planets to explore each utility"
     },
     "transition": {
       "title": "From words to action",
-      "quote": "\"Pick a shade — or I'll paint you a rainbow.\""
+      "quote": "See the reference pricing — clear and transparent for every package."
+    },
+    "holo": {
+      "tag": "Digital craft studio",
+      "cta": "Start a project"
+    },
+    "cine": {
+      "nav1": "About",
+      "nav2": "Utilities",
+      "nav3": "Services",
+      "nav4": "Booking",
+      "nav5": "Pricing",
+      "heroWord": "Hugo",
+      "heroCta": "Start a project",
+      "aboutLabel": "Digital craft studio",
+      "aboutH1": "I am Hugo,",
+      "aboutH2": "a final-year student in love with design.",
+      "aboutH3": "I build websites, Bio pages and study utilities for students.",
+      "featT1": "Studio-grade workflows for every digital product.",
+      "featT2": "Carefully made. Delivered on time. Student-friendly pricing.",
+      "cardVideo": "Your creative canvas.",
+      "card2Title": "Free .edu Bio.",
+      "card2c1": "Automatic .edu email verification in 3 seconds",
+      "card2c2": "A clean personal link — bio/your-name",
+      "card2c3": "Valid for a full 12 months, no hidden fees",
+      "card2c4": "Bundled with the full free student toolkit",
+      "card3Title": "Web Design.",
+      "card3c1": "Custom landing pages",
+      "card3c2": "Full websites, easy to self-manage",
+      "card3c3": "Optimized for SEO, speed and mobile",
+      "card4Title": "Student Utilities.",
+      "card4c1": "Hugo PSY — a listening companion",
+      "card4c2": "Web IDE — code right in the browser",
+      "card4c3": "Hugo Radio — lofi for late-night study",
+      "learnMore": "Learn more"
     }
   },
   "servicesPage": {
@@ -1422,8 +1457,8 @@
       "partner": "Partners",
       "utilities": "Utilities",
       "history": "Notifications",
-      "joy": "Services",
-      "community": "Communication",
+      "joy": "JOY Wallet",
+      "community": "Community",
       "settings": "Profile",
       "verify": "Verify",
       "verifyEduPending": "Student not verified"
@@ -1798,7 +1833,8 @@
       "referralPlaceholder": "e.g. HG123456",
       "referralHint": "Enter a referrer's code to get +10 JOY and +15 free days of Bio link",
       "submitting": "Submitting...",
-      "submitButton": "Finish"
+      "submitButton": "Finish",
+      "skipButton": "Skip for now"
     },
     "joy": {
       "particle": {

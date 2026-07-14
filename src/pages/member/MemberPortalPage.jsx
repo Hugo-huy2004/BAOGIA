@@ -660,10 +660,10 @@ export default function MemberPortalPage() {
     return [
       { id: "account",   label: t("memberPortal.tabs.community", "Cộng đồng"), icon: "groups",          partner: false },
       ...(!isGuestMode ? [
-        { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "paid",            partner: false },
+        { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "account_balance_wallet", partner: false },
       ] : []),
       { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps",            partner: false },
-      { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history",         partner: false },
+      { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications",   partner: false },
       ...(!isGuestMode ? [
         { id: "partner",   label: t("memberPortal.tabs.partner"),    icon: "handshake",       partner: true  }
       ] : []),
@@ -681,15 +681,15 @@ export default function MemberPortalPage() {
       return [
         { id: "account",   label: t("memberPortal.tabs.community", "HugoComm"), icon: "groups" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
-        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" },
+        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications" },
         { id: "login",     label: t("navbar.login", "Đăng Nhập"),    icon: "login" }
       ];
     } else {
       return [
         { id: "account",   label: t("memberPortal.tabs.community", "HugoComm"), icon: "groups" },
-        { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "paid" },
+        { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "account_balance_wallet" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
-        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "history" },
+        { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications" },
         ...(needsEduVerification ? [
           { id: "verify",  label: t("memberPortal.tabs.verify"),    icon: "school", alert: !bio?.verificationRequest?.submitted }
         ] : []),
@@ -792,6 +792,7 @@ export default function MemberPortalPage() {
         {showOnboarding && !isGuestMode && memberSession?.email && (
           <OnboardingProfileModal
             email={memberSession.email}
+            onSkip={() => setShowOnboarding(false)}
             onDone={(result) => {
               setShowOnboarding(false);
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
@@ -811,8 +812,11 @@ export default function MemberPortalPage() {
     <div className="relative isolate min-h-screen bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
       {/* Weather sky as a top "hero" band that fades into the clean dashboard
           background — vivid & visible up top, without washing out the content
-          below. Sits at z:-1 behind the cards; glass cards reveal it. */}
-      <WeatherLayer enabled={weatherOn} immersive mode="hero" />
+          below. Sits at z:-1 behind the cards; glass cards reveal it.
+          Only on the dashboard/community tab: on dense functional tabs
+          (utilities, wallet, settings, notifications) the animated rain/particles
+          bled through the glass cards and hurt text legibility. */}
+      <WeatherLayer enabled={weatherOn && activeTab === "account"} immersive mode="hero" />
 
       <HealingModal
         showModal={healing.showModal} subStep={healing.subStep} state={healing.state}
@@ -1074,6 +1078,7 @@ export default function MemberPortalPage() {
         {showOnboarding && !isGuestMode && memberSession?.email && (
           <OnboardingProfileModal
             email={memberSession.email}
+            onSkip={() => setShowOnboarding(false)}
             onDone={(result) => {
               setShowOnboarding(false);
               

@@ -1,53 +1,33 @@
 import CreativeCommonsBadge from './CreativeCommonsBadge.jsx';
 import W3CBadge from './W3CBadge.jsx';
-import GoogleSEO100Badge from './GoogleSEO100Badge.jsx';
 import GoogleSafeBrowsingBadge from './GoogleSafeBrowsingBadge.jsx';
 import DMCABadge from './DMCABadge.jsx';
-import LighthouseBestPracticesBadge from './LighthouseBestPracticesBadge.jsx';
-import A11yBadge from './A11yBadge.jsx';
 import NortonSafeWebBadge from './NortonSafeWebBadge.jsx';
 import TrustpilotBadge from './TrustpilotBadge.jsx';
-import BingWebmasterBadge from './BingWebmasterBadge.jsx';
-import BraveVerifiedBadge from './BraveVerifiedBadge.jsx';
 import PrivacyBadge from './PrivacyBadge.jsx';
 import VietnamBadge from './VietnamBadge.jsx';
-import TechStackBadge from './TechStackBadge.jsx';
-import PinterestBadge from './PinterestBadge.jsx';
 import SSLBadge from './SSLBadge.jsx';
-import DDoSBadge from './DDoSBadge.jsx';
-import IPv6Badge from './IPv6Badge.jsx';
 import GreenWebBadge from './GreenWebBadge.jsx';
-
 import GDPRCompliantBadge from './GDPRCompliantBadge.jsx';
-import PCICompliantBadge from './PCICompliantBadge.jsx';
-import ISO27001Badge from './ISO27001Badge.jsx';
-import CloudflareProtectedBadge from './CloudflareProtectedBadge.jsx';
 
-// Export an array of logo components so Footer can render them dynamically
+// Curated trust badges only. A long vanity wall reads as spam and *lowers*
+// trust; worse, unaudited certification claims (ISO 27001, PCI-DSS, Cloudflare)
+// are misleading for a personal studio and a real credibility/legal risk — so
+// they're intentionally dropped. What's kept is verifiable via its own link:
+// SSL, GDPR posture, license, W3C validation, Google/Norton safe-reputation,
+// DMCA protection, tracking-free (Blacklight), green hosting, Trustpilot reviews.
 const logos = [
-  GreenWebBadge,
-  CloudflareProtectedBadge,
+  SSLBadge,
   GDPRCompliantBadge,
-  PCICompliantBadge,
-  ISO27001Badge,
-  CreativeCommonsBadge,
-  W3CBadge,
-  GoogleSEO100Badge,
   GoogleSafeBrowsingBadge,
   NortonSafeWebBadge,
-  BingWebmasterBadge,
-  BraveVerifiedBadge,
-  PinterestBadge,
-  TrustpilotBadge,
-  LighthouseBestPracticesBadge,
-  A11yBadge,
   DMCABadge,
   PrivacyBadge,
+  W3CBadge,
+  CreativeCommonsBadge,
+  GreenWebBadge,
+  TrustpilotBadge,
   VietnamBadge,
-  TechStackBadge,
-  SSLBadge,
-  DDoSBadge,
-  IPv6Badge,
 ];
 
 export default logos;

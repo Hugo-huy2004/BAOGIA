@@ -58,5 +58,8 @@ CommunityMessageSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 // Feed query (approved, newest-first) and the bot's daily-count query.
 CommunityMessageSchema.index({ status: 1, createdAt: -1 });
 CommunityMessageSchema.index({ isBot: 1, createdAt: 1 });
+// The feed is `$or: [{status:'approved'}, {senderEmail: me}]` — without this the
+// senderEmail branch forces a collection scan on every 8s poll at scale.
+CommunityMessageSchema.index({ senderEmail: 1, createdAt: -1 });
 
 export default mongoose.model('CommunityMessage', CommunityMessageSchema);

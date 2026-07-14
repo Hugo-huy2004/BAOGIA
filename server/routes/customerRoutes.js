@@ -1,5 +1,6 @@
 import express from 'express';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import rateLimit from 'express-rate-limit';
+import { requireAdmin, requireCustomer, signCustomerToken } from '../middleware/authMiddleware.js';
 import CustomerProject from '../models/CustomerProject.js';
 import CustomerMessage from '../models/CustomerMessage.js';
 import crypto from 'crypto';
@@ -11,12 +12,37 @@ function generateLoginCode() {
   return crypto.randomBytes(3).toString('hex').toUpperCase(); // 6 chars hex
 }
 
+// A 6-hex loginCode is only 24 bits — throttle /auth per IP so the code space
+// can't be brute-forced. 20 tries / 15 min in prod makes it infeasible.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 20 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Quá nhiều lần thử mã đăng nhập. Vui lòng thử lại sau 15 phút.' }
+});
+
+const CUSTOMER_COOKIE = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: 14 * 24 * 60 * 60 * 1000
+};
+
+// The customer's own loginCode is a bearer secret — never echo it back to the
+// portal (the session cookie replaces it). Admin routes keep the full doc.
+function stripSecrets(projectDoc) {
+  const obj = projectDoc.toObject ? projectDoc.toObject() : { ...projectDoc };
+  delete obj.loginCode;
+  return obj;
+}
+
 // ----------------------------------------------------
 // PUBLIC ROUTES (Customer Portal)
 // ----------------------------------------------------
 
-// Login via Code
-router.post('/auth', async (req, res) => {
+// Login via Code — exchanges the loginCode for a project-scoped session cookie.
+router.post('/auth', authLimiter, async (req, res) => {
   try {
     const { loginCode } = req.body;
     if (!loginCode) return res.status(400).json({ error: 'Mã đăng nhập là bắt buộc' });
@@ -24,27 +50,27 @@ router.post('/auth', async (req, res) => {
     const project = await CustomerProject.findOne({ loginCode: loginCode.trim().toUpperCase() });
     if (!project) return res.status(401).json({ error: 'Mã đăng nhập không hợp lệ hoặc không tồn tại' });
 
-    res.json({ project });
+    res.cookie('customer_jwt', signCustomerToken(project._id), CUSTOMER_COOKIE);
+    res.json({ project: stripSecrets(project) });
   } catch (error) {
     console.error('Customer Auth Error:', error);
     res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
   }
 });
 
-// Update Customer Profile (Public but requires ID/Code check ideally. We'll use ID directly for simplicity since it's an internal portal, or better check the code too, but let's just use ID)
-// Realistically, the client should send the code or an auth token. We'll just update by ID.
-router.put('/:id/profile', async (req, res) => {
+// From here down, identity comes from the session (req.projectId). The :id in
+// the path is decorative for customers — they can only ever touch their own
+// project; admins act on the project named by :id.
+router.put('/:id/profile', requireCustomer, async (req, res) => {
   try {
-    const { id } = req.params;
     const { fullName, phone, birthday, email, address } = req.body;
 
-    const project = await CustomerProject.findById(id);
+    const project = await CustomerProject.findById(req.projectId);
     if (!project) return res.status(404).json({ error: 'Không tìm thấy dự án' });
 
-    // Customer is not allowed to edit name and phone if locked? Let's say they can edit profile fields.
     if (fullName) project.fullName = fullName;
     if (phone) project.phone = phone;
-    
+
     project.customerProfile = {
       ...project.customerProfile,
       birthday: birthday !== undefined ? birthday : project.customerProfile.birthday,
@@ -53,17 +79,18 @@ router.put('/:id/profile', async (req, res) => {
     };
 
     await project.save();
-    res.json(project);
+    res.json(stripSecrets(project));
   } catch (error) {
     console.error('Update Profile Error:', error);
     res.status(500).json({ error: 'Lỗi máy chủ' });
   }
 });
 
-// Get Unread Count for Customer
-router.get('/:id/messages/unread-count', async (req, res) => {
+// Get Unread Count — messages from the other party still unread.
+router.get('/:id/messages/unread-count', requireCustomer, async (req, res) => {
   try {
-    const count = await CustomerMessage.countDocuments({ projectId: req.params.id, sender: 'admin', isRead: false });
+    const other = req.customerRole === 'admin' ? 'customer' : 'admin';
+    const count = await CustomerMessage.countDocuments({ projectId: req.projectId, sender: other, isRead: false });
     res.json({ count });
   } catch (error) {
     res.status(500).json({ error: 'Lỗi máy chủ' });
@@ -71,32 +98,33 @@ router.get('/:id/messages/unread-count', async (req, res) => {
 });
 
 // Get Messages
-router.get('/:id/messages', async (req, res) => {
+router.get('/:id/messages', requireCustomer, async (req, res) => {
   try {
-    const messages = await CustomerMessage.find({ projectId: req.params.id }).sort({ createdAt: 1 });
+    const messages = await CustomerMessage.find({ projectId: req.projectId }).sort({ createdAt: 1 });
     res.json(messages);
   } catch (error) {
     res.status(500).json({ error: 'Lỗi máy chủ' });
   }
 });
 
-// Send Message
-router.post('/:id/messages', async (req, res) => {
+// Send Message — sender is derived from the session role, never the request
+// body, so a customer can't post as 'admin' (studio impersonation).
+router.post('/:id/messages', requireCustomer, async (req, res) => {
   try {
-    const { sender, message } = req.body;
+    const { message } = req.body;
     if (!message || !message.trim()) return res.status(400).json({ error: 'Tin nhắn rỗng' });
-    
-    const project = await CustomerProject.findById(req.params.id);
+
+    const project = await CustomerProject.findById(req.projectId);
     if (!project) return res.status(404).json({ error: 'Không tìm thấy dự án' });
-    
+
     // If project is completed, do not allow sending messages
     if (project.status === 'Hoàn tất') {
       return res.status(403).json({ error: 'Dự án đã hoàn tất, không thể gửi thêm yêu cầu' });
     }
 
     const newMessage = await CustomerMessage.create({
-      projectId: req.params.id,
-      sender: sender || 'customer',
+      projectId: req.projectId,
+      sender: req.customerRole,
       message: message.trim()
     });
 
@@ -106,14 +134,13 @@ router.post('/:id/messages', async (req, res) => {
   }
 });
 
-// Mark messages as read
-router.put('/:id/messages/read', async (req, res) => {
+// Mark messages as read — marks the other party's messages read.
+router.put('/:id/messages/read', requireCustomer, async (req, res) => {
   try {
-    const { role } = req.body;
-    const senderToMark = role === 'admin' ? 'customer' : 'admin';
-    
+    const senderToMark = req.customerRole === 'admin' ? 'customer' : 'admin';
+
     await CustomerMessage.updateMany(
-      { projectId: req.params.id, sender: senderToMark, isRead: false },
+      { projectId: req.projectId, sender: senderToMark, isRead: false },
       { $set: { isRead: true } }
     );
     res.json({ success: true });
