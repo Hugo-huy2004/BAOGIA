@@ -394,7 +394,7 @@ export default function CommunityTab({ memberSession, bio }) {
   };
 
   return (
-    <div className="hg-gazette animate-fadeIn overflow-hidden rounded-2xl border border-border/40 bg-card/70 px-3.5 py-4 text-foreground shadow-sm backdrop-blur-2xl backdrop-saturate-150 sm:px-6" style={SERIF}>
+    <div className="hg-gazette animate-fadeIn overflow-hidden rounded-2xl border border-border/60 bg-card px-3.5 py-4 text-foreground shadow-sm sm:px-6" style={SERIF}>
       <style>{`
         .hg-gazette .hg-dropcap::first-letter{ float:left; font-family:Georgia,'Times New Roman',serif; font-weight:700; font-size:3.3em; line-height:.72; padding:6px 9px 0 0; color:var(--tw-prose-links,#6366f1); }
       `}</style>
@@ -421,7 +421,7 @@ export default function CommunityTab({ memberSession, bio }) {
       </div>
 
       {/* ── Search — a slim ruled "index" line ── */}
-      <div className="sticky top-1 z-30 mt-2 flex h-9 items-center gap-2 border-b-2 border-foreground/60 bg-card/90 backdrop-blur">
+      <div className="sticky top-1 z-30 mt-2 flex h-9 items-center gap-2 border-b-2 border-foreground/60 bg-card">
         <span className="material-symbols-outlined text-[16px] text-muted-foreground">search</span>
         <input
           value={search}

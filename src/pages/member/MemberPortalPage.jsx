@@ -25,7 +25,6 @@ import { useIsMobile } from "../../hooks/useIsMobile";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
-import AuraBackground from "../../components/member/portal/AuraBackground";
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
 import ParticleConnectModal from "../../components/member/shared/ParticleConnectModal";
@@ -810,12 +809,10 @@ export default function MemberPortalPage() {
     <>
     <WeatherAlertWatcher />
     <div className="relative isolate min-h-screen bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
-      {/* Weather sky as a top "hero" band that fades into the clean dashboard
-          background — vivid & visible up top, without washing out the content
-          below. Sits at z:-1 behind the cards; glass cards reveal it.
-          Only on the dashboard/community tab: on dense functional tabs
-          (utilities, wallet, settings, notifications) the animated rain/particles
-          bled through the glass cards and hurt text legibility. */}
+      {/* Flat "app" look: the animated weather/aura backdrops are off by default —
+          a calm solid background reads as an app, not a busy website. Kept
+          behind the (still user-toggleable) weather pref so it can be re-enabled.
+          WeatherAlertWatcher above still runs for safety alerts. */}
       <WeatherLayer enabled={weatherOn && activeTab === "account"} immersive mode="hero" />
 
       <HealingModal
@@ -836,12 +833,13 @@ export default function MemberPortalPage() {
         zIndex={300}
       />
 
-      {/* Animated Aura Background Backdrop */}
-      <AuraBackground theme={bio?.activeAuraTheme || 'default'} />
+      {/* Animated aura backdrop disabled for a flat, calm "app" surface — a
+          constantly-moving full-screen canvas read as a busy website. Re-add
+          <AuraBackground theme={bio?.activeAuraTheme || 'default'} /> to restore. */}
 
       <div className={`max-w-6xl mx-auto sm:px-4 ${activeTab === 'account' ? 'pt-2 pb-20 md:pb-12' : 'pt-4 sm:pt-6 md:pt-8 pb-28 md:pb-12'} space-y-5 sm:space-y-6 relative z-10`}>
         {/* ── Portal Header ─────────────────────────────────────────────────── */}
-        <header style={{ padding: ""}} className={`${(activeTab === "utilities" && mobileSubSection) || (activeTab === 'account' && !mobileSubSection) ? "hidden md:block" : ""} bg-card/60 backdrop-blur-2xl backdrop-saturate-200 border border-border/30 rounded-2xl px-3 sm:px-3 py-2.5 shadow-sm`}>
+        <header style={{ padding: ""}} className={`${(activeTab === "utilities" && mobileSubSection) || (activeTab === 'account' && !mobileSubSection) ? "hidden md:block" : ""} bg-card border border-border/60 rounded-2xl px-3 sm:px-3 py-2.5 shadow-sm`}>
           <div className="flex items-center justify-between gap-2">
             {/* Left */}
             <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -1110,7 +1108,7 @@ export default function MemberPortalPage() {
                   >
                     {tab.icon}
                   </span>
-                  <span className={`text-[9px] font-bold tracking-wide truncate max-w-full transition-colors duration-200 ${isActive ? 'text-primary' : 'text-muted-foreground/70'}`}>
+                  <span className={`text-[10.5px] font-semibold tracking-tight truncate max-w-full transition-colors duration-200 ${isActive ? 'text-primary' : 'text-muted-foreground/70'}`}>
                     {tab.label}
                   </span>
                   {tab.id === "history" && unreadHistoryCount > 0 && (

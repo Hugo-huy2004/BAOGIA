@@ -9,9 +9,9 @@
    the same color already used everywhere else JOY appears (JoyCoinBadge,
    CheckinCard's top border, the Info & Version bonus card) — standing out
    against the dark card without reaching for an unrelated brand gradient. ── */
-.joy-card-hero{position:relative;overflow:hidden;border-radius:16px;padding:22px;color:hsl(var(--foreground));background:linear-gradient(160deg,hsl(var(--background)/0.9),hsl(var(--card)/0.95));backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid hsl(var(--warning)/0.4);box-shadow:0 4px 20px hsl(0 0% 0%/0.08)}
-.joy-card-hero:before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,hsl(var(--warning)),#fde047)}
-.joy-card-hero:after{content:"";position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:hsl(var(--warning)/0.15);filter:blur(44px);pointer-events:none}
+.joy-card-hero{position:relative;overflow:hidden;border-radius:16px;padding:22px;color:hsl(var(--foreground));background:hsl(var(--card));border:1px solid hsl(var(--border));box-shadow:0 1px 3px hsl(0 0% 0%/0.06)}
+.joy-card-hero:before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:hsl(var(--warning))}
+.joy-card-hero:after{content:none}
 .joy-card-row-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between}
 .joy-card-brand{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsl(var(--warning))}
 .joy-card-brand .material-symbols-outlined{font-size:17px}
@@ -23,8 +23,8 @@
    full-width thirds — on a wide hero card, 3 short values in a 1fr/1fr/1fr
    grid left huge empty space inside each box. */
 .joy-card-stats{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.joy-card-stat{display:inline-flex;flex-direction:column;background:hsl(var(--background)/0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid hsl(var(--warning)/0.2);border-radius:11px;padding:8px 14px}
-.joy-card-stat small{display:block;font-size:7px;font-weight:700;letter-spacing:.1em;color:hsl(var(--joy-muted));text-transform:uppercase;white-space:nowrap;margin-bottom:3px}
+.joy-card-stat{display:inline-flex;flex-direction:column;background:hsl(var(--muted)/0.5);border:1px solid hsl(var(--border));border-radius:11px;padding:8px 14px}
+.joy-card-stat small{display:block;font-size:9px;font-weight:700;letter-spacing:.08em;color:hsl(var(--joy-muted));text-transform:uppercase;white-space:nowrap;margin-bottom:3px}
 .joy-card-stat strong{font-size:14px;font-weight:800;color:hsl(var(--foreground));white-space:nowrap}
 .joy-card-stat.is-code{cursor:pointer;flex-direction:row;align-items:center;gap:10px;transition:.15s}
 .joy-card-stat.is-code:hover{background:hsl(var(--warning)/0.1)}
@@ -36,7 +36,7 @@
 .joy-action-circle{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;cursor:pointer}
 .joy-action-circle .joy-action-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:21px;transition:.2s;background:hsl(var(--background));color:hsl(var(--primary));box-shadow:0 4px 12px hsl(var(--shadow)/0.08);border:1px solid hsl(var(--border))}
 .joy-action-circle:hover .joy-action-icon{background:hsl(var(--muted));border-color:hsl(var(--primary)/0.4);transform:translateY(-2px);box-shadow:0 6px 16px hsl(var(--primary)/0.12)}
-.joy-action-circle span:last-child{font-size:9.5px;font-weight:800;color:hsl(var(--foreground)/0.75);text-transform:uppercase;letter-spacing:.03em}
+.joy-action-circle span:last-child{font-size:10.5px;font-weight:700;color:hsl(var(--foreground)/0.8);text-transform:uppercase;letter-spacing:.02em}
 
 /* ── Segmented switch ────────────────────────────────────────── */
 .joy-segment{display:flex;gap:4px;padding:4px;border-radius:14px;background:hsl(var(--muted));position:sticky;top:8px;z-index:15}
@@ -97,7 +97,7 @@
 .joy-send-input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid hsl(var(--border));background:hsl(var(--background));color:hsl(var(--foreground));font-size:14px;font-weight:600;outline:none;transition:.15s}
 .joy-send-input::placeholder{color:hsl(var(--muted-foreground));font-weight:500}
 .joy-send-input:focus{border-color:hsl(var(--primary));box-shadow:0 0 0 3px hsl(var(--primary)/0.15)}
-.joy-send-cta{width:100%;margin-top:10px;padding:13px;border-radius:14px;background:linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)));color:hsl(var(--primary-foreground));font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;transition:.15s;box-shadow:0 8px 18px -6px hsl(var(--primary)/0.35)}
+.joy-send-cta{width:100%;margin-top:10px;padding:14px;border-radius:14px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;transition:.15s;box-shadow:0 1px 3px hsl(var(--primary)/0.25)}
 .joy-send-cta:hover:not(:disabled){transform:translateY(-1px)}
 .joy-send-cta:disabled{opacity:.4;box-shadow:none;cursor:not-allowed}
 

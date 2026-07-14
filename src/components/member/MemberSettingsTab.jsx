@@ -126,23 +126,18 @@ const ACCENTS = {
 function PrefCard({ icon, title, desc, control, warn, index = 0, accent = "blue" }) {
   const a = ACCENTS[accent] || ACCENTS.blue;
   return (
-    <div
-      className={`group relative overflow-hidden rounded-2xl border ${a.border} bg-card p-3 text-left transition-all duration-300 ${a.glow}`}
-      style={{ animation: `settingsRise .5s cubic-bezier(.22,1,.36,1) ${index * 55}ms both` }}
-    >
-      {/* accent wash + top bar + glow blob */}
-      <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${a.wash}`} />
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-3.5 text-left shadow-sm">
+      {/* thin identity bar — the card's only colour accent (flat, calm surface) */}
       <div className={`pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${a.bar}`} />
-      <div className={`pointer-events-none absolute -right-6 -top-8 h-20 w-20 rounded-full blur-2xl ${a.blob}`} />
       <div className="relative">
         <div className="flex items-start gap-2.5">
-          <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ring-1 ring-inset transition-transform group-hover:scale-105 ${a.badge}`}>
-            <span className={`material-symbols-outlined text-[16px] ${a.icon}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}>{icon}</span>
+          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ring-1 ring-inset ${a.badge}`}>
+            <span className={`material-symbols-outlined text-[17px] ${a.icon}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}>{icon}</span>
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[11.5px] font-black text-foreground">{title}</p>
-            <p className="mt-0.5 text-[10px] leading-snug text-muted-foreground">{desc}</p>
-            {warn && <p className="mt-0.5 text-[9.5px] font-semibold text-warning">{warn}</p>}
+            <p className="text-[12.5px] font-black text-foreground">{title}</p>
+            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{desc}</p>
+            {warn && <p className="mt-0.5 text-[10.5px] font-semibold text-warning">{warn}</p>}
           </div>
         </div>
         {control && <div className="mt-2.5">{control}</div>}
@@ -154,23 +149,17 @@ function PrefCard({ icon, title, desc, control, warn, index = 0, accent = "blue"
 // Vivid gradient hero — a full neon frame in both themes.
 function SettingsHero({ autoCount, total }) {
   return (
-    <div className="relative overflow-hidden rounded-[22px] p-[2.5px] shadow-[0_20px_50px_-24px_rgba(99,102,241,0.55)] dark:shadow-[0_0_40px_-8px_rgba(129,140,248,0.6)]"
-      style={{ background: "linear-gradient(135deg,#6366f1,#a855f7,#22d3ee)" }}>
-      <div className="relative overflow-hidden rounded-[19.5px] bg-white p-4 ring-1 ring-inset ring-black/5 backdrop-blur-xl dark:bg-zinc-950 dark:ring-white/10">
-        <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-primary/25 blur-3xl dark:bg-primary/30" style={{ animation: "settingsPulse 6s ease-in-out infinite" }} />
-        <div className="pointer-events-none absolute -bottom-12 left-8 h-32 w-32 rounded-full bg-info/20 blur-3xl dark:bg-info/25" />
-        <div className="relative flex items-center gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white shadow-lg shadow-primary/40"
-            style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)" }}>
-            <span className="material-symbols-outlined text-[21px]" style={{ animation: "settingsSpin 9s linear infinite" }}>auto_awesome</span>
-          </span>
-          <div className="min-w-0">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/40">Trung tâm điều khiển</p>
-            <h3 className="font-display text-base font-black text-foreground">Chế độ Tự động</h3>
-            <p className="mt-0.5 text-[10.5px] leading-snug text-muted-foreground">
-              <b className="text-foreground">{autoCount}/{total}</b> mục đang để Hugo tự quyết theo ngữ cảnh. Bạn chỉ chỉnh khi cần.
-            </p>
-          </div>
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <div className="flex items-center gap-3">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+          <span className="material-symbols-outlined text-[21px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+        </span>
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Trung tâm điều khiển</p>
+          <h3 className="font-display text-base font-black text-foreground">Chế độ Tự động</h3>
+          <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">
+            <b className="text-foreground">{autoCount}/{total}</b> mục đang để Hugo tự quyết theo ngữ cảnh. Bạn chỉ chỉnh khi cần.
+          </p>
         </div>
       </div>
     </div>

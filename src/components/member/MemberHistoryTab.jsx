@@ -183,11 +183,11 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
   return (
     <div className="max-w-xl mx-auto space-y-5 px-3 sm:px-0 animate-fadeIn text-left">
       {/* Header */}
-      <div className="flex items-center justify-between bg-card/60 backdrop-blur-md rounded-xl p-4 border border-border/50 shadow-sm">
+      <div className="flex items-center justify-between bg-card rounded-xl p-4 border border-border/60 shadow-sm">
         <div className="space-y-1">
           <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
             <span className="material-symbols-outlined text-base text-primary">notifications</span>{t("memberTabs.history.title")}</h2>
-          <p className="text-[10px] font-medium text-foreground/80">
+          <p className="text-[11px] font-medium text-muted-foreground">
             {filteredEntries.length > 0
               ? t("memberTabs.history.notification_count", { count: filteredEntries.length })
               : t("memberTabs.history.no_events")}
@@ -197,7 +197,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
           <button
             type="button"
             onClick={onMarkAllRead}
-            className="text-[10px] font-bold text-primary hover:underline shrink-0"
+            className="text-[11px] font-bold text-primary hover:underline shrink-0"
           >
             Đọc tất cả ({unreadNotifCount})
           </button>
@@ -218,10 +218,10 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
             <button
               key={filter.id}
               onClick={() => setActiveFilter(filter.id)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all duration-200 shrink-0 ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-wider border transition-colors duration-200 shrink-0 ${
                 active
                   ? "bg-primary border-primary text-white shadow-sm"
-                  : "bg-white/80 dark:bg-card/60 border-border/50 text-foreground/80 hover:text-zinc-900 dark:hover:text-zinc-100 backdrop-blur-sm"
+                  : "bg-muted border-border text-muted-foreground hover:text-foreground"
               }`}
             >
               <span className="material-symbols-outlined text-xs">{filter.icon}</span>
@@ -233,7 +233,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
 
       {/* Empty State */}
       {filteredEntries.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 bg-white/40 dark:bg-card/40 border border-border rounded-2xl p-6">
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 bg-card border border-border rounded-2xl p-6">
           <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground/70">
             <span className="material-symbols-outlined text-2xl">notifications_off</span>
           </div>
@@ -251,13 +251,13 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
             <div key={group.dateString} className="space-y-2">
               {/* Day Header */}
               <div className="pl-2">
-                <span className="inline-block px-2.5 py-1 rounded-lg bg-card/70 backdrop-blur-md text-[10px] font-black text-foreground uppercase tracking-widest border border-border/50 shadow-sm">
+                <span className="inline-block px-2.5 py-1 rounded-lg bg-muted text-[10px] font-black text-muted-foreground uppercase tracking-widest border border-border">
                   {group.dateHeader}
                 </span>
               </div>
 
               {/* Day Notification Items - Flat List */}
-              <div className="bg-card/70 backdrop-blur-xl rounded-[1.25rem] border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-200/50 dark:divide-zinc-800/40">
+              <div className="bg-card rounded-[1.25rem] border border-border/60 shadow-sm overflow-hidden divide-y divide-border">
                 {group.items.map((entry) => {
                   const cfg = entry.cfg;
                   const isNotif = entry.source === 'notification';

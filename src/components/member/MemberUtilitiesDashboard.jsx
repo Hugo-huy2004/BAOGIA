@@ -168,16 +168,16 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
           colorful place built for every kind of person to find their own
           corner in, not a row of identical buttons. */}
       <div className="relative overflow-hidden bg-card rounded-2xl p-4 md:p-8 border border-border shadow-sm">
-        <span className="absolute top-0 left-0 right-0 h-1.5 bg-[linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#06b6d4,#6366f1,#a855f7)]" />
+        <span className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-violet-500" />
         <div className="space-y-2 md:space-y-2.5">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black tracking-widest bg-[linear-gradient(90deg,#ef444422,#a855f722)] text-foreground uppercase border border-border">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black tracking-widest bg-muted text-muted-foreground uppercase border border-border">
             <span className="material-symbols-outlined text-[12px]">diversity_3</span>
             {t("memberPortal.utilitiesPage.tabTitle")}
           </span>
           <h2 className="text-base md:text-2xl font-black tracking-tight text-foreground">
             {t("memberPortal.utilitiesPage.title")}
           </h2>
-          <p className="text-[10.5px] md:text-xs text-muted-foreground max-w-xl leading-relaxed">
+          <p className="text-[11.5px] md:text-xs text-muted-foreground max-w-xl leading-relaxed">
             {t("memberPortal.utilitiesPage.desc")}
             <span className="hidden md:inline"> Mỗi người một cá tính, một nhịp sống — chọn công cụ hợp với chính mình, không cần giống ai cả.</span>
           </p>
@@ -195,12 +195,10 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
             id={`utility-card-${util.id}`}
             key={util.id}
             onClick={() => handleUtilityClick(util.id)}
-            className={`group relative cursor-pointer overflow-hidden bg-white dark:bg-background ${shape} p-3.5 md:p-6 border border-border/50 hover:border-transparent shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 active:scale-[0.98] flex flex-col justify-between h-[124px] md:h-[220px]`}
+            className={`group relative cursor-pointer overflow-hidden bg-card ${shape} p-3.5 md:p-6 border border-border/60 shadow-sm hover:shadow-md transition-shadow duration-200 active:scale-[0.98] flex flex-col justify-between h-[124px] md:h-[220px]`}
           >
-            {/* Soft gradient wash + glow, intensifies on hover */}
-            <span className={`absolute inset-0 opacity-[0.05] dark:opacity-[0.09] bg-gradient-to-br ${gradient} pointer-events-none transition-opacity duration-300 group-hover:opacity-[0.12] dark:group-hover:opacity-[0.18]`} />
-            <span className={`absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br ${gradient} opacity-20 blur-2xl pointer-events-none transition-transform duration-500 group-hover:scale-125 animate-pulse`} />
-            <span className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${gradient}`} />
+            {/* Thin identity stripe — the card's only colour accent (flat, calm surface) */}
+            <span className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`} />
 
             {/* Decorative glyph cluster — secondary icons hinting at what's inside, low-key in the corner */}
             <div className="absolute bottom-3 right-3 flex -space-x-1.5 opacity-25 dark:opacity-20 pointer-events-none transition-transform duration-300 group-hover:scale-110">
@@ -217,10 +215,10 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
                 <h3 className="text-[11.5px] md:text-sm font-black text-foreground line-clamp-1 md:line-clamp-none">
                   {util.title}
                 </h3>
-                <p className="md:hidden text-[9.5px] text-muted-foreground/70 leading-snug">
+                <p className="md:hidden text-[11px] text-muted-foreground leading-snug line-clamp-2">
                   {util.shortDesc}
                 </p>
-                <p className="hidden md:block text-[10.5px] text-muted-foreground/70 leading-relaxed">
+                <p className="hidden md:block text-[11.5px] text-muted-foreground leading-relaxed">
                   {util.desc}
                 </p>
               </div>
