@@ -417,6 +417,53 @@ function StatsStrip({ t }) {
 }
 
 /* ---------------------------------------------------------------------------
+   SECTION — MEET HUGO (mascot personality strip: the studio's charm, built
+   from the founder's own chibi sticker set in /image/avt*.png)
+   ------------------------------------------------------------------------- */
+
+function MascotSection({ t }) {
+  const mascots = [
+    { img: "/image/avt1.png", w: t("intro.mascots.m1w"), d: t("intro.mascots.m1d") },
+    { img: "/image/avt5.png", w: t("intro.mascots.m2w"), d: t("intro.mascots.m2d") },
+    { img: "/image/avt7.png", w: t("intro.mascots.m3w"), d: t("intro.mascots.m3d") },
+    { img: "/image/avt2.png", w: t("intro.mascots.m4w"), d: t("intro.mascots.m4d") },
+    { img: "/image/avt3.png", w: t("intro.mascots.m5w"), d: t("intro.mascots.m5d") },
+    { img: "/image/avt6.png", w: t("intro.mascots.m6w"), d: t("intro.mascots.m6d") },
+    { img: "/image/avt4.png", w: t("intro.mascots.m7w"), d: t("intro.mascots.m7d") },
+  ];
+  return (
+    <section className="relative px-4 md:px-6 py-16 md:py-24">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center space-y-3 mb-10 md:mb-14">
+          <p className="cine-accent-t text-[10px] sm:text-xs uppercase tracking-[0.25em]">{t("intro.mascots.eyebrow")}</p>
+          <h2 className="font-display font-bold text-xl sm:text-2xl md:text-4xl leading-snug" style={{ color: INK }}>
+            {t("intro.mascots.title1")}<span className="cine-faint">{t("intro.mascots.title2")}</span>
+          </h2>
+          <p className="cine-muted text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">{t("intro.mascots.desc")}</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {mascots.map((m, i) => (
+            <motion.div
+              key={m.img}
+              initial={{ opacity: 0, y: 24, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ delay: (i % 4) * 0.08, duration: 0.55, ease: EASE }}
+              whileHover={{ y: -6, rotate: i % 2 ? 2.5 : -2.5 }}
+              className={`cine-card-bg cine-border-c cine-hover-border rounded-3xl border p-4 sm:p-5 flex flex-col items-center text-center gap-2 transition-colors ${i === 6 ? "col-span-2 sm:col-span-1" : ""}`}
+            >
+              <img src={m.img} alt={m.w} loading="lazy" draggable="false" className="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-md select-none" />
+              <p className="font-display font-extrabold text-sm sm:text-base" style={{ color: INK }}>{m.w}</p>
+              <p className="cine-faint text-[11px] sm:text-xs leading-snug">{m.d}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------------
    SECTION 2 — ABOUT (danh tính, học vấn, ưu nhược, đối tác, triết lý)
    ------------------------------------------------------------------------- */
 
@@ -903,6 +950,7 @@ export default function IntroductionPage() {
       <HeroSection t={t} />
       <StatsStrip t={t} />
       <AboutSection t={t} jasonPhoto={jasonPhoto} />
+      <MascotSection t={t} />
       <TechMarquee t={t} />
       <FeaturesSection t={t} />
       <ContactSection t={t} profile={data?.profile} />

@@ -287,6 +287,19 @@
       "tag": "Xưởng sáng tạo số",
       "cta": "Bắt đầu dự án"
     },
+    "mascots": {
+      "eyebrow": "Gặp gỡ Hugo",
+      "title1": "Bảy sắc thái, ",
+      "title2": "một Hugo",
+      "desc": "Mỗi khoảnh khắc làm việc là một tâm trạng — nhưng luôn tận tâm và vui vẻ.",
+      "m1w": "Xin chào!", "m1d": "Thân thiện ngay từ lời chào",
+      "m2w": "Đang code", "m2d": "Dựng web nhanh & chỉn chu",
+      "m3w": "Chăm sóc", "m3d": "HugoPSY đồng hành tinh thần",
+      "m4w": "Chất lượng", "m4d": "Tỉ mỉ từng chi tiết",
+      "m5w": "Bất ngờ", "m5d": "Luôn có điều thú vị nho nhỏ",
+      "m6w": "Lên đường", "m6d": "Cùng bạn đi thật xa",
+      "m7w": "Vui vẻ", "m7d": "Làm việc mà vẫn vui"
+    },
     "cine": {
       "nav1": "Về tôi",
       "nav2": "Tiện ích",

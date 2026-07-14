@@ -287,6 +287,19 @@
       "tag": "Digital craft studio",
       "cta": "Start a project"
     },
+    "mascots": {
+      "eyebrow": "Meet Hugo",
+      "title1": "Seven moods, ",
+      "title2": "one Hugo",
+      "desc": "Every working moment has its mood — always caring, always fun.",
+      "m1w": "Hello!", "m1d": "Friendly from the first hi",
+      "m2w": "Coding", "m2d": "Fast, clean websites",
+      "m3w": "Care", "m3d": "HugoPSY for your mind",
+      "m4w": "Quality", "m4d": "Detail in everything",
+      "m5w": "Wow", "m5d": "Always a little surprise",
+      "m6w": "Let's go", "m6d": "Growing together, far",
+      "m7w": "Fun", "m7d": "Work, but make it fun"
+    },
     "cine": {
       "nav1": "About",
       "nav2": "Utilities",

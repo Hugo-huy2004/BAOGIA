@@ -533,22 +533,22 @@ export default function ServicesPage() {
         animate={{ opacity: 1, y: 0 }}
         className="sticky top-14 z-40 mx-auto max-w-7xl px-4 sm:px-8 py-3 mb-4"
       >
-        <div className="rounded-2xl border border-blue-300/30 dark:border-blue-600/30 bg-gradient-to-r from-blue-50/80 to-blue-100/50 dark:from-blue-950/40 dark:to-blue-900/30 backdrop-blur-sm p-4 shadow-lg">
+        <div className="rounded-2xl border border-border bg-card/90 backdrop-blur p-4 shadow-sm">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-xl">school</span>
-                <h3 className="font-bold text-sm sm:text-base text-blue-900 dark:text-blue-200">
+                <span className="material-symbols-outlined text-foreground text-xl">school</span>
+                <h3 className="font-bold text-sm sm:text-base text-foreground">
                   {t("servicesPage.promo.title")}
                 </h3>
               </div>
-              <p className="text-xs sm:text-sm text-blue-800/80 dark:text-blue-300/80 ml-8">
+              <p className="text-xs sm:text-sm text-muted-foreground ml-8">
                 {t("servicesPage.promo.desc")}
               </p>
             </div>
             <Link
               to="/student-benefits"
-              className="shrink-0 inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-semibold text-xs sm:text-sm transition-all hover:shadow-lg active:scale-95"
+              className="shrink-0 inline-flex items-center gap-2 rounded-full bg-foreground hover:bg-primary text-background px-4 py-2 font-semibold text-xs sm:text-sm transition-colors active:scale-95"
             >
               <span>{t("servicesPage.promo.cta")}</span>
               <span className="material-symbols-outlined text-base">arrow_forward</span>
@@ -574,18 +574,6 @@ export default function ServicesPage() {
         >
           PRICING
         </motion.div>
-
-        {/* Orbs */}
-        <motion.div
-          animate={{ y: [0, -30, 0], x: [0, 20, 0], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="pointer-events-none absolute right-[8%] top-[12%] h-24 w-24 rounded-full bg-warning/30 blur-[50px] md:h-32 md:w-32"
-        />
-        <motion.div
-          animate={{ y: [0, 30, 0], x: [0, -25, 0], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="pointer-events-none absolute bottom-[5%] left-[10%] h-32 w-32 rounded-full bg-primary/30 blur-[60px] md:h-44 md:w-44"
-        />
 
         <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative z-10 mx-auto max-w-4xl text-center">
           <span className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.25em] sm:text-[10px] ${heroBadge}`}>
@@ -774,7 +762,7 @@ export default function ServicesPage() {
                     <ul className="mt-3 space-y-2">
                       {plan.includes?.map((item) => (
                         <li key={item} className="flex items-start gap-2 text-xs leading-relaxed text-foreground/80">
-                          <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5">check_circle</span>
+                          <span className="material-symbols-outlined text-foreground text-sm mt-0.5">check_circle</span>
                           <span>{item}</span>
                         </li>
                       ))}
@@ -795,10 +783,10 @@ export default function ServicesPage() {
           <div className="mt-12 text-center">
             <Link
               to="/student-pricing"
-              className="inline-flex items-center gap-2 rounded-full border-2 border-border/50 bg-card/70 px-6 py-3 text-xs font-bold uppercase tracking-wide text-foreground backdrop-blur transition-all duration-300 hover:border-primary hover:text-primary animate-pulse-slow"
+              className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-card px-6 py-3 text-xs font-bold uppercase tracking-wide text-foreground transition-colors duration-300 hover:border-primary hover:text-primary"
             >
               {t("servicesPage.studentPlans.detailsCta")}
-              <span className="material-symbols-outlined text-sm animate-bounceRight">arrow_forward</span>
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
           </div>
 
@@ -958,11 +946,6 @@ export default function ServicesPage() {
       <section className="mx-auto mt-20 max-w-4xl px-4 text-center sm:mt-28 sm:px-8 print:hidden">
         <motion.div {...reveal} className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-8 shadow-xl sm:p-12">
           <div className={`absolute inset-x-0 top-0 h-1.5 ${brandGradient}`} />
-          <motion.div
-            animate={{ y: [0, -20, 0], opacity: [0.25, 0.5, 0.25] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-            className="pointer-events-none absolute right-[10%] top-[15%] h-20 w-20 rounded-full bg-accent/30 blur-[40px]"
-          />
           <MonoIcon name="forum" className="mx-auto" />
           <h2 className="font-display mt-5 text-2xl font-extrabold tracking-tight sm:text-4xl">
             {t("servicesPage.finalCta.title1")}{" "}
