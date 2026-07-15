@@ -5,6 +5,7 @@ import { useArcadeSound } from "../../hooks/useArcadeSound";
 import { useKeyboardInset } from "../../hooks/useKeyboardVisible";
 import { notify } from "../../lib/notify";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
+import { getCachedGeolocation } from "../../utils/geoCache.js";
 
 // Small avatar → Cloudinary f_auto,q_auto,w_96 (skips non-Cloudinary URLs).
 const av = (url, fallback = "/image/avt1.png") => optimizeCloudinaryUrl(url || fallback, 96);
@@ -110,6 +111,24 @@ export default function CommunityTab({ memberSession, bio }) {
   const [glossaryLoadingId, setGlossaryLoadingId] = useState(null);
   const [glossaryOpen, setGlossaryOpen] = useState({});
 
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+
+  const fetchLeaderboard = async () => {
+    try {
+      setLeaderboardLoading(true);
+      const res = await fetch(`${CHAT_API.replace('/community/chat', '/community/leaderboard')}`, { credentials: "include" });
+      const data = await res.json();
+      if (data.success && data.leaderboard) {
+        setLeaderboard(data.leaderboard);
+      }
+    } catch (err) {
+      console.error("Failed to load community leaderboard:", err);
+    } finally {
+      setLeaderboardLoading(false);
+    }
+  };
+
   // Tell the portal to hide the bottom tab-bar while a full sheet is open.
   useEffect(() => {
     const open = isComposerOpen || !!activeCommentPostId;
@@ -117,25 +136,19 @@ export default function CommunityTab({ memberSession, bio }) {
     return () => window.dispatchEvent(new CustomEvent("hugo:fullsheet", { detail: { open: false } }));
   }, [isComposerOpen, activeCommentPostId]);
 
-  // ── Geolocation (only needed for the POST payload) + initial fetch ──
+// ── Geolocation (only needed for the POST payload) + initial fetch ──
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setLocationStatus("fallback");
-      fetchPosts(null, null);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
+    fetchLeaderboard();
+    getCachedGeolocation()
+      .then((pos) => {
         setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setLocationStatus("active");
         fetchPosts(pos.coords.latitude, pos.coords.longitude);
-      },
-      () => {
+      })
+      .catch(() => {
         setLocationStatus("fallback");
         fetchPosts(null, null);
-      },
-      { timeout: 8000 }
-    );
+      });
   }, []);
 
   useEffect(() => {
@@ -262,6 +275,7 @@ export default function CommunityTab({ memberSession, bio }) {
         setPostAnon(false);
         setIsComposerOpen(false);
         playMove();
+        fetchLeaderboard();
         if (data.joyCharged) {
           notify.success(`Đã trừ ${data.joyCharged} JOY (còn ${data.joyBalance} JOY) — hóa đơn đã lưu vào lịch sử JOY. AI đang kiểm duyệt bài của bạn.`);
         } else {
@@ -298,6 +312,7 @@ export default function CommunityTab({ memberSession, bio }) {
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setPosts((prev) => prev.map((p) => (p._id === postId ? { ...p, likes: data.likes } : p)));
+      fetchLeaderboard();
     } catch (err) {
       setPosts(flipLike(postId, email));
       notify.error("Không thể thả tim, thử lại nhé");
@@ -320,6 +335,7 @@ export default function CommunityTab({ memberSession, bio }) {
       setPosts((prev) => prev.map((p) => (p._id === activeCommentPostId ? { ...p, comments: data.comments } : p)));
       setCommentInput("");
       playMove();
+      fetchLeaderboard();
     } catch (err) {
       notify.error(err?.message || "Không gửi được bình luận, thử lại nhé");
     } finally {
@@ -437,6 +453,48 @@ export default function CommunityTab({ memberSession, bio }) {
         )}
       </div>
       <div className="mt-3 space-y-2.5">
+
+        {/* ── Bảng Vinh Danh Thành Viên Tích Cực (JOY Leaderboard) ── */}
+        {leaderboard.length > 0 && (
+          <div className="border-b border-border/40 pb-3 animate-fadeIn select-none">
+            <div className="flex items-center justify-between px-1 mb-2">
+              <span className="text-[9.5px] font-black uppercase tracking-[0.14em] text-primary flex items-center gap-1">
+                <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: "'FILL' 1" }}>military_tech</span>
+                Bảng vinh danh tích lũy JOY
+              </span>
+              <span className="text-[8.5px] italic text-muted-foreground">Top 10 thành viên</span>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-1.5 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+              {leaderboard.map((user, idx) => (
+                <button
+                  key={user.slug || idx}
+                  onClick={() => openBio(user.slug)}
+                  disabled={!user.slug}
+                  className="flex shrink-0 items-center gap-2 rounded-lg border border-border/40 bg-foreground/[0.01] hover:bg-foreground/[0.04] p-1.5 transition active:scale-95 text-left disabled:cursor-default"
+                  style={SERIF}
+                >
+                  <div className="relative text-left">
+                    <img
+                      src={av(user.avatarUrl)}
+                      className="h-8 w-8 rounded-sm object-cover ring-1 ring-border/50"
+                      alt=""
+                    />
+                    <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[8.5px] font-bold text-white ring-1 ring-background">
+                      {idx + 1}
+                    </span>
+                  </div>
+                  <div className="min-w-0 pr-1.5">
+                    <p className="truncate text-[11.5px] font-black text-foreground leading-tight">{user.displayName}</p>
+                    <p className="text-[9px] font-semibold text-muted-foreground flex items-center gap-0.5 mt-0.5">
+                      <span className="material-symbols-outlined text-[10px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>database</span>
+                      {user.joyBalance || 0} JOY
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
       {/* ── Reader's desk — "gửi bài cho toà soạn" ── */}
       <div className="border-y-2 border-double border-border py-2.5">

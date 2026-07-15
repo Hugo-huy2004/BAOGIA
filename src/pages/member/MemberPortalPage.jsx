@@ -65,6 +65,7 @@ const MemberHistoryTab   = React.lazy(() => import("../../components/member/Memb
 const MemberPartnerTab   = React.lazy(() => import("../../components/member/MemberPartnerTab"));
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
 const MemberJoyTab       = React.lazy(() => import("../../components/member/MemberJoyTab"));
+const DiscoveryMap       = React.lazy(() => import("../../components/member/DiscoveryMap"));
 
 // The green "verified" tick is reserved for accounts whose education info has
 // actually been approved (isEduVerified) — an active 30-day trial account
@@ -661,6 +662,7 @@ export default function MemberPortalPage() {
       ...(!isGuestMode ? [
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "account_balance_wallet", partner: false },
       ] : []),
+      { id: "map",       label: "Khám Phá",        icon: "explore",                partner: false },
       { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps",            partner: false },
       { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications",   partner: false },
       ...(!isGuestMode ? [
@@ -679,6 +681,7 @@ export default function MemberPortalPage() {
     if (isGuestMode) {
       return [
         { id: "account",   label: t("memberPortal.tabs.community", "HugoComm"), icon: "groups" },
+        { id: "map",       label: "Khám Phá",        icon: "explore" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
         { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications" },
         { id: "login",     label: t("navbar.login", "Đăng Nhập"),    icon: "login" }
@@ -687,6 +690,7 @@ export default function MemberPortalPage() {
       return [
         { id: "account",   label: t("memberPortal.tabs.community", "HugoComm"), icon: "groups" },
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "account_balance_wallet" },
+        { id: "map",       label: "Khám Phá",        icon: "explore" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
         { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications" },
         ...(needsEduVerification ? [
@@ -972,6 +976,11 @@ export default function MemberPortalPage() {
                 {visitedTabs.has("partner") && (
                   <div style={{ display: activeTab === "partner" ? undefined : "none", padding: "0 12px"  }}>
                     <MemberPartnerTab />
+                  </div>
+                )}
+                {visitedTabs.has("map") && (
+                  <div style={{ display: activeTab === "map" ? undefined : "none", padding: "0 12px" }}>
+                    <DiscoveryMap />
                   </div>
                 )}
                 {visitedTabs.has("utilities") && (

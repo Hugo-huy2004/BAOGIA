@@ -105,6 +105,16 @@ class SmartPushRequest(BaseModel):
     lastCheckin: Optional[str] = None
     pendingActions: Optional[List[str]] = None
 
+class CompanionPushRequest(BaseModel):
+    bio: Optional[Dict[str, Any]] = None
+    feature_label: str
+
+class LocalRecommendationRequest(BaseModel):
+    lat: float
+    lng: float
+    addressName: Optional[str] = ""
+    bio: Optional[Dict[str, Any]] = None
+
 class WeeklyReportRequest(BaseModel):
     email: str
     historyLogs: Optional[List[Dict[str, Any]]] = None
@@ -539,6 +549,35 @@ async def smart_push(request: SmartPushRequest):
             "pendingActions": request.pendingActions or [],
         }
         result = await ai_service.generate_smart_push(user_data)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/notifications/companion-push")
+async def companion_push(request: CompanionPushRequest):
+    """Tạo thông báo đẩy cá nhân hoá khi người dùng mở khoá liệu trình Bạn Học Đường."""
+    try:
+        user_data = {
+            "bio": request.bio or {},
+            "feature_label": request.feature_label
+        }
+        result = await ai_service.generate_companion_push(user_data)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/recommendations/local")
+async def local_recommendations(request: LocalRecommendationRequest):
+    """Gợi ý địa điểm và món ăn ngon gần đó dựa trên GPS (lat, lng)."""
+    try:
+        result = await ai_service.generate_local_recommendations(
+            lat=request.lat,
+            lng=request.lng,
+            addressName=request.addressName or "",
+            bio=request.bio or {}
+        )
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

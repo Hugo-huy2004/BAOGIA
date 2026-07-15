@@ -5,6 +5,7 @@ import CompanionHistory from '../models/CompanionHistory.js';
 import Bio from '../models/Bio.js';
 import SleepLog from '../models/SleepLog.js';
 import ArcadeScore from '../models/ArcadeScore.js';
+import ScheduledPush from '../models/ScheduledPush.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { encryptText, decryptText } from '../utils/cryptoUtils.js';
@@ -91,6 +92,18 @@ router.post('/unlock-feature', requireMember, async (req, res) => {
 
     bio.unlockedCompanionFeatures = [...(bio.unlockedCompanionFeatures || []), feature];
     await bio.save();
+
+    // Lập lịch gửi tin thông báo thông minh sau 24h
+    try {
+      await ScheduledPush.create({
+        email,
+        feature,
+        label: def.label,
+        scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 giờ sau
+      });
+    } catch (schedErr) {
+      console.error('[ScheduledPush] Lỗi khi tạo lịch gửi tin:', schedErr.message);
+    }
 
     res.json({ success: true, balance, unlockedFeatures: bio.unlockedCompanionFeatures });
   } catch (error) {

@@ -269,6 +269,26 @@ const BioSchema = new mongoose.Schema(
       default: 0,
       min: 0
     },
+    transactionPin: {
+      type: String,
+      default: null
+    },
+    lastRecommendationAt: {
+      type: Date,
+      default: null
+    },
+    skinAnalysis: {
+      score: { type: Number, default: 0 },
+      skinType: { type: String, default: "" },
+      skinTone: { type: String, default: "" },
+      gender: { type: String, default: "" },
+      plan: { type: Object, default: {} },
+      updatedAt: { type: Date, default: null }
+    },
+    skincareReminderEnabled: {
+      type: Boolean,
+      default: false
+    },
     // Stable sequential index for Redis bitmap addressing (online/DAU presence
     // tracking) — assigned lazily on first heartbeat, see presenceService.js.
     presenceIndex: {

@@ -7,6 +7,7 @@
  * location is never reset.
  */
 import { useEffect, useRef } from "react";
+import { getCachedGeolocation } from "../utils/geoCache.js";
 
 const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -25,14 +26,14 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
   useEffect(() => { onAnomalyRef.current = onAnomaly; }, [onAnomaly]);
 
   useEffect(() => {
-    if (!enabled || !email || typeof navigator === "undefined" || !navigator.geolocation) return;
+    if (!enabled || !email) return;
 
     const runCheck = () => {
       if (checkingRef.current) return;
       checkingRef.current = true;
 
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
+      getCachedGeolocation()
+        .then(async (pos) => {
           try {
             const locationKey = getLocationCheckKey(email, pos.coords.latitude, pos.coords.longitude);
             const lastRunAt = locationCheckLocks.get(locationKey) || 0;
@@ -65,10 +66,10 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
           } finally {
             checkingRef.current = false;
           }
-        },
-        () => { checkingRef.current = false; },
-        { enableHighAccuracy: false, timeout: 10_000, maximumAge: 5 * 60_000 },
-      );
+        })
+        .catch(() => {
+          checkingRef.current = false;
+        });
     };
 
     runCheck();

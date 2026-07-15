@@ -3,17 +3,22 @@ import webpush from 'web-push';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { triggerSmartPushNow } from '../services/smartNotificationService.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Lấy cặp khóa từ environment, nếu chưa có thì khởi tạo động để hỗ trợ dev
 let vapidKeys = {
   publicKey: process.env.VAPID_PUBLIC_KEY,
   privateKey: process.env.VAPID_PRIVATE_KEY
 };
 
 if (!vapidKeys.publicKey || !vapidKeys.privateKey) {
-  console.log('⚠️  Chưa phát hiện VAPID keys trong .env. Đang tự động tạo VAPID keys tạm thời cho phiên chạy hiện tại...');
+  console.log('⚠️  Chưa phát hiện VAPID keys trong .env. Đang tự động tạo VAPID keys...');
   const keys = webpush.generateVAPIDKeys();
   vapidKeys = {
     publicKey: keys.publicKey,
@@ -21,8 +26,26 @@ if (!vapidKeys.publicKey || !vapidKeys.privateKey) {
   };
   console.log(`🔑 VAPID Public Key: ${vapidKeys.publicKey}`);
   console.log(`🔑 VAPID Private Key: ${vapidKeys.privateKey}`);
-  console.log('💡 Hãy sao chép 2 khóa này và dán vào file server/.env để duy trì lâu dài!');
+
+  try {
+    const envPath = path.join(__dirname, '..', '.env');
+    let envContent = '';
+    if (fs.existsSync(envPath)) {
+      envContent = fs.readFileSync(envPath, 'utf8');
+    }
+    if (envContent && !envContent.endsWith('\n')) {
+      envContent += '\n';
+    }
+    envContent += `VAPID_PUBLIC_KEY=${vapidKeys.publicKey}\n`;
+    envContent += `VAPID_PRIVATE_KEY=${vapidKeys.privateKey}\n`;
+    fs.writeFileSync(envPath, envContent, 'utf8');
+    console.log('✅ Đã tự động lưu VAPID keys vào file server/.env để tái sử dụng lâu dài!');
+  } catch (err) {
+    console.error('❌ Không thể tự động ghi VAPID keys vào .env:', err.message);
+  }
 }
+
+export { vapidKeys };
 
 const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@hugostudio.vn';
 
@@ -217,4 +240,3 @@ router.post('/broadcast-all', requireAdmin, async (req, res) => {
 });
 
 export default router;
-export { vapidKeys };

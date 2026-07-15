@@ -1,0 +1,13 @@
+- [x] 1. Tự động hóa VAPID Keys vào file `.env`
+  - [x] Cập nhật `notificationRoutes.js` để tự động ghi đè khóa push thiếu vào file `server/.env`
+- [x] 2. Tự động hóa AI Smart Push (Bạn Học Đường)
+  - [x] Tạo model `ScheduledPush.js`
+  - [x] Lập lịch gửi tin khi mở khóa trong `companionRoutes.js`
+  - [x] Thêm route `/api/notifications/companion-push` trong `main.py`
+  - [x] Viết logic tạo AI Push trong `gemini_service.py`
+  - [x] Cài đặt Cron Job quét gửi trong `smartNotificationService.js`
+- [x] 3. Tối ưu hóa xin quyền truy cập (Location & Notifications)
+  - [x] Tạo file tiện ích `src/utils/geoCache.js`
+  - [x] Cập nhật `useLocationGuard.js` dùng vị trí cache
+  - [x] Cập nhật `CommunityTab.jsx` dùng vị trí cache
+  - [x] Cập nhật `pwaPermissions.js` gộp quyền vị trí và chặn hỏi lặp push

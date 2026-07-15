@@ -5,7 +5,7 @@ import Confetti from "react-confetti";
 import ParticleGenerator from "./ParticleGenerator";
 import ParticleScanner from "./ParticleScanner";
 import { base64UrlToBytes } from "../../../utils/particleCloudCode";
-import { searchJoyUser, getJoyQrPayload, resolveJoyQr, transferJoy } from "../../../services/joyApi";
+import { searchJoyUser, getJoyQrPayload, resolveJoyQr, transferJoy, checkHasPin, setTransactionPin } from "../../../services/joyApi";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 
 const RECENT_KEY = "joy_recent_contacts";
@@ -464,11 +464,11 @@ function Divider() {
 }
 
 /* ─── Main Modal ─────────────────────────────────────────────────────────── */
-export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) {
+export default function ParticleConnectModal({ open, bio, onClose, onSuccess, initialMode }) {
   const { t } = useTranslation();
   const { playWin, playLose, playBeep } = useArcadeSound();
   const [step, setStep] = useState("select"); // select | contact | amount | invoice | sending | success
-  const [mode, setMode] = useState("search"); // search | myqr | scan
+  const [mode, setMode] = useState(initialMode || "search"); // search | myqr | scan
   const [recipient, setRecipient] = useState(null);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -483,6 +483,10 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [ignoredScanPayloads, setIgnoredScanPayloads] = useState(() => new Set());
+  const [hasPin, setHasPin] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [setupPinStep, setSetupPinStep] = useState(1);
+  const [tempPin, setTempPin] = useState("");
   const debounceRef = useRef(null);
   const scanResolvingRef = useRef(false);
   // A live, spinning particle code (or decode noise) yields a *different*
@@ -506,12 +510,18 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
 
   useEffect(() => {
     if (!open) return;
-    setStep("select"); setMode("search"); setRecipient(null);
+    setStep("select"); setMode(initialMode || "search"); setRecipient(null);
     setAmount(""); setNote(""); setSearchQ(""); setSearchResults([]);
     setError(""); setResult(null); setIgnoredScanPayloads(new Set());
     scanResolvingRef.current = false;
     setRecentContacts(getRecent());
-  }, [open]);
+    setPinInput("");
+    setSetupPinStep(1);
+    setTempPin("");
+    checkHasPin()
+      .then(d => setHasPin(d.hasPin))
+      .catch(() => setHasPin(false));
+  }, [open, initialMode]);
 
   // Debounced search
   useEffect(() => {
@@ -585,15 +595,18 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
     }
   }, [ignoredScanPayloads, playBeep, playLose, selectRecipient, t]);
 
-  const handleSend = async () => {
+  const handleVerifyAndSend = async (enteredPin) => {
     setStep("sending");
     setError("");
+    const idempotencyKey = crypto.randomUUID?.() || Math.random().toString(36).slice(2) + Date.now().toString(36);
     try {
       const data = await transferJoy({
         fromEmail: bio.email,
         toReferralCode: recipient.referralCode,
         amount: numAmount,
         message: note.trim(),
+        pin: enteredPin,
+        idempotencyKey
       });
       setResult(data);
       saveRecent({ displayName: recipient.displayName, avatarUrl: recipient.avatarUrl, referralCode: recipient.referralCode });
@@ -603,7 +616,51 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
     } catch (e) {
       playLose();
       setError(e.message);
-      setStep("invoice");
+      setPinInput("");
+      setStep("pin");
+    }
+  };
+
+  const handleSetupPin = async (enteredPin) => {
+    setError("");
+    if (setupPinStep === 1) {
+      setTempPin(enteredPin);
+      setPinInput("");
+      setSetupPinStep(2);
+    } else {
+      if (enteredPin !== tempPin) {
+        setError("Mã PIN xác nhận không trùng khớp. Hãy thiết lập lại.");
+        setPinInput("");
+        setTempPin("");
+        setSetupPinStep(1);
+        playLose();
+        return;
+      }
+      setStep("sending");
+      try {
+        await setTransactionPin(enteredPin);
+        setHasPin(true);
+        handleVerifyAndSend(enteredPin);
+      } catch (e) {
+        setError(e.message || "Không thể thiết lập mã PIN.");
+        setPinInput("");
+        setTempPin("");
+        setSetupPinStep(1);
+        setStep("setup-pin");
+        playLose();
+      }
+    }
+  };
+
+  const handleSend = async () => {
+    setError("");
+    setPinInput("");
+    if (!hasPin) {
+      setSetupPinStep(1);
+      setTempPin("");
+      setStep("setup-pin");
+    } else {
+      setStep("pin");
     }
   };
 
@@ -677,7 +734,14 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
               }}>
                 {step !== "select" && (
                   <button
-                    onClick={() => { setStep(step === "amount" ? "select" : step === "invoice" ? "amount" : "select"); setError(""); }}
+                    onClick={() => {
+                      if (step === "pin" || step === "setup-pin") {
+                        setStep("invoice");
+                      } else {
+                        setStep(step === "amount" ? "select" : step === "invoice" ? "amount" : "select");
+                      }
+                      setError("");
+                    }}
                     style={{ background: "rgba(255,255,255,.15)", border: "none", borderRadius: "50%", width: 30, height: 30, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back_ios_new</span>
@@ -689,6 +753,8 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
                     {step === "select" && t("joy.particle.title", "Hugo Studio - Intelligent Connection")}
                     {step === "amount" && `${t("joy.particle.sendTo", "Gửi")} → ${recipient?.displayName}`}
                     {step === "invoice" && t("joy.particle.confirm", "Xác nhận")}
+                    {step === "pin" && "Mã PIN Giao Dịch"}
+                    {step === "setup-pin" && "Thiết lập mã PIN"}
                     {step === "sending" && t("joy.particle.sending", "Đang xử lý...")}
                     {step === "success" && t("joy.particle.success", "Thành công!")}
                   </p>
@@ -992,6 +1058,276 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess }) 
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>send</span>
                       {t("joy.particle.sendNow", "Chuyển ngay")}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Step: PIN ── */}
+              {step === "pin" && (
+                <div style={{ padding: "16px 18px 24px", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <p style={{ margin: "0 0 16px 0", fontSize: 13, color: "#64748b", textAlign: "center" }} className="dark:text-slate-400">
+                    Nhập mã PIN giao dịch gồm 6 chữ số để chuyển {numAmount} JOY cho {recipient?.displayName}
+                  </p>
+                  
+                  {/* Password Circles */}
+                  <div style={{ display: "flex", gap: 14, margin: "20px 0 24px 0" }}>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          width: 14,
+                          height: 14,
+                          borderRadius: "50%",
+                          border: "2px solid #cbd5e1",
+                          background: pinInput.length > i ? "#6366f1" : "transparent",
+                          borderColor: pinInput.length > i ? "#6366f1" : "#cbd5e1",
+                          transition: "all 0.15s ease"
+                        }}
+                        className="dark:border-white/20 dark:bg-transparent"
+                      />
+                    ))}
+                  </div>
+
+                  {error && (
+                    <div style={{ color: "#ef4444", fontSize: 11, fontWeight: 700, margin: "0 0 16px 0", textAlign: "center" }}>
+                      {error}
+                    </div>
+                  )}
+
+                  {/* Keyboard Grid */}
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: "12px 24px",
+                    width: "100%",
+                    maxWidth: 240,
+                    margin: "0 auto"
+                  }}>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                      <button
+                        key={num}
+                        onClick={() => {
+                          playBeep();
+                          if (pinInput.length < 6) {
+                            const next = pinInput + num;
+                            setPinInput(next);
+                            if (next.length === 6) {
+                              handleVerifyAndSend(next);
+                            }
+                          }
+                        }}
+                        style={{
+                          background: "#f1f5f9",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: "50%",
+                          width: 50,
+                          height: 50,
+                          color: "#0f172a",
+                          fontSize: 18,
+                          fontWeight: 850,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          margin: "0 auto",
+                          transition: "all 0.2s"
+                        }}
+                        className="dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200"
+                      >
+                        {num}
+                      </button>
+                    ))}
+                    <div />
+                    <button
+                      onClick={() => {
+                        playBeep();
+                        if (pinInput.length < 6) {
+                          const next = pinInput + "0";
+                          setPinInput(next);
+                          if (next.length === 6) {
+                            handleVerifyAndSend(next);
+                          }
+                        }
+                      }}
+                      style={{
+                        background: "#f1f5f9",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "50%",
+                        width: 50,
+                        height: 50,
+                        color: "#0f172a",
+                        fontSize: 18,
+                        fontWeight: 850,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 auto",
+                        transition: "all 0.2s"
+                      }}
+                      className="dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200"
+                    >
+                      0
+                    </button>
+                    <button
+                      onClick={() => {
+                        playBeep();
+                        setPinInput(prev => prev.slice(0, -1));
+                      }}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        width: 50,
+                        height: 50,
+                        color: "#64748b",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 auto"
+                      }}
+                      className="dark:text-slate-400"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>backspace</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Step: Setup PIN ── */}
+              {step === "setup-pin" && (
+                <div style={{ padding: "16px 18px 24px", color: "#0f172a", display: "flex", flexDirection: "column", alignItems: "center" }} className="dark:text-white">
+                  <span className="material-symbols-outlined text-[32px] text-amber-500 mb-2" style={{ fontVariationSettings: "'FILL' 1" }}>lock_open</span>
+                  <p style={{ margin: "0 0 4px 0", fontSize: 13, fontWeight: 800, color: "#0f172a", textAlign: "center" }} className="dark:text-white">
+                    {setupPinStep === 1 ? "Thiết lập mã PIN giao dịch" : "Xác nhận mã PIN giao dịch"}
+                  </p>
+                  <p style={{ margin: "0 0 16px 0", fontSize: 11, color: "#64748b", textAlign: "center" }} className="dark:text-slate-400">
+                    {setupPinStep === 1 
+                      ? "Để bảo mật số dư của bạn, vui lòng nhập mã PIN giao dịch mới gồm 6 chữ số." 
+                      : "Nhập lại mã PIN gồm 6 chữ số vừa tạo để hoàn tất."}
+                  </p>
+                  
+                  {/* Password Circles */}
+                  <div style={{ display: "flex", gap: 14, margin: "14px 0 24px 0" }}>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          width: 14,
+                          height: 14,
+                          borderRadius: "50%",
+                          border: "2px solid #cbd5e1",
+                          background: pinInput.length > i ? "#8b5cf6" : "transparent",
+                          borderColor: pinInput.length > i ? "#8b5cf6" : "#cbd5e1",
+                          transition: "all 0.15s ease"
+                        }}
+                        className="dark:border-white/20 dark:bg-transparent"
+                      />
+                    ))}
+                  </div>
+
+                  {error && (
+                    <div style={{ color: "#ef4444", fontSize: 11, fontWeight: 700, margin: "0 0 16px 0", textAlign: "center" }}>
+                      {error}
+                    </div>
+                  )}
+
+                  {/* Keyboard Grid */}
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: "12px 24px",
+                    width: "100%",
+                    maxWidth: 240,
+                    margin: "0 auto"
+                  }}>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                      <button
+                        key={num}
+                        onClick={() => {
+                          playBeep();
+                          if (pinInput.length < 6) {
+                            const next = pinInput + num;
+                            setPinInput(next);
+                            if (next.length === 6) {
+                              handleSetupPin(next);
+                            }
+                          }
+                        }}
+                        style={{
+                          background: "#f1f5f9",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: "50%",
+                          width: 50,
+                          height: 50,
+                          color: "#0f172a",
+                          fontSize: 18,
+                          fontWeight: 850,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          margin: "0 auto",
+                          transition: "all 0.2s"
+                        }}
+                        className="dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200"
+                      >
+                        {num}
+                      </button>
+                    ))}
+                    <div />
+                    <button
+                      onClick={() => {
+                        playBeep();
+                        if (pinInput.length < 6) {
+                          const next = pinInput + "0";
+                          setPinInput(next);
+                          if (next.length === 6) {
+                            handleSetupPin(next);
+                          }
+                        }
+                      }}
+                      style={{
+                        background: "#f1f5f9",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "50%",
+                        width: 50,
+                        height: 50,
+                        color: "#0f172a",
+                        fontSize: 18,
+                        fontWeight: 850,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 auto",
+                        transition: "all 0.2s"
+                      }}
+                      className="dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200"
+                    >
+                      0
+                    </button>
+                    <button
+                      onClick={() => {
+                        playBeep();
+                        setPinInput(prev => prev.slice(0, -1));
+                      }}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        width: 50,
+                        height: 50,
+                        color: "#64748b",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 auto"
+                      }}
+                      className="dark:text-slate-400"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>backspace</span>
                     </button>
                   </div>
                 </div>

@@ -4,6 +4,8 @@ import NotificationSubscription from '../models/NotificationSubscription.js';
 import SleepLog from '../models/SleepLog.js';
 import Bio from '../models/Bio.js';
 import CompanionHistory from '../models/CompanionHistory.js';
+import ScheduledPush from '../models/ScheduledPush.js';
+import InAppNotification from '../models/InAppNotification.js';
 
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
 
@@ -13,6 +15,8 @@ const SCHEDULES = {
   wake_check:     '0 7  * * *',    // 07:00 — good morning check
   wellness_noon:  '0 12 * * *',    // 12:00 — midday wellness nudge
   streak_check:   '0 19 * * *',    // 19:00 — streak protect before evening
+  skincare_morning: '0 8 * * *',   // 08:00 — skincare morning nudge
+  skincare_night:   '30 21 * * *', // 21:30 — skincare evening nudge
 };
 
 async function sendPushToUser(subs, payload) {
@@ -23,6 +27,106 @@ async function sendPushToUser(subs, payload) {
       if (err.statusCode === 410 || err.statusCode === 404) {
         await NotificationSubscription.deleteOne({ _id: sub._id });
       }
+    }
+  }
+}
+
+async function runSkincareReminders(timeOfDay) {
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const todayName = daysOfWeek[new Date().getDay()];
+
+  const bios = await Bio.find({ skincareReminderEnabled: true }).lean();
+  if (!bios.length) return;
+
+  for (const bio of bios) {
+    try {
+      const email = bio.email;
+      const plan = bio.skinAnalysis?.plan;
+      if (!plan || !plan[todayName]) continue;
+
+      const steps = timeOfDay === 'morning' ? plan[todayName].morning : plan[todayName].night;
+      if (!steps || !steps.length) continue;
+
+      const title = timeOfDay === 'morning' ? '✨ HugoSkin: Skincare Buổi Sáng!' : '🌙 HugoSkin: Skincare Buổi Tối!';
+      const body = `Hôm nay là ${todayName}. Liệu trình dưỡng da của bạn gồm: ${steps.join(', ')}. Hãy bắt đầu ngay nhé!`;
+
+      // 1. Tạo In-App Notification
+      await InAppNotification.create({
+        email,
+        type: 'inbox',
+        category: 'system',
+        title,
+        message: body,
+        actionUrl: '/member/portal?tab=utilities&sub=hugoskin'
+      });
+
+      // 2. Gửi Web Push
+      const subs = await NotificationSubscription.find({ email });
+      if (subs.length) {
+        await sendPushToUser(subs, {
+          title,
+          body,
+          icon: '/image/avt7.png',
+          badge: '/image/badge.png',
+          url: '/member/portal?tab=utilities&sub=hugoskin',
+          tag: 'skincare_reminder'
+        });
+      }
+    } catch (err) {
+      console.error(`[SkincareReminder] Lỗi gửi nhắc nhở cho ${bio.email}:`, err.message);
+    }
+  }
+}
+
+async function runScheduledCompanionPushes() {
+  const now = new Date();
+  const pending = await ScheduledPush.find({
+    scheduledFor: { $lte: now },
+    sent: false
+  });
+  if (!pending.length) return;
+
+  for (const item of pending) {
+    try {
+      const bio = await Bio.findOne({ email: item.email }).lean();
+      const response = await fetch(`${PYTHON_AI_URL}/api/notifications/companion-push`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bio: bio || {},
+          feature_label: item.label
+        }),
+      });
+
+      if (!response.ok) continue;
+      const aiResult = await response.json();
+
+      const subs = await NotificationSubscription.find({ email: item.email });
+      if (subs.length) {
+        await sendPushToUser(subs, {
+          title: aiResult.title || 'Bạn Học Đường',
+          body:  aiResult.body  || 'Gợi ý trị liệu hôm nay dành cho bạn!',
+          icon:  '/image/avt7.png',
+          badge: '/image/badge.png',
+          url:   aiResult.url  || '/member/portal?tab=banhocduong',
+          tag:   'companion_push',
+        });
+      }
+
+      // Tạo thêm thông báo trong hộp thư (In-App)
+      await InAppNotification.create({
+        email: item.email,
+        type: 'inbox',
+        category: 'system',
+        title: aiResult.title || 'Bạn Học Đường Trị Liệu',
+        message: aiResult.body || 'Lời khuyên chăm sóc sức khỏe tinh thần dành cho bạn!',
+        actionUrl: aiResult.url || '/member/portal?tab=banhocduong'
+      });
+
+      item.sent = true;
+      await item.save();
+    } catch (err) {
+      console.error(`[CompanionPush] Lỗi xử lý gửi tin cho ${item.email}:`, err.message);
     }
   }
 }
@@ -114,9 +218,26 @@ export function initSmartNotificationService() {
     runSmartPushJob('streak_protect').catch(console.error);
   }, tz);
 
-  console.log('✅ SmartNotification service initialized (sleep_reminder 21h, wake 7h, wellness 12h, streak 19h)');
+  // Quét các thông báo đẩy AI lập lịch sau 24h (chạy mỗi 10 phút)
+  cron.schedule('*/10 * * * *', () => {
+    runScheduledCompanionPushes().catch(console.error);
+  }, tz);
+
+  // Nhắc nhở skincare buổi sáng (08:00)
+  cron.schedule(SCHEDULES.skincare_morning, () => {
+    runSkincareReminders('morning').catch(console.error);
+  }, tz);
+
+  // Nhắc nhở skincare buổi tối (21:30)
+  cron.schedule(SCHEDULES.skincare_night, () => {
+    runSkincareReminders('night').catch(console.error);
+  }, tz);
+
+  console.log('SmartNotification service initialized (sleep_reminder 21h, wake 7h, wellness 12h, streak 19h, companion_push 10min, skincare 8h/21h30)');
 }
 
 export async function triggerSmartPushNow(contextHint = 'wellness_nudge') {
   await runSmartPushJob(contextHint);
 }
+
+export { runScheduledCompanionPushes };

@@ -46,11 +46,37 @@ export async function resolveJoyQr(payload) {
   return data;
 }
 
-export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message }) {
+export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey }) {
   const res = await fetch(`${getApiUrl()}/joy/transfer`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fromEmail, toPhone, toReferralCode, toEmail, amount, message })
+    body: JSON.stringify({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey }),
+    credentials: "include"
+  });
+  return parseOrThrow(res);
+}
+
+export async function checkHasPin() {
+  const res = await fetch(`${getApiUrl()}/joy/has-pin`, { credentials: "include" });
+  return parseOrThrow(res);
+}
+
+export async function setTransactionPin(pin) {
+  const res = await fetch(`${getApiUrl()}/joy/set-pin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin }),
+    credentials: "include"
+  });
+  return parseOrThrow(res);
+}
+
+export async function verifyTransactionPin(pin) {
+  const res = await fetch(`${getApiUrl()}/joy/verify-pin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin }),
+    credentials: "include"
   });
   return parseOrThrow(res);
 }

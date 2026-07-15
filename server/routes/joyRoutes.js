@@ -7,6 +7,10 @@ import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
 import { startExam, submitExam, consumeExamPass, isQuizLesson } from '../utils/coderExamService.js';
 import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToken.js';
+import bcrypt from 'bcryptjs';
+import NodeCache from 'node-cache';
+
+const idempotencyCache = new NodeCache({ stdTTL: 300 });
 
 const BIO_THEME_RENTAL_PRICE = 150;
 const COMPRESS_CHARGE = 50;
@@ -844,14 +848,81 @@ router.get('/resolve-qr', async (req, res) => {
   }
 });
 
-// POST /api/joy/transfer  { fromEmail, toReferralCode|toEmail|toPhone, amount, message }
+// GET /api/joy/has-pin
+router.get('/has-pin', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    res.json({ hasPin: !!bio.transactionPin });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/joy/set-pin
+router.post('/set-pin', requireMember, async (req, res) => {
+  try {
+    const { pin } = req.body;
+    const email = req.memberEmail;
+    if (!pin || !/^\d{6}$/.test(String(pin))) {
+      return res.status(400).json({ error: 'Mã PIN phải có đúng 6 chữ số.' });
+    }
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    const hashedPin = await bcrypt.hash(String(pin), 12);
+    bio.transactionPin = hashedPin;
+    await bio.save();
+
+    res.json({ success: true, message: 'Đã thiết lập mã PIN giao dịch thành công.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/joy/verify-pin
+router.post('/verify-pin', requireMember, async (req, res) => {
+  try {
+    const { pin } = req.body;
+    const email = req.memberEmail;
+    if (!pin) return res.status(400).json({ error: 'Thiếu mã PIN cần xác thực.' });
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    if (!bio.transactionPin) {
+      return res.status(400).json({ error: 'Người dùng chưa thiết lập mã PIN.' });
+    }
+
+    const isValid = await bcrypt.compare(String(pin), bio.transactionPin);
+    res.json({ success: isValid });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/joy/transfer  { fromEmail, toReferralCode|toEmail|toPhone, amount, message, pin, idempotencyKey }
 router.post('/transfer', requireMember, async (req, res) => {
   try {
-    const { toPhone, toReferralCode, toEmail, amount, message } = req.body;
-    // Sender identity comes from the verified session token — never the body.
+    const { toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey } = req.body;
     const fromEmail = req.memberEmail;
     if (!fromEmail || (!toPhone && !toReferralCode && !toEmail)) {
       return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc người nhận.' });
+    }
+
+    // 1. Chống gửi lặp request (Idempotency)
+    if (idempotencyKey) {
+      const cacheKey = `idempotency:${fromEmail}:${idempotencyKey}`;
+      if (idempotencyCache.has(cacheKey)) {
+        return res.status(409).json({ error: 'Giao dịch đang được xử lý hoặc đã gửi trước đó.' });
+      }
+      idempotencyCache.set(cacheKey, true);
     }
 
     const numAmount = Number(amount);
@@ -861,6 +932,17 @@ router.post('/transfer', requireMember, async (req, res) => {
 
     const sender = await Bio.findOne({ email: fromEmail });
     if (!sender) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người gửi.' });
+
+    // 2. Xác thực PIN giao dịch (nếu đã cài đặt)
+    if (sender.transactionPin) {
+      if (!pin) {
+        return res.status(400).json({ error: 'Vui lòng cung cấp mã PIN để thực hiện giao dịch.' });
+      }
+      const isPinValid = await bcrypt.compare(String(pin), sender.transactionPin);
+      if (!isPinValid) {
+        return res.status(400).json({ error: 'Mã PIN giao dịch không chính xác.' });
+      }
+    }
 
     if (sender.joyBalance < 20) {
       return res.status(400).json({ error: 'Số dư của bạn phải có ít nhất 20 JOY mới được phép chuyển.' });

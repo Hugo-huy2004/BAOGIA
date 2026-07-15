@@ -46,23 +46,39 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
   const numAmount = Math.round(Number(amount));
   if (!numAmount) throw new Error('INVALID_AMOUNT');
 
-  let bio = opts.bioDoc || (await Bio.findOne({ email }));
-  if (!bio) bio = await Bio.findOne({ contactEmail: email });
+  let bio = opts.bioDoc;
+  if (!bio) {
+    bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+  }
   if (!bio) throw new Error('BIO_NOT_FOUND');
 
-  if (numAmount < 0 && bio.joyBalance + numAmount < 0) {
-    throw new Error('INSUFFICIENT_JOY');
+  // Thực hiện cập nhật số dư nguyên tử (atomic update) ở MongoDB để tránh race condition/double spend
+  const query = {
+    _id: bio._id,
+    ...(numAmount < 0 ? { joyBalance: { $gte: -numAmount } } : {})
+  };
+  const update = {
+    $inc: { joyBalance: numAmount }
+  };
+  const updatedBio = await Bio.findOneAndUpdate(query, update, { new: true });
+  if (!updatedBio) {
+    if (numAmount < 0) {
+      throw new Error('INSUFFICIENT_JOY');
+    }
+    throw new Error('BIO_NOT_FOUND');
   }
 
-  const newBalance = Math.max(0, Math.round((bio.joyBalance || 0) + numAmount));
+  const newBalance = updatedBio.joyBalance;
 
-  // Write the ledger row FIRST, before mutating the real wallet — its schema
-  // validation (e.g. the `source` enum) is the cheapest thing to fail on, and
-  // doing it first guarantees balance/ledger/notification can never drift out
-  // of sync from a partial failure (a bad `source` used to silently credit the
-  // wallet while leaving no audit row at all).
+  // Cập nhật lại số dư cho đối tượng bioDoc truyền vào từ caller
+  if (opts.bioDoc) {
+    opts.bioDoc.joyBalance = newBalance;
+  }
+
+  // Ghi nhận lịch sử giao dịch (JoyLedger)
   await JoyLedger.create({
-    email: bio.email,
+    email: updatedBio.email,
     amount: numAmount,
     balanceAfter: newBalance,
     source,
@@ -70,8 +86,10 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
     refId: opts.refId || ''
   });
 
-  bio.joyBalance = newBalance;
-  if (!opts.skipSave) await bio.save();
+  // Nếu người gọi truyền bioDoc và không skipSave, ta cần lưu các thuộc tính khác (VD: joySentDate) mà caller đã thay đổi trên bioDoc
+  if (opts.bioDoc && !opts.skipSave) {
+    await opts.bioDoc.save();
+  }
 
   // Keep the chess-displayed "JOY" number perfectly in sync with the real wallet.
   // updateOne (no upsert) is intentional: only players who've already opened the

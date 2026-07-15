@@ -130,16 +130,6 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
       btnText: t("utilities.dashboard.aura.btnText", "Vào Không Gian")
     },
     {
-      id: "info",
-      icon: "info",
-      glyphs: ["new_releases", "redeem"],
-      tint: "slate",
-      title: "Info & Version",
-      desc: t("memberPortal.infoVersion.desc"),
-      shortDesc: t("memberPortal.infoVersion.desc"),
-      btnText: t("memberPortal.infoVersion.title")
-    },
-    {
       id: "deco",
       icon: "chair",
       glyphs: ["pets", "desk"],
@@ -150,6 +140,16 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
       btnText: "Mở Deco Studio"
     },
     {
+      id: "hugoskin",
+      icon: "face",
+      glyphs: ["camera_alt", "spa"],
+      tint: "indigo",
+      title: "HugoSkin",
+      desc: "Quét mặt, phân tích sắc tố da (Fitzpatrick), kiểm tra tỷ lệ đối xứng khuôn mặt vàng và lập phác đồ skincare 7 ngày cá nhân hóa.",
+      shortDesc: "Quét mặt & lập phác đồ skincare.",
+      btnText: "Mở HugoSkin"
+    },
+    {
       id: "team",
       icon: "groups",
       glyphs: ["school", "favorite"],
@@ -158,6 +158,16 @@ export default function MemberUtilitiesDashboard({ setSelectedUtility, showToast
       desc: "Cộng đồng phát triển mã nguồn mở. Các sinh viên nam/nữ năm 2-3 ngành CNTT hãy cùng chúng tôi học vừa làm, phi lợi nhuận.",
       shortDesc: "Tuyển dụng sinh viên CNTT",
       btnText: "Tham gia Hugo Team"
+    },
+    {
+      id: "info",
+      icon: "info",
+      glyphs: ["new_releases", "redeem"],
+      tint: "slate",
+      title: "Info & Version",
+      desc: t("memberPortal.infoVersion.desc"),
+      shortDesc: t("memberPortal.infoVersion.desc"),
+      btnText: t("memberPortal.infoVersion.title")
     }
   ];
 

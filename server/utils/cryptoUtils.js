@@ -2,7 +2,19 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
 // Get secret key or use a fallback for local development
-const ENCRYPTION_KEY = process.env.SECRET_KEY ? crypto.scryptSync(process.env.SECRET_KEY, 'salt', 32) : crypto.scryptSync('HugoStudio_SuperSecretKey_2026', 'salt', 32); 
+const isProduction = process.env.NODE_ENV === 'production';
+let rawSecret = process.env.SECRET_KEY;
+if (!rawSecret || !rawSecret.trim()) {
+  if (isProduction) {
+    console.error('❌ FATAL: SECRET_KEY is not set. Refusing to start in production with an insecure default.');
+    process.exit(1);
+  } else {
+    console.warn('⚠️  SECRET_KEY not set — using an insecure dev-only fallback. Never deploy like this.');
+    rawSecret = 'HugoStudio_SuperSecretKey_2026';
+  }
+}
+
+const ENCRYPTION_KEY = crypto.scryptSync(rawSecret.trim(), 'salt', 32);
 const IV_LENGTH = 16; 
 
 export const encryptText = (text) => {

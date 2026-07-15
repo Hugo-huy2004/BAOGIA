@@ -15,6 +15,7 @@ const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
 const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
 const DecoStudioTab = lazy(() => import("./DecoStudioTab"));
 const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
+const HugoSkinTab = lazy(() => import("./HugoSkinTab"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
   const { t } = useTranslation();
@@ -122,6 +123,19 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* Trang Bio — public bio preview (edit via Settings) */}
       {selectedUtility === "bio" && (
         <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} renderAccountForm={renderAccountForm} />
+      )}
+
+      {/* HugoSkin */}
+      {selectedUtility === "hugoskin" && (
+        <div className="space-y-4">
+          <button
+            onClick={() => onSelectUtility(null)}
+            className="flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-300 transition"
+          >
+            ← Quay lại tiện ích
+          </button>
+          <HugoSkinTab />
+        </div>
       )}
       </Suspense>
     </div>

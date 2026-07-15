@@ -17,6 +17,10 @@ import { recordSignal, getTopInterests, getPeakHour, getInterestEmbedding, refre
 import { checkAndResetDecoRoom, updateTrashAndPetStatus } from '../utils/decoHelper.js';
 import { awardJoy } from '../utils/joyService.js';
 import { getStageCertificate } from '../utils/coderExamService.js';
+import InAppNotification from '../models/InAppNotification.js';
+import NotificationSubscription from '../models/NotificationSubscription.js';
+import LocalRecommendation from '../models/LocalRecommendation.js';
+import webpush from 'web-push';
 
 const router = express.Router();
 
@@ -600,6 +604,85 @@ router.post('/me/check-location', requireMember, async (req, res) => {
     bio.lastLocationCheck = { lat, lng, distanceKm: distance, checkedAt: new Date() };
     await bio.save();
 
+    // 3. Tự động hóa thông báo gợi ý địa điểm/món ngon gần đó mỗi 15 phút
+    const lastRecTime = bio.lastRecommendationAt ? new Date(bio.lastRecommendationAt).getTime() : 0;
+    const cooldownPeriod = 15 * 60 * 1000;
+
+    if (Date.now() - lastRecTime >= cooldownPeriod) {
+      (async () => {
+        try {
+          let addressName = '';
+          try {
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+              headers: { 'User-Agent': 'HugoStudio/1.0 (support@hugostudio.vn)' }
+            });
+            if (geoRes.ok) {
+              const geoData = await geoRes.json();
+              addressName = geoData.display_name || '';
+            }
+          } catch (geoErr) {
+            console.warn('[Nominatim] Reverse geocoding failed:', geoErr.message);
+          }
+
+          const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
+          const recRes = await fetch(`${PYTHON_AI_URL}/api/recommendations/local`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat, lng, bio, addressName })
+          });
+
+          if (recRes.ok) {
+            const aiResult = await recRes.json();
+            if (aiResult.should_send) {
+              // Lưu gợi ý vào DB để vẽ lên bản đồ
+              await LocalRecommendation.create({
+                email,
+                lat,
+                lng,
+                addressName,
+                title: aiResult.title || '📍 Gợi ý quanh bạn!',
+                body: aiResult.body || 'Khám phá ngay các địa điểm và món ngon lân cận!',
+                url: aiResult.url || '/member/portal?tab=utilities'
+              });
+
+              await InAppNotification.create({
+                email,
+                type: 'inbox',
+                category: 'system',
+                title: aiResult.title || '📍 Gợi ý quanh bạn!',
+                message: aiResult.body || 'Khám phá ngay các địa điểm và món ngon lân cận!',
+                actionUrl: aiResult.url || '/member/portal?tab=utilities'
+              });
+
+              const subs = await NotificationSubscription.find({ email });
+              if (subs.length) {
+                for (const sub of subs) {
+                  try {
+                    await webpush.sendNotification(sub.subscription, JSON.stringify({
+                      title: aiResult.title || '📍 Gợi ý quanh bạn!',
+                      body: aiResult.body || 'Khám phá ngay các địa điểm và món ngon lân cận!',
+                      icon: '/image/avt7.png',
+                      badge: '/image/badge.png',
+                      url: aiResult.url || '/member/portal?tab=utilities',
+                      tag: 'local_rec'
+                    }));
+                  } catch (pushErr) {
+                    if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
+                      await NotificationSubscription.deleteOne({ _id: sub._id });
+                    }
+                  }
+                }
+              }
+
+              await Bio.updateOne({ email }, { $set: { lastRecommendationAt: new Date() } });
+            }
+          }
+        } catch (err) {
+          console.error('[LocalRec] Error generating local recommendations:', err.message);
+        }
+      })();
+    }
+
     res.json({ success: true, anomaly: distance > ANOMALY_RADIUS_KM, distanceKm: Math.round(distance) });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -623,6 +706,68 @@ router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
     );
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
     res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /me/local-recommendations — Lấy các gợi ý địa điểm & món ngon trong vòng 24h qua
+router.get('/me/local-recommendations', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    if (!email) return res.status(401).json({ error: 'Unauthorized' });
+
+    const recs = await LocalRecommendation.find({ email }).sort({ createdAt: -1 });
+    res.json({ success: true, recommendations: recs });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /me/skin-analysis — Lưu kế hoạch và kết quả quét da
+router.post('/me/skin-analysis', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { score, skinType, skinTone, gender, plan } = req.body;
+    if (!email) return res.status(401).json({ error: 'Unauthorized' });
+
+    const bio = await Bio.findOneAndUpdate(
+      { email },
+      {
+        $set: {
+          skinAnalysis: {
+            score: score || 0,
+            skinType: skinType || "",
+            skinTone: skinTone || "",
+            gender: gender || "",
+            plan: plan || {},
+            updatedAt: new Date()
+          }
+        }
+      },
+      { new: true }
+    );
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    res.json({ success: true, skinAnalysis: bio.skinAnalysis });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /me/skin-reminder — Cập nhật cấu hình nhắc nhở skincare
+router.post('/me/skin-reminder', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { enabled } = req.body;
+    if (!email) return res.status(401).json({ error: 'Unauthorized' });
+
+    const bio = await Bio.findOneAndUpdate(
+      { email },
+      { $set: { skincareReminderEnabled: !!enabled } },
+      { new: true }
+    );
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    res.json({ success: true, skincareReminderEnabled: bio.skincareReminderEnabled });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1334,6 +1479,20 @@ router.get('/community/insights', requireMember, async (req, res) => {
     const email = req.memberEmail;
     const [interests, peakHour] = await Promise.all([getTopInterests(email, 8), getPeakHour(email)]);
     res.json({ success: true, interests, peakHour });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /community/leaderboard - Top users by JOY balance for community engagement
+router.get('/community/leaderboard', requireMember, async (req, res) => {
+  try {
+    const topUsers = await Bio.find({ status: 'active' })
+      .select('displayName avatarUrl slug joyBalance')
+      .sort({ joyBalance: -1 })
+      .limit(10)
+      .lean();
+    res.json({ success: true, leaderboard: topUsers });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

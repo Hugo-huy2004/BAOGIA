@@ -175,6 +175,8 @@ class GeminiService:
         else:
             print("⚠️ CẢNH BÁO: Chưa cấu hình GEMINI_API_KEY nào trong file .env!")
 
+        self.api_key_cooldowns = [0.0] * len(self.api_keys)
+
         groq_models = os.getenv("GROQ_MODELS", "")
         self.groq_models = [m.strip() for m in groq_models.split(",") if m.strip()] or GROQ_DEFAULT_MODELS
         if os.getenv("GROQ_API_KEY"):
@@ -183,15 +185,38 @@ class GeminiService:
     def _get_next_client(self) -> Any:
         if not self.api_keys:
             return None
-        self.current_key_index = (self.current_key_index + 1) % len(self.api_keys)
+        
+        # Đánh dấu key hiện tại bị lỗi/hết hạn và cần cooldown 5 phút (300 giây)
+        self.api_key_cooldowns[self.current_key_index] = time.time() + 300
+        
+        # Tìm key tiếp theo không bị cooldown
+        start_idx = self.current_key_index
+        while True:
+            self.current_key_index = (self.current_key_index + 1) % len(self.api_keys)
+            if time.time() >= self.api_key_cooldowns[self.current_key_index]:
+                break
+            if self.current_key_index == start_idx:
+                # Nếu tất cả các key đều bị cooldown, chấp nhận xoay vòng tiếp để tránh bị kẹt hoàn toàn
+                break
+                
         new_key = self.api_keys[self.current_key_index]
-        print(f"🔄 [Cảnh báo] Quota exceeded. Đang xoay vòng chuyển sang API Key thứ {self.current_key_index + 1}/{len(self.api_keys)}...")
+        print(f"🔄 [Cảnh báo] Quota exceeded/Lỗi. Đang xoay vòng chuyển sang API Key thứ {self.current_key_index + 1}/{len(self.api_keys)}...")
         self.client = genai.Client(api_key=new_key)
         return self.client
 
     def _ensure_client(self) -> Any:
-        if not self.client and self.api_keys:
-            self.client = genai.Client(api_key=self.api_keys[self.current_key_index])
+        if not self.api_keys:
+            return None
+            
+        # Nếu key hiện tại đang bị cooldown, tự động tìm một key khỏe mạnh hơn
+        if time.time() < self.api_key_cooldowns[self.current_key_index]:
+            for idx in range(len(self.api_keys)):
+                candidate = (self.current_key_index + idx) % len(self.api_keys)
+                if time.time() >= self.api_key_cooldowns[candidate]:
+                    self.current_key_index = candidate
+                    break
+                    
+        self.client = genai.Client(api_key=self.api_keys[self.current_key_index])
         return self.client
 
     def _provider_available(self, provider: str) -> bool:
@@ -1129,6 +1154,127 @@ Phân tích và đưa ra đánh giá toàn diện.
                 return {"error": err_str, "status": "error"}
 
         return {"error": "All keys failed", "status": "error"}
+
+    async def generate_local_recommendations(self, lat: float, lng: float, addressName: str, bio: dict) -> dict:
+        """
+        Gợi ý địa điểm và món ăn ngon gần đó dựa trên tọa độ GPS (lat, lng) và địa chỉ cụ thể.
+        """
+        client = self._ensure_client()
+        if not client:
+            return {"should_send": False}
+
+        name_parts = (bio.get("displayName") or "bạn").split()
+        name = name_parts[-1] if name_parts else "bạn"
+
+        system_instruction = f"""
+Bạn là trợ lý thông minh Hugo Guide của Hugo Studio.
+Nhiệm vụ: Dựa vào địa chỉ thực tế và tọa độ GPS, hãy gợi ý cho {name} 1 địa điểm nổi tiếng gần đó (công viên, quán cà phê chill, nhà sách, di tích lịch sử) và 1 gợi ý món ăn ngon đặc sản gần đó kèm khoảng giá dự kiến bằng tiền VND.
+
+Địa chỉ thực tế của {name}: {addressName}
+Tọa độ GPS: Vĩ độ {lat}, Kinh độ {lng}
+
+YÊU CẦU:
+- Phong cách gợi ý: Cực kỳ ấm áp, quan tâm, tự nhiên như người bạn bản địa đồng hành thân thiết. Hãy dùng thông tin địa chỉ cụ thể ở trên để cá nhân hóa lời khuyên (ví dụ: "Tớ thấy bạn đang ở gần [Đường/Quận/Khu vực]...").
+- Độ dài: Cực kỳ ngắn gọn, phù hợp hiển thị làm Push Notification và thông báo trong ứng dụng.
+- Dùng 1-2 emoji phù hợp.
+- Khoảng giá phải hợp lý và rõ ràng (ví dụ: 30k - 50k).
+
+Trả về JSON CHÍNH XÁC:
+{{
+  "should_send": true,
+  "title": "📍 Gợi ý quanh bạn!",
+  "body": "Nội dung lời nhắn ấm áp gợi ý món ăn và địa điểm quanh vị trí đó để {name} thưởng thức.",
+  "url": "/member/portal?tab=utilities"
+}}
+"""
+
+        contents = f"Địa chỉ của {name} là: {addressName}. Vĩ độ {lat}, Kinh độ {lng}. Hãy đưa ra gợi ý phù hợp."
+
+        max_retries = len(self.api_keys)
+        for attempt in range(max_retries):
+            try:
+                response = client.models.generate_content(
+                    model=self.model_name,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                        temperature=0.7
+                    )
+                )
+                text = response.text.strip()
+                parsed = json.loads(text)
+                return parsed
+            except Exception as e:
+                err_str = str(e)
+                if "429" in err_str or "API_KEY_INVALID" in err_str or "quota" in err_str:
+                    self._cooldown_current_key()
+                if attempt < max_retries - 1:
+                    client = self._get_next_client()
+                    continue
+                print(f"Lỗi generate_local_recommendations: {err_str}")
+                return {"should_send": False, "error": err_str}
+
+        return {"should_send": False, "error": "All keys failed"}
+
+    async def generate_companion_push(self, user_data: dict) -> dict:
+        """
+        Tạo thông báo đẩy cá nhân hoá khi người dùng mở khoá liệu trình Bạn Học Đường.
+        """
+        client = self._ensure_client()
+        if not client:
+            return {"should_send": False}
+
+        bio = user_data.get("bio", {})
+        name_parts = (bio.get("displayName") or "bạn").split()
+        name = name_parts[-1] if name_parts else "bạn"
+        feature_label = user_data.get("feature_label", "Trị liệu")
+
+        system_instruction = f"""
+Bạn là HugoPsy AI - trợ lý tâm lý trị liệu thông minh của Hugo Studio.
+Nhiệm vụ: Tạo 1 thông báo đẩy (push notification) cá nhân hóa, ấm áp, động viên {name} sử dụng tính năng '{feature_label}' mà họ đã mở khoá hôm qua.
+
+YÊU CẦU:
+- Phong cách: Cảm thông, ấm áp, thúc đẩy nhẹ nhàng nhưng chuyên nghiệp (nhà trị liệu thân thiện).
+- Độ dài: Cực kỳ ngắn gọn (Tiêu đề dưới 50 ký tự, Nội dung dưới 120 ký tự).
+- Dùng 1-2 emoji phù hợp để tạo cảm xúc tích cực.
+- Thúc đẩy hành động: gợi ý một lợi ích nhỏ hoặc bài tập nhanh 5 phút.
+
+Trả về JSON CHÍNH XÁC:
+{{
+  "should_send": true,
+  "title": "Tiêu đề thông báo",
+  "body": "Nội dung thông báo gợi ý hoặc lời nhắn ấm áp",
+  "url": "/member/companion"
+}}
+"""
+
+        max_retries = len(self.api_keys)
+        for attempt in range(max_retries):
+            try:
+                response = client.models.generate_content(
+                    model=self.model_name,
+                    contents=f"Tạo tin push khuyến khích {name} dùng {feature_label}",
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                        temperature=0.7
+                    )
+                )
+                text = response.text.strip()
+                parsed = json.loads(text)
+                return parsed
+            except Exception as e:
+                err_str = str(e)
+                if "429" in err_str or "API_KEY_INVALID" in err_str or "quota" in err_str:
+                    self._cooldown_current_key()
+                if attempt < max_retries - 1:
+                    client = self._get_next_client()
+                    continue
+                print(f"Lỗi generate_companion_push: {err_str}")
+                return {"should_send": False, "error": err_str}
+
+        return {"should_send": False, "error": "All keys failed"}
 
     async def generate_smart_push(self, user_data: dict) -> dict:
         """
