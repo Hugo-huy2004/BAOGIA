@@ -13,6 +13,9 @@ const TOPICS = {
   mental: ['tâm lý', 'stress', 'lo âu', 'buồn', 'cảm xúc', 'động lực', 'áp lực', 'cô đơn', 'mệt mỏi'],
   science: ['vật lý', 'khoa học', 'vũ trụ', 'hoá', 'sinh học', 'bí ẩn', 'thí nghiệm'],
   news: ['tin tức', 'thời sự', 'mới nhất', 'sự kiện', 'ra mắt'],
+  cafe: ['cà phê', 'cafe', 'coffee', 'trà sữa', 'trà đá', 'discover_cafe'],
+  food: ['quán ăn', 'nhà hàng', 'ẩm thực', 'ăn vặt', 'món ngon', 'discover_food'],
+  play: ['vui chơi', 'giải trí', 'rạp phim', 'karaoke', 'công viên', 'arcade', 'discover_play'],
 };
 
 // Vietnamese label used to build the embedding text for each topic.
@@ -21,7 +24,8 @@ const TOPIC_VI = {
   study: 'học tập thi cử kiến thức', tech: 'lập trình công nghệ máy tính',
   health: 'sức khỏe thể chất luyện tập', mental: 'sức khỏe tinh thần cảm xúc động lực',
   science: 'khoa học vật lý vũ trụ', news: 'tin tức đời sống', qna: 'hỏi đáp thảo luận',
-  general: 'đời sống sinh viên',
+  cafe: 'quán cà phê trà sữa đồ uống', food: 'ẩm thực quán ăn nhà hàng',
+  play: 'vui chơi giải trí ngoài trời', general: 'đời sống sinh viên',
 };
 
 export function extractTopics(text = '', category = '') {

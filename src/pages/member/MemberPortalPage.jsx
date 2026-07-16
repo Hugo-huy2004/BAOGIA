@@ -41,6 +41,9 @@ function bioToFormData(b, fallbackDisplayName, emptyTheme) {
     jobTitle: b.jobTitle||"", contactEmail: b.contactEmail||"", avatarUrl: b.avatarUrl||"",
     links: b.links||[], theme: { ...emptyTheme, ...b.theme }, tabs: b.tabs||[],
     projects: b.projects||[], services: b.services||[], secretLinks: b.secretLinks||[], slug: b.slug||"",
+    antiDeepfakeLock: b.antiDeepfakeLock || false,
+    autoLogoutMinutes: b.autoLogoutMinutes || 0,
+    privateMode: b.privateMode || false,
   };
 }
 
@@ -57,8 +60,6 @@ import MemberSettingsTab from "../../components/member/MemberSettingsTab";
 import DesignSubTab from "../../components/member/DesignSubTab";
 import LinksSubTab from "../../components/member/LinksSubTab";
 import QuickWidgetGrid from "../../components/member/QuickWidgetGrid";
-import CommunityTab from "../../components/member/CommunityTab";
-
 // Lazy-loaded main tabs
 const AchievementsSubTab = React.lazy(() => import("../../components/member/AchievementsSubTab"));
 const MemberHistoryTab   = React.lazy(() => import("../../components/member/MemberHistoryTab"));
@@ -133,7 +134,7 @@ export default function MemberPortalPage() {
   const { tab, subTab, psychTab } = useParams();
   const navigate = useNavigate();
 
-  const activeTab = tab || "account";
+  const activeTab = tab || "map";
   const accountSubTab = subTab || "profile";
   const mobileSubSection = subTab || null;
 
@@ -550,6 +551,32 @@ export default function MemberPortalPage() {
     return () => window.removeEventListener('hugo:bio-update', handleBioUpdate);
   }, []);
 
+  // Security Session Shield: Auto-Logout idle timer
+  useEffect(() => {
+    const idleMinutes = bio?.autoLogoutMinutes || 0;
+    if (idleMinutes <= 0 || isGuestMode) return undefined;
+
+    let timeoutId;
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        showToast("Phiên làm việc đã hết hạn bảo mật. Hệ thống tự động đăng xuất để bảo vệ tài khoản.", "warning");
+        setTimeout(() => {
+          handleLogout();
+        }, 1500);
+      }, idleMinutes * 60 * 1000);
+    };
+
+    const events = ['mousemove', 'keydown', 'touchstart', 'click', 'scroll'];
+    events.forEach(event => window.addEventListener(event, resetTimer));
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach(event => window.removeEventListener(event, resetTimer));
+    };
+  }, [bio?.autoLogoutMinutes, isGuestMode]);
+
   // ── Handlers ──────────────────────────────────────────────────────────────────
   const handleLogout = () => { if (memberSession?.email) clearCachedBio(memberSession.email); logoutAuth(); window.location.assign("/login"); };
 
@@ -635,6 +662,9 @@ export default function MemberPortalPage() {
     headline:"", bio:"", birthday:"", phone:"", hobbies:"", height:"", weight:"", measurements:"", address:"",
     education:"", skills:"", jobTitle:"", contactEmail:"", avatarUrl:"", links:[],
     theme: guest ? { ...emptyTheme, bgColor:"#0f172a", textColor:"#f8fafc" } : emptyTheme, tabs:[],
+    antiDeepfakeLock: false,
+    autoLogoutMinutes: 0,
+    privateMode: false,
   });
 
   const handleDeleteBio = () => {
@@ -658,7 +688,6 @@ export default function MemberPortalPage() {
 
   const desktopTabs = useMemo(() => {
     return [
-      { id: "account",   label: t("memberPortal.tabs.community", "Cộng đồng"), icon: "groups",          partner: false },
       ...(!isGuestMode ? [
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "account_balance_wallet", partner: false },
       ] : []),
@@ -680,7 +709,6 @@ export default function MemberPortalPage() {
   const mobileTabs = useMemo(() => {
     if (isGuestMode) {
       return [
-        { id: "account",   label: t("memberPortal.tabs.community", "HugoComm"), icon: "groups" },
         { id: "map",       label: "Khám Phá",        icon: "explore" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
         { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications" },
@@ -688,7 +716,6 @@ export default function MemberPortalPage() {
       ];
     } else {
       return [
-        { id: "account",   label: t("memberPortal.tabs.community", "HugoComm"), icon: "groups" },
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "account_balance_wallet" },
         { id: "map",       label: "Khám Phá",        icon: "explore" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
@@ -817,7 +844,7 @@ export default function MemberPortalPage() {
           a calm solid background reads as an app, not a busy website. Kept
           behind the (still user-toggleable) weather pref so it can be re-enabled.
           WeatherAlertWatcher above still runs for safety alerts. */}
-      <WeatherLayer enabled={weatherOn && activeTab === "account"} immersive mode="hero" />
+      <WeatherLayer enabled={weatherOn && activeTab === "map"} immersive mode="hero" />
 
       <HealingModal
         showModal={healing.showModal} subStep={healing.subStep} state={healing.state}
@@ -961,13 +988,6 @@ export default function MemberPortalPage() {
               <PendingVerification fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} handleLogout={handleLogout} />
             ) : (
               <>
-                {/* ── Account Tab (Virtual Community Page) ─────────────────────── */}
-                {visitedTabs.has("account") && (
-                  <div style={{ display: activeTab === "account" ? undefined : "none" }} className="animate-fadeIn">
-                    <CommunityTab memberSession={memberSession} bio={bio} />
-                  </div>
-                )}
-
                 {visitedTabs.has("joy") && (
                   <div style={{ display: activeTab === "joy" ? undefined : "none", padding: "0 12px" }}>
                     <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={() => setParticleOpen(true)} />

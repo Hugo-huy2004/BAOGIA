@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 
 const paymentLinkSchema = new mongoose.Schema({
@@ -17,6 +18,7 @@ const paymentLinkSchema = new mongoose.Schema({
   },
   reason: {
     type: String,
+    
     required: true,
   },
   checkoutUrl: {

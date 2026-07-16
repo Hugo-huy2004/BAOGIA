@@ -166,17 +166,29 @@ export default function HugoSkinTab() {
   const processFaceSnapshot = async () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas ? canvas.getContext("2d", { willReadFrequently: true }) : null;
     if (!video || !canvas || !ctx) return;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    let width = video.videoWidth;
+    let height = video.videoHeight;
+    if (!width || !height) {
+      width = video.width || 640;
+      height = video.height || 480;
+    }
+    canvas.width = width;
+    canvas.height = height;
 
-    // Cheek color detection
-    const cheekX = Math.round(canvas.width * 0.65);
-    const cheekY = Math.round(canvas.height * 0.5);
-    const imgData = ctx.getImageData(cheekX - 10, cheekY - 10, 20, 20);
+    ctx.drawImage(video, 0, 0, width, height);
+
+    // Cheek color detection with safe clamping
+    const cheekX = Math.round(width * 0.65);
+    const cheekY = Math.round(height * 0.5);
+    const boxSize = 20;
+    const halfBox = Math.round(boxSize / 2);
+    const startCheekX = Math.max(0, Math.min(width - boxSize, cheekX - halfBox));
+    const startCheekY = Math.max(0, Math.min(height - boxSize, cheekY - halfBox));
+
+    const imgData = ctx.getImageData(startCheekX, startCheekY, boxSize, boxSize);
     const data = imgData.data;
 
     let rSum = 0, gSum = 0, bSum = 0;
@@ -202,15 +214,19 @@ export default function HugoSkinTab() {
     else if (brightness > 80) fitzpatrick = "Type V (Da nâu bánh mật)";
     else fitzpatrick = "Type VI (Da tối màu)";
 
-    // Face symmetry calculation
-    const sliceWidth = Math.round(canvas.width * 0.4);
-    const sliceHeight = Math.round(canvas.height * 0.4);
-    const leftX = Math.round(canvas.width * 0.1);
-    const rightX = Math.round(canvas.width * 0.5);
-    const centerY = Math.round(canvas.height * 0.3);
+    // Face symmetry calculation with safe clamping
+    const sliceWidth = Math.max(1, Math.round(width * 0.4));
+    const sliceHeight = Math.max(1, Math.round(height * 0.4));
+    const leftX = Math.round(width * 0.1);
+    const rightX = Math.round(width * 0.5);
+    const centerY = Math.round(height * 0.3);
 
-    const leftData = ctx.getImageData(leftX, centerY, sliceWidth, sliceHeight).data;
-    const rightData = ctx.getImageData(rightX, centerY, sliceWidth, sliceHeight).data;
+    const safeLeftX = Math.max(0, Math.min(width - sliceWidth, leftX));
+    const safeRightX = Math.max(0, Math.min(width - sliceWidth, rightX));
+    const safeCenterY = Math.max(0, Math.min(height - sliceHeight, centerY));
+
+    const leftData = ctx.getImageData(safeLeftX, safeCenterY, sliceWidth, sliceHeight).data;
+    const rightData = ctx.getImageData(safeRightX, safeCenterY, sliceWidth, sliceHeight).data;
 
     let leftGraySum = 0, rightGraySum = 0;
     for (let i = 0; i < leftData.length; i += 4) {
@@ -247,6 +263,17 @@ export default function HugoSkinTab() {
       }
     } catch (err) {
       console.error(err);
+    }
+
+    // Clear canvas backing store from RAM/GPU memory immediately
+    try {
+      if (ctx && canvas) {
+        ctx.clearRect(0, 0, width, height);
+        canvas.width = 1;
+        canvas.height = 1;
+      }
+    } catch (clearErr) {
+      console.warn("Lỗi dọn dẹp canvas:", clearErr);
     }
 
     stopCamera();
@@ -317,6 +344,17 @@ export default function HugoSkinTab() {
                 <h3 className="text-sm font-bold text-white">Quét Khuôn Mặt Bằng Trình Duyệt</h3>
                 <p className="text-xs text-zinc-500">
                   Tự động căn chỉnh và xử lý màu sắc trên thời gian thực, hoàn toàn riêng tư.
+                </p>
+              </div>
+            </div>
+
+            {/* Privacy Shield Notice */}
+            <div className="flex items-start gap-3 bg-indigo-950/40 p-4.5 rounded-2xl border border-indigo-500/25 shadow-inner">
+              <Shield className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-1">
+                <h4 className="text-xs font-black text-indigo-300">Bảo mật & Quyền riêng tư tuyệt đối</h4>
+                <p className="text-[10px] text-zinc-400 leading-relaxed">
+                  Hình ảnh mặt của bạn được xử lý **100% cục bộ trong bộ nhớ RAM trình duyệt**. Chúng tôi chỉ gửi các chỉ số toán học (điểm đối xứng, tone màu) lên máy chủ và **tuyệt đối không gửi hay lưu trữ hình ảnh khuôn mặt** để phòng tránh các rủi ro deepfake/giả mạo.
                 </p>
               </div>
             </div>

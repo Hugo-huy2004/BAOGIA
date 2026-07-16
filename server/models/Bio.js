@@ -289,6 +289,18 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    antiDeepfakeLock: {
+      type: Boolean,
+      default: false
+    },
+    autoLogoutMinutes: {
+      type: Number,
+      default: 0 // 0 means Never
+    },
+    privateMode: {
+      type: Boolean,
+      default: false
+    },
     // Stable sequential index for Redis bitmap addressing (online/DAU presence
     // tracking) — assigned lazily on first heartbeat, see presenceService.js.
     presenceIndex: {

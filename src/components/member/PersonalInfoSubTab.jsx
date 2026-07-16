@@ -33,19 +33,20 @@ export default function PersonalInfoSubTab({
       <div className={`space-y-2 text-center py-4 hg-glass rounded-lg ${hideAvatarSection ? 'hidden' : ''}`}>
         <div
           className={`relative w-20 h-20 rounded-full border shadow-md bg-muted mx-auto flex items-center justify-center overflow-hidden group cursor-pointer transition-all duration-200 ${
-            isDragOver
+            isDragOver && !formData.antiDeepfakeLock
               ? "border-2 border-dashed border-primary scale-105 bg-primary/10"
               : "border-border"
           }`}
-          onClick={() => !saving && avatarInputRef.current.click()}
+          onClick={() => !saving && !formData.antiDeepfakeLock && avatarInputRef.current.click()}
           onDragOver={(e) => {
             e.preventDefault();
-            setIsDragOver(true);
+            if (!formData.antiDeepfakeLock) setIsDragOver(true);
           }}
           onDragLeave={() => setIsDragOver(false)}
           onDrop={(e) => {
             e.preventDefault();
             setIsDragOver(false);
+            if (formData.antiDeepfakeLock) return;
             const file = e.dataTransfer.files[0];
             processFile(file);
           }}
@@ -62,6 +63,11 @@ export default function PersonalInfoSubTab({
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               <span className="text-[7px] mt-1 font-bold tracking-wider">UPLOADING...</span>
             </div>
+          ) : formData.antiDeepfakeLock ? (
+            <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-white text-[9px] font-bold z-20">
+              <span className="material-symbols-outlined text-sm text-red-400">lock</span>
+              <span className="text-red-400">Đã Khóa</span>
+            </div>
           ) : (
             <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold z-20">
               <span className="material-symbols-outlined text-sm">photo_camera</span>
@@ -71,12 +77,12 @@ export default function PersonalInfoSubTab({
         </div>
         <div className="space-y-1">
           <p className="text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider">{t("memberPortal.bio.avatarTitle")}</p>
-          <p className="text-[8px] text-zinc-400">{t("memberPortal.bio.avatarDesc")}</p>
+          <p className="text-[8px] text-zinc-400">{formData.antiDeepfakeLock ? "Ảnh đại diện đang được bảo vệ chống giả mạo" : t("memberPortal.bio.avatarDesc")}</p>
           {formData.avatarUrl && (
             <button
               type="button"
               onClick={handleRemoveAvatar}
-              disabled={saving}
+              disabled={saving || formData.antiDeepfakeLock}
               className="text-[9px] font-bold text-destructive hover:text-red-650 transition-colors disabled:opacity-50"
             >{t("memberPortal.bio.removeAvatar")}</button>
           )}

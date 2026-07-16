@@ -19,8 +19,28 @@ import { awardJoy } from '../utils/joyService.js';
 import { getStageCertificate } from '../utils/coderExamService.js';
 import InAppNotification from '../models/InAppNotification.js';
 import NotificationSubscription from '../models/NotificationSubscription.js';
-import LocalRecommendation from '../models/LocalRecommendation.js';
+import { discoverPlaces } from '../services/discoveryService.js';
+import CommunityPlace from '../models/CommunityPlace.js';
 import webpush from 'web-push';
+import rateLimit from 'express-rate-limit';
+
+const discoverLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: { error: 'Bạn đang tìm kiếm quá nhanh. Vui lòng đợi một chút.' }
+});
+
+const checkLocationLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 10,
+  message: { error: 'Bạn đang cập nhật vị trí quá nhanh. Vui lòng đợi vài phút.' }
+});
+
+const skinAnalysisLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Bạn đang thực hiện quét da quá thường xuyên. Vui lòng đợi 15 phút.' }
+});
 
 const router = express.Router();
 
@@ -582,9 +602,9 @@ const ANOMALY_RADIUS_KM = 50;
 // server-side — enforcement (logout + redirect) happens client-side in
 // useLocationGuard.js, consistent with how this codebase has no session-
 // revocation list for its stateless JWTs.
-router.post('/me/check-location', requireMember, async (req, res) => {
+router.post('/me/check-location', requireMember, checkLocationLimiter, async (req, res) => {
   try {
-    const { lat, lng } = req.body;
+    const { lat, lng, force } = req.body;
     const email = req.memberEmail;
     if (!email || typeof lat !== 'number' || typeof lng !== 'number') {
       return res.status(400).json({ error: 'email, lat and lng are required' });
@@ -601,14 +621,25 @@ router.post('/me/check-location', requireMember, async (req, res) => {
     }
 
     const distance = distanceKm(bio.trustedLocation.lat, bio.trustedLocation.lng, lat, lng);
+    
+    // Check if they stayed in place (dist < 150m for 10-15 mins)
+    const prevCheck = bio.lastLocationCheck;
+    let stayedInLocation = false;
+    if (prevCheck && prevCheck.lat && prevCheck.checkedAt) {
+      const timeDiffMins = (Date.now() - new Date(prevCheck.checkedAt).getTime()) / (60 * 1000);
+      const distMeters = distanceKm(prevCheck.lat, prevCheck.lng, lat, lng) * 1000;
+      
+      // Stayed within 150m for between 10 and 45 minutes
+      if (distMeters < 150 && timeDiffMins >= 10 && timeDiffMins <= 45) {
+        stayedInLocation = true;
+      }
+    }
+
     bio.lastLocationCheck = { lat, lng, distanceKm: distance, checkedAt: new Date() };
     await bio.save();
 
-    // 3. Tự động hóa thông báo gợi ý địa điểm/món ngon gần đó mỗi 15 phút
-    const lastRecTime = bio.lastRecommendationAt ? new Date(bio.lastRecommendationAt).getTime() : 0;
-    const cooldownPeriod = 15 * 60 * 1000;
-
-    if (Date.now() - lastRecTime >= cooldownPeriod) {
+    // Trigger recommendation if stayed in location or forced via request
+    if (stayedInLocation || force === true) {
       (async () => {
         try {
           let addressName = '';
@@ -624,66 +655,59 @@ router.post('/me/check-location', requireMember, async (req, res) => {
             console.warn('[Nominatim] Reverse geocoding failed:', geoErr.message);
           }
 
-          const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
-          const recRes = await fetch(`${PYTHON_AI_URL}/api/recommendations/local`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lat, lng, bio, addressName })
+          // Chỉ dùng địa điểm THẬT (Google khi có key, OpenStreetMap khi không).
+          // Không tìm được quán thật nào quanh đây thì không gửi gợi ý —
+          // tuyệt đối không sinh dữ liệu giả.
+          let placesList = [];
+          try {
+            const { places } = await discoverPlaces({ lat, lng });
+            placesList = places.slice(0, 8);
+          } catch (discErr) {
+            console.warn('[LocalRec] discoverPlaces failed:', discErr.message);
+          }
+          if (placesList.length === 0) return;
+
+          const title = 'Bạn đang dừng chân tại ' + (addressName ? addressName.split(',')[0] : 'khu vực này') + '?';
+          const body = 'Hugo tìm thấy ' + placesList.length + ' địa điểm ăn uống, giải trí có thật gần bạn. Mở tab Khám phá xem ngay nhé!';
+          const url = '/member/portal?tab=map';
+
+          await InAppNotification.create({
+            email,
+            type: 'inbox',
+            category: 'system',
+            title,
+            message: body,
+            actionUrl: url
           });
 
-          if (recRes.ok) {
-            const aiResult = await recRes.json();
-            if (aiResult.should_send) {
-              // Lưu gợi ý vào DB để vẽ lên bản đồ
-              await LocalRecommendation.create({
-                email,
-                lat,
-                lng,
-                addressName,
-                title: aiResult.title || '📍 Gợi ý quanh bạn!',
-                body: aiResult.body || 'Khám phá ngay các địa điểm và món ngon lân cận!',
-                url: aiResult.url || '/member/portal?tab=utilities'
-              });
-
-              await InAppNotification.create({
-                email,
-                type: 'inbox',
-                category: 'system',
-                title: aiResult.title || '📍 Gợi ý quanh bạn!',
-                message: aiResult.body || 'Khám phá ngay các địa điểm và món ngon lân cận!',
-                actionUrl: aiResult.url || '/member/portal?tab=utilities'
-              });
-
-              const subs = await NotificationSubscription.find({ email });
-              if (subs.length) {
-                for (const sub of subs) {
-                  try {
-                    await webpush.sendNotification(sub.subscription, JSON.stringify({
-                      title: aiResult.title || '📍 Gợi ý quanh bạn!',
-                      body: aiResult.body || 'Khám phá ngay các địa điểm và món ngon lân cận!',
-                      icon: '/image/avt7.png',
-                      badge: '/image/badge.png',
-                      url: aiResult.url || '/member/portal?tab=utilities',
-                      tag: 'local_rec'
-                    }));
-                  } catch (pushErr) {
-                    if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
-                      await NotificationSubscription.deleteOne({ _id: sub._id });
-                    }
-                  }
+          const subs = await NotificationSubscription.find({ email });
+          if (subs.length) {
+            for (const sub of subs) {
+              try {
+                await webpush.sendNotification(sub.subscription, JSON.stringify({
+                  title,
+                  body,
+                  icon: '/image/avt7.png',
+                  badge: '/image/badge.png',
+                  url,
+                  tag: 'local_rec'
+                }));
+              } catch (pushErr) {
+                if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
+                  await NotificationSubscription.deleteOne({ _id: sub._id });
                 }
               }
-
-              await Bio.updateOne({ email }, { $set: { lastRecommendationAt: new Date() } });
             }
           }
+
+          await Bio.updateOne({ email }, { $set: { lastRecommendationAt: new Date() } });
         } catch (err) {
           console.error('[LocalRec] Error generating local recommendations:', err.message);
         }
       })();
     }
 
-    res.json({ success: true, anomaly: distance > ANOMALY_RADIUS_KM, distanceKm: Math.round(distance) });
+    res.json({ success: true, anomaly: distance > 50, distanceKm: Math.round(distance) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -711,21 +735,226 @@ router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
   }
 });
 
-// GET /me/local-recommendations — Lấy các gợi ý địa điểm & món ngon trong vòng 24h qua
-router.get('/me/local-recommendations', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    if (!email) return res.status(401).json({ error: 'Unauthorized' });
+// GET /me/discover?lat=&lng=&category=&q=&open=&sort= — live nearby places
+// (Google Places khi có GOOGLE_MAPS_API_KEY, fallback OpenStreetMap), lọc và
+// xếp hạng theo cá tính người dùng (UserProfile.interests).
+const INTEREST_CATEGORY_KEYWORDS = {
+  cafe: /cà phê|cafe|coffee|trà|đồ uống|check-?in|discover_cafe/i,
+  food: /ăn|food|món|ẩm thực|nấu|quán|discover_food/i,
+  play: /game|chơi|phim|nhạc|giải trí|thể thao|du lịch|arcade|discover_play/i
+};
 
-    const recs = await LocalRecommendation.find({ email }).sort({ createdAt: -1 });
-    res.json({ success: true, recommendations: recs });
+// Time-of-day category boost (hour is the CLIENT's local hour — server may be UTC).
+function timeOfDayBoosts(hour) {
+  if (hour >= 6 && hour < 11) return { cafe: 2, food: 1 };        // sáng: cà phê, ăn sáng
+  if (hour >= 11 && hour < 14) return { food: 2.5 };              // trưa: ăn uống
+  if (hour >= 14 && hour < 17) return { cafe: 2 };                // xế: cà phê chill
+  if (hour >= 17 && hour < 22) return { food: 1.5, play: 2 };     // tối: ăn tối, vui chơi
+  return { play: 1.5 };                                           // khuya
+}
+
+router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
+  try {
+    const lat = Number(req.query.lat);
+    const lng = Number(req.query.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return res.status(400).json({ error: 'lat and lng are required' });
+    }
+    const category = ['food', 'cafe', 'play'].includes(req.query.category) ? req.query.category : '';
+    const q = String(req.query.q || '').slice(0, 80);
+    const openOnly = req.query.open === '1';
+    const sort = req.query.sort || 'smart';
+    const clientHour = Number.isInteger(Number(req.query.hour)) && Number(req.query.hour) >= 0 && Number(req.query.hour) < 24
+      ? Number(req.query.hour)
+      : new Date().getHours();
+
+    const [{ places, source }, interests, communityDocs] = await Promise.all([
+      discoverPlaces({ lat, lng, category, q }),
+      getTopInterests(req.memberEmail, 12).catch(() => []),
+      CommunityPlace.find().lean().catch(() => [])
+    ]);
+
+    // Venues added by members themselves, merged in within the same radius
+    const qLower = q.toLowerCase();
+    const communityPlaces = communityDocs
+      .filter(c =>
+        (!category || c.category === category) &&
+        (!qLower || c.name.toLowerCase().includes(qLower) || (c.services || '').toLowerCase().includes(qLower)) &&
+        distanceKm(lat, lng, c.lat, c.lng) * 1000 <= 2500)
+      .map(c => ({
+        id: `cp-${c._id}`,
+        name: c.name,
+        category: c.category,
+        lat: c.lat,
+        lng: c.lng,
+        rating: null,
+        ratingCount: null,
+        openNow: null,
+        address: c.address || '',
+        priceRange: '',
+        review: '',
+        googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${c.name} ${c.lat},${c.lng}`)}`,
+        website: c.website || '',
+        services: c.services || '',
+        menu: c.menu || '',
+        phone: c.phone || '',
+        source: 'community',
+        mine: c.email === req.memberEmail
+      }));
+
+    // Which categories match this user's learned interests?
+    // Topics 'cafe'/'food'/'play' map 1-1; the regexes catch related topics
+    // (e.g. 'game' interest boosts 'play' places).
+    const boosts = {};
+    for (const { topic, weight } of interests) {
+      const w = Math.min(weight, 3);
+      if (INTEREST_CATEGORY_KEYWORDS[topic]) {
+        boosts[topic] = Math.max(boosts[topic] || 0, w);
+        continue;
+      }
+      for (const [cat, re] of Object.entries(INTEREST_CATEGORY_KEYWORDS)) {
+        if (re.test(topic)) boosts[cat] = Math.max(boosts[cat] || 0, w);
+      }
+    }
+    const todBoosts = timeOfDayBoosts(clientHour);
+
+    let result = [...places, ...communityPlaces].map(p => {
+      const distM = Math.round(distanceKm(lat, lng, p.lat, p.lng) * 1000);
+      const interestBoost = boosts[p.category] || 0;
+      const todBoost = todBoosts[p.category] || 0;
+      const trusted = (p.ratingCount || 0) >= 50; // enough reviews to trust the rating
+      // Proximity dominates: -1 điểm mỗi 200m — quán 2km phải xuất sắc vượt
+      // trội mới thắng nổi quán ngay cạnh bạn.
+      const score =
+        (p.rating || 3.5) * (trusted ? 2.2 : 1.8) +
+        (p.openNow === true ? 3 : p.openNow === false ? -6 : 0) +
+        interestBoost * 2 +
+        todBoost +
+        (p.source === 'community' ? 2 : 0) -
+        distM / 200;
+
+      // Human-readable "why this place" chips, ordered by strength
+      const reasons = [];
+      if (p.source === 'community') reasons.push('Quán của thành viên');
+      if (distM <= 500) reasons.push('Rất gần bạn');
+      if (interestBoost > 0) reasons.push('Hợp gu của bạn');
+      if (p.openNow === true) reasons.push('Đang mở cửa');
+      if ((p.rating || 0) >= 4.5 && trusted) reasons.push('Đánh giá rất cao');
+      if (todBoost >= 2) reasons.push('Hợp khung giờ này');
+
+      return { ...p, distM, score: Math.round(score * 100) / 100, reasons: reasons.slice(0, 3) };
+    });
+
+    if (openOnly) result = result.filter(p => p.openNow !== false);
+    if (sort === 'near') result.sort((a, b) => a.distM - b.distM);
+    else if (sort === 'top') result.sort((a, b) => (b.rating || 0) - (a.rating || 0) || a.distM - b.distM);
+    else result.sort((a, b) => b.score - a.score);
+
+    res.json({
+      success: true,
+      source,
+      personalized: Object.keys(boosts).length > 0,
+      places: result.slice(0, 32)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
+// POST /me/discover/tap { name, category } — learning signal: every place the
+// member opens teaches UserProfile.interests, so "Hợp gu" gets smarter over time.
+router.post('/me/discover/tap', requireMember, discoverLimiter, async (req, res) => {
+  const { name, category } = req.body || {};
+  if (typeof name === 'string' && ['food', 'cafe', 'play'].includes(category)) {
+    recordSignal(req.memberEmail, {
+      text: name.slice(0, 120),
+      category: `discover_${category}`,
+      weight: 1.5
+    });
+  }
+  res.status(204).end();
+});
+
+// POST /me/discover/places — member registers their own venue (name, services,
+// menu…) so other members can find it on the Discovery map.
+router.post('/me/discover/places', requireMember, discoverLimiter, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { name, category, lat, lng, address, services, menu, phone, website } = req.body || {};
+    if (!name || typeof name !== 'string' || !['food', 'cafe', 'play'].includes(category) ||
+        !Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return res.status(400).json({ error: 'Cần tên quán, danh mục và vị trí hợp lệ' });
+    }
+    const count = await CommunityPlace.countDocuments({ email });
+    if (count >= 5) {
+      return res.status(400).json({ error: 'Mỗi thành viên chỉ đăng tối đa 5 địa điểm' });
+    }
+    const doc = await CommunityPlace.create({
+      email,
+      name: name.trim().slice(0, 80),
+      category,
+      lat,
+      lng,
+      address: String(address || '').slice(0, 160),
+      services: String(services || '').slice(0, 300),
+      menu: String(menu || '').slice(0, 1200),
+      phone: String(phone || '').replace(/[^0-9+ ]/g, '').slice(0, 20),
+      website: String(website || '').slice(0, 200)
+    });
+    res.json({ success: true, id: doc._id });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /me/discover/places/:id — owner removes their venue
+router.delete('/me/discover/places/:id', requireMember, async (req, res) => {
+  try {
+    const r = await CommunityPlace.deleteOne({ _id: req.params.id, email: req.memberEmail });
+    if (!r.deletedCount) return res.status(404).json({ error: 'Không tìm thấy địa điểm của bạn' });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /discover/logo?domain= — favicon proxy so the client never logs 404s.
+// Returns the site's favicon (via Google's favicon service) or 204 when the
+// site has none — the client then falls back to its monochrome category icon.
+const logoCache = new Map(); // ponytail: in-process cache; fine single-node
+router.get('/discover/logo', discoverLimiter, async (req, res) => {
+  try {
+    const domain = String(req.query.domain || '').toLowerCase().replace(/[^a-z0-9.-]/g, '').slice(0, 100);
+    if (!domain || !domain.includes('.')) return res.status(204).end();
+
+    const hit = logoCache.get(domain);
+    if (hit !== undefined) {
+      if (!hit) return res.status(204).end();
+      res.set('Content-Type', hit.type).set('Cache-Control', 'public, max-age=86400');
+      return res.send(hit.buf);
+    }
+
+    const upstream = await fetch(
+      `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`,
+      { signal: AbortSignal.timeout(5000) }
+    );
+    if (!upstream.ok) {
+      logoCache.set(domain, null);
+      return res.status(204).end();
+    }
+    const buf = Buffer.from(await upstream.arrayBuffer());
+    const type = upstream.headers.get('content-type') || 'image/png';
+    if (logoCache.size > 500) logoCache.clear();
+    logoCache.set(domain, { buf, type });
+    res.set('Content-Type', type).set('Cache-Control', 'public, max-age=86400');
+    res.send(buf);
+  } catch {
+    res.status(204).end();
+  }
+});
+
 // POST /me/skin-analysis — Lưu kế hoạch và kết quả quét da
-router.post('/me/skin-analysis', requireMember, async (req, res) => {
+router.post('/me/skin-analysis', requireMember, skinAnalysisLimiter, async (req, res) => {
   try {
     const email = req.memberEmail;
     const { score, skinType, skinTone, gender, plan } = req.body;
@@ -993,11 +1222,17 @@ router.put('/:id', requireMember, async (req, res) => {
       tabs = [],
       projects = [],
       services = [],
-      secretLinks = []
+      secretLinks = [],
+      antiDeepfakeLock,
+      autoLogoutMinutes,
+      privateMode
     } = req.body;
 
     // Handle avatar update / delete / overwrite
     if (avatarUrl !== undefined) {
+      if (existing.antiDeepfakeLock && avatarUrl !== existing.avatarUrl) {
+        return res.status(403).json({ error: 'Khóa chống giả mạo ảnh đại diện (Anti-Deepfake Lock) đang hoạt động. Vui lòng tắt khóa trước khi thay đổi ảnh.' });
+      }
       if (avatarUrl && avatarUrl.startsWith('data:image')) {
         existing.avatarUrl = await uploadAvatar(avatarUrl, existing.email, existing.avatarUrl);
       } else if (avatarUrl === '') {
@@ -1122,6 +1357,10 @@ router.put('/:id', requireMember, async (req, res) => {
     existing.secretLinks = await processSecretLinks(secretLinks || [], existing.secretLinks || []);
     existing.slug = nextSlug;
     existing.status = 'active';
+
+    if (antiDeepfakeLock !== undefined) existing.antiDeepfakeLock = !!antiDeepfakeLock;
+    if (autoLogoutMinutes !== undefined) existing.autoLogoutMinutes = Number(autoLogoutMinutes);
+    if (privateMode !== undefined) existing.privateMode = !!privateMode;
 
     await existing.save();
 

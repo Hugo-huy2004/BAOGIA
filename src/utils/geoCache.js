@@ -7,8 +7,10 @@ let lastFetchTime = 0;
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 let pendingPromise = null;
 
-export function getCachedGeolocation() {
-  if (cachedPos && (Date.now() - lastFetchTime < CACHE_DURATION)) {
+// { fresh: true } bypasses the cache and requests a high-accuracy GPS fix
+// (used by the Discovery map's refresh button); default behaviour unchanged.
+export function getCachedGeolocation({ fresh = false } = {}) {
+  if (!fresh && cachedPos && (Date.now() - lastFetchTime < CACHE_DURATION)) {
     return Promise.resolve(cachedPos);
   }
 
@@ -47,7 +49,9 @@ export function getCachedGeolocation() {
         }
         reject(err);
       },
-      { enableHighAccuracy: false, timeout: 6000, maximumAge: CACHE_DURATION }
+      fresh
+        ? { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        : { enableHighAccuracy: false, timeout: 6000, maximumAge: CACHE_DURATION }
     );
   });
 
