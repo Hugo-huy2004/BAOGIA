@@ -7,8 +7,13 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import dotenv from 'dotenv';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Ensure env vars are loaded even when run from test runner (Vitest)
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const router = express.Router();
 
@@ -33,12 +38,31 @@ if (!vapidKeys.publicKey || !vapidKeys.privateKey) {
     if (fs.existsSync(envPath)) {
       envContent = fs.readFileSync(envPath, 'utf8');
     }
-    if (envContent && !envContent.endsWith('\n')) {
-      envContent += '\n';
+    
+    // Parse lines and replace or append in-place to prevent duplicate keys
+    const lines = envContent.split('\n');
+    let hasPublic = false;
+    let hasPrivate = false;
+    const newLines = lines.map(line => {
+      if (line.startsWith('VAPID_PUBLIC_KEY=')) {
+        hasPublic = true;
+        return `VAPID_PUBLIC_KEY=${vapidKeys.publicKey}`;
+      }
+      if (line.startsWith('VAPID_PRIVATE_KEY=')) {
+        hasPrivate = true;
+        return `VAPID_PRIVATE_KEY=${vapidKeys.privateKey}`;
+      }
+      return line;
+    });
+
+    if (!hasPublic) {
+      newLines.push(`VAPID_PUBLIC_KEY=${vapidKeys.publicKey}`);
     }
-    envContent += `VAPID_PUBLIC_KEY=${vapidKeys.publicKey}\n`;
-    envContent += `VAPID_PRIVATE_KEY=${vapidKeys.privateKey}\n`;
-    fs.writeFileSync(envPath, envContent, 'utf8');
+    if (!hasPrivate) {
+      newLines.push(`VAPID_PRIVATE_KEY=${vapidKeys.privateKey}`);
+    }
+
+    fs.writeFileSync(envPath, newLines.join('\n'), 'utf8');
     console.log('✅ Đã tự động lưu VAPID keys vào file server/.env để tái sử dụng lâu dài!');
   } catch (err) {
     console.error('❌ Không thể tự động ghi VAPID keys vào .env:', err.message);

@@ -24,7 +24,7 @@ const LANGUAGES = [
 // animated body (grid-rows 1fr/0fr trick). First section opens by default.
 // Small uppercase section label (iOS Settings style).
 function SectionLabel({ children }) {
-  return <p className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{children}</p>;
+  return <p className="mb-1.5 px-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{children}</p>;
 }
 
 // iOS-style settings row that expands to reveal its editor. Icon in a tinted
@@ -38,12 +38,12 @@ function SettingsGroup({ label, icon = "tune", iconTint = "bg-primary/10 text-pr
         onClick={() => { hapticSelect(); setOpen((o) => !o); }}
         className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-foreground/[0.03]"
       >
-        <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-[10px] ${iconTint}`}>
-          <span className="material-symbols-outlined text-[17px]">{icon}</span>
+        <span className={`grid h-8.5 w-8.5 shrink-0 place-items-center rounded-[10px] ${iconTint}`}>
+          <span className="material-symbols-outlined text-[19px]">{icon}</span>
         </span>
-        <span className="flex-1 text-[13px] font-semibold text-foreground">{label}</span>
-        {value != null && <span className="text-[11.5px] font-medium text-muted-foreground">{value}</span>}
-        <span className={`material-symbols-outlined text-[19px] text-muted-foreground/60 transition-transform duration-300 ${open ? "rotate-90" : ""}`}>chevron_right</span>
+        <span className="flex-1 text-sm font-bold text-foreground">{label}</span>
+        {value != null && <span className="text-xs font-medium text-muted-foreground">{value}</span>}
+        <span className={`material-symbols-outlined text-[21px] text-muted-foreground/60 transition-transform duration-300 ${open ? "rotate-90" : ""}`}>chevron_right</span>
       </button>
       <div className={`grid transition-all duration-300 ease-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
         <div className="overflow-hidden">
@@ -61,9 +61,9 @@ function SettingsRow({ icon, iconColor = "text-primary", iconBg = "bg-primary/10
         <span className={`material-symbols-outlined text-base ${iconColor}`}>{icon}</span>
       </span>
       <div className="min-w-0 flex-1 space-y-0.5 text-left">
-        <p className="text-xs font-black text-foreground">{title}</p>
-        {desc && <p className="text-[10.5px] font-medium text-muted-foreground leading-relaxed">{desc}</p>}
-        {warn && <p className="text-[10px] text-warning font-semibold pt-0.5">{warn}</p>}
+        <p className="text-sm font-black text-foreground">{title}</p>
+        {desc && <p className="text-xs font-medium text-muted-foreground leading-relaxed">{desc}</p>}
+        {warn && <p className="text-xs text-warning font-semibold pt-0.5">{warn}</p>}
       </div>
       {control && <div className="shrink-0 self-center">{control}</div>}
     </div>
@@ -131,13 +131,13 @@ function PrefCard({ icon, title, desc, control, warn, index = 0, accent = "blue"
       <div className={`pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${a.bar}`} />
       <div className="relative">
         <div className="flex items-start gap-2.5">
-          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ring-1 ring-inset ${a.badge}`}>
-            <span className={`material-symbols-outlined text-[17px] ${a.icon}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}>{icon}</span>
+          <span className={`grid h-9.5 w-9.5 shrink-0 place-items-center rounded-xl ring-1 ring-inset ${a.badge}`}>
+            <span className={`material-symbols-outlined text-[20px] ${a.icon}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}>{icon}</span>
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[12.5px] font-black text-foreground">{title}</p>
-            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{desc}</p>
-            {warn && <p className="mt-0.5 text-[10.5px] font-semibold text-warning">{warn}</p>}
+            <p className="text-sm font-black text-foreground">{title}</p>
+            <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{desc}</p>
+            {warn && <p className="mt-0.5 text-xs font-semibold text-warning">{warn}</p>}
           </div>
         </div>
         {control && <div className="mt-2.5">{control}</div>}
@@ -151,13 +151,13 @@ function SettingsHero({ autoCount, total }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <div className="flex items-center gap-3">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-          <span className="material-symbols-outlined text-[21px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+          <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
         </span>
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Trung tâm điều khiển</p>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">Trung tâm điều khiển</p>
           <h3 className="font-display text-base font-black text-foreground">Chế độ Tự động</h3>
-          <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">
+          <p className="mt-0.5 text-[13px] leading-snug text-muted-foreground">
             <b className="text-foreground">{autoCount}/{total}</b> mục đang để Hugo tự quyết theo ngữ cảnh. Bạn chỉ chỉnh khi cần.
           </p>
         </div>
@@ -313,15 +313,15 @@ export default function MemberSettingsTab({
           )}
         </button>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1">
-            <h2 className="truncate text-[15px] font-black leading-tight text-foreground">{formData.displayName || t("memberPortal.bio.noName")}</h2>
-            {bio?.isEduVerified && <span className="material-symbols-outlined text-[14px] text-[#0095f6]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>}
+          <div className="flex items-center gap-1.5">
+            <h2 className="truncate text-lg font-black leading-tight text-foreground">{formData.displayName || t("memberPortal.bio.noName")}</h2>
+            {bio?.isEduVerified && <span className="material-symbols-outlined text-base text-[#0095f6]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>}
           </div>
-          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{memberSession?.email || formData.headline || "—"}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">{memberSession?.email || formData.headline || "—"}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-1 rounded-full bg-warning/10 px-2.5 py-1">
-          <span className="material-symbols-outlined text-[14px] text-warning" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
-          <span className="text-[12px] font-black text-foreground">{(joyBalance ?? 0).toLocaleString()}</span>
+        <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1.5">
+          <span className="material-symbols-outlined text-base text-warning" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+          <span className="text-sm font-black text-foreground">{(joyBalance ?? 0).toLocaleString()}</span>
         </div>
       </div>
 
@@ -352,14 +352,14 @@ export default function MemberSettingsTab({
           onClick={() => { hapticSelect(); navigate("/member/utilities/bio"); }}
           className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 text-left shadow-sm transition-colors hover:bg-foreground/[0.03]"
         >
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-violet-500/10 text-violet-500">
-            <span className="material-symbols-outlined text-[18px]">palette</span>
+          <span className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-[10px] bg-violet-500/10 text-violet-500">
+            <span className="material-symbols-outlined text-[20px]">palette</span>
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13.5px] font-semibold text-foreground">{currentLang === "vi" ? "Tùy chỉnh trang Bio" : "Customize your Bio page"}</span>
-            <span className="block text-[11px] text-muted-foreground">{currentLang === "vi" ? "Giao diện · liên kết · thành tích — trong Tiện ích › Trang Bio" : "Theme · links · projects — in Utilities › Bio"}</span>
+            <span className="block text-sm font-bold text-foreground">{currentLang === "vi" ? "Tùy chỉnh trang Bio" : "Customize your Bio page"}</span>
+            <span className="block text-xs text-muted-foreground">{currentLang === "vi" ? "Giao diện · liên kết · thành tích — trong Tiện ích › Trang Bio" : "Theme · links · projects — in Utilities › Bio"}</span>
           </span>
-          <span className="material-symbols-outlined text-[20px] text-muted-foreground/60">chevron_right</span>
+          <span className="material-symbols-outlined text-[22px] text-muted-foreground/60">chevron_right</span>
         </button>
       </div>
 
@@ -373,11 +373,11 @@ export default function MemberSettingsTab({
           onClick={() => hapticSelect()}
           className={`flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 shadow-sm transition-colors hover:bg-foreground/[0.03] ${publicLink ? "" : "pointer-events-none opacity-50"}`}
         >
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-info/10 text-info">
-            <span className="material-symbols-outlined text-[18px]">public</span>
+          <span className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-[10px] bg-info/10 text-info">
+            <span className="material-symbols-outlined text-[20px]">public</span>
           </span>
-          <span className="flex-1 text-[13.5px] font-semibold text-foreground">{t("memberPortal.settings.page.openBioPublic")}</span>
-          <span className="material-symbols-outlined text-[20px] text-muted-foreground/60">chevron_right</span>
+          <span className="flex-1 text-sm font-bold text-foreground">{t("memberPortal.settings.page.openBioPublic")}</span>
+          <span className="material-symbols-outlined text-[22px] text-muted-foreground/60">chevron_right</span>
         </a>
       </div>
 
@@ -391,18 +391,18 @@ export default function MemberSettingsTab({
           {/* Live weather strip — drives the "auto" decisions above */}
           {liveWeather && (
             <div className="flex items-center gap-2.5 rounded-2xl border border-foreground/10 bg-foreground/[0.02] px-3 py-2" style={{ animation: "settingsRise .5s cubic-bezier(.22,1,.36,1) both" }}>
-              <span className="material-symbols-outlined text-[20px] text-foreground">{describeCondition(liveWeather.condition, liveWeather.isDay).icon}</span>
+              <span className="material-symbols-outlined text-[22px] text-foreground">{describeCondition(liveWeather.condition, liveWeather.isDay).icon}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-black text-foreground">{describeCondition(liveWeather.condition, liveWeather.isDay).label}</p>
-                <p className="text-[9.5px] text-muted-foreground">Cảm giác {liveWeather.feelsC}° · Gió {liveWeather.windKph} km/h · Ẩm {liveWeather.humidity}%</p>
+                <p className="text-xs font-black text-foreground">{describeCondition(liveWeather.condition, liveWeather.isDay).label}</p>
+                <p className="text-xs text-muted-foreground">Cảm giác {liveWeather.feelsC}° · Gió {liveWeather.windKph} km/h · Ẩm {liveWeather.humidity}%</p>
               </div>
-              <span className="font-display text-base font-black text-foreground">{liveWeather.tempC}°</span>
+              <span className="font-display text-lg font-black text-foreground">{liveWeather.tempC}°</span>
             </div>
           )}
 
           {/* Preferences — automation-first */}
           <div className="space-y-2">
-            <p className="px-1 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.settings.page.smartPrefs")}</p>
+            <p className="px-1 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.settings.page.smartPrefs")}</p>
 
             <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {pushSupported && (
@@ -411,7 +411,7 @@ export default function MemberSettingsTab({
                 desc={t("memberPortal.settings.pushDesc")}
                 control={
                   <div className="flex items-center justify-between rounded-xl bg-foreground/[0.05] px-3 py-1.5 ring-1 ring-inset ring-foreground/10">
-                    <span className="text-[10px] font-bold text-muted-foreground">{pushEnabled ? t("memberPortal.settings.page.pushStatusOn") : t("memberPortal.settings.page.pushStatusPrompt")}</span>
+                    <span className="text-xs font-bold text-muted-foreground">{pushEnabled ? t("memberPortal.settings.page.pushStatusOn") : t("memberPortal.settings.page.pushStatusPrompt")}</span>
                     <ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={t("memberPortal.settings.pushTitle")} />
                   </div>
                 }
@@ -443,7 +443,7 @@ export default function MemberSettingsTab({
           {/* Quick login */}
           {biometricSupported && email && (
             <div className="rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-3">
-              <p className="mb-2 px-1 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.settings.page.quickLogin")}</p>
+              <p className="mb-2 px-1 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.settings.page.quickLogin")}</p>
               <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
             </div>
           )}
@@ -462,11 +462,11 @@ export default function MemberSettingsTab({
                 return (
                   <button key={lng.code} type="button"
                     onClick={() => { hapticSelect(); selectLanguage(lng.code); }}
-                    className={`flex items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-bold transition-all active:scale-95 ${
+                    className={`flex items-center justify-center gap-1 rounded-xl py-2.5 text-sm font-bold transition-all active:scale-95 ${
                       active ? "text-white shadow-sm" : "text-muted-foreground hover:bg-foreground/[0.05]"
                     }`}
                     style={active ? { background: "linear-gradient(135deg,#6366f1,#a855f7)" } : undefined}>
-                    {active && <span className="material-symbols-outlined text-[14px]">check</span>}
+                    {active && <span className="material-symbols-outlined text-base">check</span>}
                     {lng.label}
                   </button>
                 );
@@ -481,11 +481,11 @@ export default function MemberSettingsTab({
         type="button"
         disabled={saving}
         onClick={() => handleSave()}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-3.5 text-xs font-black uppercase tracking-widest text-background shadow-md transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-4 text-sm font-black uppercase tracking-widest text-background shadow-md transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
       >
         {saving ? (
           <>
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+            <div className="h-4.5 w-4.5 animate-spin rounded-full border-2 border-background border-t-transparent" />
             <span>{t("memberPortal.settings.page.saving")}</span>
           </>
         ) : (
@@ -499,7 +499,7 @@ export default function MemberSettingsTab({
       {/* Logout Button */}
       <button
         onClick={handleLogout}
-        className="w-full rounded-lg border border-rose-500/20 bg-rose-500/5 py-2.5 text-xs font-black uppercase tracking-wider text-rose-600 shadow-sm transition-all hover:bg-rose-500/10 dark:text-rose-400 flex items-center justify-center gap-1.5 active:scale-98"
+        className="w-full rounded-lg border border-rose-500/20 bg-rose-500/5 py-3 text-sm font-black uppercase tracking-wider text-rose-600 shadow-sm transition-all hover:bg-rose-500/10 dark:text-rose-400 flex items-center justify-center gap-1.5 active:scale-98"
       >
         <span className="material-symbols-outlined text-sm">logout</span>
         {t("memberPortal.settings.logout")}

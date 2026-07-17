@@ -45,7 +45,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       <Suspense fallback={fallback}>
       {/* Utility Selector Dashboard */}
       {selectedUtility === null && (
-        <MemberUtilitiesDashboard setSelectedUtility={onSelectUtility} showToast={showToast} />
+        <MemberUtilitiesDashboard bio={bio} onBioUpdate={onBioUpdate} setSelectedUtility={onSelectUtility} showToast={showToast} />
       )}
 
       {/* HugoHelpdesk — QR/NFC + Email Signature merged */}

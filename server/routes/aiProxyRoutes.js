@@ -18,7 +18,10 @@ async function forwardJson(req, res) {
   try {
     const upstream = await fetch(targetUrl, {
       method: req.method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+      },
       body: req.method === 'GET' || req.method === 'HEAD' ? undefined : JSON.stringify(req.body || {})
     });
     const text = await upstream.text();
@@ -39,7 +42,10 @@ router.post('/chat/stream', async (req, res) => {
   try {
     const upstream = await fetch(targetUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+      },
       body: JSON.stringify(req.body || {})
     });
     res.status(upstream.status);
@@ -63,7 +69,10 @@ router.post('/chat/audio', async (req, res) => {
   try {
     const upstream = await fetch(targetUrl, {
       method: 'POST',
-      headers: { 'Content-Type': req.headers['content-type'] },
+      headers: {
+        'Content-Type': req.headers['content-type'],
+        'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+      },
       body: Readable.toWeb(req),
       duplex: 'half'
     });

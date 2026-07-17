@@ -48,8 +48,12 @@ function normalizeEvent(body = {}, req) {
 router.post('/client-event', (req, res) => {
   try {
     const event = normalizeEvent(req.body, req);
-    events.push(event);
-    if (events.length > MAX_EVENTS) events.splice(0, events.length - MAX_EVENTS);
+    
+    // Only accumulate events in memory in development mode to prevent RAM exhaustion / DDoS in production
+    if (process.env.NODE_ENV !== 'production') {
+      events.push(event);
+      if (events.length > MAX_EVENTS) events.splice(0, events.length - MAX_EVENTS);
+    }
 
     if (event.type !== 'web-vital' || event.rating === 'poor') {
       console.warn('[client-event]', event.type, event.method || '', event.status || '', event.durationMs || '', event.path || event.name || '');

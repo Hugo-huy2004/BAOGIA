@@ -627,7 +627,10 @@ router.post('/report/weekly', requireMember, async (req, res) => {
       const fetch = (await import('node-fetch')).default;
       const aiResponse = await fetch(`${AI_SERVER}/api/ai/report/weekly`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+        },
         body: JSON.stringify(payload)
       });
       if (!aiResponse.ok) {

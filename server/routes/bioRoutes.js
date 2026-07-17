@@ -1225,7 +1225,8 @@ router.put('/:id', requireMember, async (req, res) => {
       secretLinks = [],
       antiDeepfakeLock,
       autoLogoutMinutes,
-      privateMode
+      privateMode,
+      installedUtilities
     } = req.body;
 
     // Handle avatar update / delete / overwrite
@@ -1357,6 +1358,7 @@ router.put('/:id', requireMember, async (req, res) => {
     existing.secretLinks = await processSecretLinks(secretLinks || [], existing.secretLinks || []);
     existing.slug = nextSlug;
     existing.status = 'active';
+    if (installedUtilities !== undefined) existing.installedUtilities = installedUtilities;
 
     if (antiDeepfakeLock !== undefined) existing.antiDeepfakeLock = !!antiDeepfakeLock;
     if (autoLogoutMinutes !== undefined) existing.autoLogoutMinutes = Number(autoLogoutMinutes);

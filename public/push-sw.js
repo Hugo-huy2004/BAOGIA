@@ -158,7 +158,16 @@ self.addEventListener('push', function (event) {
     };
 
     if (event.data) {
-      payload = event.data.json();
+      try {
+        payload = event.data.json();
+      } catch (jsonErr) {
+        payload = {
+          title: 'Bạn Học Đường - HUGO STUDIO',
+          body: event.data.text() || 'Bạn có thông báo mới từ Chuyên viên Đồng Hành.',
+          icon: '/image/avt7.png',
+          url: '/member/portal?tab=banhocduong'
+        };
+      }
     }
 
     const options = {

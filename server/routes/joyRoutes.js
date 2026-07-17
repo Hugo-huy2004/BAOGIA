@@ -925,32 +925,40 @@ router.post('/transfer', requireMember, async (req, res) => {
       idempotencyCache.set(cacheKey, true);
     }
 
+    const rejectRequest = (status, errorMsg) => {
+      if (idempotencyKey) {
+        const cacheKey = `idempotency:${fromEmail}:${idempotencyKey}`;
+        idempotencyCache.del(cacheKey);
+      }
+      return res.status(status).json({ error: errorMsg });
+    };
+
     const numAmount = Number(amount);
     if (!Number.isFinite(numAmount) || !Number.isInteger(numAmount) || numAmount < TRANSFER_MIN || numAmount > TRANSFER_MAX) {
-      return res.status(400).json({ error: `Số JOY gửi phải từ ${TRANSFER_MIN} đến ${TRANSFER_MAX}.` });
+      return rejectRequest(400, `Số JOY gửi phải từ ${TRANSFER_MIN} đến ${TRANSFER_MAX}.`);
     }
 
     const sender = await Bio.findOne({ email: fromEmail });
-    if (!sender) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người gửi.' });
+    if (!sender) return rejectRequest(404, 'Không tìm thấy hồ sơ người gửi.');
 
     // 2. Xác thực PIN giao dịch (nếu đã cài đặt)
     if (sender.transactionPin) {
       if (!pin) {
-        return res.status(400).json({ error: 'Vui lòng cung cấp mã PIN để thực hiện giao dịch.' });
+        return rejectRequest(400, 'Vui lòng cung cấp mã PIN để thực hiện giao dịch.');
       }
       const isPinValid = await bcrypt.compare(String(pin), sender.transactionPin);
       if (!isPinValid) {
-        return res.status(400).json({ error: 'Mã PIN giao dịch không chính xác.' });
+        return rejectRequest(400, 'Mã PIN giao dịch không chính xác.');
       }
     }
 
     if (sender.joyBalance < 20) {
-      return res.status(400).json({ error: 'Số dư của bạn phải có ít nhất 20 JOY mới được phép chuyển.' });
+      return rejectRequest(400, 'Số dư của bạn phải có ít nhất 20 JOY mới được phép chuyển.');
     }
 
     const accountAgeMs = Date.now() - new Date(sender.createdAt).getTime();
     if (accountAgeMs < TRANSFER_MIN_ACCOUNT_AGE_DAYS * 24 * 60 * 60 * 1000) {
-      return res.status(400).json({ error: `Tài khoản cần đủ ${TRANSFER_MIN_ACCOUNT_AGE_DAYS} ngày tuổi mới được gửi JOY.` });
+      return rejectRequest(400, `Tài khoản cần đủ ${TRANSFER_MIN_ACCOUNT_AGE_DAYS} ngày tuổi mới được gửi JOY.`);
     }
 
     let recipient;
@@ -961,22 +969,22 @@ router.post('/transfer', requireMember, async (req, res) => {
     } else {
       recipient = await Bio.findOne({ phone: String(toPhone).trim() });
     }
-    if (!recipient) return res.status(404).json({ error: 'Không tìm thấy người nhận.' });
+    if (!recipient) return rejectRequest(404, 'Không tìm thấy người nhận.');
     if (recipient.email === sender.email) {
-      return res.status(400).json({ error: 'Không thể tự gửi JOY cho chính mình.' });
+      return rejectRequest(400, 'Không thể tự gửi JOY cho chính mình.');
     }
 
     const today = todayStr();
     const sentTodaySoFar = sender.joySentDate === today ? (sender.joySentToday || 0) : 0;
     if (sentTodaySoFar + numAmount > TRANSFER_DAILY_CAP) {
-      return res.status(400).json({ error: `Vượt giới hạn gửi ${TRANSFER_DAILY_CAP} JOY/ngày. Cậu đã gửi ${sentTodaySoFar} JOY hôm nay.` });
+      return rejectRequest(400, `Vượt giới hạn gửi ${TRANSFER_DAILY_CAP} JOY/ngày. Cậu đã gửi ${sentTodaySoFar} JOY hôm nay.`);
     }
 
     const feeAmount = Math.floor(numAmount * TRANSFER_FEE_RATE);
     const totalDeducted = numAmount + feeAmount;
 
     if (sender.joyBalance < totalDeducted) {
-      return res.status(400).json({ error: `Số dư JOY không đủ. Bạn cần ${totalDeducted} JOY (bao gồm ${feeAmount} JOY phí sáng tạo).` });
+      return rejectRequest(400, `Số dư JOY không đủ. Bạn cần ${totalDeducted} JOY (bao gồm ${feeAmount} JOY phí sáng tạo).`);
     }
 
     sender.joySentDate = today;
@@ -1027,6 +1035,11 @@ router.post('/transfer', requireMember, async (req, res) => {
       createdAt: new Date().toISOString()
     });
   } catch (error) {
+    if (req.body && req.body.idempotencyKey) {
+      const fromEmail = req.memberEmail;
+      const cacheKey = `idempotency:${fromEmail}:${req.body.idempotencyKey}`;
+      idempotencyCache.del(cacheKey);
+    }
     res.status(400).json({ error: error.message });
   }
 });

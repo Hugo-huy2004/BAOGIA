@@ -1,5 +1,5 @@
 // Test script to diagnose the intent matching bug
-import { findMatchingIntent } from "./src/components/member/banhocduong/constants/intentClassifier.js";
+import { findMatchingIntent } from "../src/components/member/banhocduong/constants/intentClassifier.js";
 
 const bio = { displayName: "HUY" };
 const historyLogs = [];

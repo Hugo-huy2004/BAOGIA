@@ -137,7 +137,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
       ) : (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
       {filteredProducts.map(product => {
-        const insufficient = balance < product.priceJoy;
+        const insufficient = balance < (product.priceJoy + Math.floor(product.priceJoy * 0.09));
         const outOfStock = product.stock !== -1 && product.stock <= 0;
         const lowStock = product.stock !== -1 && product.stock > 0 && product.stock <= 5;
         const perk = perkLabel(product);

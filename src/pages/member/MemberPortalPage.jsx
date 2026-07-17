@@ -134,7 +134,7 @@ export default function MemberPortalPage() {
   const { tab, subTab, psychTab } = useParams();
   const navigate = useNavigate();
 
-  const activeTab = tab || "map";
+  const activeTab = tab || (isGuestMode ? "map" : "joy");
   const accountSubTab = subTab || "profile";
   const mobileSubSection = subTab || null;
 
@@ -1119,7 +1119,7 @@ export default function MemberPortalPage() {
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
       {bio?.status !== 'pending' && !isKeyboardVisible && (
-        <div className={`fixed bottom-0 left-0 right-0 z-[100] md:hidden glass border-t border-border/40 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
+        <div id="mobile-bottom-tab-bar" className={`fixed bottom-0 left-0 right-0 z-[100] md:hidden glass border-t border-border/40 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)', paddingTop: '10px' }}>
           <div className="flex justify-around px-2">
             {mobileTabs.map(tab => {

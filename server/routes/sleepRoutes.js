@@ -13,7 +13,10 @@ router.post('/analyze', async (req, res) => {
   try {
     const upstream = await fetch(`${AI_SERVER_URL}/api/sleep/analyze`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+      },
       body: JSON.stringify(req.body || {})
     });
     const text = await upstream.text();

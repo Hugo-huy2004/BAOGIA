@@ -85,6 +85,10 @@ router.get('/extract/download/:fileId', (req, res) => {
     const { fileId } = req.params;
     const { entryName } = req.query; // The path of the file inside the zip
 
+    if (!fileId || typeof fileId !== 'string' || fileId !== path.basename(fileId) || fileId.includes('..')) {
+      return res.status(400).json({ error: 'ID file không hợp lệ.' });
+    }
+
     const zipPath = path.join(tempDir, fileId);
     if (!fs.existsSync(zipPath)) {
       return res.status(404).json({ error: 'Không tìm thấy file gốc trên server (có thể đã hết hạn).' });
@@ -112,7 +116,11 @@ router.get('/extract/download/:fileId', (req, res) => {
 
 // Delete ZIP file when user is done (or let cron job clean it up later)
 router.delete('/extract/cleanup/:fileId', (req, res) => {
-  const zipPath = path.join(tempDir, req.params.fileId);
+  const { fileId } = req.params;
+  if (!fileId || typeof fileId !== 'string' || fileId !== path.basename(fileId) || fileId.includes('..')) {
+    return res.status(400).json({ error: 'ID file không hợp lệ.' });
+  }
+  const zipPath = path.join(tempDir, fileId);
   cleanupFile(zipPath);
   res.json({ success: true });
 });

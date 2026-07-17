@@ -107,6 +107,7 @@ export default defineConfig({
         theme_color: '#0b0a0f',
         background_color: '#0b0a0f',
         display: 'standalone',
+        display_override: ['standalone', 'window-controls-overlay', 'minimal-ui'],
         orientation: 'portrait-primary',
         scope: '/',
         start_url: '/',

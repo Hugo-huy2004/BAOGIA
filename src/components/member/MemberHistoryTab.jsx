@@ -197,7 +197,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
           <button
             type="button"
             onClick={onMarkAllRead}
-            className="text-[11px] font-bold text-primary hover:underline shrink-0"
+            className="text-xs font-bold text-primary hover:underline shrink-0"
           >
             Đọc tất cả ({unreadNotifCount})
           </button>
@@ -218,13 +218,13 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
             <button
               key={filter.id}
               onClick={() => setActiveFilter(filter.id)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-wider border transition-colors duration-200 shrink-0 ${
+              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-wider border transition-colors duration-200 shrink-0 ${
                 active
                   ? "bg-primary border-primary text-white shadow-sm"
                   : "bg-muted border-border text-muted-foreground hover:text-foreground"
               }`}
             >
-              <span className="material-symbols-outlined text-xs">{filter.icon}</span>
+              <span className="material-symbols-outlined text-sm">{filter.icon}</span>
               <span>{filter.label}</span>
             </button>
           );
@@ -238,8 +238,8 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
             <span className="material-symbols-outlined text-2xl">notifications_off</span>
           </div>
           <div>
-            <p className="text-xs font-black text-foreground uppercase tracking-wider">{t("memberTabs.history.empty_title")}</p>
-            <p className="text-[10px] text-muted-foreground/70 mt-1 max-w-xs">{t("memberTabs.history.empty_desc")}</p>
+            <p className="text-sm font-black text-foreground uppercase tracking-wider">{t("memberTabs.history.empty_title")}</p>
+            <p className="text-xs text-muted-foreground/70 mt-1 max-w-xs">{t("memberTabs.history.empty_desc")}</p>
           </div>
         </div>
       )}
@@ -251,7 +251,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
             <div key={group.dateString} className="space-y-2">
               {/* Day Header */}
               <div className="pl-2">
-                <span className="inline-block px-2.5 py-1 rounded-lg bg-muted text-[10px] font-black text-muted-foreground uppercase tracking-widest border border-border">
+                <span className="inline-block px-3 py-1.5 rounded-lg bg-muted text-xs font-black text-muted-foreground uppercase tracking-widest border border-border">
                   {group.dateHeader}
                 </span>
               </div>
@@ -294,10 +294,10 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                       {/* Content column */}
                       <div className="flex-1 min-w-0 space-y-1 text-left pt-0.5">
                         <div className="flex items-center justify-between gap-4">
-                          <p className="text-[12px] font-bold text-foreground leading-snug truncate">
+                          <p className="text-sm font-bold text-foreground leading-snug truncate">
                             {entry.title}
                           </p>
-                          <span className="text-[10px] text-muted-foreground font-medium shrink-0">
+                          <span className="text-xs text-muted-foreground font-medium shrink-0">
                             {formatTime(entry.timestamp, t)}
                           </span>
                         </div>
@@ -306,11 +306,11 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                         {parsedJoy && parsedJoy.amount ? (
                           <div className="mt-1 space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                                 {parsedJoy.cleanText}
                               </p>
                               <div className="shrink-0 text-right">
-                                <span className={`text-[13px] font-black tracking-tight ${parsedJoy.isPositive ? 'text-success' : 'text-foreground'}`}>
+                                <span className={`text-[15px] font-black tracking-tight ${parsedJoy.isPositive ? 'text-success' : 'text-foreground'}`}>
                                   {parsedJoy.isPositive ? '+' : '-'}{parsedJoy.amount} JOY
                                 </span>
                               </div>
@@ -319,22 +319,22 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                             {/* Receipt Metadata Row */}
                             <div className="flex flex-wrap gap-2 mt-2">
                               {parsedJoy.txId && (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[8px] font-mono font-bold uppercase">
-                                  <span className="material-symbols-outlined text-[10px]">receipt_long</span>
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-xs font-mono font-bold uppercase">
+                                  <span className="material-symbols-outlined text-xs">receipt_long</span>
                                   {parsedJoy.txId}
                                 </span>
                               )}
                               {parsedJoy.balance && (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[8px] font-bold uppercase">
-                                  <span className="material-symbols-outlined text-[10px]">account_balance_wallet</span>
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-xs font-bold uppercase">
+                                  <span className="material-symbols-outlined text-xs">account_balance_wallet</span>
                                   Dư: {parsedJoy.balance}
                                 </span>
                               )}
                             </div>
                             
                             {parsedJoy.message && (
-                              <div className="mt-2 text-[10px] font-medium text-muted-foreground bg-muted/50 p-2.5 rounded-lg border border-border/60 italic flex gap-2">
-                                <span className="material-symbols-outlined text-[12px] text-zinc-400">format_quote</span>
+                              <div className="mt-2 text-xs font-medium text-muted-foreground bg-muted/50 p-2.5 rounded-lg border border-border/60 italic flex gap-2">
+                                <span className="material-symbols-outlined text-sm text-zinc-400">format_quote</span>
                                 "{parsedJoy.message}"
                               </div>
                             )}
@@ -342,7 +342,7 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                         ) : (
                           /* Standard Details */
                           entry.detail && (
-                            <p className="text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
                               {entry.detail}
                             </p>
                           )
@@ -351,20 +351,20 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                         {entry.raw?.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
                           <div className="mt-2.5 p-3 bg-warning/10 dark:bg-warning/15 border border-warning/20 dark:border-warning/30 rounded-xl flex items-center justify-between gap-3 shadow-inner">
                             <div className="text-left">
-                              <p className="text-[8px] font-black text-warning uppercase tracking-wider">{t("memberTabs.history.birthday_voucher_title")}</p>
+                              <p className="text-xs font-black text-warning uppercase tracking-wider">{t("memberTabs.history.birthday_voucher_title")}</p>
                               <p className="text-xs font-black font-mono tracking-widest text-warning mt-0.5">{bio.birthdayVoucherCode}</p>
                             </div>
                             {bio.birthdayVoucherClaimed ? (
-                              <span className="px-2.5 py-1 rounded-lg text-[8.5px] font-black uppercase bg-success/10 text-success dark:bg-success/15 border border-success/20 dark:border-success/30 flex items-center gap-1 shrink-0">
+                              <span className="px-2.5 py-1 rounded-lg text-xs font-black uppercase bg-success/10 text-success dark:bg-success/15 border border-success/20 dark:border-success/30 flex items-center gap-1 shrink-0">
                                 <span className="material-symbols-outlined text-xs font-bold">check_circle</span>{t("memberTabs.history.claimed")}
                               </span>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => onCopyVoucher(bio.birthdayVoucherCode)}
-                                className="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase bg-warning hover:bg-warning/90 text-warning-foreground transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
+                                className="px-3.5 py-2 rounded-lg text-xs font-black uppercase bg-warning hover:bg-warning/90 text-warning-foreground transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
                               >
-                                <span className="material-symbols-outlined text-[10px]">
+                                <span className="material-symbols-outlined text-xs">
                                   {claimedCodes[bio.birthdayVoucherCode] ? "check" : "content_copy"}
                                 </span>
                                 <span>{claimedCodes[bio.birthdayVoucherCode] ? t("memberTabs.history.copied") : t("memberTabs.history.copy")}</span>

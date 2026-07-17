@@ -327,6 +327,10 @@ const BioSchema = new mongoose.Schema(
       type: String,
       default: 'default'
     },
+    installedUtilities: {
+      type: [String],
+      default: []
+    },
     rentedThemes: {
       type: [{
         themeId: { type: String, required: true },

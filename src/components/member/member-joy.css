@@ -3,111 +3,558 @@
    tokens (--primary/--accent/--success/--warning/--card/--border
    from src/index.css) instead of a one-off color scheme.
    ============================================================ */
-.joy-dashboard{--joy-card:hsl(var(--card));--joy-line:hsl(var(--border));--joy-muted:hsl(var(--muted-foreground));display:flex;flex-direction:column;gap:18px;width:100%;max-width:1080px;margin:0 auto;padding-bottom:32px}
+.joy-dashboard{
+  --joy-card: hsl(var(--card));
+  --joy-line: hsl(var(--border));
+  --joy-muted: hsl(var(--muted-foreground));
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-bottom: 32px;
+}
 
-/* ── Hero — flat dark card with JOY's own gold/amber identity (--warning),
-   the same color already used everywhere else JOY appears (JoyCoinBadge,
-   CheckinCard's top border, the Info & Version bonus card) — standing out
-   against the dark card without reaching for an unrelated brand gradient. ── */
-.joy-card-hero{position:relative;overflow:hidden;border-radius:16px;padding:22px;color:hsl(var(--foreground));background:hsl(var(--card));border:1px solid hsl(var(--border));box-shadow:0 1px 3px hsl(0 0% 0%/0.06)}
-.joy-card-hero:before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:hsl(var(--warning))}
-.joy-card-hero:after{content:none}
-.joy-card-row-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between}
-.joy-card-brand{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsl(var(--warning))}
-.joy-card-brand .material-symbols-outlined{font-size:17px}
-.joy-card-balance{position:relative;z-index:1;margin:16px 0 4px;display:flex;align-items:center;gap:10px}
-.joy-card-balance .joy-balance-num{font-size:clamp(28px,4.5vw,38px);font-weight:800;letter-spacing:-.02em;color:hsl(var(--warning))}
-.joy-balance-coin{transform:scale(1.15)}
-.joy-card-sub{position:relative;z-index:1;font-size:11px;color:hsl(var(--joy-muted));line-height:1.6;max-width:480px}
-/* Content-sized chips that hug their text instead of stretching into equal
-   full-width thirds — on a wide hero card, 3 short values in a 1fr/1fr/1fr
-   grid left huge empty space inside each box. */
-.joy-card-stats{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.joy-card-stat{display:inline-flex;flex-direction:column;background:hsl(var(--muted)/0.5);border:1px solid hsl(var(--border));border-radius:11px;padding:8px 14px}
-.joy-card-stat small{display:block;font-size:9px;font-weight:700;letter-spacing:.08em;color:hsl(var(--joy-muted));text-transform:uppercase;white-space:nowrap;margin-bottom:3px}
-.joy-card-stat strong{font-size:14px;font-weight:800;color:hsl(var(--foreground));white-space:nowrap}
-.joy-card-stat.is-code{cursor:pointer;flex-direction:row;align-items:center;gap:10px;transition:.15s}
-.joy-card-stat.is-code:hover{background:hsl(var(--warning)/0.1)}
-.joy-card-stat.is-code strong{font-family:monospace;letter-spacing:.08em;font-size:12px;color:hsl(var(--warning))}
-.joy-card-stat.is-code .material-symbols-outlined{font-size:14px;color:hsl(var(--joy-muted))}
+/* ── Hero — flat dark card with JOY's own gold/amber identity ── */
+.joy-card-hero{
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 24px;
+  color: hsl(var(--foreground));
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+.joy-card-hero:before{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: hsl(var(--warning));
+}
+.joy-card-row-top{
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.joy-card-brand{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: hsl(var(--warning));
+}
+.joy-card-brand .material-symbols-outlined{
+  font-size: 20px;
+}
+.joy-card-balance{
+  position: relative;
+  z-index: 1;
+  margin: 18px 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.joy-card-balance .joy-balance-num{
+  font-size: clamp(34px, 5.5vw, 44px);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: hsl(var(--warning));
+}
+.joy-balance-coin{
+  transform: scale(1.3);
+}
+.joy-card-sub{
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  color: hsl(var(--joy-muted));
+  line-height: 1.6;
+  max-width: 480px;
+}
+.joy-card-stats{
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.joy-card-stat{
+  display: inline-flex;
+  flex-direction: column;
+  background: hsl(var(--muted)/0.5);
+  border: 1px solid hsl(var(--border));
+  border-radius: 14px;
+  padding: 10px 16px;
+}
+.joy-card-stat small{
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: hsl(var(--joy-muted));
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+.joy-card-stat strong{
+  font-size: 16px;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  white-space: nowrap;
+}
+.joy-card-stat.is-code{
+  cursor: pointer;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  transition: .15s;
+}
+.joy-card-stat.is-code:hover{
+  background: hsl(var(--warning)/0.1);
+}
+.joy-card-stat.is-code strong{
+  font-family: monospace;
+  letter-spacing: .08em;
+  font-size: 14px;
+  color: hsl(var(--warning));
+}
+.joy-card-stat.is-code .material-symbols-outlined{
+  font-size: 16px;
+  color: hsl(var(--joy-muted));
+}
 
-/* ── Quick actions ───────────────────────────────────────────── */
-.joy-actions-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.joy-action-circle{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;cursor:pointer}
-.joy-action-circle .joy-action-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:21px;transition:.2s;background:hsl(var(--background));color:hsl(var(--primary));box-shadow:0 4px 12px hsl(var(--shadow)/0.08);border:1px solid hsl(var(--border))}
-.joy-action-circle:hover .joy-action-icon{background:hsl(var(--muted));border-color:hsl(var(--primary)/0.4);transform:translateY(-2px);box-shadow:0 6px 16px hsl(var(--primary)/0.12)}
-.joy-action-circle span:last-child{font-size:10.5px;font-weight:700;color:hsl(var(--foreground)/0.8);text-transform:uppercase;letter-spacing:.02em}
+/* ── Quick actions ── */
+.joy-actions-row{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.joy-action-circle{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.joy-action-circle .joy-action-icon{
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  transition: .2s;
+  background: hsl(var(--background));
+  color: hsl(var(--primary));
+  box-shadow: 0 4px 12px hsl(var(--shadow)/0.08);
+  border: 1px solid hsl(var(--border));
+}
+.joy-action-circle:hover .joy-action-icon{
+  background: hsl(var(--muted));
+  border-color: hsl(var(--primary)/0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px hsl(var(--primary)/0.12);
+}
+.joy-action-circle span:last-child{
+  font-size: 12px;
+  font-weight: 750;
+  color: hsl(var(--foreground)/0.8);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
 
-/* ── Segmented switch ────────────────────────────────────────── */
-.joy-segment{display:flex;gap:4px;padding:4px;border-radius:14px;background:hsl(var(--muted));position:sticky;top:8px;z-index:15}
-.joy-segment button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;border-radius:11px;font-size:11px;font-weight:700;color:var(--joy-muted);transition:.15s}
-.joy-segment button.active{background:var(--joy-card);color:hsl(var(--primary));box-shadow:0 3px 10px hsl(var(--shadow)/0.08)}
+/* ── Segmented switch ── */
+.joy-segment{
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 16px;
+  background: hsl(var(--muted));
+  position: sticky;
+  top: 8px;
+  z-index: 15;
+}
+.joy-segment button{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 750;
+  color: var(--joy-muted);
+  transition: .15s;
+}
+.joy-segment button.active{
+  background: var(--joy-card);
+  color: hsl(var(--primary));
+  box-shadow: 0 3px 10px hsl(var(--shadow)/0.08);
+}
 
-/* ── Feed — 1|2 on the top row (check-in+missions, then coupon), then 3
-   spans the full width below (packages — the carousel needs the room).
-   Each block is still one continuous card internally (hairline-divided, not
-   stacked separate boxes) so cohesion within a block is preserved. ──────── */
-.joy-feed-grid{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
-@media (min-width:1024px){.joy-feed-grid{grid-template-columns:1fr 1fr;gap:18px}}
-.joy-feed-span{grid-column:1 / -1}
-.joy-feed{border:1px solid var(--joy-line);background:var(--joy-card);border-radius:18px;box-shadow:0 4px 16px hsl(var(--shadow)/0.03);overflow:hidden}
-.joy-feed-card{padding:18px;border-bottom:1px solid var(--joy-line)}
-.joy-feed-card:last-child{border-bottom:none}
-.joy-feed-card-title{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--joy-muted);margin-bottom:12px}
-.joy-feed-card-title .material-symbols-outlined{font-size:17px;color:hsl(var(--primary))}
-.joy-checkin-wrap>div{margin:0!important;border-radius:14px!important;padding:0!important;box-shadow:none!important;border:none!important;background:none!important}
+/* ── Feed layout ── */
+.joy-feed-grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width:1024px){
+  .joy-feed-grid{
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+}
+.joy-feed-span{
+  grid-column: 1 / -1;
+}
+.joy-feed{
+  border: 1px solid var(--joy-line);
+  background: var(--joy-card);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px hsl(var(--shadow)/0.03);
+  overflow: hidden;
+}
+.joy-feed-card{
+  padding: 22px 20px;
+  border-bottom: 1px solid var(--joy-line);
+}
+.joy-feed-card:last-child{
+  border-bottom: none;
+}
+.joy-feed-card-title{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--joy-muted);
+  margin-bottom: 14px;
+}
+.joy-feed-card-title .material-symbols-outlined{
+  font-size: 20px;
+  color: hsl(var(--primary));
+}
+.joy-checkin-wrap>div{
+  margin: 0 !important;
+  border-radius: 16px !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  background: none !important;
+}
 
 /* Coupon / referral mini-tabs */
-.joy-offer-tabs{display:flex;gap:6px;margin-bottom:12px}
-.joy-offer-tabs button{flex:1;padding:7px;border-radius:9px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;background:hsl(var(--muted));color:var(--joy-muted);transition:.15s}
-.joy-offer-tabs button.active{background:hsl(var(--primary));color:hsl(var(--primary-foreground))}
-.joy-input-action{position:relative;display:flex;align-items:center;width:100%}
-.joy-code-input{width:100%;height:48px;padding:0 120px 0 16px;border-radius:14px;border:1px solid var(--joy-line);background:hsl(var(--background)/0.5);font:600 13px monospace;letter-spacing:.04em;color:hsl(var(--foreground));outline:none;transition:.2s}
-.joy-code-input:focus{border-color:hsl(var(--primary));background:hsl(var(--background));box-shadow:0 0 0 3px hsl(var(--primary)/0.15)}
-.joy-action-button{position:absolute;right:4px;top:4px;bottom:4px;padding:0 18px;border-radius:10px;color:hsl(var(--primary-foreground));font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:hsl(var(--primary));border:none;cursor:pointer;transition:.15s}
-.joy-action-button.amber{background:hsl(var(--warning));color:hsl(var(--warning-foreground))}
-.joy-action-button:hover:not(:disabled){transform:scale(0.97);filter:brightness(1.1)}
-.joy-action-button:disabled{opacity:.5;cursor:not-allowed}
-.joy-earn-note{font-size:9.5px;color:var(--joy-muted);line-height:1.6;margin-top:9px}
+.joy-offer-tabs{
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.joy-offer-tabs button{
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  background: hsl(var(--muted));
+  color: var(--joy-muted);
+  transition: .15s;
+}
+.joy-offer-tabs button.active{
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+.joy-input-action{
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.joy-code-input{
+  width: 100%;
+  height: 52px;
+  padding: 0 120px 0 18px;
+  border-radius: 16px;
+  border: 1px solid var(--joy-line);
+  background: hsl(var(--background)/0.5);
+  font: 600 15px monospace;
+  letter-spacing: .04em;
+  color: hsl(var(--foreground));
+  outline: none;
+  transition: .2s;
+}
+.joy-code-input:focus{
+  border-color: hsl(var(--primary));
+  background: hsl(var(--background));
+  box-shadow: 0 0 0 3px hsl(var(--primary)/0.15);
+}
+.joy-action-button{
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  bottom: 5px;
+  padding: 0 20px;
+  border-radius: 12px;
+  color: hsl(var(--primary-foreground));
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  background: hsl(var(--primary));
+  border: none;
+  cursor: pointer;
+  transition: .15s;
+}
+.joy-action-button.amber{
+  background: hsl(var(--warning));
+  color: hsl(var(--warning-foreground));
+}
+.joy-action-button:hover:not(:disabled){
+  transform: scale(0.97);
+  filter: brightness(1.1);
+}
+.joy-action-button:disabled{
+  opacity: .5;
+  cursor: not-allowed;
+}
+.joy-earn-note{
+  font-size: 11px;
+  color: var(--joy-muted);
+  line-height: 1.6;
+  margin-top: 10px;
+}
 
-/* Missions — converted from bulky cards to a sleek vertical list for better readability
-   and more natural action button placement. */
-.joy-mission-list { display: flex; flex-direction: column; gap: 8px; }
-.joy-mission-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 16px; background: hsl(var(--background)/0.5); border: 1px solid var(--joy-line); transition: .2s; gap: 12px; }
-.joy-mission-item:hover { background: hsl(var(--muted)/0.3); }
-.joy-mission-item.completed { background: hsl(var(--primary)/0.06); border-color: hsl(var(--primary)/0.35); }
-.joy-mission-item.claimed { opacity: 0.6; background: transparent; border-style: dashed; }
-.joy-mission-item-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
-.joy-mission-icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: hsl(var(--muted)); color: var(--joy-muted); flex-shrink: 0; transition: .2s; }
-.joy-mission-icon .material-symbols-outlined { font-size: 20px; }
-.joy-mission-item.completed .joy-mission-icon { background: hsl(var(--primary)/0.12); color: hsl(var(--primary)); }
-.joy-mission-item.claimed .joy-mission-icon { background: hsl(var(--success)/0.1); color: hsl(var(--success)); }
-.joy-mission-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
-.joy-mission-name { font-size: 13px; font-weight: 700; color: hsl(var(--foreground)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.joy-mission-sub { font-size: 11px; color: var(--joy-muted); font-weight: 500; }
-.joy-mission-item.completed .joy-mission-sub { color: hsl(var(--primary)); font-weight: 600; }
-.joy-mission-action { flex-shrink: 0; }
-.joy-mission-action button { padding: 8px 16px; border-radius: 20px; font-size: 10.5px; font-weight: 800; text-transform: uppercase; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); transition: .15s; letter-spacing: .02em; border: none; cursor: pointer; }
-.joy-mission-action button:hover:not(:disabled) { background: hsl(var(--primary)/0.9); transform: scale(0.96); }
-.joy-mission-action button:disabled { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); cursor: not-allowed; }
-.joy-mission-item.claimed .joy-mission-action button { background: transparent; color: hsl(var(--success)); border: 1px solid hsl(var(--success)/0.3); opacity: 0.8; }
-.joy-mission-more{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;margin-top:12px;padding:10px;border-radius:12px;border:1px dashed var(--joy-line);background:transparent;color:var(--joy-muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;transition:.2s;cursor:pointer}
-.joy-mission-more:hover{background:hsl(var(--muted)/0.5);color:hsl(var(--foreground))}
-/* ── "Gửi JOY" modal ─────────────────────────────────────────── */
-.joy-send-input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid hsl(var(--border));background:hsl(var(--background));color:hsl(var(--foreground));font-size:14px;font-weight:600;outline:none;transition:.15s}
-.joy-send-input::placeholder{color:hsl(var(--muted-foreground));font-weight:500}
-.joy-send-input:focus{border-color:hsl(var(--primary));box-shadow:0 0 0 3px hsl(var(--primary)/0.15)}
-.joy-send-cta{width:100%;margin-top:10px;padding:14px;border-radius:14px;background:hsl(var(--primary));color:hsl(var(--primary-foreground));font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;transition:.15s;box-shadow:0 1px 3px hsl(var(--primary)/0.25)}
-.joy-send-cta:hover:not(:disabled){transform:translateY(-1px)}
-.joy-send-cta:disabled{opacity:.4;box-shadow:none;cursor:not-allowed}
+/* Missions */
+.joy-mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.joy-mission-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: hsl(var(--background)/0.5);
+  border: 1px solid var(--joy-line);
+  transition: .2s;
+  gap: 14px;
+}
+.joy-mission-item:hover {
+  background: hsl(var(--muted)/0.3);
+}
+.joy-mission-item.completed {
+  background: hsl(var(--primary)/0.06);
+  border-color: hsl(var(--primary)/0.35);
+}
+.joy-mission-item.claimed {
+  opacity: 0.6;
+  background: transparent;
+  border-style: dashed;
+}
+.joy-mission-item-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+.joy-mission-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: hsl(var(--muted));
+  color: var(--joy-muted);
+  flex-shrink: 0;
+  transition: .2s;
+}
+.joy-mission-icon .material-symbols-outlined {
+  font-size: 24px;
+}
+.joy-mission-item.completed .joy-mission-icon {
+  background: hsl(var(--primary)/0.12);
+  color: hsl(var(--primary));
+}
+.joy-mission-item.claimed .joy-mission-icon {
+  background: hsl(var(--success)/0.1);
+  color: hsl(var(--success));
+}
+.joy-mission-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.joy-mission-name {
+  font-size: 14.5px;
+  font-weight: 750;
+  color: hsl(var(--foreground));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.joy-mission-sub {
+  font-size: 12px;
+  color: var(--joy-muted);
+  font-weight: 500;
+}
+.joy-mission-item.completed .joy-mission-sub {
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+.joy-mission-action {
+  flex-shrink: 0;
+}
+.joy-mission-action button {
+  padding: 10px 18px;
+  border-radius: 22px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  transition: .15s;
+  letter-spacing: .02em;
+  border: none;
+  cursor: pointer;
+}
+.joy-mission-action button:hover:not(:disabled) {
+  background: hsl(var(--primary)/0.9);
+  transform: scale(0.96);
+}
+.joy-mission-action button:disabled {
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  cursor: not-allowed;
+}
+.joy-mission-item.claimed .joy-mission-action button {
+  background: transparent;
+  color: hsl(var(--success));
+  border: 1px solid hsl(var(--success)/0.3);
+  opacity: 0.8;
+}
+.joy-mission-more{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px dashed var(--joy-line);
+  background: transparent;
+  color: var(--joy-muted);
+  font-size: 12.5px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  transition: .2s;
+  cursor: pointer;
+}
+.joy-mission-more:hover{
+  background: hsl(var(--muted)/0.5);
+  color: hsl(var(--foreground));
+}
+
+/* ── "Gửi JOY" modal ── */
+.joy-send-input{
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+  transition: .15s;
+}
+.joy-send-input::placeholder{
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+}
+.joy-send-input:focus{
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary)/0.15);
+}
+.joy-send-cta{
+  width: 100%;
+  margin-top: 12px;
+  padding: 15px;
+  border-radius: 16px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  transition: .15s;
+  box-shadow: 0 1px 3px hsl(var(--primary)/0.25);
+}
+.joy-send-cta:hover:not(:disabled){
+  transform: translateY(-1px);
+}
+.joy-send-cta:disabled{
+  opacity: .4;
+  box-shadow: none;
+  cursor: not-allowed;
+}
 
 @media(max-width:600px){
-  .joy-dashboard{gap:12px;padding-bottom:20px}
-  .joy-card-hero{padding:20px;border-radius:20px}
-  .joy-card-balance .joy-balance-num{font-size:28px}
-  .joy-card-stats{justify-content:space-between}
-  .joy-card-stat{flex:1}
-  .joy-card-stat.is-code{width:100%}
-  .joy-action-circle .joy-action-icon{width:44px;height:44px;font-size:19px;border-radius:13px}
-  .joy-feed-card{padding:14px;border-radius:16px}
+  .joy-dashboard{
+    gap: 16px;
+    padding-bottom: 24px;
+  }
+  .joy-card-hero{
+    padding: 22px;
+    border-radius: 20px;
+  }
+  .joy-card-balance .joy-balance-num{
+    font-size: 34px;
+  }
+  .joy-card-stats{
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .joy-card-stat{
+    flex: 1;
+    padding: 8px 12px;
+  }
+  .joy-card-stat.is-code{
+    width: 100%;
+  }
+  .joy-action-circle .joy-action-icon{
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
+    border-radius: 16px;
+  }
+  .joy-feed-card{
+    padding: 18px;
+    border-radius: 18px;
+  }
 }

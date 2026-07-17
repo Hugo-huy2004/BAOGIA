@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import bcrypt from 'bcryptjs';
 import Bio from '../models/Bio.js';
 import joyRoutes from '../routes/joyRoutes.js';
+import { awardJoy } from '../utils/joyService.js';
 
 // Extract handlers
 const handlers = {};
@@ -23,6 +24,13 @@ vi.mock('../models/Bio.js', () => {
   };
 });
 
+vi.mock('../utils/joyService.js', () => {
+  return {
+    awardJoy: vi.fn().mockResolvedValue({ balance: 50 }),
+    getJoyHistory: vi.fn(),
+  };
+});
+
 const mockRes = () => {
   const res = { statusCode: 200, body: null };
   res.status = (code) => { res.statusCode = code; return res; };
@@ -32,7 +40,7 @@ const mockRes = () => {
 
 describe('Ví JOY — Mã PIN & Idempotency Key', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   describe('GET /has-pin', () => {
@@ -141,8 +149,18 @@ describe('Ví JOY — Mã PIN & Idempotency Key', () => {
       const res2 = mockRes();
 
       // Mock user profiles
-      const senderBio = { email: 'sender@test.vn', joyBalance: 100, transactionPin: null };
-      Bio.findOne.mockResolvedValueOnce(senderBio); // For sender lookup
+      const tenDaysAgo = new Date();
+      tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+      const senderBio = { email: 'sender@test.vn', joyBalance: 100, transactionPin: null, createdAt: tenDaysAgo };
+      const recipientBio = { email: 'receiver@test.vn', joyBalance: 50, displayName: 'Receiver' };
+
+      // Mock awardJoy to return expected balance structure
+      awardJoy.mockResolvedValue({ balance: 50 });
+
+      Bio.findOne
+        .mockResolvedValueOnce(senderBio)    // First request: Sender lookup
+        .mockResolvedValueOnce(recipientBio) // First request: Recipient lookup
+        .mockResolvedValueOnce(senderBio);   // Second request: Sender lookup (if reached)
 
       // Trigger first request
       await handler(req, res1);
