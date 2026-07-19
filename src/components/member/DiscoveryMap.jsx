@@ -504,7 +504,7 @@ export default function DiscoveryMap() {
         
         {/* Glassmorphic floating Search & Categories card */}
         {!loading && !error && (
-          <div className="absolute top-4 left-4 right-4 z-10 flex flex-col gap-2.5 max-w-md bg-white/80 dark:bg-zinc-950/80 border border-white/20 dark:border-white/5 backdrop-blur-md p-3 rounded-2xl shadow-lg">
+          <div className="absolute top-4 left-4 right-4 z-10 flex flex-col gap-2 max-w-md bg-white/80 dark:bg-zinc-950/80 border border-white/20 dark:border-white/5 backdrop-blur-md p-2.5 rounded-2xl shadow-lg">
             
             {/* Search Input Bar */}
             <div className="relative flex items-center gap-2">
@@ -544,28 +544,6 @@ export default function DiscoveryMap() {
                 </button>
               ))}
             </div>
-
-            {/* Smart Suggestion Banner */}
-            {(() => {
-              const s = smartSuggestion(new Date().getHours());
-              const active = category === s.category && !query;
-              return (
-                <button
-                  onClick={() => { hapticSelect(); setQuery(""); setCategory(active ? "" : s.category); }}
-                  className={`w-full flex items-center gap-2 rounded-xl border px-3 py-2 text-left transition ${
-                    active
-                      ? "border-primary/40 bg-primary/10 text-primary"
-                      : "border-border/10 bg-muted/30 hover:bg-muted/50 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Clock className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-xs font-bold flex-1 truncate">{s.label}</span>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-primary shrink-0">
-                    {active ? "Đang xem" : "Xem"}
-                  </span>
-                </button>
-              );
-            })()}
 
           </div>
         )}
@@ -801,48 +779,70 @@ export default function DiscoveryMap() {
       </div>
 
       {/* 📋 Results and Filter Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mt-2 pb-1 text-left">
-        <div>
-          <h3 className="text-base font-black text-foreground flex items-center gap-1.5">
-            <span className="grid h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Địa điểm quanh bạn
-            <span className="text-xs text-muted-foreground font-normal">
-              ({places.length} kết quả {source ? `· từ ${source.toUpperCase()}` : ""})
-            </span>
-          </h3>
-        </div>
-        
-        {/* Sort & Status controls */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => { hapticSelect(); setOpenOnly(!openOnly); }}
-            className={`min-h-[32px] px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition ${
-              openOnly
-                ? "bg-success/15 border-success/30 text-success"
-                : "bg-card border-border text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Đang mở
-          </button>
+      <div className="flex flex-col gap-3.5 mt-2 pb-1 text-left">
+        {/* Smart time-of-day suggestion banner */}
+        {(() => {
+          const s = smartSuggestion(new Date().getHours());
+          const active = category === s.category && !query;
+          return (
+            <button
+              onClick={() => { hapticSelect(); setQuery(""); setCategory(active ? "" : s.category); }}
+              className={`w-full flex items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 text-left transition ${
+                active
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Clock className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
+              <span className="text-xs font-bold flex-1">{s.label}</span>
+              <span className="text-[10px] font-black uppercase tracking-wider text-primary">{active ? "Đang xem" : "Xem ngay"}</span>
+            </button>
+          );
+        })()}
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-black text-foreground flex items-center gap-1.5">
+              <span className="grid h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Địa điểm quanh bạn
+              <span className="text-xs text-muted-foreground font-normal">
+                ({places.length} kết quả {source ? `· từ ${source.toUpperCase()}` : ""})
+              </span>
+            </h3>
+          </div>
           
-          <div className="flex items-center bg-muted/60 p-0.5 rounded-xl border border-border/20">
-            {[
-              { id: "smart", label: "Hợp gu" },
-              { id: "dist", label: "Gần nhất" },
-              { id: "rating", label: "Đánh giá" }
-            ].map((opt) => (
-              <button
-                key={opt.id}
-                onClick={() => { hapticSelect(); setSort(opt.id); }}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
-                  sort === opt.id
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+          {/* Sort & Status controls */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => { hapticSelect(); setOpenOnly(!openOnly); }}
+              className={`min-h-[32px] px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition ${
+                openOnly
+                  ? "bg-success/15 border-success/30 text-success"
+                  : "bg-card border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Đang mở
+            </button>
+            
+            <div className="flex items-center bg-muted/60 p-0.5 rounded-xl border border-border/20">
+              {[
+                { id: "smart", label: "Hợp gu" },
+                { id: "dist", label: "Gần nhất" },
+                { id: "rating", label: "Đánh giá" }
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => { hapticSelect(); setSort(opt.id); }}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                    sort === opt.id
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
