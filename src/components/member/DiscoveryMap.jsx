@@ -33,6 +33,13 @@ const MAP_STYLES = {
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
 };
 
+const CATEGORY_SVGS = {
+  food: `<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Z"></path><path d="M19 15v7"></path></svg>`,
+  cafe: `<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>`,
+  play: `<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="3"></rect></svg>`,
+  default: `<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>`
+};
+
 const fmtDist = (m) =>
   m == null ? "" : m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`;
 
@@ -69,7 +76,7 @@ function PlaceLogo({ place }) {
 
   if (!domain || failed) {
     return (
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-border/10">
         <Icon className="w-4 h-4" aria-hidden="true" />
       </div>
     );
@@ -162,21 +169,36 @@ export default function DiscoveryMap() {
     }
   };
 
-  // Route drawing helper
-  const drawRoute = useCallback((map, user, target) => {
+  // Route drawing helper (OSRM street routing)
+  const drawRoute = useCallback(async (map, user, target) => {
     if (!map || !user || !target) return;
     const sourceId = "route-line-source";
     const layerId = "route-line-layer";
+    
+    let coordinates = [
+      [user.lng, user.lat],
+      [target.lng, target.lat]
+    ];
+
+    try {
+      const url = `https://router.project-osrm.org/route/v1/driving/${user.lng},${user.lat};${target.lng},${target.lat}?overview=full&geometries=geojson`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.code === "Ok" && data.routes && data.routes[0]) {
+          coordinates = data.routes[0].geometry.coordinates;
+        }
+      }
+    } catch (routeErr) {
+      console.warn("OSRM routing failed, falling back to straight line:", routeErr);
+    }
     
     const geojson = {
       type: "Feature",
       properties: {},
       geometry: {
         type: "LineString",
-        coordinates: [
-          [user.lng, user.lat],
-          [target.lng, target.lat]
-        ]
+        coordinates
       }
     };
     
@@ -189,25 +211,46 @@ export default function DiscoveryMap() {
           type: "geojson",
           data: geojson
         });
-        map.addLayer({
-          id: layerId,
-          type: "line",
-          source: sourceId,
-          layout: {
-            "line-join": "round",
-            "line-cap": "round"
-          },
-          paint: {
-            "line-color": "#6366f1",
-            "line-width": 4,
-            "line-dasharray": [2, 1.5]
-          }
-        });
+        
+        if (!map.getLayer(layerId + "-casing")) {
+          map.addLayer({
+            id: layerId + "-casing",
+            type: "line",
+            source: sourceId,
+            layout: {
+              "line-join": "round",
+              "line-cap": "round"
+            },
+            paint: {
+              "line-color": "#3b82f6",
+              "line-width": 8,
+              "line-opacity": 0.25
+            }
+          });
+        }
+        
+        if (!map.getLayer(layerId)) {
+          map.addLayer({
+            id: layerId,
+            type: "line",
+            source: sourceId,
+            layout: {
+              "line-join": "round",
+              "line-cap": "round"
+            },
+            paint: {
+              "line-color": "#3b82f6",
+              "line-width": 4.5,
+              "line-opacity": 0.95
+            }
+          });
+        }
       }
     } catch (e) {
       console.error("Error drawing route line:", e);
     }
   }, []);
+
 
   // Update route when selected place changes
   useEffect(() => {
@@ -376,11 +419,11 @@ export default function DiscoveryMap() {
       }
 
       const pinInner = document.createElement("div");
-      const emoji = p.category === "food" ? "🍔" : p.category === "cafe" ? "☕️" : p.category === "play" ? "🎮" : "📍";
+      const svg = CATEGORY_SVGS[p.category] || CATEGORY_SVGS.default;
       const catColor = p.category === "food" ? "orange" : p.category === "cafe" ? "amber" : p.category === "play" ? "emerald" : "indigo";
       
       pinInner.className = `disc-pin-container ${catColor}-glow ${p.openNow === false ? "opacity-60" : ""}`;
-      pinInner.innerHTML = `<span class="disc-pin-emoji">${emoji}</span>`;
+      pinInner.innerHTML = svg;
       el.appendChild(pinInner);
 
       el.addEventListener("click", (e) => {
@@ -861,15 +904,18 @@ export default function DiscoveryMap() {
             <p className="text-[14px] text-muted-foreground mt-1">Thử đổi bộ lọc hoặc từ khóa khác nhé.</p>
           </div>
         )}
-        {places.map((p) => {
+        {places.map((p, index) => {
           const active = p.id === selectedId;
           return (
             <div
               key={p.id}
               data-place-id={p.id}
               onClick={() => selectPlace(p)}
-              className={`bg-card border rounded-2xl p-3 cursor-pointer transition shadow-sm ${
-                active ? "border-primary ring-1 ring-primary/30" : "border-border hover:border-primary/40"
+              style={{ animationDelay: `${index * 40}ms` }}
+              className={`bg-card border rounded-2xl p-3 cursor-pointer transition shadow-sm place-card-animate ${
+                active 
+                  ? "border-primary ring-1 ring-primary/20 bg-primary/[0.01] shadow-md shadow-primary/5 border-l-4 pl-4" 
+                  : "border-border/60 hover:border-primary/30 hover:shadow-md hover:shadow-indigo-500/[0.02]"
               }`}
             >
               <div className="flex items-start gap-2.5">
@@ -971,7 +1017,9 @@ export default function DiscoveryMap() {
 
       <style>{`
         .disc-user-dot {
-          width: 16px; height: 16px; border-radius: 50%;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
           background: #3b82f6;
           border: 3px solid #ffffff;
           box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 0 15px rgba(59, 130, 246, 0.5);
@@ -993,26 +1041,22 @@ export default function DiscoveryMap() {
         }
         .disc-pin-container {
           position: relative;
-          width: 36px;
-          height: 36px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.9);
+          background: #18181b;
           border: 2px solid #ffffff;
+          color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-          transition: all 0.25s ease;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+          transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .dark .disc-pin-container {
-          background: rgba(39, 39, 42, 0.9);
-          border-color: rgba(255, 255, 255, 0.1);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        }
-        .disc-pin-emoji {
-          font-size: 18px;
-          z-index: 2;
-          transform: translateY(-0.5px);
+          background: #18181b;
+          border-color: rgba(255, 255, 255, 0.25);
+          color: #ffffff;
         }
         /* Neon Category Glows */
         .orange-glow { box-shadow: 0 0 10px rgba(249, 115, 22, 0.45), inset 0 0 4px rgba(249, 115, 22, 0.2); }
@@ -1021,15 +1065,32 @@ export default function DiscoveryMap() {
         .indigo-glow { box-shadow: 0 0 10px rgba(99, 102, 241, 0.45), inset 0 0 4px rgba(99, 102, 241, 0.2); }
 
         .custom-place-marker-active .disc-pin-container {
-          background: #ffffff;
-          transform: scale(1.15);
-          border-color: #6366f1;
-          box-shadow: 0 0 15px 4px rgba(99, 102, 241, 0.6);
+          background: #3b82f6;
+          border-color: #ffffff;
+          color: #ffffff;
+          transform: scale(1.2);
+          box-shadow: 0 0 15px 4px rgba(59, 130, 246, 0.5);
         }
         .dark .custom-place-marker-active .disc-pin-container {
-          background: #18181b;
-          border-color: #818cf8;
-          box-shadow: 0 0 20px 5px rgba(129, 140, 248, 0.6);
+          background: #4f46e5;
+          border-color: #ffffff;
+          color: #ffffff;
+          transform: scale(1.2);
+          box-shadow: 0 0 15px 4px rgba(79, 70, 229, 0.5);
+        }
+
+        .place-card-animate {
+          animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
         .maplibregl-map { font: inherit; background: hsl(var(--muted)); }
