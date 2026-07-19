@@ -29,8 +29,8 @@ const CATEGORY_LABELS = { food: "Ăn uống", cafe: "Cà phê", play: "Vui chơi
 
 // OpenFreeMap vector styles (free, unlimited, no key) — theme-matched
 const MAP_STYLES = {
-  light: "https://tiles.openfreemap.org/styles/positron",
-  dark: "https://tiles.openfreemap.org/styles/dark"
+  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
 };
 
 const fmtDist = (m) =>
@@ -166,6 +166,12 @@ export default function DiscoveryMap() {
 
         if (cancelled) return;
         setUserPos(p);
+
+        if (!containerRef.current) {
+          setError("Không tìm thấy phần tử hiển thị bản đồ.");
+          setLoading(false);
+          return;
+        }
 
         // Check if WebGL is supported in browser (especially inside mobile webviews)
         if (!maplibregl.supported()) {
@@ -598,7 +604,7 @@ export default function DiscoveryMap() {
             <p className="text-[15px] text-muted-foreground">Đang xác định vị trí của bạn…</p>
           </div>
         )}
-        {!loading && error && !places.length && (
+        {!loading && error && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card p-6 text-center gap-3">
             <MapPin className="w-8 h-8 text-muted-foreground" />
             <p className="text-[15px] text-foreground font-medium">Không thể tải bản đồ khám phá</p>
