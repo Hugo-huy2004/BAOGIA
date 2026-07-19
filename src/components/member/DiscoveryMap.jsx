@@ -495,207 +495,90 @@ export default function DiscoveryMap() {
 
   return (
     <div className="w-full flex flex-col gap-4">
-      {/* Header */}
-      <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-              <MapIcon className="w-5 h-5" aria-hidden="true" />
-            </span>
-            <div className="min-w-0">
-              <h2 className="text-base font-bold text-foreground">Khám phá quanh bạn</h2>
-              <p className="text-[13px] text-muted-foreground mt-0.5 truncate">
-                {personalized
-                  ? "Địa điểm thật, xếp theo gu của bạn"
-                  : "Địa điểm thật theo thời gian thực"}
-                {source === "google" ? " · dữ liệu Google" : source === "foursquare" ? " · dữ liệu Foursquare" : source === "osm" ? " · dữ liệu OpenStreetMap" : ""}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={refresh}
-            disabled={fetching || !userPos}
-            className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-2xl border border-border bg-card hover:bg-foreground/[0.03] text-foreground transition-colors disabled:opacity-50"
-            title="Làm mới gợi ý"
-            aria-label="Làm mới gợi ý"
-          >
-            <RefreshCw className={`w-5 h-5 ${fetching ? "animate-spin text-primary" : ""}`} />
-          </button>
-        </div>
-
-        {/* Smart time-of-day suggestion */}
-        {(() => {
-          const s = smartSuggestion(new Date().getHours());
-          const active = category === s.category && !query;
-          return (
-            <button
-              onClick={() => { hapticSelect(); setQuery(""); setCategory(active ? "" : s.category); }}
-              className={`mt-3 w-full flex items-center gap-2.5 rounded-2xl border px-3.5 py-3 text-left transition-colors ${
-                active
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-foreground/[0.02] hover:bg-foreground/[0.05]"
-              }`}
-            >
-              <Clock className="w-[18px] h-[18px] text-primary shrink-0" aria-hidden="true" />
-              <span className="text-[15px] font-medium text-foreground flex-1">{s.label}</span>
-              <span className="text-[13px] font-semibold text-primary">{active ? "Đang xem" : "Xem ngay"}</span>
-            </button>
-          );
-        })()}
-
-        {/* Search */}
-        <div className="relative mt-3">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-muted-foreground" aria-hidden="true" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Tìm quán ăn, cà phê, chỗ chơi…"
-            className="w-full min-h-[44px] pl-10 pr-4 rounded-xl bg-muted border border-border text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-          />
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2 mt-3">
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => { hapticSelect(); setCategory(c.id); }}
-              className={`min-h-[44px] px-4 rounded-xl text-[15px] font-medium border transition ${
-                category === c.id
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card text-foreground border-border hover:bg-muted"
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
-          <button
-            onClick={() => { hapticSelect(); setOpenOnly((v) => !v); }}
-            className={`min-h-[44px] px-4 rounded-xl text-[15px] font-medium border transition flex items-center gap-1.5 ${
-              openOnly
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-card text-foreground border-border hover:bg-muted"
-            }`}
-          >
-            <Clock className="w-4 h-4" aria-hidden="true" />
-            Đang mở
-          </button>
-        </div>
-
-        {/* Sort */}
-        <div className="flex items-center gap-2 mt-3">
-          <SlidersHorizontal className="w-4 h-4 text-muted-foreground shrink-0" aria-hidden="true" />
-          <div className="flex gap-1 bg-muted rounded-xl p-1">
-            {SORTS.map((s) => (
+      
+      {/* 🗺️ Main Map Hero Widget */}
+      <div className="relative bg-card border border-border rounded-3xl overflow-hidden shadow-md">
+        
+        {/* Map Canvas */}
+        <div ref={containerRef} className="w-full h-[420px] sm:h-[480px] z-0" />
+        
+        {/* Glassmorphic floating Search & Categories card */}
+        {!loading && !error && (
+          <div className="absolute top-4 left-4 right-4 z-10 flex flex-col gap-2.5 max-w-md bg-white/80 dark:bg-zinc-950/80 border border-white/20 dark:border-white/5 backdrop-blur-md p-3 rounded-2xl shadow-lg">
+            
+            {/* Search Input Bar */}
+            <div className="relative flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Tìm quán ăn, cà phê..."
+                  className="w-full min-h-[38px] pl-9 pr-4 rounded-xl bg-muted/60 border border-border/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+                />
+              </div>
               <button
-                key={s.id}
-                onClick={() => { hapticSelect(); setSort(s.id); }}
-                className={`min-h-[36px] px-3.5 rounded-lg text-[14px] font-medium transition ${
-                  sort === s.id
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                onClick={refresh}
+                disabled={fetching || !userPos}
+                className="w-[38px] h-[38px] flex items-center justify-center rounded-xl border border-border/20 bg-muted/60 text-foreground hover:bg-muted/80 transition active:scale-95 disabled:opacity-50 shrink-0"
+                title="Làm mới gợi ý"
               >
-                {s.label}
+                <RefreshCw className={`w-4 h-4 ${fetching ? "animate-spin text-primary" : ""}`} />
               </button>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Register your own venue */}
-        <button
-          onClick={() => { hapticSelect(); setShowAdd((v) => !v); }}
-          className="mt-3 w-full min-h-[44px] rounded-2xl border border-dashed border-border text-[15px] font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/[0.03] transition-colors"
-        >
-          {showAdd ? "Đóng biểu mẫu" : "Bạn có quán? Đăng lên bản đồ"}
-        </button>
-
-        {showAdd && (
-          <div className="mt-3 rounded-2xl border border-border bg-foreground/[0.02] p-3.5 flex flex-col gap-2.5">
-            <input
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              maxLength={80}
-              placeholder="Tên quán / dịch vụ *"
-              className="w-full min-h-[44px] px-3.5 rounded-xl bg-card border border-border text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
-            <div className="flex gap-2">
-              {CATEGORIES.filter((c) => c.id).map((c) => (
+            {/* Horizontal Scroll Categories */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">
+              {CATEGORIES.map((c) => (
                 <button
                   key={c.id}
-                  onClick={() => setForm((f) => ({ ...f, category: c.id }))}
-                  className={`flex-1 min-h-[40px] rounded-xl text-[14px] font-medium border transition ${
-                    form.category === c.id
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-card text-foreground border-border"
+                  onClick={() => { hapticSelect(); setCategory(c.id); }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition ${
+                    category === c.id
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted/50 text-foreground hover:bg-muted/80"
                   }`}
                 >
                   {c.label}
                 </button>
               ))}
             </div>
-            <input
-              value={form.services}
-              onChange={(e) => setForm((f) => ({ ...f, services: e.target.value }))}
-              maxLength={300}
-              placeholder="Dịch vụ cung cấp (vd: cà phê máy lạnh, học nhóm, in ấn…)"
-              className="w-full min-h-[44px] px-3.5 rounded-xl bg-card border border-border text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
-            <textarea
-              value={form.menu}
-              onChange={(e) => setForm((f) => ({ ...f, menu: e.target.value }))}
-              maxLength={1200}
-              rows={3}
-              placeholder={"Menu — mỗi dòng một món, vd:\nCà phê sữa - 25k\nTrà đào - 30k"}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-card border border-border text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-y"
-            />
-            <input
-              value={form.address}
-              onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-              maxLength={160}
-              placeholder="Địa chỉ"
-              className="w-full min-h-[44px] px-3.5 rounded-xl bg-card border border-border text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
-            <div className="flex gap-2">
-              <input
-                value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                maxLength={20}
-                placeholder="SĐT (tùy chọn)"
-                className="flex-1 min-w-0 min-h-[44px] px-3.5 rounded-xl bg-card border border-border text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              />
-              <input
-                value={form.website}
-                onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
-                maxLength={200}
-                placeholder="Website (tùy chọn)"
-                className="flex-1 min-w-0 min-h-[44px] px-3.5 rounded-xl bg-card border border-border text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              />
-            </div>
-            <p className="text-[13px] text-muted-foreground">
-              Vị trí quán được ghi theo GPS hiện tại của bạn — hãy đứng tại quán khi đăng để pin chính xác nhất.
-            </p>
-            <button
-              onClick={submitPlace}
-              disabled={submitting}
-              className="w-full min-h-[44px] rounded-xl bg-primary text-primary-foreground text-[15px] font-medium hover:opacity-90 transition disabled:opacity-50"
-            >
-              {submitting ? "Đang đăng…" : "Đăng lên bản đồ"}
-            </button>
+
+            {/* Smart Suggestion Banner */}
+            {(() => {
+              const s = smartSuggestion(new Date().getHours());
+              const active = category === s.category && !query;
+              return (
+                <button
+                  onClick={() => { hapticSelect(); setQuery(""); setCategory(active ? "" : s.category); }}
+                  className={`w-full flex items-center gap-2 rounded-xl border px-3 py-2 text-left transition ${
+                    active
+                      ? "border-primary/40 bg-primary/10 text-primary"
+                      : "border-border/10 bg-muted/30 hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Clock className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-xs font-bold flex-1 truncate">{s.label}</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-primary shrink-0">
+                    {active ? "Đang xem" : "Xem"}
+                  </span>
+                </button>
+              );
+            })()}
+
           </div>
         )}
-      </div>
 
-      {/* Map */}
-      <div className="relative bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-        <div ref={containerRef} className="w-full h-[340px] sm:h-[400px] z-0" />
+        {/* Loading Spinner */}
         {loading && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card gap-3">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
             <p className="text-[15px] text-muted-foreground">Đang xác định vị trí của bạn…</p>
           </div>
         )}
+
+        {/* Error Screen */}
         {!loading && error && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card p-6 text-center gap-3">
             <MapPin className="w-8 h-8 text-muted-foreground" />
@@ -709,8 +592,108 @@ export default function DiscoveryMap() {
             </button>
           </div>
         )}
+
+        {/* ➕ Add Spot Overlay Form */}
+        {showAdd && (
+          <div className="absolute inset-4 z-30 bg-white/95 dark:bg-zinc-950/95 border border-white/20 dark:border-white/5 backdrop-blur-xl p-4 rounded-2xl shadow-2xl overflow-y-auto flex flex-col gap-3 text-left animate-slideUp">
+            <div className="flex items-center justify-between border-b border-border pb-2.5">
+              <h3 className="text-base font-black text-foreground flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">add_location_alt</span>
+                Đăng quán lên bản đồ
+              </h3>
+              <button 
+                onClick={() => setShowAdd(false)}
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-muted/80 text-muted-foreground hover:text-foreground active:scale-90 transition-all"
+              >
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <input
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                maxLength={80}
+                placeholder="Tên quán *"
+                className="w-full min-h-[42px] px-3.5 rounded-xl bg-muted border border-border text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+              />
+              
+              <div className="flex flex-wrap items-center gap-1.5 py-1">
+                {CATEGORIES.filter(c => c.id).map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, category: c.id }))}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                      form.category === c.id
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-muted text-foreground border-border hover:bg-muted/85"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+
+              <input
+                value={form.services}
+                onChange={(e) => setForm((f) => ({ ...f, services: e.target.value }))}
+                maxLength={300}
+                placeholder="Dịch vụ cung cấp (vd: máy lạnh, học nhóm...)"
+                className="w-full min-h-[42px] px-3.5 rounded-xl bg-muted border border-border text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+              />
+              
+              <textarea
+                value={form.menu}
+                onChange={(e) => setForm((f) => ({ ...f, menu: e.target.value }))}
+                maxLength={1200}
+                rows={2}
+                placeholder={"Menu (mỗi dòng một món, kèm giá nếu có)..."}
+                className="w-full px-3.5 py-2 rounded-xl bg-muted border border-border text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none placeholder:text-muted-foreground"
+              />
+
+              <input
+                value={form.address}
+                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                maxLength={160}
+                placeholder="Địa chỉ quán *"
+                className="w-full min-h-[42px] px-3.5 rounded-xl bg-muted border border-border text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+              />
+
+              <div className="flex gap-2">
+                <input
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  maxLength={20}
+                  placeholder="SĐT (tùy chọn)"
+                  className="flex-1 min-w-0 min-h-[42px] px-3.5 rounded-xl bg-muted border border-border text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+                />
+                <input
+                  value={form.website}
+                  onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
+                  maxLength={200}
+                  placeholder="Website (tùy chọn)"
+                  className="flex-1 min-w-0 min-h-[42px] px-3.5 rounded-xl bg-muted border border-border text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+                />
+              </div>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground leading-normal">
+              Vị trí được xác định theo tọa độ hiện tại của bạn. Bạn nên đứng tại quán khi đăng để ghim chính xác nhất.
+            </p>
+
+            <button
+              onClick={submitPlace}
+              disabled={submitting}
+              className="w-full min-h-[42px] rounded-xl bg-primary text-primary-foreground text-sm font-black uppercase tracking-wider hover:opacity-90 active:scale-95 transition disabled:opacity-50"
+            >
+              {submitting ? "Đang đăng..." : "Đăng lên bản đồ"}
+            </button>
+          </div>
+        )}
+
         {/* 📱 iOS/Apple Maps style Slide-Up Detail Card */}
-        {selectedPlace && (
+        {selectedPlace && !showAdd && (
           <div className="absolute bottom-4 left-4 right-4 z-20 bg-white/90 dark:bg-zinc-950/90 border border-white/20 dark:border-white/5 backdrop-blur-xl p-4 rounded-2xl shadow-xl animate-slideUp text-left flex flex-col gap-2.5 max-h-[85%] overflow-y-auto">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2 flex-wrap">
@@ -775,31 +758,39 @@ export default function DiscoveryMap() {
           </div>
         )}
 
-        {/* Floating Action Controls - Smooth slide up when sheet is open */}
+        {/* Floating Action Controls */}
         {!loading && userPos && (
           <div className={`absolute right-4 z-10 flex flex-col gap-2 transition-all duration-300 ${
-            selectedPlace ? "bottom-[195px]" : "bottom-4"
+            selectedPlace && !showAdd ? "bottom-[195px]" : "bottom-4"
           }`}>
-            {/* 3D Mode Toggle Button */}
+            {/* Add Spot Button */}
+            <button
+              onClick={() => { hapticSelect(); setShowAdd(true); }}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-card border border-border shadow-md text-foreground hover:bg-muted transition active:scale-95"
+              title="Đăng quán lên bản đồ"
+              aria-label="Đăng quán lên bản đồ"
+            >
+              <span className="material-symbols-outlined text-[20px] text-primary">add_location_alt</span>
+            </button>
+
+            {/* 3D/2D Mode Toggle Button */}
             <button
               onClick={toggle3DMode}
-              className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl border shadow-sm transition active:scale-95 ${
+              className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl border shadow-md transition active:scale-95 font-black text-xs tracking-wider ${
                 is3DMode
                   ? "bg-primary border-primary text-white"
                   : "bg-card border-border text-foreground hover:bg-muted"
               }`}
-              title="Góc nhìn 3D"
-              aria-label="Góc nhìn 3D"
+              title={is3DMode ? "Chuyển sang 2D" : "Chuyển sang 3D"}
+              aria-label={is3DMode ? "Chuyển sang 2D" : "Chuyển sang 3D"}
             >
-              <span className="material-symbols-outlined text-[20px]">
-                {is3DMode ? "2d" : "3d_rotation"}
-              </span>
+              {is3DMode ? "2D" : "3D"}
             </button>
 
             {/* Recenter Button */}
             <button
               onClick={recenter}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-card border border-border shadow-sm text-foreground hover:bg-muted transition active:scale-95"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-card border border-border shadow-md text-foreground hover:bg-muted transition active:scale-95"
               title="Về vị trí của tôi"
               aria-label="Về vị trí của tôi"
             >
@@ -807,6 +798,53 @@ export default function DiscoveryMap() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* 📋 Results and Filter Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mt-2 pb-1 text-left">
+        <div>
+          <h3 className="text-base font-black text-foreground flex items-center gap-1.5">
+            <span className="grid h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Địa điểm quanh bạn
+            <span className="text-xs text-muted-foreground font-normal">
+              ({places.length} kết quả {source ? `· từ ${source.toUpperCase()}` : ""})
+            </span>
+          </h3>
+        </div>
+        
+        {/* Sort & Status controls */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => { hapticSelect(); setOpenOnly(!openOnly); }}
+            className={`min-h-[32px] px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition ${
+              openOnly
+                ? "bg-success/15 border-success/30 text-success"
+                : "bg-card border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Đang mở
+          </button>
+          
+          <div className="flex items-center bg-muted/60 p-0.5 rounded-xl border border-border/20">
+            {[
+              { id: "smart", label: "Hợp gu" },
+              { id: "dist", label: "Gần nhất" },
+              { id: "rating", label: "Đánh giá" }
+            ].map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => { hapticSelect(); setSort(opt.id); }}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                  sort === opt.id
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Results list */}
