@@ -250,29 +250,30 @@ export default function DiscoveryMap() {
       return;
     }
 
-    // Check if WebGL is supported in browser
-    if (!maplibregl.supported()) {
-      setError("Trình duyệt không hỗ trợ WebGL để hiển thị bản đồ.");
+    // 2. Initialize the map instantly with default HCMC position, wrapped in try-catch to detect WebGL support issues
+    const isDark = document.documentElement.classList.contains("dark");
+    let map;
+    try {
+      map = new maplibregl.Map({
+        container: containerRef.current,
+        style: MAP_STYLES[isDark ? "dark" : "light"],
+        center: [initialPos.lng, initialPos.lat],
+        zoom: 15,
+        attributionControl: { compact: true },
+        cooperativeGestures: true,
+        locale: {
+          "CooperativeGesturesHandler.MobileHelpText": "Dùng 2 ngón tay để di chuyển bản đồ",
+          "CooperativeGesturesHandler.WindowsHelpText": "Giữ Ctrl và cuộn để thu phóng bản đồ",
+          "CooperativeGesturesHandler.MacHelpText": "Giữ ⌘ và cuộn để thu phóng bản đồ"
+        }
+      });
+      mapRef.current = map;
+    } catch (mapInitErr) {
+      console.error("MapLibre GL Map initialization failed (likely WebGL unsupported):", mapInitErr);
+      setError("Thiết bị hoặc trình duyệt của bạn không hỗ trợ WebGL để hiển thị bản đồ.");
       setLoading(false);
       return;
     }
-
-    // 2. Initialize the map instantly with default HCMC position
-    const isDark = document.documentElement.classList.contains("dark");
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: MAP_STYLES[isDark ? "dark" : "light"],
-      center: [initialPos.lng, initialPos.lat],
-      zoom: 15,
-      attributionControl: { compact: true },
-      cooperativeGestures: true,
-      locale: {
-        "CooperativeGesturesHandler.MobileHelpText": "Dùng 2 ngón tay để di chuyển bản đồ",
-        "CooperativeGesturesHandler.WindowsHelpText": "Giữ Ctrl và cuộn để thu phóng bản đồ",
-        "CooperativeGesturesHandler.MacHelpText": "Giữ ⌘ và cuộn để thu phóng bản đồ"
-      }
-    });
-    mapRef.current = map;
 
     // Force a resize shortly after initialization
     setTimeout(() => {
