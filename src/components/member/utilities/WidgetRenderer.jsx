@@ -19,9 +19,34 @@ export default function WidgetRenderer({
   joyBalance,
   gradients,
   cardThemes,
-  glowShadows
+  glowShadows,
+  onAppHover
 }) {
   if (myWidgets.length === 0) return null;
+
+  const [timeLeft, setTimeLeft] = React.useState(1500);
+
+  React.useEffect(() => {
+    let timer = null;
+    if (isAuraActive) {
+      timer = setInterval(() => {
+        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 1500));
+      }, 1000);
+    } else {
+      setTimeLeft(1500);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isAuraActive]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const strokeDashoffset = 213.6 - (213.6 * (1500 - timeLeft)) / 1500;
 
   return (
     <div className="space-y-4 text-left">
@@ -37,6 +62,7 @@ export default function WidgetRenderer({
           const cardTheme = cardThemes[app.tint] || "from-primary/5 to-transparent";
 
           const touchProps = {
+            onMouseEnter: () => onAppHover?.(app.id),
             onMouseDown: () => handleAppTouchStart(app),
             onMouseUp: (e) => handleAppTouchEnd(app, e),
             onMouseLeave: () => clearTimeout(window.longPressTimer),
@@ -108,7 +134,7 @@ export default function WidgetRenderer({
                     <div className="flex items-center justify-between bg-muted/40 border border-border/30 rounded-xl p-2.5">
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-orange-500 text-[16px] animate-spin" style={{ animationDuration: "12s" }}>schedule</span>
-                        <span className="font-mono text-foreground font-black">25:00</span>
+                        <span className="font-mono text-foreground font-black">{formatTime(timeLeft)}</span>
                       </div>
                       <button
                         onClick={handleToggleAura}
@@ -126,12 +152,21 @@ export default function WidgetRenderer({
                         <span className={`material-symbols-outlined text-teal-500 text-sm ${isRadioPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }}>music_note</span>
                         <span className="text-muted-foreground truncate italic">Lofi Code Radio 24/7</span>
                       </div>
-                      <button
-                        onClick={handleToggleRadio}
-                        className="p-1 w-6.5 h-6.5 rounded-full bg-primary/20 hover:bg-primary text-primary hover:text-white flex items-center justify-center transition-all shrink-0 active:scale-95"
-                      >
-                        <span className="material-symbols-outlined text-[14px] font-bold">{isRadioPlaying ? "pause" : "play_arrow"}</span>
-                      </button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {isRadioPlaying && (
+                          <div className="flex items-end gap-0.5 h-3 px-1">
+                            <span className="w-0.5 bg-teal-500 rounded-full" style={{ height: "4px", animation: "eqBar 0.8s ease-in-out infinite alternate" }} />
+                            <span className="w-0.5 bg-teal-500 rounded-full" style={{ height: "4px", animation: "eqBar 0.5s ease-in-out infinite alternate-reverse" }} />
+                            <span className="w-0.5 bg-teal-500 rounded-full" style={{ height: "4px", animation: "eqBar 0.7s ease-in-out infinite alternate" }} />
+                          </div>
+                        )}
+                        <button
+                          onClick={handleToggleRadio}
+                          className="p-1 w-6.5 h-6.5 rounded-full bg-primary/20 hover:bg-primary text-primary hover:text-white flex items-center justify-center transition-all shrink-0 active:scale-95"
+                        >
+                          <span className="material-symbols-outlined text-[14px] font-bold">{isRadioPlaying ? "pause" : "play_arrow"}</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                   {app.id === "joy_wallet" && (
@@ -239,10 +274,10 @@ export default function WidgetRenderer({
                       <div className="relative shrink-0 flex items-center justify-center">
                         <svg className="w-20 h-20 transform -rotate-90">
                           <circle cx="40" cy="40" r="34" className="stroke-muted-foreground/10 fill-none" strokeWidth="3" />
-                          <circle cx="40" cy="40" r="34" className="stroke-primary fill-none" strokeWidth="3" strokeDasharray="213.6" strokeDashoffset="54" strokeLinecap="round" />
+                          <circle cx="40" cy="40" r="34" className="stroke-primary fill-none" strokeWidth="3" strokeDasharray="213.6" strokeDashoffset={strokeDashoffset} strokeLinecap="round" />
                         </svg>
                         <div className="absolute font-mono font-black text-xs text-foreground flex flex-col items-center">
-                          <span>25:00</span>
+                          <span>{formatTime(timeLeft)}</span>
                           <button
                             onClick={handleToggleAura}
                             className="text-[8px] font-black text-primary uppercase mt-0.5"
@@ -297,10 +332,27 @@ export default function WidgetRenderer({
                       </div>
 
                       <div className="min-w-0 flex-1 space-y-1.5">
-                        <p className="text-[11.5px] font-black text-foreground truncate">Lofi Chill Session</p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-[11.5px] font-black text-foreground truncate">Lofi Chill Session</p>
+                          {isRadioPlaying && (
+                            <div className="flex items-end gap-0.5 h-3 px-1.5 shrink-0">
+                              <span className="w-0.5 bg-teal-500 rounded-full animate-eqBar1" style={{ height: "4px", animation: "eqBar 0.8s ease-in-out infinite alternate" }} />
+                              <span className="w-0.5 bg-teal-500 rounded-full animate-eqBar2" style={{ height: "4px", animation: "eqBar 0.5s ease-in-out infinite alternate-reverse" }} />
+                              <span className="w-0.5 bg-teal-500 rounded-full animate-eqBar3" style={{ height: "4px", animation: "eqBar 0.7s ease-in-out infinite alternate" }} />
+                              <span className="w-0.5 bg-teal-500 rounded-full animate-eqBar4" style={{ height: "4px", animation: "eqBar 0.6s ease-in-out infinite alternate-reverse" }} />
+                              <span className="w-0.5 bg-teal-500 rounded-full animate-eqBar5" style={{ height: "4px", animation: "eqBar 0.9s ease-in-out infinite alternate" }} />
+                            </div>
+                          )}
+                        </div>
                         <p className="text-[9.5px] text-muted-foreground truncate uppercase font-bold tracking-wider">Mùa hạ tĩnh lặng</p>
                         <div className="h-1 bg-muted rounded-full w-full overflow-hidden">
-                          <div className="h-full bg-primary rounded-full" style={{ width: isRadioPlaying ? "35%" : "0%" }} />
+                          <div 
+                            className="h-full bg-primary rounded-full transition-all duration-[2000ms]" 
+                            style={{ 
+                              width: isRadioPlaying ? "55%" : "0%",
+                              animation: isRadioPlaying ? "progressWave 15s linear infinite" : "none"
+                            }} 
+                          />
                         </div>
                         <div className="flex justify-between text-[9.5px] text-zinc-500 font-mono">
                           <span>01:24</span>
@@ -322,7 +374,18 @@ export default function WidgetRenderer({
                       <div className="flex items-center justify-between gap-2 px-1">
                         <span className="text-[9px] text-muted-foreground font-semibold">Thu nhập 5 ngày</span>
                         <svg className="w-24 h-6 text-orange-500" viewBox="0 0 100 20">
-                          <path d="M 0,20 Q 25,5 50,15 T 100,5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                          <path 
+                            d="M 0,20 Q 25,5 50,15 T 100,5" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2.5" 
+                            strokeLinecap="round" 
+                            style={{
+                              strokeDasharray: 120,
+                              strokeDashoffset: 120,
+                              animation: "drawChart 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards"
+                            }}
+                          />
                         </svg>
                       </div>
                     </div>

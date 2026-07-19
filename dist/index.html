@@ -15,7 +15,8 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="theme-color" content="#0b0a0f" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0a0f" media="(prefers-color-scheme: dark)" />
     <title>Hugo Studio — Làm Web Giá Rẻ, Tạo Bio Miễn Phí | Thiết Kế Website Chuyên Nghiệp</title>
     <meta name="google-site-verification" content="xynEnO-Xc4KjHxU0vQcXZW3lbuAtybvmxXD6mIRLMMM" />
     <meta name='dmca-site-verification' content='VzRGQmMwbWFWRTBJc1JhWW54dnVaOXRkc2xQbS9jMmUxMkx4cGNid1E3Yz01' />
@@ -181,21 +182,29 @@
         overflow-x: hidden;
       }
       
-      /* Prevent text selection and right-click */
-      * {
+      /* Avoid selecting navigation/buttons/images while allowing readable text copy */
+      body, button, a, nav, [role="button"], .material-symbols-outlined, img, .select-none {
         -webkit-user-select: none;
         -moz-user-select: none;
-        user-select: none;
+             user-select: none;
+        -webkit-touch-callout: none;
+      }
+      
+      /* Allow text selection in chat, posts, inputs, and article contents */
+      input, textarea, [contenteditable="true"], p, span, h1, h2, h3, h4, h5, h6, li, code, pre, blockquote, .select-text {
+        -webkit-user-select: text;
+        -moz-user-select: text;
+             user-select: text;
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-Cy1Q4eCL.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-CNC7AqOf.js">
-    <link rel="modulepreload" crossorigin href="/assets/i18n-B0QJZsF8.js">
-    <link rel="modulepreload" crossorigin href="/assets/vendor-RAm7yLUS.js">
-    <link rel="modulepreload" crossorigin href="/assets/authSession-CmFufgWw.js">
-    <link rel="modulepreload" crossorigin href="/assets/gestures-C_5vga3R.js">
-    <link rel="modulepreload" crossorigin href="/assets/state-BR8zIJhP.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-D0IUbEBB.css">
+    <script type="module" crossorigin src="/assets/index-DKp7qIJs.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-FZ4Itg2g.js">
+    <link rel="modulepreload" crossorigin href="/assets/i18n-DxeeX3Z-.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-D7u2JBEb.js">
+    <link rel="modulepreload" crossorigin href="/assets/authSession-DzPz9WH3.js">
+    <link rel="modulepreload" crossorigin href="/assets/gestures-Dz2rUD05.js">
+    <link rel="modulepreload" crossorigin href="/assets/state-BJlDUjqA.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-BRIni6Ev.css">
   <link rel="manifest" href="/manifest.webmanifest"></head>
   <body
     class="bg-background dark:bg-[#0b0a0f] text-on-background dark:text-[#f8f5fa] font-body min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative"

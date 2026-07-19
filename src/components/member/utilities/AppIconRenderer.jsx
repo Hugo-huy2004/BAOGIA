@@ -7,7 +7,8 @@ export default function AppIconRenderer({
   handleDrop,
   handleAppTouchStart,
   handleAppTouchEnd,
-  gradients
+  gradients,
+  onAppHover
 }) {
   if (myIcons.length === 0) return null;
 
@@ -21,6 +22,7 @@ export default function AppIconRenderer({
         {myIcons.map((app, index) => {
           const gradient = gradients[app.tint] || gradients.indigo;
           const touchProps = {
+            onMouseEnter: () => onAppHover?.(app.id),
             onMouseDown: () => handleAppTouchStart(app),
             onMouseUp: (e) => handleAppTouchEnd(app, e),
             onMouseLeave: () => clearTimeout(window.longPressTimer),

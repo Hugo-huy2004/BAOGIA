@@ -53,7 +53,7 @@ const THEMES = [
   { id: "pastel", label: "Pastel", style: "bg-gradient-to-br from-rose-100/50 via-peach-100/30 to-amber-100/40 dark:from-rose-950/10 dark:via-zinc-900/20 dark:to-amber-950/10 rounded-[30px] p-6 shadow-md shadow-orange-500/5" },
 ];
 
-const DEFAULT_INSTALLED = ["library"];
+const DEFAULT_INSTALLED = ["library", "info"];
 
 const DEFAULT_SIZES = {
   psychology: "medium",
@@ -72,117 +72,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const [activeCategory, setActiveCategory] = useState("all");
   const [isEditMode, setIsEditMode] = useState(false);
   const [showWallpaperSelector, setShowWallpaperSelector] = useState(false);
-
-  // App Ecosystem States
-  const [installedApps, setInstalledApps] = useState(() => {
-    if (bio && Array.isArray(bio.installedUtilities) && bio.installedUtilities.length > 0) {
-      return bio.installedUtilities;
-    }
-    const saved = localStorage.getItem("hugo_installed_utilities_v2");
-    return saved ? JSON.parse(saved) : DEFAULT_INSTALLED;
-  });
-
-  const [utilitySizes, setUtilitySizes] = useState(() => {
-    const saved = localStorage.getItem("hugo_utility_sizes");
-    return saved ? JSON.parse(saved) : DEFAULT_SIZES;
-  });
-
-  const [activeWallpaper, setActiveWallpaper] = useState(() => {
-    return localStorage.getItem("hugo_wallpaper") || "default";
-  });
-
-  const [downloadingAppId, setDownloadingAppId] = useState(null);
-  const [editingApp, setEditingApp] = useState(null);
-
-  // Interactive Live Audios states
-  const [isRadioPlaying, setIsRadioPlaying] = useState(false);
-  const [isAuraActive, setIsAuraActive] = useState(false);
-  const [rainVolume, setRainVolume] = useState(80);
-  const [cafeVolume, setCafeVolume] = useState(45);
-
-  const radioAudioRef = useRef(null);
-  const rainAudioRef = useRef(null);
-  const cafeAudioRef = useRef(null);
-
-  // Long press refs
-  const longPressTimerRef = useRef(null);
-  const isLongPressTriggered = useRef(false);
-
-  // Sync state with prop if bio updates asynchronously
-  useEffect(() => {
-    if (bio && Array.isArray(bio.installedUtilities)) {
-      const appsToSet = bio.installedUtilities.length > 0 ? bio.installedUtilities : ["library"];
-      if (JSON.stringify(appsToSet) !== JSON.stringify(installedApps)) {
-        setInstalledApps(appsToSet);
-      }
-    }
-  }, [bio]);
-
-  // Sync to database and localStorage helper
-  const syncInstalledApps = async (updatedApps) => {
-    const appsToSave = updatedApps.includes("library") ? updatedApps : ["library", ...updatedApps];
-    setInstalledApps(appsToSave);
-    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(appsToSave));
-    
-    if (bio?._id) {
-      try {
-        const res = await memberService.updateMemberBio(bio._id, { installedUtilities: appsToSave });
-        if (res?.bio && onBioUpdate) {
-          onBioUpdate(res.bio);
-        }
-      } catch (err) {
-        console.error("Failed to sync installed utilities to DB:", err);
-      }
-    }
-  };
-
-  // Sync to localStorage fallback
-  useEffect(() => {
-    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(installedApps));
-  }, [installedApps]);
-
-  // Handle Dynamic Mobile Tab Bar Hiding
-  useEffect(() => {
-    const tabbar = document.getElementById("mobile-bottom-tab-bar");
-    if (tabbar) {
-      if (editingApp) {
-        tabbar.classList.add("hidden");
-      } else {
-        tabbar.classList.remove("hidden");
-      }
-    }
-    return () => {
-      if (tabbar) {
-        tabbar.classList.remove("hidden");
-      }
-    };
-  }, [editingApp]);
-
-  // Clean up audios on unmount
-  useEffect(() => {
-    return () => {
-      if (radioAudioRef.current) {
-        radioAudioRef.current.pause();
-        radioAudioRef.current = null;
-      }
-      if (rainAudioRef.current) {
-        rainAudioRef.current.pause();
-        rainAudioRef.current = null;
-      }
-      if (cafeAudioRef.current) {
-        cafeAudioRef.current.pause();
-        cafeAudioRef.current = null;
-      }
-    };
-  }, []);
-
-  const categories = useMemo(() => [
-    { id: "all", label: "Tất cả", icon: "widgets" },
-    { id: "edu", label: "Học tập", icon: "school" },
-    { id: "wellness", label: "Sức khỏe", icon: "favorite" },
-    { id: "tools", label: "Công cụ", icon: "handyman" },
-    { id: "arcade", label: "Giải trí", icon: "sports_esports" },
-  ], []);
 
   const allUtilities = useMemo(() => [
     {
@@ -341,14 +230,248 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
   ], [t]);
 
+  // App Ecosystem States
+  const [installedApps, setInstalledApps] = useState(() => {
+    if (bio && Array.isArray(bio.installedUtilities) && bio.installedUtilities.length > 0) {
+      return bio.installedUtilities;
+    }
+    const saved = localStorage.getItem("hugo_installed_utilities_v2");
+    return saved ? JSON.parse(saved) : DEFAULT_INSTALLED;
+  });
+
+  const [utilitySizes, setUtilitySizes] = useState(() => {
+    const saved = localStorage.getItem("hugo_utility_sizes");
+    return saved ? JSON.parse(saved) : DEFAULT_SIZES;
+  });
+
+  const [activeWallpaper, setActiveWallpaper] = useState(() => {
+    return localStorage.getItem("hugo_wallpaper") || "default";
+  });
+
+  const [downloadingAppId, setDownloadingAppId] = useState(null);
+  const [downloadProgress, setDownloadProgress] = useState({});
+  const [editingApp, setEditingApp] = useState(null);
+
+  // Advanced UI States
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [ripples, setRipples] = useState([]);
+  const [flyingApp, setFlyingApp] = useState(null);
+  const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
+  const [spotlightQuery, setSpotlightQuery] = useState("");
+  const [spotlightSelectedIndex, setSpotlightSelectedIndex] = useState(0);
+
+  // Interactive Live Audios states
+  const [isRadioPlaying, setIsRadioPlaying] = useState(false);
+  const [isAuraActive, setIsAuraActive] = useState(false);
+  const [rainVolume, setRainVolume] = useState(80);
+  const [cafeVolume, setCafeVolume] = useState(45);
+
+  const radioAudioRef = useRef(null);
+  const rainAudioRef = useRef(null);
+  const cafeAudioRef = useRef(null);
+
+  // Long press refs
+  const longPressTimerRef = useRef(null);
+  const isLongPressTriggered = useRef(false);
+
+  // Sync state with prop if bio updates asynchronously
+  useEffect(() => {
+    if (bio && Array.isArray(bio.installedUtilities)) {
+      let appsToSet = bio.installedUtilities.length > 0 ? bio.installedUtilities : ["library", "info"];
+      if (!appsToSet.includes("library")) appsToSet.unshift("library");
+      if (!appsToSet.includes("info")) appsToSet.push("info");
+      if (JSON.stringify(appsToSet) !== JSON.stringify(installedApps)) {
+        setInstalledApps(appsToSet);
+      }
+    }
+  }, [bio]);
+
+  // Sync to database and localStorage helper
+  const syncInstalledApps = async (updatedApps) => {
+    let appsToSave = [...updatedApps];
+    if (!appsToSave.includes("library")) appsToSave.unshift("library");
+    if (!appsToSave.includes("info")) appsToSave.push("info");
+    setInstalledApps(appsToSave);
+    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(appsToSave));
+    
+    if (bio?._id) {
+      try {
+        const res = await memberService.updateMemberBio(bio._id, { installedUtilities: appsToSave });
+        if (res?.bio && onBioUpdate) {
+          onBioUpdate(res.bio);
+        }
+      } catch (err) {
+        console.error("Failed to sync installed utilities to DB:", err);
+      }
+    }
+  };
+
+  // Sync to localStorage fallback
+  useEffect(() => {
+    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(installedApps));
+  }, [installedApps]);
+
+  // Handle Dynamic Mobile Tab Bar Hiding
+  useEffect(() => {
+    const tabbar = document.getElementById("mobile-bottom-tab-bar");
+    if (tabbar) {
+      if (editingApp) {
+        tabbar.classList.add("hidden");
+      } else {
+        tabbar.classList.remove("hidden");
+      }
+    }
+    return () => {
+      if (tabbar) {
+        tabbar.classList.remove("hidden");
+      }
+    };
+  }, [editingApp]);
+
+  // Clean up audios on unmount
+  useEffect(() => {
+    return () => {
+      if (radioAudioRef.current) {
+        radioAudioRef.current.pause();
+        radioAudioRef.current = null;
+      }
+      if (rainAudioRef.current) {
+        rainAudioRef.current.pause();
+        rainAudioRef.current = null;
+      }
+      if (cafeAudioRef.current) {
+        cafeAudioRef.current.pause();
+        cafeAudioRef.current = null;
+      }
+    };
+  }, []);
+
+  const spotlightFilteredApps = useMemo(() => {
+    if (!spotlightQuery.trim()) {
+      return allUtilities.filter((util) => installedApps.includes(util.id));
+    }
+    const query = spotlightQuery.toLowerCase();
+    return allUtilities.filter(
+      (util) =>
+        util.title.toLowerCase().includes(query) ||
+        util.subLabel.toLowerCase().includes(query)
+    );
+  }, [allUtilities, installedApps, spotlightQuery]);
+
+  const handleLaunchSpotlightApp = (app) => {
+    setIsSpotlightOpen(false);
+    if (!installedApps.includes(app.id)) {
+      setActiveTab("library");
+      setSearchQuery(app.title);
+      return;
+    }
+    if (app.id === "library") {
+      setActiveTab("library");
+    } else {
+      setSelectedUtility(app.id);
+    }
+  };
+
+  // Keyboard shortcut listener for toggle Cmd/Ctrl + K
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsSpotlightOpen((prev) => !prev);
+        setSpotlightQuery("");
+        setSpotlightSelectedIndex(0);
+      } else if (e.key === "Escape") {
+        setIsSpotlightOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Keyboard navigation inside spotlight
+  useEffect(() => {
+    if (!isSpotlightOpen) return;
+
+    const handleSpotlightKeys = (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSpotlightSelectedIndex((prev) => 
+          prev < spotlightFilteredApps.length - 1 ? prev + 1 : 0
+        );
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSpotlightSelectedIndex((prev) => 
+          prev > 0 ? prev - 1 : spotlightFilteredApps.length - 1
+        );
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (spotlightFilteredApps[spotlightSelectedIndex]) {
+          handleLaunchSpotlightApp(spotlightFilteredApps[spotlightSelectedIndex]);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleSpotlightKeys);
+    return () => window.removeEventListener("keydown", handleSpotlightKeys);
+  }, [isSpotlightOpen, spotlightSelectedIndex, spotlightFilteredApps]);
+
+  useEffect(() => {
+    setSpotlightSelectedIndex(0);
+  }, [spotlightQuery]);
+
+  const categories = useMemo(() => [
+    { id: "all", label: "Tất cả", icon: "widgets" },
+    { id: "edu", label: "Học tập", icon: "school" },
+    { id: "wellness", label: "Sức khỏe", icon: "favorite" },
+    { id: "tools", label: "Công cụ", icon: "handyman" },
+    { id: "arcade", label: "Giải trí", icon: "sports_esports" },
+  ], []);
+
+
+
   const handleInstallApp = (appId) => {
-    if (downloadingAppId) return;
+    if (downloadingAppId || downloadProgress[appId] !== undefined) return;
     setDownloadingAppId(appId);
-    setTimeout(() => {
-      syncInstalledApps([...installedApps, appId]);
-      setDownloadingAppId(null);
-      showToast?.("Đã tải ứng dụng vào màn hình chính!", "success");
-    }, 1200);
+    setDownloadProgress((prev) => ({ ...prev, [appId]: 0 }));
+
+    let currentProgress = 0;
+    const interval = setInterval(() => {
+      currentProgress += Math.floor(Math.random() * 18) + 8;
+      if (currentProgress >= 100) {
+        currentProgress = 100;
+        clearInterval(interval);
+        setDownloadProgress((prev) => ({ ...prev, [appId]: 100 }));
+
+        const appInfo = allUtilities.find((u) => u.id === appId);
+        if (appInfo) {
+          // Trigger the App Store iOS flying icon effect
+          setFlyingApp({
+            icon: appInfo.icon,
+            tint: appInfo.tint,
+            title: appInfo.title,
+            start: { x: window.innerWidth / 2, y: window.innerHeight * 0.4 },
+            end: { x: window.innerWidth - 60, y: window.innerHeight / 2 }
+          });
+          
+          setTimeout(() => {
+            setFlyingApp(null);
+          }, 850);
+        }
+
+        setTimeout(() => {
+          syncInstalledApps([...installedApps, appId]);
+          setDownloadingAppId(null);
+          setDownloadProgress((prev) => {
+            const nextProgress = { ...prev };
+            delete nextProgress[appId];
+            return nextProgress;
+          });
+          showToast?.("Đã tải ứng dụng vào màn hình chính!", "success");
+        }, 850);
+      } else {
+        setDownloadProgress((prev) => ({ ...prev, [appId]: currentProgress }));
+      }
+    }, 120);
   };
 
   const handleUninstallApp = (appId) => {
@@ -521,6 +644,49 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
   };
 
+  const prefetchUtility = (appId) => {
+    try {
+      switch (appId) {
+        case "helpdesk": import("./HugoHelpdeskTab"); break;
+        case "handle": import("./HugoHandleTab"); break;
+        case "psychology": import("./banhocduong/BanhocduongTab"); break;
+        case "ide": import("./hugoCoder/HugoCoderHub"); break;
+        case "team": import("./HugoTeamTab"); break;
+        case "radio": import("./MemberRadioTab"); break;
+        case "arcade": import("./arcade/HugoArcadeTab"); break;
+        case "aura": import("./MemberAuraTab"); break;
+        case "info": import("./MemberInfoVersionTab"); break;
+        case "deco": import("./DecoStudioTab"); break;
+        case "bio": import("./BioPreviewTab"); break;
+        case "hugoskin": import("./HugoSkinTab"); break;
+        default: break;
+      }
+    } catch (err) {
+      // Fail silently for prefetching
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    const { clientX, clientY } = e;
+    const x = (clientX - window.innerWidth / 2) / 60;
+    const y = (clientY - window.innerHeight / 2) / 60;
+    setMousePos({ x, y });
+  };
+
+  const handleDesktopClick = (e) => {
+    if (e.target.id === "workspace-bg") {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const id = Date.now() + Math.random();
+      setRipples((prev) => [...prev, { id, x, y }]);
+      setTimeout(() => {
+        setRipples((prev) => prev.filter((r) => r.id !== id));
+      }, 800);
+    }
+  };
+
   const myAppsList = useMemo(() => {
     return allUtilities.filter((util) => installedApps.includes(util.id));
   }, [allUtilities, installedApps]);
@@ -539,15 +705,52 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     return myAppsList.filter((app) => (utilitySizes[app.id] || "small") !== "small");
   }, [myAppsList, utilitySizes]);
 
+  const DOCK_APPS = useMemo(() => ["library", "info", "bio"], []);
+
   const myIcons = useMemo(() => {
-    return myAppsList.filter((app) => (utilitySizes[app.id] || "small") === "small");
-  }, [myAppsList, utilitySizes]);
+    return myAppsList.filter(
+      (app) => (utilitySizes[app.id] || "small") === "small" && !DOCK_APPS.includes(app.id)
+    );
+  }, [myAppsList, utilitySizes, DOCK_APPS]);
+
+  const myDockApps = useMemo(() => {
+    return myAppsList.filter(
+      (app) => DOCK_APPS.includes(app.id) && (utilitySizes[app.id] || "small") === "small"
+    );
+  }, [myAppsList, utilitySizes, DOCK_APPS]);
 
   const joyBalance = data?.member?.joyBalance || 1540;
   const activeThemeClass = THEMES.find((t) => t.id === activeWallpaper)?.style || "";
 
   return (
-    <div className={`relative space-y-8 animate-fadeIn pb-12 select-none transition-all duration-500 ${activeThemeClass}`}>
+    <div 
+      onMouseMove={handleMouseMove}
+      onClick={handleDesktopClick}
+      className="relative space-y-8 animate-fadeIn pb-36 select-none transition-all duration-500 overflow-hidden rounded-[30px]"
+    >
+      {/* 🌌 Parallax Wallpaper Background Layer */}
+      <div 
+        id="workspace-bg"
+        className={`absolute inset-[-20px] transition-transform duration-200 ease-out pointer-events-auto z-0 ${activeThemeClass || "bg-card/20"}`}
+        style={{ 
+          transform: `translate3d(${mousePos.x}px, ${mousePos.y}px, 0)`,
+          willChange: "transform"
+        }}
+      />
+
+      {/* 🌊 Fluid Ripple Overlays */}
+      {ripples.map((ripple) => (
+        <span
+          key={ripple.id}
+          className="absolute rounded-full bg-white/25 dark:bg-white/10 pointer-events-none z-10"
+          style={{
+            left: ripple.x,
+            top: ripple.y,
+            transform: "translate(-50%, -50%)",
+            animation: "rippleEffect 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards",
+          }}
+        />
+      ))}
 
       {/* 🏠 VIEW: MY APPS HOME SCREEN */}
       {activeTab === "my-apps" && (
@@ -558,6 +761,15 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
               <p className="text-[11px] text-muted-foreground/80 font-bold mt-0.5">💡 Nhấn giữ (Long press) hoặc Sắp xếp để tùy biến & kéo thả thứ tự ứng dụng</p>
             </div>
             <div className="flex items-center gap-2 self-start">
+              {/* Spotlight Search Toggle Button */}
+              <button
+                onClick={() => { setIsSpotlightOpen(true); setSpotlightQuery(""); setSpotlightSelectedIndex(0); }}
+                className="flex items-center justify-center w-9 h-9 rounded-full border bg-card/75 border-border text-foreground hover:bg-muted transition-all active:scale-95"
+                title="Tìm kiếm nhanh (Cmd + K)"
+              >
+                <span className="material-symbols-outlined text-lg animate-pulse">search</span>
+              </button>
+
               {/* Theme Settings Button */}
               <button
                 onClick={() => setShowWallpaperSelector(!showWallpaperSelector)}
@@ -633,6 +845,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 gradients={GRADIENTS}
                 cardThemes={CARD_THEMES}
                 glowShadows={GLOW_SHADOWS}
+                onAppHover={prefetchUtility}
               />
 
               {/* SECTION B: APP ICONS GRID Component */}
@@ -644,7 +857,46 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 handleAppTouchStart={handleAppTouchStart}
                 handleAppTouchEnd={handleAppTouchEnd}
                 gradients={GRADIENTS}
+                onAppHover={prefetchUtility}
               />
+
+              {/* 🖥️ macOS/iOS GLASSMORPHIC APPLICATION DOCK */}
+              {myDockApps.length > 0 && (
+                <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 h-max max-h-[85vh] py-4 animate-fadeIn">
+                  <div className="flex flex-col items-center gap-4 px-3.5 py-5 rounded-[28px] bg-gradient-to-b from-white/45 via-white/20 to-white/10 dark:from-white/10 dark:via-black/35 dark:to-black/55 border border-white/40 dark:border-white/15 backdrop-blur-[24px] transition-all duration-300 liquid-glass-dock">
+                    {myDockApps.map((app) => {
+                      const gradient = GRADIENTS[app.tint] || GRADIENTS.indigo;
+                      const touchProps = {
+                        onMouseEnter: () => prefetchUtility(app.id),
+                        onMouseDown: () => handleAppTouchStart(app),
+                        onMouseUp: (e) => handleAppTouchEnd(app, e),
+                        onMouseLeave: () => clearTimeout(window.longPressTimer),
+                        onTouchStart: () => handleAppTouchStart(app),
+                        onTouchEnd: (e) => handleAppTouchEnd(app, e),
+                      };
+
+                      return (
+                        <div
+                          key={app.id}
+                          {...touchProps}
+                          className="relative group flex flex-col items-center cursor-pointer transition-all duration-300 w-14 h-14"
+                        >
+                          {/* Tooltip on Hover - Appears on the Left side */}
+                          <span className="absolute right-16 top-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 transition-all duration-200 bg-black/80 backdrop-blur-md text-[10px] font-black text-white px-2.5 py-1 rounded-lg uppercase tracking-wider shadow pointer-events-none whitespace-nowrap z-50">
+                            {app.title}
+                          </span>
+                          
+                          <div className="w-14 h-14 rounded-[16px] bg-gradient-to-br flex items-center justify-center shadow-md relative shrink-0 transition-all duration-200 hover:-translate-x-2.5 hover:scale-110 active:scale-95" style={{ background: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}>
+                            <div className={`absolute inset-0 bg-gradient-to-br ${gradient} rounded-[16px]`} />
+                            <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15 opacity-50 pointer-events-none rounded-[16px]" />
+                            <span className="material-symbols-outlined text-white text-[28px] z-10" style={{ fontVariationSettings: "'FILL' 1" }}>{app.icon}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -660,6 +912,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           categories={categories}
           libraryAppsList={libraryAppsList}
           downloadingAppId={downloadingAppId}
+          downloadProgress={downloadProgress}
           installedApps={installedApps}
           handleInstallApp={handleInstallApp}
           setSelectedUtility={setSelectedUtility}
@@ -740,6 +993,180 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           </div>
         </div>
       )}
+
+      {/* 🔍 SPOTLIGHT SEARCH OVERLAY */}
+      {isSpotlightOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[550] flex justify-center pt-24 px-4" onClick={() => setIsSpotlightOpen(false)}>
+          <div 
+            className="w-full max-w-lg bg-[#0a0f1d] border border-white/10 rounded-2xl shadow-2xl p-4 space-y-4 max-h-[70vh] flex flex-col animate-slideUp text-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Search Input Box */}
+            <div className="relative flex items-center shrink-0">
+              <span className="material-symbols-outlined text-zinc-400 absolute left-3.5">search</span>
+              <input
+                autoFocus
+                type="text"
+                placeholder="Tìm kiếm ứng dụng, tiện ích... (Dùng mũi tên ↑↓ để chọn)"
+                value={spotlightQuery}
+                onChange={(e) => setSpotlightQuery(e.target.value)}
+                className="w-full h-12 bg-white/5 text-sm text-white placeholder-zinc-500 rounded-xl pl-11 pr-24 outline-none border border-white/10 focus:border-primary/50 transition-all font-medium"
+              />
+              <span className="absolute right-3.5 text-[9px] font-black text-zinc-500 border border-zinc-700 px-2 py-0.5 rounded uppercase select-none pointer-events-none">ESC</span>
+            </div>
+
+            {/* Suggestions/Results List */}
+            <div className="overflow-y-auto flex-1 space-y-1.5 pr-1 divide-y divide-white/5">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-2.5 pb-2 pt-1 block">
+                {spotlightQuery ? "Kết quả tìm kiếm" : "Gợi ý ứng dụng nhanh"}
+              </p>
+              {spotlightFilteredApps.length === 0 ? (
+                <div className="text-center py-8 text-zinc-500 text-xs">
+                  Không tìm thấy ứng dụng phù hợp
+                </div>
+              ) : (
+                spotlightFilteredApps.map((app, index) => {
+                  const active = index === spotlightSelectedIndex;
+                  const isInstalled = installedApps.includes(app.id);
+                  const gradient = GRADIENTS[app.tint] || GRADIENTS.indigo;
+                  return (
+                    <div
+                      key={app.id}
+                      onClick={() => handleLaunchSpotlightApp(app)}
+                      onMouseEnter={() => setSpotlightSelectedIndex(index)}
+                      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border border-transparent ${
+                        active 
+                          ? "bg-white/10 border-l-4 border-l-primary" 
+                          : "hover:bg-white/5"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0 shadow-sm relative overflow-hidden`}>
+                          <span className="material-symbols-outlined text-white text-[20px]">{app.icon}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-black text-white">{app.title}</p>
+                          <p className="text-[10px] text-zinc-400 truncate mt-0.5">{app.subLabel}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="shrink-0 flex items-center gap-2">
+                        {isInstalled ? (
+                          <span className="text-[9px] font-black text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded-md">Đã tải</span>
+                        ) : (
+                          <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded-md border border-white/5">Cửa hàng</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 FLYING APP ICON INSTALLATION EFFECT */}
+      {flyingApp && (
+        <div 
+          className="fixed pointer-events-none z-[999] flex flex-col items-center justify-center transition-all"
+          style={{
+            left: 0,
+            top: 0,
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <div 
+            className="flex flex-col items-center justify-center"
+            style={{
+              position: "absolute",
+              left: `${flyingApp.start.x}px`,
+              top: `${flyingApp.start.y}px`,
+              transform: "translate(-50%, -50%)",
+              "--fly-start-x": "0px",
+              "--fly-start-y": "0px",
+              "--fly-end-x": `${flyingApp.end.x - flyingApp.start.x}px`,
+              "--fly-end-y": `${flyingApp.end.y - flyingApp.start.y}px`,
+              animation: "flyToHome 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards"
+            }}
+          >
+            <div className={`w-16 h-16 rounded-[16px] bg-gradient-to-br bg-gradient-to-r flex items-center justify-center shadow-2xl relative overflow-hidden`} style={{ background: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}>
+              <div className={`absolute inset-0 bg-gradient-to-br ${GRADIENTS[flyingApp.tint] || GRADIENTS.indigo} rounded-[16px]`} />
+              <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15 opacity-55 pointer-events-none rounded-[16px]" />
+              <span className="material-symbols-outlined text-white text-[32px] z-10" style={{ fontVariationSettings: "'FILL' 1" }}>{flyingApp.icon}</span>
+            </div>
+            <span className="text-[10px] font-black text-white bg-black/75 px-2.5 py-0.5 rounded-lg mt-2 tracking-wider shadow pointer-events-none z-10">
+              {flyingApp.title}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* 🌌 CSS Keyframe Animations Block */}
+      <style>{`
+        @keyframes rippleEffect {
+          0% {
+            width: 0px;
+            height: 0px;
+            opacity: 0.6;
+          }
+          100% {
+            width: 140px;
+            height: 140px;
+            opacity: 0;
+          }
+        }
+        @keyframes eqBar {
+          0% { height: 4px; }
+          100% { height: 12px; }
+        }
+        @keyframes progressWave {
+          0% { width: 10%; }
+          50% { width: 85%; }
+          100% { width: 10%; }
+        }
+        @keyframes flyToHome {
+          0% {
+            transform: translate3d(var(--fly-start-x), var(--fly-start-y), 0) scale(1.2);
+            opacity: 1;
+          }
+          70% {
+            transform: translate3d(var(--fly-mid-x), var(--fly-mid-y), 0) scale(0.6);
+            opacity: 0.8;
+          }
+          100% {
+            transform: translate3d(var(--fly-end-x), var(--fly-end-y), 0) scale(0.1);
+            opacity: 0;
+          }
+        }
+        .liquid-glass-dock {
+          animation: liquidGlowLight 6s infinite alternate ease-in-out;
+        }
+        .dark .liquid-glass-dock {
+          animation: liquidGlowDark 6s infinite alternate ease-in-out;
+        }
+        @keyframes liquidGlowLight {
+          0% {
+            box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.05), 0 10px 25px -5px rgba(0,0,0,0.1), 0 0 10px 1px rgba(255,255,255,0.05);
+            border-color: rgba(255, 255, 255, 0.4);
+          }
+          100% {
+            box-shadow: inset 0 3px 5px rgba(255,255,255,0.75), inset 0 -3px 5px rgba(0,0,0,0.1), 0 16px 35px -5px rgba(0,0,0,0.18), 0 0 18px 3px rgba(255,255,255,0.15);
+            border-color: rgba(255, 255, 255, 0.6);
+          }
+        }
+        @keyframes liquidGlowDark {
+          0% {
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.3), 0 10px 25px -5px rgba(0,0,0,0.3);
+            border-color: rgba(255, 255, 255, 0.15);
+          }
+          100% {
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.45), inset 0 -3px 6px rgba(0,0,0,0.4), 0 16px 35px -5px rgba(0,0,0,0.45), 0 0 12px 2px rgba(255,255,255,0.1);
+            border-color: rgba(255, 255, 255, 0.28);
+          }
+        }
+      `}</style>
     </div>
   );
 }
