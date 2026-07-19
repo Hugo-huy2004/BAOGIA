@@ -71,7 +71,7 @@ Vercel auto-deploys when you push to `main` branch. Set frontend environment var
 
 | Key | Value | Notes |
 |-----|-------|-------|
-| `VITE_API_URL` | `https://api.hugowishpax.studio/api` | Backend API host |
+| `VITE_API_URL` | `/api` | Relative path (Vercel proxies to https://api.hugowishpax.studio/api) |
 | `VITE_GOOGLE_CLIENT_ID` | *(same as server `GOOGLE_CLIENT_ID`)* | Must match backend |
 | `VITE_ENABLE_CLIENT_MONITORING` | `true` | Enable client event reporting (optional) |
 | `VITE_AI_URL` | `http://127.0.0.1:8000` | Internal to server (dev-only) |

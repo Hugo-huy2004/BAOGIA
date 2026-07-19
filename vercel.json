@@ -1,12 +1,16 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://api.hugowishpax.studio/api/:path*"
+    },
+    {
       "source": "/pay/:id",
-      "destination": "/api/pay?id=:id"
+      "destination": "https://api.hugowishpax.studio/api/pay?id=:id"
     },
     {
       "source": "/certificate/:slug/:phase",
-      "destination": "/api/certificate?slug=:slug&phase=:phase"
+      "destination": "https://api.hugowishpax.studio/api/certificate?slug=:slug&phase=:phase"
     },
     {
       "source": "/((?!assets/|image/|public/|.*\\..*$).*)",

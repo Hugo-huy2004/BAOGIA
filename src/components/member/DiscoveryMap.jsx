@@ -152,10 +152,30 @@ export default function DiscoveryMap() {
     let cancelled = false;
     (async () => {
       try {
-        const pos = await getCachedGeolocation();
+        let p = { lat: 10.7865, lng: 106.6661 }; // Default fallback (FGW HCMC)
+        let usingFallback = false;
+        try {
+          const pos = await getCachedGeolocation();
+          if (pos && pos.coords) {
+            p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          }
+        } catch (geoErr) {
+          console.warn("Could not get user geolocation, using HCMC fallback:", geoErr);
+          usingFallback = true;
+        }
+
         if (cancelled) return;
-        const p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserPos(p);
+
+        // Check if WebGL is supported in browser (especially inside mobile webviews)
+        if (!maplibregl.supported()) {
+          setError("Trình duyệt không hỗ trợ WebGL để hiển thị bản đồ.");
+          setLoading(false);
+          if (usingFallback) {
+            notify.info("Không lấy được GPS. Đang dùng vị trí mặc định TP.HCM");
+          }
+          return;
+        }
 
         // check-location is NOT called here — useLocationGuard already posts
         // it on mount + every 15 min, and extra calls reset the server's
@@ -177,6 +197,13 @@ export default function DiscoveryMap() {
           }
         });
         mapRef.current = map;
+
+        // Force a resize shortly after initialization to resolve container sizing bugs in hidden/lazy tabs
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.resize();
+          }
+        }, 400);
 
         // Some OpenFreeMap styles reference sprite images that don't exist
         // (e.g. "wood-pattern") — feed a blank pixel to keep the console clean.
@@ -208,6 +235,10 @@ export default function DiscoveryMap() {
           .addTo(map);
 
         setLoading(false);
+
+        if (usingFallback) {
+          notify.info("Không lấy được GPS. Đang dùng vị trí mặc định TP.HCM");
+        }
 
         // Progressive locate (Google-Maps style): show the fast cached fix
         // first, then silently upgrade to a high-accuracy GPS fix and shift
