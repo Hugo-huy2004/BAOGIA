@@ -236,126 +236,118 @@ export default function DiscoveryMap() {
     }
   }, [selectedPlace, userPos, drawRoute]);
 
-  // Init: locate user + build map once
+  // Init: locate user + build map once (Non-blocking, load instantly)
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        let p = { lat: 10.7865, lng: 106.6661 }; // Default fallback (FGW HCMC)
-        let usingFallback = false;
-        try {
-          const pos = await getCachedGeolocation();
-          if (pos && pos.coords) {
-            p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          }
-        } catch (geoErr) {
-          console.warn("Could not get user geolocation, using HCMC fallback:", geoErr);
-          usingFallback = true;
-        }
+    
+    // 1. Set fallback/initial coordinates instantly to load the map without delay
+    const initialPos = { lat: 10.7865, lng: 106.6661 };
+    setUserPos(initialPos);
 
-        if (cancelled) return;
-        setUserPos(p);
+    if (!containerRef.current) {
+      setError("Không tìm thấy phần tử hiển thị bản đồ.");
+      setLoading(false);
+      return;
+    }
 
-        if (!containerRef.current) {
-          setError("Không tìm thấy phần tử hiển thị bản đồ.");
-          setLoading(false);
-          return;
-        }
+    // Check if WebGL is supported in browser
+    if (!maplibregl.supported()) {
+      setError("Trình duyệt không hỗ trợ WebGL để hiển thị bản đồ.");
+      setLoading(false);
+      return;
+    }
 
-        // Check if WebGL is supported in browser (especially inside mobile webviews)
-        if (!maplibregl.supported()) {
-          setError("Trình duyệt không hỗ trợ WebGL để hiển thị bản đồ.");
-          setLoading(false);
-          if (usingFallback) {
-            notify.info("Không lấy được GPS. Đang dùng vị trí mặc định TP.HCM");
-          }
-          return;
-        }
+    // 2. Initialize the map instantly with default HCMC position
+    const isDark = document.documentElement.classList.contains("dark");
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: MAP_STYLES[isDark ? "dark" : "light"],
+      center: [initialPos.lng, initialPos.lat],
+      zoom: 15,
+      attributionControl: { compact: true },
+      cooperativeGestures: true,
+      locale: {
+        "CooperativeGesturesHandler.MobileHelpText": "Dùng 2 ngón tay để di chuyển bản đồ",
+        "CooperativeGesturesHandler.WindowsHelpText": "Giữ Ctrl và cuộn để thu phóng bản đồ",
+        "CooperativeGesturesHandler.MacHelpText": "Giữ ⌘ và cuộn để thu phóng bản đồ"
+      }
+    });
+    mapRef.current = map;
 
-        // check-location is NOT called here — useLocationGuard already posts
-        // it on mount + every 15 min, and extra calls reset the server's
-        // "stayed in place" timer that powers geofence notifications.
-        const isDark = document.documentElement.classList.contains("dark");
-        const map = new maplibregl.Map({
-          container: containerRef.current,
-          style: MAP_STYLES[isDark ? "dark" : "light"],
-          center: [p.lng, p.lat],
-          zoom: 15,
-          attributionControl: { compact: true },
-          // One finger scrolls the page, two fingers pan the map — stops the
-          // map from fighting page scroll (and Chrome's touchmove warnings).
-          cooperativeGestures: true,
-          locale: {
-            "CooperativeGesturesHandler.MobileHelpText": "Dùng 2 ngón tay để di chuyển bản đồ",
-            "CooperativeGesturesHandler.WindowsHelpText": "Giữ Ctrl và cuộn để thu phóng bản đồ",
-            "CooperativeGesturesHandler.MacHelpText": "Giữ ⌘ và cuộn để thu phóng bản đồ"
-          }
-        });
-        mapRef.current = map;
+    // Force a resize shortly after initialization
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.resize();
+      }
+    }, 200);
 
-        // Force a resize shortly after initialization to resolve container sizing bugs in hidden/lazy tabs
-        setTimeout(() => {
-          if (mapRef.current) {
-            mapRef.current.resize();
-          }
-        }, 400);
+    // Feed blank pixel for missing images to avoid console noise
+    map.on("styleimagemissing", (e) => {
+      if (!map.hasImage(e.id)) {
+        map.addImage(e.id, { width: 1, height: 1, data: new Uint8Array(4) });
+      }
+    });
 
-        // Some OpenFreeMap styles reference sprite images that don't exist
-        // (e.g. "wood-pattern") — feed a blank pixel to keep the console clean.
-        map.on("styleimagemissing", (e) => {
-          if (!map.hasImage(e.id)) {
-            map.addImage(e.id, { width: 1, height: 1, data: new Uint8Array(4) });
-          }
-        });
-
-        // Prefer Vietnamese labels (style defaults pick name:latin → English).
-        // Only touch layers that already render a *name* — shield/ref layers
-        // expect numbers and break if blanket-overridden.
-        map.on("load", () => {
-          for (const layer of map.getStyle().layers) {
-            if (layer.type !== "symbol") continue;
-            const tf = map.getLayoutProperty(layer.id, "text-field");
-            if (tf && JSON.stringify(tf).includes("name")) {
-              map.setLayoutProperty(layer.id, "text-field", [
-                "coalesce", ["get", "name:vi"], ["get", "name"]
-              ]);
-            }
-          }
-        });
-
-        const userDot = document.createElement("div");
-        userDot.className = "disc-user-dot";
-        userMarkerRef.current = new maplibregl.Marker({ element: userDot })
-          .setLngLat([p.lng, p.lat])
-          .addTo(map);
-
-        setLoading(false);
-
-        if (usingFallback) {
-          notify.info("Không lấy được GPS. Đang dùng vị trí mặc định TP.HCM");
-        }
-
-        // Progressive locate (Google-Maps style): show the fast cached fix
-        // first, then silently upgrade to a high-accuracy GPS fix and shift
-        // the map + reload places if it landed meaningfully elsewhere.
-        getCachedGeolocation({ fresh: true })
-          .then((fp) => {
-            if (cancelled) return;
-            const np = { lat: fp.coords.latitude, lng: fp.coords.longitude };
-            if (metersBetween(p, np) > 75) {
-              userMarkerRef.current?.setLngLat([np.lng, np.lat]);
-              mapRef.current?.flyTo({ center: [np.lng, np.lat], zoom: 15 });
-              setUserPos(np);
-            }
-          })
-          .catch(() => {});
-      } catch (err) {
-        if (!cancelled) {
-          setError(err.message || "Không thể xác định vị trí của bạn.");
-          setLoading(false);
+    // Prefer Vietnamese labels
+    map.on("load", () => {
+      for (const layer of map.getStyle().layers) {
+        if (layer.type !== "symbol") continue;
+        const tf = map.getLayoutProperty(layer.id, "text-field");
+        if (tf && JSON.stringify(tf).includes("name")) {
+          map.setLayoutProperty(layer.id, "text-field", [
+            "coalesce", ["get", "name:vi"], ["get", "name"]
+          ]);
         }
       }
+    });
+
+    // Add user marker instantly
+    const userDot = document.createElement("div");
+    userDot.className = "disc-user-dot";
+    userMarkerRef.current = new maplibregl.Marker({ element: userDot })
+      .setLngLat([initialPos.lng, initialPos.lat])
+      .addTo(map);
+
+    setLoading(false);
+
+    // 3. Request geolocation in background (non-blocking)
+    (async () => {
+      try {
+        const pos = await getCachedGeolocation();
+        if (cancelled) return;
+        if (pos && pos.coords) {
+          const p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setUserPos(p);
+          if (userMarkerRef.current) {
+            userMarkerRef.current.setLngLat([p.lng, p.lat]);
+          }
+          if (mapRef.current) {
+            mapRef.current.flyTo({ center: [p.lng, p.lat], zoom: 15 });
+          }
+        }
+      } catch (geoErr) {
+        console.warn("Could not get user geolocation on load:", geoErr);
+      }
+
+      // Silent high-accuracy background update
+      try {
+        const fp = await getCachedGeolocation({ fresh: true });
+        if (cancelled) return;
+        if (fp && fp.coords) {
+          const np = { lat: fp.coords.latitude, lng: fp.coords.longitude };
+          if (metersBetween(initialPos, np) > 75) {
+            setUserPos(np);
+            if (userMarkerRef.current) {
+              userMarkerRef.current.setLngLat([np.lng, np.lat]);
+            }
+            if (mapRef.current) {
+              mapRef.current.flyTo({ center: [np.lng, np.lat], zoom: 15 });
+            }
+          }
+        }
+      } catch (e) {}
     })();
+
     return () => {
       cancelled = true;
       if (mapRef.current) {
