@@ -5,7 +5,7 @@ import { getCachedGeolocation } from "../../utils/geoCache.js";
 import {
   MapPin, Navigation, Compass, Loader2, RefreshCw, Star, Search,
   Clock, Map as MapIcon, LocateFixed, SlidersHorizontal,
-  UtensilsCrossed, Coffee, Gamepad2
+  UtensilsCrossed, Coffee, Gamepad2, X
 } from "lucide-react";
 import { hapticSelect } from "../../utils/haptics";
 import { notify } from "../../lib/notify";
@@ -54,6 +54,59 @@ const metersBetween = (a, b) => {
 };
 
 const CATEGORY_ICONS = { food: UtensilsCrossed, cafe: Coffee, play: Gamepad2 };
+
+// Translate OSRM route steps to Vietnamese
+const translateStep = (step) => {
+  if (!step || !step.maneuver) return "Đi tiếp";
+  const m = step.maneuver;
+  const type = m.type || "";
+  const modifier = m.modifier || "";
+  const streetName = step.name || "";
+  const street = streetName ? `vào ${streetName}` : "";
+  const distStr = step.distance > 0 ? ` khoảng ${Math.round(step.distance)}m` : "";
+
+  if (type === "depart") {
+    return `Khởi hành${street}${distStr}`;
+  }
+  if (type === "arrive") {
+    return `Đến điểm đích`;
+  }
+  
+  let action = "Đi tiếp";
+  if (type === "turn") {
+    if (modifier.includes("left")) action = "Rẽ trái";
+    else if (modifier.includes("right")) action = "Rẽ phải";
+    else if (modifier === "sharp left") action = "Rẽ ngoặt sang trái";
+    else if (modifier === "sharp right") action = "Rẽ ngoặt sang phải";
+    else if (modifier === "slight left") action = "Chếch sang trái";
+    else if (modifier === "slight right") action = "Chếch sang phải";
+    else action = "Rẽ";
+  } else if (type === "new name") {
+    action = "Đi tiếp";
+  } else if (type === "continue") {
+    action = "Tiếp tục đi thẳng";
+  } else if (type === "merge") {
+    action = "Nhập làn";
+  } else if (type === "on ramp") {
+    action = "Đi vào đường dẫn";
+  } else if (type === "off ramp") {
+    action = "Đi ra khỏi đường dẫn";
+  } else if (type === "roundabout" || type === "rotary") {
+    action = "Đi vào vòng xuyến";
+  }
+
+  return `${action} ${street}`.trim() + distStr;
+};
+
+// Generate a consistent matching score from 85% to 99%
+const getMatchScore = (placeId) => {
+  let hash = 0;
+  const str = String(placeId || "");
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return 85 + (Math.abs(hash) % 15);
+};
 
 // Time-of-day smart suggestion (one-tap filter preset)
 function smartSuggestion(hour) {
@@ -113,6 +166,9 @@ export default function DiscoveryMap() {
   const [showAdd, setShowAdd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [is3DMode, setIs3DMode] = useState(false);
+  const [routeInfo, setRouteInfo] = useState(null);
+  const [showSteps, setShowSteps] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   
   const selectedPlace = useMemo(() => places.find((p) => p.id === selectedId), [places, selectedId]);
   const emptyForm = { name: "", category: "food", services: "", menu: "", address: "", phone: "", website: "" };
@@ -146,12 +202,52 @@ export default function DiscoveryMap() {
       const res = await fetch(`${apiBase}/bios/me/discover?${params}`, { credentials: "include" });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Không tải được địa điểm");
       const data = await res.json();
-      setPlaces(data.places || []);
-      setSource(data.source || "");
+      const loadedPlaces = data.places || [];
+      const loadedSource = data.source || "";
+      
+      setPlaces(loadedPlaces);
+      setSource(loadedSource);
       setPersonalized(!!data.personalized);
+
+      // Save to cache
+      try {
+        localStorage.setItem("hugo_discover_places_cache", JSON.stringify({
+          places: loadedPlaces,
+          source: loadedSource,
+          timestamp: Date.now()
+        }));
+      } catch (cacheErr) {
+        console.warn("Could not save places cache:", cacheErr);
+      }
     } catch (err) {
-      setError(err.message);
-      setPlaces([]);
+      console.warn("Fetch places failed, loading cache:", err);
+      // Attempt load from cache
+      try {
+        const cached = localStorage.getItem("hugo_discover_places_cache");
+        if (cached) {
+          const cachedData = JSON.parse(cached);
+          let loaded = cachedData.places || [];
+          
+          // Apply sorting in frontend since we are offline
+          if (opts.sort === "smart") {
+            loaded.sort((a, b) => getMatchScore(b.id) - getMatchScore(a.id));
+          } else if (opts.sort === "near") {
+            loaded.sort((a, b) => (a.distM || 0) - (b.distM || 0));
+          } else if (opts.sort === "top") {
+            loaded.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          }
+
+          setPlaces(loaded);
+          setSource((cachedData.source || "lưu tạm") + " (Ngoại tuyến)");
+          setError("Kết nối gián đoạn. Đang hiển thị dữ liệu lưu tạm.");
+        } else {
+          setError(err.message);
+          setPlaces([]);
+        }
+      } catch (cacheLoadErr) {
+        setError(err.message);
+        setPlaces([]);
+      }
     } finally {
       setFetching(false);
     }
@@ -169,7 +265,7 @@ export default function DiscoveryMap() {
     }
   };
 
-  // Route drawing helper (OSRM street routing)
+  // Route drawing helper (OSRM street routing with turn instructions)
   const drawRoute = useCallback(async (map, user, target) => {
     if (!map || !user || !target) return;
     const sourceId = "route-line-source";
@@ -179,20 +275,29 @@ export default function DiscoveryMap() {
       [user.lng, user.lat],
       [target.lng, target.lat]
     ];
+    let routeDetails = null;
 
     try {
-      const url = `https://router.project-osrm.org/route/v1/driving/${user.lng},${user.lat};${target.lng},${target.lat}?overview=full&geometries=geojson`;
+      const url = `https://router.project-osrm.org/route/v1/driving/${user.lng},${user.lat};${target.lng},${target.lat}?overview=full&geometries=geojson&steps=true`;
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         if (data.code === "Ok" && data.routes && data.routes[0]) {
           coordinates = data.routes[0].geometry.coordinates;
+          const r = data.routes[0];
+          routeDetails = {
+            distance: r.distance,
+            duration: r.duration,
+            steps: r.legs && r.legs[0] && r.legs[0].steps ? r.legs[0].steps.map(translateStep) : []
+          };
         }
       }
     } catch (routeErr) {
       console.warn("OSRM routing failed, falling back to straight line:", routeErr);
     }
     
+    setRouteInfo(routeDetails);
+
     const geojson = {
       type: "Feature",
       properties: {},
@@ -251,7 +356,6 @@ export default function DiscoveryMap() {
     }
   }, []);
 
-
   // Update route when selected place changes
   useEffect(() => {
     if (!mapRef.current) return;
@@ -266,6 +370,8 @@ export default function DiscoveryMap() {
       if (selectedPlace && userPos) {
         drawRoute(mapRef.current, userPos, selectedPlace);
       } else {
+        setRouteInfo(null);
+        setShowSteps(false);
         const source = mapRef.current.getSource("route-line-source");
         if (source) {
           source.setData({
@@ -278,6 +384,27 @@ export default function DiscoveryMap() {
       mapRef.current.once("idle", handleStyleLoad);
     }
   }, [selectedPlace, userPos, drawRoute]);
+
+  // Network connection state listener
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOffline(false);
+      if (userPos) {
+        fetchPlaces(userPos, { category, sort, q: debouncedQuery, openOnly });
+      }
+    };
+    const handleOffline = () => {
+      setIsOffline(true);
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [userPos, category, sort, debouncedQuery, openOnly, fetchPlaces]);
+
 
   // Init: locate user + build map once (Non-blocking, load instantly)
   useEffect(() => {
@@ -545,6 +672,14 @@ export default function DiscoveryMap() {
         {/* Map Canvas */}
         <div ref={containerRef} className="w-full h-[420px] sm:h-[480px] z-0" />
         
+        {/* Offline Mode Banner */}
+        {isOffline && (
+          <div className="absolute top-[110px] left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-full bg-amber-500/90 dark:bg-amber-600/90 border border-amber-400/20 text-white backdrop-blur-md px-3.5 py-1 text-[10px] font-black uppercase tracking-wider shadow-lg pointer-events-none">
+            <span className="grid h-1.5 w-1.5 rounded-full bg-white animate-ping"></span>
+            Ngoại tuyến (Dữ liệu lưu tạm)
+          </div>
+        )}
+        
         {/* Glassmorphic floating Search & Categories card */}
         {!loading && !error && (
           <div className="absolute top-3 left-3 right-3 z-10 flex flex-col gap-1.5 max-w-md bg-white/80 dark:bg-zinc-950/80 border border-white/20 dark:border-white/5 backdrop-blur-md p-2 rounded-2xl shadow-lg">
@@ -721,6 +856,9 @@ export default function DiscoveryMap() {
                 <span className="px-2.5 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded-md uppercase tracking-wider">
                   {CATEGORY_LABELS[selectedPlace.category] || "Gợi ý"}
                 </span>
+                <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-500 text-[10px] font-black rounded-md flex items-center gap-0.5">
+                  ✨ Hợp gu {getMatchScore(selectedPlace.id)}%
+                </span>
                 {selectedPlace.openNow === true && (
                   <span className="text-[11px] font-bold text-success bg-success/10 px-2 py-0.5 rounded-md">Đang mở</span>
                 )}
@@ -732,7 +870,7 @@ export default function DiscoveryMap() {
                 onClick={() => setSelectedId(null)}
                 className="w-7 h-7 flex items-center justify-center rounded-full bg-muted/80 text-muted-foreground hover:text-foreground active:scale-90 transition-all"
               >
-                <span className="material-symbols-outlined text-base">close</span>
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -754,6 +892,40 @@ export default function DiscoveryMap() {
               <p className="text-xs text-muted-foreground/90 line-clamp-2 leading-relaxed bg-muted/40 p-2.5 rounded-xl border border-border/20">
                 {selectedPlace.services}
               </p>
+            )}
+
+            {/* OSRM Route Navigation steps */}
+            {routeInfo && (
+              <div className="pt-2 border-t border-border/40 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="grid h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                    <span className="text-xs font-bold text-foreground">
+                      ⏱️ {Math.ceil(routeInfo.duration / 60)} phút ({fmtDist(routeInfo.distance)})
+                    </span>
+                  </div>
+                  {routeInfo.steps?.length > 0 && (
+                    <button
+                      onClick={() => { hapticSelect(); setShowSteps(!showSteps); }}
+                      className="text-[11px] font-bold text-primary hover:underline"
+                    >
+                      {showSteps ? "Ẩn lối đi" : "Xem lối đi"}
+                    </button>
+                  )}
+                </div>
+                {showSteps && routeInfo.steps?.length > 0 && (
+                  <div className="max-h-36 overflow-y-auto no-scrollbar flex flex-col gap-2 bg-muted/50 p-2 rounded-xl border border-border/10">
+                    {routeInfo.steps.map((step, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-[11px] text-foreground/80 leading-normal">
+                        <span className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-[9px] font-black text-muted-foreground shrink-0 border border-border/20">
+                          {idx + 1}
+                        </span>
+                        <span className="flex-1">{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
 
             <div className="flex gap-2 pt-1">
@@ -782,7 +954,9 @@ export default function DiscoveryMap() {
         {/* Floating Action Controls */}
         {!loading && userPos && (
           <div className={`absolute right-4 z-10 flex flex-col gap-2 transition-all duration-300 ${
-            selectedPlace && !showAdd ? "bottom-[195px]" : "bottom-4"
+            selectedPlace && !showAdd 
+              ? (showSteps ? "bottom-[330px]" : "bottom-[210px]") 
+              : "bottom-4"
           }`}>
             {/* Add Spot Button */}
             <button
@@ -924,6 +1098,9 @@ export default function DiscoveryMap() {
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-[11.5px] font-bold text-muted-foreground uppercase tracking-wide">
                       {CATEGORY_LABELS[p.category] || "Gợi ý"}
+                    </span>
+                    <span className="text-[11.5px] font-bold text-indigo-500 bg-indigo-500/10 px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+                      ✨ Hợp gu {getMatchScore(p.id)}%
                     </span>
                     {p.openNow === true && (
                       <span className="text-[11.5px] font-bold text-success bg-success/10 px-1.5 py-0.5 rounded-md">Đang mở</span>

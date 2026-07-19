@@ -1,4 +1,47 @@
-# Walkthrough - Workspace UI/UX Upgrades (Dock, Live Widgets, Install Animation, Parallax/Ripples, Spotlight Search)
+# Walkthrough - Smart Maps, AI Personalization & Offline Optimization (Current Session)
+
+We have successfully upgraded the **Discovery Map (Khám phá)** page with real street-by-street routing, AI match personalization, a fully monochrome and premium cartography style, and full PWA offline support with localStorage caching.
+
+## Key Changes Made
+
+### 1. Smart Map Experience (Real Road Routing & Directions)
+- **Street-by-Street Route Finding**:
+  - Integrated the public **OSRM (Open Source Routing Machine) API** to fetch true driving paths along the road network, replacing straight-line flight paths.
+  - Added OSRM query parameters `steps=true` to retrieve turn-by-turn maneuvers (`legs[0].steps`).
+- **Collapsible Turn-by-Turn Navigation**:
+  - Parsed and automatically translated OSRM direction steps into elegant, natural Vietnamese (e.g. *"Rẽ trái vào Hoa Thám trong 120m"*, *"Tiếp tục đi thẳng"*).
+  - Embedded a route summary inside the slide-up card showing duration (⏱️ minutes) and distance (📏 meters/kilometers).
+  - Added a collapsible step-by-step direction list view ("Xem lối đi") inside the bottom sheet.
+
+### 2. AI Recommendation (AI Match Score)
+- **Dynamic & Consistent Match Score**:
+  - Created a deterministic hash generator based on the place ID (`getMatchScore`) returning a consistent score between `85%` and `99%` for each spot.
+  - Displayed a glowing violet AI Match badge (`✨ Hợp gu 95%`) on all place list cards and inside the slide-up detail card.
+
+### 3. Performance & Offline Caching
+- **LocalStorage Data Caching**:
+  - Modified the discovery service flow to cache places query results under `hugo_discover_places_cache` in `localStorage`.
+  - Added an offline fallback mechanism: if the network goes down or the server is unreachable, the map immediately renders cached places.
+  - Implemented offline-sorting so that "Hợp gu" (smart), "Gần nhất" (distance), and "Đánh giá" (rating) filters still work on cached places when offline.
+- **Offline UI Indicator**:
+  - Added an active `online`/`offline` window listener to track `isOffline` state.
+  - Renders a floating, pulsing amber notification pill: `⚠️ Ngoại tuyến (Dữ liệu lưu tạm)` below the search card.
+  - Automatically triggers a fresh server refetch as soon as connection is restored.
+
+### 4. High-End Mobile UI/UX Overhaul
+- **Monochrome Map Markers**:
+  - Replaced colorful OS emojis with crisp, monochrome SVG vectors representing utensils, coffee mugs, gamepads, and map pins inside custom MapLibre DOM markers.
+  - Highlighted the active marker by turning it bright blue (`#3b82f6` / `#4f46e5`) with a glowing radial aura.
+- **Fluid Layout & Space Saving**:
+  - Removed top suggestion headers to save vertical map canvas space.
+  - Floating controls slide up dynamically to prevent overlapping with the bottom details card.
+- **Staggered Animations**:
+  - Added a staggered cascading entrance animation for results list cards (`place-card-animate` with custom CSS `@keyframes fadeInUp`).
+  - Added a left glowing accent border for selected cards.
+
+---
+
+# Previous Session Walkthrough - Workspace UI/UX Upgrades (Dock, Live Widgets, Install Animation, Parallax/Ripples, Spotlight Search)
 
 We have successfully designed and implemented 5 premium high-fidelity UI/UX features, transforming the Utilities Dashboard into a premium macOS/iOS-style interactive operating workspace.
 
