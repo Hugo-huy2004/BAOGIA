@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getCachedGeolocation } from "../../utils/geoCache.js";
@@ -105,6 +105,9 @@ export default function DiscoveryMap() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [is3DMode, setIs3DMode] = useState(false);
+  
+  const selectedPlace = useMemo(() => places.find((p) => p.id === selectedId), [places, selectedId]);
   const emptyForm = { name: "", category: "food", services: "", menu: "", address: "", phone: "", website: "" };
   const [form, setForm] = useState(emptyForm);
 
@@ -146,6 +149,92 @@ export default function DiscoveryMap() {
       setFetching(false);
     }
   }, []);
+
+  const toggle3DMode = () => {
+    const new3D = !is3DMode;
+    setIs3DMode(new3D);
+    if (mapRef.current) {
+      mapRef.current.easeTo({
+        pitch: new3D ? 60 : 0,
+        bearing: new3D ? -20 : 0,
+        duration: 800
+      });
+    }
+  };
+
+  // Route drawing helper
+  const drawRoute = useCallback((map, user, target) => {
+    if (!map || !user || !target) return;
+    const sourceId = "route-line-source";
+    const layerId = "route-line-layer";
+    
+    const geojson = {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "LineString",
+        coordinates: [
+          [user.lng, user.lat],
+          [target.lng, target.lat]
+        ]
+      }
+    };
+    
+    try {
+      const existingSource = map.getSource(sourceId);
+      if (existingSource) {
+        existingSource.setData(geojson);
+      } else {
+        map.addSource(sourceId, {
+          type: "geojson",
+          data: geojson
+        });
+        map.addLayer({
+          id: layerId,
+          type: "line",
+          source: sourceId,
+          layout: {
+            "line-join": "round",
+            "line-cap": "round"
+          },
+          paint: {
+            "line-color": "#6366f1",
+            "line-width": 4,
+            "line-dasharray": [2, 1.5]
+          }
+        });
+      }
+    } catch (e) {
+      console.error("Error drawing route line:", e);
+    }
+  }, []);
+
+  // Update route when selected place changes
+  useEffect(() => {
+    if (!mapRef.current) return;
+    
+    const handleStyleLoad = () => {
+      if (selectedPlace && userPos) {
+        drawRoute(mapRef.current, userPos, selectedPlace);
+      }
+    };
+
+    if (mapRef.current.isStyleLoaded()) {
+      if (selectedPlace && userPos) {
+        drawRoute(mapRef.current, userPos, selectedPlace);
+      } else {
+        const source = mapRef.current.getSource("route-line-source");
+        if (source) {
+          source.setData({
+            type: "FeatureCollection",
+            features: []
+          });
+        }
+      }
+    } else {
+      mapRef.current.once("idle", handleStyleLoad);
+    }
+  }, [selectedPlace, userPos, drawRoute]);
 
   // Init: locate user + build map once
   useEffect(() => {
@@ -286,13 +375,21 @@ export default function DiscoveryMap() {
     if (!mapRef.current) return;
     placeMarkersRef.current.forEach((m) => m.remove());
     placeMarkersRef.current = places.map((p) => {
-      // MapLibre positions the marker element via inline transform — the
-      // scale effects live on an inner div so they never fight it.
       const el = document.createElement("div");
-      const dot = document.createElement("div");
-      dot.className = `disc-pin${p.openNow === false ? " disc-pin-closed" : ""}`;
-      dot.dataset.pinId = p.id;
-      el.appendChild(dot);
+      el.className = "custom-place-marker";
+      el.dataset.pinId = p.id;
+      if (p.id === selectedId) {
+        el.className += " custom-place-marker-active";
+      }
+
+      const pinInner = document.createElement("div");
+      const emoji = p.category === "food" ? "🍔" : p.category === "cafe" ? "☕️" : p.category === "play" ? "🎮" : "📍";
+      const catColor = p.category === "food" ? "orange" : p.category === "cafe" ? "amber" : p.category === "play" ? "emerald" : "indigo";
+      
+      pinInner.className = `disc-pin-container ${catColor}-glow ${p.openNow === false ? "opacity-60" : ""}`;
+      pinInner.innerHTML = `<span class="disc-pin-emoji">${emoji}</span>`;
+      el.appendChild(pinInner);
+
       el.addEventListener("click", (e) => {
         e.stopPropagation();
         selectPlace(p, { scrollList: true });
@@ -312,8 +409,10 @@ export default function DiscoveryMap() {
 
   useEffect(() => {
     placeMarkersRef.current.forEach((m) => {
-      const dot = m.getElement().firstChild;
-      if (dot) dot.classList.toggle("disc-pin-active", dot.dataset.pinId === String(selectedId));
+      const el = m.getElement();
+      if (el) {
+        el.classList.toggle("custom-place-marker-active", el.dataset.pinId === String(selectedId));
+      }
     });
   }, [selectedId, places]);
 
@@ -617,15 +716,103 @@ export default function DiscoveryMap() {
             </button>
           </div>
         )}
+        {/* 📱 iOS/Apple Maps style Slide-Up Detail Card */}
+        {selectedPlace && (
+          <div className="absolute bottom-4 left-4 right-4 z-20 bg-white/90 dark:bg-zinc-950/90 border border-white/20 dark:border-white/5 backdrop-blur-xl p-4 rounded-2xl shadow-xl animate-slideUp text-left flex flex-col gap-2.5 max-h-[85%] overflow-y-auto">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2.5 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded-md uppercase tracking-wider">
+                  {CATEGORY_LABELS[selectedPlace.category] || "Gợi ý"}
+                </span>
+                {selectedPlace.openNow === true && (
+                  <span className="text-[11px] font-bold text-success bg-success/10 px-2 py-0.5 rounded-md">Đang mở</span>
+                )}
+                {selectedPlace.openNow === false && (
+                  <span className="text-[11px] font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-md">Đã đóng</span>
+                )}
+              </div>
+              <button 
+                onClick={() => setSelectedId(null)}
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-muted/80 text-muted-foreground hover:text-foreground active:scale-90 transition-all"
+              >
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
+            </div>
+
+            <div className="min-w-0">
+              <h4 className="text-base font-black text-foreground truncate">{selectedPlace.name}</h4>
+              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
+                {selectedPlace.rating != null && (
+                  <span className="flex items-center gap-0.5 text-foreground font-bold">
+                    <Star className="w-3.5 h-3.5 fill-primary text-primary" />
+                    {selectedPlace.rating}
+                  </span>
+                )}
+                {selectedPlace.priceRange && <span>· {selectedPlace.priceRange}</span>}
+                <span>· Cách bạn {fmtDist(selectedPlace.distM)}</span>
+              </div>
+            </div>
+
+            {selectedPlace.services && (
+              <p className="text-xs text-muted-foreground/90 line-clamp-2 leading-relaxed bg-muted/40 p-2.5 rounded-xl border border-border/20">
+                {selectedPlace.services}
+              </p>
+            )}
+
+            <div className="flex gap-2 pt-1">
+              <a
+                href={selectedPlace.googleMapsUri || `https://www.google.com/maps/dir/?api=1&destination=${selectedPlace.lat},${selectedPlace.lng}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 active:scale-95 transition"
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                Google Maps
+              </a>
+              <a
+                href={`https://maps.apple.com/?daddr=${selectedPlace.lat},${selectedPlace.lng}&q=${encodeURIComponent(selectedPlace.name)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 min-h-[38px] flex items-center justify-center gap-1.5 rounded-xl bg-card border border-border text-foreground text-xs font-black uppercase tracking-wider hover:bg-muted active:scale-95 transition"
+              >
+                <Compass className="w-3.5 h-3.5" />
+                Apple Maps
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Floating Action Controls - Smooth slide up when sheet is open */}
         {!loading && userPos && (
-          <button
-            onClick={recenter}
-            className="absolute bottom-4 right-4 z-10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-card border border-border shadow-sm text-foreground hover:bg-muted transition"
-            title="Về vị trí của tôi"
-            aria-label="Về vị trí của tôi"
-          >
-            <LocateFixed className="w-5 h-5" />
-          </button>
+          <div className={`absolute right-4 z-10 flex flex-col gap-2 transition-all duration-300 ${
+            selectedPlace ? "bottom-[195px]" : "bottom-4"
+          }`}>
+            {/* 3D Mode Toggle Button */}
+            <button
+              onClick={toggle3DMode}
+              className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl border shadow-sm transition active:scale-95 ${
+                is3DMode
+                  ? "bg-primary border-primary text-white"
+                  : "bg-card border-border text-foreground hover:bg-muted"
+              }`}
+              title="Góc nhìn 3D"
+              aria-label="Góc nhìn 3D"
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                {is3DMode ? "2d" : "3d_rotation"}
+              </span>
+            </button>
+
+            {/* Recenter Button */}
+            <button
+              onClick={recenter}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-card border border-border shadow-sm text-foreground hover:bg-muted transition active:scale-95"
+              title="Về vị trí của tôi"
+              aria-label="Về vị trí của tôi"
+            >
+              <LocateFixed className="w-5 h-5" />
+            </button>
+          </div>
         )}
       </div>
 
@@ -768,24 +955,66 @@ export default function DiscoveryMap() {
       <style>{`
         .disc-user-dot {
           width: 16px; height: 16px; border-radius: 50%;
-          background: hsl(var(--primary));
-          border: 3px solid hsl(var(--card));
-          box-shadow: 0 0 0 4px hsl(var(--primary) / 0.25);
+          background: #3b82f6;
+          border: 3px solid #ffffff;
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 0 15px rgba(59, 130, 246, 0.5);
+          animation: userPulse 2s infinite ease-in-out;
         }
-        .disc-pin {
-          width: 18px; height: 18px; border-radius: 50%;
-          background: hsl(var(--foreground));
-          border: 3px solid hsl(var(--card));
-          box-shadow: 0 1px 4px hsl(var(--shadow) / 0.35);
-          transition: transform 0.15s ease;
+        @keyframes userPulse {
+          0% { box-shadow: 0 0 0 0px rgba(59, 130, 246, 0.4), 0 0 15px rgba(59, 130, 246, 0.5); }
+          70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0), 0 0 15px rgba(59, 130, 246, 0.2); }
+          100% { box-shadow: 0 0 0 0px rgba(59, 130, 246, 0), 0 0 15px rgba(59, 130, 246, 0); }
+        }
+        .custom-place-marker {
           cursor: pointer;
+          transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          will-change: transform;
         }
-        .disc-pin:hover { transform: scale(1.2); }
-        .disc-pin-closed { opacity: 0.45; }
-        .disc-pin-active {
-          background: hsl(var(--primary));
-          transform: scale(1.35);
+        .custom-place-marker:hover {
+          transform: scale(1.25) translateY(-2px);
+          z-index: 100;
         }
+        .disc-pin-container {
+          position: relative;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.9);
+          border: 2px solid #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+          transition: all 0.25s ease;
+        }
+        .dark .disc-pin-container {
+          background: rgba(39, 39, 42, 0.9);
+          border-color: rgba(255, 255, 255, 0.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .disc-pin-emoji {
+          font-size: 18px;
+          z-index: 2;
+          transform: translateY(-0.5px);
+        }
+        /* Neon Category Glows */
+        .orange-glow { box-shadow: 0 0 10px rgba(249, 115, 22, 0.45), inset 0 0 4px rgba(249, 115, 22, 0.2); }
+        .amber-glow { box-shadow: 0 0 10px rgba(245, 158, 11, 0.45), inset 0 0 4px rgba(245, 158, 11, 0.2); }
+        .emerald-glow { box-shadow: 0 0 10px rgba(16, 185, 129, 0.45), inset 0 0 4px rgba(16, 185, 129, 0.2); }
+        .indigo-glow { box-shadow: 0 0 10px rgba(99, 102, 241, 0.45), inset 0 0 4px rgba(99, 102, 241, 0.2); }
+
+        .custom-place-marker-active .disc-pin-container {
+          background: #ffffff;
+          transform: scale(1.15);
+          border-color: #6366f1;
+          box-shadow: 0 0 15px 4px rgba(99, 102, 241, 0.6);
+        }
+        .dark .custom-place-marker-active .disc-pin-container {
+          background: #18181b;
+          border-color: #818cf8;
+          box-shadow: 0 0 20px 5px rgba(129, 140, 248, 0.6);
+        }
+
         .maplibregl-map { font: inherit; background: hsl(var(--muted)); }
         .maplibregl-ctrl-attrib {
           background: hsl(var(--card) / 0.85) !important;
